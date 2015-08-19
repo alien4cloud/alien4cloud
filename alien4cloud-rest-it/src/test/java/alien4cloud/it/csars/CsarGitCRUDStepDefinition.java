@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.lucene.analysis.util.CharArrayMap.EntrySet;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
@@ -34,6 +36,19 @@ public class CsarGitCRUDStepDefinition {
     public void I_get_a_csargit_by_id(String id) throws IOException {
         String response = Context.getRestClientInstance().get("/rest/csarsgit/" + id);
         Context.getInstance().registerRestResponse(response);
+    }
+
+    @Given("^I update a csar with url \"([^\"]*)\" and username \"([^\"]*)\" and password \"([^\"]*)\"$")
+    public void I_Update_a_csar_with_url(String url, String username, String password) throws Throwable {
+        String id = "";
+        for (Entry<String, String> entry : Context.getInstance().getCsarGitInfos().entrySet()) {
+            if (entry.getValue().equals(url)) {
+                id = entry.getKey();
+                break;
+            }
+        } 
+        I_Update_a_csargit_by_id(id, url, username, password);
+        
     }
 
     @Given("^I add location to an unexisting CsarGitRepository with id \"([^\"]*)\"$")
@@ -223,7 +238,7 @@ public class CsarGitCRUDStepDefinition {
         request_update.setRepositoryUrl(url);
         request_update.setUsername(username);
         request_update.setPassword(password);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().putJSon("/rest/csarsgit/:id", JsonUtil.toString(request_update)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().putJSon("/rest/csarsgit/"+id, JsonUtil.toString(request_update)));
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
         Assert.assertNotNull(restResponse);
     }

@@ -70,7 +70,7 @@ public class RepositoryManager {
         try {
             Git.open(targetDirectory.resolve(".git").toFile()).pull();
         } catch (IOException e) {
-            log.error("Error while creating target directory ", e);
+            log.error("Error while pulling target directory ", e);
         }
     }
 
@@ -105,7 +105,7 @@ public class RepositoryManager {
                 folderToReach = pathToReach.resolve(folder + locations.size()).toString();
             }
         } catch (IOException | NotFoundException e) {
-            log.error("Error while creating target directory ", e);
+            log.error("Error while cloning target directory ", e);
         }
         return folderToReach;
     }

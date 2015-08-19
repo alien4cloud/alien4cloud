@@ -32,6 +32,10 @@ Feature: Csargit crud feature
     Then I should receive a RestResponse with no error
     And I have a csargit created with url "https://github.com/alien4cloud/samples"
 
+  
+    
+    
+
   Scenario: Create a new csargit which already exists
     Given I have a csargit with the url "https://github.com/alien4cloud/samples" with username "admin" and stored "false" and password "admin"
     And I add locations to the csar
@@ -124,7 +128,20 @@ Feature: Csargit crud feature
     Then I should receive a RestResponse with no error
     And I trigger the import of a csar with url "https://github.com/alien4cloud/tosca-normative-types"
     Then I should receive a RestResponse with an error code 617
+    And I trigger the import of a csar with url "https://github.com/alien4cloud/samples"
+    Then I should receive a RestResponse with no error
 
   Scenario: Update an unexisting CSAR
     Given I update a csargit with id "id" and url "https://empty" and username "toto" and password "toto"
     Then I should receive a RestResponse with an error code 504
+    
+  Scenario: Create a new csargit to use its id
+    Given I have a csargit with the url "https://github.com/alien4cloud/new" with username "admin" and stored "false" and password "admin"
+    And I add locations to the csar
+      | branchId | subPath |
+      | master   |         |
+    When I create a csargit
+    Then I should receive a RestResponse with no error
+    And I have a csargit created with url "https://github.com/alien4cloud/new"
+    Then I update a csar with url "https://github.com/alien4cloud/new" and username "new" and password "new"
+    Then I should receive a RestResponse with no error

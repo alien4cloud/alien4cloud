@@ -260,10 +260,10 @@ public class CsarGitController {
      * @return an empty (void) rest {@link RestResponse}.
      */
     @ApiOperation(value = "Delete importLocation of a CSARGit in ALIEN by url.")
-    @RequestMapping(value = "/{url}/importLocations/{branchId}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/deleteLocation/{url}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
     @Audit
-    public RestResponse<Void> deleteImportLocationbyUrl(@Valid @PathVariable String url, @PathVariable String branchId) {
+    public RestResponse<Void> deleteImportLocationbyUrl(@Valid @RequestBody String url, @PathVariable String branchId) {
         csarGitService.removeImportLocationByUrl(url, branchId);
         return RestResponseBuilder.<Void> builder().build();
     }
