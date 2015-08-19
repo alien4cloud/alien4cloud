@@ -17,10 +17,10 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.NoHeadException;
-import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -49,6 +49,7 @@ import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.ReflectionUtil;
 
 @Component
+@Slf4j
 public class CsarGitService {
     @Resource
     ArchiveUploadService uploadService;
@@ -75,6 +76,7 @@ public class CsarGitService {
         CsarGitRepository csarGit = new CsarGitRepository();
         csarGit.setRepositoryUrl(repositoryUrl);
         csarGit.setUsername(username);
+        csarGit.setPassword(password);
         csarGit.setImportLocations(importLocations);
         csarGit.setStoredLocally(isStoredLocally);
         alienDAO.save(csarGit);
@@ -98,8 +100,7 @@ public class CsarGitService {
      * @throws GitNoModificationDetected
      */
     public ParsingResult<Csar>[] specifyCsarFromGit(String param) throws CSARVersionAlreadyExistsException, ParsingException, IOException,
-            GitCloneUriException, GitNotAuthorizedException, NotFoundException, RevisionSyntaxException, NoHeadException, GitAPIException,
-            GitNoModificationDetected {
+            GitCloneUriException, GitNotAuthorizedException, GitAPIException, GitNoModificationDetected {
         CsarGitRepository csarGit = new CsarGitRepository();
         Map<String, String> locationsMap = new HashMap<String, String>();
         String data = param.replaceAll("\"", "");
@@ -125,7 +126,7 @@ public class CsarGitService {
      * @param checkedOutLocation The path to fetch
      * @return
      */
-    private ArrayList<Path> getArchivesToUpload(String checkedOutLocation) {
+    private List<Path> getArchivesToUpload(String checkedOutLocation) {
         File folder = new File(checkedOutLocation);
         boolean find = false;
         File[] listSubFolders = folder.listFiles();
@@ -143,7 +144,7 @@ public class CsarGitService {
         return listPath;
     }
 
-    private void findInTmpTree(File folder, ArrayList<Path> listPath) {
+    private void findInTmpTree(File folder, List<Path> listPath) {
         File rootFolder = new File("/home/franck/.alien/upload/csarFromGit");
         File[] listFolders = rootFolder.listFiles();
         for (int i = 0; i < listFolders.length; i++) {
@@ -174,7 +175,7 @@ public class CsarGitService {
      */
     private ParsingResult<Csar>[] handleImportProcess(CsarGitRepository csarGit, Path alienTmpPath, RepositoryManager repoManager,
             Map<String, String> locationsMap) throws CSARVersionAlreadyExistsException, ParsingException, IOException, GitCloneUriException,
-            GitNotAuthorizedException, NotFoundException, RevisionSyntaxException, NoHeadException, GitAPIException, GitNoModificationDetected {
+            GitNotAuthorizedException, GitAPIException, GitNoModificationDetected {
         ParsingResult<Csar>[] result = null;
         if (csarGit.isStoredLocally()) {
             // If both are false, this means the csarGit has not been imported
@@ -258,8 +259,8 @@ public class CsarGitService {
      * @throws RevisionSyntaxException
      */
     @SuppressWarnings("unchecked")
-    public ParsingResult<Csar>[] triggerImportFromTmpFolder(String pathToReach, ArrayList<Path> csarsToImport, boolean isStoredLocally)
-            throws CSARVersionAlreadyExistsException, ParsingException, IOException, RevisionSyntaxException, NoHeadException, GitAPIException {
+    public ParsingResult<Csar>[] triggerImportFromTmpFolder(String pathToReach, List<Path> csarsToImport, boolean isStoredLocally)
+            throws CSARVersionAlreadyExistsException, ParsingException, IOException, GitAPIException {
         ArrayList<ParsingResult<Csar>> parsingResult = new ArrayList<ParsingResult<Csar>>();
         ParsingResult<Csar> result = null;
         ArrayList<CsarDependenciesBean> csarDependenciesBeanList = uploadService.preParsing(csarsToImport);
@@ -282,7 +283,7 @@ public class CsarGitService {
      * 
      * @param list List containing the CsarDependenciesBean
      */
-    private void updateDependenciesList(ArrayList<CsarDependenciesBean> csarDependenciesBeanList) {
+    private void updateDependenciesList(List<CsarDependenciesBean> csarDependenciesBeanList) {
         for (CsarDependenciesBean csarContainer : csarDependenciesBeanList) {
             Iterator<?> it = csarContainer.getDependencies().iterator();
             while (it.hasNext()) {
@@ -311,7 +312,7 @@ public class CsarGitService {
                 FileUtil.delete(path);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+           log.warn(e.getMessage());
         }
     }
 
@@ -322,7 +323,7 @@ public class CsarGitService {
      * @param list
      * @return the csarBean matching the dependency
      */
-    private CsarDependenciesBean lookupForDependencie(CSARDependency dependencie, ArrayList<CsarDependenciesBean> csarDependenciesBeanList) {
+    private CsarDependenciesBean lookupForDependencie(CSARDependency dependencie, List<CsarDependenciesBean> csarDependenciesBeanList) {
         for (CsarDependenciesBean csarBean : csarDependenciesBeanList) {
             if ((dependencie.getName() + ":" + dependencie.getVersion()).equals(csarBean.getName() + ":" + csarBean.getVersion())) {
                 return csarBean;
@@ -589,11 +590,10 @@ public class CsarGitService {
      * 
      * @throws IOException
      * @throws GitAPIException
-     * @throws NoHeadException
      * @throws RevisionSyntaxException
      *
      */
-    private boolean checkLastCommitHash(String path, CsarGitRepository csarGit) throws IOException, RevisionSyntaxException, NoHeadException, GitAPIException {
+    private boolean checkLastCommitHash(String path, CsarGitRepository csarGit) throws IOException,GitAPIException {
         Git git;
         boolean isToSameState = false;
         Repository repository = new FileRepository(path + "/.git");

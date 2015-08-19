@@ -184,7 +184,7 @@ public class ToscaParserSimpleProfileWd03Test {
         ArchiveRoot archiveRoot = parsingResult.getResult();
         Assert.assertNotNull(archiveRoot.getArchive());
         Assert.assertNotNull(archiveRoot.getArchive().getDependencies());
-        Assert.assertEquals(0, archiveRoot.getArchive().getDependencies().size());
+        Assert.assertEquals(1, archiveRoot.getArchive().getDependencies().size());
     }
 
     @SuppressWarnings("unchecked")

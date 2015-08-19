@@ -19,10 +19,6 @@ Feature: Csargit crud feature
     Given I get an unexisting CsarGitRepository with url ""
     Then I should receive a RestResponse with an error code 504
 
-  Scenario: Adding locations to an unexisting CsarGitRepository
-    Given I get an unexisting CsarGitRepository with url "https://test"
-    Then I should receive a RestResponse with an error code 504
-
   Scenario: Removing an unexisting CsarGitRepository by url
     Given I delete a csargit with empty url "eee"
     Then I should receive a RestResponse with an error code 504
@@ -48,6 +44,14 @@ Feature: Csargit crud feature
   Scenario: Create a new csargit with empty data
     Given I have a csargit with the url "" with username "" and stored "false" and password ""
     And I add locations to the csar
+      | branchId | subPath |
+      |          |         |
+    When I create a csargit
+    Then I should receive a RestResponse with an error code 501
+
+  Scenario: Create a new csargit with empty locations
+    Given I have a csargit with empty data and url "https://github.com/alien4cloud/empty" with username "" and stored "" and password ""
+    And I add empty locations to the csar
       | branchId | subPath |
       |          |         |
     When I create a csargit
@@ -120,3 +124,7 @@ Feature: Csargit crud feature
     Then I should receive a RestResponse with no error
     And I trigger the import of a csar with url "https://github.com/alien4cloud/tosca-normative-types"
     Then I should receive a RestResponse with an error code 617
+
+  Scenario: Update an unexisting CSAR
+    Given I update a csargit with id "id" and url "https://empty" and username "toto" and password "toto"
+    Then I should receive a RestResponse with an error code 504

@@ -151,15 +151,13 @@ public class CsarGitController {
     @Audit
     public RestResponse<String> create(@Valid @RequestBody CreateCsarGitRequest request) {
         CsarGitRepository csargit = csarGitService.getCsargitByUrl(request.getRepositoryUrl());
-        if (csargit != null) {
-            if (request.getRepositoryUrl().equals(csargit.getRepositoryUrl())) {
-                return RestResponseBuilder
-                        .<String> builder()
-                        .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER)
-                                .message("An existing CSAR with the same url and repository already exists").build()).build();
-            }
+        if (csargit != null && request.getRepositoryUrl().equals(csargit.getRepositoryUrl())) {
+            return RestResponseBuilder
+                    .<String> builder()
+                    .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER)
+                            .message("An existing CSAR with the same url and repository already exists").build()).build();
         }
-        if (!csarGitService.paramIsUrl(request.getRepositoryUrl()) || request.getRepositoryUrl().isEmpty() || request.getImportLocations().isEmpty()) {
+        if (!csarGitService.paramIsUrl(request.getRepositoryUrl()) || request.getRepositoryUrl().isEmpty() || request.getRepositoryUrl().isEmpty() || request.getImportLocations().isEmpty()) {
             return RestResponseBuilder.<String> builder()
                     .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("CSAR's data are not valid").build()).build();
         }
@@ -214,7 +212,7 @@ public class CsarGitController {
                     .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("url cannot be null or empty").build()).build();
         }
         String result = csarGitService.deleteCsargitByUrl(url);
-        if (result.equals("not found")) {
+        if ("not found".equals(result)) {
             return RestResponseBuilder.<String> builder().data(result)
                     .error(RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).message("No csargit exists with this url").build()).build();
         } else {
@@ -230,7 +228,7 @@ public class CsarGitController {
      * @return an empty(void) rest {@link RestResponse}
      */
     @ApiOperation(value = "Add importLocation in a CSARGit.")
-    @RequestMapping(value = "/{id}/importLocations/{importLocation}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{id}/importLocations", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
     @Audit
     public RestResponse<Void> addLocation(@Valid @PathVariable String id, @RequestBody AddCsarGitLocation request) {

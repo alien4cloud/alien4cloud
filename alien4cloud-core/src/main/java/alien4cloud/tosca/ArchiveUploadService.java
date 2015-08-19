@@ -2,6 +2,7 @@ package alien4cloud.tosca;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Resource;
 
@@ -157,7 +158,7 @@ public class ArchiveUploadService {
         return simpleResult;
     }
 
-    public ArrayList<CsarDependenciesBean> preParsing(ArrayList<Path> paths) throws ParsingException {
+    public ArrayList<CsarDependenciesBean> preParsing(List<Path> paths) throws ParsingException {
        
         ArrayList<CsarDependenciesBean> listCsarDependenciesBean = new ArrayList<CsarDependenciesBean>();
         for (Path path : paths) {

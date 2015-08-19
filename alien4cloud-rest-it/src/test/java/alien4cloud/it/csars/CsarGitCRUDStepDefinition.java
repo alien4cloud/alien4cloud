@@ -1,6 +1,7 @@
 package alien4cloud.it.csars;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -8,8 +9,9 @@ import java.util.Map.Entry;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
+import alien4cloud.rest.csar.AddCsarGitLocation;
 import alien4cloud.rest.csar.CreateCsarGitRequest;
-import alien4cloud.rest.csar.CreateCsarGithubRequest;
+import alien4cloud.rest.csar.UpdateCsarGitRequest;
 import alien4cloud.rest.csar.UpdateCsarGitWithUrlRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
@@ -20,23 +22,45 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 public class CsarGitCRUDStepDefinition {
     private CsarGitRepository CSAR_GIT_REPOSITORY;
     private CreateCsarGitRequest request;
+    private UpdateCsarGitRequest request_update;
+    private AddCsarGitLocation request_location;
 
     @Given("^I get an unexisting CsarGitRepository with id \"([^\"]*)\"$")
     public void I_get_a_csargit_by_id(String id) throws IOException {
         String response = Context.getRestClientInstance().get("/rest/csarsgit/" + id);
         Context.getInstance().registerRestResponse(response);
     }
-    
+
+    @Given("^I add location to an unexisting CsarGitRepository with id \"([^\"]*)\"$")
+    public void I_add_location_to_an_unexisting_csargit(String id) throws IOException {
+        CsarGitCheckoutLocation location = new CsarGitCheckoutLocation("master", "apache");
+        List<CsarGitCheckoutLocation> importLocations = new ArrayList<CsarGitCheckoutLocation>();
+        importLocations.add(location);
+        request_location = new AddCsarGitLocation();
+        request_location.setImportLocations(importLocations);
+        String response = Context.getRestClientInstance().putJSon("/rest/csarsgit/:id/importLocations", JsonUtil.toString(request_location));
+        Context.getInstance().registerRestResponse(response);
+    }
+
     @Given("^I get an unexisting CsarGitRepository with url \"([^\"]*)\"$")
     public void I_get_a_csargit_by_url(String url) throws IOException {
         String response = Context.getRestClientInstance().postJSon("/rest/csarsgit/get", JsonUtil.toString(url));
         Context.getInstance().registerRestResponse(response);
+    }
+
+    @Given("^I have a csargit with empty data and url \"([^\"]*)\" with username \"([^\"]*)\" and stored \"([^\"]*)\" and password \"([^\"]*)\"$")
+    public void I_Create_a_new_csargit_with_empty_data(String url, String username, String password, String storedLocally) throws JsonProcessingException,
+            IOException {
+        request = new CreateCsarGitRequest();
+        request.setUsername(null);
+        request.setPassword(null);
+        request.setRepositoryUrl(url);
+        request.setStoredLocally(false);
     }
 
     @Given("^I have a csargit with the url \"([^\"]*)\" with username \"([^\"]*)\" and stored \"([^\"]*)\" and password \"([^\"]*)\"$")
@@ -60,6 +84,11 @@ public class CsarGitCRUDStepDefinition {
     @And("^I add locations to the csar$")
     public void I_add_locations_to_the_csar(List<CsarGitCheckoutLocation> locations) throws Throwable {
         request.setImportLocations(locations);
+    }
+
+    @And("^I add empty locations to the csar$")
+    public void I_add_empty_locations_to_the_csar(List<CsarGitCheckoutLocation> locations) throws Throwable {
+        request.setImportLocations(null);
     }
 
     @When("I create a csargit")
@@ -96,7 +125,7 @@ public class CsarGitCRUDStepDefinition {
         int sizeAfter = Remove_CsarGitList(url);
         Assert.assertNotEquals(sizeAfter, sizeBefore);
     }
-    
+
     @Given("I delete a csargit with empty url \"([^\"]*)\"")
     public void I_Delete_a_csargit_with_empty_url(String url) throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/csarsgit/delete/:url", url));
@@ -184,6 +213,17 @@ public class CsarGitCRUDStepDefinition {
         request.setPassword(password);
         request.setRepositoryUrlToUpdate(repositoryUrlToUpdate);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/csarsgit/update/:url", JsonUtil.toString(request)));
+        RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
+        Assert.assertNotNull(restResponse);
+    }
+
+    @Given("I update a csargit with id \"([^\"]*)\" and url \"([^\"]*)\" and username \"([^\"]*)\" and password \"([^\"]*)\"$")
+    public void I_Update_a_csargit_by_id(String id, String url, String username, String password) throws Throwable {
+        this.request_update = new UpdateCsarGitRequest();
+        request_update.setRepositoryUrl(url);
+        request_update.setUsername(username);
+        request_update.setPassword(password);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().putJSon("/rest/csarsgit/:id", JsonUtil.toString(request_update)));
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
         Assert.assertNotNull(restResponse);
     }
