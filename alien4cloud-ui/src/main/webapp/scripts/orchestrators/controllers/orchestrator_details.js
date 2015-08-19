@@ -54,7 +54,15 @@ define(function (require) {
         if (name !== orchestrator.name) {
           orchestratorService.update({orchestratorId: orchestrator.id}, name).$promise.then(function(result){ return result.data; });
         }
-      }
+      };
+
+      $scope.removeOrchestrator = function() {
+        orchestratorService.remove({orchestratorId: orchestrator.id}).$promise.then(function(result) {
+          if (!result.error) {
+            $state.go('admin.orchestrators.list');
+          }
+         });
+      };
 
       $scope.loadConfigurationTag = function() {
         // filter only by target 'orchestrator'

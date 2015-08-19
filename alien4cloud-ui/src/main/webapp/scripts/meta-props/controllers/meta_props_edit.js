@@ -6,6 +6,9 @@ define(function (require) {
 
   modules.get('a4c-metas').controller('MetaPropertiesCtrl', ['$scope', 'propertiesServices', '$translate', 'applicationServices', 'orchestratorPropertiesServices',
     function($scope, propertiesServices, $translate, applicationServices, orchestratorPropertiesServices) {
+      if ($scope.collapsable === undefined) {
+        $scope.collapsable = true;
+      }
 
       var updateApplicationMetaProperty = function(updateApplicationPropertyObject) {
         return applicationServices.upsertProperty({

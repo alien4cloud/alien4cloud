@@ -14,16 +14,20 @@
         {{context.orchestrator.name}} <i class="fa fa-edit"></i>
       </span>
     </div>
+    <div class="pull-right">
+      <delete-confirm id="btn-delete-app" func="removeOrchestrator()" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+      </delete-confirm>
+    </div>
   </div>
 </div>
-<hr class="separator-h">
-<div class="row">
+<div class="row" ng-if="orchestratorProperties">
   <div class="col-md-12">
+    <hr class="separator-h">
     <meta-properties-display
       properties="orchestratorProperties"
       ng-if="orchestratorProperties"
       orchestrator="context.orchestrator"
-      collapse="false">
+      collapsable="false">
     </meta-properties-display>
   </div>
 </div>

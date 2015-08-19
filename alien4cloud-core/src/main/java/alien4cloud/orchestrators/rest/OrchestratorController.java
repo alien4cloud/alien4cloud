@@ -66,7 +66,7 @@ public class OrchestratorController {
     }
 
     @ApiOperation(value = "Delete an existing orchestrators.", authorizations = { @Authorization("ADMIN") })
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public void delete(@ApiParam(value = "Id of the orchestrators to delete.", required = true) @PathVariable @Valid @NotEmpty String id) {
