@@ -1,20 +1,16 @@
 package alien4cloud.orchestrators.rest;
 
-import javax.annotation.Resource;
+import javax.inject.Inject;
 import javax.validation.Valid;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.FilterBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -22,6 +18,10 @@ import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.orchestrators.rest.model.CreateOrchestratorRequest;
 import alien4cloud.orchestrators.services.OrchestratorService;
+import alien4cloud.orchestrators.services.OrchestratorStateService;
+import alien4cloud.paas.exception.PluginConfigurationException;
+import alien4cloud.rest.model.RestErrorBuilder;
+import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
@@ -35,12 +35,15 @@ import com.wordnik.swagger.annotations.Authorization;
 /**
  * Controller to manage orchestrators.
  */
+@Slf4j
 @RestController
 @RequestMapping(value = "/rest/orchestrators", produces = MediaType.APPLICATION_JSON_VALUE)
 @Api(value = "Orchestrators", description = "Manages orchestrators.", authorizations = { @Authorization("ADMIN") }, position = 4300)
 public class OrchestratorController {
-    @Resource
+    @Inject
     private OrchestratorService orchestratorService;
+    @Inject
+    private OrchestratorStateService orchestratorStateService;
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Create a new orchestrators.", authorizations = { @Authorization("ADMIN") })
@@ -97,16 +100,31 @@ public class OrchestratorController {
     @ApiOperation(value = "Enable an orchestrator.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}/enable", method = RequestMethod.PUT)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public RestResponse<Void> get(
-            @ApiParam(value = "Id of the orchestrator to enable", required = true) @PathVariable String id,
-            @ApiParam(value = "If true the orchestrator will be initialized and will try to connect. If false the orchestrator will be disabled", required = false) @RequestParam(required = false, defaultValue = "true") boolean enable,
-            @ApiParam(value = "This parameter is useful only when trying to disable the orchestrator, if deployments are performed using this orchestrator disable "
-                    + "operation will fail unnless the force flag is true", required = false) @RequestParam(required = false, defaultValue = "false") boolean force) {
-        if (enable) {
-            // orchestratorService.
-        } else {
-
+    public RestResponse<Void> enable(@ApiParam(value = "Id of the orchestrator to enable", required = true) @PathVariable String id) {
+        Orchestrator orchestrator = orchestratorService.getOrFail(id);
+        try {
+            orchestratorStateService.enable(orchestrator);
+        } catch (PluginConfigurationException e) {
+            log.error("Failed to update cloud configuration.", e);
+            return RestResponseBuilder
+                    .<Void> builder()
+                    .error(RestErrorBuilder.builder(RestErrorCode.INVALID_PLUGIN_CONFIGURATION)
+                            .message("Fail to update cloud configuration because Plugin used is not valid.").build()).build();
         }
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    @ApiOperation(value = "Disable an orchestrator.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id}/disable", method = RequestMethod.PUT)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public RestResponse<Void> disable(
+            @ApiParam(value = "Id of the orchestrator to enable", required = true) @PathVariable String id,
+            @ApiParam(value = "This parameter is useful only when trying to disable the orchestrator, if deployments are performed using this orchestrator disable "
+                    + "operation will fail unnless the force flag is true", required = false) @RequestParam(required = false, defaultValue = "false") boolean force,
+            @ApiParam(value = "In case an orchestrator with deployment is forced to be disabled, the user may decide to mark all deployments managed "
+                    + "by this orchestrator as ended.", required = false) @RequestParam(required = false, defaultValue = "false") boolean clearDeployments) {
+        Orchestrator orchestrator = orchestratorService.getOrFail(id);
+        orchestratorStateService.disable(orchestrator, force);
         return RestResponseBuilder.<Void> builder().build();
     }
 }
