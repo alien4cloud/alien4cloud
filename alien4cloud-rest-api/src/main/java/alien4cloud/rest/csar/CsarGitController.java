@@ -38,7 +38,6 @@ import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
 
-import com.google.common.io.Files;
 import com.wordnik.swagger.annotations.ApiOperation;
 
 @RestController
@@ -157,7 +156,8 @@ public class CsarGitController {
                     .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER)
                             .message("An existing CSAR with the same url and repository already exists").build()).build();
         }
-        if (!csarGitService.paramIsUrl(request.getRepositoryUrl()) || request.getRepositoryUrl().isEmpty() || request.getRepositoryUrl().isEmpty() || request.getImportLocations().isEmpty()) {
+        if (!csarGitService.paramIsUrl(request.getRepositoryUrl()) || request.getRepositoryUrl().isEmpty() || request.getRepositoryUrl().isEmpty()
+                || request.getImportLocations().isEmpty()) {
             return RestResponseBuilder.<String> builder()
                     .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("CSAR's data are not valid").build()).build();
         }

@@ -14,10 +14,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.annotation.Resource;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.NoHeadException;
+import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -25,6 +30,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.AlreadyExistException;
@@ -54,11 +60,11 @@ public class CsarGitService {
     private IGenericSearchDAO alienDAO;
 
     @Value("${directories.alien}/${directories.upload_temp}")
-    private String ALIEN_TMP_UPLOAD;
+    private String ALIENTMP_UPLOAD;
 
-    public final static String LOCAL_DIRECTORY = "csarFromGit";
+    public static final String LOCAL_DIRECTORY = "csarFromGit";
 
-    public final static String SUFFIXE_ZIPPED = "_ZIPPED";
+    public static final String SUFFIXE_ZIPPED = "_ZIPPED";
 
     /**
      * Create a CsarGitRepository in the system to store its informations
@@ -108,7 +114,7 @@ public class CsarGitService {
             csarGit = getCsargitByUrl(data);
         }
         RepositoryManager repoManager = new RepositoryManager();
-        Path alienTmpPath = Paths.get(ALIEN_TMP_UPLOAD);
+        Path alienTmpPath = Paths.get(ALIENTMP_UPLOAD);
         if (csarGit == null) {
             throw new NotFoundException("CsarGit " + "[" + data + "] doesn't exist");
         }
@@ -310,7 +316,7 @@ public class CsarGitService {
                 FileUtil.delete(path);
             }
         } catch (IOException e) {
-            log.warn(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 
