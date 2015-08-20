@@ -67,6 +67,13 @@ public class CsarGitCRUDStepDefinition {
 
     }
 
+    @Given("^I update a csar with url \"([^\"]*)\" and new url \"([^\"]*)\" and username \"([^\"]*)\" and password \"([^\"]*)\"$")
+    public void I_Update_a_csar_with_url(String url, String newUrl, String username, String password) throws Throwable {
+        String id = getIdByUrl(url);
+        I_Update_a_csargit_by_id(id, newUrl, username, password);
+
+    }
+
     @Given("^I add location to an unexisting CsarGitRepository with id \"([^\"]*)\"$")
     public void I_add_location_to_an_unexisting_csargit(String id) throws IOException {
         CsarGitCheckoutLocation location = new CsarGitCheckoutLocation("master", "apache");
@@ -86,7 +93,7 @@ public class CsarGitCRUDStepDefinition {
 
     @Given("^I get an unexisting CsarGitRepository with null url$")
     public void I_get_a_csargit_with_null_url() throws IOException {
-        String url =null;
+        String url = null;
         String response = Context.getRestClientInstance().postJSon("/rest/csarsgit/get", url);
         Context.getInstance().registerRestResponse(response);
     }
@@ -163,7 +170,7 @@ public class CsarGitCRUDStepDefinition {
         int sizeAfter = Remove_CsarGitList(url);
         Assert.assertNotEquals(sizeAfter, sizeBefore);
     }
-    
+
     @And("I delete a csargit with a wrong url \"([^\"]*)\"")
     public void I_Delete_a_csargit_with_a_wrong_url(String url) throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/csarsgit/delete/:url", url));
@@ -272,4 +279,5 @@ public class CsarGitCRUDStepDefinition {
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
         Assert.assertNotNull(restResponse);
     }
+
 }

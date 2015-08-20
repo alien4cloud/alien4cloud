@@ -141,6 +141,18 @@ Feature: Csargit crud feature
     And I trigger the import of a csar with url "https://github.com/alien4cloud/samples"
     Then I should receive a RestResponse with no error
 
+  Scenario: Create and save a CSAR on disk with error
+    And I delete a csargit with url "https://github.com/alien4cloud/samples"
+    Given I have a csargit with the url "https://github.com/alien4cloud/samples" with username "" and password ""
+    And I add locations to the csar
+      | branchId | subPath |
+      | master   |         |
+    When I create a csargit
+    And I trigger the import of a csar with url "https://github.com/alien4cloud/samples"
+    Then I should receive a RestResponse with no error
+    And I trigger the import of a csar with url "https://github.com/alien4cloud/samples"
+    Then I should receive a RestResponse with no error
+
   Scenario: Create a new csargit to use its id
     Given I have a csargit with the url "https://github.com/alien4cloud/new" with username "admin" and stored "false" and password "admin"
     And I add locations to the csar
@@ -150,6 +162,17 @@ Feature: Csargit crud feature
     Then I should receive a RestResponse with no error
     And I have a csargit created with url "https://github.com/alien4cloud/new"
     Then I update a csar with url "https://github.com/alien4cloud/new" and username "new" and password "new"
+    Then I should receive a RestResponse with no error
+
+  Scenario: Create a new csargit to use its id and update it
+    Given I have a csargit with the url "https://github.com/alien4cloud/new2" with username "admin" and stored "false" and password "admin"
+    And I add locations to the csar
+      | branchId | subPath |
+      | master   |         |
+    When I create a csargit
+    Then I should receive a RestResponse with no error
+    And I have a csargit created with url "https://github.com/alien4cloud/new2"
+    Then I update a csar with url "https://github.com/alien4cloud/new2" and new url "https://github.com/alien4cloud/new3" and username "new" and password "new"
     Then I should receive a RestResponse with no error
 
   Scenario: Get an existing CsarGitRepository by url

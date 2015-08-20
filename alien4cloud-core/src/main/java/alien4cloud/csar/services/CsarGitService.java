@@ -192,11 +192,7 @@ public class CsarGitService {
                             csarGit.getPassword(), csarGit.isStoredLocally(), locationsMap, LOCAL_DIRECTORY);
                     this.updateWithCheckedOutLocation(csarGit, pathToReach);
                     result = triggerImportFromTmpFolder(pathToReach, repoManager.getCsarsToImport(), csarGit.isStoredLocally());
-                    if (checkIfImportResultHasError(result)) {
-                        this.updateWithHash(csarGit, "");
-                    } else {
-                        this.checkLastCommitHash(csarGit.getCheckedOutLocation(), csarGit);
-                    }
+                    this.updateLastCommit(result, csarGit);
                 }
             } else {
                 if (checkLastCommitHash(csarGit.getCheckedOutLocation(), csarGit)) {
@@ -205,9 +201,7 @@ public class CsarGitService {
                     Path pathToPull = Paths.get(csarGit.getCheckedOutLocation());
                     repoManager.pullRequest(pathToPull);
                     result = triggerImportFromTmpFolder(csarGit.getCheckedOutLocation(), repoManager.getCsarsToImport(), csarGit.isStoredLocally());
-                    if (checkIfImportResultHasError(result)) {
-                        this.updateWithHash(csarGit, "");
-                    }
+                    this.resetLastCommit(result, csarGit);
                 }
             }
         } else {
@@ -216,6 +210,36 @@ public class CsarGitService {
             result = triggerImportFromTmpFolder(pathToReach, repoManager.getCsarsToImport(), false);
         }
         return result;
+    }
+
+    /**
+     * Update CsarGitRepository's last commit if parsing result hasn't error
+     * 
+     * @param result Parsing result
+     * @param csarGit CsarGitRepository to analyze
+     * @throws IOException
+     * @throws GitAPIException
+     */
+    private void updateLastCommit(ParsingResult<Csar>[] result, CsarGitRepository csarGit) throws IOException, GitAPIException {
+        if (resetLastCommit(result, csarGit)) {
+        } else {
+            this.checkLastCommitHash(csarGit.getCheckedOutLocation(), csarGit);
+        }
+    }
+
+    /**
+     * Reset CsarGitRepository's last commit if parsing result has error
+     * 
+     * @param result Parsing result
+     * @param csarGit CsarGitRepository to analyze
+     * @return true or false
+     */
+    private boolean resetLastCommit(ParsingResult<Csar>[] result, CsarGitRepository csarGit) {
+        if (checkIfImportResultHasError(result)) {
+            this.updateWithHash(csarGit, "");
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -269,7 +293,7 @@ public class CsarGitService {
         ParsingResult<Csar> result = null;
         List<CsarDependenciesBean> csarDependenciesBeanList = uploadService.preParsing(csarsToImport);
         for (CsarDependenciesBean dep : csarDependenciesBeanList) {
-            if (dep.getDependencies() == null || dep.getDependencies().isEmpty() || dep.getDependencies().size() == 0) {
+            if (dep.getDependencies() == null || dep.getDependencies().isEmpty()) {
                 result = uploadService.upload(dep.getPath());
                 parsingResult.add(result);
                 removeTmpGitFolder(pathToReach, isStoredLocally);
@@ -316,7 +340,7 @@ public class CsarGitService {
                 FileUtil.delete(path);
             }
         } catch (IOException e) {
-            log.error("Error" +e);
+            log.error("Error" + e);
         }
     }
 
@@ -358,15 +382,20 @@ public class CsarGitService {
                 while (it.hasNext()) {
                     CSARDependency dep = (CSARDependency) it.next();
                     CsarDependenciesBean bean = lookupForDependencie(dep, csarDependenciesBeanList);
-                    if (bean != null) {
-                        result = uploadService.upload(bean.getPath());
-                        parsingResult.add(result);
-                        removeExistingDependencies(bean, csarDependenciesBeanList);
-                    }
+                    this.analyseCsarBean(result, bean, parsingResult, csarDependenciesBeanList);
                 }
             }
         }
         return parsingResult;
+    }
+
+    private void analyseCsarBean(ParsingResult<Csar> result, CsarDependenciesBean bean, List<ParsingResult<Csar>> parsingResult,
+            List<CsarDependenciesBean> csarDependenciesBeanList) throws CSARVersionAlreadyExistsException, ParsingException {
+        if (bean != null) {
+            result = uploadService.upload(bean.getPath());
+            parsingResult.add(result);
+            removeExistingDependencies(bean, csarDependenciesBeanList);
+        }
     }
 
     /**
@@ -477,75 +506,6 @@ public class CsarGitService {
     public void updateWithCheckedOutLocation(CsarGitRepository csarGitTo, String location) {
         csarGitTo.setCheckedOutLocation(location);
         alienDAO.save(csarGitTo);
-    }
-
-    /**
-     * Add a location into an existing CsarGitRepository object
-     * 
-     * @param id The unique id of the CsarGitRepository
-     * @param locations Locations to add
-     */
-    public void addImportLocation(String id, List<CsarGitCheckoutLocation> locations) {
-        if (locations.isEmpty() || locations == null) {
-            throw new NotFoundException("Checkout location is empty");
-        }
-        CsarGitRepository csarGit = checkIfCsarExist(id);
-        if (csarGit != null) {
-            csarGit.getImportLocations().addAll(locations);
-            alienDAO.save(csarGit);
-        }
-    }
-
-    /**
-     * Remove a location of an existing CsarGitRepository object
-     * 
-     * @param id The unique id of the CsarGitRepository
-     * @param branchId The unique branch id
-     */
-    public void removeImportLocationById(String id, String branchId) {
-        CsarGitRepository csarGit = checkIfCsarExist(id);
-        if (csarGit == null) {
-            throw new NotFoundException("CsarGit [" + id + "] cannot be found");
-        }
-        List<CsarGitCheckoutLocation> locations = csarGit.getImportLocations();
-        if (CollectionUtils.isEmpty(locations)) {
-            throw new NotFoundException("CsarGit import locations[" + id + " " + branchId + "]+ cannot be found");
-        }
-        Iterator<CsarGitCheckoutLocation> it = locations.iterator();
-        while (it.hasNext()) {
-            if (it.next().getBranchId().equals(branchId)) {
-                it.remove();
-                break;
-            }
-        }
-        csarGit.setImportLocations(locations);
-        alienDAO.save(csarGit);
-    }
-
-    /**
-     * Remove a location of an existing CsarGitRepository object
-     * 
-     * @param url The unique id of the CsarGitRepository
-     * @param branchId The unique branch id
-     */
-    public void removeImportLocationByUrl(String url, String branchId) {
-        CsarGitRepository csarGit = getCsargitByUrl(url);
-        if (csarGit == null) {
-            throw new NotFoundException("CsarGit [" + url + "] cannot be found");
-        }
-        List<CsarGitCheckoutLocation> locations = csarGit.getImportLocations();
-        if (CollectionUtils.isEmpty(locations)) {
-            throw new NotFoundException("CsarGit import locations[" + url + "] is empty");
-        }
-        Iterator<CsarGitCheckoutLocation> it = locations.iterator();
-        while (it.hasNext()) {
-            if (it.next().getBranchId().equals(branchId)) {
-                it.remove();
-                break;
-            }
-        }
-        csarGit.setImportLocations(locations);
-        alienDAO.save(csarGit);
     }
 
     /**
