@@ -33,6 +33,7 @@ import alien4cloud.cloud.CloudService;
 import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.images.IImageDAO;
 import alien4cloud.images.exception.ImageUploadException;
@@ -172,9 +173,12 @@ public class ApplicationController {
     public RestResponse<Boolean> delete(@PathVariable String applicationId) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        boolean deleted = false;
+
         try {
-            deleted = applicationService.delete(applicationId);
+            boolean deleted = applicationService.delete(applicationId);
+            if (!deleted) {
+                throw new DeleteDeployedException("Application with id <" + applicationId + "> cannot be deleted since one of its environment is still deployed.");
+            }
         } catch (CloudDisabledException e) {
             log.error("Failed to delete the application due to Cloud error", e);
             return RestResponseBuilder
@@ -184,7 +188,7 @@ public class ApplicationController {
                             .message("Could not delete the application with id <" + applicationId + "> with error : " + e.getMessage()).build()).build();
 
         }
-        return RestResponseBuilder.<Boolean> builder().data(deleted).build();
+        return RestResponseBuilder.<Boolean> builder().data(true).build();
     }
 
     /**

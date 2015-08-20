@@ -1,6 +1,8 @@
 package alien4cloud.tosca;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Resource;
 
@@ -15,6 +17,7 @@ import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.model.CsarDependenciesBean;
 import alien4cloud.security.model.Role;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyTemplateVersionService;
@@ -24,6 +27,7 @@ import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
+import alien4cloud.tosca.parser.ToscaCsarDependenciesParser;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.VersionUtil;
 
@@ -32,6 +36,8 @@ public class ArchiveUploadService {
 
     @Resource
     private ArchiveParser parser;
+    @Resource
+    private ToscaCsarDependenciesParser dependenciesParser;
     @Resource
     private ArchivePostProcessor postProcessor;
     @Resource
@@ -150,6 +156,26 @@ public class ArchiveUploadService {
         }
 
         return simpleResult;
+    }
+
+    public ArrayList<CsarDependenciesBean> preParsing(List<Path> paths) throws ParsingException {
+       
+        ArrayList<CsarDependenciesBean> listCsarDependenciesBean = new ArrayList<CsarDependenciesBean>();
+        for (Path path : paths) {
+            CsarDependenciesBean csarDepContainer = new CsarDependenciesBean();
+            ParsingResult<ArchiveRoot> parsingResult = parser.parse(path);
+            postProcessor.postProcess(parsingResult);
+            csarDepContainer.setName(parsingResult.getResult().getArchive().getName());
+            csarDepContainer.setVersion(parsingResult.getResult().getArchive().getVersion());
+            csarDepContainer.setPath(path);
+            if (parsingResult.getResult().getArchive().getDependencies() != null) {
+                if (!parsingResult.getResult().getArchive().getDependencies().isEmpty() || parsingResult.getResult().getArchive().getDependencies() != null) {
+                    csarDepContainer.setDependencies(parsingResult.getResult().getArchive().getDependencies());
+                }
+            }
+            listCsarDependenciesBean.add(csarDepContainer);
+        }
+        return listCsarDependenciesBean;
     }
 
     /**
