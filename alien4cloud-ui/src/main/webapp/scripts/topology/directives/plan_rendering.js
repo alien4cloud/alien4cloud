@@ -136,7 +136,8 @@ define(function (require) {
           };
 
           eventProcessors.OperationCallActivity = function(graph, opCallActivity, previousStep) {
-            if(_.defined(opCallActivity.implementationArtifact)) {
+            // we want to display the node deven if no implem artifact
+            if(true || _.defined(opCallActivity.implementationArtifact)) {
               idGenerator++;
               opCallActivity.id = 'oca_'+idGenerator;
               var htmlLabel = '<div class="plan-box plan-operation">';
@@ -154,9 +155,9 @@ define(function (require) {
                   label: htmlLabel,
                   nodeTemplateId: opCallActivity.elementId,
                   clickable: true,
-                  fullpath: opCallActivity.implementationArtifact.artifactRef,
-                  archiveName: opCallActivity.implementationArtifact.archiveName,
-                  archiveVersion: opCallActivity.implementationArtifact.archiveVersion
+                  fullpath: (opCallActivity.implementationArtifact) ? opCallActivity.implementationArtifact.artifactRef : "",
+                  archiveName: (opCallActivity.implementationArtifact) ? opCallActivity.implementationArtifact.archiveName : "",
+                  archiveVersion: (opCallActivity.implementationArtifact) ? opCallActivity.implementationArtifact.archiveVersion: ""
                 }
               });
               graph.edges.push({from: previousStep.id, to: opCallActivity.id, def: {label: ''}});
