@@ -6,8 +6,29 @@ define(function(require) {
 
   require('scripts/common/services/properties_services');
 
-  modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate',
-    function($scope, propertiesServices, $translate) {
+  var ComplexPropertyModalCtrl = ['$scope', '$modalInstance', 'formDescriptorServices',
+    function($scope, $modalInstance, formDescriptorServices) {
+      var descriptorQuery = {
+        propertyDefinition: $scope.definition,
+        dependencies: $scope.dependencies
+      };
+      //descriptor of the config
+      formDescriptorServices.getToscaComplexTypeDescriptor({}, angular.toJson(descriptorQuery) ,function(result) {
+        $scope.formDescription = result.data;
+      });
+
+      $scope.save = function(value) {
+        $modalInstance.close(value);
+      };
+
+      $scope.cancel = function() {
+        $modalInstance.dismiss('cancel');
+      };
+    }
+  ];
+
+  modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$modal',
+    function($scope, propertiesServices, $translate, $modal) {
 
       $scope.propertySave = function(data, unit) {
         delete $scope.unitError;
@@ -115,7 +136,7 @@ define(function(require) {
             // Here handle scalar value
             shownValue = $scope.propertyValue.value;
           } else if ($scope.propertyValue.hasOwnProperty('function') && $scope.propertyValue.hasOwnProperty('parameters') && $scope.propertyValue.parameters.length > 0) {
-            shownValue = $scope.propertyValue.function+': ' + _($scope.propertyValue.parameters).toString();
+            shownValue = $scope.propertyValue.function + ': ' + _($scope.propertyValue.parameters).toString();
           }
         }
 
@@ -187,10 +208,17 @@ define(function(require) {
             $scope.definitionObject.units = ['d', 'h', 'm', 's', 'ms', 'us', 'ns'];
             splitScalarUnitValue(false);
             break;
-          default:
+          case 'version':
+          case 'float':
+          case 'integer':
+          case 'string':
             $scope.definitionObject.uiName = 'string';
             $scope.definitionObject.uiValue = shownValue;
             $scope.definitionObject.uiPassword = $scope.definition.password;
+            break;
+          default :
+            $scope.definitionObject.uiName = 'complex';
+            $scope.definitionObject.uiValue = shownValue;
             break;
         }
 
@@ -198,6 +226,20 @@ define(function(require) {
         if (!_.isEmpty($scope.definitionObject)) {
           return $scope.definitionObject;
         }
+      };
+
+      $scope.openComplexPropertyModal = function() {
+
+        var modalInstance = $modal.open({
+          templateUrl: 'views/common/property_display_complex_modal.html',
+          controller: ComplexPropertyModalCtrl,
+          windowClass: 'searchModal',
+          scope: $scope
+        });
+
+        modalInstance.result.then(function(value) {
+          console.log(value);
+        });
       };
 
       /** Reset the property to the default value if any */

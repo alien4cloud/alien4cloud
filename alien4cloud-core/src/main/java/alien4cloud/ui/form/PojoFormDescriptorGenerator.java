@@ -1,5 +1,7 @@
 package alien4cloud.ui.form;
 
+import static alien4cloud.ui.form.GenericFormConstants.*;
+
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -34,28 +36,7 @@ import com.google.common.collect.Sets;
 
 @Slf4j
 @Component
-public class FormDescriptorGenerator {
-
-    private static final String SUGGESTION_KEY = "_suggestion";
-    private static final String CONTENT_TYPE_KEY = "_contentType";
-    private static final String TYPE_KEY = "_type";
-    private static final String PROPERTY_TYPE_KEY = "_propertyType";
-    private static final String ORDER_KEY = "_order";
-    private static final String IMPLEMENTATIONS_KEY = "_implementationTypes";
-    private static final String TOSCA_DEFINITION_KEY = "_definition";
-    private static final String LABEL_KEY = "_label";
-
-    private static final String TOSCA_TYPE = "tosca";
-    private static final String COMPLEX_TYPE = "complex";
-    private static final String ABSTRACT_TYPE = "abstract";
-    private static final String MAP_TYPE = "map";
-    private static final String ARRAY_TYPE = "array";
-    private static final String NUMBER_TYPE = "number";
-    private static final String BOOLEAN_TYPE = "boolean";
-    private static final String STRING_TYPE = "string";
-    private static final String DATE_TYPE = "date";
-    public static final String VALID_VALUES_KEY = "_validValues";
-    public static final String NOT_NULL_KEY = "_notNull";
+public class PojoFormDescriptorGenerator {
 
     @Resource
     @Setter

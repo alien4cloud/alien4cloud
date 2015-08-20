@@ -6,9 +6,9 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
+import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.tosca.model.ArchiveRoot;
 
 @Component
@@ -41,7 +41,8 @@ public class ArchiveIndexer {
         updateCreationDates(root.getCapabilityTypes(), previousElements);
         updateCreationDates(root.getNodeTypes(), previousElements);
         updateCreationDates(root.getRelationshipTypes(), previousElements);
-
+        updateCreationDates(root.getDataTypes(), previousElements);
+        
         if (root.getLocalImports() != null) {
             for (ArchiveRoot child : root.getLocalImports()) {
                 prepareForUpdate(archiveName, archiveVersion, child, previousElements);
@@ -50,7 +51,7 @@ public class ArchiveIndexer {
     }
 
     private void updateCreationDates(Map<String, ? extends IndexedInheritableToscaElement> newElements, Map<String, IndexedToscaElement> previousElements) {
-        if(newElements == null) {
+        if (newElements == null) {
             return;
         }
         for (IndexedInheritableToscaElement newElement : newElements.values()) {
@@ -66,6 +67,7 @@ public class ArchiveIndexer {
         indexerService.indexInheritableElements(archiveName, archiveVersion, root.getCapabilityTypes(), root.getArchive().getDependencies());
         indexerService.indexInheritableElements(archiveName, archiveVersion, root.getNodeTypes(), root.getArchive().getDependencies());
         indexerService.indexInheritableElements(archiveName, archiveVersion, root.getRelationshipTypes(), root.getArchive().getDependencies());
+        indexerService.indexInheritableElements(archiveName, archiveVersion, root.getDataTypes(), root.getArchive().getDependencies());
 
         if (root.getLocalImports() != null) {
             for (ArchiveRoot child : root.getLocalImports()) {

@@ -14,6 +14,7 @@ define(function (require) {
       scope: {
         'definition': '=',
         'propertyValue': '=',
+        'dependencies': '=?',
         'onSave': '&',
         'editable': '=',
         'condensed': '='

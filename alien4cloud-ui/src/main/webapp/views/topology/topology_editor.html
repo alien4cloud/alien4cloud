@@ -228,6 +228,7 @@
                       ng-if="!properties.isInputProperty(propEntry.key)"
                       ng-init="condensed = true"
                       definition="properties.getFormatedProperty(propEntry.key)"
+                      dependencies="topology.topology.dependencies"
                       property-value="propEntry.value"
                       on-save="nodes.updateProperty(propertyDefinition, propertyValue)"
                       editable="true"

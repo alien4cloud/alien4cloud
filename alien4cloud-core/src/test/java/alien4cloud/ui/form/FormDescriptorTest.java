@@ -15,7 +15,7 @@ import alien4cloud.utils.FileUtil;
 
 public class FormDescriptorTest {
 
-    private FormDescriptorGenerator generator = new FormDescriptorGenerator();
+    private PojoFormDescriptorGenerator generator = new PojoFormDescriptorGenerator();
 
     @Before
     public void setUp() throws Exception {
