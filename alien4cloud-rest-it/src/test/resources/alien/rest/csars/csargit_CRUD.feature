@@ -7,6 +7,10 @@ Feature: Csargit crud feature
     Given I get an unexisting CsarGitRepository with id "01"
     Then I should receive a RestResponse with an error code 504
 
+  Scenario: Get an unexisting CsarGitRepository
+    Given I get an unexisting CsarGitRepository with null id
+    Then I should receive a RestResponse with an error code 504
+
   Scenario: Get a CsarGitRepository with empty id
     Given I get an unexisting CsarGitRepository with id ""
     Then I should receive a RestResponse with an error code 500
@@ -20,7 +24,7 @@ Feature: Csargit crud feature
     Then I should receive a RestResponse with an error code 504
 
   Scenario: Removing an unexisting CsarGitRepository by url
-    Given I delete a csargit with empty url "eee"
+    Given I delete a csargit with a wrong url "eee"
     Then I should receive a RestResponse with an error code 504
 
   Scenario: Create a new csargit
@@ -65,6 +69,16 @@ Feature: Csargit crud feature
     When I create a csargit
     And I trigger the import of a csar with url "https://github.com/a"
     Then I should receive a RestResponse with an error code 615
+
+  Scenario: Import a csargit with a subfolder
+    And I delete a csargit with url "https://github.com/alien4cloud/samples"
+    Given I have a csargit with the url "https://github.com/alien4cloud/samples" with username "admin" and stored "false" and password "admin"
+    And I add locations to the csar
+      | branchId | subPath |
+      | master   | apache  |
+    When I create a csargit
+    And I trigger the import of a csar with url "https://github.com/alien4cloud/samples"
+    Then I should receive a RestResponse with no error
 
   Scenario: Import a private csargit with wrong credentials
     Given I have a csargit with the url "https://fastconnect.org/gitlab/alien-tosca-recipes/recipes" with username "toto" and stored "false" and password "toto"
@@ -127,6 +141,18 @@ Feature: Csargit crud feature
     And I trigger the import of a csar with url "https://github.com/alien4cloud/samples"
     Then I should receive a RestResponse with no error
 
+  Scenario: Create and save a CSAR on disk with error
+    And I delete a csargit with url "https://github.com/alien4cloud/samples"
+    Given I have a csargit with the url "https://github.com/alien4cloud/samples" with username "" and password ""
+    And I add locations to the csar
+      | branchId | subPath |
+      | master   |         |
+    When I create a csargit
+    And I trigger the import of a csar with url "https://github.com/alien4cloud/samples"
+    Then I should receive a RestResponse with no error
+    And I trigger the import of a csar with url "https://github.com/alien4cloud/samples"
+    Then I should receive a RestResponse with no error
+
   Scenario: Create a new csargit to use its id
     Given I have a csargit with the url "https://github.com/alien4cloud/new" with username "admin" and stored "false" and password "admin"
     And I add locations to the csar
@@ -136,6 +162,17 @@ Feature: Csargit crud feature
     Then I should receive a RestResponse with no error
     And I have a csargit created with url "https://github.com/alien4cloud/new"
     Then I update a csar with url "https://github.com/alien4cloud/new" and username "new" and password "new"
+    Then I should receive a RestResponse with no error
+
+  Scenario: Create a new csargit to use its id and update it
+    Given I have a csargit with the url "https://github.com/alien4cloud/new2" with username "admin" and stored "false" and password "admin"
+    And I add locations to the csar
+      | branchId | subPath |
+      | master   |         |
+    When I create a csargit
+    Then I should receive a RestResponse with no error
+    And I have a csargit created with url "https://github.com/alien4cloud/new2"
+    Then I update a csar with url "https://github.com/alien4cloud/new2" and new url "https://github.com/alien4cloud/new3" and username "new" and password "new"
     Then I should receive a RestResponse with no error
 
   Scenario: Get an existing CsarGitRepository by url

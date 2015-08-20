@@ -221,54 +221,6 @@ public class CsarGitController {
     }
 
     /**
-     * Add importLocation to a CsarGit
-     * 
-     * @param request The list of the importLocation to add
-     * @param id The unique id of the CsarGit to update
-     * @return an empty(void) rest {@link RestResponse}
-     */
-    @ApiOperation(value = "Add importLocation in a CSARGit.")
-    @RequestMapping(value = "/{id}/importLocations", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
-    @Audit
-    public RestResponse<Void> addLocation(@Valid @PathVariable String id, @RequestBody AddCsarGitLocation request) {
-        csarGitService.addImportLocation(id, request.getImportLocations());
-        return RestResponseBuilder.<Void> builder().build();
-    }
-
-    /**
-     * Remove an importLocation from an existing CsarGit
-     * 
-     * @param branchId The unique id of the importLocation
-     * @param id The unique id of the CsarGit to reach
-     * @return an empty (void) rest {@link RestResponse}.
-     */
-    @ApiOperation(value = "Delete importLocation of a CSARGit in ALIEN by id.")
-    @RequestMapping(value = "/{id}/importLocations/{branchId}", method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
-    @Audit
-    public RestResponse<Void> deleteImportLocationById(@Valid @PathVariable String id, @PathVariable String branchId) {
-        csarGitService.removeImportLocationById(id, branchId);
-        return RestResponseBuilder.<Void> builder().build();
-    }
-
-    /**
-     * Remove an importLocation from an existing CsarGit
-     * 
-     * @param branchId The unique id of the importLocation
-     * @param url The unique url of the CsarGit to reach
-     * @return an empty (void) rest {@link RestResponse}.
-     */
-    @ApiOperation(value = "Delete importLocation of a CSARGit in ALIEN by url.")
-    @RequestMapping(value = "/deleteLocation/{url}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
-    @Audit
-    public RestResponse<Void> deleteImportLocationbyUrl(@Valid @RequestBody String url, @PathVariable String branchId) {
-        csarGitService.removeImportLocationByUrl(url, branchId);
-        return RestResponseBuilder.<Void> builder().build();
-    }
-
-    /**
      * Update an existing CsarGit by id
      * 
      * @param request The CsarGit data to update
