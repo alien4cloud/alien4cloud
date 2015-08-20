@@ -111,8 +111,12 @@ public class TopologyChecker implements IChecker<Topology> {
             for (Entry<String, NodeTemplate> nodeEntry : instance.getNodeTemplates().entrySet()) {
                 String nodeName = nodeEntry.getKey();
                 NodeTemplate nodeTemplate = nodeEntry.getValue();
-                IndexedNodeType nodeType = ToscaParsingUtil.getNodeTypeFromArchiveOrDependencies(nodeTemplate.getType(), archiveRoot, searchService);
                 if (nodeEntry.getValue().getProperties() == null) {
+                    continue;
+                }
+                IndexedNodeType nodeType = ToscaParsingUtil.getNodeTypeFromArchiveOrDependencies(nodeTemplate.getType(), archiveRoot, searchService);
+                if (nodeType == null) {
+                    // Already caught in NodeTemplateChecker
                     continue;
                 }
                 for (Entry<String, AbstractPropertyValue> propertyEntry : nodeEntry.getValue().getProperties().entrySet()) {

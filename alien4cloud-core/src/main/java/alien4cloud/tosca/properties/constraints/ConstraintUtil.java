@@ -5,7 +5,6 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -82,6 +81,7 @@ public final class ConstraintUtil {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     @SuppressWarnings("PMD.UnusedPrivateField")
     public static class ConstraintInformation {
         private String name;
