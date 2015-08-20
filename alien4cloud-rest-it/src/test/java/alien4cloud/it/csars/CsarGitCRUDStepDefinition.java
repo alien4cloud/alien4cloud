@@ -36,6 +36,12 @@ public class CsarGitCRUDStepDefinition {
         Context.getInstance().registerRestResponse(response);
     }
 
+    @Given("^I get an unexisting CsarGitRepository with null id$")
+    public void I_get_a_csargit_with_null_id() throws IOException {
+        String response = Context.getRestClientInstance().get("/rest/csarsgit/" + null);
+        Context.getInstance().registerRestResponse(response);
+    }
+
     @Given("^I get an existing CsarGitRepository with an url \"([^\"]*)\"$")
     public void I_get_a_existing_csargit_by_id(String url) throws IOException {
         String csarId = getIdByUrl(url);
@@ -74,6 +80,13 @@ public class CsarGitCRUDStepDefinition {
 
     @Given("^I get an unexisting CsarGitRepository with url \"([^\"]*)\"$")
     public void I_get_a_csargit_by_url(String url) throws IOException {
+        String response = Context.getRestClientInstance().postJSon("/rest/csarsgit/get", url);
+        Context.getInstance().registerRestResponse(response);
+    }
+
+    @Given("^I get an unexisting CsarGitRepository with null url$")
+    public void I_get_a_csargit_with_null_url() throws IOException {
+        String url =null;
         String response = Context.getRestClientInstance().postJSon("/rest/csarsgit/get", url);
         Context.getInstance().registerRestResponse(response);
     }
@@ -150,8 +163,15 @@ public class CsarGitCRUDStepDefinition {
         int sizeAfter = Remove_CsarGitList(url);
         Assert.assertNotEquals(sizeAfter, sizeBefore);
     }
+    
+    @And("I delete a csargit with a wrong url \"([^\"]*)\"")
+    public void I_Delete_a_csargit_with_a_wrong_url(String url) throws Throwable {
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/csarsgit/delete/:url", url));
+        RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
+        Assert.assertNotNull(restResponse.getError());
+    }
 
-    @Given("I delete a csargit with empty url \"([^\"]*)\"")
+    @Given("I delete a csargit with an url \"([^\"]*)\"")
     public void I_Delete_a_csargit_with_empty_url(String url) throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/csarsgit/delete/:url", url));
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());

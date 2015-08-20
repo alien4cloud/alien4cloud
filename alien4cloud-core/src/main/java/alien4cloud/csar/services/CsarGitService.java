@@ -60,7 +60,7 @@ public class CsarGitService {
     private IGenericSearchDAO alienDAO;
 
     @Value("${directories.alien}/${directories.upload_temp}")
-    private String ALIENTMP_UPLOAD;
+    private String alienTmpUpload;
 
     public static final String LOCAL_DIRECTORY = "csarFromGit";
 
@@ -114,7 +114,7 @@ public class CsarGitService {
             csarGit = getCsargitByUrl(data);
         }
         RepositoryManager repoManager = new RepositoryManager();
-        Path alienTmpPath = Paths.get(ALIENTMP_UPLOAD);
+        Path alienTmpPath = Paths.get(alienTmpUpload);
         if (csarGit == null) {
             throw new NotFoundException("CsarGit " + "[" + data + "] doesn't exist");
         }
@@ -316,7 +316,7 @@ public class CsarGitService {
                 FileUtil.delete(path);
             }
         } catch (IOException e) {
-            log.error(e.getMessage());
+            log.error("Error" +e);
         }
     }
 
