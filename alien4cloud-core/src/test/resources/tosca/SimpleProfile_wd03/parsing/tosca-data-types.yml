@@ -16,6 +16,14 @@ node_types:
           - greater_than: 0
       client:
         type: alien.test.Client
+      client_family:
+        type: list
+        entry_schema:
+          type: alien.test.Client
+      tags:
+        type: map
+        entry_schema:
+          type: string
 
 data_types:
 

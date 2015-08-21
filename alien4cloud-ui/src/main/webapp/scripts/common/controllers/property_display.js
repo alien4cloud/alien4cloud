@@ -26,6 +26,7 @@ define(function(require) {
 
       $scope.remove = function(value) {
         $scope.propertySave(undefined);
+        $modalInstance.dismiss(undefined);
       };
 
       $scope.cancel = function() {
