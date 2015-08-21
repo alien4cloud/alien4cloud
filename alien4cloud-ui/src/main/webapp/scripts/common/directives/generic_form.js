@@ -1,4 +1,4 @@
-define(function (require) {
+define(function(require) {
   'use strict';
 
   var modules = require('modules');
@@ -16,6 +16,7 @@ define(function (require) {
     return {
       restrict: 'E',
       scope: {
+        rootName: '=?',
         rootObject: '=',
         formTitle: '@',
         type: '=',
@@ -31,6 +32,7 @@ define(function (require) {
         automaticSave: '=',
         partialUpdate: '=',
         useXeditable: '=',
+        configuration: '=?',
         /* Callbacks */
         suggest: '&',
         save: '&',
@@ -125,9 +127,14 @@ define(function (require) {
     if (_.undefined(scope.rootObject)) {
       scope.rootObject = {};
     }
+    if (_.undefined(scope.rootName)) {
+      scope.rootName = 'GENERIC_FORM.ROOT';
+    }
     scope.path = [];
     scope.labelPath = [];
-    scope.configuration = {};
+    if (_.undefined(scope.configuration)) {
+      scope.configuration = {};
+    }
     scope.configuration.activePath = [];
     scope.configuration.activeLabelPath = [];
     scope.configuration.validationStatuses = {};
@@ -334,20 +341,29 @@ define(function (require) {
               scope.saveAction(scope.rootObject);
             }
           } else {
-            var checkPropertyRequest = {
-              'definitionId': scope.propertyName,
-              'propertyDefinition': propertyDefinition,
-              'value': propertyValue
-            };
-            return propertiesServices.validConstraints({}, angular.toJson(checkPropertyRequest), function(successResult) {
-              if (successResult.error === null) {
-                // No error save the result
-                FORMS.setValueForPath(scope.rootObject, propertyValue, scope.path);
-                if (scope.configuration.automaticSave) {
-                  scope.saveAction(scope.rootObject);
-                }
+            if (_.isObject(propertyValue) || _.isArray(propertyValue)) {
+              // It's an object or an array then don't try to validate constraints
+              FORMS.setValueForPath(scope.rootObject, propertyValue, scope.path);
+              if (scope.configuration.automaticSave) {
+                scope.saveAction(scope.rootObject);
               }
-            }).$promise;
+            } else {
+              // Only check constraint for primitive properties
+              var checkPropertyRequest = {
+                'definitionId': scope.propertyName,
+                'propertyDefinition': propertyDefinition,
+                'value': propertyValue
+              };
+              return propertiesServices.validConstraints({}, angular.toJson(checkPropertyRequest), function(successResult) {
+                if (successResult.error === null) {
+                  // No error save the result
+                  FORMS.setValueForPath(scope.rootObject, propertyValue, scope.path);
+                  if (scope.configuration.automaticSave) {
+                    scope.saveAction(scope.rootObject);
+                  }
+                }
+              }).$promise;
+            }
           }
         };
       }

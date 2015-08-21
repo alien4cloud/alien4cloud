@@ -14,7 +14,7 @@
           <ol class="breadcrumb">
             <li>
               <a href="" id="breadcrumbrootlabel" ng-click="activePathChangeTo(-1)">
-                {{ 'GENERIC_FORM.ROOT' | translate }}
+                {{ rootName | translate }}
               </a>
             </li>
             <li ng-repeat="activePathElement in configuration.activeLabelPath track by $index">
@@ -46,7 +46,7 @@
                    ng-class="{'fa-chevron-down' : !isCollapsed, 'fa-chevron-right': isCollapsed}"></i> <span
                   id="treeFormrootlabel" class="form-tree-label"
                   ng-class="{'form-tree-label-active': configuration.activePath.length == 0}"
-                  ng-click="activePathChangeTo(-1)">{{ 'GENERIC_FORM.ROOT' | translate }}</span>
+                  ng-click="activePathChangeTo(-1)">{{ rootName | translate }}</span>
               </div>
             </div>
             <div collapse="isCollapsed">

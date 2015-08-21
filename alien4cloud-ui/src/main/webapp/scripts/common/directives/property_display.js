@@ -13,11 +13,14 @@ define(function (require) {
       restrict: 'E',
       scope: {
         'definition': '=',
+        'propertyName': '=',
         'propertyValue': '=',
         'dependencies': '=?',
         'onSave': '&',
+        'onDelete': '&',
         'editable': '=',
-        'condensed': '='
+        'condensed': '=',
+        'deletable': '=?'
       },
       link: {}
     };

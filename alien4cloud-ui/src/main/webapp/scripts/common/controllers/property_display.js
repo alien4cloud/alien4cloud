@@ -8,17 +8,24 @@ define(function(require) {
 
   var ComplexPropertyModalCtrl = ['$scope', '$modalInstance', 'formDescriptorServices',
     function($scope, $modalInstance, formDescriptorServices) {
+      $scope.configuration = {
+        dependencies: $scope.dependencies
+      };
       var descriptorQuery = {
         propertyDefinition: $scope.definition,
         dependencies: $scope.dependencies
       };
       //descriptor of the config
-      formDescriptorServices.getToscaComplexTypeDescriptor({}, angular.toJson(descriptorQuery) ,function(result) {
+      formDescriptorServices.getToscaComplexTypeDescriptor({}, angular.toJson(descriptorQuery), function(result) {
         $scope.formDescription = result.data;
       });
 
       $scope.save = function(value) {
-        $modalInstance.close(value);
+        $scope.propertySave(value);
+      };
+
+      $scope.remove = function(value) {
+        $scope.propertySave(undefined);
       };
 
       $scope.cancel = function() {
@@ -42,6 +49,7 @@ define(function(require) {
         }
         // check constraint here
         var propertyRequest = {
+          propertyName: $scope.propertyName,
           propertyDefinition: $scope.definition,
           propertyValue: data
         };
@@ -235,10 +243,6 @@ define(function(require) {
           controller: ComplexPropertyModalCtrl,
           windowClass: 'searchModal',
           scope: $scope
-        });
-
-        modalInstance.result.then(function(value) {
-          console.log(value);
         });
       };
 

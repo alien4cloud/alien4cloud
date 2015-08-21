@@ -76,9 +76,8 @@ define(function (require) {
         },
 
         /* Update properties of a node template */
-        updateProperty: function(propertyDefinition, propertyValue) {
+        updateProperty: function(propertyDefinition, propertyName, propertyValue) {
           var scope = this.scope;
-          var propertyName = propertyDefinition.name;
           var updatePropsObject = {
             'propertyName': propertyName,
             'propertyValue': propertyValue
