@@ -223,7 +223,7 @@ public class LocationService {
     public void delete(String id) {
         // TODO IMPORTANT ensure that no deployment use the location
         // delete all location resources for the given location
-        alienDAO.delete(LocationResourceDefinition.class, QueryBuilders.termQuery("locationId", id));
+        alienDAO.delete(LocationResourceTemplate.class, QueryBuilders.termQuery("locationId", id));
         // delete the location
         alienDAO.delete(Location.class, id);
     }
