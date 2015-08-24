@@ -14,7 +14,7 @@ import com.wordnik.swagger.annotations.ApiModelProperty;
 public class CreateLocationRequest {
     @NotEmpty
     @ApiModelProperty(value = "Name of the location (must be unique for this orchestrator as this allow users to identify it).", required = true)
-    private String locationName;
+    private String name;
     @NotEmpty
     @ApiModelProperty(value = "Type of the infrastructure of the new location.", notes = "The infrastructure type must be one of the one supported by the orchestrator.", required = true)
     private String infrastructureType;

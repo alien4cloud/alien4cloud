@@ -158,7 +158,7 @@ public class ArchiveUploadService {
     }
 
     public ArrayList<CsarDependenciesBean> preParsing(ArrayList<Path> paths) throws ParsingException {
-       
+
         ArrayList<CsarDependenciesBean> listCsarDependenciesBean = new ArrayList<CsarDependenciesBean>();
         for (Path path : paths) {
             CsarDependenciesBean csarDepContainer = new CsarDependenciesBean();

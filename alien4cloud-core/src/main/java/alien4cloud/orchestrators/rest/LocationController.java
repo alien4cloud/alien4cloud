@@ -3,6 +3,7 @@ package alien4cloud.orchestrators.rest;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 import javax.validation.Valid;
 
 import org.hibernate.validator.constraints.NotEmpty;
@@ -34,9 +35,9 @@ import com.wordnik.swagger.annotations.Authorization;
 @RequestMapping(value = "/rest/orchestrators/{orchestratorId}/locations", produces = MediaType.APPLICATION_JSON_VALUE)
 @Api(value = "Orchestrator's Locations", description = "Manages locations for a given orchestrator.", authorizations = { @Authorization("ADMIN") }, position = 4400)
 public class LocationController {
-    @Resource
+    @Inject
     private LocationService locationService;
-    @Resource
+    @Inject
     private OrchestratorService orchestratorService;
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -46,7 +47,7 @@ public class LocationController {
     @Audit
     public RestResponse<String> create(@ApiParam(value = "Id of the orchestrator for which the location is defined.") @PathVariable String orchestratorId,
             @ApiParam(value = "Request for location creation", required = true) @Valid @RequestBody CreateLocationRequest locationRequest) {
-        String id = locationService.create(orchestratorId, locationRequest.getLocationName(), locationRequest.getInfrastructureType());
+        String id = locationService.create(orchestratorId, locationRequest.getName(), locationRequest.getInfrastructureType());
         return RestResponseBuilder.<String> builder().data(id).build();
     }
 

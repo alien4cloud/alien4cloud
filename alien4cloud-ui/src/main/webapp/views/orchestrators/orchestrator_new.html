@@ -1,26 +1,26 @@
 <form name="newOrchestratorForm" class="form-horizontal" role="form" ng-submit="save(plugins && newOrchestratorForm.$valid)" novalidate>
   <div class="modal-header">
-    <h3>{{'CLOUDS.NEW' | translate}}</h3>
+    <h3>{{'ORCHESTRATORS.NEW' | translate}}</h3>
   </div>
   <div class="modal-body">
     <div class="alert alert-danger" ng-if="!plugins">
-      {{'CLOUDS.NO_PROVIDERS' | translate}}
+      {{'ORCHESTRATORS.NO_PLUGIN' | translate}}
     </div>
     <div class="form-group" ng-class="{'has-error': newOrchestratorForm.name.$invalid}" ng-if="plugins">
       <label for="orchestrator_name_id" class="col-lg-3 control-label">
-        {{'CLOUDS.NAME' | translate}}
+        {{'ORCHESTRATORS.NAME' | translate}}
       </label>
       <div class="col-lg-9">
-        <input type="text" class="form-control" id="orchestrator_name_id" ng-model="newOrchestrator.name" name="name" required placeholder="{{'CLOUDS.NAME' | translate}}">
+        <input type="text" class="form-control" id="orchestrator_name_id" ng-model="newOrchestrator.name" name="name" required placeholder="{{'ORCHESTRATORS.NAME' | translate}}">
       </div>
     </div>
     <div class="form-group" ng-class="{'has-error': newOrchestratorForm.provider.$invalid}" ng-if="plugins">
       <label class="col-lg-3 control-label">
-        {{'CLOUDS.PAAS_PROVIDER' | translate}}
+        {{'ORCHESTRATORS.PLUGIN' | translate}}
       </label>
       <div class="col-lg-9">
         <select class="form-control" name="plugin" required ng-model="newOrchestrator.plugin" ng-options="p.nameAndId for p in plugins">
-          <option value="">{{'CLOUDS.PAAS_PROVIDER_SELECT' | translate}}</option>
+          <option value="">{{'ORCHESTRATORS.PLUGIN_SELECT' | translate}}</option>
         </select>
       </div>
     </div>

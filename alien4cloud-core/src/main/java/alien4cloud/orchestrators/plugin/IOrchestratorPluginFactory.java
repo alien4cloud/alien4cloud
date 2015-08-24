@@ -1,5 +1,7 @@
 package alien4cloud.orchestrators.plugin;
 
+import alien4cloud.model.orchestrators.locations.LocationSupport;
+
 /**
  * Implementation of these class are responsible for providing the common settings for an orchestrators and creating instances responsible for orchestrators
  * connexion.
@@ -38,16 +40,9 @@ public interface IOrchestratorPluginFactory<T extends IOrchestratorPlugin<V>, V>
     Class<V> getConfigurationType();
 
     /**
-     * Return a flag that indicates if the orchestrator is able to orchestrate mutliple locations.
+     * Return an object that contains informations on location(s) support by the orchestrator.
      * 
-     * @return true if the orchestrator created by this factory supports multiple locations, false if not.
+     * @return An instance of LocationSupport that contains the details on what locations the orchestrator can support.
      */
-    boolean isMultipleLocations();
-
-    /**
-     * Return a list of supported infrastructure types (OpenStack, Amazon, BYON, BareMetal etc.)
-     *
-     * @return A list of infrastructure types that the orchestrator supports.
-     */
-    String[] supportedInfrastructureTypes();
+    LocationSupport getLocationSupport();
 }

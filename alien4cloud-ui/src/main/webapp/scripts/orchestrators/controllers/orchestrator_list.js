@@ -10,7 +10,7 @@ define(function (require) {
   require('scripts/orchestrators/controllers/orchestrator_new');
   require('scripts/orchestrators/services/orchestrator_service');
   require('scripts/orchestrators/controllers/orchestrator_details');
-
+  
   states.state('admin.orchestrators', {
     url: '/orchestrators',
     template: '<ui-view/>',

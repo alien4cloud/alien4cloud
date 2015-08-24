@@ -1,15 +1,18 @@
-<div>
-  <div ng-if="orchestrator.multipleLocations" class="row">
+<div class="alert alert-danger" ng-if="orchestrator.state !== 'CONNECTED'">
+  Orchestrator must be connected so you can configure locations.
+</div>
+<div ng-if="orchestrator.state === 'CONNECTED'">
+  <div ng-if="multipleLocations || (locations && locations.length === 0)" class="row">
     <div class="col-md-3">
       <button id="new-location-button" class="btn btn-success" ng-click="openNewModal()">
         <i class="fa fa-plus-circle"></i> New Location
       </button>
     </div>
     <div class="col-md-6">
-      <select class="form-control" ng-model="location" ng-options="loc for loc in locations"></select>
+      <select ng-if="locations" class="form-control" ng-model="location" ng-change="selectLocation(location)" ng-options="loc.name for loc in locations"></select>
     </div>
     <div class="col-md-3">
-      <button id="delete-location-button" class="btn btn-danger pull-right" ng-click="openNewModal()">
+      <button ng-if="location" id="delete-location-button" class="btn btn-danger pull-right" ng-click="openNewModal()">
         <i class="fa fa-plus-circle"></i> Delete Location
       </button>
     </div>
@@ -18,16 +21,16 @@
   <div ng-if="location">
     <div class="row">
       <div class="col-md-4">
-        <span editable-text="location.name" buttons="no" e-required e-class="input-lg" onbeforesave="updateOrchestrator($data)" blur="submit">
+        <b>name:</b>
+        <span editable-text="location.name" buttons="no" e-required e-class="input-lg" onbeforesave="updateLocation({name: $data})" blur="submit">
           {{location.name}} <i class="fa fa-edit"></i>
         </span>
       </div>
       <div class="col-md-4">
-        <b>infrastructure type</b>
-        <select ng-model="location.environmentType" ng-change="updateLocation({'environmentType': location.environmentType})" ng-options="'CLOUDS.ENVIRONMENT.'+env | translate for env in envTypes"></select> <i class="fa" assass="{'fa-spinner fa-spin': saving, 'text-success fa-check': savedSuccess, 'text-danger fa-times': savedError}"></i>
+        <b>infrastructure type: </b> {{location.infrastructureType}}
       </div>
       <div class="col-md-4">
-        <b>environment type</b>
+        <b>environment type:</b>
         <select ng-model="location.environmentType" ng-change="updateLocation({'environmentType': location.environmentType})" ng-options="'CLOUDS.ENVIRONMENT.'+env | translate for env in envTypes"></select> <i class="fa" assass="{'fa-spinner fa-spin': saving, 'text-success fa-check': savedSuccess, 'text-danger fa-times': savedError}"></i>
       </div>
     </div>

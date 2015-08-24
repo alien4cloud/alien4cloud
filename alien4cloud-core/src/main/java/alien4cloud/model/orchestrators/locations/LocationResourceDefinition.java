@@ -13,13 +13,10 @@ import com.wordnik.swagger.annotations.ApiModel;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@SuppressWarnings("PMD.UnusedPrivateField")
-@ESObject
 @ApiModel(value = "LocationResource", description = "A LocationResource ")
-public class LocationResource {
-    private String id;
-    private String locationId;
+public class LocationResourceDefinition {
+    /** The type of resources that is defined. */
     private LocationResourceType locationResourceType;
-    /** The node type that represents the resource. */
-    private IndexedNodeType type;
+    /** The node type for this resource. */
+    private String nodeType;
 }

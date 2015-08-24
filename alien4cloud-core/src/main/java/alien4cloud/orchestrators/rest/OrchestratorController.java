@@ -16,6 +16,7 @@ import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorState;
+import alien4cloud.model.orchestrators.locations.LocationSupport;
 import alien4cloud.orchestrators.rest.model.CreateOrchestratorRequest;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.orchestrators.services.OrchestratorStateService;
@@ -97,15 +98,15 @@ public class OrchestratorController {
         return RestResponseBuilder.<Orchestrator> builder().data(orchestrator).build();
     }
 
-    @ApiOperation(value = "Enable an orchestrator.", authorizations = { @Authorization("ADMIN") })
-    @RequestMapping(value = "/{id}/enable", method = RequestMethod.PUT)
+    @ApiOperation(value = "Enable an orchestrator. Creates the instance of orchestrator if not already created.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id}/instance", method = RequestMethod.POST)
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<Void> enable(@ApiParam(value = "Id of the orchestrator to enable", required = true) @PathVariable String id) {
         Orchestrator orchestrator = orchestratorService.getOrFail(id);
         try {
             orchestratorStateService.enable(orchestrator);
         } catch (PluginConfigurationException e) {
-            log.error("Failed to update cloud configuration.", e);
+            log.error("Failed to instanciate orchestrator because of invalid configuration.", e);
             return RestResponseBuilder
                     .<Void> builder()
                     .error(RestErrorBuilder.builder(RestErrorCode.INVALID_PLUGIN_CONFIGURATION)
@@ -114,8 +115,8 @@ public class OrchestratorController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    @ApiOperation(value = "Disable an orchestrator.", authorizations = { @Authorization("ADMIN") })
-    @RequestMapping(value = "/{id}/disable", method = RequestMethod.PUT)
+    @ApiOperation(value = "Disable an orchestrator. Destroys the instance of the orchestrator connector.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id}/instance", method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<Void> disable(
             @ApiParam(value = "Id of the orchestrator to enable", required = true) @PathVariable String id,
@@ -126,5 +127,14 @@ public class OrchestratorController {
         Orchestrator orchestrator = orchestratorService.getOrFail(id);
         orchestratorStateService.disable(orchestrator, force);
         return RestResponseBuilder.<Void> builder().build();
+    }
+
+    @ApiOperation(value = "Get information on the locations that an orchestrator can support.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id}/locationsupport", method = RequestMethod.GET)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public RestResponse<LocationSupport> getLocationSupport(
+            @ApiParam(value = "Id of the orchestrator for which to get location support informations", required = true) @PathVariable String id) {
+        LocationSupport support = orchestratorService.getLocationSupport(id);
+        return RestResponseBuilder.<LocationSupport> builder().data(support).build();
     }
 }

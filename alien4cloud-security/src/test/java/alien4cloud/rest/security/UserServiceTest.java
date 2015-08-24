@@ -11,9 +11,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.security.users.rest.CreateUserRequest;
 import alien4cloud.security.model.User;
 import alien4cloud.security.users.UserService;
+import alien4cloud.security.users.rest.CreateUserRequest;
 
 /**
  * 

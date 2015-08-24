@@ -8,7 +8,8 @@ import javax.annotation.PostConstruct;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorConfiguration;
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.model.orchestrators.locations.LocationResource;
+import alien4cloud.model.orchestrators.locations.LocationResourceDefinition;
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
@@ -42,9 +43,6 @@ import alien4cloud.security.model.CsarGitRepository;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-
 /**
  * Elastic Search DAO for alien 4 cloud application.
  *
@@ -69,7 +67,7 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         }
 
         // init indices and mapped classes
-        setJsonMapper(generateJsonMapper());
+        setJsonMapper(ElasticSearchMapper.getInstance());
 
         initIndices(TOSCA_ELEMENT_INDEX, null, IndexedCapabilityType.class, IndexedArtifactType.class, IndexedRelationshipType.class, IndexedNodeType.class);
         initIndices(TOSCA_ELEMENT_INDEX, null, IndexedArtifactToscaElement.class, IndexedToscaElement.class);
@@ -92,29 +90,12 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         initIndice(Orchestrator.class);
         initIndice(OrchestratorConfiguration.class);
         initIndice(Location.class);
-        initIndice(LocationResource.class);
+        initIndice(LocationResourceTemplate.class);
 
         initIndice(Deployment.class);
         initIndice(CloudImage.class);
         initIndice(CsarGitRepository.class);
         initCompleted();
-    }
-
-    /**
-     * Add a specific deserializer to ES mapper
-     * 
-     * @return
-     */
-    private ElasticSearchMapper generateJsonMapper() {
-        ElasticSearchMapper elasticSearchMapper = new ElasticSearchMapper();
-        SimpleModule module = new SimpleModule("PropDeser", new Version(1, 0, 0, null, null, null));
-        try {
-            module.addDeserializer(PropertyConstraint.class, new PropertyConstraintDeserializer());
-        } catch (ClassNotFoundException | IOException | IntrospectionException e) {
-            log.warn("The property constraint deserialialisation failed");
-        }
-        elasticSearchMapper.registerModule(module);
-        return elasticSearchMapper;
     }
 
     private void initIndice(Class<?> clazz) {

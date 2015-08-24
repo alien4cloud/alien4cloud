@@ -4,14 +4,15 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
+  var _ = require('lodash');
 
   modules.get('a4c-common', ['ngResource']).factory('$alresource', ['$resource',
     function($resource) {
       var headers = {
         'Content-Type': 'application/json; charset=UTF-8'
       };
-      return function(url) {
-        return $resource(url, {}, {
+      return function(url, operations) {
+        var targetOperations = {
           'create': {
             method: 'POST',
             isArray: false,
@@ -32,7 +33,13 @@ define(function (require) {
             isArray: false,
             headers: headers
           }
-        });
+        };
+
+        if(_.defined(operations)) {
+            _.merge(targetOperations, operations);
+        }
+        console.log('creating resource with the following operations', targetOperations);
+        return $resource(url, {}, targetOperations);
       };
     }
   ]);

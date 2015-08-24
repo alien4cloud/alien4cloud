@@ -632,6 +632,10 @@
   },
   "ORCHESTRATORS": {
     "NEW": "New orchestrator",
+    "NO_PLUGIN": "No Orchestrator plugin can be found. You should upload a plugin.",
+    "NAME": "Name",
+    "PLUGIN": "Plugin",
+    "PLUGIN_SELECT": "-- Select an orchestrator plugin --",
     "STATE": "State",
     "STATES": {
       "DISABLED": "Disabled",
@@ -639,8 +643,6 @@
       "CONNECTED": "Connected",
       "DISCONNECTED": "Disconnected"
     },
-    "NAME": "Name",
-    "PLUGIN": "Plugin",
     "NAV": {
       "INFO": "Informations",
       "DEPLOYMENTS": "Deployments",
@@ -650,6 +652,9 @@
       "AUTHORIZATIONS": "Authorizations"
     },
     "LOCATIONS": {
+      "NEW": "New Location",
+      "INFRA_TYPE": "Infrastructure type",
+      "INFRA_TYPE_SELECT": "-- Select an infrastructure type --",
       "CONFIGURATION_RESOURCES": "Configuration resources",
       "ON_DEMAND_RESOURCES": "On demand resources",
       "SERVICES": "Services",

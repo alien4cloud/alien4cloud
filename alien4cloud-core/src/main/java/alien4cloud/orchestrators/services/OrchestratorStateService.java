@@ -8,8 +8,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.utils.MapUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -26,23 +28,25 @@ import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import alien4cloud.paas.PaaSProviderService;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import org.elasticsearch.mapping.QueryHelper;
+import org.springframework.stereotype.Component;
 
 /**
  * Service to manage state of an orchestrator
  */
 @Slf4j
+@Component
 public class OrchestratorStateService {
-    @Resource
+    @Inject
     private QueryHelper queryHelper;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
-    @Resource
+    @Inject
     private OrchestratorConfigurationService orchestratorConfigurationService;
-    @Resource
+    @Inject
     private OrchestratorFactoriesRegistry orchestratorFactoriesRegistry;
-    @Resource
+    @Inject
     private PaaSProviderService paaSProviderService;
-    @Resource
+    @Inject
     private DeploymentService deploymentService;
 
     /**
@@ -85,6 +89,7 @@ public class OrchestratorStateService {
             load(orchestrator);
         } else {
             log.debug("Request to enable ignored: orchestrator {} (id: {}) is already enabled", orchestrator.getName(), orchestrator.getId());
+            throw new AlreadyExistException("Orchestrator {} is already instanciated.");
         }
     }
 
@@ -99,6 +104,7 @@ public class OrchestratorStateService {
         orchestrator.setState(OrchestratorState.CONNECTING);
         alienDAO.save(orchestrator);
 
+        // TODO move below in a thread to perform plugin loading and connection asynchronously
         IOrchestratorPluginFactory orchestratorFactory = orchestratorFactoriesRegistry.getPluginBean(orchestrator.getPluginId(), orchestrator.getPluginBean());
         IOrchestratorPlugin orchestratorInstance = orchestratorFactory.newInstance();
 
@@ -116,6 +122,8 @@ public class OrchestratorStateService {
         orchestratorInstance.init(deploymentService.getCloudActiveDeploymentContexts(orchestrator.getId()));
         // register the orchestrator instance to be polled for updates
         paaSProviderService.register(orchestrator.getId(), orchestratorInstance);
+        orchestrator.setState(OrchestratorState.CONNECTED);
+        alienDAO.save(orchestrator);
     }
 
     /**

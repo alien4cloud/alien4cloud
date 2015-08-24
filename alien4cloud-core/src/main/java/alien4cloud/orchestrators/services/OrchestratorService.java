@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import alien4cloud.model.orchestrators.locations.LocationSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -55,8 +56,6 @@ public class OrchestratorService {
         // get default configuration for the orchestrators.
         IOrchestratorPluginFactory orchestratorFactory = orchestratorFactoriesRegistry.getPluginBean(orchestrator.getPluginId(), orchestrator.getPluginBean());
         OrchestratorConfiguration configuration = new OrchestratorConfiguration(orchestrator.getId(), orchestratorFactory.getDefaultConfiguration());
-
-        orchestrator.setMultipleLocations(orchestratorFactory.isMultipleLocations());
 
         saveAndEnsureNameUnicity(orchestrator);
         alienDAO.save(configuration);
@@ -136,5 +135,17 @@ public class OrchestratorService {
             filters = MapUtil.newHashMap(new String[] { "status" }, new String[][] { new String[] { status.toString() } });
         }
         return alienDAO.search(Orchestrator.class, query, filters, authorizationFilter, null, from, size);
+    }
+
+    /**
+     * Get the location support information for a given orchetrator.
+     * 
+     * @param orchestratorId The id of the orchestrator for which to get location support information.
+     * @return location support information.
+     */
+    public LocationSupport getLocationSupport(String orchestratorId) {
+        Orchestrator orchestrator = getOrFail(orchestratorId);
+        IOrchestratorPluginFactory orchestratorFactory = orchestratorFactoriesRegistry.getPluginBean(orchestrator.getPluginId(), orchestrator.getPluginBean());
+        return orchestratorFactory.getLocationSupport();
     }
 }

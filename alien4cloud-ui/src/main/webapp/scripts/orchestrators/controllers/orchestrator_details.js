@@ -8,6 +8,7 @@ define(function (require) {
 
   require('scripts/orchestrators/services/orchestrator_service');
   require('scripts/orchestrators/services/orchestrator_properties_service');
+  require('scripts/orchestrators/services/orchestrator_instance_service');
   require('scripts/orchestrators/controllers/orchestrator_artifacts');
   require('scripts/orchestrators/controllers/orchestrator_configuration');
   require('scripts/orchestrators/controllers/orchestrator_locations');
@@ -48,8 +49,11 @@ define(function (require) {
   states.forward('admin.orchestrators.details', 'admin.orchestrators.details.info');
 
   modules.get('a4c-orchestrators').controller('OrchestratorArtifactsCtrl',
-    ['$scope', '$modal', '$state', 'orchestratorService', 'orchestrator', 'metapropConfServices',
-    function($scope, $modal, $state, orchestratorService, orchestrator, metapropConfServices) {
+    ['$scope', '$modal', '$state', '$translate', 'orchestratorService', 'orchestratorInstanceService', 'orchestrator', 'metapropConfServices', 'toaster',
+    function($scope, $modal, $state, $translate, orchestratorService, orchestratorInstanceService, orchestrator, metapropConfServices, toaster) {
+      $scope.orchestrator = orchestrator;
+      $scope.showForceDisable = false;
+
       $scope.updateOrchestrator = function(name) {
         if (name !== orchestrator.name) {
           orchestratorService.update({orchestratorId: orchestrator.id}, name).$promise.then(function(result){ return result.data; });
@@ -62,6 +66,26 @@ define(function (require) {
             $state.go('admin.orchestrators.list');
           }
          });
+      };
+
+      $scope.enable = function() {
+        orchestrator.state = 'CONNECTING';
+        // .then(function(result){ console.log('enable orchestrator', result); })
+        orchestratorInstanceService.create({orchestratorId: orchestrator.id}, {},function(result){
+            console.log('enable orchestrator', result);
+          })
+          .$promise['finally'](function() {
+            $state.reload(); // do something with web-sockets to get notifications on the orchestrator state.
+          });
+      };
+
+      $scope.disable = function(force) {
+        orchestrator.state = 'DISABLING';
+        orchestratorInstanceService.remove({orchestratorId: orchestrator.id, force: force})
+          .$promise.then(function(result){ console.log('disable orchestrator', result); })
+          ['finally'](function() {
+            $state.reload(); // do something with web-sockets to get notifications on the orchestrator state.
+          });
       };
 
       $scope.loadConfigurationTag = function() {

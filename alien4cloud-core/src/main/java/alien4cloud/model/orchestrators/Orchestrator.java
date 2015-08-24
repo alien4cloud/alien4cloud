@@ -52,9 +52,6 @@ public class Orchestrator implements ISecuredResource, IMetaProperties {
     @NotBlank
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String pluginBean;
-    @BooleanField(index = IndexType.no, includeInAll = false)
-    private boolean isMultipleLocations;
-
     /** Last known status of the orchestrators. */
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)

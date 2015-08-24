@@ -39,7 +39,7 @@ public class MonitorESDAO extends ESGenericSearchDAO {
             throw new IndexingServiceException("Could not initialize elastic search mapping builder", e);
         }
         // init indices and mapped classes
-        setJsonMapper(new ElasticSearchMapper());
+        setJsonMapper(ElasticSearchMapper.getInstance());
 
         Class<?>[] classes = new Class<?>[] { AbstractMonitorEvent.class, PaaSDeploymentStatusMonitorEvent.class, PaaSInstanceStateMonitorEvent.class,
                 PaaSMessageMonitorEvent.class, PaaSInstanceStorageMonitorEvent.class };

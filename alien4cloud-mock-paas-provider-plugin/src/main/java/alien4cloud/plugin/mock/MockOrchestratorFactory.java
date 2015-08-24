@@ -3,6 +3,7 @@ package alien4cloud.plugin.mock;
 import javax.annotation.Resource;
 
 import alien4cloud.model.cloud.IaaSType;
+import alien4cloud.model.orchestrators.locations.LocationSupport;
 import org.springframework.beans.factory.BeanFactory;
 
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
@@ -37,17 +38,12 @@ public class MockOrchestratorFactory implements IOrchestratorPluginFactory<MockO
     }
 
     @Override
-    public boolean isMultipleLocations() {
-        return true;
-    }
-
-    @Override
-    public String[] supportedInfrastructureTypes() {
+    public LocationSupport getLocationSupport() {
         IaaSType[] types = IaaSType.values();
         String[] typesAsString = new String[types.length];
         for (int i = 0; i < types.length; i++) {
             typesAsString[i] = types[i].toString();
         }
-        return typesAsString;
+        return new LocationSupport(true, typesAsString);
     }
 }
