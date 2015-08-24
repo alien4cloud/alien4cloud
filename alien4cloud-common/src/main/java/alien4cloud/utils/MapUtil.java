@@ -3,6 +3,11 @@ package alien4cloud.utils;
 import java.util.HashMap;
 import java.util.Map;
 
+import alien4cloud.rest.utils.JsonUtil;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.Maps;
+
 /**
  * Utility class to ease map manipulation.
  */
@@ -90,4 +95,20 @@ public final class MapUtil {
         }
     }
 
+    public static Map<String, String> toString(Map<String, Object> stringObjectMap) throws JsonProcessingException {
+        Map<String, String> stringStringMap = Maps.newHashMap();
+        for (Map.Entry<String, Object> stringObjectEntry : stringObjectMap.entrySet()) {
+            if (stringObjectEntry.getValue() != null) {
+                if (stringObjectEntry.getValue() instanceof String) {
+                    stringStringMap.put(stringObjectEntry.getKey(), (String) stringObjectEntry.getValue());
+                } else {
+                    stringStringMap.put(stringObjectEntry.getKey(), JsonUtil.toString(stringObjectEntry.getValue()));
+                }
+            } else {
+                stringStringMap.put(stringObjectEntry.getKey(), null);
+            }
+
+        }
+        return stringStringMap;
+    }
 }

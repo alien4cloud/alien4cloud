@@ -38,7 +38,8 @@
     "TITLE": {
       "PROPERTY": "Description de la propriété",
       "REQUIREMENT": "Description du pré-requis",
-      "CAPABILITY": "Description de la capacité"
+      "CAPABILITY": "Description de la capacité",
+      "CUSTOM_COMMAND": "Description de l'opération"
     }
   },
   "NAVADMIN": {
@@ -159,7 +160,7 @@
     "RESULT_TITLE": "Composants",
     "ARCHIVE": "Archive",
     "ARCHIVE_VERSION": "Version de l'archive",
-    "ARCHIVE_NAME": "Nom de l'archive",
+    "ARCHIVE_NAME": "Dossier de l'archive",
     "GET_DETAILS": "Détails",
     "VALIDSOURCES": "Sources Valides",
     "VALIDTARGET": "Cibles Valides",
@@ -174,7 +175,7 @@
     "ID":"Id",
     "ARCHIVELIST":"Liste des archives",
     "IMPORT_SUCCESS":"L'import a été effectué",
-    "IMPORTALL":"Importer tout",
+    "IMPORT_ALL":"Importer tout",
     "LEGEND":"Csars ajoutés",
     "FROMGIT":"Importés depuis Git",
     "ACTIONS":"Opérations",
@@ -215,6 +216,7 @@
         "TOPOLOGY_TEXT": "Détails de la topology"
       }
     },
+    "SAVE_LOCALLY":"Conserver une copie locale du dépôt",
     "DELETE": "Supprimé",
     "ERRORS": {
       "IMPORT":"Le CSAR ne peut être importé",
@@ -309,6 +311,7 @@
   },
   "APPLICATIONS": {
     "APPLICATION": "Application",
+    "SHOW_DEPLOYED_APP": "Afficher seulement les applications déployées.",
     "APPLICATION_ROLES": "Rôles d'application",
     "NEW": "Nouvelle Application",
     "NAME": "Nom",
@@ -842,6 +845,7 @@
     "613": "Conflit détecté sur l'Id PaaS généré. Vérifiez les noms de vos applications. (Voir <a target='_blank'href = 'http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html'>http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html, naming policy</a>, pour plus de details)",
     "615": "Le repository Git n'existe pas ou n'est pas valide.",
     "616": "Vous n'êtes pas autorisé à cloner ce dépôt Git. Veuillez vérifier vos identifiants.",
+    "617": "Aucune modification a été détecté depuis le dernier import, celui-ci n'a pas été réalisé.",
     "650": "Au moins deux de vos Compute ont un conflit de nom.",
     "651": "Un BlockStorage ne peut pas avoir un volumeId lorsque le cloud a l'option 'deletable' d'activée.",
     "800": {

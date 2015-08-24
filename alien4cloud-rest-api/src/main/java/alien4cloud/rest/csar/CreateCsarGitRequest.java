@@ -2,6 +2,8 @@ package alien4cloud.rest.csar;
 
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -17,14 +19,14 @@ import alien4cloud.security.model.CsarGitCheckoutLocation;
 @AllArgsConstructor
 public class CreateCsarGitRequest {
     @SuppressWarnings("PMD.UnusedPrivateField")
-    @NotBlank
+    @NotNull
     private String repositoryUrl;
-
+   
     private String username;
 
     private String password;
-    
-    //private boolean saveCredentials;
-    
-    List<CsarGitCheckoutLocation> importLocations;
+
+    private boolean storedLocally;
+    @NotNull
+    private List<CsarGitCheckoutLocation> importLocations;
 }
