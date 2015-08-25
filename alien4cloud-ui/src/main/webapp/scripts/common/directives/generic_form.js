@@ -24,6 +24,7 @@ define(function (require) {
         formClass: '@',
         labelSize: '=',
         /* Flags which modify form behavior */
+        isReadOnly: '=',
         isRemovable: '=',
         isCancelable: '=',
         showTree: '=',
@@ -138,6 +139,7 @@ define(function (require) {
     scope.configuration.showErrorsAlert = false;
     scope.configuration.labelSize = scope.labelSize || 20;
     scope.configuration.rootElement = element;
+    scope.configuration.isReadOnly = scope.isReadOnly;
     if (_.defined(scope.useXeditable)) {
       scope.configuration.useXeditable = scope.useXeditable;
     } else {

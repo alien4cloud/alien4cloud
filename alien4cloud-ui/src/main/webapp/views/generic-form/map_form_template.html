@@ -15,7 +15,7 @@
     <div class="col-md-3">
       <div tooltip="{{ 'GENERIC_FORM.ADD' | translate }}" style="display: inline-block;" tooltip-placement="top">
         <button id="{{idPrefix + 'addelementbutton'}}" type="button" class="btn btn-default btn-sm"
-                ng-click="addElementToMap()" ng-disabled="key == ''">
+                ng-click="addElementToMap()" ng-disabled="key == '' || configuration.isReadOnly">
           <i class="fa fa-plus"></i>
         </button>
       </div>

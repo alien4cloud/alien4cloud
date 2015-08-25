@@ -24,6 +24,13 @@ define(function (require) {
   modules.get('a4c-orchestrators').controller('OrchestratorConfigurationCtrl',
     ['$scope', '$http', 'orchestrator', 'orchestratorConfigurationService',
     function($scope, $http, orchestrator, orchestratorConfigurationService) {
+      $scope.orchestrator = orchestrator;
+      $scope.lock = true;
+
+      $scope.toggleLock = function() {
+        $scope.lock = ($scope.lock) ? false : true;
+      };
+
       orchestratorConfigurationService.get({orchestratorId: orchestrator.id},
         function(response) {
           if (_.defined(response.data)) {
@@ -38,6 +45,7 @@ define(function (require) {
       });
 
       $scope.saveConfiguration = function(newConfiguration) {
+        $scope.toggleLock();
         return orchestratorConfigurationService.update({
           orchestratorId: orchestrator.id
         }, angular.toJson(newConfiguration), function success(response) {
