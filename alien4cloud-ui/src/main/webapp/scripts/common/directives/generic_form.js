@@ -17,7 +17,7 @@ define(function(require) {
       restrict: 'E',
       scope: {
         rootName: '=?',
-        rootObject: '=',
+        rootObject: '=?',
         formTitle: '@',
         type: '=',
         /* Form styling options */
@@ -70,11 +70,29 @@ define(function(require) {
         };
         FORMS.initComplexFormScope(scope);
         $interval(function() {
-          FORMS.initComplexProperties(scope, scope.type, element.find('.genericformpropertiescontainer'), $compile);
+          var formContainerElement = element.find('.genericformpropertiescontainer');
+          switch (scope.type._type) {
+            case 'complex':
+              FORMS.initComplexProperties(scope, scope.type, formContainerElement, $compile);
+              break;
+            default :
+              FORMS.initOthers(scope, scope.type, formContainerElement, $compile);
+              break;
+          }
         }, 0, 1);
       }
     };
   }]);
+
+  FORMS.initOthers = function(scope, type, element, $compile) {
+    var mapElement = FORMS.elementsFactory(type._type, false, scope.configuration.formStyle);
+    var newScope = scope.$new();
+    newScope.path = scope.path;
+    newScope.labelPath = scope.labelPath;
+    newScope.propertyName = scope.rootName;
+    newScope.propertyType = scope.type;
+    element.append($compile(mapElement[0])(newScope));
+  };
 
   modules.get('a4c-common').directive('updateForm', ['$filter', 'toaster', '$compile', '$interval', function($filter, toaster, $compile, $interval) {
     return {
@@ -125,7 +143,11 @@ define(function(require) {
 
   FORMS.initGenericForm = function(scope, toaster, $filter, element) {
     if (_.undefined(scope.rootObject)) {
-      scope.rootObject = {};
+      if (scope.type._type == 'array') {
+        scope.rootObject = [];
+      } else {
+        scope.rootObject = {};
+      }
     }
     if (_.undefined(scope.rootName)) {
       scope.rootName = 'GENERIC_FORM.ROOT';
@@ -1043,6 +1065,9 @@ define(function(require) {
   };
 
   FORMS.getValueForPath = function(root, path) {
+    if (_.isEmpty(path)) {
+      return root;
+    }
     var objectToSet = root;
     for (var i = 0; i < path.length - 1; i++) {
       if (_.undefined(objectToSet) || !objectToSet.hasOwnProperty(path[i])) {
