@@ -8,7 +8,10 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.elasticsearch.annotation.*;
+import org.elasticsearch.annotation.ESObject;
+import org.elasticsearch.annotation.Id;
+import org.elasticsearch.annotation.NestedObject;
+import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
@@ -16,7 +19,7 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import alien4cloud.model.common.IMetaProperties;
 import alien4cloud.security.ISecuredResource;
-import alien4cloud.security.model.CloudRole;
+import alien4cloud.security.model.OrchestratorRole;
 import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;
 import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
@@ -77,7 +80,7 @@ public class Orchestrator implements ISecuredResource, IMetaProperties {
     private Map<String, String> metaProperties;
 
     @Override
-    public Class<CloudRole> roleEnum() {
-        return CloudRole.class;
+    public Class<OrchestratorRole> roleEnum() {
+        return OrchestratorRole.class;
     }
 }

@@ -1,7 +1,50 @@
 <div>
-  <h1>Orchestrator security</h1>
-  TODO list:
-  <ul>
-    <li>Manage security for the orchestrator.</li>
-  </ul>
+  <div class="row">
+    <div class="col-md-3 resource-user-roles" ng-repeat="orchestratorRole in orchestratorRoles">
+      <div class="thumbnail">
+        <h5>{{orchestratorRole}}</h5>
+        <ul class="td_list liste-no-style">
+          <li ng-repeat="(username, userorchestratorRoles) in orchestrator.userRoles | orderBy:'username.toString()' " ng-show="userorchestratorRoles.indexOf(orchestratorRole) >=0">
+            <i class="fa fa-user"></i>
+            <span>{{ relatedUsers[username].firstName }}</span>
+            <span>{{ relatedUsers[username].lastName}}</span>
+            <span>({{username}})</span>
+          </li>
+          <li ng-repeat="(groupId, grouporchestratorRoles) in orchestrator.groupRoles | orderBy:'relatedGroups[groupId].name' " ng-show="grouporchestratorRoles.indexOf(orchestratorRole) >=0">
+            <i class="fa fa-users"></i>
+            <span>{{ relatedGroups[groupId].name }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SubTabs : USERS / GROUPS -->
+  <div class="row" id="app-user-role">
+    <div class="col-md-12">
+      <hr class="separator-h">
+    </div>
+    <div class="col-md-12">
+      <tabset>
+        <tab heading="{{'ROLE_TABS.USERS' | translate}}" id="users-tab">
+          <alien-search-user
+            crud-support="false"
+            managed-app-role-list="orchestratorRoles"
+            managed-env-role-list="null"
+            check-app-role-selected-callback="checkOrchestratorRoleSelectedForUser(user, role)"
+            on-select-app-role-callback="handleRoleSelectionForUser(user, role)">
+          </alien-search-user>
+        </tab>
+        <tab heading="{{'ROLE_TABS.GROUPS' | translate}}" id="groups-tab">
+          <alien-search-group
+            crud-support="false"
+            managed-app-role-list="orchestratorRoles"
+            managed-env-role-list="null"
+            check-app-role-selected-callback="checkOrchestratorRoleSelectedForGroup(group, role)"
+            on-select-app-role-callback="handleRoleSelectionForGroup(group, role)">
+          </alien-search-group>
+        </tab>
+      </tabset>
+    </div>
+  </div>
 </div>
