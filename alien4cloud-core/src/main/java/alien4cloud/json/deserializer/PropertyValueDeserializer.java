@@ -15,9 +15,9 @@ public class PropertyValueDeserializer extends AbstractDiscriminatorPolymorphicD
     public PropertyValueDeserializer() {
         super(AbstractPropertyValue.class);
         addToRegistry("function", FunctionPropertyValue.class);
-        addToRegistry("value", JsonNodeType.STRING, ScalarPropertyValue.class);
-        addToRegistry("value", JsonNodeType.ARRAY, ListPropertyValue.class);
-        addToRegistry("value", JsonNodeType.OBJECT, ComplexPropertyValue.class);
+        addToRegistry("value", JsonNodeType.STRING.toString(), ScalarPropertyValue.class);
+        addToRegistry("value", JsonNodeType.ARRAY.toString(), ListPropertyValue.class);
+        addToRegistry("value", JsonNodeType.OBJECT.toString(), ComplexPropertyValue.class);
         setValueStringClass(ScalarPropertyValue.class);
     }
 }

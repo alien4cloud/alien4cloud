@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Maps;
 
@@ -21,7 +20,7 @@ import com.google.common.collect.Maps;
  * Manages polymorphism deserialization for Jackson through discriminator field (based on field exists).
  */
 public class AbstractDiscriminatorPolymorphicDeserializer<T> extends StdDeserializer<T> {
-    private Map<String, Map<JsonNodeType, Class<? extends T>>> registry = Maps.newHashMap();
+    private Map<String, Map<String, Class<? extends T>>> registry = Maps.newHashMap();
     private Class<? extends T> valueStringClass = null;
 
     public AbstractDiscriminatorPolymorphicDeserializer(Class<T> clazz) {
@@ -29,11 +28,11 @@ public class AbstractDiscriminatorPolymorphicDeserializer<T> extends StdDeserial
     }
 
     protected void addToRegistry(String discriminator, Class<? extends T> clazz) {
-        addToRegistry(discriminator, JsonNodeType.OBJECT, clazz);
+        addToRegistry(discriminator, "ALL", clazz);
     }
 
-    protected void addToRegistry(String discriminator, JsonNodeType discriminatorNodeType, Class<? extends T> clazz) {
-        Map<JsonNodeType, Class<? extends T>> registryForDiscriminator = registry.get(discriminator);
+    protected void addToRegistry(String discriminator, String discriminatorNodeType, Class<? extends T> clazz) {
+        Map<String, Class<? extends T>> registryForDiscriminator = registry.get(discriminator);
         if (registryForDiscriminator == null) {
             registryForDiscriminator = Maps.newHashMap();
             registry.put(discriminator, registryForDiscriminator);
@@ -70,9 +69,13 @@ public class AbstractDiscriminatorPolymorphicDeserializer<T> extends StdDeserial
         while (elementsIterator.hasNext()) {
             Map.Entry<String, JsonNode> element = elementsIterator.next();
             String name = element.getKey();
-            JsonNodeType nodeType = element.getValue().getNodeType();
+            String nodeType = element.getValue().getNodeType().toString();
             if (registry.containsKey(name)) {
-                Map<JsonNodeType, Class<? extends T>> registryForDiscriminator = registry.get(name);
+                Map<String, Class<? extends T>> registryForDiscriminator = registry.get(name);
+                if (registryForDiscriminator.containsKey("ALL")) {
+                    parameterClass = registryForDiscriminator.values().iterator().next();
+                    break;
+                }
                 if (registryForDiscriminator.containsKey(nodeType)) {
                     parameterClass = registryForDiscriminator.get(nodeType);
                     break;
@@ -80,7 +83,7 @@ public class AbstractDiscriminatorPolymorphicDeserializer<T> extends StdDeserial
             }
         }
         if (parameterClass == null) {
-            return null;
+            throw new JsonParseException("Failed to find implementation for node " + root + " from registry " + registry, jp.getCurrentLocation());
         }
         return mapper.treeToValue(root, parameterClass);
     }

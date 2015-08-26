@@ -251,6 +251,7 @@
     get_property: tosca_function
     get_attribute: tosca_function
     get_operation_output: tosca_function
+    concat: tosca_concat
   default: scalar_property_value
 
 - attribute: __discriminator
