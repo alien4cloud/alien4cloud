@@ -71,7 +71,7 @@ public class ArchiveImageLoaderTest {
         // Parse the archive for definitions
         ParsingResult<ArchiveRoot> result = parser.parse(csarFileForTesting);
         processor.postProcess(result);
-        imageLoader.importImages(csarFileForTesting, result);
+        imageLoader.importImages(csarFileForTesting, result.getResult(), result.getContext().getParsingErrors());
 
         checkImages(result.getResult().getNodeTypes());
     }
@@ -104,7 +104,7 @@ public class ArchiveImageLoaderTest {
         // Parse the archive for definitions
         ParsingResult<ArchiveRoot> result = parser.parse(csarFileForTesting);
         processor.postProcess(result);
-        imageLoader.importImages(csarFileForTesting, result);
+        imageLoader.importImages(csarFileForTesting, result.getResult(), result.getContext().getParsingErrors());
 
         // we expect to have warning issues due to missing files or invalid formats.
         Assert.assertFalse(ArchiveUploadService.hasError(result, ParsingErrorLevel.ERROR));

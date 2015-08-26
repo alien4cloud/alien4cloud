@@ -1,12 +1,7 @@
 package alien4cloud.tosca;
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.ProviderNotFoundException;
+import java.nio.file.*;
 import java.util.EnumSet;
 
 import javax.annotation.Resource;
@@ -19,11 +14,7 @@ import org.springframework.stereotype.Component;
 import alien4cloud.model.components.Csar;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.model.ToscaMeta;
-import alien4cloud.tosca.parser.ParsingError;
-import alien4cloud.tosca.parser.ParsingException;
-import alien4cloud.tosca.parser.ParsingResult;
-import alien4cloud.tosca.parser.ToscaParser;
-import alien4cloud.tosca.parser.YamlSimpleParser;
+import alien4cloud.tosca.parser.*;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.ValidatedNodeParser;
 import alien4cloud.tosca.parser.mapping.CsarMetaMapping;
@@ -97,7 +88,6 @@ public class ArchiveParser {
     }
 
     private ParsingResult<ArchiveRoot> mergeWithToscaMeta(ParsingResult<ArchiveRoot> archiveResult, ParsingResult<ToscaMeta> toscaResult) {
-        archiveResult.getContext().getSubResults().add(0, toscaResult);
         archiveResult.getResult().getArchive().setName(toscaResult.getResult().getName());
         archiveResult.getResult().getArchive().setVersion(toscaResult.getResult().getVersion());
         if (toscaResult.getResult().getCreatedBy() != null) {

@@ -46,9 +46,7 @@ public class LocationService {
     @Inject
     private OrchestratorService orchestratorService;
     @Inject
-    private CsarService csarService;
-    @Inject
-    private ArchiveIndexer archiveIndexer;
+    private LocationArchiveIndexer locationArchiveIndexer;
 
     /**
      * Add a new locations for a given orchestrator.
@@ -66,7 +64,7 @@ public class LocationService {
         location.setOrchestratorId(orchestratorId);
         location.setInfrastructureType(infrastructureType);
 
-        indexArchives(orchestrator, location);
+        locationArchiveIndexer.indexArchives(orchestrator, location);
 
         // save the new location
         alienDAO.save(location);
@@ -74,61 +72,6 @@ public class LocationService {
         autoConfigure(orchestrator, location);
 
         return location.getId();
-    }
-
-    /**
-     * Ensure that plugin archives are indexed, note that by default the archives visibility is not public.
-     * 
-     * @param orchestrator the orchestrator for which to index archives.
-     * @param location The location of the orchestrator for which to index archives.
-     */
-    private void indexArchives(Orchestrator orchestrator, Location location) {
-        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) paaSProviderService.getPaaSProvider(orchestrator.getId());
-        ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
-
-        // TODO Plugin should have the option to let alien load from an archive file.
-        // ensure that the plugin archives for this location are imported in the
-        List<ArchiveRoot> archives = configuratorPlugin.pluginArchives();
-
-        if (archives == null) {
-            return;
-        }
-
-        // index archive here if not already indexed
-        for (ArchiveRoot archive : archives) {
-            Csar csar = csarService.getIfExists(archive.getArchive().getName(), archive.getArchive().getVersion());
-            if (csar == null) {
-                // index the required archive
-                indexArchive(archive, orchestrator, location);
-            } else {
-                // TODO Link csar and archive elements to the location
-                log.debug("Archive {}:{} from plugin {}:{} location {} already exists in the repository and won't be updated.", archive.getArchive().getName(),
-                        archive.getArchive().getVersion(), orchestrator.getPluginId(), orchestrator.getPluginBean(), location.getInfrastructureType());
-            }
-        }
-    }
-
-    private void indexArchive(ArchiveRoot archive, Orchestrator orchestrator, Location location) {
-        // inject a specific tag to allow components catalog filtering search
-        injectWorkSpace(archive.getNodeTypes().values(), orchestrator, location);
-        injectWorkSpace(archive.getArtifactTypes().values(), orchestrator, location);
-        injectWorkSpace(archive.getCapabilityTypes().values(), orchestrator, location);
-        injectWorkSpace(archive.getRelationshipTypes().values(), orchestrator, location);
-        // index components from the archives
-        csarService.save(archive.getArchive());
-        // TODO In case we load the archive from plugin getArchives we should generate the YAML.
-        // TODO we should also find a way to allow icons management for the elements (this is still possible to manage that directly at plugin level)
-        archiveIndexer.indexArchive(archive.getArchive().getName(), archive.getArchive().getVersion(), archive, false);
-        if (archive.getTopology() != null) {
-            log.warn("We currently don't support topologies in location archives.");
-        }
-    }
-
-    private void injectWorkSpace(Collection<? extends IndexedToscaElement> elements, Orchestrator orchestrator, Location location) {
-        for (IndexedToscaElement element : elements) {
-            element.getTags().add(new Tag("alien-workspace-id", orchestrator.getId() + ":" + location.getId()));
-            element.getTags().add(new Tag("alien-workspace-name", orchestrator.getName() + " - " + location.getName()));
-        }
     }
 
     /**
@@ -141,7 +84,7 @@ public class LocationService {
         Location location = getOrFail(locationId);
         if (!autoConfigure(orchestrator, location)) {
             // if the orchestrator doesn't support auto-configuration
-            // TODO throw exception
+            // TODO throw exception or just return false ?
         }
     }
 

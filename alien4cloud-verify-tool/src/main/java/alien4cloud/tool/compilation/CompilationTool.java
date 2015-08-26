@@ -85,9 +85,6 @@ public final class CompilationTool {
     private static void quitWithCompilationError(ParsingResult<?> parsingResult) {
         errPrint("FAILURE :");
         printErrors(parsingResult.getContext().getFileName(), parsingResult.getContext().getParsingErrors());
-        for (ParsingResult<?> subResult : parsingResult.getContext().getSubResults()) {
-            quitWithCompilationError(parsingResult);
-        }
         System.exit(1);
     }
 

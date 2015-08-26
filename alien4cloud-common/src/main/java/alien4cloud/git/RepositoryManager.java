@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -34,15 +35,16 @@ public class RepositoryManager {
     @Getter
     private Map<String, String> locations = new HashMap<String, String>();
     @Getter
-    private ArrayList<Path> csarsToImport = new ArrayList<Path>();
+    private List<Path> csarsToImport = new ArrayList<Path>();
     @Getter
     private Path pathToReach;
     @Value("${directories.alien}/${directories.upload_temp}")
     private String alienTempUpload;
-    public static String _SUFFIXE = "_ZIPPED";
-    public static String _ALL = "_ALL";
-    public static String _DEFAULTSEPARATOR = "/";
-    public static String _TOSCA_METADATA = "TOSCA-Metadata";
+    public static final String ZIP_SUFFIXE = "_ZIPPED";
+    public static final String GIT_ALL = "GIT_ALL";
+    public static final String DEFAULT_SEPARATOR = "/";
+    public static final String TOSCA_METADATA = "TOSCA-Metadata";
+    public static final int NUMBER_OF_FOLDERS = 2;
 
     public void cloneOrCheckout(Path targetDirectory, String repositoryUrl, String branch, String localDirectory) {
         try {
@@ -68,7 +70,7 @@ public class RepositoryManager {
         try {
             Git.open(targetDirectory.resolve(".git").toFile()).pull();
         } catch (IOException e) {
-            log.error("Error while creating target directory ", e);
+            log.error("Error while pulling target directory ", e);
         }
     }
 
@@ -94,16 +96,16 @@ public class RepositoryManager {
             this.locations = branchMap;
             String folder = this.splitRepositoryName(repositoryUrl);
             if (isCompleteImport()) {
-                cloneEntireRepository(repositoryUrl, username, password, pathToReach.resolve(folder + _ALL), isStoredLocally);
-                folderToReach = pathToReach.resolve(folder + _ALL).toString();
-                zipRepositoryToRoot(this.pathToReach.resolve(folder + _ALL));
+                cloneEntireRepository(repositoryUrl, username, password, pathToReach.resolve(folder + GIT_ALL), isStoredLocally);
+                folderToReach = pathToReach.resolve(folder + GIT_ALL).toString();
+                zipRepositoryToRoot(this.pathToReach.resolve(folder + GIT_ALL));
             } else {
                 cloneEntireRepository(repositoryUrl, username, password, pathToReach.resolve(folder + locations.size()), isStoredLocally);
                 zipRepository(pathToReach.resolve(folder + locations.size()), this.getLocations());
                 folderToReach = pathToReach.resolve(folder + locations.size()).toString();
             }
         } catch (IOException | NotFoundException e) {
-            log.error("Error while creating target directory ", e);
+            log.error("Error while cloning target directory ", e);
         }
         return folderToReach;
     }
@@ -201,14 +203,14 @@ public class RepositoryManager {
                     if (!isArchive(listFiles)) {
                         for (int i = 0; i < listFiles.length; i++) {
                             if (listFiles[i].isDirectory() && !listFiles[i].getName().endsWith(".git")) {
-                                FileUtil.zip(file.toPath().resolve(listFiles[i].getName()), pathToFetch.resolve(listFiles[i].getName() + _SUFFIXE));
-                                this.csarsToImport.add(pathToFetch.resolve(listFiles[i].getName() + _SUFFIXE));
+                                FileUtil.zip(file.toPath().resolve(listFiles[i].getName()), pathToFetch.resolve(listFiles[i].getName() + ZIP_SUFFIXE));
+                                this.csarsToImport.add(pathToFetch.resolve(listFiles[i].getName() + ZIP_SUFFIXE));
                             }
                         }
                     } else {
                         Path locatePath = file.toPath();
-                        FileUtil.zip(locatePath, pathToFetch.resolve(entry.getKey() + _SUFFIXE));
-                        this.csarsToImport.add(pathToFetch.resolve(entry.getKey() + _SUFFIXE));
+                        FileUtil.zip(locatePath, pathToFetch.resolve(entry.getKey() + ZIP_SUFFIXE));
+                        this.csarsToImport.add(pathToFetch.resolve(entry.getKey() + ZIP_SUFFIXE));
                     }
                 } catch (IOException e) {
                     log.error("Error while zipping target directory ", e);
@@ -234,13 +236,13 @@ public class RepositoryManager {
             if (!isArchive(listFiles)) {
                 for (int i = 0; i < listFiles.length; i++) {
                     if (listFiles[i].isDirectory() && !listFiles[i].getName().endsWith(".git")) {
-                        FileUtil.zip(file.toPath().resolve(listFiles[i].getName()), pathToFetch.resolve(listFiles[i].getName() + _SUFFIXE));
-                        this.csarsToImport.add(pathToFetch.resolve(listFiles[i].getName() + _SUFFIXE));
+                        FileUtil.zip(file.toPath().resolve(listFiles[i].getName()), pathToFetch.resolve(listFiles[i].getName() + ZIP_SUFFIXE));
+                        this.csarsToImport.add(pathToFetch.resolve(listFiles[i].getName() + ZIP_SUFFIXE));
                     }
                 }
             } else {
-                FileUtil.zip(pathToFetch, pathToFetch.resolve("../" + splitRepositoryName(file.getName() + _SUFFIXE)));
-                this.csarsToImport.add(pathToFetch.resolve("../" + file.getName() + _SUFFIXE));
+                FileUtil.zip(pathToFetch, pathToFetch.resolve("../" + splitRepositoryName(file.getName() + ZIP_SUFFIXE)));
+                this.csarsToImport.add(pathToFetch.resolve("../" + file.getName() + ZIP_SUFFIXE));
             }
         } catch (IOException e) {
             log.error("Error while zipping target directory ", e);
@@ -257,15 +259,15 @@ public class RepositoryManager {
     private boolean isArchive(File[] listFiles) {
         int cpt = 0;
         for (int i = 0; i < listFiles.length; i++) {
-            if (listFiles[i].getName().equals(_TOSCA_METADATA) || listFiles[i].getName().endsWith(".yaml") || listFiles[i].getName().endsWith(".yml")
-                    || listFiles[i].getName().equals("csar")) {
+            if (listFiles[i].getName().equals(TOSCA_METADATA) || listFiles[i].getName().endsWith(".yaml") || listFiles[i].getName().endsWith(".yml")
+                    || "csar".equals(listFiles[i].getName())) {
                 return true;
             }
             if (listFiles[i].isDirectory() && !(listFiles[i].getName().endsWith(".git"))) {
                 cpt++;
             }
         }
-        return cpt >= 2 ? false : true;
+        return cpt >= NUMBER_OF_FOLDERS ? false : true;
     }
 
     /**
@@ -292,6 +294,7 @@ public class RepositoryManager {
                 FileUtil.delete(targetPath);
                 throw new GitCloneUriException(gitException.getMessage());
             } catch (IOException ioEx) {
+                log.error("Error " + ioEx.getMessage());
             }
         }
         if (gitException instanceof NoRemoteRepositoryException) {
@@ -301,6 +304,7 @@ public class RepositoryManager {
                 }
                 throw new GitCloneUriException(gitException.getMessage());
             } catch (IOException ioEx) {
+                log.error("Error " + ioEx.getMessage());
             }
         }
         if (gitException instanceof InvalidRemoteException) {
@@ -310,6 +314,7 @@ public class RepositoryManager {
                 }
                 throw new GitCloneUriException(gitException.getMessage());
             } catch (IOException ioEx) {
+                log.error("Error " + ioEx.getMessage());
             }
         }
         if (gitException instanceof TransportException) {
@@ -319,6 +324,7 @@ public class RepositoryManager {
                 }
                 throw new GitNotAuthorizedException(gitException.getMessage());
             } catch (IOException ioEx) {
+                log.error("Error " + ioEx.getMessage());
             }
         }
     }

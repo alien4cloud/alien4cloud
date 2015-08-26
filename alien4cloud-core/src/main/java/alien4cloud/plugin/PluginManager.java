@@ -107,7 +107,6 @@ public class PluginManager {
 
         // TODO look for plugins on disk and load them
         // Files.walkFileTree()
-
     }
 
     /**
@@ -194,7 +193,7 @@ public class PluginManager {
             // copy ui directory in case it exists
             Path pluginUiSourcePath = pluginPath.resolve(UI_DIRECTORY);
             Path pluginUiPath = getPluginUiPath(pluginPathId);
-            if(Files.exists(pluginUiSourcePath)) {
+            if (Files.exists(pluginUiSourcePath)) {
                 FileUtil.copy(pluginUiSourcePath, pluginUiPath);
             }
 
@@ -389,6 +388,8 @@ public class PluginManager {
         expose(managedPlugin, componentDescriptors);
         // register plugin elements in Alien
         link(plugin, managedPlugin, componentDescriptors);
+        // inject context
+        injectContext(managedPlugin);
 
         // install static resources to be available for the application.
         pluginContexts.put(plugin.getId(), managedPlugin);
@@ -455,6 +456,13 @@ public class PluginManager {
                 }
                 componentDescriptor.setType(linker.linkedType.getSimpleName());
             }
+        }
+    }
+
+    private void injectContext(ManagedPlugin managedPlugin) {
+        Map<String, IPluginContextAware> beans = managedPlugin.getPluginContext().getBeansOfType(IPluginContextAware.class);
+        for (IPluginContextAware bean : beans.values()) {
+            bean.setContext(managedPlugin);
         }
     }
 

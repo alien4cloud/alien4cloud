@@ -1,0 +1,24 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+
+template_name: mock-plugin-openstack-types
+template_author: Alien 4 Cloud
+template_version: 1.1.0-SM4-SNAPSHOT
+
+description: "Defines resources for the mock plugin, mocking openstack configuration."
+
+node_types:
+  alien.nodes.mock.openstack.Image:
+    properties:
+      id:
+        type: string
+    capabilities:
+      os:
+        type: tosca.capabilities.OperatingSystem
+
+  alien.nodes.mock.openstack.Flavor:
+    properties:
+      id:
+        type: string
+    capabilities:
+      host:
+        type: tosca.capabilities.Container

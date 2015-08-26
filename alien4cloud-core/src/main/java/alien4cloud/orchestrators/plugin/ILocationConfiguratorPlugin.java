@@ -2,6 +2,7 @@ package alien4cloud.orchestrators.plugin;
 
 import alien4cloud.model.orchestrators.locations.LocationResourceDefinition;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.orchestrators.plugin.model.PluginArchive;
 import alien4cloud.tosca.model.ArchiveRoot;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public interface ILocationConfiguratorPlugin {
      *
      * @return The archives provided by the plugin.
      */
-    List<ArchiveRoot> pluginArchives();
+    List<PluginArchive> pluginArchives();
 
     /**
      * Get a list of the location resources types.
