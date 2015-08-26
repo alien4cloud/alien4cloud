@@ -1,6 +1,8 @@
 package alien4cloud.utils;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import alien4cloud.rest.utils.JsonUtil;
@@ -16,29 +18,53 @@ public final class MapUtil {
     }
 
     /**
-     * Try to get a value following a path in the map. For example :
+     * Try to get a value following a path in a map or a list/array. For example :
      * MapUtil.get(map, "a.b.c") correspond to:
      * map.get(a).get(b).get(c)
-     * 
-     * @param map the map to search for path
+     * MapUtil.get(list, "1.b.c.2") correspond to:
+     * list[1].get(b).get(c)[2]
+     *
+     * @param object the map/list to search for path
      * @param path keys in the map separated by '.'
      */
-    public static Object get(Map<String, ? extends Object> map, String path) {
+    public static Object get(Object object, String path) {
         String[] tokens = path.split("\\.");
         if (tokens.length == 0) {
-            return null;
+            return object;
         } else {
-            Object value = map;
+            Object value = object;
             for (String token : tokens) {
-                if (!(value instanceof Map)) {
-                    return null;
-                } else {
+                if (value instanceof Collection) {
+                    List<Object> nested = (List<Object>) value;
+                    try {
+                        int index = Integer.parseInt(token);
+                        value = nested.get(index);
+                        if (value == null) {
+                            return null;
+                        }
+                    } catch (NumberFormatException e) {
+                        return null;
+                    }
+                } else if (value instanceof Object[]) {
+                    Object[] nested = (Object[]) value;
+                    try {
+                        int index = Integer.parseInt(token);
+                        value = nested[index];
+                        if (value == null) {
+                            return null;
+                        }
+                    } catch (NumberFormatException e) {
+                        return null;
+                    }
+                } else if (value instanceof Map) {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> nested = (Map<String, Object>) value;
                     value = nested.get(token);
                     if (value == null) {
                         return null;
                     }
+                } else {
+                    return null;
                 }
             }
             return value;
