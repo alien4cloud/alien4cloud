@@ -45,7 +45,9 @@ define(function (require) {
       });
 
       $scope.saveConfiguration = function(newConfiguration) {
-        $scope.toggleLock();
+        if (orchestrator.state === 'CONNECTED') {
+          $scope.toggleLock();
+        }
         return orchestratorConfigurationService.update({
           orchestratorId: orchestrator.id
         }, angular.toJson(newConfiguration), function success(response) {

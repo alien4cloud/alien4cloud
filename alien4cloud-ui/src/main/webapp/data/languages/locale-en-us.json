@@ -659,6 +659,10 @@
       "ON_DEMAND_RESOURCES": "On demand resources",
       "SERVICES": "Services",
       "POLICIES": "Policies"
+    },
+    "CONFIGURATION": {
+      "UNLOCK-BTN-TITLE": "Unlock",
+      "UNLOCK-BTN-CONTENT": "You can unlock to edit the orchestrator configuration but this will affect the connected driver."
     }
   },
   "CLOUD_IMAGES": {
