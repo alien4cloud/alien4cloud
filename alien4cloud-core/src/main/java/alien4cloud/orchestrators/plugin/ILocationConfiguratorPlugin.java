@@ -12,7 +12,7 @@ import java.util.List;
 public interface ILocationConfiguratorPlugin {
     /**
      * Get archives provided by the plugin. They contains all the types that are used to configure the plugin or that the plugin can eventually support.
-     * Theses archives are placed in a specific tosca index and by default are specific to the plugin.
+     * Note that theses archives should not contains any topologies as they will be ignored by alien.
      *
      * @return The archives provided by the plugin.
      */

@@ -19,6 +19,7 @@ import alien4cloud.model.orchestrators.locations.LocationResourceType;
 import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.paas.PaaSProviderService;
+import alien4cloud.tosca.ArchiveIndexer;
 import alien4cloud.tosca.model.ArchiveRoot;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +47,8 @@ public class LocationService {
     private OrchestratorService orchestratorService;
     @Inject
     private CsarService csarService;
+    @Inject
+    private ArchiveIndexer archiveIndexer;
 
     /**
      * Add a new locations for a given orchestrator.
@@ -83,8 +86,13 @@ public class LocationService {
         IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) paaSProviderService.getPaaSProvider(orchestrator.getId());
         ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
 
+        // TODO Plugin should have the option to let alien load from an archive file.
         // ensure that the plugin archives for this location are imported in the
         List<ArchiveRoot> archives = configuratorPlugin.pluginArchives();
+
+        if (archives == null) {
+            return;
+        }
 
         // index archive here if not already indexed
         for (ArchiveRoot archive : archives) {
@@ -107,7 +115,13 @@ public class LocationService {
         injectWorkSpace(archive.getCapabilityTypes().values(), orchestrator, location);
         injectWorkSpace(archive.getRelationshipTypes().values(), orchestrator, location);
         // index components from the archives
-
+        csarService.save(archive.getArchive());
+        // TODO In case we load the archive from plugin getArchives we should generate the YAML.
+        // TODO we should also find a way to allow icons management for the elements (this is still possible to manage that directly at plugin level)
+        archiveIndexer.indexArchive(archive.getArchive().getName(), archive.getArchive().getVersion(), archive, false);
+        if (archive.getTopology() != null) {
+            log.warn("We currently don't support topologies in location archives.");
+        }
     }
 
     private void injectWorkSpace(Collection<? extends IndexedToscaElement> elements, Orchestrator orchestrator, Location location) {
@@ -222,6 +236,7 @@ public class LocationService {
      */
     public void delete(String id) {
         // TODO IMPORTANT ensure that no deployment use the location
+        // TODO delete all archives associated with this location only
         // delete all location resources for the given location
         alienDAO.delete(LocationResourceTemplate.class, QueryBuilders.termQuery("locationId", id));
         // delete the location

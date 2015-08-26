@@ -2,11 +2,9 @@ package alien4cloud.orchestrators.rest;
 
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,7 +19,7 @@ import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.model.CloudRole;
+import alien4cloud.security.model.OrchestratorRole;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -83,7 +81,7 @@ public class LocationController {
     public RestResponse<Location> get(@ApiParam(value = "Id of the orchestrator for which the location is defined.") @PathVariable String orchestratorId,
             @ApiParam(value = "Id of the location to get", required = true) @PathVariable String id) {
         Orchestrator orchestrator = orchestratorService.getOrFail(orchestratorId);
-        AuthorizationUtil.checkAuthorizationForCloud(orchestrator, CloudRole.CLOUD_DEPLOYER);
+        AuthorizationUtil.checkAuthorizationForCloud(orchestrator, OrchestratorRole.ORCHESTRATOR_DEPLOYER);
         Location location = locationService.getOrFail(id);
         return RestResponseBuilder.<Location> builder().data(location).build();
     }
