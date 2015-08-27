@@ -1,5 +1,6 @@
 package alien4cloud.orchestrators.services;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -91,6 +92,9 @@ public class LocationArchiveIndexer {
 
     private void injectWorkSpace(Collection<? extends IndexedToscaElement> elements, Orchestrator orchestrator, Location location) {
         for (IndexedToscaElement element : elements) {
+            if (element.getTags() == null) {
+                element.setTags(new ArrayList<Tag>());
+            }
             element.getTags().add(new Tag("alien-workspace-id", orchestrator.getId() + ":" + location.getId()));
             element.getTags().add(new Tag("alien-workspace-name", orchestrator.getName() + " - " + location.getName()));
         }

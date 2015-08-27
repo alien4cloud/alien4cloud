@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.model.cloud.IaaSType;
-import alien4cloud.model.orchestrators.locations.LocationResourceDefinition;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
 import alien4cloud.orchestrators.plugin.model.PluginArchive;
@@ -44,7 +43,7 @@ public class MockLocationConfigurerFactory implements IPluginContextAware {
             }
 
             @Override
-            public List<LocationResourceDefinition> definitions() {
+            public List<String> getResourcesTypes() {
                 return new ArrayList<>();
             }
 

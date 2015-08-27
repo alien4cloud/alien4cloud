@@ -1,11 +1,9 @@
 package alien4cloud.orchestrators.plugin;
 
-import alien4cloud.model.orchestrators.locations.LocationResourceDefinition;
+import java.util.List;
+
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.orchestrators.plugin.model.PluginArchive;
-import alien4cloud.tosca.model.ArchiveRoot;
-
-import java.util.List;
 
 /**
  * Plugin component that allows the automatic configuration of a location.
@@ -20,11 +18,12 @@ public interface ILocationConfiguratorPlugin {
     List<PluginArchive> pluginArchives();
 
     /**
-     * Get a list of the location resources types.
+     * Get a list of the location resources types. If a type is abstract it won't be used for matching but only as a helper for plugin auto-configuration.
+     * For example Image and Flavor should be abstract while compute should be implemented.
      *
      * @return A list of location resources types.
      */
-    List<LocationResourceDefinition> definitions();
+    List<String> getResourcesTypes();
 
     /**
      * Auto-configure the instances of location resources.

@@ -1,37 +1,29 @@
 package alien4cloud.orchestrators.services;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.csar.services.CsarService;
-import alien4cloud.model.common.Tag;
-import alien4cloud.model.components.Csar;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.orchestrators.Orchestrator;
-import alien4cloud.model.orchestrators.OrchestratorState;
-import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import alien4cloud.model.orchestrators.locations.LocationResourceType;
-import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
-import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
-import alien4cloud.paas.PaaSProviderService;
-import alien4cloud.tosca.ArchiveIndexer;
-import alien4cloud.tosca.model.ArchiveRoot;
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.orchestrators.Orchestrator;
+import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.model.orchestrators.locations.LocationResourceDefinition;
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
+import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
+import alien4cloud.paas.PaaSProviderService;
 import alien4cloud.utils.MapUtil;
+
+import com.google.common.collect.Lists;
 
 /**
  * Manages a locations.
@@ -120,28 +112,16 @@ public class LocationService {
      *
      * @param orchestratorId Id of the orchestrator.
      * @param locationId Id of the location.
-     * @param locationResourceType The (optional, may be null) type of resource to retrieve
      * @return A list of resource definitions for the given location.
      */
-    public List<LocationResourceDefinition> getResourceDefinition(String orchestratorId, String locationId, LocationResourceType locationResourceType) {
+    public List<String> getResourceDefinition(String orchestratorId, String locationId) {
         Orchestrator orchestrator = orchestratorService.getOrFail(orchestratorId);
         Location location = getOrFail(locationId);
 
         IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) paaSProviderService.getPaaSProvider(orchestrator.getId());
         ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
 
-        List<LocationResourceDefinition> locationDefinitions = configuratorPlugin.definitions();
-        if (locationResourceType == null) {
-            return locationDefinitions;
-        }
-        List<LocationResourceDefinition> filteredDefinitions = Lists.newArrayList();
-        for (LocationResourceDefinition definition : locationDefinitions) {
-            if (locationResourceType.equals(definition.getLocationResourceType())) {
-                filteredDefinitions.add(definition);
-            }
-        }
-
-        return filteredDefinitions;
+        return configuratorPlugin.getResourcesTypes();
     }
 
     /**

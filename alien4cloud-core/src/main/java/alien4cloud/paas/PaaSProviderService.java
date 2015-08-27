@@ -10,6 +10,7 @@ import javax.annotation.Resource;
 
 import lombok.AllArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,7 @@ import com.google.common.collect.Maps;
 /**
  * Manages the paas providers currently used by an enabled Cloud in ALIEN.
  */
+@Slf4j
 @Component
 public class PaaSProviderService implements IPaasEventService {
     @Resource(name = "alien-es-dao")
@@ -39,6 +41,10 @@ public class PaaSProviderService implements IPaasEventService {
     @SuppressWarnings("rawtypes")
     private List<IPaasEventListener> listeners = Collections.synchronizedList(new ArrayList<IPaasEventListener>());
 
+    public PaaSProviderService() {
+        log.info("Create new PaaSProvider instance.");
+    }
+
     @Override
     public void addListener(IPaasEventListener<?> listener) {
         listeners.add(listener);
@@ -51,6 +57,7 @@ public class PaaSProviderService implements IPaasEventService {
      * @param instance Instance of the IPaaSProvider for the given cloud.
      */
     public void register(String cloudId, IPaaSProvider instance) {
+        log.info("Register provider with id {}", cloudId);
         if (monitorRegistrations.containsKey(cloudId)) {
             throw new AlreadyExistException("Cloud [" + cloudId + "] has already been registered");
         }
@@ -67,6 +74,7 @@ public class PaaSProviderService implements IPaasEventService {
      * @param cloudId The id of the cloud for which to remove registration.
      */
     public IPaaSProvider unregister(String cloudId) {
+        log.info("Unregister provider with id {}", cloudId);
         Registration registration = monitorRegistrations.remove(cloudId);
         if (registration != null) {
             registration.registration.cancel(false);

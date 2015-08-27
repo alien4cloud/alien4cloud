@@ -5,7 +5,6 @@ import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import alien4cloud.model.orchestrators.locations.LocationResourceDefinition;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
 import alien4cloud.orchestrators.plugin.model.PluginArchive;
@@ -32,7 +31,7 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
     public List<PluginArchive> pluginArchives() {
         List<PluginArchive> archives = Lists.newArrayList();
 
-        Path archivePath = selfContext.getPluginPath().resolve("openstack/openstack-resources.yaml");
+        Path archivePath = selfContext.getPluginPath().resolve("openstack/openstack-resources.yaml.zip");
         // Parse the archives
         try {
             ParsingResult<ArchiveRoot> result = archiveParser.parse(archivePath);
@@ -46,8 +45,8 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
     }
 
     @Override
-    public List<LocationResourceDefinition> definitions() {
-        return null;
+    public List<String> getResourcesTypes() {
+        return Lists.newArrayList("alien.nodes.mock.openstack.Image", "alien.nodes.mock.openstack.Flavor");
     }
 
     @Override

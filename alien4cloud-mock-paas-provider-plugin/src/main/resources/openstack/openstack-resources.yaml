@@ -6,8 +6,12 @@ template_version: 1.1.0-SM4-SNAPSHOT
 
 description: "Defines resources for the mock plugin, mocking openstack configuration."
 
+imports:
+
+
 node_types:
   alien.nodes.mock.openstack.Image:
+    abstract: true
     properties:
       id:
         type: string
@@ -16,6 +20,7 @@ node_types:
         type: tosca.capabilities.OperatingSystem
 
   alien.nodes.mock.openstack.Flavor:
+    abstract: true
     properties:
       id:
         type: string
