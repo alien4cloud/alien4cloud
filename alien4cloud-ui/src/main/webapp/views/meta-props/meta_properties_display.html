@@ -11,12 +11,13 @@
         <tr ng-repeat="metaProperty in properties">
           <td ng-init="propertyDefinition = metaProperty">
             <property-display ng-init="condensed = true"
-              class="metaPropDirective"
-              definition="metaProperty"
-              property-value="getPropertyValue(metaProperty.id)"
-              on-save="updateProperty(type, propertyDefinition.id, propertyValue)"
-              editable="true"
-              condensed="condensed">
+                              class="metaPropDirective"
+                              definition="metaProperty"
+                              property-name="metaProperty.name"
+                              property-value="getPropertyValue(metaProperty.id)"
+                              on-save="updateProperty(type, propertyDefinition.id, propertyValue)"
+                              editable="true"
+                              condensed="condensed">
             </property-display>
           </td>
         </tr>

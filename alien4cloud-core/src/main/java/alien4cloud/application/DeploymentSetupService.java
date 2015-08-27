@@ -1,7 +1,11 @@
 package alien4cloud.application;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -15,7 +19,6 @@ import org.springframework.stereotype.Service;
 import alien4cloud.cloud.CloudResourceMatcherService;
 import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 import alien4cloud.cloud.CloudService;
-import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.deployment.InputsPreProcessorService;
@@ -26,13 +29,16 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.application.DeploymentSetupMatchInfo;
-import alien4cloud.model.cloud.*;
+import alien4cloud.model.cloud.AvailabilityZone;
+import alien4cloud.model.cloud.Cloud;
+import alien4cloud.model.cloud.CloudResourceMatcherConfig;
+import alien4cloud.model.cloud.ComputeTemplate;
+import alien4cloud.model.cloud.NetworkTemplate;
+import alien4cloud.model.cloud.StorageTemplate;
 import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.Requirement;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.topology.TopologyServiceCore;
@@ -65,8 +71,6 @@ public class DeploymentSetupService {
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Resource
     private ConstraintPropertyService constraintPropertyService;
-    @Resource
-    private MetaPropertiesService metaPropertiesService;
     @Resource
     private InputsPreProcessorService inputsPreProcessorService;
     @Resource
@@ -167,7 +171,7 @@ public class DeploymentSetupService {
         for (Map.Entry<String, String> inputPropertyEntry : inputProperties.entrySet()) {
             PropertyDefinition definition = inputDefinitions.get(inputPropertyEntry.getKey());
             if (definition != null) {
-                constraintPropertyService.checkPropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue(),
+                constraintPropertyService.checkSimplePropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue(),
                         inputDefinitions.get(inputPropertyEntry.getKey()));
             }
         }
@@ -200,7 +204,7 @@ public class DeploymentSetupService {
                         changed = true;
                     } else {
                         try {
-                            constraintPropertyService.checkPropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue(),
+                            constraintPropertyService.checkSimplePropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue(),
                                     inputDefinitions.get(inputPropertyEntry.getKey()));
                         } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
                             // Property is not valid anymore for the input, remove the old value
@@ -307,7 +311,6 @@ public class DeploymentSetupService {
             }
         }
     }
-
 
     @AllArgsConstructor
     private static class MappingGenerationResult<T> {

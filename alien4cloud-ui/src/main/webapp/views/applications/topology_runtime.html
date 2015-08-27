@@ -304,7 +304,13 @@
                       <tr ng-repeat="(inputParameterName, inputParameter) in operation.inputParameters">
                         <td class="col-md-11" id="op_{{interfaceName}}_{{operationName}}_param_{{inputParameterName}}_value" ng-class="{'property-required' : inputParameter.required}">
                           <!-- ### {{operation.inputParameters[inputParameterName]}} ** -->
-                          <property-display ng-init="condensed = true" definition="inputParameter.definitionModel" property-value="" on-save="checkProperty(propertyDefinition, propertyValue, interfaceName)" editable="true" condensed="condensed">
+                          <property-display ng-init="condensed = true"
+                                            definition="inputParameter.definitionModel"
+                                            property-name="inputParameter.definitionModel.name"
+                                            property-value=""
+                                            on-save="checkProperty(propertyDefinition, propertyValue, interfaceName)"
+                                            editable="true"
+                                            condensed="condensed">
                           </property-display>
                         </td>
                         <td class="col-md-1">

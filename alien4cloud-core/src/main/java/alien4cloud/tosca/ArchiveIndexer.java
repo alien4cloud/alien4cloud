@@ -23,9 +23,9 @@ import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.VersionUtil;
 import org.springframework.stereotype.Component;
 
+import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.tosca.model.ArchiveRoot;
 
 @Component
@@ -138,7 +138,8 @@ public class ArchiveIndexer {
         updateCreationDates(root.getCapabilityTypes(), previousElements);
         updateCreationDates(root.getNodeTypes(), previousElements);
         updateCreationDates(root.getRelationshipTypes(), previousElements);
-
+        updateCreationDates(root.getDataTypes(), previousElements);
+        
         if (root.getLocalImports() != null) {
             for (ArchiveRoot child : root.getLocalImports()) {
                 prepareForUpdate(archiveName, archiveVersion, child, previousElements);
@@ -163,6 +164,7 @@ public class ArchiveIndexer {
         indexerService.indexInheritableElements(archiveName, archiveVersion, root.getCapabilityTypes(), root.getArchive().getDependencies());
         indexerService.indexInheritableElements(archiveName, archiveVersion, root.getNodeTypes(), root.getArchive().getDependencies());
         indexerService.indexInheritableElements(archiveName, archiveVersion, root.getRelationshipTypes(), root.getArchive().getDependencies());
+        indexerService.indexInheritableElements(archiveName, archiveVersion, root.getDataTypes(), root.getArchive().getDependencies());
 
         if (root.getLocalImports() != null) {
             for (ArchiveRoot child : root.getLocalImports()) {

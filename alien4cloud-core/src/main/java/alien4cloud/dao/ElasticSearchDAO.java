@@ -5,17 +5,11 @@ import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 
-import alien4cloud.model.orchestrators.Orchestrator;
-import alien4cloud.model.orchestrators.OrchestratorConfiguration;
-import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.model.orchestrators.locations.LocationResourceDefinition;
-import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
@@ -28,20 +22,21 @@ import alien4cloud.model.components.Csar;
 import alien4cloud.model.components.IndexedArtifactToscaElement;
 import alien4cloud.model.components.IndexedArtifactType;
 import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedDataType;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.deployment.Deployment;
+import alien4cloud.model.orchestrators.Orchestrator;
+import alien4cloud.model.orchestrators.OrchestratorConfiguration;
+import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.model.PluginConfiguration;
 import alien4cloud.security.model.CsarGitRepository;
-
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
  * Elastic Search DAO for alien 4 cloud application.
@@ -69,7 +64,8 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         // init indices and mapped classes
         setJsonMapper(ElasticSearchMapper.getInstance());
 
-        initIndices(TOSCA_ELEMENT_INDEX, null, IndexedCapabilityType.class, IndexedArtifactType.class, IndexedRelationshipType.class, IndexedNodeType.class);
+        initIndices(TOSCA_ELEMENT_INDEX, null, IndexedCapabilityType.class, IndexedArtifactType.class, IndexedRelationshipType.class, IndexedNodeType.class,
+                IndexedDataType.class);
         initIndices(TOSCA_ELEMENT_INDEX, null, IndexedArtifactToscaElement.class, IndexedToscaElement.class);
 
         initIndice(Application.class);

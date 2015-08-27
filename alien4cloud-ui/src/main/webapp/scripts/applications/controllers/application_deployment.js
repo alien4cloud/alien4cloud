@@ -86,11 +86,6 @@ define(function (require) {
         $http.get('rest/clouds/' + $scope.selectedCloud.id + '/deploymentpropertydefinitions').success(function(result) {
           if (result.data) {
             $scope.deploymentPropertyDefinitions = result.data;
-            for (var propertyName in $scope.deploymentPropertyDefinitions) {
-              if ($scope.deploymentPropertyDefinitions.hasOwnProperty(propertyName)) {
-                $scope.deploymentPropertyDefinitions[propertyName].name = propertyName;
-              }
-            }
           }
         });
       }
@@ -520,8 +515,7 @@ define(function (require) {
       };
 
       /** Properties definition */
-      $scope.updateDeploymentProperty = function(propertyDefinition, propertyValue) {
-        var propertyName = propertyDefinition.name;
+      $scope.updateDeploymentProperty = function(propertyDefinition, propertyName, propertyValue) {
         if (propertyValue === $scope.deploymentProperties[propertyName]) {
           return; // no change
         }

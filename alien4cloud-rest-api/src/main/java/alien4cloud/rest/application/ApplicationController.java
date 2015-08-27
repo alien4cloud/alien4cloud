@@ -225,7 +225,7 @@ public class ApplicationController {
             PropertyDefinition propertyDefinition = deploymentPropertyDefinitions.get(deploymentPropertyValidationRequest.getDeploymentPropertyName());
             if (propertyDefinition != null && propertyDefinition.getConstraints() != null) {
                 try {
-                    constraintPropertyService.checkPropertyConstraint(deploymentPropertyValidationRequest.getDeploymentPropertyName(),
+                    constraintPropertyService.checkSimplePropertyConstraint(deploymentPropertyValidationRequest.getDeploymentPropertyName(),
                             deploymentPropertyValidationRequest.getDeploymentPropertyValue(), propertyDefinition);
                 } catch (ConstraintViolationException e) {
                     log.error("Constraint violation error for property <" + deploymentPropertyValidationRequest.getDeploymentPropertyName() + "> with value <"

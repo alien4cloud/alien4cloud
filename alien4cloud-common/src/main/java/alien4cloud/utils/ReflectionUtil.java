@@ -12,6 +12,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -267,4 +269,5 @@ public final class ReflectionUtil {
                 || clazz.equals(Float.class) || clazz.equals(Double.class) || clazz.equals(Character.class) || clazz.equals(Byte.class)
                 || clazz.equals(Short.class);
     }
+
 }

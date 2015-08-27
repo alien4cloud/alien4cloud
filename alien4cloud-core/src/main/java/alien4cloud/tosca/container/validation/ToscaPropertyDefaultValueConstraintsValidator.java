@@ -18,18 +18,16 @@ public class ToscaPropertyDefaultValueConstraintsValidator implements Constraint
 
     @Override
     public boolean isValid(PropertyDefinition value, ConstraintValidatorContext context) {
-        // validate that the default value matches the defined constraints.
-        IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(value.getType());
-        if (toscaType == null) {
-            return false;
-        }
-
         String defaultAsString = value.getDefault();
         if (defaultAsString == null) {
             // no default value is specified.
             return true;
         }
-
+        // validate that the default value matches the defined constraints.
+        IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(value.getType());
+        if (toscaType == null) {
+            return false;
+        }
         Object defaultValue = null;
         try {
             defaultValue = toscaType.parse(defaultAsString);

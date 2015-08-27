@@ -9,6 +9,7 @@ import org.yaml.snakeyaml.nodes.Node;
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.model.components.IndexedArtifactType;
 import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedDataType;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
@@ -72,6 +73,8 @@ public abstract class DerivedFromParser extends DefaultDeferredParser<List<Strin
             return archiveRoot.getCapabilityTypes().get(referencedType);
         } else if (validType.equals(IndexedArtifactType.class)) {
             return archiveRoot.getArtifactTypes().get(referencedType);
+        } else if (validType.equals(IndexedDataType.class)) {
+            return archiveRoot.getDataTypes().get(referencedType);
         }
         return null;
     }

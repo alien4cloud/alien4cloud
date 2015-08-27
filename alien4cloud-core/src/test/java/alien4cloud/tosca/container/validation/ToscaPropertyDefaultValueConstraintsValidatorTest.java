@@ -27,7 +27,7 @@ import alien4cloud.model.components.constraints.ValidValuesConstraint;
 
 import com.google.common.collect.Lists;
 
-public class TocsaPropertyDefaultValueConstraintsValidatorTest {
+public class ToscaPropertyDefaultValueConstraintsValidatorTest {
     private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();;
 
     private PropertyDefinition createDefinitions(String propertyType, PropertyConstraint constraint, String defaultValue) {
