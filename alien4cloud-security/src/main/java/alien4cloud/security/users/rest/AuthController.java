@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import alien4cloud.security.model.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -22,13 +23,6 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.model.UserStatus;
 import alien4cloud.security.groups.IAlienGroupDao;
-import alien4cloud.security.model.ApplicationEnvironmentRole;
-import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.security.model.CloudRole;
-import alien4cloud.security.model.Group;
-import alien4cloud.security.model.OrchestratorRole;
-import alien4cloud.security.model.Role;
-import alien4cloud.security.model.User;
 
 import com.google.common.collect.Lists;
 import com.mangofactory.swagger.annotations.ApiIgnore;
@@ -115,6 +109,12 @@ public class AuthController {
     @RequestMapping(value = "/roles/orchestrator", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<OrchestratorRole[]> getOrchestratorRoles() {
         return RestResponseBuilder.<OrchestratorRole[]> builder().data(OrchestratorRole.values()).build();
+    }
+
+    @ApiIgnore
+    @RequestMapping(value = "/roles/location", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<LocationRole[]> getLocationRoles() {
+        return RestResponseBuilder.<LocationRole[]> builder().data(LocationRole.values()).build();
     }
 
     @ApiIgnore

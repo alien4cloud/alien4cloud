@@ -1,15 +1,5 @@
 package alien4cloud.orchestrators.rest;
 
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.validation.Valid;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
@@ -20,11 +10,18 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.OrchestratorRole;
-
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.Authorization;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
+import java.util.List;
 
 /**
  * Controller that manages locations for orchestrators.
@@ -81,7 +78,7 @@ public class LocationController {
     public RestResponse<Location> get(@ApiParam(value = "Id of the orchestrator for which the location is defined.") @PathVariable String orchestratorId,
             @ApiParam(value = "Id of the location to get", required = true) @PathVariable String id) {
         Orchestrator orchestrator = orchestratorService.getOrFail(orchestratorId);
-        AuthorizationUtil.checkAuthorizationForCloud(orchestrator, OrchestratorRole.ORCHESTRATOR_DEPLOYER);
+        AuthorizationUtil.checkAuthorizationForCloud(orchestrator, OrchestratorRole.DEPLOYER);
         Location location = locationService.getOrFail(id);
         return RestResponseBuilder.<Location> builder().data(location).build();
     }

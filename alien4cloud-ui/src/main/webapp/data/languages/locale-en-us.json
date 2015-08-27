@@ -658,7 +658,8 @@
       "CONFIGURATION_RESOURCES": "Configuration resources",
       "ON_DEMAND_RESOURCES": "On demand resources",
       "SERVICES": "Services",
-      "POLICIES": "Policies"
+      "POLICIES": "Policies",
+      "SECURITY": "Security"
     },
     "CONFIGURATION": {
       "UNLOCK-BTN-TITLE": "Unlock",
