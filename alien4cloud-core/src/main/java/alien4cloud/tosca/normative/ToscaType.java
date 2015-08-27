@@ -31,6 +31,8 @@ public class ToscaType {
     public static final String SIZE = SizeType.NAME;
     public static final String TIME = TimeType.NAME;
     public static final String VERSION = VersionType.NAME;
+    public static final String LIST = "list";
+    public static final String MAP = "map";
 
     private static final Map<String, IPropertyType<?>> TYPES_MAP = Maps.newHashMap();
 
@@ -50,5 +52,9 @@ public class ToscaType {
             return null;
         }
         return TYPES_MAP.get(typeName);
+    }
+
+    public static boolean isSimple(String typeName) {
+        return TYPES_MAP.containsKey(typeName);
     }
 }

@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 
+import alien4cloud.model.components.IndexedDataType;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
@@ -67,7 +68,8 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         // init indices and mapped classes
         setJsonMapper(generateJsonMapper());
 
-        initIndices(TOSCA_ELEMENT_INDEX, null, IndexedCapabilityType.class, IndexedArtifactType.class, IndexedRelationshipType.class, IndexedNodeType.class);
+        initIndices(TOSCA_ELEMENT_INDEX, null, IndexedCapabilityType.class, IndexedArtifactType.class, IndexedRelationshipType.class, IndexedNodeType.class,
+                IndexedDataType.class);
         initIndices(TOSCA_ELEMENT_INDEX, null, IndexedArtifactToscaElement.class, IndexedToscaElement.class);
 
         initIndice(Application.class);

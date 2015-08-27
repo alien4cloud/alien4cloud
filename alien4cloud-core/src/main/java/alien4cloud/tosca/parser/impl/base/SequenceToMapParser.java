@@ -7,7 +7,6 @@ import alien4cloud.tosca.parser.impl.ErrorCode;
 import lombok.AllArgsConstructor;
 
 import org.elasticsearch.common.collect.Maps;
-import org.yaml.snakeyaml.error.Mark;
 import org.yaml.snakeyaml.nodes.*;
 
 /**
@@ -77,8 +76,8 @@ public class SequenceToMapParser<T> implements INodeParser<Map<String, T>> {
     }
 
     @Override
-    public int getDefferedOrder(ParsingContextExecution context) {
-        return valueParser.getDefferedOrder(context);
+    public int getDeferredOrder(ParsingContextExecution context) {
+        return valueParser.getDeferredOrder(context);
     }
 
 }

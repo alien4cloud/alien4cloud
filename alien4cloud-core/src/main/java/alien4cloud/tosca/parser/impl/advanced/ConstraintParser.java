@@ -77,7 +77,7 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
     }
 
     @Override
-    public int getDefferedOrder(ParsingContextExecution context) {
+    public int getDeferredOrder(ParsingContextExecution context) {
         return 0;
     }
 

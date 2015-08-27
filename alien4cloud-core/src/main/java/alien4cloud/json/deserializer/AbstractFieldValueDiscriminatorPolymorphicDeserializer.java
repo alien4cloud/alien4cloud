@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,9 +30,9 @@ public class AbstractFieldValueDiscriminatorPolymorphicDeserializer<T> extends S
     }
 
     @Override
-    public T deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+    public T deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         ObjectMapper mapper = (ObjectMapper) jp.getCodec();
-        ObjectNode root = (ObjectNode) mapper.readTree(jp);
+        ObjectNode root = mapper.readTree(jp);
         Class<? extends T> parameterClass = null;
         Iterator<Map.Entry<String, JsonNode>> elementsIterator = root.fields();
         while (elementsIterator.hasNext()) {

@@ -27,11 +27,15 @@ import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.model.PaaSTopology;
+import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
+import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.utils.AlienUtils;
+import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -280,24 +284,55 @@ public final class FunctionEvaluator {
      * @return the String result of the function evalutation
      */
     public static String evaluateGetPropertyFunction(FunctionPropertyValue functionParam,
-            IPaaSTemplate<? extends IndexedInheritableToscaElement> basePaaSTemplate,
-            Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
+            IPaaSTemplate<? extends IndexedInheritableToscaElement> basePaaSTemplate, Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         List<? extends IPaaSTemplate> paaSTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionParam.getTemplateName(), builtPaaSTemplates);
-        String propertyId = functionParam.getElementNameToFetch();
         for (IPaaSTemplate paaSTemplate : paaSTemplates) {
-            AbstractPropertyValue propertyValue = getPropertyFromTemplateOrCapability(paaSTemplate, functionParam.getCapabilityOrRequirementName(),
+            String propertyValue = getPropertyFromTemplateOrCapability(paaSTemplate, functionParam.getCapabilityOrRequirementName(),
                     functionParam.getElementNameToFetch());
             // return the first value found
             if (propertyValue != null) {
-                if (propertyValue instanceof ScalarPropertyValue) {
-                    return ((ScalarPropertyValue) propertyValue).getValue();
-                } else {
-                    throw new FunctionEvaluationException("Failed to evaluate the property <" + propertyId + "> of node <" + basePaaSTemplate.getId()
-                            + ">. 'get_property' / 'get_attribute' functions are not supported on node's entities' properties definition.");
-                }
+                return propertyValue;
             }
         }
         return null;
+    }
+
+    private static String getPropertyValue(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> propertyDefinitions,
+            String propertyAccessPath) {
+        if (properties == null || !properties.containsKey(propertyAccessPath)) {
+            String propertyName = PropertyUtil.getPropertyNameFromComplexPath(propertyAccessPath);
+            if (propertyName == null) {
+                // Non complex
+                String defaultValue = PropertyUtil.getDefaultValueFromPropertyDefinitions(propertyAccessPath, propertyDefinitions);
+                if (defaultValue != null) {
+                    return defaultValue;
+                } else {
+                    return null;
+                }
+            } else {
+                // Complex
+                PropertyDefinition propertyDefinition = propertyDefinitions.get(propertyAccessPath);
+                if (ToscaType.isSimple(propertyDefinition.getType())) {
+                    // It's a complex path (with '.') but the type in definition is finally simple
+                    return null;
+                } else if (properties != null) {
+                    Object value = MapUtil.get(properties.get(propertyName), propertyAccessPath.substring(propertyName.length()));
+                    if (value instanceof String) {
+                        return (String) value;
+                    } else {
+                        try {
+                            return JsonUtil.toString(value);
+                        } catch (JsonProcessingException e) {
+                            return null;
+                        }
+                    }
+                } else {
+                    return null;
+                }
+            }
+        } else {
+            return getScalarValue(properties.get(propertyAccessPath));
+        }
     }
 
     /**
@@ -309,24 +344,12 @@ public final class FunctionEvaluator {
      * @param elementName
      * @return
      */
-    private static AbstractPropertyValue getPropertyFromTemplateOrCapability(IPaaSTemplate<? extends IndexedInheritableToscaElement> paaSTemplate,
+    private static String getPropertyFromTemplateOrCapability(IPaaSTemplate<? extends IndexedInheritableToscaElement> paaSTemplate,
             String capabilityOrRequirementName, String elementName) {
 
         // if no capability or requirement provided, return the value from the template property
         if (StringUtils.isBlank(capabilityOrRequirementName)) {
-            Map<String, AbstractPropertyValue> properties = paaSTemplate.getTemplate().getProperties();
-            if (properties == null || !properties.containsKey(elementName)) {
-                // Attempt to see if default value exists
-                Map<String, PropertyDefinition> propertyDefinitionMap = paaSTemplate.getIndexedToscaElement().getProperties();
-                String defaultValue = PropertyUtil.getDefaultValueFromPropertyDefinitions(elementName, propertyDefinitionMap);
-                if (defaultValue != null) {
-                    return new ScalarPropertyValue(defaultValue);
-                } else {
-                    return null;
-                }
-            } else {
-                return paaSTemplate.getTemplate().getProperties().get(elementName);
-            }
+            return getPropertyValue(paaSTemplate.getTemplate().getProperties(), paaSTemplate.getIndexedToscaElement().getProperties(), elementName);
         } else if (paaSTemplate instanceof PaaSNodeTemplate) {
             // if capability or requirement name provided:
             // FIXME how should I know that the provided name is capability or a requirement name?
@@ -350,7 +373,7 @@ public final class FunctionEvaluator {
                 }
             }
 
-            return propertyValue;
+            return getScalarValue(propertyValue);
         }
 
         log.warn("The keyword <" + ToscaFunctionConstants.SELF
@@ -440,4 +463,5 @@ public final class FunctionEvaluator {
     public static boolean isGetOperationOutput(FunctionPropertyValue function) {
         return ToscaFunctionConstants.GET_OPERATION_OUTPUT.equals(function.getFunction());
     }
+
 }

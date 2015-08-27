@@ -6,6 +6,7 @@ define(function (require) {
   var angular = require('angular');
   var _ = require('lodash');
 
+  require('d3');
   require('toaster');
   require('bower_components/jquery-ui/ui/resizable');
 

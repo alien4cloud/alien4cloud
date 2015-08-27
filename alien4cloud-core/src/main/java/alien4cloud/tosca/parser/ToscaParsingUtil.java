@@ -8,6 +8,7 @@ import org.yaml.snakeyaml.nodes.ScalarNode;
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.model.components.IndexedArtifactType;
 import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedDataType;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.IndexedToscaElement;
@@ -46,6 +47,10 @@ public final class ToscaParsingUtil {
         return getElementFromArchiveOrDependencies(IndexedRelationshipType.class, nodeTypeName, archiveRoot, searchService);
     }
 
+    public static IndexedDataType getDataTypeFromArchiveOrDependencies(String dataTypeName, ArchiveRoot archiveRoot, ICSARRepositorySearchService searchService) {
+        return getElementFromArchiveOrDependencies(IndexedDataType.class, dataTypeName, archiveRoot, searchService);
+    }
+
     @SuppressWarnings("unchecked")
     public static <T extends IndexedToscaElement> T getElementFromArchiveOrDependencies(Class<T> elementClass, String elementId, ArchiveRoot archiveRoot,
             ICSARRepositorySearchService searchService) {
@@ -59,6 +64,8 @@ public final class ToscaParsingUtil {
             result = (T) archiveRoot.getRelationshipTypes().get(elementId);
         } else if (elementClass == IndexedNodeType.class) {
             result = (T) archiveRoot.getNodeTypes().get(elementId);
+        } else if (elementClass == IndexedDataType.class) {
+            result = (T) archiveRoot.getDataTypes().get(elementId);
         }
 
         if (result == null) {

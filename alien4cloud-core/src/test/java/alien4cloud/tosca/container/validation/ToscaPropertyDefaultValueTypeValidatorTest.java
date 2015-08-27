@@ -13,7 +13,7 @@ import org.junit.Test;
 import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.model.components.PropertyDefinition;
 
-public class TocsaPropertyDefaultValueTypeValidatorTest {
+public class ToscaPropertyDefaultValueTypeValidatorTest {
     private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();;
 
     private PropertyDefinition createDefinitions(String propertyType, String defaultValue) {
