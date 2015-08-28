@@ -94,7 +94,6 @@ public class OrchestratorController {
     public RestResponse<Orchestrator> get(@ApiParam(value = "Id of the orchestrator to get", required = true) @PathVariable String id) {
         // check roles on the requested cloud
         Orchestrator orchestrator = orchestratorService.getOrFail(id);
-        AuthorizationUtil.checkAuthorizationForCloud(orchestrator, CloudRole.CLOUD_DEPLOYER);
         return RestResponseBuilder.<Orchestrator> builder().data(orchestrator).build();
     }
 

@@ -1,14 +1,8 @@
 package alien4cloud.orchestrators.rest;
 
-import alien4cloud.audit.annotation.Audit;
-import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.orchestrators.services.LocationService;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.ResourceRoleService;
-import alien4cloud.security.model.Role;
-import com.wordnik.swagger.annotations.ApiOperation;
+import javax.annotation.Resource;
+
+import alien4cloud.model.orchestrators.Orchestrator;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,7 +10,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
+import alien4cloud.audit.annotation.Audit;
+import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.orchestrators.services.LocationService;
+import alien4cloud.orchestrators.services.OrchestratorService;
+import alien4cloud.rest.model.RestResponse;
+import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.ResourceRoleService;
+import alien4cloud.security.model.Role;
+
+import com.wordnik.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping("/rest/orchestrators/{orchestratorId}/locations/{locationId}/roles/")
@@ -25,6 +29,8 @@ public class LocationRolesController {
     private LocationService locationsService;
     @Resource
     private ResourceRoleService resourceRoleService;
+    @Resource
+    private OrchestratorService orchestratorService;
 
     /**
      * Add a role to a user on a specific location
@@ -78,8 +84,11 @@ public class LocationRolesController {
     @Audit
     public RestResponse<Void> removeUserRole(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String username, @PathVariable String role) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
-        Location location = locationsService.getOrFail(locationId);
-        resourceRoleService.removeUserRole(location, username, role);
+        Orchestrator orchestrator = orchestratorService.getOrFail(orchestratorId);
+        if (!orchestrator.getAuthorizedUsers().contains(username)) {
+            Location location = locationsService.getOrFail(locationId);
+            resourceRoleService.removeUserRole(location, username, role);
+        }
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -97,8 +106,11 @@ public class LocationRolesController {
     @Audit
     public RestResponse<Void> removeGroupRole(@PathVariable String orchestratorId, @PathVariable String locationId, @PathVariable String groupId, @PathVariable String role) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
-        Location location = locationsService.getOrFail(locationId);
-        resourceRoleService.removeGroupRole(location, groupId, role);
+        Orchestrator orchestrator = orchestratorService.getOrFail(orchestratorId);
+        if (!orchestrator.getAuthorizedGroups().contains(groupId)) {
+            Location location = locationsService.getOrFail(locationId);
+            resourceRoleService.removeGroupRole(location, groupId, role);
+        }
         return RestResponseBuilder.<Void> builder().build();
     }
 }

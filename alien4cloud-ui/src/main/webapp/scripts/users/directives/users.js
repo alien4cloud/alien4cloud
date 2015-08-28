@@ -1,6 +1,6 @@
 define(function (require) {
   'use strict';
-  
+
   var modules = require('modules');
   require('scripts/users/controllers/users_directive_ctrl');
 
@@ -12,6 +12,7 @@ define(function (require) {
         'crudSupport': '=',
         'managedAppRoleList': '=',
         'managedEnvRoleList': '=',
+        'notEditableRoleList': '=',
         'checkAppRoleSelectedCallback': '&',
         'checkEnvRoleSelectedCallback': '&',
         'onSelectAppRoleCallback': '&',

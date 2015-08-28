@@ -27,18 +27,19 @@ define(function (require) {
     function($scope, $modal, $state, $resource, orchestrator, orchestratorSecurityService, userServices, groupServices) {
       $scope.orchestrator = orchestrator;
 
-      // get all orchestrator assignable roles
-      $resource('rest/auth/roles/orchestrator', {}, {
+      // // get all orchestrator assignable roles
+      $resource('rest/auth/roles/deployer', {}, {
         method: 'GET'
       }).get().$promise.then(function(roleResult) {
         $scope.orchestratorRoles = roleResult.data;
       });
 
       $scope.relatedUsers = {};
-      if ($scope.orchestrator.userRoles) {
+      if ($scope.orchestrator.authorizedUsers) {
         var usernames = [];
-        for (var username in $scope.orchestrator.userRoles) {
-          if ($scope.orchestrator.userRoles.hasOwnProperty(username)) {
+        for (var i in $scope.orchestrator.authorizedUsers) {
+          var username = $scope.orchestrator.authorizedUsers[i];
+          if ($scope.orchestrator.authorizedUsers.hasOwnProperty(username)) {
             usernames.push(username);
           }
         }
@@ -53,10 +54,11 @@ define(function (require) {
       }
 
       $scope.relatedGroups = {};
-      if ($scope.orchestrator.groupRoles) {
+      if ($scope.orchestrator.authorizedGroups) {
         var groupIds = [];
-        for (var groupId in $scope.orchestrator.groupRoles) {
-          if ($scope.orchestrator.groupRoles.hasOwnProperty(groupId)) {
+        for (var j in $scope.orchestrator.authorizedGroups) {
+          var groupId = $scope.orchestrator.authorizedGroups[j];
+          if ($scope.orchestrator.authorizedGroups.hasOwnProperty(groupId)) {
             groupIds.push(groupId);
           }
         }
@@ -70,36 +72,18 @@ define(function (require) {
         }
       }
 
-      var updateRoles = function(roles, role, operation) {
-        switch (operation) {
-          case 'add':
-            if (!roles) {
-              roles = [];
-            }
-            roles.push(role);
-            return roles;
-          case 'remove':
-            var index = roles.indexOf(role);
-            roles.splice(index, 1);
-            return roles;
-          default:
-            break;
-        }
-      };
-
       // Handle orchestrator security action
       $scope.handleRoleSelectionForUser = function(user, role) {
-        if (_.undefined($scope.orchestrator.userRoles)) {
-          $scope.orchestrator.userRoles = {};
+        if (_.undefined($scope.orchestrator.authorizedUsers)) {
+          $scope.orchestrator.authorizedUsers = [];
         }
-        var orchestratorUserRoles = $scope.orchestrator.userRoles[user.username];
-        if (!orchestratorUserRoles || orchestratorUserRoles.indexOf(role) < 0) {
+        if ($scope.orchestrator.authorizedUsers.indexOf(user.username) < 0) {
           orchestratorSecurityService.userRoles.addUserRole([], {
             id: $scope.orchestrator.id,
             username: user.username,
             role: role
           }, function() {
-            $scope.orchestrator.userRoles[user.username] = updateRoles(orchestratorUserRoles, role, 'add');
+            $scope.orchestrator.authorizedUsers.push(user.username);
             if (!$scope.relatedUsers[user.username]) {
               $scope.relatedUsers[user.username] = user;
             }
@@ -110,23 +94,22 @@ define(function (require) {
             username: user.username,
             role: role
           }, function() {
-            $scope.orchestrator.userRoles[user.username] = updateRoles(orchestratorUserRoles, role, 'remove');
+            _.pull($scope.orchestrator.authorizedUsers, user.username);
           });
         }
       };
 
       $scope.handleRoleSelectionForGroup = function(group, role) {
-        if (_.undefined($scope.orchestrator.groupRoles)) {
-          $scope.orchestrator.groupRoles = {};
+        if (_.undefined($scope.orchestrator.authorizedGroups)) {
+          $scope.orchestrator.authorizedGroups = [];
         }
-        var orchestratorGroupRoles = $scope.orchestrator.groupRoles[group.id];
-        if (!orchestratorGroupRoles || orchestratorGroupRoles.indexOf(role) < 0) {
+        if ($scope.orchestrator.authorizedGroups.indexOf(group.id) < 0) {
           orchestratorSecurityService.groupRoles.addGroupRole([], {
             id: $scope.orchestrator.id,
             groupId: group.id,
             role: role
           }, function() {
-            $scope.orchestrator.groupRoles[group.id] = updateRoles(orchestratorGroupRoles, role, 'add');
+            $scope.orchestrator.authorizedGroups.push(group.id);
             if (!$scope.relatedGroups[group.id]) {
               $scope.relatedGroups[group.id] = group;
             }
@@ -137,21 +120,21 @@ define(function (require) {
             groupId: group.id,
             role: role
           }, function() {
-            $scope.orchestrator.groupRoles[group.id] = updateRoles(orchestratorGroupRoles, role, 'remove');
+            _.pull($scope.orchestrator.authorizedGroups, group.id);
           });
         }
       };
 
-      $scope.checkOrchestratorRoleSelectedForUser = function(user, role) {
-        if ($scope.orchestrator && $scope.orchestrator.userRoles && $scope.orchestrator.userRoles[user.username]) {
-          return $scope.orchestrator.userRoles[user.username].indexOf(role) > -1;
+      $scope.checkOrchestratorRoleSelectedForUser = function(user) {
+        if ($scope.orchestrator && $scope.orchestrator.authorizedUsers) {
+          return $scope.orchestrator.authorizedUsers.indexOf(user.username) > -1;
         }
         return false;
       };
 
-      $scope.checkOrchestratorRoleSelectedForGroup = function(group, role) {
-        if ($scope.orchestrator && $scope.orchestrator.groupRoles && $scope.orchestrator.groupRoles[group.id]) {
-          return $scope.orchestrator.groupRoles[group.id].indexOf(role) > -1;
+      $scope.checkOrchestratorRoleSelectedForGroup = function(group) {
+        if ($scope.orchestrator && $scope.orchestrator.authorizedGroups) {
+          return $scope.orchestrator.authorizedGroups.indexOf(group.id) > -1;
         }
         return false;
       };

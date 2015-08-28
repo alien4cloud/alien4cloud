@@ -9,7 +9,7 @@ import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.model.OrchestratorRole;
+import alien4cloud.security.model.DeployerRole;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
@@ -78,8 +78,8 @@ public class LocationController {
     public RestResponse<Location> get(@ApiParam(value = "Id of the orchestrator for which the location is defined.") @PathVariable String orchestratorId,
             @ApiParam(value = "Id of the location to get", required = true) @PathVariable String id) {
         Orchestrator orchestrator = orchestratorService.getOrFail(orchestratorId);
-        AuthorizationUtil.checkAuthorizationForCloud(orchestrator, OrchestratorRole.DEPLOYER);
         Location location = locationService.getOrFail(id);
+        AuthorizationUtil.checkAuthorizationForCloud(location, DeployerRole.DEPLOYER);
         return RestResponseBuilder.<Location> builder().data(location).build();
     }
 }

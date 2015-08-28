@@ -66,7 +66,7 @@
               </td>
               <td class="text-center">
                 <div class="btn-group">
-                  <a id="edit-app-group-role-button" class="dropdown-toggle btn btn-sm btn-default" tooltip="{{'EDIT_RIGHTS.EDIT_ROLE_RESOURCE' | translate }}" tooltip-append-to-body="true"><i class="fa fa-key"></i></a>
+                  <a id="edit-app-group-role-button" ng-if="!notEditableRoleList || notEditableRoleList.indexOf(group.id) < 0"  class="dropdown-toggle btn btn-sm btn-default" tooltip="{{'EDIT_RIGHTS.EDIT_ROLE_RESOURCE' | translate }}" tooltip-append-to-body="true"><i class="fa fa-key"></i></a>
                   <ul class="dropdown-menu dropdown-menu-right" role="menu" ng-click="preventClose($event)">
                     <li role="presentation" class="dropdown-header">{{'EDIT_RIGHTS.EDIT_ROLE_HEADER_RESOURCE' | translate }}</li>
                     <li ng-repeat="role in managedAppRoleList | orderBy:'toString()' ">

@@ -18,12 +18,8 @@ import org.elasticsearch.mapping.IndexType;
 import org.hibernate.validator.constraints.NotBlank;
 
 import alien4cloud.security.ISecuredResource;
-import alien4cloud.security.model.LocationRole;
-import alien4cloud.utils.jackson.ConditionalAttributes;
-import alien4cloud.utils.jackson.ConditionalOnAttribute;
-import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
-import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
-import alien4cloud.utils.jackson.NotAnalyzedTextMapEntry;
+import alien4cloud.security.model.DeployerRole;
+import alien4cloud.utils.jackson.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -71,7 +67,7 @@ public class Location implements ISecuredResource {
     private Map<String, Set<String>> groupRoles;
 
     @Override
-    public Class<LocationRole> roleEnum() {
-        return LocationRole.class;
+    public Class<DeployerRole> roleEnum() {
+        return DeployerRole.class;
     }
 }

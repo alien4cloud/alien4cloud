@@ -55,6 +55,7 @@ public class LocationService {
         location.setName(locationName);
         location.setOrchestratorId(orchestratorId);
         location.setInfrastructureType(infrastructureType);
+        // TODO add User and Group manage by the Orchestrator security
 
         locationArchiveIndexer.indexArchives(orchestrator, location);
 

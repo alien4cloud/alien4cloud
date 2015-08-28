@@ -3,6 +3,6 @@ package alien4cloud.security.model;
 
 import alien4cloud.security.IResourceRoles;
 
-public enum LocationRole implements IResourceRoles {
+public enum DeployerRole implements IResourceRoles {
     DEPLOYER
 }
