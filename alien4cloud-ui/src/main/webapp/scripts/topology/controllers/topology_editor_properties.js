@@ -1,13 +1,13 @@
 /**
-*  Service that provides functionalities to edit nodes in a topology.
-*/
-define(function (require) {
+ *  Service that provides functionalities to edit nodes in a topology.
+ */
+define(function(require) {
   'use strict';
   var modules = require('modules');
   var angular = require('angular');
   var _ = require('lodash');
 
-  modules.get('a4c-topology-editor').factory('topoEditProperties', [ 'topologyServices',
+  modules.get('a4c-topology-editor').factory('topoEditProperties', ['topologyServices',
     function(topologyServices) {
       var TopologyEditorMixin = function(scope) {
         this.scope = scope;
@@ -60,9 +60,7 @@ define(function (require) {
 
         getFormatedProperty: function(propertyKey) {
           var scope = this.scope;
-          var formatedProperty = scope.topology.nodeTypes[scope.selectedNodeTemplate.type].propertiesMap[propertyKey].value;
-          formatedProperty.name = propertyKey;
-          return formatedProperty;
+          return scope.topology.nodeTypes[scope.selectedNodeTemplate.type].propertiesMap[propertyKey].value;
         },
 
         getFormatedCapabilityProperty: function(capability, propertyKey) {

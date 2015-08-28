@@ -219,8 +219,9 @@
                       ng-if="properties.isInputProperty(propEntry.key)"
                       ng-init="condensed = true"
                       definition="properties.getFormatedProperty(propEntry.key)"
+                      property-name="propEntry.key"
                       property-value="propEntry.value"
-                      on-save="nodes.updateProperty(propertyDefinition, propertyValue)"
+                      on-save="nodes.updateProperty(propertyDefinition, propertyName, propertyValue)"
                       editable="false"
                       condensed="condensed">
                     </property-display>
@@ -228,8 +229,10 @@
                       ng-if="!properties.isInputProperty(propEntry.key)"
                       ng-init="condensed = true"
                       definition="properties.getFormatedProperty(propEntry.key)"
+                      dependencies="topology.topology.dependencies"
+                      property-name="propEntry.key"
                       property-value="propEntry.value"
-                      on-save="nodes.updateProperty(propertyDefinition, propertyValue)"
+                      on-save="nodes.updateProperty(propertyDefinition, propertyName, propertyValue)"
                       editable="true"
                       condensed="condensed">
                     </property-display>
@@ -433,8 +436,9 @@
                         ng-if="properties.isInputPropertyValue(propertyEntry.value)"
                         ng-init="condensed = true"
                         definition="properties.getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
+                        property-name="propertyEntry.key"
                         property-value="propertyEntry.value"
-                        on-save="properties.updateCapabilityProperty(propertyEntry.key, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
+                        on-save="properties.updateCapabilityProperty(propertyName, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
                         editable="false"
                         condensed="condensed">
                       </property-display>
@@ -442,8 +446,9 @@
                         ng-if="!properties.isInputPropertyValue(propertyEntry.value)"
                         ng-init="condensed = true"
                         definition="properties.getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
+                        property-name="propertyEntry.key"
                         property-value="propertyEntry.value"
-                        on-save="properties.updateCapabilityProperty(propertyEntry.key, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
+                        on-save="properties.updateCapabilityProperty(propertyName, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
                         editable="true"
                         condensed="condensed">
                       </property-display>
@@ -535,8 +540,9 @@
                               ng-if="properties.isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
                               ng-init="condensed = true"
                               definition="propertyEntry.value"
+                              property-name="propertyEntry.key"
                               property-value="relationshipEntry.value.propertiesMap[propertyEntry.key].value"
-                              on-save="relationships.updateRelationshipProperty(propertyEntry.value, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
+                              on-save="relationships.updateRelationshipProperty(propertyEntry.value, propertyName, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
                               editable="false"
                               condensed="condensed">
                             </property-display>
@@ -544,8 +550,9 @@
                               ng-if="!properties.isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
                               ng-init="condensed = true"
                               definition="propertyEntry.value"
+                              property-name="propertyEntry.key"
                               property-value="relationshipEntry.value.propertiesMap[propertyEntry.key].value"
-                              on-save="relationships.updateRelationshipProperty(propertyEntry.value, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
+                              on-save="relationships.updateRelationshipProperty(propertyEntry.value, propertyName, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
                               editable="true"
                               condensed="condensed">
                             </property-display>

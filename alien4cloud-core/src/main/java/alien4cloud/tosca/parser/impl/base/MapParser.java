@@ -31,6 +31,16 @@ public class MapParser<T> extends DefaultParser<Map<String, T>> {
     }
 
     @Override
+    public boolean isDeferred(ParsingContextExecution context) {
+        return valueParser.isDeferred(context);
+    }
+
+    @Override
+    public int getDeferredOrder(ParsingContextExecution context) {
+        return valueParser.getDeferredOrder(context);
+    }
+
+    @Override
     public Map<String, T> parse(Node node, ParsingContextExecution context) {
         if (node instanceof MappingNode) {
             return doParse((MappingNode) node, context);

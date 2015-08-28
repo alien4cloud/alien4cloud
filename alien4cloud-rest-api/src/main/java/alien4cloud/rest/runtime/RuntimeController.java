@@ -199,7 +199,7 @@ public class RuntimeController {
                     PropertyDefinition currentOperationParameter = (PropertyDefinition) inputParameter.getValue();
                     if (StringUtils.isNotBlank(requestInputParameter)) {
                         // recover the good property definition for the current parameter
-                        constraintPropertyService.checkPropertyConstraint(inputParameter.getKey(), requestInputParameter, currentOperationParameter);
+                        constraintPropertyService.checkSimplePropertyConstraint(inputParameter.getKey(), requestInputParameter, currentOperationParameter);
                     } else if (currentOperationParameter.isRequired()) {
                         // input param not in the request, id required this is a missing parameter...
                         missingParams.add(inputParameter.getKey());

@@ -54,8 +54,8 @@ public class ValidatedNodeParser<T> implements INodeParser<T> {
     }
 
     @Override
-    public int getDefferedOrder(ParsingContextExecution context) {
-        return delegate.getDefferedOrder(context);
+    public int getDeferredOrder(ParsingContextExecution context) {
+        return delegate.getDeferredOrder(context);
     }
 
 }

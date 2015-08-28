@@ -21,5 +21,5 @@ import lombok.ToString;
 public class UpdatePropertyRequest {
     // property to update
     private String propertyName;
-    private String propertyValue;
+    private Object propertyValue;
 }

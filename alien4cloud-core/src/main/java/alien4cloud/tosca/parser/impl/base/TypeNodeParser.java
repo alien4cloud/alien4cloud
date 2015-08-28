@@ -47,7 +47,7 @@ public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodePa
     }
 
     @Override
-    public int getDefferedOrder(ParsingContextExecution context) {
+    public int getDeferredOrder(ParsingContextExecution context) {
         return 0;
     }
 
@@ -142,7 +142,7 @@ public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodePa
             BeanWrapper targetBean = target.isRootPath() ? context.getRoot() : instance;
             if (target.getParser().isDeferred(context)) {
                 context.addDeferredParser(new DefferedParsingValueExecutor(key, targetBean, context, target, nodeTuple.getValueNode(), target.getParser()
-                        .getDefferedOrder(context)));
+                        .getDeferredOrder(context)));
             } else {
                 parseAndSetValue(targetBean, key, nodeTuple.getValueNode(), context, target);
             }

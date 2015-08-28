@@ -16,7 +16,38 @@ import alien4cloud.tosca.parser.impl.ErrorCode;
 @Slf4j
 @AllArgsConstructor
 public class ReferencedParser<T> implements INodeParser<T> {
+
     private String typeName;
+
+    private boolean deferred;
+
+    private int deferredOrder;
+
+    public ReferencedParser(String typeName) {
+        this.deferred = false;
+        this.deferredOrder = 0;
+        this.typeName = typeName;
+    }
+
+    @Override
+    public boolean isDeferred(ParsingContextExecution context) {
+        if (deferred) {
+            return true;
+        } else {
+            INodeParser<?> innerNodeParser = getParser(context);
+            return innerNodeParser.isDeferred(context);
+        }
+    }
+
+    @Override
+    public int getDeferredOrder(ParsingContextExecution context) {
+        if (deferredOrder > 0) {
+            return deferredOrder;
+        } else {
+            INodeParser<?> innerNodeParser = getParser(context);
+            return innerNodeParser.getDeferredOrder(context);
+        }
+    }
 
     @Override
     public T parse(Node node, ParsingContextExecution context) {
@@ -30,16 +61,11 @@ public class ReferencedParser<T> implements INodeParser<T> {
         return (T) delegate.parse(node, context);
     }
 
-    @Override
-    public boolean isDeferred(ParsingContextExecution context) {
-        INodeParser<?> delegate = context.getRegistry().get(typeName);
-        return delegate.isDeferred(context);
+    private INodeParser<?> getParser(ParsingContextExecution context) {
+        INodeParser<?> innerNodeParser = context.getRegistry().get(typeName);
+        if (innerNodeParser == null) {
+            context.getParsingErrors().add(new ParsingError(ErrorCode.ALIEN_MAPPING_ERROR, "No parser found for yaml type", null, "", null, typeName));
+        }
+        return innerNodeParser;
     }
-
-    @Override
-    public int getDefferedOrder(ParsingContextExecution context) {
-        INodeParser<?> delegate = context.getRegistry().get(typeName);
-        return delegate.getDefferedOrder(context);
-    }
-
 }

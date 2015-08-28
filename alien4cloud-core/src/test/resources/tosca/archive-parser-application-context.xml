@@ -7,7 +7,7 @@
 
     <context:annotation-config/>
     <context:component-scan
-            base-package="alien4cloud.topology, alien4cloud.tosca.parser, alien4cloud.tosca.parser.*">
+            base-package="alien4cloud.topology, alien4cloud.tosca.parser, alien4cloud.tosca.parser.*, alien4cloud.utils.services">
         <context:exclude-filter type="regex" expression="alien4cloud.topology.TopologyService"/>
         <context:exclude-filter type="regex" expression="alien4cloud.topology.TopologyValidationService"/>
         <context:exclude-filter type="regex" expression="alien4cloud.topology.TopologyTemplateVersionService"/>
