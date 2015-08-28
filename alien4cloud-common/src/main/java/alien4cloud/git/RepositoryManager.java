@@ -148,8 +148,11 @@ public class RepositoryManager {
      * Check and clone a repository from its url if the repository has already been checked-out
      * 
      * @param url Git url of the repository
+     * @param username Username of the repository
+     * @param password Password of the repository
      * @param branch Specified branch to clone
      * @param targetPath Path of the folder to checkout the repository
+     * @param isStoredLocally The state of the repository
      * @throws GitCloneUriException
      * @throws GitNotAuthorizedException
      * @throws IOException
