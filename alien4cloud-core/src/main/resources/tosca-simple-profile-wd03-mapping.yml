@@ -10,6 +10,7 @@
 - derived_from_relationship_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromRelationshipTypeParser
 - derived_from_artifact_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromArtifactTypeParser
 - derived_from_capability_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromCapabilityTypeParser
+- derived_from_data_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromDataTypeParser
 - capability_type_reference: alien4cloud.tosca.parser.impl.advanced.ReferencedCapabilityTypeParser
 - relationship_type_reference: alien4cloud.tosca.parser.impl.advanced.ReferencedRelationshipTypeParser
 - artifact_type_reference: alien4cloud.tosca.parser.impl.advanced.ReferencedArtifactTypeParser
@@ -21,8 +22,8 @@
 - outputs_type: alien4cloud.tosca.parser.impl.advanced.OuputsParser
 - group_policy_parser: alien4cloud.tosca.parser.impl.advanced.GroupPolicyParser
 - artifact_ref_parser: alien4cloud.tosca.parser.impl.advanced.ArtifactReferenceParser
-- node_filter_parser: alien4cloud.tosca.parser.impl.advanced.NodeFilterParser
 - sustitution_mapping_parser: alien4cloud.tosca.parser.impl.advanced.SustitutionMappingParser
+- constraint: alien4cloud.tosca.parser.impl.advanced.ConstraintParser
 
 # declare standard mapping based parsers
 - definition: alien4cloud.tosca.model.ArchiveRoot
@@ -40,6 +41,10 @@
     map: nodeTypes
     key: elementId
     type: node_type
+  data_types:
+    map: dataTypes
+    key: elementId
+    type: data_type
   capability_types:
     map: capabilityTypes
     key: elementId
@@ -54,7 +59,7 @@
     type: artifact_type
     # inputs:
   topology_template:
-    inner: topology
+    reference: topology
     deferred: true
     deferredOrder: 1000 # we want this to be the last executed
     type: topology_template_type
@@ -63,7 +68,7 @@
   description: .topologyTemplateDescription # mapped to a root's property
   inputs:
     map: inputs
-    type: property_definition
+    type: non_deferred_property_definition
   input_artifacts:
     map: inputArtifacts
     type: template_deployment_artifact
@@ -74,7 +79,7 @@
     map: nodeTemplates
     type: node_template
   outputs:
-    inner: void # means : do the parsing but do not set anything
+    reference: void # means : do the parsing but do not set anything
     deferred: true
     deferredOrder: 1001 # we want this to be the very last executed
     type: outputs_type
@@ -105,44 +110,37 @@
     map: properties
     type: node_template_property
   requirements:
-    inner: relationships
+    reference: relationships
     type: relationship_templates_type
   capabilities:
-    inner: void
+    reference: void
     deferred: true
     type: nodetemplate_capabilities_type
   artifacts:
     map: artifacts
     type: template_deployment_artifact
 
-- constraint: alien4cloud.tosca.parser.impl.advanced.ConstraintParser
-
 - attribute_definition: alien4cloud.model.components.AttributeDefinition
   description: description
   type: type
   default: default
 
-- schema: alien4cloud.model.components.Schema
-  derived_from: derivedFrom
-  constraints: constraint
-  properties:
-    map: properties
-    type: property_definition
+- property_definition: __reference
+  deferred: true
+  deferredOrder: 1
+  type: non_deferred_property_definition
 
-- non_validated_property_definition: alien4cloud.model.components.PropertyDefinition
+- non_deferred_property_definition: alien4cloud.model.components.PropertyDefinition|propertyDefinitionChecker
   type: type
+  entry_schema:
+    reference: entrySchema
+    type: non_deferred_property_definition
   required: required
   description: description
   default: default
   constraints:
     list: constraints
     type: constraint
-  entry_schema:
-    reference: entrySchema
-    type: schema
-
-- property_definition: __validated
-  type: non_validated_property_definition
 
 # capability definition supports a simple definition or more advanced.
 - capability_definition: alien4cloud.tosca.parser.impl.advanced.CapabilityDefinitionParser
@@ -158,27 +156,25 @@
     map: properties
     type: template_property
 
-# - constraint_list: alien4cloud.model.components.ConstraintList
-#   list: constraints
-#   type: constraint
+- constraint_list: list # This element must be parsed as a list
+  type: constraint # the elements in the list are constraints
 
 # Node filter related types
 - filter_definition: alien4cloud.model.components.FilterDefinition
   properties:
     sequence_to_map: properties
-    # type: constraint_list
-    list_type: constraint
+    type: constraint_list
+    node_is_value: false
 
 - node_filter_type: alien4cloud.model.components.NodeFilter
   properties:
     sequence_to_map: properties
-    list_type: constraint
+    type: constraint_list
+    node_is_value: false
   capabilities:
     sequence_to_map: capabilities
     type: filter_definition
-  # properties:
-  #   sequence_to_map: properties
-  #   list_type: constraint
+    node_is_value: false
 
 - requirement_definition: alien4cloud.model.components.RequirementDefinition
   __0: # define mapping for the first tuple of a requirement_definition. Both key and values must be mapped to different fields.
@@ -202,7 +198,7 @@
   capability: capabilityName
   node_filter:
     reference: nodeFilter
-    type: node_filter_type # type: node_filter_parser
+    type: node_filter_type
 
 - deployment_artifact: alien4cloud.model.components.DeploymentArtifact
   __0:
@@ -230,6 +226,8 @@
 
 - scalar_property_value: alien4cloud.model.components.ScalarPropertyValue
 
+- complex_property_value: alien4cloud.tosca.parser.impl.advanced.ComplexPropertyValueParser
+
 - tosca_concat: alien4cloud.model.components.ConcatPropertyValue
   __0:
     key: function_concat
@@ -243,6 +241,7 @@
     get_input: tosca_function
     get_property: tosca_function
     get_attribute: tosca_function
+    __: complex_property_value
   default: scalar_property_value
 
 - input: __discriminator
@@ -252,6 +251,7 @@
     get_property: tosca_function
     get_attribute: tosca_function
     get_operation_output: tosca_function
+    concat: tosca_concat
   default: scalar_property_value
 
 - attribute: __discriminator
@@ -302,6 +302,19 @@
   artifacts:
     sequence_to_map: artifacts
     type: deployment_artifact
+
+- data_type: alien4cloud.model.components.IndexedDataType|toscaElementChecker
+  description: description
+  abstract: abstract
+  tags:
+    reference: tags
+    type: tag
+  derived_from:
+    reference: derivedFrom
+    type: derived_from_data_type
+  properties:
+    map: properties
+    type: property_definition
 
 - capability_type: alien4cloud.model.components.IndexedCapabilityType|toscaElementChecker
   description: description

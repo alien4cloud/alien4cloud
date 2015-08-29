@@ -3,7 +3,7 @@
 module.exports = {
   js: {
     files: ['<%= yeoman.app %>/scripts/**/*.js'],
-    tasks: ['newer:jshint:all'],
+    // tasks: ['newer:jshint:all'],
     options: {
       livereload: true
     }
@@ -19,6 +19,6 @@ module.exports = {
     options: {
       livereload: '<%= connect.options.livereload %>'
     },
-    files: ['<%= yeoman.app %>/bower_components/**/*.js', '<%= yeoman.app %>/views/**/*.html', '.tmp/styles/{,*/}*.css', '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}']
+    files: ['<%= yeoman.app %>/views/**/*.html','.tmp/styles/{,*/}*.css']
   }
 };

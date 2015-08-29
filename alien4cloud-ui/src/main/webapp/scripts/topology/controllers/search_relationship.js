@@ -17,16 +17,21 @@ define(function (require) {
 
     $scope.relationshipModalData = {};
 
+    var preferedTarget = null;
+    if(_.defined($scope.targetNodeTemplateName)) {
+      preferedTarget = {
+        name: $scope.targetNodeTemplateName,
+        capability: $scope.targetedCapability
+      };
+    }
+
     relationshipMatchingService.getTargets($scope.sourceElementName, $scope.requirement, $scope.requirementName, $scope.topology.topology.nodeTemplates,
         $scope.topology.nodeTypes, $scope.topology.relationshipTypes, $scope.topology.capabilityTypes, $scope.topology.topology.dependencies,
-        $scope.targetNodeTemplateName).then(function(result) {
+        preferedTarget).then(function(result) {
       $scope.targets = result.targets;
       $scope.relationshipModalData.relationship = result.relationshipType;
       if (result.preferedMatch !== null) {
-        // pre-select the target node if a single capability matches.
-        if (result.preferedMatch.capabilities.length === 1) {
-          $scope.onSelectedTarget(result.preferedMatch.template.name, result.preferedMatch.capabilities[0].id);
-        }
+        $scope.onSelectedTarget(result.preferedMatch.node, result.preferedMatch.capability);
       }
     });
 

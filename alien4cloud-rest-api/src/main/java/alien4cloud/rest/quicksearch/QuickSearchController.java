@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.components.IndexedNodeType;
@@ -40,6 +42,7 @@ public class QuickSearchController {
 
     @ApiOperation(value = "Search for applications or tosca elements in ALIEN's repository.")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<GetMultipleDataResult> search(@RequestBody BasicSearchRequest requestObject) {
 
         Set<String> authoIndexes = Sets.newHashSet();
@@ -79,14 +82,14 @@ public class QuickSearchController {
             Map<String, String[]> filters, FilterBuilder filterBuilder) {
 
         String[] indices = authoIndexes.toArray(new String[authoIndexes.size()]);
-        if (indices.length == 0 || requestObject == null) {
+        if (indices.length == 0) {
             return new GetMultipleDataResult();
         }
-        Class<?> className = classes.iterator().next();
-        // by default search in _all field
-        String query = requestObject.getQuery() == null ? "" : "*" + requestObject.getQuery().trim() + "*";
-        // make a specific queryString search
-        GetMultipleDataResult searchResult = alienDAO.searchQueryString(indices, className, query, filters, requestObject.getSize());
+        Class<?>[] classesArray = classes.toArray(new Class<?>[classes.size()]);
+
+        GetMultipleDataResult searchResult = alienDAO.search(indices, classesArray, requestObject.getQuery(), filters, filterBuilder,
+                FetchContext.QUICK_SEARCH, requestObject.getFrom(), requestObject.getSize());
+
         return searchResult;
     }
 }

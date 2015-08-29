@@ -25,6 +25,6 @@ public interface INodeParser<T> {
      */
     boolean isDeferred(ParsingContextExecution context);
 
-    int getDefferedOrder(ParsingContextExecution context);
+    int getDeferredOrder(ParsingContextExecution context);
 
 }

@@ -3,6 +3,7 @@ package alien4cloud.tosca.model;
 import java.util.List;
 import java.util.Map;
 
+import alien4cloud.model.components.IndexedDataType;
 import lombok.Getter;
 import lombok.Setter;
 import alien4cloud.model.components.Csar;
@@ -29,6 +30,7 @@ public class ArchiveRoot {
     private List<ArchiveRoot> localImports;
 
     private Map<String, IndexedNodeType> nodeTypes = Maps.newHashMap();
+    private Map<String, IndexedDataType> dataTypes = Maps.newHashMap();
     private Map<String, IndexedRelationshipType> relationshipTypes = Maps.newHashMap();
     private Map<String, IndexedCapabilityType> capabilityTypes = Maps.newHashMap();
     private Map<String, IndexedArtifactType> artifactTypes = Maps.newHashMap();

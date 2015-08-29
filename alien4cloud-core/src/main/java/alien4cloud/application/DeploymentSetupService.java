@@ -12,7 +12,6 @@ import javax.annotation.Resource;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
@@ -20,9 +19,9 @@ import org.springframework.stereotype.Service;
 import alien4cloud.cloud.CloudResourceMatcherService;
 import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 import alien4cloud.cloud.CloudService;
-import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.deployment.InputsPreProcessorService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.ApplicationVersionNotFoundException;
 import alien4cloud.exception.NotFoundException;
@@ -36,20 +35,13 @@ import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.model.cloud.StorageTemplate;
-import alien4cloud.model.common.MetaPropConfiguration;
-import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.DeploymentArtifact;
-import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
-import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.InputArtifactUtil;
@@ -80,7 +72,7 @@ public class DeploymentSetupService {
     @Resource
     private ConstraintPropertyService constraintPropertyService;
     @Resource
-    private MetaPropertiesService metaPropertiesService;
+    private InputsPreProcessorService inputsPreProcessorService;
     @Resource
     private TopologyCompositionService topologyCompositionService;
 
@@ -140,17 +132,17 @@ public class DeploymentSetupService {
         }
         ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(applicationId, environment.getCurrentVersionId());
         Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
-        return getDeploymentSetupMatchInfo(topology, environment, version);
+        return preProcessTopologyAndMatch(topology, environment, version);
     }
 
-    public DeploymentSetupMatchInfo getDeploymentSetupMatchInfo(Topology topology, ApplicationEnvironment environment, ApplicationVersion version) {
+    public DeploymentSetupMatchInfo preProcessTopologyAndMatch(Topology topology, ApplicationEnvironment environment, ApplicationVersion version) {
         DeploymentSetup deploymentSetup = get(version, environment);
         if (deploymentSetup == null) {
             deploymentSetup = createOrFail(version, environment);
         }
         topologyCompositionService.processTopologyComposition(topology);
-        processGetInput(deploymentSetup, topology, environment);
-        generateInputProperties(deploymentSetup, topology, true);
+        generateInputProperties(deploymentSetup, topology);
+        inputsPreProcessorService.processGetInput(deploymentSetup, topology, environment);
         processInputArtifacts(topology);
         if (environment.getCloudId() != null) {
             Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
@@ -179,13 +171,19 @@ public class DeploymentSetupService {
         for (Map.Entry<String, String> inputPropertyEntry : inputProperties.entrySet()) {
             PropertyDefinition definition = inputDefinitions.get(inputPropertyEntry.getKey());
             if (definition != null) {
-                constraintPropertyService.checkPropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue(),
+                constraintPropertyService.checkSimplePropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue(),
                         inputDefinitions.get(inputPropertyEntry.getKey()));
             }
         }
     }
 
-    public boolean generateInputProperties(DeploymentSetup deploymentSetup, Topology topology, boolean automaticSave) {
+    /**
+     * Fill-in the inputs properties definitions (and default values) based on the properties definitions from the topology.
+     *
+     * @param deploymentSetup The deployment setup to impact.
+     * @param topology The topology that contains the inputs and properties definitions.
+     */
+    private void generateInputProperties(DeploymentSetup deploymentSetup, Topology topology) {
         Map<String, String> inputProperties = deploymentSetup.getInputProperties();
         Map<String, PropertyDefinition> inputDefinitions = topology.getInputs();
         boolean changed = false;
@@ -206,7 +204,7 @@ public class DeploymentSetupService {
                         changed = true;
                     } else {
                         try {
-                            constraintPropertyService.checkPropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue(),
+                            constraintPropertyService.checkSimplePropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue(),
                                     inputDefinitions.get(inputPropertyEntry.getKey()));
                         } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
                             // Property is not valid anymore for the input, remove the old value
@@ -227,10 +225,9 @@ public class DeploymentSetupService {
                 }
             }
         }
-        if (changed && automaticSave) {
+        if (changed) {
             alienDAO.save(deploymentSetup);
         }
-        return changed;
     }
 
     /**
@@ -280,39 +277,6 @@ public class DeploymentSetupService {
     }
 
     /**
-     * Update the topology to inject the values of the inputs from the deploymentSetup.
-     *
-     * @param deploymentSetup The deployment setup that contains the input values.
-     * @param topology The topology to process.
-     * @param environment
-     */
-    private void processGetInput(DeploymentSetup deploymentSetup, Topology topology, ApplicationEnvironment environment) {
-        Cloud cloud = null;
-        Map<String, String> mergedInputs = MapUtils.isEmpty(deploymentSetup.getInputProperties()) ? Maps.<String, String> newHashMap() : deploymentSetup
-                .getInputProperties();
-        if (environment.getCloudId() != null) {
-            cloud = cloudService.get(environment.getCloudId());
-            Map<String, String> cloudMetaProperties = cloud.getMetaProperties() == null ? Maps.<String, String> newHashMap() : cloud.getMetaProperties();
-            mergedInputs.putAll(cloudMetaProperties);
-        }
-        if (topology.getNodeTemplates() != null) {
-            for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
-                processGetInput(mergedInputs, nodeTemplate.getProperties());
-                if (nodeTemplate.getRelationships() != null) {
-                    for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
-                        processGetInput(mergedInputs, relationshipTemplate.getProperties());
-                    }
-                }
-                if (nodeTemplate.getCapabilities() != null) {
-                    for (Capability capability : nodeTemplate.getCapabilities().values()) {
-                        processGetInput(mergedInputs, capability.getProperties());
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * Inject input artifacts in the corresponding nodes.
      */
     private void processInputArtifacts(Topology topology) {
@@ -342,35 +306,6 @@ public class DeploymentSetupService {
                     for (DeploymentArtifact nodeArtifact : nodeArtifacts) {
                         nodeArtifact.setArtifactRef(e.getValue().getArtifactRef());
                         nodeArtifact.setArtifactName(e.getValue().getArtifactName());
-                    }
-                }
-            }
-        }
-    }
-
-    private void processGetInput(Map<String, String> inputs, Map<String, AbstractPropertyValue> properties) {
-        if (properties != null) {
-            for (Entry<String, AbstractPropertyValue> propEntry : properties.entrySet()) {
-                if (propEntry.getValue() instanceof FunctionPropertyValue) {
-                    FunctionPropertyValue function = (FunctionPropertyValue) propEntry.getValue();
-                    if (ToscaFunctionConstants.GET_INPUT.equals(function.getFunction())) {
-                        AbstractPropertyValue value;
-                        if (MapUtils.isNotEmpty(inputs)) {
-                            String inputName = function.getTemplateName();
-                            // check if the input exists as meta property
-                            MetaPropConfiguration metaProperty = metaPropertiesService.getMetaPropertyIdByName(inputName);
-                            if (metaProperty != null) {
-                                inputName = metaProperty.getId();
-                            }
-                            // recover the good value from inputs (from node inputs or metas)
-                            value = new ScalarPropertyValue(inputs.get(inputName));
-                        } else {
-                            value = new ScalarPropertyValue(null);
-                        }
-                        propEntry.setValue(value);
-                    } else {
-                        log.warn("Function <{}> detected for property <{}> while only <get_input> should be authorized.", function.getFunction(),
-                                propEntry.getKey());
                     }
                 }
             }

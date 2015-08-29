@@ -4,6 +4,7 @@ import javax.annotation.Resource;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,6 +60,7 @@ public class ApplicationVersionController {
      */
     @ApiOperation(value = "Get the first snapshot application version for an application.", notes = "Return the first snapshot application version for an application. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<ApplicationVersion> get(@PathVariable String applicationId) {
         Application application = alienDAO.findById(Application.class, applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
@@ -81,6 +83,7 @@ public class ApplicationVersionController {
      */
     @ApiOperation(value = "Search application versions", notes = "Returns a search result with that contains application versions matching the request. A application version is returned only if the connected user has at least one application role in [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<GetMultipleDataResult<ApplicationVersion>> search(@PathVariable String applicationId, @RequestBody SearchRequest searchRequest) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
@@ -97,6 +100,7 @@ public class ApplicationVersionController {
      */
     @ApiOperation(value = "Get an application version based from its id.", notes = "Returns the application version details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{applicationVersionId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<ApplicationVersion> getApplicationEnvironment(@PathVariable String applicationId, @PathVariable String applicationVersionId) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
@@ -114,6 +118,7 @@ public class ApplicationVersionController {
             + "By default the application version creator will have application roles [APPLICATION_MANAGER]")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
+    @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<String> create(@PathVariable String applicationId, @RequestBody ApplicationVersionRequest request) {
         AuthorizationUtil.checkHasOneRoleIn(Role.APPLICATIONS_MANAGER);
@@ -133,6 +138,7 @@ public class ApplicationVersionController {
      */
     @ApiOperation(value = "Updates by merging the given request into the given application version", notes = "Updates by merging the given request into the given application version. The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{applicationVersionId:.+}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Void> update(@PathVariable String applicationVersionId, @RequestBody ApplicationVersionRequest request) {
         ApplicationVersion appVersion = appVersionService.getOrFail(applicationVersionId);
@@ -171,6 +177,7 @@ public class ApplicationVersionController {
      */
     @ApiOperation(value = "Delete an application version from its id", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{applicationVersionId:.+}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Boolean> delete(@PathVariable String applicationId, @PathVariable String applicationVersionId) {
         Application application = applicationService.getOrFail(applicationId);
@@ -185,5 +192,4 @@ public class ApplicationVersionController {
         appVersionService.delete(applicationVersionId);
         return RestResponseBuilder.<Boolean> builder().data(true).build();
     }
-
 }

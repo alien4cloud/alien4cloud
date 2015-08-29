@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 
+import alien4cloud.model.components.IndexedDataType;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
@@ -33,6 +34,10 @@ import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.model.PluginConfiguration;
+import alien4cloud.security.model.CsarGitRepository;
+
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -63,7 +68,8 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         // init indices and mapped classes
         setJsonMapper(generateJsonMapper());
 
-        initIndices(TOSCA_ELEMENT_INDEX, null, IndexedCapabilityType.class, IndexedArtifactType.class, IndexedRelationshipType.class, IndexedNodeType.class);
+        initIndices(TOSCA_ELEMENT_INDEX, null, IndexedCapabilityType.class, IndexedArtifactType.class, IndexedRelationshipType.class, IndexedNodeType.class,
+                IndexedDataType.class);
         initIndices(TOSCA_ELEMENT_INDEX, null, IndexedArtifactToscaElement.class, IndexedToscaElement.class);
 
         initIndice(Application.class);
@@ -81,6 +87,7 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         initIndice(CloudConfiguration.class);
         initIndice(Deployment.class);
         initIndice(CloudImage.class);
+        initIndice(CsarGitRepository.class);
         initCompleted();
     }
 

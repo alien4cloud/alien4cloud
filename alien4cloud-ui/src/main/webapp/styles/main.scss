@@ -355,3 +355,22 @@ img.icon_32 {
 .resizable-bar {
   cursor: col-resize;
 }
+
+.alien-table-row {
+  border-width: 1px 0px;
+  border-style: solid;
+  border-color: #DDD;
+  padding: 8px;
+}
+
+.alien-table-row:first-child {
+  border-width: 0px 0px 1px;
+}
+
+.alien-table-row:last-child {
+  border-width: 1px 0px 0px;
+}
+
+.alien-table-row:only-child {
+  border-width: 0px 0px 0px;
+}

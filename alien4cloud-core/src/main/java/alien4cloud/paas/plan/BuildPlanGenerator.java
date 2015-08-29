@@ -1,14 +1,27 @@
 package alien4cloud.paas.plan;
 
-import static alien4cloud.paas.plan.ToscaNodeLifecycleConstants.*;
-import static alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants.*;
+import static alien4cloud.paas.plan.ToscaNodeLifecycleConstants.AVAILABLE;
+import static alien4cloud.paas.plan.ToscaNodeLifecycleConstants.CONFIGURED;
+import static alien4cloud.paas.plan.ToscaNodeLifecycleConstants.CREATE;
+import static alien4cloud.paas.plan.ToscaNodeLifecycleConstants.CREATED;
+import static alien4cloud.paas.plan.ToscaNodeLifecycleConstants.INITIAL;
+import static alien4cloud.paas.plan.ToscaNodeLifecycleConstants.STANDARD;
+import static alien4cloud.paas.plan.ToscaNodeLifecycleConstants.START;
+import static alien4cloud.paas.plan.ToscaNodeLifecycleConstants.STARTED;
+import static alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants.ADD_SOURCE;
+import static alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants.ADD_TARGET;
+import static alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants.POST_CONFIGURE_SOURCE;
+import static alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants.POST_CONFIGURE_TARGET;
+import static alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants.PRE_CONFIGURE_SOURCE;
+import static alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants.PRE_CONFIGURE_TARGET;
 import static alien4cloud.tosca.normative.NormativeRelationshipConstants.CONNECTS_TO;
 import static alien4cloud.tosca.normative.NormativeRelationshipConstants.DEPENDS_ON;
-
-import alien4cloud.paas.model.PaaSNodeTemplate;
-import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+
+import org.apache.commons.collections4.CollectionUtils;
+
+import alien4cloud.paas.model.PaaSNodeTemplate;
 
 /**
  * Generates the default tosca build plan.
@@ -47,8 +60,8 @@ public class BuildPlanGenerator extends AbstractPlanGenerator {
 
         state(node.getId(), AVAILABLE);
 
-        if (includeAttached && node.getAttachedNode() != null) {
-            sequencial(Lists.newArrayList(node.getAttachedNode()));
+        if (includeAttached && CollectionUtils.isNotEmpty(node.getStorageNodes())) {
+            sequencial(node.getStorageNodes());
         }
 
         // custom alien support of sequence hosted on.

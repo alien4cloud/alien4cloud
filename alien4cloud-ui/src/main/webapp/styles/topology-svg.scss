@@ -30,7 +30,7 @@
 
 .topology-svg-icon {
   font-family: FontAwesome;
-  font-size: 14px;
+  font-size: 10px;
   font-style: normal;
 }
 
@@ -47,17 +47,57 @@
   stroke-opacity: 1;
 }
 
+.connectorAction {
+  fill: none;
+  stroke-width: 0px;
+  pointer-events: all;
+}
+
+.connector {
+  fill: #ffffff;
+  fill-opacity: 1;
+  stroke: #555555;
+  stroke-width: 1px;
+  stroke-opacity: 1;
+  pointer-events: all;
+}
+
+.connector:hover {
+  fill: whitesmoke;
+  pointer-events: all;
+}
+
+.connectorTarget {
+  fill: $brand-success;
+  fill-opacity: .6;
+  pointer-events: all;
+}
+
+.connectorTarget:hover {
+  fill: darken($brand-success, 5%);
+  fill-opacity: 1;
+  pointer-events: all;
+}
+
+.connectorlink {
+  fill: none;
+  stroke: #555555;
+  stroke-width: 1px;
+  stroke-opacity: 1;
+}
+
 .node-template {}
 
 .node-template .background {
   fill: #ffffff;
   fill-opacity: 1;
-  stroke: #aaaaaa;
+  stroke: #555555;
   stroke-width: 1px;
   stroke-opacity: 1;
+  pointer-events: all;
 }
 
-.node-template:hover > .background {
+.node-template > .background:hover {
   fill: whitesmoke;
 }
 
@@ -65,12 +105,11 @@
   fill: #dddddd;
 }
 
-.node-template.selected:hover > .background {
+.node-template.selected > .background:hover {
   fill: #cccccc;
 }
 
 .node-template .title{
-  font-weight: bold;
 }
 
 .node-template .simple-title{
@@ -84,9 +123,16 @@
 }
 
 .node-template .selector {
-  fill-opacity: 0;
+  fill: none;
   stroke-width: 1px;
   stroke-opacity: 0;
+  pointer-events: all;
+}
+
+.collapsebar {
+  fill: whitesmoke;
+  fill-opacity: 1;
+  pointer-events: all;
 }
 
 .link {
@@ -164,4 +210,32 @@
   bottom: 11px;
   left: 49%;
   content: "\f0d7";
+}
+
+.runtime-state-no {
+  fill-opacity: 0;
+}
+.runtime-state-deployed {
+  fill: $state-success-text;
+  fill-opacity: 1;
+}
+.runtime-state-maintenance {
+  fill: $state-info-text;
+  fill-opacity: 1;
+}
+.runtime-state-undeployed {
+  fill: $gray-light;
+  fill-opacity: 1;
+}
+.runtime-state-warning {
+  fill: $state-warning-text;
+  fill-opacity: 1;
+}
+.runtime-state-failure {
+  fill: $state-danger-text;
+  fill-opacity: 1;
+}
+.runtime-state-unknown {
+  fill: #ffffff;
+  fill-opacity: 1;
 }

@@ -1,6 +1,5 @@
 package alien4cloud.model.components;
 
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,10 +11,12 @@ import alien4cloud.ui.form.annotation.FormProperties;
  */
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 @FormProperties({ "value" })
-public class ScalarPropertyValue extends AbstractPropertyValue {
-    private String value;
+public class ScalarPropertyValue extends PropertyValue<String> {
+
+    public ScalarPropertyValue(String value) {
+        super(value);
+    }
 }

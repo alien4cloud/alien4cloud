@@ -2,396 +2,211 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
-  var $ = require('jquery');
   var _ = require('lodash');
 
   require('scripts/tosca/services/tosca_service');
 
   require('scripts/common-graph/services/router_factory_service');
   require('scripts/common-graph/services/bbox_factory_service');
+  require('scripts/topology/services/topology_tree_service');
 
-  modules.get('a4c-topology-editor', ['ngResource']).factory('topologyLayoutService', ['toscaService','routerFactoryService', 'bboxFactory',
-    function(toscaService, routerFactoryService, bboxFactory) {
+  modules.get('a4c-topology-editor', ['ngResource']).factory('topologyLayoutService', ['toscaService', 'topologyTreeService', 'routerFactoryService', 'bboxFactory',
+    function(toscaService, topologyTreeService, routerFactoryService, bboxFactory) {
+      var xSpacing = 60;
+
       return {
-        layout: function(nodeTemplates, nodeTypes, relationshipTypes, nodeSize, spacing) {
-          nodeSize.halfWidth = nodeSize.width / 2;
-          nodeSize.halfHeight = nodeSize.height / 2;
+        layout: function(nodeTemplates, topology, renderer) {
+          var tree = topologyTreeService.buildTree(nodeTemplates, topology);
+          topologyTreeService.sortTree(tree, topology);
 
-          var nodeTemplatesCopy = _.cloneDeep(nodeTemplates);
-          var tree = this.buildTree(nodeTemplatesCopy, nodeTypes, relationshipTypes);
-          this.sortTree(tree, relationshipTypes, nodeTemplatesCopy);
           // process the layout of all tree elements but network
-          this.treeLayout(tree, 0, nodeSize, spacing);
+          this.treeLayout(tree, renderer);
           // compute graph
-          var treeGraph = this.buildTreeGraph(tree, nodeTemplatesCopy, relationshipTypes, nodeSize);
+          var treeGraph = this.buildTreeGraph(tree);
           // manage networks
-          this.networkLayout(tree, treeGraph, nodeSize, spacing);
-          this.linkLayout(treeGraph, nodeTemplatesCopy, nodeTypes, relationshipTypes, nodeSize, spacing);
+          this.networkLayout(tree, treeGraph, renderer);
+          this.linkLayout(treeGraph, topology.relationshipTypes);
           return treeGraph;
         },
 
-        /**
-        * Build a tree of nodes based on tosca relationships.
-        *
-        * @param nodeTemplates The map of node templates in the topology.
-        * @param relationshipTypes Map of relationship types used in the topology.
-        */
-        buildTree: function(nodeTemplates, nodeTypes, relationshipTypes) {
-          var thiss = this;
-          // define the root of the tree that will be returned
-          var tree = {
-            'children' : [],
-            'networks': []
-          };
-          if(!nodeTemplates) {
-            return tree;
-          }
-          $.each(nodeTemplates, function(nodeId, nodeTemplate) {
-            nodeTemplate.name = nodeId;
-            // network are not managed like other nodes
-            if(toscaService.isOneOfType(['tosca.nodes.Network'], nodeTemplate.type, nodeTypes)) {
-              tree.networks.push(nodeTemplate);
-            } else {
-              thiss.addNodeTemplateToTree(tree, nodeTemplate, nodeTemplates, relationshipTypes);
-            }
-          });
-
-          var visitedNodes = {};
-          for(var i=0;i<tree.children.length;i++) {
-            this.computeNodeDepth(tree.children[i], visitedNodes, 0);
-          }
-
-          return tree;
-        },
-
-        addNodeTemplateToTree: function(tree, nodeTemplate, nodeTemplates, relationshipTypes) {
-          if(_.undefined(nodeTemplate.children)) {
-            nodeTemplate.children = [];
-          }
-          if(_.undefined(nodeTemplate.attached)) {
-            nodeTemplate.attached = [];
-          }
-          nodeTemplate.weight = 0;
-          // get relationships that we want to display as hosted on.
-          var relationships = this.getHostedOnRelationships(nodeTemplate, relationshipTypes);
-          if (relationships.length > 0) {
-            // TODO we should not have more than a single hosted on actually. Manage if not.
-            var parent = nodeTemplates[relationships[0].target];
-            _.safePush(parent, 'children', nodeTemplate);
-            nodeTemplate.parent = parent;
-          } else {
-            // Manage the attach relationship in a specific way in order to display the storage close to the compute.
-            relationships = this.getAttachedToRelationships(nodeTemplate, relationshipTypes);
-            if (relationships.length > 0) {
-              var target = nodeTemplates[relationships[0].target];
-              _.safePush(target, 'attached', nodeTemplate);
-              nodeTemplate.parent = tree;
-              nodeTemplate.isAttached = true;
-            } else {
-              // if the node is not hosted on another node just add it to the root.
-              tree.children.push(nodeTemplate);
-              nodeTemplate.parent = tree;
-            }
-          }
-        },
-
-        /**
-        * Quickly go over the tree to add a depth field to every node (this will be used for sorting later on).
-        */
-        computeNodeDepth: function(node, visitedNodes, parentDepth) {
-          if (node.name in visitedNodes) {
-            // Do not visit an already visited node to prevent cyclic dependencies
-            console.log('Hosted on cyclic dependency detected, topology may not be valid.');
-            return;
-          }
-          visitedNodes[node.name] = node;
-          node.depth = parentDepth + 1;
-          $.each(node.attached, function(index, value){
-            value.depth = node.depth;
-          });
-          for (var i = 0; i < node.children.length; i++) {
-            this.computeNodeDepth(node.children[i], visitedNodes, node.depth);
-          }
-        },
-
-        /**
-        * Get all hosted on or network relationships on a given node template.
-        */
-        getHostedOnRelationships: function(nodeTemplate, relationshipTypes) {
-          var hostedOnRelationships = toscaService.getRelationships(nodeTemplate, function(relationship) {
-            return toscaService.isHostedOnType(relationship.type, relationshipTypes);
-          });
-          return hostedOnRelationships;
-        },
-
-        /**
-        * Get all attached to relationships on a given node template.
-        */
-        getAttachedToRelationships: function(nodeTemplate, relationshipTypes) {
-          var relationships = toscaService.getRelationships(nodeTemplate, function(relationship) {
-            return toscaService.isAttachedToType(relationship.type, relationshipTypes);
-          });
-          return relationships;
-        },
-
-        /**
-        * Get all attached to relationships on a given node template.
-        */
-        getNetworkRelationships: function(nodeTemplate, relationshipTypes) {
-          var relationships = toscaService.getRelationships(nodeTemplate, function(relationship) {
-            return toscaService.isNetworkType(relationship.type, relationshipTypes);
-          });
-          return relationships;
-        },
-
-        /**
-        * Sort the tree based on depends on relationships that connects nodes to each others.
-        *
-        * Each group from the root is displayed horizontally while children are displayed vertically.
-        */
-        sortTree: function(tree, relationshipTypes, nodeTemplates) {
-          var thiss = this;
-          // compute nodes weight and attractions.
-          $.each(tree.children, function(index, child) {
-            thiss.nodeWeight(tree, relationshipTypes, nodeTemplates, child);
-          });
-          this.recursiveTreeSort(tree);
-        },
-        recursiveTreeSort: function (node) {
-          var children = [];
-          for(var i = 0; i < node.children.length; i++) {
-            var child = node.children[i];
-            if(child.children.length >0) {
-              this.recursiveTreeSort(child);
-            }
-
-            var candidatePosition = -1;
-            if(_.defined(child.before)) { // ensure the node is added before.
-              for(var j=0; j<children.length && candidatePosition === -1; j++) {
-                if(child.before.indexOf(children[j]) >= 0) {
-                  candidatePosition = j;
-                }
-              }
-            }
-            if(_.defined(child.after)) { // ensure the node is added after.
-              for(var k=children.length-1; k>candidatePosition; k--) {
-                if(child.after.indexOf(children[k]) >= 0) {
-                  candidatePosition = k+1;
-                }
-              }
-            }
-            if(candidatePosition === -1) {
-              children.push(child);
-            } else {
-              children.splice(candidatePosition, 0, child);
-            }
-          }
-          node.children = children;
-        },
-        nodeWeight: function (tree, relationshipTypes, nodeTemplates, node) {
-          var thiss = this;
-          // process child nodes
-          $.each(node.children, function(index, child){
-            thiss.nodeWeight(tree, relationshipTypes, nodeTemplates, child);
-          });
-          // process current node
-          var relationships = this.getDependsOnRelationships(node, relationshipTypes);
-          $.each(relationships, function(index, relationship){
-            var commonParentInfo = thiss.getCommonParentInfo(tree, node, nodeTemplates[relationship.target]);
-            if(commonParentInfo !== null) {
-              commonParentInfo.child2.weight += 10000;
-              _.safePush(commonParentInfo.child2, 'after', commonParentInfo.child1);
-              _.safePush(commonParentInfo.child1, 'before', commonParentInfo.child2);
-            }
-          });
-        },
-        getCommonParentInfo: function(tree, node1, node2) {
-          // if both nodes doesn't have the same depth it cannot have the same parent.
-          if(node1.depth < node2.depth) {
-            return this.getCommonParentInfo(tree, node1, node2.parent);
-          } else if(node1.depth > node2.depth) {
-            return this.getCommonParentInfo(tree, node1.parent, node2);
-          }
-
-          if(node1 === node2) {
-            // both nodes are part of the same hierarchy
-            return null;
-          }
-
-          var parent1 = node1.parent;
-          var parent2 = node2.parent;
-          if(parent1 === parent2) {
-            return {
-              parent: parent1,
-              child1: node1,
-              child2: node2
-            };
-          }
-
-          return this.getCommonParentInfo(tree, parent1, parent2);
-        },
-
-        getDependsOnRelationships: function(nodeTemplate, relationshipTypes) {
-          var dependsOnRelationships = toscaService.getRelationships(nodeTemplate, function(relationship) {
-            return !toscaService.isHostedOnType(relationship.type, relationshipTypes) && !toscaService.isNetworkType(relationship.type, relationshipTypes);
-          });
-          return dependsOnRelationships;
-        },
-
-        buildTreeGraph: function(tree, nodeMap, relationshipTypes, nodeSize) {
+        buildTreeGraph: function(tree) {
           // Extract our graph with node and links
           var bbox = bboxFactory.create();
           var graph = {
             nodes : [],
+            nodeMap: {},
             links : [],
-            bbox : bbox
+            bbox : bbox,
+            addNode: function(node) {
+              this.nodes.push(node);
+              this.nodeMap[node.id] = node;
+              node.isRoot = false;
+            }
           };
           for (var i = 0; i < tree.children.length; i++) {
-            this.addNodeToGraph(graph, tree.children[i], nodeMap, relationshipTypes, nodeSize);
+            this.addNodeToGraph(graph, tree.children[i]);
+            tree.children[i].isRoot = true;
           }
           return graph;
         },
 
-        addNodeToGraph: function(graph, node, nodeMap, relationshipTypes, nodeSize) {
+        addNodeToGraph: function(graph, node) {
           var i;
           // add the node to the graph
-          graph.nodes.push({
-            id : node.name,
-            coordinate : node.nodeCoordinate,
-            bbox: bboxFactory.create(node.nodeCoordinate.x - nodeSize.halfWidth , node.nodeCoordinate.y - nodeSize.halfHeight , nodeSize.width, nodeSize.height)
-          });
-          graph.bbox.addRectFromCenter(node.nodeCoordinate.x, node.nodeCoordinate.y, nodeSize.width, nodeSize.height);
+          graph.addNode(node);
+          graph.bbox.add(node.bbox);
 
           for (i = 0; i < node.attached.length; i++) {
-            this.addNodeToGraph(graph, node.attached[i], nodeMap, relationshipTypes, nodeSize);
+            this.addNodeToGraph(graph, node.attached[i]);
           }
           for (i = 0; i < node.children.length; i++) {
-            this.addNodeToGraph(graph, node.children[i], nodeMap, relationshipTypes, nodeSize);
+            this.addNodeToGraph(graph, node.children[i]);
           }
         },
 
-        treeLayout: function(tree, x, nodeSize, spacing) {
-          var position = {x: x, y: 0};
+        treeLayout: function(tree, renderer) {
+          var position = {x: 0, y: 0};
           for (var i = 0; i < tree.children.length; i++) {
-            this.nodeLayout(tree.children[i], position, nodeSize, spacing, true);
-            position.x += spacing.rootBranch.x + tree.children[i].bbox.width();
+            this.nodeLayout(tree.children[i], position, renderer, true);
+            // distance between the branches
+            position.x += xSpacing + tree.children[i].bbox.width();
             position.y = 0;
           }
         },
 
-        nodeLayout: function(node, position, nodeSize, spacing, initial) {
-          node.bbox = bboxFactory.create(position.x, position.y, nodeSize.width, nodeSize.height);
-          node.nodeCoordinate = {x: node.bbox.minX, y: -node.bbox.minY};
+        nodeLayout: function(node, position, renderer) {
+          node.nodeSize = renderer.size(node);
+          node.nodeSize.halfWidth = node.nodeSize.width / 2;
+          node.nodeSize.halfHeight = node.nodeSize.height / 2;
+          node.bbox = bboxFactory.create(position.x, position.y, node.nodeSize.width, node.nodeSize.height);
+          node.coordinate = {x: position.x, y: position.y};
 
-          var attachedY = node.bbox.minY - nodeSize.height;
+          if(node.children.length > 0) {
+            for(var i = 0; i < node.children.length; i++) {
+              var childPosition = {
+                x: node.bbox.minX + 5,
+                y: node.bbox.maxY + 5
+              };
+              var childBbox = this.nodeLayout(node.children[i], childPosition, renderer, false);
+              node.bbox.addPoint(childBbox.maxX + 5, childBbox.maxY);
+            }
+            node.bbox.addPoint(node.bbox.maxX, node.bbox.maxY + 5);
+          }
+
+          // attached node are quite similar but doesn't impact node's bbox as they are not contained
+          var attachedY = node.bbox.maxY;
           for(var j = 0; j < node.attached.length; j++) {
             var attached = node.attached[j];
-            if(initial) { // append the attached node
-              attached.bbox = bboxFactory.create(node.bbox.minX, attachedY, nodeSize.width, nodeSize.height);
-              attached.nodeCoordinate = {x: attached.bbox.minX, y: -attached.bbox.minY};
-              attachedY = attached.bbox.minY - nodeSize.height;
-              node.bbox.addPoint(attached.bbox.maxX, attached.bbox.maxY);
-              node.bbox.addPoint(attached.bbox.minX, attached.bbox.minY);
-            } else { // insert the attached node
-              node.nodeCoordinate.y = -node.bbox.maxY;
-              attached.bbox = bboxFactory.create(node.bbox.minX, attachedY, nodeSize.width, nodeSize.height);
-              attached.nodeCoordinate = {x: attached.bbox.minX, y: -attached.bbox.minY};
-              attachedY = attached.bbox.maxY;
-              node.bbox.addPoint(attached.bbox.maxX, attached.bbox.maxY);
-              node.bbox.addPoint(attached.bbox.minX, attached.bbox.minY);
-            }
-          }
+            attached.nodeSize = renderer.size(attached);
+            attached.nodeSize.width = node.bbox.width(); // the attached node must have the node width (should not have child ?).
+            attached.nodeSize.halfWidth = attached.nodeSize.width / 2;
+            attached.nodeSize.halfHeight = attached.nodeSize.height / 2;
+            attached.bbox = bboxFactory.create(node.bbox.minX, attachedY, attached.nodeSize.width, attached.nodeSize.height);
+            attached.coordinate = {x: attached.bbox.minX, y: attached.bbox.minY};
+            attachedY = attached.bbox.maxY;
 
-          var childPosition = {
-            x: node.bbox.minX + spacing.branch.x,
-            y: node.bbox.maxY + spacing.branch.y
-          };
-
-          for(var i = 0; i < node.children.length; i++) {
-            var childBbox = this.nodeLayout(node.children[i], childPosition, nodeSize, spacing, false);
-            node.bbox.addPoint(childBbox.maxX, childBbox.maxY);
-            childPosition.y = childBbox.maxY + spacing.node.y;
+            // process the capabilites and requirements of the attached node as we don't perform recursive layout for these nodes
+            this.requirementAndCapabilitiesLayout(attached);
           }
+          this.requirementAndCapabilitiesLayout(node);
 
           return node.bbox;
         },
 
-        networkLayout: function(tree, graph, nodeSize, spacing) {
-          var networkX = graph.bbox.minX - nodeSize.halfWidth - spacing.network;
-          var netYSpacing = spacing.network;
+        /**
+        * Update the requirements and capabilities relative x coordinate.
+        */
+        requirementAndCapabilitiesLayout: function(node) {
+          _.each(node.requirements, function(requirement) {
+            requirement.coordinate.relative.x = node.bbox.width();
+            requirement.coordinate.x = node.coordinate.x + requirement.coordinate.relative.x;
+            requirement.coordinate.y = node.coordinate.y + requirement.coordinate.relative.y;
+          });
+          _.each(node.capabilities, function(capability) {
+            capability.coordinate.x = node.coordinate.x + capability.coordinate.relative.x;
+            capability.coordinate.y = node.coordinate.y + capability.coordinate.relative.y;
+          });
+        },
+
+        networkLayout: function(tree, graph, renderer) {
+          var maxWidth = 0;
+          _.each(tree.networks, function(node) {
+            node.nodeSize = renderer.size(node);
+            maxWidth = Math.max(maxWidth, node.nodeSize.width);
+          });
+          var networkX = graph.bbox.minX - maxWidth - xSpacing;
+          var netYSpacing = 40;
           for(var i=0; i<tree.networks.length; i++) {
             var node = tree.networks[i];
-            node.nodeCoordinate = {
+            node.coordinate = {
               x: networkX,
-              y: graph.bbox.maxY + nodeSize.halfHeight + netYSpacing
+              y: graph.bbox.minY - node.nodeSize.height - netYSpacing
             };
             netYSpacing = 0;
             node.networkId = i;
-            graph.nodes.push({
-              id : node.name,
-              coordinate : node.nodeCoordinate,
-              networkId: i,
-              bbox: bboxFactory.create(node.nodeCoordinate.x - nodeSize.halfWidth , node.nodeCoordinate.y - nodeSize.halfHeight , nodeSize.width, nodeSize.height)
-            });
-            graph.bbox.addRectFromCenter(node.nodeCoordinate.x, node.nodeCoordinate.y, nodeSize.width, nodeSize.height);
+            node.bbox = bboxFactory.create(node.coordinate.x , node.coordinate.y , node.nodeSize.width, node.nodeSize.height);
+            graph.addNode(node);
+            graph.bbox.addPoint(node.coordinate.x, node.coordinate.y);
           }
         },
 
-        linkLayout: function(graph, nodeTemplates, nodeTypes, relationshipTypes, nodeSize, spacing) {
-          var thiss = this;
-
-          nodeTemplates = nodeTemplates || {};
-          $.each(nodeTemplates, function(nodeId, node) {
+        linkLayout: function(graph, relationshipTypes) {
+          var self = this;
+          _.each(graph.nodes, function(node) {
             // For each node map the relationships to the graph.
-            thiss.buildGraphRelationships(graph, node, nodeTemplates, relationshipTypes, nodeSize, spacing);
+            self.buildGraphRelationships(graph, node, relationshipTypes);
           });
         },
 
-        buildGraphRelationships: function(graph, nodeTemplate, nodeMap, relationshipTypes, nodeSize, spacing) {
+        buildGraphRelationships: function(graph, node, relationshipTypes) {
           var networkCount = 0;
-          var relationships = toscaService.getRelationships(nodeTemplate, function(relationship) {
+          var relationships = toscaService.getRelationships(node.template, function(relationship) {
             return toscaService.isOneOfType(['tosca.relationships.Root'], relationship.type, relationshipTypes);
           });
-          // var relationships = getRelationships(node, relationshipTypes);
           if (_.defined(relationships)) {
             var relationshipsLength = relationships.length;
             for (var i = 0; i < relationshipsLength; i++) {
               var relationship = relationships[i];
-              var sourceCenter = nodeTemplate.nodeCoordinate;
-              var targetCenter = nodeMap[relationship.target].nodeCoordinate;
+              if(toscaService.isAttachedToType(relationship.type, relationshipTypes) ||
+                  toscaService.isHostedOnType(relationship.type, relationshipTypes)) {
+                continue;
+              }
+              var targetNode = graph.nodeMap[relationship.target];
+              // if not found then take the node self connector.
               var source = {};
               var target = {};
               var isNetwork = false;
               var networkId = null;
-              if(toscaService.isAttachedToType(relationship.type, relationshipTypes)) {
-                continue;
-              }
-              if (toscaService.isHostedOnType(relationship.type, relationshipTypes)) {
-                source.x = sourceCenter.x - nodeSize.halfWidth - 1;
-                source.y = sourceCenter.y + nodeSize.halfHeight - 5;
-                target.x = targetCenter.x - nodeSize.halfWidth + 5;
-                target.y = targetCenter.y - nodeSize.halfHeight - 1;
-                source.direction = routerFactoryService.directions.left;
-                target.direction = routerFactoryService.directions.up;
-              } else if(toscaService.isNetworkType(relationship.type, relationshipTypes)){
+              if(toscaService.isNetworkType(relationship.type, relationshipTypes)){
                 isNetwork = true;
                 networkCount++;
-                source.x = nodeTemplate.bbox.minX - nodeSize.halfWidth + spacing.network * networkCount;
-                source.y = - nodeTemplate.bbox.minY + nodeSize.halfHeight;
+                source.x = node.coordinate.x + 14 * networkCount;
+                source.y = node.coordinate.y;
                 target.x = source.x;
-                target.y = targetCenter.y;
-                networkId = nodeMap[relationship.target].networkId;
+                target.y = targetNode.coordinate.y + targetNode.bbox.height() / 2;
+                networkId = graph.nodeMap[relationship.target].networkId;
               } else {
-                source.x = sourceCenter.x + nodeSize.halfWidth + 1;
-                source.y = sourceCenter.y;
-                target.x = targetCenter.x - nodeSize.halfWidth - 1;
-                target.y = targetCenter.y;
+                // find the target capabilities / requirements
+                var sourceRequirement = node.requirementsMap[relationship.requirementName];
+                source.x = node.coordinate.x + node.bbox.width() + 5;
+                if(_.defined(sourceRequirement)) {
+                  source.y = node.coordinate.y + sourceRequirement.coordinate.relative.y;
+                } else {
+                  source.y = node.coordinate.y;
+                }
+                var targetCapability = targetNode.capabilitiesMap[relationship.targetedCapabilityName];
+                target.x = targetNode.coordinate.x - 5;
+                if(_.defined(targetCapability)) {
+                  target.y = targetNode.coordinate.y + targetCapability.coordinate.relative.y;
+                } else {
+                  target.y = targetNode.coordinate.y;
+                }
                 source.direction = routerFactoryService.directions.right;
                 target.direction = routerFactoryService.directions.left;
               }
-              var selected = nodeMap[relationship.target].selected || nodeTemplate.selected;
+              var selected = graph.nodeMap[relationship.target].template.selected || node.template.selected;
               graph.links.push({
-                id: nodeTemplate.name + '.' + relationship.id,
+                id: node.id + '.' + relationship.id,
                 type: relationship.type,
                 source: source,
                 target: target,

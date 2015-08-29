@@ -8,7 +8,6 @@ import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -21,7 +20,7 @@ import com.google.common.collect.Maps;
  * Manages polymorphism deserialization for Jackson through discriminator field (based on field exists).
  */
 public class AbstractDiscriminatorPolymorphicDeserializer<T> extends StdDeserializer<T> {
-    private Map<String, Class<? extends T>> registry = Maps.newHashMap();
+    private Map<String, Map<String, Class<? extends T>>> registry = Maps.newHashMap();
     private Class<? extends T> valueStringClass = null;
 
     public AbstractDiscriminatorPolymorphicDeserializer(Class<T> clazz) {
@@ -29,7 +28,16 @@ public class AbstractDiscriminatorPolymorphicDeserializer<T> extends StdDeserial
     }
 
     protected void addToRegistry(String discriminator, Class<? extends T> clazz) {
-        registry.put(discriminator, clazz);
+        addToRegistry(discriminator, "ALL", clazz);
+    }
+
+    protected void addToRegistry(String discriminator, String discriminatorNodeType, Class<? extends T> clazz) {
+        Map<String, Class<? extends T>> registryForDiscriminator = registry.get(discriminator);
+        if (registryForDiscriminator == null) {
+            registryForDiscriminator = Maps.newHashMap();
+            registry.put(discriminator, registryForDiscriminator);
+        }
+        registryForDiscriminator.put(discriminatorNodeType, clazz);
     }
 
     /**
@@ -42,7 +50,7 @@ public class AbstractDiscriminatorPolymorphicDeserializer<T> extends StdDeserial
     }
 
     @Override
-    public T deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+    public T deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         ObjectMapper mapper = (ObjectMapper) jp.getCodec();
         if (this.valueStringClass != null && JsonToken.VALUE_STRING.equals(jp.getCurrentToken())) {
             String parameter = jp.getValueAsString();
@@ -55,19 +63,27 @@ public class AbstractDiscriminatorPolymorphicDeserializer<T> extends StdDeserial
                         + parameter + ">", jp.getCurrentLocation(), e);
             }
         }
-        ObjectNode root = (ObjectNode) mapper.readTree(jp);
+        ObjectNode root = mapper.readTree(jp);
         Class<? extends T> parameterClass = null;
         Iterator<Map.Entry<String, JsonNode>> elementsIterator = root.fields();
         while (elementsIterator.hasNext()) {
             Map.Entry<String, JsonNode> element = elementsIterator.next();
             String name = element.getKey();
+            String nodeType = element.getValue().getNodeType().toString();
             if (registry.containsKey(name)) {
-                parameterClass = registry.get(name);
-                break;
+                Map<String, Class<? extends T>> registryForDiscriminator = registry.get(name);
+                if (registryForDiscriminator.containsKey("ALL")) {
+                    parameterClass = registryForDiscriminator.values().iterator().next();
+                    break;
+                }
+                if (registryForDiscriminator.containsKey(nodeType)) {
+                    parameterClass = registryForDiscriminator.get(nodeType);
+                    break;
+                }
             }
         }
         if (parameterClass == null) {
-            return null;
+            throw new JsonParseException("Failed to find implementation for node " + root + " from registry " + registry, jp.getCurrentLocation());
         }
         return mapper.treeToValue(root, parameterClass);
     }

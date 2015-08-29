@@ -117,16 +117,12 @@ public class AvailabilityZoneAllocator {
             }
             for (PaaSNodeTemplate groupCompute : groupComputes) {
                 AvailabilityZone allocatedZone = allocation.get(groupCompute.getId());
-                PaaSNodeTemplate volume = groupCompute.getAttachedNode();
                 if (allocatedZone == null) {
                     allocationErrors.add(new AllocationError(AllocationErrorCode.NODE_NOT_ALLOCATED, groupId, groupCompute.getId()));
                     break;
-                } else if (volume != null) {
-                    String volumeAVZ = getAvailabilityZone(volume);
-                    if (volumeAVZ != null && !volumeAVZ.equals(avzToPaaSResourceId.get(allocatedZone))) {
-                        allocationErrors.add(new AllocationError(AllocationErrorCode.NODE_HAS_VOLUME_NOT_IN_THE_SAME_ZONE, groupId, groupCompute.getId()));
-                        break;
-                    }
+                } else if (!areStoragesInTheZone(groupCompute.getStorageNodes(), avzToPaaSResourceId.get(allocatedZone))) {
+                    allocationErrors.add(new AllocationError(AllocationErrorCode.NODE_HAS_VOLUME_NOT_IN_THE_SAME_ZONE, groupId, groupCompute.getId()));
+                    break;
                 }
                 Integer existingCount = repartitionMap.get(allocatedZone);
                 if (existingCount == null) {
@@ -151,6 +147,16 @@ public class AvailabilityZoneAllocator {
             }
         }
         return allocationErrors;
+    }
+
+    private boolean areStoragesInTheZone(List<PaaSNodeTemplate> storageNodes, String zoneToCheck) {
+        for (PaaSNodeTemplate volume : storageNodes) {
+            String volumeAVZ = getAvailabilityZone(volume);
+            if (volumeAVZ != null && !volumeAVZ.equals(zoneToCheck)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     AvailabilityZone getLeastUsedAvailabilityZone(Map<AvailabilityZone, Integer> availabilityZoneRepartition) {

@@ -126,6 +126,57 @@
             </div>
           </div>
 
+          <!--  Node Filter tasks  -->
+          <div ng-if="(nodeFiltersTasks = (validTopologyDTO.taskList | filter:{code:'NODE_FILTER_INVALID'})).length>0">
+            <div class="topology-node-expand clickable" ng-init="isToImplementNodesCollapsed = false" ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed">
+              <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isToImplementNodesCollapsed, 'fa-chevron-right': isToImplementNodesCollapsed}"></i>
+              <span>{{'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.NODE_FILTER_INVALID' | translate}} :</span>
+            </div>
+
+            <div collapse="isToImplementNodesCollapsed" class="topology-level">
+              <div ng-repeat=" nodeFiltersTask in nodeFiltersTasks">
+                <span>{{nodeFiltersTask.nodeTemplateName}} :</span>
+                <div ng-repeat=" nodeFilterToSatisfy in nodeFiltersTask.nodeFiltersToSatisfy">
+                  <span style="padding-left: 5px;">{{nodeFilterToSatisfy.relationshipName}} :</span>
+                  <!-- node_filters capabilities -->
+                  <table class="table table-condensed" ng-if="nodeFilterToSatisfy.missingCapabilities">
+                    <thead>
+                      <th>{{ 'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.CAPABILITY_NAME' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING' | translate}}</th>
+                    </thead>
+                    <tbody>
+                      <tr ng-repeat="(missingCapabilityName, missingCapability) in nodeFilterToSatisfy.missingCapabilities">
+                        <td>
+                          <span>{{missingCapability}}</span>
+                        </td>
+                        <td>
+                          <span>{{ 'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.CAPABILITY_MISSING_ERROR' | translate}}</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <!-- node_filters properties -->
+                  <table class="table table-condensed" ng-if="nodeFilterToSatisfy.violatedConstraints">
+                    <thead>
+                      <th>{{ 'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.PROPERTY_NAME' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING' | translate}}</th>
+                    </thead>
+                    <tbody>
+                      <tr ng-repeat="(violatedConstraintName, violatedConstraint) in nodeFilterToSatisfy.violatedConstraints">
+                        <td>
+                          <span>{{violatedConstraintName}}</span>
+                        </td>
+                        <td>
+                          <span>{{violatedConstraint[0].message}}</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!--  LowerBound not satisfied tasks  -->
           <div ng-if="(lowerBoundTasks = (validTopologyDTO.taskList | filter:{code:'SATISFY_LOWER_BOUND'})).length>0">
             <div class="topology-node-expand clickable" ng-init="isToAddRelationsCollapsed = false" ng-click="isToAddRelationsCollapsed = !isToAddRelationsCollapsed">
@@ -307,7 +358,12 @@
           <table class="table table-condensed" id="nodeTemplateProperties" style="margin-left:10px;">
             <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentPropertyDefinitions">
               <td id="p_deployment_{{propertyKey}}">
-                <property-display ng-init="condensed = true" definition="propertyDefinition" property-value="deploymentProperties[propertyKey]" on-save="updateDeploymentProperty(propertyDefinition,propertyValue)" editable="selectedEnvironment.status === 'UNDEPLOYED'"
+                <property-display ng-init="condensed = true"
+                                  definition="propertyDefinition"
+                                  property-name="propertyKey"
+                                  property-value="deploymentProperties[propertyKey]"
+                                  on-save="updateDeploymentProperty(propertyDefinition, propertyKey, propertyValue)"
+                                  editable="selectedEnvironment.status === 'UNDEPLOYED'"
                 condensed="condensed">
                 </property-display>
               </td>
@@ -321,23 +377,24 @@
     <!-- Input properties  -->
     <div class="row" style="margin-top: 20px;" ng-if="isAllowedInputDeployment()">
       <div class="col-md-12">
-
         <span>
           <i class="fa fa-sign-in"></i>
           <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}</strong>
         </span>
-
         <div id="inputsTable" ng-if="setup" class="col-md-12" ng-repeat="(inputId, inputDefinition) in inputs | allowedInputs">
           <hr/>
           <div id="app_deployment_id_{{inputId}}" class="col-md-4">
             {{inputId}}
           </div>
           <div id="app_deployment_value_{{inputId}}" class="col-md-8">
-            <property-display definition="inputDefinition" property-value="setup.inputProperties[inputId]" on-save="updateInputValue(propertyDefinition, propertyValue, inputId)" editable="!(selectedEnvironment.status === 'DEPLOYED')" condensed="true">
+            <property-display definition="inputDefinition"
+                              property-value="setup.inputProperties[inputId]"
+                              on-save="updateInputValue(propertyDefinition, propertyValue, inputId)"
+                              editable="!(selectedEnvironment.status === 'DEPLOYED')"
+                              condensed="true">
             </property-display>
           </div>
         </div>
-
       </div>
     </div>
 

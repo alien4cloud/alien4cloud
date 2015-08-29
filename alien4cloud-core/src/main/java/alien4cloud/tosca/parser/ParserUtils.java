@@ -8,9 +8,12 @@ import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
+import org.yaml.snakeyaml.nodes.SequenceNode;
 
+import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
@@ -51,7 +54,7 @@ public final class ParserUtils {
             if (!(entry.getValueNode() instanceof ScalarNode)) {
                 if (!ArrayUtils.contains(ignoredKeys, getScalar(entry.getKeyNode(), context))) {
                     ParsingError err = new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNRECOGNIZED_PROPERTY, "Parsing a MappingNode as a Map", entry
-                            .getValueNode().getStartMark(), "The value of this tuple should be a scalar", entry.getValueNode().getEndMark(),
+                            .getKeyNode().getStartMark(), "The value of this tuple should be a scalar", entry.getValueNode().getEndMark(),
                             ((ScalarNode) entry.getKeyNode()).getValue());
                     context.getParsingErrors().add(err);
                 }
@@ -64,7 +67,38 @@ public final class ParserUtils {
         }
         return result;
     }
-    
+
+    public static Object parse(Node node) {
+        if (node == null) {
+            return null;
+        } else if (node instanceof ScalarNode) {
+            return ((ScalarNode) node).getValue();
+        } else if (node instanceof SequenceNode) {
+            return parseSequence((SequenceNode) node);
+        } else if (node instanceof MappingNode) {
+            return parseMap((MappingNode) node);
+        } else {
+            throw new InvalidArgumentException("Unknown type of node " + node.getClass().getName());
+        }
+    }
+
+    public static List<Object> parseSequence(SequenceNode sequenceNode) {
+        List<Object> result = Lists.newArrayList();
+        for (Node node : sequenceNode.getValue()) {
+            result.add(parse(node));
+        }
+        return result;
+    }
+
+    public static Map<String, Object> parseMap(MappingNode mappingNode) {
+        Map<String, Object> result = Maps.newHashMap();
+        for (NodeTuple entry : mappingNode.getValue()) {
+            String key = ((ScalarNode) entry.getKeyNode()).getValue();
+            result.put(key, parse(entry.getValueNode()));
+        }
+        return result;
+    }
+
     /**
      * Add an invalid type {@link ParsingError} to the given parsing errors list.
      * 

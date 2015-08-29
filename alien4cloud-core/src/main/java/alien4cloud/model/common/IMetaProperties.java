@@ -9,7 +9,7 @@ public interface IMetaProperties {
     /**
      * Set the map of meta-properties on the resource.
      *
-     * @param the map of meta-properties.
+     * @param metaProperties the map of meta-properties.
      */
     void setMetaProperties(Map<String, String> metaProperties);
 

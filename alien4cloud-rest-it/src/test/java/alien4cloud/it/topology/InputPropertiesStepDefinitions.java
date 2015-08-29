@@ -70,8 +70,8 @@ public class InputPropertiesStepDefinitions {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(fullUrl, json));
     }
 
-    @When("^I rename the property \"([^\"]*)\" to \"([^\"]*)\"$")
-    public void I_rename_the_property_to(String oldInputId, String newInputId) throws Throwable {
+    @When("^I rename the input \"([^\"]*)\" to \"([^\"]*)\"$")
+    public void I_rename_the_input_to(String oldInputId, String newInputId) throws Throwable {
         String url = String.format("/rest/topologies/%s/inputs/%s", Context.getInstance().getTopologyId(), oldInputId);
         List<NameValuePair> nvps = new ArrayList<NameValuePair>();
         nvps.add(new BasicNameValuePair("newInputId", newInputId));

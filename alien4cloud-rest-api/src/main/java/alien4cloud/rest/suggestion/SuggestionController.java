@@ -10,6 +10,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -59,6 +60,7 @@ public class SuggestionController {
      */
     @ApiIgnore
     @RequestMapping(value = "/tag/{tagName}/{searchPrefix}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<String[]> tagSuggest(@PathVariable String tagName, @PathVariable String searchPrefix) {
         String suggestFieldPath = TAG_FIELD.concat(".").concat(tagName);
         GetMultipleDataResult searchResult = dao.suggestSearch(INDEXES, CLASSES, suggestFieldPath, searchPrefix, FetchContext.TAG_SUGGESTION, 0,
@@ -96,6 +98,7 @@ public class SuggestionController {
 
     @ApiIgnore
     @RequestMapping(value = "/nodetypes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<String[]> nodeTypeSuggest(@RequestParam("text") String searchText) {
         if (searchText == null || searchText.trim().isEmpty()) {
             return RestResponseBuilder.<String[]> builder().data(new String[0]).build();

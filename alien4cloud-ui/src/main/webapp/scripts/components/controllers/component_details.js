@@ -6,7 +6,7 @@ define(function (require) {
   var angular = require('angular');
 
   states.state('components.detail', {
-    url: '/component/:id',
+    url: '/details/:id',
     templateUrl: 'views/components/component_details.html',
     controller: 'ComponentDetailsCtrl'
   });
@@ -14,6 +14,7 @@ define(function (require) {
   require('scripts/authentication/services/authservices');
   require('scripts/common/filters/strings');
   require('scripts/common/services/suggestion_services');
+  require('scripts/common/directives/simple_modal');
   require('scripts/components/services/tags');
   require('scripts/components/controllers/csar_explorer');
 
@@ -289,27 +290,6 @@ define(function (require) {
           }
         });
       };
-
-      $scope.openSimpleModal = function (content) {
-        $modal.open({
-          templateUrl: 'views/common/simple_modal.html',
-          controller: ModalInstanceCtrl,
-          resolve: {
-            description: function () {
-              return content;
-            }
-          }
-        });
-      };
-
-      var ModalInstanceCtrl = ['$scope', '$modalInstance', 'description', function ($scope, $modalInstance, description) {
-        $scope.title = 'MODAL.TITLE.PROPERTY';
-        $scope.content = description;
-
-        $scope.close = function () {
-          $modalInstance.dismiss('close');
-        };
-      }];
 
       $scope.displaySubtitutionTopology = function(topologyId) {
         topologyVersionResource.get({

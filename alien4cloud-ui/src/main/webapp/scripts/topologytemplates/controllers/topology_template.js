@@ -13,7 +13,7 @@ define(function (require) {
 
   // register components root state
   states.state('topologytemplates.detail', {
-    url: '/detail/:id',
+    url: '/details/:id',
     templateUrl: 'views/topologytemplates/topology_template.html',
     resolve: {
       topologyTemplate: ['topologyTemplateService', '$stateParams',
@@ -64,7 +64,7 @@ define(function (require) {
       preselectedVersion: ['$stateParams', function($stateParams) { return $stateParams.version; } ]
     },
     controller: 'TopologyCtrl'
-  });  
+  });
   states.state('topologytemplates.detail.versions', {
     url: '/versions',
     templateUrl: 'views/applications/application_versions.html',
@@ -76,7 +76,7 @@ define(function (require) {
     },
     controller: 'ApplicationVersionsCtrl'
   });
-  
+
   var NewTopologyTemplateCtrl = ['$scope', '$modalInstance',
     function($scope, $modalInstance) {
       $scope.topologytemplate = {};
@@ -112,7 +112,7 @@ define(function (require) {
           }
         );
       };
-      
+
       $scope.menu = [{
         id: 'am.applications.detail.topology',
         state: 'topologytemplates.detail.topology',
@@ -126,7 +126,7 @@ define(function (require) {
         icon: 'fa fa-tasks',
         show: true
       }];
-      
+
     }
   ]); // controller
 }); // define

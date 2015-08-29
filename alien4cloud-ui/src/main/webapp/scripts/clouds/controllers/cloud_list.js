@@ -17,8 +17,8 @@ define(function (require) {
     url: '/clouds',
     template: '<ui-view/>',
     menu: {
-      id: 'am.admin.clouds.list',
-      state: 'admin.clouds.list',
+      id: 'am.admin.clouds',
+      state: 'admin.clouds',
       key: 'NAVADMIN.MENU_CLOUDS',
       icon: 'fa fa-cloud',
       priority: 300

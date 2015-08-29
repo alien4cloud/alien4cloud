@@ -192,9 +192,7 @@
                     </div>
                   </td>
                   <td>
-                    <button ng-if="propertyEntry.value.description" class="btn btn-primary btn-xs" data-toggle="modal" ng-click="openSimpleModal(propertyEntry.value.description)" tooltip="{{ 'MODAL.TITLE.PROPERTY' | translate}}" tooltip-append-to-body="true">
-                      <i class="fa fa-question-circle"></i>
-                    </button>
+                    <simple-modal class="pull-right" title="{{ 'MODAL.TITLE.PROPERTY' | translate}}" content="{{propertyEntry.value.description}}" primary="true"> </simple-modal>
                   </td>
                 </tr>
               </table>

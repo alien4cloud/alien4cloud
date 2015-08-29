@@ -32,7 +32,7 @@
   }, {
     "title": "Clouds configuration",
     "content": "Click here to create a cloud associated to PaaS provider plugin added previously.",
-    "target": "am.admin.clouds.list",
+    "target": "am.admin.clouds",
     "placement": "right"
   }, {
     "title": "Cloud images configuration",

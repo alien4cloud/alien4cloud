@@ -6,6 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import alien4cloud.rest.model.RestResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.security.core.AuthenticationException;
@@ -28,15 +29,18 @@ public class FailureAuthenticationEntryPoint implements AuthenticationEntryPoint
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        log.info("Authentication required for this request : {}", request.getRequestURL());
+        log.debug("Authentication required for this request : {}", request.getRequestURL());
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         // return a RestResponse json in the response
-        response.getOutputStream().println(
-                JsonUtil.toString(RestResponseBuilder
-                        .<Void> builder()
-                        .data(null)
-                        .error(RestErrorBuilder.builder(RestErrorCode.AUTHENTICATION_REQUIRED_ERROR)
-                                .message("Authentication required for this request : " + request.getRequestURI()).build()).build()));
+        response.getOutputStream().println(JsonUtil.toString(getAuthenticationRequired(request.getRequestURI())));
+    }
+
+    public static RestResponse<Void> getAuthenticationRequired(String url) {
+        return RestResponseBuilder
+                .<Void> builder()
+                .data(null)
+                .error(RestErrorBuilder.builder(RestErrorCode.AUTHENTICATION_REQUIRED_ERROR).message("Authentication required for this request : " + url)
+                        .build()).build();
     }
 }

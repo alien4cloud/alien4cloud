@@ -194,7 +194,7 @@ public class PluginManager {
             // copy ui directory in case it exists
             Path pluginUiSourcePath = pluginPath.resolve(UI_DIRECTORY);
             Path pluginUiPath = getPluginUiPath(pluginPathId);
-            if(Files.exists(pluginUiPath)) {
+            if(Files.exists(pluginUiSourcePath)) {
                 FileUtil.copy(pluginUiSourcePath, pluginUiPath);
             }
 
@@ -232,6 +232,7 @@ public class PluginManager {
 
         if (usages.isEmpty()) {
             Path pluginPath;
+            Path pluginUiPath;
             if (managedPlugin != null) {
                 // send events to plugin loading callbacks
                 Map<String, IPluginLoadingCallback> beans = alienContext.getBeansOfType(IPluginLoadingCallback.class);
@@ -242,9 +243,11 @@ public class PluginManager {
                 // destroy the plugin context
                 managedPlugin.getPluginContext().destroy();
                 pluginPath = managedPlugin.getPluginPath();
+                pluginUiPath = managedPlugin.getPluginUiPath();
             } else {
                 Plugin plugin = alienDAO.findById(Plugin.class, pluginId);
                 pluginPath = getPluginPath(plugin.getPluginPathId());
+                pluginUiPath = getPluginUiPath(plugin.getPluginPathId());
             }
 
             // unlink the plugin
@@ -261,6 +264,7 @@ public class PluginManager {
                 try {
                     FileUtil.delete(pluginPath);
                     FileUtil.delete(getPluginZipFilePath(pluginId));
+                    FileUtil.delete(pluginUiPath);
                 } catch (IOException e) {
                     log.error("Failed to delete the plugin <" + pluginId + "> in the repository. You'll have to do it manually", e);
                 }

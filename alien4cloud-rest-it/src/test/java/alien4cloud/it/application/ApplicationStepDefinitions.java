@@ -1,10 +1,6 @@
 package alien4cloud.it.application;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -643,7 +639,9 @@ public class ApplicationStepDefinitions {
     @Given("^I create a new application with name \"([^\"]*)\" and description \"([^\"]*)\" based on the template with name \"([^\"]*)\"$")
     public void I_create_a_new_application_with_name_and_description_based_on_the_template_with_name(String name, String description, String templateName)
             throws Throwable {
-        createApplicationFromTemplateId(name, description, TopologyTemplateStepDefinitions.getTopologyTemplateIdFromName(templateName));
+        String topologyTemplateId = TopologyTemplateStepDefinitions.getTopologyTemplateIdFromName(templateName);
+        String topologyTemplateVersionId = TopologyTemplateStepDefinitions.getLatestTopologyTemplateVersion(topologyTemplateId).getId();
+        createApplicationFromTemplateId(name, description, topologyTemplateVersionId);
     }
 
     @Then("^The application update date has changed$")

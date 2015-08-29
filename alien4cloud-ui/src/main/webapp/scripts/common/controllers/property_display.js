@@ -1,4 +1,4 @@
-define(function (require) {
+define(function(require) {
   'use strict';
 
   var modules = require('modules');
@@ -6,8 +6,37 @@ define(function (require) {
 
   require('scripts/common/services/properties_services');
 
-  modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate',
-    function($scope, propertiesServices, $translate) {
+  var ComplexPropertyModalCtrl = ['$scope', '$modalInstance', 'formDescriptorServices',
+    function($scope, $modalInstance, formDescriptorServices) {
+      $scope.configuration = {
+        dependencies: $scope.dependencies
+      };
+      var descriptorQuery = {
+        propertyDefinition: $scope.definition,
+        dependencies: $scope.dependencies
+      };
+      //descriptor of the config
+      formDescriptorServices.getToscaComplexTypeDescriptor({}, angular.toJson(descriptorQuery), function(result) {
+        $scope.formDescription = result.data;
+      });
+
+      $scope.save = function(value) {
+        $scope.propertySave(value);
+      };
+
+      $scope.remove = function(value) {
+        $scope.propertySave(undefined);
+        $modalInstance.dismiss(undefined);
+      };
+
+      $scope.cancel = function() {
+        $modalInstance.dismiss('cancel');
+      };
+    }
+  ];
+
+  modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$modal',
+    function($scope, propertiesServices, $translate, $modal) {
 
       $scope.propertySave = function(data, unit) {
         delete $scope.unitError;
@@ -21,6 +50,7 @@ define(function (require) {
         }
         // check constraint here
         var propertyRequest = {
+          propertyName: $scope.propertyName,
           propertyDefinition: $scope.definition,
           propertyValue: data
         };
@@ -53,6 +83,24 @@ define(function (require) {
               }
             });
           }
+        }
+      };
+
+      $scope.saveReset = function(resetValue) {
+        var resetUnit = null;
+        if (_.defined($scope.definitionObject.units) && !_.undefined(resetValue)) {
+          // reset value de la forme : "VALUE UNIT" > split by space
+          var splitedValueUnit = resetValue.split(' ');
+          resetValue = splitedValueUnit[0];
+          resetUnit = splitedValueUnit[1];
+        }
+        var savePromise = $scope.propertySave(resetValue, resetUnit);
+        if (_.defined(savePromise)) {
+          savePromise.then(function(error) {
+            if (_.defined(error)) {
+              $scope.unitError = error;
+            }
+          });
         }
       };
 
@@ -141,14 +189,15 @@ define(function (require) {
             $scope.definitionObject.uiValue = shownValue;
           }
         };
+        $scope.splitScalarUnitValue = splitScalarUnitValue;
 
         // Second phase : regardless constraints
         switch ($scope.definition.type) {
           case 'boolean':
             $scope.definitionObject.uiName = 'checkbox';
-            if(_.undefined(shownValue)) {
+            if (_.undefined(shownValue)) {
               $scope.definitionObject.uiValue = false;
-            } else if(typeof shownValue === 'boolean') {
+            } else if (typeof shownValue === 'boolean') {
               $scope.definitionObject.uiValue = shownValue;
             } else {
               $scope.definitionObject.uiValue = (shownValue === 'true');
@@ -168,10 +217,17 @@ define(function (require) {
             $scope.definitionObject.units = ['d', 'h', 'm', 's', 'ms', 'us', 'ns'];
             splitScalarUnitValue(false);
             break;
-          default:
+          case 'version':
+          case 'float':
+          case 'integer':
+          case 'string':
             $scope.definitionObject.uiName = 'string';
             $scope.definitionObject.uiValue = shownValue;
             $scope.definitionObject.uiPassword = $scope.definition.password;
+            break;
+          default :
+            $scope.definitionObject.uiName = 'complex';
+            $scope.definitionObject.uiValue = shownValue;
             break;
         }
 
@@ -181,10 +237,20 @@ define(function (require) {
         }
       };
 
+      $scope.openComplexPropertyModal = function() {
+
+        var modalInstance = $modal.open({
+          templateUrl: 'views/common/property_display_complex_modal.html',
+          controller: ComplexPropertyModalCtrl,
+          windowClass: 'searchModal',
+          scope: $scope
+        });
+      };
+
       /** Reset the property to the default value if any */
       $scope.resetProperty = function resetPropertyToDefault() {
         $scope.initScope();
-        $scope.propertySave($scope.definition.default, $scope.definitionObject.uiUnit);
+        $scope.saveReset($scope.definition.default);
         if ($scope.propertyValue.hasOwnProperty('value')) {
           $scope.propertyValue.value = $scope.definition.default; // if same value affected, no watch applied
         } else {

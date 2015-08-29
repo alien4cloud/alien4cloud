@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -123,6 +124,7 @@ public class CloudServiceArchiveController {
 
     @ApiOperation(value = "Upload a csar zip file.")
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
     @Audit
     public RestResponse<CsarUploadResult> uploadCSAR(@RequestParam("file") MultipartFile csar) throws IOException {
         Path csarPath = null;
@@ -192,6 +194,7 @@ public class CloudServiceArchiveController {
     @ApiOperation(value = "Create a CSAR in SNAPSHOT version.")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     @Audit
     public RestResponse<String> createSnapshot(@Valid @RequestBody CreateCsarRequest request) {
         // new csar instance to save
@@ -215,6 +218,7 @@ public class CloudServiceArchiveController {
 
     @ApiOperation(value = "Add dependency to the csar with given id.")
     @RequestMapping(value = "/{csarId:.+?}/dependencies", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     @Audit
     public RestResponse<Boolean> addDependency(@PathVariable String csarId, @Valid @RequestBody CSARDependency dependency) {
         Csar csar = csarDAO.findById(Csar.class, csarId);
@@ -233,6 +237,7 @@ public class CloudServiceArchiveController {
 
     @ApiOperation(value = "Delete a CSAR given its id.")
     @RequestMapping(value = "/{csarId:.+?}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     @Audit
     public RestResponse<List<CsarRelatedResourceDTO>> delete(@PathVariable String csarId) {
         Csar csar = csarService.getMandatoryCsar(csarId);
@@ -342,6 +347,7 @@ public class CloudServiceArchiveController {
 
     @ApiOperation(value = "Get a CSAR given its id.", notes = "Returns a CSAR.")
     @RequestMapping(value = "/{csarId:.+?}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     public RestResponse<CsarInfoDTO> read(@PathVariable String csarId) {
         Csar csar = csarDAO.findById(Csar.class, csarId);
         List<CsarRelatedResourceDTO> relatedResourceList = getCsarRelatedResourceList(csar);
@@ -351,6 +357,7 @@ public class CloudServiceArchiveController {
 
     @ApiOperation(value = "Search for cloud service archives.")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     public RestResponse<FacetedSearchResult> search(@RequestBody SearchRequest searchRequest) {
         Map<String, String[]> filters = searchRequest.getFilters();
         if (filters == null) {
@@ -364,6 +371,7 @@ public class CloudServiceArchiveController {
     @ApiIgnore
     // @ApiOperation(value = "Create or update a node type in the given cloud service archive.")
     @RequestMapping(value = "/{csarId:.+?}/nodetypes", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     @Audit
     public RestResponse<Void> saveNodeType(@PathVariable String csarId, @RequestBody IndexedNodeType nodeType) {
         Csar csar = csarService.getMandatoryCsar(csarId);
@@ -405,6 +413,7 @@ public class CloudServiceArchiveController {
      */
     @ApiOperation(value = "Get active deployment for the given csar snapshot's test topology on the given cloud.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{csarId:.+?}/active-deployment", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     public RestResponse<Deployment> getActiveDeployment(@PathVariable String csarId) {
         Csar csar = csarService.getMandatoryCsar(csarId);
         if (csar.getTopologyId() == null || csar.getCloudId() == null) {
@@ -416,6 +425,7 @@ public class CloudServiceArchiveController {
 
     @ApiOperation(value = "Deploy snapshot archive on a given cloud.")
     @RequestMapping(value = "/{csarName:.+?}/version/{csarVersion:.+?}/cloudid/{cloudId:.+?}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     @Audit
     public RestResponse<String> deploySnapshot(@PathVariable String csarName, @PathVariable String csarVersion, @PathVariable String cloudId)
             throws CSARVersionNotFoundException, IOException {

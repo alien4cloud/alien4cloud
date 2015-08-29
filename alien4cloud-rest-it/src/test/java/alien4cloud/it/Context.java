@@ -1,10 +1,10 @@
 package alien4cloud.it;
 
+import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +18,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.NodeBuilder;
+import org.jclouds.openstack.nova.v2_0.domain.Server;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.io.ClassPathResource;
@@ -27,11 +28,15 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.PropertyPlaceholderHelper;
 
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.it.exception.ITException;
+import alien4cloud.it.provider.util.OpenStackClient;
+import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
 import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.rest.utils.RestClient;
 import alien4cloud.rest.utils.RestMapper;
@@ -53,6 +58,19 @@ import cucumber.runtime.io.ClasspathResourceLoader;
  */
 @Slf4j
 public class Context {
+
+    public static final String GIT_URL_SUFFIX = ".git";
+
+    public static final Path GIT_ARTIFACT_TARGET_PATH = Paths.get("target/gits");
+
+    public static final Path CSAR_TARGET_PATH = Paths.get("target/csars");
+
+    public static final String FASTCONNECT_NEXUS = "http://fastconnect.org/maven/service/local/artifact/maven/redirect?";
+
+    public static final Path LOCAL_TEST_DATA_PATH = Paths.get("src/test/resources");
+
+    public static final int SCP_PORT = 22;
+
     public static final String HOST = "localhost";
 
     public static final int PORT = 8088;
@@ -66,22 +84,13 @@ public class Context {
 
     private static final Context INSTANCE = new Context();
 
-    private static final Client ES_CLIENT_INSTANCE;
+    private static Client ES_CLIENT_INSTANCE;
 
-    private static final RestClient REST_CLIENT_INSTANCE;
+    private static RestClient REST_CLIENT_INSTANCE;
 
-    private static final ObjectMapper JSON_MAPPER;
+    private static ObjectMapper JSON_MAPPER;
 
     static {
-        JSON_MAPPER = new RestMapper();
-        SimpleModule module = new SimpleModule("PropDeser", new Version(1, 0, 0, null));
-        module.addDeserializer(AbstractPropertyValue.class, new PropertyValueDeserializer());
-        JSON_MAPPER.registerModule(module);
-
-        Settings settings = ImmutableSettings.settingsBuilder().put("discovery.zen.ping.multicast.enabled", false)
-                .put("discovery.zen.ping.unicast.hosts", "localhost").put("discovery.zen.ping.unicast.enabled", true).build();
-        ES_CLIENT_INSTANCE = NodeBuilder.nodeBuilder().client(true).clusterName("escluster").local(false).settings(settings).node().client();
-        REST_CLIENT_INSTANCE = new RestClient("http://" + HOST + ":" + PORT + CONTEXT_PATH);
         YamlPropertiesFactoryBean propertiesFactoryBean = new YamlPropertiesFactoryBean();
         propertiesFactoryBean.setResources(new Resource[] { new ClassPathResource("version.yml") });
         Properties properties = propertiesFactoryBean.getObject();
@@ -89,10 +98,18 @@ public class Context {
     }
 
     public static Client getEsClientInstance() {
+        if (ES_CLIENT_INSTANCE == null) {
+            Settings settings = ImmutableSettings.settingsBuilder().put("discovery.zen.ping.multicast.enabled", false)
+                    .put("discovery.zen.ping.unicast.hosts", "localhost").put("discovery.zen.ping.unicast.enabled", true).build();
+            ES_CLIENT_INSTANCE = NodeBuilder.nodeBuilder().client(true).clusterName("escluster").local(false).settings(settings).node().client();
+        }
         return ES_CLIENT_INSTANCE;
     }
 
     public static RestClient getRestClientInstance() {
+        if (REST_CLIENT_INSTANCE == null) {
+            REST_CLIENT_INSTANCE = new RestClient("http://" + HOST + ":" + PORT + CONTEXT_PATH);
+        }
         return REST_CLIENT_INSTANCE;
     }
 
@@ -101,72 +118,65 @@ public class Context {
     }
 
     public static ObjectMapper getJsonMapper() {
+        if (JSON_MAPPER == null) {
+            JSON_MAPPER = new RestMapper();
+            SimpleModule module = new SimpleModule("PropDeser", new Version(1, 0, 0, null, null, null));
+            module.addDeserializer(AbstractPropertyValue.class, new PropertyValueDeserializer());
+            try {
+                module.addDeserializer(PropertyConstraint.class, new PropertyConstraintDeserializer());
+            } catch (ClassNotFoundException | IOException | IntrospectionException e) {
+                log.error("Unable to initialize test context.");
+            }
+            JSON_MAPPER.registerModule(module);
+        }
         return JSON_MAPPER;
     }
 
     private final TestPropertyPlaceholderConfigurer appProps;
 
-    private ThreadLocal<String> restResponseLocal;
+    private String restResponseLocal;
 
-    private ThreadLocal<String> csarLocal;
+    private String csarLocal;
 
-    private ThreadLocal<Set<String>> componentsIdsLocal;
+    private Set<String> componentsIdsLocal;
 
-    private ThreadLocal<String> topologyIdLocal;
+    private String topologyIdLocal;
 
-    private ThreadLocal<String> csarIdLocal;
+    private String csarIdLocal;
 
-    private ThreadLocal<TopologyTemplate> topologyTemplate;
+    private TopologyTemplate topologyTemplate;
 
-    private ThreadLocal<String> topologyTemplateVersionId;
+    private String topologyTemplateVersionId;
 
-    private ThreadLocal<EvaluationContext> spelEvaluationContext;
+    private EvaluationContext spelEvaluationContext;
 
-    private ThreadLocal<Application> applicationLocal;
+    private Application applicationLocal;
 
-    private ThreadLocal<Map<String, String>> applicationInfos;
+    private Map<String, String> applicationInfos;
 
-    private ThreadLocal<Map<String, String>> cloudInfos;
+    private Map<String, String> csarGitInfos;
 
-    private ThreadLocal<String> topologyCloudInfos;
+    private Map<String, String> cloudInfos;
 
-    private ThreadLocal<Map<String, String>> deployApplicationProperties;
+    private String topologyCloudInfos;
 
-    private ThreadLocal<Map<String, MetaPropConfiguration>> configurationTags;
+    private Map<String, String> deployApplicationProperties;
 
-    private ThreadLocal<String> topologyDeploymentId;
+    private Map<String, MetaPropConfiguration> configurationTags;
 
-    private ThreadLocal<Map<String, String>> groupIdToGroupNameMapping;
+    private String topologyDeploymentId;
 
-    private ThreadLocal<Map<String, String>> cloudImageNameToCloudImageIdMapping;
+    private Map<String, String> groupIdToGroupNameMapping = Maps.newHashMap();
 
-    private ThreadLocal<Map<String, String>> applicationVersionNameToApplicationVersionIdMapping;
+    private Map<String, String> cloudImageNameToCloudImageIdMapping = Maps.newHashMap();
 
-    private ThreadLocal<Map<String, Map<String, String>>> environmentInfos;
+    private Map<String, String> applicationVersionNameToApplicationVersionIdMapping = Maps.newHashMap();
+
+    private Map<String, Map<String, String>> environmentInfos;
+
+    private OpenStackClient openStackClient;
 
     private Context() {
-        restResponseLocal = new ThreadLocal<String>();
-        csarLocal = new ThreadLocal<String>();
-        componentsIdsLocal = new ThreadLocal<Set<String>>();
-        topologyIdLocal = new ThreadLocal<String>();
-        csarIdLocal = new ThreadLocal<String>();
-        applicationLocal = new ThreadLocal<Application>();
-        topologyTemplate = new ThreadLocal<TopologyTemplate>();
-        topologyTemplateVersionId = new ThreadLocal<String>();
-        spelEvaluationContext = new ThreadLocal<EvaluationContext>();
-        cloudInfos = new ThreadLocal<Map<String, String>>();
-        topologyCloudInfos = new ThreadLocal<String>();
-        deployApplicationProperties = new ThreadLocal<Map<String, String>>();
-        configurationTags = new ThreadLocal<Map<String, MetaPropConfiguration>>();
-        topologyDeploymentId = new ThreadLocal<String>();
-        groupIdToGroupNameMapping = new ThreadLocal<Map<String, String>>();
-        groupIdToGroupNameMapping.set(new HashMap<String, String>());
-        cloudImageNameToCloudImageIdMapping = new ThreadLocal<>();
-        cloudImageNameToCloudImageIdMapping.set(new HashMap<String, String>());
-        applicationVersionNameToApplicationVersionIdMapping = new ThreadLocal<>();
-        applicationVersionNameToApplicationVersionIdMapping.set(new HashMap<String, String>());
-        environmentInfos = new ThreadLocal<Map<String, Map<String, String>>>();
-        applicationInfos = new ThreadLocal<Map<String, String>>();
         ClasspathResourceLoader classpathResourceLoader = new ClasspathResourceLoader(Thread.currentThread().getContextClassLoader());
         Iterable<cucumber.runtime.io.Resource> properties = classpathResourceLoader.resources("", "alien4cloud-config.yml");
         List<Resource> resources = Lists.newArrayList();
@@ -182,8 +192,8 @@ public class Context {
             resources = Lists.<Resource> newArrayList(new ClassPathResource("alien4cloud-config.yml"));
         }
         factory.setResources(resources.toArray(new Resource[resources.size()]));
-        appProps = new TestPropertyPlaceholderConfigurer();
-        appProps.setProperties(factory.getObject());
+        this.appProps = new TestPropertyPlaceholderConfigurer();
+        this.appProps.setProperties(factory.getObject());
     }
 
     private static class TestPropertyPlaceholderConfigurer extends PropertyPlaceholderConfigurer {
@@ -222,52 +232,56 @@ public class Context {
     }
 
     public void registerGroupId(String groupName, String groupId) {
-        groupIdToGroupNameMapping.get().put(groupName, groupId);
+        groupIdToGroupNameMapping.put(groupName, groupId);
     }
 
     public String getGroupId(String groupName) {
-        return groupIdToGroupNameMapping.get().get(groupName);
+        return groupIdToGroupNameMapping.get(groupName);
     }
 
     public void registerCloudImageId(String cloudImageName, String cloudImageId) {
-        cloudImageNameToCloudImageIdMapping.get().put(cloudImageName, cloudImageId);
+        cloudImageNameToCloudImageIdMapping.put(cloudImageName, cloudImageId);
     }
 
     public String getCloudImageId(String cloudImageName) {
-        return cloudImageNameToCloudImageIdMapping.get().get(cloudImageName);
+        return cloudImageNameToCloudImageIdMapping.get(cloudImageName);
+    }
+
+    public Map<String, String> getCsarGitInfos() {
+        return csarGitInfos;
     }
 
     public void registerApplicationVersionId(String applicationVersionName, String applicationVersionId) {
-        applicationVersionNameToApplicationVersionIdMapping.get().put(applicationVersionName, applicationVersionId);
+        applicationVersionNameToApplicationVersionIdMapping.put(applicationVersionName, applicationVersionId);
     }
 
     public String getApplicationVersionId(String applicationVersionName) {
-        return applicationVersionNameToApplicationVersionIdMapping.get().get(applicationVersionName);
+        return applicationVersionNameToApplicationVersionIdMapping.get(applicationVersionName);
     }
 
     public void registerRestResponse(String restResponse) {
         log.debug("Registering [" + restResponse + "] in the context");
-        restResponseLocal.set(restResponse);
+        restResponseLocal = restResponse;
     }
 
     public String getRestResponse() {
-        return restResponseLocal.get();
+        return restResponseLocal;
     }
 
     public String takeRestResponse() {
-        String response = restResponseLocal.get();
-        restResponseLocal.set(null);
+        String response = restResponseLocal;
+        restResponseLocal = null;
         return response;
     }
 
     public void registerCSAR(String csarPath) {
         log.debug("Registering csar [" + csarPath + "] in the context");
-        csarLocal.set(csarPath);
+        csarLocal = csarPath;
     }
 
     public String getCSAR() {
-        String csar = csarLocal.get();
-        csarLocal.set(null);
+        String csar = csarLocal;
+        csarLocal = null;
         return csar;
     }
 
@@ -304,46 +318,46 @@ public class Context {
     }
 
     public void clearComponentsIds() {
-        componentsIdsLocal.set(null);
+        componentsIdsLocal = null;
     }
 
     public Set<String> getComponentsIds() {
-        return componentsIdsLocal.get();
+        return componentsIdsLocal;
     }
 
     public Set<String> takeComponentsIds() {
-        Set<String> componentsIds = componentsIdsLocal.get();
+        Set<String> componentsIds = componentsIdsLocal;
         clearComponentsIds();
         return componentsIds;
     }
 
     public void registerComponentId(String componentid) {
-        if (componentsIdsLocal.get() == null) {
-            componentsIdsLocal.set(new HashSet<String>());
+        if (componentsIdsLocal == null) {
+            componentsIdsLocal = new HashSet<String>();
         }
         log.debug("Registering componentID [" + componentid + "] in the context");
-        componentsIdsLocal.get().add(componentid);
+        componentsIdsLocal.add(componentid);
     }
 
     public String getComponentId(String componentid) {
-        if (componentsIdsLocal.get() != null && componentsIdsLocal.get().contains(componentid)) {
+        if (componentsIdsLocal != null && componentsIdsLocal.contains(componentid)) {
             return componentid;
         }
         return null;
     }
 
     public String takeComponentId(String componentid) {
-        if (componentsIdsLocal.get() != null && componentsIdsLocal.get().contains(componentid)) {
-            componentsIdsLocal.get().remove(componentid);
+        if (componentsIdsLocal != null && componentsIdsLocal.contains(componentid)) {
+            componentsIdsLocal.remove(componentid);
             return componentid;
         }
         return null;
     }
 
     public String getComponentId(int position) {
-        if (componentsIdsLocal.get() != null && componentsIdsLocal.get().size() >= (position - 1)) {
+        if (componentsIdsLocal != null && componentsIdsLocal.size() >= (position - 1)) {
             int index = 0;
-            for (String componentID : componentsIdsLocal.get()) {
+            for (String componentID : componentsIdsLocal) {
                 if (index == position) {
                     return componentID;
                 }
@@ -354,11 +368,11 @@ public class Context {
     }
 
     public String takeComponentId(int position) {
-        if (componentsIdsLocal.get() != null && componentsIdsLocal.get().size() >= (position - 1)) {
+        if (componentsIdsLocal != null && componentsIdsLocal.size() >= (position - 1)) {
             int index = 0;
-            for (String componentID : componentsIdsLocal.get()) {
+            for (String componentID : componentsIdsLocal) {
                 if (index == position) {
-                    componentsIdsLocal.get().remove(componentID);
+                    componentsIdsLocal.remove(componentID);
                     return componentID;
                 }
                 index++;
@@ -369,143 +383,158 @@ public class Context {
 
     public void registerTopologyId(String topologyId) {
         log.debug("Registering topology Id [" + topologyId + "] in the context");
-        topologyIdLocal.set(topologyId);
+        topologyIdLocal = topologyId;
     }
 
     public String getTopologyId() {
-        return topologyIdLocal.get();
+        return topologyIdLocal;
     }
 
     public String takeTopologyId() {
-        String topoId = topologyIdLocal.get();
-        topologyIdLocal.set(null);
+        String topoId = topologyIdLocal;
+        topologyIdLocal = null;
         return topoId;
     }
 
     public void registerCsarId(String csarId) {
         log.debug("Registering csarId Id [" + csarId + "] in the context");
-        csarIdLocal.set(csarId);
+        csarIdLocal = csarId;
     }
 
     public String getCsarId() {
-        return csarIdLocal.get();
+        return csarIdLocal;
     }
 
     public String takeCsarId() {
-        String csarId = csarIdLocal.get();
-        csarIdLocal.set(null);
+        String csarId = csarIdLocal;
+        csarIdLocal = null;
         return csarId;
     }
 
     public void registerApplication(Application application) {
         log.debug("Registering application [" + application.getId() + "] in the context");
-        applicationLocal.set(application);
+        applicationLocal = application;
     }
 
     public Application getApplication() {
-        return applicationLocal.get();
+        return applicationLocal;
     }
 
     public Application takeApplication() {
-        Application app = applicationLocal.get();
-        applicationLocal.set(null);
+        Application app = applicationLocal;
+        applicationLocal = null;
         return app;
     }
 
     public TopologyTemplate getTopologyTemplate() {
-        return topologyTemplate.get();
+        return topologyTemplate;
     }
 
     public TopologyTemplate takeTopologyTemplate() {
-        TopologyTemplate ttId = topologyTemplate.get();
-        topologyTemplate.set(null);
+        TopologyTemplate ttId = topologyTemplate;
+        topologyTemplate = null;
         return ttId;
     }
 
     public void registerTopologyTemplate(TopologyTemplate topologTemplate) {
         log.debug("Registering topology template [" + topologTemplate + "] in the context");
-        topologyTemplate.set(topologTemplate);
+        topologyTemplate = topologTemplate;
     }
 
     public EvaluationContext getSpelEvaluationContext() {
-        return spelEvaluationContext.get();
+        return spelEvaluationContext;
     }
 
     public void buildEvaluationContext(Object object) {
         log.debug("Building evaluation context with object of class [" + object.getClass() + "] and keep it in the context");
-        spelEvaluationContext.set(new StandardEvaluationContext(object));
+        spelEvaluationContext = new StandardEvaluationContext(object);
     }
 
     public void registerCloud(String cloudId, String cloudName) {
-        if (cloudInfos.get() != null) {
-            cloudInfos.get().put(cloudName, cloudId);
+        if (cloudInfos != null) {
+            cloudInfos.put(cloudName, cloudId);
             return;
         }
-        cloudInfos.set(MapUtil.newHashMap(new String[] { cloudName }, new String[] { cloudId }));
+        cloudInfos = MapUtil.newHashMap(new String[] { cloudName }, new String[] { cloudId });
     }
 
     public void unregisterCloud(String cloudName) {
-        cloudInfos.get().remove(cloudName);
+        cloudInfos.remove(cloudName);
     }
 
     public String getCloudId(String cloudName) {
-        return cloudInfos.get().get(cloudName);
+        return cloudInfos.get(cloudName);
     }
 
     public Collection<String> getCloudsIds() {
-        if (cloudInfos.get() != null) {
-            return cloudInfos.get().values();
+        if (cloudInfos != null) {
+            return cloudInfos.values();
         } else {
             return Lists.newArrayList();
         }
     }
 
     public void registerCloudForTopology(String cloudId) {
-        topologyCloudInfos.set(cloudId);
+        topologyCloudInfos = cloudId;
+    }
+
+    public void saveCsarGitInfos(String id, String url) {
+        if (this.csarGitInfos != null) {
+            this.csarGitInfos.put(id, url);
+            return;
+        }
+        this.csarGitInfos = MapUtil.newHashMap(new String[] { id }, new String[] { url });
+        csarGitInfos.put(id, url);
     }
 
     public String getCloudForTopology() {
-        return topologyCloudInfos.get();
+        return topologyCloudInfos;
     }
 
     public void registerDeployApplicationProperties(Map<String, String> deployApplicationProperties) {
-        this.deployApplicationProperties.set(deployApplicationProperties);
+        this.deployApplicationProperties = deployApplicationProperties;
     }
 
     public Map<String, String> getDeployApplicationProperties() {
-        return deployApplicationProperties.get();
+        return deployApplicationProperties;
+    }
+
+    public Map<String, String> takeDeployApplicationProperties() {
+        Map<String, String> tmp = deployApplicationProperties;
+        deployApplicationProperties = null;
+        return tmp;
     }
 
     public void registerConfigurationTag(String configurationTagName, MetaPropConfiguration tagConfiguration) {
-        if (configurationTags.get() != null) {
-            configurationTags.get().put(configurationTagName, tagConfiguration);
+        if (configurationTags != null) {
+            configurationTags.put(configurationTagName, tagConfiguration);
             return;
         }
-        configurationTags.set(MapUtil.newHashMap(new String[] { configurationTagName }, new MetaPropConfiguration[] { tagConfiguration }));
+        configurationTags = MapUtil.newHashMap(new String[] { configurationTagName }, new MetaPropConfiguration[] { tagConfiguration });
     }
 
     public MetaPropConfiguration getConfigurationTag(String configurationTagName) {
-        return configurationTags.get().get(configurationTagName);
+        return configurationTags.get(configurationTagName);
     }
 
     public MetaPropConfiguration takeConfigurationTag(String configurationTagName) {
-        return configurationTags.get().get(configurationTagName);
+        return configurationTags.get(configurationTagName);
     }
 
     public Map<String, MetaPropConfiguration> getConfigurationTags() {
-        return configurationTags.get();
+        return configurationTags;
     }
 
     public void registerTopologyDeploymentId(String topoDeploymentId) {
-        topologyDeploymentId.set(topoDeploymentId);
+        topologyDeploymentId = topoDeploymentId;
     }
 
     public String getTopologyDeploymentId() {
-        return topologyDeploymentId.get();
+        return topologyDeploymentId;
     }
 
     public void registerApplicationEnvironmentId(String applicationName, String applicationEnvironmentName, String applicationEnvironmentId) {
-        Map<String, Map<String, String>> envsInfoMap = this.environmentInfos.get();
+        Map<String, Map<String, String>> envsInfoMap = this.environmentInfos;
         if (envsInfoMap != null) {
             Map<String, String> envs = envsInfoMap.get(applicationName);
             if (envs == null) {
@@ -513,21 +542,21 @@ public class Context {
             }
             envs.put(applicationEnvironmentName, applicationEnvironmentId);
             envsInfoMap.put(applicationName, envs);
-            this.environmentInfos.set(envsInfoMap);
+            this.environmentInfos = envsInfoMap;
             return;
 
         }
         envsInfoMap = Maps.newHashMap();
         envsInfoMap.put(applicationName, MapUtil.newHashMap(new String[] { applicationEnvironmentName }, new String[] { applicationEnvironmentId }));
-        this.environmentInfos.set(envsInfoMap);
+        this.environmentInfos = envsInfoMap;
     }
 
     public String getApplicationEnvironmentId(String applicationName, String applicationEnvironmentName) {
-        return this.environmentInfos.get().get(applicationName).get(applicationEnvironmentName);
+        return this.environmentInfos.get(applicationName).get(applicationEnvironmentName);
     }
 
     public Map<String, String> getAllEnvironmentForApplication(String applicationName) {
-        return this.environmentInfos.get().get(applicationName);
+        return this.environmentInfos.get(applicationName);
     }
 
     public String getDefaultApplicationEnvironmentId(String applicationName) {
@@ -535,22 +564,48 @@ public class Context {
     }
 
     public void registerApplicationId(String applicationName, String applicationId) {
-        if (this.applicationInfos.get() != null) {
-            this.applicationInfos.get().put(applicationName, applicationId);
+        if (this.applicationInfos != null) {
+            this.applicationInfos.put(applicationName, applicationId);
             return;
         }
-        this.applicationInfos.set(MapUtil.newHashMap(new String[] { applicationName }, new String[] { applicationId }));
+        this.applicationInfos = MapUtil.newHashMap(new String[] { applicationName }, new String[] { applicationId });
     }
 
     public String getApplicationId(String applicationName) {
-        return this.applicationInfos.get().get(applicationName);
+        return this.applicationInfos.get(applicationName);
     }
 
     public void registerTopologyTemplateVersionId(String versionId) {
-        topologyTemplateVersionId.set(versionId);
+        topologyTemplateVersionId = versionId;
     }
 
     public String getTopologyTemplateVersionId() {
-        return topologyTemplateVersionId.get();
+        return topologyTemplateVersionId;
+    }
+
+    public OpenStackClient getOpenStackClient() {
+        if (this.openStackClient == null) {
+            this.openStackClient = new OpenStackClient(this.appProps.getProperty("openstack.user"), this.appProps.getProperty("openstack.password"),
+                    this.appProps.getProperty("openstack.tenant"), this.appProps.getProperty("openstack.url"), this.appProps.getProperty("openstack.region"));
+        }
+        return this.openStackClient;
+    }
+
+    private String getManagementServerPublicIp(String managerPropertyName) {
+        String managementServerName = getAppProperty(managerPropertyName);
+        Server managementServer = this.getOpenStackClient().findServerByName(managementServerName);
+        if (managementServer == null) {
+            throw new NotFoundException("Management server is not found for cloudify 3 with name " + managementServerName);
+        }
+        String publicIp = this.getOpenStackClient().getServerFloatingIP(managementServer).getFloatingIpAddress();
+        return publicIp;
+    }
+
+    public String getCloudify3ManagerUrl() {
+        return "http://" + getManagementServerPublicIp("openstack.cfy3.manager_name") + ":8100";
+    }
+
+    public String getCloudify2ManagerUrl() {
+        return "https://" + getManagementServerPublicIp("openstack.cfy2.manager_name") + ":8100";
     }
 }

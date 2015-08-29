@@ -1,15 +1,14 @@
 <div>
   <div class="row">
-
     <div class="col-md-7 col-lg-8">
-      <div class="well topology" ng-init="visual = false; simple = false">
+      <div class="well topology" ng-init="visual = false;">
         <div class="btn-toolbar">
           <div class="btn-group">
-            <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; simple = false;">{{'APPLICATIONS.TOPOLOGY.VISUAL_DETAILED' | translate}}</a>
-            <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; simple = true;">{{'APPLICATIONS.TOPOLOGY.VISUAL_SIMPLE' | translate}}</a>
+            <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; ">{{'APPLICATIONS.TOPOLOGY.VISUAL_DETAILED' | translate}}</a>
           </div>
         </div>
-        <topology-rendering ng-if="topology" topology="topology" dimensions="dimensions" callback="selectNodeTemplate(newSelectedName, oldSelectedName)" runtime="true" simple="simple"/>
+        <topology-rendering ng-if="topology" topology="topology" dimensions="dimensions"
+          select-callback="selectNodeTemplate(newSelectedName, oldSelectedName)" runtime="true"/>
       </div>
     </div>
     <div class="col-md-5 col-lg-4">
@@ -303,10 +302,19 @@
                   <div collapse="isOpCollapsed[operationName]" ng-if="!emptyInputs">
                     <table class="table table-condensed" id="op_{{operationName}}_inputParams">
                       <tr ng-repeat="(inputParameterName, inputParameter) in operation.inputParameters">
-                        <td class="col-md-12" id="op_{{interfaceName}}_{{operationName}}_param_{{inputParameterName}}_value" ng-class="{'property-required' : inputParameter.required}">
+                        <td class="col-md-11" id="op_{{interfaceName}}_{{operationName}}_param_{{inputParameterName}}_value" ng-class="{'property-required' : inputParameter.required}">
                           <!-- ### {{operation.inputParameters[inputParameterName]}} ** -->
-                          <property-display ng-init="condensed = true" definition="inputParameter.definitionModel" property-value="" on-save="checkProperty(propertyDefinition, propertyValue, interfaceName)" editable="true" condensed="condensed">
+                          <property-display ng-init="condensed = true"
+                                            definition="inputParameter.definitionModel"
+                                            property-name="inputParameter.definitionModel.name"
+                                            property-value=""
+                                            on-save="checkProperty(propertyDefinition, propertyValue, interfaceName)"
+                                            editable="true"
+                                            condensed="condensed">
                           </property-display>
+                        </td>
+                        <td class="col-md-1">
+                          <simple-modal title="{{ 'MODAL.TITLE.CUSTOM_COMMAND' | translate}}" content="{{inputParameter.description}}" key="{{propertyEntry.key}}"> </simple-modal>
                         </td>
                       </tr>
                     </table>
@@ -370,7 +378,6 @@
             </div>
           </div>
         </tab>
-
       </tabset>
     </div>
   </div>
