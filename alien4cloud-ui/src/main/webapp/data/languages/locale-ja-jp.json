@@ -34,6 +34,14 @@
       "TOUR": "Alien 4 Cloud　の使い方ツアー"
     }
   },
+  "MODAL": {
+    "TITLE": {
+      "PROPERTY": "Property description",
+      "REQUIREMENT": "Requirement description",
+      "CAPABILITY": "Capability description",
+      "CUSTOM_COMMAND": "Custom command description"
+    }
+  },
   "NAVADMIN": {
     "MENU_USERS": "ユーザ",
     "MENU_PLUGINS": "プラグイン",
@@ -165,12 +173,35 @@
     "BUTTON_DELETE": "削除",
     "BUTTON_MODIFY": "変更",
     "NAME": "CSAR名",
+    "ID":"Id",
+    "AJOUT": "The archive has been imported",
+    "LEGEND":"Csars added",
+    "IMPORT_ALL":"Import all",
+    "IMPORT_SUCCESS":"CSAR have been imported",
+    "FROMGIT":"Imported from Git",
+    "ACTIONS":"Operations",
+    "URL": "Repository URL",
+    "BRANCHESLIST": "Branches list",
+    "BRANCHE":"Branche",
+    "ARCHIVE":"Archive's folder",
+    "ARCHIVELIST":"Archive list",
+    "ARCHIVE_TO_IMPORT":"Archive(s) to import",
+    "BRANCHE_TO_IMPORT":"On branch",
     "DESCRIPTION": "説明",
+    "IMPORTTOOLTIP":"Import",
+    "EDITTOOLTIP":"Edit",
+    "USERNAME":"Username",
+    "PASSWORD":"Password",
+    "UPDATE":"Update",
+    "EDIT":"Update a CSAR",
+    "CREDENTIALS":"Credentials",
+    "CREDENTIALSINFO":"Mandatory for private repositories only",
     "VERSION": "バージョン",
     "BC_CSAR": "CSAR",
     "DETAILS_TITLE": "CSAR 詳細",
     "TEST_TOPOLOGY": "Test topology's status",
     "AUTHOR": "作成者",
+    "SAVE_LOCALLY":"Save the repository locally",
     "DETAILS": {
       "BUTTON_ADD_NODE_TYPE": "新しいコンポーネントの追加",
       "ARCHIVE_COMPONENTS": "アーカイブコンポーネント",
@@ -185,11 +216,17 @@
         "CSAR_TEXT": "CSAR 詳細",
         "APP_TEXT": "アプリケーション詳細",
         "TOPOLOGY_TEXT": "トポロジテンプレート詳細"
+        }
       },
       "DELETE": "削除",
       "ERRORS": {
+        "IMPORT":"CSAR cannot be imported",
         "507_TITLE": "Delete a CSAR",
-        "507": "CSAR deletion failed since it is referenced by other resources"
+        "501_TITLE": "CSAR with this URL already exists",
+        "507": "CSAR deletion failed since it is referenced by other resources",
+        "NO_DATA":{
+          "HEADER":"No CSAR to import",
+          "BODY":"Please add a new CSAR from a Git location"
       }
     }
   },
@@ -277,6 +314,7 @@
   },
   "APPLICATIONS": {
     "APPLICATION": "アプリケーション",
+    "SHOW_DEPLOYED_APP": "Only show deployed applications.",
     "APPLICATION_ROLES": "アプリケーションロール",
     "NEW": "新規アプリケーション",
     "NAME": "アプリケーション名",
@@ -444,6 +482,15 @@
         "REQUIRED_PROPERTIES_LABEL": "必須プロパティ",
         "EMPTY_TOPOLOGY_MESSAGE": "現在のトポロジは空です。 ノードテンプレートを追加してください。",
         "CREATE_TOPOLOGY_MESSAGE": "トポロジが見つかりません。 ノードタイプを使った新しいトポロジを作成してください。",
+        "NODE_FILTER": {
+          "NODE_FILTER_INVALID": "NodeFilters not satisfy",
+          "PROPERTY_CONSTRAINT_VIOLATION_ERROR": "One constraint on this property is not respected",
+          "CAPABILITY_NAME": "Capacity name",
+          "CAPABILITY_MISSING_ERROR": "The target has not this ability",
+          "PROPERTY_MISSING_ERROR": "La cible de posséde pas cette propriété",
+          "PROPERTY_TYPE_VIOLATION_ERROR": "The property has no such target",
+          "PROPERTY_NAME": "Property name"
+        },
         "SCALABLE_CAPABILITY_INVALID": {
           "LABEL": "無効なスケーラブルポリシー",
           "MISSING": "必須プロパティ",
@@ -654,7 +701,7 @@
       "NEW": "追加",
       "NAME": "名前",
       "CIDR": "CIDR",
-      "GATEWAY_IP": "Gateway IP",
+      "GATEWAY_IP": "Gateway's IP",
       "IP_VERSION": "IP version",
       "IS_EXTERNAL": "External Network",
       "IS_EXTERNAL_true": "Yes",
@@ -778,7 +825,7 @@
     "372": "Error in naming policy of deployment.",
     "373": "Unexpected error happened while switching on / off maintenance mode ",
     "374": "One of your meta-property is empty and does not have a default value.",
-    "375": "Error occuors on provider when trying to scale.",
+    "375": "Error occurs on provider when trying to scale.",
     "390": "It's forbidden to remove the last admin user.",
     "391": "It's forbidden to remove the ADMIN role of the last admin user.",
     "400": "Unexpected error happened while accessing to CSAR repository",
@@ -800,6 +847,9 @@
     "611": "An application environment must necessarily have an application version.",
     "612": "Cloud of an application environment cannot be updated when it's deployed.",
     "613": "Conflict detected on the generated deployment PaaS Id. Check your applications names. (see <a target='_blank' href = 'http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html'>http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html, naming policy</a> for specific details) ",
+    "615": "The Git repository url doesn't exists or isn't a correct one.",
+    "616": "You are not authorized to clone this Git repository. Please check your credentials.",
+    "617": "No modification have been detected since the last import process",
     "650": "At least two of your Compute have a conflict name.",
     "651": "A BlockStorage can not have a VolumeID when the cloud has the 'deletable' option to set.",
     "800": {
