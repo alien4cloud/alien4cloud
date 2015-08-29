@@ -26,6 +26,9 @@ import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import alien4cloud.exception.DeleteLastApplicationVersionException;
 import alien4cloud.exception.DeleteReferencedObjectException;
+import alien4cloud.exception.GitCloneUriException;
+import alien4cloud.exception.GitNoModificationDetected;
+import alien4cloud.exception.GitNotAuthorizedException;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
@@ -74,6 +77,30 @@ public class RestTechnicalExceptionHandler {
                 .error(RestErrorBuilder.builder(RestErrorCode.INVALID_DEPLOYMENT_SETUP).message("The deployment setup is invalid.").build()).build();
     }
 
+    @ExceptionHandler(GitCloneUriException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public RestResponse<Void> gitCloneUriInvalid(GitCloneUriException e) {
+        log.error(e.getMessage());
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.GIT_REPOSITORY_INVALID).message(e.getMessage()).build()).build();
+    }
+    
+    @ExceptionHandler(GitNotAuthorizedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    public RestResponse<Void> gitCloneNotAuthorized(GitNotAuthorizedException e) {
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.GIT_UNAUTHORIZED).message(e.getMessage()).build()).build();
+    }
+    @ExceptionHandler(GitNoModificationDetected.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    public RestResponse<Void> gitNoModificationDetected(GitNoModificationDetected e) {
+        return RestResponseBuilder.<Void> builder()
+            .error(RestErrorBuilder.builder(RestErrorCode.GIT_NO_MODIFICATION_DETECTED).message(e.getMessage()).build()).build();
+    }
+    
     @ExceptionHandler(AlreadyExistException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody

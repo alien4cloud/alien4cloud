@@ -1,4 +1,4 @@
-define(function (require) {
+define(function(require) {
   'use strict';
 
   var states = require('states');
@@ -36,7 +36,22 @@ define(function (require) {
   // bootstrap angular js application
   states.state('home', {
     url: '/',
-    templateUrl: 'views/main.html'
+    templateUrl: 'views/main.html',
+    controller: ['$scope', 'authService', 'hopscotchService', '$state', function($scope, authService, hopscotchService, $state) {
+      $scope.isAdmin = false;
+      var isAdmin = authService.hasRole('ADMIN');
+      if(_.defined(isAdmin.then)) {
+        authService.hasRole('ADMIN').then(function(result) {
+          $scope.isAdmin = result;
+        });
+      } else {
+        $scope.isAdmin = isAdmin;
+      }
+      $scope.adminTour = function() {
+        $state.go('admin');
+        hopscotchService.startTour('admin.home');
+      };
+    }]
   });
   states.state('restricted', {
     url: '/restricted',
@@ -49,25 +64,20 @@ define(function (require) {
     // add requirements to alien4cloud
     modules.link(alien4cloud);
 
-    alien4cloud.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$parseProvider',
-      function($stateProvider, $urlRouterProvider, $httpProvider, $parseProvider) {
-      $parseProvider.unwrapPromises(true);
-      $httpProvider.interceptors.push('restTechnicalErrorInterceptor');
-
-      $urlRouterProvider.otherwise('/');
-
-      states.config($stateProvider);
-    }]);
+    alien4cloud.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
+      function($stateProvider, $urlRouterProvider, $httpProvider) {
+        $httpProvider.interceptors.push('restTechnicalErrorInterceptor');
+        $urlRouterProvider.otherwise('/');
+        states.config($stateProvider);
+      }
+    ]);
 
     // TODO load more modules
     alien4cloud.config(['$translateProvider',
       function($translateProvider) {
-        $translateProvider.translations({
-          CODE: 'fr-fr'
-        });
+        $translateProvider.translations({CODE: 'en-us'});
         // Default language to load
-        // $translateProvider.preferredLanguage('en-us');
-        $translateProvider.preferredLanguage('fr-fr');
+        $translateProvider.preferredLanguage('en-us');
 
         // Static file loader
         $translateProvider.useStaticFilesLoader({
@@ -78,49 +88,46 @@ define(function (require) {
     ]);
 
     alien4cloud.run(['$rootScope', '$state', 'editableOptions', 'editableThemes', 'authService',
-     function($rootScope, $state, editableOptions, editableThemes, authService) {
-       // check when the state is about to change
-      $rootScope.$on('$stateChangeStart', function(event, toState) {
-        authService.getStatus().$promise.then(function() {
-          // FIXME role based homepage and tours...
-          if (toState.name.indexOf('home') === 0 && authService.hasRole('ADMIN')) {
-          //  $state.go('user_home_admin');
-          }
-          // check all the menu array & permissions
-          authService.menu.forEach(function(menuItem) {
-            var menuType = menuItem.id.split('.')[1];
-            var foundMenuIndex = toState.name.indexOf(menuType);
-            if (foundMenuIndex === 0 && menuItem.hasRole === false) {
-              $state.go('restricted');
-            }
+      function($rootScope, $state, editableOptions, editableThemes, authService) {
+        // check when the state is about to change
+        $rootScope.$on('$stateChangeStart', function(event, toState) {
+          authService.getStatus().$promise.then(function() {
+            // check all the menu array & permissions
+            authService.menu.forEach(function(menuItem) {
+              var menuType = menuItem.id.split('.')[1];
+              var foundMenuIndex = toState.name.indexOf(menuType);
+              if (foundMenuIndex === 0 && menuItem.hasRole === false) {
+                $state.go('restricted');
+              }
+            });
           });
         });
-      });
 
-      // state routing
-      $rootScope.$on('$stateChangeSuccess', function(event, toState) {
-        var forward = states.stateForward[toState.name];
-        if (_.defined(forward)) {
-          $state.go(forward);
-        }
-      });
+        // state routing
+        $rootScope.$on('$stateChangeSuccess', function(event, toState) {
+          var forward = states.stateForward[toState.name];
+          if (_.defined(forward)) {
+            $state.go(forward);
+          }
+        });
 
-      /* angular-xeditable config */
-      editableThemes.bs3.inputClass = 'input-sm';
-      editableThemes.bs3.buttonsClass = 'btn-sm';
-      editableThemes.bs3.submitTpl = '<button type="button" class="btn btn-primary"' +
-      ' confirm="{{\'CONFIRM_MESSAGE\' | translate}}"' +
-      ' confirm-title="{{\'CONFIRM\' | translate }}"' +
-      ' confirm-placement="left"' +
-      ' cancel-handler="$form.$cancel()"' +
-      ' ng-click="$event.stopPropagation();">' +
-      '<span class="fa fa-check"></span>' +
-      '</button>';
-      editableThemes.bs3.cancelTpl = '<button type="button" class="btn btn-default" ng-click="$form.$cancel()">' +
-      '<span class="fa fa-times"></span>' +
-      '</button>';
-      editableOptions.theme = 'bs3';
-    }]);
+        /* angular-xeditable config */
+        editableThemes.bs3.inputClass = 'input-sm';
+        editableThemes.bs3.buttonsClass = 'btn-sm';
+        editableThemes.bs3.submitTpl = '<button type="button" class="btn btn-primary"' +
+          ' confirm="{{\'CONFIRM_MESSAGE\' | translate}}"' +
+          ' confirm-title="{{\'CONFIRM\' | translate }}"' +
+          ' confirm-placement="left"' +
+          ' cancel-handler="$form.$cancel()"' +
+          ' ng-click="$event.stopPropagation();">' +
+          '<span class="fa fa-check"></span>' +
+          '</button>';
+        editableThemes.bs3.cancelTpl = '<button type="button" class="btn btn-default" ng-click="$form.$cancel()">' +
+          '<span class="fa fa-times"></span>' +
+          '</button>';
+        editableOptions.theme = 'bs3';
+      }
+    ]);
 
     angular.bootstrap(document, ['alien4cloud']);
   };

@@ -61,8 +61,7 @@ Feature: Deploy an application
     Given I have an application with name "ALIEN"
     And I deploy the application "ALIEN" with cloud "Mount doom cloud" for the topology
     When I delete the application "ALIEN"
-    Then I should receive a RestResponse with no error
-    And I should receive a RestResponse with a boolean data "false"
+    Then I should receive a RestResponse with an error code 607
     And the application can be found in ALIEN
     And The application's deployment must succeed
     

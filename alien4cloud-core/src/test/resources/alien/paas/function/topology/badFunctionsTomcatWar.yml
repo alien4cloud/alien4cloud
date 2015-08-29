@@ -42,13 +42,13 @@ node_templates:
     type: alien.nodes.Tomcat
     properties:
       tomcat_home:
-        value: /opt/tomcat
+        value: "/opt/tomcat"
       tomcat_port: 
-        value: 9999
+        value: "9999"
       tomcat_url: 
         value: "http://apache.crihan.fr/dist/tomcat/tomcat-8/v8.0.20/bin/apache-tomcat-8.0.20.tar.gz"
       version:
-        value: 7.0.0
+        value: "7.0.0"
     capabilities:
       http_endpoint:
         type: alien.capabilities.HttpEndpoint

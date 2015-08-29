@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -78,6 +79,7 @@ public class CloudController {
      */
     @ApiOperation(value = "Create a new cloud.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<String> create(@ApiParam(value = "The instance of cloud to add.", required = true) @Valid @RequestBody Cloud cloud) {
         String cloudId = cloudService.create(cloud);
@@ -91,6 +93,7 @@ public class CloudController {
      */
     @ApiOperation(value = "Update an existing cloud.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> update(@ApiParam(value = "The instance of cloud to update.", required = true) @RequestBody Cloud cloud) {
         cloudService.update(cloud);
@@ -104,6 +107,7 @@ public class CloudController {
      */
     @ApiOperation(value = "Delete an existing cloud. The operation fails in case an application is still deployed on this cloud.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Boolean> delete(@ApiParam(value = "Id of the cloud to delete.", required = true) @Valid @NotBlank @PathVariable String id) {
         Boolean deleted = cloudService.delete(id);
@@ -117,6 +121,7 @@ public class CloudController {
      */
     @ApiOperation(value = "Clone a cloud.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}/clone", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<String> clone(@ApiParam(value = "Id of the cloud to clone.", required = true) @Valid @NotBlank @PathVariable String id) {
         String cloudId = cloudService.clone(id);
         return RestResponseBuilder.<String> builder().data(cloudId).build();
@@ -129,6 +134,7 @@ public class CloudController {
      */
     @ApiOperation(value = "Get details of a cloud.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<CloudDTO> get(@ApiParam(value = "Id of the cloud for which to get details.", required = true) @Valid @NotBlank @PathVariable String id) {
         // check roles on the requested cloud
         Cloud cloud = cloudService.getMandatoryCloud(id);
@@ -172,6 +178,7 @@ public class CloudController {
      */
     @ApiOperation(value = "Refresh a cloud.")
     @RequestMapping(value = "/{id}/refresh", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<CloudDTO> refresh(@ApiParam(value = "Id of the cloud to refresh.", required = true) @Valid @NotBlank @PathVariable String id) {
         // check roles on the requested cloud
@@ -203,6 +210,7 @@ public class CloudController {
      */
     @ApiOperation(value = "Get deployment properties for a cloud.", notes = "Deployments properties are properties that can be set by the Application Deployer before deployment. They depends on the IPaaSProvider plugin associated with a cloud.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}/deploymentpropertydefinitions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<Map<String, PropertyDefinition>> getDeploymentPropertyDefinitions(
             @ApiParam(value = "Id of the cloud for which to get details.", required = true) @Valid @NotBlank @PathVariable String id) {
         return RestResponseBuilder.<Map<String, PropertyDefinition>> builder().data(cloudService.getDeploymentPropertyDefinitions(id)).build();
@@ -218,6 +226,7 @@ public class CloudController {
      */
     @ApiOperation(value = "Search for clouds.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/search", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<GetMultipleDataResult> search(@ApiParam(value = "Query to find the cloud.") @RequestParam(required = false) String query,
             @ApiParam(value = "If true only enabled plugins will be retrieved.") @RequestParam(required = false, defaultValue = "false") boolean enabledOnly,
             @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
@@ -229,6 +238,7 @@ public class CloudController {
 
     @ApiOperation(value = "Enable a cloud.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id:.+}/enable", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> enableCloud(@ApiParam(value = "Id of the cloud to enable.", required = true) @PathVariable String id) {
         try {
@@ -245,6 +255,7 @@ public class CloudController {
 
     @ApiOperation(value = "Disable a cloud.", notes = "Note that if the method returns false as the RestResponse data, this means that disable is not possible because the cloud is used for some deployments.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id:.+}/disable", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     @Deprecated
     public RestResponse<Boolean> disableCloud(@ApiParam(value = "Id of the cloud to disable.", required = true) @PathVariable String id) {
@@ -254,6 +265,7 @@ public class CloudController {
 
     @ApiOperation(value = "Disable a cloud.", notes = "Note that if the method returns false as the RestResponse data, this means that disable is not possible because the cloud is used for some deployments.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id:.+}/disable/{force}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Boolean> forceDisableCloud(@ApiParam(value = "Id of the cloud to disable.", required = true) @PathVariable String id,
             @ApiParam(value = "Boolean who indicate if the cloud disable need to be forced or not.", required = true) @PathVariable boolean force) {
@@ -263,6 +275,7 @@ public class CloudController {
 
     @ApiOperation(value = "Get the current configuration for a cloud.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id:.+}/configuration", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<Object> getConfiguration(
             @ApiParam(value = "Id of the cloud for which to get the configuration.", required = true) @PathVariable String id) {
         return RestResponseBuilder.builder().data(cloudService.getConfiguration(id)).build();
@@ -270,6 +283,7 @@ public class CloudController {
 
     @ApiOperation(value = "Update the configuration for a cloud.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id:.+}/configuration", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> updateConfiguration(
             @ApiParam(value = "Id of the cloud for which to update the configuration.", required = true) @PathVariable String id,
@@ -301,6 +315,7 @@ public class CloudController {
      */
     @ApiOperation(value = "Get details of a cloud.")
     @RequestMapping(value = "/getByName", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<Cloud> getByName(
             @ApiParam(value = "Name of the cloud for which to get details.") @Valid @NotBlank @RequestParam(required = true) String cloudName) {
         // check roles on the requested cloud
@@ -319,6 +334,7 @@ public class CloudController {
      */
     @ApiOperation(value = "Add a role to a user on a specific cloud", notes = "Only user with ADMIN role can assign any role to another user.")
     @RequestMapping(value = "/{cloudId}/userRoles/{username}/{role}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> addUserRole(@PathVariable String cloudId, @PathVariable String username, @PathVariable String role) {
 
@@ -338,6 +354,7 @@ public class CloudController {
      */
     @ApiOperation(value = "Add a role to a group on a specific cloud", notes = "Only user with ADMIN role can assign any role to a group of users.")
     @RequestMapping(value = "/{cloudId}/groupRoles/{groupId}/{role}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> addGroupRole(@PathVariable String cloudId, @PathVariable String groupId, @PathVariable String role) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
@@ -356,6 +373,7 @@ public class CloudController {
      */
     @ApiOperation(value = "Remove a role to a user on a specific cloud", notes = "Only user with ADMIN role can unassign any role to another user.")
     @RequestMapping(value = "/{cloudId}/userRoles/{username}/{role}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> removeUserRole(@PathVariable String cloudId, @PathVariable String username, @PathVariable String role) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
@@ -374,6 +392,7 @@ public class CloudController {
      */
     @ApiOperation(value = "Remove a role of a group on a specific cloud", notes = "Only user with ADMIN role can unassign any role to a group.")
     @RequestMapping(value = "/{cloudId}/groupRoles/{groupId}/{role}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> removeGroupRole(@PathVariable String cloudId, @PathVariable String groupId, @PathVariable String role) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
@@ -384,6 +403,7 @@ public class CloudController {
 
     @ApiOperation(value = "Add a cloud image to the given cloud", notes = "Only user with ADMIN role can add a cloud image.")
     @RequestMapping(value = "/{cloudId}/images", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> addCloudImage(@PathVariable String cloudId, @RequestBody String[] cloudImageIds) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
@@ -397,6 +417,7 @@ public class CloudController {
 
     @ApiOperation(value = "Remove a cloud image from the given cloud", notes = "Only user with ADMIN role can remove a cloud image.")
     @RequestMapping(value = "/{cloudId}/images/{cloudImageId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<CloudComputeResourcesDTO> removeCloudImage(@PathVariable String cloudId, @PathVariable String cloudImageId) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
@@ -408,6 +429,7 @@ public class CloudController {
 
     @ApiOperation(value = "Add a flavor to the given cloud", notes = "Only user with ADMIN role can add a cloud image.")
     @RequestMapping(value = "/{cloudId}/flavors", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> addCloudImageFlavor(@PathVariable String cloudId, @RequestBody CloudImageFlavor flavor) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
@@ -418,6 +440,7 @@ public class CloudController {
 
     @ApiOperation(value = "Remove a flavor from the given cloud", notes = "Only user with ADMIN role can add a cloud image.")
     @RequestMapping(value = "/{cloudId}/flavors/{flavorId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<CloudComputeResourcesDTO> removeCloudImageFlavor(@PathVariable String cloudId, @PathVariable String flavorId) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
@@ -429,6 +452,7 @@ public class CloudController {
 
     @ApiOperation(value = "Enable or disable a cloud template", notes = "Only user with ADMIN role can enable a cloud template.")
     @RequestMapping(value = "/{cloudId}/templates/{activableComputeId}/status", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> setCloudComputeTemplateStatus(@PathVariable String cloudId, @PathVariable String activableComputeId, @RequestParam Boolean enabled) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
@@ -439,6 +463,7 @@ public class CloudController {
 
     @ApiOperation(value = "Set the corresponding paaS resource id for the cloud compute template", notes = "Only user with ADMIN role can set the resource id to a cloud compute template.")
     @RequestMapping(value = "/{cloudId}/images/{alienResourceId}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<CloudComputeResourcesDTO> setCloudImageResourceId(@PathVariable String cloudId, @PathVariable String alienResourceId,
             @RequestParam(required = false) String pasSResourceId) throws CloudDisabledException {
@@ -452,6 +477,7 @@ public class CloudController {
 
     @ApiOperation(value = "Set the corresponding paaS resource id for the cloud compute template", notes = "Only user with ADMIN role can set the resource id to a cloud compute template.")
     @RequestMapping(value = "/{cloudId}/flavors/{alienResourceId}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<CloudComputeResourcesDTO> setCloudImageFlavorResourceId(@PathVariable String cloudId, @PathVariable String alienResourceId,
             @RequestParam(required = false) String pasSResourceId) throws CloudDisabledException {
@@ -465,6 +491,7 @@ public class CloudController {
 
     @ApiOperation(value = "Add a network to the given cloud", notes = "Only user with ADMIN role can add a network.")
     @RequestMapping(value = "/{cloudId}/networks", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> addNetwork(@PathVariable String cloudId, @RequestBody NetworkTemplate network) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
@@ -475,6 +502,7 @@ public class CloudController {
 
     @ApiOperation(value = "Remove a network from the given cloud", notes = "Only user with ADMIN role can remove a network.")
     @RequestMapping(value = "/{cloudId}/networks/{networkName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> removeNetwork(@PathVariable String cloudId, @PathVariable String networkName) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
@@ -485,6 +513,7 @@ public class CloudController {
 
     @ApiOperation(value = "Set the corresponding paaS resource id for the network", notes = "Only user with ADMIN role can set the resource id for a network.")
     @RequestMapping(value = "/{cloudId}/networks/{networkName}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> setNetworkResourceId(@PathVariable String cloudId, @PathVariable String networkName,
             @RequestParam(required = false) String pasSResourceId) throws CloudDisabledException {
@@ -496,6 +525,7 @@ public class CloudController {
 
     @ApiOperation(value = "Add a storage template to the given cloud", notes = "Only user with ADMIN role can add a storage template.")
     @RequestMapping(value = "/{cloudId}/storages", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> addStorageTemplate(@PathVariable String cloudId, @RequestBody StorageTemplate storage) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
@@ -506,6 +536,7 @@ public class CloudController {
 
     @ApiOperation(value = "Remove a storage template from the given cloud", notes = "Only user with ADMIN role can remove a storage template.")
     @RequestMapping(value = "/{cloudId}/storages/{storageTemplateName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> removeStorageTemplate(@PathVariable String cloudId, @PathVariable String storageTemplateName) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
@@ -516,6 +547,7 @@ public class CloudController {
 
     @ApiOperation(value = "Set the corresponding paaS resource id for the storage template", notes = "Only user with ADMIN role can set the resource id for a storage template.")
     @RequestMapping(value = "/{cloudId}/storages/{storageId}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> setStorageTemplateResourceId(@PathVariable String cloudId, @PathVariable String storageId,
             @RequestParam(required = false) String pasSResourceId) throws CloudDisabledException {
@@ -529,6 +561,7 @@ public class CloudController {
 
     @ApiOperation(value = "Add an availability zone to the given cloud", notes = "Only user with ADMIN role can add an availability zone.")
     @RequestMapping(value = "/{cloudId}/zones", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> addAvailabilityZone(@PathVariable String cloudId, @RequestBody AvailabilityZone availabilityZone) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
@@ -539,6 +572,7 @@ public class CloudController {
 
     @ApiOperation(value = "Remove an availability zone from the given cloud", notes = "Only user with ADMIN role can remove an availability zone.")
     @RequestMapping(value = "/{cloudId}/zones/{availabilityZoneId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> removeAvailabilityZone(@PathVariable String cloudId, @PathVariable String availabilityZoneId) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
@@ -549,6 +583,7 @@ public class CloudController {
 
     @ApiOperation(value = "Set the corresponding paaS resource id for the availability zone", notes = "Only user with ADMIN role can set the resource id for an availability zone.")
     @RequestMapping(value = "/{cloudId}/zones/{availabilityZoneId}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> setAvailabilityZoneResourceId(@PathVariable String cloudId, @PathVariable String availabilityZoneId,
             @RequestParam(required = false) String pasSResourceId) throws CloudDisabledException {
@@ -566,6 +601,7 @@ public class CloudController {
      * @return information on the constraint
      */
     @RequestMapping(value = "/{cloudId}/properties", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<ConstraintInformation> upsertMetaProperty(@PathVariable String cloudId, @RequestBody PropertyRequest propertyRequest)
             throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {

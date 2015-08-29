@@ -1,0 +1,11 @@
+<div ng-controller="SimpleModalCtrl" class="btn-group" data-toggle="buttons">
+  <button id="simple-modal-{{key}}"
+          ng-if="content"
+          ng-click="openSimpleModal(title, content)"
+          class="btn btn-xs"
+          ng-class="{'btn-default' : !primary, 'btn-primary': primary}"
+          tooltip="{{titre}}"
+          tooltip-append-to-body="true">
+    <i class="fa fa-question-circle"></i>
+  </button>
+</div>

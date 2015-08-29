@@ -36,7 +36,7 @@
   }, {
     "title": "Création de nouvelle application",
     "content": "<p>Si vous le souhaitez vous pouvez choisir un template de topologie créé au préalable par un utilisateur possédant le droit 'Architect'.</p><p>Le template sera utilisé pour fournir une topologie initiale pour votre application. Celle-ci pourra ensuite être modifiée à votre convenance.</p>",
-    "target": "templateid",
+    "target": "descid",
     "placement": "right"
   }, {
     "title": "Création de nouvelle application",

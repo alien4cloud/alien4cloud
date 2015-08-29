@@ -12,6 +12,7 @@ import lombok.Setter;
 
 import org.elasticsearch.annotation.DateField;
 import org.elasticsearch.annotation.ESObject;
+import org.elasticsearch.annotation.ESAll;
 import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.NestedObject;
 import org.elasticsearch.annotation.StringField;
@@ -23,8 +24,8 @@ import alien4cloud.model.common.IMetaProperties;
 import alien4cloud.model.common.ITaggableResource;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.deployment.IDeploymentSource;
-import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.ISecuredResource;
+import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;
 import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
@@ -46,6 +47,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Setter
 @SuppressWarnings("PMD.UnusedPrivateField")
 @JsonInclude(Include.NON_NULL)
+@ESAll(analyser = "simple")
 public class Application implements ISecuredResource, IDeploymentSource, ITaggableResource, IMetaProperties {
 
     @Id

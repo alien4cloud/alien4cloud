@@ -1,4 +1,4 @@
-define(function (require) {
+define(function(require) {
   'use strict';
 
   var modules = require('modules');
@@ -16,7 +16,8 @@ define(function (require) {
     return {
       restrict: 'E',
       scope: {
-        rootObject: '=',
+        rootName: '=?',
+        rootObject: '=?',
         formTitle: '@',
         type: '=',
         /* Form styling options */
@@ -31,6 +32,7 @@ define(function (require) {
         automaticSave: '=',
         partialUpdate: '=',
         useXeditable: '=',
+        configuration: '=?',
         /* Callbacks */
         suggest: '&',
         save: '&',
@@ -68,11 +70,29 @@ define(function (require) {
         };
         FORMS.initComplexFormScope(scope);
         $interval(function() {
-          FORMS.initComplexProperties(scope, scope.type, element.find('.genericformpropertiescontainer'), $compile);
+          var formContainerElement = element.find('.genericformpropertiescontainer');
+          switch (scope.type._type) {
+            case 'complex':
+              FORMS.initComplexProperties(scope, scope.type, formContainerElement, $compile);
+              break;
+            default :
+              FORMS.initOthers(scope, scope.type, formContainerElement, $compile);
+              break;
+          }
         }, 0, 1);
       }
     };
   }]);
+
+  FORMS.initOthers = function(scope, type, element, $compile) {
+    var mapElement = FORMS.elementsFactory(type._type, false, scope.configuration.formStyle);
+    var newScope = scope.$new();
+    newScope.path = scope.path;
+    newScope.labelPath = scope.labelPath;
+    newScope.propertyName = scope.rootName;
+    newScope.propertyType = scope.type;
+    element.append($compile(mapElement[0])(newScope));
+  };
 
   modules.get('a4c-common').directive('updateForm', ['$filter', 'toaster', '$compile', '$interval', function($filter, toaster, $compile, $interval) {
     return {
@@ -123,11 +143,20 @@ define(function (require) {
 
   FORMS.initGenericForm = function(scope, toaster, $filter, element) {
     if (_.undefined(scope.rootObject)) {
-      scope.rootObject = {};
+      if (scope.type._type == 'array') {
+        scope.rootObject = [];
+      } else {
+        scope.rootObject = {};
+      }
+    }
+    if (_.undefined(scope.rootName)) {
+      scope.rootName = 'GENERIC_FORM.ROOT';
     }
     scope.path = [];
     scope.labelPath = [];
-    scope.configuration = {};
+    if (_.undefined(scope.configuration)) {
+      scope.configuration = {};
+    }
     scope.configuration.activePath = [];
     scope.configuration.activeLabelPath = [];
     scope.configuration.validationStatuses = {};
@@ -334,20 +363,29 @@ define(function (require) {
               scope.saveAction(scope.rootObject);
             }
           } else {
-            var checkPropertyRequest = {
-              'definitionId': scope.propertyName,
-              'propertyDefinition': propertyDefinition,
-              'value': propertyValue
-            };
-            return propertiesServices.validConstraints({}, angular.toJson(checkPropertyRequest), function(successResult) {
-              if (successResult.error === null) {
-                // No error save the result
-                FORMS.setValueForPath(scope.rootObject, propertyValue, scope.path);
-                if (scope.configuration.automaticSave) {
-                  scope.saveAction(scope.rootObject);
-                }
+            if (_.isObject(propertyValue) || _.isArray(propertyValue)) {
+              // It's an object or an array then don't try to validate constraints
+              FORMS.setValueForPath(scope.rootObject, propertyValue, scope.path);
+              if (scope.configuration.automaticSave) {
+                scope.saveAction(scope.rootObject);
               }
-            }).$promise;
+            } else {
+              // Only check constraint for primitive properties
+              var checkPropertyRequest = {
+                'definitionId': scope.propertyName,
+                'propertyDefinition': propertyDefinition,
+                'value': propertyValue
+              };
+              return propertiesServices.validConstraints({}, angular.toJson(checkPropertyRequest), function(successResult) {
+                if (successResult.error === null) {
+                  // No error save the result
+                  FORMS.setValueForPath(scope.rootObject, propertyValue, scope.path);
+                  if (scope.configuration.automaticSave) {
+                    scope.saveAction(scope.rootObject);
+                  }
+                }
+              }).$promise;
+            }
           }
         };
       }
@@ -1027,6 +1065,9 @@ define(function (require) {
   };
 
   FORMS.getValueForPath = function(root, path) {
+    if (_.isEmpty(path)) {
+      return root;
+    }
     var objectToSet = root;
     for (var i = 0; i < path.length - 1; i++) {
       if (_.undefined(objectToSet) || !objectToSet.hasOwnProperty(path[i])) {

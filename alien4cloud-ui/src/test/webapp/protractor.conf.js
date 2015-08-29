@@ -123,7 +123,7 @@ exports.config = {
     // If true, include stack traces in failures.
     includeStackTrace: true,
     // Default time to wait in ms before a test fails.
-    defaultTimeoutInterval: 110000
+    defaultTimeoutInterval: 220000
   },
 
   // ----- The cleanup step -----

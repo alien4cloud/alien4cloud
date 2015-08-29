@@ -9,6 +9,9 @@ public class MappingTarget {
     private INodeParser<?> parser;
 
     public MappingTarget(String path, INodeParser<?> parser) {
+        if (path == null) {
+            path = "";
+        }
         this.isRootPath = path.startsWith("/");
         if (isRootPath) {
             this.path = path.substring(1);

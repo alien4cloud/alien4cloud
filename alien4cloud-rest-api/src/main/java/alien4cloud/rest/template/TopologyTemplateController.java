@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -72,6 +73,7 @@ public class TopologyTemplateController {
      */
     @ApiOperation(value = "Create a new empty topology template.", notes = "Returns the id of the created topology template. Role required [ ARCHITECT ]")
     @RequestMapping(value = "/topology", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'ARCHITECT')")
     @Audit
     public RestResponse<String> create(@RequestBody @Valid CreateTopologyTemplateRequest createTopologyTemplateRequest) {
         AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
@@ -104,6 +106,7 @@ public class TopologyTemplateController {
      */
     @ApiOperation(value = "Retrieve a topology template from it's id.", notes = "Returns a topology template with it's details. Role required [ Role.ARCHITECT ]")
     @RequestMapping(value = "/topology/{topologyTemplateId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'ARCHITECT', 'APPLICATIONS_MANAGER')")
     public RestResponse<TopologyTemplate> get(@PathVariable String topologyTemplateId) {
 
         AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
@@ -119,6 +122,7 @@ public class TopologyTemplateController {
      */
     @ApiOperation(value = "Search for topology templates.", notes = "Returns a search result with that contains topology templates matching the request. A application is returned only if the connected user has at least one application role in [ ARCHITECT ]")
     @RequestMapping(value = "/topology/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'ARCHITECT', 'APPLICATIONS_MANAGER')")
     public RestResponse<FacetedSearchResult> search(@RequestBody SearchRequest searchRequest) {
         Map<String, String[]> filters = searchRequest.getFilters();
         if (filters == null) {
@@ -139,6 +143,7 @@ public class TopologyTemplateController {
      */
     @ApiOperation(value = "Delete a topology template given an id. Alse delete the related topology", notes = "Role required [ Role.ARCHITECT ]")
     @RequestMapping(value = "/topology/{topologyTemplateId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'ARCHITECT')")
     @Audit
     public RestResponse<Void> delete(@PathVariable String topologyTemplateId) {
         AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
@@ -175,6 +180,7 @@ public class TopologyTemplateController {
      */
     @ApiOperation(value = "Update an user by merging the userUpdateRequest into the existing user", authorizations = { @Authorization("ARCHITECT") })
     @RequestMapping(value = "/topology/{topologyTemplateId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'ARCHITECT')")
     @Audit
     public RestResponse<Void> update(@ApiParam(value = " Id of the topology template", required = true) @PathVariable String topologyTemplateId,
             @ApiIgnore @RequestBody UpdateTopologyTemplateRequest updateTopologyTemplateRequest) {
@@ -194,5 +200,4 @@ public class TopologyTemplateController {
         alienDAO.save(topologyTemplate);
         return RestResponseBuilder.<Void> builder().build();
     }
-
 }

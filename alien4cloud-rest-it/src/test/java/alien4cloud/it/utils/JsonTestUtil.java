@@ -1,11 +1,14 @@
 package alien4cloud.it.utils;
 
+import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
+import alien4cloud.model.components.PropertyConstraint;
 import lombok.extern.slf4j.Slf4j;
 import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import alien4cloud.model.components.AbstractPropertyValue;
@@ -40,17 +43,21 @@ public final class JsonTestUtil {
 
     private static ObjectMapper createRestMapper() {
         ObjectMapper mapper = new RestMapper();
-        // FIXME: find a better way to make the mapper manages annotations
         SimpleModule module = new SimpleModule();
         // register the deserializer
         module.addDeserializer(AbstractPropertyValue.class, new PropertyValueDeserializer());
+        try {
+            module.addDeserializer(PropertyConstraint.class, new PropertyConstraintDeserializer());
+        } catch (ClassNotFoundException | IOException | IntrospectionException e) {
+            log.error("Unable to initialize test context.");
+        }
         mapper.registerModule(module);
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false);
         return mapper;
     }
-    
+
     private static ObjectMapper getOneObjectMapper() {
         return getOneObjectMapper(false);
     }

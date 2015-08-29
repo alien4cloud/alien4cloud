@@ -19,6 +19,8 @@ import com.google.common.collect.Sets;
  * Map using a child parser based on a discriminator key (valid only for MappingNode).
  */
 public class KeyDiscriminatorParser<T> extends DefaultParser<T> {
+    private static final String CATCH_ALL = "__";
+
     private Map<String, INodeParser<T>> parserByExistKey;
     private INodeParser<T> fallbackParser;
 
@@ -48,7 +50,7 @@ public class KeyDiscriminatorParser<T> extends DefaultParser<T> {
             }
             // check if one of the discriminator key exists and if so use it for parsing.
             for (Map.Entry<String, INodeParser<T>> entry : parserByExistKey.entrySet()) {
-                if (keySet.contains(entry.getKey())) {
+                if (CATCH_ALL.equals(entry.getKey()) || keySet.contains(entry.getKey())) {
                     return entry.getValue().parse(node, context);
                 }
             }

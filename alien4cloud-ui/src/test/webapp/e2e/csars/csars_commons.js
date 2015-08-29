@@ -3,6 +3,7 @@
 
 // TODO : update for new CSAR UI pages
 var navigation = require('../common/navigation');
+var common = require('../common/common');
 
 var goToCsarSearchPage = function() {
   navigation.go('main', 'components');
@@ -36,4 +37,69 @@ var goToCsarDetails = function(elementNumber) {
   var firstElement = csars.get(elementNumber);
   firstElement.click();
 };
+
+var fillCsargitModalWithData=function(urlContent,subPath,branchId){
+  element(by.model('csarGit.url')).sendKeys(urlContent);
+  element(by.model('location.subPath')).sendKeys(subPath);
+  element(by.model('location.branchId')).sendKeys(branchId);
+};
+
+/*Jump to the Csargit modal and fill its content with values passed in parameter*/
+var checkIfCreationStepIsEnabled = function(urlContent,subPath,branchId){
+  goToCsarSearchPage();
+  var openModal = browser.element(by.binding('CSAR.MODAL_NEWCSAR'));
+  openModal.click();
+  browser.driver.switchTo().activeElement();
+  fillCsargitModalWithData(urlContent,subPath,branchId);
+  var addLocationButton =element(by.id('btn-createTextField'));
+  addLocationButton.click();
+  var createCsarGitButton = element(by.id('btn-create'));
+  expect(createCsarGitButton.isEnabled()).toBe(true);
+  createCsarGitButton.click();
+};
+module.exports.checkIfCreationStepIsEnabled = checkIfCreationStepIsEnabled;
+
+var checkIfCreationIsDisabled = function(urlContent,subPath,branchId,createCsarGitBtn,addLocationBtn){
+  goToCsarSearchPage();
+  var openModal = browser.element(by.binding('CSAR.MODAL_NEWCSAR'));
+  openModal.click();
+  browser.driver.switchTo().activeElement();
+  fillCsargitModalWithData(urlContent,subPath,branchId);
+  var createCsarGitButton = element(by.id('btn-create'));
+  expect(createCsarGitButton.isEnabled()).toBe(false);
+
+};
+module.exports.checkIfCreationIsDisabled = checkIfCreationIsDisabled;
+
+var checkIfCreationIsDisabledWhenRemovingLocation = function(urlContent,subPath,branchId){
+  goToCsarSearchPage();
+  var openModal = browser.element(by.binding('CSAR.MODAL_NEWCSAR'));
+  openModal.click();
+  browser.driver.switchTo().activeElement();
+  fillCsargitModalWithData(urlContent,subPath,branchId);
+  var addLocationButton =element(by.id('btn-createTextField'));
+  addLocationButton.click();
+  common.deleteWithConfirm('delete-csargit-location', true);
+  var createCsarGitButton = element(by.id('btn-create'));
+  expect(createCsarGitButton.isEnabled()).toBe(false);
+
+};
+module.exports.checkIfCreationIsDisabledWhenRemovingLocation = checkIfCreationIsDisabledWhenRemovingLocation;
+
+
+var checkIfAllCreationStepsAreDisabled = function(urlContent,subPath,branchId){
+  goToCsarSearchPage();
+  var openModal = browser.element(by.binding('CSAR.MODAL_NEWCSAR'));
+  openModal.click();
+  browser.driver.switchTo().activeElement();
+  fillCsargitModalWithData(urlContent,subPath,branchId);
+  var addLocationButton =element(by.id('btn-createTextField'));
+  expect(addLocationButton.isEnabled()).toBe(false);
+  var createCsarGitButton = element(by.id('btn-create'));
+  expect(createCsarGitButton.isEnabled()).toBe(false);
+
+};
+module.exports.checkIfAllCreationStepsAreDisabled = checkIfAllCreationStepsAreDisabled;
+
+
 module.exports.goToCsarDetails = goToCsarDetails;

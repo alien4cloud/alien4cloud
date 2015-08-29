@@ -33,7 +33,8 @@ describe('Language change', function() {
     var linkDropdownUs = browser.element(by.name('link-language-us'));
 
     // Select french as language
-    linkDropdownFr.click();
+    browser.actions().click(linkDropdownFr).perform();
+    browser.waitForAngular();
 
     expect(element(by.name('btn-login')).getText()).toContain(common.frLanguage.NAVBAR.BUTTON_LOGIN);
     expect(element(by.binding('MAIN.WELCOME')).getText()).toContain(common.frLanguage.MAIN.WELCOME);

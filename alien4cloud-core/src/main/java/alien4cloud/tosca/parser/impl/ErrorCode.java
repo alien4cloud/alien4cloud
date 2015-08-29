@@ -36,6 +36,8 @@ public enum ErrorCode {
     VALIDATION_ERROR,
     /** This constraint is not a valid TOSCA constraint. */
     UNKNOWN_CONSTRAINT,
+    /** Constraint is known but invalid with other parameters **/
+    INVALID_CONSTRAINT,
     /** An imported CSAR cannot be found. */
     MISSING_DEPENDENCY,
     /** Scalar unit declaration not well managed. */
@@ -59,5 +61,6 @@ public enum ErrorCode {
     OUTPUTS_BAD_PARAMS_COUNT,
     OUTPUTS_UNKNOWN_FUNCTION,
     UNKOWN_GROUP_POLICY,
-    UNKOWN_GROUP_MEMBER;
+    UNKOWN_GROUP_MEMBER,
+    EMPTY_TOPOLOGY;
 }

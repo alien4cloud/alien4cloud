@@ -1,11 +1,6 @@
 package alien4cloud.it.topology;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,7 +55,7 @@ import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyUtils;
-import alien4cloud.topology.task.RequirementToSatify;
+import alien4cloud.topology.task.RequirementToSatisfy;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.TaskLevel;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
@@ -526,10 +521,16 @@ public class TopologyStepDefinitions {
 
     @When("^I update the node template \"([^\"]*)\"'s artifact \"([^\"]*)\" with \"([^\"]*)\"$")
     public void I_update_the_node_template_s_artifact_with(String nodeTemplateName, String artifactId, String artifactName) throws Throwable {
+        I_update_the_node_template_s_artifact_with_file_at_path(nodeTemplateName, artifactId, Paths.get(ARTIFACT_PATH, artifactName).toString());
+    }
+
+    @When("^I update the node template \"([^\"]*)\"'s artifact \"([^\"]*)\" with file at path \"([^\"]*)\"$")
+    public void I_update_the_node_template_s_artifact_with_file_at_path(String nodeTemplateName, String artifactId, String artifactPath) throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         String url = "/rest/topologies/" + topologyId + "/nodetemplates/" + nodeTemplateName + "/artifacts/" + artifactId;
-        InputStream artifactStream = Files.newInputStream(Paths.get(ARTIFACT_PATH, artifactName));
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart(url, artifactName, artifactStream));
+        InputStream artifactStream = Files.newInputStream(Paths.get(artifactPath));
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postMultipart(url, Paths.get(artifactPath).getFileName().toString(), artifactStream));
     }
 
     @When("^I associate the artifact \"([^\"]*)\" of node template \"([^\"]*)\" as an input artifact \"([^\"]*)\"$")
@@ -574,8 +575,8 @@ public class TopologyStepDefinitions {
         assertNotNull(tasklist);
         for (List<String> expected : expectedRequirementsNames.raw()) {
             String[] expectedNames = expected.get(1).split(",");
-            List<RequirementToSatify> requirementsToSatify = getRequirementsToSatisfy(expected.get(0), tasklist);
-            String[] requirementsNames = getRequirementsNames(requirementsToSatify.toArray(new RequirementToSatify[requirementsToSatify.size()]));
+            List<RequirementToSatisfy> requirementsToSatify = getRequirementsToSatisfy(expected.get(0), tasklist);
+            String[] requirementsNames = getRequirementsNames(requirementsToSatify.toArray(new RequirementToSatisfy[requirementsToSatify.size()]));
             assertNotNull(requirementsNames);
             assertEquals(expectedNames.length, requirementsNames.length);
             Arrays.sort(expectedNames);
@@ -584,12 +585,12 @@ public class TopologyStepDefinitions {
         }
     }
 
-    private List<RequirementToSatify> getRequirementsToSatisfy(String nodeTemplateName, Object taskList) throws IOException {
+    private List<RequirementToSatisfy> getRequirementsToSatisfy(String nodeTemplateName, Object taskList) throws IOException {
         for (Map<String, Object> task : (List<Map<String, Object>>) taskList) {
             String nodeTemp = (String) MapUtil.get(task, "nodeTemplateName");
             List<Object> resToImp = (List<Object>) MapUtil.get(task, "requirementsToImplement");
             if (nodeTemp.equals(nodeTemplateName) && resToImp != null) {
-                return JsonTestUtil.toList(JsonTestUtil.toString(resToImp), RequirementToSatify.class);
+                return JsonTestUtil.toList(JsonTestUtil.toString(resToImp), RequirementToSatisfy.class);
             }
         }
         return null;
@@ -603,9 +604,9 @@ public class TopologyStepDefinitions {
         return toReturn;
     }
 
-    public String[] getRequirementsNames(RequirementToSatify... requirementsToSatisfy) {
+    public String[] getRequirementsNames(RequirementToSatisfy... requirementsToSatisfy) {
         String[] toReturn = null;
-        for (RequirementToSatify requirementToSatisfy : requirementsToSatisfy) {
+        for (RequirementToSatisfy requirementToSatisfy : requirementsToSatisfy) {
             toReturn = ArrayUtils.add(toReturn, requirementToSatisfy.getName());
         }
 

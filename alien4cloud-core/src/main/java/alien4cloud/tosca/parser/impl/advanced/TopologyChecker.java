@@ -1,6 +1,5 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +17,9 @@ import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedModelUtils;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.PropertyValue;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
@@ -28,6 +30,9 @@ import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ToscaParsingUtil;
 import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import alien4cloud.utils.services.ConstraintPropertyService;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -39,6 +44,9 @@ public class TopologyChecker implements IChecker<Topology> {
 
     @Resource
     private ICSARRepositorySearchService searchService;
+
+    @Resource
+    private ConstraintPropertyService constraintPropertyService;
 
     @Override
     public String getName() {
@@ -53,16 +61,23 @@ public class TopologyChecker implements IChecker<Topology> {
         mergeHierarchy(archiveRoot.getArtifactTypes(), archiveRoot);
         mergeHierarchy(archiveRoot.getCapabilityTypes(), archiveRoot);
         mergeHierarchy(archiveRoot.getNodeTypes(), archiveRoot);
+        mergeHierarchy(archiveRoot.getDataTypes(), archiveRoot);
         mergeHierarchy(archiveRoot.getRelationshipTypes(), archiveRoot);
     }
 
     @Override
     public void check(Topology instance, ParsingContextExecution context, Node node) {
+        if (instance.isEmpty()) {
+            // if the topology doesn't contains any node template it won't be imported so add a warning.
+            context.getParsingErrors().add(
+                    new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.EMPTY_TOPOLOGY, null, node.getStartMark(), null, node.getEndMark(), ""));
+        }
+
         ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
-
-        Set<CSARDependency> topologyDeps = new HashSet<CSARDependency>(archiveRoot.getArchive().getDependencies());
-        instance.setDependencies(topologyDeps);
-
+        Set<CSARDependency> dependencies = archiveRoot.getArchive().getDependencies();
+        if (dependencies != null) {
+            instance.setDependencies(dependencies);
+        }
         // here we need to check that the group members really exist
         if (instance.getGroups() != null && !instance.getGroups().isEmpty()) {
             int i = 0;
@@ -92,25 +107,57 @@ public class TopologyChecker implements IChecker<Topology> {
         }
 
         // check properties inputs validity
-        for (Entry<String, NodeTemplate> nodes : instance.getNodeTemplates().entrySet()) {
-            String nodeName = nodes.getKey();
-            for (Entry<String, AbstractPropertyValue> properties : nodes.getValue().getProperties().entrySet()) {
-                AbstractPropertyValue abstractValue = properties.getValue();
-                if (abstractValue instanceof FunctionPropertyValue) {
-                    FunctionPropertyValue function = (FunctionPropertyValue) abstractValue;
-                    String parameters = function.getParameters().get(0);
-                    // check get_input only
-                    if (function.getFunction().equals("get_input")) {
-                        if (instance.getInputs() == null || !instance.getInputs().keySet().contains(parameters)) {
+        if (instance.getNodeTemplates() != null && !instance.getNodeTemplates().isEmpty()) {
+            for (Entry<String, NodeTemplate> nodeEntry : instance.getNodeTemplates().entrySet()) {
+                String nodeName = nodeEntry.getKey();
+                NodeTemplate nodeTemplate = nodeEntry.getValue();
+                if (nodeEntry.getValue().getProperties() == null) {
+                    continue;
+                }
+                IndexedNodeType nodeType = ToscaParsingUtil.getNodeTypeFromArchiveOrDependencies(nodeTemplate.getType(), archiveRoot, searchService);
+                if (nodeType == null) {
+                    // Already caught in NodeTemplateChecker
+                    continue;
+                }
+                for (Entry<String, AbstractPropertyValue> propertyEntry : nodeEntry.getValue().getProperties().entrySet()) {
+                    String propertyName = propertyEntry.getKey();
+                    AbstractPropertyValue propertyValue = propertyEntry.getValue();
+                    if (nodeType.getProperties() == null || !nodeType.getProperties().containsKey(propertyName)) {
+                        context.getParsingErrors().add(
+                                new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.UNRECOGNIZED_PROPERTY, nodeName, node.getStartMark(), "Property "
+                                        + propertyName + " does not exist in type " + nodeType.getElementId(), node.getEndMark(), propertyName));
+                        continue;
+                    }
+                    PropertyDefinition propertyDefinition = nodeType.getProperties().get(propertyName);
+                    if (propertyValue instanceof FunctionPropertyValue) {
+                        FunctionPropertyValue function = (FunctionPropertyValue) propertyValue;
+                        String parameters = function.getParameters().get(0);
+                        // check get_input only
+                        if (function.getFunction().equals("get_input")) {
+                            if (instance.getInputs() == null || !instance.getInputs().keySet().contains(parameters)) {
+                                context.getParsingErrors().add(
+                                        new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.MISSING_TOPOLOGY_INPUT, nodeName, node.getStartMark(), parameters,
+                                                node.getEndMark(), propertyName));
+                            }
+                        }
+                    } else if (propertyValue instanceof PropertyValue<?>) {
+                        try {
+                            constraintPropertyService.checkPropertyConstraint(propertyName, ((PropertyValue<?>) propertyValue).getValue(), propertyDefinition,
+                                    archiveRoot);
+                        } catch (ConstraintValueDoNotMatchPropertyTypeException | ConstraintViolationException e) {
+                            StringBuilder problem = new StringBuilder("Validation issue ");
+                            if (e.getConstraintInformation() != null) {
+                                problem.append("for " + e.getConstraintInformation().toString());
+                            }
+                            problem.append(e.getMessage());
                             context.getParsingErrors().add(
-                                    new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.MISSING_TOPOLOGY_INPUT, nodeName, node.getStartMark(), parameters, node
-                                            .getEndMark(), properties.getKey()));
+                                    new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.VALIDATION_ERROR, nodeName, node.getStartMark(), problem.toString(),
+                                            node.getEndMark(), propertyName));
                         }
                     }
                 }
             }
         }
-
     }
 
     private <T extends IndexedInheritableToscaElement> void mergeHierarchy(Map<String, T> indexedElements, ArchiveRoot archiveRoot) {

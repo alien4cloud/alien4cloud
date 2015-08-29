@@ -50,7 +50,7 @@ define(function (require) {
       this.stateForward[state] = stateforward;
     },
     config: function($stateProvider) {
-      // configure the state provider with the
+      // configure the state provider with the states
       this.register($stateProvider, this.states, '');
     },
     register: function($stateProvider, states, prefix) {

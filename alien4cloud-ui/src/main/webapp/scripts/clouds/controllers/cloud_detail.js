@@ -16,6 +16,7 @@ define(function (require) {
   require('scripts/common/filters/bytes');
   require('scripts/common/directives/os_icon');
   require('scripts/common/directives/pagination');
+  require('scripts/common/directives/simple_modal');
   require('scripts/meta-props/directives/meta_props_display');
 
   require('scripts/clouds/controllers/new_flavor');
@@ -25,7 +26,7 @@ define(function (require) {
   require('scripts/cloud-images/controllers/new_cloud_image');
 
   states.state('admin.clouds.detail', {
-    url: '/:id',
+    url: '/details/:id',
     templateUrl: 'views/clouds/cloud_detail.html',
     controller: 'CloudDetailController'
   });
@@ -211,7 +212,6 @@ define(function (require) {
                 $timeout(function() {
                   angular.element( document.querySelector( '#force-cloud-disable-button' ) ).triggerHandler('click');
                   }, 0);
-                console.log(angular.element( document.querySelector( '#force-cloud-disable-button' ) ));
               } else {
                 // We should never validate this condition
                 console.error('Error in disableCloud with force option');
@@ -276,7 +276,7 @@ define(function (require) {
           id: cloudId
         }, function(response) {
           if (response.data === true) {
-            $state.go('admin.clouds.list');
+            $state.go('admin.clouds');
           } else {
             // toaster message
             toaster.pop('error', $translate('CLOUDS.ERRORS.DELETING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.DELETING_FAILED'), 4000, 'trustedHtml', null);
@@ -738,21 +738,6 @@ define(function (require) {
           pasSResourceId: paaSResourceId
         }, undefined, function(result) {
           callbackFn(result);
-        });
-      };
-
-      var ModalInstanceCtrl = ['$scope', '$modalInstance', function ($scope, $modalInstance) {
-        $scope.title = 'CLOUDS.ADMINISTRATION.HELP.TITLE';
-        $scope.content = $filter('translate')('CLOUDS.ADMINISTRATION.HELP.CONTENT');
-        $scope.close = function () {
-          $modalInstance.dismiss('close');
-        };
-      }];
-
-      $scope.openSimpleModal = function () {
-        $modal.open({
-          templateUrl: 'views/common/simple_modal.html',
-          controller: ModalInstanceCtrl
         });
       };
 

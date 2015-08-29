@@ -13,6 +13,8 @@ import javax.validation.Valid;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,6 +61,7 @@ public class UserController {
      */
     @ApiOperation(value = "Create a new user in ALIEN.")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> create(@Valid @RequestBody CreateUserRequest request) {
         userService.createUser(request.getUsername(), request.getEmail(), request.getFirstName(), request.getLastName(), request.getRoles(),
@@ -68,6 +71,7 @@ public class UserController {
 
     @ApiOperation("Update an user by merging the userUpdateRequest into the existing user")
     @RequestMapping(value = "/{username}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> update(@PathVariable String username, @RequestBody UpdateUserRequest userUpdateRequest) {
         userService.updateUser(username, userUpdateRequest);
@@ -82,6 +86,7 @@ public class UserController {
      */
     @ApiOperation(value = "Get a user based on it's username.", notes = "Returns a rest response that contains the user's details.")
     @RequestMapping(value = "/{username}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<User> getUser(@PathVariable String username) {
         if (username == null || username.isEmpty()) {
             return RestResponseBuilder.<User> builder()
@@ -102,6 +107,7 @@ public class UserController {
      */
     @ApiOperation(value = "Get multiple users from their usernames.", notes = "Returns a rest response that contains the list of requested users.")
     @RequestMapping(value = "/getUsers", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<List<User>> getUsers(@RequestBody List<String> usernames) {
         if (usernames == null || usernames.isEmpty()) {
             return RestResponseBuilder.<List<User>> builder()
@@ -113,6 +119,21 @@ public class UserController {
     }
 
     /**
+     * Search for users.
+     *
+     * @param searchRequest The request that contains parameters of the search request.
+     * @return A {@link RestResponse} that contains a {@link GetMultipleDataResult} of {@link User}.
+     */
+    @ApiOperation(value = "Search for user's registered in alien.")
+    @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<FacetedSearchResult> searchUsers(@RequestBody UserSearchRequest searchRequest) {
+        FacetedSearchResult searchResult = alienUserDao.search(searchRequest.getQuery(), searchRequest.getGroup(), searchRequest.getFrom(),
+                searchRequest.getSize());
+        return RestResponseBuilder.<FacetedSearchResult> builder().data(searchResult).build();
+    }
+
+    /**
      * Delete a user from the store based on it's username.
      *
      * @param username The unique username of the user to delete.
@@ -120,6 +141,7 @@ public class UserController {
      */
     @ApiOperation(value = "Delete an existing user from the internal user's repository.")
     @RequestMapping(value = "/{username}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> deleteUser(@PathVariable String username, HttpServletResponse servletResponse) throws IOException, ClassNotFoundException {
         if (username == null || username.isEmpty()) {
@@ -143,20 +165,6 @@ public class UserController {
     }
 
     /**
-     * Search for users.
-     *
-     * @param searchRequest The request that contains parameters of the search request.
-     * @return A {@link RestResponse} that contains a {@link GetMultipleDataResult} of {@link User}.
-     */
-    @ApiOperation(value = "Search for user's registered in alien.")
-    @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<FacetedSearchResult> searchUsers(@RequestBody UserSearchRequest searchRequest) {
-        FacetedSearchResult searchResult = alienUserDao.search(searchRequest.getQuery(), searchRequest.getGroup(), searchRequest.getFrom(),
-                searchRequest.getSize());
-        return RestResponseBuilder.<FacetedSearchResult> builder().data(searchResult).build();
-    }
-
-    /**
      * Add a role to a given user.
      *
      * @param username The unique username of the user for which to add a role.
@@ -164,6 +172,7 @@ public class UserController {
      */
     @ApiOperation(value = "Add a role to a user.")
     @RequestMapping(value = "/{username}/roles/{role}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> addRole(@PathVariable String username, @PathVariable String role) {
         if (username == null || username.isEmpty()) {
@@ -190,6 +199,7 @@ public class UserController {
      */
     @ApiOperation(value = "Remove a role from a user.")
     @RequestMapping(value = "/{username}/roles/{role}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> removeRole(@PathVariable String username, @PathVariable String role, HttpServletResponse servletResponse) {
         if (username == null || username.isEmpty()) {

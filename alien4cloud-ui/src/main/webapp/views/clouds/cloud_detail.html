@@ -789,9 +789,7 @@
                     <label class="ng-scope ng-binding" tooltip="{{'CLOUDS.ADMINISTRATION.GLOBAL.DEPLOYMENT_NAME' | translate}}" tooltip-trigger="mouseenter">
                       {{'CLOUDS.ADMINISTRATION.GLOBAL.DEPLOYMENT_NAME' | translate}}
                     </label>
-                    <button class="btn btn-primary btn-xs ng-scope pull-right" data-toggle="modal" ng-click="openSimpleModal()" tooltip="{{'CLOUDS.ADMINISTRATION.HELP.TITLE' | translate}}" tooltip-append-to-body="true" position="right">
-                      <i class="fa fa-question-circle"></i>
-                    </button>
+                    <simple-modal class="pull-right" title="{{ 'CLOUDS.ADMINISTRATION.HELP.TITLE' | translate}}" content="{{ 'CLOUDS.ADMINISTRATION.HELP.CONTENT' | translate}}" primary="true"> </simple-modal>
                   </div>
                   <div editable-text="cloud.deploymentNamePattern" id="deploymentNamePattern" buttons="no" e-style="width:90%;" e-required e-class="input-sm;" onaftersave="updateCloud({'deploymentNamePattern' : cloud.deploymentNamePattern})" blur="submit">
                     {{cloud.deploymentNamePattern}} <i class="fa fa-edit"></i>

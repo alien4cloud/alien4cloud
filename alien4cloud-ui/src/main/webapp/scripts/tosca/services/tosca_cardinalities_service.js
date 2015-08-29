@@ -92,17 +92,19 @@ define(function (require) {
         fillRequirementBounds: function(nodeTypes, nodeTemplate) {
           var instance = this;
           var nodeType = nodeTypes[nodeTemplate.type];
-          nodeType.requirements.forEach(function(reqDef) {
-            var requirement = nodeTemplate.requirementsMap[reqDef.id].value;
-            requirement.upperBound = reqDef.upperBound;
-            requirement.lowerBound = reqDef.lowerBound;
-            requirement.canAddRel = instance.computeBoundRemains(requirement, {
-              requirementName: reqDef.id,
-              requirement: requirement,
-              relationships: nodeTemplate.relationships,
-              call: instance.computeRequirementUsage
+          if (nodeType.requirements) {
+            nodeType.requirements.forEach(function(reqDef) {
+              var requirement = nodeTemplate.requirementsMap[reqDef.id].value;
+              requirement.upperBound = reqDef.upperBound;
+              requirement.lowerBound = reqDef.lowerBound;
+              requirement.canAddRel = instance.computeBoundRemains(requirement, {
+                requirementName: reqDef.id,
+                requirement: requirement,
+                relationships: nodeTemplate.relationships,
+                call: instance.computeRequirementUsage
+              });
             });
-          });
+          }
         },
 
         /**

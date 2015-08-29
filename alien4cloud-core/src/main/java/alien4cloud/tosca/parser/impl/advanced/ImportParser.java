@@ -39,7 +39,6 @@ public class ImportParser extends DefaultParser<CSARDependency> {
                     context.getParsingErrors().add(
                             new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.MISSING_DEPENDENCY, "Import definition is not valid", node.getStartMark(),
                                     "Specified dependency is not found in Alien 4 Cloud repository.", node.getEndMark(), valueAsString));
-                    return null;
                 }
                 return dependency;
             }

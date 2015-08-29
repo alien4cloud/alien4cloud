@@ -32,7 +32,7 @@
   }, {
     "title": "Configurer les clouds",
     "content": "Cliquez ensuite ici pour créer votre cloud qui sera associé à un plugin de PaaS provider que vous aurez ajouté au préalable.",
-    "target": "am.admin.clouds.list",
+    "target": "am.admin.clouds",
     "placement": "right"
   }, {
     "title": "Configurer les images de cloud",

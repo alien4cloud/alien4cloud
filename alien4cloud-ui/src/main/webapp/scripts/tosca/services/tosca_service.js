@@ -164,6 +164,24 @@ define(function (require) {
         },
 
         /**
+        * Generate a unique node template name from the given node type name and based on a map of existing node templates.
+        * @param type The name of the node type.
+        * @param nodeTemplates The map of existing node templates (to avoid duplicating a node template name).
+        */
+        generateNodeTemplateName: function(type, nodeTemplates) {
+          var baseName = this.simpleName(type);
+          var i = 1;
+          var tempName = baseName;
+          if(_.defined(nodeTemplates)) {
+            while (nodeTemplates.hasOwnProperty(tempName)) {
+              i++;
+              tempName = baseName + '-' + i;
+            }
+          }
+          return tempName;
+        },
+
+        /**
         * Get a subset of a node template relationships based on a criteria function.
         *
         * @param nodeTemplate The node template in which to look for relationships.

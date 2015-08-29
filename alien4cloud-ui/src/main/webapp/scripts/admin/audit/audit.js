@@ -15,7 +15,7 @@ define(function (require) {
     template: '<ui-view/>',
     menu: {
       id: 'am.admin.audit',
-      state: 'admin.audit.log',
+      state: 'admin.audit',
       key: 'NAVADMIN.MENU_AUDIT',
       icon: 'fa fa-eye',
       priority: 700
@@ -26,6 +26,7 @@ define(function (require) {
     templateUrl: 'views/admin/audit.html',
     controller: 'AuditController'
   });
+  states.forward('admin.audit', 'admin.audit.log');
 
   modules.get('alien4cloud-admin', ['ngTable']).controller('AuditController', ['$scope', 'auditService', 'ngTableParams', '$filter', '$timeout', '$state',
     function($scope, auditService, ngTableParams, $filter, $timeout, $state) {

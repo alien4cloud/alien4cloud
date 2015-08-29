@@ -18,7 +18,14 @@ import com.google.common.collect.Maps;
  */
 @Component
 public class ReferenceMappingBuilder implements IMappingBuilder {
+
     private static final String REFERENCE_KEY = "reference";
+
+    private static final String TYPE = "type";
+
+    private static final String DEFERRED = "deferred";
+
+    private static final String DEFERRED_ORDER = "deferredOrder";
 
     @Override
     public String getKey() {
@@ -33,6 +40,8 @@ public class ReferenceMappingBuilder implements IMappingBuilder {
             String value = ParserUtils.getScalar(tuple.getValueNode(), context);
             map.put(key, value);
         }
-        return new MappingTarget(map.get(REFERENCE_KEY), new ReferencedParser(map.get("type")));
+        boolean deferred = map.containsKey(DEFERRED) && Boolean.parseBoolean(map.get(DEFERRED));
+        int deferredOrder = map.containsKey(DEFERRED_ORDER) ? Integer.parseInt(map.get(DEFERRED_ORDER)) : 0;
+        return new MappingTarget(map.get(REFERENCE_KEY), new ReferencedParser(map.get(TYPE), deferred, deferredOrder));
     }
 }

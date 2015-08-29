@@ -12,11 +12,11 @@ define(function (require) {
 
   // register the state to access the metrics
   states.state('admin.metaprops', {
-    url: '/audit',
+    url: '/metaproperties',
     template: '<ui-view/>',
     menu: {
       id: 'am.admin.metaprops',
-      state: 'admin.metaprops.list',
+      state: 'admin.metaprops',
       key: 'NAVADMIN.MENU_TAGS',
       icon: 'fa fa-tags',
       priority: 9900
@@ -27,6 +27,7 @@ define(function (require) {
     templateUrl: 'views/meta-props/meta_props_list.html',
     controller: 'MetaPropsListCtrl'
   });
+  states.forward('admin.metaprops', 'admin.metaprops.list');
 
   // have a dependency on both the generic-form and search.
   modules.get('a4c-metas', ['a4c-common', 'a4c-search']).controller('MetaPropsListCtrl',

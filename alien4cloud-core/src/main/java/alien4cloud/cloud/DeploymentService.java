@@ -43,7 +43,6 @@ import alien4cloud.paas.exception.DeploymentPaaSIdConflictException;
 import alien4cloud.paas.exception.EmptyMetaPropertyException;
 import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OperationExecutionException;
-import alien4cloud.paas.exception.PaaSDeploymentException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
@@ -184,7 +183,7 @@ public class DeploymentService {
 
             private Map<String, String> constructMapOfMetaProperties(final Application app) {
                 Map<String, String[]> filters = new HashMap<String, String[]>();
-                filters.put("application", new String[] { "id" });
+                filters.put("application", new String[] { "id" }); // TODO there is a bug HERE
                 FacetedSearchResult result = alienDao.facetedSearch(MetaPropConfiguration.class, null, filters, null, 0, 20);
                 MetaPropConfiguration metaProp;
                 Map<String, String> metaProperties = Maps.newHashMap();
@@ -300,7 +299,8 @@ public class DeploymentService {
      * @param instances the number of instances to be added (if positive) or removed (if negative)
      * @throws CloudDisabledException In case the cloud selected for the topology is disabled.
      */
-    public void scale(String applicationEnvironmentId, final String nodeTemplateId, int instances) throws CloudDisabledException {
+    public void scale(String applicationEnvironmentId, final String nodeTemplateId, int instances, final IPaaSCallback<Object> callback)
+            throws CloudDisabledException {
         Deployment deployment = getActiveDeploymentFailIfNotExists(applicationEnvironmentId);
         final Topology topology = alienMonitorDao.findById(Topology.class, deployment.getId());
         final Capability capability = TopologyUtils.getScalableCapability(topology, nodeTemplateId, true);
@@ -313,18 +313,19 @@ public class DeploymentService {
         // call the paas provider to scale the topology
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(deployment.getCloudId());
         PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
-        paaSProvider.scale(deploymentContext, nodeTemplateId, instances, new IPaaSCallback<Void>() {
+        paaSProvider.scale(deploymentContext, nodeTemplateId, instances, new IPaaSCallback() {
             @Override
             public void onFailure(Throwable throwable) {
                 log.info("Failed to scale <{}> node from <{}> to <{}>. rolling back to {}...", nodeTemplateId, previousInitialInstances, newInitialInstances,
                         previousInitialInstances);
                 TopologyUtils.setScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, previousInitialInstances, capability);
                 alienMonitorDao.save(topology);
-                throw (PaaSDeploymentException) throwable;
+                callback.onFailure(throwable);
             }
 
             @Override
-            public void onSuccess(Void data) {
+            public void onSuccess(Object data) {
+                callback.onSuccess(data);
             }
         });
     }

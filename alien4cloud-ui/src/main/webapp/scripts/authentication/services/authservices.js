@@ -1,4 +1,4 @@
-define(function (require) {
+define(function(require) {
   'use strict';
 
   var modules = require('modules');
@@ -8,11 +8,17 @@ define(function (require) {
   modules.get('a4c-auth', ['ngResource']).factory('authService', ['$resource', '$state', '$http',
     function($resource, $state, $http) {
       var userStatusResource = $resource('rest/auth/status', {}, {
-        'query': { method: 'GET', isArray: false }
+        'query': {
+          method: 'GET',
+          isArray: false
+        }
       });
       // get default 'all-users' group
       var defaultAllUsersGroup = $resource('rest/auth/groups/allusers', {}, {
-        'query': { method: 'GET', isArray: false }
+        'query': {
+          method: 'GET',
+          isArray: false
+        }
       }).query();
 
       /* Permissions */
@@ -125,18 +131,20 @@ define(function (require) {
         },
 
         /**
-        * LogOut and redirect to home.
-        */
+         * LogOut and redirect to home.
+         */
         logOut: function() {
           var self = this;
           $http.post('logout').success(function() {
             self.currentStatus = userStatusResource.query();
-            $state.go('home');
+            $state.go('home', {}, {
+              reload: true
+            });
           });
         },
         /**
-        * Login and redirect to target
-        */
+         * Login and redirect to target
+         */
         logIn: function(data, scope) {
           var self = this;
           $http.post('login', data, {
@@ -153,7 +161,9 @@ define(function (require) {
                 };
                 scope.error = loginError;
               }
-              $state.go('home');
+              $state.go('home', {}, {
+                reload: true
+              });
             });
             self.currentStatus.$promise.then(function() {
               self.onCurrentStatus();
@@ -170,18 +180,19 @@ define(function (require) {
         },
 
         /**
-        * Checks if the current user has the requested role.
-        */
+         * Checks if the current user has the requested role.
+         */
         hasRole: function(role) {
           return this.hasOneRoleIn([role]);
         },
 
         /**
-        * Check if a user has access to a resource. Return true if user has the given role
-        */
+         * Check if a user has access to a resource. Return true if user has the given role
+         */
         hasResourceRole: function(resource, role) {
           return this.hasResourceRoleIn(resource, [role]);
         }
       };
-    }]);
+    }
+  ]);
 });

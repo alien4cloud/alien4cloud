@@ -44,6 +44,7 @@ import alien4cloud.model.components.constraints.MaxLengthConstraint;
 import alien4cloud.model.components.constraints.MinLengthConstraint;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.tosca.ArchiveParserTest;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.MapUtil;
@@ -184,7 +185,7 @@ public class ToscaParserSimpleProfileWd03Test {
         ArchiveRoot archiveRoot = parsingResult.getResult();
         Assert.assertNotNull(archiveRoot.getArchive());
         Assert.assertNotNull(archiveRoot.getArchive().getDependencies());
-        Assert.assertEquals(0, archiveRoot.getArchive().getDependencies().size());
+        Assert.assertEquals(1, archiveRoot.getArchive().getDependencies().size());
     }
 
     @SuppressWarnings("unchecked")
@@ -246,6 +247,9 @@ public class ToscaParserSimpleProfileWd03Test {
                 repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
                         Mockito.any(List.class))).thenReturn(mockedResult);
         Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.nodes.Root"));
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(List.class)))
+                .thenReturn(mockedResult);
 
         Mockito.when(
                 repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(List.class)))
@@ -335,6 +339,9 @@ public class ToscaParserSimpleProfileWd03Test {
                 repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
                         Mockito.any(List.class))).thenReturn(mockedResult);
         Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.nodes.Root"));
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(List.class)))
+                .thenReturn(mockedResult);
 
         Mockito.when(
                 repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(List.class)))
@@ -396,6 +403,7 @@ public class ToscaParserSimpleProfileWd03Test {
         Mockito.when(
                 repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(List.class)))
                 .thenReturn(mockedResult);
+        Mockito.when(mockedResult.getId()).thenReturn("tosca.nodes.Compute:1.0.0-SNAPSHOT-wd03");
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-node-type-inputs.yml"));
 
@@ -450,11 +458,16 @@ public class ToscaParserSimpleProfileWd03Test {
         Mockito.reset(repositorySearchService);
         Mockito.reset(csarService);
         Csar csar = new Csar("tosca-normative-types", "1.0.0-SNAPSHOT-wd03");
+        Mockito.when(csarService.getIfExists(csar.getName(), csar.getVersion())).thenReturn(csar);
+
         IndexedNodeType mockedResult = Mockito.mock(IndexedNodeType.class);
         Mockito.when(
                 repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
                         Mockito.any(List.class))).thenReturn(mockedResult);
         Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.nodes.Root"));
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(List.class)))
+                .thenReturn(mockedResult);
 
         Mockito.when(
                 repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(List.class)))
@@ -512,11 +525,38 @@ public class ToscaParserSimpleProfileWd03Test {
         Assert.assertEquals(4, function.getParameters().size());
     }
 
-    @Ignore
     @Test
     public void testNodeTypeNodeFilter() throws ParsingException {
+        Mockito.reset(repositorySearchService);
+        Mockito.reset(csarService);
+        Csar csar = new Csar("tosca-normative-types", "1.0.0.wd03-SNAPSHOT");
+        Mockito.when(csarService.getIfExists(csar.getName(), csar.getVersion())).thenReturn(csar);
+
+        IndexedNodeType mockedResult = Mockito.mock(IndexedNodeType.class);
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
+                        Mockito.any(List.class))).thenReturn(mockedResult);
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(List.class)))
+                .thenReturn(mockedResult);
+        Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.nodes.Root"));
+
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(List.class)))
+                .thenReturn(mockedResult);
+        IndexedCapabilityType mockedCapabilityResult = Mockito.mock(IndexedCapabilityType.class);
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedCapabilityType.class), Mockito.eq("tosca.capabilities.Endpoint"),
+                        Mockito.any(List.class))).thenReturn(mockedCapabilityResult);
+        IndexedRelationshipType hostedOn = new IndexedRelationshipType();
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedRelationshipType.class), Mockito.eq("tosca.relationships.HostedOn"),
+                        Mockito.any(List.class))).thenReturn(hostedOn);
+
         // parse the node define with node_filter
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-node-type-nodefilter.yml"));
+
+        Mockito.verify(csarService).getIfExists(csar.getName(), csar.getVersion());
 
         // check the node_filter parsing
         IndexedNodeType nodeType = parsingResult.getResult().getNodeTypes().get("my_company.my_types.MyAppNodeType");
@@ -526,26 +566,43 @@ public class ToscaParserSimpleProfileWd03Test {
 
         NodeFilter nodeFilter = requirementHost.getNodeFilter();
         Map<String, List<PropertyConstraint>> properties = nodeFilter.getProperties();
-        // Map<String, ConstraintList> properties = nodeFilter.getProperties();
-        Assert.assertEquals(1, properties.size());
+        Assert.assertEquals(3, properties.size());
         Map<String, FilterDefinition> capabilities = nodeFilter.getCapabilities();
         Assert.assertEquals(2, capabilities.size());
 
         // check constraints on properties & capabilities
         Assert.assertTrue(properties.containsKey("os_type"));
-        List<PropertyConstraint> osTypeConstraints = properties.get("os_type");
-        // ConstraintList osTypeConstraints = properties.get("os_type");
-        Assert.assertEquals(1, osTypeConstraints.size());
+        List<PropertyConstraint> constraints = properties.get("os_type");
+        Assert.assertEquals(1, constraints.size());
+
+        Assert.assertTrue(properties.containsKey("os_mix"));
+        constraints = properties.get("os_mix");
+        Assert.assertEquals(2, constraints.size());
+
+        Assert.assertTrue(properties.containsKey("os_arch"));
+        constraints = properties.get("os_arch");
+        Assert.assertEquals(2, constraints.size());
 
         Assert.assertTrue(capabilities.containsKey("host"));
-        Map<String, List<PropertyConstraint>> listHostCapaConstraint = capabilities.get("host").getProperties();
-        // Map<String, ConstraintList> listHostCapaConstraint = capabilities.get("host").getProperties();
-        Assert.assertEquals(2, listHostCapaConstraint.size());
+        properties = capabilities.get("host").getProperties();
+        Assert.assertEquals(2, properties.size());
+
+        Assert.assertTrue(properties.containsKey("num_cpus"));
+        constraints = properties.get("num_cpus");
+        Assert.assertEquals(1, constraints.size());
+        Assert.assertTrue(properties.containsKey("mem_size"));
+        constraints = properties.get("mem_size");
+        Assert.assertEquals(1, constraints.size());
 
         Assert.assertTrue(capabilities.containsKey("mytypes.capabilities.compute.encryption"));
-        Map<String, List<PropertyConstraint>> listTypeCapaConstraint = capabilities.get("mytypes.capabilities.compute.encryption").getProperties();
-        // Map<String, ConstraintList> listTypeCapaConstraint = capabilities.get("mytypes.capabilities.compute.encryption").getProperties();
-        Assert.assertEquals(2, listTypeCapaConstraint.size());
+        properties = capabilities.get("mytypes.capabilities.compute.encryption").getProperties();
+        Assert.assertEquals(2, properties.size());
+        Assert.assertTrue(properties.containsKey("algorithm"));
+        constraints = properties.get("algorithm");
+        Assert.assertEquals(1, constraints.size());
+        Assert.assertTrue(properties.containsKey("keylength"));
+        constraints = properties.get("keylength");
+        Assert.assertEquals(2, constraints.size());
     }
 
     @Test
@@ -567,6 +624,15 @@ public class ToscaParserSimpleProfileWd03Test {
                 }
             }
         }
+    }
+
+    @Test
+    public void testDataTypes() throws ParsingException {
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-data-types.yml"));
+        ArchiveParserTest.displayErrors(parsingResult);
+        Assert.assertEquals(3, parsingResult.getResult().getDataTypes().size());
+        Assert.assertEquals(1, parsingResult.getResult().getNodeTypes().size());
+        Assert.assertEquals(0, parsingResult.getContext().getParsingErrors().size());
     }
 
     public static int countErrorByLevelAndCode(ParsingResult<?> parsingResult, ParsingErrorLevel errorLevel, ErrorCode errorCode) {

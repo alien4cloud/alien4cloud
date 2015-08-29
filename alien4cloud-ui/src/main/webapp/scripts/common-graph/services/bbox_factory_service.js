@@ -45,6 +45,11 @@ define(function (require) {
         }
       },
 
+      add: function(bbox) {
+        this.addPoint(bbox.minX, bbox.minY);
+        this.addPoint(bbox.maxX, bbox.maxY);
+      },
+
       addRectFromCenter: function(x, y, width, height) {
         // left bottom point
         var rectMinX = x - width / 2;
@@ -82,6 +87,20 @@ define(function (require) {
         clone.maxX = this.maxX + padding;
         clone.maxY = this.maxY + padding;
         return clone;
+      },
+
+      containsBBox: function(bbox) {
+        return this.contains({x: bbox.minX, y: bbox.minY}) && this.contains({x: bbox.maxX, y: bbox.maxY});
+      },
+
+      contains: function(point) {
+        if(point.x < this.minX || this.maxX < point.x) {
+          return false;
+        }
+        if(point.y < this.minY || this.maxY < point.y) {
+          return false;
+        }
+        return true;
       }
     };
 

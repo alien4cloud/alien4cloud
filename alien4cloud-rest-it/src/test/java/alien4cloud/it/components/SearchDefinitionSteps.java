@@ -57,7 +57,12 @@ public class SearchDefinitionSteps {
 
     @Given("^There is (\\d+) \"([^\"]*)\" indexed in ALIEN$")
     public void There_is_indexed_in_ALIEN(int count, String type) throws Throwable {
-        createAndIndexComponent(count, type, 0, null, null);
+        createAndIndexComponent(count, type, null, 0, null, null);
+    }
+
+    @Given("^There is (\\d+) \"([^\"]*)\" with base name \"([^\"]*)\" indexed in ALIEN$")
+    public void There_is_indexed_in_ALIEN(int count, String type, String baseName) throws Throwable {
+        createAndIndexComponent(count, type, baseName, 0, null, null);
     }
 
     @When("^I search for \"([^\"]*)\" using query \"([^\"]*)\" from (\\d+) with result size of (\\d+)$")
@@ -74,6 +79,14 @@ public class SearchDefinitionSteps {
         SearchRequest req = new SearchRequest(QUERY_TYPES.get(searchedComponentType), null, from, size, null);
         req.setType(req.getType());
 
+        String jSon = jsonMapper.writeValueAsString(req);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/components/search", jSon));
+    }
+
+    @When("^I make a basic \"([^\"]*)\" search for \"([^\"]*)\" from (\\d+) with result size of (\\d+)$")
+    public void I_make_a_basic_search_for_from_with_result_size_of(String query, String searchedComponentType, int from, int size) throws Throwable {
+        // BasicSearchRequest req = new BasicSearchRequest(query, from, size);
+        SearchRequest req = new SearchRequest(QUERY_TYPES.get(searchedComponentType), query, from, size, null);
         String jSon = jsonMapper.writeValueAsString(req);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/components/search", jSon));
     }
@@ -117,7 +130,7 @@ public class SearchDefinitionSteps {
     @Given("^There is (\\d+) \"([^\"]*)\" indexed in ALIEN with (\\d+) of them having a \"([^\"]*)\" \"([^\"]*)\"$")
     public void There_is_indexed_in_ALIEN_with_of_them_having_a(int count, String type, int countHavingProperty, String propertyValue, String property)
             throws Throwable {
-        createAndIndexComponent(count, type, countHavingProperty, property, propertyValue);
+        createAndIndexComponent(count, type, null, countHavingProperty, property, propertyValue);
     }
 
     @When("^I search for \"([^\"]*)\" from (\\d+) with result size of (\\d+) and filter \"([^\"]*)\" set to \"([^\"]*)\"$")
@@ -179,8 +192,14 @@ public class SearchDefinitionSteps {
 
     @Then("^The response should contains (\\d+) other \"([^\"]*)\".$")
     public void The_response_should_contains_other(int expectedSize, String searchedComponentType) throws Throwable {
-        RestResponse<FacetedSearchResult> restResponse = JsonUtil.read(Context.getInstance().takeRestResponse(), FacetedSearchResult.class);
+        RestResponse<FacetedSearchResult> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), FacetedSearchResult.class);
         checkPaginatedResult(expectedSize, restResponse);
+    }
+
+    @Then("^The response should contains (\\d+) elements$")
+    public void The_response_should_contains(int expectedSize) throws Throwable {
+        RestResponse<FacetedSearchResult> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), FacetedSearchResult.class);
+        assertEquals(expectedSize, restResponse.getData().getTotalResults());
     }
 
     private void checkPaginatedResult(int expectedSize, RestResponse<FacetedSearchResult> restResponse) throws IOException {
@@ -204,14 +223,17 @@ public class SearchDefinitionSteps {
         }
     }
 
-    private void createAndIndexComponent(int count, String type, int countHavingProperty, String property, String propertyValue) throws Exception {
+    private void createAndIndexComponent(int count, String type, String baseName, int countHavingProperty, String property, String propertyValue)
+            throws Exception {
         testDataList.clear();
         Class<?> clazz = QUERY_TYPES.get(type).getIndexedToscaElementClass();
         String typeName = MappingBuilder.indexTypeFromClass(clazz);
         int remaining = countHavingProperty;
+        baseName = baseName == null || baseName.isEmpty() ? type : baseName;
         for (int i = 0; i < count; i++) {
             IndexedToscaElement componentTemplate = (IndexedToscaElement) clazz.newInstance();
-            componentTemplate.setElementId(type + "_" + i);
+            String elementId = baseName + "_" + i;
+            componentTemplate.setElementId(elementId);
             componentTemplate.setArchiveVersion(DEFAULT_ARCHIVE_VERSION);
             componentTemplate.setHighestVersion(true);
             if (property != null && remaining > 0) {

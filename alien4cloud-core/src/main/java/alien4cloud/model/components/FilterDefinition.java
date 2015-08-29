@@ -9,15 +9,10 @@ import lombok.Setter;
 
 import com.google.common.collect.Maps;
 
-/**
- * Property constraints list by property
- * 
- * @author mourouvi
- *
- */
 @Getter
 @Setter
 @NoArgsConstructor
 public class FilterDefinition {
+    /** Property constraint list by property */
     private Map<String, List<PropertyConstraint>> properties = Maps.newHashMap();
 }

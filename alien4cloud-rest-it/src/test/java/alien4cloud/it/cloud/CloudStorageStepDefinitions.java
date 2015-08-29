@@ -3,6 +3,7 @@ package alien4cloud.it.cloud;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
@@ -29,7 +30,9 @@ public class CloudStorageStepDefinitions {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         StorageTemplate storage = new StorageTemplate();
         storage.setId(id);
-        storage.setDevice(device);
+        if (StringUtils.isNotBlank(device)) {
+            storage.setDevice(device);
+        }
         storage.setSize(size);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/storages", JsonUtil.toString(storage)));

@@ -1,0 +1,16 @@
+<generic-form
+    ng-if="formDescription"
+    root-name="propertyName"
+    root-object="definitionObject.uiValue"
+    configuration="configuration"
+    form-title="{{'GENERIC_FORM.EDIT' | translate}} {{propertyName}}"
+    type="formDescription"
+    is-cancelable="true"
+    is-removable="true"
+    show-tree="true"
+    show-path="true"
+    save="save(object)"
+    remove="remove(object)"
+    automatic-save="true"
+    cancel="cancel(object)">
+</generic-form>

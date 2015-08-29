@@ -66,7 +66,7 @@ describe('Component Details :', function() {
   it('should be able to go to component search page, upload a csar, list components and check pagination', function() {
     console.log('################# should be able to go to component search page, upload a csar, list components and check pagination');
     // the serach side panel
-    expect(element(by.id('comp-search-side-pannel')).isPresent()).toBe(true);
+    expect(element(by.id('comp-search-side-panel')).isPresent()).toBe(true);
     // the search result panel
     expect(element(by.id('comp-search-result-panel')).isPresent()).toBe(true);
 

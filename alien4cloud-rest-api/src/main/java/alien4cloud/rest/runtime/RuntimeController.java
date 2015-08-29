@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -64,34 +65,28 @@ import com.wordnik.swagger.annotations.Authorization;
 @Slf4j
 @RequestMapping("/rest/runtime")
 public class RuntimeController {
-
     @Resource
     private DeploymentService deploymentService;
-
     @Resource
     private ApplicationService applicationService;
-
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
-
     @Resource
     private CSARRepositorySearchService csarRepoSearchService;
-
     @Resource
     private ConstraintPropertyService constraintPropertyService;
-
     @Resource
     private TopologyService topologyService;
-
     @Resource
     private TopologyServiceCore topologyServiceCore;
 
     @ApiOperation(value = "Trigger a custom command on a specific node template of a topology .", authorizations = { @Authorization("APPLICATION_MANAGER") }, notes = "Returns a response with no errors and the command response as data in success case. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{applicationId:.+?}/operations", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
+    @PreAuthorize("isAuthenticated()")
     @Audit
     public DeferredResult<RestResponse<Object>> executeOperation(@PathVariable String applicationId, @RequestBody @Valid OperationExecRequest operationRequest) {
-        final DeferredResult<RestResponse<Object>> result = new DeferredResult<>(5L * 60L * 1000L);
+        final DeferredResult<RestResponse<Object>> result = new DeferredResult<>(15L * 60L * 1000L);
         Application application = applicationService.getOrFail(applicationId);
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId,
                 operationRequest.getApplicationEnvironmentId());
@@ -154,6 +149,7 @@ public class RuntimeController {
      */
     @ApiOperation(value = "Get runtime (deployed) topology of an application on a specific cloud.")
     @RequestMapping(value = "/{applicationId:.+?}/environment/{applicationEnvironmentId:.+?}/topology", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<TopologyDTO> getDeployedTopology(
             @ApiParam(value = "Id of the application for which to get deployed topology.", required = true) @PathVariable String applicationId,
             @ApiParam(value = "Id of the environment for which to get deployed topology.", required = true) @PathVariable String applicationEnvironmentId) {
@@ -203,7 +199,7 @@ public class RuntimeController {
                     PropertyDefinition currentOperationParameter = (PropertyDefinition) inputParameter.getValue();
                     if (StringUtils.isNotBlank(requestInputParameter)) {
                         // recover the good property definition for the current parameter
-                        constraintPropertyService.checkPropertyConstraint(inputParameter.getKey(), requestInputParameter, currentOperationParameter);
+                        constraintPropertyService.checkSimplePropertyConstraint(inputParameter.getKey(), requestInputParameter, currentOperationParameter);
                     } else if (currentOperationParameter.isRequired()) {
                         // input param not in the request, id required this is a missing parameter...
                         missingParams.add(inputParameter.getKey());

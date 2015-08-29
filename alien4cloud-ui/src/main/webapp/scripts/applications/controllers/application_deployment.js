@@ -28,8 +28,8 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentCtrl',
-    ['$scope', 'authService', '$upload', 'applicationServices', 'toscaService', '$resource', '$http', '$translate', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'toaster',
-    function($scope, authService, $upload, applicationServices, toscaService, $resource, $http, $translate, applicationResult, $state, applicationEnvironmentServices, appEnvironments, toaster) {
+    ['$scope', 'authService', '$upload', 'applicationServices', 'toscaService', '$resource', '$http', '$translate', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'toaster', '$filter',
+    function($scope, authService, $upload, applicationServices, toscaService, $resource, $http, $translate, applicationResult, $state, applicationEnvironmentServices, appEnvironments, toaster, $filter) {
       var pageStateId = $state.current.name;
 
       var minimumZoneCountPerGroup = 1;
@@ -86,11 +86,6 @@ define(function (require) {
         $http.get('rest/clouds/' + $scope.selectedCloud.id + '/deploymentpropertydefinitions').success(function(result) {
           if (result.data) {
             $scope.deploymentPropertyDefinitions = result.data;
-            for (var propertyName in $scope.deploymentPropertyDefinitions) {
-              if ($scope.deploymentPropertyDefinitions.hasOwnProperty(propertyName)) {
-                $scope.deploymentPropertyDefinitions[propertyName].name = propertyName;
-              }
-            }
           }
         });
       }
@@ -260,6 +255,7 @@ define(function (require) {
             $scope.selectedCloud = switchToCloud;
             $scope.selectedEnvironment.cloudId = switchToCloud.id;
             refreshDeploymentSetup();
+            checkTopology();
           });
         }
       };
@@ -399,7 +395,7 @@ define(function (require) {
       };
 
       $scope.isAllowedInputDeployment = function() {
-        return $scope.inputsSize > 0 && ($scope.isDeployer || $scope.isManager);
+        return ! _.isEmpty($filter('allowedInputs')($scope.inputs));
       };
 
       $scope.isAllowedDeployment = function() {
@@ -459,6 +455,8 @@ define(function (require) {
           $scope.selectedEnvironment.status = 'UNDEPLOYMENT_IN_PROGRESS';
           $scope.isUnDeploying = false;
           $scope.stopEvent();
+        }, function() {
+          $scope.isUnDeploying = false;
         });
       };
 
@@ -517,8 +515,7 @@ define(function (require) {
       };
 
       /** Properties definition */
-      $scope.updateDeploymentProperty = function(propertyDefinition, propertyValue) {
-        var propertyName = propertyDefinition.name;
+      $scope.updateDeploymentProperty = function(propertyDefinition, propertyName, propertyValue) {
         if (propertyValue === $scope.deploymentProperties[propertyName]) {
           return; // no change
         }
