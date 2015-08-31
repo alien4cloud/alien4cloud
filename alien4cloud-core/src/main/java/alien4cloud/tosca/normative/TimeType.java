@@ -8,7 +8,7 @@ public class TimeType extends ScalarType<Time, TimeUnit> {
     public static final String NAME = "scalar-unit.time";
 
     @Override
-    protected Time doParse(Long value, String unitText) throws InvalidPropertyValueException {
+    protected Time doParse(Double value, String unitText) throws InvalidPropertyValueException {
         try {
             return new Time(value, TimeUnit.valueOf(unitText.toUpperCase()));
         } catch (IllegalArgumentException e) {

@@ -5,7 +5,7 @@ package alien4cloud.tosca.normative;
  */
 public class Time extends ScalarUnit<TimeUnit> {
 
-    public Time(long value, TimeUnit unit) {
+    public Time(double value, TimeUnit unit) {
         super(value, unit);
     }
 }
