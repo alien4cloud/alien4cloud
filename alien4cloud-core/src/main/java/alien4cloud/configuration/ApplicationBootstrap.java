@@ -11,6 +11,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.cloud.CloudService;
+import alien4cloud.orchestrators.services.OrchestratorStateService;
 import alien4cloud.plugin.PluginManager;
 
 @Slf4j
@@ -20,6 +21,8 @@ public class ApplicationBootstrap implements ApplicationListener<ContextRefreshe
     private PluginManager pluginManager;
     @Resource
     private CloudService cloudService;
+    @Resource
+    private OrchestratorStateService orchestratorStateService;
 
     private boolean initialized = false;
 
@@ -35,5 +38,6 @@ public class ApplicationBootstrap implements ApplicationListener<ContextRefreshe
             log.error("Error while loading plugins.", e);
         }
         cloudService.initialize();
+        orchestratorStateService.initialize();
     }
 }
