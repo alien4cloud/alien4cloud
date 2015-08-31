@@ -39,7 +39,7 @@ public abstract class DerivedFromParser extends DefaultDeferredParser<List<Strin
 
     @Override
     public List<String> parse(Node node, ParsingContextExecution context) {
-        String valueAsString = scalarParser.parse(node, context).trim();
+        String valueAsString = scalarParser.parse(node, context);
         if (valueAsString == null || valueAsString.isEmpty()) {
             return null;
         }
