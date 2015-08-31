@@ -28,7 +28,9 @@ public interface ILocationConfiguratorPlugin {
     /**
      * Auto-configure the instances of location resources.
      *
+     * @param resourceAccessor Instances that allows to query resources currently configured for the location instances. Auto-configuration of some elements may
+     *            indeed require access to some manually configured resources.
      * @return A list of locations resources templates that users can define or null if the plugin doesn't support auto-configuration of resources..
      */
-    List<LocationResourceTemplate> instances();
+    List<LocationResourceTemplate> instances(ILocationResourceAccessor resourceAccessor);
 }

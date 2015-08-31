@@ -172,6 +172,9 @@ public class CloudServiceArchiveController {
     private CsarUploadResult toUploadResult(ParsingResult<Csar> result) {
         CsarUploadResult uploadResult = new CsarUploadResult();
         uploadResult.setCsar(result.getResult());
+        if (result.getContext().getParsingErrors() != null && !result.getContext().getParsingErrors().isEmpty()) {
+            uploadResult.getErrors().put(result.getContext().getFileName(), result.getContext().getParsingErrors());
+        }
         return uploadResult;
     }
 

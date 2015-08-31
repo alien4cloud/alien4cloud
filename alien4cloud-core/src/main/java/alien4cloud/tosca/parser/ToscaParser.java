@@ -35,6 +35,7 @@ public class ToscaParser extends YamlParser<ArchiveRoot> {
         // initialize type registry for working draft 3.
         Map<String, INodeParser> registry = mappingGenerator.process("classpath:tosca-simple-profile-wd03-mapping.yml");
         parserRegistriesByVersion.put("tosca_simple_yaml_1_0_0_wd03", registry);
+        parserRegistriesByVersion.put("alien_dsl_1_1_0", registry);
     }
 
     @Override

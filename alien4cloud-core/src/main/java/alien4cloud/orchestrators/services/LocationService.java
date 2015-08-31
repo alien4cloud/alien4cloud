@@ -6,6 +6,7 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.QueryBuilders;
@@ -39,6 +40,8 @@ public class LocationService {
     private OrchestratorService orchestratorService;
     @Inject
     private LocationArchiveIndexer locationArchiveIndexer;
+    @Inject
+    private LocationResourceService locationResourceService;
 
     /**
      * Add a new locations for a given orchestrator.
@@ -92,8 +95,10 @@ public class LocationService {
         IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) paaSProviderService.getPaaSProvider(orchestrator.getId());
         ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
 
+        ILocationResourceAccessor accessor = locationResourceService.accessor(location.getId());
+
         // let's try to auto-configure the location
-        List<LocationResourceTemplate> templates = configuratorPlugin.instances();
+        List<LocationResourceTemplate> templates = configuratorPlugin.instances(accessor);
         if (templates == null) {
             return false;
         }
@@ -102,6 +107,8 @@ public class LocationService {
             // initialize the instances from data.
             template.setId(UUID.randomUUID().toString());
             template.setLocationId(location.getId());
+            template.setGenerated(true);
+            template.setEnabled(true);
         }
         alienDAO.save(templates.toArray(new LocationResourceTemplate[templates.size()]));
         return true;

@@ -35,5 +35,6 @@ public class LocationResourceTemplate {
     /** Flag to know if the resource template defines a service or a resource. In case of a resource it's type must be one of the orchestrator resource types. */
     private boolean isService;
     /** Node template that describe the location resource (it's type must be a type derived from one of the orchestrator LocationResourceDefinition types). */
+    @TermFilter(paths = { "type" })
     private NodeTemplate template;
 }
