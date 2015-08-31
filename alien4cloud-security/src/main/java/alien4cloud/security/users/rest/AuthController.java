@@ -16,19 +16,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.Constants;
-import alien4cloud.rest.model.RestErrorBuilder;
-import alien4cloud.rest.model.RestErrorCode;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.rest.model.UserStatus;
+import alien4cloud.rest.model.*;
 import alien4cloud.security.groups.IAlienGroupDao;
-import alien4cloud.security.model.ApplicationEnvironmentRole;
-import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.security.model.CloudRole;
-import alien4cloud.security.model.Group;
-import alien4cloud.security.model.OrchestratorRole;
-import alien4cloud.security.model.Role;
-import alien4cloud.security.model.User;
+import alien4cloud.security.model.*;
 
 import com.google.common.collect.Lists;
 import com.mangofactory.swagger.annotations.ApiIgnore;
@@ -112,9 +102,9 @@ public class AuthController {
     }
 
     @ApiIgnore
-    @RequestMapping(value = "/roles/orchestrator", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<OrchestratorRole[]> getOrchestratorRoles() {
-        return RestResponseBuilder.<OrchestratorRole[]> builder().data(OrchestratorRole.values()).build();
+    @RequestMapping(value = "/roles/deployer", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<DeployerRole[]> getLocationRoles() {
+        return RestResponseBuilder.<DeployerRole[]> builder().data(DeployerRole.values()).build();
     }
 
     @ApiIgnore

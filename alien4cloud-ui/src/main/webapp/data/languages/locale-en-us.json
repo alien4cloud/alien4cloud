@@ -658,11 +658,13 @@
       "CONFIGURATION_RESOURCES": "Configuration resources",
       "ON_DEMAND_RESOURCES": "On demand resources",
       "SERVICES": "Services",
-      "POLICIES": "Policies"
+      "POLICIES": "Policies",
+      "SECURITY": "Security"
     },
     "CONFIGURATION": {
       "UNLOCK-BTN-TITLE": "Unlock",
-      "UNLOCK-BTN-CONTENT": "You can unlock to edit the orchestrator configuration but this will affect the connected driver."
+      "UNLOCK-BTN-CONTENT": "You can unlock to edit the orchestrator configuration but this will affect the connected driver.",
+      "LOCK_LOCATION_ROLE": "This role is manage in the global orchestrator security"
     }
   },
   "CLOUD_IMAGES": {

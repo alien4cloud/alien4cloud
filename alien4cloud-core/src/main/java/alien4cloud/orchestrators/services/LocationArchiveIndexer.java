@@ -6,14 +6,11 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
-import alien4cloud.orchestrators.plugin.model.PluginArchive;
-import alien4cloud.tosca.parser.ParsingError;
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
 
+import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.components.Csar;
@@ -22,9 +19,13 @@ import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
+import alien4cloud.orchestrators.plugin.model.PluginArchive;
 import alien4cloud.paas.PaaSProviderService;
 import alien4cloud.tosca.ArchiveIndexer;
 import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.ParsingError;
+
+import com.google.common.collect.Lists;
 
 /**
  * Manage the indexing of TOSCA archives.

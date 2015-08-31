@@ -1,17 +1,18 @@
 <div>
   <div class="row">
-    <div class="col-md-3 resource-user-roles" ng-repeat="orchestratorRole in orchestratorRoles">
+    <div class="col-md-3 resource-user-roles" ng-repeat="locationRole in locationRoles">
       <div class="thumbnail">
-        <h5>{{orchestratorRole}}</h5>
+        <h5>{{locationRole}}</h5>
         <ul class="td_list liste-no-style">
-          <!-- <li ng-repeat="username in orchestrator.authorizedUsers | orderBy:'username.toString()' " ng-show="userorchestratorRoles.indexOf(orchestratorRole) >=0"> -->
-          <li ng-repeat="username in orchestrator.authorizedUsers | orderBy:'username.toString()' ">
+          <li ng-repeat="(username, userlocationRoles) in location.userRoles | orderBy:'username.toString()' " ng-show="userlocationRoles.indexOf(locationRole) >=0">
+            <i class="fa fa-lock" ng-if="orchestrator.authorizedUsers.indexOf(username) >= 0" tooltip="{{'ORCHESTRATORS.CONFIGURATION.LOCK_LOCATION_ROLE' | translate}}"></i>
             <i class="fa fa-user"></i>
             <span>{{ relatedUsers[username].firstName }}</span>
             <span>{{ relatedUsers[username].lastName}}</span>
             <span>({{username}})</span>
           </li>
-          <li ng-repeat="groupId in orchestrator.authorizedGroups | orderBy:'relatedGroups[groupId].name' ">
+          <li ng-repeat="(groupId, grouplocationRoles) in location.groupRoles | orderBy:'relatedGroups[groupId].name' " ng-show="grouplocationRoles.indexOf(locationRole) >=0">
+            <i class="fa fa-lock" ng-if="orchestrator.authorizedGroups.indexOf(groupId) >= 0" tooltip="{{'ORCHESTRATORS.CONFIGURATION.LOCK_LOCATION_ROLE' | translate}}"></i>
             <i class="fa fa-users"></i>
             <span>{{ relatedGroups[groupId].name }}</span>
           </li>
@@ -29,18 +30,20 @@
         <tab heading="{{'ROLE_TABS.USERS' | translate}}" id="users-tab">
           <alien-search-user
             crud-support="false"
-            managed-app-role-list="orchestratorRoles"
+            managed-app-role-list="locationRoles"
             managed-env-role-list="null"
-            check-app-role-selected-callback="checkOrchestratorRoleSelectedForUser(user)"
+            not-editable-role-list="orchestrator.authorizedUsers"
+            check-app-role-selected-callback="checklocationRoleSelectedForUser(user, role)"
             on-select-app-role-callback="handleRoleSelectionForUser(user, role)">
           </alien-search-user>
         </tab>
         <tab heading="{{'ROLE_TABS.GROUPS' | translate}}" id="groups-tab">
           <alien-search-group
             crud-support="false"
-            managed-app-role-list="orchestratorRoles"
+            managed-app-role-list="locationRoles"
             managed-env-role-list="null"
-            check-app-role-selected-callback="checkOrchestratorRoleSelectedForGroup(group)"
+            not-editable-role-list="orchestrator.authorizedGroups"
+            check-app-role-selected-callback="checklocationRoleSelectedForGroup(group, role)"
             on-select-app-role-callback="handleRoleSelectionForGroup(group, role)">
           </alien-search-group>
         </tab>
