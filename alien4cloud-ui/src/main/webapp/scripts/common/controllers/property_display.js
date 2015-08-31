@@ -3,6 +3,7 @@ define(function(require) {
 
   var modules = require('modules');
   var _ = require('lodash');
+  var angular = require('angular');
 
   require('scripts/common/services/properties_services');
 
@@ -24,7 +25,7 @@ define(function(require) {
         $scope.propertySave(value);
       };
 
-      $scope.remove = function(value) {
+      $scope.remove = function() {
         $scope.propertySave(undefined);
         $modalInstance.dismiss(undefined);
       };
@@ -217,6 +218,11 @@ define(function(require) {
             $scope.definitionObject.units = ['d', 'h', 'm', 's', 'ms', 'us', 'ns'];
             splitScalarUnitValue(false);
             break;
+          case 'scalar-unit.frequency':
+            $scope.definitionObject.uiName = 'scalar-unit';
+            $scope.definitionObject.units = ['Hz', 'KHz', 'MHz', 'GHz'];
+            splitScalarUnitValue(true);
+            break;
           case 'version':
           case 'float':
           case 'integer':
@@ -239,7 +245,7 @@ define(function(require) {
 
       $scope.openComplexPropertyModal = function() {
 
-        var modalInstance = $modal.open({
+        $modal.open({
           templateUrl: 'views/common/property_display_complex_modal.html',
           controller: ComplexPropertyModalCtrl,
           windowClass: 'searchModal',
