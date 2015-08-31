@@ -12,7 +12,6 @@ import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import alien4cloud.orchestrators.plugin.model.PluginArchive;
-import alien4cloud.plugin.IPluginContextAware;
 import alien4cloud.plugin.PluginManager;
 import alien4cloud.plugin.model.ManagedPlugin;
 import alien4cloud.tosca.ArchiveParser;
@@ -21,17 +20,13 @@ import alien4cloud.tosca.ArchiveParser;
  * Component that creates location configurer for a mock openstack cloud.
  */
 @Component
-public class MockLocationConfigurerFactory implements IPluginContextAware {
+public class MockLocationConfigurerFactory {
     @Inject
     private ArchiveParser archiveParser;
     @Inject
     private PluginManager pluginManager;
+    @Inject
     private ManagedPlugin selfContext;
-
-    @Override
-    public void setContext(ManagedPlugin selfContext) {
-        this.selfContext = selfContext;
-    }
 
     public ILocationConfiguratorPlugin newInstance(String locationType) {
         if (IaaSType.OPENSTACK.toString().equals(locationType)) {

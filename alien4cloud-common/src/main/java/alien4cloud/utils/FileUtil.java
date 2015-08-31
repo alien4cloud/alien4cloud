@@ -17,6 +17,8 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -27,6 +29,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
 
@@ -273,5 +276,28 @@ public final class FileUtil {
             return true;
         }
         return false;
+    }
+
+    /**
+     * List all files of which name is matching the pattern
+     * 
+     * @param directory the start point
+     * @param matcher the regex expression to match files
+     * @return list of files of which name is matching the pattern
+     * @throws IOException
+     */
+    public static List<Path> listFiles(Path directory, String matcher) throws IOException {
+        final Pattern pattern = Pattern.compile(matcher);
+        final List<Path> files = Lists.newArrayList();
+        Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                if (pattern.matcher(file.toString()).matches()) {
+                    files.add(file);
+                }
+                return super.visitFile(file, attrs);
+            }
+        });
+        return files;
     }
 }

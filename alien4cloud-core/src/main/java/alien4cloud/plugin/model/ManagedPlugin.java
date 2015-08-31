@@ -1,6 +1,7 @@
 package alien4cloud.plugin.model;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import lombok.Getter;
@@ -12,13 +13,18 @@ import alien4cloud.plugin.Plugin;
 
 @Getter
 public class ManagedPlugin {
-    private final AnnotationConfigApplicationContext pluginContext;
-    private final Plugin plugin;
-    private final Path pluginPath;
-    private final Path pluginUiPath;
+    private AnnotationConfigApplicationContext pluginContext;
+    private Plugin plugin;
+    private Path pluginPath;
+    private Path pluginUiPath;
 
     @Setter
     private Map<String, Object> exposedBeans;
+
+    // For testing purpose
+    private ManagedPlugin(String pluginPath) {
+        this.pluginPath = Paths.get(pluginPath);
+    }
 
     public ManagedPlugin(AnnotationConfigApplicationContext pluginContext, Plugin plugin, Path pluginPath, Path pluginUiPath) {
         this.pluginContext = pluginContext;
