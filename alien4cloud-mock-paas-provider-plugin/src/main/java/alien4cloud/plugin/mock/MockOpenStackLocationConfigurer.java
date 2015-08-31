@@ -33,8 +33,13 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
     @Override
     public List<PluginArchive> pluginArchives() {
         List<PluginArchive> archives = Lists.newArrayList();
+        addToAchive(archives, "openstack/openstack-resources.yaml.zip");
+        addToAchive(archives, "openstack/mock-resources.yaml.zip");
+        return archives;
+    }
 
-        Path archivePath = selfContext.getPluginPath().resolve("openstack/openstack-resources.yaml.zip");
+    private void addToAchive(List<PluginArchive> archives, String path) {
+        Path archivePath = selfContext.getPluginPath().resolve(path);
         // Parse the archives
         try {
             ParsingResult<ArchiveRoot> result = archiveParser.parse(archivePath);
@@ -43,8 +48,6 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
         } catch (ParsingException e) {
             log.error("Failed to parse archive, plugin won't work as expected", e);
         }
-
-        return archives;
     }
 
     @Override

@@ -16,13 +16,19 @@ import alien4cloud.utils.MapUtil;
 import com.google.common.collect.Lists;
 
 /**
- *
+ * Location Resource Service provides utilities to query LocationResourceTemplate.
  */
 @Component
 public class LocationResourceService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
 
+    /**
+     * Create an instance of an ILocationResourceAccessor that will perform queries on LocationResourceTemplate for a given location.
+     * 
+     * @param locationId Id of the location for which to get the accessor.
+     * @return An instance of the ILocationResourceAccessor.
+     */
     public ILocationResourceAccessor accessor(final String locationId) {
         return new ILocationResourceAccessor() {
             @Override
@@ -41,7 +47,7 @@ public class LocationResourceService {
                 String[] types = new String[] { type };
                 // Get all the location resources templates for the given type.
                 Map<String, String[]> filter = getLocationFilter();
-                filter.put("template.type", types);
+                filter.put("types", types);
                 GetMultipleDataResult<LocationResourceTemplate> result = alienDAO.find(LocationResourceTemplate.class, filter, Integer.MAX_VALUE);
                 if (result.getData() == null) {
                     return Lists.newArrayList();

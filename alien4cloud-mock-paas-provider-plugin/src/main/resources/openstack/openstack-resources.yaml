@@ -7,11 +7,12 @@ template_version: 1.1.0-SM4-SNAPSHOT
 description: "Defines resources for the mock plugin, mocking openstack configuration."
 
 imports:
-
+  - tosca-normative-types:1.0.0.wd06-SNAPSHOT
 
 node_types:
   alien.nodes.mock.openstack.Image:
     abstract: true
+    derived_from: tosca.nodes.Root
     properties:
       id:
         type: string
@@ -21,6 +22,7 @@ node_types:
 
   alien.nodes.mock.openstack.Flavor:
     abstract: true
+    derived_from: tosca.nodes.Root
     properties:
       id:
         type: string

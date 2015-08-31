@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Getter
 @Setter
 @NoArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class NodeTemplate extends AbstractTemplate {
     /**
      * Id in the map is name.replaceAll(" ", "").toLowerCase();

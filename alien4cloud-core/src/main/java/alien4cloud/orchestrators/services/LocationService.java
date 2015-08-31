@@ -1,25 +1,29 @@
 package alien4cloud.orchestrators.services;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
+import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
+import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.paas.PaaSProviderService;
 import alien4cloud.utils.MapUtil;
@@ -42,6 +46,8 @@ public class LocationService {
     private LocationArchiveIndexer locationArchiveIndexer;
     @Inject
     private LocationResourceService locationResourceService;
+    @Resource
+    private ICSARRepositorySearchService csarRepoSearchService;
 
     /**
      * Add a new locations for a given orchestrator.
@@ -60,7 +66,8 @@ public class LocationService {
         location.setInfrastructureType(infrastructureType);
         // TODO add User and Group manage by the Orchestrator security
 
-        locationArchiveIndexer.indexArchives(orchestrator, location);
+        Set<CSARDependency> dependencies = locationArchiveIndexer.indexArchives(orchestrator, location);
+        location.setDependencies(dependencies);
 
         // save the new location
         alienDAO.save(location);
@@ -71,13 +78,14 @@ public class LocationService {
     }
 
     /**
-     * 
-     * @param orchestratorId Id of the orchestrator.
+     * Trigger plugin auto-configuration for the given location.
+     *
      * @param locationId Id of the location.
      */
-    public void autoConfigure(String orchestratorId, String locationId) {
-        Orchestrator orchestrator = orchestratorService.getOrFail(orchestratorId);
+    public void autoConfigure(String locationId) {
         Location location = getOrFail(locationId);
+        Orchestrator orchestrator = orchestratorService.getOrFail(location.getOrchestratorId());
+
         if (!autoConfigure(orchestrator, location)) {
             // if the orchestrator doesn't support auto-configuration
             // TODO throw exception or just return false ?
@@ -110,6 +118,10 @@ public class LocationService {
             template.setLocationId(location.getId());
             template.setGenerated(true);
             template.setEnabled(true);
+            IndexedNodeType nodeType = csarRepoSearchService.getElementInDependencies(IndexedNodeType.class, template.getTemplate().getType(),
+                    location.getDependencies());
+            nodeType.getDerivedFrom().add(0, template.getTemplate().getType());
+            template.setTypes(nodeType.getDerivedFrom());
         }
         alienDAO.save(templates.toArray(new LocationResourceTemplate[templates.size()]));
         return true;

@@ -5,6 +5,8 @@ import static alien4cloud.dao.model.FetchContext.DEPLOYMENT;
 import java.util.Map;
 import java.util.Set;
 
+import alien4cloud.model.components.CSARDependency;
+import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -49,6 +51,11 @@ public class Location implements ISecuredResource {
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String environmentType;
+
+    /** A Location defines and uses some types, it thus basically have a set of CSARDependency */
+    @TermFilter(paths = { "name", "version" })
+    @NestedObject(nestedClass = CSARDependency.class)
+    private Set<CSARDependency> dependencies = Sets.newHashSet();
 
     @TermFilter(paths = { "key", "value" })
     @NestedObject(nestedClass = NotAnalyzedTextMapEntry.class)

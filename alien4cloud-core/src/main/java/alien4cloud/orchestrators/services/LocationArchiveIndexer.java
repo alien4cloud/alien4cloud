@@ -3,6 +3,7 @@ package alien4cloud.orchestrators.services;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.model.common.Tag;
+import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.orchestrators.Orchestrator;
@@ -26,6 +28,7 @@ import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * Manage the indexing of TOSCA archives.
@@ -46,15 +49,16 @@ public class LocationArchiveIndexer {
      * @param orchestrator the orchestrator for which to index archives.
      * @param location The location of the orchestrator for which to index archives.
      */
-    public void indexArchives(Orchestrator orchestrator, Location location) {
+    public Set<CSARDependency> indexArchives(Orchestrator orchestrator, Location location) {
         IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) paaSProviderService.getPaaSProvider(orchestrator.getId());
         ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
 
         // ensure that the plugin archives for this location are imported in the
         List<PluginArchive> pluginArchives = configuratorPlugin.pluginArchives();
+        Set<CSARDependency> dependencies = Sets.newHashSet();
 
         if (pluginArchives == null) {
-            return;
+            return dependencies;
         }
 
         // index archive here if not already indexed
@@ -69,7 +73,13 @@ public class LocationArchiveIndexer {
                 log.debug("Archive {}:{} from plugin {}:{} location {} already exists in the repository and won't be updated.", archive.getArchive().getName(),
                         archive.getArchive().getVersion(), orchestrator.getPluginId(), orchestrator.getPluginBean(), location.getInfrastructureType());
             }
+            if (archive.getArchive().getDependencies() != null) {
+                dependencies.addAll(archive.getArchive().getDependencies());
+            }
+            dependencies.add(new CSARDependency(archive.getArchive().getName(), archive.getArchive().getVersion()));
         }
+
+        return dependencies;
     }
 
     private void indexArchive(PluginArchive pluginArchive, Orchestrator orchestrator, Location location) {
