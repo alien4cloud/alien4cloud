@@ -1,7 +1,6 @@
 package alien4cloud.orchestrators.services;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -42,8 +41,8 @@ public class OrchestratorService {
     private ResourceRoleService resourceRoleService;
 
     /**
-     * Creates an orchestrators.
-     * 
+     * Creates an orchestrator.
+     *
      * @param name The unique name that refers the orchestrators from user point of view.
      * @param pluginId The id of the plugin used to communicate with the orchestrators.
      * @param pluginBean The bean in the plugin that is indeed managing communication.
@@ -73,7 +72,7 @@ public class OrchestratorService {
 
     /**
      * Update the name of an existing orchestrators.
-     * 
+     *
      * @param id Unique id of the orchestrators.
      * @param name Name of the orchestrators.
      */
@@ -85,7 +84,7 @@ public class OrchestratorService {
 
     /**
      * Save the orchestrators but ensure that the name is unique before saving it.
-     * 
+     *
      * @param orchestrator The orchestrators to save.
      */
     private synchronized void saveAndEnsureNameUnicity(Orchestrator orchestrator) {
@@ -98,7 +97,7 @@ public class OrchestratorService {
 
     /**
      * Delete an existing orchestrators.
-     * 
+     *
      * @param id The id of the orchestrators to delete.
      */
     public void delete(String id) {
@@ -116,7 +115,7 @@ public class OrchestratorService {
 
     /**
      * Get the orchestrators matching the given id or throw a NotFoundException
-     * 
+     *
      * @param id If of the orchestrators that we want to get.
      * @return An instance of the orchestrators.
      */
@@ -147,7 +146,7 @@ public class OrchestratorService {
 
     /**
      * Get the location support information for a given orchetrator.
-     * 
+     *
      * @param orchestratorId The id of the orchestrator for which to get location support information.
      * @return location support information.
      */
@@ -155,79 +154,5 @@ public class OrchestratorService {
         Orchestrator orchestrator = getOrFail(orchestratorId);
         IOrchestratorPluginFactory orchestratorFactory = orchestratorFactoriesRegistry.getPluginBean(orchestrator.getPluginId(), orchestrator.getPluginBean());
         return orchestratorFactory.getLocationSupport();
-    }
-
-    /**
-     * Add a user role on all locations for a given orchestrator
-     * @param orchestratorId
-     * @param username
-     * @param role
-     */
-    public void addUserRoleOnAllLocations(String orchestratorId, String username, String role) {
-        Orchestrator orchestrator = getOrFail(orchestratorId);
-        if (!orchestrator.getAuthorizedUsers().contains(username)) {
-            orchestrator.getAuthorizedUsers().add(username);
-            List<Location> locations = locationService.getAll(orchestratorId);
-            for (Location location : locations) {
-                resourceRoleService.addUserRole(location, username, role);
-            }
-            alienDAO.save(orchestrator);
-        }
-    }
-
-    /**
-     * Remove a user role on all locations for a given orchestrator
-     * @param orchestratorId
-     * @param username
-     * @param role
-     */
-    public void removeUserRoleOnAllLocations(String orchestratorId, String username, String role) {
-        Orchestrator orchestrator = getOrFail(orchestratorId);
-        if (orchestrator.getAuthorizedUsers().contains(username)) {
-            orchestrator.getAuthorizedUsers().remove(username);
-            List<Location> locations = locationService.getAll(orchestratorId);
-            for (Location location : locations) {
-                resourceRoleService.removeUserRole(location, username, role);
-            }
-            alienDAO.save(orchestrator);
-        }
-
-    }
-
-    /**
-     * Add a group role on all locations for a given orchestrator
-     * @param orchestratorId
-     * @param groupId
-     * @param role
-     */
-    public void addGroupRoleOnAllLocations(String orchestratorId, String groupId, String role) {
-        Orchestrator orchestrator = getOrFail(orchestratorId);
-        if (!orchestrator.getAuthorizedGroups().contains(groupId)) {
-            orchestrator.getAuthorizedGroups().add(groupId);
-            List<Location> locations = locationService.getAll(orchestratorId);
-            for (Location location : locations) {
-                resourceRoleService.addGroupRole(location, groupId, role);
-            }
-            alienDAO.save(orchestrator);
-        }
-
-    }
-
-    /**
-     * Remove a group role on all locations for a given orchestrator
-     * @param orchestratorId
-     * @param groupId
-     * @param role
-     */
-    public void removeGroupRoleOnAllLocations(String orchestratorId, String groupId, String role) {
-        Orchestrator orchestrator = getOrFail(orchestratorId);
-        if (orchestrator.getAuthorizedGroups().contains(groupId)) {
-            orchestrator.getAuthorizedGroups().remove(groupId);
-            List<Location> locations = locationService.getAll(orchestratorId);
-            for (Location location : locations) {
-                resourceRoleService.removeGroupRole(location, groupId, role);
-            }
-            alienDAO.save(orchestrator);
-        }
     }
 }
