@@ -1,27 +1,35 @@
 package alien4cloud.orchestrators.rest;
 
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.rest.model.CreateLocationRequest;
+import alien4cloud.orchestrators.rest.model.LocationDTO;
 import alien4cloud.orchestrators.services.LocationService;
-import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.DeployerRole;
+
+import com.google.common.collect.Lists;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.Authorization;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
-import javax.inject.Inject;
-import javax.validation.Valid;
-import java.util.List;
 
 /**
  * Controller that manages locations for orchestrators.
@@ -32,8 +40,6 @@ import java.util.List;
 public class LocationController {
     @Inject
     private LocationService locationService;
-    @Inject
-    private OrchestratorService orchestratorService;
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Create a new location.", authorizations = { @Authorization("ADMIN") })
@@ -45,15 +51,6 @@ public class LocationController {
         String id = locationService.create(orchestratorId, locationRequest.getName(), locationRequest.getInfrastructureType());
         return RestResponseBuilder.<String> builder().data(id).build();
     }
-
-    // @ApiOperation(value = "Update the name of an existing orchestrators.", authorizations = { @Authorization("ADMIN") })
-    // @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-    // @PreAuthorize("hasAuthority('ADMIN')")
-    // @Audit
-    // public void update(@ApiParam(value = "Id of the orchestrators to update.", required = true) @PathVariable @Valid @NotEmpty String id,
-    // @ApiParam(value = "Orchestrator's new name.", required = true) @Valid @NotEmpty @RequestBody String name) {
-    // // TODO Update a location
-    // }
 
     @ApiOperation(value = "Delete an existing location.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -67,19 +64,30 @@ public class LocationController {
     @ApiOperation(value = "Get all locations for a given orchestrator.")
     @RequestMapping(method = RequestMethod.GET)
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<List<Location>> getAll(@ApiParam(value = "Id of the orchestrator for which to get all locations.") @PathVariable String orchestratorId) {
-        List<Location> result = locationService.getAll(orchestratorId);
-        return RestResponseBuilder.<List<Location>> builder().data(result).build();
+    public RestResponse<List<LocationDTO>> getAll(
+            @ApiParam(value = "Id of the orchestrator for which to get all locations.") @PathVariable String orchestratorId) {
+        List<Location> locations = locationService.getAll(orchestratorId);
+        List<LocationDTO> locationDTOs = Lists.newArrayList();
+        for (Location location : locations) {
+            locationDTOs.add(buildLocationDTO(location));
+        }
+        return RestResponseBuilder.<List<LocationDTO>> builder().data(locationDTOs).build();
     }
 
     @ApiOperation(value = "Get a location from it's id.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<Location> get(@ApiParam(value = "Id of the orchestrator for which the location is defined.") @PathVariable String orchestratorId,
+    public RestResponse<LocationDTO> get(@ApiParam(value = "Id of the orchestrator for which the location is defined.") @PathVariable String orchestratorId,
             @ApiParam(value = "Id of the location to get", required = true) @PathVariable String id) {
-        Orchestrator orchestrator = orchestratorService.getOrFail(orchestratorId);
         Location location = locationService.getOrFail(id);
         AuthorizationUtil.checkAuthorizationForCloud(location, DeployerRole.DEPLOYER);
-        return RestResponseBuilder.<Location> builder().data(location).build();
+        return RestResponseBuilder.<LocationDTO> builder().data(buildLocationDTO(location)).build();
+    }
+
+    private LocationDTO buildLocationDTO(Location location) {
+        LocationDTO locationDTO = new LocationDTO();
+        locationDTO.setResources(locationService.getLocationResources(location));
+        locationDTO.setLocation(location);
+        return locationDTO;
     }
 }
