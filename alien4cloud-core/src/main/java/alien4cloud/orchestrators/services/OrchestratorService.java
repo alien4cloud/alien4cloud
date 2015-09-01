@@ -159,6 +159,7 @@ public class OrchestratorService {
 
     /**
      * Add a user role on all locations for a given orchestrator
+     * 
      * @param orchestratorId
      * @param username
      * @param role
@@ -177,6 +178,7 @@ public class OrchestratorService {
 
     /**
      * Remove a user role on all locations for a given orchestrator
+     * 
      * @param orchestratorId
      * @param username
      * @param role
@@ -196,6 +198,7 @@ public class OrchestratorService {
 
     /**
      * Add a group role on all locations for a given orchestrator
+     * 
      * @param orchestratorId
      * @param groupId
      * @param role
@@ -215,6 +218,7 @@ public class OrchestratorService {
 
     /**
      * Remove a group role on all locations for a given orchestrator
+     * 
      * @param orchestratorId
      * @param groupId
      * @param role

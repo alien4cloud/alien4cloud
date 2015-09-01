@@ -14,6 +14,7 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.utils.MapUtil;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.QueryBuilders;
@@ -36,6 +37,9 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class OrchestratorStateService {
+    public static final String[] ENABLED_STATES = new String[] { OrchestratorState.CONNECTED.toString().toLowerCase(),
+            OrchestratorState.CONNECTING.toString().toLowerCase(), OrchestratorState.DISCONNECTED.toString().toLowerCase() };
+
     @Inject
     private QueryHelper queryHelper;
     @Resource(name = "alien-es-dao")
@@ -59,8 +63,11 @@ public class OrchestratorStateService {
         ExecutorService executorService = Executors.newCachedThreadPool();
         List<Future<?>> futures = new ArrayList<Future<?>>();
         // get all the orchestrators that are not disabled
-        List<Orchestrator> enabledOrchestrators = alienDAO.customFindAll(Orchestrator.class, QueryBuilders.termsQuery("state",
-                OrchestratorState.CONNECTED.toString(), OrchestratorState.CONNECTING.toString(), OrchestratorState.DISCONNECTED.toString()));
+        List<Orchestrator> enabledOrchestrators = alienDAO.customFindAll(Orchestrator.class, QueryBuilders.termsQuery("state", ENABLED_STATES));
+
+        if (enabledOrchestrators == null) {
+            return futures;
+        }
 
         for (final Orchestrator orchestrator : enabledOrchestrators) {
             // error in initialization and timeouts should not impact startup time of Alien 4 cloud and other PaaS Providers.
@@ -71,6 +78,9 @@ public class OrchestratorStateService {
                         load(orchestrator);
                     } catch (Throwable t) {
                         // we have to catch everything as we don't know what a plugin can do here and cannot interrupt startup.
+                        // Any orchestrator that failed to load will be considered as DISABLED as the registration didn't occurred
+                        orchestrator.setState(OrchestratorState.DISABLED);
+                        alienDAO.save(orchestrator);
                     }
                 }
             });
