@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public enum IaaSType {
-    AZURE("azure"), OPENSTACK("openstack"), VMWARE("vmware"), AMAZON("amazon"), VIRTUALBOX("virtualbox"), OTHER("other");
+    AZURE("azure"), OPENSTACK("openstack"), VMWARE("vmware"), AMAZON("amazon"), VIRTUALBOX("virtualbox"), BYON("byon"), OTHER("other");
 
     private String name;
 

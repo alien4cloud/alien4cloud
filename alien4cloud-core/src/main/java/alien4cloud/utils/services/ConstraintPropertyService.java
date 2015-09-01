@@ -49,8 +49,8 @@ public class ConstraintPropertyService {
         } else if (propertyValue instanceof List) {
             checkListPropertyConstraint(propertyName, (List<Object>) propertyValue, propertyDefinition, archive);
         } else {
-            throw new InvalidArgumentException("Not expecting to receive constraint validation for other types than String, Map or List as "
-                    + propertyValue.getClass().getName());
+            throw new InvalidArgumentException(
+                    "Not expecting to receive constraint validation for other types than String, Map or List as " + propertyValue.getClass().getName());
         }
     }
 
@@ -79,8 +79,7 @@ public class ConstraintPropertyService {
                 } catch (IntrospectionException e) {
                     // ConstraintValueDoNotMatchPropertyTypeException is not supposed to be raised here (only in constraint definition validation)
                     log.error("Constraint introspection error for property <" + propertyName + "> value <" + stringValue + ">", e);
-                    throw new ConstraintTechnicalException("Constraint introspection error for property <" + propertyName + "> value <"
-                            + stringValue + ">", e);
+                    throw new ConstraintTechnicalException("Constraint introspection error for property <" + propertyName + "> value <" + stringValue + ">", e);
                 }
             }
         } else {
@@ -98,6 +97,10 @@ public class ConstraintPropertyService {
     public void checkDataTypePropertyConstraint(String propertyName, Map<String, Object> complexPropertyValue, PropertyDefinition propertyDefinition,
             ArchiveRoot archive) throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         IndexedDataType dataType = ToscaParsingUtil.getDataTypeFromArchiveOrDependencies(propertyDefinition.getType(), archive, searchService);
+        if (dataType == null) {
+            throw new ConstraintViolationException(
+                    "Complex type " + propertyDefinition.getType() + " is not complex or it cannot be found in the archive nor in Alien");
+        }
         for (Map.Entry<String, Object> complexPropertyValueEntry : complexPropertyValue.entrySet()) {
             if (dataType.getProperties() == null || !dataType.getProperties().containsKey(complexPropertyValueEntry.getKey())) {
                 throw new ConstraintViolationException("Complex type " + propertyDefinition.getType() + " do not have nested property with name "
@@ -110,8 +113,8 @@ public class ConstraintPropertyService {
         }
     }
 
-    public void checkListPropertyConstraint(String propertyName, List<Object> listPropertyValue, PropertyDefinition propertyDefinition,
-            ArchiveRoot archive) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+    public void checkListPropertyConstraint(String propertyName, List<Object> listPropertyValue, PropertyDefinition propertyDefinition, ArchiveRoot archive)
+            throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         PropertyDefinition entrySchema = propertyDefinition.getEntrySchema();
         for (int i = 0; i < listPropertyValue.size(); i++) {
             checkPropertyConstraint(propertyName + "[" + String.valueOf(i) + "]", listPropertyValue.get(i), entrySchema, archive);
@@ -178,5 +181,4 @@ public class ConstraintPropertyService {
             throw new InvalidVersionException(propertyName + "'s value is not a version [ " + propertyValue + " ]");
         }
     }
-
 }
