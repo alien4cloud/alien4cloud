@@ -366,8 +366,8 @@ public class PluginManager {
                 }
             });
         }
-        ClassLoader pluginClassLoader = new PluginClassloader(classPathUrls.toArray(new URL[classPathUrls.size()]), Thread.currentThread()
-                .getContextClassLoader());
+        ClassLoader pluginClassLoader = new PluginClassloader(classPathUrls.toArray(new URL[classPathUrls.size()]),
+                Thread.currentThread().getContextClassLoader());
 
         // load a spring context for the plugin that will be a child of the current spring context
         AnnotationConfigApplicationContext pluginContext = new AnnotationConfigApplicationContext();
@@ -378,9 +378,13 @@ public class PluginManager {
         registerDependencies(plugin, pluginContext);
 
         pluginContext.register(pluginClassLoader.loadClass(plugin.getDescriptor().getConfigurationClass()));
-        pluginContext.refresh();
 
         ManagedPlugin managedPlugin = new ManagedPlugin(pluginContext, plugin, pluginPath, pluginUiPath);
+
+        // Register the context so that it can be injected by other beans
+        pluginContext.getBeanFactory().registerSingleton("alien-plugin-context", managedPlugin);
+
+        pluginContext.refresh();
 
         Map<String, PluginComponentDescriptor> componentDescriptors = getPluginComponentDescriptorAsMap(plugin);
 
@@ -388,8 +392,6 @@ public class PluginManager {
         expose(managedPlugin, componentDescriptors);
         // register plugin elements in Alien
         link(plugin, managedPlugin, componentDescriptors);
-        // inject context
-        injectContext(managedPlugin);
 
         // install static resources to be available for the application.
         pluginContexts.put(plugin.getId(), managedPlugin);
@@ -456,13 +458,6 @@ public class PluginManager {
                 }
                 componentDescriptor.setType(linker.linkedType.getSimpleName());
             }
-        }
-    }
-
-    private void injectContext(ManagedPlugin managedPlugin) {
-        Map<String, IPluginContextAware> beans = managedPlugin.getPluginContext().getBeansOfType(IPluginContextAware.class);
-        for (IPluginContextAware bean : beans.values()) {
-            bean.setContext(managedPlugin);
         }
     }
 

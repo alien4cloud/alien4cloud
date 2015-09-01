@@ -2,7 +2,7 @@ package alien4cloud.configuration;
 
 import java.io.IOException;
 
-import javax.annotation.Resource;
+import javax.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -10,16 +10,16 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.cloud.CloudService;
+import alien4cloud.orchestrators.services.OrchestratorStateService;
 import alien4cloud.plugin.PluginManager;
 
 @Slf4j
 @Component
 public class ApplicationBootstrap implements ApplicationListener<ContextRefreshedEvent> {
-    @Resource
+    @Inject
     private PluginManager pluginManager;
-    @Resource
-    private CloudService cloudService;
+    @Inject
+    private OrchestratorStateService orchestratorStateService;
 
     private boolean initialized = false;
 
@@ -34,6 +34,6 @@ public class ApplicationBootstrap implements ApplicationListener<ContextRefreshe
         } catch (IOException e) {
             log.error("Error while loading plugins.", e);
         }
-        cloudService.initialize();
+        orchestratorStateService.initialize();
     }
 }
