@@ -48,9 +48,9 @@ define(function(require) {
         function updateLocations() {
           locationService.get({orchestratorId: orchestrator.id}, function(result) {
             $scope.locations = result.data;
-            if ($scope.locations.length === 1) {
-              $scope.location = $scope.locations[0].location;
-              $scope.locationResources = $scope.locations[0].resources;
+            if ($scope.locations.length > 0 && _.isUndefined($scope.location)) {
+              // For the moment show only first location
+              $scope.selectLocation($scope.locations[0]);
             }
           });
         }
@@ -58,7 +58,11 @@ define(function(require) {
         updateLocations();
 
         $scope.selectLocation = function(location) {
-          $scope.location = location;
+          $scope.location = location.location;
+          $scope.context.location = $scope.location;
+          $scope.context.locationResources = location.resources;
+          $scope.context.configurationTypes  = _.values(location.resources.configurationTypes);
+          $scope.context.nodeTypes  = _.values(location.resources.nodeTypes);
         };
 
         $scope.openNewModal = function() {

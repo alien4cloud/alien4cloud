@@ -2,15 +2,22 @@ package alien4cloud.orchestrators.services;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
 import org.springframework.stereotype.Component;
 
+import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
+import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;
@@ -22,6 +29,12 @@ import com.google.common.collect.Lists;
 public class LocationResourceService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
+    @Inject
+    private ICSARRepositorySearchService csarRepoSearchService;
+    @Inject
+    private TopologyServiceCore topologyService;
+    @Inject
+    private LocationService locationService;
 
     /**
      * Create an instance of an ILocationResourceAccessor that will perform queries on LocationResourceTemplate for a given location.
@@ -54,8 +67,7 @@ public class LocationResourceService {
 
     private List<LocationResourceTemplate> getResourcesTemplates(Map<String, String[]> filter) {
         // get all defined resources for this resource.
-        GetMultipleDataResult<LocationResourceTemplate> result = alienDAO.find(LocationResourceTemplate.class, filter,
-                Integer.MAX_VALUE);
+        GetMultipleDataResult<LocationResourceTemplate> result = alienDAO.find(LocationResourceTemplate.class, filter, Integer.MAX_VALUE);
         if (result.getData() == null) {
             return Lists.newArrayList();
         }
@@ -64,5 +76,19 @@ public class LocationResourceService {
 
     public List<LocationResourceTemplate> getResourcesTemplates(String locationId) {
         return getResourcesTemplates(getLocationIdFilter(locationId));
+    }
+
+    public LocationResourceTemplate addResourceTemplate(String locationId, String resourceName, String resourceTypeName) {
+        Location location = locationService.getOrFail(locationId);
+        IndexedNodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, resourceTypeName,
+                location.getDependencies());
+        NodeTemplate nodeTemplate = topologyService.buildNodeTemplate(location.getDependencies(), resourceType, null);
+        LocationResourceTemplate locationResourceTemplate = new LocationResourceTemplate();
+        locationResourceTemplate.setEnabled(true);
+        locationResourceTemplate.setGenerated(false);
+        locationResourceTemplate.setId(UUID.randomUUID().toString());
+        locationResourceTemplate.setService(false);
+        locationResourceTemplate.setTypes(resourceType.getDerivedFrom());
+        return locationResourceTemplate;
     }
 }

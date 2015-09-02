@@ -25,6 +25,7 @@ import alien4cloud.model.topology.NodeTemplate;
 public class LocationResourceTemplate {
     @Id
     private String id;
+    private String name;
     @NotBlank
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)

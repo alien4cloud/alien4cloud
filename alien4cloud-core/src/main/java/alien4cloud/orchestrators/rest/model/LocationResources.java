@@ -12,9 +12,11 @@ import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 @Setter
 public class LocationResources {
 
-    private Map<String, IndexedNodeType> configurationsTypes;
+    private Map<String, IndexedNodeType> configurationTypes;
 
-    private Map<String, IndexedNodeType> nodesTypes;
+    private Map<String, IndexedNodeType> nodeTypes;
 
-    private List<LocationResourceTemplate> resourceTemplates;
+    private List<LocationResourceTemplate> configurationTemplates;
+
+    private List<LocationResourceTemplate> nodeTemplates;
 }

@@ -36,7 +36,8 @@ import com.wordnik.swagger.annotations.Authorization;
  */
 @RestController
 @RequestMapping(value = "/rest/orchestrators/{orchestratorId}/locations", produces = MediaType.APPLICATION_JSON_VALUE)
-@Api(value = "Orchestrator's Locations", description = "Manages locations for a given orchestrator.", authorizations = { @Authorization("ADMIN") }, position = 4400)
+@Api(value = "Orchestrator's Locations", description = "Manages locations for a given orchestrator.", authorizations = {
+        @Authorization("ADMIN") }, position = 4400)
 public class LocationController {
     @Inject
     private LocationService locationService;
@@ -59,6 +60,16 @@ public class LocationController {
     public void delete(@ApiParam(value = "Id of the orchestrator for which to get all locations.", required = true) @PathVariable String orchestratorId,
             @ApiParam(value = "Id of the orchestrators to delete.", required = true) @PathVariable String id) {
         locationService.delete(id);
+    }
+
+    @ApiOperation(value = "Add resource template to a location.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Audit
+    public void addResourceTemplate(
+            @ApiParam(value = "Id of the orchestrator for which to add resource template.", required = true) @PathVariable String orchestratorId,
+            @ApiParam(value = "Id of the location of the orchestrator to add resource template.", required = true) @PathVariable String id) {
+
     }
 
     @ApiOperation(value = "Get all locations for a given orchestrator.")

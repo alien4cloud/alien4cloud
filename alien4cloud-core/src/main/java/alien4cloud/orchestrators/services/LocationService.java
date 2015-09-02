@@ -154,9 +154,21 @@ public class LocationService {
         }
         List<LocationResourceTemplate> locationResourceTemplates = locationResourceService.getResourcesTemplates(location.getId());
         LocationResources locationResources = new LocationResources();
-        locationResources.setConfigurationsTypes(configurationsTypes);
-        locationResources.setNodesTypes(nodesTypes);
-        locationResources.setResourceTemplates(locationResourceTemplates);
+        locationResources.setConfigurationTypes(configurationsTypes);
+        locationResources.setNodeTypes(nodesTypes);
+        List<LocationResourceTemplate> configurationsTemplates = Lists.newArrayList();
+        List<LocationResourceTemplate> nodesTemplates = Lists.newArrayList();
+        for (LocationResourceTemplate resourceTemplate : locationResourceTemplates) {
+            String templateType = resourceTemplate.getTemplate().getType();
+            if (configurationsTypes.containsKey(templateType)) {
+                configurationsTemplates.add(resourceTemplate);
+            }
+            if (nodesTypes.containsKey(templateType)) {
+                nodesTemplates.add(resourceTemplate);
+            }
+        }
+        locationResources.setConfigurationTemplates(configurationsTemplates);
+        locationResources.setNodeTemplates(nodesTemplates);
         return locationResources;
     }
 
