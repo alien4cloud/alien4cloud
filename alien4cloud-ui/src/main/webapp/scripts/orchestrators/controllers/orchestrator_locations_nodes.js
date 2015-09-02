@@ -7,12 +7,12 @@ define(function (require) {
   var _ = require('lodash');
 
   states.state('admin.orchestrators.details.locations.nodes', {
-    url: '/infra',
+    url: '/node',
     templateUrl: 'views/orchestrators/orchestrator_locations_nodes.html',
     controller: 'OrchestratorLocationsNodesCtrl',
     menu: {
       id: 'menu.orchestrators.locations.nodes',
-      state: 'admin.orchestrators.details.locations.resources',
+      state: 'admin.orchestrators.details.locations.nodes',
       key: 'ORCHESTRATORS.LOCATIONS.ON_DEMAND_RESOURCES',
       icon: 'fa fa-cubes',
       priority: 200

@@ -33,12 +33,7 @@ public class LocationResourceService {
         return new ILocationResourceAccessor() {
             @Override
             public List<LocationResourceTemplate> getResources() {
-                // get all defined resources for this resource.
-                GetMultipleDataResult<LocationResourceTemplate> result = alienDAO.find(LocationResourceTemplate.class, getLocationFilter(), Integer.MAX_VALUE);
-                if (result.getData() == null) {
-                    return Lists.newArrayList();
-                }
-                return Lists.newArrayList(result.getData());
+                return getResourcesTemplates(locationId);
             }
 
             @Override
@@ -46,18 +41,28 @@ public class LocationResourceService {
                 // Get all types that derives from the current type.
                 String[] types = new String[] { type };
                 // Get all the location resources templates for the given type.
-                Map<String, String[]> filter = getLocationFilter();
+                Map<String, String[]> filter = getLocationIdFilter(locationId);
                 filter.put("types", types);
-                GetMultipleDataResult<LocationResourceTemplate> result = alienDAO.find(LocationResourceTemplate.class, filter, Integer.MAX_VALUE);
-                if (result.getData() == null) {
-                    return Lists.newArrayList();
-                }
-                return Lists.newArrayList(result.getData());
-            }
-
-            private Map<String, String[]> getLocationFilter() {
-                return MapUtil.newHashMap(new String[] { "locationId" }, new String[][] { new String[] { locationId } });
+                return getResourcesTemplates(filter);
             }
         };
+    }
+
+    private Map<String, String[]> getLocationIdFilter(String locationId) {
+        return MapUtil.newHashMap(new String[] { "locationId" }, new String[][] { new String[] { locationId } });
+    }
+
+    private List<LocationResourceTemplate> getResourcesTemplates(Map<String, String[]> filter) {
+        // get all defined resources for this resource.
+        GetMultipleDataResult<LocationResourceTemplate> result = alienDAO.find(LocationResourceTemplate.class, filter,
+                Integer.MAX_VALUE);
+        if (result.getData() == null) {
+            return Lists.newArrayList();
+        }
+        return Lists.newArrayList(result.getData());
+    }
+
+    public List<LocationResourceTemplate> getResourcesTemplates(String locationId) {
+        return getResourcesTemplates(getLocationIdFilter(locationId));
     }
 }

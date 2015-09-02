@@ -69,11 +69,11 @@ public class CsarGitService {
     /**
      * Create a CsarGitRepository in the system to store its informations
      * 
-     * @param id The unique if of the CsarGitRepository
      * @param repositoryUrl The unique Git url of the CsarGitRepository
      * @param username The username of the user
      * @param password The password of the user
      * @param importLocations Locations where Csar's files are store
+     * @param isStoredLocally The state of the the CsarGitRepository
      * @return The auto-generated id of the CsarGitRepository object
      */
     public String createGitCsar(String repositoryUrl, String username, String password, List<CsarGitCheckoutLocation> importLocations, boolean isStoredLocally) {
@@ -147,6 +147,13 @@ public class CsarGitService {
         }
         return listPath;
     }
+
+    /**
+     * Find a folder in the top-hierachie level
+     * 
+     * @param folder Folder to find
+     * @param listPath List to fetch
+     */
 
     private void findInTmpTree(File folder, List<Path> listPath) {
         File rootFolder = new File("/home/franck/.alien/upload/csarFromGit");
@@ -277,14 +284,14 @@ public class CsarGitService {
     /**
      * Handle the import of CsarGitRepository (importLocations) in Alien
      * 
-     * @param folderPath The path to fetch where Csars have been checked out.
+     * @param pathToReach The path to fetch where Csars have been checked out
+     * @param csarsToImport The list of csars to import
+     * @param isStoredLocally The state of the CsarGitRepository
      * @return An response if the statement was successful or not
      * @throws ParsingException
      * @throws CSARVersionAlreadyExistsException
      * @throws IOException
      * @throws GitAPIException
-     * @throws NoHeadException
-     * @throws RevisionSyntaxException
      */
     @SuppressWarnings("unchecked")
     public ParsingResult<Csar>[] triggerImportFromTmpFolder(String pathToReach, List<Path> csarsToImport, boolean isStoredLocally)
@@ -363,9 +370,9 @@ public class CsarGitService {
     /**
      * Method to import a repository based on its inter-dependencies
      * 
-     * @param list List of the CsarGitRepository to import
-     * @param parsingResult
-     * @return
+     * @param csarDependenciesBeanList List of the CsarGitRepository to import
+     * @param parsingResult Result of the pre-process parsing
+     * @return The result of the final import
      * @throws CSARVersionAlreadyExistsException
      * @throws ParsingException
      */
@@ -388,7 +395,16 @@ public class CsarGitService {
         }
         return parsingResult;
     }
-
+    
+/**
+ * Analyse a CsarDependenciesBean to check if it is ready to import
+ * @param result Result of the pre-parsing process
+ * @param bean Bean containing the CsarGitRepository informations
+ * @param parsingResult Global result of the pre-parsing result
+ * @param csarDependenciesBeanList
+ * @throws CSARVersionAlreadyExistsException
+ * @throws ParsingException
+ */
     private void analyseCsarBean(ParsingResult<Csar> result, CsarDependenciesBean bean, List<ParsingResult<Csar>> parsingResult,
             List<CsarDependenciesBean> csarDependenciesBeanList) throws CSARVersionAlreadyExistsException, ParsingException {
         if (bean != null) {
@@ -424,7 +440,9 @@ public class CsarGitService {
      * Method to update a CsarGitRepository based on its unique id
      * 
      * @param id The unique id of the CsarGitRepository
-     * @param request UpdateCsarGitRequest which contains all the required data to update the object
+     * @param repositoryUrl The unique url of the CsarGitRepository
+     * @param username The username associated to the CsarGitRepository
+     * @param password The password associated to the CsarGitRepository
      */
     public void update(String id, String repositoryUrl, String username, String password) {
         CsarGitRepository csarGitTo = checkIfCsarExist(id);
@@ -550,7 +568,8 @@ public class CsarGitService {
 
     /**
      * Check if the CsarGitRepository is up-to-date regarding the latest commit hash
-     * 
+     * @param path Path of the stored location
+     * @param csarGit CsarGitRepository to pull
      * @throws IOException
      * @throws GitAPIException
      * @throws RevisionSyntaxException
