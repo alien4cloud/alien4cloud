@@ -5,8 +5,6 @@ import static alien4cloud.dao.model.FetchContext.DEPLOYMENT;
 import java.util.Map;
 import java.util.Set;
 
-import alien4cloud.model.components.CSARDependency;
-import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,13 +17,19 @@ import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 import org.hibernate.validator.constraints.NotBlank;
 
+import alien4cloud.model.components.CSARDependency;
 import alien4cloud.security.ISecuredResource;
 import alien4cloud.security.model.DeployerRole;
-import alien4cloud.utils.jackson.*;
+import alien4cloud.utils.jackson.ConditionalAttributes;
+import alien4cloud.utils.jackson.ConditionalOnAttribute;
+import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
+import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
+import alien4cloud.utils.jackson.NotAnalyzedTextMapEntry;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.collect.Sets;
 import com.wordnik.swagger.annotations.ApiModel;
 
 @Getter

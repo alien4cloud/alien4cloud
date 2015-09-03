@@ -6,9 +6,6 @@
       </span>
     </div>
   </div>
-  <div class="col-sm-3">
-    <delete-confirm ng-if="orchestrator.state === 'DISABLED'" id="btn-delete-app" func="removeOrchestrator()" position="left" fastyle="fa-trash-o" text="{{'DELETE' | translate}}"></delete-confirm>
-  </div>
 </div>
 <div class="row">
   <div class="col-sm-9">
@@ -39,6 +36,7 @@
        ng-click="$event.stopPropagation();">
       <i class="fa fa-stop"></i> {{'CLOUDS.FORCE-DISABLE' | translate}}
     </a>
+    <delete-confirm ng-if="orchestrator.state === 'DISABLED'" id="btn-delete-app" func="removeOrchestrator()" position="left" fastyle="fa-trash-o" text="{{'DELETE' | translate}}"></delete-confirm>
   </div>
 </div>
 <div class="row" ng-if="orchestratorProperties">

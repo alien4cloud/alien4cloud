@@ -1,4 +1,4 @@
-define(function (require) {
+define(function(require) {
   'use strict';
 
   var modules = require('modules');
@@ -19,10 +19,13 @@ define(function (require) {
     }
   });
 
-  modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap','a4c-common']).controller('OrchestratorLocationsConfigCtrl',
+  modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorLocationsConfigCtrl',
     ['$scope', 'orchestrator',
-    function($scope, orchestrator) {
-      $scope.orchestrator = orchestrator;
-    }
-  ]); // controller
+      function($scope, orchestrator) {
+        $scope.orchestrator = orchestrator;
+        if (_.isNotEmpty($scope.context.configurationTypes)) {
+          $scope.selectedConfigurationResource = $scope.context.configurationTypes[0];
+        }
+      }
+    ]); // controller
 }); // define

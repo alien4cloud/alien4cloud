@@ -86,7 +86,7 @@ define(function (require) {
         }
       };
 
-      // Handle orchestrator security action
+      // Handle location security action
       $scope.handleRoleSelectionForUser = function(user, role) {
         if (_.undefined($scope.location.userRoles)) {
           $scope.location.userRoles = {};
@@ -145,14 +145,14 @@ define(function (require) {
         }
       };
 
-      $scope.checkOrchestratorRoleSelectedForUser = function(user, role) {
+      $scope.checklocationRoleSelectedForUser = function(user, role) {
         if ($scope.location && $scope.location.userRoles && $scope.location.userRoles[user.username]) {
           return $scope.location.userRoles[user.username].indexOf(role) > -1;
         }
         return false;
       };
 
-      $scope.checkOrchestratorRoleSelectedForGroup = function(group, role) {
+      $scope.checklocationRoleSelectedForGroup = function(group, role) {
         if ($scope.location && $scope.location.groupRoles && $scope.location.groupRoles[group.id]) {
           return $scope.location.groupRoles[group.id].indexOf(role) > -1;
         }

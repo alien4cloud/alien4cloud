@@ -10,12 +10,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.model.orchestrators.Orchestrator;
-import alien4cloud.orchestrators.services.OrchestratorService;
+import alien4cloud.orchestrators.services.OrchestratorSecurityService;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.ResourceRoleService;
 import alien4cloud.security.model.Role;
 
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -24,8 +22,7 @@ import com.wordnik.swagger.annotations.ApiOperation;
 @RequestMapping("/rest/orchestrators/{orchestratorId}/roles/")
 public class OrchestratorRolesController {
     @Resource
-    private OrchestratorService orchestratorService;
-
+    private OrchestratorSecurityService orchestratorSecurityService;
 
     /**
      * Add a role to a user on all locations of a specific orchestrator
@@ -41,7 +38,7 @@ public class OrchestratorRolesController {
     @Audit
     public RestResponse<Void> addUserRole(@PathVariable String orchestratorId, @PathVariable String username, @PathVariable String role) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
-        orchestratorService.addUserRoleOnAllLocations(orchestratorId, username, role);
+        orchestratorSecurityService.addUserRoleOnAllLocations(orchestratorId, username, role);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -59,7 +56,7 @@ public class OrchestratorRolesController {
     @Audit
     public RestResponse<Void> addGroupRole(@PathVariable String orchestratorId, @PathVariable String groupId, @PathVariable String role) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
-        orchestratorService.addGroupRoleOnAllLocations(orchestratorId, groupId, role);
+        orchestratorSecurityService.addGroupRoleOnAllLocations(orchestratorId, groupId, role);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -77,7 +74,7 @@ public class OrchestratorRolesController {
     @Audit
     public RestResponse<Void> removeUserRole(@PathVariable String orchestratorId, @PathVariable String username, @PathVariable String role) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
-        orchestratorService.removeUserRoleOnAllLocations(orchestratorId, username, role);
+        orchestratorSecurityService.removeUserRoleOnAllLocations(orchestratorId, username, role);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -95,7 +92,7 @@ public class OrchestratorRolesController {
     @Audit
     public RestResponse<Void> removeGroupRole(@PathVariable String orchestratorId, @PathVariable String groupId, @PathVariable String role) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
-        orchestratorService.removeGroupRoleOnAllLocations(orchestratorId, groupId, role);
+        orchestratorSecurityService.removeGroupRoleOnAllLocations(orchestratorId, groupId, role);
         return RestResponseBuilder.<Void> builder().build();
     }
 }
