@@ -76,7 +76,9 @@ public class CsarGitCRUDStepDefinition {
 
     @Given("^I add location to an unexisting CsarGitRepository with id \"([^\"]*)\"$")
     public void I_add_location_to_an_unexisting_csargit(String id) throws IOException {
-        CsarGitCheckoutLocation location = new CsarGitCheckoutLocation("master", "apache");
+        CsarGitCheckoutLocation location = new CsarGitCheckoutLocation();
+        location.setBranchId("master");
+        location.setSubPath("apache");
         List<CsarGitCheckoutLocation> importLocations = new ArrayList<CsarGitCheckoutLocation>();
         importLocations.add(location);
         request_location = new AddCsarGitLocation();
@@ -99,8 +101,8 @@ public class CsarGitCRUDStepDefinition {
     }
 
     @Given("^I have a csargit with empty data and url \"([^\"]*)\" with username \"([^\"]*)\" and stored \"([^\"]*)\" and password \"([^\"]*)\"$")
-    public void I_Create_a_new_csargit_with_empty_data(String url, String username, String password, String storedLocally) throws JsonProcessingException,
-            IOException {
+    public void I_Create_a_new_csargit_with_empty_data(String url, String username, String password, String storedLocally)
+            throws JsonProcessingException, IOException {
         request = new CreateCsarGitRequest();
         request.setUsername(null);
         request.setPassword(null);
@@ -263,7 +265,7 @@ public class CsarGitCRUDStepDefinition {
         request.setRepositoryUrl(url);
         request.setUsername(username);
         request.setPassword(password);
-        request.setRepositoryUrlToUpdate(repositoryUrlToUpdate);
+        request.setPreviousRepositoryUrl(repositoryUrlToUpdate);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/csarsgit/update/:url", JsonUtil.toString(request)));
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
         Assert.assertNotNull(restResponse);

@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import alien4cloud.exception.*;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.expression.ExpressionException;
@@ -19,22 +20,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import alien4cloud.application.InvalidDeploymentSetupException;
 import alien4cloud.component.repository.exception.RepositoryTechnicalException;
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.ApplicationVersionNotFoundException;
-import alien4cloud.exception.CyclicReferenceException;
-import alien4cloud.exception.DeleteDeployedException;
-import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
-import alien4cloud.exception.DeleteLastApplicationVersionException;
-import alien4cloud.exception.DeleteReferencedObjectException;
-import alien4cloud.exception.GitCloneUriException;
-import alien4cloud.exception.GitNoModificationDetected;
-import alien4cloud.exception.GitNotAuthorizedException;
-import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.exception.ReleaseReferencingSnapshotException;
-import alien4cloud.exception.VersionConflictException;
-import alien4cloud.exception.VersionRenameNotPossibleException;
 import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
 import alien4cloud.paas.exception.ComputeConflictNameException;
@@ -77,30 +62,14 @@ public class RestTechnicalExceptionHandler {
                 .error(RestErrorBuilder.builder(RestErrorCode.INVALID_DEPLOYMENT_SETUP).message("The deployment setup is invalid.").build()).build();
     }
 
-    @ExceptionHandler(GitCloneUriException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(GitException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public RestResponse<Void> gitCloneUriInvalid(GitCloneUriException e) {
+    public RestResponse<Void> gitCloneUriInvalid(GitException e) {
         log.error(e.getMessage());
-        return RestResponseBuilder.<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.GIT_REPOSITORY_INVALID).message(e.getMessage()).build()).build();
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.GIT_IMPORT_FAILED).message(e.getMessage()).build()).build();
     }
-    
-    @ExceptionHandler(GitNotAuthorizedException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    @ResponseBody
-    public RestResponse<Void> gitCloneNotAuthorized(GitNotAuthorizedException e) {
-        return RestResponseBuilder.<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.GIT_UNAUTHORIZED).message(e.getMessage()).build()).build();
-    }
-    @ExceptionHandler(GitNoModificationDetected.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    @ResponseBody
-    public RestResponse<Void> gitNoModificationDetected(GitNoModificationDetected e) {
-        return RestResponseBuilder.<Void> builder()
-            .error(RestErrorBuilder.builder(RestErrorCode.GIT_NO_MODIFICATION_DETECTED).message(e.getMessage()).build()).build();
-    }
-    
+
     @ExceptionHandler(AlreadyExistException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
@@ -149,10 +118,8 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> missingPluginExceptionHandler(MissingPluginException e) {
         log.error("PaaS provider plugin cannot be found while used on a cloud, this should not happens.", e);
-        return RestResponseBuilder
-                .<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.MISSING_PLUGIN_ERROR)
-                        .message("The cloud plugin cannot be found. Make sure that the plugin is installed and enabled.").build()).build();
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.MISSING_PLUGIN_ERROR)
+                .message("The cloud plugin cannot be found. Make sure that the plugin is installed and enabled.").build()).build();
     }
 
     @ExceptionHandler(value = InvalidArgumentException.class)
@@ -182,10 +149,8 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> indexingServiceErrorHandler(IndexingServiceException e) {
         log.error("Indexing service has encoutered unexpected error", e);
-        return RestResponseBuilder
-                .<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.INDEXING_SERVICE_ERROR)
-                        .message("Indexing service has encoutered unexpected error " + e.getMessage()).build()).build();
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.INDEXING_SERVICE_ERROR)
+                .message("Indexing service has encoutered unexpected error " + e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(value = RepositoryTechnicalException.class)
@@ -193,10 +158,8 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> repositryServiceErrorHandler(RepositoryTechnicalException e) {
         log.error("Repository service has encoutered unexpected error", e);
-        return RestResponseBuilder
-                .<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.REPOSITORY_SERVICE_ERROR)
-                        .message("Repository service has encoutered unexpected error " + e.getMessage()).build()).build();
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.REPOSITORY_SERVICE_ERROR)
+                .message("Repository service has encoutered unexpected error " + e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(value = UpdateTopologyException.class)
@@ -204,10 +167,8 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> updateTopologyErrorHandler(UpdateTopologyException e) {
         log.error("A topology cannot be updated if it's released", e);
-        return RestResponseBuilder
-                .<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.UPDATE_AN_RELEASED_TOPOLOGY_ERROR)
-                        .message("A topology cannot be updated if it's released " + e.getMessage()).build()).build();
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.UPDATE_AN_RELEASED_TOPOLOGY_ERROR)
+                .message("A topology cannot be updated if it's released " + e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(value = ImageUploadException.class)
@@ -263,10 +224,8 @@ public class RestTechnicalExceptionHandler {
         if (e.getPassErrorCode() != null) {
             errorCode = e.getPassErrorCode();
         }
-        return RestResponseBuilder
-                .<Void> builder()
-                .error(RestErrorBuilder.builder(errorCode).message("Application cannot be deployed " + e.getMessage()).build())
-                .build();
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(errorCode).message("Application cannot be deployed " + e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(value = PaaSDeploymentIOException.class)
@@ -274,10 +233,8 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> paaSDeploymentIOErrorHandler(PaaSDeploymentIOException e) {
         log.warn("Error in PaaS Deployment", e);
-        return RestResponseBuilder
-                .<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_DEPLOYMENT_IO_ERROR)
-                        .message("Cannot reach the PaaS Manager endpoint " + e.getMessage()).build()).build();
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_DEPLOYMENT_IO_ERROR)
+                .message("Cannot reach the PaaS Manager endpoint " + e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(value = PaaSUndeploymentException.class)
@@ -285,10 +242,9 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> paaSUndeploymentErrorHandler(PaaSUndeploymentException e) {
         log.error("Error in UnDeployment", e);
-        return RestResponseBuilder
-                .<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_UNDEPLOYMENT_ERROR).message("Application cannot be undeployed " + e.getMessage())
-                        .build()).build();
+        return RestResponseBuilder.<Void> builder().error(
+                RestErrorBuilder.builder(RestErrorCode.APPLICATION_UNDEPLOYMENT_ERROR).message("Application cannot be undeployed " + e.getMessage()).build())
+                .build();
     }
 
     @ExceptionHandler(value = AccessDeniedException.class)
@@ -322,10 +278,8 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> updteApplicationVersionErrorHandler(UpdateApplicationVersionException e) {
         log.error("Update application version error", e);
-        return RestResponseBuilder
-                .<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.UPDATE_RELEASED_APPLICATION_VERSION_ERROR)
-                        .message("Update application version error : " + e.getMessage()).build()).build();
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.UPDATE_RELEASED_APPLICATION_VERSION_ERROR)
+                .message("Update application version error : " + e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(value = DeleteLastApplicationEnvironmentException.class)
@@ -333,10 +287,9 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> deleteLastApplicationEnvironmentErrorHandler(DeleteLastApplicationEnvironmentException e) {
         log.error("Delete last application environment error", e);
-        return RestResponseBuilder
-                .<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR).message("Application environment error : " + e.getMessage())
-                        .build()).build();
+        return RestResponseBuilder.<Void> builder().error(
+                RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR).message("Application environment error : " + e.getMessage()).build())
+                .build();
     }
 
     @ExceptionHandler(value = DeleteLastApplicationVersionException.class)
@@ -354,10 +307,8 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> deleteDeployedErrorHandler(DeleteDeployedException e) {
         log.error("Delete deployed element error", e);
-        return RestResponseBuilder
-                .<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_DEPLOYED_ERROR)
-                        .message("Application environment delete error : " + e.getMessage()).build()).build();
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_DEPLOYED_ERROR)
+                .message("Application environment delete error : " + e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(value = ExpressionException.class)
@@ -365,10 +316,9 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> generatePaasIdErrorHandler(ExpressionException e) {
         log.error("Problem parsing right operand during the generation of PaasId : ", e);
-        return RestResponseBuilder
-                .<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.DEPLOYMENT_NAMING_POLICY_ERROR).message("Problem parsing right operand : " + e.getMessage())
-                        .build()).build();
+        return RestResponseBuilder.<Void> builder().error(
+                RestErrorBuilder.builder(RestErrorCode.DEPLOYMENT_NAMING_POLICY_ERROR).message("Problem parsing right operand : " + e.getMessage()).build())
+                .build();
     }
 
     @ExceptionHandler(value = EmptyMetaPropertyException.class)
@@ -376,10 +326,8 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> generateEmptyMetaPropertyErrorHandler(EmptyMetaPropertyException e) {
         log.error("One of meta property is empty and don't have a default value : ", e);
-        return RestResponseBuilder
-                .<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.EMPTY_META_PROPERTY_ERROR)
-                        .message("One of meta property is empty and don't have a default value : " + e.getMessage()).build()).build();
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.EMPTY_META_PROPERTY_ERROR)
+                .message("One of meta property is empty and don't have a default value : " + e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(value = ApplicationVersionNotFoundException.class)
@@ -405,8 +353,8 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> constraintValueDoNotMatchPropertyErrorHandler(ConstraintValueDoNotMatchPropertyTypeException e) {
         log.error("Constraint value do not match property : " + e.getMessage());
-        return RestResponseBuilder.<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build())
+                .build();
     }
 
     @ExceptionHandler(value = IncompatiblePropertyDefinitionException.class)
