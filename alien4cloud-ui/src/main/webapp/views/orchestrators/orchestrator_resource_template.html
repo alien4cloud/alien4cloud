@@ -1,0 +1,191 @@
+<div ng-controller="OrchestratorResourceTemplateCtrl">
+  <div class="row">
+    <div class="col-md-7">
+      <h3 class="pull-left" style="margin-top: 10px; margin-bottom: 20px;">
+      <span editable-text="resourceTemplate.name" buttons="no" e-required onbeforesave="updateLocationResource($data)" blur="submit">
+        {{ resourceTemplate.name | split }}
+        <i class="fa fa-pencil-square-o"></i>
+      </span>
+        <img ng-show="selectionabstract"
+             class="icon_16"
+             alt="abstract_ico_16"
+             tooltip="{{'COMPONENTS.COMPONENT.ABSTRACT_COMPONENT' | translate}}"
+             tooltip-placement="top"
+             src="images/abstract_ico.png" />
+      </h3>
+    </div>
+    <div class="col-md-5" style="margin-top: 6px;">
+      <div class="pull-right">
+        <delete-confirm id="btn-delete-node" func="nodes.delete(resourceTemplate.template.name)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+        </delete-confirm>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="input-group">
+              <span class="input-group-addon">
+                <span><i>{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</i></span>
+              </span>
+        <span class="form-control"> {{resourceTemplate.template.type}} </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top: 5px;">
+    <div class="col-md-12">
+      <div class="input-group">
+              <span class="input-group-addon">
+                <i class="fa fa-archive"></i>  {{resourceType.archiveName}}
+              </span>
+              <span class="form-control">
+                {{resourceType.archiveVersion}}
+              </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Properties -->
+  <div ng-if="resourceTemplate.template.properties.length > 0">
+    <div id="node-details-properties" class="topology-node-expand clickable"
+         ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
+      <h4>
+        <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isPropertiesCollapsed, 'fa-chevron-right': isPropertiesCollapsed}"></i>
+        {{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}
+      </h4>
+    </div>
+    <div id="node-details-properties-panel" collapse="isPropertiesCollapsed" class="topology-level">
+      <table class="table table-condensed" id="nodeTemplateProperties">
+        <tr ng-repeat="propEntry in resourceTemplate.template.properties">
+          <td>
+            <property-display
+                ng-init="condensed = true"
+                definition="resourceType.propertiesMap[propEntry.key].value"
+                dependencies="context.location.dependencies"
+                property-name="propEntry.key"
+                property-value="propEntry.value"
+                on-save="updateResourceProperty(propertyDefinition, propertyName, propertyValue)"
+                editable="true"
+                condensed="condensed">
+            </property-display>
+          </td>
+          <td>
+            <simple-modal title="{{ 'MODAL.TITLE.PROPERTY' | translate}}" content="{{properties.getPropertyDescription(propEntry.key)}}"
+                          key="{{propEntry.key}}"></simple-modal>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Requirements -->
+  <div ng-if="resourceTemplate.template.requirements.length > 0">
+    <div id="node-details-requirements" class="topology-node-expand clickable"
+         ng-click="isRequirementsCollapsed = !isRequirementsCollapsed">
+      <h4>
+        <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isRequirementsCollapsed, 'fa-chevron-right': isRequirementsCollapsed}"></i>
+        {{'APPLICATIONS.TOPOLOGY.REQUIREMENTS' | translate}}
+      </h4>
+    </div>
+    <div id="node-details-requirements-panel" collapse="isRequirementsCollapsed" class="topology-level">
+      <div ng-repeat="requirementEntry in resourceTemplate.template.requirements"
+           ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(requirementEntry.value.properties)">
+        <div class="topology-node-expand" style="font-weight: normal"
+             ng-class="{'clickable' : !emptyProps}"
+             ng-click="isReqPropsCollapsed[requirementEntry.key] = !isReqPropsCollapsed[requirementEntry.key]">
+          <div class="row">
+            <div class="col-md-3">
+              <i ng-if="!emptyProps" class="pull-left fa"
+                 ng-class="{'fa-chevron-down' : !isReqPropsCollapsed[requirementEntry.key], 'fa-chevron-right': isReqPropsCollapsed[requirementEntry.key]}">
+              </i>
+              <span>{{requirementEntry.key}}</span>
+            </div>
+            <div class="col-md-3" id="requirement-{{requirementEntry.key}}">
+                    <span tooltip="{{requirementEntry.value.type}}"
+                          tooltip-append-to-body="true">{{getShortName(requirementEntry.value.type)}}</span>
+            </div>
+            <div class="col-md-6" ng-init="reqComp = getComponent(resourceTemplate.template, requirementEntry.value.type)">
+              <simple-modal title="{{ 'MODAL.TITLE.REQUIREMENT' | translate}}" content="{{reqComp.data.description}}"
+                            key="{{requirementEntry.key}}"></simple-modal>
+            </div>
+          </div>
+        </div>
+        <div class="topology-level"
+             ng-if="!emptyProps"
+             collapse="isReqPropsCollapsed[requirementEntry.key]">
+          <table class="table table-condensed" id="requirement_{{requirementEntry.key}}_properties">
+            <tr ng-repeat="(propertyKey,propertyValue) in requirementEntry.value.properties"
+                ng-init="isPropertyRequired = isCapabilityPropertyRequired(propertyKey)">
+              <td class="col-md-6" ng-class="{'property-required' : isPropertyRequired}">
+                      <span ng-if="isPropertyRequired" tooltip="{{'REQUIRED' | translate}}"
+                            tooltip-append-to-body="true">{{propertyKey}} *</span>
+                      <span ng-if="!isPropertyRequired" tooltip="{{'OPTIONAL' | translate}}"
+                            tooltip-append-to-body="true">{{propertyKey}}</span>
+              </td>
+              <td class="col-md-6" id="p_req_{{requirementEntry.key}}_{{propertyKey}}" ng-class="{'property-required' : isPropertyRequired}">
+                <span> {{propertyValue.value || '...'}} </span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div ng-if="resourceTemplate.template.capabilities.length > 0">
+    <div id="node-details-capabilities" class="topology-node-expand clickable"
+         ng-click="isCapabilitiesCollapsed = !isCapabilitiesCollapsed">
+      <h4>
+        <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isCapabilitiesCollapsed, 'fa-chevron-right': isCapabilitiesCollapsed}"></i>
+        {{'APPLICATIONS.TOPOLOGY.CAPABILITIES' | translate}}
+      </h4>
+    </div>
+    <div id="node-details-capabilities-panel" collapse="isCapabilitiesCollapsed" class="topology-level">
+      <div id="node-details-capabilities-{{capabilityEntry.key}}-block" ng-repeat="capabilityEntry in resourceTemplate.template.capabilities"
+           ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(capabilityEntry.value.properties)">
+        <div class="topology-node-expand" style="font-weight: normal"
+             ng-class="{'clickable' : !emptyProps}"
+             ng-click="isReqPropsCollapsed[capabilityEntry.key] = !isReqPropsCollapsed[capabilityEntry.key]">
+          <div class="row">
+            <div class="col-md-3 ">
+              <i ng-if="!emptyProps" class="pull-left fa"
+                 ng-class="{'fa-chevron-down' : !isReqPropsCollapsed[capabilityEntry.key], 'fa-chevron-right': isReqPropsCollapsed[capabilityEntry.key]}">
+              </i>
+              <span>{{capabilityEntry.key}}</span>
+            </div>
+            <div class="col-md-3" id="capability-{{capabilityEntry.key}}">
+                    <span tooltip="{{capabilityEntry.value.type}}"
+                          tooltip-append-to-body="true">{{getShortName(capabilityEntry.value.type)}}</span>
+            </div>
+            <div class="col-md-6" ng-init="capaComp = getComponent(resourceTemplate.template, capabilityEntry.value.type)">
+              <simple-modal title="{{ 'MODAL.TITLE.CAPABILITY' | translate}}" content="{{capaComp.data.description}}"
+                            key="{{capabilityEntry.value.type}}"></simple-modal>
+            </div>
+          </div>
+        </div>
+        <table ng-if="!isReqPropsCollapsed[capabilityEntry.key]" class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
+          <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
+            <td>
+              <property-display
+                  ng-init="condensed = true"
+                  definition="getCapabilityPropertyDefinition(capabilityEntry.value.type, propertyEntry.key)"
+                  dependencies="context.location.dependencies"
+                  property-name="propertyEntry.key"
+                  property-value="propertyEntry.value"
+                  on-save="updateResourceCapabilityProperty(propertyName, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
+                  editable="true"
+                  condensed="condensed">
+              </property-display>
+            </td>
+            <td>
+              <simple-modal title="{{ 'MODAL.TITLE.PROPERTY' | translate}}"
+                            content="{{topology.capabilityTypes[capabilityEntry.value.type].propertiesMap[propertyEntry.key].value.description}}"
+                            key="{{propertyEntry.key}}"></simple-modal>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

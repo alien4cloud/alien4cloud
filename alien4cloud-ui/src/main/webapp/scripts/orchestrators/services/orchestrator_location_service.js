@@ -8,4 +8,10 @@ define(function (require) {
       return $alresource('rest/orchestrators/:orchestratorId/locations/:locationId');
     }
   ]);
+
+  modules.get('a4c-orchestrators', ['a4c-common']).factory('locationResourcesService', ['$alresource',
+    function($alresource) {
+      return $alresource('rest/orchestrators/:orchestratorId/locations/:locationId/resources');
+    }
+  ]);
 });

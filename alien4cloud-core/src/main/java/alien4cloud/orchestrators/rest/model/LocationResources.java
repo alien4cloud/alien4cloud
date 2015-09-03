@@ -5,6 +5,7 @@ import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;
+import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 
@@ -15,6 +16,8 @@ public class LocationResources {
     private Map<String, IndexedNodeType> configurationTypes;
 
     private Map<String, IndexedNodeType> nodeTypes;
+
+    private Map<String, IndexedCapabilityType> capabilityTypes;
 
     private List<LocationResourceTemplate> configurationTemplates;
 

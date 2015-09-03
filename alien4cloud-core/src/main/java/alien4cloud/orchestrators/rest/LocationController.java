@@ -17,8 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.orchestrators.rest.model.CreateLocationRequest;
+import alien4cloud.orchestrators.rest.model.CreateLocationResourceTemplateRequest;
 import alien4cloud.orchestrators.rest.model.LocationDTO;
+import alien4cloud.orchestrators.services.LocationResourceService;
 import alien4cloud.orchestrators.services.LocationService;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
@@ -42,6 +45,9 @@ public class LocationController {
     @Inject
     private LocationService locationService;
 
+    @Inject
+    private LocationResourceService locationResourceService;
+
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Create a new location.", authorizations = { @Authorization("ADMIN") })
     @ResponseStatus(value = HttpStatus.CREATED)
@@ -63,13 +69,16 @@ public class LocationController {
     }
 
     @ApiOperation(value = "Add resource template to a location.", authorizations = { @Authorization("ADMIN") })
-    @RequestMapping(value = "/{id}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{id}/resources", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public void addResourceTemplate(
+    public RestResponse<LocationResourceTemplate> addResourceTemplate(
             @ApiParam(value = "Id of the orchestrator for which to add resource template.", required = true) @PathVariable String orchestratorId,
-            @ApiParam(value = "Id of the location of the orchestrator to add resource template.", required = true) @PathVariable String id) {
-
+            @ApiParam(value = "Id of the location of the orchestrator to add resource template.", required = true) @PathVariable String id,
+            @RequestBody CreateLocationResourceTemplateRequest resourceTemplateRequest) {
+        LocationResourceTemplate createdTemplate = locationResourceService.addResourceTemplate(id, resourceTemplateRequest.getResourceName(),
+                resourceTemplateRequest.getResourceType());
+        return RestResponseBuilder.<LocationResourceTemplate> builder().data(createdTemplate).build();
     }
 
     @ApiOperation(value = "Get all locations for a given orchestrator.")

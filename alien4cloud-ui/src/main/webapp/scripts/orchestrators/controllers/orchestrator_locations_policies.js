@@ -7,7 +7,7 @@ define(function (require) {
   var _ = require('lodash');
 
   states.state('admin.orchestrators.details.locations.policies', {
-    url: '/infra',
+    url: '/policy',
     templateUrl: 'views/orchestrators/orchestrator_locations_policies.html',
     controller: 'OrchestratorLocationsPoliciesCtrl',
     menu: {

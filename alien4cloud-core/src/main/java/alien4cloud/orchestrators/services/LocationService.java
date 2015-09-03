@@ -18,6 +18,8 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorState;
@@ -144,12 +146,19 @@ public class LocationService {
         Set<CSARDependency> dependencies = location.getDependencies();
         Map<String, IndexedNodeType> configurationsTypes = Maps.newHashMap();
         Map<String, IndexedNodeType> nodesTypes = Maps.newHashMap();
+        Map<String, IndexedCapabilityType> capabilityTypes = Maps.newHashMap();
         for (String exposedType : allExposedTypes) {
             IndexedNodeType exposedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, exposedType, dependencies);
             if (exposedIndexedNodeType.isAbstract()) {
                 configurationsTypes.put(exposedType, exposedIndexedNodeType);
             } else {
                 nodesTypes.put(exposedType, exposedIndexedNodeType);
+            }
+            if (exposedIndexedNodeType.getCapabilities() != null && !exposedIndexedNodeType.getCapabilities().isEmpty()) {
+                for (CapabilityDefinition capabilityDefinition : exposedIndexedNodeType.getCapabilities()) {
+                    capabilityTypes.put(capabilityDefinition.getType(),
+                            csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class, capabilityDefinition.getType(), dependencies));
+                }
             }
         }
         List<LocationResourceTemplate> locationResourceTemplates = locationResourceService.getResourcesTemplates(location.getId());
@@ -169,6 +178,7 @@ public class LocationService {
         }
         locationResources.setConfigurationTemplates(configurationsTemplates);
         locationResources.setNodeTemplates(nodesTemplates);
+        locationResources.setCapabilityTypes(capabilityTypes);
         return locationResources;
     }
 

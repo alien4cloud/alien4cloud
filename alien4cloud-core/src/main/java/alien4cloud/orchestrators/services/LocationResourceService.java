@@ -84,11 +84,15 @@ public class LocationResourceService {
                 location.getDependencies());
         NodeTemplate nodeTemplate = topologyService.buildNodeTemplate(location.getDependencies(), resourceType, null);
         LocationResourceTemplate locationResourceTemplate = new LocationResourceTemplate();
+        locationResourceTemplate.setName(resourceName);
         locationResourceTemplate.setEnabled(true);
         locationResourceTemplate.setGenerated(false);
         locationResourceTemplate.setId(UUID.randomUUID().toString());
+        locationResourceTemplate.setLocationId(locationId);
         locationResourceTemplate.setService(false);
         locationResourceTemplate.setTypes(resourceType.getDerivedFrom());
+        locationResourceTemplate.setTemplate(nodeTemplate);
+        alienDAO.save(locationResourceTemplate);
         return locationResourceTemplate;
     }
 }

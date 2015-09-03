@@ -6,6 +6,9 @@ define(function(require) {
   var angular = require('angular');
   var _ = require('lodash');
 
+  require('scripts/orchestrators/controllers/orchestrator_resource_template');
+  require('scripts/orchestrators/directives/orchestrator_resource_template');
+
   states.state('admin.orchestrators.details.locations.infra', {
     url: '/infra',
     templateUrl: 'views/orchestrators/orchestrator_locations_infra.html',
@@ -20,12 +23,35 @@ define(function(require) {
   });
 
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorLocationsConfigCtrl',
-    ['$scope', 'orchestrator',
-      function($scope, orchestrator) {
+    ['$scope', 'orchestrator', 'locationResourcesService',
+      function($scope, orchestrator, locationResourcesService) {
         $scope.orchestrator = orchestrator;
         if (_.isNotEmpty($scope.context.configurationTypes)) {
-          $scope.selectedConfigurationResource = $scope.context.configurationTypes[0];
+          $scope.selectedConfigurationResourceType = $scope.context.configurationTypes[0];
         }
+        $scope.addResourceTemplate = function() {
+          locationResourcesService.save({
+            orchestratorId: $scope.orchestrator.id,
+            locationId: $scope.context.location.id
+          }, angular.toJson({
+            'resourceType': $scope.selectedConfigurationResourceType.elementId,
+            'resourceName': 'New Resource'
+          }), function(response) {
+            $scope.context.locationResources.configurationTemplates.push(response.data);
+          })
+        };
+
+        $scope.selectTemplate = function(template) {
+          $scope.selectedConfigurationResourceTemplate = template;
+        };
+
+        $scope.saveResourceTemplate = function(resourceTemplate) {
+          console.log('Update', resourceTemplate);
+        };
+
+        $scope.deleteResourceTemplate = function(resourceTemplate) {
+          console.log('Delete', resourceTemplate);
+        };
       }
     ]); // controller
 }); // define
