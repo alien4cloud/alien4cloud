@@ -9,7 +9,7 @@
       </button>
     </div>
     <div class="col-md-6">
-      <select ng-if="locations" class="form-control" ng-model="location" ng-change="selectLocation(location)" ng-options="loc.name for loc in locations"></select>
+      <select ng-if="locations" class="form-control" ng-model="location" ng-change="selectLocation(location)" ng-options="loc.location.name for loc in locations"></select>
     </div>
     <div class="col-md-3">
       <button ng-if="location" id="delete-location-button" class="btn btn-danger pull-right" ng-click="openNewModal()">
