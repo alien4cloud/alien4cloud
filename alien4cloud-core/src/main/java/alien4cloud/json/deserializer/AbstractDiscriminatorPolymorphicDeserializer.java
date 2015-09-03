@@ -22,6 +22,7 @@ import com.google.common.collect.Maps;
  */
 public class AbstractDiscriminatorPolymorphicDeserializer<T> extends StdDeserializer<T> {
     private Map<String, Class<? extends T>> registry = Maps.newHashMap();
+    private Class<? extends T> defaultType = null;
     private Class<? extends T> valueStringClass = null;
 
     public AbstractDiscriminatorPolymorphicDeserializer(Class<T> clazz) {
@@ -30,6 +31,10 @@ public class AbstractDiscriminatorPolymorphicDeserializer<T> extends StdDeserial
 
     protected void addToRegistry(String discriminator, Class<? extends T> clazz) {
         registry.put(discriminator, clazz);
+    }
+
+    protected void setDefault(Class<? extends T> clazz) {
+        defaultType = clazz;
     }
 
     /**
@@ -67,7 +72,11 @@ public class AbstractDiscriminatorPolymorphicDeserializer<T> extends StdDeserial
             }
         }
         if (parameterClass == null) {
-            return null;
+            if (defaultType == null) {
+                return null;
+            } else {
+                parameterClass = defaultType;
+            }
         }
         return mapper.treeToValue(root, parameterClass);
     }

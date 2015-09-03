@@ -16,6 +16,7 @@ import org.elasticsearch.annotation.query.TermFilter;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.paas.wf.Workflow;
 import alien4cloud.security.IManagedSecuredResource;
 import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;
@@ -108,4 +109,9 @@ public class Topology implements IManagedSecuredResource {
      * When not null, describe how this topology can be used to substitute a node type in another topology (topology composition).
      */
     private SubstitutionMapping substitutionMapping;
+
+    /**
+     * All the workflows associated with this topology.
+     */
+    private Map<String, Workflow> workflows;
 }

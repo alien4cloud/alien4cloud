@@ -9,7 +9,7 @@
   "CLONE": "Cloner",
   "DELETE": "Supprimer",
   "DELETE_CONFIRM": "Êtes-vous sûr de vouloir supprimer cet élément ?",
-  "CONFIRM_MESSAGE": "Êtes-vous sûr de vouloir effectuer cette action?",
+  "CONFIRM_MESSAGE": "Êtes-vous sûr de vouloir effectuer cette action ?",
   "CONFIRM": "Confirmer",
   "APPLICATION": "Application",
   "CSAR": "Csar",
@@ -351,7 +351,7 @@
       "INSTANCES": "Instances",
       "PROPERTIES": "Propriétés",
       "ATTRIBUTES": "Attributs",
-      "RUNTIMEPROPS": "Propertés d'exécution",
+      "RUNTIMEPROPS": "Propriétés d'exécution",
       "INFORMATIONS_TAB": "Informations",
       "INFORMATIONS": {
         "APP_NAME": "Nom de l'application",
@@ -592,7 +592,30 @@
     "ERRORS": {
       "DELETE_TITLE": "Supprimer une application",
       "DELETING_FAILED": "Impossible de supprimer l'application. Annuler son déploiement et réessayez."
-    }
+    },
+    "WF": {
+      "title" : "Workflows",
+      "addWorkflow": "Ajouter un nouveau workflow",
+      "interfaceName": "Interface",
+      "operationName": "Opération",
+      "stateName": "Etat",
+      "addOperationActivity": "Ajouter un appel d'opération",
+      "addStateActivity": "Ajouter un changement d'état",
+      "insertOperationActivity": "Insérer un appel d'opération (avant)",
+      "appendOperationActivity": "Ajouter un appel d'opération (après)",   
+      "insertStateActivity": "Insérer un changement d'état (avant)",
+      "appendStateActivity": "Ajouter un changement d'état (après)",             
+      "activity": "Activité",
+      "disconnectFrom": "Déconnecter depuis",
+      "disconnectTo": "Déconnecter vers",
+      "connectFromSelection": "Connecter depuis la sélection",
+      "connectToSelection": "Connecter vers la sélection",        
+      "removeStep": "Supprimer le pas",
+      "OperationCallActivity": "Appel d'opération",
+      "SetStateActivity": "Changement d'état",
+      "unpin": "Dévérouiller",
+      "currentSelection" : "Sélection courrante"
+    }    
   },
   "TEMPLATE": {
     "NEW": "Nouveau Modèle",

@@ -1,0 +1,545 @@
+/** Service that provides functionalities to edit steps and edges in a workflow. */
+define(function (require) {
+  'use strict';
+  var modules = require('modules');
+
+  modules.get('a4c-topology-editor').factory('topoEditWf', [ 'workflowServices', '$modal', '$interval', '$filter', 'listToMapService',
+    function(workflowServices, $modal, $interval, $filter, listToMapService) {
+      var TopologyEditorMixin = function(scope) {
+        this.scope = scope;
+        // the current step that is displayed
+        this.scope.previewWorkflowStep = undefined;
+        // the current step that is pinned (on witch the user may act)
+        this.scope.pinnedWorkflowStep = undefined;
+//        var instance = this;
+//        scope.$watch('topology', function() {
+//          if (scope.currentWorkflowName) {
+//            instance.cleanupSelection();
+//            instance.refreshGraph();
+//          }
+//        }, true);
+      };
+      TopologyEditorMixin.prototype = {
+        constructor: TopologyEditorMixin,
+        setCurrentWorkflowName: function(workflowName) {
+          this.clearSelection();
+          this.scope.currentWorkflowName = workflowName;
+          // this is need in case of failure while renaming
+          this.workflowName = workflowName;
+          this.refreshGraph(true);
+        },
+        previewStep: function(step) {
+          this.scope.previewWorkflowStep = step;
+          this.scope.$apply();
+        },
+        exitPreviewStep: function() {
+          if (this.scope.pinnedWorkflowStep) {
+            this.scope.previewWorkflowStep = this.scope.pinnedWorkflowStep;
+          } else {
+            this.scope.previewWorkflowStep = undefined;
+          }
+          this.scope.$apply();
+        },        
+        // include or exclude this step from the selection
+        toggleStepSelection: function(stepId) {
+          var indexOfId = this.scope.workflowCurrentStepSelection.indexOf(stepId);
+          var selected = false;
+          if (indexOfId > -1) {
+            // remove from selection
+            this.scope.workflowCurrentStepSelection.splice(indexOfId, 1);
+          } else {
+            // add to selection
+            this.scope.workflowCurrentStepSelection.push(stepId);
+            selected = true;
+          }
+//          if (this.scope.currentWorkflowStep) {
+//            // a step is displayed, we want to refresh the 'connect to' and 'connect from' stuffs
+//            this.setCurrentworkflowStep(this.scope.currentWorkflowStep.name, this.scope.currentWorkflowStep);
+//          }
+          this.scope.$apply();
+          this.refreshGraph();
+          return selected;
+        },
+        unselectStep: function(stepId) {
+          var indexOfId = this.scope.workflowCurrentStepSelection.indexOf(stepId);
+          if (indexOfId > -1) {
+            this.scope.workflowCurrentStepSelection.splice(indexOfId, 1);
+            this.refreshGraph();
+          }
+        },
+        isStepSelected: function(stepId) {
+          var indexOfId = this.scope.workflowCurrentStepSelection.indexOf(stepId);
+          return (indexOfId > -1);
+        },
+        isStepPinned: function(stepId) {
+          return (this.scope.pinnedWorkflowStep && stepId == this.scope.pinnedWorkflowStep.name);
+        },
+        hasStepPinned: function() {
+          return this.scope.pinnedWorkflowStep;
+        },        
+        clearSelection: function() {
+          this.scope.workflowCurrentStepSelection = [];
+          this.scope.pinnedWorkflowStep = undefined;
+          this.scope.previewWorkflowStep = undefined;
+        },
+        topologyChanged: function() {
+          if (!this.scope.currentWorkflowName) {
+            return;
+          }
+          var steps = this.scope.topology.topology.workflows[this.scope.currentWorkflowName].steps;
+          if (this.scope.pinnedWorkflowStep) {
+            if (!steps[this.scope.pinnedWorkflowStep.name]) {
+              // this step doesn't exists no more
+              this.scope.pinnedWorkflowStep = undefined;
+              this.scope.previewWorkflowStep = undefined;
+            }
+          }
+          var newSelection = [];
+          for(var selectedNodeIdx in this.scope.workflowCurrentStepSelection) {
+            var selectedNode = this.scope.workflowCurrentStepSelection[selectedNodeIdx];
+            if (steps[selectedNode]) {
+              newSelection.push(selectedNode);
+            }
+          }
+          this.scope.workflowCurrentStepSelection = newSelection;
+
+//          this.scope.$apply();
+          this.refreshGraph();
+        },
+        // the current step is the one that is displayed at the right of the screen
+        setPinnedWorkflowStep: function(nodeId, step) {
+          this.scope.pinnedWorkflowStep = step;
+          this.scope.pinnedWorkflowStep.precedingSteps = (step.precedingSteps) ? step.precedingSteps : [];
+          this.scope.pinnedWorkflowStep.followingSteps = (step.followingSteps) ? step.followingSteps : [];
+        },
+        // return the steps that can be candidate to connect to the current pinned step
+        getConnectFromCandidates: function() {
+          var connectFromCandidate = [];
+          var step = this.scope.pinnedWorkflowStep;
+          for(var selectedNodeIdx in this.scope.workflowCurrentStepSelection) {
+            var selectedNode = this.scope.workflowCurrentStepSelection[selectedNodeIdx];
+            if (selectedNode !== step.name && step.precedingSteps.indexOf(selectedNode) < 0) {
+              // the selected node is not in the preceding steps, we can propose it as 'from connection'
+              connectFromCandidate.push(selectedNode);
+            }
+          }      
+          return connectFromCandidate;
+        },
+        // return the steps that can be candidate to connect from the current pinned step
+        getConnectToCandidates: function() {
+          var connectToCandidate = [];
+          var step = this.scope.pinnedWorkflowStep;
+          for(var selectedNodeIdx in this.scope.workflowCurrentStepSelection) {
+            var selectedNode = this.scope.workflowCurrentStepSelection[selectedNodeIdx];
+            if (selectedNode !== step.name && step.followingSteps.indexOf(selectedNode) < 0) {
+              // the selected node is not in the following steps, we can propose it as 'to connection'
+              connectToCandidate.push(selectedNode);
+            }
+          }     
+          return connectToCandidate;
+        },        
+        // pin or un-pin this step : when a step is pinned it remains the current step until it is un-pinned
+        togglePinnedworkflowStep: function(nodeId, step) {
+          if (this.scope.pinnedWorkflowStep === step) {
+            this.scope.pinnedWorkflowStep = undefined;
+          } else {
+            this.setPinnedWorkflowStep(nodeId, step);
+          }
+          this.scope.$apply();
+          this.refreshGraph();
+        },
+        unpinCurrent: function() {
+          this.scope.pinnedWorkflowStep = undefined;
+          this.scope.previewWorkflowStep = undefined;
+          this.refreshGraph();
+        },
+        // === actions on workflows
+        createWorkflow: function() {
+          var scope = this.scope;
+          var instance = this;
+          workflowServices.workflows.create(
+            {
+              topologyId: scope.topology.topology.id
+            }, {},
+            function(successResult) {
+              if (!successResult.error) {
+                instance.clearSelection();
+                scope.topology.topology.workflows[successResult.data.name] = successResult.data;
+                instance.setCurrentWorkflowName(successResult.data.name);
+                console.debug('operation succeded, workflow create: ' + successResult.data.name);
+              } else {
+                console.debug(successResult.error);
+              }
+            },
+            function(errorResult) {
+              console.debug(errorResult);
+            }
+          );            
+        },        
+        removeWorkflow: function() {
+          var scope = this.scope;
+          var instance = this;
+          workflowServices.workflows.remove(
+            {
+              topologyId: scope.topology.topology.id,
+              workflowName: scope.currentWorkflowName
+            }, 
+            function(successResult) {
+              if (!successResult.error) {
+                delete scope.topology.topology.workflows[scope.currentWorkflowName];
+                instance.setCurrentWorkflowName(undefined);
+              } else {
+                console.debug(successResult.error);
+              }
+            },
+            function(errorResult) {
+              console.debug(errorResult);
+            }
+          );            
+        },
+        renameWorkflow: function(newName) {
+          var scope = this.scope;
+          var instance = this;
+          var oldName = scope.currentWorkflowName;
+          console.log("wf renaming '" + scope.currentWorkflowName + "' to '" + newName);
+          workflowServices.workflows.rename(
+            {
+              topologyId: scope.topology.topology.id,
+              workflowName: scope.currentWorkflowName,
+              newName: newName
+            }, {},
+            function(successResult) {
+              if (!successResult.error) {
+                scope.topology.topology.workflows[newName] = successResult.data;
+                delete scope.topology.topology.workflows[scope.currentWorkflowName];
+                instance.setCurrentWorkflowName(newName);
+              } else {
+                instance.setCurrentWorkflowName(scope.currentWorkflowName);
+                console.debug(successResult.error);
+              }
+            },
+            function(errorResult) {
+              instance.setCurrentWorkflowName(scope.currentWorkflowName);
+              console.debug(errorResult);
+            }
+          );            
+        },      
+        // === actions on steps
+        renameStep: function(stepId, newStepName) {
+          var scope = this.scope;
+          var instance = this;
+          workflowServices.step.rename(
+            {
+              topologyId: scope.topology.topology.id,
+              workflowName: scope.currentWorkflowName,
+              stepId: stepId,
+              newStepName: newStepName
+            }, {},
+            function(successResult) {
+              if (!successResult.error) {
+//                instance.clearSelection();
+                scope.topology.topology.workflows[scope.currentWorkflowName] = successResult.data;
+                console.debug('operation succeded');
+//                $interval(function() {
+//                  var step = scope.topology.topology.workflows[scope.currentWorkflowName].steps[newStepName];
+//                  instance.setPinnedWorkflowStep(newStepName, step);
+//                }, 0, 1); 
+              } else {
+                console.debug(successResult.error);
+                scope.pinnedWorkflowStep.name = stepId;
+              }
+            },
+            function(errorResult) {
+              console.debug(errorResult);
+              scope.pinnedWorkflowStep.name = stepId;
+            }
+          );            
+        },        
+        removeEdge: function(from, to) {
+          var scope = this.scope;
+          var instance = this;
+          workflowServices.edge.remove({
+              topologyId: scope.topology.topology.id,
+              workflowName: scope.currentWorkflowName,
+              from: from,
+              to: to
+            },
+            function(successResult) {
+              if (!successResult.error) {
+//                instance.clearSelection();
+                var wf = successResult.data;
+                if (scope.pinnedWorkflowStep) {
+                  instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, wf.steps[scope.pinnedWorkflowStep.name]);
+                }
+                scope.topology.topology.workflows[scope.currentWorkflowName] = wf;
+                console.debug('operation succeded');
+              } else {
+                console.debug(successResult.error);
+              }
+            },
+            function(errorResult) {
+              console.debug(errorResult);
+            }
+          );      
+        },
+        removeStep: function(stepId) {
+          var scope = this.scope;
+          var instance = this;
+          workflowServices.step.remove({
+              topologyId: scope.topology.topology.id,
+              workflowName: scope.currentWorkflowName,
+              stepId: stepId
+            },
+            function(successResult) {
+              if (!successResult.error) {
+                instance.clearSelection();
+                scope.topology.topology.workflows[scope.currentWorkflowName] = successResult.data;
+                console.debug('operation succeded');
+              } else {
+                console.debug(successResult.error);
+              }
+            },
+            function(errorResult) {
+              console.debug(errorResult);
+            }
+          );      
+        },        
+        connectFrom: function() {
+          var scope = this.scope;
+          var instance = this;
+          var connectFromCandidate = this.getConnectFromCandidates();
+          if (connectFromCandidate.length == 0) {
+            return;
+          }
+          workflowServices.step.connectFrom({
+              topologyId: scope.topology.topology.id,
+              workflowName: scope.currentWorkflowName,
+              stepId: scope.pinnedWorkflowStep.name
+            }, angular.toJson(connectFromCandidate), 
+            function(successResult) {
+              if (!successResult.error) {
+//                instance.clearSelection();
+                var wf = successResult.data;
+                if (scope.pinnedWorkflowStep) {
+                  instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, wf.steps[scope.pinnedWorkflowStep.name]);
+                }
+                scope.topology.topology.workflows[scope.currentWorkflowName] = wf;
+                console.debug('operation succeded');
+              } else {
+                console.debug(successResult.error);
+              }
+            },
+            function(errorResult) {
+              console.debug(errorResult);
+            }
+          );       
+        },
+        connectTo: function() {
+          var scope = this.scope;
+          var instance = this;
+          var connectToCandidate = this.getConnectToCandidates();
+          if (connectToCandidate.length == 0) {
+            return;
+          }          
+          workflowServices.step.connectTo({
+              topologyId: scope.topology.topology.id,
+              workflowName: scope.currentWorkflowName,
+              stepId: scope.pinnedWorkflowStep.name
+            }, angular.toJson(connectToCandidate),
+            function(successResult) {
+              if (!successResult.error) {
+                var wf = successResult.data;
+                if (scope.pinnedWorkflowStep) {
+                  instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, wf.steps[scope.pinnedWorkflowStep.name]);
+                }
+                scope.topology.topology.workflows[scope.currentWorkflowName] = wf;
+                console.debug('operation succeded');
+              } else {
+                console.debug(successResult.error);
+              }
+            },
+            function(errorResult) {
+              console.debug(errorResult);
+            }
+          );       
+        },
+        addOperation: function() {
+          this.addOperationActivity();         
+        },        
+        appendOperation: function(stepId) {
+          this.addOperationActivity(stepId, false);
+        },
+        insertOperation: function(stepId) {
+          this.addOperationActivity(stepId, true);
+        },        
+        addOperationActivity: function(stepId, before) {
+          var scope = this.scope;
+          var instance = this;
+          var modalInstance = $modal.open({
+            templateUrl: 'views/topology/workflow_operation_selector.html',
+            controller: 'WfOperationSelectorController',
+            resolve: {
+              topologyDTO: function() {
+                return scope.topology;
+              }
+            }
+          });
+          modalInstance.result.then(function(trilogy) {
+            var activityRequest = {
+                relatedStepId: stepId,
+                before: before,
+                activity: {
+                  type: 'alien4cloud.paas.wf.OperationCallActivity',
+                  nodeId: trilogy.node,
+                  interfaceName: trilogy.interface,
+                  operationName: trilogy.operation
+                }
+            };
+            instance.addActivity(activityRequest);
+          });           
+        },
+        addActivity: function(activityRequest) {
+          var scope = this.scope;
+          var instance = this;
+          workflowServices.activity.add({
+              topologyId: scope.topology.topology.id,
+              workflowName: scope.currentWorkflowName
+            }, activityRequest,
+            function(successResult) {
+              if (!successResult.error) {
+                var wf = successResult.data;
+                if (scope.pinnedWorkflowStep) {
+                  instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, wf.steps[scope.pinnedWorkflowStep.name]);
+                }
+                scope.topology.topology.workflows[scope.currentWorkflowName] = wf;
+                console.debug('operation succeded');
+              } else {
+                console.debug(successResult.error);
+              }
+            },
+            function(errorResult) {
+              console.debug(errorResult);
+            }
+          );       
+        },        
+        appendState: function(stepId) {
+          this.addStateActivity(stepId, false);
+        },
+        insertState: function(stepId) {
+          this.addStateActivity(stepId, true);
+        }, 
+        addState: function() {
+          this.addStateActivity();
+        },          
+        addStateActivity: function(stepId, before) {
+          var scope = this.scope;
+          var instance = this;
+          var modalInstance = $modal.open({
+            templateUrl: 'views/topology/workflow_state_selector.html',
+            controller: 'WfStateSelectorController',
+            resolve: {
+              topologyDTO: function() {
+                return scope.topology;
+              }
+            }
+          });
+          modalInstance.result.then(function(trilogy) {
+            var activityRequest = {
+                relatedStepId: stepId,
+                before: before,
+                activity: {
+                  type: 'alien4cloud.paas.wf.SetStateActivity',
+                  nodeId: trilogy.node,
+                  stateName: trilogy.state
+                }
+            };
+            instance.addActivity(activityRequest);
+          }); 
+        },
+        // refresh graph
+        refreshGraph: function(center) {
+          this.scope.$broadcast('WfRefresh');
+          if (center) {
+            this.scope.$broadcast('WfCenterGraph');
+          }
+        },  
+        // === action preview
+        removeStepPreview: function(stepId) {
+          this.scope.$broadcast('WfRemoveStepPreview', stepId);
+        },        
+        removeEdgePreview: function(from, to) {
+          this.scope.$broadcast('WfRemoveEdgePreview', from, to);
+        },
+        connectFromPreview: function() {
+          var candidates = this.getConnectFromCandidates();
+          if (candidates && candidates.length > 0) {
+            this.connectPreview(candidates, [this.scope.pinnedWorkflowStep.name]);
+          }
+        },
+        connectToPreview: function() {
+          var candidates = this.getConnectToCandidates();
+          if (candidates && candidates.length > 0) {
+            this.connectPreview([this.scope.pinnedWorkflowStep.name], candidates);
+          }
+        },        
+        connectPreview: function(from, to) {
+          this.scope.$broadcast('WfConnectPreview', from, to);
+        }, 
+        addStepPreview: function() {
+          this.scope.$broadcast('WfAddStepPreview');
+        }, 
+        insertStepPreview: function(stepId) {
+          this.scope.$broadcast('WfInsertStepPreview', stepId);
+        }, 
+        appendStepPreview: function(stepId) {
+          this.scope.$broadcast('WfAppendStepPreview', stepId);
+        },        
+        resetPreview: function() {
+          this.scope.$broadcast('WfResetPreview');
+        },        
+        
+        // ===== misc : should probably be removed from here
+        getStepNodeIcon: function(step) {
+          var nodeName = step.nodeId;
+          if (this.scope.topology.topology.nodeTemplates[nodeName]) {
+            var typeName = this.scope.topology.topology.nodeTemplates[nodeName].type;
+            var nodeType = this.scope.topology.nodeTypes[typeName];
+            var tags = listToMapService.listToMap(nodeType.tags, 'name', 'value');
+            return tags.icon;
+          } else {
+            return undefined;
+          }
+        },
+        getStepActivityTypeIcon: function(step) {
+          if (step.activity.type === 'alien4cloud.paas.wf.OperationCallActivity') {
+            return '\uf085'; // fa-cogs
+          } else if (step.activity.type === 'alien4cloud.paas.wf.SetStateActivity') {
+            return '\uf087'; // fa-thumbs-o-up
+          } else {
+            return '\uf1e2'; // fa-bomb
+          }            
+        },        
+        getStepActivityType: function(step) {
+          return $filter('splitAndGet')(step.activity.type, '.', 'last');
+        },
+        getStepActivityDetails: function(step) {
+          var details = {};
+          if (step.activity.type === 'alien4cloud.paas.wf.OperationCallActivity') {
+            details['interfaceName'] = step.activity.interfaceName;
+            details['operationName'] = step.activity.operationName;
+          } else if (step.activity.type === 'alien4cloud.paas.wf.SetStateActivity') {
+            details['stateName'] = step.activity.stateName;
+          } else {
+            details = step.activity;
+          }     
+          return details;
+        }        
+      }
+
+      return function(scope) {
+        var instance = new TopologyEditorMixin(scope);
+        scope.workflows = instance;
+      };
+    }
+  ]); // modules
+}); // define

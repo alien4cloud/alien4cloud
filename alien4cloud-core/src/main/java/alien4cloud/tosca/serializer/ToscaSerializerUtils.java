@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -25,6 +26,11 @@ import alien4cloud.model.components.constraints.PatternConstraint;
 import alien4cloud.model.components.constraints.ValidValuesConstraint;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.paas.wf.AbstractActivity;
+import alien4cloud.paas.wf.AbstractStep;
+import alien4cloud.paas.wf.NodeActivityStep;
+import alien4cloud.paas.wf.OperationCallActivity;
+import alien4cloud.paas.wf.SetStateActivity;
 
 /**
  * Tools for serializing in YAML/TOSCA. ALl methods should be static but did not found how to use statics from velocity.
@@ -226,4 +232,42 @@ public class ToscaSerializerUtils {
         return builder.toString();
     }
 
+    public boolean isNodeActivityStep(AbstractStep abstractStep) {
+        return abstractStep instanceof NodeActivityStep;
+    }
+
+    public String getActivityLabel(AbstractActivity activity) {
+        if (activity instanceof OperationCallActivity) {
+            return "call_operation";
+        } else if (activity instanceof SetStateActivity) {
+            return "set_state";
+        } else {
+            return activity.getClass().getSimpleName();
+        }
+    }
+
+    public boolean canRenderInlineActivityArgs(AbstractActivity activity) {
+        // if return false, the renderer will call getActivityArgsMap, elsewhere getActivityArg
+        return true;
+    }
+
+    public String getInlineActivityArg(AbstractActivity activity) {
+        if (activity instanceof OperationCallActivity) {
+            OperationCallActivity callActivity = (OperationCallActivity) activity;
+            return callActivity.getInterfaceName() + "." + callActivity.getOperationName();
+        } else if (activity instanceof SetStateActivity) {
+            SetStateActivity stateActivity = (SetStateActivity) activity;
+            return stateActivity.getStateName();
+        } else {
+            return "void";
+        }
+    }
+
+    // sample map for complex activity that can not be rendered simply
+    public Map<String, String> getActivityArgsMap(AbstractActivity activity) {
+        Map<String, String> args = new HashMap<String, String>();
+        args.put("arg1", "value1");
+        args.put("arg2", "value2");
+        return args;
+    }
 }

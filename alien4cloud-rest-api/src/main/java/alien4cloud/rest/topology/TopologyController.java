@@ -65,6 +65,7 @@ import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.plan.BuildPlanGenerator;
 import alien4cloud.paas.plan.StartEvent;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -141,6 +142,9 @@ public class TopologyController {
 
     @Resource
     private TopologyCompositionService topologyCompositionService;
+
+    @Resource
+    private WorkflowsBuilderService workflowBuilderService;
 
     /**
      * Retrieve an existing {@link alien4cloud.model.topology.Topology}
@@ -225,6 +229,7 @@ public class TopologyController {
         log.debug("Adding a new Node template <" + nodeTemplateRequest.getName() + "> bound to the node type <" + nodeTemplateRequest.getIndexedNodeTypeId()
                 + "> to the topology <" + topology.getId() + "> .");
 
+        workflowBuilderService.addNode(topology, nodeTemplateRequest.getName(), nodeTemplate);
         alienDAO.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
@@ -427,6 +432,7 @@ public class TopologyController {
         TopologyServiceCore.fillProperties(properties, indexedRelationshipType.getProperties(), null);
         relationship.setProperties(properties);
         relationships.put(relationshipName, relationship);
+        workflowBuilderService.addRelationship(topology, nodeTemplateName, relationshipName);
         alienDAO.save(topology);
         log.info("Added relationship to the topology [" + topologyId + "], node name [" + nodeTemplateName + "], relationship name [" + relationshipName + "]");
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
@@ -493,7 +499,8 @@ public class TopologyController {
 
         // group members removal
         updateGroupMembers(topology, template, nodeTemplateName, null);
-
+        // update the workflows
+        workflowBuilderService.removeNode(topology, nodeTemplateName, template);
         alienDAO.save(topology);
         topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
@@ -1003,6 +1010,7 @@ public class TopologyController {
             throw new NotFoundException("The relationship with name [" + relationshipName + "] do not exist for the node [" + nodeTemplateName
                     + "] of the topology [" + topologyId + "]");
         }
+        workflowBuilderService.removeRelationship(topology, nodeTemplateName, relationshipName, relationshipTemplate);
         alienDAO.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }

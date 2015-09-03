@@ -22,12 +22,13 @@
                             select-callback="editorCallback.selectNodeTemplate(newSelectedName, oldSelectedName)"
                             add-relationship-callback="editorCallback.addRelationship(sourceId, requirementName, requirementType, targetId, capabilityName, relationship)"
                             runtime="false"></topology-rendering>
-        <topology-plan ng-if="view === 'PLAN' && topology" dimensions="visualDimensions" topology="topology" id="plan-graph-container"></topology-plan>
+        <topology-plan ng-if="view === 'PLAN' && topology"  id="plan-graph-container"></topology-plan>
+        <!--  dimensions="visualDimensions" topology="topology" workflows="workflows"  -->
       </div>
     </div>
 
     <!-- NodeTemplate details -->
-    <div id="nodetemplate-details" ng-show="selectedNodeTemplate && displays.component.active" class="topology-column" style="width: {{displays.catalog.size}}px;">
+    <div id="nodetemplate-details" ng-show="view === 'RENDERED' && selectedNodeTemplate && displays.component.active" class="topology-column" style="width: {{displays.catalog.size}}px;">
       <div class="topology-column-box">
         <div class="topology-column-menu">
           <i id="nodetemplate-details-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
@@ -676,7 +677,7 @@
     </div>
 
     <!-- Components search -->
-    <div id="catalog-box" ng-show="displays.catalog.active" class="topology-column" style="width: {{displays.catalog.size}}px;">
+    <div id="catalog-box" ng-show="view === 'RENDERED' && displays.catalog.active" class="topology-column" style="width: {{displays.catalog.size}}px;">
       <div class="topology-column-box">
         <div class="topology-column-menu">
           <i id="catalog-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
@@ -703,7 +704,7 @@
     </div>
 
     <!-- Dependencies -->
-    <div id="dependencies-box" ng-show="displays.dependencies.active" class="topology-column" style="width: {{displays.dependencies.size}}px;">
+    <div id="dependencies-box" ng-show="view === 'RENDERED' && displays.dependencies.active" class="topology-column" style="width: {{displays.dependencies.size}}px;">
       <div class="topology-column-box">
         <div class="topology-column-menu">
           <i id="dependencies-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
@@ -737,7 +738,7 @@
     </div>
 
     <!-- Inputs -->
-    <div id="inputs-box" ng-show="displays.inputs.active" class="topology-column ui-resizable" style="width: {{displays.inputs.size}}px;">
+    <div id="inputs-box" ng-show="view === 'RENDERED' && displays.inputs.active" class="topology-column ui-resizable" style="width: {{displays.inputs.size}}px;">
       <div class="topology-column-box">
         <div class="topology-column-menu">
           <i id="inputs-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
@@ -783,7 +784,7 @@
     </div>
 
     <!-- Node Groups -->
-    <div id="groups-box" ng-show="displays.groups.active" class="topology-column ui-resizable" style="width: {{displays.groups.size}}px;">
+    <div id="groups-box" ng-show="view === 'RENDERED' && displays.groups.active" class="topology-column ui-resizable" style="width: {{displays.groups.size}}px;">
       <div class="topology-column-box">
         <div class="topology-column-menu">
           <i id="inputs-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
@@ -850,7 +851,7 @@
     </div>
 
     <!-- Input Artifacts -->
-    <div id="artifacts-box" ng-show="displays.artifacts.active" class="topology-column ui-resizable" style="width: {{displays.artifacts.size}}px;">
+    <div id="artifacts-box" ng-show="view === 'RENDERED' && displays.artifacts.active" class="topology-column ui-resizable" style="width: {{displays.artifacts.size}}px;">
       <div class="topology-column-box">
         <div class="topology-column-menu">
           <i id="artifacts-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
@@ -893,7 +894,7 @@
     </div>
 
     <!-- Substitution -->
-    <div id="substitutions-box" ng-show="isTopologyTemplate && displays.substitutions.active" class="topology-column ui-resizable" style="width: {{displays.substitutions.size}}px;">
+    <div id="substitutions-box" ng-show="view === 'RENDERED' && isTopologyTemplate && displays.substitutions.active" class="topology-column ui-resizable" style="width: {{displays.substitutions.size}}px;">
       <div class="topology-column-box">
         <div class="topology-column-menu">
           <i id="artifacts-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
@@ -991,35 +992,231 @@
       </div>
     </div>
 
+    <!-- Workflows -->
+    <div id="workflows-box" ng-show="view === 'PLAN'" class="topology-column ui-resizable" style="width: {{displays.substitutions.size}}px;">
+      <div class="topology-column-box">
+        <div class="topology-column-menu">
+          <i id="artifacts-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
+        </div>
+        <div class="topology-column-content">
+          <div class="topology-column-content-head">
+            <span>
+              <i class="fa fa-power-off"></i> {{'APPLICATIONS.WF.title' | translate}}
+            </span>
+          </div>
+          <div class="well wfbox">
+	          <div class="row">
+	            <div class="col-md-10">
+			          <select name="wf-select" id="wf-select" ng-model="currentWorkflowName" ng-change="workflows.setCurrentWorkflowName(currentWorkflowName)">
+			           <option ng-repeat="w in topology.topology.workflows" value="{{w.name}}" ng-selected="w.name === currentWorkflowName">{{w.name}}</option>
+			          </select>
+	            </div>
+	            <div class="col-md-2" style="margin-top: 6px;">
+	              <div class="pull-right">
+	                  <a id="wfUnpinStep"
+	                     class="btn btn-primary btn-sm"
+	                     tooltip="{{ 'APPLICATIONS.WF.addWorkflow' | translate}}"
+	                     tooltip-append-to-body="true" ng-click="workflows.createWorkflow()">
+	                    <i class="fa fa-plus-square"></i>
+	                  </a>                 
+	              </div>
+	            </div>
+	          </div>
+	        </div>        
+          <div class="well wfbox" ng-if="currentWorkflowName">
+            <div class="row">
+              <div class="col-md-10">
+                <h4 class="pull-left">
+		              <span editable-text="workflows.workflowName" buttons="no" e-required onbeforesave="workflows.renameWorkflow($data)" blur="submit" ng-if="!topology.topology.workflows[currentWorkflowName].standard">
+		                {{ currentWorkflowName }}
+		                <i class="fa fa-pencil-square-o"></i>
+		              </span>    
+		              <span ng-if="topology.topology.workflows[currentWorkflowName].standard">{{ currentWorkflowName }}</span>               
+                </h4>
+              </div>
+              <div class="col-md-2" style="margin-top: 6px;">
+                <div class="pull-right">
+									<delete-confirm
+										ng-if="!topology.topology.workflows[currentWorkflowName].standard"
+										id="btn-delete-wf" func="workflows.removeWorkflow()"
+										position="left" bssize="btn-sm" fastyle="fa-trash-o">
+									</delete-confirm>
+								</div>
+              </div>
+            </div>              
+						<div>
+							<a class="btn btn-default btn-md"
+								ng-mouseover="workflows.addStepPreview()"
+								ng-mouseleave="workflows.resetPreview()"
+								ng-click="workflows.addOperation()">{{'APPLICATIONS.WF.addOperationActivity' | translate}}</a>
+						</div>
+						<div>
+							<a class="btn btn-default btn-md" 
+								ng-mouseover="workflows.addStepPreview()"
+								ng-mouseleave="workflows.resetPreview()"
+								ng-click="workflows.addState()">{{'APPLICATIONS.WF.addStateActivity' | translate}}</a>
+						</div>
+					</div>
+					<!-- The displayed step -->
+					<div class="well wfbox" ng-if="previewWorkflowStep">
+            <h4 class="pull-left">{{previewWorkflowStep.name}}</h4>
+            <i class="fa pull-right">{{workflows.getStepActivityTypeIcon(previewWorkflowStep)}}</i>
+					  <span class="clearfix"></span>
+					  <div class="row">
+					   <div class="col-md-3">
+    					 <img ng-src="img?id={{workflows.getStepNodeIcon(previewWorkflowStep)}}&quality=QUALITY_64" />
+             </div>
+			 		   <div class="col-md-9">
+				 		   Node: <b>{{previewWorkflowStep.nodeId}}</b><br>
+						   Host: <b>{{previewWorkflowStep.hostId}}</b><br>
+						   {{'APPLICATIONS.WF.activity' | translate}}: <b>{{ 'APPLICATIONS.WF.' + workflows.getStepActivityType(previewWorkflowStep) | translate}}</b><br>
+					   </div>
+					 </div>
+           <div class="row" ng-repeat="(k,v) in workflows.getStepActivityDetails(previewWorkflowStep)">
+             <div class="col-md-3">{{'APPLICATIONS.WF.' + k | translate}}: </div>
+             <div class="col-md-9 wfActivityDetail"><b>{{v}}</b></div>
+           </div>					 
+					</div>
+					<!-- The current selection -->
+          <div class="well wfbox" ng-if="workflowCurrentStepSelection.length > 0">
+            <h4>{{'APPLICATIONS.WF.currentSelection' | translate}}</h4>
+            <ul>
+              <li ng-repeat="wfStep in workflowCurrentStepSelection">
+                <a href="" id="wfRemoveStepSelection_{{wfStep}}" ng-click="workflows.unselectStep(wfStep)" >
+                  <span>{{wfStep}}</span>&nbsp;
+                  <i class="fa fa-times"></i>
+                </a>
+              </li>
+            </ul>           
+          </div>
+          <!-- The pinned step to be edited -->
+          <div class="well wfbox" ng-if="pinnedWorkflowStep">
+	          <div class="row">
+	            <div class="col-md-10">
+	              <h4 class="pull-left">
+	               <span editable-text="pinnedWorkflowStep.name" buttons="no" e-required onbeforesave="workflows.renameStep(pinnedWorkflowStep.name, $data)" blur="submit">
+	                  {{ pinnedWorkflowStep.name }}
+	                  <i class="fa fa-pencil-square-o"></i>
+	                </span>                 
+	              </h4>
+	            </div>
+	            <div class="col-md-2" style="margin-top: 6px;">
+	              <div class="pull-right">
+	                  <a id="wfUnpinStep"
+	                     class="btn btn-default btn-sm"
+	                     tooltip="{{ 'APPLICATIONS.WF.unpin' | translate}}"
+	                     tooltip-append-to-body="true" ng-click="workflows.unpinCurrent()">
+	                    <i class="fa fa-unlock"></i>
+	                  </a>              
+	              </div>
+	            </div>
+	          </div>          
+	          
+							<div
+								ng-repeat="precedingNodeId in pinnedWorkflowStep.precedingSteps">
+								<a class="btn btn-default btn-md"
+									ng-mouseover="workflows.removeEdgePreview(precedingNodeId, pinnedWorkflowStep.name)"
+									ng-mouseleave="workflows.resetPreview()"
+									confirm="{{'CONFIRM_MESSAGE' | translate}}"
+									confirm-title="{{'CONFIRM' | translate }}"
+									confirm-handler="workflows.removeEdge(precedingNodeId, pinnedWorkflowStep.name)"
+									confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.disconnectFrom' | translate}} {{precedingNodeId}}</a>
+							</div>
+							<div
+								ng-repeat="followingNodeId in pinnedWorkflowStep.followingSteps">
+								<a class="btn btn-default btn-md"
+									ng-mouseover="workflows.removeEdgePreview(pinnedWorkflowStep.name, followingNodeId)"
+									ng-mouseleave="workflows.resetPreview()"
+									confirm="{{'CONFIRM_MESSAGE' | translate}}"
+									confirm-title="{{'CONFIRM' | translate }}"
+									confirm-handler="workflows.removeEdge(pinnedWorkflowStep.name, followingNodeId)"
+									confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.disconnectTo' | translate}} {{followingNodeId}}</a>
+							</div>
+							<div ng-if="workflowCurrentStepSelection.length > 0">
+								<a class="btn btn-default btn-md"
+									ng-mouseover="workflows.connectFromPreview()"
+									ng-mouseleave="workflows.resetPreview()"
+									confirm="{{'CONFIRM_MESSAGE' | translate}}"
+									confirm-title="{{'CONFIRM' | translate }}"
+									confirm-handler="workflows.connectFrom()"
+									confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.connectFromSelection' | translate}}</a>
+							</div>
+							<div ng-if="workflowCurrentStepSelection.length > 0">
+								<a class="btn btn-default btn-md"
+									ng-mouseover="workflows.connectToPreview()"
+									ng-mouseleave="workflows.resetPreview()"
+									confirm="{{'CONFIRM_MESSAGE' | translate}}"
+									confirm-title="{{'CONFIRM' | translate }}"
+									confirm-handler="workflows.connectTo()"
+									confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.connectToSelection' | translate}}</a>
+							</div>
+							<div>
+								<a class="btn btn-default btn-md"
+									ng-mouseover="workflows.removeStepPreview(pinnedWorkflowStep.name)"
+									ng-mouseleave="workflows.resetPreview()"
+									confirm="{{'DELETE_CONFIRM' | translate}}"
+									confirm-title="{{'DELETE' | translate }}"
+									confirm-handler="workflows.removeStep(pinnedWorkflowStep.name)"
+									confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.removeStep' | translate}}</a>
+							</div>
+							<div>
+								<a class="btn btn-default btn-md"
+									ng-mouseover="workflows.insertStepPreview(pinnedWorkflowStep.name)"
+									ng-mouseleave="workflows.resetPreview()"
+									ng-click="workflows.insertOperation(pinnedWorkflowStep.name)">{{'APPLICATIONS.WF.insertOperationActivity' | translate}}</a>
+							</div>
+							<div>
+								<a class="btn btn-default btn-md"
+									ng-mouseover="workflows.appendStepPreview(pinnedWorkflowStep.name)"
+									ng-mouseleave="workflows.resetPreview()"
+									ng-click="workflows.appendOperation(pinnedWorkflowStep.name)">{{'APPLICATIONS.WF.appendOperationActivity' | translate}}</a>
+							</div>
+							<div>
+								<a class="btn btn-default btn-md"
+									ng-mouseover="workflows.insertStepPreview(pinnedWorkflowStep.name)"
+									ng-mouseleave="workflows.resetPreview()"
+									ng-click="workflows.insertState(pinnedWorkflowStep.name)">{{'APPLICATIONS.WF.insertStateActivity' | translate}}</a>
+							</div>
+							<div>
+								<a class="btn btn-default btn-md"
+									ng-mouseover="workflows.appendStepPreview(pinnedWorkflowStep.name)"
+									ng-mouseleave="workflows.resetPreview()"
+									ng-click="workflows.appendState(pinnedWorkflowStep.name)">{{'APPLICATIONS.WF.appendStateActivity' | translate}}</a>
+							</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Right vertical menu -->
     <div id="topology-vertical-menu" class="topology-column">
       <ul>
-        <li ng-show="!displays.catalog.active">
+        <li ng-show="view === 'RENDERED' && !displays.catalog.active">
           <span id="topology-components-search" ng-click="display.toggle('catalog')">
             <i class="fa fa-plus"></i> {{'APPLICATIONS.TOPOLOGY.ADD_NODETEMPLATE' | translate}}
           </span>
         </li>
-        <li ng-show="!displays.dependencies.active">
+        <li ng-show="view === 'RENDERED' && !displays.dependencies.active">
           <span id="topology-dependencies" ng-click="display.toggle('dependencies')">
             <i class="fa fa-archive"></i> {{'APPLICATIONS.TOPOLOGY.DEPENDENCY' | translate}}
           </span>
         </li>
-        <li ng-show="!displays.inputs.active">
+        <li ng-show="view === 'RENDERED' && !displays.inputs.active">
           <span id="topology-inputs" ng-click="display.toggle('inputs')">
             <i class="fa fa-sign-in"></i> Inputs
           </span>
         </li>
-        <li ng-show="!displays.groups.active" ng-click="display.toggle('groups')">
+        <li ng-show="view === 'RENDERED' && !displays.groups.active" ng-click="display.toggle('groups')">
           <span id="topology-groups" >
             <i class="fa fa-list-alt"></i> {{'APPLICATIONS.TOPOLOGY.GROUPS.TITLE' | translate}}
           </span>
         </li>
-        <li ng-show="!displays.artifacts.active" ng-click="display.toggle('artifacts')">
+        <li ng-show="view === 'RENDERED' && !displays.artifacts.active" ng-click="display.toggle('artifacts')">
           <span id="topology-artifacts" >
             <i class="fa fa-file"></i> {{'APPLICATIONS.TOPOLOGY.ARTIFACTS.TITLE' | translate}}
           </span>
         </li>
-        <li ng-show="isTopologyTemplate && !displays.substitutions.active" ng-click="display.toggle('substitutions')">
+        <li ng-show="view === 'RENDERED' && isTopologyTemplate && !displays.substitutions.active" ng-click="display.toggle('substitutions')">
           <span id="topology-substitutions" >
             <i class="fa fa-recycle"></i> {{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.TITLE' | translate}}
           </span>
