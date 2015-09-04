@@ -14,6 +14,7 @@ import org.eclipse.jgit.api.Git;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
@@ -32,8 +33,8 @@ import alien4cloud.utils.FileUtil;
 
 import com.google.common.collect.Lists;
 
-@Component
 @Slf4j
+@Service
 public class CsarGitService {
     @Inject
     private CsarGitRepositoryService csarGitRepositoryService;
@@ -106,23 +107,30 @@ public class CsarGitService {
     }
 
     private List<ParsingResult<Csar>> doImport(CsarGitRepository csarGitRepository, CsarGitCheckoutLocation csarGitCheckoutLocation) {
-        // checkout the repository branch
-        Git git = RepositoryManager.cloneOrCheckout(tempDirPath, csarGitRepository.getRepositoryUrl(), csarGitRepository.getUsername(),
-                csarGitRepository.getPassword(), csarGitCheckoutLocation.getBranchId(), csarGitRepository.getId());
-        // if the repository is persistent we also have to pull to get the latest version
-        if (csarGitRepository.isStoredLocally()) {
-            // try to pull
-            RepositoryManager.pull(git, csarGitRepository.getUsername(), csarGitRepository.getPassword());
+        Git git = null;
+        try {
+            // checkout the repository branch
+            git = RepositoryManager.cloneOrCheckout(tempDirPath, csarGitRepository.getRepositoryUrl(), csarGitRepository.getUsername(),
+                    csarGitRepository.getPassword(), csarGitCheckoutLocation.getBranchId(), csarGitRepository.getId());
+            // if the repository is persistent we also have to pull to get the latest version
+            if (csarGitRepository.isStoredLocally()) {
+                // try to pull
+                RepositoryManager.pull(git, csarGitRepository.getUsername(), csarGitRepository.getPassword());
+            }
+            String hash = RepositoryManager.getLastHash(git);
+            if (csarGitCheckoutLocation.getLastImportedHash() != null && csarGitCheckoutLocation.getLastImportedHash().equals(hash)) {
+                return null; // no commit since last import.
+            }
+            // now that the repository is checked out and up to date process with the import
+            List<ParsingResult<Csar>> result = processImport(csarGitRepository, csarGitCheckoutLocation);
+            csarGitCheckoutLocation.setLastImportedHash(hash);
+            alienDAO.save(csarGitRepository); // update the hash for this location.
+            return result;
+        } finally {
+            if (git != null) {
+                git.close();
+            }
         }
-        String hash = RepositoryManager.getLastHash(git);
-        if (csarGitCheckoutLocation.getLastImportedHash() != null && csarGitCheckoutLocation.getLastImportedHash().equals(hash)) {
-            return null; // no commit since last import.
-        }
-        // now that the repository is checked out and up to date process with the import
-        List<ParsingResult<Csar>> result = processImport(csarGitRepository, csarGitCheckoutLocation);
-        csarGitCheckoutLocation.setLastImportedHash(hash);
-        alienDAO.save(csarGitRepository); // update the hash for this location.
-        return result;
     }
 
     private List<ParsingResult<Csar>> processImport(CsarGitRepository csarGitRepository, CsarGitCheckoutLocation csarGitCheckoutLocation) {

@@ -30,6 +30,8 @@ public class CsarFinderService {
      */
     public Set<Path> prepare(Path searchPath, Path zipPath) {
         ToscaFinderWalker toscaFinderWalker = new ToscaFinderWalker();
+        toscaFinderWalker.zipRootPath = zipPath;
+        toscaFinderWalker.rootPath = searchPath;
         try {
             Files.walkFileTree(searchPath, toscaFinderWalker);
         } catch (IOException e) {
@@ -45,17 +47,19 @@ public class CsarFinderService {
 
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            ArchiveParser.TOSCA_META_FOLDER_NAME.equals(dir.getFileName());
-            // zip parent folder and add the path.
-            addToscaArchive(dir.getParent());
-            return FileVisitResult.SKIP_SIBLINGS;
+            if (ArchiveParser.TOSCA_META_FOLDER_NAME.equals(dir.getFileName())) {
+                // zip parent folder and add the path.
+                addToscaArchive(dir.getParent());
+                return FileVisitResult.SKIP_SIBLINGS;
+            }
+            return FileVisitResult.CONTINUE;
         }
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             // TODO check that the file has the tosca_definitions_version header.
             Path fileName = file.getFileName();
-            if (fileName.endsWith(".yaml") || fileName.endsWith(".yml")) {
+            if (fileName.toString().endsWith(".yaml") || fileName.toString().endsWith(".yml")) {
                 addToscaArchive(file.getParent());
                 return FileVisitResult.SKIP_SIBLINGS;
             }
@@ -67,7 +71,7 @@ public class CsarFinderService {
             Path zipPath = zipRootPath.resolve(relativePath).resolve("archive.zip");
             try {
                 FileUtil.zip(path, zipPath);
-                toscaArchives.add(path);
+                toscaArchives.add(zipPath);
             } catch (IOException e) {
                 throw new GitException("Failed to zip archives in order to import them.", e);
             }

@@ -170,7 +170,7 @@ public class CsarGitController {
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.POST)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
     @Audit
-    public RestResponse<List<ParsingResult<Csar>>> importCsar(@Valid @RequestBody String id) {
+    public RestResponse<List<ParsingResult<Csar>>> importCsar(@Valid @PathVariable String id) {
         List<ParsingResult<Csar>> parsingResult = csarGitService.importFromGitRepository(id);
         return RestResponseBuilder.<List<ParsingResult<Csar>>> builder().data(parsingResult).build();
     }

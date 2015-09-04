@@ -20,11 +20,13 @@ import alien4cloud.security.model.CsarGitCheckoutLocation;
 import alien4cloud.security.model.CsarGitRepository;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.UrlUtil;
+import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 
 /**
  * Manages operations on a CsarGitRepository
  */
+@Service
 public class CsarGitRepositoryService {
     private static final String URL_FIELD = "repositoryUrl";
     @Resource(name = "alien-es-dao")

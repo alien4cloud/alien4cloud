@@ -14,16 +14,6 @@ define(function (require) {
       }
     });
 
-    var search = $resource('rest/csarsgit/search', {}, {
-      'search': {
-        method: 'POST',
-        isArray: false,
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8'
-        }
-      }
-    });
-
     var create = $resource('rest/csarsgit',{},{
        'create':{
          method: 'POST',
@@ -44,7 +34,7 @@ define(function (require) {
         }
       });
 
-     var fetch = $resource('rest/csarsgit/import/:id',{}, {
+     var fetch = $resource('rest/csarsgit/:id',{}, {
         'import':{
           method: 'POST',
           isArray: false,
@@ -56,7 +46,6 @@ define(function (require) {
 
       return {
         'remove': remove.remove,
-        'search': search.search,
         'create': create.create,
         'fetch': fetch.import,
         'update':update.update

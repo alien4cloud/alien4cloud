@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
@@ -48,8 +49,14 @@ public class RepositoryManager {
             Path targetPath = targetDirectory.resolve(localDirectory);
             Git repository;
             if (Files.exists(targetPath)) {
-                repository = Git.open(targetPath.toFile());
-                checkoutRepository(repository, branch, username, password);
+                try {
+                    repository = Git.open(targetPath.toFile());
+                    checkoutRepository(repository, branch, username, password);
+                } catch (RepositoryNotFoundException e) {
+                    // TODO delete the folder
+                    FileUtil.delete(targetPath);
+                    repository = cloneRepository(repositoryUrl, username, password, branch, targetPath);
+                }
             } else {
                 Files.createDirectories(targetPath);
                 repository = cloneRepository(repositoryUrl, username, password, branch, targetPath);

@@ -1,7 +1,9 @@
 package alien4cloud.utils;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 /**
  * Utility to work with url.
@@ -21,9 +23,9 @@ public final class UrlUtil {
      */
     public static boolean isValid(String candidateUrl) {
         try {
-            URI uri = new URI(candidateUrl);
+            URL url = new URL(candidateUrl);
             return true;
-        } catch (URISyntaxException e) {
+        } catch (MalformedURLException e) {
             return false;
         }
     }

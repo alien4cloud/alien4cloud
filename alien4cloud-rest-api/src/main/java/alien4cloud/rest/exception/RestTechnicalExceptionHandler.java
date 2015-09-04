@@ -65,8 +65,8 @@ public class RestTechnicalExceptionHandler {
     @ExceptionHandler(GitException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public RestResponse<Void> gitCloneUriInvalid(GitException e) {
-        log.error(e.getMessage());
+    public RestResponse<Void> gitException(GitException e) {
+        log.error("Failed to import archive from git location.", e);
         return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.GIT_IMPORT_FAILED).message(e.getMessage()).build()).build();
     }
 
