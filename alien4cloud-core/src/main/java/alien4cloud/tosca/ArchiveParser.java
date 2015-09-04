@@ -34,11 +34,12 @@ import alien4cloud.utils.FileUtil;
 @Slf4j
 @Component
 public class ArchiveParser {
+    public static final String TOSCA_META_FOLDER_NAME = "TOSCA-Metadata";
     @Deprecated
-    public static final String ALIEN_META_FILE_LOCATION = FileSystems.getDefault().getSeparator() + "TOSCA-Metadata" + FileSystems.getDefault().getSeparator()
-            + "ALIEN-META.yaml";
-    public static final String TOSCA_META_FILE_LOCATION = FileSystems.getDefault().getSeparator() + "TOSCA-Metadata" + FileSystems.getDefault().getSeparator()
-            + "TOSCA.meta";
+    public static final String ALIEN_META_FILE_LOCATION = FileSystems.getDefault().getSeparator() + TOSCA_META_FOLDER_NAME
+            + FileSystems.getDefault().getSeparator() + "ALIEN-META.yaml";
+    public static final String TOSCA_META_FILE_LOCATION = FileSystems.getDefault().getSeparator() + TOSCA_META_FOLDER_NAME
+            + FileSystems.getDefault().getSeparator() + "TOSCA.meta";
 
     @Resource
     private ToscaMetaMapping toscaMetaMapping;

@@ -1,43 +1,25 @@
 package alien4cloud.csar.services;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.NoHeadException;
-import org.eclipse.jgit.errors.RevisionSyntaxException;
-import org.eclipse.jgit.internal.storage.file.FileRepository;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.util.FileSystemUtils;
 
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.GitCloneUriException;
-import alien4cloud.exception.GitNoModificationDetected;
-import alien4cloud.exception.GitNotAuthorizedException;
-import alien4cloud.exception.NotFoundException;
+import alien4cloud.exception.GitException;
 import alien4cloud.git.RepositoryManager;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
@@ -48,275 +30,141 @@ import alien4cloud.tosca.ArchiveUploadService;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
-import alien4cloud.utils.ReflectionUtil;
 
-@Component
+import com.google.common.collect.Lists;
+
 @Slf4j
+@Service
 public class CsarGitService {
-    @Resource
-    ArchiveUploadService uploadService;
-
+    @Inject
+    private CsarGitRepositoryService csarGitRepositoryService;
+    @Inject
+    private CsarFinderService csarFinderService;
+    @Inject
+    private ArchiveUploadService uploadService;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
+    // TODO store archives that are not 'temp' in another location.
+    private Path tempDirPath;
+    private Path tempZipDirPath;
 
+    @Required
     @Value("${directories.alien}/${directories.upload_temp}")
-    private String alienTmpUpload;
-
-    public static final String LOCAL_DIRECTORY = "csarFromGit";
-
-    public static final String SUFFIXE_ZIPPED = "_ZIPPED";
-
-    /**
-     * Create a CsarGitRepository in the system to store its informations
-     * 
-     * @param repositoryUrl The unique Git url of the CsarGitRepository
-     * @param username The username of the user
-     * @param password The password of the user
-     * @param importLocations Locations where Csar's files are store
-     * @param isStoredLocally The state of the the CsarGitRepository
-     * @return The auto-generated id of the CsarGitRepository object
-     */
-    public String createGitCsar(String repositoryUrl, String username, String password, List<CsarGitCheckoutLocation> importLocations, boolean isStoredLocally) {
-        CsarGitRepository csarGit = new CsarGitRepository();
-        csarGit.setRepositoryUrl(repositoryUrl);
-        csarGit.setUsername(username);
-        csarGit.setPassword(password);
-        csarGit.setImportLocations(importLocations);
-        csarGit.setStoredLocally(isStoredLocally);
-        alienDAO.save(csarGit);
-        return csarGit.getId();
+    public void setTempDirPath(String tempDirPath) throws IOException {
+        this.tempDirPath = FileUtil.createDirectoryIfNotExists(tempDirPath + "/git");
+        this.tempZipDirPath = FileUtil.createDirectoryIfNotExists(tempDirPath + "/gitzips");
     }
 
     /**
-     * Specify a Csar to import
-     * 
-     * @param param Can be an Url or an ID
-     * @return The result of the import
-     * @throws CSARVersionAlreadyExistsException
-     * @throws ParsingException
-     * @throws IOException
-     * @throws GitCloneUriException
-     * @throws GitNotAuthorizedException
-     * @throws NotFoundException-
-     * @throws RevisionSyntaxException
-     * @throws NoHeadException
-     * @throws GitAPIException
-     * @throws GitNoModificationDetected
+     * Delete an CsarGitRepository based on its id or url.
+     *
+     * @param idOrUrl The id or url of the CsarGitRepository to update.
      */
-    public ParsingResult<Csar>[] specifyCsarFromGit(String param) throws CSARVersionAlreadyExistsException, ParsingException, IOException,
-            GitCloneUriException, GitNotAuthorizedException, GitAPIException, GitNoModificationDetected {
-        CsarGitRepository csarGit = new CsarGitRepository();
-        Map<String, String> locationsMap = new HashMap<String, String>();
-        String data = param.replaceAll("\"", "");
-        if (!paramIsUrl(data)) {
-            csarGit = alienDAO.findById(CsarGitRepository.class, data);
-        } else {
-            csarGit = getCsargitByUrl(data);
-        }
-        RepositoryManager repoManager = new RepositoryManager();
-        Path alienTmpPath = Paths.get(alienTmpUpload);
-        if (csarGit == null) {
-            throw new NotFoundException("CsarGit " + "[" + data + "] doesn't exist");
-        }
-        for (CsarGitCheckoutLocation location : csarGit.getImportLocations()) {
-            locationsMap.put(location.getSubPath(), location.getBranchId());
-        }
-        return this.handleImportProcess(csarGit, alienTmpPath, repoManager, locationsMap);
-    }
-
-    /**
-     * Retrieve all the zipped folder to import
-     * 
-     * @param checkedOutLocation The path to fetch
-     * @return
-     */
-    private List<Path> getArchivesToUpload(String checkedOutLocation) {
-        File folder = new File(checkedOutLocation);
-        boolean find = false;
-        File[] listSubFolders = folder.listFiles();
-        List<Path> listPath = new ArrayList<Path>();
-        for (int i = 0; i < listSubFolders.length; i++) {
-            if (listSubFolders[i].getName().endsWith(SUFFIXE_ZIPPED)) {
-                listPath.add(Paths.get(listSubFolders[i].getPath()));
-                find = true;
-            }
-        }
-        // If the archives haven't been found in the sub folder then check in the root folder (tmp)
-        if (!find) {
-            this.findInTmpTree(folder, listPath);
-        }
-        return listPath;
-    }
-
-    /**
-     * Find a folder in the top-hierachie level
-     * 
-     * @param folder Folder to find
-     * @param listPath List to fetch
-     */
-
-    private void findInTmpTree(File folder, List<Path> listPath) {
-        File rootFolder = new File("/home/franck/.alien/upload/csarFromGit");
-        File[] listFolders = rootFolder.listFiles();
-        for (int i = 0; i < listFolders.length; i++) {
-            if (listFolders[i].getName().equals(folder.getName() + SUFFIXE_ZIPPED)) {
-                listPath.add(Paths.get(listFolders[i].getPath()));
-            }
-        }
-    }
-
-    /**
-     * Process to the import workflow with multiples check
-     * 
-     * @param csarGit The CsarGitRepository to import
-     * @param alienTmpPath Alien path to store the import's result
-     * @param repoManager Util to clone or pull a repository
-     * @param locationsMap Sub folders map to zip and import
-     * @return result The result of the import
-     * @throws CSARVersionAlreadyExistsException
-     * @throws ParsingException
-     * @throws IOException
-     * @throws GitCloneUriException
-     * @throws GitNotAuthorizedException
-     * @throws NotFoundException
-     * @throws RevisionSyntaxException
-     * @throws NoHeadException
-     * @throws GitAPIException
-     * @throws GitNoModificationDetected
-     */
-    private ParsingResult<Csar>[] handleImportProcess(CsarGitRepository csarGit, Path alienTmpPath, RepositoryManager repoManager,
-            Map<String, String> locationsMap) throws CSARVersionAlreadyExistsException, ParsingException, IOException, GitCloneUriException,
-            GitNotAuthorizedException, GitAPIException, GitNoModificationDetected {
-        ParsingResult<Csar>[] result = null;
+    public void delete(String idOrUrl) {
+        CsarGitRepository csarGit = csarGitRepositoryService.getOrFail(idOrUrl);
         if (csarGit.isStoredLocally()) {
-            // If both are false, this means the csarGit has not been imported
-            if (csarGit.getLastCommitHash() == null || ("").equals(csarGit.getLastCommitHash())) {
-                if (isAlreadyStoredLocally(csarGit)) {
-                    result = triggerImportFromTmpFolder(csarGit.getCheckedOutLocation(), getArchivesToUpload(csarGit.getCheckedOutLocation()),
-                            csarGit.isStoredLocally());
-                } else {
-                    String pathToReach = repoManager.createFolderAndClone(alienTmpPath, csarGit.getRepositoryUrl(), csarGit.getUsername(),
-                            csarGit.getPassword(), csarGit.isStoredLocally(), locationsMap, LOCAL_DIRECTORY);
-                    this.updateWithCheckedOutLocation(csarGit, pathToReach);
-                    result = triggerImportFromTmpFolder(pathToReach, repoManager.getCsarsToImport(), csarGit.isStoredLocally());
-                    this.updateLastCommit(result, csarGit);
+            Path repositoryPath = tempDirPath.resolve(csarGit.getId());
+            if (Files.isDirectory(repositoryPath)) {
+                FileSystemUtils.deleteRecursively(repositoryPath.toFile());
+            }
+        }
+        alienDAO.delete(CsarGitRepository.class, csarGit.getId());
+    }
+
+    /**
+     * Import Cloud Service ARchives from a git repository.
+     *
+     * @param idOrUrl The id or url to access the git repository.
+     * @return The result of the import (that may contains errors etc.)
+     */
+    public List<ParsingResult<Csar>> importFromGitRepository(String idOrUrl) {
+        CsarGitRepository csarGitRepository = csarGitRepositoryService.getOrFail(idOrUrl);
+
+        List<ParsingResult<Csar>> results = Lists.newArrayList();
+        try {
+            // Iterate over locations to be imported within the CsarGitRepository
+            for (CsarGitCheckoutLocation csarGitCheckoutLocation : csarGitRepository.getImportLocations()) {
+                List<ParsingResult<Csar>> result = doImport(csarGitRepository, csarGitCheckoutLocation);
+                if (result != null) {
+                    results.addAll(result);
                 }
-            } else {
-                if (checkLastCommitHash(csarGit.getCheckedOutLocation(), csarGit)) {
-                    throw new GitNoModificationDetected("No modifications found");
-                } else {
-                    Path pathToPull = Paths.get(csarGit.getCheckedOutLocation());
-                    repoManager.pullRequest(pathToPull);
-                    result = triggerImportFromTmpFolder(csarGit.getCheckedOutLocation(), repoManager.getCsarsToImport(), csarGit.isStoredLocally());
-                    this.resetLastCommit(result, csarGit);
+            }
+        } finally {
+            // cleanup
+            Path archiveZipRoot = tempZipDirPath.resolve(csarGitRepository.getId());
+            Path archiveGitRoot = tempDirPath.resolve(csarGitRepository.getId());
+            try {
+                FileUtil.delete(archiveZipRoot);
+                if (!csarGitRepository.isStoredLocally()) {
+                    FileUtil.delete(archiveGitRoot);
                 }
-            }
-        } else {
-            String pathToReach = repoManager.createFolderAndClone(alienTmpPath, csarGit.getRepositoryUrl(), csarGit.getUsername(), csarGit.getPassword(),
-                    csarGit.isStoredLocally(), locationsMap, LOCAL_DIRECTORY);
-            result = triggerImportFromTmpFolder(pathToReach, repoManager.getCsarsToImport(), false);
-        }
-        return result;
-    }
-
-    /**
-     * Update CsarGitRepository's last commit if parsing result hasn't error
-     * 
-     * @param result Parsing result
-     * @param csarGit CsarGitRepository to analyze
-     * @throws IOException
-     * @throws GitAPIException
-     */
-    private void updateLastCommit(ParsingResult<Csar>[] result, CsarGitRepository csarGit) throws IOException, GitAPIException {
-        if (resetLastCommit(result, csarGit)) {
-        } else {
-            this.checkLastCommitHash(csarGit.getCheckedOutLocation(), csarGit);
-        }
-    }
-
-    /**
-     * Reset CsarGitRepository's last commit if parsing result has error
-     * 
-     * @param result Parsing result
-     * @param csarGit CsarGitRepository to analyze
-     * @return true or false
-     */
-    private boolean resetLastCommit(ParsingResult<Csar>[] result, CsarGitRepository csarGit) {
-        if (checkIfImportResultHasError(result)) {
-            this.updateWithHash(csarGit, "");
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Check if the result of the import has errors
-     * 
-     * @param result Result of the import
-     * @return true or false
-     */
-    private boolean checkIfImportResultHasError(ParsingResult<Csar>[] result) {
-        for (ParsingResult<Csar> item : result) {
-            if (!item.getContext().getParsingErrors().isEmpty()) {
-                return true;
+            } catch (IOException e) {
+                log.error("Failed to cleanup files after git import.", e);
             }
         }
-        return false;
+
+        return results;
     }
 
-    /**
-     * Check if the CsarGitRepository is stored locally in alien tmp path
-     * 
-     * @param csarGit CsarGitRepository to check
-     * @return
-     */
-    private boolean isAlreadyStoredLocally(CsarGitRepository csarGit) {
-        if (csarGit.getCheckedOutLocation() == null) {
-            return false;
-        } else {
-            if (Files.exists(Paths.get(csarGit.getCheckedOutLocation()))) {
-                return csarGit.getCheckedOutLocation() == null ? false : true;
+    private List<ParsingResult<Csar>> doImport(CsarGitRepository csarGitRepository, CsarGitCheckoutLocation csarGitCheckoutLocation) {
+        Git git = null;
+        try {
+            // checkout the repository branch
+            git = RepositoryManager.cloneOrCheckout(tempDirPath, csarGitRepository.getRepositoryUrl(), csarGitRepository.getUsername(),
+                    csarGitRepository.getPassword(), csarGitCheckoutLocation.getBranchId(), csarGitRepository.getId());
+            // if the repository is persistent we also have to pull to get the latest version
+            if (csarGitRepository.isStoredLocally()) {
+                // try to pull
+                RepositoryManager.pull(git, csarGitRepository.getUsername(), csarGitRepository.getPassword());
+            }
+            String hash = RepositoryManager.getLastHash(git);
+            if (csarGitCheckoutLocation.getLastImportedHash() != null && csarGitCheckoutLocation.getLastImportedHash().equals(hash)) {
+                return null; // no commit since last import.
+            }
+            // now that the repository is checked out and up to date process with the import
+            List<ParsingResult<Csar>> result = processImport(csarGitRepository, csarGitCheckoutLocation);
+            csarGitCheckoutLocation.setLastImportedHash(hash);
+            alienDAO.save(csarGitRepository); // update the hash for this location.
+            return result;
+        } finally {
+            if (git != null) {
+                git.close();
             }
         }
-        return false;
     }
 
-    /**
-     * Handle the import of CsarGitRepository (importLocations) in Alien
-     * 
-     * @param pathToReach The path to fetch where Csars have been checked out
-     * @param csarsToImport The list of csars to import
-     * @param isStoredLocally The state of the CsarGitRepository
-     * @return An response if the statement was successful or not
-     * @throws ParsingException
-     * @throws CSARVersionAlreadyExistsException
-     * @throws IOException
-     * @throws GitAPIException
-     */
-    @SuppressWarnings("unchecked")
-    public ParsingResult<Csar>[] triggerImportFromTmpFolder(String pathToReach, List<Path> csarsToImport, boolean isStoredLocally)
-            throws CSARVersionAlreadyExistsException, ParsingException, IOException, GitAPIException {
+    private List<ParsingResult<Csar>> processImport(CsarGitRepository csarGitRepository, CsarGitCheckoutLocation csarGitCheckoutLocation) {
+        // find all the archives under the given hierarchy and zip them to create archives
+        Path archiveZipRoot = tempZipDirPath.resolve(csarGitRepository.getId());
+        Path archiveGitRoot = tempDirPath.resolve(csarGitRepository.getId());
+        Set<Path> archivePaths = csarFinderService.prepare(archiveGitRoot, archiveZipRoot);
+
+        // TODO code review has to be completed to further cleanup below processing.
         List<ParsingResult<Csar>> parsingResult = new ArrayList<ParsingResult<Csar>>();
-        ParsingResult<Csar> result = null;
-        List<CsarDependenciesBean> csarDependenciesBeanList = uploadService.preParsing(csarsToImport);
-        for (CsarDependenciesBean dep : csarDependenciesBeanList) {
-            if (dep.getDependencies() == null || dep.getDependencies().isEmpty()) {
-                result = uploadService.upload(dep.getPath());
-                parsingResult.add(result);
-                removeTmpGitFolder(pathToReach, isStoredLocally);
-                return parsingResult.toArray(new ParsingResult[parsingResult.size()]);
+        List<CsarDependenciesBean> csarDependenciesBeanList = null;
+        try {
+            csarDependenciesBeanList = uploadService.preParsing(archivePaths);
+            for (CsarDependenciesBean dep : csarDependenciesBeanList) {
+                if (dep.getDependencies() == null || dep.getDependencies().isEmpty()) {
+                    parsingResult.add(uploadService.upload(dep.getPath()));
+                    return parsingResult;
+                }
             }
+            this.updateDependenciesList(csarDependenciesBeanList);
+            parsingResult = this.handleImportLogic(csarDependenciesBeanList, parsingResult);
+            return parsingResult;
+        } catch (ParsingException e) {
+            // TODO Actually add a parsing result with error.
+            throw new GitException("Failed to import archive from git as it cannot be parsed", e);
+        } catch (CSARVersionAlreadyExistsException e) {
+            return parsingResult;
         }
-        this.updateDependenciesList(csarDependenciesBeanList);
-        parsingResult = this.handleImportLogic(csarDependenciesBeanList, parsingResult);
-        this.removeTmpGitFolder(pathToReach, isStoredLocally);
-        return parsingResult.toArray(new ParsingResult[parsingResult.size()]);
     }
 
     /**
      * Update the CsarDependenciesBean list based on the CSARDependency found (i.e : deleted or imported
-     * 
-     * @param list List containing the CsarDependenciesBean
+     *
+     * @param csarDependenciesBeanList List containing the CsarDependenciesBean
      */
     private void updateDependenciesList(List<CsarDependenciesBean> csarDependenciesBeanList) {
         for (CsarDependenciesBean csarContainer : csarDependenciesBeanList) {
@@ -331,31 +179,10 @@ public class CsarGitService {
     }
 
     /**
-     * Remove the Git clone folder where the CSAR are stored
-     * 
-     * @param pathToReach Path to remove
-     * @param isStoredLocally Status of the CsarGitRepository
-     */
-    private void removeTmpGitFolder(String pathToReach, boolean isStoredLocally) {
-        try {
-            Path path = Paths.get(pathToReach);
-            Path pathZipped = Paths.get(pathToReach.concat(SUFFIXE_ZIPPED));
-            if (!isStoredLocally) {
-                if (Files.exists(pathZipped)) {
-                    FileUtil.delete(pathZipped);
-                }
-                FileUtil.delete(path);
-            }
-        } catch (IOException e) {
-            log.error("Error" + e);
-        }
-    }
-
-    /**
      * Process to a lookup in the CsarDependenciesBean list to check if a CSARDependency is in the list
-     * 
+     *
      * @param dependencie
-     * @param list
+     * @param csarDependenciesBeanList
      * @return the csarBean matching the dependency
      */
     private CsarDependenciesBean lookupForDependencie(CSARDependency dependencie, List<CsarDependenciesBean> csarDependenciesBeanList) {
@@ -369,7 +196,7 @@ public class CsarGitService {
 
     /**
      * Method to import a repository based on its inter-dependencies
-     * 
+     *
      * @param csarDependenciesBeanList List of the CsarGitRepository to import
      * @param parsingResult Result of the pre-process parsing
      * @return The result of the final import
@@ -395,16 +222,17 @@ public class CsarGitService {
         }
         return parsingResult;
     }
-    
-/**
- * Analyse a CsarDependenciesBean to check if it is ready to import
- * @param result Result of the pre-parsing process
- * @param bean Bean containing the CsarGitRepository informations
- * @param parsingResult Global result of the pre-parsing result
- * @param csarDependenciesBeanList
- * @throws CSARVersionAlreadyExistsException
- * @throws ParsingException
- */
+
+    /**
+     * Analyse a CsarDependenciesBean to check if it is ready to import
+     *
+     * @param result Result of the pre-parsing process
+     * @param bean Bean containing the CsarGitRepository informations
+     * @param parsingResult Global result of the pre-parsing result
+     * @param csarDependenciesBeanList
+     * @throws CSARVersionAlreadyExistsException
+     * @throws ParsingException
+     */
     private void analyseCsarBean(ParsingResult<Csar> result, CsarDependenciesBean bean, List<ParsingResult<Csar>> parsingResult,
             List<CsarDependenciesBean> csarDependenciesBeanList) throws CSARVersionAlreadyExistsException, ParsingException {
         if (bean != null) {
@@ -416,7 +244,7 @@ public class CsarGitService {
 
     /**
      * Remove all the occurences of the dependencie when uploaded
-     * 
+     *
      * @param bean Bean representing the Csar to import with detailed data
      * @param csarDependenciesBeanList The list containing the other CsarDependenciesBean
      */
@@ -435,178 +263,4 @@ public class CsarGitService {
             csarBean.setDependencies(tmpSet);
         }
     }
-
-    /**
-     * Method to update a CsarGitRepository based on its unique id
-     * 
-     * @param id The unique id of the CsarGitRepository
-     * @param repositoryUrl The unique url of the CsarGitRepository
-     * @param username The username associated to the CsarGitRepository
-     * @param password The password associated to the CsarGitRepository
-     */
-    public void update(String id, String repositoryUrl, String username, String password) {
-        CsarGitRepository csarGitTo = checkIfCsarExist(id);
-        if (getCsargitByUrl(repositoryUrl) == null) {
-            CsarGitRepository csarGitFrom = new CsarGitRepository();
-            csarGitFrom.setId(id);
-            csarGitFrom.setRepositoryUrl(repositoryUrl);
-            csarGitFrom.setUsername(username);
-            csarGitFrom.setPassword(password);
-            csarGitFrom.setCheckedOutLocation(csarGitTo.getCheckedOutLocation());
-            csarGitFrom.setLastCommitHash(csarGitTo.getLastCommitHash());
-            csarGitFrom.setStoredLocally(csarGitTo.isStoredLocally());
-            if (csarGitTo != null) {
-                ReflectionUtil.mergeObject(csarGitFrom, csarGitTo);
-                alienDAO.save(csarGitTo);
-            }
-        } else {
-            if (!password.equals(csarGitTo.getPassword()) || !username.equals(csarGitTo.getUsername())) {
-                CsarGitRepository csarGitFrom = new CsarGitRepository();
-                csarGitFrom.setId(id);
-                csarGitFrom.setRepositoryUrl(repositoryUrl);
-                csarGitFrom.setUsername(username);
-                csarGitFrom.setPassword(password);
-                csarGitFrom.setCheckedOutLocation(csarGitTo.getCheckedOutLocation());
-                csarGitFrom.setLastCommitHash(csarGitTo.getLastCommitHash());
-                csarGitFrom.setStoredLocally(csarGitTo.isStoredLocally());
-                if (csarGitTo != null) {
-                    ReflectionUtil.mergeObject(csarGitFrom, csarGitTo);
-                    alienDAO.save(csarGitTo);
-                }
-            } else {
-                throw new AlreadyExistException("Csar git already exists");
-            }
-        }
-    }
-
-    /**
-     * Method to update a CsarGitRepository with multiple data
-     * 
-     * @param url The unique url of the CsarGitRepository
-     * @param repositoryUrl The new url
-     * @param username The new username
-     * @param password The new password
-     */
-    public void updateByUrl(String url, String repositoryUrl, String username, String password) {
-        CsarGitRepository csarGitTo = getCsargitByUrl(url);
-        if (getCsargitByUrl(repositoryUrl) == null && (!username.equals(csarGitTo.getUsername()) || !password.equals(csarGitTo.getPassword()))) {
-            CsarGitRepository csarGitFrom = new CsarGitRepository();
-            csarGitFrom.setRepositoryUrl(repositoryUrl);
-            csarGitFrom.setUsername(username);
-            csarGitFrom.setPassword(password);
-            if (csarGitTo != null) {
-                csarGitFrom.setId(csarGitTo.getId());
-                ReflectionUtil.mergeObject(csarGitFrom, csarGitTo);
-                alienDAO.save(csarGitTo);
-            }
-        } else {
-            throw new AlreadyExistException("Csar git already exists");
-        }
-    }
-
-    /**
-     * Method to update a CsarGitRepository with a hash
-     * 
-     * @param csarGitTo The CsarGitRepository to update
-     * @param hash HashCode of the last commit
-     */
-    public void updateWithHash(CsarGitRepository csarGitTo, String hash) {
-        csarGitTo.setLastCommitHash(hash);
-        alienDAO.save(csarGitTo);
-    }
-
-    /**
-     * Method to update a CsarGitRepository with a checked-out location
-     * 
-     * @param csarGitTo The CsarGitRepository to update
-     * @param location Path where the object is cloned
-     */
-    public void updateWithCheckedOutLocation(CsarGitRepository csarGitTo, String location) {
-        csarGitTo.setCheckedOutLocation(location);
-        alienDAO.save(csarGitTo);
-    }
-
-    /**
-     * Query elastic-search to retrieve a CsarGit by its url
-     * 
-     * @param url The unique URL of the repository
-     * @return The Repository with the URL
-     */
-    public CsarGitRepository getCsargitByUrl(String url) {
-        return alienDAO.customFind(CsarGitRepository.class, QueryBuilders.termQuery("repositoryUrl", url));
-    }
-
-    /**
-     * Delete an CsarGitRepository based on its URL
-     * 
-     * @param url The unique URL of the repository
-     * @return The URL deleted
-     * @throws IOException
-     */
-    public String deleteCsargitByUrl(String url) throws IOException {
-        CsarGitRepository csarGit = getCsargitByUrl(url);
-        if (csarGit != null) {
-            alienDAO.delete(CsarGitRepository.class, QueryBuilders.termQuery("repositoryUrl", url));
-            return url;
-        }
-        throw new NotFoundException("CsarGit [" + url + "] does not exist");
-    }
-
-    /**
-     * Retrieve the CsarGitRepository based on its id
-     * 
-     * @param id The unique id of the CsarGitRepository
-     * @return A CsarGitRepository object or a a new {@link NotFoundException}.
-     */
-    public CsarGitRepository checkIfCsarExist(String id) {
-        CsarGitRepository csarGit = alienDAO.findById(CsarGitRepository.class, id);
-        if (csarGit == null) {
-            throw new NotFoundException("CsarGit [" + id + "] does not exist");
-        }
-        return csarGit;
-    }
-
-    /**
-     * Check if the CsarGitRepository is up-to-date regarding the latest commit hash
-     * @param path Path of the stored location
-     * @param csarGit CsarGitRepository to pull
-     * @throws IOException
-     * @throws GitAPIException
-     * @throws RevisionSyntaxException
-     *
-     */
-    private boolean checkLastCommitHash(String path, CsarGitRepository csarGit) throws IOException, GitAPIException {
-        Git git;
-        boolean isToSameState = false;
-        Repository repository = new FileRepository(path + "/.git");
-        git = new Git(repository);
-        Iterable<RevCommit> revCommits = git.log().add(repository.resolve("master")).call();
-        String hash = "";
-        for (RevCommit revCommit : revCommits) {
-            hash = revCommit.getName();
-            break;
-        }
-        if (csarGit.getLastCommitHash() == null || csarGit.getLastCommitHash() == "") {
-            this.updateWithHash(csarGit, hash);
-        } else {
-            if (csarGit.getLastCommitHash().equals(hash)) {
-                isToSameState = true;
-            }
-        }
-        return isToSameState;
-    }
-
-    /**
-     * Check if the parameter is either an URL or an ID
-     * 
-     * @param data Data used to query the CsarGit
-     * @return True is the pattern match the parameter with the regex, else false
-     */
-    public boolean paramIsUrl(String data) {
-        String regex = "^(https?|git|http)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
-        Pattern urlPattern = Pattern.compile(regex);
-        Matcher m = urlPattern.matcher(data);
-        return m.matches();
-    }
-
 }
