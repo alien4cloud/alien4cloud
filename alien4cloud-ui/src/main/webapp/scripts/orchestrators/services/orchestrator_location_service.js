@@ -11,7 +11,7 @@ define(function (require) {
 
   modules.get('a4c-orchestrators', ['a4c-common']).factory('locationResourcesService', ['$alresource',
     function($alresource) {
-      return $alresource('rest/orchestrators/:orchestratorId/locations/:locationId/resources');
+      return $alresource('rest/orchestrators/:orchestratorId/locations/:locationId/resources/:id');
     }
   ]);
 });

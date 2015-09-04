@@ -9,7 +9,7 @@ define(function (require) {
   require('scripts/orchestrators/services/location_security_service');
 
   states.state('admin.orchestrators.details.locations.security', {
-    url: '/infra',
+    url: '/security',
     templateUrl: 'views/orchestrators/orchestrator_locations_security.html',
     controller: 'OrchestratorLocationsSecurityCtrl',
     menu: {

@@ -1,11 +1,11 @@
-<div class="row">
+<div class="row" style="margin-top: 10px">
   <div class="col-md-12">
     <span>Resources types: </span>
     <select ng-model="selectedConfigurationResourceType"
             ng-options="type.elementId for type in context.configurationTypes">
     </select>
-    <button class="btn btn-default btn-sm">Filter</button>
-    <button class="btn btn-primary btn-sm" ng-click="addResourceTemplate()">Add</button>
+    <button ng-class="{'active': applyFilter}" ng-click="applyFilter = !applyFilter" class="btn btn-default btn-sm"><i class="fa fa-filter"></i> Filter</button>
+    <button class="btn btn-primary btn-sm" ng-click="addResourceTemplate()"><i class="fa fa-plus"></i> Add</button>
   </div>
 </div>
 <div class="row" style="margin-top: 10px">
@@ -21,7 +21,8 @@
         <tr ng-repeat="template in context.locationResources.configurationTemplates"
             ng-click="selectTemplate(template)"
             class="clickable"
-            ng-class="{'warning': selectedConfigurationResourceTemplate == template}">
+            ng-class="{'warning': selectedConfigurationResourceTemplate == template}"
+            ng-if="!applyFilter || template.template.type == selectedConfigurationResourceType.elementId">
           <td>{{template.name}}</td>
           <td>{{template.template.type}}</td>
         </tr>

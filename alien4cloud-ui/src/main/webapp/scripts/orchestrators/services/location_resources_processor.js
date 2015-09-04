@@ -14,27 +14,36 @@ define(function(require) {
         listToMapService.processMap(resources.nodeTypes, 'properties');
         listToMapService.processMap(resources.configurationTypes, 'properties');
         listToMapService.processMap(resources.capabilityTypes, 'properties');
-        this.processNodeTemplates(resources.nodeTemplates);
-        this.processNodeTemplates(resources.configurationTemplates);
+        this.processLocationResourceTemplates(resources.nodeTemplates);
+        this.processLocationResourceTemplates(resources.configurationTemplates);
       },
 
-      processNodeTemplates: function(locationResourceTemplates) {
+      processLocationResourceTemplates: function(locationResourceTemplates) {
         for (var i = 0; i < locationResourceTemplates.length; i++) {
-          listToMapService.process(locationResourceTemplates[i].template, 'properties');
-          listToMapService.process(locationResourceTemplates[i].template, 'requirements');
-          listToMapService.process(locationResourceTemplates[i].template, 'capabilities');
-          for (var nodeTemplateName in locationResourceTemplates[i]) {
-            if (locationResourceTemplates[i].hasOwnProperty(nodeTemplateName)) {
-              this.processNodeCapability(locationResourceTemplates[i][nodeTemplateName]);
-            }
+          this.processLocationResourceTemplate(locationResourceTemplates[i]);
+        }
+      },
+
+      processLocationResourceTemplate: function(locationResourceTemplate) {
+        listToMapService.process(locationResourceTemplate.template, 'properties');
+        listToMapService.process(locationResourceTemplate.template, 'requirements');
+        listToMapService.process(locationResourceTemplate.template, 'capabilities');
+        for (var nodeTemplateName in locationResourceTemplate) {
+          if (locationResourceTemplate.hasOwnProperty(nodeTemplateName)) {
+            this.processNodeRequirementCapability(locationResourceTemplate[nodeTemplateName], 'capabilities');
+            this.processNodeRequirementCapability(locationResourceTemplate[nodeTemplateName], 'requirements');
           }
         }
       },
 
-      processNodeCapability: function(nodeTemplate) {
-        if (_.defined(nodeTemplate.capabilities)) {
-          for (var j = 0; j < nodeTemplate.capabilities.length; j++) {
-            listToMapService.process(nodeTemplate.capabilities[j].value, 'properties');
+      processNodeRequirementCapability: function(nodeTemplate, propertyName) {
+        if (_.defined(nodeTemplate[propertyName])) {
+          for (var j = nodeTemplate[propertyName].length - 1; j >= 0; j--) {
+            if (_.isNotEmpty(nodeTemplate[propertyName][j].value.properties)) {
+              listToMapService.process(nodeTemplate[propertyName][j].value, 'properties');
+            } else {
+              nodeTemplate[propertyName].splice(j, 1);
+            }
           }
         }
       }

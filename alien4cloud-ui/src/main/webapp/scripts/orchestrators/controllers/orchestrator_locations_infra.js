@@ -8,6 +8,7 @@ define(function(require) {
 
   require('scripts/orchestrators/controllers/orchestrator_resource_template');
   require('scripts/orchestrators/directives/orchestrator_resource_template');
+  require('scripts/orchestrators/services/location_resources_processor');
 
   states.state('admin.orchestrators.details.locations.infra', {
     url: '/infra',
@@ -23,8 +24,8 @@ define(function(require) {
   });
 
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorLocationsConfigCtrl',
-    ['$scope', 'orchestrator', 'locationResourcesService',
-      function($scope, orchestrator, locationResourcesService) {
+    ['$scope', 'orchestrator', 'locationResourcesService', 'locationResourcesProcessor',
+      function($scope, orchestrator, locationResourcesService, locationResourcesProcessor) {
         $scope.orchestrator = orchestrator;
         if (_.isNotEmpty($scope.context.configurationTypes)) {
           $scope.selectedConfigurationResourceType = $scope.context.configurationTypes[0];
@@ -37,8 +38,9 @@ define(function(require) {
             'resourceType': $scope.selectedConfigurationResourceType.elementId,
             'resourceName': 'New Resource'
           }), function(response) {
+            locationResourcesProcessor.processLocationResourceTemplate(response.data)
             $scope.context.locationResources.configurationTemplates.push(response.data);
-          })
+          });
         };
 
         $scope.selectTemplate = function(template) {
@@ -51,6 +53,16 @@ define(function(require) {
 
         $scope.deleteResourceTemplate = function(resourceTemplate) {
           console.log('Delete', resourceTemplate);
+          locationResourcesService.delete({
+            orchestratorId: $scope.orchestrator.id,
+            locationId: $scope.context.location.id,
+            id: resourceTemplate.id
+          }, undefined, function() {
+            _.remove($scope.context.locationResources.configurationTemplates, {
+              id: resourceTemplate.id
+            });
+            delete $scope.selectedConfigurationResourceTemplate;
+          });
         };
       }
     ]); // controller

@@ -95,4 +95,8 @@ public class LocationResourceService {
         alienDAO.save(locationResourceTemplate);
         return locationResourceTemplate;
     }
+
+    public void deleteResourceTemplate(String resourceId) {
+        alienDAO.delete(LocationResourceTemplate.class, resourceId);
+    }
 }
