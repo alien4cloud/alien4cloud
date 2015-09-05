@@ -13,16 +13,21 @@
     <table class="table table-hover table-bordered">
       <thead>
         <tr>
+          <th></th>
           <th>Name</th>
           <th>Type</th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="template in context.locationResources.configurationTemplates"
+        <tr ng-repeat="template in context.locationResources.configurationTemplates | orderBy:'name'"
             ng-click="selectTemplate(template)"
             class="clickable"
             ng-class="{'warning': selectedConfigurationResourceTemplate == template}"
             ng-if="!applyFilter || template.template.type == selectedConfigurationResourceType.elementId">
+          <td ng-init="templateIcon = getIcon(template)">
+            <i ng-if="!templateIcon" class="fa fa-cogs fa-3x"></i>
+            <img ng-if="templateIcon" ng-src="img?id={{templateIcon}}&quality=QUALITY_32">
+          </td>
           <td>{{template.name}}</td>
           <td>{{template.template.type}}</td>
         </tr>

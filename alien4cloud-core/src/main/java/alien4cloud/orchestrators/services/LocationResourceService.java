@@ -12,13 +12,20 @@ import org.springframework.stereotype.Component;
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.MapUtil;
+import alien4cloud.utils.PropertyUtil;
+import alien4cloud.utils.ReflectionUtil;
 
 import com.google.common.collect.Lists;
 
@@ -98,5 +105,57 @@ public class LocationResourceService {
 
     public void deleteResourceTemplate(String resourceId) {
         alienDAO.delete(LocationResourceTemplate.class, resourceId);
+    }
+
+    public LocationResourceTemplate getOrFail(String resourceId) {
+        return alienDAO.findById(LocationResourceTemplate.class, resourceId);
+    }
+
+    public void merge(Object mergeRequest, String resourceId) {
+        LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
+        ReflectionUtil.mergeObject(mergeRequest, resourceTemplate);
+        alienDAO.save(resourceTemplate);
+    }
+
+    public void setTemplateProperty(String resourceId, String propertyName, Object propertyValue) {
+        LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
+        Location location = locationService.getOrFail(resourceTemplate.getLocationId());
+        IndexedNodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, resourceTemplate.getTemplate().getType(),
+                location.getDependencies());
+        if (resourceType.getProperties() == null || !resourceType.getProperties().containsKey(propertyName)) {
+            throw new NotFoundException("Property <" + propertyName + "> is not found in type <" + resourceType.getElementId() + ">");
+        }
+        PropertyUtil.setPropertyValue(resourceTemplate.getTemplate(), resourceType.getProperties().get(propertyName), propertyName, propertyValue);
+        alienDAO.save(resourceTemplate);
+    }
+
+    public void setTemplateCapabilityProperty(String resourceId, String capabilityName, String propertyName, Object propertyValue) {
+        LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
+        Location location = locationService.getOrFail(resourceTemplate.getLocationId());
+        IndexedNodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, resourceTemplate.getTemplate().getType(),
+                location.getDependencies());
+        if (resourceTemplate.getTemplate().getCapabilities() == null || !resourceTemplate.getTemplate().getCapabilities().containsKey(capabilityName)) {
+            throw new NotFoundException("Capability <" + capabilityName + "> is not found in template");
+
+        }
+        PropertyDefinition propertyDefinition = null;
+        if (resourceType.getCapabilities() != null) {
+            for (CapabilityDefinition capabilityDefinition : resourceType.getCapabilities()) {
+                if (capabilityName.equals(capabilityDefinition.getId())) {
+                    String capabilityTypeName = capabilityDefinition.getType();
+                    IndexedCapabilityType capabilityType = csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class,
+                            capabilityTypeName, location.getDependencies());
+                    if (capabilityType.getProperties() != null) {
+                        propertyDefinition = capabilityType.getProperties().get(propertyName);
+                    }
+                }
+            }
+        }
+        if (propertyDefinition == null) {
+            throw new NotFoundException("Capability <" + capabilityName + "> is not found in type <" + resourceType.getElementId() + ">");
+        }
+        Capability capability = resourceTemplate.getTemplate().getCapabilities().get(capabilityName);
+        PropertyUtil.setCapabilityPropertyValue(capability, propertyDefinition, propertyName, propertyValue);
+        alienDAO.save(resourceTemplate);
     }
 }

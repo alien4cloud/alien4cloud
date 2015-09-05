@@ -40,6 +40,7 @@ define(function(require) {
           }), function(response) {
             locationResourcesProcessor.processLocationResourceTemplate(response.data)
             $scope.context.locationResources.configurationTemplates.push(response.data);
+            $scope.selectTemplate(response.data);
           });
         };
 
@@ -64,6 +65,16 @@ define(function(require) {
             delete $scope.selectedConfigurationResourceTemplate;
           });
         };
+
+        $scope.getIcon = function(template) {
+          var templateType = $scope.context.locationResources.configurationTypes[template.template.type];
+          if (_.isNotEmpty(templateType) && _.isNotEmpty(templateType.tags)) {
+            var icons = _.find(templateType.tags, {'name': 'icon'});
+            if (_.isNotEmpty(icons)) {
+              return icons.value;
+            }
+          }
+        }
       }
     ]); // controller
 }); // define

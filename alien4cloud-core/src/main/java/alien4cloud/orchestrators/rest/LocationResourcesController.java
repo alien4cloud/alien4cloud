@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.orchestrators.rest.model.CreateLocationResourceTemplateRequest;
+import alien4cloud.orchestrators.rest.model.UpdateLocationResourceTemplatePropertyRequest;
+import alien4cloud.orchestrators.rest.model.UpdateLocationResourceTemplateRequest;
 import alien4cloud.orchestrators.services.LocationResourceService;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
@@ -52,10 +54,51 @@ public class LocationResourcesController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> deleteResourceTemplate(
-            @ApiParam(value = "Id of the orchestrator for which to add resource template.", required = true) @PathVariable String orchestratorId,
-            @ApiParam(value = "Id of the location of the orchestrator to add resource template.", required = true) @PathVariable String locationId,
+            @ApiParam(value = "Id of the orchestrator for which to delete resource template.", required = true) @PathVariable String orchestratorId,
+            @ApiParam(value = "Id of the location of the orchestrator to delete resource template.", required = true) @PathVariable String locationId,
             @ApiParam(value = "Id of the location's resource.", required = true) @PathVariable String id) {
         locationResourceService.deleteResourceTemplate(id);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    @ApiOperation(value = "Update location's resource.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Audit
+    public RestResponse<Void> updateResourceTemplate(
+            @ApiParam(value = "Id of the orchestrator for which to update resource template.", required = true) @PathVariable String orchestratorId,
+            @ApiParam(value = "Id of the location of the orchestrator to update resource template.", required = true) @PathVariable String locationId,
+            @ApiParam(value = "Id of the location's resource.", required = true) @PathVariable String id,
+            @RequestBody UpdateLocationResourceTemplateRequest mergeRequest) {
+        locationResourceService.merge(mergeRequest, id);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    @ApiOperation(value = "Update location's resource's template property.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id}/template/properties", method = RequestMethod.POST)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Audit
+    public RestResponse<Void> updateResourceTemplateProperty(
+            @ApiParam(value = "Id of the orchestrator for which to update resource template property.", required = true) @PathVariable String orchestratorId,
+            @ApiParam(value = "Id of the location of the orchestrator to update resource template property.", required = true) @PathVariable String locationId,
+            @ApiParam(value = "Id of the location's resource.", required = true) @PathVariable String id,
+            @RequestBody UpdateLocationResourceTemplatePropertyRequest updateRequest) {
+        locationResourceService.setTemplateProperty(id, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    @ApiOperation(value = "Update location's resource's capability template capability property.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id}/template/capabilities/{capabilityName}/properties", method = RequestMethod.POST)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Audit
+    public RestResponse<Void> updateResourceTemplateCapabilityProperty(
+            @ApiParam(value = "Id of the orchestrator for which to update resource template capability property.", required = true) @PathVariable String orchestratorId,
+            @ApiParam(value = "Id of the location of the orchestrator to update resource template capability property.", required = true) @PathVariable String locationId,
+            @ApiParam(value = "Id of the location's resource.", required = true) @PathVariable String id,
+            @ApiParam(value = "Id of the location's resource template capability.", required = true) @PathVariable String capabilityName,
+            @RequestBody UpdateLocationResourceTemplatePropertyRequest updateRequest) {
+        locationResourceService.setTemplateCapabilityProperty(id, capabilityName, updateRequest.getPropertyName(),
+                updateRequest.getPropertyValue());
         return RestResponseBuilder.<Void> builder().build();
     }
 }

@@ -2,16 +2,10 @@
   <div class="row">
     <div class="col-md-7">
       <h3 class="pull-left" style="margin-top: 10px; margin-bottom: 20px;">
-      <span editable-text="resourceTemplate.name" buttons="no" e-required onbeforesave="updateLocationResource($data)" blur="submit">
+      <span editable-text="resourceTemplate.name" buttons="no" e-required onbeforesave="updateLocationResource('name', $data)" blur="submit">
         {{ resourceTemplate.name | split }}
         <i class="fa fa-pencil-square-o"></i>
       </span>
-        <img ng-show="selectionabstract"
-             class="icon_16"
-             alt="abstract_ico_16"
-             tooltip="{{'COMPONENTS.COMPONENT.ABSTRACT_COMPONENT' | translate}}"
-             tooltip-placement="top"
-             src="images/abstract_ico.png" />
       </h3>
     </div>
     <div class="col-md-5" style="margin-top: 6px;">
@@ -29,19 +23,6 @@
                 <span><i>{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</i></span>
               </span>
         <span class="form-control"> {{resourceTemplate.template.type}} </span>
-      </div>
-    </div>
-  </div>
-
-  <div class="row" style="margin-top: 5px;">
-    <div class="col-md-12">
-      <div class="input-group">
-              <span class="input-group-addon">
-                <i class="fa fa-archive"></i>  {{resourceType.archiveName}}
-              </span>
-              <span class="form-control">
-                {{resourceType.archiveVersion}}
-              </span>
       </div>
     </div>
   </div>
@@ -65,7 +46,7 @@
                 dependencies="context.location.dependencies"
                 property-name="propEntry.key"
                 property-value="propEntry.value"
-                on-save="updateResourceProperty(propertyDefinition, propertyName, propertyValue)"
+                on-save="updateResourceProperty(propertyName, propertyValue)"
                 editable="true"
                 condensed="condensed">
             </property-display>
@@ -173,7 +154,7 @@
                   dependencies="context.location.dependencies"
                   property-name="propertyEntry.key"
                   property-value="propertyEntry.value"
-                  on-save="updateResourceCapabilityProperty(propertyName, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
+                  on-save="updateResourceCapabilityProperty(capabilityEntry.key, propertyName, propertyValue)"
                   editable="true"
                   condensed="condensed">
               </property-display>
