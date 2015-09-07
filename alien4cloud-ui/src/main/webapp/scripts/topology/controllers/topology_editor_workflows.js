@@ -52,10 +52,6 @@ define(function (require) {
             this.scope.workflowCurrentStepSelection.push(stepId);
             selected = true;
           }
-//          if (this.scope.currentWorkflowStep) {
-//            // a step is displayed, we want to refresh the 'connect to' and 'connect from' stuffs
-//            this.setCurrentworkflowStep(this.scope.currentWorkflowStep.name, this.scope.currentWorkflowStep);
-//          }
           this.scope.$apply();
           this.refreshGraph();
           return selected;
@@ -228,6 +224,7 @@ define(function (require) {
         renameStep: function(stepId, newStepName) {
           var scope = this.scope;
           var instance = this;
+          instance.unpinCurrent();
           workflowServices.step.rename(
             {
               topologyId: scope.topology.topology.id,
@@ -237,21 +234,17 @@ define(function (require) {
             }, {},
             function(successResult) {
               if (!successResult.error) {
-//                instance.clearSelection();
                 scope.topology.topology.workflows[scope.currentWorkflowName] = successResult.data;
+                instance.setPinnedWorkflowStep(newStepName, scope.topology.topology.workflows[scope.currentWorkflowName].steps[newStepName]);
                 console.debug('operation succeded');
-//                $interval(function() {
-//                  var step = scope.topology.topology.workflows[scope.currentWorkflowName].steps[newStepName];
-//                  instance.setPinnedWorkflowStep(newStepName, step);
-//                }, 0, 1); 
               } else {
                 console.debug(successResult.error);
-                scope.pinnedWorkflowStep.name = stepId;
+                instance.setPinnedWorkflowStep(stepId, scope.topology.topology.workflows[scope.currentWorkflowName].steps[stepId]);
               }
             },
             function(errorResult) {
               console.debug(errorResult);
-              scope.pinnedWorkflowStep.name = stepId;
+              instance.setPinnedWorkflowStep(stepId, scope.topology.topology.workflows[scope.currentWorkflowName].steps[stepId]);
             }
           );            
         },        
@@ -266,7 +259,6 @@ define(function (require) {
             },
             function(successResult) {
               if (!successResult.error) {
-//                instance.clearSelection();
                 var wf = successResult.data;
                 if (scope.pinnedWorkflowStep) {
                   instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, wf.steps[scope.pinnedWorkflowStep.name]);
@@ -318,7 +310,6 @@ define(function (require) {
             }, angular.toJson(connectFromCandidate), 
             function(successResult) {
               if (!successResult.error) {
-//                instance.clearSelection();
                 var wf = successResult.data;
                 if (scope.pinnedWorkflowStep) {
                   instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, wf.steps[scope.pinnedWorkflowStep.name]);
@@ -362,6 +353,33 @@ define(function (require) {
               console.debug(errorResult);
             }
           );       
+        },
+        swap: function(from, to) {
+          var scope = this.scope;
+          var instance = this;          
+          workflowServices.step.swap({
+            topologyId: scope.topology.topology.id,
+            workflowName: scope.currentWorkflowName,
+            stepId: from,
+            targetId: to
+          }, {},
+          function(successResult) {
+            if (!successResult.error) {
+              var wf = successResult.data;
+              scope.topology.topology.workflows[scope.currentWorkflowName] = wf;
+              if (scope.pinnedWorkflowStep) {
+                instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, wf.steps[scope.pinnedWorkflowStep.name]);
+              }              
+              console.debug('operation succeded');
+            } else {
+              console.debug(successResult.error);
+            }
+          },
+          function(errorResult) {
+            console.debug(errorResult);
+          }
+        );           
+          
         },
         addOperation: function() {
           this.addOperationActivity();         
@@ -481,7 +499,10 @@ define(function (require) {
           if (candidates && candidates.length > 0) {
             this.connectPreview([this.scope.pinnedWorkflowStep.name], candidates);
           }
-        },        
+        },
+        swapPreview: function(from, to) {
+          this.scope.$broadcast('WfSwapPreview', from, to);
+        },
         connectPreview: function(from, to) {
           this.scope.$broadcast('WfConnectPreview', from, to);
         }, 
@@ -511,9 +532,10 @@ define(function (require) {
           }
         },
         getStepActivityTypeIcon: function(step) {
-          if (step.activity.type === 'alien4cloud.paas.wf.OperationCallActivity') {
+          var shortType = this.getStepActivityType(step);
+          if (shortType === 'OperationCallActivity') {
             return '\uf085'; // fa-cogs
-          } else if (step.activity.type === 'alien4cloud.paas.wf.SetStateActivity') {
+          } else if (shortType === 'SetStateActivity') {
             return '\uf087'; // fa-thumbs-o-up
           } else {
             return '\uf1e2'; // fa-bomb
@@ -524,16 +546,52 @@ define(function (require) {
         },
         getStepActivityDetails: function(step) {
           var details = {};
-          if (step.activity.type === 'alien4cloud.paas.wf.OperationCallActivity') {
+          var shortType = this.getStepActivityType(step);
+          if (shortType === 'OperationCallActivity') {
             details['interfaceName'] = step.activity.interfaceName;
             details['operationName'] = step.activity.operationName;
-          } else if (step.activity.type === 'alien4cloud.paas.wf.SetStateActivity') {
+          } else if (shortType === 'SetStateActivity') {
             details['stateName'] = step.activity.stateName;
           } else {
             details = step.activity;
           }     
           return details;
-        }        
+        },        
+        getErrorType: function(error) {
+          return $filter('splitAndGet')(error.type, '.', 'last');
+        },
+        // build a data structure to ease errors rendering inside d3 graph
+        getErrorRenderingData: function() {
+          // cycles: a map 'from' -> 'to' array of edges in cycle
+          // badSequenced: map where keys are steps that are known as bad sequenced state steps
+          var result = {cycles: {}, badSequenced: {}};
+          var errors = this.scope.topology.topology.workflows[this.scope.currentWorkflowName].errors;
+          var instance = this;
+          if (errors) {
+            errors.forEach(function(error) {
+              if (instance.getErrorType(error) === 'WorkflowHasCycleError') {
+                var lastStep = undefined;
+                for(var stepCycleIdx in error.cycle) {
+                  var stepName = error.cycle[stepCycleIdx];
+                  if (!lastStep) {
+                    lastStep = stepName;
+                  } else {
+                    if (result.cycles[lastStep]) {
+                      result.cycles[lastStep].push(stepName);
+                    } else {
+                      result.cycles[lastStep] = [stepName];
+                    }
+                    lastStep = stepName;
+                  }
+                }
+              } else if (instance.getErrorType(error) === 'BadStateSequenceError') {
+                result.badSequenced[error.from] = true;
+                result.badSequenced[error.to] = true;
+              }
+            });
+          }
+          return result;
+        }
       }
 
       return function(scope) {

@@ -1,10 +1,13 @@
 package alien4cloud.paas.wf;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import alien4cloud.paas.wf.validation.AbstractWorkflowError;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,8 +27,27 @@ public class Workflow {
 
     private Set<String> hosts = new HashSet<String>();
     
-    public void addStep(AbstractStep step) {
+    public <S extends AbstractStep> S addStep(S step) {
         steps.put(step.getName(), step);
+        return step;
+    }
+
+    private List<AbstractWorkflowError> errors;
+
+    public void clearErrors() {
+        errors = new ArrayList<AbstractWorkflowError>();
+    }
+
+    public boolean hasErrors() {
+        return errors != null && errors.size() > 0;
+    }
+
+    public void addErrors(List<AbstractWorkflowError> errorsToAdd) {
+        if (errors == null) {
+            errors = new ArrayList<AbstractWorkflowError>(errorsToAdd);
+        } else {
+            errors.addAll(errorsToAdd);
+        }
     }
 
 }

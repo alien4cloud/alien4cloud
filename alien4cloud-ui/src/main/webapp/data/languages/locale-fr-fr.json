@@ -496,6 +496,10 @@
             "default_instances": "Propriété default_instances invalide, merci de vérifier si 0 < min_instances < default_instances < max_instances",
             "max_instances": "Propriété max_instances invalide, merci de vérifier si 0 < min_instances < default_instances < max_instances"
           }
+        },
+        "WORKFLOWS": {
+          "TITLE" : "Workflows",
+          "HAS_ERROR": "Le workflow '{{workflowName}}' n'est pas valide : {{errorCount}} erreur(s)"
         }
       },
       "WARNING": {
@@ -608,13 +612,21 @@
       "activity": "Activité",
       "disconnectFrom": "Déconnecter depuis",
       "disconnectTo": "Déconnecter vers",
+      "swapLeft": "Interchanger à gauche",
+      "swapRigth": "Interchanger à droite",
       "connectFromSelection": "Connecter depuis la sélection",
       "connectToSelection": "Connecter vers la sélection",        
       "removeStep": "Supprimer le pas",
       "OperationCallActivity": "Appel d'opération",
       "SetStateActivity": "Changement d'état",
       "unpin": "Dévérouiller",
-      "currentSelection" : "Sélection courrante"
+      "currentSelection" : "Sélection courrante",
+      "hasErrors" : "erreur(s)",
+      "errors": {
+        "WorkflowHasCycleError": "Le workflow contient un cycle",
+        "BadStateSequenceError": "Mauvaise séquence : le pas '{{from}}' ne devrait pas se trouver avant le pas '{{to}}'",
+        "ParallelSetStatesError": "Des changements d'état sont effectués en parallèle pour le noeud '{{nodeId}}'"
+      }
     }    
   },
   "TEMPLATE": {
@@ -891,7 +903,8 @@
     "808": "Le nom ne respecte pas le format attendu",
     "820": "Référence cyclique : un template de topologie ne peut pas s'auto-référencer",
     "830": "Une version releasée ne peut référencer des dépendances SNAPSHOT",
-    "831": "Cette version ne peut être renomée car elle est déjà utilisée par ailleur"
+    "831": "Cette version ne peut être renomée car elle est déjà utilisée par ailleur",
+    "850": "Cette opération n'est pas permise sur ce type de workflow"
   },
   "TAG_CONFIG": {
     "TAGS": "Méta-propriétés",

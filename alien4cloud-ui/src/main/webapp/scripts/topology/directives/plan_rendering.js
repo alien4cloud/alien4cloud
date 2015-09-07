@@ -5,7 +5,7 @@ define(function(require) {
   var modules = require('modules');
   var _ = require('lodash');
   var d3Tip = require('d3-tip');
-  var d3 = require('d3');  
+  var d3 = require('d3');
   require('dagre');
   require('graphlib');
   var dagreD3 = require('dagre-d3');
@@ -45,7 +45,7 @@ define(function(require) {
 
                     // Create the renderer
                     var render = new dagreD3.render();
-                    
+
                     // Create the input graph
                     var g = new dagreD3.graphlib.Graph({
                       compound : true
@@ -54,7 +54,8 @@ define(function(require) {
                     });
                     // we want horizontal layout
                     g.graph().rankdir = "LR";
-                    
+                    g.graph().ranksep = 20;
+
                     // Add our custom shapes
                     render.shapes().start = function(parent, bbox, node) {
                       var r = bbox.height / 2;
@@ -84,18 +85,25 @@ define(function(require) {
                       var w = bbox.width;
                       var y = (bbox.height / 2) * -1;
                       var h = bbox.height;
-                      var shapeSvg = parent.insert('rect').attr('x', x).attr('y', y).attr('width', w).attr('height', h).attr('rx', 5).attr('ry', 5).style("fill", "white").style("stroke", "grey");
+                      var shapeSvg = parent.insert('rect').attr('x', x).attr('y', y).attr('width', w).attr('height', h).attr('rx', 5).attr('ry', 5).style("fill", "white");
+                      if (errorRenderingData.badSequenced[nodeId]) {
+                        // the step is in a bad sequence, make it red
+                        shapeSvg.style("stroke", "#f66");
+                      } else {
+                        shapeSvg.style("stroke", "grey");
+                      }
                       var iconSize = 20;
 //                      var html = parent.append('foreignObject').attr('x', x + w- 20).attr('y', y + 2).attr('width', 18).attr('height', 18);
-                      parent.append('text').attr('class', 'fa').attr('x', x + w- 20).attr('y', y + 16).text(scope.workflows.getStepActivityTypeIcon(step)); 
-                      if (step.activity.type === 'alien4cloud.paas.wf.OperationCallActivity') {
+                      parent.append('text').attr('class', 'fa').attr('x', x + w- 20).attr('y', y + 16).text(scope.workflows.getStepActivityTypeIcon(step));
+                      var shortActivityType = scope.workflows.getStepActivityType(step);
+                      if (shortActivityType === 'OperationCallActivity') {
 //                        html.append("xhtml:body").attr('class', 'svgHtml').html('<i class="fa fa-cogs"></i>');
-                        parent.append('text').attr('class', 'wfOperationLabel').attr('y', y + h - 10).text(_.trunc(step.activity.operationName, {'length': 13})).style("text-anchor", "middle");
-                      } else if (step.activity.type === 'alien4cloud.paas.wf.SetStateActivity') {
+                        parent.append('text').attr('class', 'wfOperationLabel').attr('y', y + h - 10).text(_.trunc(step.activity.operationName, {'length': 10})).style("text-anchor", "middle");
+                      } else if (shortActivityType === 'SetStateActivity') {
 //                        html.append("xhtml:body").attr('class', 'svgHtml').html('<i class="fa fa-wifi"></i>');
                         parent.append('text').attr('class', 'wfStateLabel').attr('fill', '#003399').attr('y', y + h - 8).text(_.trunc(step.activity.stateName, {'length': 13})).style("text-anchor", "middle");
                         iconSize = 16;
-                      }  
+                      }
                       if (nodeType.tags) {
                         var tags = listToMapService.listToMap(nodeType.tags, 'name', 'value');
                         if (tags.icon) {
@@ -107,8 +115,8 @@ define(function(require) {
                         shapeSvg.style("fill", "#CCE0FF");
                       } else if (scope.workflows.isStepSelected(nodeId)) {
                         shapeSvg.style("fill", "#FFFFD6");
-                      } 
-                    
+                      }
+
                       node.intersect = function(point) {
                         return dagreD3.intersect.rect(node, point);
                       };
@@ -117,7 +125,7 @@ define(function(require) {
                       });
                       shapeSvg.on("mouseout", function(d) {
                         scope.workflows.exitPreviewStep();
-                      });                      
+                      });
                       //
                       shapeSvg.on("click", function(d) {
                         var stepPinned = scope.workflows.isStepPinned(nodeId);
@@ -138,11 +146,11 @@ define(function(require) {
                         }
 //                        $interval(function() {
 //                          refresh();
-//                        }, 0, 1);                        
-                      });                      
+//                        }, 0, 1);
+                      });
                       return shapeSvg;
-                    };                    
-                    
+                    };
+
                     // Set up an SVG group so that we can translate the final
                     // graph.
                     var svg = d3.select('#plan-svg'), svgGroup = svg
@@ -156,65 +164,24 @@ define(function(require) {
                               + d3.event.translate + ")" + "scale("
                               + d3.event.scale + ")");
                         });
-                    svg.call(zoom);         
-                    
+                    svg.call(zoom);
+
                     var initialScale = 1;
 //                    svg.attr('width', 1200);
 //                    svg.attr('height', 800);
                     zoom.scale(initialScale).event(svg);
-                    
-//                    var oldcreateNodes = render.createNodes();
-//                    render.createNodes(function(selection, g, shapes) {
-//                      var svgNodes = oldcreateNodes(selection, g, shapes);
-//                      svgNodes.each(function(nodeId) {
-////                        console.log(v);
-//                        var node = g.node(nodeId);
-//                        var thisGroup = d3.select(this);
-////                        thisGroup.attr("title", 'kikooo ' + nodeId);
-//                        if (scope.workflows.isStepPinned(nodeId)) {
-//                          thisGroup.attr("fill", 'green');
-//                        } else if (scope.workflows.isStepSelected(nodeId)) {
-//                          thisGroup.attr("fill", 'red');
-//                        } else {
-//                          thisGroup.attr("fill", 'black');
-//                        }
-//                        thisGroup.on("click", function(nodeId) {
-//                          if (scope.workflows.isStepPinned(nodeId)) {
-//                            return;
-//                          }
-//                          if (scope.workflows.toggleStepSelection(nodeId)) {
-//                            thisGroup.attr("fill", 'red');
-//                          } else {
-//                            thisGroup.attr("fill", 'black');
-//                          }
-//                        });
-//                        thisGroup.on("mouseover", function(nodeId) {
-//                          scope.workflows.setCurrentworkflowStep(nodeId, steps[nodeId]);
-//                        });
-//                        thisGroup.on("contextmenu", function(nodeId) {
-//                          // stop showing browser menu
-//                          d3.event.preventDefault();
-//                          if (scope.workflows.togglePinnedworkflowStep(nodeId, steps[nodeId])) {
-//                            thisGroup.attr("fill", 'green');
-//                          } else if (scope.workflows.isStepSelected(nodeId)) {
-//                            thisGroup.attr("fill", 'red');
-//                          } else {
-//                            thisGroup.attr("fill", 'black');
-//                          }
-//                        });                        
-//                      });
-//                      return svgNodes;
-//                    });
-                    
+
                     // the hosts (graph clusters)
                     var hosts = [];
                     // the steps
                     var steps = [];
-                    
+                    // data used to render errors
+                    var errorRenderingData = {cycles: {}, badSequenced: {}};
+
                     function setCurrentWorkflowStep(nodeId) {
                       scope.workflows.setCurrentworkflowStep(nodeId, steps[nodeId]);
                     }
-                    
+
                     function appendStepNode(g, stepName, step) {
                       if (step.activity.type === 'alien4cloud.paas.wf.OperationCallActivity') {
                         g.setNode(stepName, {label: '', width: 60, height: 40, shape: 'operationStep'});
@@ -222,23 +189,43 @@ define(function(require) {
                         g.setNode(stepName, {label: '', width: 40, height: 25, shape: 'operationStep'});
                       } else {
                         g.setNode(stepName, {label: step.name});
-                      }                      
+                      }
                     }
                     
+                    function appendEdge(g, from, to) {
+                      var style = {
+                          lineInterpolate: 'basis', 
+                          arrowhead: 'vee', 
+                          style: "stroke: black; stroke-width: 1.5px;", 
+                          arrowheadStyle: "fill: black; stroke: black"};
+                      if (errorRenderingData.cycles[from] && _.contains(errorRenderingData.cycles[from], to)) {
+                        // the edge is in a cycle, make it red
+                        style = {
+                            lineInterpolate: 'basis',
+                            arrowhead: 'vee',
+                            style: "stroke: #f66; stroke-width: 1.5px;",
+                            arrowheadStyle: "fill: #f66; stroke: #f66"}
+                      }
+                      g.setEdge(from, to, style);
+                    }
+
                     function refresh() {
                       console.log("refresh");
+                      // remove remaining popups
                       d3.selectAll('.d3-tip').remove();
                       g.nodes().forEach(function(v) {
                         g.removeNode(v);
                       });
-                      
+
                       if (!scope.currentWorkflowName || !scope.topology.topology.workflows || !scope.topology.topology.workflows[scope.currentWorkflowName]) {
                         render(svgGroup, g);
                         return;
                       }
+                      errorRenderingData = scope.workflows.getErrorRenderingData();
+                      
                       hosts = scope.topology.topology.workflows[scope.currentWorkflowName].hosts;
                       steps = scope.topology.topology.workflows[scope.currentWorkflowName].steps;
-                      
+
                       g.setNode("start", {label : '', shape: 'start'});
                       g.setNode("end", {label : '', shape: 'stop'});
                       if (hosts) {
@@ -253,7 +240,6 @@ define(function(require) {
                           hasSteps = true;
                           var step = steps[stepName];
                           appendStepNode(g, stepName, step);
-//                          g.setNode(stepName, {label: '', width: 60, height: 40, shape: 'operationStep'});
                           if (step.hostId) {
                             g.setParent(stepName, step.hostId);
                           }
@@ -261,46 +247,29 @@ define(function(require) {
                         for (var stepName in steps) {
                           var step = steps[stepName];
                           if (!step.precedingSteps || step.precedingSteps.length == 0) {
-                            g.setEdge("start", stepName);
+                            appendEdge(g, "start", stepName);
                           }
                           if (!step.followingSteps || step.followingSteps.length == 0) {
-                            g.setEdge(stepName, "end");
+                            appendEdge(g, stepName, "end");
                           } else {
                             for (var i = 0; i < step.followingSteps.length; i++) {
-                              g.setEdge(stepName, step.followingSteps[i]);
+                              appendEdge(g, stepName, step.followingSteps[i]);
                             }
                           }
                         }
-                      } 
+                      }
                       if (!hasSteps) {
-                        g.setEdge("start", "end");
+                        appendEdge(g, "start", "end");
                       }
 
-                      g.nodes().forEach(function(v) {
-                        var node = g.node(v);
-                        // Round the corners of the nodes
-                        node.rx = node.ry = 5;
-                      });
-
-                      //makes the lines smooth
-                      g.edges().forEach(function (e) {
-                          var edge = g.edge(e.v, e.w);
-                          edge.lineInterpolate = 'basis';
-                          edge.label = '';
-                          edge.arrowhead = 'vee'; // doesn't work!
-                          edge.arrowheadStyle= "fill: black";
-                          edge.style = {};
-                      });
-                      
                       // Run the renderer. This is what draws the final graph.
                       render(svgGroup, g);
-                      
+
                       // tool tips
                       var tip = d3Tip().attr('class', 'd3-tip wf-tip').offset([-10, 0]).html(function(d) { return styleTooltip(d); });
                       svg.call(tip);
-//                      d3.selectAll("g.node").call(tip);
                       d3.selectAll("g.node").on('mouseover', tip.show).on('mouseout', tip.hide);
-                      
+
                     }
 
                     // render an styled html tool tip for a given step
@@ -325,19 +294,19 @@ define(function(require) {
                       html += '</div>';
                       return html;
                     };
-                    
-                    
+
+
                     scope.$on('WfRefresh', function (event) {
                       refresh();
                     });
                     scope.$watch('visualDimensions', function(visualDimensions) {
                       onResize(visualDimensions.width, visualDimensions.height);
                     });
-                    
+
                     scope.$watch('topology', function() {
                       scope.workflows.topologyChanged();
                     }, true);
-                    
+
                     function onResize(width, height) {
                       svgGraph.onResize(width, height);
                     }
@@ -347,14 +316,14 @@ define(function(require) {
                     });
                     svgGraph.onResize(scope.visualDimensions.width,
                         scope.visualDimensions.height);
-                    
+
                     function centerGraph() {
                       // Center the graph
 //                      var xCenterOffset = (svg.attr("width") - g.graph().width) / 2;
 //                      svgGroup.attr("transform", "translate(" + xCenterOffset + ", 20)");
-//                      svg.attr("height", g.graph().height + 40); 
+//                      svg.attr("height", g.graph().height + 40);
                     }
-                    
+
                     // preview events registering
                     function setPreviewEdge(g, from , to) {
                       g.setEdge(from, to, {
@@ -368,7 +337,7 @@ define(function(require) {
                     }
                     scope.$on('WfCenterGraph', function (event) {
                       centerGraph();
-                    });                    
+                    });
                     scope.$on('WfRemoveEdgePreview', function (event, from, to) {
                       console.log("WfRemoveEdgePreview event received : " + event + ", from:" + from + ", to:" + to);
                       g.removeEdge(from, to);
@@ -377,7 +346,7 @@ define(function(require) {
                       }
                       if (steps[to].precedingSteps.length == 1) {
                         setPreviewEdge(g, 'start', to);
-                      }                      
+                      }
                       render(svgGroup, g);
                     });
                     scope.$on('WfResetPreview', function (event) {
@@ -394,16 +363,16 @@ define(function(require) {
                         }
                       }
                       render(svgGroup, g);
-                    });   
+                    });
                     scope.$on('WfAddStepPreview', function (event) {
                       setPreviewNode(g);
-                      setPreviewEdge(g, 'start', 'a4cPreviewNewStep');              
+                      setPreviewEdge(g, 'start', 'a4cPreviewNewStep');
                       setPreviewEdge(g, 'a4cPreviewNewStep', 'end');
                       if (_.size(steps) == 0) {
                         g.removeEdge('start', 'end');
                       }
                       render(svgGroup, g);
-                    }); 
+                    });
                     scope.$on('WfInsertStepPreview', function (event, stepId) {
                       console.log("WfInsertStepPreview event received : " + event + ", stepId:" + stepId);
                       setPreviewNode(g);
@@ -413,13 +382,13 @@ define(function(require) {
                       } else if (steps[stepId].precedingSteps.length == 1) {
                         precedingStep = steps[stepId].precedingSteps[0];
                       }
-                      if (precedingStep) {  
+                      if (precedingStep) {
                         g.removeEdge(precedingStep, stepId);
                         setPreviewEdge(g, precedingStep, 'a4cPreviewNewStep');
-                      }  
-                      setPreviewEdge(g, 'a4cPreviewNewStep', stepId);                      
+                      }
+                      setPreviewEdge(g, 'a4cPreviewNewStep', stepId);
                       render(svgGroup, g);
-                    });                     
+                    });
                     scope.$on('WfAppendStepPreview', function (event, stepId) {
                       console.log("WfAppendStepPreview event received : " + event + ", stepId:" + stepId);
                       setPreviewNode(g);
@@ -429,13 +398,13 @@ define(function(require) {
                       } else if (steps[stepId].followingSteps.length == 1) {
                         followingStep = steps[stepId].followingSteps[0];
                       }
-                      if (followingStep) {  
+                      if (followingStep) {
                         g.removeEdge(stepId, followingStep);
                         setPreviewEdge(g, 'a4cPreviewNewStep', followingStep);
-                      }  
-                      setPreviewEdge(g, stepId, 'a4cPreviewNewStep');                      
+                      }
+                      setPreviewEdge(g, stepId, 'a4cPreviewNewStep');
                       render(svgGroup, g);
-                    });   
+                    });
                     scope.$on('WfRemoveStepPreview', function (event, stepId) {
                       console.log("WfRemoveStepPreview event received : " + event + ", stepId:" + stepId);
                       g.removeNode(stepId);
@@ -444,7 +413,7 @@ define(function(require) {
                         precedingSteps = ['start'];
                       } else if (steps[stepId].followingSteps) {
                         precedingSteps = steps[stepId].precedingSteps;
-                      }                       
+                      }
                       var followingSteps = undefined;
                       if (!steps[stepId].followingSteps || steps[stepId].followingSteps.length == 0) {
                         followingSteps = ['end'];
@@ -458,9 +427,45 @@ define(function(require) {
                           }
                           setPreviewEdge(g, precedingSteps[i], followingSteps[j]);
                         }
-                      }                      
+                      }
                       render(svgGroup, g);
-                    });                       
+                    });
+                    function swapLinks(from, to) {
+                      // from's preceding become preceding of to
+                      var precedingSteps = undefined;
+                      if (!steps[from].precedingSteps || steps[from].precedingSteps.length == 0) {
+                        precedingSteps = ['start'];
+                      } else {
+                        precedingSteps = steps[from].precedingSteps;
+                      }
+                      for (var i = 0; i < precedingSteps.length; i++) {
+                        g.removeEdge(precedingSteps[i], from);
+                        if (precedingSteps[i] !== to) {
+                          setPreviewEdge(g, precedingSteps[i], to);
+                        }
+                      }
+                      // from's following become following of 'to' (except 'to' itself)
+                      var followingSteps = undefined;
+                      if (!steps[from].followingSteps || steps[from].followingSteps.length == 0) {
+                        followingSteps = ['end'];
+                      } else {
+                        followingSteps = steps[from].followingSteps;
+                      }
+                      for (var i = 0; i < followingSteps.length; i++) {
+                        g.removeEdge(from, followingSteps[i]);
+                        if (followingSteps[i] !== to) {
+                          setPreviewEdge(g, to, followingSteps[i]);
+                        }
+                      }                      
+                    }
+                    // swap steps : connections between both is inversed and each other connections are swapped
+                    scope.$on('WfSwapPreview', function (event, from, to) {
+                      g.removeEdge(from, to);
+                      swapLinks(from, to);
+                      swapLinks(to, from);
+                      setPreviewEdge(g, to, from);
+                      render(svgGroup, g);
+                    });
                   }
                 };
               } ]); // factory

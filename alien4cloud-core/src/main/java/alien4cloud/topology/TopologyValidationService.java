@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.elasticsearch.common.collect.Lists;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.application.ApplicationEnvironmentService;
@@ -18,12 +19,16 @@ import alien4cloud.common.TagService;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.paas.wf.Workflow;
+import alien4cloud.paas.wf.validation.WorkflowValidator;
+import alien4cloud.topology.task.AbstractTask;
 import alien4cloud.topology.task.NodeFiltersTask;
 import alien4cloud.topology.task.PropertiesTask;
 import alien4cloud.topology.task.RequirementsTask;
 import alien4cloud.topology.task.SuggestionsTask;
+import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.TaskLevel;
-import alien4cloud.topology.task.TopologyTask;
+import alien4cloud.topology.task.WorkflowTask;
 import alien4cloud.topology.validation.HAGroupPolicyValidationService;
 import alien4cloud.topology.validation.NodeFilterValidationService;
 import alien4cloud.topology.validation.TopologyAbstractNodeValidationService;
@@ -60,6 +65,8 @@ public class TopologyValidationService {
     private HAGroupPolicyValidationService haGroupPolicyValidationService;
     @Resource
     private NodeFilterValidationService nodeFilterValidationService;
+    @Resource
+    private WorkflowValidator workflowValidator;
 
     /**
      * Validate if a topology is valid for deployment or not
@@ -74,6 +81,24 @@ public class TopologyValidationService {
             dto.setValid(false);
             return dto;
         }
+
+        // validate the workflows
+        List<WorkflowTask> tasks = Lists.newArrayList();
+        if (topology.getWorkflows() != null) {
+            for (Workflow workflow : topology.getWorkflows().values()) {
+                int errorCount = workflowValidator.validate(workflow);
+                if (errorCount > 0) {
+                    dto.setValid(false);
+                    WorkflowTask workflowTask = new WorkflowTask();
+                    workflowTask.setCode(TaskCode.WORKFLOW_INVALID);
+                    workflowTask.setWorkflowName(workflow.getName());
+                    workflowTask.setErrorCount(errorCount);
+                    tasks.add(workflowTask);
+                }
+            }
+        }
+        dto.addToTaskList(tasks);
+
         // validate abstract relationships
         dto.addToTaskList(topologyAbstractRelationshipValidationService.validateAbstractRelationships(topology));
 
@@ -124,13 +149,14 @@ public class TopologyValidationService {
      * @param taskList
      * @return
      */
-    private boolean isValidTaskList(List<TopologyTask> taskList) {
+    private boolean isValidTaskList(List<AbstractTask> taskList) {
         if (taskList == null) {
             return true;
         }
-        for (TopologyTask task : taskList) {
+        for (AbstractTask task : taskList) {
             // checking SuggestionsTask or RequirementsTask
-            if (task instanceof SuggestionsTask || task instanceof RequirementsTask || task instanceof PropertiesTask || task instanceof NodeFiltersTask) {
+            if (task instanceof SuggestionsTask || task instanceof RequirementsTask || task instanceof PropertiesTask || task instanceof NodeFiltersTask
+                    || task instanceof WorkflowTask) {
                 return false;
             }
         }

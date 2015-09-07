@@ -8,11 +8,12 @@ import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
+import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.tosca.normative.NormativeRelationshipConstants;
 
 @Component
 @Slf4j
-public class InstallWorkflowBuilder extends AbstractWorkflowBuilder {
+public class InstallWorkflowBuilder extends StandardWorflowBuilder {
 
     public void addNode(Workflow wf, PaaSTopology paaSTopology, PaaSNodeTemplate paaSNodeTemplate, boolean isCompute) {
         // node are systematically added to std lifecycle WFs
@@ -48,13 +49,13 @@ public class InstallWorkflowBuilder extends AbstractWorkflowBuilder {
             PaaSNodeTemplate parent = paaSNodeTemplate.getParent();
             NodeActivityStep startedTargetStep = getStateStepByNode(wf, parent.getId(), ToscaNodeLifecycleConstants.STARTED);
             NodeActivityStep initSourceStep = getStateStepByNode(wf, paaSNodeTemplate.getId(), ToscaNodeLifecycleConstants.INITIAL);
-            linkSteps(startedTargetStep, initSourceStep);
+            WorkflowUtils.linkSteps(startedTargetStep, initSourceStep);
         } else if (pasSRelationshipTemplate.instanceOf(NormativeRelationshipConstants.DEPENDS_ON)) {
             // now the node has a parent, let's sequence the creation
             String targetId = pasSRelationshipTemplate.getRelationshipTemplate().getTarget();
             NodeActivityStep startedTargetStep = getStateStepByNode(wf, targetId, ToscaNodeLifecycleConstants.STARTED);
             NodeActivityStep configureSourceStep = getStateStepByNode(wf, paaSNodeTemplate.getId(), ToscaNodeLifecycleConstants.CONFIGURING);
-            linkSteps(startedTargetStep, configureSourceStep);
+            WorkflowUtils.linkSteps(startedTargetStep, configureSourceStep);
         }
     }
 

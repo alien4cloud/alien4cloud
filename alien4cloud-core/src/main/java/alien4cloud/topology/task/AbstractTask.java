@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import alien4cloud.model.components.IndexedInheritableToscaElement;
 
 /**
  * 
@@ -18,9 +17,7 @@ import alien4cloud.model.components.IndexedInheritableToscaElement;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuppressWarnings("PMD.UnusedPrivateField")
-public class TopologyTask extends AbstractTask {
-    // Name of the node template that needs to be fixed.
-    private String nodeTemplateName;
-    // related component
-    private IndexedInheritableToscaElement component;
+public abstract class AbstractTask {
+    // task code
+    private TaskCode code;
 }

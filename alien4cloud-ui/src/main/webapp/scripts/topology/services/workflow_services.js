@@ -14,6 +14,7 @@ define(function (require) {
       var stepResource = $resource('rest/topologies/:topologyId/workflows/:workflowName/steps/:stepId');
       var fromResource = $resource('rest/topologies/:topologyId/workflows/:workflowName/steps/:stepId/connectFrom');
       var toResource = $resource('rest/topologies/:topologyId/workflows/:workflowName/steps/:stepId/connectTo');
+      var swapResource = $resource('rest/topologies/:topologyId/workflows/:workflowName/steps/:stepId/swap');
       
       return {
         'workflows': {
@@ -28,7 +29,8 @@ define(function (require) {
           'remove': stepResource.remove,
           'rename': stepResource.save,
           'connectFrom': fromResource.save,
-          'connectTo': toResource.save
+          'connectTo': toResource.save,
+          'swap': swapResource.save
         },
         'activity': {
           'add': activitiesResource.save

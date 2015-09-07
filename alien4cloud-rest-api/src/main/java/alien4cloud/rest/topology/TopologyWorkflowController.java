@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.wf.Workflow;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
@@ -84,7 +85,7 @@ public class TopologyWorkflowController {
         topologyService.throwsErrorIfReleased(topology);
 
         if (topology.getWorkflows().containsKey(newName)) {
-            throw new RuntimeException("name already exists");
+            throw new AlreadyExistException(String.format("The workflow named '%s' already exists", newName));
         }
         Workflow wf = topology.getWorkflows().remove(workflowName);
         if (wf.isStandard()) {
@@ -144,6 +145,19 @@ public class TopologyWorkflowController {
         topologyService.throwsErrorIfReleased(topology);
 
         Workflow wf = workflowBuilderService.connectStepTo(topology, workflowName, stepId, stepNames);
+        alienDAO.save(topology);
+        return RestResponseBuilder.<Workflow> builder().data(wf).build();
+    }
+
+    @RequestMapping(value = "/{topologyId}/workflows/{workflowName}/steps/{stepId}/swap", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Workflow> swap(@PathVariable String topologyId, @PathVariable String workflowName, @PathVariable String stepId,
+            @RequestParam String targetId) {
+
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
+
+        Workflow wf = workflowBuilderService.swapSteps(topology, workflowName, stepId, targetId);
         alienDAO.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }

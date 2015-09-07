@@ -48,4 +48,10 @@ public abstract class AbstractStep {
 
     @JsonIgnore
     public abstract String getStepAsString();
+
+    @Override
+    public String toString() {
+        return getStepAsString();
+    }
+
 }

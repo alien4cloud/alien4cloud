@@ -8,11 +8,12 @@ import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
+import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.tosca.normative.NormativeRelationshipConstants;
 
 @Component
 @Slf4j
-public class UninstallWorkflowBuilder extends AbstractWorkflowBuilder {
+public class UninstallWorkflowBuilder extends StandardWorflowBuilder {
 
     @Override
     public void addNode(Workflow wf, PaaSTopology paaSTopology, PaaSNodeTemplate paaSNodeTemplate, boolean isCompute) {
@@ -33,7 +34,7 @@ public class UninstallWorkflowBuilder extends AbstractWorkflowBuilder {
             PaaSNodeTemplate parent = paaSNodeTemplate.getParent();
             NodeActivityStep deletedSourceStep = getStateStepByNode(wf, paaSNodeTemplate.getId(), ToscaNodeLifecycleConstants.DELETED);
             NodeActivityStep stoppingTargetStep = getStateStepByNode(wf, parent.getId(), ToscaNodeLifecycleConstants.STOPPING);
-            linkSteps(deletedSourceStep, stoppingTargetStep);
+            WorkflowUtils.linkSteps(deletedSourceStep, stoppingTargetStep);
         }
     }
 

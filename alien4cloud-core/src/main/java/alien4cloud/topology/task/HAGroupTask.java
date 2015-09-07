@@ -16,7 +16,8 @@ public class HAGroupTask extends TopologyTask {
     private String groupId;
 
     public HAGroupTask(String nodeTemplateName, String groupId, AllocationErrorCode errorCode) {
-        super(TaskCode.HA_INVALID, nodeTemplateName, null);
+        super(nodeTemplateName, null);
+        this.setCode(TaskCode.HA_INVALID);
         this.groupId = groupId;
         this.errorCode = errorCode;
     }
