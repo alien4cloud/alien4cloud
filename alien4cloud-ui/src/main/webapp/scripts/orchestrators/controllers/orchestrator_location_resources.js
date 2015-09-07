@@ -6,33 +6,20 @@ define(function(require) {
   var angular = require('angular');
   var _ = require('lodash');
 
-  require('scripts/orchestrators/controllers/orchestrator_resource_template');
-  require('scripts/orchestrators/directives/orchestrator_resource_template');
+  require('scripts/orchestrators/controllers/orchestrator_location_resource_template');
+  require('scripts/orchestrators/directives/orchestrator_location_resource_template');
   require('scripts/orchestrators/services/location_resources_processor');
 
-  states.state('admin.orchestrators.details.locations.infra', {
-    url: '/infra',
-    templateUrl: 'views/orchestrators/orchestrator_locations_infra.html',
-    controller: 'OrchestratorLocationsConfigCtrl',
-    menu: {
-      id: 'menu.orchestrators.locations.infra',
-      state: 'admin.orchestrators.details.locations.infra',
-      key: 'ORCHESTRATORS.LOCATIONS.CONFIGURATION_RESOURCES',
-      icon: 'fa fa-wrench',
-      priority: 100
-    }
-  });
 
-  modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorLocationsConfigCtrl',
-    ['$scope', 'orchestrator', 'locationResourcesService', 'locationResourcesProcessor',
-      function($scope, orchestrator, locationResourcesService, locationResourcesProcessor) {
-        $scope.orchestrator = orchestrator;
+  modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorLocationResourcesTemplateCtrl',
+    ['$scope', 'locationResourcesService', 'locationResourcesProcessor',
+      function($scope, locationResourcesService, locationResourcesProcessor) {
         if (_.isNotEmpty($scope.context.configurationTypes)) {
           $scope.selectedConfigurationResourceType = $scope.context.configurationTypes[0];
         }
         $scope.addResourceTemplate = function() {
           locationResourcesService.save({
-            orchestratorId: $scope.orchestrator.id,
+            orchestratorId: $scope.context.orchestrator.id,
             locationId: $scope.context.location.id
           }, angular.toJson({
             'resourceType': $scope.selectedConfigurationResourceType.elementId,
@@ -44,26 +31,22 @@ define(function(require) {
           });
         };
 
-        $scope.selectTemplate = function(template) {
-          $scope.selectedConfigurationResourceTemplate = template;
-        };
-
-        $scope.saveResourceTemplate = function(resourceTemplate) {
-          console.log('Update', resourceTemplate);
-        };
-
+        // delete is called from the directive but must be managed here as we must delete the selectedResourceTemplate on success
         $scope.deleteResourceTemplate = function(resourceTemplate) {
-          console.log('Delete', resourceTemplate);
           locationResourcesService.delete({
-            orchestratorId: $scope.orchestrator.id,
+            orchestratorId: $scope.context.orchestrator.id,
             locationId: $scope.context.location.id,
             id: resourceTemplate.id
           }, undefined, function() {
             _.remove($scope.context.locationResources.configurationTemplates, {
               id: resourceTemplate.id
             });
-            delete $scope.selectedConfigurationResourceTemplate;
+            delete $scope.selectedResourceTemplate;
           });
+        };
+
+        $scope.selectTemplate = function(template) {
+          $scope.selectedResourceTemplate = template;
         };
 
         $scope.getIcon = function(template) {

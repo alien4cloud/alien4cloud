@@ -7,11 +7,11 @@ define(function(require) {
   var _ = require('lodash');
 
   require('scripts/orchestrators/controllers/orchestrator_location_new');
-  require('scripts/orchestrators/controllers/orchestrator_locations_infra');
-  require('scripts/orchestrators/controllers/orchestrator_locations_nodes');
-  require('scripts/orchestrators/controllers/orchestrator_locations_policies');
-  require('scripts/orchestrators/controllers/orchestrator_locations_security');
-  require('scripts/orchestrators/controllers/orchestrator_locations_services');
+  require('scripts/orchestrators/controllers/orchestrator_location_config');
+  require('scripts/orchestrators/controllers/orchestrator_location_nodes');
+  require('scripts/orchestrators/controllers/orchestrator_location_policies');
+  require('scripts/orchestrators/controllers/orchestrator_location_security');
+  require('scripts/orchestrators/controllers/orchestrator_location_services');
   require('scripts/orchestrators/services/orchestrator_location_service');
   require('scripts/orchestrators/services/location_resources_processor');
 
@@ -60,11 +60,11 @@ define(function(require) {
 
         $scope.selectLocation = function(location) {
           locationResourcesProcessor.process(location.resources);
-          $scope.context.configurationTypes = _.values(location.resources.configurationTypes);
-          $scope.context.nodeTypes = _.values(location.resources.nodeTypes);
           $scope.location = location.location;
           $scope.context.location = $scope.location;
           $scope.context.locationResources = location.resources;
+          $scope.context.configurationTypes = _.values(location.resources.configurationTypes);
+          $scope.context.nodeTypes = _.values(location.resources.nodeTypes);
         };
 
         $scope.openNewModal = function() {

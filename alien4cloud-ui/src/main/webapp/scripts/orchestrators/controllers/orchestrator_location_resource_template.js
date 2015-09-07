@@ -3,16 +3,18 @@ define(function(require) {
 
   var modules = require('modules');
 
-  modules.get('a4c-orchestrators', ['pascalprecht.translate']).controller('OrchestratorResourceTemplateCtrl', [
+  modules.get('a4c-orchestrators', ['pascalprecht.translate']).controller('OrchestratorLocationResourceTemplateCtrl', [
     '$scope', 'locationResourcesService', 'locationResourcesPropertyService', 'locationResourcesCapabilityPropertyService',
     function($scope, locationResourcesService, locationResourcesPropertyService, locationResourcesCapabilityPropertyService) {
-      $scope.getCapabilityPropertyDefinition = function(capabilityType, capabilityPropertyName) {
-        var capabilityType = $scope.context.locationResources.capabilityTypes[capabilityType];
+      $scope.getCapabilityPropertyDefinition = function(capabilityTypeId, capabilityPropertyName) {
+        var capabilityType = $scope.context.locationResources.capabilityTypes[capabilityTypeId];
         return capabilityType.propertiesMap[capabilityPropertyName].value;
       };
+
       $scope.checkMapSize = function(map) {
         return angular.isDefined(map) && map !== null && Object.keys(map).length > 0;
       };
+
       $scope.updateLocationResource = function(propertyName, propertyValue) {
         var updateLocationRequest = {};
         updateLocationRequest[propertyName] = propertyValue;

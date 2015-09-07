@@ -3,16 +3,15 @@ define(function(require) {
 
   var modules = require('modules');
 
-  modules.get('a4c-orchestrators').directive('orchestratorResourceTemplate', function() {
+  modules.get('a4c-orchestrators').directive('orchestratorLocationResourceTemplate', function() {
     return {
-      templateUrl: 'views/orchestrators/orchestrator_resource_template.html',
+      templateUrl: 'views/orchestrators/orchestrator_location_resource_template.html',
       restrict: 'E',
       scope: {
         'resourceTemplate': '=',
         'resourceType': '=',
         'context': '=?',
-        'onSave': '&',
-        'onDelete': '&'
+        'onDelete': '&',
       },
       link: {}
     };

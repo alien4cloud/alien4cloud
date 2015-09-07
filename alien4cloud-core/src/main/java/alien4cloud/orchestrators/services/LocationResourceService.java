@@ -2,21 +2,25 @@ package alien4cloud.orchestrators.services;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.model.components.*;
+import alien4cloud.model.orchestrators.Orchestrator;
+import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
+import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
+import alien4cloud.orchestrators.rest.model.LocationResources;
+import alien4cloud.paas.PaaSProviderService;
+import com.google.common.collect.Maps;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.topology.Capability;
@@ -42,6 +46,60 @@ public class LocationResourceService {
     private TopologyServiceCore topologyService;
     @Inject
     private LocationService locationService;
+    @Inject
+    private OrchestratorService orchestratorService;
+    @Inject
+    private PaaSProviderService paaSProviderService;
+
+    /**
+     * Get the list of resources definitions for a given orchestrator.
+     *
+     * @param location the location.
+     * @return A list of resource definitions for the given location.
+     */
+    public LocationResources getLocationResources(Location location) {
+        Orchestrator orchestrator = orchestratorService.getOrFail(location.getOrchestratorId());
+        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) paaSProviderService.getPaaSProvider(orchestrator.getId());
+        ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
+        List<String> allExposedTypes = configuratorPlugin.getResourcesTypes();
+        Set<CSARDependency> dependencies = location.getDependencies();
+        Map<String, IndexedNodeType> configurationsTypes = Maps.newHashMap();
+        Map<String, IndexedNodeType> nodesTypes = Maps.newHashMap();
+        Map<String, IndexedCapabilityType> capabilityTypes = Maps.newHashMap();
+        for (String exposedType : allExposedTypes) {
+            IndexedNodeType exposedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, exposedType, dependencies);
+            if (exposedIndexedNodeType.isAbstract()) {
+                configurationsTypes.put(exposedType, exposedIndexedNodeType);
+            } else {
+                nodesTypes.put(exposedType, exposedIndexedNodeType);
+            }
+            if (exposedIndexedNodeType.getCapabilities() != null && !exposedIndexedNodeType.getCapabilities().isEmpty()) {
+                for (CapabilityDefinition capabilityDefinition : exposedIndexedNodeType.getCapabilities()) {
+                    capabilityTypes.put(capabilityDefinition.getType(),
+                            csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class, capabilityDefinition.getType(), dependencies));
+                }
+            }
+        }
+        List<LocationResourceTemplate> locationResourceTemplates = getResourcesTemplates(location.getId());
+        LocationResources locationResources = new LocationResources();
+        locationResources.setConfigurationTypes(configurationsTypes);
+        locationResources.setNodeTypes(nodesTypes);
+        List<LocationResourceTemplate> configurationsTemplates = Lists.newArrayList();
+        List<LocationResourceTemplate> nodesTemplates = Lists.newArrayList();
+        for (LocationResourceTemplate resourceTemplate : locationResourceTemplates) {
+            String templateType = resourceTemplate.getTemplate().getType();
+            if (configurationsTypes.containsKey(templateType)) {
+                configurationsTemplates.add(resourceTemplate);
+            }
+            if (nodesTypes.containsKey(templateType)) {
+                nodesTemplates.add(resourceTemplate);
+            }
+        }
+        locationResources.setConfigurationTemplates(configurationsTemplates);
+        locationResources.setNodeTemplates(nodesTemplates);
+        locationResources.setCapabilityTypes(capabilityTypes);
+        return locationResources;
+    }
 
     /**
      * Create an instance of an ILocationResourceAccessor that will perform queries on LocationResourceTemplate for a given location.

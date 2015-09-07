@@ -5,6 +5,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import alien4cloud.orchestrators.services.LocationResourceService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,6 +42,8 @@ import com.wordnik.swagger.annotations.Authorization;
 public class LocationController {
     @Inject
     private LocationService locationService;
+    @Inject
+    private LocationResourceService locationResourceService;
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Create a new location.", authorizations = { @Authorization("ADMIN") })
@@ -87,7 +90,7 @@ public class LocationController {
 
     private LocationDTO buildLocationDTO(Location location) {
         LocationDTO locationDTO = new LocationDTO();
-        locationDTO.setResources(locationService.getLocationResources(location));
+        locationDTO.setResources(locationResourceService.getLocationResources(location));
         locationDTO.setLocation(location);
         return locationDTO;
     }

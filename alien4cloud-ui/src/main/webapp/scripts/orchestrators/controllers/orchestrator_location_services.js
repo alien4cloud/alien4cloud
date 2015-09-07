@@ -8,7 +8,7 @@ define(function (require) {
 
   states.state('admin.orchestrators.details.locations.services', {
     url: '/services',
-    templateUrl: 'views/orchestrators/orchestrator_locations_services.html',
+    templateUrl: 'views/orchestrators/orchestrator_location_services.html',
     controller: 'OrchestratorLocationsServicesCtrl',
     menu: {
       id: 'menu.orchestrators.locations.services',

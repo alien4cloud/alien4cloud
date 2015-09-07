@@ -10,7 +10,7 @@ define(function (require) {
 
   states.state('admin.orchestrators.details.locations.security', {
     url: '/security',
-    templateUrl: 'views/orchestrators/orchestrator_locations_security.html',
+    templateUrl: 'views/orchestrators/orchestrator_location_security.html',
     controller: 'OrchestratorLocationsSecurityCtrl',
     menu: {
       id: 'menu.orchestrators.locations.security',

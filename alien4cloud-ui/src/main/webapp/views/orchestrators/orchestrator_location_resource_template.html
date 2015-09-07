@@ -1,4 +1,4 @@
-<div ng-controller="OrchestratorResourceTemplateCtrl">
+<div ng-controller="OrchestratorLocationResourceTemplateCtrl">
   <div class="row">
     <div class="col-md-7">
       <h3 class="pull-left" style="margin-top: 10px; margin-bottom: 20px;">
@@ -12,17 +12,6 @@
       <div class="pull-right">
         <delete-confirm id="btn-delete-node" func="onDelete({'resourceTemplate' : resourceTemplate})" position="left" bssize="btn-sm" fastyle="fa-trash-o">
         </delete-confirm>
-      </div>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-md-12">
-      <div class="input-group">
-              <span class="input-group-addon">
-                <span><i>{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</i></span>
-              </span>
-        <span class="form-control"> {{resourceTemplate.template.type}} </span>
       </div>
     </div>
   </div>
@@ -57,60 +46,6 @@
           </td>
         </tr>
       </table>
-    </div>
-  </div>
-
-  <!-- Requirements -->
-  <div ng-if="resourceTemplate.template.requirements.length > 0">
-    <div id="node-details-requirements" class="topology-node-expand clickable"
-         ng-click="isRequirementsCollapsed = !isRequirementsCollapsed">
-      <h4>
-        <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isRequirementsCollapsed, 'fa-chevron-right': isRequirementsCollapsed}"></i>
-        {{'APPLICATIONS.TOPOLOGY.REQUIREMENTS' | translate}}
-      </h4>
-    </div>
-    <div id="node-details-requirements-panel" collapse="isRequirementsCollapsed" class="topology-level">
-      <div ng-repeat="requirementEntry in resourceTemplate.template.requirements"
-           ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(requirementEntry.value.properties)">
-        <div class="topology-node-expand" style="font-weight: normal"
-             ng-class="{'clickable' : !emptyProps}"
-             ng-click="isReqPropsCollapsed[requirementEntry.key] = !isReqPropsCollapsed[requirementEntry.key]">
-          <div class="row">
-            <div class="col-md-3">
-              <i ng-if="!emptyProps" class="pull-left fa"
-                 ng-class="{'fa-chevron-down' : !isReqPropsCollapsed[requirementEntry.key], 'fa-chevron-right': isReqPropsCollapsed[requirementEntry.key]}">
-              </i>
-              <span>{{requirementEntry.key}}</span>
-            </div>
-            <div class="col-md-3" id="requirement-{{requirementEntry.key}}">
-                    <span tooltip="{{requirementEntry.value.type}}"
-                          tooltip-append-to-body="true">{{getShortName(requirementEntry.value.type)}}</span>
-            </div>
-            <div class="col-md-6" ng-init="reqComp = getComponent(resourceTemplate.template, requirementEntry.value.type)">
-              <simple-modal title="{{ 'MODAL.TITLE.REQUIREMENT' | translate}}" content="{{reqComp.data.description}}"
-                            key="{{requirementEntry.key}}"></simple-modal>
-            </div>
-          </div>
-        </div>
-        <div class="topology-level"
-             ng-if="!emptyProps"
-             collapse="isReqPropsCollapsed[requirementEntry.key]">
-          <table class="table table-condensed" id="requirement_{{requirementEntry.key}}_properties">
-            <tr ng-repeat="(propertyKey,propertyValue) in requirementEntry.value.properties"
-                ng-init="isPropertyRequired = isCapabilityPropertyRequired(propertyKey)">
-              <td class="col-md-6" ng-class="{'property-required' : isPropertyRequired}">
-                      <span ng-if="isPropertyRequired" tooltip="{{'REQUIRED' | translate}}"
-                            tooltip-append-to-body="true">{{propertyKey}} *</span>
-                      <span ng-if="!isPropertyRequired" tooltip="{{'OPTIONAL' | translate}}"
-                            tooltip-append-to-body="true">{{propertyKey}}</span>
-              </td>
-              <td class="col-md-6" id="p_req_{{requirementEntry.key}}_{{propertyKey}}" ng-class="{'property-required' : isPropertyRequired}">
-                <span> {{propertyValue.value || '...'}} </span>
-              </td>
-            </tr>
-          </table>
-        </div>
-      </div>
     </div>
   </div>
 

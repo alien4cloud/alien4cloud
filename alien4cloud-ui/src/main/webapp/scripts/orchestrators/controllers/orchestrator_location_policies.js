@@ -8,7 +8,7 @@ define(function (require) {
 
   states.state('admin.orchestrators.details.locations.policies', {
     url: '/policy',
-    templateUrl: 'views/orchestrators/orchestrator_locations_policies.html',
+    templateUrl: 'views/orchestrators/orchestrator_location_policies.html',
     controller: 'OrchestratorLocationsPoliciesCtrl',
     menu: {
       id: 'menu.orchestrators.locations.policies',

@@ -38,6 +38,9 @@ define(function(require) {
 
   modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$modal',
     function($scope, propertiesServices, $translate, $modal) {
+      if(_.undefined($scope.translate)) {
+        $scope.translate = false;
+      }
 
       $scope.propertySave = function(data, unit) {
         delete $scope.unitError;
