@@ -182,7 +182,7 @@ public class TopologyWorkflowController {
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
-        Workflow wf = workflowBuilderService.removeStep(topology, workflowName, stepId);
+        Workflow wf = workflowBuilderService.removeStep(topology, workflowName, stepId, false);
         alienDAO.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }

@@ -36,8 +36,8 @@ public class WorkflowUtils {
     }
 
     private static boolean isOfType(PaaSNodeTemplate paaSNodeTemplate, String type) {
-        return paaSNodeTemplate.getIndexedToscaElement().getElementId().equals(type)
-                || paaSNodeTemplate.getIndexedToscaElement().getDerivedFrom().contains(type);
+        return paaSNodeTemplate.getIndexedToscaElement().getElementId().equals(type) || paaSNodeTemplate.getIndexedToscaElement().getDerivedFrom() != null
+                && paaSNodeTemplate.getIndexedToscaElement().getDerivedFrom().contains(type);
     }
 
     public static void linkSteps(AbstractStep from, AbstractStep to) {

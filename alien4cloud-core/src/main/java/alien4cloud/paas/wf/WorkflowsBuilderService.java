@@ -188,14 +188,14 @@ public class WorkflowsBuilderService {
         return customWorkflowBuilder;
     }
 
-    public Workflow removeStep(Topology topology, String workflowName, String stepId) {
+    public Workflow removeStep(Topology topology, String workflowName, String stepId, boolean force) {
         Workflow wf = topology.getWorkflows().get(workflowName);
         if (wf == null) {
             throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
         }
         PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
         AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
-        builder.removeStep(wf, paaSTopology, stepId);
+        builder.removeStep(wf, paaSTopology, stepId, force);
         log.info(WorkflowUtils.debugWorkflow(wf));
         workflowValidator.validate(wf);
         return wf;
@@ -239,6 +239,18 @@ public class WorkflowsBuilderService {
         log.info(WorkflowUtils.debugWorkflow(wf));
         workflowValidator.validate(wf);
         return wf;
+    }
+
+    public void renameNode(Topology topology, NodeTemplate nodeTemplate, String nodeTemplateName, String newNodeTemplateName) {
+        PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
+        PaaSNodeTemplate paaSNodeTemplate = paaSTopology.getAllNodes().get(newNodeTemplateName);
+        boolean isCompute = WorkflowUtils.isCompute(paaSNodeTemplate) /* || WorkflowUtils.isNetwork(paaSNodeTemplate) */;
+        for (Workflow wf : topology.getWorkflows().values()) {
+            AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
+            builder.renameNode(wf, paaSTopology, paaSNodeTemplate, isCompute, nodeTemplateName, newNodeTemplateName);
+            builder.fillHostId(wf, paaSTopology);
+            workflowValidator.validate(wf);
+        }
     }
 
 }

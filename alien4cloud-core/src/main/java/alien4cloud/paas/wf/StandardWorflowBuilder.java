@@ -10,17 +10,17 @@ import alien4cloud.paas.wf.util.WorkflowUtils;
 public abstract class StandardWorflowBuilder extends AbstractWorkflowBuilder {
 
     @Override
-    public void removeStep(Workflow wf, PaaSTopology paaSTopology, String stepId) {
+    public void removeStep(Workflow wf, PaaSTopology paaSTopology, String stepId, boolean force) {
         AbstractStep step = wf.getSteps().get(stepId);
         if (step == null) {
             throw new InconsistentWorkflowException(String.format(
                     "Inconsistent workflow: a step named '%s' can not be found while it's referenced else where ...", stepId));
         }
-        if (WorkflowUtils.isStateStep(step)) {
+        if (!force && WorkflowUtils.isStateStep(step)) {
             throw new BadWorkflowOperationException("State steps can not be removed from standard workflows");
         }
         
-        super.removeStep(wf, paaSTopology, stepId);
+        super.removeStep(wf, paaSTopology, stepId, force);
     }
 
     @Override

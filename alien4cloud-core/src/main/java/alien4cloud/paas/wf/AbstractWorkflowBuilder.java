@@ -268,7 +268,7 @@ public abstract class AbstractWorkflowBuilder {
         }
     }
 
-    public void removeStep(Workflow wf, PaaSTopology paaSTopology, String stepId) {
+    public void removeStep(Workflow wf, PaaSTopology paaSTopology, String stepId, boolean force) {
         AbstractStep step = wf.getSteps().remove(stepId);
         if (step == null) {
             throw new InconsistentWorkflowException(String.format(
@@ -327,7 +327,7 @@ public abstract class AbstractWorkflowBuilder {
         steps = wf.getSteps().values().toArray(steps);
         for (AbstractStep step : steps) {
             if (step instanceof NodeActivityStep && ((NodeActivityStep) step).getNodeId().equals(nodeName)) {
-                removeStep(wf, paaSTopology, step.getName());
+                removeStep(wf, paaSTopology, step.getName(), true);
             }
         }
     }
@@ -431,6 +431,16 @@ public abstract class AbstractWorkflowBuilder {
             result.add(followingStep);
         }
         return result;
+    }
+
+    public void renameNode(Workflow wf, PaaSTopology paaSTopology, PaaSNodeTemplate paaSNodeTemplate, boolean isCompute, String oldName, String newName) {
+        if (wf.getSteps() != null) {
+            for (AbstractStep step : wf.getSteps().values()) {
+                if (step instanceof NodeActivityStep && ((NodeActivityStep) step).getNodeId().equals(oldName)) {
+                    ((NodeActivityStep) step).setNodeId(newName);
+                }
+            }
+        }
     }
 
 }
