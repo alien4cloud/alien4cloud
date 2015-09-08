@@ -158,7 +158,7 @@ public class ApplicationVersionController {
             if (!VersionUtil.isSnapshot(request.getVersion())) {
                 // we are changing a snapshot into a released version
                 // let's check that the dependencies are not snapshots
-                Topology topology = topologyServiceCore.getMandatoryTopology(appVersion.getTopologyId());
+                Topology topology = topologyServiceCore.getOrFail(appVersion.getTopologyId());
                 appVersionService.checkTopologyReleasable(topology);
             }
         }

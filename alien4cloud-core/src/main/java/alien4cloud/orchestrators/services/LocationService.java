@@ -1,5 +1,6 @@
 package alien4cloud.orchestrators.services;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -162,7 +163,7 @@ public class LocationService {
 
     /**
      * Delete a locations.
-     * 
+     *
      * @param id id of the locations to delete.
      */
     public void delete(String id) {
@@ -175,8 +176,8 @@ public class LocationService {
     }
 
     /**
-     * Query for all locations
-     * 
+     * Query for all locations given an orchestrator
+     *
      * @param orchestratorId Id of the orchestrators for which to get locations.
      * @return An array that contains all locations for the given orchestrators.
      */
@@ -185,4 +186,17 @@ public class LocationService {
                 MapUtil.newHashMap(new String[] { "orchestratorId" }, new String[][] { new String[] { orchestratorId } }), Integer.MAX_VALUE);
         return locations.getData();
     }
+
+    /**
+     * Get all locations managed by all the provided orchestrators ids
+     *
+     * @param orchestratorIds
+     * @return
+     */
+    public List<Location> getOrchestratorsLocations(Collection<String> orchestratorIds) {
+        List<Location> locations = null;
+        locations = alienDAO.customFindAll(Location.class, QueryBuilders.termsQuery("orchestratorId", orchestratorIds));
+        return locations == null ? Lists.<Location> newArrayList() : locations;
+    }
+
 }

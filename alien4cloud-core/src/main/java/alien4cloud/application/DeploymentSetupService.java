@@ -127,7 +127,7 @@ public class DeploymentSetupService {
             throw new ApplicationVersionNotFoundException("An application version is required by an application environment.");
         }
         ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(applicationId, environment.getCurrentVersionId());
-        Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
+        Topology topology = topologyServiceCore.getOrFail(version.getTopologyId());
         return preProcessTopologyAndMatch(topology, environment, version);
     }
 

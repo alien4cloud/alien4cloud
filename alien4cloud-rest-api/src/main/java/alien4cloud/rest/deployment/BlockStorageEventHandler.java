@@ -82,7 +82,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
         Deployment deployment = deploymentService.getDeployment(storageEvent.getDeploymentId());
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(deployment.getDeploymentSetup().getEnvironmentId());
         ApplicationVersion applicationVersion = applicationVersionService.getOrFail(applicationEnvironment.getCurrentVersionId());
-        Topology topology = topoServiceCore.getMandatoryTopology(applicationVersion.getTopologyId());
+        Topology topology = topoServiceCore.getOrFail(applicationVersion.getTopologyId());
 
         NodeTemplate nodeTemplate;
         try {

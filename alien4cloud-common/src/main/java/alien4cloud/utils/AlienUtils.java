@@ -1,7 +1,14 @@
 package alien4cloud.utils;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.common.collect.Maps;
 
 public final class AlienUtils {
 
@@ -78,5 +85,48 @@ public final class AlienUtils {
      */
     public static String prefixWithDefaultSeparator(String toPrefix, String... prefixes) {
         return prefixWith(DEFAULT_PREFIX_SEPARATOR, toPrefix, prefixes);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <K, V> Map<K, V> fromListToMap(List<V> list, String keyProperty, boolean useGetter) throws IllegalArgumentException, IllegalAccessException,
+            InvocationTargetException {
+        if (list == null || StringUtils.isBlank(keyProperty)) {
+            return null;
+        }
+
+        Map<K, V> map = Maps.newHashMap();
+
+        if (useGetter) {
+            for (V item : list) {
+                Method[] methods = item.getClass().getMethods();
+                for (Method method : methods) {
+                    String getterName = "get" + keyProperty.toLowerCase();
+                    if (method.getName().toLowerCase().equals(getterName)) {
+                        K key = (K) method.invoke(item);
+                        if (key != null) {
+                            map.put(key, item);
+                        }
+                        break;
+                    }
+                }
+            }
+
+        } else {
+            for (V item : list) {
+                Field[] fields = item.getClass().getDeclaredFields();
+                for (Field field : fields) {
+                    field.setAccessible(true);
+                    if (field.getName().equals(keyProperty)) {
+                        K key = (K) field.get(item);
+                        if (key != null) {
+                            map.put(key, item);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        return map;
     }
 }

@@ -73,7 +73,7 @@ public class TopologySubstitutionsController {
     @Audit
     @ResponseStatus(value = HttpStatus.CREATED)
     public RestResponse<TopologyDTO> setSubstitutionType(@PathVariable String topologyId, @NotBlank @RequestParam("elementId") String elementId) {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
         if (!topology.getDelegateType().equals(TopologyTemplate.class.getSimpleName().toLowerCase())) {
@@ -109,7 +109,7 @@ public class TopologySubstitutionsController {
     @RequestMapping(value = "/{topologyId}/substitutions/type", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
     public RestResponse<TopologyDTO> removeSubstitution(@PathVariable String topologyId) {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
         if (topology.getSubstitutionMapping() == null || topology.getSubstitutionMapping().getSubstitutionType() == null) {
@@ -151,7 +151,7 @@ public class TopologySubstitutionsController {
             @ApiParam(value = "The node template id.", required = true) @NotBlank @RequestParam("nodeTemplateName") final String nodeTemplateName,
             @ApiParam(value = "The source node capability id.", required = true) @NotBlank @RequestParam("capabilityId") final String capabilityId)
             throws IncompatiblePropertyDefinitionException {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
         if (topology.getNodeTemplates() == null || !topology.getNodeTemplates().containsKey(nodeTemplateName)) {
@@ -190,7 +190,7 @@ public class TopologySubstitutionsController {
             @ApiParam(value = "The substitution capability name.", required = true) @NotBlank @PathVariable final String substitutionCapabilityId,
             @ApiParam(value = "The new capability name.", required = true) @NotBlank @RequestParam("newCapabilityId") final String newCapabilityId)
             throws IncompatiblePropertyDefinitionException {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
         if (topology.getSubstitutionMapping() == null || topology.getSubstitutionMapping().getSubstitutionType() == null) {
@@ -227,7 +227,7 @@ public class TopologySubstitutionsController {
             @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The substitution capability name.", required = true) @NotBlank @PathVariable final String substitutionCapabilityId)
             throws IncompatiblePropertyDefinitionException {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
         if (topology.getSubstitutionMapping() == null || topology.getSubstitutionMapping().getSubstitutionType() == null) {
@@ -261,7 +261,7 @@ public class TopologySubstitutionsController {
             @ApiParam(value = "The node template id.", required = true) @NotBlank @RequestParam("nodeTemplateName") final String nodeTemplateName,
             @ApiParam(value = "The source node requirement id.", required = true) @NotBlank @RequestParam("requirementId") final String requirementId)
             throws IncompatiblePropertyDefinitionException {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
         if (topology.getNodeTemplates() == null || !topology.getNodeTemplates().containsKey(nodeTemplateName)) {
@@ -300,7 +300,7 @@ public class TopologySubstitutionsController {
             @ApiParam(value = "The substitution requirement name.", required = true) @NotBlank @PathVariable final String substitutionRequirementId,
             @ApiParam(value = "The new substution requirement name.", required = true) @NotBlank @RequestParam("newRequirementId") final String newRequirementId)
             throws IncompatiblePropertyDefinitionException {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
         if (topology.getSubstitutionMapping() == null || topology.getSubstitutionMapping().getSubstitutionType() == null) {
@@ -318,7 +318,7 @@ public class TopologySubstitutionsController {
             @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The substitution requirement name.", required = true) @NotBlank @PathVariable final String substitutionRequirementId)
             throws IncompatiblePropertyDefinitionException {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
         if (topology.getSubstitutionMapping() == null || topology.getSubstitutionMapping().getSubstitutionType() == null) {

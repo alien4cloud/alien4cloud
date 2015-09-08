@@ -19,3 +19,10 @@ component_descriptors:
       Used for our automated tests the plugin suceed for every application except an application named:
        - BAD-APPLICATION: The deployment will fail.
        - WARN-APPLICATION: The deployment will ends up in a warning state.
+  - bean_name: mock-location-matcher
+    name: Mock location matcher
+    description: >
+      A location matcher that matches a topology against locations based on some properties.
+      It'll only matches locations managed by orchestrators from the mock-orchestrator-factory
+       - BAD-APPLICATION: The deployment will fail.
+       - WARN-APPLICATION: The deployment will ends up in a warning state.       

@@ -2,12 +2,13 @@ package alien4cloud.plugin.mock;
 
 import javax.annotation.Resource;
 
-import alien4cloud.model.cloud.IaaSType;
-import alien4cloud.model.orchestrators.locations.LocationSupport;
 import org.springframework.beans.factory.BeanFactory;
-
-import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import org.springframework.stereotype.Component;
+
+import alien4cloud.model.cloud.IaaSType;
+import alien4cloud.model.orchestrators.ArtifactSupport;
+import alien4cloud.model.orchestrators.locations.LocationSupport;
+import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 
 /**
  * Factory for Mock implementation of orchestrator instance.
@@ -40,5 +41,11 @@ public class MockOrchestratorFactory implements IOrchestratorPluginFactory<MockO
     @Override
     public LocationSupport getLocationSupport() {
         return new LocationSupport(true, new String[] { "OpenStack" });
+    }
+
+    @Override
+    public ArtifactSupport getArtifactSupport() {
+        // support all type of implementations artifacts
+        return new ArtifactSupport(new String[] { "tosca.artifacts.Implementation" });
     }
 }

@@ -86,7 +86,7 @@ public class TopologyServiceCore {
      * @param topologyId id of the topology
      * @return the found topology, throws NotFoundException if not found
      */
-    public Topology getMandatoryTopology(String topologyId) {
+    public Topology getOrFail(String topologyId) {
         Topology topology = getTopology(topologyId);
         if (topology == null) {
             throw new NotFoundException("Topology [" + topologyId + "] cannot be found");

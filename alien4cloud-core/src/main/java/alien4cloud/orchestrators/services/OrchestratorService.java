@@ -1,6 +1,7 @@
 package alien4cloud.orchestrators.services;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -31,6 +32,9 @@ import alien4cloud.utils.MapUtil;
 @Slf4j
 @Service
 public class OrchestratorService {
+    public static final String[] ENABLED_STATES = new String[] { OrchestratorState.CONNECTED.toString().toLowerCase(),
+            OrchestratorState.CONNECTING.toString().toLowerCase(), OrchestratorState.DISCONNECTED.toString().toLowerCase() };
+
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource
@@ -154,5 +158,9 @@ public class OrchestratorService {
         Orchestrator orchestrator = getOrFail(orchestratorId);
         IOrchestratorPluginFactory orchestratorFactory = orchestratorFactoriesRegistry.getPluginBean(orchestrator.getPluginId(), orchestrator.getPluginBean());
         return orchestratorFactory.getLocationSupport();
+    }
+
+    public List<Orchestrator> getAllEnabledOrchestrators() {
+        return alienDAO.customFindAll(Orchestrator.class, QueryBuilders.termsQuery("state", ENABLED_STATES));
     }
 }
