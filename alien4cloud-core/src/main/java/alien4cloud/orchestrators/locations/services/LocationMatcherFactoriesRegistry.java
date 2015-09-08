@@ -11,6 +11,8 @@ import alien4cloud.model.orchestrators.locations.ILocationMatcher;
 import alien4cloud.plugin.AbstractPluginLinker;
 import alien4cloud.plugin.model.PluginUsage;
 
+import com.google.common.collect.Lists;
+
 /**
  * Keeps track of the Location matchers and usages.
  */
@@ -24,6 +26,6 @@ public class LocationMatcherFactoriesRegistry extends AbstractPluginLinker<ILoca
         // query the list of location matchers that uses the given plugin
 
         // TODO get usages of location matchers
-        return null;
+        return Lists.newArrayList();
     }
 }
