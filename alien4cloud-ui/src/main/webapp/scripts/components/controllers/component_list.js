@@ -13,6 +13,7 @@ define(function (require) {
   // load other locations to manage components
   require('scripts/components/controllers/component_details');
   require('scripts/components/controllers/csar_list');
+  require('scripts/components/controllers/csar_git');
 
   // register components root state
   states.state('components', {

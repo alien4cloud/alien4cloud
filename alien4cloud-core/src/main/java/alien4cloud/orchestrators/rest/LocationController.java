@@ -5,6 +5,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import alien4cloud.orchestrators.services.LocationResourceService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,6 +42,8 @@ import com.wordnik.swagger.annotations.Authorization;
 public class LocationController {
     @Inject
     private LocationService locationService;
+    @Inject
+    private LocationResourceService locationResourceService;
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Create a new location.", authorizations = { @Authorization("ADMIN") })
@@ -60,16 +63,6 @@ public class LocationController {
     public void delete(@ApiParam(value = "Id of the orchestrator for which to get all locations.", required = true) @PathVariable String orchestratorId,
             @ApiParam(value = "Id of the orchestrators to delete.", required = true) @PathVariable String id) {
         locationService.delete(id);
-    }
-
-    @ApiOperation(value = "Add resource template to a location.", authorizations = { @Authorization("ADMIN") })
-    @RequestMapping(value = "/{id}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @Audit
-    public void addResourceTemplate(
-            @ApiParam(value = "Id of the orchestrator for which to add resource template.", required = true) @PathVariable String orchestratorId,
-            @ApiParam(value = "Id of the location of the orchestrator to add resource template.", required = true) @PathVariable String id) {
-
     }
 
     @ApiOperation(value = "Get all locations for a given orchestrator.")
@@ -97,7 +90,7 @@ public class LocationController {
 
     private LocationDTO buildLocationDTO(Location location) {
         LocationDTO locationDTO = new LocationDTO();
-        locationDTO.setResources(locationService.getLocationResources(location));
+        locationDTO.setResources(locationResourceService.getLocationResources(location));
         locationDTO.setLocation(location);
         return locationDTO;
     }

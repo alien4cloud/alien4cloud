@@ -19,3 +19,8 @@ node_types:
       flavorId:
         type: string
         required: true
+    capabilities:
+      os:
+        type: tosca.capabilities.OperatingSystem
+      host:
+        type: tosca.capabilities.Container

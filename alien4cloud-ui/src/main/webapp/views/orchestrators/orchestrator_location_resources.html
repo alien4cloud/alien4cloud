@@ -1,0 +1,48 @@
+<div ng-controller="OrchestratorLocationResourcesTemplateCtrl">
+  <div class="row" style="margin-top: 10px">
+    <div class="col-md-12">
+      <span>Resources types: </span>
+      <select ng-model="selectedConfigurationResourceType"
+              ng-options="type.elementId for type in resourcesTypes">
+      </select>
+      <button ng-class="{'active': applyFilter}" ng-click="applyFilter = !applyFilter" class="btn btn-default btn-sm"><i class="fa fa-filter"></i> Filter</button>
+      <button class="btn btn-primary btn-sm" ng-click="addResourceTemplate()"><i class="fa fa-plus"></i> Add</button>
+    </div>
+  </div>
+  <div class="row" style="margin-top: 10px">
+    <div class="col-md-6">
+      <table class="table table-hover table-bordered">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="template in resourcesTemplates | orderBy:'name'"
+              ng-click="selectTemplate(template)"
+              class="clickable"
+              ng-class="{'warning': selectedResourceTemplate == template}"
+              ng-if="!applyFilter || template.template.type == selectedConfigurationResourceType.elementId">
+            <td ng-init="templateIcon = getIcon(template)">
+              <i ng-if="!templateIcon" class="fa fa-cogs fa-3x"></i>
+              <img ng-if="templateIcon" ng-src="img?id={{templateIcon}}&quality=QUALITY_32">
+            </td>
+            <td>{{template.name}}</td>
+            <td>{{template.template.type}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-md-6" ng-if="selectedResourceTemplate">
+      <div class="well">
+        <orchestrator-location-resource-template resource-template="selectedResourceTemplate"
+                                        resource-type="resourcesTypesMap[selectedResourceTemplate.template.type]"
+                                        on-delete="deleteResourceTemplate(resourceTemplate)"
+                                        context="context">
+        </orchestrator-location-resource-template>
+      </div>
+    </div>
+  </div>
+</div>

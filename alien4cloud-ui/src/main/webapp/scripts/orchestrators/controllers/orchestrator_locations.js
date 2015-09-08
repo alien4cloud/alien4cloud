@@ -7,12 +7,13 @@ define(function(require) {
   var _ = require('lodash');
 
   require('scripts/orchestrators/controllers/orchestrator_location_new');
-  require('scripts/orchestrators/controllers/orchestrator_locations_infra');
-  require('scripts/orchestrators/controllers/orchestrator_locations_nodes');
-  require('scripts/orchestrators/controllers/orchestrator_locations_policies');
-  require('scripts/orchestrators/controllers/orchestrator_locations_security');
-  require('scripts/orchestrators/controllers/orchestrator_locations_services');
+  require('scripts/orchestrators/controllers/orchestrator_location_config');
+  require('scripts/orchestrators/controllers/orchestrator_location_nodes');
+  require('scripts/orchestrators/controllers/orchestrator_location_policies');
+  require('scripts/orchestrators/controllers/orchestrator_location_security');
+  require('scripts/orchestrators/controllers/orchestrator_location_services');
   require('scripts/orchestrators/services/orchestrator_location_service');
+  require('scripts/orchestrators/services/location_resources_processor');
 
   states.state('admin.orchestrators.details.locations', {
     url: '/locations',
@@ -28,8 +29,8 @@ define(function(require) {
   });
 
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorLocationsCtrl',
-    ['$scope', '$modal', '$http', 'locationService', 'orchestrator', 'menu',
-      function($scope, $modal, $http, locationService, orchestrator, menu) {
+    ['$scope', '$modal', '$http', 'locationService', 'orchestrator', 'menu', 'locationResourcesProcessor',
+      function($scope, $modal, $http, locationService, orchestrator, menu, locationResourcesProcessor) {
         $scope.envTypes = ['OTHER', 'DEVELOPMENT', 'INTEGRATION_TESTS', 'USER_ACCEPTANCE_TESTS', 'PRE_PRODUCTION', 'PRODUCTION'];
         $scope.orchestrator = orchestrator;
         $scope.menu = menu;
@@ -58,11 +59,12 @@ define(function(require) {
         updateLocations();
 
         $scope.selectLocation = function(location) {
+          locationResourcesProcessor.process(location.resources);
           $scope.location = location.location;
           $scope.context.location = $scope.location;
           $scope.context.locationResources = location.resources;
-          $scope.context.configurationTypes  = _.values(location.resources.configurationTypes);
-          $scope.context.nodeTypes  = _.values(location.resources.nodeTypes);
+          $scope.context.configurationTypes = _.values(location.resources.configurationTypes);
+          $scope.context.nodeTypes = _.values(location.resources.nodeTypes);
         };
 
         $scope.openNewModal = function() {

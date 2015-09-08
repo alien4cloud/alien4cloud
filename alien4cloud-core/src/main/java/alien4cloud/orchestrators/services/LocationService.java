@@ -19,6 +19,8 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorState;
@@ -129,48 +131,6 @@ public class LocationService {
         }
         alienDAO.save(templates.toArray(new LocationResourceTemplate[templates.size()]));
         return true;
-    }
-
-    /**
-     * Get the list of resources definitions for a given orchestrator.
-     *
-     * @param location the location.
-     * @return A list of resource definitions for the given location.
-     */
-    public LocationResources getLocationResources(Location location) {
-        Orchestrator orchestrator = orchestratorService.getOrFail(location.getOrchestratorId());
-        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) paaSProviderService.getPaaSProvider(orchestrator.getId());
-        ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
-        List<String> allExposedTypes = configuratorPlugin.getResourcesTypes();
-        Set<CSARDependency> dependencies = location.getDependencies();
-        Map<String, IndexedNodeType> configurationsTypes = Maps.newHashMap();
-        Map<String, IndexedNodeType> nodesTypes = Maps.newHashMap();
-        for (String exposedType : allExposedTypes) {
-            IndexedNodeType exposedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, exposedType, dependencies);
-            if (exposedIndexedNodeType.isAbstract()) {
-                configurationsTypes.put(exposedType, exposedIndexedNodeType);
-            } else {
-                nodesTypes.put(exposedType, exposedIndexedNodeType);
-            }
-        }
-        List<LocationResourceTemplate> locationResourceTemplates = locationResourceService.getResourcesTemplates(location.getId());
-        LocationResources locationResources = new LocationResources();
-        locationResources.setConfigurationTypes(configurationsTypes);
-        locationResources.setNodeTypes(nodesTypes);
-        List<LocationResourceTemplate> configurationsTemplates = Lists.newArrayList();
-        List<LocationResourceTemplate> nodesTemplates = Lists.newArrayList();
-        for (LocationResourceTemplate resourceTemplate : locationResourceTemplates) {
-            String templateType = resourceTemplate.getTemplate().getType();
-            if (configurationsTypes.containsKey(templateType)) {
-                configurationsTemplates.add(resourceTemplate);
-            }
-            if (nodesTypes.containsKey(templateType)) {
-                nodesTemplates.add(resourceTemplate);
-            }
-        }
-        locationResources.setConfigurationTemplates(configurationsTemplates);
-        locationResources.setNodeTemplates(nodesTemplates);
-        return locationResources;
     }
 
     /**

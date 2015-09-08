@@ -38,7 +38,6 @@ define(function (require) {
         if(_.defined(operations)) {
             _.merge(targetOperations, operations);
         }
-        console.log('creating resource with the following operations', targetOperations);
         return $resource(url, {}, targetOperations);
       };
     }
