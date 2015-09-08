@@ -1,4 +1,4 @@
-package alien4cloud.cloud;
+package alien4cloud.deployment;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import alien4cloud.cloud.CloudService;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
