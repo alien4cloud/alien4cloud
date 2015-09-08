@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
 
-import alien4cloud.cloud.DeploymentService;
+import alien4cloud.deployment.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.deployment.Deployment;

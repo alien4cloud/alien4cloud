@@ -2,6 +2,7 @@ package alien4cloud.cloud;
 
 import java.lang.reflect.Field;
 
+import alien4cloud.deployment.DeploymentService;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.junit.Test;
 import org.mockito.Mockito;

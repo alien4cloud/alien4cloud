@@ -43,7 +43,7 @@ import alien4cloud.application.InvalidDeploymentSetupException;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.cloud.CloudResourceMatcherService;
 import alien4cloud.cloud.CloudService;
-import alien4cloud.cloud.DeploymentService;
+import alien4cloud.deployment.DeploymentService;
 import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;

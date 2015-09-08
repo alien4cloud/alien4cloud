@@ -14,12 +14,11 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.utils.MapUtil;
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.QueryBuilders;
 
-import alien4cloud.cloud.DeploymentService;
+import alien4cloud.deployment.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorConfiguration;

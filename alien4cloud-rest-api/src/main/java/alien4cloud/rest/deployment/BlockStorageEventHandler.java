@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.DeploymentSetupService;
-import alien4cloud.cloud.DeploymentService;
+import alien4cloud.deployment.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;

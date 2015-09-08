@@ -26,7 +26,7 @@ import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.cloud.CloudService;
-import alien4cloud.cloud.DeploymentService;
+import alien4cloud.deployment.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;

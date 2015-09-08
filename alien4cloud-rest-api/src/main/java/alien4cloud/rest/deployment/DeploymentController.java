@@ -20,7 +20,7 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.cloud.DeploymentService;
+import alien4cloud.deployment.DeploymentService;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FetchContext;

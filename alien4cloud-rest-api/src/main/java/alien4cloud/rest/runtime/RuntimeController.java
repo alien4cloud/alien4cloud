@@ -23,7 +23,7 @@ import org.springframework.web.context.request.async.DeferredResult;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.cloud.DeploymentService;
+import alien4cloud.deployment.DeploymentService;
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;

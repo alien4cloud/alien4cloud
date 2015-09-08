@@ -4,11 +4,7 @@ import javax.inject.Inject;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
@@ -32,7 +28,6 @@ import com.wordnik.swagger.annotations.Authorization;
 @Api(value = "Orchestrator's Locations", description = "Manages locations for a given orchestrator.", authorizations = {
         @Authorization("ADMIN") }, position = 4400)
 public class LocationResourcesController {
-
     @Inject
     private LocationResourceService locationResourceService;
 
@@ -97,8 +92,7 @@ public class LocationResourcesController {
             @ApiParam(value = "Id of the location's resource.", required = true) @PathVariable String id,
             @ApiParam(value = "Id of the location's resource template capability.", required = true) @PathVariable String capabilityName,
             @RequestBody UpdateLocationResourceTemplatePropertyRequest updateRequest) {
-        locationResourceService.setTemplateCapabilityProperty(id, capabilityName, updateRequest.getPropertyName(),
-                updateRequest.getPropertyValue());
+        locationResourceService.setTemplateCapabilityProperty(id, capabilityName, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
         return RestResponseBuilder.<Void> builder().build();
     }
 }
