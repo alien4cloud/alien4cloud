@@ -10,17 +10,16 @@ import java.util.concurrent.Future;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.model.deployment.Deployment;
-import alien4cloud.utils.MapUtil;
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 
-import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.mapping.QueryHelper;
+import org.springframework.stereotype.Component;
 
 import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorConfiguration;
 import alien4cloud.model.orchestrators.OrchestratorState;
@@ -28,8 +27,7 @@ import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import alien4cloud.paas.PaaSProviderService;
 import alien4cloud.paas.exception.PluginConfigurationException;
-import org.elasticsearch.mapping.QueryHelper;
-import org.springframework.stereotype.Component;
+import alien4cloud.utils.MapUtil;
 
 /**
  * Service to manage state of an orchestrator
@@ -37,9 +35,6 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class OrchestratorStateService {
-    public static final String[] ENABLED_STATES = new String[] { OrchestratorState.CONNECTED.toString().toLowerCase(),
-            OrchestratorState.CONNECTING.toString().toLowerCase(), OrchestratorState.DISCONNECTED.toString().toLowerCase() };
-
     @Inject
     private QueryHelper queryHelper;
     @Resource(name = "alien-es-dao")
@@ -52,6 +47,8 @@ public class OrchestratorStateService {
     private PaaSProviderService paaSProviderService;
     @Inject
     private DeploymentService deploymentService;
+    @Inject
+    private OrchestratorService orchestratorService;
 
     /**
      * Initialize all orchestrator that have a non-disabled state.
@@ -63,7 +60,7 @@ public class OrchestratorStateService {
         ExecutorService executorService = Executors.newCachedThreadPool();
         List<Future<?>> futures = new ArrayList<Future<?>>();
         // get all the orchestrators that are not disabled
-        List<Orchestrator> enabledOrchestrators = alienDAO.customFindAll(Orchestrator.class, QueryBuilders.termsQuery("state", ENABLED_STATES));
+        List<Orchestrator> enabledOrchestrators = orchestratorService.getAllEnabledOrchestrators();
 
         if (enabledOrchestrators == null) {
             return futures;

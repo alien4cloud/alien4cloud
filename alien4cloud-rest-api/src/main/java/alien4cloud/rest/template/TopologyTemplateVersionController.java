@@ -135,7 +135,7 @@ public class TopologyTemplateVersionController {
         Topology topology = null;
         boolean haveToUpdateSubstitution = false;
         if (request.getVersion() != null && !request.getVersion().equals(appVersion.getVersion())) {
-            topology = topologyServiceCore.getMandatoryTopology(appVersion.getTopologyId());
+            topology = topologyServiceCore.getOrFail(appVersion.getTopologyId());
             // we don't allow renaming of version if the topology is exposed and used in another
             Csar csar = null;
             if (topology.getSubstitutionMapping() != null && topology.getSubstitutionMapping().getSubstitutionType() != null) {

@@ -83,7 +83,7 @@ public class TopologyInputsController {
     public RestResponse<TopologyDTO> addInput(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The name of new input.", required = true) @NotBlank @PathVariable final String inputId,
             @ApiParam(value = "The property definition of the new input.", required = true) @RequestBody PropertyDefinition newPropertyDefinition) {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
         Map<String, PropertyDefinition> inputs = getInputs(topology, true);
@@ -143,7 +143,7 @@ public class TopologyInputsController {
     public RestResponse<TopologyDTO> updateInputId(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The name of the old input.", required = true) @NotBlank @PathVariable final String inputId,
             @ApiParam(value = "The name of the new input.", required = true) @NotBlank @RequestParam final String newInputId) {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
@@ -231,7 +231,7 @@ public class TopologyInputsController {
     @RequestMapping(value = "/{topologyId:.+}/inputs/{inputId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> removeInput(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The name of the input.", required = true) @NotBlank @PathVariable final String inputId) {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
@@ -272,7 +272,7 @@ public class TopologyInputsController {
             }
         }
         topologyServiceCore.updateSubstitutionType(topology);
-        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topologyServiceCore.getMandatoryTopology(topologyId))).build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topologyServiceCore.getOrFail(topologyId))).build();
     }
 
     /**
@@ -301,7 +301,7 @@ public class TopologyInputsController {
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateName,
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId)
             throws IncompatiblePropertyDefinitionException {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
         Map<String, PropertyDefinition> inputs = getInputs(topology, false);
@@ -342,7 +342,7 @@ public class TopologyInputsController {
             @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateName,
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId) {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateName);
@@ -374,7 +374,7 @@ public class TopologyInputsController {
             @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateName,
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId) {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateName);
         // search the property definition for this property
@@ -415,7 +415,7 @@ public class TopologyInputsController {
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateName,
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId,
             @ApiParam(value = "The relationship template id.", required = true) @NotBlank @PathVariable final String relationshipId) {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateName);
         RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(relationshipId);
@@ -441,7 +441,7 @@ public class TopologyInputsController {
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateName,
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId,
             @ApiParam(value = "The capability template id.", required = true) @NotBlank @PathVariable final String capabilityId) {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateName);
         Capability capabilityTemplate = nodeTemplate.getCapabilities().get(capabilityId);
@@ -483,7 +483,7 @@ public class TopologyInputsController {
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId,
             @ApiParam(value = "The relationship template id.", required = true) @NotBlank @PathVariable final String relationshipId)
             throws IncompatiblePropertyDefinitionException {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
         Map<String, PropertyDefinition> inputs = getInputs(topology, false);
@@ -535,7 +535,7 @@ public class TopologyInputsController {
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateName,
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId,
             @ApiParam(value = "The relationship template id.", required = true) @NotBlank @PathVariable final String relationshipId) {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
         if (topology.getNodeTemplates() == null || !topology.getNodeTemplates().containsKey(nodeTemplateName)) {
@@ -588,7 +588,7 @@ public class TopologyInputsController {
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId,
             @ApiParam(value = "The capability template id.", required = true) @NotBlank @PathVariable final String capabilityId)
             throws IncompatiblePropertyDefinitionException {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
         Map<String, PropertyDefinition> inputs = getInputs(topology, false);
@@ -642,7 +642,7 @@ public class TopologyInputsController {
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateName,
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId,
             @ApiParam(value = "The capability template id.", required = true) @NotBlank @PathVariable final String capabilityId) {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
         if (topology.getNodeTemplates() == null || !topology.getNodeTemplates().containsKey(nodeTemplateName)) {

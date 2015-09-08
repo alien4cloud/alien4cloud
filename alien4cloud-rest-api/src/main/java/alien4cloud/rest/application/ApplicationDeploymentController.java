@@ -110,7 +110,7 @@ public class ApplicationDeploymentController {
         Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
         AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.values());
 
-        Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
+        Topology topology = topologyServiceCore.getOrFail(version.getTopologyId());
         DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.preProcessTopologyAndMatch(topology, environment, version);
         if (!deploymentSetupMatchInfo.isValid()) {
             throw new InvalidDeploymentSetupException("Application [" + application.getId() + "] is not deployable on the cloud [" + cloud.getId()
@@ -397,7 +397,7 @@ public class ApplicationDeploymentController {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
         ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(applicationId, environment.getCurrentVersionId());
-        Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
+        Topology topology = topologyServiceCore.getOrFail(version.getTopologyId());
 
         DeploymentSetup deploymentSetup = deploymentSetupService.getOrFail(version, environment);
         ReflectionUtil.mergeObject(updateRequest, deploymentSetup);
