@@ -26,7 +26,7 @@ define(function(require) {
             'resourceName': 'New Resource'
           }), function(response) {
             locationResourcesProcessor.processLocationResourceTemplate(response.data)
-            $scope.context.locationResources.configurationTemplates.push(response.data);
+            $scope.resourcesTemplates.push(response.data);
             $scope.selectTemplate(response.data);
           });
         };
@@ -38,7 +38,7 @@ define(function(require) {
             locationId: $scope.context.location.id,
             id: resourceTemplate.id
           }, undefined, function() {
-            _.remove($scope.context.locationResources.configurationTemplates, {
+            _.remove($scope.resourcesTemplates, {
               id: resourceTemplate.id
             });
             delete $scope.selectedResourceTemplate;
