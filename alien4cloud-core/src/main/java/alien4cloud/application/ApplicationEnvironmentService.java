@@ -1,10 +1,6 @@
 package alien4cloud.application;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import javax.annotation.Resource;
 
@@ -12,10 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
 
-import alien4cloud.cloud.CloudService;
-import alien4cloud.deployment.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.deployment.DeploymentService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
@@ -39,7 +34,6 @@ import com.google.common.util.concurrent.SettableFuture;
 @Slf4j
 @Service
 public class ApplicationEnvironmentService {
-
     private final static String DEFAULT_ENVIRONMENT_NAME = "Environment";
 
     @Resource(name = "alien-es-dao")
@@ -54,8 +48,6 @@ public class ApplicationEnvironmentService {
     private ApplicationService applicationService;
     @Resource
     private ApplicationVersionService applicationVersionService;
-    @Resource
-    private CloudService cloudService;
 
     /**
      * Method used to create a default environment
@@ -161,11 +153,8 @@ public class ApplicationEnvironmentService {
      * @return The deployment associated with the environment.
      */
     public Deployment getActiveDeployment(String appEnvironmentId) {
-        GetMultipleDataResult<Deployment> dataResult = alienDAO.search(
-                Deployment.class,
-                null,
-                MapUtil.newHashMap(new String[] { "deploymentSetup.environmentId", "endDate" }, new String[][] { new String[] { appEnvironmentId },
-                        new String[] { null } }), 1);
+        GetMultipleDataResult<Deployment> dataResult = alienDAO.search(Deployment.class, null, MapUtil.newHashMap(
+                new String[] { "deploymentSetup.environmentId", "endDate" }, new String[][] { new String[] { appEnvironmentId }, new String[] { null } }), 1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             return dataResult.getData()[0];
         }

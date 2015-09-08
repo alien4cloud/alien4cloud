@@ -9,7 +9,6 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import alien4cloud.cloud.CloudService;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,7 +29,6 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.DeploymentSetup;
-import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentSourceType;
@@ -75,8 +73,6 @@ public class DeploymentService {
     private IGenericSearchDAO alienDao;
     @Resource(name = "alien-monitor-es-dao")
     private IGenericSearchDAO alienMonitorDao;
-    @Resource
-    private CloudService cloudService;
     @Resource
     private ApplicationService applicationService;
     @Resource

@@ -60,11 +60,7 @@ public class DeploymentSetupService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource
-    private CloudResourceMatcherService cloudResourceMatcherService;
-    @Resource
     private TopologyServiceCore topologyServiceCore;
-    @Resource
-    private CloudService cloudService;
     @Resource
     private ApplicationVersionService applicationVersionService;
     @Resource
@@ -158,8 +154,8 @@ public class DeploymentSetupService {
         return new DeploymentSetupMatchInfo(deploymentSetup);
     }
 
-    public void validateInputProperties(DeploymentSetup deploymentSetup, Topology topology) throws ConstraintValueDoNotMatchPropertyTypeException,
-            ConstraintViolationException {
+    public void validateInputProperties(DeploymentSetup deploymentSetup, Topology topology)
+            throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         if (deploymentSetup.getInputProperties() == null) {
             return;
         }

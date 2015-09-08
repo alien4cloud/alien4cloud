@@ -1,7 +1,6 @@
 package alien4cloud.model.application;
 
 import java.util.Map;
-import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,11 +12,6 @@ import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
-
-import alien4cloud.model.cloud.AvailabilityZone;
-import alien4cloud.model.cloud.ComputeTemplate;
-import alien4cloud.model.cloud.NetworkTemplate;
-import alien4cloud.model.cloud.StorageTemplate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -43,15 +37,5 @@ public class DeploymentSetup {
     // TODO add also the input artifacts here. /-> Note that they should/could be repository based.
     private Map<String, String> inputProperties;
 
-    /* ComputeId -> SelectedComputeTemplate */
-    private Map<String, ComputeTemplate> cloudResourcesMapping;
-
-    /* NetworkId -> SelectedNetworkTemplate */
-    private Map<String, NetworkTemplate> networkMapping;
-
-    /* BlockStorageId -> SelectedStorageTemplate */
-    private Map<String, StorageTemplate> storageMapping;
-
-    /* groupName -> SelectedZones */
-    private Map<String, Set<AvailabilityZone>> availabilityZoneMapping;
+    //TODO put matching informations here.
 }

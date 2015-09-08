@@ -39,11 +39,6 @@ public class MockOrchestratorFactory implements IOrchestratorPluginFactory<MockO
 
     @Override
     public LocationSupport getLocationSupport() {
-        IaaSType[] types = IaaSType.values();
-        String[] typesAsString = new String[types.length];
-        for (int i = 0; i < types.length; i++) {
-            typesAsString[i] = types[i].toString();
-        }
-        return new LocationSupport(true, typesAsString);
+        return new LocationSupport(true, new String[] { "OpenStack" });
     }
 }

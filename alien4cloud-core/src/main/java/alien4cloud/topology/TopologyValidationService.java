@@ -10,44 +10,15 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
 
-import alien4cloud.application.ApplicationEnvironmentService;
-import alien4cloud.application.ApplicationService;
-import alien4cloud.cloud.CloudService;
-import alien4cloud.common.MetaPropertiesService;
-import alien4cloud.common.TagService;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.topology.task.NodeFiltersTask;
-import alien4cloud.topology.task.PropertiesTask;
-import alien4cloud.topology.task.RequirementsTask;
-import alien4cloud.topology.task.SuggestionsTask;
-import alien4cloud.topology.task.TaskLevel;
-import alien4cloud.topology.task.TopologyTask;
-import alien4cloud.topology.validation.HAGroupPolicyValidationService;
-import alien4cloud.topology.validation.NodeFilterValidationService;
-import alien4cloud.topology.validation.TopologyAbstractNodeValidationService;
-import alien4cloud.topology.validation.TopologyAbstractRelationshipValidationService;
-import alien4cloud.topology.validation.TopologyPropertiesValidationService;
-import alien4cloud.topology.validation.TopologyRequirementBoundsValidationServices;
-import alien4cloud.utils.services.ConstraintPropertyService;
+import alien4cloud.topology.task.*;
+import alien4cloud.topology.validation.*;
 
 @Service
 @Slf4j
 public class TopologyValidationService {
-    @Resource
-    private ApplicationEnvironmentService applicationEnvironmentService;
-    @Resource
-    private CloudService cloudService;
-    @Resource
-    private MetaPropertiesService metaPropertiesService;
-    @Resource
-    private ApplicationService applicationService;
-    @Resource
-    private TagService tagService;
-    @Resource
-    private ConstraintPropertyService constraintPropertyService;
-
     @Resource
     private TopologyPropertiesValidationService topologyPropertiesValidationService;
     @Resource

@@ -1,15 +1,7 @@
 package alien4cloud.plugin.mock;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Random;
-import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -25,29 +17,13 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.model.cloud.CloudResourceMatcherConfig;
-import alien4cloud.model.cloud.CloudResourceType;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.deployment.Deployment;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.ScalingPolicy;
-import alien4cloud.model.topology.Topology;
+import alien4cloud.model.topology.*;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.PluginConfigurationException;
-import alien4cloud.paas.model.AbstractMonitorEvent;
-import alien4cloud.paas.model.DeploymentStatus;
-import alien4cloud.paas.model.InstanceInformation;
-import alien4cloud.paas.model.InstanceStatus;
-import alien4cloud.paas.model.NodeOperationExecRequest;
-import alien4cloud.paas.model.PaaSDeploymentContext;
-import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
-import alien4cloud.paas.model.PaaSMessageMonitorEvent;
-import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
+import alien4cloud.paas.model.*;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyUtils;
@@ -95,11 +71,6 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
             }
         }, 2L, 2L, TimeUnit.SECONDS);
 
-    }
-
-    @Override
-    public void updateMatcherConfig(CloudResourceMatcherConfig config) {
-        // Do nothing
     }
 
     @PreDestroy
@@ -173,8 +144,8 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
             }
         }
 
-        runtimeDeploymentInfos.put(deploymentContext.getDeploymentPaaSId(), new MockRuntimeDeploymentInfo(deploymentContext,
-                DeploymentStatus.DEPLOYMENT_IN_PROGRESS, currentInformations));
+        runtimeDeploymentInfos.put(deploymentContext.getDeploymentPaaSId(),
+                new MockRuntimeDeploymentInfo(deploymentContext, DeploymentStatus.DEPLOYMENT_IN_PROGRESS, currentInformations));
 
         changeStatus(deploymentContext.getDeploymentPaaSId(), DeploymentStatus.DEPLOYMENT_IN_PROGRESS);
 
@@ -207,7 +178,8 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
                 for (Map.Entry<String, InstanceInformation> instanceEntry : nodeEntry.getValue().entrySet()) {
                     instanceEntry.getValue().setState("stopping");
                     instanceEntry.getValue().setInstanceStatus(InstanceStatus.PROCESSING);
-                    notifyInstanceStateChanged(deploymentContext.getDeploymentPaaSId(), nodeEntry.getKey(), instanceEntry.getKey(), instanceEntry.getValue(), 1);
+                    notifyInstanceStateChanged(deploymentContext.getDeploymentPaaSId(), nodeEntry.getKey(), instanceEntry.getKey(), instanceEntry.getValue(),
+                            1);
                 }
             }
         }
@@ -437,7 +409,8 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     }
 
     @Override
-    public void getInstancesInformation(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
+    public void getInstancesInformation(PaaSTopologyDeploymentContext deploymentContext,
+            IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
         MockRuntimeDeploymentInfo runtimeDeploymentInfo = runtimeDeploymentInfos.get(deploymentContext.getDeploymentPaaSId());
         if (runtimeDeploymentInfo != null) {
             callback.onSuccess(runtimeDeploymentInfo.getInstanceInformations());
@@ -484,28 +457,6 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
         } catch (JsonProcessingException e) {
             log.error("Fails to serialize configuration object as json string", e);
         }
-    }
-
-    @Override
-    public String[] getAvailableResourceIds(CloudResourceType resourceType) {
-        if (providerConfiguration != null && providerConfiguration.isProvideResourceIds()) {
-            int idCount = providerConfiguration.getResourceIdsCount();
-            if (idCount == 0) {
-                idCount = 10;
-            }
-            String[] ids = new String[idCount];
-            for (int i = 0; i < idCount; i++) {
-                ids[i] = "yetAnotherResourceId-" + resourceType.name() + "-" + i;
-            }
-            return ids;
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public String[] getAvailableResourceIds(CloudResourceType resourceType, String imageId) {
-        return null;
     }
 
     @Override
