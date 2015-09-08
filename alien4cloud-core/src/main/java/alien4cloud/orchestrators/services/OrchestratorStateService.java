@@ -143,7 +143,7 @@ public class OrchestratorStateService {
         if (force == false) {
             QueryHelper.SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper
                     .buildSearchQuery(alienDAO.getIndexForType(Deployment.class)).types(Deployment.class).filters(MapUtil
-                            .newHashMap(new String[]{"cloudId", "endDate"}, new String[][]{new String[]{orchestrator.getId()}, new String[]{null}}))
+                            .newHashMap(new String[] { "cloudId", "endDate" }, new String[][] { new String[] { orchestrator.getId() }, new String[] { null } }))
                     .fieldSort("_timestamp", true);
             // If there is at least one active deployment.
             GetMultipleDataResult<Object> result = alienDAO.search(searchQueryHelperBuilder, 0, 1);

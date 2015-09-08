@@ -36,7 +36,6 @@ import com.google.common.collect.Sets;
 @AllArgsConstructor
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class Topology implements IManagedSecuredResource {
     @Id
     private String id;

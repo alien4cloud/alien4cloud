@@ -17,7 +17,7 @@ define(function (require) {
       state: 'admin.orchestrators.details.locations.security',
       key: 'ORCHESTRATORS.LOCATIONS.SECURITY',
       icon: 'fa fa-users',
-      priority: 500
+      priority: 600
     }
   });
 

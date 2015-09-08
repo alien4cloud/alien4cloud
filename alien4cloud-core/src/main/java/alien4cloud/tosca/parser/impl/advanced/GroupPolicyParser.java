@@ -17,6 +17,7 @@ import org.yaml.snakeyaml.nodes.NodeTuple;
 
 import alien4cloud.model.topology.AbstractPolicy;
 import alien4cloud.model.topology.HaPolicy;
+import alien4cloud.model.topology.LocationPlacementPolicy;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
@@ -73,10 +74,13 @@ public class GroupPolicyParser extends DefaultParser<AbstractPolicy> {
         case HaPolicy.HA_POLICY:
             result = new HaPolicy();
             break;
+        case LocationPlacementPolicy.LOCATION_PLACEMENT_POLICY:
+            result = new LocationPlacementPolicy(nodeMap.get(LocationPlacementPolicy.LOCATION_ID_PROPERTY));
+            break;
         }
         if (result == null) {
-            context.getParsingErrors().add(
-                    new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.UNKOWN_GROUP_POLICY, null, node.getStartMark(), null, node.getEndMark(), type));
+            context.getParsingErrors()
+                    .add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.UNKOWN_GROUP_POLICY, null, node.getStartMark(), null, node.getEndMark(), type));
             return null;
         }
         result.setName(nodeMap.get(NAME));

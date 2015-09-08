@@ -1,17 +1,12 @@
 package alien4cloud.model.topology;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @EqualsAndHashCode
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class ScalingPolicy {
 
     private int minInstances;

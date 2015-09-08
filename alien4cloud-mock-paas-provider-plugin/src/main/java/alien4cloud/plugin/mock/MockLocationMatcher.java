@@ -11,11 +11,11 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.model.orchestrators.Orchestrator;
-import alien4cloud.model.orchestrators.locations.ILocationMatcher;
+import alien4cloud.deployment.matching.plugins.ILocationMatcher;
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.model.orchestrators.locations.LocationMatch;
+import alien4cloud.model.deployment.matching.LocationMatch;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.orchestrators.services.LocationService;
+import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.exception.LocationMatchingException;
 import alien4cloud.utils.AlienUtils;

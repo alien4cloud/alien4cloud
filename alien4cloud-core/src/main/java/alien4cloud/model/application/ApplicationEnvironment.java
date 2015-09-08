@@ -42,9 +42,6 @@ public class ApplicationEnvironment implements ISecuredResource, IDeploymentSour
     @TermFilter
     @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
     private String applicationId;
-    @TermFilter
-    @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
-    private String cloudId;
     @StringField(includeInAll = true, indexType = IndexType.not_analyzed)
     private EnvironmentType environmentType;
     @TermFilter

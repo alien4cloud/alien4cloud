@@ -9,8 +9,8 @@ import java.util.concurrent.ScheduledFuture;
 import javax.annotation.Resource;
 
 import lombok.AllArgsConstructor;
-
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;

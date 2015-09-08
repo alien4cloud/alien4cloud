@@ -4,6 +4,7 @@ import java.util.*;
 
 import javax.annotation.Resource;
 
+import alien4cloud.deployment.DeploymentSetupService;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;

@@ -30,7 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationVersionService;
-import alien4cloud.application.DeploymentSetupService;
+import alien4cloud.deployment.DeploymentSetupService;
 import alien4cloud.application.TopologyCompositionService;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.component.CSARRepositorySearchService;
@@ -42,7 +42,7 @@ import alien4cloud.exception.CyclicReferenceException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.model.application.DeploymentSetup;
+import alien4cloud.model.deployment.DeploymentSetup;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.DeploymentArtifact;

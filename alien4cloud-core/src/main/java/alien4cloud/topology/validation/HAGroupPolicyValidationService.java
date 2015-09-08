@@ -1,6 +1,6 @@
 package alien4cloud.topology.validation;
 
-import alien4cloud.model.application.DeploymentSetup;
+import alien4cloud.model.deployment.DeploymentSetup;
 import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.topology.Topology;

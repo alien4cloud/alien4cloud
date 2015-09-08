@@ -6,7 +6,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
+import alien4cloud.orchestrators.locations.services.LocationService;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.FilterBuilder;
@@ -37,11 +39,11 @@ public class OrchestratorService {
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
-    @Resource
+    @Inject
     private OrchestratorFactoriesRegistry orchestratorFactoriesRegistry;
-    @Resource
+    @Inject
     private LocationService locationService;
-    @Resource
+    @Inject
     private ResourceRoleService resourceRoleService;
 
     /**

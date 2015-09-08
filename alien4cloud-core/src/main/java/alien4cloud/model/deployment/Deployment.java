@@ -15,8 +15,6 @@ import org.elasticsearch.annotation.TimeStamp;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
-import alien4cloud.model.application.DeploymentSetup;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 

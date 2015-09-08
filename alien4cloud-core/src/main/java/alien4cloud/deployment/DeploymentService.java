@@ -1,36 +1,26 @@
 package alien4cloud.deployment;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.mapping.QueryHelper;
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
-import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.application.DeploymentSetup;
-import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.deployment.Deployment;
+import alien4cloud.model.deployment.DeploymentSetup;
 import alien4cloud.model.deployment.DeploymentSourceType;
 import alien4cloud.model.deployment.IDeploymentSource;
 import alien4cloud.model.topology.Capability;
@@ -38,21 +28,9 @@ import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.CloudDisabledException;
-import alien4cloud.paas.exception.DeploymentPaaSIdConflictException;
-import alien4cloud.paas.exception.EmptyMetaPropertyException;
 import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OperationExecutionException;
-import alien4cloud.paas.model.AbstractMonitorEvent;
-import alien4cloud.paas.model.DeploymentStatus;
-import alien4cloud.paas.model.InstanceInformation;
-import alien4cloud.paas.model.OperationExecRequest;
-import alien4cloud.paas.model.PaaSDeploymentContext;
-import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
-import alien4cloud.paas.model.PaaSMessageMonitorEvent;
-import alien4cloud.paas.model.PaaSTopology;
-import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
+import alien4cloud.paas.model.*;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
@@ -110,8 +88,7 @@ public class DeploymentService {
 
     private GetMultipleDataResult<?> searchEvents(int from, int size, Deployment deployment) {
         String index = alienMonitorDao.getIndexForType(AbstractMonitorEvent.class);
-        SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper
-                .buildSearchQuery(index)
+        SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper.buildSearchQuery(index)
                 .types(PaaSDeploymentStatusMonitorEvent.class, PaaSInstanceStateMonitorEvent.class, PaaSMessageMonitorEvent.class,
                         PaaSInstanceStorageMonitorEvent.class)
                 .filters(MapUtil.newHashMap(new String[] { "deploymentId" }, new String[][] { new String[] { deployment.getId() } }))
@@ -167,66 +144,6 @@ public class DeploymentService {
         paaSProvider.deploy(buildTopologyDeploymentContext(deployment, topology), null);
         log.info("Deployed topology [{}] on cloud [{}], generated deployment with id [{}]", topology.getId(), cloudId, deployment.getId());
         return deployment.getId();
-    }
-
-    private String generatePaaSId(String envId, String cloudId) throws DeploymentPaaSIdConflictException {
-        // Inner class to get value from multiples objects
-        @Getter
-        class ContextObjectToParse {
-            private ApplicationEnvironment environment;
-            private Application application;
-            private Map<String, String> metaProperties;
-            private String time;
-
-            private Map<String, String> constructMapOfMetaProperties(final Application app) {
-                Map<String, String[]> filters = new HashMap<String, String[]>();
-                filters.put("application", new String[] { "id" }); // TODO there is a bug HERE
-                FacetedSearchResult result = alienDao.facetedSearch(MetaPropConfiguration.class, null, filters, null, 0, 20);
-                MetaPropConfiguration metaProp;
-                Map<String, String> metaProperties = Maps.newHashMap();
-                for (int i = 0; i < result.getData().length; i++) {
-                    metaProp = (MetaPropConfiguration) result.getData()[i];
-                    if (app.getMetaProperties().get(metaProp.getId()) != null) {
-                        metaProperties.put(metaProp.getName(), app.getMetaProperties().get(metaProp.getId()));
-                    } else if (metaProp.getDefault() != null) {
-                        metaProperties.put(metaProp.getName(), metaProp.getDefault());
-                    } else {
-                        throw new EmptyMetaPropertyException("The meta property " + metaProp.getName() + " is null and don't have a default value.");
-                    }
-                }
-                return metaProperties;
-            }
-
-            public ContextObjectToParse(ApplicationEnvironment env, Application app, boolean hasMetaProperties) {
-                this.environment = env;
-                this.application = app;
-                SimpleDateFormat ft = new SimpleDateFormat("yyyyMMddHHmm");
-                this.time = ft.format(new Date());
-                if (hasMetaProperties) {
-                    this.metaProperties = constructMapOfMetaProperties(app);
-                }
-            }
-        }
-
-        log.debug("Generating deployment paaS Id...");
-        log.debug("All spaces will be replaced by an \"_\" charactr. You might consider it while naming your applications.");
-        ApplicationEnvironment env = applicationEnvironmentService.getOrFail(envId);
-        Cloud cloud = cloudService.get(cloudId);
-        String namePattern = cloud.getDeploymentNamePattern();
-        ExpressionParser parser = new SpelExpressionParser();
-        Expression exp = parser.parseExpression(namePattern);
-        String paaSId = (String) exp.getValue(new ContextObjectToParse(env, applicationService.getOrFail(env.getApplicationId()), namePattern
-                .contains("metaProperties[")));
-        paaSId = paaSId.trim().replaceAll(" ", "_");
-        checkPaaSIdUnicity(paaSId, cloud);
-
-        return paaSId;
-    }
-
-    private void checkPaaSIdUnicity(String paaSId, Cloud cloud) throws DeploymentPaaSIdConflictException {
-        if (isActiveDeployment(paaSId, cloud.getId())) {
-            throw new DeploymentPaaSIdConflictException("Conflict detected with the generated paasId <" + paaSId + ">.");
-        }
     }
 
     private PaaSDeploymentContext buildDeploymentContext(Deployment deployment) {
@@ -473,8 +390,8 @@ public class DeploymentService {
      * @return active deployment or null if not exist
      */
     public Deployment getActiveDeployment(String applicationEnvironmentId) {
-        Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "deploymentSetup.environmentId", "endDate" }, new String[][] {
-                new String[] { applicationEnvironmentId }, new String[] { null } });
+        Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "deploymentSetup.environmentId", "endDate" },
+                new String[][] { new String[] { applicationEnvironmentId }, new String[] { null } });
         GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, 1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             return dataResult.getData()[0];
@@ -491,8 +408,8 @@ public class DeploymentService {
      */
     public Deployment getActiveDeployment(String cloudId, String topologyId) {
         Deployment deployment = null;
-        Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "cloudId", "topologyId", "endDate" }, new String[][] {
-                new String[] { cloudId }, new String[] { topologyId }, new String[] { null } });
+        Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "cloudId", "topologyId", "endDate" },
+                new String[][] { new String[] { cloudId }, new String[] { topologyId }, new String[] { null } });
         GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, 1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             deployment = dataResult.getData()[0];
@@ -501,15 +418,15 @@ public class DeploymentService {
     }
 
     public Deployment[] getCloudActiveDeployments(String cloudId) {
-        Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "cloudId", "endDate" }, new String[][] { new String[] { cloudId },
-                new String[] { null } });
+        Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "cloudId", "endDate" },
+                new String[][] { new String[] { cloudId }, new String[] { null } });
         GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, 1);
         return dataResult.getData();
     }
 
-    private boolean isActiveDeployment(String paaSId, String cloudId) {
-        Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "cloudId", "paasId", "endDate" }, new String[][] {
-                new String[] { cloudId }, new String[] { paaSId }, new String[] { null } });
+    public boolean isActiveDeployment(String paaSId, String cloudId) {
+        Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "cloudId", "paasId", "endDate" },
+                new String[][] { new String[] { cloudId }, new String[] { paaSId }, new String[] { null } });
         GetMultipleDataResult<Deployment> dataResult = alienDao.find(Deployment.class, activeDeploymentFilters, Integer.MAX_VALUE);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             return true;
@@ -570,8 +487,7 @@ public class DeploymentService {
      * @return deployment which have the given deployment setup id
      */
     public GetMultipleDataResult<Deployment> getDeploymentsByDeploymentSetup(String deploymentSetupId) {
-        return alienDao.find(Deployment.class,
-                MapUtil.newHashMap(new String[] { "deploymentSetup.id" }, new String[][] { new String[] { deploymentSetupId } }), Integer.MAX_VALUE);
+        return alienDao.find(Deployment.class, MapUtil.newHashMap(new String[] { "deploymentSetup.id" }, new String[][] { new String[] { deploymentSetupId } }),
+                Integer.MAX_VALUE);
     }
-
 }

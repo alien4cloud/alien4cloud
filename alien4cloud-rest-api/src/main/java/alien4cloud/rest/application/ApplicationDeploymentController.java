@@ -6,6 +6,12 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import alien4cloud.deployment.DeploymentSetupService;
+import alien4cloud.deployment.InvalidDeploymentSetupException;
+import alien4cloud.model.deployment.DeploymentSetup;
+import alien4cloud.rest.application.model.DeployApplicationRequest;
+import alien4cloud.rest.application.model.EnvironmentStatusDTO;
+import alien4cloud.rest.application.model.UpdateDeploymentSetupRequest;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;

@@ -13,7 +13,7 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.utils.JsonTestUtil;
 import alien4cloud.model.templates.TopologyTemplateVersion;
-import alien4cloud.rest.application.ApplicationVersionRequest;
+import alien4cloud.rest.application.model.ApplicationVersionRequest;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.utils.JsonUtil;
 import cucumber.api.java.en.Then;

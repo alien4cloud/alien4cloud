@@ -5,6 +5,9 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import alien4cloud.rest.application.model.ApplicationEnvironmentDTO;
+import alien4cloud.rest.application.model.ApplicationEnvironmentRequest;
+import alien4cloud.rest.application.model.UpdateApplicationEnvironmentRequest;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.FilterBuilder;
@@ -23,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
-import alien4cloud.application.DeploymentSetupService;
+import alien4cloud.deployment.DeploymentSetupService;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.deployment.DeploymentService;

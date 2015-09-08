@@ -1,6 +1,6 @@
 package alien4cloud.paas.exception;
 
-import alien4cloud.model.orchestrators.locations.ILocationMatcher;
+import alien4cloud.deployment.matching.plugins.ILocationMatcher;
 
 /**
  * Exception to be thrown in case the {@link ILocationMatcher} fail to match a topology against registered locations.

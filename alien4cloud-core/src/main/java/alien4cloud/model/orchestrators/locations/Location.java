@@ -17,14 +17,11 @@ import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 import org.hibernate.validator.constraints.NotBlank;
 
+import alien4cloud.model.common.IMetaProperties;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.security.ISecuredResource;
 import alien4cloud.security.model.DeployerRole;
-import alien4cloud.utils.jackson.ConditionalAttributes;
-import alien4cloud.utils.jackson.ConditionalOnAttribute;
-import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
-import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
-import alien4cloud.utils.jackson.NotAnalyzedTextMapEntry;
+import alien4cloud.utils.jackson.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -38,7 +35,7 @@ import com.wordnik.swagger.annotations.ApiModel;
 @ESObject
 @ApiModel(value = "Location", description = "A location represents a cloud, a region of a cloud, a set of machines and resources."
         + "basically any location on which alien will be allowed to perform deployment. Locations are managed by orchestrators.")
-public class Location implements ISecuredResource {
+public class Location implements ISecuredResource, IMetaProperties {
     @Id
     private String id;
     @NotBlank
@@ -60,6 +57,9 @@ public class Location implements ISecuredResource {
     @TermFilter(paths = { "name", "version" })
     @NestedObject(nestedClass = CSARDependency.class)
     private Set<CSARDependency> dependencies = Sets.newHashSet();
+
+    @StringField(indexType = IndexType.analyzed, includeInAll = true)
+    private Map<String, String> metaProperties;
 
     @TermFilter(paths = { "key", "value" })
     @NestedObject(nestedClass = NotAnalyzedTextMapEntry.class)

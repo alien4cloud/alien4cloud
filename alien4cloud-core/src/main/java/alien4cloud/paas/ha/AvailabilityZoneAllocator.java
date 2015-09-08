@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import alien4cloud.common.AlienConstants;
-import alien4cloud.model.application.DeploymentSetup;
+import alien4cloud.model.deployment.DeploymentSetup;
 import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.components.AbstractPropertyValue;

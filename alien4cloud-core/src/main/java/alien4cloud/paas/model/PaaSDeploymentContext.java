@@ -6,7 +6,7 @@ import lombok.ToString;
 
 import org.elasticsearch.annotation.ESObject;
 
-import alien4cloud.model.application.DeploymentSetup;
+import alien4cloud.model.deployment.DeploymentSetup;
 import alien4cloud.model.deployment.Deployment;
 
 @Getter

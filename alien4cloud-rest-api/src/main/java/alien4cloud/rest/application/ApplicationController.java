@@ -15,24 +15,16 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
-import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.cloud.CloudService;
-import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.deployment.DeploymentSetupService;
 import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.images.IImageDAO;
@@ -43,8 +35,10 @@ import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.paas.exception.CloudDisabledException;
+import alien4cloud.rest.application.model.CloudDeploymentPropertyValidationRequest;
+import alien4cloud.rest.application.model.CreateApplicationRequest;
+import alien4cloud.rest.application.model.UpdateApplicationRequest;
 import alien4cloud.rest.component.SearchRequest;
-import alien4cloud.rest.internal.PropertyRequest;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -52,7 +46,6 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.Role;
-import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyTemplateVersionService;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
@@ -73,8 +66,6 @@ import com.wordnik.swagger.annotations.Authorization;
 @Api(value = "", description = "Operations on Applications")
 public class ApplicationController {
     @Resource
-    private CloudService cloudService;
-    @Resource
     private ConstraintPropertyService constraintPropertyService;
     @Resource
     private IImageDAO imageDAO;
@@ -90,10 +81,6 @@ public class ApplicationController {
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Resource
     private DeploymentSetupService deploymentSetupService;
-    @Resource
-    private TopologyService topologyService;
-    @Resource
-    private MetaPropertiesService metaPropertiesService;
 
     /**
      * Create a new application in the system.
@@ -172,15 +159,13 @@ public class ApplicationController {
         try {
             boolean deleted = applicationService.delete(applicationId);
             if (!deleted) {
-                throw new DeleteDeployedException("Application with id <" + applicationId + "> cannot be deleted since one of its environment is still deployed.");
+                throw new DeleteDeployedException(
+                        "Application with id <" + applicationId + "> cannot be deleted since one of its environment is still deployed.");
             }
         } catch (CloudDisabledException e) {
             log.error("Failed to delete the application due to Cloud error", e);
-            return RestResponseBuilder
-                    .<Boolean> builder()
-                    .data(false)
-                    .error(RestErrorBuilder.builder(RestErrorCode.CLOUD_DISABLED_ERROR)
-                            .message("Could not delete the application with id <" + applicationId + "> with error : " + e.getMessage()).build()).build();
+            return RestResponseBuilder.<Boolean> builder().data(false).error(RestErrorBuilder.builder(RestErrorCode.CLOUD_DISABLED_ERROR)
+                    .message("Could not delete the application with id <" + applicationId + "> with error : " + e.getMessage()).build()).build();
 
         }
         return RestResponseBuilder.<Boolean> builder().data(true).build();
@@ -204,43 +189,13 @@ public class ApplicationController {
         try {
             imageId = imageDAO.writeImage(image.getBytes());
         } catch (IOException e) {
-            throw new ImageUploadException("Unable to read image from file upload [" + image.getOriginalFilename() + "] to update application ["
-                    + applicationId + "]", e);
+            throw new ImageUploadException(
+                    "Unable to read image from file upload [" + image.getOriginalFilename() + "] to update application [" + applicationId + "]", e);
         }
         data.setImageId(imageId);
         data.setLastUpdateDate(new Date());
         alienDAO.save(data);
         return RestResponseBuilder.<String> builder().data(imageId).build();
-    }
-
-    @ApiOperation(value = "Validate deployment property constraint.", authorizations = { @Authorization("APPLICATION_MANAGER") })
-    @RequestMapping(value = "/check-deployment-property", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<ConstraintInformation> checkPluginDeploymentProperties(
-            @RequestBody CloudDeploymentPropertyValidationRequest deploymentPropertyValidationRequest) {
-        Map<String, PropertyDefinition> deploymentPropertyDefinitions = cloudService.getDeploymentPropertyDefinitions(deploymentPropertyValidationRequest
-                .getCloudId());
-
-        if (deploymentPropertyDefinitions != null) {
-            PropertyDefinition propertyDefinition = deploymentPropertyDefinitions.get(deploymentPropertyValidationRequest.getDeploymentPropertyName());
-            if (propertyDefinition != null && propertyDefinition.getConstraints() != null) {
-                try {
-                    constraintPropertyService.checkSimplePropertyConstraint(deploymentPropertyValidationRequest.getDeploymentPropertyName(),
-                            deploymentPropertyValidationRequest.getDeploymentPropertyValue(), propertyDefinition);
-                } catch (ConstraintViolationException e) {
-                    log.error("Constraint violation error for property <" + deploymentPropertyValidationRequest.getDeploymentPropertyName() + "> with value <"
-                            + deploymentPropertyValidationRequest.getDeploymentPropertyValue() + ">", e);
-                    return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
-                            .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
-                } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
-                    log.error("Constraint value violation error for property <" + e.getConstraintInformation().getName() + "> with value <"
-                            + e.getConstraintInformation().getValue() + "> and type <" + e.getConstraintInformation().getType() + ">", e);
-                    return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
-                            .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
-                }
-            }
-        }
-        return RestResponseBuilder.<ConstraintInformation> builder().build();
     }
 
     /**
@@ -270,34 +225,5 @@ public class ApplicationController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    /**
-     * Update or create a property for an application
-     *
-     * @param applicationId id of the application
-     * @param propertyRequest property request
-     * @return information on the constraint
-     * @throws ConstraintValueDoNotMatchPropertyTypeException
-     * @throws ConstraintViolationException
-     */
-    @RequestMapping(value = "/{applicationId:.+}/properties", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    @Audit
-    public RestResponse<ConstraintInformation> upsertProperty(@PathVariable String applicationId, @RequestBody PropertyRequest propertyRequest)
-            throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
-        Application application = alienDAO.findById(Application.class, applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        try {
-            metaPropertiesService.upsertMetaProperty(application, propertyRequest.getDefinitionId(), propertyRequest.getValue());
-        } catch (ConstraintViolationException e) {
-            log.error("Constraint violation error for property <" + propertyRequest.getDefinitionId() + "> with value <" + propertyRequest.getValue() + ">", e);
-            return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
-                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
-        } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
-            log.error("Constraint value violation error for property <" + e.getConstraintInformation().getName() + "> with value <"
-                    + e.getConstraintInformation().getValue() + "> and type <" + e.getConstraintInformation().getType() + ">", e);
-            return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
-                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
-        }
-        return RestResponseBuilder.<ConstraintInformation> builder().data(null).error(null).build();
-    }
+
 }

@@ -3,6 +3,7 @@ package alien4cloud.orchestrators.services;
 import java.io.IOException;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.paas.PaaSProviderService;
@@ -20,13 +21,13 @@ import alien4cloud.rest.utils.JsonUtil;
  */
 @Service
 public class OrchestratorConfigurationService {
-    @Resource
+    @Inject
     private OrchestratorService orchestratorService;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
-    @Resource
+    @Inject
     private OrchestratorFactoriesRegistry orchestratorFactoriesRegistry;
-    @Resource
+    @Inject
     private PaaSProviderService paaSProviderService;
 
     /**

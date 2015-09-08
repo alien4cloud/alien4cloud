@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
 
-import alien4cloud.model.application.DeploymentSetup;
+import alien4cloud.model.deployment.DeploymentSetup;
 import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.components.AbstractPropertyValue;
