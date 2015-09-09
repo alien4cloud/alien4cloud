@@ -452,7 +452,7 @@ public class TopologyService {
         velocityCtx.put("template_version", "1.0.0-SNAPSHOT");
         User loggedUser = AuthorizationUtil.getCurrentUser();
         velocityCtx.put("template_author", loggedUser != null ? loggedUser.getUsername() : null);
-        if (topology.getDelegateType().equals(Application.class.getSimpleName().toLowerCase())) {
+        if (Application.class.getSimpleName().toLowerCase().equals(topology.getDelegateType())) {
             String applicationId = topology.getDelegateId();
             Application application = appService.getOrFail(applicationId);
             velocityCtx.put("template_name", application.getName());
@@ -461,7 +461,7 @@ public class TopologyService {
             if (version != null) {
                 velocityCtx.put("template_version", version.getVersion());
             }
-        } else if (topology.getDelegateType().equals(TopologyTemplate.class.getSimpleName().toLowerCase())) {
+        } else if (TopologyTemplate.class.getSimpleName().toLowerCase().equals(topology.getDelegateType())) {
             String topologyTemplateId = topology.getDelegateId();
             TopologyTemplate template = getOrFailTopologyTemplate(topologyTemplateId);
             velocityCtx.put("template_name", template.getName());
