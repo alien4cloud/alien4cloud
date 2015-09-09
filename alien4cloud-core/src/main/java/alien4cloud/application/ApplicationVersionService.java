@@ -95,6 +95,7 @@ public class ApplicationVersionService extends AbtractVersionService<Application
      * @return isDeployed A boolean.
      */
     public boolean isApplicationVersionDeployed(String applicationVersionId) {
+
         GetMultipleDataResult<Deployment> dataResult = alienDAO.search(
                 Deployment.class,
                 null,

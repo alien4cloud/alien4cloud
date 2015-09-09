@@ -1,4 +1,4 @@
-package alien4cloud.deployment;
+package alien4cloud.deployment.exceptions;
 
 import alien4cloud.exception.TechnicalException;
 

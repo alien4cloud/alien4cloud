@@ -14,6 +14,7 @@ import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
  */
 @Component("mock-orchestrator-factory")
 public class MockOrchestratorFactory implements IOrchestratorPluginFactory<MockOrchestrator, ProviderConfig> {
+    public static final String OPENSTACK =  "OpenStack";
     @Resource
     private BeanFactory beanFactory;
 
@@ -39,7 +40,7 @@ public class MockOrchestratorFactory implements IOrchestratorPluginFactory<MockO
 
     @Override
     public LocationSupport getLocationSupport() {
-        return new LocationSupport(true, new String[] { "OpenStack" });
+        return new LocationSupport(true, new String[] { OPENSTACK });
     }
 
     @Override

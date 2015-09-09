@@ -13,6 +13,9 @@ import alien4cloud.model.topology.Topology;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.Maps;
+import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.annotation.query.TermFilter;
+import org.elasticsearch.mapping.IndexType;
 
 /**
  * Deployment topology is the topology for a given environment.
@@ -29,10 +32,16 @@ import com.google.common.collect.Maps;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DeploymentTopology extends Topology {
+    @TermFilter
+    @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
+    private String versionId;
+    @TermFilter
+    @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
+    private String environmentId;
     /** Id of the initial topology that this topology completes. */
     private String initialTopologyId;
     /**
-     * The map that contains the user selected matching for nodes of the topology. key is the initial topology node, value is the id of an orchestrator resource
+     * The map that contains the user selected matching for nodes of the topology. key is the initial topology node id, value is the id of an orchestrator resource
      * (on-demand or service).
      */
     private Map<String, String> nodeTemplateMatching = Maps.newHashMap();

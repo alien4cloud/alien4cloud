@@ -8,7 +8,6 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.orchestrators.locations.services.LocationService;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.FilterBuilder;
@@ -24,8 +23,8 @@ import alien4cloud.model.orchestrators.OrchestratorConfiguration;
 import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationSupport;
+import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
-import alien4cloud.security.ResourceRoleService;
 import alien4cloud.utils.MapUtil;
 
 /**
@@ -43,16 +42,14 @@ public class OrchestratorService {
     private OrchestratorFactoriesRegistry orchestratorFactoriesRegistry;
     @Inject
     private LocationService locationService;
-    @Inject
-    private ResourceRoleService resourceRoleService;
 
     /**
      * Creates an orchestrator.
      *
-     * @param name The unique name that refers the orchestrators from user point of view.
-     * @param pluginId The id of the plugin used to communicate with the orchestrators.
+     * @param name The unique name that defines the orchestrator from user point of view.
+     * @param pluginId The id of the plugin used to communicate with the orchestrator.
      * @param pluginBean The bean in the plugin that is indeed managing communication.
-     * @return The generated identifier for the orchestrators.
+     * @return The generated identifier for the orchestrator.
      */
     public synchronized String create(String name, String pluginId, String pluginBean) {
         Orchestrator orchestrator = new Orchestrator();
@@ -66,8 +63,8 @@ public class OrchestratorService {
         orchestrator.setAuthorizedUsers(new ArrayList<String>());
         orchestrator.setAuthorizedGroups(new ArrayList<String>());
 
-        // get default configuration for the orchestrators.
-        IOrchestratorPluginFactory orchestratorFactory = orchestratorFactoriesRegistry.getPluginBean(orchestrator.getPluginId(), orchestrator.getPluginBean());
+        // get default configuration for the orchestrator.
+        IOrchestratorPluginFactory orchestratorFactory = getPluginFactory(orchestrator);
         OrchestratorConfiguration configuration = new OrchestratorConfiguration(orchestrator.getId(), orchestratorFactory.getDefaultConfiguration());
 
         saveAndEnsureNameUnicity(orchestrator);
@@ -77,10 +74,10 @@ public class OrchestratorService {
     }
 
     /**
-     * Update the name of an existing orchestrators.
+     * Update the name of an existing orchestrator.
      *
-     * @param id Unique id of the orchestrators.
-     * @param name Name of the orchestrators.
+     * @param id Unique id of the orchestrator.
+     * @param name Name of the orchestrator.
      */
     public void updateName(String id, String name) {
         Orchestrator orchestrator = getOrFail(id);
@@ -89,9 +86,9 @@ public class OrchestratorService {
     }
 
     /**
-     * Save the orchestrators but ensure that the name is unique before saving it.
+     * Save the orchestrator but ensure that the name is unique before saving it.
      *
-     * @param orchestrator The orchestrators to save.
+     * @param orchestrator The orchestrator to save.
      */
     private synchronized void saveAndEnsureNameUnicity(Orchestrator orchestrator) {
         // check that the cloud doesn't already exists
@@ -102,28 +99,28 @@ public class OrchestratorService {
     }
 
     /**
-     * Delete an existing orchestrators.
+     * Delete an existing orchestrator.
      *
-     * @param id The id of the orchestrators to delete.
+     * @param id The id of the orchestrator to delete.
      */
     public void delete(String id) {
-        // delete all locations for the orchestrators
+        // delete all locations for the orchestrator
         Location[] locations = locationService.getOrchestratorLocations(id);
         if (locations != null) {
             for (Location location : locations) {
                 locationService.delete(location.getId());
             }
         }
-        // delete the orchestrators configuration
+        // delete the orchestrator configuration
         alienDAO.delete(OrchestratorConfiguration.class, id);
         alienDAO.delete(Orchestrator.class, id);
     }
 
     /**
-     * Get the orchestrators matching the given id or throw a NotFoundException
+     * Get the orchestrator matching the given id or throw a NotFoundException
      *
-     * @param id If of the orchestrators that we want to get.
-     * @return An instance of the orchestrators.
+     * @param id If of the orchestrator that we want to get.
+     * @return An instance of the orchestrator.
      */
     public Orchestrator getOrFail(String id) {
         Orchestrator orchestrator = alienDAO.findById(Orchestrator.class, id);
@@ -151,15 +148,25 @@ public class OrchestratorService {
     }
 
     /**
-     * Get the location support information for a given orchetrator.
+     * Get the location support information for a given orchestrator.
      *
      * @param orchestratorId The id of the orchestrator for which to get location support information.
      * @return location support information.
      */
     public LocationSupport getLocationSupport(String orchestratorId) {
         Orchestrator orchestrator = getOrFail(orchestratorId);
-        IOrchestratorPluginFactory orchestratorFactory = orchestratorFactoriesRegistry.getPluginBean(orchestrator.getPluginId(), orchestrator.getPluginBean());
+        IOrchestratorPluginFactory orchestratorFactory = getPluginFactory(orchestrator);
         return orchestratorFactory.getLocationSupport();
+    }
+
+    /**
+     * Get the orchestrator plugin factory for the given orchestrator.
+     * 
+     * @param orchestrator The orchestrator for which to get the orchestrator plugin factory.
+     * @return An instance of the orchestrator plugin factory for the given orchestrator.
+     */
+    public IOrchestratorPluginFactory getPluginFactory(Orchestrator orchestrator) {
+        return orchestratorFactoriesRegistry.getPluginBean(orchestrator.getPluginId(), orchestrator.getPluginBean());
     }
 
     public List<Orchestrator> getAllEnabledOrchestrators() {

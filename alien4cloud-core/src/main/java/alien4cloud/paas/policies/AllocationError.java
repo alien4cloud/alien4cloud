@@ -1,4 +1,4 @@
-package alien4cloud.paas.ha;
+package alien4cloud.paas.policies;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

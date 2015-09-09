@@ -8,20 +8,12 @@ import lombok.Getter;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.cloud.CloudResourceMatcherConfig;
-import alien4cloud.model.cloud.CloudResourceType;
 import alien4cloud.paas.IConfigurablePaaSProvider;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.exception.PluginConfigurationException;
-import alien4cloud.paas.model.AbstractMonitorEvent;
-import alien4cloud.paas.model.DeploymentStatus;
-import alien4cloud.paas.model.InstanceInformation;
-import alien4cloud.paas.model.NodeOperationExecRequest;
-import alien4cloud.paas.model.PaaSDeploymentContext;
-import alien4cloud.paas.model.PaaSNodeTemplate;
-import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
+import alien4cloud.paas.model.*;
 
 @Getter
 @Component
@@ -71,22 +63,8 @@ public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvide
     }
 
     @Override
-    public void getInstancesInformation(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
-
-    }
-
-    @Override
-    public String[] getAvailableResourceIds(CloudResourceType resourceType) {
-        return new String[0];
-    }
-
-    @Override
-    public String[] getAvailableResourceIds(CloudResourceType resourceType, String imageId) {
-        return new String[0];
-    }
-
-    @Override
-    public void updateMatcherConfig(CloudResourceMatcherConfig config) {
+    public void getInstancesInformation(PaaSTopologyDeploymentContext deploymentContext,
+            IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
 
     }
 

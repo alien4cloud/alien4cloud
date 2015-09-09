@@ -8,6 +8,8 @@ import java.util.concurrent.ScheduledFuture;
 
 import javax.annotation.Resource;
 
+import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
+import alien4cloud.paas.exception.OrchestratorDisabledException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,7 +27,7 @@ import com.google.common.collect.Maps;
  */
 @Slf4j
 @Component
-public class PaaSProviderService implements IPaasEventService {
+public class OrchestratorPluginService implements IPaasEventService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDao;
     @Resource(name = "alien-monitor-es-dao")
@@ -41,7 +43,7 @@ public class PaaSProviderService implements IPaasEventService {
     @SuppressWarnings("rawtypes")
     private List<IPaasEventListener> listeners = Collections.synchronizedList(new ArrayList<IPaasEventListener>());
 
-    public PaaSProviderService() {
+    public OrchestratorPluginService() {
         log.info("Create new PaaSProvider instance.");
     }
 
@@ -51,48 +53,51 @@ public class PaaSProviderService implements IPaasEventService {
     }
 
     /**
-     * Register an {@link IPaaSProvider} for a given cloud.
+     * Register an {@link IOrchestratorPlugin} for a given cloud.
      *
-     * @param cloudId Id of the cloud.
-     * @param instance Instance of the IPaaSProvider for the given cloud.
+     * @param orchestratorId Id of the cloud.
+     * @param instance Instance of the IOrchestratorPlugin for the given cloud.
      */
-    public void register(String cloudId, IPaaSProvider instance) {
-        log.info("Register provider with id {}", cloudId);
-        if (monitorRegistrations.containsKey(cloudId)) {
-            throw new AlreadyExistException("Cloud [" + cloudId + "] has already been registered");
+    public void register(String orchestratorId, IOrchestratorPlugin instance) {
+        log.info("Register provider with id {}", orchestratorId);
+        if (monitorRegistrations.containsKey(orchestratorId)) {
+            throw new AlreadyExistException("Cloud [" + orchestratorId + "] has already been registered");
         }
         // create the polling monitor responsible to monitor this instance.
-        PaaSProviderPollingMonitor monitor = new PaaSProviderPollingMonitor(alienDao, alienMonitorDao, instance, listeners, cloudId);
+        PaaSProviderPollingMonitor monitor = new PaaSProviderPollingMonitor(alienDao, alienMonitorDao, instance, listeners, orchestratorId);
         ScheduledFuture<?> monitorFuture = scheduler.scheduleAtFixedRate(monitor, monitorIntervalMs);
         Registration registration = new Registration(instance, monitorFuture);
-        monitorRegistrations.put(cloudId, registration);
+        monitorRegistrations.put(orchestratorId, registration);
     }
 
     /**
-     * Remove the registration for the given cloud (will stop monitoring the cloud using the registered IPaaSProvider).
+     * Remove the registration for the given cloud (will stop monitoring the cloud using the registered IOrchestratorPlugin).
      *
-     * @param cloudId The id of the cloud for which to remove registration.
+     * @param orchestratorId The id of the cloud for which to remove registration.
      */
-    public IPaaSProvider unregister(String cloudId) {
-        log.info("Unregister provider with id {}", cloudId);
-        Registration registration = monitorRegistrations.remove(cloudId);
+    public IOrchestratorPlugin unregister(String orchestratorId) {
+        log.info("Unregister provider with id {}", orchestratorId);
+        Registration registration = monitorRegistrations.remove(orchestratorId);
         if (registration != null) {
             registration.registration.cancel(false);
-            return registration.providerInstance;
+            return registration.instance;
         } else {
             return null;
         }
     }
 
     /**
-     * Get a registered IPaaSProvider for a cloud.
+     * Get a registered IOrchestratorPlugin for a cloud.
      *
-     * @param cloudId The id of the cloud for which to get the IPaaSProvider instance.
-     * @return The {@link IPaaSProvider} for the given cloud or null if none is registered for the given cloud id.
+     * @param orchestratorId The id of the cloud for which to get the IOrchestratorPlugin instance.
+     * @return The {@link IOrchestratorPlugin} for the given cloud or null if none is registered for the given cloud id.
      */
-    public IPaaSProvider getPaaSProvider(String cloudId) {
-        Registration registration = monitorRegistrations.get(cloudId);
-        return registration == null ? null : registration.providerInstance;
+    public IOrchestratorPlugin get(String orchestratorId) {
+        Registration registration = monitorRegistrations.get(orchestratorId);
+        if (registration == null) {
+            throw new OrchestratorDisabledException("The orchestrator with id <" + orchestratorId + "> is not enabled or loaded yet.");
+        }
+        return registration == null ? null : registration.instance;
     }
 
     /**
@@ -100,7 +105,7 @@ public class PaaSProviderService implements IPaasEventService {
      */
     @AllArgsConstructor
     private class Registration {
-        private IPaaSProvider providerInstance;
+        private IOrchestratorPlugin instance;
         private ScheduledFuture<?> registration;
     }
 }

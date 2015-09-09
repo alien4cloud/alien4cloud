@@ -1,4 +1,4 @@
-package alien4cloud.paas.ha;
+package alien4cloud.paas.policies;
 
 public enum AllocationErrorCode {
     NODE_NOT_ALLOCATED,

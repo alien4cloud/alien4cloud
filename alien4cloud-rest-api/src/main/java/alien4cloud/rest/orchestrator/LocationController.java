@@ -84,7 +84,7 @@ public class LocationController {
     public RestResponse<LocationDTO> get(@ApiParam(value = "Id of the orchestrator for which the location is defined.") @PathVariable String orchestratorId,
             @ApiParam(value = "Id of the location to get", required = true) @PathVariable String id) {
         Location location = locationService.getOrFail(id);
-        AuthorizationUtil.checkAuthorizationForCloud(location, DeployerRole.DEPLOYER);
+        AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.DEPLOYER);
         return RestResponseBuilder.<LocationDTO> builder().data(buildLocationDTO(location)).build();
     }
 

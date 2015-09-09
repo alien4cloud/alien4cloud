@@ -18,8 +18,6 @@ public class OrchestratorSecurityService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject
-    private OrchestratorFactoriesRegistry orchestratorFactoriesRegistry;
-    @Inject
     private LocationService locationService;
     @Inject
     private ResourceRoleService resourceRoleService;

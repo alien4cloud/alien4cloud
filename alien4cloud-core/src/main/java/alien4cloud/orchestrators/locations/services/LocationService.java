@@ -27,7 +27,7 @@ import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
-import alien4cloud.paas.PaaSProviderService;
+import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;
@@ -41,7 +41,7 @@ public class LocationService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject
-    private PaaSProviderService paaSProviderService;
+    private OrchestratorPluginService orchestratorPluginService;
     @Inject
     private OrchestratorService orchestratorService;
     @Inject
@@ -103,7 +103,7 @@ public class LocationService {
      */
     private boolean autoConfigure(Orchestrator orchestrator, Location location) {
         // get the orchestrator plugin instance
-        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) paaSProviderService.getPaaSProvider(orchestrator.getId());
+        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.get(orchestrator.getId());
         ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
 
         ILocationResourceAccessor accessor = locationResourceService.accessor(location.getId());

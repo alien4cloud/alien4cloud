@@ -5,6 +5,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import alien4cloud.model.deployment.matching.LocationMatch;
+import alien4cloud.orchestrators.services.OrchestratorService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -53,7 +54,7 @@ public abstract class AbstractLocationMatchArtifactsElector implements ILocation
     @Resource
     private CSARRepositorySearchService csarSearchService;
     @Resource
-    private OrchestratorFactoriesRegistry orchestratorFactoriesRegistry;
+    private OrchestratorService orchestratorService;
 
     @Override
     public boolean isEligible(LocationMatch locationMatch) {
@@ -61,8 +62,7 @@ public abstract class AbstractLocationMatchArtifactsElector implements ILocation
             return true;
         }
 
-        IOrchestratorPluginFactory orchestratorFactory = orchestratorFactoriesRegistry.getPluginBean(locationMatch.getOrchestrator().getPluginId(),
-                locationMatch.getOrchestrator().getPluginBean());
+        IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(locationMatch.getOrchestrator());
         String[] supportedArtifacts = orchestratorFactory.getArtifactSupport().getTypes();
 
         // if no supported artifact defined, then return true

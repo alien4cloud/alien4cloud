@@ -2,7 +2,6 @@ package alien4cloud.rest.application;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -32,10 +31,8 @@ import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.templates.TopologyTemplateVersion;
-import alien4cloud.paas.exception.CloudDisabledException;
-import alien4cloud.rest.application.model.CloudDeploymentPropertyValidationRequest;
+import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.rest.application.model.CreateApplicationRequest;
 import alien4cloud.rest.application.model.UpdateApplicationRequest;
 import alien4cloud.rest.component.SearchRequest;
@@ -47,15 +44,11 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.Role;
 import alien4cloud.topology.TopologyTemplateVersionService;
-import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.services.ConstraintPropertyService;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.Authorization;
 
 /**
  * Service that allows managing applications.
@@ -162,7 +155,7 @@ public class ApplicationController {
                 throw new DeleteDeployedException(
                         "Application with id <" + applicationId + "> cannot be deleted since one of its environment is still deployed.");
             }
-        } catch (CloudDisabledException e) {
+        } catch (OrchestratorDisabledException e) {
             log.error("Failed to delete the application due to Cloud error", e);
             return RestResponseBuilder.<Boolean> builder().data(false).error(RestErrorBuilder.builder(RestErrorCode.CLOUD_DISABLED_ERROR)
                     .message("Could not delete the application with id <" + applicationId + "> with error : " + e.getMessage()).build()).build();

@@ -10,19 +10,14 @@ import alien4cloud.model.application.EnvironmentType;
 
 /**
  * DTO to create a new application environment
- * 
- * @author mourouvi
- *
  */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class ApplicationEnvironmentRequest {
     private String name;
     private EnvironmentType environmentType;
-    private String cloudId;
     private String description;
     private String versionId;
 }

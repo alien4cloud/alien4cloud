@@ -18,12 +18,10 @@ import alien4cloud.paas.IDeploymentParameterizablePaaSProviderFactory;
 public class OrchestratorDeploymentService {
     @Inject
     private OrchestratorService orchestratorService;
-    @Inject
-    private OrchestratorFactoriesRegistry orchestratorFactoriesRegistry;
 
     public Map<String, PropertyDefinition> getDeploymentPropertyDefinitions(String orchestratorId) {
         Orchestrator orchestrator = orchestratorService.getOrFail(orchestratorId);
-        IOrchestratorPluginFactory orchestratorFactory = orchestratorFactoriesRegistry.getPluginBean(orchestrator.getPluginId(), orchestrator.getPluginBean());
+        IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestrator);
         if (orchestratorFactory instanceof IDeploymentParameterizablePaaSProviderFactory) {
             return ((IDeploymentParameterizablePaaSProviderFactory) orchestratorFactory).getDeploymentPropertyDefinitions();
         }

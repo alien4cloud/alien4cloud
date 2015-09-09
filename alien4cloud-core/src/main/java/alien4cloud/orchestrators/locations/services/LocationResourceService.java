@@ -25,7 +25,7 @@ import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.services.OrchestratorService;
-import alien4cloud.paas.PaaSProviderService;
+import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
@@ -50,7 +50,7 @@ public class LocationResourceService {
     @Inject
     private OrchestratorService orchestratorService;
     @Inject
-    private PaaSProviderService paaSProviderService;
+    private OrchestratorPluginService orchestratorPluginService;
 
     /**
      * Get the list of resources definitions for a given orchestrator.
@@ -60,7 +60,7 @@ public class LocationResourceService {
      */
     public LocationResources getLocationResources(Location location) {
         Orchestrator orchestrator = orchestratorService.getOrFail(location.getOrchestratorId());
-        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) paaSProviderService.getPaaSProvider(orchestrator.getId());
+        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.get(orchestrator.getId());
         ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
         List<String> allExposedTypes = configuratorPlugin.getResourcesTypes();
         Set<CSARDependency> dependencies = location.getDependencies();

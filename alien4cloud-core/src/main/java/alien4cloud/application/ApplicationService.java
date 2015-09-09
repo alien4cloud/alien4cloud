@@ -18,7 +18,7 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.deployment.Deployment;
-import alien4cloud.paas.exception.CloudDisabledException;
+import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.utils.MapUtil;
@@ -137,9 +137,9 @@ public class ApplicationService {
      *
      * @param applicationId The id of the application to remove.
      * @return True if the application has been removed, false if not.
-     * @throws CloudDisabledException
+     * @throws alien4cloud.paas.exception.OrchestratorDisabledException
      */
-    public boolean delete(String applicationId) throws CloudDisabledException {
+    public boolean delete(String applicationId) throws OrchestratorDisabledException {
         // ensure that there is no active deployment(s).
         String index = alienDAO.getIndexForType(Deployment.class);
         SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper.buildSearchQuery(index).types(Deployment.class)

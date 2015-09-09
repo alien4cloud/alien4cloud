@@ -23,8 +23,6 @@ public class ApplicationEnvironmentDTO {
     private String name;
     private String description;
     private String applicationId;
-    private String cloudName;
-    private String cloudId;
     private EnvironmentType environmentType;
     private String currentVersionName;
     private Map<String, Set<String>> userRoles;

@@ -6,7 +6,8 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
-import alien4cloud.paas.PaaSProviderService;
+import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
+import alien4cloud.paas.OrchestratorPluginService;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -26,9 +27,7 @@ public class OrchestratorConfigurationService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject
-    private OrchestratorFactoriesRegistry orchestratorFactoriesRegistry;
-    @Inject
-    private PaaSProviderService paaSProviderService;
+    private OrchestratorPluginService orchestratorPluginService;
 
     /**
      * Return the type of configuration for a given orchestrator.
@@ -48,7 +47,8 @@ public class OrchestratorConfigurationService {
      * @return The type of the orchestrator.
      */
     private Class<?> getConfigurationType(Orchestrator orchestrator) {
-        return orchestratorFactoriesRegistry.getPluginBean(orchestrator.getPluginId(), orchestrator.getPluginBean()).getConfigurationType();
+        IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestrator);
+        return orchestratorFactory.getConfigurationType();
     }
 
     /**
@@ -111,7 +111,7 @@ public class OrchestratorConfigurationService {
         configuration.setConfiguration(newConfiguration);
 
         // Trigger update of the orchestrator's configuration if enabled.
-        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) paaSProviderService.getPaaSProvider(id);
+        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.get(id);
         if (orchestratorInstance != null) {
             orchestratorInstance.setConfiguration(newConfiguration);
         }

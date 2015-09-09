@@ -4,10 +4,19 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.model.deployment.*;
+import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.model.topology.Topology;
+import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
+import alien4cloud.paas.IPaaSProvider;
+import alien4cloud.paas.OrchestratorPluginService;
+import alien4cloud.paas.exception.OrchestratorDisabledException;
+import alien4cloud.security.AuthorizationUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,9 +33,6 @@ import alien4cloud.deployment.matching.services.location.TopologyLocationService
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.common.MetaPropConfiguration;
-import alien4cloud.model.deployment.DeploymentSetup;
-import alien4cloud.model.deployment.DeploymentTopology;
-import alien4cloud.model.deployment.IDeploymentSource;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.orchestrators.services.OrchestratorService;
@@ -41,6 +47,8 @@ import com.google.common.collect.Maps;
 @Slf4j
 @Service
 public class DeployService {
+    @Resource(name = "alien-monitor-es-dao")
+    private IGenericSearchDAO alienMonitorDao;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDao;
     @Inject
@@ -55,17 +63,68 @@ public class DeployService {
     private OrchestratorService orchestratorService;
     @Inject
     private DeploymentService deploymentService;
+    @Inject
+    private OrchestratorPluginService orchestratorPluginService;
+    @Inject
+    private DeploymentContextService deploymentContextService;
 
     /**
-     * Deploy a topology.
+     * Deploy a topology and return the deployment ID.
      * 
      * @param deploymentTopology Location aware and matched topology.
      * @param deploymentSetup The values for the required inputs of the deploymentTopology as well as orchestrator specific properties.
+     * @param deploymentSource Application to be deployed or the Csar that contains test toplogy to be deployed
+     * @return The id of the generated deployment.
      */
-    public void deploy(DeploymentTopology deploymentTopology, DeploymentSetup deploymentSetup, IDeploymentSource deploymentSource) {
-        // get the target locations of the deployment topology
-        String locationId = topologyLocationService.getLocationId(deploymentTopology);
+    public String deploy(DeploymentTopology deploymentTopology, DeploymentSetup deploymentSetup, IDeploymentSource deploymentSource) {
+        String locationId = TopologyLocationService.getLocationId(deploymentTopology);
+        Location location = locationService.getOrFail(locationId);
+        // FIXME check that all nodes to match are matched
 
+        // FIXME Merge the deployment topology with the initial topology ?
+
+        // FIXME Inject all inputs and perform required pre-processing
+
+        // FIXME check that all required properties are defined
+        // TODO DeploymentSetupValidator.validate doesn't check that inputs linked to required properties are indeed configured.
+
+        // Get the orchestrator that will perform the deployment
+        IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.get(location.getOrchestratorId());
+
+        String deploymentTopologyId = deploymentTopology.getId();
+
+        // Create a deployment object to be kept in ES.
+        Deployment deployment = new Deployment();
+        deployment.setId(UUID.randomUUID().toString());
+        deployment.setOrchestratorId(location.getOrchestratorId());
+        deployment.setLocationIds(new String[] { location.getId() });
+        deployment.setOrchestratorDeploymentId(generateOrchestratorDeploymentId(deploymentSetup.getEnvironmentId(), location.getOrchestratorId()));
+        deployment.setSourceId(deploymentSource.getId());
+        String sourceName;
+        if (deploymentSource.getName() == null) {
+            sourceName = UUID.randomUUID().toString();
+        } else {
+            sourceName = deploymentSource.getName();
+        }
+        deployment.setSourceName(sourceName);
+        deployment.setSourceType(DeploymentSourceType.fromSourceType(deploymentSource.getClass()));
+        deployment.setStartDate(new Date());
+        deployment.setDeploymentSetup(deploymentSetup);
+        // mandatory for the moment since we could have deployment with no environment (csar test)
+        deployment.setTopologyId(deploymentTopology.getInitialTopologyId());
+        alienDao.save(deployment);
+
+        // save the topology as a deployed topology.
+        // change the Id before saving
+        deploymentTopology.setId(deployment.getId());
+        alienMonitorDao.save(deploymentTopology);
+        // put back the old Id for deployment
+        deploymentTopology.setId(deploymentTopologyId);
+        // Build the context for deployment and deploy
+        orchestratorPlugin.deploy(deploymentContextService.buildTopologyDeploymentContext(deployment, deploymentTopology), null);
+        log.info("Deployed topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(), location.getId(),
+                deployment.getId());
+        return deployment.getId();
     }
 
     /**
@@ -89,7 +148,7 @@ public class DeployService {
         orchestratorDeploymentId = orchestratorDeploymentId.trim().replaceAll(" ", "_");
 
         // ensure that the id is not used by another deployment.
-        if (deploymentService.isActiveDeployment(orchestratorDeploymentId, orchestratorId)) {
+        if (deploymentService.isActiveDeployment(orchestratorId, orchestratorDeploymentId)) {
             throw new OrchestratorDeploymentIdConflictException("Conflict detected with the generated paasId <" + orchestratorDeploymentId + ">.");
         }
 

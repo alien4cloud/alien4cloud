@@ -22,7 +22,7 @@ import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.plugin.model.PluginArchive;
-import alien4cloud.paas.PaaSProviderService;
+import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.tosca.ArchiveIndexer;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
@@ -37,7 +37,7 @@ import com.google.common.collect.Sets;
 @Component
 public class LocationArchiveIndexer {
     @Inject
-    private PaaSProviderService paaSProviderService;
+    private OrchestratorPluginService orchestratorPluginService;
     @Inject
     private CsarService csarService;
     @Inject
@@ -50,7 +50,7 @@ public class LocationArchiveIndexer {
      * @param location The location of the orchestrator for which to index archives.
      */
     public Set<CSARDependency> indexArchives(Orchestrator orchestrator, Location location) {
-        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) paaSProviderService.getPaaSProvider(orchestrator.getId());
+        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.get(orchestrator.getId());
         ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
 
         // ensure that the plugin archives for this location are imported in the
