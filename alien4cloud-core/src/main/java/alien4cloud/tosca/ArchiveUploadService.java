@@ -54,7 +54,7 @@ public class ArchiveUploadService {
     private TopologyTemplateVersionService topologyTemplateVersionService;
 
     /**
-     * Upload a TOSCA archive and index it's components.
+     * Upload a TOSCA archive and index its components.
      * 
      * @param path The archive path.
      * @return The Csar object from the parsing.

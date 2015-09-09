@@ -51,7 +51,7 @@ public abstract class DerivedFromParser extends DefaultDeferredParser<List<Strin
         if (parent == null) {
             context.getParsingErrors().add(
                     new ParsingError(ErrorCode.TYPE_NOT_FOUND, "Derived_from type not found", node.getStartMark(),
-                            "The type specified as parent is not found neither in the archive or it's dependencies.", node.getEndMark(), valueAsString));
+                            "The type specified as parent is not found neither in the archive or its dependencies.", node.getEndMark(), valueAsString));
             return null;
         }
         List<String> derivedFrom;
