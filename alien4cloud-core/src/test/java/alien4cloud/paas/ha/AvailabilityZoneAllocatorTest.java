@@ -73,7 +73,7 @@ public class AvailabilityZoneAllocatorTest {
         Map<String, PaaSNodeTemplate> volumes = Maps.newHashMap();
         for (PaaSNodeTemplate compute : computes) {
             NodeTemplate wrappedVolume = new NodeTemplate(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE, Maps.<String, AbstractPropertyValue> newHashMap(),
-                    null, null, null, null, null);
+                    null, null, null, null, null, null);
             wrappedVolume.getProperties().put(NormativeBlockStorageConstants.VOLUME_ID, new ScalarPropertyValue(zones.iterator().next().getId() + "/abcde"));
             PaaSNodeTemplate volume = new PaaSNodeTemplate("volume_" + compute.getId(), wrappedVolume);
             volume.setParent(compute);
