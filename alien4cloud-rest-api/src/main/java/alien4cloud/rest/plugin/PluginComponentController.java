@@ -48,7 +48,6 @@ public class PluginComponentController {
         for (ManagedPlugin plugin : managedPluginMap.values()) {
             PluginDescriptor descriptor = plugin.getPlugin().getDescriptor();
             for (PluginComponentDescriptor componentDescriptor : descriptor.getComponentDescriptors()) {
-                System.out.println("plugin component of type " + componentDescriptor.getType());
                 if (componentDescriptor.getType().equals(type)) {
                     result.add(new PluginComponentDTO(plugin.getPlugin().getId(), descriptor.getName(), descriptor.getVersion(), componentDescriptor));
                 }

@@ -19,7 +19,6 @@ define(function(require) {
   require('scripts/admin/admin');
   require('scripts/applications/controllers/application_list');
   require('scripts/users/controllers/users');
-  require('scripts/clouds/controllers/cloud_list');
   require('scripts/orchestrators/controllers/orchestrator_list');
   require('scripts/components/controllers/component_list');
   require('scripts/topologytemplates/controllers/topology_template_list');

@@ -1,5 +1,4 @@
 // Simplify the generation of crud resources for alien
-// list of cloud images that can be defined for multiple clouds actually.
 define(function (require) {
   'use strict';
 

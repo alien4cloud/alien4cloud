@@ -9,14 +9,6 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.model.deployment.*;
-import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.model.topology.Topology;
-import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
-import alien4cloud.paas.IPaaSProvider;
-import alien4cloud.paas.OrchestratorPluginService;
-import alien4cloud.paas.exception.OrchestratorDisabledException;
-import alien4cloud.security.AuthorizationUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,9 +25,13 @@ import alien4cloud.deployment.matching.services.location.TopologyLocationService
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.common.MetaPropConfiguration;
+import alien4cloud.model.deployment.*;
 import alien4cloud.model.orchestrators.Orchestrator;
+import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.locations.services.LocationService;
+import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.services.OrchestratorService;
+import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.exception.EmptyMetaPropertyException;
 import alien4cloud.paas.exception.OrchestratorDeploymentIdConflictException;
 
@@ -51,8 +47,6 @@ public class DeployService {
     private IGenericSearchDAO alienMonitorDao;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDao;
-    @Inject
-    private TopologyLocationService topologyLocationService;
     @Inject
     private ApplicationService applicationService;
     @Inject

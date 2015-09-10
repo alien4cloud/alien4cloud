@@ -5,10 +5,12 @@ import javax.annotation.Resource;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.deployment.DeploymentTopology;
+import org.springframework.stereotype.Service;
 
 /**
  * Manages the deployment topology handling.
  */
+@Service
 public class DeploymentTopologyService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
