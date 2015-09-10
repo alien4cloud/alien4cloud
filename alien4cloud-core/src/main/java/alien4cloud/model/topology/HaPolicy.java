@@ -1,12 +1,26 @@
 package alien4cloud.model.topology;
 
+import java.util.Map;
+
+import alien4cloud.tosca.parser.impl.advanced.GroupPolicyParser;
+
 public class HaPolicy extends AbstractPolicy {
 
     public static final String HA_POLICY = "tosca.policy.ha";
 
+    public HaPolicy(Map<String, Object> nodeMap) {
+        setName((String) nodeMap.get(GroupPolicyParser.NAME));
+        // is there any other data in nodeMap we care about?
+    }
+
     @Override
     public String getType() {
         return HA_POLICY;
+    }
+    
+    @Override
+    public void setType(String type) {
+        // for json serialization
     }
 
 }
