@@ -47,8 +47,9 @@ public class LocationMetaPropertiesController {
 
     /**
      * Update or create a property for an cloud
-     *
-     * @param id id of the orchestrator to update
+     * 
+     * @param orchestratorId id of the orchestrator the location belongs to.
+     * @param locationId id of the location to update
      * @param propertyRequest property request
      * @return information on the constraint
      */
@@ -57,17 +58,16 @@ public class LocationMetaPropertiesController {
     @Audit
     public RestResponse<ConstraintInformation> upsertMetaProperty(
             @ApiParam(value = "Id of the orchestrator for which the location is defined.") @PathVariable String orchestratorId,
-            @ApiParam(value = "Id of the location to get", required = true) @PathVariable String id,
+            @ApiParam(value = "Id of the location to get", required = true) @PathVariable String locationId,
             @ApiParam(value = "Id of the location to get", required = true) @RequestBody PropertyRequest propertyRequest)
                     throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
-        Location location = locationService.getOrFail(id);
+        Location location = locationService.getOrFail(locationId);
 
         try {
             metaPropertiesService.upsertMetaProperty(location, propertyRequest.getDefinitionId(), propertyRequest.getValue());
         } catch (ConstraintViolationException e) {
-            log.error("Constraint violation error for property <" + propertyRequest.getDefinitionId() + "> with value <"
-                    + propertyRequest.getValue() + ">", e);
+            log.error("Constraint violation error for property <" + propertyRequest.getDefinitionId() + "> with value <" + propertyRequest.getValue() + ">", e);
             return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
                     .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
         } catch (ConstraintValueDoNotMatchPropertyTypeException e) {

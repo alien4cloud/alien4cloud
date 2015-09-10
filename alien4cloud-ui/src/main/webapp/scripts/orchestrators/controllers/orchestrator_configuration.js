@@ -39,7 +39,7 @@ define(function (require) {
         }
       );
 
-      // get the configuration for the cloud.
+      // get the configuration for the orchestrator.
       $http.get('rest/formdescriptor/orchestratorConfig/' + orchestrator.id).success(function(result) {
         $scope.configurationDefinition = result.data;
       });

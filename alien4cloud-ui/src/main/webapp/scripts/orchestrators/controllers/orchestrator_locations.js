@@ -9,9 +9,10 @@ define(function(require) {
   require('scripts/orchestrators/controllers/orchestrator_location_new');
   require('scripts/orchestrators/controllers/orchestrator_location_config');
   require('scripts/orchestrators/controllers/orchestrator_location_nodes');
-  require('scripts/orchestrators/controllers/orchestrator_location_policies');
-  require('scripts/orchestrators/controllers/orchestrator_location_security');
   require('scripts/orchestrators/controllers/orchestrator_location_services');
+  require('scripts/orchestrators/controllers/orchestrator_location_policies');
+  require('scripts/orchestrators/controllers/orchestrator_location_metaprops');
+  require('scripts/orchestrators/controllers/orchestrator_location_security');
   require('scripts/orchestrators/services/orchestrator_location_service');
   require('scripts/orchestrators/services/location_resources_processor');
 
@@ -56,7 +57,9 @@ define(function(require) {
           });
         }
 
-        updateLocations();
+        if(orchestrator.state === 'CONNECTED') {
+          updateLocations();
+        }
 
         $scope.selectLocation = function(location) {
           locationResourcesProcessor.process(location.resources);

@@ -62,9 +62,11 @@
     </div>
     <!-- Meta Properties display -->
     <meta-properties-display
-      properties="configurationProperties"
-      ng-if="isManager && application.metaProperties && configurationProperties"
-      application="application"
+      ng-if="isManager && application.metaProperties"
+      properties-type="'application'"
+      target="application"
+      resturl="'rest/applications/:applicationId/properties'"
+      params="{applicationId: application.id}"
       collapse="false">
     </meta-properties-display>
     <!-- End Meta Properties display -->

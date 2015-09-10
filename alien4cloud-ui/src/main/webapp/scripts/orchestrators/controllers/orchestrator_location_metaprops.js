@@ -6,6 +6,8 @@ define(function (require) {
   var angular = require('angular');
   var _ = require('lodash');
 
+  require('scripts/meta-props/directives/meta_props_display');
+
   states.state('admin.orchestrators.details.locations.metaprops', {
     url: '/metaprops',
     templateUrl: 'views/orchestrators/orchestrator_location_metaprops.html',
