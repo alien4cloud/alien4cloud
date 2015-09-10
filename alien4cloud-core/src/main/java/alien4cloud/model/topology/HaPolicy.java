@@ -2,8 +2,10 @@ package alien4cloud.model.topology;
 
 import java.util.Map;
 
+import lombok.NoArgsConstructor;
 import alien4cloud.tosca.parser.impl.advanced.GroupPolicyParser;
 
+@NoArgsConstructor
 public class HaPolicy extends AbstractPolicy {
 
     public static final String HA_POLICY = "tosca.policy.ha";
