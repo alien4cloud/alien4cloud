@@ -94,10 +94,10 @@ public class WorkflowsBuilderService {
         initWorkflows(topology);
         PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
         PaaSNodeTemplate paaSNodeTemplate = paaSTopology.getAllNodes().get(nodeName);
-        boolean isCompute = WorkflowUtils.isCompute(paaSNodeTemplate) /* || WorkflowUtils.isNetwork(paaSNodeTemplate) */;
+        boolean forceOperation = WorkflowUtils.isCompute(paaSNodeTemplate) || WorkflowUtils.isVolume(paaSNodeTemplate);
         for (Workflow wf : topology.getWorkflows().values()) {
             AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
-            builder.addNode(wf, paaSTopology, paaSNodeTemplate, isCompute);
+            builder.addNode(wf, paaSTopology, paaSNodeTemplate, forceOperation);
             builder.fillHostId(wf, paaSTopology);
             workflowValidator.validate(wf);
         }

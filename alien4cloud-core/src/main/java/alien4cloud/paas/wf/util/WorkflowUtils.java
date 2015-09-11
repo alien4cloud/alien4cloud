@@ -6,6 +6,7 @@ import alien4cloud.model.components.Interface;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.wf.AbstractStep;
 import alien4cloud.paas.wf.NodeActivityStep;
+import alien4cloud.paas.wf.OperationCallActivity;
 import alien4cloud.paas.wf.SetStateActivity;
 import alien4cloud.paas.wf.Workflow;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
@@ -33,6 +34,10 @@ public class WorkflowUtils {
 
     public static boolean isNetwork(PaaSNodeTemplate paaSNodeTemplate) {
         return isOfType(paaSNodeTemplate, NETWORK_TYPE);
+    }
+
+    public static boolean isVolume(PaaSNodeTemplate paaSNodeTemplate) {
+        return isOfType(paaSNodeTemplate, "tosca.nodes.BlockStorage");
     }
 
     private static boolean isOfType(PaaSNodeTemplate paaSNodeTemplate, String type) {
@@ -98,6 +103,50 @@ public class WorkflowUtils {
         stringBuilder.append("}\n");
         stringBuilder.append("======================\n");
         return stringBuilder.toString();
+    }
+
+    public static NodeActivityStep addOperationStep(Workflow wf, String nodeId, String interfaceName, String operationName) {
+        OperationCallActivity task = new OperationCallActivity();
+        task.setInterfaceName(interfaceName);
+        task.setOperationName(operationName);
+        task.setNodeId(nodeId);
+        NodeActivityStep step = new NodeActivityStep();
+        step.setNodeId(nodeId);
+        step.setActivity(task);
+        step.setName(buildStepName(wf, step, 0));
+        wf.addStep(step);
+        return step;
+    }
+
+    public static NodeActivityStep addStateStep(Workflow wf, String nodeId, String stateName) {
+        SetStateActivity task = new SetStateActivity();
+        task.setStateName(stateName);
+        task.setNodeId(nodeId);
+        NodeActivityStep step = new NodeActivityStep();
+        step.setNodeId(nodeId);
+        step.setActivity(task);
+        step.setName(buildStepName(wf, step, 0));
+        wf.addStep(step);
+        return step;
+    }
+
+    public static NodeActivityStep getStateStepByNode(Workflow wf, String nodeName, String stateName) {
+        for (AbstractStep step : wf.getSteps().values()) {
+            if (step instanceof NodeActivityStep) {
+                NodeActivityStep defaultStep = (NodeActivityStep) step;
+                if (defaultStep.getActivity().getNodeId().equals(nodeName) && isStateStep(defaultStep, stateName)) {
+                    return defaultStep;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static boolean isStateStep(NodeActivityStep defaultStep, String stateName) {
+        if (defaultStep.getActivity() instanceof SetStateActivity && ((SetStateActivity) defaultStep.getActivity()).getStateName().equals(stateName)) {
+            return true;
+        }
+        return false;
     }
 
 }

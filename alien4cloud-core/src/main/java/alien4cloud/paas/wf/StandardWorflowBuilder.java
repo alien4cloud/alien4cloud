@@ -1,6 +1,5 @@
 package alien4cloud.paas.wf;
 
-import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
 import alien4cloud.paas.wf.exception.InconsistentWorkflowException;
@@ -24,11 +23,11 @@ public abstract class StandardWorflowBuilder extends AbstractWorkflowBuilder {
     }
 
     @Override
-    protected NodeActivityStep addActivityStep(Workflow wf, PaaSNodeTemplate paaSNodeTemplate, AbstractActivity activity) {
+    protected NodeActivityStep addActivityStep(Workflow wf, String nodeId, AbstractActivity activity) {
         if (activity instanceof SetStateActivity) {
             throw new BadWorkflowOperationException("State steps can not be added to standard workflows");
         }
-        return super.addActivityStep(wf, paaSNodeTemplate, activity);
+        return super.addActivityStep(wf, nodeId, activity);
     }
 
 }

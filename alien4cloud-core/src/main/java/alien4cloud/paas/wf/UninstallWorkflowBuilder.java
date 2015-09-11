@@ -32,9 +32,16 @@ public class UninstallWorkflowBuilder extends StandardWorflowBuilder {
         if (pasSRelationshipTemplate.instanceOf(NormativeRelationshipConstants.HOSTED_ON)) {
             // now the node has a parent, let's sequence the deletion (children before parent)
             PaaSNodeTemplate parent = paaSNodeTemplate.getParent();
-            NodeActivityStep deletedSourceStep = getStateStepByNode(wf, paaSNodeTemplate.getId(), ToscaNodeLifecycleConstants.DELETED);
-            NodeActivityStep stoppingTargetStep = getStateStepByNode(wf, parent.getId(), ToscaNodeLifecycleConstants.STOPPING);
+            NodeActivityStep deletedSourceStep = WorkflowUtils.getStateStepByNode(wf, paaSNodeTemplate.getId(), ToscaNodeLifecycleConstants.DELETED);
+            NodeActivityStep stoppingTargetStep = WorkflowUtils.getStateStepByNode(wf, parent.getId(), ToscaNodeLifecycleConstants.STOPPING);
             WorkflowUtils.linkSteps(deletedSourceStep, stoppingTargetStep);
+        } else if (pasSRelationshipTemplate.instanceOf(NormativeRelationshipConstants.ATTACH_TO)) {
+            // in case of "Volume attached to Compute", we need to delete the compute before eventually delete the volume
+            String volumeId = paaSNodeTemplate.getId();
+            String computeId = pasSRelationshipTemplate.getRelationshipTemplate().getTarget();
+            NodeActivityStep deletedComputeStep = WorkflowUtils.getStateStepByNode(wf, computeId, ToscaNodeLifecycleConstants.DELETED);
+            NodeActivityStep stoppingVolumeStep = WorkflowUtils.getStateStepByNode(wf, volumeId, ToscaNodeLifecycleConstants.STOPPING);
+            WorkflowUtils.linkSteps(deletedComputeStep, stoppingVolumeStep);
         }
     }
 

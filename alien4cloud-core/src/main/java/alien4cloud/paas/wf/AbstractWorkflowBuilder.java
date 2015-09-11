@@ -117,72 +117,46 @@ public abstract class AbstractWorkflowBuilder {
     }
 
     protected AbstractStep eventuallyAddStdOperationStep(Workflow wf, AbstractStep lastStep, PaaSNodeTemplate paaSNodeTemplate, String operationName,
-            boolean isCompute) {
+            boolean forceOperation) {
         Interface lifecycle = WorkflowUtils.getNodeInterface(paaSNodeTemplate, ToscaNodeLifecycleConstants.STANDARD);
         Operation operation = lifecycle.getOperations().get(operationName);
         // for compute all std operations are added, for others, only those having artifacts
-        if ((operation != null && operation.getImplementationArtifact() != null) || isCompute) {
-            lastStep = appendOperationStep(wf, lastStep, paaSNodeTemplate, ToscaNodeLifecycleConstants.STANDARD, operationName);
+        if ((operation != null && operation.getImplementationArtifact() != null) || forceOperation) {
+            lastStep = appendOperationStep(wf, lastStep, paaSNodeTemplate.getId(), ToscaNodeLifecycleConstants.STANDARD, operationName);
         }
         return lastStep;
     }
 
     protected NodeActivityStep appendStateStep(Workflow wf, AbstractStep lastStep, PaaSNodeTemplate paaSNodeTemplate, String stateName) {
-        NodeActivityStep step = addStateStep(wf, paaSNodeTemplate, stateName);
+        NodeActivityStep step = WorkflowUtils.addStateStep(wf, paaSNodeTemplate.getId(), stateName);
         WorkflowUtils.linkSteps(lastStep, step);
         return step;
     }
 
     protected NodeActivityStep insertStateStep(Workflow wf, AbstractStep lastStep, PaaSNodeTemplate paaSNodeTemplate, String stateName) {
-        NodeActivityStep step = addStateStep(wf, paaSNodeTemplate, stateName);
+        NodeActivityStep step = WorkflowUtils.addStateStep(wf, paaSNodeTemplate.getId(), stateName);
         WorkflowUtils.linkSteps(step, lastStep);
         return step;
     }
 
-    protected NodeActivityStep addStateStep(Workflow wf, PaaSNodeTemplate paaSNodeTemplate, String stateName) {
-        SetStateActivity task = new SetStateActivity();
-        task.setStateName(stateName);
-        task.setNodeId(paaSNodeTemplate.getId());
+    protected NodeActivityStep addActivityStep(Workflow wf, String nodeId, AbstractActivity activity) {
         NodeActivityStep step = new NodeActivityStep();
-        step.setNodeId(paaSNodeTemplate.getId());
-        step.setActivity(task);
-        step.setName(WorkflowUtils.buildStepName(wf, step, 0));
-        wf.addStep(step);
-        return step;
-    }
-
-    protected NodeActivityStep addActivityStep(Workflow wf, PaaSNodeTemplate paaSNodeTemplate, AbstractActivity activity) {
-        NodeActivityStep step = new NodeActivityStep();
-        step.setNodeId(paaSNodeTemplate.getId());
+        step.setNodeId(nodeId);
         step.setActivity(activity);
         step.setName(WorkflowUtils.buildStepName(wf, step, 0));
         wf.addStep(step);
         return step;
     }
 
-    protected NodeActivityStep appendOperationStep(Workflow wf, AbstractStep lastStep, PaaSNodeTemplate paaSNodeTemplate, String interfaceName, String operationName) {
-        NodeActivityStep step = addOperationStep(wf, paaSNodeTemplate, interfaceName, operationName);
+    protected NodeActivityStep appendOperationStep(Workflow wf, AbstractStep lastStep, String nodeId, String interfaceName, String operationName) {
+        NodeActivityStep step = WorkflowUtils.addOperationStep(wf, nodeId, interfaceName, operationName);
         WorkflowUtils.linkSteps(lastStep, step);
         return step;
     }
 
-    protected NodeActivityStep addOperationStep(Workflow wf, PaaSNodeTemplate paaSNodeTemplate, String interfaceName,
+    protected NodeActivityStep insertOperationStep(Workflow wf, AbstractStep previousStep, String nodeId, String interfaceName,
             String operationName) {
-        OperationCallActivity task = new OperationCallActivity();
-        task.setInterfaceName(interfaceName);
-        task.setOperationName(operationName);
-        task.setNodeId(paaSNodeTemplate.getId());
-        NodeActivityStep step = new NodeActivityStep();
-        step.setNodeId(paaSNodeTemplate.getId());
-        step.setActivity(task);
-        step.setName(WorkflowUtils.buildStepName(wf, step, 0));
-        wf.addStep(step);
-        return step;
-    }
-
-    protected NodeActivityStep insertOperationStep(Workflow wf, AbstractStep previousStep, PaaSNodeTemplate paaSNodeTemplate, String interfaceName,
-            String operationName) {
-        NodeActivityStep step = addOperationStep(wf, paaSNodeTemplate, interfaceName, operationName);
+        NodeActivityStep step = WorkflowUtils.addOperationStep(wf, nodeId, interfaceName, operationName);
         WorkflowUtils.linkSteps(step, previousStep);
         return step;
     }
@@ -190,25 +164,6 @@ public abstract class AbstractWorkflowBuilder {
     protected void unlinkSteps(AbstractStep from, AbstractStep to) {
         from.removeFollowing(to.getName());
         to.removePreceding(from.getName());
-    }
-
-    protected NodeActivityStep getStateStepByNode(Workflow wf, String nodeName, String stateName) {
-        for (AbstractStep step : wf.getSteps().values()) {
-            if (step instanceof NodeActivityStep) {
-                NodeActivityStep defaultStep = (NodeActivityStep) step;
-                if (defaultStep.getActivity().getNodeId().equals(nodeName) && isStateStep(defaultStep, stateName)) {
-                    return defaultStep;
-                }
-            }
-        }
-        return null;
-    }
-
-    protected boolean isStateStep(NodeActivityStep defaultStep, String stateName) {
-        if (defaultStep.getActivity() instanceof SetStateActivity && ((SetStateActivity) defaultStep.getActivity()).getStateName().equals(stateName)) {
-            return true;
-        }
-        return false;
     }
 
     protected boolean isOperationStep(NodeActivityStep defaultStep, String interfaceName, String operationName) {
@@ -232,7 +187,7 @@ public abstract class AbstractWorkflowBuilder {
             }
         } else {
             PaaSNodeTemplate paaSNodeTemplate = paaSTopology.getAllNodes().get(activity.getNodeId());
-            addActivityStep(wf, paaSNodeTemplate, activity);
+            addActivityStep(wf, paaSNodeTemplate.getId(), activity);
         }
     }
 
@@ -243,7 +198,7 @@ public abstract class AbstractWorkflowBuilder {
             stepBeforeId = lastStep.getPrecedingSteps().iterator().next();
         }
         PaaSNodeTemplate paaSNodeTemplate = paaSTopology.getAllNodes().get(activity.getNodeId());
-        NodeActivityStep insertedStep = addActivityStep(wf, paaSNodeTemplate, activity);
+        NodeActivityStep insertedStep = addActivityStep(wf, paaSNodeTemplate.getId(), activity);
         WorkflowUtils.linkSteps(insertedStep, lastStep);
         if (stepBeforeId != null) {
             AbstractStep stepBefore = wf.getSteps().get(stepBeforeId);
@@ -259,7 +214,7 @@ public abstract class AbstractWorkflowBuilder {
         if (lastStep.getFollowingSteps() != null && lastStep.getFollowingSteps().size() == 1) {
             stepAfterId = lastStep.getFollowingSteps().iterator().next();
         }
-        NodeActivityStep insertedStep = addActivityStep(wf, paaSNodeTemplate, activity);
+        NodeActivityStep insertedStep = addActivityStep(wf, paaSNodeTemplate.getId(), activity);
         WorkflowUtils.linkSteps(lastStep, insertedStep);
         if (stepAfterId != null) {
             AbstractStep stepAfter = wf.getSteps().get(stepAfterId);
