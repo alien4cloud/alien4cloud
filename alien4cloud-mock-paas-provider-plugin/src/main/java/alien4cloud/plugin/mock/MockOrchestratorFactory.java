@@ -5,7 +5,6 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.cloud.IaaSType;
 import alien4cloud.model.orchestrators.ArtifactSupport;
 import alien4cloud.model.orchestrators.locations.LocationSupport;
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
@@ -15,6 +14,7 @@ import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
  */
 @Component("mock-orchestrator-factory")
 public class MockOrchestratorFactory implements IOrchestratorPluginFactory<MockOrchestrator, ProviderConfig> {
+    public static final String OPENSTACK =  "OpenStack";
     @Resource
     private BeanFactory beanFactory;
 
@@ -40,12 +40,7 @@ public class MockOrchestratorFactory implements IOrchestratorPluginFactory<MockO
 
     @Override
     public LocationSupport getLocationSupport() {
-        IaaSType[] types = IaaSType.values();
-        String[] typesAsString = new String[types.length];
-        for (int i = 0; i < types.length; i++) {
-            typesAsString[i] = types[i].toString();
-        }
-        return new LocationSupport(true, typesAsString);
+        return new LocationSupport(true, new String[] { OPENSTACK });
     }
 
     @Override

@@ -5,31 +5,30 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 import javax.validation.Valid;
 
 import org.elasticsearch.common.collect.Lists;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.cloud.DeploymentService;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.deployment.DeploymentRuntimeStateService;
+import alien4cloud.deployment.DeploymentService;
+import alien4cloud.deployment.UndeployService;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentSourceType;
 import alien4cloud.model.deployment.IDeploymentSource;
 import alien4cloud.paas.IPaaSCallback;
-import alien4cloud.paas.exception.CloudDisabledException;
+import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorCode;
@@ -53,6 +52,10 @@ public class DeploymentController {
     private ApplicationService applicationService;
     @Resource
     private CsarService csarService;
+    @Inject
+    private DeploymentRuntimeStateService deploymentRuntimeStateService;
+    @Inject
+    private UndeployService undeployService;
 
     /**
      * Get all deployments for a cloud, including if asked some details of the related applications.
@@ -142,7 +145,8 @@ public class DeploymentController {
             @ApiParam(value = "Id of the environment for which to get events.", required = true) @Valid @NotBlank @PathVariable String applicationEnvironmentId,
             @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
             @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "50") int size) {
-        return RestResponseBuilder.<GetMultipleDataResult> builder().data(deploymentService.getDeploymentEvents(applicationEnvironmentId, from, size)).build();
+        return RestResponseBuilder.<GetMultipleDataResult> builder()
+                .data(deploymentRuntimeStateService.getDeploymentEvents(applicationEnvironmentId, from, size)).build();
     }
 
     @ApiOperation(value = "Get deployment status from its id.", authorizations = { @Authorization("ADMIN"), @Authorization("APPLICATION_MANAGER") })
@@ -155,7 +159,7 @@ public class DeploymentController {
         final DeferredResult<RestResponse<DeploymentStatus>> statusResult = new DeferredResult<>(5L * 60L * 1000L);
         if (deployment != null) {
             try {
-                deploymentService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
+                deploymentRuntimeStateService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
                     @Override
                     public void onSuccess(DeploymentStatus result) {
                         statusResult.setResult(RestResponseBuilder.<DeploymentStatus> builder().data(result).build());
@@ -167,7 +171,7 @@ public class DeploymentController {
                     }
                 });
                 return statusResult;
-            } catch (CloudDisabledException e) {
+            } catch (OrchestratorDisabledException e) {
                 statusResult.setResult(RestResponseBuilder.<DeploymentStatus> builder().data(null)
                         .error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build());
             }
@@ -184,15 +188,14 @@ public class DeploymentController {
     @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Void> undeploy(@ApiParam(value = "Deployment id.", required = true) @Valid @NotBlank @PathVariable String deploymentId) {
-
         // Check topology status for this deployment object
         Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
 
         if (deployment != null) {
             try {
                 // Undeploy the topology linked to this deployment
-                deploymentService.undeploy(deploymentId);
-            } catch (CloudDisabledException e) {
+                undeployService.undeploy(deploymentId);
+            } catch (OrchestratorDisabledException e) {
                 return RestResponseBuilder.<Void> builder().data(null).error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage()))
                         .build();
             }

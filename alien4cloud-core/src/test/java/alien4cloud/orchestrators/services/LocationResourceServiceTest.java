@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import alien4cloud.dao.ElasticSearchDAO;
+import alien4cloud.orchestrators.locations.services.LocationResourceService;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Assert;
 import org.junit.Before;

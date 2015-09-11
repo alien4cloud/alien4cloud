@@ -58,9 +58,12 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
 
     @Override
     public List<LocationResourceTemplate> instances(ILocationResourceAccessor resourceAccessor) {
+        List<LocationResourceTemplate> configuredImages = resourceAccessor.getResources("alien.nodes.mock.openstack.Image");
+        List<LocationResourceTemplate> configureFlavors = resourceAccessor.getResources("alien.nodes.mock.openstack.Flavor");
+
+        // TODO auto-generate computes from the images and flavors
         // create a few images and flavors and then mix-them up to generate compute templates
         LocationResourceTemplate template = new LocationResourceTemplate();
-
         NodeTemplate nodeTemplate = new NodeTemplate();
 
         template.setService(false);

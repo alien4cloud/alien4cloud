@@ -57,6 +57,7 @@ import com.google.common.collect.Sets;
 @Component("plugin-manager")
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class PluginManager {
+    private static final String UNKNOWN_PLUGIN_COMPONENT_TYPE = "Unknown component type";
     private static final String LIB_DIRECTORY = "lib";
     private static final String UI_DIRECTORY = "ui";
     private static final String PLUGIN_DESCRIPTOR_FILE = "META-INF/plugin.yml";
@@ -457,6 +458,12 @@ public class PluginManager {
                     componentDescriptor.setName(instanceToLink.getKey());
                 }
                 componentDescriptor.setType(linker.linkedType.getSimpleName());
+            }
+        }
+        // Add a default undefined type for all componentDescriptor that haven't been linked.
+        for(PluginComponentDescriptor componentDescriptor : componentDescriptors.values()) {
+            if(componentDescriptor.getType() == null) {
+                componentDescriptor.setType(UNKNOWN_PLUGIN_COMPONENT_TYPE);
             }
         }
     }

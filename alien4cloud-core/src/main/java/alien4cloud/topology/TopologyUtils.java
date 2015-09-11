@@ -31,11 +31,18 @@ public class TopologyUtils {
         if (MapUtils.isEmpty(capability.getProperties())) {
             throw new NotFoundException("The capability scalable has no defined properties, verify your tosca-normative-type archive");
         }
-        String rawPropertyValue = FunctionEvaluator.getScalarValue(capability.getProperties().get(propertyName));
-        if (StringUtils.isEmpty(rawPropertyValue)) {
+
+        if (!capability.getProperties().containsKey(propertyName)) {
             throw new NotFoundException(propertyName + " property is not found in the the capability");
         }
-        int propertyValue = Integer.parseInt(rawPropertyValue);
+
+        // default value is 1
+        int propertyValue = 1;
+
+        String rawPropertyValue = FunctionEvaluator.getScalarValue(capability.getProperties().get(propertyName));
+        if (StringUtils.isNotBlank(rawPropertyValue)) {
+            propertyValue = Integer.parseInt(rawPropertyValue);
+        }
         return propertyValue;
     }
 

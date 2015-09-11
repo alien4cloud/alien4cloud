@@ -17,7 +17,7 @@ import alien4cloud.utils.MapUtil;
 import com.google.common.collect.Lists;
 
 /**
- * Keeps track of the orchestrators plugins and usages.
+ * Keeps track of the orchestrator plugins and usages.
  */
 @Component
 public class OrchestratorFactoriesRegistry extends AbstractPluginLinker<IOrchestratorPluginFactory> {

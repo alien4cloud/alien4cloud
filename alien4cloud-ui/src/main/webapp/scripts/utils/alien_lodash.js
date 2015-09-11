@@ -65,7 +65,20 @@ define(function (require) {
       };
       image.src = src;
       return deferred;
-    }
+    },
+    // a very simplified fork of _.trunc to trunc the beginning of a string
+    startTrunc: function(string, length) {
+      var omission = '...';
+      if (length >= string.length) {
+        return string;
+      }
+      var end = length - omission.length;
+      if (end < 1) {
+        return omission;
+      }
+      var result = string.slice(string.length - end);
+      return omission + result;
+    }    
   });
   return _;
 });

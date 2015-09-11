@@ -22,7 +22,7 @@ import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.model.cloud.StorageTemplate;
-import alien4cloud.rest.application.UpdateDeploymentSetupRequest;
+import alien4cloud.rest.application.model.UpdateDeploymentSetupRequest;
 import alien4cloud.rest.cloud.CloudDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;

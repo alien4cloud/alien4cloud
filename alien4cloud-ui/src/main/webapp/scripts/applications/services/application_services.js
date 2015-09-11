@@ -84,17 +84,6 @@ define(function (require) {
         }
       });
 
-      // Application tags & properties
-      var applicationProperty = $resource('rest/applications/:applicationId/properties', {}, {
-        'upsert': {
-          method: 'POST',
-          isArray: false,
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8'
-          }
-        }
-      });
-
       var applicationTags = $resource('rest/applications/:applicationId/tags/:tagKey', {}, {
         'upsert': {
           method: 'POST',
@@ -166,7 +155,6 @@ define(function (require) {
         'get': applicationDAO.get,
         'remove': applicationDAO.remove,
         'update': applicationDAO.update,
-        'upsertProperty': applicationProperty.upsert,
         'getActiveDeployment': applicationActiveDeploymentDAO,
         'deployment': applicationDeploymentDAO,
         'deployApplication': applicationDeployment,

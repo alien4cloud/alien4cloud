@@ -5,49 +5,50 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 import javax.validation.Valid;
 
+import alien4cloud.orchestrators.locations.services.LocationService;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
+import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.cloud.DeploymentService;
 import alien4cloud.component.CSARRepositorySearchService;
+import alien4cloud.deployment.DeploymentRuntimeService;
+import alien4cloud.deployment.DeploymentRuntimeStateService;
+import alien4cloud.deployment.DeploymentService;
+import alien4cloud.deployment.DeploymentTopologyService;
+import alien4cloud.deployment.matching.services.location.TopologyLocationService;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.components.IValue;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.Interface;
-import alien4cloud.model.components.Operation;
-import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.application.ApplicationVersion;
+import alien4cloud.model.components.*;
+import alien4cloud.model.deployment.DeploymentTopology;
+import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSCallback;
-import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.OperationExecutionException;
+import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.paas.model.OperationExecRequest;
 import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.topology.TopologyDTO;
-import alien4cloud.topology.TopologyService;
+import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.topology.TopologyDTO;
+import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
@@ -79,13 +80,25 @@ public class RuntimeController {
     private TopologyService topologyService;
     @Resource
     private TopologyServiceCore topologyServiceCore;
+    @Inject
+    private DeploymentRuntimeStateService deploymentRuntimeStateService;
+    @Inject
+    private DeploymentRuntimeService deploymentRuntimeService;
+    @Inject
+    private ApplicationVersionService applicationVersionService;
+    @Inject
+    private DeploymentTopologyService deploymentTopologyService;
+    @Inject
+    private LocationService locationService;
 
-    @ApiOperation(value = "Trigger a custom command on a specific node template of a topology .", authorizations = { @Authorization("APPLICATION_MANAGER") }, notes = "Returns a response with no errors and the command response as data in success case. Application role required [ APPLICATION_MANAGER ]")
+    @ApiOperation(value = "Trigger a custom command on a specific node template of a topology .", authorizations = {
+            @Authorization("APPLICATION_MANAGER") }, notes = "Returns a response with no errors and the command response as data in success case. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{applicationId:.+?}/operations", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @PreAuthorize("isAuthenticated()")
     @Audit
-    public DeferredResult<RestResponse<Object>> executeOperation(@PathVariable String applicationId, @RequestBody @Valid OperationExecRequest operationRequest) {
+    public DeferredResult<RestResponse<Object>> executeOperation(@PathVariable String applicationId,
+            @RequestBody @Valid OperationExecRequest operationRequest) {
         final DeferredResult<RestResponse<Object>> result = new DeferredResult<>(15L * 60L * 1000L);
         Application application = applicationService.getOrFail(applicationId);
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId,
@@ -94,7 +107,7 @@ public class RuntimeController {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
 
-        Topology topology = deploymentService.getRuntimeTopology(operationRequest.getApplicationEnvironmentId());
+        Topology topology = deploymentRuntimeStateService.getRuntimeTopology(operationRequest.getApplicationEnvironmentId());
         // validate the operation request
         try {
             validateCommand(operationRequest, topology);
@@ -117,7 +130,7 @@ public class RuntimeController {
         }
         // try to trigger the execution of the operation
         try {
-            deploymentService.triggerOperationExecution(operationRequest, topology, new IPaaSCallback<Map<String, String>>() {
+            deploymentRuntimeService.triggerOperationExecution(operationRequest, topology, new IPaaSCallback<Map<String, String>>() {
                 @Override
                 public void onSuccess(Map<String, String> data) {
                     result.setResult(RestResponseBuilder.<Object> builder().data(data).build());
@@ -132,9 +145,9 @@ public class RuntimeController {
         } catch (OperationExecutionException e) {
             result.setErrorResult(RestResponseBuilder.<Object> builder()
                     .error(new RestError(RestErrorCode.NODE_OPERATION_EXECUTION_ERROR.getCode(), e.getMessage())).build());
-        } catch (CloudDisabledException e) {
-            result.setErrorResult(RestResponseBuilder.<Object> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage()))
-                    .build());
+        } catch (OrchestratorDisabledException e) {
+            result.setErrorResult(
+                    RestResponseBuilder.<Object> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build());
         }
         return result;
     }
@@ -143,7 +156,7 @@ public class RuntimeController {
      * Get runtime (deployed) topology of an application on a specific environment
      * 
      * @param applicationId application id for which to get the topology
-     * @param applicationEnvironmentId application environment for which to get the topology through the version
+     * @param environmentId application environment for which to get the topology through the version
      * @return {@link RestResponse}<{@link TopologyDTO}> containing the requested runtime {@link Topology} and the
      *         {@link alien4cloud.model.components.IndexedNodeType} related to his {@link NodeTemplate}s
      */
@@ -152,20 +165,26 @@ public class RuntimeController {
     @PreAuthorize("isAuthenticated()")
     public RestResponse<TopologyDTO> getDeployedTopology(
             @ApiParam(value = "Id of the application for which to get deployed topology.", required = true) @PathVariable String applicationId,
-            @ApiParam(value = "Id of the environment for which to get deployed topology.", required = true) @PathVariable String applicationEnvironmentId) {
+            @ApiParam(value = "Id of the environment for which to get deployed topology.", required = true) @PathVariable String environmentId) {
 
-        // get the topology linked to the current environment
-        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
         Application application = applicationService.checkAndGetApplication(applicationId);
+        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, environmentId);
+        if (!environment.getApplicationId().equals(applicationId)) {
+            throw new NotFoundException("Unable to find environment with id <" + environmentId + "> for application <" + applicationId + ">");
+        }
+        // Security check user must be authorized to deploy the environment (or be application manager)
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-            AuthorizationUtil.checkAuthorizationForEnvironment(applicationEnvironment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
+            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
 
-        String topologyId = applicationEnvironmentService.getTopologyId(applicationEnvironmentId);
-        String cloudId = applicationEnvironment.getCloudId();
+        ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(environment.getApplicationId(), environment.getCurrentVersionId());
+        DeploymentTopology deploymentTopology = deploymentTopologyService.getOrFail(version.getId(), environment.getId());
+        String locationId = TopologyLocationService.getLocationId(deploymentTopology);
+        Location location = locationService.getOrFail(locationId);
+        String topologyId = applicationEnvironmentService.getTopologyId(applicationId);
 
-        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(deploymentService.getRuntimeTopology(topologyId, cloudId)))
-                .build();
+        return RestResponseBuilder.<TopologyDTO> builder()
+                .data(topologyService.buildTopologyDTO(deploymentRuntimeStateService.getRuntimeTopology(topologyId, location.getOrchestratorId()))).build();
     }
 
     private void validateCommand(OperationExecRequest operationRequest, Topology topology) throws ConstraintFunctionalException {
@@ -185,8 +204,8 @@ public class RuntimeController {
         validateOperation(interfass, operationRequest);
     }
 
-    private void validateParameters(Interface interfass, OperationExecRequest operationRequest) throws ConstraintViolationException,
-            ConstraintValueDoNotMatchPropertyTypeException, ConstraintRequiredParameterException {
+    private void validateParameters(Interface interfass, OperationExecRequest operationRequest)
+            throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException, ConstraintRequiredParameterException {
         ArrayList<String> missingParams = Lists.newArrayList();
 
         Operation operation = interfass.getOperations().get(operationRequest.getOperationName());
@@ -194,8 +213,8 @@ public class RuntimeController {
         if (operation.getInputParameters() != null) {
             for (Entry<String, IValue> inputParameter : operation.getInputParameters().entrySet()) {
                 if (inputParameter.getValue().isDefinition()) {
-                    String requestInputParameter = operationRequest.getParameters() == null ? null : operationRequest.getParameters().get(
-                            inputParameter.getKey());
+                    String requestInputParameter = operationRequest.getParameters() == null ? null
+                            : operationRequest.getParameters().get(inputParameter.getKey());
                     PropertyDefinition currentOperationParameter = (PropertyDefinition) inputParameter.getValue();
                     if (StringUtils.isNotBlank(requestInputParameter)) {
                         // recover the good property definition for the current parameter

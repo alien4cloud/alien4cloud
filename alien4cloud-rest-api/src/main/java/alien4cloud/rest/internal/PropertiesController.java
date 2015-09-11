@@ -2,6 +2,7 @@ package alien4cloud.rest.internal;
 
 import javax.annotation.Resource;
 
+import alien4cloud.rest.internal.model.PropertyValidationRequest;
 import com.mangofactory.swagger.annotations.ApiIgnore;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,10 +24,9 @@ import alien4cloud.utils.services.ConstraintPropertyService;
 
 /**
  * Handle generic operation on "properties"
- *
  */
-
 @Slf4j
+@ApiIgnore
 @RestController
 @RequestMapping("/rest/properties")
 public class PropertiesController {
@@ -36,14 +36,14 @@ public class PropertiesController {
     @ApiIgnore
     @RequestMapping(value = "/check", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'APPLICATIONS_MANAGER')")
-    public RestResponse<ConstraintInformation> checkPropertyDefinition(@RequestBody PropertyRequest propertyRequest) {
-        if (propertyRequest.getPropertyDefinition() != null) {
+    public RestResponse<ConstraintInformation> checkPropertyDefinition(@RequestBody PropertyValidationRequest propertyValidationRequest) {
+        if (propertyValidationRequest.getPropertyDefinition() != null) {
             try {
-                constraintPropertyService.checkSimplePropertyConstraint(propertyRequest.getDefinitionId(), propertyRequest.getValue(),
-                        propertyRequest.getPropertyDefinition());
+                constraintPropertyService.checkSimplePropertyConstraint(propertyValidationRequest.getDefinitionId(), propertyValidationRequest.getValue(),
+                        propertyValidationRequest.getPropertyDefinition());
             } catch (ConstraintViolationException e) {
-                log.error("Constraint violation error for property <" + propertyRequest.getDefinitionId() + "> with value <" + propertyRequest.getValue()
-                        + ">", e);
+                log.error("Constraint violation error for property <" + propertyValidationRequest.getDefinitionId() + "> with value <"
+                        + propertyValidationRequest.getValue() + ">", e);
                 return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
                         .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
             } catch (ConstraintValueDoNotMatchPropertyTypeException e) {

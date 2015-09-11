@@ -4,8 +4,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
-import alien4cloud.model.orchestrators.locations.ILocationMatchFilter;
-import alien4cloud.model.orchestrators.locations.LocationMatch;
+import alien4cloud.deployment.matching.services.location.ILocationMatchFilter;
+import alien4cloud.model.deployment.matching.LocationMatch;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.plugin.model.ManagedPlugin;
 

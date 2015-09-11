@@ -13,20 +13,10 @@ import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.model.application.DeploymentSetup;
-import alien4cloud.model.cloud.Cloud;
-import alien4cloud.model.cloud.CloudConfiguration;
-import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.common.MetaPropConfiguration;
-import alien4cloud.model.components.Csar;
-import alien4cloud.model.components.IndexedArtifactToscaElement;
-import alien4cloud.model.components.IndexedArtifactType;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedDataType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.components.*;
 import alien4cloud.model.deployment.Deployment;
+import alien4cloud.model.deployment.DeploymentSetup;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorConfiguration;
 import alien4cloud.model.orchestrators.locations.Location;
@@ -80,16 +70,12 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         initIndice(TopologyTemplateVersion.class);
         initIndice(MetaPropConfiguration.class);
 
-        initIndice(Cloud.class);
-        initIndice(CloudConfiguration.class);
-
         initIndice(Orchestrator.class);
         initIndice(OrchestratorConfiguration.class);
         initIndice(Location.class);
         initIndice(LocationResourceTemplate.class);
 
         initIndice(Deployment.class);
-        initIndice(CloudImage.class);
         initIndice(CsarGitRepository.class);
         initCompleted();
     }

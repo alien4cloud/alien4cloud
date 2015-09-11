@@ -1,0 +1,224 @@
+package alien4cloud.paas.wf;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.junit.Test;
+
+import alien4cloud.paas.wf.util.WorkflowUtils;
+import alien4cloud.paas.wf.validation.CycleDetection;
+
+@Slf4j
+public class CycleDetectionTest extends AbstractValidationTest<CycleDetection> {
+
+    private CycleDetection cycleDetectionRule = new CycleDetection();
+
+    @Override
+    protected CycleDetection getRule() {
+        return cycleDetectionRule;
+    }
+
+    /**
+     * <pre>
+     * 
+     *  a -- b
+     * 
+     * </pre>
+     */
+    @Test
+    public void testNoCycle() {
+        SimpleStep a = wf.addStep(new SimpleStep("a"));
+        SimpleStep b = wf.addStep(new SimpleStep("b"));
+        WorkflowUtils.linkSteps(a, b);
+        processValidation(false, 0);
+    }
+
+    /**
+     * <pre>
+     * 
+     *        /--|
+     *  a -- b   |
+     *        \--|
+     * 
+     * </pre>
+     */
+    @Test()
+    public void testAutoCycle() {
+        SimpleStep a = wf.addStep(new SimpleStep("a"));
+        SimpleStep b = wf.addStep(new SimpleStep("b"));
+        WorkflowUtils.linkSteps(a, b);
+        WorkflowUtils.linkSteps(b, b);
+        processValidation(true, 1);
+    }
+
+    /**
+     * <pre>
+     *    --
+     *   /  \
+     *  a    b
+     *   \  /
+     *    --
+     * </pre>
+     */
+    @Test
+    public void test2StepsCycle() {
+        SimpleStep a = wf.addStep(new SimpleStep("a"));
+        SimpleStep b = wf.addStep(new SimpleStep("b"));
+        WorkflowUtils.linkSteps(a, b);
+        WorkflowUtils.linkSteps(b, a);
+        processValidation(true, 1);
+    }
+
+    /**
+     * <pre>
+     * 
+     * o --- c --- d
+     * 
+     *    --
+     *   /  \
+     *  a    b
+     *   \  /
+     *    --
+     * </pre>
+     */
+    @Test
+    public void testOrphanCycle() {
+        SimpleStep a = wf.addStep(new SimpleStep("a"));
+        SimpleStep b = wf.addStep(new SimpleStep("b"));
+        SimpleStep c = wf.addStep(new SimpleStep("c"));
+        SimpleStep d = wf.addStep(new SimpleStep("d"));
+        WorkflowUtils.linkSteps(a, b);
+        WorkflowUtils.linkSteps(b, a);
+        WorkflowUtils.linkSteps(c, d);
+        processValidation(true, 1);
+    }
+
+    /**
+     * <pre>
+     *        --
+     *       /  \
+     * a -- b    c
+     *       \  /
+     *        --
+     * </pre>
+     */
+    @Test
+    public void testIndirectCycle() {
+        SimpleStep a = wf.addStep(new SimpleStep("a"));
+        SimpleStep b = wf.addStep(new SimpleStep("b"));
+        SimpleStep c = wf.addStep(new SimpleStep("c"));
+        WorkflowUtils.linkSteps(a, b);
+        WorkflowUtils.linkSteps(b, c);
+        WorkflowUtils.linkSteps(c, b);
+        processValidation(true, 1);
+    }
+
+    /**
+     * <pre>
+     *      -- b
+     *     /
+     * a --
+     *     \ 
+     *      -- c -- d -- e
+     * </pre>
+     */
+    @Test
+    public void testForkJoinNoCycle() {
+        SimpleStep a = wf.addStep(new SimpleStep("a"));
+        SimpleStep b = wf.addStep(new SimpleStep("b"));
+        SimpleStep c = wf.addStep(new SimpleStep("c"));
+        SimpleStep d = wf.addStep(new SimpleStep("d"));
+        SimpleStep e = wf.addStep(new SimpleStep("e"));
+        WorkflowUtils.linkSteps(a, b);
+        WorkflowUtils.linkSteps(a, c);
+        WorkflowUtils.linkSteps(c, d);
+        WorkflowUtils.linkSteps(d, e);
+        processValidation(false, 0);
+    }
+
+    /**
+     * <pre>
+     *      -- b
+     *     /
+     * a --      e        
+     *     \    /  \
+     *      -- c -- d --
+     * </pre>
+     */
+    @Test()
+    public void testForkJoinCycle() {
+        SimpleStep a = wf.addStep(new SimpleStep("a"));
+        SimpleStep b = wf.addStep(new SimpleStep("b"));
+        SimpleStep c = wf.addStep(new SimpleStep("c"));
+        SimpleStep d = wf.addStep(new SimpleStep("d"));
+        SimpleStep e = wf.addStep(new SimpleStep("e"));
+        WorkflowUtils.linkSteps(a, b);
+        WorkflowUtils.linkSteps(a, c);
+        WorkflowUtils.linkSteps(c, d);
+        WorkflowUtils.linkSteps(d, e);
+        WorkflowUtils.linkSteps(e, c);
+        processValidation(true, 1);
+    }
+
+    /**
+     * <pre>
+     *           --- c
+     *          /     \
+     *      -- b ----- d
+     *     /
+     * a --      f        
+     *     \    /  \
+     *      -- e -- g
+     * 
+     * </pre>
+     */
+    @Test()
+    public void testTwoParallelCycles() {
+        SimpleStep a = wf.addStep(new SimpleStep("a"));
+        SimpleStep b = wf.addStep(new SimpleStep("b"));
+        SimpleStep c = wf.addStep(new SimpleStep("c"));
+        SimpleStep d = wf.addStep(new SimpleStep("d"));
+        SimpleStep e = wf.addStep(new SimpleStep("e"));
+        SimpleStep f = wf.addStep(new SimpleStep("f"));
+        SimpleStep g = wf.addStep(new SimpleStep("g"));
+        WorkflowUtils.linkSteps(a, b);
+        WorkflowUtils.linkSteps(b, c);
+        WorkflowUtils.linkSteps(c, d);
+        WorkflowUtils.linkSteps(d, b);
+        WorkflowUtils.linkSteps(a, e);
+        WorkflowUtils.linkSteps(a, e);
+        WorkflowUtils.linkSteps(e, f);
+        WorkflowUtils.linkSteps(f, g);
+        WorkflowUtils.linkSteps(g, e);
+        processValidation(true, 2);
+    }
+
+    /**
+     * <pre>
+     * 
+     *        c         f
+     *       /  \      /  \
+     * a -- b -- d -- e -- g
+     * 
+     * </pre>
+     */
+    @Test()
+    public void testTwoSequencedCycles() {
+        SimpleStep a = wf.addStep(new SimpleStep("a"));
+        SimpleStep b = wf.addStep(new SimpleStep("b"));
+        SimpleStep c = wf.addStep(new SimpleStep("c"));
+        SimpleStep d = wf.addStep(new SimpleStep("d"));
+        SimpleStep e = wf.addStep(new SimpleStep("e"));
+        SimpleStep f = wf.addStep(new SimpleStep("f"));
+        SimpleStep g = wf.addStep(new SimpleStep("g"));
+        WorkflowUtils.linkSteps(a, b);
+        WorkflowUtils.linkSteps(b, d);
+        WorkflowUtils.linkSteps(d, c);
+        WorkflowUtils.linkSteps(c, b);
+        WorkflowUtils.linkSteps(d, e);
+        WorkflowUtils.linkSteps(e, g);
+        WorkflowUtils.linkSteps(g, f);
+        WorkflowUtils.linkSteps(f, e);
+        processValidation(true, 2);
+    }
+
+}

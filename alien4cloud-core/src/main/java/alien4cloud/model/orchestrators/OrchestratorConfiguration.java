@@ -9,17 +9,16 @@ import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
 
 /**
- * Global configuration for the orchestrators. Usually contains connexion settings etc.
+ * Global configuration for the orchestrator. Usually contains connexion settings etc.
  */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@SuppressWarnings("PMD.UnusedPrivateField")
 @ESObject
 public class OrchestratorConfiguration {
-    /** Id of the cloud. */
+    /** Id of the orchestrator. */
     @Id
     private String id;
     /** Configuration object. */

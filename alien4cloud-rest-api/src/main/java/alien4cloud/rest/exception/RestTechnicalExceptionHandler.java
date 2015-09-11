@@ -18,17 +18,18 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import alien4cloud.application.InvalidDeploymentSetupException;
+import alien4cloud.deployment.exceptions.InvalidDeploymentSetupException;
 import alien4cloud.component.repository.exception.RepositoryTechnicalException;
 import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
 import alien4cloud.paas.exception.ComputeConflictNameException;
-import alien4cloud.paas.exception.DeploymentPaaSIdConflictException;
+import alien4cloud.paas.exception.OrchestratorDeploymentIdConflictException;
 import alien4cloud.paas.exception.EmptyMetaPropertyException;
 import alien4cloud.paas.exception.MissingPluginException;
 import alien4cloud.paas.exception.PaaSDeploymentException;
 import alien4cloud.paas.exception.PaaSDeploymentIOException;
 import alien4cloud.paas.exception.PaaSUndeploymentException;
+import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -206,12 +207,21 @@ public class RestTechnicalExceptionHandler {
                 .error(RestErrorBuilder.builder(RestErrorCode.COMPUTE_CONFLICT_NAME).message("Compute name conflict " + e.getMessage()).build()).build();
     }
 
-    @ExceptionHandler(value = DeploymentPaaSIdConflictException.class)
+    @ExceptionHandler(value = OrchestratorDeploymentIdConflictException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
-    public RestResponse<Void> paaSDeploymentErrorHandler(DeploymentPaaSIdConflictException e) {
+    public RestResponse<Void> paaSDeploymentErrorHandler(OrchestratorDeploymentIdConflictException e) {
         log.error("Error in PaaS Deployment, conflict with the generated deployment paaSId", e);
         return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.DEPLOYMENT_PAAS_ID_CONFLICT).message(e.getMessage()).build())
+                .build();
+    }
+
+    @ExceptionHandler(value = BadWorkflowOperationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public RestResponse<Void> paaSDeploymentErrorHandler(BadWorkflowOperationException e) {
+        log.error("Operation on workflow not permited", e);
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.BAD_WORKFLOW_OPERATION).message(e.getMessage()).build())
                 .build();
     }
 

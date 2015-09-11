@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.client.RestClientException;
 
-import alien4cloud.model.application.DeploymentSetup;
+import alien4cloud.model.deployment.DeploymentSetup;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;

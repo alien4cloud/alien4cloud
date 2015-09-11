@@ -23,7 +23,7 @@ import alien4cloud.exception.VersionRenameNotPossibleException;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.rest.application.ApplicationVersionRequest;
+import alien4cloud.rest.application.model.ApplicationVersionRequest;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;

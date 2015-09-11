@@ -501,7 +501,11 @@
             "default_instances": "Invalid default_instances property, please verify that 0 < min_instances < default_instances < max_instances",
             "max_instances": "Invalid max_instances property, please verify that 0 < min_instances < default_instances < max_instances"
           }
-        }
+        },
+        "WORKFLOWS": {
+          "TITLE" : "Workflows",
+          "HAS_ERROR": "Workflow '{{workflowName}}' is not valid : {{errorCount}} error(s)"
+        }        
       },
       "WARNING": {
         "LABEL": "Warnings",
@@ -597,7 +601,38 @@
     "ERRORS": {
       "DELETE_TITLE": "Delete an application",
       "DELETING_FAILED": "Unable to delete the application. First, undeploy it and retry."
-    }
+    },
+    "WF": {
+      "title" : "Workflows",
+      "addWorkflow": "Add workflow",
+      "interfaceName": "Interface",
+      "operationName": "Operation",
+      "stateName": "State",
+      "addOperationActivity": "Add opreration call",
+      "addStateActivity": "Add state change",
+      "insertOperationActivity": "Insert opreration call",
+      "appendOperationActivity": "Append opreration call",   
+      "insertStateActivity": "Insert state change",
+      "appendStateActivity": "Append state change",             
+      "activity": "Activity",
+      "disconnectFrom": "Disconnect from",
+      "disconnectTo": "Disconnect to",
+      "swapLeft": "Swap to left",
+      "swapRigth": "Swap to right",
+      "connectFromSelection": "Connect from selection",
+      "connectToSelection": "Connect to selection",        
+      "removeStep": "Remove step",
+      "OperationCallActivity": "Operation call",
+      "SetStateActivity": "State change",
+      "unpin": "Unpin",
+      "currentSelection" : "Current selection",
+      "hasErrors" : "error(s)",
+      "errors": {
+        "WorkflowHasCycleError": "Workflow contains one cycle",
+        "BadStateSequenceError": "Bad sequence : step '{{from}}' should not be found before '{{to}}'",
+        "ParallelSetStatesError": "State changes are done in parallel for node '{{nodeId}}'"
+      }
+    }      
   },
   "TEMPLATE": {
     "NEW": "New Template",
@@ -913,7 +948,8 @@
     "808": "The name doesn't respect the expected pattern",
     "820": "Cyclic reference : a topology template can not reference itself !",
     "830": "A released version can not reference SNAPSHOT dependencies",
-    "831": "This version can not be renamed since it's already used elsewhere"
+    "831": "This version can not be renamed since it's already used elsewhere",
+    "850": "Not allowed operation for this type of workflow"
   },
   "TAG_CONFIG": {
     "TAGS": "Meta-properties",

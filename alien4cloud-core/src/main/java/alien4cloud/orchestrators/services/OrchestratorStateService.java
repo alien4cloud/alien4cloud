@@ -15,9 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.mapping.QueryHelper;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.deployment.DeploymentService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.orchestrators.Orchestrator;
@@ -25,7 +25,7 @@ import alien4cloud.model.orchestrators.OrchestratorConfiguration;
 import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
-import alien4cloud.paas.PaaSProviderService;
+import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.utils.MapUtil;
 
@@ -42,9 +42,7 @@ public class OrchestratorStateService {
     @Inject
     private OrchestratorConfigurationService orchestratorConfigurationService;
     @Inject
-    private OrchestratorFactoriesRegistry orchestratorFactoriesRegistry;
-    @Inject
-    private PaaSProviderService paaSProviderService;
+    private OrchestratorPluginService orchestratorPluginService;
     @Inject
     private DeploymentService deploymentService;
     @Inject
@@ -112,7 +110,7 @@ public class OrchestratorStateService {
         alienDAO.save(orchestrator);
 
         // TODO move below in a thread to perform plugin loading and connection asynchronously
-        IOrchestratorPluginFactory orchestratorFactory = orchestratorFactoriesRegistry.getPluginBean(orchestrator.getPluginId(), orchestrator.getPluginBean());
+        IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestrator);
         IOrchestratorPlugin orchestratorInstance = orchestratorFactory.newInstance();
 
         // Set the configuration for the provider
@@ -128,7 +126,7 @@ public class OrchestratorStateService {
         // connect the orchestrator
         orchestratorInstance.init(deploymentService.getCloudActiveDeploymentContexts(orchestrator.getId()));
         // register the orchestrator instance to be polled for updates
-        paaSProviderService.register(orchestrator.getId(), orchestratorInstance);
+        orchestratorPluginService.register(orchestrator.getId(), orchestratorInstance);
         orchestrator.setState(OrchestratorState.CONNECTED);
         alienDAO.save(orchestrator);
     }
@@ -142,11 +140,9 @@ public class OrchestratorStateService {
     public synchronized boolean disable(Orchestrator orchestrator, boolean force) {
         if (force == false) {
             QueryHelper.SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper
-                    .buildSearchQuery(alienDAO.getIndexForType(Deployment.class))
-                    .types(Deployment.class)
-                    .filters(
-                            MapUtil.newHashMap(new String[] { "cloudId", "endDate" }, new String[][] { new String[] { orchestrator.getId() },
-                                    new String[] { null } })).fieldSort("_timestamp", true);
+                    .buildSearchQuery(alienDAO.getIndexForType(Deployment.class)).types(Deployment.class).filters(MapUtil
+                            .newHashMap(new String[] { "cloudId", "endDate" }, new String[][] { new String[] { orchestrator.getId() }, new String[] { null } }))
+                    .fieldSort("_timestamp", true);
             // If there is at least one active deployment.
             GetMultipleDataResult<Object> result = alienDAO.search(searchQueryHelperBuilder, 0, 1);
 
@@ -158,10 +154,9 @@ public class OrchestratorStateService {
 
         try {
             // un-register the orchestrator.
-            IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) paaSProviderService.unregister(orchestrator.getId());
+            IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.unregister(orchestrator.getId());
             if (orchestratorInstance != null) {
-                IOrchestratorPluginFactory orchestratorFactory = orchestratorFactoriesRegistry.getPluginBean(orchestrator.getPluginId(),
-                        orchestrator.getPluginBean());
+                IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestrator);
                 orchestratorFactory.destroy(orchestratorInstance);
             }
         } catch (Exception e) {

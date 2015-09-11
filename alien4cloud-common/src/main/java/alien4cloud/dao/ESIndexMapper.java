@@ -142,7 +142,7 @@ public abstract class ESIndexMapper {
      * @param clazz The type for which to get the index.
      * @return The index in which the given type lies.
      */
-    public String getIndexForType(Class<? extends Object> clazz) {
+    public String getIndexForType(Class<?> clazz) {
         String typeName = MappingBuilder.indexTypeFromClass(clazz);
         String index = typesToIndices.get(typeName);
         if (index == null) {

@@ -1,31 +1,29 @@
 package alien4cloud.deployment;
 
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
-import alien4cloud.common.MetaPropertiesService;
-import alien4cloud.model.common.MetaPropConfiguration;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import alien4cloud.application.ApplicationService;
-import alien4cloud.cloud.CloudService;
+import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.common.TagService;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.application.DeploymentSetup;
-import alien4cloud.model.cloud.Cloud;
+import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.deployment.DeploymentSetup;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 
 import com.google.common.collect.Maps;
@@ -36,14 +34,16 @@ import com.google.common.collect.Maps;
  * Inputs in alien 4 cloud may be stored in the DeploymentSetup or may be injected from the cloud, application or environment (not implemented yet).
  */
 @Slf4j
-@Component
+@Service
 public class InputsPreProcessorService {
+    // TODO cloud_meta is here for backward compatibility but should be removed in next versions
     private static final String CLOUD_META = "cloud_meta_";
+    private static final String LOC_META = "loc_meta_";
     private static final String APP_META = "app_meta_";
     private static final String APP_TAGS = "app_tags_";
 
     @Resource
-    private CloudService cloudService;
+    private LocationService locationService;
     @Resource
     private ApplicationService applicationService;
     @Resource
@@ -90,33 +90,36 @@ public class InputsPreProcessorService {
      */
     private Map<String, String> getInputs(DeploymentSetup deploymentSetup, ApplicationEnvironment environment) {
         // initialize a map with input from the deployment setup
-        Map<String, String> inputs = MapUtils.isEmpty(deploymentSetup.getInputProperties()) ? Maps.<String, String> newHashMap() : deploymentSetup
-                .getInputProperties();
+        Map<String, String> inputs = MapUtils.isEmpty(deploymentSetup.getInputProperties()) ? Maps.<String, String> newHashMap()
+                : deploymentSetup.getInputProperties();
 
         // Map id -> value of meta properties from cloud or application.
         Map<String, String> metaPropertiesValuesMap = Maps.newHashMap();
 
-        // add the inputs from the cloud meta-properties
-        if (environment.getCloudId() != null) {
-            Cloud cloud = cloudService.get(environment.getCloudId());
-            if (cloud.getMetaProperties() != null) {
-                metaPropertiesValuesMap.putAll(cloud.getMetaProperties());
-            }
-        }
+        // FIXME add the inputs from the location meta-properties
+        // if (environment.getCloudId() != null) {
+        // Cloud cloud = cloudService.get(environment.getCloudId());
+        // if (cloud.getMetaProperties() != null) {
+        // metaPropertiesValuesMap.putAll(cloud.getMetaProperties());
+        // }
+        //
+        // // inputs from the cloud starts with cloud meta
+        // prefixAndAddContextInput(inputs, InputsPreProcessorService.LOC_META, metaPropertiesValuesMap, true);
+        // prefixAndAddContextInput(inputs, InputsPreProcessorService.CLOUD_META, metaPropertiesValuesMap, true);
+        // }
         // and the ones from the application meta-properties
         // meta or tags from application
         if (environment.getApplicationId() != null) {
+            metaPropertiesValuesMap = Maps.newHashMap();
             Application application = applicationService.getOrFail(environment.getApplicationId());
             if (application.getMetaProperties() != null) {
                 metaPropertiesValuesMap.putAll(application.getMetaProperties());
             }
+            prefixAndAddContextInput(inputs, InputsPreProcessorService.APP_META, metaPropertiesValuesMap, true);
 
             Map<String, String> tags = tagService.tagListToMap(application.getTags());
-            prefixAndAddContextInput(inputs, InputsPreProcessorService.CLOUD_META, tags, false);
+            prefixAndAddContextInput(inputs, InputsPreProcessorService.APP_TAGS, tags, false);
         }
-
-        // inputs from the cloud starts with
-        prefixAndAddContextInput(inputs, InputsPreProcessorService.CLOUD_META, metaPropertiesValuesMap, true);
 
         return inputs;
     }
