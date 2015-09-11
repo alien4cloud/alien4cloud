@@ -406,21 +406,24 @@ public abstract class AbstractWorkflowBuilder {
     public Workflow reinit(Workflow wf, Topology topology, PaaSTopology paaSTopology) {
         Map<String, AbstractStep> steps = Maps.newHashMap();
         wf.setSteps(steps);
-        // first stage : add the nodes
-        for (Entry<String, NodeTemplate> entry : topology.getNodeTemplates().entrySet()) {
-            String nodeId = entry.getKey();
-            PaaSNodeTemplate paaSNodeTemplate = paaSTopology.getAllNodes().get(nodeId);
-            boolean forceOperation = WorkflowUtils.isCompute(paaSNodeTemplate) || WorkflowUtils.isVolume(paaSNodeTemplate);
-            addNode(wf, paaSTopology, paaSNodeTemplate, forceOperation);
-        }
-        // second stage : add the relationships
-        for (Entry<String, NodeTemplate> entry : topology.getNodeTemplates().entrySet()) {
-            String nodeId = entry.getKey();
-            PaaSNodeTemplate paaSNodeTemplate = paaSTopology.getAllNodes().get(nodeId);
-            if (paaSNodeTemplate.getNodeTemplate().getRelationships() != null) {
-                for (String relationshipName : paaSNodeTemplate.getNodeTemplate().getRelationships().keySet()) {
-                    PaaSRelationshipTemplate pasSRelationshipTemplate = paaSNodeTemplate.getRelationshipTemplate(relationshipName, paaSNodeTemplate.getId());
-                    addRelationship(wf, paaSTopology, paaSNodeTemplate, pasSRelationshipTemplate);
+        if (topology.getNodeTemplates() != null) {
+            // first stage : add the nodes
+            for (Entry<String, NodeTemplate> entry : topology.getNodeTemplates().entrySet()) {
+                String nodeId = entry.getKey();
+                PaaSNodeTemplate paaSNodeTemplate = paaSTopology.getAllNodes().get(nodeId);
+                boolean forceOperation = WorkflowUtils.isCompute(paaSNodeTemplate) || WorkflowUtils.isVolume(paaSNodeTemplate);
+                addNode(wf, paaSTopology, paaSNodeTemplate, forceOperation);
+            }
+            // second stage : add the relationships
+            for (Entry<String, NodeTemplate> entry : topology.getNodeTemplates().entrySet()) {
+                String nodeId = entry.getKey();
+                PaaSNodeTemplate paaSNodeTemplate = paaSTopology.getAllNodes().get(nodeId);
+                if (paaSNodeTemplate.getNodeTemplate().getRelationships() != null) {
+                    for (String relationshipName : paaSNodeTemplate.getNodeTemplate().getRelationships().keySet()) {
+                        PaaSRelationshipTemplate pasSRelationshipTemplate = paaSNodeTemplate
+                                .getRelationshipTemplate(relationshipName, paaSNodeTemplate.getId());
+                        addRelationship(wf, paaSTopology, paaSNodeTemplate, pasSRelationshipTemplate);
+                    }
                 }
             }
         }

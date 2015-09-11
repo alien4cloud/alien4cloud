@@ -51,10 +51,12 @@ public class WorkflowsBuilderService {
             install.setStandard(true);
             install.setName(Workflow.INSTALL_WF);
             wfs.put(Workflow.INSTALL_WF, install);
+            reinitWorkflow(topology, Workflow.INSTALL_WF);
             Workflow uninstall = new Workflow();
             uninstall.setStandard(true);
             uninstall.setName(Workflow.UNINSTALL_WF);
             wfs.put(Workflow.UNINSTALL_WF, uninstall);
+            reinitWorkflow(topology, Workflow.UNINSTALL_WF);
         }
         debugWorkflow(topology);
     }
