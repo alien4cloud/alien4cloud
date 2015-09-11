@@ -17,6 +17,7 @@ import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
+import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.paas.wf.validation.WorkflowValidator;
 
@@ -251,6 +252,22 @@ public class WorkflowsBuilderService {
             builder.fillHostId(wf, paaSTopology);
             workflowValidator.validate(wf);
         }
+    }
+
+    public Workflow reinitWorkflow(Topology topology, String workflowName) {
+        Workflow wf = topology.getWorkflows().get(workflowName);
+        if (wf == null) {
+            throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
+        }
+        if (!wf.isStandard()) {
+            throw new BadWorkflowOperationException(String.format("Reinit can not be performed on non standard workflow '%s'", workflowName));
+        }
+        PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
+        AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
+        wf = builder.reinit(wf, topology, paaSTopology);
+        builder.fillHostId(wf, paaSTopology);
+        workflowValidator.validate(wf);
+        return wf;
     }
 
 }

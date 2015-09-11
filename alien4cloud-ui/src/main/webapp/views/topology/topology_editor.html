@@ -1060,7 +1060,14 @@
 									</delete-confirm>
 								</div>
               </div>
-            </div>              
+            </div>
+            <div ng-if="topology.topology.workflows[currentWorkflowName].standard">
+              <a class="btn btn-default btn-md"
+                confirm="{{'CONFIRM_MESSAGE' | translate}}"
+                confirm-title="{{'CONFIRM' | translate }}"
+                confirm-handler="workflows.reinitWorkflow()"
+                confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.reinit' | translate}}</a>            
+            </div>                          
 						<div>
 							<a class="btn btn-default btn-md"
 								ng-mouseover="workflows.addStepPreview()"

@@ -219,7 +219,27 @@ define(function (require) {
               console.debug(errorResult);
             }
           );            
-        },      
+        }, 
+        reinitWorkflow: function() {
+          var scope = this.scope;
+          var instance = this;
+          workflowServices.workflows.init(
+              {
+                topologyId: scope.topology.topology.id,
+                workflowName: scope.currentWorkflowName
+              }, {},
+              function(successResult) {
+                if (!successResult.error) {
+                  scope.topology.topology.workflows[scope.currentWorkflowName] = successResult.data;
+                } else {
+                  console.debug(successResult.error);
+                }
+              },
+              function(errorResult) {
+                console.debug(errorResult);
+              }
+            );           
+        },
         // === actions on steps
         renameStep: function(stepId, newStepName) {
           var scope = this.scope;

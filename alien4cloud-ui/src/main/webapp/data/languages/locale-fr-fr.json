@@ -603,6 +603,7 @@
       "interfaceName": "Interface",
       "operationName": "Opération",
       "stateName": "Etat",
+      "reinit": "Réinitialiser",
       "addOperationActivity": "Ajouter un appel d'opération",
       "addStateActivity": "Ajouter un changement d'état",
       "insertOperationActivity": "Insérer un appel d'opération (avant)",

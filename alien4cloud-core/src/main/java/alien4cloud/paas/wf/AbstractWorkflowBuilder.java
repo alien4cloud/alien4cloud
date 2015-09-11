@@ -3,13 +3,18 @@ package alien4cloud.paas.wf;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.elasticsearch.common.collect.Lists;
+import org.elasticsearch.common.collect.Maps;
 
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.model.components.Interface;
 import alien4cloud.model.components.Operation;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.model.PaaSTopology;
@@ -396,6 +401,30 @@ public abstract class AbstractWorkflowBuilder {
                 }
             }
         }
+    }
+
+    public Workflow reinit(Workflow wf, Topology topology, PaaSTopology paaSTopology) {
+        Map<String, AbstractStep> steps = Maps.newHashMap();
+        wf.setSteps(steps);
+        // first stage : add the nodes
+        for (Entry<String, NodeTemplate> entry : topology.getNodeTemplates().entrySet()) {
+            String nodeId = entry.getKey();
+            PaaSNodeTemplate paaSNodeTemplate = paaSTopology.getAllNodes().get(nodeId);
+            boolean forceOperation = WorkflowUtils.isCompute(paaSNodeTemplate) || WorkflowUtils.isVolume(paaSNodeTemplate);
+            addNode(wf, paaSTopology, paaSNodeTemplate, forceOperation);
+        }
+        // second stage : add the relationships
+        for (Entry<String, NodeTemplate> entry : topology.getNodeTemplates().entrySet()) {
+            String nodeId = entry.getKey();
+            PaaSNodeTemplate paaSNodeTemplate = paaSTopology.getAllNodes().get(nodeId);
+            if (paaSNodeTemplate.getNodeTemplate().getRelationships() != null) {
+                for (String relationshipName : paaSNodeTemplate.getNodeTemplate().getRelationships().keySet()) {
+                    PaaSRelationshipTemplate pasSRelationshipTemplate = paaSNodeTemplate.getRelationshipTemplate(relationshipName, paaSNodeTemplate.getId());
+                    addRelationship(wf, paaSTopology, paaSNodeTemplate, pasSRelationshipTemplate);
+                }
+            }
+        }
+        return wf;
     }
 
 }

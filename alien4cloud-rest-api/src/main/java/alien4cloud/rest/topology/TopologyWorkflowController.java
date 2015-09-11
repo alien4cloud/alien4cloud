@@ -97,6 +97,18 @@ public class TopologyWorkflowController {
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
+    @RequestMapping(value = "/{topologyId}/workflows/{workflowName}/init", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Workflow> initWorkflow(@PathVariable String topologyId, @PathVariable String workflowName) {
+
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
+
+        Workflow wf = workflowBuilderService.reinitWorkflow(topology, workflowName);
+        alienDAO.save(topology);
+        return RestResponseBuilder.<Workflow> builder().data(wf).build();
+    }
+
     @RequestMapping(value = "/{topologyId}/workflows/{workflowName}/edges/{from}/{to}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Workflow> removeEdge(@PathVariable String topologyId, @PathVariable String workflowName, @PathVariable String from,
             @PathVariable String to) {
