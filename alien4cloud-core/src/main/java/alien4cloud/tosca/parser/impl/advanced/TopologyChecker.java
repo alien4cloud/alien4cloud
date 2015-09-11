@@ -79,7 +79,7 @@ public class TopologyChecker implements IChecker<Topology> {
         if (dependencies != null) {
             instance.setDependencies(dependencies);
         }
-        
+
         // here we need to check that the group members really exist
         if (instance.getGroups() != null && !instance.getGroups().isEmpty()) {
             int i = 0;
@@ -186,7 +186,8 @@ public class TopologyChecker implements IChecker<Topology> {
         for (int i = 0; i < hierarchyList.size() - 1; i++) {
             T from = hierarchyList.get(i);
             T to = hierarchyList.get(i + 1);
-            if (Objects.equal(to.getArchiveName(), archiveRoot.getArchive()) && Objects.equal(to.getArchiveVersion(), archiveRoot.getArchive().getVersion())) {
+            if (Objects.equal(to.getArchiveName(), archiveRoot.getArchive().getName())
+                    && Objects.equal(to.getArchiveVersion(), archiveRoot.getArchive().getVersion())) {
                 // we only merge element that come with current archive (the one we are parsing).
                 // by this way, we don't remerge existing elements
                 IndexedModelUtils.mergeInheritableIndex(from, to);
