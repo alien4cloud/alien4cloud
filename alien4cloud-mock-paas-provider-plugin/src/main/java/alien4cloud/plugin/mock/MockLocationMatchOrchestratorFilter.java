@@ -3,8 +3,7 @@ package alien4cloud.plugin.mock;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.inject.Inject;
-
+import lombok.AllArgsConstructor;
 import alien4cloud.model.orchestrators.locations.ILocationMatchFilter;
 import alien4cloud.model.orchestrators.locations.LocationMatch;
 import alien4cloud.model.topology.Topology;
@@ -14,9 +13,9 @@ import alien4cloud.plugin.model.ManagedPlugin;
  * Location match filter that will filter on pluginId.
  *
  */
+@AllArgsConstructor
 public class MockLocationMatchOrchestratorFilter implements ILocationMatchFilter {
 
-    @Inject
     private ManagedPlugin selfContext;
 
     @Override

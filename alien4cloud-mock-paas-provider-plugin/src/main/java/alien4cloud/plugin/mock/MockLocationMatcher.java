@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,6 +19,7 @@ import alien4cloud.model.topology.Topology;
 import alien4cloud.orchestrators.services.LocationService;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.exception.LocationMatchingException;
+import alien4cloud.plugin.model.ManagedPlugin;
 import alien4cloud.utils.AlienUtils;
 
 import com.google.common.collect.Lists;
@@ -28,6 +30,9 @@ public class MockLocationMatcher implements ILocationMatcher {
 
     @Resource
     private LocationService locationService;
+
+    @Inject
+    private ManagedPlugin selfContext;
 
     @Resource
     private OrchestratorService orchestratorService;
@@ -48,7 +53,7 @@ public class MockLocationMatcher implements ILocationMatcher {
             for (Location location : locations) {
                 matched.add(new LocationMatch(location, orchestratorMap.get(location.getOrchestratorId()), null));
             }
-            new MockLocationMatchOrchestratorFilter().filter(matched, topology);
+            new MockLocationMatchOrchestratorFilter(selfContext).filter(matched, topology);
             return matched;
         } catch (Exception e) {
             throw new LocationMatchingException("Failed to match topology <" + topology.getId() + "> against locations. ", e);
