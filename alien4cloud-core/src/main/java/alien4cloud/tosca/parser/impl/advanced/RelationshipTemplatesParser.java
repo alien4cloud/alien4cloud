@@ -175,7 +175,7 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
         ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
         IndexedNodeType indexedNodeType = ToscaParsingUtil.getNodeTypeFromArchiveOrDependencies(nodeTemplate.getType(), archiveRoot, searchService);
         if (indexedNodeType == null) {
-            // the note type is null if not found in archive or dep, the error is already raised
+            // the node type is null if not found in archive or dep, the error is already raised
             return null;
         }
         RequirementDefinition rd = getRequirementDefinitionByName(indexedNodeType, toscaRequirementName);
@@ -184,7 +184,7 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
                     new ParsingError(ErrorCode.REQUIREMENT_NOT_FOUND, null, node.getStartMark(), null, node.getEndMark(), toscaRequirementName));
             return null;
         }
-        // the relationship template type is take from 'relationship' node or requirement definition
+        // the relationship template type is taken from 'relationship' node or requirement definition
         String relationshipTypeName = (relationshipType != null) ? relationshipType : rd.getRelationshipType();
         // ex: host
         relationshipTemplate.setRequirementName(toscaRequirementName);
