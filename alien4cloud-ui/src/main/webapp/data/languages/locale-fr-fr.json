@@ -603,6 +603,8 @@
     "WF": {
       "title" : "Workflows",
       "addWorkflow": "Ajouter un nouveau workflow",
+      "nodeName": "Noeud",
+      "host": "Hôte",
       "interfaceName": "Interface",
       "operationName": "Opération",
       "stateName": "Etat",

@@ -605,6 +605,8 @@
     "WF": {
       "title" : "Workflows",
       "addWorkflow": "Add workflow",
+      "nodeName": "Node",
+      "host": "Host",      
       "interfaceName": "Interface",
       "operationName": "Operation",
       "stateName": "State",

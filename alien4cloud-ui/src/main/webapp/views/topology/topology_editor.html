@@ -1091,8 +1091,8 @@
     					 <img ng-src="img?id={{workflows.getStepNodeIcon(previewWorkflowStep)}}&quality=QUALITY_64" />
              </div>
 			 		   <div class="col-md-9">
-				 		   Node: <b>{{previewWorkflowStep.nodeId}}</b><br>
-						   Host: <b>{{previewWorkflowStep.hostId}}</b><br>
+				 		   {{'APPLICATIONS.WF.nodeName' | translate}}: <b>{{previewWorkflowStep.nodeId}}</b><br>
+						   {{'APPLICATIONS.WF.host' | translate}}: <b>{{previewWorkflowStep.hostId}}</b><br>
 						   {{'APPLICATIONS.WF.activity' | translate}}: <b>{{ 'APPLICATIONS.WF.' + workflows.getStepActivityType(previewWorkflowStep) | translate}}</b><br>
 					   </div>
 					 </div>
