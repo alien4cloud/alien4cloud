@@ -6,6 +6,7 @@ import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.Interface;
+import alien4cloud.model.components.Operation;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.paas.wf.AbstractStep;
@@ -78,6 +79,45 @@ public class WorkflowUtils {
                 if (isOfType(relationshipType, NormativeRelationshipConstants.HOSTED_ON)) {
                     return relationshipTemplate.getTarget();
                 }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @return the operation browsing the type hierarchy
+     *         FIXME: should we browse hierarchy ? what about order ?
+     */
+    public static Operation getOperation(String nodeTypeName, String interfaceName, String operationName, TopologyContext topologyContext) {
+        IndexedNodeType nodeType = (IndexedNodeType) topologyContext.findElement(IndexedNodeType.class, nodeTypeName);
+        if (nodeType == null) {
+            return null;
+        }
+        if (nodeType.getInterfaces() == null) {
+            return getOperationInSuperTypes(nodeType, interfaceName, operationName, topologyContext);
+        }
+        Interface interfaceType = nodeType.getInterfaces().get(interfaceName);
+        if (interfaceType == null) {
+            return getOperationInSuperTypes(nodeType, interfaceName, operationName, topologyContext);
+        }
+        if (interfaceType.getOperations() == null) {
+            return getOperationInSuperTypes(nodeType, interfaceName, operationName, topologyContext);
+        }
+        Operation operation = interfaceType.getOperations().get(operationName);
+        if (interfaceType.getOperations() == null) {
+            return getOperationInSuperTypes(nodeType, interfaceName, operationName, topologyContext);
+        }
+        return operation;
+    }
+
+    private static Operation getOperationInSuperTypes(IndexedNodeType nodeType, String interfaceName, String operationName, TopologyContext topologyContext) {
+        if (nodeType.getDerivedFrom() == null) {
+            return null;
+        }
+        for (String superType : nodeType.getDerivedFrom()) {
+            Operation operation = getOperation(superType, interfaceName, operationName, topologyContext);
+            if (operation != null) {
+                return operation;
             }
         }
         return null;

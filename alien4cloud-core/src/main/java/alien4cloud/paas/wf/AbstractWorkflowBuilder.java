@@ -9,8 +9,6 @@ import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 
 import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.Interface;
 import alien4cloud.model.components.Operation;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
@@ -89,15 +87,10 @@ public abstract class AbstractWorkflowBuilder {
     // }
 
     protected AbstractStep eventuallyAddStdOperationStep(Workflow wf, AbstractStep lastStep, String nodeId, String operationName,
-            TopologyContext toscaTypeFinder, boolean forceOperation) {
-        NodeTemplate nodeTemplate = toscaTypeFinder.getTopology().getNodeTemplates().get(nodeId);
-        IndexedNodeType nodeType = (IndexedNodeType)toscaTypeFinder.findElement(IndexedNodeType.class, nodeTemplate.getType());
-        if (nodeType == null) {
-            return lastStep;
-        }
-        Interface stdLifecycle = nodeType.getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD);
-        // FIXME: look into ascendance if not found ?
-        Operation operation = stdLifecycle.getOperations().get(operationName);
+            TopologyContext topologyContext, boolean forceOperation) {
+        NodeTemplate nodeTemplate = topologyContext.getTopology().getNodeTemplates().get(nodeId);
+        // FIXME: should we browse hierarchy ?
+        Operation operation = WorkflowUtils.getOperation(nodeTemplate.getType(), ToscaNodeLifecycleConstants.STANDARD, operationName, topologyContext);
         // for compute all std operations are added, for others, only those having artifacts
         if ((operation != null && operation.getImplementationArtifact() != null) || forceOperation) {
             lastStep = appendOperationStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.STANDARD, operationName);
