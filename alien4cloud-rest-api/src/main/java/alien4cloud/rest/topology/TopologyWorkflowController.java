@@ -104,7 +104,7 @@ public class TopologyWorkflowController {
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
-        Workflow wf = workflowBuilderService.reinitWorkflow(topology, workflowName);
+        Workflow wf = workflowBuilderService.reinitWorkflow(workflowName, workflowBuilderService.buildTopologyContext(topology));
         alienDAO.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }

@@ -583,8 +583,8 @@ define(function (require) {
         // build a data structure to ease errors rendering inside d3 graph
         getErrorRenderingData: function() {
           // cycles: a map 'from' -> 'to' array of edges in cycle
-          // badSequenced: map where keys are steps that are known as bad sequenced state steps
-          var result = {cycles: {}, badSequenced: {}};
+          // errorSteps: map where keys are steps that are known as bad sequenced state steps
+          var result = {cycles: {}, errorSteps: {}};
           var errors = this.scope.topology.topology.workflows[this.scope.currentWorkflowName].errors;
           var instance = this;
           if (errors) {
@@ -605,8 +605,10 @@ define(function (require) {
                   }
                 }
               } else if (instance.getErrorType(error) === 'BadStateSequenceError') {
-                result.badSequenced[error.from] = true;
-                result.badSequenced[error.to] = true;
+                result.errorSteps[error.from] = true;
+                result.errorSteps[error.to] = true;
+              } else if (instance.getErrorType(error) === 'UnknownNodeError') {
+                result.errorSteps[error.stepId] = true;
               }
             });
           }

@@ -9,14 +9,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.common.collect.Maps;
 import org.springframework.stereotype.Component;
 
+import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.paas.model.PaaSNodeTemplate;
-import alien4cloud.paas.model.PaaSRelationshipTemplate;
-import alien4cloud.paas.model.PaaSTopology;
-import alien4cloud.paas.plan.TopologyTreeBuilderService;
 import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.paas.wf.validation.WorkflowValidator;
@@ -26,7 +24,7 @@ import alien4cloud.paas.wf.validation.WorkflowValidator;
 public class WorkflowsBuilderService {
 
     @Resource
-    private TopologyTreeBuilderService topologyTreeBuilderService;
+    private ICSARRepositorySearchService csarRepoSearchService;
 
     @Resource
     private InstallWorkflowBuilder installWorkflowBuilder;
@@ -40,25 +38,27 @@ public class WorkflowsBuilderService {
     @Resource
     private WorkflowValidator workflowValidator;
 
-    public void initWorkflows(Topology topology) {
-        Map<String, Workflow> wfs = topology.getWorkflows();
+    public TopologyContext initWorkflows(TopologyContext topologyContext) {
+        Map<String, Workflow> wfs = topologyContext.getTopology().getWorkflows();
         if (wfs == null) {
             wfs = Maps.newHashMap();
-            topology.setWorkflows(wfs);
+            topologyContext.getTopology().setWorkflows(wfs);
         }
-        if (wfs.isEmpty()) {
+        if (!wfs.containsKey(Workflow.INSTALL_WF)) {
             Workflow install = new Workflow();
             install.setStandard(true);
             install.setName(Workflow.INSTALL_WF);
             wfs.put(Workflow.INSTALL_WF, install);
-            reinitWorkflow(topology, Workflow.INSTALL_WF);
+            reinitWorkflow(Workflow.INSTALL_WF, topologyContext);
+        }
+        if (!wfs.containsKey(Workflow.UNINSTALL_WF)) {
             Workflow uninstall = new Workflow();
             uninstall.setStandard(true);
             uninstall.setName(Workflow.UNINSTALL_WF);
             wfs.put(Workflow.UNINSTALL_WF, uninstall);
-            reinitWorkflow(topology, Workflow.UNINSTALL_WF);
+            reinitWorkflow(Workflow.UNINSTALL_WF, topologyContext);
         }
-        debugWorkflow(topology);
+        return topologyContext;
     }
 
     public Workflow ceateWorkflow(Topology topology) {
@@ -93,90 +93,90 @@ public class WorkflowsBuilderService {
         }
     }
 
-    public void addNode(Topology topology, String nodeName, NodeTemplate nodeTemplate) {
-        initWorkflows(topology);
-        PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
-        PaaSNodeTemplate paaSNodeTemplate = paaSTopology.getAllNodes().get(nodeName);
-        boolean forceOperation = WorkflowUtils.isCompute(paaSNodeTemplate) || WorkflowUtils.isVolume(paaSNodeTemplate);
-        for (Workflow wf : topology.getWorkflows().values()) {
+    public int validateWorkflow(TopologyContext topologyContext, Workflow workflow) {
+        return workflowValidator.validate(topologyContext, workflow);
+    }
+
+    public void addNode(TopologyContext topologyContext, String nodeName, NodeTemplate nodeTemplate) {
+        initWorkflows(topologyContext);
+        boolean forceOperation = WorkflowUtils.isComputeOrNetwork(nodeName, topologyContext);
+        for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
             AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
-            builder.addNode(wf, paaSTopology, paaSNodeTemplate, forceOperation);
-            builder.fillHostId(wf, paaSTopology);
-            workflowValidator.validate(wf);
+            builder.addNode(wf, nodeName, topologyContext, forceOperation);
+            WorkflowUtils.fillHostId(wf, topologyContext);
+            workflowValidator.validate(topologyContext, wf);
         }
-        debugWorkflow(topology);
+        debugWorkflow(topologyContext.getTopology());
     }
 
     public void removeNode(Topology topology, String nodeName, NodeTemplate nodeTemplate) {
-        initWorkflows(topology);
-        PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
+        TopologyContext topologyContext = buildTopologyContext(topology);
+        initWorkflows(topologyContext);
         for (Workflow wf : topology.getWorkflows().values()) {
             AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
-            builder.removeNode(wf, paaSTopology, nodeName);
-            builder.fillHostId(wf, paaSTopology);
-            workflowValidator.validate(wf);
+            builder.removeNode(wf, nodeName);
+            WorkflowUtils.fillHostId(wf, topologyContext);
+            workflowValidator.validate(topologyContext, wf);
         }
         debugWorkflow(topology);
     }
 
-    public void addRelationship(Topology topology, String nodeTemplateName, String relationshipName) {
-        PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
-        PaaSNodeTemplate paaSNodeTemplate = paaSTopology.getAllNodes().get(nodeTemplateName);
-        PaaSRelationshipTemplate pasSRelationshipTemplate = paaSNodeTemplate.getRelationshipTemplate(relationshipName, nodeTemplateName);
-        for (Workflow wf : topology.getWorkflows().values()) {
+    public void addRelationship(TopologyContext topologyContext, String nodeTemplateName, String relationshipName) {
+        NodeTemplate nodeTemplate = topologyContext.getTopology().getNodeTemplates().get(nodeTemplateName);
+        RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(relationshipName);
+        for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
             AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
-            builder.addRelationship(wf, paaSTopology, paaSNodeTemplate, pasSRelationshipTemplate);
-            builder.fillHostId(wf, paaSTopology);
-            workflowValidator.validate(wf);
+            builder.addRelationship(wf, nodeTemplateName, nodeTemplate, relationshipTemplate, topologyContext);
+            WorkflowUtils.fillHostId(wf, topologyContext);
+            workflowValidator.validate(topologyContext, wf);
         }
-        debugWorkflow(topology);
+        debugWorkflow(topologyContext.getTopology());
     }
 
     public void removeRelationship(Topology topology, String nodeTemplateName, String relationshipName, RelationshipTemplate relationshipTemplate) {
-        PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
-        PaaSNodeTemplate paaSNodeTemplate = paaSTopology.getAllNodes().get(nodeTemplateName);
+        TopologyContext topologyContext = buildTopologyContext(topology);
         String relationhipTarget = relationshipTemplate.getTarget();
         for (Workflow wf : topology.getWorkflows().values()) {
             AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
-            builder.removeRelationship(wf, paaSTopology, paaSNodeTemplate, relationhipTarget);
-            builder.fillHostId(wf, paaSTopology);
-            workflowValidator.validate(wf);
+            builder.removeRelationship(wf, nodeTemplateName, relationhipTarget);
+            WorkflowUtils.fillHostId(wf, topologyContext);
+            workflowValidator.validate(topologyContext, wf);
         }
     }
 
     public Workflow removeEdge(Topology topology, String workflowName, String from, String to) {
+        TopologyContext topologyContext = buildTopologyContext(topology);
         Workflow wf = topology.getWorkflows().get(workflowName);
         if (wf == null) {
             throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
         }
-        PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
         AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
-        builder.removeEdge(wf, paaSTopology, from, to);
-        workflowValidator.validate(wf);
+        builder.removeEdge(wf, from, to);
+        workflowValidator.validate(topologyContext, wf);
         return wf;
     }
 
     public Workflow connectStepFrom(Topology topology, String workflowName, String stepId, String[] stepNames) {
+        TopologyContext topologyContext = buildTopologyContext(topology);
         Workflow wf = topology.getWorkflows().get(workflowName);
         if (wf == null) {
             throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
         }
-        PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
         AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
-        builder.connectStepFrom(wf, paaSTopology, stepId, stepNames);
-        workflowValidator.validate(wf);
+        builder.connectStepFrom(wf, stepId, stepNames);
+        workflowValidator.validate(topologyContext, wf);
         return wf;
     }
 
     public Workflow connectStepTo(Topology topology, String workflowName, String stepId, String[] stepNames) {
+        TopologyContext topologyContext = buildTopologyContext(topology);
         Workflow wf = topology.getWorkflows().get(workflowName);
         if (wf == null) {
             throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
         }
-        PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
         AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
-        builder.connectStepTo(wf, paaSTopology, stepId, stepNames);
-        workflowValidator.validate(wf);
+        builder.connectStepTo(wf, stepId, stepNames);
+        workflowValidator.validate(topologyContext, wf);
         return wf;
     }
 
@@ -192,15 +192,15 @@ public class WorkflowsBuilderService {
     }
 
     public Workflow removeStep(Topology topology, String workflowName, String stepId, boolean force) {
+        TopologyContext topologyContext = buildTopologyContext(topology);
         Workflow wf = topology.getWorkflows().get(workflowName);
         if (wf == null) {
             throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
         }
-        PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
         AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
-        builder.removeStep(wf, paaSTopology, stepId, force);
+        builder.removeStep(wf, stepId, force);
         log.info(WorkflowUtils.debugWorkflow(wf));
-        workflowValidator.validate(wf);
+        workflowValidator.validate(topologyContext, wf);
         return wf;
     }
 
@@ -209,9 +209,8 @@ public class WorkflowsBuilderService {
         if (wf == null) {
             throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
         }
-        PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
         AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
-        builder.renameStep(wf, paaSTopology, stepId, newStepName);
+        builder.renameStep(wf, stepId, newStepName);
         log.info(WorkflowUtils.debugWorkflow(wf));
         return wf;
     }
@@ -221,55 +220,123 @@ public class WorkflowsBuilderService {
         if (wf == null) {
             throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
         }
-        PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
+        TopologyContext topologyContext = buildTopologyContext(topology);
         AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
-        builder.addActivity(wf, paaSTopology, relatedStepId, before, activity);
-        builder.fillHostId(wf, paaSTopology);
+        builder.addActivity(wf, relatedStepId, before, activity);
+        WorkflowUtils.fillHostId(wf, topologyContext);
         log.info(WorkflowUtils.debugWorkflow(wf));
-        workflowValidator.validate(wf);
+        workflowValidator.validate(topologyContext, wf);
         return wf;
     }
 
     public Workflow swapSteps(Topology topology, String workflowName, String stepId, String targetId) {
+        TopologyContext topologyContext = buildTopologyContext(topology);
         Workflow wf = topology.getWorkflows().get(workflowName);
         if (wf == null) {
             throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
         }
-        PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
         AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
-        builder.swapSteps(wf, paaSTopology, stepId, targetId);
-        builder.fillHostId(wf, paaSTopology);
+        builder.swapSteps(wf, stepId, targetId);
+        WorkflowUtils.fillHostId(wf, topologyContext);
         log.info(WorkflowUtils.debugWorkflow(wf));
-        workflowValidator.validate(wf);
+        workflowValidator.validate(topologyContext, wf);
         return wf;
     }
 
     public void renameNode(Topology topology, NodeTemplate nodeTemplate, String nodeTemplateName, String newNodeTemplateName) {
-        PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
-        PaaSNodeTemplate paaSNodeTemplate = paaSTopology.getAllNodes().get(newNodeTemplateName);
-        boolean isCompute = WorkflowUtils.isCompute(paaSNodeTemplate) /* || WorkflowUtils.isNetwork(paaSNodeTemplate) */;
+        TopologyContext topologyContext = buildTopologyContext(topology);
         for (Workflow wf : topology.getWorkflows().values()) {
             AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
-            builder.renameNode(wf, paaSTopology, paaSNodeTemplate, isCompute, nodeTemplateName, newNodeTemplateName);
-            builder.fillHostId(wf, paaSTopology);
-            workflowValidator.validate(wf);
+            builder.renameNode(wf, nodeTemplateName, newNodeTemplateName);
+            WorkflowUtils.fillHostId(wf, topologyContext);
+            workflowValidator.validate(topologyContext, wf);
         }
     }
 
-    public Workflow reinitWorkflow(Topology topology, String workflowName) {
-        Workflow wf = topology.getWorkflows().get(workflowName);
+    public Workflow reinitWorkflow(String workflowName, TopologyContext topologyContext) {
+        Workflow wf = topologyContext.getTopology().getWorkflows().get(workflowName);
         if (wf == null) {
             throw new NotFoundException(String.format("The workflow '%s' can not be found", workflowName));
         }
         if (!wf.isStandard()) {
             throw new BadWorkflowOperationException(String.format("Reinit can not be performed on non standard workflow '%s'", workflowName));
         }
-        PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
         AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
-        wf = builder.reinit(wf, topology, paaSTopology);
-        builder.fillHostId(wf, paaSTopology);
-        workflowValidator.validate(wf);
+        wf = builder.reinit(wf, topologyContext);
+        WorkflowUtils.fillHostId(wf, topologyContext);
+        workflowValidator.validate(topologyContext, wf);
         return wf;
     }
+    
+    public static interface TopologyContext {
+        Topology getTopology();
 
+        <T extends IndexedToscaElement> T findElement(Class<T> clazz, String id);
+    }
+
+    public TopologyContext buildTopologyContext(Topology topology) {
+        return buildCachedTopologyContext(new DefaultTopologyContext(topology));
+    }
+
+    public TopologyContext buildCachedTopologyContext(TopologyContext topologyContext) {
+        return new CachedTopologyContext(topologyContext);
+    }
+
+    private class DefaultTopologyContext implements TopologyContext {
+        private Topology topology;
+
+        public DefaultTopologyContext(Topology topology) {
+            super();
+            this.topology = topology;
+        }
+
+        public Topology getTopology() {
+            return topology;
+        }
+
+        @Override
+        public <T extends IndexedToscaElement> T findElement(Class<T> clazz, String id) {
+            return csarRepoSearchService.getElementInDependencies(clazz, id, topology.getDependencies());
+        }
+    }
+
+    private class CachedTopologyContext implements TopologyContext {
+        private TopologyContext wrapped;
+
+        private Map<Class<? extends IndexedToscaElement>, Map<String, IndexedToscaElement>> cache = Maps.newHashMap();
+        
+        public CachedTopologyContext(TopologyContext wrapped) {
+            super();
+            this.wrapped = wrapped;
+        }
+
+        @Override
+        public Topology getTopology() {
+            return wrapped.getTopology();
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public <T extends IndexedToscaElement> T findElement(Class<T> clazz, String id) {
+            Map<String, IndexedToscaElement> typeCache = cache.get(clazz);
+            if (typeCache == null) {
+                log.info(String.format("TopologyContext type cache not found for type <%s>, init one ...", clazz.getSimpleName()));
+                typeCache = Maps.newHashMap();
+                cache.put(clazz, typeCache);
+            } else {
+                log.info(String.format("TopologyContext type cache found for type <%s>, using it !", clazz.getSimpleName()));
+            }
+            IndexedToscaElement element = typeCache.get(id);
+            if (element == null) {
+                log.info(String.format("Element not found from cache for type <%s> id <%s>, look for in source ...", clazz.getSimpleName(), id));
+                element = wrapped.findElement(clazz, id);
+                typeCache.put(id, element);
+            } else {
+                log.info(String.format("Element found from cache for type <%s> id <%s>, hit !", clazz.getSimpleName(), id));
+            }
+            return (T) element;
+        }
+
+    }
 }
+

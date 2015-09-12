@@ -1,0 +1,120 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: TOSCA simple profile including a topology
+template_name: topology-wf-unknown-step
+template_version: 1.0.0-SNAPSHOT
+template_author: FastConnect
+
+description: a topology with std workflows
+
+imports:
+  - tosca-normative-types:1.0.0.wd03-SNAPSHOT
+  
+topology_template:
+  node_templates:
+    Compute:
+      type: tosca.nodes.Compute
+      capabilities:
+        scalable:
+          properties:
+            max_instances: 1
+            min_instances: 1
+            default_instances: 1
+  workflows:
+    install:
+      steps:
+        Compute_initial:
+          node: Compute
+          activity:
+            set_state: initial
+          on-success:
+            - Compute_creating
+        Compute_creating:
+          node: Compute
+          activity:
+            set_state: creating
+          on-success:
+            - create_Compute
+        create_Compute:
+          node: Compute
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - Compute_created
+        Compute_created:
+          node: Compute
+          activity:
+            set_state: created
+          on-success:
+            - Compute_configuring
+        Compute_configuring:
+          node: Compute
+          activity:
+            set_state: configuring
+          on-success:
+            # this step doesn't exists
+            - ___configure_Compute
+        configure_Compute:
+          node: Compute
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - Compute_configured
+        Compute_configured:
+          node: Compute
+          activity:
+            set_state: configured
+          on-success:
+            - Compute_starting
+        Compute_starting:
+          node: Compute
+          activity:
+            set_state: starting
+          on-success:
+            - start_Compute
+        start_Compute:
+          node: Compute
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - Compute_started
+        Compute_started:
+          node: Compute
+          activity:
+            set_state: started
+    uninstall:
+      steps:
+        Compute_stopping:
+          node: Compute
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_Compute
+        stop_Compute:
+          node: Compute
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - Compute_stopped
+        Compute_stopped:
+          node: Compute
+          activity:
+            set_state: stopped
+          on-success:
+            - Compute_deleting
+        Compute_deleting:
+          node: Compute
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_Compute
+        delete_Compute:
+          node: Compute
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - Compute_deleted
+        Compute_deleted:
+          node: Compute
+          activity:
+            set_state: deleted
+

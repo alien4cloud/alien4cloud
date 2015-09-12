@@ -181,13 +181,13 @@ topology_template:
       description: ${utils.renderDescription(${wfEntry.value.description}, "        ")}
 #end## if wfEntry.value.description
 #if($utils.mapIsNotEmpty(${wfEntry.value.steps}))
-      tasks:
+      steps:
 #foreach($taskEntry in ${wfEntry.value.steps.entrySet()})
         ${taskEntry.key}:
 #if($taskEntry.value.nodeId)
           node: ${taskEntry.value.nodeId}
 #if($taskEntry.value.activity)
-          action:
+          activity:
 #if($utils.canRenderInlineActivityArgs(${taskEntry.value.activity}))
             ${utils.getActivityLabel(${taskEntry.value.activity})}: ${utils.getInlineActivityArg(${taskEntry.value.activity})}
 #else

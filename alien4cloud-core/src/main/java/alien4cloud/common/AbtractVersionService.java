@@ -82,7 +82,7 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
                 topology = alienDAO.findById(Topology.class, topologyToCloneId);
             } else {
                 topology = new Topology();
-                workflowBuilderService.initWorkflows(topology);
+                workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
             }
             topology.setId(UUID.randomUUID().toString());
         }

@@ -20,7 +20,8 @@ import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.wf.Workflow;
-import alien4cloud.paas.wf.validation.WorkflowValidator;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
 import alien4cloud.topology.task.AbstractTask;
 import alien4cloud.topology.task.NodeFiltersTask;
 import alien4cloud.topology.task.PropertiesTask;
@@ -66,7 +67,7 @@ public class TopologyValidationService {
     @Resource
     private NodeFilterValidationService nodeFilterValidationService;
     @Resource
-    private WorkflowValidator workflowValidator;
+    private WorkflowsBuilderService workflowBuilderService;
 
     /**
      * Validate if a topology is valid for deployment or not
@@ -85,8 +86,9 @@ public class TopologyValidationService {
         // validate the workflows
         List<WorkflowTask> tasks = Lists.newArrayList();
         if (topology.getWorkflows() != null) {
+            TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
             for (Workflow workflow : topology.getWorkflows().values()) {
-                int errorCount = workflowValidator.validate(workflow);
+                int errorCount = workflowBuilderService.validateWorkflow(topologyContext, workflow);
                 if (errorCount > 0) {
                     dto.setValid(false);
                     WorkflowTask workflowTask = new WorkflowTask();

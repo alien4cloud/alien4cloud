@@ -66,6 +66,7 @@ import alien4cloud.paas.plan.BuildPlanGenerator;
 import alien4cloud.paas.plan.StartEvent;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -160,7 +161,7 @@ public class TopologyController {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService
                 .checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS, ApplicationRole.APPLICATION_USER);
-        workflowBuilderService.initWorkflows(topology);
+        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -230,7 +231,8 @@ public class TopologyController {
         log.debug("Adding a new Node template <" + nodeTemplateRequest.getName() + "> bound to the node type <" + nodeTemplateRequest.getIndexedNodeTypeId()
                 + "> to the topology <" + topology.getId() + "> .");
 
-        workflowBuilderService.addNode(topology, nodeTemplateRequest.getName(), nodeTemplate);
+        TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
+        workflowBuilderService.addNode(topologyContext, nodeTemplateRequest.getName(), nodeTemplate);
         alienDAO.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
@@ -433,7 +435,8 @@ public class TopologyController {
         TopologyServiceCore.fillProperties(properties, indexedRelationshipType.getProperties(), null);
         relationship.setProperties(properties);
         relationships.put(relationshipName, relationship);
-        workflowBuilderService.addRelationship(topology, nodeTemplateName, relationshipName);
+        TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
+        workflowBuilderService.addRelationship(topologyContext, nodeTemplateName, relationshipName);
         alienDAO.save(topology);
         log.info("Added relationship to the topology [" + topologyId + "], node name [" + nodeTemplateName + "], relationship name [" + relationshipName + "]");
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
@@ -812,7 +815,7 @@ public class TopologyController {
         log.debug("Replacing the node template<{}> with <{}> bound to the node type <{}> on the topology <{}> .", nodeTemplateName,
                 nodeTemplateRequest.getName(), nodeTemplateRequest.getIndexedNodeTypeId(), topology.getId());
         // add the new node to the workflow
-        workflowBuilderService.addNode(topology, nodeTemplateRequest.getName(), newNodeTemplate);
+        workflowBuilderService.addNode(workflowBuilderService.buildTopologyContext(topology), nodeTemplateRequest.getName(), newNodeTemplate);
 
         alienDAO.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();

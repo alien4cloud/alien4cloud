@@ -18,9 +18,17 @@ import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedModelUtils;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.paas.wf.AbstractActivity;
+import alien4cloud.paas.wf.AbstractStep;
+import alien4cloud.paas.wf.NodeActivityStep;
+import alien4cloud.paas.wf.Workflow;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
+import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.IChecker;
 import alien4cloud.tosca.parser.ParsingContextExecution;
@@ -40,6 +48,9 @@ public class TopologyChecker implements IChecker<Topology> {
     @Resource
     private ICSARRepositorySearchService searchService;
 
+    @Resource
+    private WorkflowsBuilderService workflowBuilderService;
+
     @Override
     public String getName() {
         return KEY;
@@ -57,14 +68,14 @@ public class TopologyChecker implements IChecker<Topology> {
     }
 
     @Override
-    public void check(Topology instance, ParsingContextExecution context, Node node) {
+    public void check(final Topology instance, ParsingContextExecution context, Node node) {
         if (instance.isEmpty()) {
             // if the topology doesn't contains any node template it won't be imported so add a warning.
             context.getParsingErrors().add(
                     new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.EMPTY_TOPOLOGY, null, node.getStartMark(), null, node.getEndMark(), ""));
         }
 
-        ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
+        final ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
 
         Set<CSARDependency> topologyDeps = new HashSet<CSARDependency>(archiveRoot.getArchive().getDependencies());
         instance.setDependencies(topologyDeps);
@@ -121,8 +132,70 @@ public class TopologyChecker implements IChecker<Topology> {
                 }
             }
         }
+
+        // manage the workflows
+        TopologyContext topologyContext = workflowBuilderService.buildCachedTopologyContext(new TopologyContext() {
+            @Override
+            public Topology getTopology() {
+                return instance;
+            }
+            @Override
+            public <T extends IndexedToscaElement> T findElement(Class<T> clazz, String id) {
+                return ToscaParsingUtil.getElementFromArchiveOrDependencies(clazz, id, archiveRoot, searchService);
+            }
+        });
+        finalizeParsedWorkflows(topologyContext, context, node);
+        workflowBuilderService.initWorkflows(topologyContext);
+
     }
 
+    /**
+     * Called after yaml parsing.
+     */
+    private void finalizeParsedWorkflows(TopologyContext topologyContext, ParsingContextExecution context, Node node) {
+        if (topologyContext.getTopology().getWorkflows() == null || topologyContext.getTopology().getWorkflows().isEmpty()) {
+            return;
+        }
+        for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
+            wf.setStandard(WorkflowUtils.isStandardWorkflow(wf));
+            if (wf.getSteps() != null) {
+                for (AbstractStep step : wf.getSteps().values()) {
+                    if (step.getFollowingSteps() != null) {
+                        Iterator<String> followingIds = step.getFollowingSteps().iterator();
+                        while (followingIds.hasNext()) {
+                            String followingId = followingIds.next();
+                            AbstractStep followingStep = wf.getSteps().get(followingId);
+                            if (followingStep == null) {
+                                followingIds.remove();
+                                // TODO: add an error in parsing context ?
+                                context.getParsingErrors().add(
+                                        new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNKNWON_WORKFLOW_STEP, null, node.getStartMark(), null, node
+                                                .getEndMark(), followingId));
+                            } else {
+                                followingStep.addPreceding(step.getName());
+                            }
+                        }
+                    }
+                    if (step instanceof NodeActivityStep) {
+                        AbstractActivity activity = ((NodeActivityStep) step).getActivity();
+                        if (activity == null) {
+                            // add an error ?
+                        } else {
+                            activity.setNodeId(((NodeActivityStep) step).getNodeId());
+                        }
+                    }
+                }
+            }
+            WorkflowUtils.fillHostId(wf, topologyContext);
+            int errorCount = workflowBuilderService.validateWorkflow(topologyContext, wf);
+            if (errorCount > 0) {
+                context.getParsingErrors().add(
+                        new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.WORKFLOW_HAS_ERRORS, null, node.getStartMark(), null, node.getEndMark(), wf
+                                .getName()));
+            }
+        }
+    }
+    
     private <T extends IndexedInheritableToscaElement> void mergeHierarchy(Map<String, T> indexedElements, ArchiveRoot archiveRoot) {
         if (indexedElements == null) {
             return;

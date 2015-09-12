@@ -79,14 +79,17 @@ define(function(require) {
                       var nodeId = node.elem.__data__;
                       var step = steps[nodeId];
                       var nodeName = step.nodeId;
-                      var typeName = scope.topology.topology.nodeTemplates[nodeName].type;
-                      var nodeType = scope.topology.nodeTypes[typeName];
+                      var nodeType = undefined;
+                      if (scope.topology.topology.nodeTemplates[nodeName]) {
+                        var typeName = scope.topology.topology.nodeTemplates[nodeName].type;
+                        nodeType = scope.topology.nodeTypes[typeName];
+                      }
                       var x = (bbox.width / 2) * -1;
                       var w = bbox.width;
                       var y = (bbox.height / 2) * -1;
                       var h = bbox.height;
                       var shapeSvg = parent.insert('rect').attr('x', x).attr('y', y).attr('width', w).attr('height', h).attr('rx', 5).attr('ry', 5).style("fill", "white");
-                      if (errorRenderingData.badSequenced[nodeId]) {
+                      if (errorRenderingData.errorSteps[nodeId]) {
                         // the step is in a bad sequence, make it red
                         shapeSvg.style("stroke", "#f66");
                       } else {
@@ -104,7 +107,7 @@ define(function(require) {
                         parent.append('text').attr('class', 'wfStateLabel').attr('fill', '#003399').attr('y', y + h - 8).text(_.trunc(step.activity.stateName, {'length': 13})).style("text-anchor", "middle");
                         iconSize = 16;
                       }
-                      if (nodeType.tags) {
+                      if (nodeType && nodeType.tags) {
                         var tags = listToMapService.listToMap(nodeType.tags, 'name', 'value');
                         if (tags.icon) {
                           parent.append('image').attr('x', x + 5).attr('y', y + 5).attr('width', iconSize).attr('height', iconSize).attr('xlink:href',
@@ -176,7 +179,7 @@ define(function(require) {
                     // the steps
                     var steps = [];
                     // data used to render errors
-                    var errorRenderingData = {cycles: {}, badSequenced: {}};
+                    var errorRenderingData = {cycles: {}, errorSteps: {}};
 
                     function setCurrentWorkflowStep(nodeId) {
                       scope.workflows.setCurrentworkflowStep(nodeId, steps[nodeId]);
