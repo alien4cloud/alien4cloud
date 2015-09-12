@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import alien4cloud.topology.task.AbstractTask;
 import alien4cloud.topology.task.TopologyTask;
 
 import com.google.common.collect.Lists;
@@ -25,11 +26,11 @@ public class TopologyValidationResult {
 
     private boolean isValid;
 
-    private List<TopologyTask> taskList;
+    private List<AbstractTask> taskList;
 
     private List<TopologyTask> warningList;
 
-    public <T extends TopologyTask> void addToTaskList(List<T> tasks) {
+    public <T extends AbstractTask> void addToTaskList(List<T> tasks) {
         if (tasks == null) {
             return;
         }

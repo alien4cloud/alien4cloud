@@ -9,7 +9,7 @@
   "CLONE": "Cloner",
   "DELETE": "Supprimer",
   "DELETE_CONFIRM": "Êtes-vous sûr de vouloir supprimer cet élément ?",
-  "CONFIRM_MESSAGE": "Êtes-vous sûr de vouloir effectuer cette action?",
+  "CONFIRM_MESSAGE": "Êtes-vous sûr de vouloir effectuer cette action ?",
   "CONFIRM": "Confirmer",
   "APPLICATION": "Application",
   "CSAR": "Csar",
@@ -75,6 +75,7 @@
       "MISSING_TOSCA_VERSION": "La version de TOSCA n'est pas spécifiée et est obligatoire.",
       "SYNTAX_ERROR": "Erreur de syntaxe. La définition Yaml pour le type {{note}} ne correspond pas à la spécification.",
       "UNRECOGNIZED_PROPERTY": "La propriété [ {{note}} ] est inconnue et a été ignorée.",
+      "UNKNWON_DISCRIMINATOR_KEY": "La clef {{note}} est inconnue.",
       "CSAR_ALREADY_EXISTS": "Une archive releasé ayant ce nom et cette version existe déjà dans le dépot. Afin de garantir la stabilité des projets les utilisants, les archives releasé ne peuvent pas être modifiées. Seule les archives SNAPSHOT peuvent être mise à jour.",
       "MISSING_FILE": "Le fichier référencé {{note}} n'existe pas dans l'archive.",
       "DUPLICATED_ELEMENT_DECLARATION": "L'Element [ {{note}} ] a déjà été déclaré ce fichier de définition",
@@ -108,6 +109,8 @@
       "YAML_SCALAR_NODE_EXPECTED": "Un noeud YAML de type scalar est attendu ici.",
       "UNKOWN_GROUP_POLICY": "La politique de groupe [{{note}}] n'est pas gérée",
       "UNKOWN_GROUP_MEMBER": "Le membre du group [{{note}}] n'existe pas et est ignoré",
+      "UNKNWON_WORKFLOW_STEP": "Le pas de workflow [{{note}}] n'existe pas et est ignoré",
+      "WORKFLOW_HAS_ERRORS" : "Le workflow [{{note}}] n'est pas valide",
       "MISSING_TOPOLOGY_INPUT": "L'input [{{problem}}] référéncé part la propriété [{{problem}}] du noeud [{{context}}] est introuvable dans la liste des inputs",
       "300": "Erreur inattendue lors de l'écriture du plugin.",
       "353": "Votre plugin doit nécessairement avoir le fichier META-INF/plugin.yml."
@@ -352,7 +355,7 @@
       "INSTANCES": "Instances",
       "PROPERTIES": "Propriétés",
       "ATTRIBUTES": "Attributs",
-      "RUNTIMEPROPS": "Propertés d'exécution",
+      "RUNTIMEPROPS": "Propriétés d'exécution",
       "INFORMATIONS_TAB": "Informations",
       "INFORMATIONS": {
         "APP_NAME": "Nom de l'application",
@@ -497,6 +500,10 @@
             "default_instances": "Propriété default_instances invalide, merci de vérifier si 0 < min_instances < default_instances < max_instances",
             "max_instances": "Propriété max_instances invalide, merci de vérifier si 0 < min_instances < default_instances < max_instances"
           }
+        },
+        "WORKFLOWS": {
+          "TITLE" : "Workflows",
+          "HAS_ERROR": "Le workflow '{{workflowName}}' n'est pas valide : {{errorCount}} erreur(s)"
         }
       },
       "WARNING": {
@@ -593,7 +600,42 @@
     "ERRORS": {
       "DELETE_TITLE": "Supprimer une application",
       "DELETING_FAILED": "Impossible de supprimer l'application. Annuler son déploiement et réessayez."
-    }
+    },
+    "WF": {
+      "title" : "Workflows",
+      "addWorkflow": "Ajouter un nouveau workflow",
+      "nodeName": "Noeud",
+      "host": "Hôte",
+      "interfaceName": "Interface",
+      "operationName": "Opération",
+      "stateName": "Etat",
+      "reinit": "Réinitialiser",
+      "addOperationActivity": "Ajouter un appel d'opération",
+      "addStateActivity": "Ajouter un changement d'état",
+      "insertOperationActivity": "Insérer un appel d'opération (avant)",
+      "appendOperationActivity": "Ajouter un appel d'opération (après)",   
+      "insertStateActivity": "Insérer un changement d'état (avant)",
+      "appendStateActivity": "Ajouter un changement d'état (après)",             
+      "activity": "Activité",
+      "disconnectFrom": "Déconnecter depuis",
+      "disconnectTo": "Déconnecter vers",
+      "swapLeft": "Interchanger à gauche",
+      "swapRigth": "Interchanger à droite",
+      "connectFromSelection": "Connecter depuis la sélection",
+      "connectToSelection": "Connecter vers la sélection",        
+      "removeStep": "Supprimer le pas",
+      "OperationCallActivity": "Appel d'opération",
+      "SetStateActivity": "Changement d'état",
+      "unpin": "Dévérouiller",
+      "currentSelection" : "Sélection courrante",
+      "hasErrors" : "erreur(s)",
+      "errors": {
+        "WorkflowHasCycleError": "Le workflow contient un cycle",
+        "BadStateSequenceError": "Mauvaise séquence : le pas '{{from}}' ne devrait pas se trouver avant le pas '{{to}}'",
+        "ParallelSetStatesError": "Des changements d'état sont effectués en parallèle pour le noeud '{{nodeId}}'",
+        "UnknownNodeError": "Le noeud '{{nodeId}}' référencé par le pas '{{stepId}}' n'existe pas"
+      }
+    }    
   },
   "TEMPLATE": {
     "NEW": "Nouveau Modèle",
@@ -870,7 +912,8 @@
     "808": "Le nom ne respecte pas le format attendu",
     "820": "Référence cyclique : un template de topologie ne peut pas s'auto-référencer",
     "830": "Une version releasée ne peut référencer des dépendances SNAPSHOT",
-    "831": "Cette version ne peut être renomée car elle est déjà utilisée par ailleur"
+    "831": "Cette version ne peut être renomée car elle est déjà utilisée par ailleur",
+    "850": "Cette opération n'est pas permise sur ce type de workflow"
   },
   "TAG_CONFIG": {
     "TAGS": "Méta-propriétés",

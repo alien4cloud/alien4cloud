@@ -20,6 +20,8 @@ public enum ErrorCode {
     MISSING_TOSCA_VERSION,
     /** A field is not recognized by Alien 4 Cloud and will be skipped. */
     UNRECOGNIZED_PROPERTY,
+    /** A discriminator is not known and no failback parser. */
+    UNKNWON_DISCRIMINATOR_KEY,
     /** A referenced file (definition, icon, artifact is missing). */
     MISSING_FILE,
     /** IO Error while reading a file. */
@@ -62,5 +64,7 @@ public enum ErrorCode {
     OUTPUTS_UNKNOWN_FUNCTION,
     UNKOWN_GROUP_POLICY,
     UNKOWN_GROUP_MEMBER,
-    EMPTY_TOPOLOGY;
+    EMPTY_TOPOLOGY,
+    UNKNWON_WORKFLOW_STEP,
+    WORKFLOW_HAS_ERRORS;
 }

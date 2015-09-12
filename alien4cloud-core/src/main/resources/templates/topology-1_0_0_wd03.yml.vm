@@ -173,3 +173,38 @@ topology_template:
 #end## of outputCapaPropSubEntry iteration
 #end## of outputCapaPropEntry iteration   
 #end## if maps are not empty
+#if($utils.mapIsNotEmpty($topology.workflows))
+  workflows:
+#foreach($wfEntry in ${topology.workflows.entrySet()})
+    ${wfEntry.key}:
+#if(${wfEntry.value.description})
+      description: ${utils.renderDescription(${wfEntry.value.description}, "        ")}
+#end## if wfEntry.value.description
+#if($utils.mapIsNotEmpty(${wfEntry.value.steps}))
+      steps:
+#foreach($taskEntry in ${wfEntry.value.steps.entrySet()})
+        ${taskEntry.key}:
+#if($taskEntry.value.nodeId)
+          node: ${taskEntry.value.nodeId}
+#if($taskEntry.value.activity)
+          activity:
+#if($utils.canRenderInlineActivityArgs(${taskEntry.value.activity}))
+            ${utils.getActivityLabel(${taskEntry.value.activity})}: ${utils.getInlineActivityArg(${taskEntry.value.activity})}
+#else
+            ${utils.getActivityLabel(${taskEntry.value.activity})}: 
+#foreach($argEntry in ${utils.getActivityArgsMap(${taskEntry.value.activity})})
+              ${argEntry.key}: ${argEntry.value}
+#end## foreach getActivityArgsMap
+#end## if canRenderInlineActivityArgs
+#end## if taskEntry.value.activity
+#end## if taskEntry.value.nodeId
+#if($utils.collectionIsNotEmpty(${taskEntry.value.followingSteps}))
+          on-success:
+#foreach($following in ${taskEntry.value.followingSteps})
+            - ${following}
+#end## foreach taskEntry.value.followingSteps
+#end## if taskEntry.value.followingSteps not empty
+#end## foreach wfEntry.value.steps
+#end## if map wfEntry.value.steps not empty
+#end## foreach topology.workflows.entrySet
+#end## if map topology.workflows not empty

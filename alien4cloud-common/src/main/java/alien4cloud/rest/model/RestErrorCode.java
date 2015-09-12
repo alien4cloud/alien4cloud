@@ -92,7 +92,8 @@ public enum RestErrorCode {
     //
     CYCLIC_TOPOLOGY_TEMPLATE_REFERENCE_ERROR(820),
     RELEASE_REFERENCING_SNAPSHOT(830),
-    VERSION_USED(831);
+    VERSION_USED(831),
+    BAD_WORKFLOW_OPERATION(850);
 
     private final int code;
 
