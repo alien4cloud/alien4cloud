@@ -11,6 +11,9 @@ define(function (require) {
         this.scope.previewWorkflowStep = undefined;
         // the current step that is pinned (on witch the user may act)
         this.scope.pinnedWorkflowStep = undefined;
+        
+        this.scope.wfViewMode = 'full';
+        this.scope.wfPinnedEdge = undefined;
 //        var instance = this;
 //        scope.$watch('topology', function() {
 //          if (scope.currentWorkflowName) {
@@ -18,6 +21,24 @@ define(function (require) {
 //            instance.refreshGraph();
 //          }
 //        }, true);
+        this.stateIcon = {};
+        this.stateIcon['initial'] = '\uf244';
+        this.stateIcon['creating'] = '\uf243';
+        this.stateIcon['created'] = '\uf242';
+        this.stateIcon['configuring'] = '\uf242';
+        this.stateIcon['configured'] = '\uf241';
+        this.stateIcon['starting'] = '\uf241';
+        this.stateIcon['started'] = '\uf240';
+        
+        this.stateIcon['stopping'] = '\uf241';
+        this.stateIcon['stopped'] = '\uf242';
+        this.stateIcon['deleting'] = '\uf243';
+        this.stateIcon['deleted'] = '\uf244';
+        // fa-battery-0 f244 
+        // fa-battery-1 f243
+        // fa-battery-2 f242
+        // fa-battery-3 f241
+        // fa-battery-4 f240
       };
       TopologyEditorMixin.prototype = {
         constructor: TopologyEditorMixin,
@@ -27,6 +48,14 @@ define(function (require) {
           // this is need in case of failure while renaming
           this.workflowName = workflowName;
           this.refreshGraph(true);
+        },
+        switchViewMode: function() {
+          if (this.scope.wfViewMode === 'simple') {
+            this.scope.wfViewMode = 'full'
+          } else {
+            this.scope.wfViewMode = 'simple'
+          }
+          this.refreshGraph();
         },
         previewStep: function(step) {
           this.scope.previewWorkflowStep = step;
@@ -39,7 +68,31 @@ define(function (require) {
             this.scope.previewWorkflowStep = undefined;
           }
           this.scope.$apply();
-        },        
+        },
+        togglePinEdge: function(from, to) {
+          if (this.scope.wfPinnedEdge) {
+            if (this.scope.wfPinnedEdge.from === from && this.scope.wfPinnedEdge.to === to) {
+              this.scope.wfPinnedEdge = undefined;
+            } else {
+              this.scope.wfPinnedEdge = {'from': from, 'to': to};
+            }
+          } else {
+            this.scope.wfPinnedEdge = {'from': from, 'to': to};
+          }
+          this.scope.$apply();
+          this.refreshGraph();
+        },
+        unPinCurrentEdge: function() {
+          this.scope.wfPinnedEdge = undefined;
+          this.refreshGraph();
+        },
+        isEdgePinned: function(from, to) {
+          if (this.scope.wfPinnedEdge && this.scope.wfPinnedEdge.from === from && this.scope.wfPinnedEdge.to === to) {
+            return true;
+          } else {
+            return false;
+          }          
+        },
         // include or exclude this step from the selection
         toggleStepSelection: function(stepId) {
           var indexOfId = this.scope.workflowCurrentStepSelection.indexOf(stepId);
@@ -77,6 +130,7 @@ define(function (require) {
           this.scope.workflowCurrentStepSelection = [];
           this.scope.pinnedWorkflowStep = undefined;
           this.scope.previewWorkflowStep = undefined;
+          this.scope.wfPinnedEdge = undefined;
         },
         topologyChanged: function() {
           if (!this.scope.currentWorkflowName) {
@@ -282,6 +336,9 @@ define(function (require) {
                 var wf = successResult.data;
                 if (scope.pinnedWorkflowStep) {
                   instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, wf.steps[scope.pinnedWorkflowStep.name]);
+                }
+                if (instance.isEdgePinned(from, to)) {
+                  scope.wfPinnedEdge = undefined;
                 }
                 scope.topology.topology.workflows[scope.currentWorkflowName] = wf;
                 console.debug('operation succeded');
@@ -556,7 +613,11 @@ define(function (require) {
           if (shortType === 'OperationCallActivity') {
             return '\uf085'; // fa-cogs
           } else if (shortType === 'SetStateActivity') {
-            return '\uf087'; // fa-thumbs-o-up
+            if (this.stateIcon[step.activity.stateName]) {
+              return this.stateIcon[step.activity.stateName];
+            } else {
+              return '\uf087'; // fa-thumbs-o-up
+            }
           } else {
             return '\uf1e2'; // fa-bomb
           }            

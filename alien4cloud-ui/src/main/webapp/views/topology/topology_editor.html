@@ -293,7 +293,7 @@
                       <i ng-if="!emptyProps" class="pull-left fa"
                          ng-class="{'fa-chevron-down' : !isReqPropsCollapsed[requirementEntry.key], 'fa-chevron-right': isReqPropsCollapsed[requirementEntry.key]}">
                       </i>
-                      <span>{{requirementEntry.key}}</span>
+                      <span tooltip="{{requirementEntry.key}}" tooltip-append-to-body="true">{{requirementEntry.key | truncate:12}}</span>
                     </div>
                     <div class="col-md-3" id="requirement-{{requirementEntry.key}}">
                     <span tooltip="{{requirementEntry.value.type}}"
@@ -371,7 +371,7 @@
                       <i ng-if="!emptyProps" class="pull-left fa"
                          ng-class="{'fa-chevron-down' : !isReqPropsCollapsed[capabilityEntry.key], 'fa-chevron-right': isReqPropsCollapsed[capabilityEntry.key]}">
                       </i>
-                      <span>{{capabilityEntry.key}}</span>
+                      <span tooltip="{{capabilityEntry.key}}" tooltip-append-to-body="true">{{capabilityEntry.key | truncate:12}}</span>
                     </div>
                     <div class="col-md-3" id="capability-{{capabilityEntry.key}}">
                     <span tooltip="{{capabilityEntry.value.type}}"
@@ -483,7 +483,7 @@
                   ng-init="relNameObj[relationshipEntry.key] = relationshipEntry.key"
                   editable-text="relNameObj[relationshipEntry.key]" buttons="no" e-required onbeforesave="relationships.updateRelationshipName(relationshipEntry.key, $data)"
                   blur="submit" ng-click="$event.stopPropagation();"
-                  tooltip="{{relationshipEntry.key | split:15}}" tooltip-append-to-body="true">
+                  tooltip="{{relationshipEntry.key}}" tooltip-append-to-body="true">
                   {{relationshipEntry.key | truncate:25}}
                   <i class="fa fa-pencil-square-o"></i>
                 </span>
@@ -496,7 +496,7 @@
                 <div class="topology-level" collapse="isRelationshipCollapsed">
                   <div class="row">
                     <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</div>
-                    <div class="col-md-9">{{relationshipEntry.value.type}}</div>
+                    <div class="col-md-9" tooltip="{{relationshipEntry.value.type}}" tooltip-append-to-body="true">{{relationshipEntry.value.type | splitAndGet:'.':'last'}}</div>
                   </div>
                   <div class="row">
                     <div class="col-md-3">{{'COMPONENTS.RELATIONSHIPS.TARGET' | translate}}</div>
@@ -1013,7 +1013,7 @@
 	        <!-- The workflow edition box -->        
           <div class="well wfbox" ng-if="currentWorkflowName">
             <div class="row">
-              <div class="col-md-10">
+              <div class="col-md-8">
                 <h4 class="pull-left">
 		              <span editable-text="workflows.workflowName" buttons="no" e-required onbeforesave="workflows.renameWorkflow($data)" blur="submit" ng-if="!topology.topology.workflows[currentWorkflowName].standard">
 		                {{ currentWorkflowName }}
@@ -1022,13 +1022,21 @@
 		              <span ng-if="topology.topology.workflows[currentWorkflowName].standard">{{ currentWorkflowName }}</span>               
                 </h4>
               </div>
-              <div class="col-md-2" style="margin-top: 6px;">
-                <div class="pull-right">
+              <div class="col-md-4" style="margin-top: 6px;">
+                <div>
 									<delete-confirm
+									  class="pull-right"
 										ng-if="!topology.topology.workflows[currentWorkflowName].standard"
 										id="btn-delete-wf" func="workflows.removeWorkflow()"
 										position="left" bssize="btn-sm" fastyle="fa-trash-o">
 									</delete-confirm>
+	                <a id="wfViewMode"
+	                   class="btn btn-default btn-sm pull-right"
+	                   ng-class="{'active' : wfViewMode === 'full'}" 
+	                   tooltip="{{ 'APPLICATIONS.WF.changeViewMode' | translate}}"
+	                   tooltip-append-to-body="true" ng-click="workflows.switchViewMode()">
+	                  <i class="fa fa-binoculars"></i>
+	                </a>                
 								</div>
               </div>
             </div>
@@ -1084,6 +1092,33 @@
               </li>
             </ul>           
           </div>
+          <!-- The pinned edge to be edited -->
+          <div class="well wfbox" ng-if="wfPinnedEdge">
+            <div class="row">
+              <div class="col-md-10">
+                {{ wfPinnedEdge.from }} - {{ wfPinnedEdge.to }}
+              </div>
+              <div class="col-md-2" style="margin-top: 6px;">
+                <div class="pull-right">
+                    <a id="wfUnpinStep"
+                       class="btn btn-default btn-sm"
+                       tooltip="{{ 'APPLICATIONS.WF.unpin' | translate}}"
+                       tooltip-append-to-body="true" ng-click="workflows.unPinCurrentEdge()">
+                      <i class="fa fa-unlock"></i>
+                    </a>              
+                </div>
+              </div>
+            </div>          
+              <div>
+                <a class="btn btn-default btn-md"
+                  ng-mouseover="workflows.removeEdgePreview(wfPinnedEdge.from, wfPinnedEdge.to)"
+                  ng-mouseleave="workflows.resetPreview()"
+                  confirm="{{'CONFIRM_MESSAGE' | translate}}"
+                  confirm-title="{{'CONFIRM' | translate }}"
+                  confirm-handler="workflows.removeEdge(wfPinnedEdge.from, wfPinnedEdge.to)"
+                  confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.disconnect' | translate}}</a>
+              </div>
+          </div>          
           <!-- The pinned step to be edited -->
           <div class="well wfbox" ng-if="pinnedWorkflowStep">
 	          <div class="row">

@@ -88,8 +88,10 @@ public class WorkflowsBuilderService {
     }
 
     private void debugWorkflow(Topology topology) {
-        for (Workflow wf : topology.getWorkflows().values()) {
-            log.info(WorkflowUtils.debugWorkflow(wf));
+        if (log.isDebugEnabled()) {
+            for (Workflow wf : topology.getWorkflows().values()) {
+                log.debug(WorkflowUtils.debugWorkflow(wf));
+            }
         }
     }
 
@@ -199,7 +201,9 @@ public class WorkflowsBuilderService {
         }
         AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
         builder.removeStep(wf, stepId, force);
-        log.info(WorkflowUtils.debugWorkflow(wf));
+        if (log.isDebugEnabled()) {
+            log.debug(WorkflowUtils.debugWorkflow(wf));
+        }
         workflowValidator.validate(topologyContext, wf);
         return wf;
     }
@@ -211,7 +215,9 @@ public class WorkflowsBuilderService {
         }
         AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
         builder.renameStep(wf, stepId, newStepName);
-        log.info(WorkflowUtils.debugWorkflow(wf));
+        if (log.isDebugEnabled()) {
+            log.debug(WorkflowUtils.debugWorkflow(wf));
+        }
         return wf;
     }
 
@@ -224,7 +230,9 @@ public class WorkflowsBuilderService {
         AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
         builder.addActivity(wf, relatedStepId, before, activity);
         WorkflowUtils.fillHostId(wf, topologyContext);
-        log.info(WorkflowUtils.debugWorkflow(wf));
+        if (log.isDebugEnabled()) {
+            log.debug(WorkflowUtils.debugWorkflow(wf));
+        }
         workflowValidator.validate(topologyContext, wf);
         return wf;
     }
@@ -238,7 +246,9 @@ public class WorkflowsBuilderService {
         AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
         builder.swapSteps(wf, stepId, targetId);
         WorkflowUtils.fillHostId(wf, topologyContext);
-        log.info(WorkflowUtils.debugWorkflow(wf));
+        if (log.isDebugEnabled()) {
+            log.debug(WorkflowUtils.debugWorkflow(wf));
+        }
         workflowValidator.validate(topologyContext, wf);
         return wf;
     }
@@ -320,19 +330,27 @@ public class WorkflowsBuilderService {
         public <T extends IndexedToscaElement> T findElement(Class<T> clazz, String id) {
             Map<String, IndexedToscaElement> typeCache = cache.get(clazz);
             if (typeCache == null) {
-                log.info(String.format("TopologyContext type cache not found for type <%s>, init one ...", clazz.getSimpleName()));
+                if (log.isTraceEnabled()) {
+                    log.trace(String.format("TopologyContext type cache not found for type <%s>, init one ...", clazz.getSimpleName()));
+                }
                 typeCache = Maps.newHashMap();
                 cache.put(clazz, typeCache);
             } else {
-                log.info(String.format("TopologyContext type cache found for type <%s>, using it !", clazz.getSimpleName()));
+                if (log.isTraceEnabled()) {
+                    log.trace(String.format("TopologyContext type cache found for type <%s>, using it !", clazz.getSimpleName()));
+                }
             }
             IndexedToscaElement element = typeCache.get(id);
             if (element == null) {
-                log.info(String.format("Element not found from cache for type <%s> id <%s>, look for in source ...", clazz.getSimpleName(), id));
+                if (log.isTraceEnabled()) {
+                    log.trace(String.format("Element not found from cache for type <%s> id <%s>, look for in source ...", clazz.getSimpleName(), id));
+                }
                 element = wrapped.findElement(clazz, id);
                 typeCache.put(id, element);
             } else {
-                log.info(String.format("Element found from cache for type <%s> id <%s>, hit !", clazz.getSimpleName(), id));
+                if (log.isTraceEnabled()) {
+                    log.trace(String.format("Element found from cache for type <%s> id <%s>, hit !", clazz.getSimpleName(), id));
+                }
             }
             return (T) element;
         }

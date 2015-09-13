@@ -38,10 +38,12 @@ public class InstallWorkflowBuilder extends StandardWorflowBuilder {
         lastStep = appendStateStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.CREATED);
         // TODO: here look for DEPENDS_ON relationships ?
         lastStep = appendStateStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.CONFIGURING);
-        lastStep = eventuallyAddStdOperationStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.CONFIGURE, toscaTypeFinder, forceOperation);
+        // since relationhip operations are call in 'configure', this is required
+        lastStep = eventuallyAddStdOperationStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.CONFIGURE, toscaTypeFinder, true);
         lastStep = appendStateStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.CONFIGURED);
         lastStep = appendStateStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.STARTING);
-        lastStep = eventuallyAddStdOperationStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.START, toscaTypeFinder, forceOperation);
+        // since relationhip operations are call in 'start', this is required
+        lastStep = eventuallyAddStdOperationStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.START, toscaTypeFinder, true);
         lastStep = appendStateStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.STARTED);
     }
 

@@ -606,6 +606,7 @@
     "WF": {
       "title" : "Workflows",
       "addWorkflow": "Add workflow",
+      "changeViewMode": "Simplified view",
       "nodeName": "Node",
       "host": "Host",      
       "interfaceName": "Interface",
@@ -619,6 +620,7 @@
       "insertStateActivity": "Insert state change",
       "appendStateActivity": "Append state change",             
       "activity": "Activity",
+      "disconnect": "Disconnect",
       "disconnectFrom": "Disconnect from",
       "disconnectTo": "Disconnect to",
       "swapLeft": "Swap to left",
