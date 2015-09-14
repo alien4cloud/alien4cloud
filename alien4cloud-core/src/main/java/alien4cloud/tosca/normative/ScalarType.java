@@ -11,10 +11,9 @@ import org.apache.commons.lang3.StringUtils;
  * @author Minh Khang VU
  */
 public abstract class ScalarType<T extends ScalarUnit<U>, U extends Unit> implements IComparablePropertyType<T> {
+    private static final Pattern SCALAR_UNIT_PATTERN = Pattern.compile("^\\s*(\\d+(?:\\.\\d+)?)\\s+(\\p{Alnum}+)\\s*$");
 
-    private static final Pattern SCALAR_UNIT_PATTERN = Pattern.compile("^\\s*(\\d+)\\s+(\\p{Alnum}+)\\s*$");
-
-    protected abstract T doParse(Long value, String unitText) throws InvalidPropertyValueException;
+    protected abstract T doParse(Double value, String unitText) throws InvalidPropertyValueException;
 
     @Override
     public T parse(String text) throws InvalidPropertyValueException {
@@ -26,7 +25,7 @@ public abstract class ScalarType<T extends ScalarUnit<U>, U extends Unit> implem
             String valueText = matcher.group(1);
             String unitText = matcher.group(2);
             try {
-                return doParse(Long.parseLong(valueText), unitText);
+                return doParse(Double.parseDouble(valueText), unitText);
             } catch (NumberFormatException e) {
                 throw new InvalidPropertyValueException("Could not parse scalar from value " + text + " as this is not a valid number " + valueText, e);
             }

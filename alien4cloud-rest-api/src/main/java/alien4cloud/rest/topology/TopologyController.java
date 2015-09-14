@@ -39,16 +39,19 @@ import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.CyclicReferenceException;
+import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.ComplexPropertyValue;
 import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.ListPropertyValue;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.templates.TopologyTemplate;
@@ -65,6 +68,8 @@ import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.plan.BuildPlanGenerator;
 import alien4cloud.paas.plan.StartEvent;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -142,6 +147,9 @@ public class TopologyController {
     @Resource
     private TopologyCompositionService topologyCompositionService;
 
+    @Resource
+    private WorkflowsBuilderService workflowBuilderService;
+
     /**
      * Retrieve an existing {@link alien4cloud.model.topology.Topology}
      *
@@ -156,6 +164,7 @@ public class TopologyController {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService
                 .checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS, ApplicationRole.APPLICATION_USER);
+        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -225,6 +234,8 @@ public class TopologyController {
         log.debug("Adding a new Node template <" + nodeTemplateRequest.getName() + "> bound to the node type <" + nodeTemplateRequest.getIndexedNodeTypeId()
                 + "> to the topology <" + topology.getId() + "> .");
 
+        TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
+        workflowBuilderService.addNode(topologyContext, nodeTemplateRequest.getName(), nodeTemplate);
         alienDAO.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
@@ -255,7 +266,7 @@ public class TopologyController {
         refreshNodeTempNameInRelationships(nodeTemplateName, newNodeTemplateName, nodeTemplates);
         updateOnNodeTemplateNameChange(nodeTemplateName, newNodeTemplateName, topology);
         updateGroupMembers(topology, nodeTemplate, nodeTemplateName, newNodeTemplateName);
-
+        workflowBuilderService.renameNode(topology, nodeTemplate, nodeTemplateName, newNodeTemplateName);
         log.debug("Renaming the Node template <{}> with <{}> in the topology <{}> .", nodeTemplateName, newNodeTemplateName, topologyId);
 
         alienDAO.save(topology);
@@ -427,6 +438,8 @@ public class TopologyController {
         TopologyServiceCore.fillProperties(properties, indexedRelationshipType.getProperties(), null);
         relationship.setProperties(properties);
         relationships.put(relationshipName, relationship);
+        TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
+        workflowBuilderService.addRelationship(topologyContext, nodeTemplateName, relationshipName);
         alienDAO.save(topology);
         log.info("Added relationship to the topology [" + topologyId + "], node name [" + nodeTemplateName + "], relationship name [" + relationshipName + "]");
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
@@ -493,7 +506,8 @@ public class TopologyController {
 
         // group members removal
         updateGroupMembers(topology, template, nodeTemplateName, null);
-
+        // update the workflows
+        workflowBuilderService.removeNode(topology, nodeTemplateName, template);
         alienDAO.save(topology);
         topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
@@ -540,15 +554,15 @@ public class TopologyController {
      * @param propertyDefinition property's definition
      * @return response containing validation result
      */
-    private RestResponse<ConstraintInformation> buildRestErrorIfPropertyConstraintViolation(final String propertyName, final String propertyValue,
+    private RestResponse<ConstraintInformation> buildRestErrorIfPropertyConstraintViolation(final String propertyName, final Object propertyValue,
             final PropertyDefinition propertyDefinition) {
 
-        if (propertyValue == null) {
+        if (propertyValue == null || !(propertyValue instanceof String)) {
             // by convention updateproperty with null value => reset to default if exists
             return null;
         }
         try {
-            constraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
+            constraintPropertyService.checkSimplePropertyConstraint(propertyName, (String) propertyValue, propertyDefinition);
         } catch (ConstraintViolationException e) {
             log.error("Constraint violation error for property <" + propertyName + "> with value <" + propertyValue + ">", e);
             return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
@@ -582,7 +596,7 @@ public class TopologyController {
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemp = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         String propertyName = updatePropertyRequest.getPropertyName();
-        String propertyValue = updatePropertyRequest.getPropertyValue();
+        Object propertyValue = updatePropertyRequest.getPropertyValue();
 
         IndexedNodeType node = csarRepoSearch.getElementInDependencies(IndexedNodeType.class, nodeTemp.getType(), topology.getDependencies());
 
@@ -609,7 +623,15 @@ public class TopologyController {
         if (propertyValue == null) {
             nodeTemp.getProperties().put(propertyName, null);
         } else {
-            nodeTemp.getProperties().put(propertyName, new ScalarPropertyValue(propertyValue));
+            if (propertyValue instanceof String) {
+                nodeTemp.getProperties().put(propertyName, new ScalarPropertyValue((String) propertyValue));
+            } else if (propertyValue instanceof Map) {
+                nodeTemp.getProperties().put(propertyName, new ComplexPropertyValue((Map<String, Object>) propertyValue));
+            } else if (propertyValue instanceof List) {
+                nodeTemp.getProperties().put(propertyName, new ListPropertyValue((List<Object>) propertyValue));
+            } else {
+                throw new InvalidArgumentException("Property type " + propertyValue.getClass().getName() + " is invalid");
+            }
         }
 
         alienDAO.save(topology);
@@ -792,6 +814,8 @@ public class TopologyController {
 
         // Unload and remove old node template
         topologyService.unloadType(topology, oldNodeTemplate.getType());
+        // remove the node from the workflows
+        workflowBuilderService.removeNode(topology, nodeTemplateName, oldNodeTemplate);
         nodeTemplates.remove(nodeTemplateName);
         if (topology.getSubstitutionMapping() != null) {
             removeNodeTemplateSubstitutionTargetMapEntry(nodeTemplateName, topology.getSubstitutionMapping().getCapabilities());
@@ -801,6 +825,9 @@ public class TopologyController {
         refreshNodeTempNameInRelationships(nodeTemplateName, nodeTemplateRequest.getName(), nodeTemplates);
         log.debug("Replacing the node template<{}> with <{}> bound to the node type <{}> on the topology <{}> .", nodeTemplateName,
                 nodeTemplateRequest.getName(), nodeTemplateRequest.getIndexedNodeTypeId(), topology.getId());
+        // add the new node to the workflow
+        workflowBuilderService.addNode(workflowBuilderService.buildTopologyContext(topology), nodeTemplateRequest.getName(), newNodeTemplate);
+
         alienDAO.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
@@ -1003,6 +1030,7 @@ public class TopologyController {
             throw new NotFoundException("The relationship with name [" + relationshipName + "] do not exist for the node [" + nodeTemplateName
                     + "] of the topology [" + topologyId + "]");
         }
+        workflowBuilderService.removeRelationship(topology, nodeTemplateName, relationshipName, relationshipTemplate);
         alienDAO.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }

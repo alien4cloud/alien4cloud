@@ -39,7 +39,7 @@ public class PropertiesController {
     public RestResponse<ConstraintInformation> checkPropertyDefinition(@RequestBody PropertyRequest propertyRequest) {
         if (propertyRequest.getPropertyDefinition() != null) {
             try {
-                constraintPropertyService.checkPropertyConstraint(propertyRequest.getDefinitionId(), propertyRequest.getValue(),
+                constraintPropertyService.checkSimplePropertyConstraint(propertyRequest.getDefinitionId(), propertyRequest.getValue(),
                         propertyRequest.getPropertyDefinition());
             } catch (ConstraintViolationException e) {
                 log.error("Constraint violation error for property <" + propertyRequest.getDefinitionId() + "> with value <" + propertyRequest.getValue()

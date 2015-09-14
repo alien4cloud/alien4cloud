@@ -10,6 +10,8 @@ import org.yaml.snakeyaml.nodes.ScalarNode;
 
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.mapping.DefaultParser;
 
 import com.google.common.collect.Maps;
@@ -19,6 +21,8 @@ import com.google.common.collect.Sets;
  * Map using a child parser based on a discriminator key (valid only for MappingNode).
  */
 public class KeyDiscriminatorParser<T> extends DefaultParser<T> {
+    private static final String CATCH_ALL = "__";
+
     private Map<String, INodeParser<T>> parserByExistKey;
     private INodeParser<T> fallbackParser;
 
@@ -39,21 +43,28 @@ public class KeyDiscriminatorParser<T> extends DefaultParser<T> {
 
     @Override
     public T parse(Node node, ParsingContextExecution context) {
+        Set<String> keySet = Sets.newHashSet();
         if (node instanceof MappingNode) {
             // create a set of available keys
             MappingNode mappingNode = (MappingNode) node;
-            Set<String> keySet = Sets.newHashSet();
             for (NodeTuple tuple : mappingNode.getValue()) {
                 keySet.add(((ScalarNode) tuple.getKeyNode()).getValue());
             }
             // check if one of the discriminator key exists and if so use it for parsing.
             for (Map.Entry<String, INodeParser<T>> entry : parserByExistKey.entrySet()) {
-                if (keySet.contains(entry.getKey())) {
+                if (CATCH_ALL.equals(entry.getKey()) || keySet.contains(entry.getKey())) {
                     return entry.getValue().parse(node, context);
                 }
             }
         }
-        return fallbackParser.parse(node, context);
+        if (fallbackParser != null) {
+            return fallbackParser.parse(node, context);
+        } else {
+            context.getParsingErrors().add(
+                    new ParsingError(ErrorCode.UNKNWON_DISCRIMINATOR_KEY, "Invalid scalar value.", node.getStartMark(),
+                            "Tosca type cannot be expressed with the given scalar value.", node.getEndMark(), keySet.toString()));
+        }
+        return null;
     }
 
 }

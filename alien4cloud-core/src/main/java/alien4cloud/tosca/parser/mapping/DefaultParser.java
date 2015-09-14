@@ -11,7 +11,7 @@ public abstract class DefaultParser<T> implements INodeParser<T> {
     }
 
     @Override
-    public int getDefferedOrder(ParsingContextExecution context) {
+    public int getDeferredOrder(ParsingContextExecution context) {
         return 0;
     }
 

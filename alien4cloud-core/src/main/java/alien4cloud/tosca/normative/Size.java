@@ -5,7 +5,7 @@ package alien4cloud.tosca.normative;
  */
 public class Size extends ScalarUnit<SizeUnit> {
 
-    public Size(long value, SizeUnit unit) {
+    public Size(double value, SizeUnit unit) {
         super(value, unit);
     }
 }

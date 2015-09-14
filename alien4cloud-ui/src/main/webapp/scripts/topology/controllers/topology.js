@@ -6,6 +6,7 @@ define(function (require) {
   var angular = require('angular');
   var _ = require('lodash');
 
+  require('d3');
   require('toaster');
   require('bower_components/jquery-ui/ui/resizable');
 
@@ -29,6 +30,7 @@ define(function (require) {
   require('scripts/topology/controllers/topology_editor_relationships');
   require('scripts/topology/controllers/topology_editor_substitution');
   require('scripts/topology/controllers/topology_editor_versions');
+  require('scripts/topology/controllers/topology_editor_workflows');
   require('scripts/topology/controllers/topology_editor_yaml');
 
   require('scripts/topology/controllers/search_relationship');
@@ -36,9 +38,12 @@ define(function (require) {
   require('scripts/topology/services/topology_services');
   require('scripts/topology/directives/plan_rendering');
   require('scripts/topology/directives/topology_rendering');
+  require('scripts/topology/controllers/workflow_operation_selector');
+  require('scripts/topology/controllers/workflow_state_selector');
+  require('scripts/topology/services/workflow_services');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles']).controller('TopologyCtrl',
-    ['$scope', '$modal', '$timeout', 'topologyJsonProcessor', 'topologyServices', 'componentService', 'nodeTemplateService', 'appVersions', 'preselectedVersion', 'topologyId', 'toscaService', 'toscaCardinalitiesService',
+    ['$scope', '$modal', '$timeout', 'topologyJsonProcessor', 'topologyServices', 'componentService', 'nodeTemplateService', 'appVersions', 'preselectedVersion', 'topologyId', 'toscaService', 'toscaCardinalitiesService', 'workflowServices',
     'topoEditArtifacts',
     'topoEditDisplay',
     'topoEditGroups',
@@ -50,8 +55,9 @@ define(function (require) {
     'topoEditRelationships',
     'topoEditSubstitution',
     'topoEditVersions',
+    'topoEditWf',
     'topoEditYaml',
-    function($scope, $modal, $timeout, topologyJsonProcessor, topologyServices, componentService, nodeTemplateService, appVersions, preselectedVersion, topologyId, toscaService, toscaCardinalitiesService,
+    function($scope, $modal, $timeout, topologyJsonProcessor, topologyServices, componentService, nodeTemplateService, appVersions, preselectedVersion, topologyId, toscaService, toscaCardinalitiesService, workflowServices,
     topoEditArtifacts,
     topoEditDisplay,
     topoEditGroups,
@@ -63,6 +69,7 @@ define(function (require) {
     topoEditRelationships,
     topoEditSubstitution,
     topoEditVersions,
+    topoEditWf,
     topoEditYaml) {
 
       topoEditArtifacts($scope);
@@ -76,6 +83,7 @@ define(function (require) {
       topoEditRelationships($scope);
       topoEditSubstitution($scope);
       topoEditVersions($scope);
+      topoEditWf($scope);
       topoEditYaml($scope);
 
       // TODO : when topology templates edition with use also version, remove this IF statement
@@ -91,6 +99,7 @@ define(function (require) {
         // TODO : remove this part when apVersion will be given in state 'topologytemplates.detail.topology'
         $scope.topologyId = topologyId;
       }
+      $scope.workflows.setCurrentWorkflowName('install');
 
       $scope.refreshTopology = function(topologyDTO, selectedNodeTemplate) {
         for (var nodeId in topologyDTO.topology.nodeTemplates) {

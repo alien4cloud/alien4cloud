@@ -111,9 +111,8 @@ define(function (require) {
           } // if end
         },
 
-        updateRelationshipProperty: function(propertyDefinition, propertyValue, relationshipType, relationshipName) {
+        updateRelationshipProperty: function(propertyDefinition, propertyName, propertyValue, relationshipType, relationshipName) {
           var scope = this.scope;
-          var propertyName = propertyDefinition.name;
           var updateIndexedTypePropertyRequest = {
             'propertyName': propertyName,
             'propertyValue': propertyValue,

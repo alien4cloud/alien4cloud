@@ -16,7 +16,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public abstract class ScalarUnit<T extends Unit> implements Comparable<ScalarUnit<T>> {
 
-    private long value;
+    private double value;
 
     private T unit;
 

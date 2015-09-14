@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
-import org.yaml.snakeyaml.nodes.NodeTuple;
 
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.tosca.parser.MappingTarget;
@@ -15,8 +14,6 @@ import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.impl.base.ListParser;
 import alien4cloud.tosca.parser.impl.base.MapParser;
 import alien4cloud.tosca.parser.impl.base.ReferencedParser;
-
-import com.google.common.collect.Maps;
 
 /**
  * Build Mapping target for map.
@@ -36,13 +33,7 @@ public class MapMappingBuilder implements IMappingBuilder {
 
     @Override
     public MappingTarget buildMapping(MappingNode mappingNode, ParsingContextExecution context) {
-        Map<String, String> map = Maps.newHashMap();
-        for (NodeTuple tuple : mappingNode.getValue()) {
-            String key = ParserUtils.getScalar(tuple.getKeyNode(), context);
-            String value = ParserUtils.getScalar(tuple.getValueNode(), context);
-            map.put(key, value);
-        }
-
+        Map<String, String> map = ParserUtils.parseStringMap(mappingNode, context);
         if (map.containsKey(TYPE) && map.containsKey(LIST_TYPE)) {
             log.warn("Both field <{}> and <{}> exist in your mapping. If it's defined <{}> will override the <{}>.", TYPE, LIST_TYPE, LIST_TYPE, TYPE);
         }

@@ -281,6 +281,23 @@
               </table>
             </div>
           </div>
+          
+          <!--  Workflow tasks  -->
+          <div ng-if="(wfTasks = (validTopologyDTO.taskList | filter:{code:'WORKFLOW_INVALID'})).length>0">
+            <div class="topology-node-expand clickable" ng-init="isWorkflowsCollapsed = false" ng-click="isWorkflowsCollapsed = !isWorkflowsCollapsed">
+              <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isWorkflowsCollapsed, 'fa-chevron-right': isWorkflowsCollapsed}"></i>
+              <span>{{'APPLICATIONS.TOPOLOGY.TASK.WORKFLOWS.TITLE' | translate}}</span>
+            </div>
+
+            <div collapse="isWorkflowsCollapsed" class="topology-level">
+              <ul>
+                <li ng-repeat="wfTask in wfTasks">
+                  {{'APPLICATIONS.TOPOLOGY.TASK.WORKFLOWS.HAS_ERROR' | translate:wfTask}}
+                </li>
+              </ul>
+            </div>
+          </div>
+                    
         </div>
       </div>
     </div>
@@ -358,7 +375,12 @@
           <table class="table table-condensed" id="nodeTemplateProperties" style="margin-left:10px;">
             <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentPropertyDefinitions">
               <td id="p_deployment_{{propertyKey}}">
-                <property-display ng-init="condensed = true" definition="propertyDefinition" property-value="deploymentProperties[propertyKey]" on-save="updateDeploymentProperty(propertyDefinition,propertyValue)" editable="selectedEnvironment.status === 'UNDEPLOYED'"
+                <property-display ng-init="condensed = true"
+                                  definition="propertyDefinition"
+                                  property-name="propertyKey"
+                                  property-value="deploymentProperties[propertyKey]"
+                                  on-save="updateDeploymentProperty(propertyDefinition, propertyKey, propertyValue)"
+                                  editable="selectedEnvironment.status === 'UNDEPLOYED'"
                 condensed="condensed">
                 </property-display>
               </td>
@@ -382,7 +404,11 @@
             {{inputId}}
           </div>
           <div id="app_deployment_value_{{inputId}}" class="col-md-8">
-            <property-display definition="inputDefinition" property-value="setup.inputProperties[inputId]" on-save="updateInputValue(propertyDefinition, propertyValue, inputId)" editable="!(selectedEnvironment.status === 'DEPLOYED')" condensed="true">
+            <property-display definition="inputDefinition"
+                              property-value="setup.inputProperties[inputId]"
+                              on-save="updateInputValue(propertyDefinition, propertyValue, inputId)"
+                              editable="!(selectedEnvironment.status === 'DEPLOYED')"
+                              condensed="true">
             </property-display>
           </div>
         </div>

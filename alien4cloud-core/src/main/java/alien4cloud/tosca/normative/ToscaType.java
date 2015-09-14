@@ -20,6 +20,7 @@ public class ToscaType {
     public static final IPropertyType<String> STRING_TYPE = new StringType();
     public static final IPropertyType<Date> TIMESTAMP_TYPE = new TimestampType();
     public static final IPropertyType<Size> SIZE_TYPE = new SizeType();
+    public static final IPropertyType<Frequency> FREQUENCY_TYPE = new FrequencyType();
     public static final IPropertyType<Time> TIME_TYPE = new TimeType();
     public static final IPropertyType<Version> VERSION_TYPE = new VersionType();
 
@@ -30,7 +31,10 @@ public class ToscaType {
     public static final String TIMESTAMP = TimestampType.NAME;
     public static final String SIZE = SizeType.NAME;
     public static final String TIME = TimeType.NAME;
+    public static final String FREQUENCY = FrequencyType.NAME;
     public static final String VERSION = VersionType.NAME;
+    public static final String LIST = "list";
+    public static final String MAP = "map";
 
     private static final Map<String, IPropertyType<?>> TYPES_MAP = Maps.newHashMap();
 
@@ -41,6 +45,7 @@ public class ToscaType {
         TYPES_MAP.put(STRING, STRING_TYPE);
         TYPES_MAP.put(TIMESTAMP, TIMESTAMP_TYPE);
         TYPES_MAP.put(SIZE, SIZE_TYPE);
+        TYPES_MAP.put(FREQUENCY, FREQUENCY_TYPE);
         TYPES_MAP.put(TIME, TIME_TYPE);
         TYPES_MAP.put(VERSION, VERSION_TYPE);
     }
@@ -50,5 +55,9 @@ public class ToscaType {
             return null;
         }
         return TYPES_MAP.get(typeName);
+    }
+
+    public static boolean isSimple(String typeName) {
+        return TYPES_MAP.containsKey(typeName);
     }
 }

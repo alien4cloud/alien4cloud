@@ -75,20 +75,20 @@ module.exports = function (grunt, options) {
           baseUrl: 'http://localhost:8088',
           specs: [
             '<%= yeoman.test %>/e2e/setup-scenario/before-all.js',
-            '<%= yeoman.test %>/e2e/scenarios/application_topology/**/*.js'
+            '<%= yeoman.test %>/e2e/scenarios/application_topology/**/*.js',
+            '<%= yeoman.test %>/e2e/scenarios/topology_templates/**/*.js'
           ]
         }
       }
     },
-    runDeploymentAndSecurity: {
+    runDeployment: {
       options: {
         args: {
           browser: grunt.option('browser'),
           baseUrl: 'http://localhost:8088',
           specs: [
             '<%= yeoman.test %>/e2e/setup-scenario/before-all.js',
-            '<%= yeoman.test %>/e2e/scenarios/deployment/**/*.js',
-            '<%= yeoman.test %>/e2e/scenarios/security/**/*.js'
+            '<%= yeoman.test %>/e2e/scenarios/deployment/**/*.js'
           ]
         }
       }
@@ -105,26 +105,15 @@ module.exports = function (grunt, options) {
         }
       }
     },
-    runCommon: {
+    runCommonAndSecurity: {
       options: {
         args: {
           browser: grunt.option('browser'),
           baseUrl: 'http://localhost:8088',
           specs: [
             '<%= yeoman.test %>/e2e/setup-scenario/before-all.js',
-            '<%= yeoman.test %>/e2e/scenarios/common/**/*.js'
-          ]
-        }
-      }
-    },
-    runTopologyTemplates: {
-      options: {
-        args: {
-          browser: grunt.option('browser'),
-          baseUrl: 'http://localhost:8088',
-          specs: [
-            '<%= yeoman.test %>/e2e/setup-scenario/before-all.js',
-            '<%= yeoman.test %>/e2e/scenarios/topology_templates/**/*.js'
+            '<%= yeoman.test %>/e2e/scenarios/common/**/*.js',
+            '<%= yeoman.test %>/e2e/scenarios/security/**/*.js'
           ]
         }
       }

@@ -44,6 +44,7 @@ import alien4cloud.paas.exception.MissingPluginException;
 import alien4cloud.paas.exception.PaaSDeploymentException;
 import alien4cloud.paas.exception.PaaSDeploymentIOException;
 import alien4cloud.paas.exception.PaaSUndeploymentException;
+import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -251,6 +252,15 @@ public class RestTechnicalExceptionHandler {
     public RestResponse<Void> paaSDeploymentErrorHandler(DeploymentPaaSIdConflictException e) {
         log.error("Error in PaaS Deployment, conflict with the generated deployment paaSId", e);
         return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.DEPLOYMENT_PAAS_ID_CONFLICT).message(e.getMessage()).build())
+                .build();
+    }
+
+    @ExceptionHandler(value = BadWorkflowOperationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public RestResponse<Void> paaSDeploymentErrorHandler(BadWorkflowOperationException e) {
+        log.error("Operation on workflow not permited", e);
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.BAD_WORKFLOW_OPERATION).message(e.getMessage()).build())
                 .build();
     }
 

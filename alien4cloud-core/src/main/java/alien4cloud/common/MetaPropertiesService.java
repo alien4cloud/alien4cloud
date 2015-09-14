@@ -2,9 +2,7 @@ package alien4cloud.common;
 
 import javax.annotation.Resource;
 
-import alien4cloud.dao.model.GetMultipleDataResult;
 import org.elasticsearch.common.collect.Maps;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -48,7 +46,7 @@ public class MetaPropertiesService {
 
         if (value != null) {
             // by convention updateproperty with null value => reset to default if exists
-            constraintPropertyService.checkPropertyConstraint(key, value, propertyDefinition);
+            constraintPropertyService.checkSimplePropertyConstraint(key, value, propertyDefinition);
         }
 
         if (resource.getMetaProperties() == null) {

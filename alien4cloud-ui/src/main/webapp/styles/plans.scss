@@ -4,8 +4,27 @@
     fill: #fff;
 }
 
+.node {
+    cursor: pointer;
+}
+
 .edgePath {
     stroke: #333;
     stroke-width: 1.5px;
     fill: none;
+    fill-opacity: 0;
+}
+
+.edgePath {
+    cursor: pointer;
+}
+
+.cluster {
+  cursor: normal;
+}
+
+.clusters rect {
+  fill: #d3d7e8;
+  stroke: #999;
+  stroke-width: 1.5px;
 }

@@ -1,4 +1,4 @@
-define(function (require) {
+define(function(require) {
   'use strict';
 
   var modules = require('modules');
@@ -26,10 +26,13 @@ define(function (require) {
         });
       };
 
+      var getToscaComplexTypeDescriptor = $resource('rest/formdescriptor/complex-tosca-type');
+
       return {
         getNodeTypeFormDescriptor: getNodeTypeFormDescriptor,
         getTagConfigurationDescriptor: tagConfigurationFormDescriptorDAO,
-        getForPluginConfig: pluginConfigFormDescriptorDAO.get
+        getForPluginConfig: pluginConfigFormDescriptorDAO.get,
+        getToscaComplexTypeDescriptor: getToscaComplexTypeDescriptor.save
       };
     }
   ]);
