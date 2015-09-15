@@ -107,7 +107,8 @@ public class CrudCSARSStepDefinition {
                 Context.getRestClientInstance().get("/rest/csars/" + CURRENT_CSAR_NAME + ":" + CURRENT_CSAR_VERSION + "/active-deployment"), Deployment.class);
         Assert.assertNotNull(dep.getData());
         Assert.assertNotNull(dep.getData().getId());
-        Assert.assertNotNull(dep.getData().getCloudId());
+//        Assert.assertNotNull(dep.getData().getCloudId());
+        Assert.fail("Fix test");
         Assert.assertEquals(CURRENT_CSAR_NAME + ":" + CURRENT_CSAR_VERSION, dep.getData().getSourceId());
         Assert.assertEquals(CURRENT_CSAR_NAME, dep.getData().getSourceName());
     }

@@ -21,9 +21,6 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.deployment.DeploymentSetup;
-import alien4cloud.model.cloud.Cloud;
-import alien4cloud.model.cloud.CloudConfiguration;
-import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.deployment.Deployment;
@@ -58,13 +55,9 @@ public class CommonStepDefinitions {
         indicesToClean.add(TopologyTemplate.class.getSimpleName().toLowerCase());
         indicesToClean.add(Plugin.class.getSimpleName().toLowerCase());
         indicesToClean.add(PluginConfiguration.class.getSimpleName().toLowerCase());
-        indicesToClean.add(Cloud.class.getSimpleName().toLowerCase());
-        indicesToClean.add(CloudConfiguration.class.getSimpleName().toLowerCase());
         indicesToClean.add(Deployment.class.getSimpleName().toLowerCase());
         indicesToClean.add(Group.class.getSimpleName().toLowerCase());
         indicesToClean.add(User.class.getSimpleName().toLowerCase());
-        indicesToClean.add(CloudImage.class.getSimpleName().toLowerCase());
-        indicesToClean.add(CloudImage.class.getSimpleName().toLowerCase());
         indicesToClean.add(MetaPropConfiguration.class.getSimpleName().toLowerCase());
         indicesToClean.add(AuditESDAO.ALIEN_AUDIT_INDEX);
     }

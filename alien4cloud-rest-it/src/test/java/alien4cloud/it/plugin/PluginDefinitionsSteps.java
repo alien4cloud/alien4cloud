@@ -11,6 +11,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.common.collect.Lists;
+import org.junit.Assert;
 
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
@@ -19,7 +20,6 @@ import alien4cloud.model.common.Tag;
 import alien4cloud.plugin.model.PluginUsage;
 import alien4cloud.rest.model.BasicSearchRequest;
 import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.paasprovider.PaaSProviderDTO;
 import alien4cloud.rest.utils.JsonUtil;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -122,9 +122,10 @@ public class PluginDefinitionsSteps {
     @Then("^the result should not be empty$")
     public void the_result_should_not_be_empty() throws Throwable {
         RestResponse<?> response = JsonUtil.read(Context.getInstance().takeRestResponse());
-        List<PaaSProviderDTO> providersResponse = JsonUtil.toList(JsonUtil.toString(response.getData()), PaaSProviderDTO.class);
-        assertNotNull(providersResponse);
-        assertTrue(providersResponse.size() > 0);
+//        List<PaaSProviderDTO> providersResponse = JsonUtil.toList(JsonUtil.toString(response.getData()), PaaSProviderDTO.class);
+//        assertNotNull(providersResponse);
+//        assertTrue(providersResponse.size() > 0);
+        Assert.fail("Fix test");
     }
 
     @When("^I get the plugin configuration$")

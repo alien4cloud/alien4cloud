@@ -80,7 +80,8 @@ public class ApplicationStepDefinitions {
         assertNotNull(searchResp);
         ApplicationEnvironmentDTO appEnvDTO = JsonUtil.readObject(JsonUtil.toString(searchResp.getData()[0]), ApplicationEnvironmentDTO.class);
         assertNotNull(appEnvDTO);
-        assertNull(appEnvDTO.getCloudId());
+//        assertNull(appEnvDTO.getCloudId());
+        Assert.fail("Fix test");
     }
 
     @SuppressWarnings("rawtypes")
@@ -546,7 +547,8 @@ public class ApplicationStepDefinitions {
         Assert.assertNotNull(appEnvName);
 
         ApplicationEnvironmentRequest appEnvRequest = new ApplicationEnvironmentRequest();
-        appEnvRequest.setCloudId(Context.getInstance().getCloudId(appEnvCloudName));
+//        appEnvRequest.setCloudId(Context.getInstance().getCloudId(appEnvCloudName));
+        Assert.fail("Fix test");
         appEnvRequest.setEnvironmentType(EnvironmentType.valueOf(appEnvType));
         appEnvRequest.setName(appEnvName);
         appEnvRequest.setDescription(appEnvDescription);
@@ -585,7 +587,8 @@ public class ApplicationStepDefinitions {
             case "cloudName":
                 // for attribute cloudName get the ID en set it
                 String cloudId = Context.getInstance().getCloudId(attributeValue);
-                appEnvRequest.setCloudId(cloudId);
+//                appEnvRequest.setCloudId(cloudId);
+                Assert.fail("Fix test");
                 break;
             case "description":
                 appEnvRequest.setDescription(attributeValue);
@@ -609,7 +612,8 @@ public class ApplicationStepDefinitions {
     @When("^I update the environment named \"([^\"]*)\" to use cloud \"([^\"]*)\" for application \"([^\"]*)\"$")
     public void I_update_the_environment_named_to_use_cloud_for_application(String envName, String cloudName, String appName) throws Throwable {
         UpdateApplicationEnvironmentRequest appEnvRequest = new UpdateApplicationEnvironmentRequest();
-        appEnvRequest.setCloudId(Context.getInstance().getCloudId(cloudName));
+//        appEnvRequest.setCloudId(Context.getInstance().getCloudId(cloudName));
+        Assert.fail("Fix test");
         String applicationId = Context.getInstance().getApplicationId(appName);
         String applicationEnvironmentId = Context.getInstance().getApplicationEnvironmentId(appName, envName);
         // send the update request

@@ -29,7 +29,6 @@ import alien4cloud.it.utils.websocket.IStompDataFuture;
 import alien4cloud.it.utils.websocket.StompConnection;
 import alien4cloud.it.utils.websocket.StompData;
 import alien4cloud.model.application.Application;
-import alien4cloud.model.application.DeploymentSetupMatchInfo;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceStatus;
@@ -207,7 +206,8 @@ public class ApplicationsDeploymentStepDefinitions {
     public void I_assign_the_cloud_with_name_for_the_application(String cloudName) throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         UpdateApplicationEnvironmentRequest updateApplicationCloudRequest = new UpdateApplicationEnvironmentRequest();
-        updateApplicationCloudRequest.setCloudId(cloudId);
+//        updateApplicationCloudRequest.setCloudId(cloudId);
+        Assert.fail("Fix test");
         Application application = Context.getInstance().getApplication();
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().putJSon(
@@ -491,13 +491,14 @@ public class ApplicationsDeploymentStepDefinitions {
             String deploymentPropertyValue = deploymentProperty.get(1).trim();
             expectedDeploymentProperties.put(deploymentPropertyName, deploymentPropertyValue);
         }
-        DeploymentSetupMatchInfo deploymentSetupMatchInfo = JsonUtil.read(
-                Context.getRestClientInstance().get(
-                        "/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
-                                + Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName())
-                                + "/deployment-setup"), DeploymentSetupMatchInfo.class).getData();
-        Assert.assertNotNull(deploymentSetupMatchInfo.getProviderDeploymentProperties());
-        Assert.assertEquals(expectedDeploymentProperties, deploymentSetupMatchInfo.getProviderDeploymentProperties());
+        Assert.fail("Fix test");
+//        DeploymentSetupMatchInfo deploymentSetupMatchInfo = JsonUtil.read(
+//                Context.getRestClientInstance().get(
+//                        "/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
+//                                + Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName())
+//                                + "/deployment-setup"), DeploymentSetupMatchInfo.class).getData();
+//        Assert.assertNotNull(deploymentSetupMatchInfo.getProviderDeploymentProperties());
+//        Assert.assertEquals(expectedDeploymentProperties, deploymentSetupMatchInfo.getProviderDeploymentProperties());
     }
 
     @Given("^I deploy an application environment \"([^\"]*)\" for application \"([^\"]*)\"$")

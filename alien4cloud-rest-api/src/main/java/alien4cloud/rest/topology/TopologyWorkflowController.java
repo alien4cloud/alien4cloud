@@ -44,7 +44,6 @@ public class TopologyWorkflowController {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
 
-
     @RequestMapping(value = "/{topologyId}/workflows", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Set<String>> getWorkflows(@PathVariable String topologyId) {
         return new RestResponse<Set<String>>();
@@ -100,7 +99,7 @@ public class TopologyWorkflowController {
     @RequestMapping(value = "/{topologyId}/workflows/{workflowName}/init", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Workflow> initWorkflow(@PathVariable String topologyId, @PathVariable String workflowName) {
 
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
