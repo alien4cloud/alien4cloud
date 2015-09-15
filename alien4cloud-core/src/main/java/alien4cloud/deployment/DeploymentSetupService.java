@@ -65,6 +65,15 @@ public class DeploymentSetupService {
         }
     }
 
+    public DeploymentSetup getOrFail(ApplicationEnvironment environment) {
+        DeploymentSetup setup = getById(generateId(environment.getCurrentVersionId(), environment.getId()));
+        if (setup == null) {
+            throw new NotFoundException("No setup found for version [" + environment.getCurrentVersionId() + "] and environment [" + environment.getId() + "]");
+        } else {
+            return setup;
+        }
+    }
+
     /**
      * Create a deployment setup with a failure when the composed key (version.id, environment.id) already exists
      *

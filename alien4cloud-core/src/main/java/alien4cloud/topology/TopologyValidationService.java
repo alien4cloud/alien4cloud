@@ -17,8 +17,19 @@ import alien4cloud.common.TagService;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.wf.Workflow;
 import alien4cloud.paas.wf.validation.WorkflowValidator;
-import alien4cloud.topology.task.*;
-import alien4cloud.topology.validation.*;
+import alien4cloud.topology.task.AbstractTask;
+import alien4cloud.topology.task.NodeFiltersTask;
+import alien4cloud.topology.task.PropertiesTask;
+import alien4cloud.topology.task.RequirementsTask;
+import alien4cloud.topology.task.SuggestionsTask;
+import alien4cloud.topology.task.TaskCode;
+import alien4cloud.topology.task.TaskLevel;
+import alien4cloud.topology.task.WorkflowTask;
+import alien4cloud.topology.validation.NodeFilterValidationService;
+import alien4cloud.topology.validation.TopologyAbstractNodeValidationService;
+import alien4cloud.topology.validation.TopologyAbstractRelationshipValidationService;
+import alien4cloud.topology.validation.TopologyPropertiesValidationService;
+import alien4cloud.topology.validation.TopologyRequirementBoundsValidationServices;
 import alien4cloud.utils.services.ConstraintPropertyService;
 
 @Service
@@ -93,7 +104,8 @@ public class TopologyValidationService {
         // FIXME property validation doesn't ignore inputs. It should.
         // validate required properties (properties of NodeTemplate, Relationship and Capability)
         // check also CLOUD / ENVIRONMENT meta properties
-        List<PropertiesTask> validateProperties = topologyPropertiesValidationService.validateProperties(topology);
+        // List<PropertiesTask> validateProperties = topologyPropertiesValidationService.validateProperties(topology);
+        List<PropertiesTask> validateProperties = null;
         if (hasOnlyPropertiesWarnings(validateProperties)) {
             dto.addToWarningList(validateProperties);
         } else {
@@ -120,7 +132,7 @@ public class TopologyValidationService {
 
     /**
      * Define if a tasks list is valid or not regarding task types
-     * 
+     *
      * @param taskList
      * @return
      */

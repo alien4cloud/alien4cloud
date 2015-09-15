@@ -11,7 +11,12 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import alien4cloud.application.ApplicationEnvironmentService;
@@ -19,7 +24,14 @@ import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.deployment.*;
+import alien4cloud.deployment.DeployService;
+import alien4cloud.deployment.DeploymentRuntimeService;
+import alien4cloud.deployment.DeploymentRuntimeStateService;
+import alien4cloud.deployment.DeploymentService;
+import alien4cloud.deployment.DeploymentSetupService;
+import alien4cloud.deployment.DeploymentSetupValidator;
+import alien4cloud.deployment.DeploymentTopologyService;
+import alien4cloud.deployment.UndeployService;
 import alien4cloud.deployment.matching.services.location.TopologyLocationService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
@@ -41,7 +53,11 @@ import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.rest.application.model.DeployApplicationRequest;
 import alien4cloud.rest.application.model.EnvironmentStatusDTO;
 import alien4cloud.rest.application.model.UpdateDeploymentSetupRequest;
-import alien4cloud.rest.model.*;
+import alien4cloud.rest.model.RestError;
+import alien4cloud.rest.model.RestErrorBuilder;
+import alien4cloud.rest.model.RestErrorCode;
+import alien4cloud.rest.model.RestResponse;
+import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
@@ -365,13 +381,13 @@ public class ApplicationDeploymentController {
 
                 @Override
                 public void onFailure(Throwable e) {
-                    result.setErrorResult(
-                            RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage())).build());
+                    result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage()))
+                            .build());
                 }
             });
         } catch (OrchestratorDisabledException e) {
-            result.setErrorResult(
-                    RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build());
+            result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage()))
+                    .build());
         } catch (PaaSDeploymentException e) {
             result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage())).build());
         }
@@ -380,19 +396,18 @@ public class ApplicationDeploymentController {
     }
 
     // FIXME MATCHING
-//    @ApiOperation(value = "Get the deployment setup for an application", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
-//    @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment-setup", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-//    @PreAuthorize("isAuthenticated()")
-//    public RestResponse<DeploymentSetupMatchInfo> getDeploymentSetup(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId)
-//            throws OrchestratorDisabledException {
-//        Application application = applicationService.checkAndGetApplication(applicationId);
-//        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
-//        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-//            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-//        }
-//        return RestResponseBuilder.<DeploymentSetupMatchInfo> builder()
-//                .data(deploymentSetupService.getDeploymentSetupMatchInfo(application.getId(), applicationEnvironmentId)).build();
-//    }
+    @ApiOperation(value = "Get the deployment setup for an application", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
+    @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment-setup", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<DeploymentSetup> getDeploymentSetup(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId)
+            throws OrchestratorDisabledException {
+        Application application = applicationService.checkAndGetApplication(applicationId);
+        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
+        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
+            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
+        }
+        return RestResponseBuilder.<DeploymentSetup> builder().data(deploymentSetupService.getOrFail(environment)).build();
+    }
 
     // FIXME THIS CANNOT BE USED ANYMORE TO SET MATCHING RESULT
     /**

@@ -1,0 +1,10 @@
+<div>
+    <h4>Here goes the location choice</h4>
+    <div class=row>
+      <div ng-repeat="locationMatch in deploymentContext.locationMatches" class="col-xs-6 col-md-3" >
+        <a ng-click="selectLocation(locationMatch)" class="thumbnail" ng-class="{'alert-success' : (isSelected=isLocationSelected(locationMatch.location)) }">
+          {{locationMatch.location.name}} - {{locationMatch.orchestrator.name}}
+        </a>
+      </div>
+    </div>
+</div>
