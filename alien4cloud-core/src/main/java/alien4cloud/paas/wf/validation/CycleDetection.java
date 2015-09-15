@@ -7,6 +7,7 @@ import org.elasticsearch.common.collect.Lists;
 
 import alien4cloud.paas.wf.Path;
 import alien4cloud.paas.wf.Workflow;
+import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
 import alien4cloud.paas.wf.util.WorkflowGraphUtils;
 
 /**
@@ -17,7 +18,7 @@ import alien4cloud.paas.wf.util.WorkflowGraphUtils;
 public class CycleDetection implements Rule {
 
     @Override
-    public List<AbstractWorkflowError> validate(Workflow workflow) {
+    public List<AbstractWorkflowError> validate(TopologyContext topologyContext, Workflow workflow) {
         if (workflow.getSteps() == null || workflow.getSteps().isEmpty()) {
             return null;
         }

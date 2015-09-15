@@ -173,9 +173,11 @@ public class ArchiveParser {
                 return toscaParser.parseFile(visitor.getDefinitionFiles().get(0));
             }
             throw new ParsingException("Archive", new ParsingError(ErrorCode.SINGLE_DEFINITION_SUPPORTED,
-                    "Alien only supports archives with a single root definition.", null, null, null, String.valueOf(visitor.getDefinitionFiles().size())));
+                    "Alien only supports archives with a single root definition.", null, null, null, 
+                    "Matching file count in root of "+csarFS+": "+visitor.getDefinitionFiles().size()));
         } catch (IOException e) {
-            throw new ParsingException("Archive", new ParsingError(ErrorCode.FAILED_TO_READ_FILE, "Failed to list root definitions", null, null, null, null));
+            throw new ParsingException("Archive", new ParsingError(ErrorCode.FAILED_TO_READ_FILE, "Failed to list root definitions", null, null, null, 
+                "Error reading "+csarFS+": "+e));
         }
     }
 }

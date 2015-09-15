@@ -33,7 +33,7 @@ public abstract class AbstractValidationTest<R extends Rule> {
         if (workflowShouldHaveErrors && errorCount == 0 || !workflowShouldHaveErrors && errorCount > 0) {
             fail("Bad assertion");
         }
-        List<AbstractWorkflowError> errors = getRule().validate(wf);
+        List<AbstractWorkflowError> errors = getRule().validate(null, wf);
         if (errors != null) {
             wf.addErrors(errors);
         }

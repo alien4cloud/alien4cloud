@@ -55,7 +55,23 @@ define(function(require) {
                     // we want horizontal layout
                     g.graph().rankdir = "LR";
                     g.graph().ranksep = 20;
+                    if (scope.wfViewMode === 'simple') {
+                      g.graph().ranksep = 5;
+                    }
 
+                    var oldDrawEdges = render.createEdgePaths();
+                    render.createEdgePaths(function(selection, g, arrows) {
+                        var edges = oldDrawEdges(selection, g, arrows);
+                        edges.on('click', function (edge) { 
+                          // select the link in order to allow actions on it (ie. remove)
+                          if (edge.v !== 'start' && edge.w !== 'end') {
+                            // edge connected to start or end are no editable
+                            scope.workflows.togglePinEdge(edge.v, edge.w);
+                          }
+                        });
+                        return edges;
+                    });
+                    
                     // Add our custom shapes
                     render.shapes().start = function(parent, bbox, node) {
                       var r = bbox.height / 2;
@@ -79,32 +95,46 @@ define(function(require) {
                       var nodeId = node.elem.__data__;
                       var step = steps[nodeId];
                       var nodeName = step.nodeId;
-                      var typeName = scope.topology.topology.nodeTemplates[nodeName].type;
-                      var nodeType = scope.topology.nodeTypes[typeName];
+                      var nodeType = undefined;
+                      if (scope.topology.topology.nodeTemplates[nodeName]) {
+                        var typeName = scope.topology.topology.nodeTemplates[nodeName].type;
+                        nodeType = scope.topology.nodeTypes[typeName];
+                      }
                       var x = (bbox.width / 2) * -1;
                       var w = bbox.width;
                       var y = (bbox.height / 2) * -1;
                       var h = bbox.height;
+                      
+                      var shortActivityType = scope.workflows.getStepActivityType(step);
+                      var simpleView = (scope.wfViewMode === 'simple' && shortActivityType === 'SetStateActivity');
                       var shapeSvg = parent.insert('rect').attr('x', x).attr('y', y).attr('width', w).attr('height', h).attr('rx', 5).attr('ry', 5).style("fill", "white");
-                      if (errorRenderingData.badSequenced[nodeId]) {
+                      if (errorRenderingData.errorSteps[nodeId]) {
                         // the step is in a bad sequence, make it red
                         shapeSvg.style("stroke", "#f66");
                       } else {
-                        shapeSvg.style("stroke", "grey");
+                        if (scope.wfViewMode === 'simple'){
+                          shapeSvg.style("stroke", "DarkGray");
+                        } else {
+                          shapeSvg.style("stroke", "grey");
+                        }
                       }
-                      var iconSize = 20;
+                      var iconSize = 25;
 //                      var html = parent.append('foreignObject').attr('x', x + w- 20).attr('y', y + 2).attr('width', 18).attr('height', 18);
-                      parent.append('text').attr('class', 'fa').attr('x', x + w- 20).attr('y', y + 16).text(scope.workflows.getStepActivityTypeIcon(step));
-                      var shortActivityType = scope.workflows.getStepActivityType(step);
+                      var icon = undefined;
+                      if (simpleView){
+                        icon = parent.append('text').attr('class', 'fa').attr('x', x + 8).attr('y', y + 17).text(scope.workflows.getStepActivityTypeIcon(step));
+                      } else {
+                        icon = parent.append('text').attr('class', 'fa').attr('x', x + w - 22).attr('y', y + 16).text(scope.workflows.getStepActivityTypeIcon(step));
+                      }
                       if (shortActivityType === 'OperationCallActivity') {
 //                        html.append("xhtml:body").attr('class', 'svgHtml').html('<i class="fa fa-cogs"></i>');
                         parent.append('text').attr('class', 'wfOperationLabel').attr('y', y + h - 10).text(_.trunc(step.activity.operationName, {'length': 10})).style("text-anchor", "middle");
-                      } else if (shortActivityType === 'SetStateActivity') {
+                      } else if (shortActivityType === 'SetStateActivity' && !simpleView) {
 //                        html.append("xhtml:body").attr('class', 'svgHtml').html('<i class="fa fa-wifi"></i>');
                         parent.append('text').attr('class', 'wfStateLabel').attr('fill', '#003399').attr('y', y + h - 8).text(_.trunc(step.activity.stateName, {'length': 13})).style("text-anchor", "middle");
                         iconSize = 16;
                       }
-                      if (nodeType.tags) {
+                      if (nodeType && nodeType.tags && !simpleView) {
                         var tags = listToMapService.listToMap(nodeType.tags, 'name', 'value');
                         if (tags.icon) {
                           parent.append('image').attr('x', x + 5).attr('y', y + 5).attr('width', iconSize).attr('height', iconSize).attr('xlink:href',
@@ -120,14 +150,13 @@ define(function(require) {
                       node.intersect = function(point) {
                         return dagreD3.intersect.rect(node, point);
                       };
-                      shapeSvg.on("mouseover", function(d) {
+                      var onMouseOver = function(d) {
                         scope.workflows.previewStep(steps[nodeId]);
-                      });
-                      shapeSvg.on("mouseout", function(d) {
+                      };
+                      var onMouseOut = function(d) {
                         scope.workflows.exitPreviewStep();
-                      });
-                      //
-                      shapeSvg.on("click", function(d) {
+                      }
+                      var onClick = function(d) {
                         var stepPinned = scope.workflows.isStepPinned(nodeId);
                         var stepSelected = scope.workflows.isStepSelected(nodeId);
                         var hasStepPinned = scope.workflows.hasStepPinned();
@@ -144,13 +173,18 @@ define(function(require) {
                           // no step pinned, let's pin this one
                           scope.workflows.togglePinnedworkflowStep(nodeId, steps[nodeId]);
                         }
-//                        $interval(function() {
-//                          refresh();
-//                        }, 0, 1);
-                      });
+                      };
+                      //
+                      shapeSvg.on("mouseover", onMouseOver);
+                      shapeSvg.on("mouseout", onMouseOut);                      
+                      shapeSvg.on("click", onClick);
+                      // in simple view mode, we want to be able to click on icons
+                      icon.on("mouseover", onMouseOver);
+                      icon.on("mouseout", onMouseOut);                        
+                      icon.on("click", onClick);
                       return shapeSvg;
                     };
-
+                    
                     // Set up an SVG group so that we can translate the final
                     // graph.
                     var svg = d3.select('#plan-svg'), svgGroup = svg
@@ -176,7 +210,7 @@ define(function(require) {
                     // the steps
                     var steps = [];
                     // data used to render errors
-                    var errorRenderingData = {cycles: {}, badSequenced: {}};
+                    var errorRenderingData = {cycles: {}, errorSteps: {}};
 
                     function setCurrentWorkflowStep(nodeId) {
                       scope.workflows.setCurrentworkflowStep(nodeId, steps[nodeId]);
@@ -186,24 +220,32 @@ define(function(require) {
                       if (step.activity.type === 'alien4cloud.paas.wf.OperationCallActivity') {
                         g.setNode(stepName, {label: '', width: 60, height: 40, shape: 'operationStep'});
                       } else if (step.activity.type === 'alien4cloud.paas.wf.SetStateActivity') {
-                        g.setNode(stepName, {label: '', width: 40, height: 25, shape: 'operationStep'});
+                        if (scope.wfViewMode === 'simple') {
+                          g.setNode(stepName, {label: '', width: 12, height: 4, shape: 'operationStep'});
+                        } else {
+                          g.setNode(stepName, {label: '', width: 40, height: 25, shape: 'operationStep'});
+                        }
                       } else {
                         g.setNode(stepName, {label: step.name});
                       }
                     }
                     
                     function appendEdge(g, from, to) {
+                      var stokeWidth = '1.5px';
+                      if (scope.workflows.isEdgePinned(from, to)) {
+                        stokeWidth = '5px';
+                      }
                       var style = {
                           lineInterpolate: 'basis', 
                           arrowhead: 'vee', 
-                          style: "stroke: black; stroke-width: 1.5px;", 
+                          style: "stroke: black; stroke-width: " + stokeWidth + ";", 
                           arrowheadStyle: "fill: black; stroke: black"};
                       if (errorRenderingData.cycles[from] && _.contains(errorRenderingData.cycles[from], to)) {
                         // the edge is in a cycle, make it red
                         style = {
                             lineInterpolate: 'basis',
                             arrowhead: 'vee',
-                            style: "stroke: #f66; stroke-width: 1.5px;",
+                            style: "stroke: #f66; stroke-width: " + stokeWidth + ";",
                             arrowheadStyle: "fill: #f66; stroke: #f66"}
                       }
                       g.setEdge(from, to, style);

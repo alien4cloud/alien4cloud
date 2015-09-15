@@ -9,6 +9,7 @@ define(function (require) {
 
       var workflowsResource = $resource('rest/topologies/:topologyId/workflows');
       var workflowResource = $resource('rest/topologies/:topologyId/workflows/:workflowName');
+      var workflowInitResource = $resource('rest/topologies/:topologyId/workflows/:workflowName/init');
       var activitiesResource = $resource('rest/topologies/:topologyId/workflows/:workflowName/activities');
       var edgeResource = $resource('rest/topologies/:topologyId/workflows/:workflowName/edges/:from/:to');
       var stepResource = $resource('rest/topologies/:topologyId/workflows/:workflowName/steps/:stepId');
@@ -20,7 +21,8 @@ define(function (require) {
         'workflows': {
           'create': workflowsResource.save,
           'remove': workflowResource.remove,
-          'rename': workflowResource.save
+          'rename': workflowResource.save,
+          'init': workflowInitResource.save
         },
         'edge': {
           'remove': edgeResource.remove

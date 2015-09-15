@@ -95,6 +95,16 @@ define(function (require) {
       }
     };
   }); // filter
+  
+  /**
+   * Filter which will truncate long text until defined length, append by default
+   * '...' at the end of the text
+   */
+  alienCommonModule.filter('truncateHead', function() {
+    return function(text, length) {
+      return _.startTrunc(text, length);
+    };
+  }); // filter  
 
   /**
    * Filter which will split a text by chunks of a given size to display it

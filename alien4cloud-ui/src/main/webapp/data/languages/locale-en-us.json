@@ -79,6 +79,7 @@
       "MISSING_TOSCA_VERSION": "Tosca version is not specified and is required.",
       "SYNTAX_ERROR": "Syntax error: Yaml definition for the type {{note}} doesn't follow the TOSCA specification.",
       "UNRECOGNIZED_PROPERTY": "Property [ {{note}} ] is unknown and has been ignored.",
+      "UNKNWON_DISCRIMINATOR_KEY": "Key {{note}} is not known.",
       "CSAR_ALREADY_EXISTS": "A released archive with the same name and version already exists in Alien repository. In order to ensure stability for user using it, Alien doesn't allow override of released archives. It is however possible to override a SNAPSHOT archive.",
       "MISSING_FILE": "Reference file {{note}} cannot be found within the archive.",
       "DUPLICATED_ELEMENT_DECLARATION": "The element [ {{note}} ] has already be defined in this definition file.",
@@ -112,6 +113,8 @@
       "YAML_SCALAR_NODE_EXPECTED": "A YAML node of type scalar is expected here.",
       "UNKOWN_GROUP_POLICY": "Group policy [{{note}}] is not managed",
       "UNKOWN_GROUP_MEMBER": "The group member [{{note}}] doesn't exist so is ignored",
+      "UNKNWON_WORKFLOW_STEP": "Workflow step [{{note}}] doesn't exists and has been ignored",
+      "WORKFLOW_HAS_ERRORS" : "Workflow [{{note}}] is not valid",
       "MISSING_TOPOLOGY_INPUT": "The input [{{problem}}] referenced by the property [{{problem}}] of [{{context}}] node was not found in the inputs list",
       "300": "Unexpected IO error on plugin upload.",
       "353": "The META-INF/plugin.yml file is missing in your plugin."
@@ -605,9 +608,13 @@
     "WF": {
       "title" : "Workflows",
       "addWorkflow": "Add workflow",
+      "changeViewMode": "Simplified view",
+      "nodeName": "Node",
+      "host": "Host",      
       "interfaceName": "Interface",
       "operationName": "Operation",
       "stateName": "State",
+      "reinit": "Re-init workflow",
       "addOperationActivity": "Add opreration call",
       "addStateActivity": "Add state change",
       "insertOperationActivity": "Insert opreration call",
@@ -615,6 +622,7 @@
       "insertStateActivity": "Insert state change",
       "appendStateActivity": "Append state change",             
       "activity": "Activity",
+      "disconnect": "Disconnect",
       "disconnectFrom": "Disconnect from",
       "disconnectTo": "Disconnect to",
       "swapLeft": "Swap to left",
@@ -630,7 +638,8 @@
       "errors": {
         "WorkflowHasCycleError": "Workflow contains one cycle",
         "BadStateSequenceError": "Bad sequence : step '{{from}}' should not be found before '{{to}}'",
-        "ParallelSetStatesError": "State changes are done in parallel for node '{{nodeId}}'"
+        "ParallelSetStatesError": "State changes are done in parallel for node '{{nodeId}}'",
+        "UnknownNodeError": "The node '{{nodeId}}' referenced by the step '{{stepId}}' doesn't exists"
       }
     }      
   },

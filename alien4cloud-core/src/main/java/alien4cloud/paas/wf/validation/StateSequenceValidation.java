@@ -19,6 +19,7 @@ import alien4cloud.paas.wf.NodeActivityStep;
 import alien4cloud.paas.wf.Path;
 import alien4cloud.paas.wf.SetStateActivity;
 import alien4cloud.paas.wf.Workflow;
+import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
 import alien4cloud.paas.wf.exception.WorkflowException;
 import alien4cloud.paas.wf.util.WorkflowGraphUtils;
 
@@ -70,7 +71,7 @@ public class StateSequenceValidation implements Rule {
     }
 
     @Override
-    public List<AbstractWorkflowError> validate(Workflow workflow) throws WorkflowException {
+    public List<AbstractWorkflowError> validate(TopologyContext topologyContext, Workflow workflow) throws WorkflowException {
         // the state sequence to use
         Map<String, Integer> stateSequence = getStateSequence(workflow);
         if (stateSequence == null) {
