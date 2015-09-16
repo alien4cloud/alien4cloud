@@ -8,14 +8,18 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
+import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.component.repository.ICsarRepositry;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.CsarDependenciesBean;
 import alien4cloud.security.model.Role;
@@ -28,6 +32,7 @@ import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.tosca.parser.ToscaCsarDependenciesParser;
+import alien4cloud.tosca.parser.ToscaParsingUtil;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.VersionUtil;
 
@@ -52,6 +57,10 @@ public class ArchiveUploadService {
     private TopologyServiceCore topologyServiceCore;
     @Resource
     private TopologyTemplateVersionService topologyTemplateVersionService;
+    @Resource
+    private WorkflowsBuilderService workflowBuilderService;
+    @Resource
+    private ICSARRepositorySearchService searchService;
 
     /**
      * Upload a TOSCA archive and index its components.
@@ -80,7 +89,7 @@ public class ArchiveUploadService {
             }
         }
 
-        ArchiveRoot archiveRoot = parsingResult.getResult();
+        final ArchiveRoot archiveRoot = parsingResult.getResult();
         if (archiveRoot.hasToscaTopologyTemplate()) {
             AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT, Role.ADMIN);
         }
@@ -112,7 +121,7 @@ public class ArchiveUploadService {
 
         // if a topology has been added we want to notify the user
         if (parsingResult.getResult().getTopology() != null && !parsingResult.getResult().getTopology().isEmpty()) {
-            Topology topology = parsingResult.getResult().getTopology();
+            final Topology topology = parsingResult.getResult().getTopology();
             if (archiveRoot.hasToscaTypes()) {
                 // the archive contains types
                 // we assume those types are used in the embedded topology
@@ -120,6 +129,20 @@ public class ArchiveUploadService {
                 CSARDependency selfDependency = new CSARDependency(archiveRoot.getArchive().getName(), archiveRoot.getArchive().getVersion());
                 topology.getDependencies().add(selfDependency);
             }
+
+            // init the workflows
+            TopologyContext topologyContext = workflowBuilderService.buildCachedTopologyContext(new TopologyContext() {
+                @Override
+                public Topology getTopology() {
+                    return topology;
+                }
+
+                @Override
+                public <T extends IndexedToscaElement> T findElement(Class<T> clazz, String id) {
+                    return ToscaParsingUtil.getElementFromArchiveOrDependencies(clazz, id, archiveRoot, searchService);
+                }
+            });
+            workflowBuilderService.initWorkflows(topologyContext);
 
             // TODO: here we should update the topology if it already exists
             // TODO: the name should only contains the archiveName
