@@ -141,7 +141,7 @@ public class ApplicationDeploymentController {
         ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(environment.getApplicationId(), environment.getCurrentVersionId());
 
         // Get the deployment configurations
-        DeploymentTopology deploymentTopology = deploymentTopologyService.getOrFail(version.getId(), environment.getId());
+        DeploymentTopology deploymentTopology = deploymentTopologyService.getDeployedTopology(version.getId(), environment.getId());
         DeploymentSetup deploymentSetup = deploymentSetupService.getOrFail(version, environment);
 
         // Check authorization on the location

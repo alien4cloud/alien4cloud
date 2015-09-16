@@ -1,21 +1,18 @@
 package alien4cloud.model.deployment;
 
-import java.util.Map;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import org.elasticsearch.annotation.ESObject;
+import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.annotation.query.TermFilter;
+import org.elasticsearch.mapping.IndexType;
 
 import alien4cloud.model.topology.Topology;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.google.common.collect.Maps;
-import org.elasticsearch.annotation.StringField;
-import org.elasticsearch.annotation.query.TermFilter;
-import org.elasticsearch.mapping.IndexType;
 
 /**
  * Deployment topology is the topology for a given environment.
@@ -40,9 +37,4 @@ public class DeploymentTopology extends Topology {
     private String environmentId;
     /** Id of the initial topology that this topology completes. */
     private String initialTopologyId;
-    /**
-     * The map that contains the user selected matching for nodes of the topology. key is the initial topology node id, value is the id of an orchestrator resource
-     * (on-demand or service).
-     */
-    private Map<String, String> nodeTemplateMatching = Maps.newHashMap();
 }
