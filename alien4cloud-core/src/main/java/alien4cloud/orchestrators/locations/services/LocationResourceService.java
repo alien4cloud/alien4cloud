@@ -14,7 +14,11 @@ import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.*;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
@@ -100,6 +104,16 @@ public class LocationResourceService {
         locationResources.setNodeTemplates(nodesTemplates);
         locationResources.setCapabilityTypes(capabilityTypes);
         return locationResources;
+    }
+
+    /**
+     * Get the list of resources definitions for a given orchestrator.
+     * 
+     * @param locationId the location's id
+     * @return A list of resource definitions for the given location.
+     */
+    public LocationResources getLocationResources(String locationId) {
+        return getLocationResources(locationService.getOrFail(locationId));
     }
 
     /**

@@ -19,7 +19,7 @@ public class LocationResources {
     private Map<String, IndexedNodeType> configurationTypes;
     @ApiModelProperty(value = "Map of node types id, node type used to configure the templates of on-demand resources in a location.")
     private Map<String, IndexedNodeType> nodeTypes;
-    @ApiModelProperty(value = "Map that contains the capability types used by te configuration types or node types.")
+    @ApiModelProperty(value = "Map that contains the capability types used by the configuration types or node types.")
     private Map<String, IndexedCapabilityType> capabilityTypes;
     @ApiModelProperty(value = "List of configuration templates already configured for the location.")
     private List<LocationResourceTemplate> configurationTemplates;

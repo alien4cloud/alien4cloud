@@ -13,7 +13,6 @@ import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.tosca.normative.ToscaType;
 
 import com.google.common.collect.Maps;
 
@@ -75,28 +74,6 @@ public final class PropertyUtil {
         }
     }
 
-    public static PropertyDefinition getPropertyDefinition(String propertyAccessPath, Map<String, PropertyDefinition> propertyDefinitions) {
-        if (MapUtils.isEmpty(propertyDefinitions)) {
-            return null;
-        }
-        PropertyDefinition simplePropertyDefinition = propertyDefinitions.get(propertyAccessPath);
-        if (simplePropertyDefinition != null) {
-            return simplePropertyDefinition;
-        } else {
-            String propertyName = getPropertyNameFromComplexPath(propertyAccessPath);
-            if (propertyName != null) {
-                PropertyDefinition propertyDefinition = propertyDefinitions.get(propertyName);
-                if (propertyDefinition != null && !ToscaType.isSimple(propertyDefinition.getType())) {
-                    return propertyDefinition;
-                } else {
-                    return null;
-                }
-            } else {
-                return null;
-            }
-        }
-    }
-
     private static void doSetPropertyValue(Map<String, AbstractPropertyValue> properties, PropertyDefinition propertyDefinition, String propertyName,
             Object propertyValue) {
         // take the default value
@@ -143,8 +120,7 @@ public final class PropertyUtil {
      * @param propertyName the name of the property
      * @param propertyValue the value of the property
      */
-    public static void setCapabilityPropertyValue(Capability capability, PropertyDefinition propertyDefinition, String propertyName,
-            Object propertyValue) {
+    public static void setCapabilityPropertyValue(Capability capability, PropertyDefinition propertyDefinition, String propertyName, Object propertyValue) {
         if (capability.getProperties() == null) {
             capability.setProperties(Maps.<String, AbstractPropertyValue> newHashMap());
         }

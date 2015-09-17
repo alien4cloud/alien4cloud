@@ -5,7 +5,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.common.collect.Lists;
@@ -36,17 +35,9 @@ public class DeploymentSetupService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource
-    private TopologyServiceCore topologyServiceCore;
-    @Resource
     private ApplicationVersionService applicationVersionService;
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
-    @Resource
-    private ConstraintPropertyService constraintPropertyService;
-    @Resource
-    private InputsPreProcessorService inputsPreProcessorService;
-    @Resource
-    private TopologyCompositionService topologyCompositionService;
 
     public DeploymentSetup get(ApplicationVersion version, ApplicationEnvironment environment) {
         return getById(generateId(version.getId(), environment.getId()));
@@ -95,13 +86,6 @@ public class DeploymentSetupService {
                     + "] / environment [" + environment.getId() + "] already exists");
         }
         return deploymentSetup;
-    }
-
-    @AllArgsConstructor
-    private static class MappingGenerationResult<T> {
-        private Map<String, T> mapping;
-        private boolean valid;
-        private boolean changed;
     }
 
     /**

@@ -178,7 +178,7 @@ public class RuntimeController {
         }
 
         ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(environment.getApplicationId(), environment.getCurrentVersionId());
-        DeploymentTopology deploymentTopology = deploymentTopologyService.getOrFail(version.getId(), environment.getId());
+        DeploymentTopology deploymentTopology = deploymentTopologyService.getDeployedTopology(version.getId(), environment.getId());
         String locationId = TopologyLocationUtils.getLocationIdOrFail(deploymentTopology);
         Location location = locationService.getOrFail(locationId);
         String topologyId = applicationEnvironmentService.getTopologyId(applicationId);

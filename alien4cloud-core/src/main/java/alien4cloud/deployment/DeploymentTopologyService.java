@@ -11,11 +11,13 @@ import org.springframework.stereotype.Service;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationVersionService;
+import alien4cloud.application.TopologyCompositionService;
 import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
+import alien4cloud.model.deployment.DeploymentSetup;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.topology.AbstractPolicy;
 import alien4cloud.model.topology.LocationPlacementPolicy;
@@ -23,6 +25,7 @@ import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyUtils;
+import alien4cloud.utils.services.ConstraintPropertyService;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -35,6 +38,14 @@ public class DeploymentTopologyService {
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
+    @Resource
+    private ConstraintPropertyService constraintPropertyService;
+    @Resource
+    private InputsPreProcessorService inputsPreProcessorService;
+    @Resource
+    private TopologyCompositionService topologyCompositionService;
+    @Resource
+    private DeploymentSetupService deploymentSetupService;
 
     @Inject
     private TopologyServiceCore topoServiceCore;
@@ -52,12 +63,22 @@ public class DeploymentTopologyService {
      * @param environmentId The id of the environment for which to get the deployment topology.
      * @return The deployment topology for the given version and environment.
      */
-    public DeploymentTopology getOrFail(String versionId, String environmentId) {
+    public DeploymentTopology getDeployedTopology(String versionId, String environmentId) {
         DeploymentTopology deploymentTopology = alienDAO.findById(DeploymentTopology.class, generateId(versionId, environmentId));
         if (deploymentTopology == null) {
             throw new NotFoundException("Unable to find the deployment topology for version <" + versionId + "> and environment <" + environmentId + ">");
         }
         return deploymentTopology;
+    }
+
+    public DeploymentTopology generateDeploymentTopology(Topology topology, ApplicationEnvironment environment, ApplicationVersion version) {
+        DeploymentSetup deploymentSetup = deploymentSetupService.get(version, environment);
+        if (deploymentSetup == null) {
+            deploymentSetup = deploymentSetupService.createOrFail(version, environment);
+        }
+        topologyCompositionService.processTopologyComposition(topology);
+        // TODO generate the deployment topology
+        return null;
     }
 
     /**

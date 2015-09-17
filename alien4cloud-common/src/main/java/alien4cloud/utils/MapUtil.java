@@ -1,9 +1,10 @@
 package alien4cloud.utils;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 
 import alien4cloud.rest.utils.JsonUtil;
 
@@ -28,47 +29,47 @@ public final class MapUtil {
      * @param path keys in the map separated by '.'
      */
     public static Object get(Object object, String path) {
-        String[] tokens = path.split("\\.");
-        if (tokens.length == 0) {
+        if (StringUtils.isBlank(path)) {
             return object;
-        } else {
-            Object value = object;
-            for (String token : tokens) {
-                if (value instanceof Collection) {
-                    List<Object> nested = (List<Object>) value;
-                    try {
-                        int index = Integer.parseInt(token);
-                        value = nested.get(index);
-                        if (value == null) {
-                            return null;
-                        }
-                    } catch (NumberFormatException e) {
-                        return null;
-                    }
-                } else if (value instanceof Object[]) {
-                    Object[] nested = (Object[]) value;
-                    try {
-                        int index = Integer.parseInt(token);
-                        value = nested[index];
-                        if (value == null) {
-                            return null;
-                        }
-                    } catch (NumberFormatException e) {
-                        return null;
-                    }
-                } else if (value instanceof Map) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> nested = (Map<String, Object>) value;
-                    value = nested.get(token);
+        }
+        String[] tokens = path.split("\\.");
+
+        Object value = object;
+        for (String token : tokens) {
+            if (value instanceof List) {
+                List<Object> nested = (List<Object>) value;
+                try {
+                    int index = Integer.parseInt(token);
+                    value = nested.get(index);
                     if (value == null) {
                         return null;
                     }
-                } else {
+                } catch (NumberFormatException e) {
                     return null;
                 }
+            } else if (value instanceof Object[]) {
+                Object[] nested = (Object[]) value;
+                try {
+                    int index = Integer.parseInt(token);
+                    value = nested[index];
+                    if (value == null) {
+                        return null;
+                    }
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            } else if (value instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> nested = (Map<String, Object>) value;
+                value = nested.get(token);
+                if (value == null) {
+                    return null;
+                }
+            } else {
+                return null;
             }
-            return value;
         }
+        return value;
     }
 
     /**

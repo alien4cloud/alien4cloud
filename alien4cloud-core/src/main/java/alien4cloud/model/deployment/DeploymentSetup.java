@@ -13,6 +13,8 @@ import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
+import alien4cloud.model.topology.NodeTemplate;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -36,4 +38,10 @@ public class DeploymentSetup {
 
     // TODO add also the input artifacts here. /-> Note that they should/could be repository based.
     private Map<String, String> inputProperties;
+
+    /**
+     * The map that contains the user selected matching for nodes of the topology. key is the initial topology node id, value is the
+     * (on-demand or service).
+     */
+    private Map<String, NodeTemplate> substitutedNodes;
 }
