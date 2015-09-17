@@ -89,6 +89,23 @@ public class TagConfigurationController {
                     .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message("Invalid tag configuration").build()).build();
         } else {
             dao.save(configuration);
+            
+            // for each cloud/application, add this new one with default value.
+            if(configuration.getTarget().toString().equals("cloud")){
+	            GetMultipleDataResult<Cloud> result = dao.find(Cloud.class, null, Integer.MAX_VALUE);
+	            for (Cloud cld : result.getData()) {	            	
+	            	cld.getMetaProperties().put(configuration.getId(), configuration.getDefault());
+	                dao.save(cld);
+	            }
+        	}
+            if(configuration.getTarget().toString().equals("application")){
+	            GetMultipleDataResult<Application> result = dao.find(Application.class, null, Integer.MAX_VALUE);
+	            for (Application app : result.getData()) {	            	
+	            	app.getMetaProperties().put(configuration.getId(), configuration.getDefault());
+	                dao.save(app);
+	            }
+        	}
+        	
             return RestResponseBuilder.<TagConfigurationSaveResponse> builder().data(new TagConfigurationSaveResponse(configuration.getId(), null)).build();
         }
     }
