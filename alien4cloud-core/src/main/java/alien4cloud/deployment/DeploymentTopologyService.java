@@ -19,10 +19,14 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.deployment.DeploymentSetup;
 import alien4cloud.model.deployment.DeploymentTopology;
+import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.topology.AbstractPolicy;
 import alien4cloud.model.topology.LocationPlacementPolicy;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.orchestrators.locations.services.LocationService;
+import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.model.DeployerRole;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.utils.services.ConstraintPropertyService;
@@ -55,6 +59,9 @@ public class DeploymentTopologyService {
 
     @Inject
     private ApplicationEnvironmentService appEnvironmentServices;
+
+    @Inject
+    private LocationService locationService;
 
     /**
      * Get the deployment topology for a given version and environment.
@@ -182,9 +189,8 @@ public class DeploymentTopologyService {
 
         for (Entry<String, String> matchEntry : groupsLocationsMapping.entrySet()) {
 
-            // Should we check authorization before adding the location policy?
-
             String locationId = matchEntry.getValue();
+            checkAuthorizationOnLocation(locationId);
             LocationPlacementPolicy locationPolicy = new LocationPlacementPolicy(locationId);
             locationPolicy.setName("Location policy");
 
@@ -207,5 +213,10 @@ public class DeploymentTopologyService {
             groups.put(groupName, group);
         }
 
+    }
+
+    private void checkAuthorizationOnLocation(String locationId) {
+        Location location = locationService.getOrFail(locationId);
+        AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.values());
     }
 }

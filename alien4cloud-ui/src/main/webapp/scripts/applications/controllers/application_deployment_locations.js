@@ -57,7 +57,9 @@ define(function (require) {
         delete $scope.deploymentContext.selectedLocation;
         if(_.has($scope, 'deploymentTopologyDTO.locationPolicies._ALL')){
           var selectedLocationId = $scope.deploymentTopologyDTO.locationPolicies['_ALL'];
-          $scope.deploymentContext.selectedLocation=  $scope.deploymentContext.locationMatches[selectedLocationId].location;
+          if($scope.deploymentContext.locationMatches && $scope.deploymentContext.locationMatches[selectedLocationId]){
+            $scope.deploymentContext.selectedLocation=  $scope.deploymentContext.locationMatches[selectedLocationId].location;
+          }
         }
 //        console.log('INIT NEW SELECTED ===', $scope.deploymentContext.selectedLocation)
       }
