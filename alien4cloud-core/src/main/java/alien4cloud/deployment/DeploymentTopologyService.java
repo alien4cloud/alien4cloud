@@ -117,7 +117,6 @@ public class DeploymentTopologyService {
      */
     public DeploymentTopology setLocationPolicies(String environmentId, Map<String, String> groupsToLocations) {
 
-        // TODO check rights??
         ApplicationEnvironment environment = appEnvironmentServices.getOrFail(environmentId);
         ApplicationVersion appVersion = appVersionService.getOrFail(environment.getCurrentVersionId());
 
@@ -156,7 +155,6 @@ public class DeploymentTopologyService {
      * @return
      */
     public DeploymentTopology getOrCreateDeploymentTopology(String environmentId) {
-        // TODO check rights??
         ApplicationEnvironment environment = appEnvironmentServices.getOrFail(environmentId);
         return getOrCreateDeploymentTopology(environment);
     }
@@ -183,6 +181,9 @@ public class DeploymentTopologyService {
         Topology topology = topoServiceCore.getOrFail(deploymentTopo.getInitialTopologyId());
 
         for (Entry<String, String> matchEntry : groupsLocationsMapping.entrySet()) {
+
+            // Should we check authorization before adding the location policy?
+
             String locationId = matchEntry.getValue();
             LocationPlacementPolicy locationPolicy = new LocationPlacementPolicy(locationId);
             locationPolicy.setName("Location policy");

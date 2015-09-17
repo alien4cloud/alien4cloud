@@ -13,14 +13,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import alien4cloud.application.ApplicationEnvironmentService;
+import alien4cloud.application.ApplicationService;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.common.AlienConstants;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
+import alien4cloud.model.application.Application;
+import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.rest.application.model.SetLocationPoliciesRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.model.ApplicationEnvironmentRole;
+import alien4cloud.security.model.ApplicationRole;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -33,6 +40,10 @@ public class DeploymentConfigurationController {
 
     @Inject
     private DeploymentTopologyService deploymentTopoService;
+    @Inject
+    private ApplicationService applicationService;
+    @Inject
+    private ApplicationEnvironmentService appEnvironmentService;
 
     /**
      * Get the deployment topology of an application given an environment
@@ -47,7 +58,7 @@ public class DeploymentConfigurationController {
     public RestResponse<DeploymentTopologyDTO> getDeploymentTopology(@PathVariable String appId, @PathVariable String environmentId) {
         RestResponseBuilder<DeploymentTopologyDTO> responseBuilder = RestResponseBuilder.<DeploymentTopologyDTO> builder();
 
-        // check rights on the app?
+        checkAuthorizations(appId, environmentId);
         DeploymentTopology deploymentTopo = deploymentTopoService.getOrFail(environmentId);
         DeploymentTopologyDTO dto = buildDeploymentTopologyDTO(deploymentTopo);
         return responseBuilder.data(dto).build();
@@ -66,7 +77,7 @@ public class DeploymentConfigurationController {
     public RestResponse<DeploymentTopologyDTO> initDeploymentTopology(@PathVariable String appId, @PathVariable String environmentId) {
         RestResponseBuilder<DeploymentTopologyDTO> responseBuilder = RestResponseBuilder.<DeploymentTopologyDTO> builder();
 
-        // check rights on the app?
+        checkAuthorizations(appId, environmentId);
         DeploymentTopology deploymentTopo = deploymentTopoService.getOrCreateDeploymentTopology(environmentId);
         DeploymentTopologyDTO dto = buildDeploymentTopologyDTO(deploymentTopo);
         return responseBuilder.data(dto).build();
@@ -87,9 +98,25 @@ public class DeploymentConfigurationController {
             @RequestBody SetLocationPoliciesRequest request) {
         RestResponseBuilder<DeploymentTopology> responseBuilder = RestResponseBuilder.<DeploymentTopology> builder();
 
-        // check rights on the app?
+        checkAuthorizations(appId, environmentId);
         DeploymentTopology deploymentTopo = deploymentTopoService.setLocationPolicies(environmentId, request.getGroupsToLocations());
         return responseBuilder.data(deploymentTopo).build();
+    }
+
+    /**
+     * Security check on application and environment
+     *
+     * @param appId
+     * @param environmentId
+     */
+    private void checkAuthorizations(String appId, String environmentId) {
+        Application application = applicationService.getOrFail(appId);
+        ApplicationEnvironment environment = appEnvironmentService.getOrFail(environmentId);
+        // // Security check user must be authorized to deploy the environment (or be application manager)
+        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
+            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
+        }
+
     }
 
     private DeploymentTopologyDTO buildDeploymentTopologyDTO(DeploymentTopology deploymentTopology) {
