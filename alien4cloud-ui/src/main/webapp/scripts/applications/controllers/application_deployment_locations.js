@@ -5,11 +5,13 @@ define(function (require) {
   var states = require('states');
   var _ = require('lodash');
   var angular = require('angular');
+  
+  var GROUP_ALL = '_ALL';
 
   require('scripts/deployment/directives/display_outputs');
   require('scripts/common/filters/inputs');
   require('scripts/applications/services/locations_matching_services');
-  require('scripts/applications/services/deployment_configuration_services');
+  require('scripts/applications/services/deployment_topology_services');
 
   states.state('applications.detail.deployment.locations', {
     url: '/locations',
@@ -26,8 +28,8 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentLocationCtrl',
-    ['$scope', 'authService', '$upload', 'applicationServices', 'toscaService', 'locationsMatchingServices', '$resource', '$http', '$translate', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'toaster', '$filter', 'menu', 'deploymentConfigurationServices',
-    function($scope, authService, $upload, applicationServices, toscaService, locationsMatchingServices, $resource, $http, $translate, applicationResult, $state, applicationEnvironmentServices, appEnvironments, toaster, $filter, menu, deploymentConfigurationServices) {
+    ['$scope', 'authService', '$upload', 'applicationServices', 'toscaService', 'locationsMatchingServices', '$resource', '$http', '$translate', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'toaster', '$filter', 'menu', 'deploymentTopologyServices',
+    function($scope, authService, $upload, applicationServices, toscaService, locationsMatchingServices, $resource, $http, $translate, applicationResult, $state, applicationEnvironmentServices, appEnvironments, toaster, $filter, menu, deploymentTopologyServices) {
       
       var nodeMathingMenuItem;
       _.each(menu, function(menuItem) {
@@ -36,67 +38,85 @@ define(function (require) {
         }
       });
       
+      
       //enable or not the node matching menu
-      var enableNodeMatchingMenu = function (){
+      function enableDisableNodeMatchingMenu(){
         nodeMathingMenuItem.disabled = _.undefined($scope.deploymentContext.selectedLocation);
       }
-
-      var refreshLocationMatching = function(){
-        locationsMatchingServices.match({topologyId: $scope.topologyId}, function(result){
-          $scope.deploymentContext.locationMatches = result.data;
-          console.log('Result of the matching is: ',result);
+      
+      function formatLocationMatches(locationMatches){
+        $scope.deploymentContext.locationMatches = {};
+        _.each(locationMatches, function(locationMatch){
+          $scope.deploymentContext.locationMatches[locationMatch.location.id] = locationMatch;
         });
-        enableNodeMatchingMenu();
+      }
+      
+      //check and fill selected location from deploymentTopologyDTO
+      function initSelectedLocation() {
+//        console.log('INIT OLD SELECTED ===', $scope.deploymentContext.selectedLocation)
+        delete $scope.deploymentContext.selectedLocation;
+        if(_.has($scope, 'deploymentTopologyDTO.locationPolicies._ALL')){
+          var selectedLocationId = $scope.deploymentTopologyDTO.locationPolicies['_ALL'];
+          $scope.deploymentContext.selectedLocation=  $scope.deploymentContext.locationMatches[selectedLocationId].location;
+        }
+//        console.log('INIT NEW SELECTED ===', $scope.deploymentContext.selectedLocation)
+      }
+      
+      // update the deployment topology for the given environment.
+      function refreshDeploymentTopology() {
+        $scope.deploymentTopologyDTO = null; 
+        deploymentTopologyServices.init({
+          appId: $scope.application.id,
+          envId: $scope.selectedEnvironment.id
+        }, undefined, function(response) {
+          $scope.deploymentTopologyDTO = response.data;
+          initSelectedLocation();
+          enableDisableNodeMatchingMenu();
+        });
+      }
+      
+      var refreshLocationMatching = function(){
+        locationsMatchingServices.getLocationsMatches({topologyId: $scope.topologyId}, function(result){
+          formatLocationMatches(result.data);
+          refreshDeploymentTopology();
+        });
 //        console.log('in locations: ',$scope.topologyId);
       };
       
-      var initSelectedLocation =function() {
-        //TODO fetch the selected location for this topology if already defined
-        delete $scope.deploymentContext.selectedLocation;
-      }
-
-      var initAll = function(){
-       delete $scope.deploymentContext.locationMatches;
-       initSelectedLocation();
-      }
-      
-      //watch over the topologyId change, and refresh the location matching
-      //Should we wath over the environment instead?
-      $scope.$watch('topologyId', function(newValue, oldValue){
-        console.log('new value: ', newValue);
-        console.log('old value: ', oldValue);
+      //watch over the selectedEnvironment change, and refresh the location matching
+      //Should we watch over the topologyId  instead?
+      $scope.$watch('selectedEnvironment', function(newValue, oldValue){
         if(!_.defined(newValue)){
           //do nothing
           return;
         }
         
         if(newValue != oldValue){
-          console.log('oldValue is '+oldValue+' And new value is '+newValue)
-          console.log('topology changed')
-          initAll(); 
+//          console.log('Environment changed')
           refreshLocationMatching();
         }else if(!_.has($scope, 'deploymentContext.locationMatches')) {
           //first run, match locations for the default selected environment.
-          console.log('initializing')
+//          console.log('initializing')
           refreshLocationMatching();
         }
       });
       
       
       $scope.selectLocation = function(locationMatch){
+        var groupsToLocations = {};
+        groupsToLocations[GROUP_ALL] = locationMatch.location.id
         
         var configRequest = {
-            environmentId: $scope.selectedEnvironment.id,
-            locationId: locationMatch.location.id
+            groupsToLocations: groupsToLocations
         };
         
-        deploymentConfigurationServices.update({appId: $scope.application.id}, angular.toJson(configRequest), function(result){
-          console.log('Result of the matching is: ',result);
+        deploymentTopologyServices.setLocationPolicies({appId: $scope.application.id, envId:$scope.selectedEnvironment.id}, angular.toJson(configRequest), function(result){
+//          console.log('Result of set location is: ',result);
+          $scope.deploymentContext.selectedLocation = locationMatch.location;
+          enableDisableNodeMatchingMenu();
+//          console.debug('Selected Location is: ', locationMatch.location.name)
+          $state.go('applications.detail.deployment.match');
         });
-        $scope.deploymentContext.selectedLocation = locationMatch.location;
-        enableNodeMatchingMenu();
-        console.log('Selected Location is: ', $scope.deploymentContext.selectedLocation.name)
-        $state.go('applications.detail.deployment.match');
       }
       
       

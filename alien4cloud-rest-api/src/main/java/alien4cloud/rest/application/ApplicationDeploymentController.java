@@ -32,7 +32,7 @@ import alien4cloud.deployment.DeploymentSetupService;
 import alien4cloud.deployment.DeploymentSetupValidator;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.deployment.UndeployService;
-import alien4cloud.deployment.matching.services.location.TopologyLocationService;
+import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
@@ -146,7 +146,7 @@ public class ApplicationDeploymentController {
 
         // Check authorization on the location
         // get the target locations of the deployment topology
-        String locationId = TopologyLocationService.getLocationId(deploymentTopology);
+        String locationId = TopologyLocationUtils.getLocationIdOrFail(deploymentTopology);
         Location location = locationService.getOrFail(locationId);
         AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.DEPLOYER);
 

@@ -21,11 +21,15 @@ import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
-import alien4cloud.deployment.matching.services.location.TopologyLocationService;
+import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.common.MetaPropConfiguration;
-import alien4cloud.model.deployment.*;
+import alien4cloud.model.deployment.Deployment;
+import alien4cloud.model.deployment.DeploymentSetup;
+import alien4cloud.model.deployment.DeploymentSourceType;
+import alien4cloud.model.deployment.DeploymentTopology;
+import alien4cloud.model.deployment.IDeploymentSource;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.locations.services.LocationService;
@@ -64,14 +68,14 @@ public class DeployService {
 
     /**
      * Deploy a topology and return the deployment ID.
-     * 
+     *
      * @param deploymentTopology Location aware and matched topology.
      * @param deploymentSetup The values for the required inputs of the deploymentTopology as well as orchestrator specific properties.
      * @param deploymentSource Application to be deployed or the Csar that contains test toplogy to be deployed
      * @return The id of the generated deployment.
      */
     public String deploy(DeploymentTopology deploymentTopology, DeploymentSetup deploymentSetup, IDeploymentSource deploymentSource) {
-        String locationId = TopologyLocationService.getLocationId(deploymentTopology);
+        String locationId = TopologyLocationUtils.getLocationIdOrFail(deploymentTopology);
         Location location = locationService.getOrFail(locationId);
         // FIXME check that all nodes to match are matched
 
@@ -123,7 +127,7 @@ public class DeployService {
 
     /**
      * Generate the human readable deployment id for the orchestrator.
-     * 
+     *
      * @param envId Id of the deployed environment.
      * @param orchestratorId Id of the orchestrator on which the deployment is performed.
      * @return The orchestrator deployment id.
@@ -137,8 +141,8 @@ public class DeployService {
         String namePattern = orchestrator.getDeploymentNamePattern();
         ExpressionParser parser = new SpelExpressionParser();
         Expression exp = parser.parseExpression(namePattern);
-        String orchestratorDeploymentId = (String) exp
-                .getValue(new OrchestratorIdContext(env, applicationService.getOrFail(env.getApplicationId()), namePattern.contains("metaProperties[")));
+        String orchestratorDeploymentId = (String) exp.getValue(new OrchestratorIdContext(env, applicationService.getOrFail(env.getApplicationId()),
+                namePattern.contains("metaProperties[")));
         orchestratorDeploymentId = orchestratorDeploymentId.trim().replaceAll(" ", "_");
 
         // ensure that the id is not used by another deployment.

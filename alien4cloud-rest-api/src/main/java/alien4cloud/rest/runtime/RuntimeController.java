@@ -26,7 +26,7 @@ import alien4cloud.deployment.DeploymentRuntimeService;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.DeploymentTopologyService;
-import alien4cloud.deployment.matching.services.location.TopologyLocationService;
+import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -179,7 +179,7 @@ public class RuntimeController {
 
         ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(environment.getApplicationId(), environment.getCurrentVersionId());
         DeploymentTopology deploymentTopology = deploymentTopologyService.getOrFail(version.getId(), environment.getId());
-        String locationId = TopologyLocationService.getLocationId(deploymentTopology);
+        String locationId = TopologyLocationUtils.getLocationIdOrFail(deploymentTopology);
         Location location = locationService.getOrFail(locationId);
         String topologyId = applicationEnvironmentService.getTopologyId(applicationId);
 

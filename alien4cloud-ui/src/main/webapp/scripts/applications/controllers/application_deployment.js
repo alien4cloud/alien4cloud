@@ -32,13 +32,14 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentCtrl',
-    ['$scope', 'authService', '$upload', 'applicationServices', 'toscaService', '$resource', '$http', '$translate', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'toaster', '$filter', 'menu',
-    function($scope, authService, $upload, applicationServices, toscaService, $resource, $http, $translate, applicationResult, $state, applicationEnvironmentServices, appEnvironments, toaster, $filter, menu) {
+    ['$scope', 'authService', '$upload', 'applicationServices', 'toscaService', '$resource', '$http', '$translate', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'toaster', '$filter', 'menu', 'deploymentTopologyServices',
+    function($scope, authService, $upload, applicationServices, toscaService, $resource, $http, $translate, applicationResult, $state, applicationEnvironmentServices, appEnvironments, toaster, $filter, menu, deploymentTopologyServices) {
       var pageStateId = $state.current.name;
       $scope.menu = menu
       
       //deployment context
       $scope.deploymentContext = {};
+      $scope.deploymentTopologyDTO = {}
       
       var minimumZoneCountPerGroup = 1;
 
@@ -89,10 +90,9 @@ define(function (require) {
       var setEnvironmentAndForwardToLocations = function(environment){
         $scope.selectedEnvironment = environment;
         $scope.setTopologyId($scope.application.id, $scope.selectedEnvironment.id, checkTopology).$promise.then(function() {
-//          refreshDeploymentSetup();
 //          console.log($scope.topologyId);
+          $state.go('applications.detail.deployment.locations');
         });
-        $state.go('applications.detail.deployment.locations');
       }
       setEnvironmentAndForwardToLocations($scope.envs[0]); // default env
 

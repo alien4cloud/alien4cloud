@@ -1,4 +1,4 @@
-package alien4cloud.rest.topology.location;
+package alien4cloud.rest.topology.matching;
 
 import java.util.List;
 

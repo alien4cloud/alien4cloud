@@ -1,5 +1,7 @@
 package alien4cloud.topology;
 
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 import org.apache.commons.collections4.MapUtils;
@@ -8,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.Capability;
+import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.ScalingPolicy;
 import alien4cloud.model.topology.Topology;
@@ -91,5 +94,23 @@ public class TopologyUtils {
 
     public static Capability getScalableCapability(Map<String, NodeTemplate> nodes, String nodeTemplateId, boolean throwNotFoundException) {
         return getCapability(nodes, nodeTemplateId, NormativeComputeConstants.SCALABLE, throwNotFoundException);
+    }
+
+    public static int getAvailableGroupIndex(Topology topology) {
+        if (topology == null || topology.getGroups() == null) {
+            return 0;
+        }
+        Collection<NodeGroup> nodeGroups = topology.getGroups().values();
+        LinkedHashSet<Integer> indexSet = new LinkedHashSet<>(nodeGroups.size());
+        for (int i = 0; i < nodeGroups.size(); i++) {
+            indexSet.add(i);
+        }
+        for (NodeGroup nodeGroup : nodeGroups) {
+            indexSet.remove(nodeGroup.getIndex());
+        }
+        if (indexSet.isEmpty()) {
+            return nodeGroups.size();
+        }
+        return indexSet.iterator().next();
     }
 }
