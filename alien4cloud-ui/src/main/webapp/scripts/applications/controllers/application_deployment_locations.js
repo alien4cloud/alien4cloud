@@ -6,7 +6,7 @@ define(function (require) {
   var _ = require('lodash');
   var angular = require('angular');
   
-  var GROUP_ALL = '_ALL';
+  var GROUP_ALL = '_A4C_ALL';
 
   require('scripts/deployment/directives/display_outputs');
   require('scripts/common/filters/inputs');
@@ -55,8 +55,8 @@ define(function (require) {
       function initSelectedLocation() {
 //        console.log('INIT OLD SELECTED ===', $scope.deploymentContext.selectedLocation)
         delete $scope.deploymentContext.selectedLocation;
-        if(_.has($scope, 'deploymentTopologyDTO.locationPolicies._ALL')){
-          var selectedLocationId = $scope.deploymentTopologyDTO.locationPolicies['_ALL'];
+        if(_.has($scope, 'deploymentTopologyDTO.locationPolicies.' + GROUP_ALL)){
+          var selectedLocationId = $scope.deploymentTopologyDTO.locationPolicies[GROUP_ALL];
           if($scope.deploymentContext.locationMatches && $scope.deploymentContext.locationMatches[selectedLocationId]){
             $scope.deploymentContext.selectedLocation=  $scope.deploymentContext.locationMatches[selectedLocationId].location;
           }

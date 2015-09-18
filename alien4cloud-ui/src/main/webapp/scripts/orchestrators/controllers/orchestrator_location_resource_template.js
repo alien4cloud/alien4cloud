@@ -33,7 +33,9 @@ define(function(require) {
         }, angular.toJson({
           propertyName: propertyName,
           propertyValue: propertyValue
-        }));
+        }), function() {
+          $scope.resourceTemplate.template.propertiesMap[propertyName].value = {value: propertyValue, definition: false};
+        });
       };
 
       $scope.updateResourceCapabilityProperty = function(capabilityName, propertyName, propertyValue) {
@@ -45,7 +47,12 @@ define(function(require) {
         }, angular.toJson({
           propertyName: propertyName,
           propertyValue: propertyValue
-        }));
+        }), function() {
+          $scope.resourceTemplate.template.capabilitiesMap[capabilityName].value.propertiesMap[propertyName].value = {
+            value: propertyValue,
+            definition: false
+          };
+        });
       };
     }]);
 });

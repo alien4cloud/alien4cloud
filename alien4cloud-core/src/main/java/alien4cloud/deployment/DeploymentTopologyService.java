@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.apache.commons.collections4.MapUtils;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.application.ApplicationEnvironmentService;
@@ -22,15 +23,11 @@ import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.topology.AbstractPolicy;
 import alien4cloud.model.topology.LocationPlacementPolicy;
 import alien4cloud.model.topology.NodeGroup;
-import alien4cloud.model.topology.Topology;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.DeployerRole;
-import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.topology.TopologyUtils;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * Manages the deployment topology handling.
@@ -40,9 +37,6 @@ public class DeploymentTopologyService {
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
-
-    @Inject
-    private TopologyServiceCore topologyServiceCore;
 
     @Inject
     private ApplicationVersionService appVersionService;
@@ -58,6 +52,10 @@ public class DeploymentTopologyService {
 
     @Inject
     private ApplicationEnvironmentService applicationEnvironmentService;
+
+    public void deleteByEnvironmentId(String environmentId) {
+        alienDAO.delete(DeploymentTopology.class, QueryBuilders.termQuery("environmentId", environmentId));
+    }
 
     /**
      * Get the deployment topology for a given version and environment.
@@ -170,34 +168,20 @@ public class DeploymentTopologyService {
             throw new UnsupportedOperationException("Multiple Location policies not yet supported");
         }
 
-        Topology topology = topologyServiceCore.getOrFail(deploymentTopo.getInitialTopologyId());
-
         for (Entry<String, String> matchEntry : groupsLocationsMapping.entrySet()) {
-
             String locationId = matchEntry.getValue();
             checkAuthorizationOnLocation(locationId);
             LocationPlacementPolicy locationPolicy = new LocationPlacementPolicy(locationId);
             locationPolicy.setName("Location policy");
-
             // put matchEntry.getKey() instead for multi location support
             String groupName = AlienConstants.GROUP_ALL;
-
-            Map<String, NodeGroup> groups = deploymentTopo.getGroups();
-            if (groups == null) {
-                groups = Maps.newHashMap();
-                deploymentTopo.setGroups(groups);
-            }
-
+            Map<String, NodeGroup> groups = deploymentTopo.getLocationGroups();
             NodeGroup group = new NodeGroup();
             group.setName(groupName);
-            group.setIndex(TopologyUtils.getAvailableGroupIndex(topology));
             group.setPolicies(Lists.<AbstractPolicy> newArrayList());
             group.getPolicies().add(locationPolicy);
-
-            // Should we add all members here? if so, how to sync the deploymentTopology and the initial one?
             groups.put(groupName, group);
         }
-
     }
 
     private void checkAuthorizationOnLocation(String locationId) {

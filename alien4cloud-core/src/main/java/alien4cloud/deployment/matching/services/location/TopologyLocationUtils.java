@@ -34,8 +34,8 @@ public final class TopologyLocationUtils {
      * @param deploymentTopology the deployment topology.
      */
     public static String getLocationId(DeploymentTopology deploymentTopology) {
-        if (MapUtils.isNotEmpty(deploymentTopology.getGroups())) {
-            for (NodeGroup group : deploymentTopology.getGroups().values()) {
+        if (MapUtils.isNotEmpty(deploymentTopology.getLocationGroups())) {
+            for (NodeGroup group : deploymentTopology.getLocationGroups().values()) {
                 for (AbstractPolicy policy : group.getPolicies()) {
                     if (policy instanceof LocationPlacementPolicy) {
                         return ((LocationPlacementPolicy) policy).getLocationId();
