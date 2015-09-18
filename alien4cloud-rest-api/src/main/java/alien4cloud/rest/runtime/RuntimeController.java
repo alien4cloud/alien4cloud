@@ -8,13 +8,17 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import alien4cloud.orchestrators.locations.services.LocationService;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import alien4cloud.application.ApplicationEnvironmentService;
@@ -30,12 +34,17 @@ import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.model.components.*;
+import alien4cloud.model.components.IValue;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.Interface;
+import alien4cloud.model.components.Operation;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
@@ -107,7 +116,7 @@ public class RuntimeController {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
 
-        Topology topology = deploymentRuntimeStateService.getRuntimeTopology(operationRequest.getApplicationEnvironmentId());
+        Topology topology = deploymentRuntimeStateService.getRuntimeTopologyFromEnvironment(operationRequest.getApplicationEnvironmentId());
         // validate the operation request
         try {
             validateCommand(operationRequest, topology);
@@ -130,7 +139,7 @@ public class RuntimeController {
         }
         // try to trigger the execution of the operation
         try {
-            deploymentRuntimeService.triggerOperationExecution(operationRequest, topology, new IPaaSCallback<Map<String, String>>() {
+            deploymentRuntimeService.triggerOperationExecution(operationRequest, new IPaaSCallback<Map<String, String>>() {
                 @Override
                 public void onSuccess(Map<String, String> data) {
                     result.setResult(RestResponseBuilder.<Object> builder().data(data).build());
@@ -176,15 +185,15 @@ public class RuntimeController {
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
-
-        ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(environment.getApplicationId(), environment.getCurrentVersionId());
-        DeploymentTopology deploymentTopology = deploymentTopologyService.getDeployedTopology(version.getId(), environment.getId());
+        Deployment deployment = deploymentService.getActiveDeploymentOrFail(environment.getId());
+        DeploymentTopology deploymentTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
         String locationId = TopologyLocationUtils.getLocationIdOrFail(deploymentTopology);
         Location location = locationService.getOrFail(locationId);
         String topologyId = applicationEnvironmentService.getTopologyId(applicationId);
 
-        return RestResponseBuilder.<TopologyDTO> builder()
-                .data(topologyService.buildTopologyDTO(deploymentRuntimeStateService.getRuntimeTopology(topologyId, location.getOrchestratorId()))).build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(
+                topologyService.buildTopologyDTO(deploymentRuntimeStateService.getRuntimeTopologyFromEnvironment(topologyId, location.getOrchestratorId())))
+                .build();
     }
 
     private void validateCommand(OperationExecRequest operationRequest, Topology topology) throws ConstraintFunctionalException {

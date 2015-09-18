@@ -13,7 +13,12 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
@@ -22,8 +27,6 @@ import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.deployment.DeploymentService;
-import alien4cloud.deployment.DeploymentSetupService;
 import alien4cloud.exception.ApplicationVersionNotFoundException;
 import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
@@ -45,7 +48,6 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.Role;
-import alien4cloud.topology.TopologyService;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
 
@@ -67,12 +69,6 @@ public class ApplicationEnvironmentController {
     private ApplicationService applicationService;
     @Resource
     private ApplicationVersionService applicationVersionService;
-    @Resource
-    private DeploymentService deploymentService;
-    @Resource
-    private DeploymentSetupService deploymentSetupService;
-    @Resource
-    private TopologyService topologyService;
 
     /**
      * Search for application environment for a given application id

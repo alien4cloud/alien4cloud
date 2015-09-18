@@ -12,12 +12,20 @@ import org.springframework.stereotype.Service;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.deployment.Deployment;
-import alien4cloud.model.topology.Topology;
+import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
-import alien4cloud.paas.model.*;
+import alien4cloud.paas.model.AbstractMonitorEvent;
+import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.paas.model.InstanceInformation;
+import alien4cloud.paas.model.PaaSDeploymentContext;
+import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
+import alien4cloud.paas.model.PaaSMessageMonitorEvent;
+import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Maps;
@@ -41,14 +49,24 @@ public class DeploymentRuntimeStateService {
     private DeploymentContextService deploymentContextService;
 
     /**
-     * Get the deployed (runtime) topology of an application on a cloud
+     * Get the deployed (runtime) topology of an application from the environment id
      *
      * @param applicationEnvironmentId id of the environment
-     * @return the Topology requested if found
+     * @return the DeploymentTopology requested if found
      */
-    public Topology getRuntimeTopology(String applicationEnvironmentId) {
+    public DeploymentTopology getRuntimeTopologyFromEnvironment(String applicationEnvironmentId) {
         Deployment deployment = deploymentService.getActiveDeploymentOrFail(applicationEnvironmentId);
-        return alienMonitorDao.findById(Topology.class, deployment.getId());
+        return alienMonitorDao.findById(DeploymentTopology.class, deployment.getId());
+    }
+
+    /**
+     * Get the deployed (runtime) topology of an application from the deployment's id
+     * 
+     * @param deploymentId
+     * @return
+     */
+    public DeploymentTopology getRuntimeTopology(String deploymentId) {
+        return alienMonitorDao.findById(DeploymentTopology.class, deploymentId);
     }
 
     /**
@@ -56,11 +74,11 @@ public class DeploymentRuntimeStateService {
      *
      * @param topologyId id of the topology for which to get deployed topology.
      * @param orchestratorId targeted cloud id
-     * @return the Topology requested if found
+     * @return the DeploymentTopology requested if found
      */
-    public Topology getRuntimeTopology(String topologyId, String orchestratorId) {
+    public DeploymentTopology getRuntimeTopologyFromEnvironment(String topologyId, String orchestratorId) {
         Deployment deployment = deploymentService.getActiveDeploymentOrFail(topologyId, orchestratorId);
-        return alienMonitorDao.findById(Topology.class, deployment.getId());
+        return alienMonitorDao.findById(DeploymentTopology.class, deployment.getId());
     }
 
     /**
@@ -77,7 +95,8 @@ public class DeploymentRuntimeStateService {
             return;
         }
         IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.get(deployment.getOrchestratorId());
-        PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment);
+
+        PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, getRuntimeTopology(deployment.getId()));
         IPaaSCallback<DeploymentStatus> esCallback = new IPaaSCallback<DeploymentStatus>() {
             @Override
             public void onSuccess(DeploymentStatus data) {
@@ -110,7 +129,7 @@ public class DeploymentRuntimeStateService {
             callback.onSuccess(instancesInformation);
             return;
         }
-        Topology runtimeTopology = alienMonitorDao.findById(Topology.class, deployment.getId());
+        DeploymentTopology runtimeTopology = alienMonitorDao.findById(DeploymentTopology.class, deployment.getId());
         PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(deployment, runtimeTopology);
         IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.get(deployment.getOrchestratorId());
         orchestratorPlugin.getInstancesInformation(deploymentContext, callback);

@@ -8,19 +8,18 @@ import javax.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.deployment.Deployment;
-import alien4cloud.model.topology.Topology;
+import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.springframework.stereotype.Service;
 
 /**
  * Manage deployment operations on a cloud.
@@ -30,8 +29,8 @@ import org.springframework.stereotype.Service;
 public class DeploymentService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDao;
-    @Resource(name = "alien-monitor-es-dao")
-    private IGenericSearchDAO alienMonitorDao;
+    @Inject
+    private DeploymentRuntimeStateService deploymentRuntimeStateService;
     @Inject
     private DeploymentContextService deploymentContextService;
 
@@ -178,7 +177,7 @@ public class DeploymentService {
         Deployment[] deployments = getOrchestratorActiveDeployments(orchestratorId);
         Map<String, PaaSTopologyDeploymentContext> activeDeploymentContexts = Maps.newHashMap();
         for (Deployment deployment : deployments) {
-            Topology topology = alienMonitorDao.findById(Topology.class, deployment.getId());
+            DeploymentTopology topology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
             activeDeploymentContexts.put(deployment.getOrchestratorDeploymentId(),
                     deploymentContextService.buildTopologyDeploymentContext(deployment, topology));
         }
@@ -190,16 +189,5 @@ public class DeploymentService {
                 new String[][] { new String[] { orchestratorId }, new String[] { null } });
         GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, 1);
         return dataResult.getData();
-    }
-
-    /**
-     * Get all deployments for a given deployment setup id
-     *
-     * @param deploymentSetupId deployment setup's id
-     * @return deployment which have the given deployment setup id
-     */
-    public GetMultipleDataResult<Deployment> getDeploymentsByDeploymentSetup(String deploymentSetupId) {
-        return alienDao.find(Deployment.class, MapUtil.newHashMap(new String[] { "deploymentSetup.id" }, new String[][] { new String[] { deploymentSetupId } }),
-                Integer.MAX_VALUE);
     }
 }

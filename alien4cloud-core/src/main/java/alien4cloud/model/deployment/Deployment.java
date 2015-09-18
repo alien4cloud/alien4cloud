@@ -63,10 +63,15 @@ public class Deployment {
     @StringField(indexType = IndexType.not_analyzed)
     private String sourceName;
 
-    /** Id of the topology that is deployed (runtime topology) */
+    /** Id of the environment on which this deployment has been created */
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
-    private String topologyId;
+    private String environmentId;
+
+    /** Id of the version of the topology on which this deployment has been created */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
+    private String versionId;
 
     /** Start date of the deployment */
     @TimeStamp(format = "")

@@ -65,9 +65,9 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
             if (deployment != null) {
                 updateDeploymentStatus(deployment, ((PaaSDeploymentStatusMonitorEvent) event).getDeploymentStatus());
 
-                if (deployment.getDeploymentSetup() != null && deployment.getDeploymentSetup().getEnvironmentId() != null) {
+                if (deployment.getEnvironmentId() != null) {
                     // dispatch an event on the environment topic
-                    topicName = ENV_TOPIC_PREFIX + "/" + deployment.getDeploymentSetup().getEnvironmentId();
+                    topicName = ENV_TOPIC_PREFIX + "/" + deployment.getEnvironmentId();
                     if (log.isDebugEnabled()) {
                         log.debug("Send [" + event.getClass().getSimpleName() + "] to [" + topicName + "]: " + event);
                     }
@@ -125,12 +125,11 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
         switch (deployment.getSourceType()) {
         case APPLICATION:
             // check if the user has right for the environment associated with the deployment.
-            ApplicationEnvironment environment = alienDAO.findById(ApplicationEnvironment.class, deployment.getDeploymentSetup().getEnvironmentId());
+            ApplicationEnvironment environment = alienDAO.findById(ApplicationEnvironment.class, deployment.getEnvironmentId());
             if (environment == null) {
-                log.error("Environment with id [{}] do not exist any more for deployment [{}]", deployment.getDeploymentSetup().getEnvironmentId(),
-                        deployment.getId());
-                throw new NotFoundException("Environment with id [" + deployment.getDeploymentSetup().getEnvironmentId()
-                        + "] do not exist any more for deployment [" + deployment.getId() + "]");
+                log.error("Environment with id [{}] do not exist any more for deployment [{}]", deployment.getEnvironmentId(), deployment.getId());
+                throw new NotFoundException(
+                        "Environment with id [" + deployment.getEnvironmentId() + "] do not exist any more for deployment [" + deployment.getId() + "]");
             }
             AuthorizationUtil.checkAuthorization(a4cUser, environment, ApplicationRole.APPLICATION_MANAGER, ApplicationEnvironmentRole.values());
             break;

@@ -28,9 +28,8 @@ import alien4cloud.deployment.DeployService;
 import alien4cloud.deployment.DeploymentRuntimeService;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.deployment.DeploymentService;
-import alien4cloud.deployment.DeploymentSetupService;
-import alien4cloud.deployment.DeploymentSetupValidator;
 import alien4cloud.deployment.DeploymentTopologyService;
+import alien4cloud.deployment.DeploymentTopologyValidationService;
 import alien4cloud.deployment.UndeployService;
 import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
 import alien4cloud.exception.AlreadyExistException;
@@ -39,7 +38,6 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.deployment.Deployment;
-import alien4cloud.model.deployment.DeploymentSetup;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.topology.Topology;
@@ -90,9 +88,6 @@ public class ApplicationDeploymentController {
     private TopologyServiceCore topologyServiceCore;
     @Resource
     private DeploymentService deploymentService;
-    @Resource
-    private DeploymentSetupService deploymentSetupService;
-
     @Inject
     private DeployService deployService;
     @Inject
@@ -106,7 +101,7 @@ public class ApplicationDeploymentController {
     @Inject
     private DeploymentRuntimeService deploymentRuntimeService;
     @Inject
-    private DeploymentSetupValidator deploymentSetupValidator;
+    private DeploymentTopologyValidationService deploymentTopologyValidationService;
 
     /**
      * Trigger deployment of the application on the current configured PaaS.
@@ -141,8 +136,7 @@ public class ApplicationDeploymentController {
         ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(environment.getApplicationId(), environment.getCurrentVersionId());
 
         // Get the deployment configurations
-        DeploymentTopology deploymentTopology = deploymentTopologyService.getDeployedTopology(version.getId(), environment.getId());
-        DeploymentSetup deploymentSetup = deploymentSetupService.getOrFail(version, environment);
+        DeploymentTopology deploymentTopology = deploymentTopologyService.getDeploymentTopology(version.getId(), environment.getId());
 
         // Check authorization on the location
         // get the target locations of the deployment topology
@@ -151,7 +145,7 @@ public class ApplicationDeploymentController {
         AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.DEPLOYER);
 
         // process with the deployment
-        deployService.deploy(deploymentTopology, deploymentSetup, application);
+        deployService.deploy(deploymentTopology, application);
         // TODO OrchestratorDisabledException handling in the ExceptionHandler
         // return RestResponseBuilder.<Void> builder().error(
         // new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), "Cloud with id <" + environment.getCloudId() + "> is disabled or not found"))
@@ -176,12 +170,10 @@ public class ApplicationDeploymentController {
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
-        ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(application.getId(), environment.getCurrentVersionId());
         try {
             boolean isEnvironmentDeployed = applicationEnvironmentService.isDeployed(environment.getId());
             if (isEnvironmentDeployed) {
-                DeploymentSetup deploymentSetup = deploymentSetupService.getOrFail(version, environment);
-                undeployService.undeploy(deploymentSetup);
+                undeployService.undeploy(applicationEnvironmentId);
             }
         } catch (OrchestratorDisabledException e) {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
@@ -381,32 +373,18 @@ public class ApplicationDeploymentController {
 
                 @Override
                 public void onFailure(Throwable e) {
-                    result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage()))
-                            .build());
+                    result.setErrorResult(
+                            RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage())).build());
                 }
             });
         } catch (OrchestratorDisabledException e) {
-            result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage()))
-                    .build());
+            result.setErrorResult(
+                    RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build());
         } catch (PaaSDeploymentException e) {
             result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage())).build());
         }
 
         return result;
-    }
-
-    // FIXME MATCHING
-    @ApiOperation(value = "Get the deployment setup for an application", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
-    @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment-setup", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<DeploymentSetup> getDeploymentSetup(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId)
-            throws OrchestratorDisabledException {
-        Application application = applicationService.checkAndGetApplication(applicationId);
-        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
-        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-        }
-        return RestResponseBuilder.<DeploymentSetup> builder().data(deploymentSetupService.getOrFail(environment)).build();
     }
 
     // FIXME THIS CANNOT BE USED ANYMORE TO SET MATCHING RESULT
@@ -432,12 +410,12 @@ public class ApplicationDeploymentController {
         ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(applicationId, environment.getCurrentVersionId());
         Topology topology = topologyServiceCore.getOrFail(version.getTopologyId());
 
-        DeploymentSetup deploymentSetup = deploymentSetupService.getOrFail(version, environment);
-        ReflectionUtil.mergeObject(updateRequest, deploymentSetup);
-        if (deploymentSetup.getInputProperties() != null) {
+        DeploymentTopology deploymentTopology = deploymentTopologyService.getDeploymentTopology(version.getId(), environment.getId());
+        ReflectionUtil.mergeObject(updateRequest, deploymentTopology);
+        if (deploymentTopology.getInputProperties() != null) {
             // If someone modified the input properties, must validate them
             try {
-                deploymentSetupValidator.validate(deploymentSetup, topology);
+                deploymentTopologyValidationService.validateInputProperties(deploymentTopology);
             } catch (ConstraintViolationException e) {
                 return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().data(e.getConstraintInformation())
                         .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
@@ -446,7 +424,7 @@ public class ApplicationDeploymentController {
                         .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
             }
         }
-        alienDAO.save(deploymentSetup);
+        alienDAO.save(deploymentTopology);
         return RestResponseBuilder.<Void> builder().build();
     }
 }

@@ -11,17 +11,17 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationVersionService;
-import alien4cloud.deployment.DeploymentSetupService;
-import alien4cloud.deployment.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.deployment.DeploymentService;
+import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.model.deployment.DeploymentSetup;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.deployment.Deployment;
+import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.model.AbstractMonitorEvent;
@@ -51,7 +51,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Resource
-    private DeploymentSetupService deploymentSetupService;
+    private DeploymentTopologyService deploymentTopologyService;
 
     @Override
     public void eventHappened(AbstractMonitorEvent event) {
@@ -82,7 +82,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
         }
 
         Deployment deployment = deploymentService.get(storageEvent.getDeploymentId());
-        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(deployment.getDeploymentSetup().getEnvironmentId());
+        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(deployment.getEnvironmentId());
         ApplicationVersion applicationVersion = applicationVersionService.getOrFail(applicationEnvironment.getCurrentVersionId());
         Topology topology = topoServiceCore.getOrFail(applicationVersion.getTopologyId());
 
@@ -104,11 +104,12 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
             FunctionPropertyValue function = (FunctionPropertyValue) abstractPropertyValue;
             if (function.getFunction().equals(ToscaFunctionConstants.GET_INPUT)) {
                 // the value is set in the input (deployment setup)
-                DeploymentSetup deploymentSetup = deploymentSetupService.get(applicationVersion, applicationEnvironment);
-                log.info("Updating deploymentsetup <{}> input properties <{}> to add a new VolumeId", deploymentSetup.getId(), function.getTemplateName());
+                DeploymentTopology deploymentTopology = deploymentTopologyService.getDeploymentTopology(applicationVersion.getId(),
+                        applicationEnvironment.getId());
+                log.info("Updating deploymentsetup <{}> input properties <{}> to add a new VolumeId", deploymentTopology.getId(), function.getTemplateName());
                 log.debug("VolumeId to add: <{}>. New value is <{}>", storageEvent.getVolumeId(), volumeIds);
-                deploymentSetup.getInputProperties().put(function.getTemplateName(), volumeIds);
-                alienDAO.save(deploymentSetup);
+                deploymentTopology.getInputProperties().put(function.getTemplateName(), volumeIds);
+                alienDAO.save(deploymentTopology);
             } else {
                 // this is not supported / print a warning
                 log.warn("Failed to store the id of the created block storage <{}> for deployment <{}> application <{}> environment <{}>");

@@ -27,7 +27,7 @@ public class UndeployService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDao;
     @Inject
-    private DeploymentTopologyService deploymentTopologyService;
+    private DeploymentRuntimeStateService deploymentRuntimeStateService;
 
     /**
      * Un-deploy a deployment object
@@ -36,6 +36,11 @@ public class UndeployService {
      */
     public synchronized void undeploy(String deploymentId) {
         Deployment deployment = deploymentService.getOrfail(deploymentId);
+        undeploy(deployment);
+    }
+
+    public synchronized void undeployEnvironment(String environmentId) {
+        Deployment deployment = deploymentService.getActiveDeploymentOrFail(environmentId);
         undeploy(deployment);
     }
 
@@ -52,7 +57,8 @@ public class UndeployService {
     private void undeploy(Deployment deployment) {
         log.info("Un-deploying deployment [{}] on cloud [{}]", deployment.getId(), deployment.getOrchestratorId());
         IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.get(deployment.getOrchestratorId());
-        PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment);
+        DeploymentTopology deployedTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
+        PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, deployedTopology);
         orchestratorPlugin.undeploy(deploymentContext, null);
         alienDao.save(deployment);
         log.info("Un-deployed deployment [{}] on cloud [{}]", deployment.getId(), deployment.getOrchestratorId());

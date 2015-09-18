@@ -1,5 +1,6 @@
 package alien4cloud.deployment;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationVersionService;
-import alien4cloud.application.TopologyCompositionService;
 import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
@@ -28,7 +28,6 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.DeployerRole;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyUtils;
-import alien4cloud.utils.services.ConstraintPropertyService;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -41,15 +40,9 @@ public class DeploymentTopologyService {
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
-    @Resource
-    private ConstraintPropertyService constraintPropertyService;
-    @Resource
-    private InputsPreProcessorService inputsPreProcessorService;
-    @Resource
-    private TopologyCompositionService topologyCompositionService;
 
     @Inject
-    private TopologyServiceCore topoServiceCore;
+    private TopologyServiceCore topologyServiceCore;
 
     @Inject
     private ApplicationVersionService appVersionService;
@@ -60,8 +53,11 @@ public class DeploymentTopologyService {
     @Inject
     private LocationService locationService;
 
-    @Resource
-    private DeploymentInputService deploymentInputService;
+    @Inject
+    private ApplicationVersionService applicationVersionService;
+
+    @Inject
+    private ApplicationEnvironmentService applicationEnvironmentService;
 
     /**
      * Get the deployment topology for a given version and environment.
@@ -70,16 +66,12 @@ public class DeploymentTopologyService {
      * @param environmentId The id of the environment for which to get the deployment topology.
      * @return The deployment topology for the given version and environment.
      */
-    public DeploymentTopology getDeployedTopology(String versionId, String environmentId) {
+    public DeploymentTopology getDeploymentTopology(String versionId, String environmentId) {
         DeploymentTopology deploymentTopology = alienDAO.findById(DeploymentTopology.class, generateId(versionId, environmentId));
         if (deploymentTopology == null) {
             throw new NotFoundException("Unable to find the deployment topology for version <" + versionId + "> and environment <" + environmentId + ">");
         }
         return deploymentTopology;
-    }
-
-    public DeploymentTopology generateDeploymentTopology(Topology topology, ApplicationEnvironment environment, ApplicationVersion version) {
-        return null;
     }
 
     /**
@@ -112,7 +104,6 @@ public class DeploymentTopologyService {
      * Set the location policies of a deloyment
      *
      * @param environmentId
-     * @param versionId
      * @param groupsToLocations
      * @return
      */
@@ -179,7 +170,7 @@ public class DeploymentTopologyService {
             throw new UnsupportedOperationException("Multiple Location policies not yet supported");
         }
 
-        Topology topology = topoServiceCore.getOrFail(deploymentTopo.getInitialTopologyId());
+        Topology topology = topologyServiceCore.getOrFail(deploymentTopo.getInitialTopologyId());
 
         for (Entry<String, String> matchEntry : groupsLocationsMapping.entrySet()) {
 
@@ -212,5 +203,25 @@ public class DeploymentTopologyService {
     private void checkAuthorizationOnLocation(String locationId) {
         Location location = locationService.getOrFail(locationId);
         AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.values());
+    }
+
+    /**
+     * Get all deployment setup linked to a topology
+     *
+     * @param topologyId the topology id
+     * @return all deployment setup that is linked to this topology
+     */
+    public DeploymentTopology[] getByTopologyId(String topologyId) {
+        List<DeploymentTopology> deploymentTopologies = org.elasticsearch.common.collect.Lists.newArrayList();
+        ApplicationVersion version = applicationVersionService.getByTopologyId(topologyId);
+        if (version != null) {
+            ApplicationEnvironment[] environments = applicationEnvironmentService.getByVersionId(version.getId());
+            if (environments != null && environments.length > 0) {
+                for (ApplicationEnvironment environment : environments) {
+                    deploymentTopologies.add(getDeploymentTopology(version.getId(), environment.getId()));
+                }
+            }
+        }
+        return deploymentTopologies.toArray(new DeploymentTopology[deploymentTopologies.size()]);
     }
 }

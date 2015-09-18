@@ -14,7 +14,13 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.application.ApplicationEnvironmentService;
@@ -23,7 +29,6 @@ import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
-import alien4cloud.deployment.DeploymentSetupService;
 import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.images.IImageDAO;
@@ -72,8 +77,6 @@ public class ApplicationController {
     private TopologyTemplateVersionService topologyTemplateVersionService;
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
-    @Resource
-    private DeploymentSetupService deploymentSetupService;
 
     /**
      * Create a new application in the system.
@@ -100,8 +103,6 @@ public class ApplicationController {
         String applicationId = applicationService.create(auth.getName(), request.getName(), request.getDescription(), null);
         ApplicationVersion version = applicationVersionService.createApplicationVersion(applicationId, topologyId);
         ApplicationEnvironment environment = applicationEnvironmentService.createApplicationEnvironment(auth.getName(), applicationId, version.getId());
-        // create the deployment setup
-        deploymentSetupService.createOrFail(version, environment);
         return RestResponseBuilder.<String> builder().data(applicationId).build();
     }
 
@@ -217,6 +218,5 @@ public class ApplicationController {
         alienDAO.save(application);
         return RestResponseBuilder.<Void> builder().build();
     }
-
 
 }

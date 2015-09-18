@@ -4,6 +4,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.springframework.stereotype.Service;
+
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.deployment.DeploymentTopology;
@@ -16,6 +18,7 @@ import alien4cloud.utils.services.ConstraintPropertyService;
 /**
  * Perform validation of a topology before deployment.
  */
+@Service
 public class DeploymentTopologyValidationService {
 
     @Inject
@@ -34,6 +37,7 @@ public class DeploymentTopologyValidationService {
         // If a policy is not matched on the location this is a warning as we allow deployment but some features may be missing
         // If a policy requires a configuration or cannot be applied du to any reason the policy implementation itself can trigger some errors (see Orchestrator
         // plugins)
+        // FIXME Perform validation of the provider properties!
         TopologyValidationResult validationResult = new TopologyValidationResult();
         validationResult.setValid(true);
         return validationResult;
@@ -43,33 +47,13 @@ public class DeploymentTopologyValidationService {
      * Perform validation of a given deployment setup against its topology.
      *
      * @param deploymentTopology The deployment setup to validate.
-     * @param topology The topology against which to validate the inputs.
      * @throws alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException
      * @throws alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException
      */
-    public void validate(DeploymentTopology deploymentTopology, Topology topology)
+    public void validate(DeploymentTopology deploymentTopology)
             throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
-        validateInputProperties(deploymentTopology, topology);
+        validateInputProperties(deploymentTopology);
         // FIXME Perform validation of the provider properties!
-    }
-
-    private void validateInputProperties(DeploymentTopology deploymentTopology, Topology topology)
-            throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
-        if (deploymentTopology.getInputProperties() == null) {
-            return;
-        }
-        Map<String, String> inputProperties = deploymentTopology.getInputProperties();
-        Map<String, PropertyDefinition> inputDefinitions = topology.getInputs();
-        if (inputDefinitions == null) {
-            throw new NotFoundException("Validate input but no input is defined for the topology");
-        }
-        for (Map.Entry<String, String> inputPropertyEntry : inputProperties.entrySet()) {
-            PropertyDefinition definition = inputDefinitions.get(inputPropertyEntry.getKey());
-            if (definition != null) {
-                constraintPropertyService.checkSimplePropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue(),
-                        inputDefinitions.get(inputPropertyEntry.getKey()));
-            }
-        }
     }
 
     /**
@@ -80,8 +64,7 @@ public class DeploymentTopologyValidationService {
      * @throws ConstraintValueDoNotMatchPropertyTypeException
      * @throws ConstraintViolationException
      */
-    public void validateInputProperties(DeploymentTopology topology) throws ConstraintValueDoNotMatchPropertyTypeException,
-            ConstraintViolationException {
+    public void validateInputProperties(DeploymentTopology topology) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         if (topology.getInputProperties() == null) {
             return;
         }

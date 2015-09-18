@@ -8,8 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.client.RestClientException;
 
-import alien4cloud.model.deployment.DeploymentSetup;
 import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.ScalingPolicy;
@@ -39,20 +39,19 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
     @Override
     public void deploy(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
         String deploymentId = deploymentContext.getDeploymentPaaSId();
-        Topology topology = deploymentContext.getTopology();
-        DeploymentSetup deploymentSetup = deploymentContext.getDeploymentSetup();
+        DeploymentTopology deploymentTopology = deploymentContext.getDeploymentTopology();
         try {
             providerLock.writeLock().lock();
 
-            if (deploymentSetup.getProviderDeploymentProperties() != null) {
+            if (deploymentTopology.getProviderDeploymentProperties() != null) {
                 // i.e : use / handle plugin deployment properties
-                log.info("Topology deployment [" + topology.getId() + "] for application [" + deploymentContext.getDeployment().getSourceName() + "]"
-                        + " and [" + deploymentSetup.getProviderDeploymentProperties().size() + "] deployment properties");
-                log.info(deploymentSetup.getProviderDeploymentProperties().keySet().toString());
-                for (String property : deploymentSetup.getProviderDeploymentProperties().keySet()) {
+                log.info("Topology deployment [" + deploymentTopology.getId() + "] for application [" + deploymentContext.getDeployment().getSourceName() + "]"
+                        + " and [" + deploymentTopology.getProviderDeploymentProperties().size() + "] deployment properties");
+                log.info(deploymentTopology.getProviderDeploymentProperties().keySet().toString());
+                for (String property : deploymentTopology.getProviderDeploymentProperties().keySet()) {
                     log.info(property);
-                    if (deploymentSetup.getProviderDeploymentProperties().get(property) != null) {
-                        log.info("[ " + property + " : " + deploymentSetup.getProviderDeploymentProperties().get(property) + "]");
+                    if (deploymentTopology.getProviderDeploymentProperties().get(property) != null) {
+                        log.info("[ " + property + " : " + deploymentTopology.getProviderDeploymentProperties().get(property) + "]");
                     }
                 }
             }
@@ -71,8 +70,8 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
                 doDeploy(deploymentContext);
                 break;
             default:
-                throw new IllegalDeploymentStateException("Topology [" + deploymentId + "] is in illegal status [" + deploymentStatus
-                        + "] and cannot be deployed");
+                throw new IllegalDeploymentStateException(
+                        "Topology [" + deploymentId + "] is in illegal status [" + deploymentStatus + "] and cannot be deployed");
             }
         } finally {
             providerLock.writeLock().unlock();
@@ -80,8 +79,9 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
     }
 
     @Override
-    public void getInstancesInformation(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
-        callback.onSuccess(getInstancesInformation(deploymentContext.getDeploymentPaaSId(), deploymentContext.getTopology()));
+    public void getInstancesInformation(PaaSTopologyDeploymentContext deploymentContext,
+            IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
+        callback.onSuccess(getInstancesInformation(deploymentContext.getDeploymentPaaSId(), deploymentContext.getDeploymentTopology()));
     }
 
     public Map<String, Map<String, InstanceInformation>> getInstancesInformation(String deploymentId, Topology topology) {
@@ -112,10 +112,10 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
             // get the current number of instances
             int currentPlannedInstances = getPlannedInstancesCount(nodeTempalteEntry.getKey(), topology);
             for (int i = 1; i <= currentPlannedInstances; i++) {
-                Map<String, AbstractPropertyValue> properties = nodeTempalteEntry.getValue().getProperties() == null ? null : Maps.newHashMap(nodeTempalteEntry
-                        .getValue().getProperties());
-                Map<String, String> attributes = nodeTempalteEntry.getValue().getAttributes() == null ? null : Maps.newHashMap(nodeTempalteEntry.getValue()
-                        .getAttributes());
+                Map<String, AbstractPropertyValue> properties = nodeTempalteEntry.getValue().getProperties() == null ? null
+                        : Maps.newHashMap(nodeTempalteEntry.getValue().getProperties());
+                Map<String, String> attributes = nodeTempalteEntry.getValue().getAttributes() == null ? null
+                        : Maps.newHashMap(nodeTempalteEntry.getValue().getAttributes());
                 // Map<String, String> runtimeProperties = Maps.newHashMap();
                 // TODO remove thoses infos
                 // InstanceInformation instanceInfo = new InstanceInformation(ToscaNodeLifecycleConstants.INITIAL, InstanceStatus.PROCESSING, properties,
@@ -153,7 +153,8 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
             case UNDEPLOYED:
                 throw new PaaSNotYetDeployedException("Application [" + deploymentId + "] is in status [" + deploymentStatus + "] and cannot be undeployed");
             case UNKNOWN:
-                throw new IllegalDeploymentStateException("Application [" + deploymentId + "] is in status [" + deploymentStatus + "] and cannot be undeployed");
+                throw new IllegalDeploymentStateException(
+                        "Application [" + deploymentId + "] is in status [" + deploymentStatus + "] and cannot be undeployed");
             case DEPLOYMENT_IN_PROGRESS:
             case FAILURE:
             case DEPLOYED:
@@ -161,8 +162,8 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
                 doUndeploy(deploymentContext);
                 break;
             default:
-                throw new IllegalDeploymentStateException("Application [" + deploymentId + "] is in illegal status [" + deploymentStatus
-                        + "] and cannot be undeployed");
+                throw new IllegalDeploymentStateException(
+                        "Application [" + deploymentId + "] is in illegal status [" + deploymentStatus + "] and cannot be undeployed");
             }
         } finally {
             providerLock.writeLock().unlock();

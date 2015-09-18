@@ -21,12 +21,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import alien4cloud.deployment.DeploymentSetupService;
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.deployment.DeploymentSetup;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
@@ -35,6 +34,7 @@ import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
@@ -70,7 +70,7 @@ public class TopologyInputsController {
     private ICSARRepositorySearchService csarRepoSearchService;
 
     @Resource
-    private DeploymentSetupService deploymentSetupService;
+    private DeploymentTopologyService deploymentTopologyService;
 
     /**
      * Add a new input.
@@ -98,8 +98,8 @@ public class TopologyInputsController {
         log.debug("Add a new input <{}> for the topology <{}>.", inputId, topologyId);
         topologyServiceCore.save(topology);
         if (StringUtils.isNotEmpty(newPropertyDefinition.getDefault())) {
-            DeploymentSetup[] deploymentSetups = deploymentSetupService.getByTopologyId(topologyId);
-            for (DeploymentSetup deploymentSetup : deploymentSetups) {
+            DeploymentTopology[] deploymentSetups = deploymentTopologyService.getByTopologyId(topologyId);
+            for (DeploymentTopology deploymentSetup : deploymentSetups) {
                 if (deploymentSetup.getInputProperties() == null) {
                     deploymentSetup.setInputProperties(Maps.<String, String> newHashMap());
                 }
@@ -182,8 +182,8 @@ public class TopologyInputsController {
 
         log.debug("Change the name of an input parameter <{}> to <{}> for the topology ", inputId, newInputId, topologyId);
         topologyServiceCore.save(topology);
-        DeploymentSetup[] deploymentSetups = deploymentSetupService.getByTopologyId(topologyId);
-        for (DeploymentSetup deploymentSetup : deploymentSetups) {
+        DeploymentTopology[] deploymentSetups = deploymentTopologyService.getByTopologyId(topologyId);
+        for (DeploymentTopology deploymentSetup : deploymentSetups) {
             if (deploymentSetup.getInputProperties() != null && deploymentSetup.getInputProperties().containsKey(inputId)) {
                 String oldValue = deploymentSetup.getInputProperties().remove(inputId);
                 deploymentSetup.getInputProperties().put(newInputId, oldValue);
@@ -264,8 +264,8 @@ public class TopologyInputsController {
 
         log.debug("Remove the input " + inputId + " from the topology " + topologyId);
         topologyServiceCore.save(topology);
-        DeploymentSetup[] deploymentSetups = deploymentSetupService.getByTopologyId(topologyId);
-        for (DeploymentSetup deploymentSetup : deploymentSetups) {
+        DeploymentTopology[] deploymentSetups = deploymentTopologyService.getByTopologyId(topologyId);
+        for (DeploymentTopology deploymentSetup : deploymentSetups) {
             if (deploymentSetup.getInputProperties() != null && deploymentSetup.getInputProperties().containsKey(inputId)) {
                 deploymentSetup.getInputProperties().remove(inputId);
                 alienDAO.save(deploymentSetup);
@@ -300,7 +300,7 @@ public class TopologyInputsController {
             @ApiParam(value = "The name of the input.", required = true) @NotBlank @RequestParam final String inputId,
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateName,
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId)
-            throws IncompatiblePropertyDefinitionException {
+                    throws IncompatiblePropertyDefinitionException {
         Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
@@ -482,7 +482,7 @@ public class TopologyInputsController {
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateName,
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId,
             @ApiParam(value = "The relationship template id.", required = true) @NotBlank @PathVariable final String relationshipId)
-            throws IncompatiblePropertyDefinitionException {
+                    throws IncompatiblePropertyDefinitionException {
         Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
@@ -587,7 +587,7 @@ public class TopologyInputsController {
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateName,
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId,
             @ApiParam(value = "The capability template id.", required = true) @NotBlank @PathVariable final String capabilityId)
-            throws IncompatiblePropertyDefinitionException {
+                    throws IncompatiblePropertyDefinitionException {
         Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
@@ -665,7 +665,8 @@ public class TopologyInputsController {
             } else {
                 capabilityTemplate.getProperties().put(propertyId, null);
             }
-            log.debug("Disassociated the property <{}> of the capability template <{}> to an input of the topology <{}>.", propertyId, capabilityId, topologyId);
+            log.debug("Disassociated the property <{}> of the capability template <{}> to an input of the topology <{}>.", propertyId, capabilityId,
+                    topologyId);
         } else {
             throw new NotFoundException("Property " + propertyId + " do not exist for capability " + capabilityId + " of node " + nodeTemplateName);
         }

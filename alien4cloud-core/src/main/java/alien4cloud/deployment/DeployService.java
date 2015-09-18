@@ -106,7 +106,8 @@ public class DeployService {
         deployment.setSourceType(DeploymentSourceType.fromSourceType(deploymentSource.getClass()));
         deployment.setStartDate(new Date());
         // mandatory for the moment since we could have deployment with no environment (csar test)
-        deployment.setTopologyId(deploymentTopology.getInitialTopologyId());
+        deployment.setEnvironmentId(deploymentTopology.getEnvironmentId());
+        deployment.setVersionId(deploymentTopology.getVersionId());
         alienDao.save(deployment);
 
         // save the topology as a deployed topology.
@@ -138,8 +139,8 @@ public class DeployService {
         String namePattern = orchestrator.getDeploymentNamePattern();
         ExpressionParser parser = new SpelExpressionParser();
         Expression exp = parser.parseExpression(namePattern);
-        String orchestratorDeploymentId = (String) exp.getValue(new OrchestratorIdContext(env, applicationService.getOrFail(env.getApplicationId()),
-                namePattern.contains("metaProperties[")));
+        String orchestratorDeploymentId = (String) exp
+                .getValue(new OrchestratorIdContext(env, applicationService.getOrFail(env.getApplicationId()), namePattern.contains("metaProperties[")));
         orchestratorDeploymentId = orchestratorDeploymentId.trim().replaceAll(" ", "_");
 
         // ensure that the id is not used by another deployment.

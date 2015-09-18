@@ -3,6 +3,7 @@ package alien4cloud.model.deployment;
 import java.util.Date;
 import java.util.Map;
 
+import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -55,4 +56,7 @@ public class DeploymentTopology extends Topology {
      * (on-demand or service).
      */
     private Map<String, NodeTemplate> substitutedNodes;
+
+
+    private Map<String, NodeGroup> locationGroups;
 }
