@@ -8,9 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.deployment.Deployment;
-import alien4cloud.model.deployment.DeploymentSetup;
+import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.model.PaaSDeploymentContext;
@@ -28,7 +27,7 @@ public class UndeployService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDao;
     @Inject
-    DeploymentSetupService deploymentSetupService;
+    private DeploymentTopologyService deploymentTopologyService;
 
     /**
      * Un-deploy a deployment object
@@ -43,11 +42,10 @@ public class UndeployService {
     /**
      * Un-deploy from a deployment setup.
      *
-     * @param deploymentSetup setup object containing information to deploy
+     * @param deploymentTopology setup object containing information to deploy
      */
-    public synchronized void undeploy(DeploymentSetup deploymentSetup) {
-        ApplicationEnvironment environment = deploymentSetupService.getApplicationEnvironment(deploymentSetup.getId());
-        Deployment activeDeployment = deploymentService.getActiveDeploymentOrFail(environment.getId());
+    public synchronized void undeploy(DeploymentTopology deploymentTopology) {
+        Deployment activeDeployment = deploymentService.getActiveDeploymentOrFail(deploymentTopology.getEnvironmentId());
         undeploy(activeDeployment);
     }
 

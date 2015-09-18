@@ -1,20 +1,20 @@
 package alien4cloud.paas.policies;
 
-import alien4cloud.common.AlienConstants;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.deployment.DeploymentSetup;
-import alien4cloud.paas.exception.AvailabilityZoneConfigurationException;
-import alien4cloud.paas.function.FunctionEvaluator;
-import alien4cloud.paas.model.PaaSNodeTemplate;
-import alien4cloud.paas.model.PaaSTopology;
-import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+//import alien4cloud.common.AlienConstants;
+//import alien4cloud.model.components.AbstractPropertyValue;
+//import alien4cloud.model.deployment.DeploymentSetup;
+//import alien4cloud.paas.exception.AvailabilityZoneConfigurationException;
+//import alien4cloud.paas.function.FunctionEvaluator;
+//import alien4cloud.paas.model.PaaSNodeTemplate;
+//import alien4cloud.paas.model.PaaSTopology;
+//import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
+//import com.google.common.collect.Lists;
+//import com.google.common.collect.Maps;
+//import org.apache.commons.lang3.StringUtils;
+//
+//import java.util.Collection;
+//import java.util.List;
+//import java.util.Map;
 
 /**
  * Policy implementation that updates a topology to inject some availability zones to some nodes by setting them in a given property.

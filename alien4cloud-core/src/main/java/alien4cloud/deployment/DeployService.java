@@ -26,7 +26,6 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.deployment.Deployment;
-import alien4cloud.model.deployment.DeploymentSetup;
 import alien4cloud.model.deployment.DeploymentSourceType;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.deployment.IDeploymentSource;
@@ -70,11 +69,10 @@ public class DeployService {
      * Deploy a topology and return the deployment ID.
      *
      * @param deploymentTopology Location aware and matched topology.
-     * @param deploymentSetup The values for the required inputs of the deploymentTopology as well as orchestrator specific properties.
      * @param deploymentSource Application to be deployed or the Csar that contains test toplogy to be deployed
      * @return The id of the generated deployment.
      */
-    public String deploy(DeploymentTopology deploymentTopology, DeploymentSetup deploymentSetup, IDeploymentSource deploymentSource) {
+    public String deploy(DeploymentTopology deploymentTopology, IDeploymentSource deploymentSource) {
         String locationId = TopologyLocationUtils.getLocationIdOrFail(deploymentTopology);
         Location location = locationService.getOrFail(locationId);
         // FIXME check that all nodes to match are matched
@@ -96,7 +94,7 @@ public class DeployService {
         deployment.setId(UUID.randomUUID().toString());
         deployment.setOrchestratorId(location.getOrchestratorId());
         deployment.setLocationIds(new String[] { location.getId() });
-        deployment.setOrchestratorDeploymentId(generateOrchestratorDeploymentId(deploymentSetup.getEnvironmentId(), location.getOrchestratorId()));
+        deployment.setOrchestratorDeploymentId(generateOrchestratorDeploymentId(deploymentTopology.getEnvironmentId(), location.getOrchestratorId()));
         deployment.setSourceId(deploymentSource.getId());
         String sourceName;
         if (deploymentSource.getName() == null) {
@@ -107,7 +105,6 @@ public class DeployService {
         deployment.setSourceName(sourceName);
         deployment.setSourceType(DeploymentSourceType.fromSourceType(deploymentSource.getClass()));
         deployment.setStartDate(new Date());
-        deployment.setDeploymentSetup(deploymentSetup);
         // mandatory for the moment since we could have deployment with no environment (csar test)
         deployment.setTopologyId(deploymentTopology.getInitialTopologyId());
         alienDao.save(deployment);

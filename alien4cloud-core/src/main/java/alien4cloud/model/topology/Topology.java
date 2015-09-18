@@ -1,5 +1,6 @@
 package alien4cloud.model.topology;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,6 +46,8 @@ public class Topology implements IManagedSecuredResource {
     private String delegateId;
     /** Type of the delegate (application or topology template) */
     private String delegateType;
+    /** Last update date of the topology to verify if the topology has been changed **/
+    private Date lastUpdateDate = new Date();
 
     /** The list of dependencies of this topology. */
     @TermFilter(paths = { "name", "version" })

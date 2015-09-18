@@ -18,7 +18,5 @@ import alien4cloud.model.topology.Topology;
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class PaaSTopologyDeploymentContext extends PaaSDeploymentContext {
 
-    private Topology topology;
-
     private PaaSTopology paaSTopology;
 }

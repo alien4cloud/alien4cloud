@@ -23,7 +23,6 @@ import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.deployment.Deployment;
-import alien4cloud.model.deployment.DeploymentSetup;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorConfiguration;
@@ -69,7 +68,6 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         initIndice(Application.class);
         initIndice(ApplicationVersion.class);
         initIndice(ApplicationEnvironment.class);
-        initIndice(DeploymentSetup.class);
         initIndice(Topology.class);
         initIndice(Csar.class);
         initIndice(Plugin.class);

@@ -224,7 +224,7 @@ public class TopologyController {
 
         TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
         workflowBuilderService.addNode(topologyContext, nodeTemplateRequest.getName(), nodeTemplate);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -257,7 +257,7 @@ public class TopologyController {
         workflowBuilderService.renameNode(topology, nodeTemplate, nodeTemplateName, newNodeTemplateName);
         log.debug("Renaming the Node template <{}> with <{}> in the topology <{}> .", nodeTemplateName, newNodeTemplateName, topologyId);
 
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -428,7 +428,7 @@ public class TopologyController {
         relationships.put(relationshipName, relationship);
         TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
         workflowBuilderService.addRelationship(topologyContext, nodeTemplateName, relationshipName);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         log.info("Added relationship to the topology [" + topologyId + "], node name [" + nodeTemplateName + "], relationship name [" + relationshipName + "]");
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
@@ -496,7 +496,7 @@ public class TopologyController {
         updateGroupMembers(topology, template, nodeTemplateName, null);
         // update the workflows
         workflowBuilderService.removeNode(topology, nodeTemplateName, template);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
@@ -602,7 +602,7 @@ public class TopologyController {
                 topology.getId(), nodeTemp.getProperties().get(propertyName), propertyValue);
 
         PropertyUtil.setPropertyValue(nodeTemp, propertyDefinition, propertyName, propertyValue);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<ConstraintInformation> builder().build();
     }
 
@@ -652,7 +652,7 @@ public class TopologyController {
         }
         relationships.get(relationshipName).getProperties().put(propertyName, new ScalarPropertyValue(propertyValue));
 
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<ConstraintInformation> builder().build();
     }
 
@@ -703,7 +703,7 @@ public class TopologyController {
         }
         capabilities.get(capabilityId).getProperties().put(propertyName, new ScalarPropertyValue(propertyValue));
 
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<ConstraintInformation> builder().build();
     }
 
@@ -785,7 +785,7 @@ public class TopologyController {
         // add the new node to the workflow
         workflowBuilderService.addNode(workflowBuilderService.buildTopologyContext(topology), nodeTemplateRequest.getName(), newNodeTemplate);
 
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -829,7 +829,7 @@ public class TopologyController {
             artifact.setArtifactName(artifactFile.getOriginalFilename());
             artifact.setArtifactRef(artifactFileId);
             artifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY);
-            alienDAO.save(topology);
+            topologyServiceCore.save(topology);
             return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
         } finally {
             Closeables.close(artifactStream, true);
@@ -871,7 +871,7 @@ public class TopologyController {
             artifact.setArtifactRepository(null);
             artifact.setArtifactRef(baseArtifact.getArtifactRef());
             artifact.setArtifactName(baseArtifact.getArtifactName());
-            alienDAO.save(topology);
+            topologyServiceCore.save(topology);
         } else {
             log.warn("Reset service for the artifact <" + artifactId + "> on the node template <" + nodeTemplateName + "> failed.");
         }
@@ -915,7 +915,7 @@ public class TopologyController {
             artifact.setArtifactName(artifactFile.getOriginalFilename());
             artifact.setArtifactRef(artifactFileId);
             artifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY);
-            alienDAO.save(topology);
+            topologyServiceCore.save(topology);
             return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
         } finally {
             Closeables.close(artifactStream, true);
@@ -988,7 +988,7 @@ public class TopologyController {
                     + "] of the topology [" + topologyId + "]");
         }
         workflowBuilderService.removeRelationship(topology, nodeTemplateName, relationshipName, relationshipTemplate);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -1009,7 +1009,7 @@ public class TopologyController {
             // attributeName does not exists in the node template
             return RestResponseBuilder.<TopologyDTO> builder().error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_MISSING_ERROR).build()).build();
         }
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
@@ -1071,7 +1071,7 @@ public class TopologyController {
         }
 
         topology.setOutputCapabilityProperties(outputCapabilityProperties);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
@@ -1096,7 +1096,7 @@ public class TopologyController {
         outputCapabilityProperties.get(nodeTemplateName).get(capabilityId).remove(propertyId);
 
         topology.setOutputCapabilityProperties(outputCapabilityProperties);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
@@ -1119,7 +1119,7 @@ public class TopologyController {
             // attributeName does not exists in the node template
             return RestResponseBuilder.<TopologyDTO> builder().error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_MISSING_ERROR).build()).build();
         }
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
@@ -1134,7 +1134,7 @@ public class TopologyController {
         topologyService.throwsErrorIfReleased(topology);
 
         topology.setOutputProperties(removeValueFromMap(topology.getOutputProperties(), nodeTemplateName, propertyName));
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
@@ -1149,7 +1149,7 @@ public class TopologyController {
         topologyService.throwsErrorIfReleased(topology);
 
         topology.setOutputAttributes(removeValueFromMap(topology.getOutputAttributes(), nodeTemplateName, attributeName));
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
@@ -1188,7 +1188,7 @@ public class TopologyController {
             // attributeName does not exists in the node template
             return RestResponseBuilder.<TopologyDTO> builder().error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_MISSING_ERROR).build()).build();
         }
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -1206,7 +1206,7 @@ public class TopologyController {
         if (nodeTemplate.getArtifacts() != null && nodeTemplate.getArtifacts().containsKey(artifactId)) {
             InputArtifactUtil.unsetInputArtifact(nodeTemplate.getArtifacts().get(artifactId));
         }
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -1237,7 +1237,7 @@ public class TopologyController {
 
         }
 
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -1265,7 +1265,7 @@ public class TopologyController {
 
         }
 
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -1333,7 +1333,7 @@ public class TopologyController {
         log.debug("Renaiming the relationship <{}> with <{}> in the node template <{}> of topology <{}> .", relationshipName, newRelationshipName,
                 nodeTemplateName, topologyId);
 
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -1368,7 +1368,7 @@ public class TopologyController {
             topology.getGroups().put(newGroupName, nodeGroup);
         }
 
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -1390,7 +1390,7 @@ public class TopologyController {
             }
         }
 
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -1433,7 +1433,7 @@ public class TopologyController {
         }
         nodeTemplate.getGroups().add(groupName);
         nodeGroup.getMembers().add(nodeName);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -1455,7 +1455,7 @@ public class TopologyController {
             nodeTemplate.getGroups().remove(groupName);
         }
 
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 

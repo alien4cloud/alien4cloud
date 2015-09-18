@@ -100,7 +100,7 @@ public class TopologySubstitutionsController {
             topology.getDependencies().add(new CSARDependency(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
         }
         topology.getSubstitutionMapping().setSubstitutionType(nodeType);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
@@ -132,7 +132,7 @@ public class TopologySubstitutionsController {
         }
         topologyService.unloadType(topology, new String[] { substitutionType.getElementId() });
         topology.setSubstitutionMapping(null);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         // unset the substitution topologyId on the csar
         csar.setSubstitutionTopologyId(null);
         alienDAO.save(csar);
@@ -176,7 +176,7 @@ public class TopologySubstitutionsController {
             throw new AlreadyExistException(String.format("The substitution capability <%s> already exists", substitutionCapabilityId));
         }
         substitutionCapabilities.put(substitutionCapabilityId, new SubstitutionTarget(nodeTemplateName, capabilityId));
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         // update the type
         topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
@@ -214,7 +214,7 @@ public class TopologySubstitutionsController {
                     newKey, newKey));
         }
         targetMap.put(newKey, target);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         // update the type
         topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
@@ -246,7 +246,7 @@ public class TopologySubstitutionsController {
         if (target == null) {
             throw new NotFoundException("No substitution capability or requirement has been found for key " + key);
         }
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         // update the type
         topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
@@ -286,7 +286,7 @@ public class TopologySubstitutionsController {
             throw new AlreadyExistException(String.format("The substitution requirement <%s> already exists", substitutionRequirementId));
         }
         substitutionRequirements.put(substitutionRequirementId, new SubstitutionTarget(nodeTemplateName, requirementId));
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         // update the type
         topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();

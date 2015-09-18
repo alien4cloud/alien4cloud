@@ -38,6 +38,8 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
+    @Resource
+    private TopologyServiceCore topologyServiceCore;
     @Resource(name = "alien-monitor-es-dao")
     private IGenericSearchDAO alienMonitorDao;
     @Resource
@@ -97,7 +99,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
             log.info("Updating application topology: Storage NodeTemplate <{}.{}> to add a new volumeId", topology.getId(), storageEvent.getNodeTemplateId());
             log.debug("VolumeId to add: <{}>. New value is <{}>", storageEvent.getVolumeId(), volumeIds);
             nodeTemplate.getProperties().put(NormativeBlockStorageConstants.VOLUME_ID, new ScalarPropertyValue(volumeIds));
-            alienDAO.save(topology);
+            topologyServiceCore.save(topology);
         } else {
             FunctionPropertyValue function = (FunctionPropertyValue) abstractPropertyValue;
             if (function.getFunction().equals(ToscaFunctionConstants.GET_INPUT)) {

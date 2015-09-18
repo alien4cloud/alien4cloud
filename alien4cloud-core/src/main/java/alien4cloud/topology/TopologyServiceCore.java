@@ -1,6 +1,7 @@
 package alien4cloud.topology;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -351,7 +352,7 @@ public class TopologyServiceCore {
         topology.setDelegateId(topologyTemplateId);
         topology.setDelegateType(TopologyTemplate.class.getSimpleName().toLowerCase());
 
-        this.alienDAO.save(topology);
+        save(topology);
         this.alienDAO.save(topologyTemplate);
         if (version == null) {
             topologyTemplateVersionService.createVersion(topologyTemplateId, null, topology);
@@ -410,8 +411,13 @@ public class TopologyServiceCore {
     public String saveTopology(Topology topology) {
         String topologyId = UUID.randomUUID().toString();
         topology.setId(topologyId);
-        this.alienDAO.save(topology);
+        save(topology);
         return topologyId;
+    }
+
+    public void save(Topology topology) {
+        topology.setLastUpdateDate(new Date());
+        this.alienDAO.save(topology);
     }
 
     public void updateSubstitutionType(final Topology topology) {

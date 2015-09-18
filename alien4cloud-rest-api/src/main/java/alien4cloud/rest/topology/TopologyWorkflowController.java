@@ -57,7 +57,7 @@ public class TopologyWorkflowController {
         topologyService.throwsErrorIfReleased(topology);
 
         Workflow wf = workflowBuilderService.ceateWorkflow(topology);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
@@ -72,7 +72,7 @@ public class TopologyWorkflowController {
         if (wf.isStandard()) {
             throw new RuntimeException("standard wf can not be removed");
         }
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return new RestResponse<Void>();
     }
 
@@ -92,7 +92,7 @@ public class TopologyWorkflowController {
         }
         wf.setName(newName);
         topology.getWorkflows().put(newName, wf);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
@@ -104,7 +104,7 @@ public class TopologyWorkflowController {
         topologyService.throwsErrorIfReleased(topology);
 
         Workflow wf = workflowBuilderService.reinitWorkflow(workflowName, workflowBuilderService.buildTopologyContext(topology));
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
@@ -117,7 +117,7 @@ public class TopologyWorkflowController {
         topologyService.throwsErrorIfReleased(topology);
 
         Workflow wf = workflowBuilderService.removeEdge(topology, workflowName, from, to);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
@@ -130,7 +130,7 @@ public class TopologyWorkflowController {
         topologyService.throwsErrorIfReleased(topology);
 
         Workflow wf = workflowBuilderService.connectStepFrom(topology, workflowName, stepId, stepNames);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
@@ -143,7 +143,7 @@ public class TopologyWorkflowController {
         topologyService.throwsErrorIfReleased(topology);
 
         Workflow wf = workflowBuilderService.renameStep(topology, workflowName, stepId, newStepName);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
@@ -156,7 +156,7 @@ public class TopologyWorkflowController {
         topologyService.throwsErrorIfReleased(topology);
 
         Workflow wf = workflowBuilderService.connectStepTo(topology, workflowName, stepId, stepNames);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
@@ -169,7 +169,7 @@ public class TopologyWorkflowController {
         topologyService.throwsErrorIfReleased(topology);
 
         Workflow wf = workflowBuilderService.swapSteps(topology, workflowName, stepId, targetId);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
@@ -183,7 +183,7 @@ public class TopologyWorkflowController {
 
         Workflow wf = workflowBuilderService.addActivity(topology, workflowName, activityRequest.getRelatedStepId(), activityRequest.isBefore(),
                 activityRequest.getActivity());
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
@@ -194,7 +194,7 @@ public class TopologyWorkflowController {
         topologyService.throwsErrorIfReleased(topology);
 
         Workflow wf = workflowBuilderService.removeStep(topology, workflowName, stepId, false);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 

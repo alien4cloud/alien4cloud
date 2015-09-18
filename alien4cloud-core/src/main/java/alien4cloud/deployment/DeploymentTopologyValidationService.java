@@ -1,12 +1,25 @@
 package alien4cloud.deployment;
 
+import java.util.Map;
+
+import javax.inject.Inject;
+
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.deployment.DeploymentTopology;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.topology.TopologyValidationResult;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import alien4cloud.utils.services.ConstraintPropertyService;
 
 /**
  * Perform validation of a topology before deployment.
  */
 public class DeploymentTopologyValidationService {
+
+    @Inject
+    private ConstraintPropertyService constraintPropertyService;
 
     /**
      * Perform validation of a deployment topology.
@@ -24,5 +37,65 @@ public class DeploymentTopologyValidationService {
         TopologyValidationResult validationResult = new TopologyValidationResult();
         validationResult.setValid(true);
         return validationResult;
+    }
+
+    /**
+     * Perform validation of a given deployment setup against its topology.
+     *
+     * @param deploymentTopology The deployment setup to validate.
+     * @param topology The topology against which to validate the inputs.
+     * @throws alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException
+     * @throws alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException
+     */
+    public void validate(DeploymentTopology deploymentTopology, Topology topology)
+            throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+        validateInputProperties(deploymentTopology, topology);
+        // FIXME Perform validation of the provider properties!
+    }
+
+    private void validateInputProperties(DeploymentTopology deploymentTopology, Topology topology)
+            throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+        if (deploymentTopology.getInputProperties() == null) {
+            return;
+        }
+        Map<String, String> inputProperties = deploymentTopology.getInputProperties();
+        Map<String, PropertyDefinition> inputDefinitions = topology.getInputs();
+        if (inputDefinitions == null) {
+            throw new NotFoundException("Validate input but no input is defined for the topology");
+        }
+        for (Map.Entry<String, String> inputPropertyEntry : inputProperties.entrySet()) {
+            PropertyDefinition definition = inputDefinitions.get(inputPropertyEntry.getKey());
+            if (definition != null) {
+                constraintPropertyService.checkSimplePropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue(),
+                        inputDefinitions.get(inputPropertyEntry.getKey()));
+            }
+        }
+    }
+
+    /**
+     * Validate that the input properties is correct for a deployment setup
+     *
+     * @param topology The deployment topology to validate
+     * @param topology The topology that contains the inputs and properties definitions.
+     * @throws ConstraintValueDoNotMatchPropertyTypeException
+     * @throws ConstraintViolationException
+     */
+    public void validateInputProperties(DeploymentTopology topology) throws ConstraintValueDoNotMatchPropertyTypeException,
+            ConstraintViolationException {
+        if (topology.getInputProperties() == null) {
+            return;
+        }
+        Map<String, String> inputProperties = topology.getInputProperties();
+        Map<String, PropertyDefinition> inputDefinitions = topology.getInputs();
+        if (inputDefinitions == null) {
+            throw new NotFoundException("Validate input but no input is defined for the topology");
+        }
+        for (Map.Entry<String, String> inputPropertyEntry : inputProperties.entrySet()) {
+            PropertyDefinition definition = inputDefinitions.get(inputPropertyEntry.getKey());
+            if (definition != null) {
+                constraintPropertyService.checkSimplePropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue(),
+                        inputDefinitions.get(inputPropertyEntry.getKey()));
+            }
+        }
     }
 }

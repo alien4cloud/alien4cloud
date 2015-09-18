@@ -17,7 +17,6 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.model.deployment.DeploymentSetup;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.topology.AbstractPolicy;
@@ -48,8 +47,6 @@ public class DeploymentTopologyService {
     private InputsPreProcessorService inputsPreProcessorService;
     @Resource
     private TopologyCompositionService topologyCompositionService;
-    @Resource
-    private DeploymentSetupService deploymentSetupService;
 
     @Inject
     private TopologyServiceCore topoServiceCore;
@@ -62,6 +59,9 @@ public class DeploymentTopologyService {
 
     @Inject
     private LocationService locationService;
+
+    @Resource
+    private DeploymentInputService deploymentInputService;
 
     /**
      * Get the deployment topology for a given version and environment.
@@ -79,12 +79,6 @@ public class DeploymentTopologyService {
     }
 
     public DeploymentTopology generateDeploymentTopology(Topology topology, ApplicationEnvironment environment, ApplicationVersion version) {
-        DeploymentSetup deploymentSetup = deploymentSetupService.get(version, environment);
-        if (deploymentSetup == null) {
-            deploymentSetup = deploymentSetupService.createOrFail(version, environment);
-        }
-        topologyCompositionService.processTopologyComposition(topology);
-        // TODO generate the deployment topology
         return null;
     }
 

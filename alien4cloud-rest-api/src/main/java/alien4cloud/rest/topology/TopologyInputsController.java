@@ -96,7 +96,7 @@ public class TopologyInputsController {
         topology.setInputs(inputs);
 
         log.debug("Add a new input <{}> for the topology <{}>.", inputId, topologyId);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         if (StringUtils.isNotEmpty(newPropertyDefinition.getDefault())) {
             DeploymentSetup[] deploymentSetups = deploymentSetupService.getByTopologyId(topologyId);
             for (DeploymentSetup deploymentSetup : deploymentSetups) {
@@ -181,7 +181,7 @@ public class TopologyInputsController {
         }
 
         log.debug("Change the name of an input parameter <{}> to <{}> for the topology ", inputId, newInputId, topologyId);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         DeploymentSetup[] deploymentSetups = deploymentSetupService.getByTopologyId(topologyId);
         for (DeploymentSetup deploymentSetup : deploymentSetups) {
             if (deploymentSetup.getInputProperties() != null && deploymentSetup.getInputProperties().containsKey(inputId)) {
@@ -263,7 +263,7 @@ public class TopologyInputsController {
         }
 
         log.debug("Remove the input " + inputId + " from the topology " + topologyId);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         DeploymentSetup[] deploymentSetups = deploymentSetupService.getByTopologyId(topologyId);
         for (DeploymentSetup deploymentSetup : deploymentSetups) {
             if (deploymentSetup.getInputProperties() != null && deploymentSetup.getInputProperties().containsKey(inputId)) {
@@ -323,7 +323,7 @@ public class TopologyInputsController {
         topology.setInputs(inputs);
 
         log.debug("Associate the property <{}> of the node template <{}> to an input of the topology <{}>.", propertyId, nodeTemplateName, topologyId);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -359,7 +359,7 @@ public class TopologyInputsController {
                 nodeTemplate.getProperties().put(propertyId, null);
             }
             log.debug("Disassociated the property <{}> of the node template <{}> to an input of the topology <{}>.", propertyId, nodeTemplateName, topologyId);
-            alienDAO.save(topology);
+            topologyServiceCore.save(topology);
         }
 
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
@@ -514,7 +514,7 @@ public class TopologyInputsController {
         topology.setInputs(inputs);
 
         log.debug("Associate the property <{}> of the relationship template <{}> to an input of the topology <{}>.", propertyId, relationshipId, topologyId);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -563,7 +563,7 @@ public class TopologyInputsController {
         } else {
             throw new NotFoundException("Property " + propertyId + " do not exist for relationship " + relationshipId + " of node " + nodeTemplateName);
         }
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -621,7 +621,7 @@ public class TopologyInputsController {
         topology.setInputs(inputs);
 
         log.debug("Associate the property <{}> of the capability template <{}> to an input of the topology <{}>.", propertyId, capabilityId, topologyId);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -669,7 +669,7 @@ public class TopologyInputsController {
         } else {
             throw new NotFoundException("Property " + propertyId + " do not exist for capability " + capabilityId + " of node " + nodeTemplateName);
         }
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 

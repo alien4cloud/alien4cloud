@@ -1,6 +1,10 @@
 package alien4cloud.application;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -12,7 +16,6 @@ import org.springframework.stereotype.Service;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
-import alien4cloud.deployment.DeploymentSetupService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
@@ -40,8 +43,6 @@ public class ApplicationEnvironmentService {
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
-    @Inject
-    private DeploymentSetupService deploymentSetupService;
     @Inject
     private ApplicationService applicationService;
     @Inject
@@ -116,7 +117,8 @@ public class ApplicationEnvironmentService {
      * @param id The id of the version to delete.
      */
     public boolean delete(String id) {
-        deploymentSetupService.deleteByEnvironmentId(id);
+        // TODO delete deployment topology
+        // deploymentTopologyService.delete(id);
         // TODO : do not delete if it's last environment
         alienDAO.delete(ApplicationEnvironment.class, id);
         return true;

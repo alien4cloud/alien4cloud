@@ -1,7 +1,9 @@
 package alien4cloud.model.deployment;
 
+import java.util.Date;
 import java.util.Map;
 
+import alien4cloud.model.topology.NodeTemplate;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -40,10 +42,17 @@ public class DeploymentTopology extends Topology {
     private String environmentId;
     /** Id of the initial topology that this topology completes. */
     private String initialTopologyId;
+
+    private Date lastInitialTopologyUpdateDate = new Date();
+
+    private Map<String, String> providerDeploymentProperties;
+
+    // TODO add also the input artifacts here. /-> Note that they should/could be repository based.
+    private Map<String, String> inputProperties;
+
     /**
-     * The map that contains the user selected matching for nodes of the topology. key is the initial topology node id, value is the id of an orchestrator
-     * resource
+     * The map that contains the user selected matching for nodes of the topology. key is the initial topology node id, value is the
      * (on-demand or service).
      */
-    private Map<String, String> nodeTemplateMatching = Maps.newHashMap();
+    private Map<String, NodeTemplate> substitutedNodes;
 }

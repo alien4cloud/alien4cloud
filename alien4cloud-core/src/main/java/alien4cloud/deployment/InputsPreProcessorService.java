@@ -18,11 +18,10 @@ import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.ScalarPropertyValue;
-import alien4cloud.model.deployment.DeploymentSetup;
+import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.Topology;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 
@@ -55,14 +54,13 @@ public class InputsPreProcessorService {
      * Process the get inputs functions of a topology to inject actual input provided by the deployer user (from deployment setup) or from the cloud,
      * environment or application meta-properties.
      *
-     * @param deploymentSetup The deployment setup that contains the input values.
-     * @param topology The topology to process.
+     * @param deploymentTopology The deployment setup that contains the input values.
      * @param environment The environment instance linked to the deployment setup.
      */
-    public void processGetInput(DeploymentSetup deploymentSetup, Topology topology, ApplicationEnvironment environment) {
-        Map<String, String> inputs = getInputs(deploymentSetup, environment);
-        if (topology.getNodeTemplates() != null) {
-            for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
+    public void processGetInput(DeploymentTopology deploymentTopology, ApplicationEnvironment environment) {
+        Map<String, String> inputs = getInputs(deploymentTopology, environment);
+        if (deploymentTopology.getNodeTemplates() != null) {
+            for (NodeTemplate nodeTemplate : deploymentTopology.getNodeTemplates().values()) {
                 processGetInput(inputs, nodeTemplate.getProperties());
                 if (nodeTemplate.getRelationships() != null) {
                     for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
@@ -83,15 +81,15 @@ public class InputsPreProcessorService {
      * meta-properties.
      * This method creates a unified map of inputs to be injected in deployed applications.
      *
-     * @param deploymentSetup The deployment setup.
+     * @param deploymentTopology The deployment setup.
      * @param environment The environment instance linked to the deployment setup.
      * @return A unified map of input for the topology containing the inputs from the deployment setup as well as the ones comming from cloud or application
      *         meta-properties.
      */
-    private Map<String, String> getInputs(DeploymentSetup deploymentSetup, ApplicationEnvironment environment) {
+    private Map<String, String> getInputs(DeploymentTopology deploymentTopology, ApplicationEnvironment environment) {
         // initialize a map with input from the deployment setup
-        Map<String, String> inputs = MapUtils.isEmpty(deploymentSetup.getInputProperties()) ? Maps.<String, String> newHashMap()
-                : deploymentSetup.getInputProperties();
+        Map<String, String> inputs = MapUtils.isEmpty(deploymentTopology.getInputProperties()) ? Maps.<String, String> newHashMap()
+                : deploymentTopology.getInputProperties();
 
         // Map id -> value of meta properties from cloud or application.
         Map<String, String> metaPropertiesValuesMap = Maps.newHashMap();
