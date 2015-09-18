@@ -5,9 +5,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.model.deployment.matching.LocationMatch;
-import alien4cloud.deployment.matching.plugins.ILocationMatcher;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,7 +12,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.deployment.matching.plugins.ILocationMatcher;
+import alien4cloud.model.deployment.matching.LocationMatch;
 import alien4cloud.model.orchestrators.Orchestrator;
+import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.orchestrators.services.OrchestratorService;
@@ -42,6 +42,8 @@ public class DefaultLocationMatcher implements ILocationMatcher {
 
     @Resource
     private OrchestratorService orchestratorService;
+    @Resource
+    private LocationMatchNodeFilter locationMatchNodeFilter;
 
     @Override
     public List<LocationMatch> match(Topology topology) throws LocationMatchingException {
@@ -61,7 +63,7 @@ public class DefaultLocationMatcher implements ILocationMatcher {
             }
 
             // filter on supported artifacts
-            new LocationMatchNodeFilter().filter(matched, topology);
+            locationMatchNodeFilter.filter(matched, topology);
 
             return matched;
         } catch (Exception e) {
