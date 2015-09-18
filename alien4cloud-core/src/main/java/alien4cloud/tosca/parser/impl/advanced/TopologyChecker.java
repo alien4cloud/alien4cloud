@@ -18,9 +18,9 @@ import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.PropertyValue;
-import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
@@ -184,7 +184,7 @@ public class TopologyChecker implements IChecker<Topology> {
             }
         });
         finalizeParsedWorkflows(topologyContext, context, node);
-        workflowBuilderService.initWorkflows(topologyContext);
+        // workflowBuilderService.initWorkflows(topologyContext);
 
     }
 
