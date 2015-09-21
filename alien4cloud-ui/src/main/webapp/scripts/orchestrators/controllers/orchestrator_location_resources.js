@@ -14,8 +14,8 @@ define(function(require) {
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorLocationResourcesTemplateCtrl',
     ['$scope', 'locationResourcesService', 'locationResourcesProcessor',
       function($scope, locationResourcesService, locationResourcesProcessor) {
-        if (_.isNotEmpty($scope.context.configurationTypes)) {
-          $scope.selectedConfigurationResourceType = $scope.context.configurationTypes[0];
+        if (_.isNotEmpty($scope.resourcesTypes)) {
+          $scope.selectedConfigurationResourceType = $scope.resourcesTypes[0];
         }
         $scope.addResourceTemplate = function() {
           locationResourcesService.save({

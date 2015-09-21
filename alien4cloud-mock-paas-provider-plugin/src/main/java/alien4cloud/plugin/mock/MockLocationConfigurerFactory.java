@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
@@ -26,10 +27,13 @@ public class MockLocationConfigurerFactory {
     private PluginManager pluginManager;
     @Inject
     private ManagedPlugin selfContext;
+    @Inject
+    private ApplicationContext applicationContext;
 
     public ILocationConfiguratorPlugin newInstance(String locationType) {
         if (MockOrchestratorFactory.OPENSTACK.equals(locationType)) {
-            return new MockOpenStackLocationConfigurer(archiveParser, pluginManager, selfContext);
+            MockOpenStackLocationConfigurer configurer = applicationContext.getBean(MockOpenStackLocationConfigurer.class);
+            return configurer;
         }
         return new ILocationConfiguratorPlugin() {
             @Override

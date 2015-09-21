@@ -12,6 +12,7 @@ define(function (require) {
   states.state('admin.orchestrators.details.locations.nodes', {
     url: '/nodes',
     templateUrl: 'views/orchestrators/orchestrator_location_nodes.html',
+    controller: 'OrchestratorNodesCtrl',
     menu: {
       id: 'menu.orchestrators.locations.nodes',
       state: 'admin.orchestrators.details.locations.nodes',
@@ -20,4 +21,34 @@ define(function (require) {
       priority: 200
     }
   });
+  
+  modules.get('a4c-orchestrators').controller('OrchestratorNodesCtrl', ['$scope', '$resource',
+    function($scope, $resource) {
+
+      function removeGeneratedResources() {
+          _.remove($scope.context.locationResources.nodeTemplates, function(locationResource){
+            return locationResource.generated;
+          });
+        }
+      
+      $scope.autoConfigureResources = function(){
+        console.log('autoconfiguring');
+        $scope.autoConfiguring = true
+        $resource('rest/orchestrators/'+$scope.context.orchestrator.id+'/locations/'+$scope.context.location.id+'/resources/auto-configure').get({}, 
+            function(result){
+              if(_.undefined($scope.context.locationResources.nodeTemplates)){
+                $scope.context.locationResources.nodeTemplates = [];
+              }
+              removeGeneratedResources();
+              $scope.context.locationResources.nodeTemplates = $scope.context.locationResources.nodeTemplates.concat(result.data);
+              $scope.autoConfiguring = false;
+        }, function(){
+          $scope.autoConfiguring=false;
+        });
+      };
+      
+      
+      
+    }
+  ]);
 }); // define

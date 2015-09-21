@@ -1,19 +1,25 @@
 package alien4cloud.rest.orchestrator;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import alien4cloud.rest.orchestrator.model.CreateLocationResourceTemplateRequest;
-import alien4cloud.rest.orchestrator.model.UpdateLocationResourceTemplatePropertyRequest;
-import alien4cloud.rest.orchestrator.model.UpdateLocationResourceTemplateRequest;
 import alien4cloud.orchestrators.locations.services.LocationResourceService;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.orchestrator.model.CreateLocationResourceTemplateRequest;
+import alien4cloud.rest.orchestrator.model.UpdateLocationResourceTemplatePropertyRequest;
+import alien4cloud.rest.orchestrator.model.UpdateLocationResourceTemplateRequest;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -25,8 +31,7 @@ import com.wordnik.swagger.annotations.Authorization;
  */
 @RestController
 @RequestMapping(value = "/rest/orchestrators/{orchestratorId}/locations/{locationId}/resources", produces = MediaType.APPLICATION_JSON_VALUE)
-@Api(value = "Orchestrator's Locations", description = "Manages locations for a given orchestrator.", authorizations = {
-        @Authorization("ADMIN") }, position = 4400)
+@Api(value = "Orchestrator's Locations", description = "Manages locations for a given orchestrator.", authorizations = { @Authorization("ADMIN") }, position = 4400)
 public class LocationResourcesController {
     @Inject
     private LocationResourceService locationResourceService;
@@ -94,5 +99,17 @@ public class LocationResourcesController {
             @RequestBody UpdateLocationResourceTemplatePropertyRequest updateRequest) {
         locationResourceService.setTemplateCapabilityProperty(id, capabilityName, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
         return RestResponseBuilder.<Void> builder().build();
+    }
+
+    @ApiOperation(value = "Auto configure the resources, if the location configurator plugin provides a way for.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/auto-configure", method = RequestMethod.GET)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Audit
+    public RestResponse<List<LocationResourceTemplate>> autoConfigureResources(
+            @ApiParam(value = "Id of the orchestrator for which to update resource template capability property.", required = true) @PathVariable String orchestratorId,
+            @ApiParam(value = "Id of the location of the orchestrator to update resource template capability property.", required = true) @PathVariable String locationId) {
+        locationResourceService.deleteGeneratedResources(locationId);
+        List<LocationResourceTemplate> generatedResoucres = locationResourceService.autoConfigureResources(locationId);
+        return RestResponseBuilder.<List<LocationResourceTemplate>> builder().data(generatedResoucres).build();
     }
 }

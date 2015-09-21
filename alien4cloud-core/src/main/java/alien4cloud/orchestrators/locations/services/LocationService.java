@@ -8,9 +8,9 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.orchestrators.services.OrchestratorService;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +27,7 @@ import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
+import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.utils.MapUtil;
 
@@ -84,14 +85,18 @@ public class LocationService {
      *
      * @param locationId Id of the location.
      */
-    public void autoConfigure(String locationId) {
+    public List<LocationResourceTemplate> autoConfigure(String locationId) {
         Location location = getOrFail(locationId);
         Orchestrator orchestrator = orchestratorService.getOrFail(location.getOrchestratorId());
 
-        if (!autoConfigure(orchestrator, location)) {
+        List<LocationResourceTemplate> generatedLocationResources = autoConfigure(orchestrator, location);
+
+        if (CollectionUtils.isEmpty(generatedLocationResources)) {
             // if the orchestrator doesn't support auto-configuration
             // TODO throw exception or just return false ?
         }
+
+        return generatedLocationResources;
     }
 
     /**
@@ -99,9 +104,9 @@ public class LocationService {
      *
      * @param orchestrator The orchestrator for which to auto-configure a location.
      * @param location The location to auto-configure
-     * @return true if the orchestrator performed auto-configuration, false if the orchestrator cannot perform auto-configuration.
+     * @return the List of {@link LocationResourceTemplate} generated from the location auto-configuration call, null is a valid answer.
      */
-    private boolean autoConfigure(Orchestrator orchestrator, Location location) {
+    private List<LocationResourceTemplate> autoConfigure(Orchestrator orchestrator, Location location) {
         // get the orchestrator plugin instance
         IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.get(orchestrator.getId());
         ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
@@ -110,23 +115,23 @@ public class LocationService {
 
         // let's try to auto-configure the location
         List<LocationResourceTemplate> templates = configuratorPlugin.instances(accessor);
-        if (templates == null) {
-            return false;
+
+        if (templates != null) {
+            // save the instances
+            for (LocationResourceTemplate template : templates) {
+                // initialize the instances from data.
+                template.setId(UUID.randomUUID().toString());
+                template.setLocationId(location.getId());
+                template.setGenerated(true);
+                template.setEnabled(true);
+                IndexedNodeType nodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, template.getTemplate().getType(),
+                        location.getDependencies());
+                nodeType.getDerivedFrom().add(0, template.getTemplate().getType());
+                template.setTypes(nodeType.getDerivedFrom());
+            }
+            alienDAO.save(templates.toArray(new LocationResourceTemplate[templates.size()]));
         }
-        // save the instances
-        for (LocationResourceTemplate template : templates) {
-            // initialize the instances from data.
-            template.setId(UUID.randomUUID().toString());
-            template.setLocationId(location.getId());
-            template.setGenerated(true);
-            template.setEnabled(true);
-            IndexedNodeType nodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, template.getTemplate().getType(),
-                    location.getDependencies());
-            nodeType.getDerivedFrom().add(0, template.getTemplate().getType());
-            template.setTypes(nodeType.getDerivedFrom());
-        }
-        alienDAO.save(templates.toArray(new LocationResourceTemplate[templates.size()]));
-        return true;
+        return templates;
     }
 
     /**

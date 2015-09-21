@@ -3,13 +3,13 @@ package alien4cloud.model.orchestrators.locations;
 import java.util.List;
 import java.util.Map;
 
-import com.wordnik.swagger.annotations.ApiModel;
-import com.wordnik.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+
+import com.wordnik.swagger.annotations.ApiModel;
+import com.wordnik.swagger.annotations.ApiModelProperty;
 
 @Getter
 @Setter
@@ -21,7 +21,7 @@ public class LocationResources {
     private Map<String, IndexedNodeType> nodeTypes;
     @ApiModelProperty(value = "Map that contains the capability types used by the configuration types or node types.")
     private Map<String, IndexedCapabilityType> capabilityTypes;
-    @ApiModelProperty(value = "List of configuration templates already configured for the location.")
+    @ApiModelProperty(value = "List of configuration templates already configured for the location. Usually abstract  types.")
     private List<LocationResourceTemplate> configurationTemplates;
     @ApiModelProperty(value = "List of node templates already configured for the location.")
     private List<LocationResourceTemplate> nodeTemplates;

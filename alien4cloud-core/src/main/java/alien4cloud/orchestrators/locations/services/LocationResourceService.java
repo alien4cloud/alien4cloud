@@ -8,6 +8,10 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.ICSARRepositorySearchService;
@@ -108,7 +112,7 @@ public class LocationResourceService {
 
     /**
      * Get the list of resources definitions for a given orchestrator.
-     * 
+     *
      * @param locationId the location's id
      * @return A list of resource definitions for the given location.
      */
@@ -118,7 +122,7 @@ public class LocationResourceService {
 
     /**
      * Create an instance of an ILocationResourceAccessor that will perform queries on LocationResourceTemplate for a given location.
-     * 
+     *
      * @param locationId Id of the location for which to get the accessor.
      * @return An instance of the ILocationResourceAccessor.
      */
@@ -170,7 +174,8 @@ public class LocationResourceService {
         locationResourceTemplate.setId(UUID.randomUUID().toString());
         locationResourceTemplate.setLocationId(locationId);
         locationResourceTemplate.setService(false);
-        locationResourceTemplate.setTypes(resourceType.getDerivedFrom());
+        locationResourceTemplate.setTypes(Lists.<String> newArrayList(resourceType.getElementId()));
+        locationResourceTemplate.getTypes().addAll(resourceType.getDerivedFrom());
         locationResourceTemplate.setTemplate(nodeTemplate);
         alienDAO.save(locationResourceTemplate);
         return locationResourceTemplate;
@@ -230,5 +235,27 @@ public class LocationResourceService {
         Capability capability = resourceTemplate.getTemplate().getCapabilities().get(capabilityName);
         PropertyUtil.setCapabilityPropertyValue(capability, propertyDefinition, propertyName, propertyValue);
         alienDAO.save(resourceTemplate);
+    }
+
+    /**
+     * Auto configure resources for the given location.
+     *
+     * @param locationId Id of the location.
+     */
+    public List<LocationResourceTemplate> autoConfigureResources(String locationId) {
+        return locationService.autoConfigure(locationId);
+    }
+
+    /**
+     * Delete all generated {@link LocationResourceTemplate} for a given location
+     *
+     * @param locationId
+     */
+    public void deleteGeneratedResources(String locationId) {
+        QueryBuilder locationIdQuery = QueryBuilders.termQuery("locationId", locationId);
+        QueryBuilder generatedFieldQuery = QueryBuilders.termQuery("generated", true);
+        // QueryBuilder builder = QueryBuilders.filteredQuery(locationIdQuery, filterBuilder);
+        QueryBuilder builder = QueryBuilders.boolQuery().must(locationIdQuery).must(generatedFieldQuery);
+        alienDAO.delete(LocationResourceTemplate.class, builder);
     }
 }
