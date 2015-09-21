@@ -9,13 +9,12 @@ import javax.inject.Inject;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.deployment.matching.plugins.INodeMatcherPlugin;
+import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.orchestrators.locations.LocationResources;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.orchestrators.locations.services.LocationResourceService;
-import alien4cloud.topology.TopologyDTO;
-import alien4cloud.topology.TopologyService;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -31,9 +30,6 @@ public class NodeMatcherService {
     private DefaultNodeMatcher defaultNodeMatcher;
 
     @Inject
-    private TopologyService topologyService;
-
-    @Inject
     private LocationResourceService locationResourceService;
 
     private INodeMatcherPlugin getNodeMatcherPlugin() {
@@ -41,8 +37,8 @@ public class NodeMatcherService {
         return defaultNodeMatcher;
     }
 
-    public Map<String, List<LocationResourceTemplate>> match(String topologyId, String locationId) {
-        TopologyDTO topologyDTO = topologyService.getTopologyDTO(topologyId);
+    public Map<String, List<LocationResourceTemplate>> match(Map<String, IndexedNodeType> nodesTypes, Map<String, NodeTemplate> nodesToMatch,
+            String locationId) {
         Map<String, List<LocationResourceTemplate>> matchingResult = Maps.newHashMap();
         LocationResources locationResources = locationResourceService.getLocationResources(locationId);
         Set<String> typesManagedByLocation = Sets.newHashSet();
@@ -51,11 +47,14 @@ public class NodeMatcherService {
             typesManagedByLocation.addAll(nodeType.getDerivedFrom());
         }
         INodeMatcherPlugin nodeMatcherPlugin = getNodeMatcherPlugin();
-        for (Map.Entry<String, NodeTemplate> nodeTemplateEntry : topologyDTO.getTopology().getNodeTemplates().entrySet()) {
+        for (Map.Entry<String, NodeTemplate> nodeTemplateEntry : nodesToMatch.entrySet()) {
             String nodeTemplateId = nodeTemplateEntry.getKey();
             NodeTemplate nodeTemplate = nodeTemplateEntry.getValue();
             if (typesManagedByLocation.contains(nodeTemplate.getType())) {
-                IndexedNodeType nodeTemplateType = topologyDTO.getNodeTypes().get(nodeTemplate.getType());
+                IndexedNodeType nodeTemplateType = nodesTypes.get(nodeTemplate.getType());
+                if (nodeTemplateType == null) {
+                    throw new InvalidArgumentException("The given node types map must contain the type of the node template");
+                }
                 matchingResult.put(nodeTemplateId, nodeMatcherPlugin.matchNode(nodeTemplate, nodeTemplateType, locationResources));
             }
         }

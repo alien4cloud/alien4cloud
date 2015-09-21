@@ -108,7 +108,7 @@ public class LocationService {
      */
     private List<LocationResourceTemplate> autoConfigure(Orchestrator orchestrator, Location location) {
         // get the orchestrator plugin instance
-        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.get(orchestrator.getId());
+        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(orchestrator.getId());
         ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
 
         ILocationResourceAccessor accessor = locationResourceService.accessor(location.getId());

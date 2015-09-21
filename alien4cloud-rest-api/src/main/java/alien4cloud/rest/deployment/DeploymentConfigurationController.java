@@ -49,34 +49,14 @@ public class DeploymentConfigurationController {
      * Get the deployment topology of an application given an environment
      *
      * @param appId application Id
-     * @param request {@link SetLocationPoliciesRequest} object: location policies
-     * @return
+     * @param environmentId environment Id
+     * @return the deployment topology DTO
      */
     @ApiOperation(value = "Get the deployment topology of an application given an environment.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "", method = RequestMethod.GET)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<DeploymentTopologyDTO> getDeploymentTopology(@PathVariable String appId, @PathVariable String environmentId) {
         RestResponseBuilder<DeploymentTopologyDTO> responseBuilder = RestResponseBuilder.<DeploymentTopologyDTO> builder();
-
-        checkAuthorizations(appId, environmentId);
-        DeploymentTopology deploymentTopo = deploymentTopoService.getOrFail(environmentId);
-        DeploymentTopologyDTO dto = buildDeploymentTopologyDTO(deploymentTopo);
-        return responseBuilder.data(dto).build();
-    }
-
-    /**
-     * initialize the deployment topology of an application given an environment
-     *
-     * @param appId application Id
-     * @param request {@link SetLocationPoliciesRequest} object: location policies
-     * @return The newly created {@link DeploymentTopologyDTO}, or the old one if already exists
-     */
-    @ApiOperation(value = "initialize the deployment topology of an application given an environment.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
-    @RequestMapping(value = "/init", method = RequestMethod.GET)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<DeploymentTopologyDTO> initDeploymentTopology(@PathVariable String appId, @PathVariable String environmentId) {
-        RestResponseBuilder<DeploymentTopologyDTO> responseBuilder = RestResponseBuilder.<DeploymentTopologyDTO> builder();
-
         checkAuthorizations(appId, environmentId);
         DeploymentTopology deploymentTopo = deploymentTopoService.getOrCreateDeploymentTopology(environmentId);
         DeploymentTopologyDTO dto = buildDeploymentTopologyDTO(deploymentTopo);
@@ -99,7 +79,8 @@ public class DeploymentConfigurationController {
         RestResponseBuilder<DeploymentTopology> responseBuilder = RestResponseBuilder.<DeploymentTopology> builder();
 
         checkAuthorizations(appId, environmentId);
-        DeploymentTopology deploymentTopo = deploymentTopoService.setLocationPolicies(environmentId, request.getGroupsToLocations());
+        DeploymentTopology deploymentTopo = deploymentTopoService.setLocationPolicies(environmentId, request.getOrchestratorId(),
+                request.getGroupsToLocations());
         return responseBuilder.data(deploymentTopo).build();
     }
 

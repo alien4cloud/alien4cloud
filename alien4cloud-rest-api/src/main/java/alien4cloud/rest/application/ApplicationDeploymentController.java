@@ -36,11 +36,9 @@ import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.model.topology.Topology;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.MaintenanceModeException;
@@ -131,12 +129,8 @@ public class ApplicationDeploymentController {
         if (isEnvironmentDeployed) {
             throw new AlreadyExistException("Environment with id <" + environmentId + "> for application <" + applicationId + "> is already deployed");
         }
-
-        // Get the topology to be deployed.
-        ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(environment.getApplicationId(), environment.getCurrentVersionId());
-
         // Get the deployment configurations
-        DeploymentTopology deploymentTopology = deploymentTopologyService.getDeploymentTopology(version.getId(), environment.getId());
+        DeploymentTopology deploymentTopology = deploymentTopologyService.getOrCreateDeploymentTopology(environment.getId());
 
         // Check authorization on the location
         // get the target locations of the deployment topology
@@ -407,10 +401,7 @@ public class ApplicationDeploymentController {
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
-        ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(applicationId, environment.getCurrentVersionId());
-        Topology topology = topologyServiceCore.getOrFail(version.getTopologyId());
-
-        DeploymentTopology deploymentTopology = deploymentTopologyService.getDeploymentTopology(version.getId(), environment.getId());
+        DeploymentTopology deploymentTopology = deploymentTopologyService.getOrCreateDeploymentTopology(environment.getId());
         ReflectionUtil.mergeObject(updateRequest, deploymentTopology);
         if (deploymentTopology.getInputProperties() != null) {
             // If someone modified the input properties, must validate them

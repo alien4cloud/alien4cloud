@@ -50,7 +50,7 @@ public class LocationArchiveIndexer {
      * @param location The location of the orchestrator for which to index archives.
      */
     public Set<CSARDependency> indexArchives(Orchestrator orchestrator, Location location) {
-        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.get(orchestrator.getId());
+        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(orchestrator.getId());
         ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
 
         // ensure that the plugin archives for this location are imported in the

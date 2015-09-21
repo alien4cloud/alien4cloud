@@ -317,16 +317,6 @@ public class TopologyService {
     }
 
     /**
-     * Retrieve the TopologyDTO
-     * 
-     * @param topologyId the topology id to retrieve the DTO
-     * @return the topology DTO
-     */
-    public TopologyDTO getTopologyDTO(String topologyId) {
-        return buildTopologyDTO(topologyServiceCore.getOrFail(topologyId));
-    }
-
-    /**
      * Build a node template
      *
      * @param dependencies the dependencies on which new node will be constructed

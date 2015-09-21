@@ -20,17 +20,10 @@ define(function (require) {
           method: 'GET'
         }
       });
-      
-      var deploymentTopologyInit= $resource('rest/applications/:appId/environments/:envId/deployment-topology/init', {}, {
-        get: {
-          method: 'GET'
-        }
-      });
 
       return {
         'setLocationPolicies': location.setLocationPolicies,
-        'get': deploymentTopology.get,
-        'init': deploymentTopologyInit.get
+        'get': deploymentTopology.get
       };
     }
   ]);

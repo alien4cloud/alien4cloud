@@ -56,7 +56,7 @@ public class UndeployService {
 
     private void undeploy(Deployment deployment) {
         log.info("Un-deploying deployment [{}] on cloud [{}]", deployment.getId(), deployment.getOrchestratorId());
-        IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.get(deployment.getOrchestratorId());
+        IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
         DeploymentTopology deployedTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
         PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, deployedTopology);
         orchestratorPlugin.undeploy(deploymentContext, null);

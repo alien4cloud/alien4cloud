@@ -51,7 +51,7 @@ public class DeploymentRuntimeService {
     public void triggerOperationExecution(OperationExecRequest request, IPaaSCallback<Map<String, String>> callback) throws OperationExecutionException {
         Deployment deployment = deploymentService.getActiveDeploymentOrFail(request.getApplicationEnvironmentId());
         DeploymentTopology deploymentTopology = deploymentRuntimeStateService.getRuntimeTopologyFromEnvironment(deployment.getEnvironmentId());
-        IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.get(deployment.getOrchestratorId());
+        IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
         orchestratorPlugin.executeOperation(deploymentContextService.buildTopologyDeploymentContext(deployment, deploymentTopology), request, callback);
     }
 
@@ -67,7 +67,7 @@ public class DeploymentRuntimeService {
     public void switchInstanceMaintenanceMode(String applicationEnvironmentId, String nodeTemplateId, String instanceId, boolean maintenanceModeOn)
             throws MaintenanceModeException {
         Deployment deployment = deploymentService.getActiveDeploymentOrFail(applicationEnvironmentId);
-        IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.get(deployment.getOrchestratorId());
+        IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
         DeploymentTopology deploymentTopology = deploymentRuntimeStateService.getRuntimeTopologyFromEnvironment(deployment.getEnvironmentId());
         PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, deploymentTopology);
         orchestratorPlugin.switchInstanceMaintenanceMode(deploymentContext, nodeTemplateId, instanceId, maintenanceModeOn);
@@ -83,7 +83,7 @@ public class DeploymentRuntimeService {
     public void switchMaintenanceMode(String applicationEnvironmentId, boolean maintenanceModeOn) throws MaintenanceModeException {
         Deployment deployment = deploymentService.getActiveDeploymentOrFail(applicationEnvironmentId);
         DeploymentTopology deploymentTopology = deploymentRuntimeStateService.getRuntimeTopologyFromEnvironment(deployment.getEnvironmentId());
-        IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.get(deployment.getOrchestratorId());
+        IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
         PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, deploymentTopology);
         orchestratorPlugin.switchMaintenanceMode(deploymentContext, maintenanceModeOn);
     }
@@ -106,7 +106,7 @@ public class DeploymentRuntimeService {
         log.info("Scaling <{}> node from <{}> to <{}>. Updating runtime topology...", nodeTemplateId, previousInitialInstances, newInitialInstances);
         TopologyUtils.setScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, newInitialInstances, capability);
         alienMonitorDao.save(topology);
-        IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.get(deployment.getOrchestratorId());
+        IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
         PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, deploymentTopology);
         orchestratorPlugin.scale(deploymentContext, nodeTemplateId, instances, new IPaaSCallback() {
             @Override

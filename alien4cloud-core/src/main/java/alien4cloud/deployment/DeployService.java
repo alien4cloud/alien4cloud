@@ -85,7 +85,7 @@ public class DeployService {
         // TODO DeploymentSetupValidator.validate doesn't check that inputs linked to required properties are indeed configured.
 
         // Get the orchestrator that will perform the deployment
-        IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.get(location.getOrchestratorId());
+        IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(location.getOrchestratorId());
 
         String deploymentTopologyId = deploymentTopology.getId();
 

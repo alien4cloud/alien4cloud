@@ -8,8 +8,6 @@ import java.util.concurrent.ScheduledFuture;
 
 import javax.annotation.Resource;
 
-import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
-import alien4cloud.paas.exception.OrchestratorDisabledException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,6 +17,8 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
+import alien4cloud.paas.exception.OrchestratorDisabledException;
 
 import com.google.common.collect.Maps;
 
@@ -93,6 +93,17 @@ public class OrchestratorPluginService implements IPaasEventService {
      * @return The {@link IOrchestratorPlugin} for the given cloud or null if none is registered for the given cloud id.
      */
     public IOrchestratorPlugin get(String orchestratorId) {
+        Registration registration = monitorRegistrations.get(orchestratorId);
+        return registration == null ? null : registration.instance;
+    }
+
+    /**
+     * Get a registered IOrchestratorPlugin for a cloud.
+     *
+     * @param orchestratorId The id of the cloud for which to get the IOrchestratorPlugin instance.
+     * @return The {@link IOrchestratorPlugin} for the given cloud or throw OrchestratorDisabledException if none is registered for the given cloud id.
+     */
+    public IOrchestratorPlugin getOrFail(String orchestratorId) {
         Registration registration = monitorRegistrations.get(orchestratorId);
         if (registration == null) {
             throw new OrchestratorDisabledException("The orchestrator with id <" + orchestratorId + "> is not enabled or loaded yet.");

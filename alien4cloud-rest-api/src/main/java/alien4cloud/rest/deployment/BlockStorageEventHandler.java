@@ -104,8 +104,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
             FunctionPropertyValue function = (FunctionPropertyValue) abstractPropertyValue;
             if (function.getFunction().equals(ToscaFunctionConstants.GET_INPUT)) {
                 // the value is set in the input (deployment setup)
-                DeploymentTopology deploymentTopology = deploymentTopologyService.getDeploymentTopology(applicationVersion.getId(),
-                        applicationEnvironment.getId());
+                DeploymentTopology deploymentTopology = deploymentTopologyService.getOrCreateDeploymentTopology(applicationEnvironment.getId());
                 log.info("Updating deploymentsetup <{}> input properties <{}> to add a new VolumeId", deploymentTopology.getId(), function.getTemplateName());
                 log.debug("VolumeId to add: <{}>. New value is <{}>", storageEvent.getVolumeId(), volumeIds);
                 deploymentTopology.getInputProperties().put(function.getTemplateName(), volumeIds);

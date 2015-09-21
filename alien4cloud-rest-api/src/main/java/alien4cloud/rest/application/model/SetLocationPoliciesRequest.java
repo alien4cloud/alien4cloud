@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SetLocationPoliciesRequest {
-    private String environmentId;
+    private String orchestratorId;
     /** map of matching between groups and locations: key = groupeName, value = locationId */
     private Map<String, String> groupsToLocations;
 }

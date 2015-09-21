@@ -12,8 +12,8 @@ import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.topology.NodeGroup;
-import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -44,6 +44,7 @@ public class DeploymentTopology extends Topology {
     /** Id of the initial topology that this topology completes. */
     private String initialTopologyId;
 
+    /** Save the last update date of the original topology **/
     private Date lastInitialTopologyUpdateDate = new Date();
 
     private Map<String, String> providerDeploymentProperties;
@@ -55,7 +56,9 @@ public class DeploymentTopology extends Topology {
      * The map that contains the user selected matching for nodes of the topology. key is the initial topology node id, value is the
      * (on-demand or service).
      */
-    private Map<String, NodeTemplate> substitutedNodes;
+    private Map<String, LocationResourceTemplate> substitutedNodes;
+
+    private String orchestratorId;
 
     private Map<String, NodeGroup> locationGroups = Maps.newHashMap();
 }

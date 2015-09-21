@@ -68,12 +68,12 @@ public class LocationMatchNodesArtifactsElector implements ILocationMatchElector
         }
 
         IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(locationMatch.getOrchestrator());
-        String[] supportedArtifacts = orchestratorFactory.getArtifactSupport().getTypes();
 
         // if no supported artifact defined, then return true
-        if (ArrayUtils.isEmpty(supportedArtifacts)) {
+        if (orchestratorFactory.getArtifactSupport() == null || ArrayUtils.isEmpty(orchestratorFactory.getArtifactSupport().getTypes())) {
             return true;
         }
+        String[] supportedArtifacts = orchestratorFactory.getArtifactSupport().getTypes();
 
         IndexedArtifactToscaElement indexedArtifactToscaElement = csarSearchService.getRequiredElementInDependencies(IndexedArtifactToscaElement.class,
                 template.getType(), dependencies);
