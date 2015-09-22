@@ -22,8 +22,8 @@ define(function (require) {
     }
   });
   
-  modules.get('a4c-orchestrators').controller('OrchestratorNodesCtrl', ['$scope', '$resource',
-    function($scope, $resource) {
+  modules.get('a4c-orchestrators').controller('OrchestratorNodesCtrl', ['$scope', '$resource', 'locationResourcesProcessor',
+    function($scope, $resource, locationResourcesProcessor) {
 
       function removeGeneratedResources() {
           _.remove($scope.context.locationResources.nodeTemplates, function(locationResource){
@@ -40,7 +40,10 @@ define(function (require) {
                 $scope.context.locationResources.nodeTemplates = [];
               }
               removeGeneratedResources();
-              $scope.context.locationResources.nodeTemplates = $scope.context.locationResources.nodeTemplates.concat(result.data);
+              if(!_.isEmpty(result.data)){
+                locationResourcesProcessor.processLocationResourceTemplates(result.data)
+                $scope.context.locationResources.nodeTemplates = $scope.context.locationResources.nodeTemplates.concat(result.data);
+              }
               $scope.autoConfiguring = false;
         }, function(){
           $scope.autoConfiguring=false;

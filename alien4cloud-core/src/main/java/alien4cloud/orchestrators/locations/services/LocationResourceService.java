@@ -8,8 +8,6 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Component;
@@ -22,6 +20,7 @@ import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.CapabilityDefinition;
 import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
@@ -128,6 +127,8 @@ public class LocationResourceService {
      */
     public ILocationResourceAccessor accessor(final String locationId) {
         return new ILocationResourceAccessor() {
+            private Location location = locationService.getOrFail(locationId);
+
             @Override
             public List<LocationResourceTemplate> getResources() {
                 return getResourcesTemplates(locationId);
@@ -141,6 +142,16 @@ public class LocationResourceService {
                 Map<String, String[]> filter = getLocationIdFilter(locationId);
                 filter.put("types", types);
                 return getResourcesTemplates(filter);
+            }
+
+            @Override
+            public <T extends IndexedToscaElement> T getIndexedToscaElement(String type) {
+                return (T) csarRepoSearchService.getRequiredElementInDependencies(IndexedToscaElement.class, type, location.getDependencies());
+            }
+
+            @Override
+            public Set<CSARDependency> getDependencies() {
+                return location.getDependencies();
             }
         };
     }

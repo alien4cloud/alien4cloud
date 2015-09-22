@@ -1,8 +1,11 @@
 package alien4cloud.orchestrators.plugin;
 
-import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-
 import java.util.List;
+import java.util.Set;
+
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 
 /**
  * Allows to access the resources of a defined location.
@@ -10,16 +13,31 @@ import java.util.List;
 public interface ILocationResourceAccessor {
     /**
      * Get all configured resources for the current location.
-     * 
+     *
      * @return A list with all configured resources for the location this instance is associated with.
      */
     List<LocationResourceTemplate> getResources();
 
     /**
      * Get all the resources of the given type for a given location.
-     * 
-     * @param type The type of the location for which to get resources.
+     *
+     * @param type The type of the location resource to get.
      * @return A list with all configured resources of the given type for the location this instance is associated with.
      */
     List<LocationResourceTemplate> getResources(String type);
+
+    /**
+     * Get all tosca elements of a given type for a location
+     *
+     * @param type The type of the tosca element to get
+     * @return the tosca elements found given the provided type, in the related dependencies of the location.
+     */
+    <T extends IndexedToscaElement> T getIndexedToscaElement(String type);
+
+    /**
+     * Get the set of this location dependencies
+     *
+     * @return A Set of the location archives dependencies.
+     */
+    Set<CSARDependency> getDependencies();
 }
