@@ -1,7 +1,7 @@
 <div>
   <div class="row">
     <div class="col-md-6">
-      <select ng-if="envs" class="form-control" ng-model="selectedEnvironment" ng-options="env.name for env in envs" ng-change="changeEnvironment(selectedEnvironment)" ng-options="loc.location.name for loc in locations"></select>
+      <select ng-if="envs" class="form-control" ng-model="deploymentContext.selectedEnvironment" ng-options="env.name for env in envs" ng-change="goToLocationTab()" ng-options="loc.location.name for loc in locations"></select>
     </div>
   </div>
 
@@ -319,12 +319,12 @@
     </div>
   </div>
   <hr class="separator-h">
-  <div ng-if="selectedEnvironment &&  validTopologyDTO.valid">
+  <div ng-if="deploymentContext.selectedEnvironment &&  validTopologyDTO.valid">
     <div class="row">
       <div class="col-md-4">
         <b>name:</b>
         <span >
-          {{selectedEnvironment.name}}
+          {{deploymentContext.selectedEnvironment.name}}
         </span>
       </div>
     </div>

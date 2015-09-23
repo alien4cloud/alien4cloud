@@ -50,7 +50,7 @@ define(function(require) {
         };
 
         $scope.getIcon = function(template) {
-          var templateType = $scope.context.locationResources.configurationTypes[template.template.type];
+          var templateType = $scope.resourcesTypesMap[template.template.type];
           if (_.isNotEmpty(templateType) && _.isNotEmpty(templateType.tags)) {
             var icons = _.find(templateType.tags, {'name': 'icon'});
             if (_.isNotEmpty(icons)) {
