@@ -24,13 +24,13 @@ define(function(require) {
         function(application, appEnvironments, deploymentTopologyServices) {
           return deploymentTopologyServices.get({
             appId: application.data.id,
-            envId: appEnvironments[0].id
-          }, undefined, function(response) {
-            var context = {};
-            context.selectedEnvironment = appEnvironments[0];
-            context.deploymentTopologyDTO = response.data;
-            return context;
-          });
+            envId: appEnvironments.environments[0].id
+          }).$promise.then(function(response) {
+              return {
+                selectedEnvironment: appEnvironments.environments[0],
+                deploymentTopologyDTO: response.data
+              };
+            });
         }
       ]
     },
@@ -47,13 +47,11 @@ define(function(require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentCtrl',
-    ['$scope', 'authService', '$upload', 'applicationServices', 'toscaService', '$resource', '$http', '$translate', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'toaster', '$filter', 'menu', 'deploymentContext',
-      function($scope, authService, $upload, applicationServices, toscaService, $resource, $http, $translate, applicationResult, $state, applicationEnvironmentServices, appEnvironments, toaster, $filter, menu, deploymentContext) {
+    ['$scope', 'authService', '$upload', 'applicationServices', 'toscaService', '$resource', '$http', '$translate', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'toaster', '$filter', 'menu', 'deploymentContext', 'deploymentTopologyServices',
+      function($scope, authService, $upload, applicationServices, toscaService, $resource, $http, $translate, applicationResult, $state, applicationEnvironmentServices, appEnvironments, toaster, $filter, menu, deploymentContext, deploymentTopologyServices) {
         $scope.deploymentContext = deploymentContext;
         var pageStateId = $state.current.name;
         $scope.menu = menu;
-
-        var minimumZoneCountPerGroup = 1;
 
         // Initialization
         $scope.application = applicationResult.data;
@@ -74,10 +72,13 @@ define(function(require) {
             return null;
           }
         };
-        $scope.$watch('deploymentContext.selectedEnvironment', function(newValue, oldValue) {
-          if (newValue !== oldValue) {
-
-          }
+        $scope.$watch('deploymentContext.selectedEnvironment', function(newValue) {
+          deploymentTopologyServices.get({
+            appId: $scope.application.id,
+            envId: newValue.id
+          }, function(response) {
+            $scope.deploymentContext.deploymentTopologyDTO = response.data;
+          });
         });
 
         // Retrieval and validation of the topology associated with the deployment.
@@ -102,20 +103,13 @@ define(function(require) {
         //register the checking topo function for others states to use it
         $scope.checkTopology = checkTopology;
 
-        var goToLocationTab = function() {
+        $scope.goToLocationTab = function() {
           $scope.setTopologyId($scope.application.id, $scope.deploymentContext.selectedEnvironment.id, checkTopology).$promise.then(function() {
             $state.go('applications.detail.deployment.locations');
           });
         };
 
-        // set the environment to the given one and forward to locations screen.
-        var setEnvironmentAndForwardToLocations = function(environment) {
-          if ($scope.deploymentContext.selectedEnvironment !== environment) {
-            $scope.deploymentContext.selectedEnvironment = environment;
-            goToLocationTab();
-          }
-        };
-        goToLocationTab(); // immediately go to location tab
+        $scope.goToLocationTab(); // immediately go to location tab
 
         // Just group tasks / warnings by category for the display
         function prepareTasksAndWarnings(validTopologyDTO) {
@@ -167,8 +161,8 @@ define(function(require) {
 
         // if the status or the environment changes we must update the event registration.
         $scope.$watch(function(scope) {
-          if (_.defined(scope.selectedEnvironment)) {
-            return scope.selectedEnvironment.id + '__' + scope.selectedEnvironment.status;
+          if (_.defined($scope.deploymentContext.selectedEnvironment)) {
+            return $scope.deploymentContext.selectedEnvironment.id + '__' + $scope.deploymentContext.selectedEnvironment.status;
           }
           return 'UNDEPLOYED';
         }, function(newValue) {

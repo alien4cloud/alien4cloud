@@ -71,10 +71,10 @@ public class DeploymentConfigurationController {
      * @return
      */
     @ApiOperation(value = "Set location policies for a deployment. Creates if not yet the {@link DeploymentTopology} object linked to this deployment.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
-    @RequestMapping(value = "/location-polocies", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/location-policies", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @Audit
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<DeploymentTopology> setLocationPolocies(@PathVariable String appId, @PathVariable String environmentId,
+    public RestResponse<DeploymentTopology> setLocationPolicies(@PathVariable String appId, @PathVariable String environmentId,
             @RequestBody SetLocationPoliciesRequest request) {
         RestResponseBuilder<DeploymentTopology> responseBuilder = RestResponseBuilder.<DeploymentTopology> builder();
 

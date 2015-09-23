@@ -5,7 +5,7 @@ define(function (require) {
 
   modules.get('a4c-applications', ['ngResource']).factory('deploymentTopologyServices', ['$resource',
     function($resource) {
-      var location= $resource('rest/applications/:appId/environments/:envId/deployment-topology/location-polocies', {}, {
+      var location= $resource('rest/applications/:appId/environments/:envId/deployment-topology/location-policies', {}, {
         setLocationPolicies: {
           method: 'POST',
           isArray: false,
@@ -15,11 +15,7 @@ define(function (require) {
         }
       });
       
-      var deploymentTopology= $resource('rest/applications/:appId/environments/:envId/deployment-topology', {}, {
-        get: {
-          method: 'GET'
-        }
-      });
+      var deploymentTopology= $resource('rest/applications/:appId/environments/:envId/deployment-topology');
 
       return {
         'setLocationPolicies': location.setLocationPolicies,
