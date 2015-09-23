@@ -3,17 +3,20 @@ package alien4cloud.orchestrators.locations.services;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.model.common.Tag;
+import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.components.IndexedToscaElement;
@@ -28,6 +31,7 @@ import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 /**
@@ -109,5 +113,27 @@ public class LocationArchiveIndexer {
             element.getTags().add(new Tag("alien-workspace-id", orchestrator.getId() + ":" + location.getId()));
             element.getTags().add(new Tag("alien-workspace-name", orchestrator.getName() + " - " + location.getName()));
         }
+    }
+
+    /**
+     * Delete all archives related to a location
+     *
+     * @param location
+     * @return Map of usages per archives if found (that means the deletion wasn't performed successfully), null if everything went well.
+     */
+    public Map<Csar, List<Usage>> deleteArchives(Location location) {
+        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(location.getOrchestratorId());
+        ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
+        List<PluginArchive> pluginArchives = configuratorPlugin.pluginArchives();
+        Map<Csar, List<Usage>> usages = Maps.newHashMap();
+
+        for (PluginArchive pluginArchive : pluginArchives) {
+            Csar csar = pluginArchive.getArchive().getArchive();
+            List<Usage> csarUsage = csarService.deleteCsarWithElements(csar);
+            if (CollectionUtils.isNotEmpty(csarUsage)) {
+                usages.put(csar, csarUsage);
+            }
+        }
+        return usages.isEmpty() ? null : usages;
     }
 }

@@ -2,6 +2,7 @@ package alien4cloud.orchestrators.locations.services;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -11,15 +12,20 @@ import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.Csar;
 import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.model.orchestrators.locations.Location;
@@ -32,6 +38,7 @@ import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Manages a locations.
@@ -51,6 +58,8 @@ public class LocationService {
     private LocationResourceService locationResourceService;
     @Resource
     private ICSARRepositorySearchService csarRepoSearchService;
+    @Resource
+    private CsarService csarService;
 
     /**
      * Add a new locations for a given orchestrator.
@@ -166,14 +175,35 @@ public class LocationService {
      * Delete a locations.
      *
      * @param id id of the locations to delete.
+     * @return true if the location was successfully , false if not.
      */
-    public void delete(String id) {
-        // TODO IMPORTANT ensure that no deployment use the location
-        // TODO delete all archives associated with this location only
+    public boolean delete(String id) {
+        Map<String, String[]> filters = getDeploymentFilterPerLocation(true, id);
+        long count = alienDAO.count(Deployment.class, null, filters);
+        if (count > 0) {
+            return false;
+        }
+        Location location = getOrFail(id);
+
+        // delete all archives associated with this location only
+        // Only delete the archives if there is no more location of this type
+        filters.clear();
+        addFilter(filters, "orchestratorId", location.getOrchestratorId());
+        addFilter(filters, "infrastructureType", location.getInfrastructureType());
+        count = alienDAO.count(Location.class, null, filters);
+        if (count <= 1) {
+            Map<Csar, List<Usage>> usages = locationArchiveIndexer.deleteArchives(location);
+            if (MapUtils.isNotEmpty(usages)) {
+                // TODO what to do when some archives were not deleted?
+                log.warn("Some archives for location were not deletec! \n" + usages);
+            }
+        }
         // delete all location resources for the given location
         alienDAO.delete(LocationResourceTemplate.class, QueryBuilders.termQuery("locationId", id));
         // delete the location
         alienDAO.delete(Location.class, id);
+
+        return true;
     }
 
     /**
@@ -198,6 +228,20 @@ public class LocationService {
         List<Location> locations = null;
         locations = alienDAO.customFindAll(Location.class, QueryBuilders.termsQuery("orchestratorId", orchestratorIds));
         return locations == null ? Lists.<Location> newArrayList() : locations;
+    }
+
+    private Map<String, String[]> getDeploymentFilterPerLocation(boolean activeOnly, String... locationIds) {
+        Map<String, String[]> filters = Maps.newHashMap();
+
+        filters.put("locationIds", locationIds);
+        if (activeOnly) {
+            filters.put("endDate", new String[] { "null" });
+        }
+        return filters;
+    }
+
+    private void addFilter(Map<String, String[]> filters, String property, String... values) {
+        filters.put(property, values);
     }
 
 }

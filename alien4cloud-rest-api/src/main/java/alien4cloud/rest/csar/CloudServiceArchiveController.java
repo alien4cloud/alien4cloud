@@ -16,6 +16,7 @@ import javax.validation.Valid;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.collect.Sets;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -45,20 +46,17 @@ import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.application.Application;
+import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.deployment.Deployment;
-import alien4cloud.model.templates.TopologyTemplate;
-import alien4cloud.model.topology.Topology;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.rest.topology.CsarRelatedResourceDTO;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.tosca.ArchiveUploadService;
 import alien4cloud.tosca.parser.ParsingError;
@@ -125,13 +123,15 @@ public class CloudServiceArchiveController {
 
             CsarUploadResult uploadResult = new CsarUploadResult();
             uploadResult.getErrors().put(fileName, e.getParsingErrors());
-            return RestResponseBuilder.<CsarUploadResult> builder().error(RestErrorBuilder.builder(RestErrorCode.CSAR_INVALID_ERROR).build()).data(uploadResult)
-                    .build();
+            return RestResponseBuilder.<CsarUploadResult> builder().error(RestErrorBuilder.builder(RestErrorCode.CSAR_INVALID_ERROR).build())
+                    .data(uploadResult).build();
         } catch (CSARVersionAlreadyExistsException e) {
             log.error("A CSAR with the same name and the same version already existed in the repository", e);
             CsarUploadResult uploadResult = new CsarUploadResult();
-            uploadResult.getErrors().put(csar.getOriginalFilename(), Lists.newArrayList(new ParsingError(ErrorCode.CSAR_ALREADY_EXISTS, "CSAR already exists",
-                    null, "Unable to override an existing CSAR if the version is not a SNAPSHOT version.", null, null)));
+            uploadResult.getErrors().put(
+                    csar.getOriginalFilename(),
+                    Lists.newArrayList(new ParsingError(ErrorCode.CSAR_ALREADY_EXISTS, "CSAR already exists", null,
+                            "Unable to override an existing CSAR if the version is not a SNAPSHOT version.", null, null)));
             return RestResponseBuilder.<CsarUploadResult> builder().error(RestErrorBuilder.builder(RestErrorCode.ALREADY_EXIST_ERROR).build())
                     .data(uploadResult).build();
         } finally {
@@ -209,110 +209,18 @@ public class CloudServiceArchiveController {
     @RequestMapping(value = "/{csarId:.+?}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     @Audit
-    public RestResponse<List<CsarRelatedResourceDTO>> delete(@PathVariable String csarId) {
-        Csar csar = csarService.getMandatoryCsar(csarId);
-        List<CsarRelatedResourceDTO> relatedResourceList = getCsarRelatedResourceList(csar);
-        boolean isCsarDeletable = relatedResourceList.isEmpty() ? true : false;
+    public RestResponse<List<Usage>> delete(@PathVariable String csarId) {
+        Csar csar = csarService.getOrFail(csarId);
+        List<Usage> relatedResourceList = csarService.deleteCsarWithElements(csar);
 
-        if (!isCsarDeletable) {
+        if (CollectionUtils.isNotEmpty(relatedResourceList)) {
             String errorMessage = "The csar named <" + csar.getName() + "> in version <" + csar.getVersion()
                     + "> can not be deleted since it is referenced by other resources";
-            return RestResponseBuilder.<List<CsarRelatedResourceDTO>> builder().data(relatedResourceList)
+            return RestResponseBuilder.<List<Usage>> builder().data(relatedResourceList)
                     .error(RestErrorBuilder.builder(RestErrorCode.DELETE_REFERENCED_OBJECT_ERROR).message(errorMessage).build()).build();
         }
 
-        // latest version indicator will be recomputed to match this new reality
-        indexerService.deleteElements(csar.getName(), csar.getVersion());
-        csarDAO.delete(Csar.class, csarId);
-
-        // physically delete files
-        alienRepository.removeCSAR(csar.getName(), csar.getVersion());
-        return RestResponseBuilder.<List<CsarRelatedResourceDTO>> builder().build();
-    }
-
-    /**
-     * Get resources related to a Csar
-     * 
-     * @param csar
-     * @return
-     */
-    private List<CsarRelatedResourceDTO> getCsarRelatedResourceList(Csar csar) {
-        List<CsarRelatedResourceDTO> relatedResourceList = Lists.newArrayList();
-
-        if (csar == null) {
-            log.warn("You have requested a resource list for a invalid csar object : <" + csar + ">");
-            return relatedResourceList;
-        }
-
-        // a csar that is a dependency of another csar can not be deleted
-        Csar[] relatedCsars = csarService.getDependantCsars(csar.getName(), csar.getVersion());
-        if (relatedCsars != null && relatedCsars.length > 0) {
-            relatedResourceList.addAll(generateCsarsInfo(relatedCsars));
-        }
-
-        // check if some of the nodes are used in topologies.
-        Topology[] topologies = csarService.getDependantTopologies(csar.getName(), csar.getVersion());
-        if (topologies != null && topologies.length > 0) {
-            relatedResourceList.addAll(generateTopologiesInfo(topologies));
-        }
-
-        return relatedResourceList;
-    }
-
-    /**
-     * Generate resources related to a csar list
-     * 
-     * @param csars
-     * @return
-     */
-    private List<CsarRelatedResourceDTO> generateCsarsInfo(Csar[] csars) {
-        String resourceName = null;
-        String resourceId = null;
-        List<CsarRelatedResourceDTO> resourceList = Lists.newArrayList();
-        for (Csar csar : csars) {
-            resourceName = csar.getName();
-            resourceId = csar.getId();
-            CsarRelatedResourceDTO temp = new CsarRelatedResourceDTO(resourceName, CSAR_TYPE_NAME, resourceId);
-            resourceList.add(temp);
-        }
-        return resourceList;
-    }
-
-    /**
-     * Generate resources (application or template) related to a topology list
-     * 
-     * @param topologies
-     * @return
-     */
-    private List<CsarRelatedResourceDTO> generateTopologiesInfo(Topology[] topologies) {
-        String resourceName = null;
-        String resourceId = null;
-        boolean typeHandled = true;
-        List<CsarRelatedResourceDTO> resourceList = Lists.newArrayList();
-        for (Topology topology : topologies) {
-            String delegateType = topology.getDelegateType();
-            if (delegateType.equals("application")) {
-                // get the related application
-                Application application = applicationService.checkAndGetApplication(topology.getDelegateId());
-                resourceName = application.getName();
-            } else if (delegateType.equals("topologytemplate")) {
-                // get the related template
-                TopologyTemplate template = topologyService.getOrFailTopologyTemplate(topology.getDelegateId());
-                resourceName = template.getName();
-            } else {
-                typeHandled = false;
-                log.info("The topology <" + topology.getId() + "> of type <" + delegateType + " is not yet handled.");
-            }
-
-            if (typeHandled) {
-                resourceId = topology.getDelegateId();
-                CsarRelatedResourceDTO temp = new CsarRelatedResourceDTO(resourceName, delegateType, resourceId);
-                resourceList.add(temp);
-            } else {
-                typeHandled = true;
-            }
-        }
-        return resourceList;
+        return RestResponseBuilder.<List<Usage>> builder().build();
     }
 
     @ApiOperation(value = "Get a CSAR given its id.", notes = "Returns a CSAR.")
@@ -320,7 +228,7 @@ public class CloudServiceArchiveController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     public RestResponse<CsarInfoDTO> read(@PathVariable String csarId) {
         Csar csar = csarDAO.findById(Csar.class, csarId);
-        List<CsarRelatedResourceDTO> relatedResourceList = getCsarRelatedResourceList(csar);
+        List<Usage> relatedResourceList = csarService.getCsarRelatedResourceList(csar);
         CsarInfoDTO csarInfo = new CsarInfoDTO(csar, relatedResourceList);
         return RestResponseBuilder.<CsarInfoDTO> builder().data(csarInfo).build();
     }
@@ -344,7 +252,7 @@ public class CloudServiceArchiveController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     @Audit
     public RestResponse<Void> saveNodeType(@PathVariable String csarId, @RequestBody IndexedNodeType nodeType) {
-        Csar csar = csarService.getMandatoryCsar(csarId);
+        Csar csar = csarService.getOrFail(csarId);
         // check that the csar version is snapshot.
         if (VersionUtil.isSnapshot(csar.getVersion())) {
             nodeType.setArchiveName(csar.getName());
@@ -385,7 +293,7 @@ public class CloudServiceArchiveController {
     @RequestMapping(value = "/{csarId:.+?}/active-deployment", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     public RestResponse<Deployment> getActiveDeployment(@PathVariable String csarId) {
-        Csar csar = csarService.getMandatoryCsar(csarId);
+        Csar csar = csarService.getOrFail(csarId);
         if (csar.getTopologyId() == null || csar.getCloudId() == null) {
             return RestResponseBuilder.<Deployment> builder().build();
         }

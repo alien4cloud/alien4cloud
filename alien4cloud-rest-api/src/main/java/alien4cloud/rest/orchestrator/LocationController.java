@@ -5,7 +5,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import alien4cloud.orchestrators.locations.services.LocationResourceService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,11 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.rest.orchestrator.model.CreateLocationRequest;
-import alien4cloud.rest.orchestrator.model.LocationDTO;
+import alien4cloud.orchestrators.locations.services.LocationResourceService;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.orchestrator.model.CreateLocationRequest;
+import alien4cloud.rest.orchestrator.model.LocationDTO;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.DeployerRole;
 
@@ -37,8 +37,7 @@ import com.wordnik.swagger.annotations.Authorization;
  */
 @RestController
 @RequestMapping(value = "/rest/orchestrators/{orchestratorId}/locations", produces = MediaType.APPLICATION_JSON_VALUE)
-@Api(value = "Orchestrator's Locations", description = "Manages locations for a given orchestrator.", authorizations = {
-        @Authorization("ADMIN") }, position = 4400)
+@Api(value = "Orchestrator's Locations", description = "Manages locations for a given orchestrator.", authorizations = { @Authorization("ADMIN") }, position = 4400)
 public class LocationController {
     @Inject
     private LocationService locationService;
@@ -57,12 +56,12 @@ public class LocationController {
     }
 
     @ApiOperation(value = "Delete an existing location.", authorizations = { @Authorization("ADMIN") })
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public void delete(@ApiParam(value = "Id of the orchestrator for which the location is defined.") @PathVariable String orchestratorId,
+    public RestResponse<Boolean> delete(@ApiParam(value = "Id of the orchestrator for which the location is defined.") @PathVariable String orchestratorId,
             @ApiParam(value = "Id of the location to delete.", required = true) @PathVariable String id) {
-        locationService.delete(id);
+        return RestResponseBuilder.<Boolean> builder().data(locationService.delete(id)).build();
     }
 
     @ApiOperation(value = "Get all locations for a given orchestrator.")

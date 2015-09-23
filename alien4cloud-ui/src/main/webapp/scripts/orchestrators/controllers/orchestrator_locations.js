@@ -69,6 +69,15 @@ define(function(require) {
           $scope.context.configurationTypes = _.values(location.resources.configurationTypes);
           $scope.context.nodeTypes = _.values(location.resources.nodeTypes);
         };
+        
+        $scope.deleteLocation = function(location){
+          locationService.delete({orchestratorId: orchestrator.id, locationId: location.location.id}, null, function(result){
+            if(result.data == true){
+              delete $scope.location;
+              updateLocations();
+            }
+          });
+        }
 
         $scope.openNewModal = function() {
           var modalInstance = $modal.open({

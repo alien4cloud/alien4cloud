@@ -12,9 +12,11 @@
       <select ng-if="locations" class="form-control" ng-model="location" ng-change="selectLocation(location)" ng-options="loc.location.name for loc in locations"></select>
     </div>
     <div class="col-md-3">
-      <button ng-if="location" id="delete-location-button" class="btn btn-danger pull-right" ng-click="openNewModal()">
-        <i class="fa fa-trash-o"></i> Delete Location
-      </button>
+      <delete-confirm class = " pull-right" id="delete-location-button" text="Delete Location" func="deleteLocation(location)" position="left" fastyle="fa-trash-o">
+      </delete-confirm>
+<!--       <button ng-if="location" id="delete-location-button" class="btn btn-danger pull-right" ng-click="deleteLocation(location)"> -->
+<!--         <i class="fa fa-trash-o"></i> Delete Location -->
+<!--       </button> -->
     </div>
   </div>
   <hr class="separator-h">
@@ -22,8 +24,8 @@
     <div class="row">
       <div class="col-md-4">
         <b>name:</b>
-        <span editable-text="location.name" buttons="no" e-required e-class="input-lg" onbeforesave="updateLocation({name: $data})" blur="submit">
-          {{location.name}} <i class="fa fa-edit"></i>
+        <span editable-text="location.location.name" buttons="no" e-required e-class="input-lg" onbeforesave="updateLocation({name: $data})" blur="submit">
+          {{location.location.name}} <i class="fa fa-edit"></i>
         </span>
       </div>
       <div class="col-md-4">
