@@ -1,5 +1,6 @@
 package alien4cloud.orchestrators.locations.services;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +41,7 @@ import alien4cloud.utils.ReflectionUtil;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Location Resource Service provides utilities to query LocationResourceTemplate.
@@ -107,6 +109,37 @@ public class LocationResourceService {
         locationResources.setNodeTemplates(nodesTemplates);
         locationResources.setCapabilityTypes(capabilityTypes);
         return locationResources;
+    }
+
+    public LocationResourceTypes getLocationResourceTypes(Collection<LocationResourceTemplate> resourceTemplates) {
+        Map<String, Set<String>> resourceTypesByLocationId = Maps.newHashMap();
+        for (LocationResourceTemplate resourceTemplate : resourceTemplates) {
+            Set<String> locationResourceTypes = resourceTypesByLocationId.get(resourceTemplate.getLocationId());
+            if (locationResourceTypes == null) {
+                locationResourceTypes = Sets.newHashSet();
+                resourceTypesByLocationId.put(resourceTemplate.getLocationId(), locationResourceTypes);
+            }
+            locationResourceTypes.add(resourceTemplate.getTemplate().getType());
+        }
+        LocationResourceTypes locationResourceTypes = new LocationResourceTypes();
+        for (Map.Entry<String, Set<String>> resourceTypeByLocationIdEntry : resourceTypesByLocationId.entrySet()) {
+            String locationId = resourceTypeByLocationIdEntry.getKey();
+            Set<String> exposedTypes = resourceTypeByLocationIdEntry.getValue();
+            Location location = locationService.getOrFail(locationId);
+            for (String exposedType : exposedTypes) {
+                IndexedNodeType exposedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, exposedType,
+                        location.getDependencies());
+                locationResourceTypes.getNodeTypes().put(exposedType, exposedIndexedNodeType);
+                if (exposedIndexedNodeType.getCapabilities() != null && !exposedIndexedNodeType.getCapabilities().isEmpty()) {
+                    for (CapabilityDefinition capabilityDefinition : exposedIndexedNodeType.getCapabilities()) {
+                        locationResourceTypes.getCapabilityTypes().put(capabilityDefinition.getType(),
+                                csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class, capabilityDefinition.getType(),
+                                        location.getDependencies()));
+                    }
+                }
+            }
+        }
+        return locationResourceTypes;
     }
 
     /**

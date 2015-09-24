@@ -47,7 +47,8 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
             String candidateTypeName = candidate.getTemplate().getType();
             IndexedNodeType candidateType = locationResources.getNodeTypes().get(candidateTypeName);
             // For the moment only match by node type
-            if (candidateType.getDerivedFrom() != null && candidateType.getDerivedFrom().contains(nodeTemplate.getType())) {
+            if (candidateType.getElementId().equals(nodeTemplate.getType()) || candidateType.getDerivedFrom() != null
+                    && candidateType.getDerivedFrom().contains(nodeTemplate.getType())) {
                 matchingResults.add(candidate);
             }
         }

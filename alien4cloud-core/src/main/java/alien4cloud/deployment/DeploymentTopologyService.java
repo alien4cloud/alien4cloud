@@ -65,7 +65,8 @@ public class DeploymentTopologyService {
     private DeploymentNodeSubstitutionService deploymentNodeSubstitutionService;
 
     /**
-     * Get or create if not yet existing the {@link DeploymentTopology}
+     * Get or create if not yet existing the {@link DeploymentTopology}. This method will check if the initial topology has been updated, if so it will try to
+     * re-synchronize the topology and the deployment topology
      *
      * @param environment the environment
      * @return the related or created deployment topology
@@ -95,8 +96,8 @@ public class DeploymentTopologyService {
         deploymentTopology.setEnvironmentId(environment.getId());
         deploymentTopology.setInitialTopologyId(topology.getId());
         deploymentTopology.setLastInitialTopologyUpdateDate(topology.getLastUpdateDate());
-        deploymentTopology.setLastUpdateDate(new Date());
         ReflectionUtil.mergeObject(topology, deploymentTopology);
+        deploymentTopology.setLastUpdateDate(new Date());
         deploymentTopology.setId(id);
         topologyCompositionService.processTopologyComposition(deploymentTopology);
         deploymentInputService.processInputProperties(deploymentTopology);
@@ -106,6 +107,26 @@ public class DeploymentTopologyService {
         deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology);
         alienDAO.save(deploymentTopology);
         return deploymentTopology;
+    }
+
+    /**
+     * Deployment configuration has been changed, in this case must re-synchronize the deployment topology
+     * 
+     * @param deploymentTopology
+     */
+    public void updateDeploymentTopology(DeploymentTopology deploymentTopology) {
+        ApplicationEnvironment environment = appEnvironmentServices.getOrFail(deploymentTopology.getEnvironmentId());
+        Topology topology = topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId());
+        deploymentTopology.setLastUpdateDate(new Date());
+        deploymentTopology.setLastInitialTopologyUpdateDate(topology.getLastUpdateDate());
+        ReflectionUtil.mergeObject(topology, deploymentTopology);
+        topologyCompositionService.processTopologyComposition(deploymentTopology);
+        deploymentInputService.processInputProperties(deploymentTopology);
+        inputsPreProcessorService.processGetInput(deploymentTopology, environment);
+        deploymentInputService.processInputArtifacts(deploymentTopology);
+        deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
+        deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology);
+        alienDAO.save(deploymentTopology);
     }
 
     public void deleteByEnvironmentId(String environmentId) {
@@ -176,7 +197,9 @@ public class DeploymentTopologyService {
 
         for (Entry<String, String> matchEntry : groupsLocationsMapping.entrySet()) {
             String locationId = matchEntry.getValue();
-            checkAuthorizationOnLocation(locationId);
+            Location location = locationService.getOrFail(locationId);
+            AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.values());
+            deploymentTopology.getLocationDependencies().addAll(location.getDependencies());
             LocationPlacementPolicy locationPolicy = new LocationPlacementPolicy(locationId);
             locationPolicy.setName("Location policy");
             // put matchEntry.getKey() instead for multi location support
@@ -188,11 +211,6 @@ public class DeploymentTopologyService {
             group.getPolicies().add(locationPolicy);
             groups.put(groupName, group);
         }
-    }
-
-    private void checkAuthorizationOnLocation(String locationId) {
-        Location location = locationService.getOrFail(locationId);
-        AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.values());
     }
 
     /**

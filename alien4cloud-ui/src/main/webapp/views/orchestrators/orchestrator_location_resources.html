@@ -25,9 +25,9 @@
               class="clickable"
               ng-class="{'warning': selectedResourceTemplate == template}"
               ng-if="!applyFilter || template.template.type == selectedConfigurationResourceType.elementId">
-            <td ng-init="templateIcon = getIcon(template)">
-              <i ng-if="!templateIcon" class="fa fa-cogs fa-3x"></i>
-              <img ng-if="templateIcon" ng-src="img?id={{templateIcon}}&quality=QUALITY_32">
+            <td ng-init="nodeIcon = getIcon(template)">
+              <i ng-if="!nodeIcon" class="fa fa-cogs fa-3x"></i>
+              <img ng-if="nodeIcon" ng-src="img?id={{nodeIcon}}&quality=QUALITY_32">
             </td>
             <td>{{template.name}}</td>
             <td>{{template.template.type}}</td>

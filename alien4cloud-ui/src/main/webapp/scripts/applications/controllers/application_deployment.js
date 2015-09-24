@@ -56,22 +56,7 @@ define(function(require) {
         // Initialization
         $scope.application = applicationResult.data;
         $scope.envs = appEnvironments.deployEnvironments;
-        $scope.getResourceIcon = function(defaultImage, key) {
-          if (_.defined($scope.topologyDTO) &&
-            _.defined($scope.topologyDTO.topology) &&
-            _.defined($scope.topologyDTO.topology.nodeTemplates) &&
-            _.defined($scope.topologyDTO.topology.nodeTemplates[key])) {
-            var tags = $scope.topologyDTO.nodeTypes[$scope.topologyDTO.topology.nodeTemplates[key].type].tags;
-            if (_.defined(tags)) {
-              var icon = toscaService.getIcon(tags);
-              return 'img?id=' + (_.defined(icon) ? icon : defaultImage) + '&quality=QUALITY_64';
-            } else {
-              return null;
-            }
-          } else {
-            return null;
-          }
-        };
+
         $scope.$watch('deploymentContext.selectedEnvironment', function(newValue) {
           deploymentTopologyServices.get({
             appId: $scope.application.id,
@@ -178,7 +163,6 @@ define(function(require) {
                 $scope.refreshInstancesStatuses($scope.application.id, $scope.deploymentContext.selectedEnvironment.id, pageStateId);
               });
             });
-
           }
         });
 

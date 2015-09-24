@@ -1,4 +1,39 @@
 <div>
-    <h4>Here goes the matching process</h4>
-    selected Location: {{deploymentContext.selectedLocation.name}}
+  <div class="row" style="margin-top: 10px">
+    <div class="col-md-6">
+      <accordion close-others="oneAtATime">
+        <accordion-group is-open="status.open" ng-repeat="(nodeName, templates) in substitutionContext.availableSubstitutions">
+          <accordion-heading ng-init="nodeIcon = getIcon(getSubstitutedTemplate(nodeName))">
+            <i ng-if="!nodeIcon" class="fa fa-cogs fa-2x"></i>
+            <img ng-if="nodeIcon" ng-src="img?id={{nodeIcon}}&quality=QUALITY_32">
+            {{nodeName}} <i class="fa" ng-class="{'fa-chevron-down': status.open, 'fa-chevron-right': !status.open}"></i>
+          </accordion-heading>
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="template in templates"
+                  ng-click="selectTemplate(nodeName, template)"
+                  class="clickable"
+                  ng-class="{'warning': getSubstitutedTemplate(nodeName).id === template.id}">
+                <td class="col-md-1">
+                  {{template.name}}
+                </td>
+                <td class="col-md-11">
+                  {{template.template.type}}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </accordion-group>
+      </accordion>
+    </div>
+    <div class="col-md-6">
+      template details go here
+    </div>
+  </div>
 </div>

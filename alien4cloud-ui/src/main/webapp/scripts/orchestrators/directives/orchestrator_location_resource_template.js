@@ -12,6 +12,9 @@ define(function(require) {
         'resourceType': '=',
         'context': '=?',
         'onDelete': '&',
+        'onUpdate': '&',
+        'onPropertyUpdate': '&',
+        'onCapabilityPropertyUpdate': '&'
       },
       link: {}
     };

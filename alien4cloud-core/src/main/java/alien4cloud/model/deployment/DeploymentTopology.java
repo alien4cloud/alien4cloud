@@ -2,6 +2,7 @@ package alien4cloud.model.deployment;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
+import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.Topology;
@@ -19,6 +21,7 @@ import alien4cloud.model.topology.Topology;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Deployment topology is the topology for a given environment.
@@ -61,4 +64,6 @@ public class DeploymentTopology extends Topology {
     private String orchestratorId;
 
     private Map<String, NodeGroup> locationGroups = Maps.newHashMap();
+
+    private Set<CSARDependency> locationDependencies = Sets.newHashSet();
 }

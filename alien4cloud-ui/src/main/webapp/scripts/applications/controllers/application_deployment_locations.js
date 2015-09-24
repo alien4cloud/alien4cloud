@@ -87,10 +87,9 @@ define(function(require) {
             appId: $scope.application.id,
             envId: $scope.deploymentContext.selectedEnvironment.id
           }, angular.toJson(configRequest), function(result) {
-//          console.log('Result of set location is: ',result);
+            $scope.deploymentContext.deploymentTopologyDTO = result.data;
             $scope.deploymentContext.selectedLocation = locationMatch.location;
             enableDisableNodeMatchingMenu();
-//          console.debug('Selected Location is: ', locationMatch.location.name)
             $state.go('applications.detail.deployment.match');
           });
         };

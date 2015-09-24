@@ -114,7 +114,7 @@
       "UNKOWN_GROUP_POLICY": "Group policy [{{note}}] is not managed",
       "UNKOWN_GROUP_MEMBER": "The group member [{{note}}] doesn't exist so is ignored",
       "UNKNWON_WORKFLOW_STEP": "Workflow step [{{note}}] doesn't exists and has been ignored",
-      "WORKFLOW_HAS_ERRORS" : "Workflow [{{note}}] is not valid",
+      "WORKFLOW_HAS_ERRORS": "Workflow [{{note}}] is not valid",
       "MISSING_TOPOLOGY_INPUT": "The input [{{problem}}] referenced by the property [{{problem}}] of [{{context}}] node was not found in the inputs list",
       "300": "Unexpected IO error on plugin upload.",
       "353": "The META-INF/plugin.yml file is missing in your plugin."
@@ -178,35 +178,35 @@
     "BUTTON_DELETE": "Delete",
     "BUTTON_MODIFY": "Modify",
     "NAME": "Name",
-    "ID":"Id",
+    "ID": "Id",
     "AJOUT": "The archive has been imported",
-    "LEGEND":"Csars added",
-    "IMPORT_ALL":"Import all",
-    "IMPORT_SUCCESS":"CSAR have been imported",
-    "FROMGIT":"Imported from Git",
-    "ACTIONS":"Operations",
+    "LEGEND": "Csars added",
+    "IMPORT_ALL": "Import all",
+    "IMPORT_SUCCESS": "CSAR have been imported",
+    "FROMGIT": "Imported from Git",
+    "ACTIONS": "Operations",
     "URL": "Repository URL",
     "BRANCHESLIST": "Branches list",
-    "BRANCHE":"Branche",
-    "ARCHIVE":"Archive's folder",
-    "ARCHIVELIST":"Archive list",
-    "ARCHIVE_TO_IMPORT":"Archive(s) to import",
-    "BRANCHE_TO_IMPORT":"On branch",
+    "BRANCHE": "Branche",
+    "ARCHIVE": "Archive's folder",
+    "ARCHIVELIST": "Archive list",
+    "ARCHIVE_TO_IMPORT": "Archive(s) to import",
+    "BRANCHE_TO_IMPORT": "On branch",
     "DESCRIPTION": "Description",
-    "IMPORTTOOLTIP":"Import",
-    "EDITTOOLTIP":"Edit",
-    "USERNAME":"Username",
-    "PASSWORD":"Password",
-    "UPDATE":"Update",
-    "EDIT":"Update a CSAR",
-    "CREDENTIALS":"Credentials",
-    "CREDENTIALSINFO":"Mandatory for private repositories only",
+    "IMPORTTOOLTIP": "Import",
+    "EDITTOOLTIP": "Edit",
+    "USERNAME": "Username",
+    "PASSWORD": "Password",
+    "UPDATE": "Update",
+    "EDIT": "Update a CSAR",
+    "CREDENTIALS": "Credentials",
+    "CREDENTIALSINFO": "Mandatory for private repositories only",
     "VERSION": "Version",
     "BC_CSAR": "CSAR",
     "DETAILS_TITLE": "CSAR details",
     "TEST_TOPOLOGY": "Test topology's status",
     "AUTHOR": "Author",
-    "SAVE_LOCALLY":"Save the repository locally",
+    "SAVE_LOCALLY": "Save the repository locally",
     "DETAILS": {
       "BUTTON_ADD_NODE_TYPE": "Add new component",
       "ARCHIVE_COMPONENTS": "Archive's component",
@@ -221,19 +221,19 @@
         "CSAR_TEXT": "CSAR details",
         "APP_TEXT": "Application details",
         "TOPOLOGY_TEXT": "Topology template details"
-        }
-      },
-      "DELETE": "Deleted",
-      "ERRORS": {
-        "IMPORT":"CSAR cannot be imported",
-        "507_TITLE": "Delete a CSAR",
-        "501_TITLE": "CSAR with this URL already exists",
-        "507": "CSAR deletion failed since it is referenced by other resources",
-        "NO_DATA":{
-          "HEADER":"No CSAR to import",
-          "BODY":"Please add a new CSAR from a Git location"
-        }
       }
+    },
+    "DELETE": "Deleted",
+    "ERRORS": {
+      "IMPORT": "CSAR cannot be imported",
+      "507_TITLE": "Delete a CSAR",
+      "501_TITLE": "CSAR with this URL already exists",
+      "507": "CSAR deletion failed since it is referenced by other resources",
+      "NO_DATA": {
+        "HEADER": "No CSAR to import",
+        "BODY": "Please add a new CSAR from a Git location"
+      }
+    }
   },
   "GENERIC_FORM": {
     "SAVE": "Save",
@@ -393,6 +393,8 @@
       }
     },
     "DEPLOYMENT": {
+      "MATCHING": "Substitution",
+      "SETUP": "Input",
       "NAME_MATCHER": "Association of cloud resources",
       "TITLE_NODE_ICON": "Icon of the node",
       "TITLE_COMPONENT": "Component name",
@@ -506,9 +508,9 @@
           }
         },
         "WORKFLOWS": {
-          "TITLE" : "Workflows",
+          "TITLE": "Workflows",
           "HAS_ERROR": "Workflow '{{workflowName}}' is not valid : {{errorCount}} error(s)"
-        }        
+        }
       },
       "WARNING": {
         "LABEL": "Warnings",
@@ -606,11 +608,11 @@
       "DELETING_FAILED": "Unable to delete the application. First, undeploy it and retry."
     },
     "WF": {
-      "title" : "Workflows",
+      "title": "Workflows",
       "addWorkflow": "Add workflow",
       "changeViewMode": "Simplified view",
       "nodeName": "Node",
-      "host": "Host",      
+      "host": "Host",
       "interfaceName": "Interface",
       "operationName": "Operation",
       "stateName": "State",
@@ -618,9 +620,9 @@
       "addOperationActivity": "Add opreration call",
       "addStateActivity": "Add state change",
       "insertOperationActivity": "Insert opreration call",
-      "appendOperationActivity": "Append opreration call",   
+      "appendOperationActivity": "Append opreration call",
       "insertStateActivity": "Insert state change",
-      "appendStateActivity": "Append state change",             
+      "appendStateActivity": "Append state change",
       "activity": "Activity",
       "disconnect": "Disconnect",
       "disconnectFrom": "Disconnect from",
@@ -628,20 +630,20 @@
       "swapLeft": "Swap to left",
       "swapRigth": "Swap to right",
       "connectFromSelection": "Connect from selection",
-      "connectToSelection": "Connect to selection",        
+      "connectToSelection": "Connect to selection",
       "removeStep": "Remove step",
       "OperationCallActivity": "Operation call",
       "SetStateActivity": "State change",
       "unpin": "Unpin",
-      "currentSelection" : "Current selection",
-      "hasErrors" : "error(s)",
+      "currentSelection": "Current selection",
+      "hasErrors": "error(s)",
       "errors": {
         "WorkflowHasCycleError": "Workflow contains one cycle",
         "BadStateSequenceError": "Bad sequence : step '{{from}}' should not be found before '{{to}}'",
         "ParallelSetStatesError": "State changes are done in parallel for node '{{nodeId}}'",
         "UnknownNodeError": "The node '{{nodeId}}' referenced by the step '{{stepId}}' doesn't exists"
       }
-    }      
+    }
   },
   "TEMPLATE": {
     "NEW": "New Template",

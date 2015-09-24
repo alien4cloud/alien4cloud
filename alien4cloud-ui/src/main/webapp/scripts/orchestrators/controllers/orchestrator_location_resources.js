@@ -9,11 +9,11 @@ define(function(require) {
   require('scripts/orchestrators/controllers/orchestrator_location_resource_template');
   require('scripts/orchestrators/directives/orchestrator_location_resource_template');
   require('scripts/orchestrators/services/location_resources_processor');
-
+  require('scripts/tosca/services/node_template_service');
 
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorLocationResourcesTemplateCtrl',
-    ['$scope', 'locationResourcesService', 'locationResourcesProcessor',
-      function($scope, locationResourcesService, locationResourcesProcessor) {
+    ['$scope', 'locationResourcesService', 'locationResourcesPropertyService', 'locationResourcesCapabilityPropertyService', 'locationResourcesProcessor', 'nodeTemplateService',
+      function($scope, locationResourcesService, locationResourcesPropertyService, locationResourcesCapabilityPropertyService, locationResourcesProcessor, nodeTemplateService) {
         if (_.isNotEmpty($scope.resourcesTypes)) {
           $scope.selectedConfigurationResourceType = $scope.resourcesTypes[0];
         }
@@ -51,13 +51,49 @@ define(function(require) {
 
         $scope.getIcon = function(template) {
           var templateType = $scope.resourcesTypesMap[template.template.type];
-          if (_.isNotEmpty(templateType) && _.isNotEmpty(templateType.tags)) {
-            var icons = _.find(templateType.tags, {'name': 'icon'});
-            if (_.isNotEmpty(icons)) {
-              return icons.value;
-            }
-          }
-        }
+          return nodeTemplateService.getNodeTypeIcon(templateType);
+        };
+
+
+        $scope.updateLocationResource = function(propertyName, propertyValue) {
+          var updateLocationRequest = {};
+          updateLocationRequest[propertyName] = propertyValue;
+          locationResourcesService.update({
+            orchestratorId: $scope.context.orchestrator.id,
+            locationId: $scope.context.location.id,
+            id: $scope.resourceTemplate.id
+          }, angular.toJson(updateLocationRequest));
+        };
+
+        $scope.updateResourceProperty = function(propertyName, propertyValue) {
+          locationResourcesPropertyService.save({
+            orchestratorId: $scope.context.orchestrator.id,
+            locationId: $scope.context.location.id,
+            id: $scope.resourceTemplate.id
+          }, angular.toJson({
+            propertyName: propertyName,
+            propertyValue: propertyValue
+          }), function() {
+            $scope.resourceTemplate.template.propertiesMap[propertyName].value = {value: propertyValue, definition: false};
+          });
+        };
+
+        $scope.updateResourceCapabilityProperty = function(capabilityName, propertyName, propertyValue) {
+          locationResourcesCapabilityPropertyService.save({
+            orchestratorId: $scope.context.orchestrator.id,
+            locationId: $scope.context.location.id,
+            id: $scope.resourceTemplate.id,
+            capabilityName: capabilityName
+          }, angular.toJson({
+            propertyName: propertyName,
+            propertyValue: propertyValue
+          }), function() {
+            $scope.resourceTemplate.template.capabilitiesMap[capabilityName].value.propertiesMap[propertyName].value = {
+              value: propertyValue,
+              definition: false
+            };
+          });
+        };
       }
-    ]); // controller
-}); // define
+    ]);
+});

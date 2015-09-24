@@ -73,6 +73,7 @@ public class DeploymentNodeSubstitutionService {
             // No location group is defined do nothing
             return false;
         }
+        deploymentTopology.getDependencies().addAll(deploymentTopology.getLocationDependencies());
         Map<String, List<LocationResourceTemplate>> availableSubstitutions = getAvailableSubstitutions(deploymentTopology);
         Map<String, LocationResourceTemplate> substitutedNodes = deploymentTopology.getSubstitutedNodes();
         boolean changed = false;
@@ -85,11 +86,21 @@ public class DeploymentNodeSubstitutionService {
             while (mappingEntryIterator.hasNext()) {
                 Map.Entry<String, LocationResourceTemplate> entry = mappingEntryIterator.next();
                 if (deploymentTopology.getNodeTemplates() == null || !deploymentTopology.getNodeTemplates().containsKey(entry.getKey())
-                        || !availableSubstitutions.containsKey(entry.getKey()) || !availableSubstitutions.get(entry.getKey()).contains(entry.getValue())) {
-                    // Remove the mapping if topology do not contain the node with that name and of type compute
-                    // Or the mapping do not exist anymore in the match result
-                    changed = true;
-                    mappingEntryIterator.remove();
+                        || !availableSubstitutions.containsKey(entry.getKey())) {
+                    List<LocationResourceTemplate> availableSubstitutionsForNode = availableSubstitutions.get(entry.getKey());
+                    boolean substitutedTemplateExist = false;
+                    for (LocationResourceTemplate availableSubstitutionForNode : availableSubstitutionsForNode) {
+                        if (availableSubstitutionForNode.getId().equals(entry.getValue().getId())) {
+                            substitutedTemplateExist = true;
+                            break;
+                        }
+                    }
+                    if (!substitutedTemplateExist) {
+                        // Remove the mapping if topology do not contain the node with that name and of type compute
+                        // Or the mapping do not exist anymore in the match result
+                        changed = true;
+                        mappingEntryIterator.remove();
+                    }
                 }
             }
         }
