@@ -30,8 +30,8 @@ define(function(require) {
   });
 
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorLocationsCtrl',
-    ['$scope', '$modal', '$http', 'locationService', 'orchestrator', 'menu', 'locationResourcesProcessor',
-      function($scope, $modal, $http, locationService, orchestrator, menu, locationResourcesProcessor) {
+    ['$scope', '$modal', '$http', 'locationService', 'orchestrator', 'menu', 'locationResourcesProcessor', '$translate',
+      function($scope, $modal, $http, locationService, orchestrator, menu, locationResourcesProcessor, $translate) {
         $scope.envTypes = ['OTHER', 'DEVELOPMENT', 'INTEGRATION_TESTS', 'USER_ACCEPTANCE_TESTS', 'PRE_PRODUCTION', 'PRODUCTION'];
         $scope.orchestrator = orchestrator;
         $scope.menu = menu;
@@ -78,6 +78,17 @@ define(function(require) {
             }
           });
         }
+        
+        $scope.updateLocation = function(request) {
+          if (request.name !== $scope.location.location.name || request.environmentType !== $scope.location.location.environmentType ) {
+            return locationService.update({orchestratorId: orchestrator.id, locationId: $scope.location.location.id}, angular.toJson(request)).$promise.then( 
+              function() { // Success
+              },
+              function(errorResponse) {
+                return $translate('ERRORS.' + errorResponse.data.error.code);
+            });
+          }
+        };
 
         $scope.openNewModal = function() {
           var modalInstance = $modal.open({

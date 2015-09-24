@@ -5,6 +5,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,8 +24,10 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.orchestrator.model.CreateLocationRequest;
 import alien4cloud.rest.orchestrator.model.LocationDTO;
+import alien4cloud.rest.orchestrator.model.UpdateLocationRequest;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.DeployerRole;
+import alien4cloud.utils.ReflectionUtil;
 
 import com.google.common.collect.Lists;
 import com.wordnik.swagger.annotations.Api;
@@ -85,6 +88,20 @@ public class LocationController {
         Location location = locationService.getOrFail(id);
         AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.DEPLOYER);
         return RestResponseBuilder.<LocationDTO> builder().data(buildLocationDTO(location)).build();
+    }
+
+    @ApiOperation(value = "Update the name of an existing location.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Audit
+    public void update(
+            @ApiParam(value = "Id of the orchestrator for which the location is defined.") @PathVariable String orchestratorId,
+            @ApiParam(value = "Id of the location to update", required = true) @PathVariable String id,
+            @ApiParam(value = "Location update request, representing the fields to updates and their new values.", required = true) @Valid @NotEmpty @RequestBody UpdateLocationRequest updateRequest) {
+        Location location = locationService.getOrFail(id);
+        String currentName = location.getName();
+        ReflectionUtil.mergeObject(updateRequest, location);
+        locationService.ensureNameUnicityAndSave(location, currentName);
     }
 
     private LocationDTO buildLocationDTO(Location location) {

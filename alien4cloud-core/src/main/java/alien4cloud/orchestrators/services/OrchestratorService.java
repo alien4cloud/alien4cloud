@@ -67,7 +67,7 @@ public class OrchestratorService {
         IOrchestratorPluginFactory orchestratorFactory = getPluginFactory(orchestrator);
         OrchestratorConfiguration configuration = new OrchestratorConfiguration(orchestrator.getId(), orchestratorFactory.getDefaultConfiguration());
 
-        saveAndEnsureNameUnicity(orchestrator);
+        ensureNameUnicityAndSave(orchestrator);
         alienDAO.save(configuration);
 
         return orchestrator.getId();
@@ -82,7 +82,7 @@ public class OrchestratorService {
     public void updateName(String id, String name) {
         Orchestrator orchestrator = getOrFail(id);
         orchestrator.setName(name);
-        saveAndEnsureNameUnicity(orchestrator);
+        ensureNameUnicityAndSave(orchestrator);
     }
 
     /**
@@ -90,7 +90,7 @@ public class OrchestratorService {
      *
      * @param orchestrator The orchestrator to save.
      */
-    private synchronized void saveAndEnsureNameUnicity(Orchestrator orchestrator) {
+    private synchronized void ensureNameUnicityAndSave(Orchestrator orchestrator) {
         // check that the cloud doesn't already exists
         if (alienDAO.count(Orchestrator.class, QueryBuilders.termQuery("name", orchestrator.getName())) > 0) {
             throw new AlreadyExistException("a cloud with the given name already exists.");

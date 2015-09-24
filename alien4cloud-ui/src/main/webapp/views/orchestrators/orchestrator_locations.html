@@ -29,11 +29,11 @@
         </span>
       </div>
       <div class="col-md-4">
-        <b>infrastructure type: </b> {{location.infrastructureType}}
+        <b>infrastructure type: </b> {{location.location.infrastructureType}}
       </div>
       <div class="col-md-4">
         <b>environment type:</b>
-        <select ng-model="location.environmentType" ng-change="updateLocation({'environmentType': location.environmentType})" ng-options="'CLOUDS.ENVIRONMENT.'+env | translate for env in envTypes"></select> <i class="fa" assass="{'fa-spinner fa-spin': saving, 'text-success fa-check': savedSuccess, 'text-danger fa-times': savedError}"></i>
+        <select ng-model="location.location.environmentType" ng-change="updateLocation({'environmentType': location.location.environmentType})" ng-options="'CLOUDS.ENVIRONMENT.'+env | translate for env in envTypes"></select> <i class="fa" assass="{'fa-spinner fa-spin': saving, 'text-success fa-check': savedSuccess, 'text-danger fa-times': savedError}"></i>
       </div>
     </div>
     <div class="row" style="margin-top: 10px">

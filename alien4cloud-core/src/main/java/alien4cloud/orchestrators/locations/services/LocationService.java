@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,7 @@ import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.CSARDependency;
@@ -37,6 +40,7 @@ import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.utils.MapUtil;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -70,12 +74,15 @@ public class LocationService {
             // we cannot configure locations for orchestrator that are not connected.
             // TODO throw exception
         }
-        // checks that the infrastructure type is valid
         Location location = new Location();
         location.setId(UUID.randomUUID().toString());
         location.setName(locationName);
         location.setOrchestratorId(orchestratorId);
+        ensureNameUnicityAndSave(location);
+
+        // TODO checks that the infrastructure type is valid
         location.setInfrastructureType(infrastructureType);
+
         // TODO add User and Group manage by the Orchestrator security
 
         Set<CSARDependency> dependencies = locationArchiveIndexer.indexArchives(orchestrator, location);
@@ -229,4 +236,25 @@ public class LocationService {
         filters.put(property, values);
     }
 
+    /**
+     * Ensure that the location name is unique on the orchestrator before saving it.
+     *
+     * @param location The location to save.
+     * @param oldName
+     */
+    public synchronized void ensureNameUnicityAndSave(Location location, String oldName) {
+        if (StringUtils.isBlank(oldName) || !Objects.equal(location.getName(), oldName)) {
+            // check that a location of this name and managed by the same orchestrator doesn't already exists
+            QueryBuilder mustQuery = QueryBuilders.boolQuery().must(QueryBuilders.termQuery("name", location.getName()))
+                    .must(QueryBuilders.termQuery("orchestratorId", location.getOrchestratorId()));
+            if (alienDAO.count(Location.class, mustQuery) > 0) {
+                throw new AlreadyExistException("a location with the given name <" + location.getName() + "> already exists on this orchestrator .");
+            }
+        }
+        alienDAO.save(location);
+    }
+
+    private void ensureNameUnicityAndSave(Location location) {
+        ensureNameUnicityAndSave(location, null);
+    }
 }

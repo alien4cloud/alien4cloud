@@ -56,7 +56,12 @@ define(function (require) {
 
       $scope.updateOrchestrator = function(name) {
         if (name !== orchestrator.name) {
-          orchestratorService.update({orchestratorId: orchestrator.id}, name).$promise.then(function(result){ return result.data; });
+          return orchestratorService.update({orchestratorId: orchestrator.id}, name).$promise.then(
+            function() { // Success
+            },
+            function(errorResponse) {
+              return $translate('ERRORS.' + errorResponse.data.error.code);
+        });
         }
       };
 
