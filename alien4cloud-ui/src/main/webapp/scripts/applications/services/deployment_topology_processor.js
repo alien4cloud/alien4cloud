@@ -15,7 +15,9 @@ define(function(require) {
         return {
           process: function(deploymentTopology) {
             topologyJsonProcessor.process(deploymentTopology);
-            locationResourcesProcessor.processLocationResourceTemplates(deploymentTopology.topology.substitutedNodes);
+            if (!_.isEmpty(deploymentTopology.topology.substitutedNodes)) {
+              locationResourcesProcessor.processLocationResourceTemplates(deploymentTopology.topology.substitutedNodes);
+            }
           },
           processSubstitutionResources: function(substitutionResources) {
             listToMapService.processMap(substitutionResources.substitutionTypes.nodeTypes, 'properties');
