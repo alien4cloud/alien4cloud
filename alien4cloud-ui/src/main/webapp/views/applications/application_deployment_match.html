@@ -11,6 +11,7 @@
           <table class="table table-hover">
             <thead>
               <tr>
+                <th></th>
                 <th>Name</th>
                 <th>Type</th>
               </tr>
@@ -19,7 +20,11 @@
               <tr ng-repeat="template in templates"
                   ng-click="selectTemplate(nodeName, template)"
                   class="clickable"
-                  ng-class="{'warning': getSubstitutedTemplate(nodeName).id === template.id}">
+                  ng-class="{'warning': selectedResourceTemplate === template}">
+                <td>
+                  <i ng-if="getSubstitutedTemplate(nodeName).id === template.id"
+                     class="fa fa-check-square-o text-success"></i>
+                </td>
                 <td class="col-md-1">
                   {{template.name}}
                 </td>
@@ -33,7 +38,16 @@
       </accordion>
     </div>
     <div class="col-md-6">
-      template details go here
+      <div ng-if="selectedResourceTemplate" class="well">
+        <orchestrator-location-resource-template
+            resource-template="selectedResourceTemplate"
+            resource-type="substitutionContext.substitutionTypes.nodeTypes[selectedResourceTemplate.template.type]"
+            resource-capability-types="substitutionContext.substitutionTypes.capabilityTypes"
+            dependencies="deploymentContext.deploymentTopologyDTO.dependencies"
+            on-property-update="updateResourceProperty(propertyName, propertyValue)"
+            on-capability-property-update="updateResourceCapabilityProperty(capabilityName, propertyName, propertyValue)">
+        </orchestrator-location-resource-template>
+      </div>
     </div>
   </div>
 </div>

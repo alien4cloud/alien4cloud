@@ -2,12 +2,13 @@ define(function(require) {
   'use strict';
 
   var modules = require('modules');
+  var _ = require('lodash');
 
   modules.get('a4c-orchestrators', ['pascalprecht.translate']).controller('OrchestratorLocationResourceTemplateCtrl', [
-    '$scope', 'locationResourcesService', 'locationResourcesPropertyService', 'locationResourcesCapabilityPropertyService',
-    function($scope, locationResourcesService, locationResourcesPropertyService, locationResourcesCapabilityPropertyService) {
+    '$scope',
+    function($scope) {
       $scope.getCapabilityPropertyDefinition = function(capabilityTypeId, capabilityPropertyName) {
-        var capabilityType = $scope.context.locationResources.capabilityTypes[capabilityTypeId];
+        var capabilityType = $scope.resourceCapabilityTypes[capabilityTypeId];
         return capabilityType.propertiesMap[capabilityPropertyName].value;
       };
 
@@ -16,38 +17,39 @@ define(function(require) {
       };
 
       $scope.updateLocationResource = function(propertyName, propertyValue) {
-        var updateLocationRequest = {};
-        updateLocationRequest[propertyName] = propertyValue;
-        locationResourcesService.update({
-          orchestratorId: $scope.context.orchestrator.id,
-          locationId: $scope.context.location.id,
-          id: $scope.resourceTemplate.id
-        }, angular.toJson(updateLocationRequest));
-      };
-
-      $scope.updateResourceProperty = function(propertyName, propertyValue) {
-        locationResourcesPropertyService.save({
-          orchestratorId: $scope.context.orchestrator.id,
-          locationId: $scope.context.location.id,
-          id: $scope.resourceTemplate.id
-        }, angular.toJson({
+        $scope.onUpdate({
           propertyName: propertyName,
           propertyValue: propertyValue
-        }), function() {
+        });
+      };
+
+      function processResponsePromise(promise, callback) {
+        if (!_.isEmpty(promise) && !_.isEmpty(promise.then)) {
+          promise.then(function(response) {
+            callback(response);
+          });
+        } else {
+          callback();
+        }
+      }
+
+      $scope.updateResourceProperty = function(propertyName, propertyValue) {
+        var updatePromise = $scope.onPropertyUpdate({
+          propertyName: propertyName,
+          propertyValue: propertyValue
+        });
+        processResponsePromise(updatePromise, function(response) {
           $scope.resourceTemplate.template.propertiesMap[propertyName].value = {value: propertyValue, definition: false};
         });
       };
 
       $scope.updateResourceCapabilityProperty = function(capabilityName, propertyName, propertyValue) {
-        locationResourcesCapabilityPropertyService.save({
-          orchestratorId: $scope.context.orchestrator.id,
-          locationId: $scope.context.location.id,
-          id: $scope.resourceTemplate.id,
-          capabilityName: capabilityName
-        }, angular.toJson({
+        var updatePromise = $scope.onCapabilityPropertyUpdate({
+          capabilityName: capabilityName,
           propertyName: propertyName,
           propertyValue: propertyValue
-        }), function() {
+        });
+        processResponsePromise(updatePromise, function(response) {
           $scope.resourceTemplate.template.capabilitiesMap[capabilityName].value.propertiesMap[propertyName].value = {
             value: propertyValue,
             definition: false

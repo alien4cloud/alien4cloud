@@ -13,6 +13,7 @@ define(function(require) {
   require('scripts/applications/controllers/application_deployment_locations');
   require('scripts/applications/controllers/application_deployment_match');
   require('scripts/applications/controllers/application_deployment_setup');
+  require('scripts/applications/services/deployment_topology_processor.js');
 
   require('scripts/deployment/directives/display_outputs');
   require('scripts/common/filters/inputs');
@@ -20,12 +21,13 @@ define(function(require) {
   states.state('applications.detail.deployment', {
     url: '/deployment',
     resolve: {
-      deploymentContext: ['application', 'appEnvironments', 'deploymentTopologyServices',
-        function(application, appEnvironments, deploymentTopologyServices) {
+      deploymentContext: ['application', 'appEnvironments', 'deploymentTopologyServices', 'deploymentTopologyProcessor',
+        function(application, appEnvironments, deploymentTopologyServices, deploymentTopologyProcessor) {
           return deploymentTopologyServices.get({
             appId: application.data.id,
             envId: appEnvironments.environments[0].id
           }).$promise.then(function(response) {
+              deploymentTopologyProcessor.process(response.data);
               return {
                 selectedEnvironment: appEnvironments.environments[0],
                 deploymentTopologyDTO: response.data
@@ -47,8 +49,8 @@ define(function(require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentCtrl',
-    ['$scope', 'authService', '$upload', 'applicationServices', 'toscaService', '$resource', '$http', '$translate', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'toaster', '$filter', 'menu', 'deploymentContext', 'deploymentTopologyServices',
-      function($scope, authService, $upload, applicationServices, toscaService, $resource, $http, $translate, applicationResult, $state, applicationEnvironmentServices, appEnvironments, toaster, $filter, menu, deploymentContext, deploymentTopologyServices) {
+    ['$scope', 'authService', 'application', '$state', 'appEnvironments', 'menu', 'deploymentContext', 'deploymentTopologyServices', 'deploymentTopologyProcessor',
+      function($scope, authService, applicationResult, $state, appEnvironments, menu, deploymentContext, deploymentTopologyServices, deploymentTopologyProcessor) {
         $scope.deploymentContext = deploymentContext;
         var pageStateId = $state.current.name;
         $scope.menu = menu;
@@ -62,6 +64,7 @@ define(function(require) {
             appId: $scope.application.id,
             envId: newValue.id
           }, function(response) {
+            deploymentTopologyProcessor.process(response.data);
             $scope.deploymentContext.deploymentTopologyDTO = response.data;
           });
         });

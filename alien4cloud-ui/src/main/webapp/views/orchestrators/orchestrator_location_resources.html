@@ -5,7 +5,8 @@
       <select ng-model="selectedConfigurationResourceType"
               ng-options="type.elementId for type in resourcesTypes">
       </select>
-      <button ng-class="{'active': applyFilter}" ng-click="applyFilter = !applyFilter" class="btn btn-default btn-sm"><i class="fa fa-filter"></i> Filter</button>
+      <button ng-class="{'active': applyFilter}" ng-click="applyFilter = !applyFilter" class="btn btn-default btn-sm"><i class="fa fa-filter"></i> Filter
+      </button>
       <button class="btn btn-primary btn-sm" ng-click="addResourceTemplate()"><i class="fa fa-plus"></i> Add</button>
     </div>
   </div>
@@ -38,9 +39,13 @@
     <div class="col-md-6" ng-if="selectedResourceTemplate">
       <div class="well">
         <orchestrator-location-resource-template resource-template="selectedResourceTemplate"
-                                        resource-type="resourcesTypesMap[selectedResourceTemplate.template.type]"
-                                        on-delete="deleteResourceTemplate(resourceTemplate)"
-                                        context="context">
+                                                 resource-type="resourcesTypesMap[selectedResourceTemplate.template.type]"
+                                                 resource-capability-types="context.locationResources.capabilityTypes"
+                                                 dependencies="context.location.dependencies"
+                                                 on-delete="deleteResourceTemplate(resourceTemplate)"
+                                                 on-update="updateLocationResource(propertyName, propertyValue)"
+                                                 on-property-update="updateResourceProperty(propertyName, propertyValue)"
+                                                 on-capability-property-update="updateResourceCapabilityProperty(capabilityName, propertyName, propertyValue)">
         </orchestrator-location-resource-template>
       </div>
     </div>

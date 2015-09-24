@@ -10,7 +10,7 @@ define(function(require) {
     // This service post-process an orchestrator json in order to add maps field from ordered maps array (array of MapEntry).
     return {
 
-      process: function(resources) {
+      processLocationResources: function(resources) {
         listToMapService.processMap(resources.nodeTypes, 'properties');
         listToMapService.processMap(resources.configurationTypes, 'properties');
         listToMapService.processMap(resources.capabilityTypes, 'properties');

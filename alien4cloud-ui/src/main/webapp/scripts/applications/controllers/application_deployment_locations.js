@@ -12,6 +12,7 @@ define(function(require) {
   require('scripts/common/filters/inputs');
   require('scripts/applications/services/locations_matching_services');
   require('scripts/applications/services/deployment_topology_services');
+  require('scripts/applications/services/deployment_topology_processor.js');
 
   states.state('applications.detail.deployment.locations', {
     url: '/locations',
@@ -28,8 +29,8 @@ define(function(require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentLocationCtrl',
-    ['$scope', 'authService', '$upload', 'applicationServices', 'toscaService', 'locationsMatchingServices', '$resource', '$http', '$translate', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'toaster', '$filter', 'menu', 'deploymentTopologyServices',
-      function($scope, authService, $upload, applicationServices, toscaService, locationsMatchingServices, $resource, $http, $translate, applicationResult, $state, applicationEnvironmentServices, appEnvironments, toaster, $filter, menu, deploymentTopologyServices) {
+    ['$scope', 'locationsMatchingServices', '$state', 'menu', 'deploymentTopologyServices', 'deploymentTopologyProcessor',
+      function($scope, locationsMatchingServices, $state, menu, deploymentTopologyServices, deploymentTopologyProcessor) {
 
         var nodeMatchingMenuItem;
         _.each(menu, function(menuItem) {
@@ -86,8 +87,9 @@ define(function(require) {
           deploymentTopologyServices.setLocationPolicies({
             appId: $scope.application.id,
             envId: $scope.deploymentContext.selectedEnvironment.id
-          }, angular.toJson(configRequest), function(result) {
-            $scope.deploymentContext.deploymentTopologyDTO = result.data;
+          }, angular.toJson(configRequest), function(response) {
+            deploymentTopologyProcessor.process(response.data);
+            $scope.deploymentContext.deploymentTopologyDTO = response.data;
             $scope.deploymentContext.selectedLocation = locationMatch.location;
             enableDisableNodeMatchingMenu();
             $state.go('applications.detail.deployment.match');

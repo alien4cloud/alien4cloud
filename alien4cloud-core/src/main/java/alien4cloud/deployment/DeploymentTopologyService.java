@@ -112,14 +112,16 @@ public class DeploymentTopologyService {
     /**
      * Deployment configuration has been changed, in this case must re-synchronize the deployment topology
      * 
-     * @param deploymentTopology
+     * @param deploymentTopology the deployment topology to update
      */
     public void updateDeploymentTopology(DeploymentTopology deploymentTopology) {
         ApplicationEnvironment environment = appEnvironmentServices.getOrFail(deploymentTopology.getEnvironmentId());
         Topology topology = topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId());
         deploymentTopology.setLastUpdateDate(new Date());
         deploymentTopology.setLastInitialTopologyUpdateDate(topology.getLastUpdateDate());
+        String id = deploymentTopology.getId();
         ReflectionUtil.mergeObject(topology, deploymentTopology);
+        deploymentTopology.setId(id);
         topologyCompositionService.processTopologyComposition(deploymentTopology);
         deploymentInputService.processInputProperties(deploymentTopology);
         inputsPreProcessorService.processGetInput(deploymentTopology, environment);

@@ -85,21 +85,25 @@ public class DeploymentNodeSubstitutionService {
             Iterator<Map.Entry<String, LocationResourceTemplate>> mappingEntryIterator = substitutedNodes.entrySet().iterator();
             while (mappingEntryIterator.hasNext()) {
                 Map.Entry<String, LocationResourceTemplate> entry = mappingEntryIterator.next();
-                if (deploymentTopology.getNodeTemplates() == null || !deploymentTopology.getNodeTemplates().containsKey(entry.getKey())
-                        || !availableSubstitutions.containsKey(entry.getKey())) {
-                    List<LocationResourceTemplate> availableSubstitutionsForNode = availableSubstitutions.get(entry.getKey());
-                    boolean substitutedTemplateExist = false;
-                    for (LocationResourceTemplate availableSubstitutionForNode : availableSubstitutionsForNode) {
-                        if (availableSubstitutionForNode.getId().equals(entry.getValue().getId())) {
-                            substitutedTemplateExist = true;
-                            break;
-                        }
-                    }
-                    if (!substitutedTemplateExist) {
+                if (deploymentTopology.getNodeTemplates() == null || !deploymentTopology.getNodeTemplates().containsKey(entry.getKey())) {
+                    if (!availableSubstitutions.containsKey(entry.getKey())) {
                         // Remove the mapping if topology do not contain the node with that name and of type compute
-                        // Or the mapping do not exist anymore in the match result
                         changed = true;
                         mappingEntryIterator.remove();
+                    } else {
+                        List<LocationResourceTemplate> availableSubstitutionsForNode = availableSubstitutions.get(entry.getKey());
+                        boolean substitutedTemplateExist = false;
+                        for (LocationResourceTemplate availableSubstitutionForNode : availableSubstitutionsForNode) {
+                            if (availableSubstitutionForNode.getId().equals(entry.getValue().getId())) {
+                                substitutedTemplateExist = true;
+                                break;
+                            }
+                        }
+                        if (!substitutedTemplateExist) {
+                            // The mapping do not exist anymore in the match result
+                            changed = true;
+                            mappingEntryIterator.remove();
+                        }
                     }
                 }
             }

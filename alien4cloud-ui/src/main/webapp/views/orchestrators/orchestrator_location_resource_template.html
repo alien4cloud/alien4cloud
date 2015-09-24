@@ -32,7 +32,7 @@
             <property-display
                 ng-init="condensed = true"
                 definition="resourceType.propertiesMap[propEntry.key].value"
-                dependencies="context.location.dependencies"
+                dependencies="dependencies"
                 property-name="propEntry.key"
                 property-value="propEntry.value"
                 on-save="updateResourceProperty(propertyName, propertyValue)"
@@ -87,7 +87,7 @@
               <property-display
                   ng-init="condensed = true"
                   definition="getCapabilityPropertyDefinition(capabilityEntry.value.type, propertyEntry.key)"
-                  dependencies="context.location.dependencies"
+                  dependencies="dependencies"
                   property-name="propertyEntry.key"
                   property-value="propertyEntry.value"
                   on-save="updateResourceCapabilityProperty(capabilityEntry.key, propertyName, propertyValue)"
@@ -97,7 +97,7 @@
             </td>
             <td>
               <simple-modal title="{{ 'MODAL.TITLE.PROPERTY' | translate}}"
-                            content="{{topology.capabilityTypes[capabilityEntry.value.type].propertiesMap[propertyEntry.key].value.description}}"
+                            content="{{topology.resourceCapabilityTypes[capabilityEntry.value.type].propertiesMap[propertyEntry.key].value.description}}"
                             key="{{propertyEntry.key}}"></simple-modal>
             </td>
           </tr>

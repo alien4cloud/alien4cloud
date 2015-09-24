@@ -10,7 +10,8 @@ define(function(require) {
       scope: {
         'resourceTemplate': '=',
         'resourceType': '=',
-        'context': '=?',
+        'resourceCapabilityTypes': '=',
+        'dependencies': '=',
         'onDelete': '&',
         'onUpdate': '&',
         'onPropertyUpdate': '&',

@@ -36,7 +36,7 @@ define(function(require) {
           locationResourcesService.delete({
             orchestratorId: $scope.context.orchestrator.id,
             locationId: $scope.context.location.id,
-            id: resourceTemplate.id
+            id: $scope.selectedResourceTemplate.id
           }, undefined, function() {
             _.remove($scope.resourcesTemplates, {
               id: resourceTemplate.id
@@ -58,41 +58,34 @@ define(function(require) {
         $scope.updateLocationResource = function(propertyName, propertyValue) {
           var updateLocationRequest = {};
           updateLocationRequest[propertyName] = propertyValue;
-          locationResourcesService.update({
+          return locationResourcesService.update({
             orchestratorId: $scope.context.orchestrator.id,
             locationId: $scope.context.location.id,
-            id: $scope.resourceTemplate.id
-          }, angular.toJson(updateLocationRequest));
+            id: $scope.selectedResourceTemplate.id
+          }, angular.toJson(updateLocationRequest)).$promise;
         };
 
         $scope.updateResourceProperty = function(propertyName, propertyValue) {
-          locationResourcesPropertyService.save({
+          return locationResourcesPropertyService.save({
             orchestratorId: $scope.context.orchestrator.id,
             locationId: $scope.context.location.id,
-            id: $scope.resourceTemplate.id
+            id: $scope.selectedResourceTemplate.id
           }, angular.toJson({
             propertyName: propertyName,
             propertyValue: propertyValue
-          }), function() {
-            $scope.resourceTemplate.template.propertiesMap[propertyName].value = {value: propertyValue, definition: false};
-          });
+          })).$promise;
         };
 
         $scope.updateResourceCapabilityProperty = function(capabilityName, propertyName, propertyValue) {
-          locationResourcesCapabilityPropertyService.save({
+          return locationResourcesCapabilityPropertyService.save({
             orchestratorId: $scope.context.orchestrator.id,
             locationId: $scope.context.location.id,
-            id: $scope.resourceTemplate.id,
+            id: $scope.selectedResourceTemplate.id,
             capabilityName: capabilityName
           }, angular.toJson({
             propertyName: propertyName,
             propertyValue: propertyValue
-          }), function() {
-            $scope.resourceTemplate.template.capabilitiesMap[capabilityName].value.propertiesMap[propertyName].value = {
-              value: propertyValue,
-              definition: false
-            };
-          });
+          })).$promise;
         };
       }
     ]);
