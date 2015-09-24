@@ -6,15 +6,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.csar.services.CsarService;
+import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.CSARDependency;
@@ -46,6 +50,10 @@ public class LocationArchiveIndexer {
     private CsarService csarService;
     @Inject
     private ArchiveIndexer archiveIndexer;
+    @Inject
+    private LocationService locationService;
+    @Resource(name = "alien-es-dao")
+    private IGenericSearchDAO alienDAO;
 
     /**
      * Ensure that plugin archives are indexed, note that by default the archives visibility is not public.
@@ -116,7 +124,7 @@ public class LocationArchiveIndexer {
     }
 
     /**
-     * Delete all archives related to a location
+     * Delete all archives related to a location, if not exposed or used by another location
      *
      * @param location
      * @return Map of usages per archives if found (that means the deletion wasn't performed successfully), null if everything went well.
@@ -125,15 +133,42 @@ public class LocationArchiveIndexer {
         IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(location.getOrchestratorId());
         ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
         List<PluginArchive> pluginArchives = configuratorPlugin.pluginArchives();
+        // abort if no archive is exposed by this location
+        if (CollectionUtils.isEmpty(pluginArchives)) {
+            return null;
+        }
+        Set<String> allExposedArchivesIds = getAllExposedArchivesIdsExluding(location);
         Map<Csar, List<Usage>> usages = Maps.newHashMap();
-
         for (PluginArchive pluginArchive : pluginArchives) {
             Csar csar = pluginArchive.getArchive().getArchive();
-            List<Usage> csarUsage = csarService.deleteCsarWithElements(csar);
-            if (CollectionUtils.isNotEmpty(csarUsage)) {
-                usages.put(csar, csarUsage);
+            // only delete if no other location exposed this archive
+            if (!allExposedArchivesIds.contains(csar.getId())) {
+                List<Usage> csarUsage = csarService.deleteCsarWithElements(csar);
+                if (CollectionUtils.isNotEmpty(csarUsage)) {
+                    usages.put(csar, csarUsage);
+                }
             }
         }
         return usages.isEmpty() ? null : usages;
+    }
+
+    private Set<String> getAllExposedArchivesIdsExluding(Location excludedLocation) {
+        // exclude a location from the search
+        QueryBuilder query = QueryBuilders.boolQuery().mustNot(
+                QueryBuilders.idsQuery(Location.class.getSimpleName().toLowerCase()).ids(excludedLocation.getId()));
+        List<Location> locations = alienDAO.customFindAll(Location.class, query);
+        Set<String> archiveIds = Sets.newHashSet();
+        if (locations != null) {
+            for (Location location : locations) {
+                IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(location.getOrchestratorId());
+                ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
+                List<PluginArchive> pluginArchives = configuratorPlugin.pluginArchives();
+                for (PluginArchive pluginArchive : pluginArchives) {
+                    archiveIds.add(pluginArchive.getArchive().getArchive().getId());
+                }
+            }
+        }
+
+        return archiveIds;
     }
 }

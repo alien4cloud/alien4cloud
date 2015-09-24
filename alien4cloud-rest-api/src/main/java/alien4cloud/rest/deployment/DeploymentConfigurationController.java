@@ -2,8 +2,6 @@ package alien4cloud.rest.deployment;
 
 import javax.inject.Inject;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,7 +30,6 @@ import alien4cloud.security.model.ApplicationRole;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 
-@Slf4j
 @RestController
 @RequestMapping("/rest/applications/{appId}/environments/{environmentId}/deployment-topology")
 @Api(value = "", description = "Manage configuration of an application before deploying it.")

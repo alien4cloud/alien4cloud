@@ -178,25 +178,20 @@ public class LocationService {
      * @return true if the location was successfully , false if not.
      */
     public boolean delete(String id) {
-        Map<String, String[]> filters = getDeploymentFilterPerLocation(true, id);
+        Map<String, String[]> filters = Maps.newHashMap();
+        addFilter(filters, "locationIds", id);
+        addFilter(filters, "endDate", "null");
         long count = alienDAO.count(Deployment.class, null, filters);
         if (count > 0) {
             return false;
         }
         Location location = getOrFail(id);
 
-        // delete all archives associated with this location only
-        // Only delete the archives if there is no more location of this type
-        filters.clear();
-        addFilter(filters, "orchestratorId", location.getOrchestratorId());
-        addFilter(filters, "infrastructureType", location.getInfrastructureType());
-        count = alienDAO.count(Location.class, null, filters);
-        if (count <= 1) {
-            Map<Csar, List<Usage>> usages = locationArchiveIndexer.deleteArchives(location);
-            if (MapUtils.isNotEmpty(usages)) {
-                // TODO what to do when some archives were not deleted?
-                log.warn("Some archives for location were not deletec! \n" + usages);
-            }
+        // delete all archives associated with this location only, if possible of course
+        Map<Csar, List<Usage>> usages = locationArchiveIndexer.deleteArchives(location);
+        if (MapUtils.isNotEmpty(usages)) {
+            // TODO what to do when some archives were not deleted?
+            log.warn("Some archives for location were not deletec! \n" + usages);
         }
         // delete all location resources for the given location
         alienDAO.delete(LocationResourceTemplate.class, QueryBuilders.termQuery("locationId", id));
@@ -228,16 +223,6 @@ public class LocationService {
         List<Location> locations = null;
         locations = alienDAO.customFindAll(Location.class, QueryBuilders.termsQuery("orchestratorId", orchestratorIds));
         return locations == null ? Lists.<Location> newArrayList() : locations;
-    }
-
-    private Map<String, String[]> getDeploymentFilterPerLocation(boolean activeOnly, String... locationIds) {
-        Map<String, String[]> filters = Maps.newHashMap();
-
-        filters.put("locationIds", locationIds);
-        if (activeOnly) {
-            filters.put("endDate", new String[] { "null" });
-        }
-        return filters;
     }
 
     private void addFilter(Map<String, String[]> filters, String property, String... values) {
