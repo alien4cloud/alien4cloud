@@ -297,10 +297,12 @@ public abstract class AbstractPlanGenerator {
     private void callOperation(Path csarPath, Interface interfaz, String nodeTemplateId, String relationshipId, String sourceRelationshipId,
             String interfaceName, String operationName) {
         Operation operation = operationName != null ? interfaz.getOperations().get(operationName) : null;
-        if (operation == null || operation.getImplementationArtifact() == null) {
-            // if there is no implementation for the requested operation we just don't generate a step.
-            return;
-        }
+
+        // even if the operation doesn't exist, we exec the step
+        // if (operation == null || operation.getImplementationArtifact() == null) {
+        // // if there is no implementation for the requested operation we just don't generate a step.
+        // return;
+        // }
 
         OperationCallActivity activity = new OperationCallActivity();
         fillOperationCallActivity(activity, csarPath, nodeTemplateId, relationshipId, sourceRelationshipId, interfaceName, operationName, operation);
@@ -349,9 +351,11 @@ public abstract class AbstractPlanGenerator {
         activity.setNodeTemplateId(nodeTemplateId);
         activity.setRelationshipId(relationshipId);
         activity.setSourceRelationshipId(sourceRelationshipId);
-        activity.setImplementationArtifact(operation.getImplementationArtifact());
-        activity.setInputParameters(operation.getInputParameters());
-        activity.setOutputs(operation.getOutputs());
+        if (operation != null) {
+            activity.setImplementationArtifact(operation.getImplementationArtifact());
+            activity.setInputParameters(operation.getInputParameters());
+            activity.setOutputs(operation.getOutputs());
+        }
     }
 
     private static Interface getNodeInterface(PaaSNodeTemplate nodeTemplate, String interfaceName) {

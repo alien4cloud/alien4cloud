@@ -1,302 +1,514 @@
 // Directive allowing to display a workflow (tosca plan)
-define(function (require) {
+define(function(require) {
   'use strict';
 
   var modules = require('modules');
   var _ = require('lodash');
-  require('d3');
-  require('js-lib/dagre-d3');
-
+  var d3Tip = require('d3-tip');
+  var d3 = require('d3');
+  require('dagre');
+  require('graphlib');
+  var dagreD3 = require('dagre-d3');
   require('scripts/common-graph/services/runtime_color_service');
   require('scripts/common-graph/services/svg_service');
 
-  modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-styles']).directive(
-    'topologyPlan', ['$filter', '$http', '$modal', 'svgServiceFactory', 'runtimeColorsService', 'bboxFactory',
-    function($filter, $http, $modal, svgServiceFactory, runtimeColorsService, bboxFactory) {
-      return {
-        restrict : 'E',
-        scope : {
-          topology: '=',
-          dimensions: '='
-        },
-        link : function(scope) {
-          // Default parent svg markup to render the topology
-          var containerElement = d3.select('#plan-graph-container');
+  modules
+      .get('a4c-topology-editor',
+          [ 'a4c-common', 'ui.bootstrap', 'a4c-styles' ])
+      .directive(
+          'topologyPlan',
+          [
+              '$filter',
+              '$http',
+              '$modal',
+              '$interval',
+              '$translate',
+              'svgServiceFactory',
+              'runtimeColorsService',
+              'listToMapService',
+              'bboxFactory',
+              function($filter, $http, $modal, $interval, $translate, svgServiceFactory,
+                  runtimeColorsService, listToMapService, bboxFactory) {
+                return {
+                  restrict : 'E',
+//                  scope : {
+//                    workflows : '=',
+//                    topology : '=',
+//                    dimensions : '='
+//                  },
+                  link : function(scope) {
+                    // Default parent svg markup to render the workflow
+                    var containerElement = d3.select('#plan-graph-container');
 
-          var svgGraph = svgServiceFactory.create(containerElement, 'plan-svg', 'plan-svg');
+                    var svgGraph = svgServiceFactory.create(containerElement,
+                        'plan-svg', 'plan-svg');
 
-          var defs = svgGraph.svg.append('defs');
-          defs.append('g').attr('id', 'start-shape')
-          .append('circle').attr('cx', '0').attr('cy', '0').attr('r', '12').attr('style', 'fill:none; stroke:green; stroke-width:3');
-          var definition = defs.append('g').attr('id', 'stop-shape');
-          definition.append('circle').attr('cx', '0').attr('cy', '0').attr('r', '12').attr('style', 'fill:none; stroke:'+runtimeColorsService.started+'; stroke-width:2');
-          definition.append('circle').attr('cx', '0').attr('cy', '0').attr('r', '9').attr('style', 'fill:'+runtimeColorsService.started+'; stroke:'+runtimeColorsService.started+'; stroke-width:1');
+                    // Create the renderer
+                    var render = new dagreD3.render();
 
-          definition =  defs.append('g').attr('id', 'parallel-gateway-shape');
-          definition.append('rect').attr('x', '-12').attr('y', '-12').attr('width', '24').attr('height', '24').attr('style', 'fill:none; stroke:black; stroke-width:1').attr('transform', 'rotate(45, 0, 0)');
-          definition.append('path').attr('d', 'M-10 0 L10 0 Z').attr('style', 'fill:none; stroke:black; stroke-width:2');
-          definition.append('path').attr('d', 'M0 -10 L0 10 Z').attr('style', 'fill:none; stroke:black; stroke-width:2');
-
-          definition =  defs.append('g').attr('id', 'parallel-join-gateway-shape');
-          definition.append('rect').attr('x', '-12').attr('y', '-12').attr('width', '24').attr('height', '24').attr('style', 'fill:none; stroke:blue; stroke-width:1').attr('transform', 'rotate(45, 0, 0)');
-          definition.append('path').attr('d', 'M-10 0 L10 0 Z').attr('style', 'fill:none; stroke:blue; stroke-width:2');
-          definition.append('path').attr('d', 'M0 -10 L0 10 Z').attr('style', 'fill:none; stroke:blue; stroke-width:2');
-
-          definition =  defs.append('g').attr('id', 'event-based-gateway-shape');
-          definition.append('rect').attr('x', '-12').attr('y', '-12').attr('width', '24').attr('height', '24').attr('style', 'fill:none; stroke: black; stroke-width:1').attr('transform', 'rotate(45, 0, 0)');
-          definition.append('circle').attr('cx', '0').attr('cy', '0').attr('r', '10').attr('style', 'fill:none; stroke:black; stroke-width:1');
-          definition.append('circle').attr('cx', '0').attr('cy', '0').attr('r', '8').attr('style', 'fill:none; stroke:black; stroke-width:1');
-
-          for(var state in runtimeColorsService) {
-            if(runtimeColorsService.hasOwnProperty(state)) {
-              var color = runtimeColorsService[state];
-              definition = defs.append('g').attr('id', 'state-update-shape-'+state);
-              definition.append('circle').attr('cx', '0').attr('cy', '0').attr('r', '12').attr('style', 'fill:none; stroke:'+color+'; stroke-width:2');
-              definition.append('circle').attr('cx', '0').attr('cy', '0').attr('r', '9').attr('style', 'fill:none; stroke:'+color+'; stroke-width:2');
-              definition.append('rect').attr('x', '-5').attr('y', '-4').attr('width', '10').attr('height', '8').attr('style', 'fill:none; stroke:'+color+'; stroke-width:1');
-              definition.append('path').attr('d', 'M-5 -4 L0 0 L5 -4 Z').attr('style', 'fill:none; stroke:'+color+'; stroke-width:1');
-            }
-          }
-
-          var eventProcessors = {};
-
-          function simpleName(typeName) {
-            return typeName.substring(typeName.lastIndexOf('.') + 1);
-          }
-
-          function processStep(graph, currentStep, previousStep) {
-            var type = currentStep.type ? simpleName(currentStep.type) : 'StartEvent';
-            console.log(type);
-            return eventProcessors[type](graph, currentStep, previousStep);
-          }
-
-          var idGenerator = 0;
-
-          function processNextStep(graph, currentStep, previousOverride) {
-            if(_.undefined(previousOverride)) {
-              previousOverride = currentStep;
-            }
-            if(_.defined(currentStep.nextStep)) {
-              return processStep(graph, currentStep.nextStep, previousOverride);
-            }
-            return previousOverride;
-          }
-
-          eventProcessors.StartEvent = function (graph, startEvent) {
-            startEvent.id = 'start';
-            graph.nodes.push({id: startEvent.id, def: {label: 'start', useDef: 'start-shape'}});
-            if(_.defined(startEvent.nextStep)) {
-              return processStep(graph, startEvent.nextStep, startEvent);
-            }
-            return startEvent;
-          };
-
-          eventProcessors.ParallelGateway = function(graph, gateway, previousStep) {
-            if(gateway.parallelSteps.length === 0) {
-              return processNextStep(graph, gateway, previousStep);
-            }
-            var parallel;
-            if(gateway.parallelSteps.length === 1) {
-              parallel = processStep(graph, gateway.parallelSteps[0], previousStep);
-              return processNextStep(graph, gateway, parallel);
-            }
-            // var parallel;
-            idGenerator++;
-            var joinStep = {id: 'pj_'+idGenerator};
-            gateway.id = 'pg_'+idGenerator;
-            graph.nodes.push({id: gateway.id, def: {label: 'pg', useDef: 'parallel-gateway-shape', clickable: false}});
-            // graph.nodes.push({id: joinStep.id, def: {label: 'pj', useDef: 'parallel-gateway-shape', clickable: false}});
-            graph.edges.push({from: previousStep.id, to: gateway.id, def: {label: ''}});
-            for(var i=0; i<gateway.parallelSteps.length; i++) {
-              parallel = processStep(graph, gateway.parallelSteps[i], gateway);
-              // join from last chained elements.
-              // graph.edges.push({from: parallel.id, to: joinStep.id, def: {label: ''}});
-            }
-            return processNextStep(graph, gateway, joinStep);
-          };
-
-          eventProcessors.StopEvent = function(graph, stopEvent, previousStep) {
-            stopEvent.id = 'stop';
-            graph.nodes.push({id: stopEvent.id, def: {label: 'stop', useDef: 'stop-shape', clickable: false}});
-            graph.edges.push({from: previousStep.id, to: stopEvent.id, def: {label: ''}});
-            return stopEvent;
-          };
-
-          eventProcessors.StateUpdateEvent = function(graph, stateUpdateEvent, previousStep) {
-            stateUpdateEvent.id = stateUpdateEvent.elementId+'::'+stateUpdateEvent.state;
-
-            var htmlLabel = '<div class="plan-box plan-state" style="border-color: '+runtimeColorsService[stateUpdateEvent.state]+'">';
-            htmlLabel += '<div id="plan-state-'+stateUpdateEvent.id+'">'+stateUpdateEvent.elementId+'</div>';
-            htmlLabel += '<div>'+stateUpdateEvent.state+'</div>';
-            htmlLabel += '</div>';
-            graph.nodes.push({id: stateUpdateEvent.id, def: { label: htmlLabel, clickable: false}});
-
-            graph.edges.push({from: previousStep.id, to: stateUpdateEvent.id, def: {label: ''}});
-            return processNextStep(graph, stateUpdateEvent);
-          };
-
-          eventProcessors.OperationCallActivity = function(graph, opCallActivity, previousStep) {
-            if(_.defined(opCallActivity.implementationArtifact)) {
-              idGenerator++;
-              opCallActivity.id = 'oca_'+idGenerator;
-              var htmlLabel = '<div class="plan-box plan-operation">';
-              htmlLabel += '<div><span class="plan-icon">\uf1b2</span><span class="text-info"> '+opCallActivity.nodeTemplateId+'</span></div>';
-              if(_.defined(opCallActivity.relationshipId)) {
-                htmlLabel += '<div><span class="plan-icon">\uf0c1</span><span class="text-info"> '+opCallActivity.relationshipId+'</span></div>';
-              }
-              htmlLabel += '<div><span class="plan-icon">\uf085</span><span class="text-info"> '+$filter('splitAndGet')(opCallActivity.interfaceName, '.', 'last')+'</span></div>';
-              htmlLabel += '<div><span class="plan-icon">\uf013</span><span class="text-info"> '+opCallActivity.operationName+'</span></div>';
-              htmlLabel += '</div>';
-              graph.nodes.push(
-              {
-                id: opCallActivity.id,
-                def: {
-                  label: htmlLabel,
-                  nodeTemplateId: opCallActivity.elementId,
-                  clickable: true,
-                  fullpath: opCallActivity.implementationArtifact.artifactRef,
-                  archiveName: opCallActivity.implementationArtifact.archiveName,
-                  archiveVersion: opCallActivity.implementationArtifact.archiveVersion
-                }
-              });
-              graph.edges.push({from: previousStep.id, to: opCallActivity.id, def: {label: ''}});
-              return processNextStep(graph, opCallActivity);
-            }
-            return processNextStep(graph, opCallActivity, previousStep);
-          };
-
-          eventProcessors.RelationshipTriggerEvent = function(graph, opCallActivity, previousStep) {
-            if(_.defined(opCallActivity.sideOperationImplementationArtifact)) {
-              idGenerator++;
-              opCallActivity.id = 'oca_'+idGenerator;
-              var htmlLabel = '<div class="plan-box plan-operation">';
-              htmlLabel += '<div><span class="plan-icon">\uf1b2</span><span class="text-info"> '+opCallActivity.nodeTemplateId+'</span></div>';
-              if(_.defined(opCallActivity.relationshipId)) {
-                htmlLabel += '<div><span class="plan-icon">\uf0c1</span><span class="text-info"> '+opCallActivity.relationshipId+'</span></div>';
-              }
-              htmlLabel += '<div><span class="plan-icon">\uf085</span><span class="text-info"> '+$filter('splitAndGet')(opCallActivity.interfaceName, '.', 'last')+'</span></div>';
-              htmlLabel += '<div><span class="plan-icon">\uf013</span><span class="text-info"> '+opCallActivity.sideOperationName+'</span></div>';
-              htmlLabel += '</div>';
-              graph.nodes.push(
-              {
-                id: opCallActivity.id,
-                def: {
-                  label: htmlLabel,
-                  nodeTemplateId: opCallActivity.nodeTemplateId,
-                  clickable: true,
-                  fullpath: opCallActivity.sideOperationImplementationArtifact.artifactRef,
-                  archiveName: opCallActivity.sideOperationImplementationArtifact.archiveName,
-                  archiveVersion: opCallActivity.sideOperationImplementationArtifact.archiveVersion
-                }
-              });
-              graph.edges.push({from: previousStep.id, to: opCallActivity.id, def: {label: ''}});
-              return processNextStep(graph, opCallActivity);
-            }
-            return processNextStep(graph, opCallActivity, previousStep);
-          };
-
-          eventProcessors.ParallelJoinStateGateway = function(graph, pjsGateway, previousStep) {
-            idGenerator++;
-            pjsGateway.id = 'pjsg_'+idGenerator;
-            graph.nodes.push({id: pjsGateway.id, def: {label: 'pjsg', useDef: 'parallel-join-gateway-shape', clickable: false}});
-            graph.edges.push({from: previousStep.id, to: pjsGateway.id, def: {label: ''}});
-            for(var nodeTemplateId in pjsGateway.validStatesPerElementMap) {
-              if(pjsGateway.validStatesPerElementMap.hasOwnProperty(nodeTemplateId)) {
-                var states = pjsGateway.validStatesPerElementMap[nodeTemplateId];
-                var state = states[0];
-                graph.edges.push({from: nodeTemplateId+'::'+state, to: pjsGateway.id, def: {label: ''}});
-              }
-            }
-
-            return processNextStep(graph, pjsGateway);
-          };
-
-          function openArchiveModal(archiveName, archiveVersion, scriptReference) {
-            var openOnFile = scriptReference ? scriptReference : null;
-            $modal.open({
-              templateUrl: 'views/components/csar_explorer.html',
-              controller: 'CsarExplorerController',
-              windowClass: 'searchModal',
-              resolve: {
-                archiveName: function() {
-                  return archiveName;
-                },
-                archiveVersion: function() {
-                  return archiveVersion;
-                },
-                openOnFile: function() {
-                  return openOnFile;
-                }
-              }
-            });
-          }
-
-          function refresh() {
-            $http.get('rest/topologies/' + scope.topology.topology.id + '/startplan').success(function(planResult) {
-                var currentStep = planResult.data;
-                var previousStep = null;
-
-                var graphData = { nodes: [], edges: [] };
-                processStep(graphData, currentStep, previousStep);
-
-                var graph = new dagreD3.Digraph();
-                var i;
-                for(i=0;i<graphData.nodes.length;i++) {
-                  var node = graphData.nodes[i];
-                  graph.addNode(node.id, node.def);
-                }
-
-                for(i=0;i<graphData.edges.length;i++) {
-                  var edge = graphData.edges[i];
-                  graph.addEdge(null, edge.from, edge.to, edge.def);
-                }
-
-                var svg = d3.select('svg'),
-                svgGroup = svg.append('g');
-
-                var layout = dagreD3.layout().nodeSep(20).rankDir('LR');
-                var renderer = new dagreD3.Renderer();
-                var oldDrawNode = renderer.drawNodes();
-                renderer.drawNodes(function(graph, svg) {
-                  var svgNodes = oldDrawNode(graph, svg);
-
-                  svgNodes.selectAll('rect').remove();
-
-                  svgNodes.on('click', function(d){
-                    var node = graph.node(d);
-                    if(node.clickable) {
-                      openArchiveModal(node.archiveName, node.archiveVersion, node.fullpath);
+                    // Create the input graph
+                    var g = new dagreD3.graphlib.Graph({
+                      compound : true
+                    }).setGraph({}).setDefaultEdgeLabel(function() {
+                      return {};
+                    });
+                    // we want horizontal layout
+                    g.graph().rankdir = "LR";
+                    g.graph().ranksep = 20;
+                    if (scope.wfViewMode === 'simple') {
+                      g.graph().ranksep = 5;
                     }
-                  });
 
-                  return svgNodes;
-                });
+                    var oldDrawEdges = render.createEdgePaths();
+                    render.createEdgePaths(function(selection, g, arrows) {
+                        var edges = oldDrawEdges(selection, g, arrows);
+                        edges.on('click', function (edge) { 
+                          // select the link in order to allow actions on it (ie. remove)
+                          if (edge.v !== 'start' && edge.w !== 'end') {
+                            // edge connected to start or end are no editable
+                            scope.workflows.togglePinEdge(edge.v, edge.w);
+                          }
+                        });
+                        return edges;
+                    });
+                    
+                    // Add our custom shapes
+                    render.shapes().start = function(parent, bbox, node) {
+                      var r = bbox.height / 2;
+                      var shapeSvg = parent.insert("circle", ":first-child").attr('cx', '0').attr('cy', '0').attr('r', r).attr('style', 'fill:none; stroke:green; stroke-width:3');
+                      node.intersect = function(point) {
+                        return dagreD3.intersect.rect(node, point);
+                      };
+                      return shapeSvg;
+                    };
+                    render.shapes().stop = function(parent, bbox, node) {
+                      var r = bbox.height / 2;
+                      var r2 = r * 0.6;
+                      var shapeSvg = parent.insert('circle').attr('cx', '0').attr('cy', '0').attr('r', r).attr('style', 'fill:none; stroke:'+runtimeColorsService.started+'; stroke-width:2');
+                      shapeSvg = parent.append('circle').attr('cx', '0').attr('cy', '0').attr('r', r2).attr('style', 'fill:'+runtimeColorsService.started+'; stroke:'+runtimeColorsService.started+'; stroke-width:1');
+                      node.intersect = function(point) {
+                        return dagreD3.intersect.rect(node, point);
+                      };
+                      return shapeSvg;
+                    };
+                    render.shapes().operationStep = function(parent, bbox, node) {
+                      var nodeId = node.elem.__data__;
+                      var step = steps[nodeId];
+                      var nodeName = step.nodeId;
+                      var nodeType = undefined;
+                      if (scope.topology.topology.nodeTemplates[nodeName]) {
+                        var typeName = scope.topology.topology.nodeTemplates[nodeName].type;
+                        nodeType = scope.topology.nodeTypes[typeName];
+                      }
+                      var x = (bbox.width / 2) * -1;
+                      var w = bbox.width;
+                      var y = (bbox.height / 2) * -1;
+                      var h = bbox.height;
+                      
+                      var shortActivityType = scope.workflows.getStepActivityType(step);
+                      var simpleView = (scope.wfViewMode === 'simple' && shortActivityType === 'SetStateActivity');
+                      var shapeSvg = parent.insert('rect').attr('x', x).attr('y', y).attr('width', w).attr('height', h).attr('rx', 5).attr('ry', 5).style("fill", "white");
+                      if (errorRenderingData.errorSteps[nodeId]) {
+                        // the step is in a bad sequence, make it red
+                        shapeSvg.style("stroke", "#f66");
+                      } else {
+                        if (scope.wfViewMode === 'simple'){
+                          shapeSvg.style("stroke", "DarkGray");
+                        } else {
+                          shapeSvg.style("stroke", "grey");
+                        }
+                      }
+                      var iconSize = 25;
+//                      var html = parent.append('foreignObject').attr('x', x + w- 20).attr('y', y + 2).attr('width', 18).attr('height', 18);
+                      var icon = undefined;
+                      if (simpleView){
+                        icon = parent.append('text').attr('class', 'fa').attr('x', x + 8).attr('y', y + 17).text(scope.workflows.getStepActivityTypeIcon(step));
+                      } else {
+                        icon = parent.append('text').attr('class', 'fa').attr('x', x + w - 22).attr('y', y + 16).text(scope.workflows.getStepActivityTypeIcon(step));
+                      }
+                      if (shortActivityType === 'OperationCallActivity') {
+//                        html.append("xhtml:body").attr('class', 'svgHtml').html('<i class="fa fa-cogs"></i>');
+                        parent.append('text').attr('class', 'wfOperationLabel').attr('y', y + h - 10).text(_.trunc(step.activity.operationName, {'length': 10})).style("text-anchor", "middle");
+                      } else if (shortActivityType === 'SetStateActivity' && !simpleView) {
+//                        html.append("xhtml:body").attr('class', 'svgHtml').html('<i class="fa fa-wifi"></i>');
+                        parent.append('text').attr('class', 'wfStateLabel').attr('fill', '#003399').attr('y', y + h - 8).text(_.trunc(step.activity.stateName, {'length': 13})).style("text-anchor", "middle");
+                        iconSize = 16;
+                      }
+                      if (nodeType && nodeType.tags && !simpleView) {
+                        var tags = listToMapService.listToMap(nodeType.tags, 'name', 'value');
+                        if (tags.icon) {
+                          parent.append('image').attr('x', x + 5).attr('y', y + 5).attr('width', iconSize).attr('height', iconSize).attr('xlink:href',
+                            'img?id=' + tags.icon + '&quality=QUALITY_32');
+                        }
+                      }
+                      if (scope.workflows.isStepPinned(nodeId)) {
+                        shapeSvg.style("fill", "#CCE0FF");
+                      } else if (scope.workflows.isStepSelected(nodeId)) {
+                        shapeSvg.style("fill", "#FFFFD6");
+                      }
 
-                renderer.zoomSetup(function(graph, svg){ return svg; });
-                var rendered = renderer.layout(layout).run(graph, svgGroup);
+                      node.intersect = function(point) {
+                        return dagreD3.intersect.rect(node, point);
+                      };
+                      var onMouseOver = function(d) {
+                        scope.workflows.previewStep(steps[nodeId]);
+                      };
+                      var onMouseOut = function(d) {
+                        scope.workflows.exitPreviewStep();
+                      }
+                      var onClick = function(d) {
+                        var stepPinned = scope.workflows.isStepPinned(nodeId);
+                        var stepSelected = scope.workflows.isStepSelected(nodeId);
+                        var hasStepPinned = scope.workflows.hasStepPinned();
+                        if (stepPinned) {
+                          // the step is pinned, let's unpin it
+                          scope.workflows.togglePinnedworkflowStep(nodeId, steps[nodeId]);
+                        } else if(hasStepPinned) {
+                          // a step is pinned, we play with selections
+                          scope.workflows.toggleStepSelection(nodeId);
+                        } else if(stepSelected) {
+                          // the step is selected
+                          scope.workflows.toggleStepSelection(nodeId);
+                        } else {
+                          // no step pinned, let's pin this one
+                          scope.workflows.togglePinnedworkflowStep(nodeId, steps[nodeId]);
+                        }
+                      };
+                      //
+                      shapeSvg.on("mouseover", onMouseOver);
+                      shapeSvg.on("mouseout", onMouseOut);                      
+                      shapeSvg.on("click", onClick);
+                      // in simple view mode, we want to be able to click on icons
+                      icon.on("mouseover", onMouseOver);
+                      icon.on("mouseout", onMouseOut);                        
+                      icon.on("click", onClick);
+                      return shapeSvg;
+                    };
+                    
+                    // Set up an SVG group so that we can translate the final
+                    // graph.
+                    var svg = d3.select('#plan-svg'), svgGroup = svg
+                        .append('g');
 
-                var borderEdgeSize = 2;
-                var bbox = bboxFactory.create(-1*borderEdgeSize , borderEdgeSize, rendered.graph().width, rendered.graph().height);
-                svgGraph.controls.coordinateUtils.bbox = bbox;
-                svgGraph.controls.coordinateUtils.reset();
-                svgGraph.controls.updateViewBox();
-              });
-          }
+                    // Set up zoom support
+                    var zoom = d3.behavior.zoom().on(
+                        "zoom",
+                        function() {
+                          svgGroup.attr("transform", "translate("
+                              + d3.event.translate + ")" + "scale("
+                              + d3.event.scale + ")");
+                        });
+                    svg.call(zoom);
 
-          scope.$watch('topology', function() {
-            refresh();
-          }, true);
+                    var initialScale = 1;
+//                    svg.attr('width', 1200);
+//                    svg.attr('height', 800);
+                    zoom.scale(initialScale).event(svg);
 
-          function onResize(width, height) {
-            svgGraph.onResize(width, height);
-          }
+                    // the hosts (graph clusters)
+                    var hosts = [];
+                    // the steps
+                    var steps = [];
+                    // data used to render errors
+                    var errorRenderingData = {cycles: {}, errorSteps: {}};
 
-          scope.$watch('dimensions', function(dimensions) {
-            onResize(dimensions.width, dimensions.height);
-          });
-          svgGraph.onResize(scope.dimensions.width, scope.dimensions.height);
-        }
-      };
-    }
-  ]); // factory
+                    function setCurrentWorkflowStep(nodeId) {
+                      scope.workflows.setCurrentworkflowStep(nodeId, steps[nodeId]);
+                    }
+
+                    function appendStepNode(g, stepName, step) {
+                      if (step.activity.type === 'alien4cloud.paas.wf.OperationCallActivity') {
+                        g.setNode(stepName, {label: '', width: 60, height: 40, shape: 'operationStep'});
+                      } else if (step.activity.type === 'alien4cloud.paas.wf.SetStateActivity') {
+                        if (scope.wfViewMode === 'simple') {
+                          g.setNode(stepName, {label: '', width: 12, height: 4, shape: 'operationStep'});
+                        } else {
+                          g.setNode(stepName, {label: '', width: 40, height: 25, shape: 'operationStep'});
+                        }
+                      } else {
+                        g.setNode(stepName, {label: step.name});
+                      }
+                    }
+                    
+                    function appendEdge(g, from, to) {
+                      var stokeWidth = '1.5px';
+                      if (scope.workflows.isEdgePinned(from, to)) {
+                        stokeWidth = '5px';
+                      }
+                      var style = {
+                          lineInterpolate: 'basis', 
+                          arrowhead: 'vee', 
+                          style: "stroke: black; stroke-width: " + stokeWidth + ";", 
+                          arrowheadStyle: "fill: black; stroke: black"};
+                      if (errorRenderingData.cycles[from] && _.contains(errorRenderingData.cycles[from], to)) {
+                        // the edge is in a cycle, make it red
+                        style = {
+                            lineInterpolate: 'basis',
+                            arrowhead: 'vee',
+                            style: "stroke: #f66; stroke-width: " + stokeWidth + ";",
+                            arrowheadStyle: "fill: #f66; stroke: #f66"}
+                      }
+                      g.setEdge(from, to, style);
+                    }
+
+                    function refresh() {
+                      console.log("refresh");
+                      // remove remaining popups
+                      d3.selectAll('.d3-tip').remove();
+                      g.nodes().forEach(function(v) {
+                        g.removeNode(v);
+                      });
+
+                      if (!scope.currentWorkflowName || !scope.topology.topology.workflows || !scope.topology.topology.workflows[scope.currentWorkflowName]) {
+                        render(svgGroup, g);
+                        return;
+                      }
+                      errorRenderingData = scope.workflows.getErrorRenderingData();
+                      
+                      hosts = scope.topology.topology.workflows[scope.currentWorkflowName].hosts;
+                      steps = scope.topology.topology.workflows[scope.currentWorkflowName].steps;
+
+                      g.setNode("start", {label : '', shape: 'start'});
+                      g.setNode("end", {label : '', shape: 'stop'});
+                      if (hosts) {
+                        for (var hostIdx = 0; hostIdx < hosts.length; hostIdx++) {
+                          var host = hosts[hostIdx];
+                          g.setNode(host, {label : host, clusterLabelPos : 'top'});
+                        }
+                      }
+                      var hasSteps = false;
+                      if (steps) {
+                        for (var stepName in steps) {
+                          hasSteps = true;
+                          var step = steps[stepName];
+                          appendStepNode(g, stepName, step);
+                          if (step.hostId) {
+                            g.setParent(stepName, step.hostId);
+                          }
+                        }
+                        for (var stepName in steps) {
+                          var step = steps[stepName];
+                          if (!step.precedingSteps || step.precedingSteps.length == 0) {
+                            appendEdge(g, "start", stepName);
+                          }
+                          if (!step.followingSteps || step.followingSteps.length == 0) {
+                            appendEdge(g, stepName, "end");
+                          } else {
+                            for (var i = 0; i < step.followingSteps.length; i++) {
+                              appendEdge(g, stepName, step.followingSteps[i]);
+                            }
+                          }
+                        }
+                      }
+                      if (!hasSteps) {
+                        appendEdge(g, "start", "end");
+                      }
+
+                      // Run the renderer. This is what draws the final graph.
+                      render(svgGroup, g);
+
+                      // tool tips
+                      var tip = d3Tip().attr('class', 'd3-tip wf-tip').offset([-10, 0]).html(function(d) { return styleTooltip(d); });
+                      svg.call(tip);
+                      d3.selectAll("g.node").on('mouseover', tip.show).on('mouseout', tip.hide);
+
+                    }
+
+                    // render an styled html tool tip for a given step
+                    var styleTooltip = function(nodeId) {
+                      var step = steps[nodeId];
+                      if (!step) {
+                        return nodeId;
+                      }
+                      var html = '<div>';
+                      html += '<h5 class="pull-left">' + step.name + '</h5>';
+                      html += '<i class="fa pull-right">' + scope.workflows.getStepActivityTypeIcon(step) + '</i>';
+                      html += '<span class="clearfix"></span>';
+                      html += '<div class="row"><div class="col-md-3">Node' + ': </div><div class="col-md-9"><b>' + step.nodeId + '</b></div></div>';
+                      html += '<div class="row"><div class="col-md-3">Host' + ': </div><div class="col-md-9"><b>' + step.hostId + '</b></div></div>';
+                      html += '<div class="row"><div class="col-md-3">' + $translate('APPLICATIONS.WF.activity') + ': </div>';
+                      html += '<div class="col-md-9"><b>' + $translate('APPLICATIONS.WF.' + scope.workflows.getStepActivityType(step)) + '</b></div></div>';
+                      var activityDetails = scope.workflows.getStepActivityDetails(step);
+                      for (var propName in activityDetails) {
+                        html += '<div class="row"><div class="col-md-3">';
+                        html += $translate('APPLICATIONS.WF.' + propName) + ': </div><div class="col-md-9 wfActivityDetail"><b>' + _.startTrunc(activityDetails[propName], 25) + '</b></div></div>';
+                      }
+                      html += '</div>';
+                      return html;
+                    };
+
+
+                    scope.$on('WfRefresh', function (event) {
+                      refresh();
+                    });
+                    scope.$watch('visualDimensions', function(visualDimensions) {
+                      onResize(visualDimensions.width, visualDimensions.height);
+                    });
+
+                    scope.$watch('topology', function() {
+                      scope.workflows.topologyChanged();
+                    }, true);
+
+                    function onResize(width, height) {
+                      svgGraph.onResize(width, height);
+                    }
+
+                    scope.$watch('visualDimensions', function(visualDimensions) {
+                      onResize(visualDimensions.width, visualDimensions.height);
+                    });
+                    svgGraph.onResize(scope.visualDimensions.width,
+                        scope.visualDimensions.height);
+
+                    function centerGraph() {
+                      // Center the graph
+//                      var xCenterOffset = (svg.attr("width") - g.graph().width) / 2;
+//                      svgGroup.attr("transform", "translate(" + xCenterOffset + ", 20)");
+//                      svg.attr("height", g.graph().height + 40);
+                    }
+
+                    // preview events registering
+                    function setPreviewEdge(g, from , to) {
+                      g.setEdge(from, to, {
+                        lineInterpolate: 'basis',
+                        style: "stroke: blue; stroke-width: 3px; stroke-dasharray: 5, 5;",
+                        arrowheadStyle: "fill: blue; stroke: blue"
+                      });
+                    }
+                    function setPreviewNode(g) {
+                      g.setNode('a4cPreviewNewStep', {label : '?', style: "stroke: blue", labelStyle: "fill: blue; font-weight: bold; font-size: 2em"});
+                    }
+                    scope.$on('WfCenterGraph', function (event) {
+                      centerGraph();
+                    });
+                    scope.$on('WfRemoveEdgePreview', function (event, from, to) {
+                      console.log("WfRemoveEdgePreview event received : " + event + ", from:" + from + ", to:" + to);
+                      g.removeEdge(from, to);
+                      if (steps[from].followingSteps.length == 1) {
+                        setPreviewEdge(g, from, 'end');
+                      }
+                      if (steps[to].precedingSteps.length == 1) {
+                        setPreviewEdge(g, 'start', to);
+                      }
+                      render(svgGroup, g);
+                    });
+                    scope.$on('WfResetPreview', function (event) {
+                      console.log("WfResetPreview event received : " + event);
+                      refresh();
+                    });
+                    scope.$on('WfConnectPreview', function (event, from, to) {
+                      console.log("WfConnectPreview event received : " + event + ", from:" + from + ", to:" + to);
+                      for (var i = 0; i < from.length; i++) {
+                        g.removeEdge(from[i], 'end');
+                        for (var j = 0; j < to.length; j++) {
+                          g.removeEdge('start', to[j]);
+                          setPreviewEdge(g, from[i], to[j]);
+                        }
+                      }
+                      render(svgGroup, g);
+                    });
+                    scope.$on('WfAddStepPreview', function (event) {
+                      setPreviewNode(g);
+                      setPreviewEdge(g, 'start', 'a4cPreviewNewStep');
+                      setPreviewEdge(g, 'a4cPreviewNewStep', 'end');
+                      if (_.size(steps) == 0) {
+                        g.removeEdge('start', 'end');
+                      }
+                      render(svgGroup, g);
+                    });
+                    scope.$on('WfInsertStepPreview', function (event, stepId) {
+                      console.log("WfInsertStepPreview event received : " + event + ", stepId:" + stepId);
+                      setPreviewNode(g);
+                      var precedingStep = undefined;
+                      if (steps[stepId].precedingSteps.length == 0) {
+                        precedingStep = 'start';
+                      } else if (steps[stepId].precedingSteps.length == 1) {
+                        precedingStep = steps[stepId].precedingSteps[0];
+                      }
+                      if (precedingStep) {
+                        g.removeEdge(precedingStep, stepId);
+                        setPreviewEdge(g, precedingStep, 'a4cPreviewNewStep');
+                      }
+                      setPreviewEdge(g, 'a4cPreviewNewStep', stepId);
+                      render(svgGroup, g);
+                    });
+                    scope.$on('WfAppendStepPreview', function (event, stepId) {
+                      console.log("WfAppendStepPreview event received : " + event + ", stepId:" + stepId);
+                      setPreviewNode(g);
+                      var followingStep = undefined;
+                      if (steps[stepId].followingSteps.length == 0) {
+                        followingStep = 'end';
+                      } else if (steps[stepId].followingSteps.length == 1) {
+                        followingStep = steps[stepId].followingSteps[0];
+                      }
+                      if (followingStep) {
+                        g.removeEdge(stepId, followingStep);
+                        setPreviewEdge(g, 'a4cPreviewNewStep', followingStep);
+                      }
+                      setPreviewEdge(g, stepId, 'a4cPreviewNewStep');
+                      render(svgGroup, g);
+                    });
+                    scope.$on('WfRemoveStepPreview', function (event, stepId) {
+                      console.log("WfRemoveStepPreview event received : " + event + ", stepId:" + stepId);
+                      g.removeNode(stepId);
+                      var precedingSteps = undefined;
+                      if (!steps[stepId].precedingSteps || steps[stepId].precedingSteps.length == 0) {
+                        precedingSteps = ['start'];
+                      } else if (steps[stepId].followingSteps) {
+                        precedingSteps = steps[stepId].precedingSteps;
+                      }
+                      var followingSteps = undefined;
+                      if (!steps[stepId].followingSteps || steps[stepId].followingSteps.length == 0) {
+                        followingSteps = ['end'];
+                      } else if (steps[stepId].followingSteps) {
+                        followingSteps = steps[stepId].followingSteps;
+                      }
+                      for (var i = 0; i < precedingSteps.length; i++) {
+                        for (var j = 0; j < followingSteps.length; j++) {
+                          if (precedingSteps[i] === 'start' && followingSteps[j] === 'end') {
+                            continue;
+                          }
+                          setPreviewEdge(g, precedingSteps[i], followingSteps[j]);
+                        }
+                      }
+                      render(svgGroup, g);
+                    });
+                    function swapLinks(from, to) {
+                      // from's preceding become preceding of to
+                      var precedingSteps = undefined;
+                      if (!steps[from].precedingSteps || steps[from].precedingSteps.length == 0) {
+                        precedingSteps = ['start'];
+                      } else {
+                        precedingSteps = steps[from].precedingSteps;
+                      }
+                      for (var i = 0; i < precedingSteps.length; i++) {
+                        g.removeEdge(precedingSteps[i], from);
+                        if (precedingSteps[i] !== to) {
+                          setPreviewEdge(g, precedingSteps[i], to);
+                        }
+                      }
+                      // from's following become following of 'to' (except 'to' itself)
+                      var followingSteps = undefined;
+                      if (!steps[from].followingSteps || steps[from].followingSteps.length == 0) {
+                        followingSteps = ['end'];
+                      } else {
+                        followingSteps = steps[from].followingSteps;
+                      }
+                      for (var i = 0; i < followingSteps.length; i++) {
+                        g.removeEdge(from, followingSteps[i]);
+                        if (followingSteps[i] !== to) {
+                          setPreviewEdge(g, to, followingSteps[i]);
+                        }
+                      }                      
+                    }
+                    // swap steps : connections between both is inversed and each other connections are swapped
+                    scope.$on('WfSwapPreview', function (event, from, to) {
+                      g.removeEdge(from, to);
+                      swapLinks(from, to);
+                      swapLinks(to, from);
+                      setPreviewEdge(g, to, from);
+                      render(svgGroup, g);
+                    });
+                  }
+                };
+              } ]); // factory
 }); // define

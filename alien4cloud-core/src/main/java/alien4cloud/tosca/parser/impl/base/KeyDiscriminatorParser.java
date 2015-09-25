@@ -10,6 +10,8 @@ import org.yaml.snakeyaml.nodes.ScalarNode;
 
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.mapping.DefaultParser;
 
 import com.google.common.collect.Maps;
@@ -41,10 +43,10 @@ public class KeyDiscriminatorParser<T> extends DefaultParser<T> {
 
     @Override
     public T parse(Node node, ParsingContextExecution context) {
+        Set<String> keySet = Sets.newHashSet();
         if (node instanceof MappingNode) {
             // create a set of available keys
             MappingNode mappingNode = (MappingNode) node;
-            Set<String> keySet = Sets.newHashSet();
             for (NodeTuple tuple : mappingNode.getValue()) {
                 keySet.add(((ScalarNode) tuple.getKeyNode()).getValue());
             }
@@ -55,7 +57,14 @@ public class KeyDiscriminatorParser<T> extends DefaultParser<T> {
                 }
             }
         }
-        return fallbackParser.parse(node, context);
+        if (fallbackParser != null) {
+            return fallbackParser.parse(node, context);
+        } else {
+            context.getParsingErrors().add(
+                    new ParsingError(ErrorCode.UNKNWON_DISCRIMINATOR_KEY, "Invalid scalar value.", node.getStartMark(),
+                            "Tosca type cannot be expressed with the given scalar value.", node.getEndMark(), keySet.toString()));
+        }
+        return null;
     }
 
 }

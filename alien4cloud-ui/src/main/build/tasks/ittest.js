@@ -25,8 +25,7 @@ module.exports = function (grunt) {
   registerChromeIt('ittest-admin', 'protractor:runAdmin');
   registerChromeIt('ittest-application', 'protractor:runApplication');
   registerChromeIt('ittest-applicationTopology', 'protractor:runApplicationTopology');
-  registerChromeIt('ittest-deploymentAndSecurity', 'protractor:runDeploymentAndSecurity');
+  registerChromeIt('ittest-deployment', 'protractor:runDeployment');
   registerChromeIt('ittest-components', 'protractor:runComponents');
-  registerChromeIt('ittest-common', 'protractor:runCommon');
-  registerChromeIt('ittest-topologyTemplates', 'protractor:runTopologyTemplates');
+  registerChromeIt('ittest-commonAndSecurity', 'protractor:runCommonAndSecurity');
 };

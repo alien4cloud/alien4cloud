@@ -17,6 +17,7 @@ import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.AbstractTopologyVersion;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
 
@@ -27,6 +28,9 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
 
     @Resource(name = "alien-es-dao")
     protected IGenericSearchDAO alienDAO;
+
+    @Resource
+    private WorkflowsBuilderService workflowBuilderService;
 
     protected abstract V buildVersionImplem();
 
@@ -83,6 +87,7 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
         }
         topology.setDelegateId(delegateId);
         topology.setDelegateType(getDelegateClass().getSimpleName().toLowerCase());
+        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
         // first of all, if the new version is a release, we have to ensure that all dependencies are released
         if (!VersionUtil.isSnapshot(version)) {
             checkTopologyReleasable(topology);

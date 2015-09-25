@@ -57,6 +57,6 @@ public class ParsingError {
 
     @Override
     public String toString() {
-        return "Context: " + context + "\nProblem: " + problem + "\nNote: " + note + "\nStart: " + startMark + "\nEnd  : " + endMark;
+        return "Context: " + context + "\nProblem: " + problem + "\nNote: " + note + "\nStart: " + startMark + "\nEnd  : " + endMark + "\nLevel: " + errorLevel + "\nCode : " + errorCode;
     }
 }
