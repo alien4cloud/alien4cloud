@@ -19,11 +19,17 @@ define(function(require) {
 
       var nodeSubstitution = $resource('rest/applications/:appId/environments/:envId/deployment-topology/substitutions/:nodeId');
 
+      var nodeSubstitutionProperty = $resource('rest/applications/:appId/environments/:envId/deployment-topology/substitutions/:nodeId/properties');
+
+      var nodeSubstitutionCapabilityProperty = $resource('rest/applications/:appId/environments/:envId/deployment-topology/substitutions/:nodeId/capabilities/:capabilityName/properties');
+
       return {
         'setLocationPolicies': location.setLocationPolicies,
         'get': deploymentTopology.get,
         'getAvailableSubstitutions': nodeSubstitution.get,
-        'updateSubstitution': nodeSubstitution.save
+        'updateSubstitution': nodeSubstitution.save,
+        'updateSubstitutionProperty': nodeSubstitutionProperty.save,
+        'updateSubstitutionCapabilityProperty': nodeSubstitutionCapabilityProperty.save
       };
     }
   ]);

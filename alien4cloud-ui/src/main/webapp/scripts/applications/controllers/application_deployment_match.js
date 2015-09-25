@@ -40,8 +40,12 @@ define(function(require) {
       function($scope, nodeTemplateService, substitutionContext, deploymentTopologyServices, deploymentTopologyProcessor) {
         $scope.substitutionContext = substitutionContext;
         $scope.getIcon = function(template) {
-          var templateType = $scope.substitutionContext.substitutionTypes.nodeTypes[template.template.type];
-          return nodeTemplateService.getNodeTypeIcon(templateType);
+          if (!_.isEmpty($scope.substitutionContext.substitutionTypes.nodeTypes)) {
+            var templateType = $scope.substitutionContext.substitutionTypes.nodeTypes[template.template.type];
+            if (!_.isEmpty(templateType)) {
+              return nodeTemplateService.getNodeTypeIcon(templateType);
+            }
+          }
         };
 
         $scope.getSubstitutedTemplate = function(nodeName) {
@@ -49,7 +53,9 @@ define(function(require) {
         };
 
         $scope.selectTemplate = function(nodeName, template) {
-          if ($scope.getSubstitutedTemplate(nodeName).id !== template.id) {
+          $scope.selectedNodeName = nodeName;
+          var substitutedNode = $scope.getSubstitutedTemplate(nodeName);
+          if (substitutedNode.id !== template.id) {
             deploymentTopologyServices.updateSubstitution({
               appId: $scope.application.id,
               envId: $scope.deploymentContext.selectedEnvironment.id,
@@ -58,9 +64,34 @@ define(function(require) {
             }, undefined, function(response) {
               deploymentTopologyProcessor.process(response.data);
               $scope.deploymentContext.deploymentTopologyDTO = response.data;
+              $scope.selectedResourceTemplate = $scope.getSubstitutedTemplate(nodeName);
             });
+          } else {
+            $scope.selectedResourceTemplate = substitutedNode;
           }
-          $scope.selectedResourceTemplate = template;
+        };
+
+        $scope.updateSubstitutionProperty = function(propertyName, propertyValue) {
+          return deploymentTopologyServices.updateSubstitutionProperty({
+            appId: $scope.application.id,
+            envId: $scope.deploymentContext.selectedEnvironment.id,
+            nodeId: $scope.selectedNodeName
+          }, angular.toJson({
+            propertyName: propertyName,
+            propertyValue: propertyValue
+          })).$promise;
+        };
+
+        $scope.updateSubstitutionCapabilityProperty = function(capabilityName, propertyName, propertyValue) {
+          return deploymentTopologyServices.updateSubstitutionCapabilityProperty({
+            appId: $scope.application.id,
+            envId: $scope.deploymentContext.selectedEnvironment.id,
+            nodeId: $scope.selectedNodeName,
+            capabilityName: capabilityName
+          }, angular.toJson({
+            propertyName: propertyName,
+            propertyValue: propertyValue
+          })).$promise;
         };
       }
     ]); //controller

@@ -16,7 +16,7 @@ define(function(require) {
           process: function(deploymentTopology) {
             topologyJsonProcessor.process(deploymentTopology);
             if (!_.isEmpty(deploymentTopology.topology.substitutedNodes)) {
-              locationResourcesProcessor.processLocationResourceTemplates(deploymentTopology.topology.substitutedNodes);
+              locationResourcesProcessor.processLocationResourceTemplatesMap(deploymentTopology.topology.substitutedNodes);
             }
           },
           processSubstitutionResources: function(substitutionResources) {

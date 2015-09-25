@@ -132,9 +132,8 @@ public class LocationResourceService {
                 locationResourceTypes.getNodeTypes().put(exposedType, exposedIndexedNodeType);
                 if (exposedIndexedNodeType.getCapabilities() != null && !exposedIndexedNodeType.getCapabilities().isEmpty()) {
                     for (CapabilityDefinition capabilityDefinition : exposedIndexedNodeType.getCapabilities()) {
-                        locationResourceTypes.getCapabilityTypes().put(capabilityDefinition.getType(),
-                                csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class, capabilityDefinition.getType(),
-                                        location.getDependencies()));
+                        locationResourceTypes.getCapabilityTypes().put(capabilityDefinition.getType(), csarRepoSearchService
+                                .getRequiredElementInDependencies(IndexedCapabilityType.class, capabilityDefinition.getType(), location.getDependencies()));
                     }
                 }
             }
@@ -241,6 +240,11 @@ public class LocationResourceService {
 
     public void setTemplateProperty(String resourceId, String propertyName, Object propertyValue) {
         LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
+        setTemplateProperty(resourceTemplate, propertyName, propertyValue);
+        alienDAO.save(resourceTemplate);
+    }
+
+    public void setTemplateProperty(LocationResourceTemplate resourceTemplate, String propertyName, Object propertyValue) {
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
         IndexedNodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, resourceTemplate.getTemplate().getType(),
                 location.getDependencies());
@@ -248,11 +252,9 @@ public class LocationResourceService {
             throw new NotFoundException("Property <" + propertyName + "> is not found in type <" + resourceType.getElementId() + ">");
         }
         PropertyUtil.setPropertyValue(resourceTemplate.getTemplate(), resourceType.getProperties().get(propertyName), propertyName, propertyValue);
-        alienDAO.save(resourceTemplate);
     }
 
-    public void setTemplateCapabilityProperty(String resourceId, String capabilityName, String propertyName, Object propertyValue) {
-        LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
+    public void setTemplateCapabilityProperty(LocationResourceTemplate resourceTemplate, String capabilityName, String propertyName, Object propertyValue) {
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
         IndexedNodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, resourceTemplate.getTemplate().getType(),
                 location.getDependencies());
@@ -278,6 +280,11 @@ public class LocationResourceService {
         }
         Capability capability = resourceTemplate.getTemplate().getCapabilities().get(capabilityName);
         PropertyUtil.setCapabilityPropertyValue(capability, propertyDefinition, propertyName, propertyValue);
+    }
+
+    public void setTemplateCapabilityProperty(String resourceId, String capabilityName, String propertyName, Object propertyValue) {
+        LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
+        setTemplateCapabilityProperty(resourceTemplate, capabilityName, propertyName, propertyValue);
         alienDAO.save(resourceTemplate);
     }
 

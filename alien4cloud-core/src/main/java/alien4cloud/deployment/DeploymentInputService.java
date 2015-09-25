@@ -35,25 +35,21 @@ public class DeploymentInputService {
      *
      * @param topology The deployment topology to impact.
      */
-    public boolean processInputProperties(DeploymentTopology topology) {
+    public void processInputProperties(DeploymentTopology topology) {
         Map<String, String> inputProperties = topology.getInputProperties();
         Map<String, PropertyDefinition> inputDefinitions = topology.getInputs();
-        boolean changed = false;
         if (inputDefinitions == null || inputDefinitions.isEmpty()) {
             topology.setInputProperties(null);
-            changed = inputProperties != null;
         } else {
             if (inputProperties == null) {
                 inputProperties = Maps.newHashMap();
                 topology.setInputProperties(inputProperties);
-                changed = true;
             } else {
                 Iterator<Map.Entry<String, String>> inputPropertyEntryIterator = inputProperties.entrySet().iterator();
                 while (inputPropertyEntryIterator.hasNext()) {
                     Map.Entry<String, String> inputPropertyEntry = inputPropertyEntryIterator.next();
                     if (!inputDefinitions.containsKey(inputPropertyEntry.getKey())) {
                         inputPropertyEntryIterator.remove();
-                        changed = true;
                     } else {
                         try {
                             constraintPropertyService.checkSimplePropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue(),
@@ -61,7 +57,6 @@ public class DeploymentInputService {
                         } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
                             // Property is not valid anymore for the input, remove the old value
                             inputPropertyEntryIterator.remove();
-                            changed = true;
                         }
                     }
                 }
@@ -72,12 +67,10 @@ public class DeploymentInputService {
                     String defaultValue = inputDefinitionEntry.getValue().getDefault();
                     if (defaultValue != null) {
                         inputProperties.put(inputDefinitionEntry.getKey(), defaultValue);
-                        changed = true;
                     }
                 }
             }
         }
-        return changed;
     }
 
     /**
@@ -121,15 +114,14 @@ public class DeploymentInputService {
      *
      * @param deploymentTopology the deployment setup to generate configuration for
      */
-    public boolean processProviderDeploymentProperties(DeploymentTopology deploymentTopology) {
+    public void processProviderDeploymentProperties(DeploymentTopology deploymentTopology) {
         if (deploymentTopology.getOrchestratorId() == null) {
             // No orchestrator assigned for the topology do nothing
-            return false;
+            return;
         }
         Map<String, PropertyDefinition> propertyDefinitionMap = orchestratorDeploymentService
                 .getDeploymentPropertyDefinitions(deploymentTopology.getOrchestratorId());
         if (propertyDefinitionMap != null) {
-            boolean changed = false;
             // Reset deployment properties as it might have changed between cloud
             Map<String, String> propertyValueMap = deploymentTopology.getProviderDeploymentProperties();
             if (propertyValueMap == null) {
@@ -141,7 +133,6 @@ public class DeploymentInputService {
                     if (!propertyDefinitionMap.containsKey(entry.getKey())) {
                         // Remove the mapping if topology do not contain the node with that name and of type compute
                         // Or the mapping do not exist anymore in the match result
-                        changed = true;
                         propertyValueMapIterator.remove();
                     }
                 }
@@ -154,19 +145,12 @@ public class DeploymentInputService {
                                 propertyDefinitionEntry.getValue());
                     } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
                         propertyValueMap.put(propertyDefinitionEntry.getKey(), propertyDefinitionEntry.getValue().getDefault());
-                        changed = true;
                     }
                 } else if (propertyDefinitionEntry.getValue().getDefault() != null) {
                     propertyValueMap.put(propertyDefinitionEntry.getKey(), propertyDefinitionEntry.getValue().getDefault());
-                    changed = true;
                 }
             }
-            if (changed) {
-                deploymentTopology.setProviderDeploymentProperties(propertyValueMap);
-            }
-            return changed;
-        } else {
-            return false;
+            deploymentTopology.setProviderDeploymentProperties(propertyValueMap);
         }
     }
 }

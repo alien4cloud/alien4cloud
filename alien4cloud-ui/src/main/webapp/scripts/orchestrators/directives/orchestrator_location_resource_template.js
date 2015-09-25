@@ -12,6 +12,7 @@ define(function(require) {
         'resourceType': '=',
         'resourceCapabilityTypes': '=',
         'dependencies': '=',
+        'isEditable': '=',
         'onDelete': '&',
         'onUpdate': '&',
         'onPropertyUpdate': '&',
