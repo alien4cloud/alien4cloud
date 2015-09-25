@@ -19,14 +19,19 @@ import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.TopologyCompositionService;
 import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
+import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.topology.AbstractPolicy;
 import alien4cloud.model.topology.LocationPlacementPolicy;
 import alien4cloud.model.topology.NodeGroup;
+import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.orchestrators.locations.services.LocationResourceService;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.DeployerRole;
@@ -34,6 +39,7 @@ import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.ReflectionUtil;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Manages the deployment topology handling.
@@ -50,6 +56,8 @@ public class DeploymentTopologyService {
     @Inject
     private LocationService locationService;
     @Inject
+    private LocationResourceService locationResourceService;
+    @Inject
     private ApplicationVersionService applicationVersionService;
     @Inject
     private ApplicationEnvironmentService applicationEnvironmentService;
@@ -63,6 +71,11 @@ public class DeploymentTopologyService {
     private TopologyServiceCore topologyServiceCore;
     @Inject
     private DeploymentNodeSubstitutionService deploymentNodeSubstitutionService;
+
+    public void save(DeploymentTopology deploymentTopology) {
+        deploymentTopology.setLastUpdateDate(new Date());
+        alienDAO.save(deploymentTopology);
+    }
 
     /**
      * Get or create if not yet existing the {@link DeploymentTopology}. This method will check if the initial topology has been updated, if so it will try to
@@ -97,14 +110,13 @@ public class DeploymentTopologyService {
         deploymentTopology.setInitialTopologyId(topology.getId());
         deploymentTopology.setLastInitialTopologyUpdateDate(topology.getLastUpdateDate());
         ReflectionUtil.mergeObject(topology, deploymentTopology);
-        deploymentTopology.setLastUpdateDate(new Date());
         topologyCompositionService.processTopologyComposition(deploymentTopology);
         deploymentInputService.processInputProperties(deploymentTopology);
         inputsPreProcessorService.processGetInput(deploymentTopology, environment);
         deploymentInputService.processInputArtifacts(deploymentTopology);
         deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
         deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology);
-        alienDAO.save(deploymentTopology);
+        save(deploymentTopology);
         return deploymentTopology;
     }
 
@@ -125,7 +137,43 @@ public class DeploymentTopologyService {
         deploymentInputService.processInputArtifacts(deploymentTopology);
         deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
         deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology);
-        alienDAO.save(deploymentTopology);
+        save(deploymentTopology);
+    }
+
+    private LocationResourceTemplate getSubstitution(DeploymentTopology deploymentTopology, String nodeId) {
+        if (MapUtils.isEmpty(deploymentTopology.getSubstitutedNodes())) {
+            throw new NotFoundException("Topology does not have any node substituted");
+        }
+        LocationResourceTemplate substitution = deploymentTopology.getSubstitutedNodes().get(nodeId);
+        if (substitution == null) {
+            throw new NotFoundException("Topology does not have the node <" + nodeId + "> substituted");
+        }
+        return substitution;
+    }
+
+    public void updateSubstitutionProperty(DeploymentTopology deploymentTopology, String nodeId, String propertyName, Object propertyValue) {
+        LocationResourceTemplate substitution = getSubstitution(deploymentTopology, nodeId);
+        NodeTemplate substituted = deploymentTopology.getNodeTemplates().get(nodeId);
+        locationResourceService.setTemplateProperty(substitution, propertyName, propertyValue);
+        if (substituted.getProperties() == null) {
+            substituted.setProperties(Maps.<String, AbstractPropertyValue> newHashMap());
+        }
+        substituted.getProperties().put(propertyName, substitution.getTemplate().getProperties().get(propertyName));
+        save(deploymentTopology);
+    }
+
+    public void updateSubstitutionCapabilityProperty(DeploymentTopology deploymentTopology, String nodeId, String capabilityName, String propertyName,
+            Object propertyValue) {
+        LocationResourceTemplate substitution = getSubstitution(deploymentTopology, nodeId);
+        NodeTemplate substituted = deploymentTopology.getNodeTemplates().get(nodeId);
+        locationResourceService.setTemplateCapabilityProperty(substitution, capabilityName, propertyName, propertyValue);
+        Map<String, AbstractPropertyValue> substitutedCapabilityProperties = substituted.getCapabilities().get(capabilityName).getProperties();
+        if (substitutedCapabilityProperties == null) {
+            substitutedCapabilityProperties = Maps.newHashMap();
+            substituted.getCapabilities().get(capabilityName).setProperties(substitutedCapabilityProperties);
+        }
+        substitutedCapabilityProperties.put(propertyName, substitution.getTemplate().getCapabilities().get(capabilityName).getProperties().get(propertyName));
+        save(deploymentTopology);
     }
 
     public void deleteByEnvironmentId(String environmentId) {

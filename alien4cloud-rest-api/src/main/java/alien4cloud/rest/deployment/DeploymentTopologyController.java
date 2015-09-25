@@ -40,6 +40,7 @@ import alien4cloud.utils.ReflectionUtil;
 import com.google.common.collect.Sets;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.Authorization;
 
 @RestController
 @RequestMapping("/rest/applications/{appId}/environments/{environmentId}/deployment-topology")
@@ -66,11 +67,10 @@ public class DeploymentTopologyController {
      * @param environmentId id of the environment
      * @return response containing the available substitutions
      */
-    @ApiOperation(value = "Get the deployment topology of an application given an environment.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
+    @ApiOperation(value = "Get available substitutions for the topology of an application given an environment.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/substitutions", method = RequestMethod.GET)
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<DeploymentNodeSubstitutionsDTO> getAvailableNodeSubstitutions(@PathVariable String appId,
-            @PathVariable String environmentId) {
+    public RestResponse<DeploymentNodeSubstitutionsDTO> getAvailableNodeSubstitutions(@PathVariable String appId, @PathVariable String environmentId) {
         checkAuthorizations(appId, environmentId);
         DeploymentTopology deploymentTopology = deploymentTopologyService.getOrCreateDeploymentTopology(environmentId);
         DeploymentNodeSubstitutionsDTO dto = new DeploymentNodeSubstitutionsDTO();
@@ -90,17 +90,40 @@ public class DeploymentTopologyController {
      * @param environmentId id of the environment
      * @return response containing the available substitutions
      */
-    @ApiOperation(value = "Get the deployment topology of an application given an environment.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
+    @ApiOperation(value = "Substitute a specific node by the location resource template in the topology of an application given an environment.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/substitutions/{nodeId}", method = RequestMethod.POST)
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<DeploymentTopologyDTO> updateSubstitution(@PathVariable String appId, @PathVariable String environmentId,
-            @PathVariable String nodeId, @RequestParam String locationResourceTemplateId) {
+    @Audit
+    public RestResponse<DeploymentTopologyDTO> updateSubstitution(@PathVariable String appId, @PathVariable String environmentId, @PathVariable String nodeId,
+            @RequestParam String locationResourceTemplateId) {
         checkAuthorizations(appId, environmentId);
         DeploymentTopology deploymentTopology = deploymentTopologyService.getOrCreateDeploymentTopology(environmentId);
         LocationResourceTemplate locationResourceTemplate = locationResourceService.getOrFail(locationResourceTemplateId);
         deploymentTopology.getSubstitutedNodes().put(nodeId, locationResourceTemplate);
         deploymentTopologyService.updateDeploymentTopology(deploymentTopology);
         return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(buildDeploymentTopologyDTO(deploymentTopology)).build();
+    }
+
+    @ApiOperation(value = "Update substitution's property.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/substitutions/{nodeId}/properties", method = RequestMethod.POST)
+    @PreAuthorize("isAuthenticated()")
+    @Audit
+    public RestResponse<Void> updateSubstitutionProperty(@PathVariable String appId, @PathVariable String environmentId, @PathVariable String nodeId,
+            @RequestBody UpdateSubstitutionPropertyRequest updateRequest) {
+        deploymentTopologyService.updateSubstitutionProperty(deploymentTopologyService.getOrCreateDeploymentTopology(environmentId), nodeId,
+                updateRequest.getPropertyName(), updateRequest.getPropertyValue());
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    @ApiOperation(value = "Update substitution's capability property.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/substitutions/{nodeId}/capabilities/{capabilityName}/properties", method = RequestMethod.POST)
+    @PreAuthorize("isAuthenticated()")
+    @Audit
+    public RestResponse<Void> updateSubstitutionCapabilityProperty(@PathVariable String appId, @PathVariable String environmentId, @PathVariable String nodeId,
+            @PathVariable String capabilityName, @RequestBody UpdateSubstitutionPropertyRequest updateRequest) {
+        deploymentTopologyService.updateSubstitutionCapabilityProperty(deploymentTopologyService.getOrCreateDeploymentTopology(environmentId), nodeId,
+                capabilityName, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
+        return RestResponseBuilder.<Void> builder().build();
     }
 
     /**

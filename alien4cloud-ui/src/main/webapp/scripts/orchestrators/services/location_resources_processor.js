@@ -24,6 +24,14 @@ define(function(require) {
         }
       },
 
+      processLocationResourceTemplatesMap: function(locationResourceTemplates) {
+        for (var nodeId in locationResourceTemplates) {
+          if (locationResourceTemplates.hasOwnProperty(nodeId)) {
+            this.processLocationResourceTemplate(locationResourceTemplates[nodeId]);
+          }
+        }
+      },
+
       processLocationResourceTemplate: function(locationResourceTemplate) {
         listToMapService.process(locationResourceTemplate.template, 'properties');
         listToMapService.process(locationResourceTemplate.template, 'requirements');

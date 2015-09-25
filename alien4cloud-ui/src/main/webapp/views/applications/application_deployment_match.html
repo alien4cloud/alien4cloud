@@ -3,12 +3,16 @@
     <div class="col-md-6">
       <accordion close-others="oneAtATime">
         <accordion-group is-open="status.open" ng-repeat="(nodeName, templates) in substitutionContext.availableSubstitutions">
-          <accordion-heading ng-init="nodeIcon = getIcon(getSubstitutedTemplate(nodeName))">
-            <i ng-if="!nodeIcon" class="fa fa-cogs fa-2x"></i>
+          <accordion-heading ng-init="substitutedNode = getSubstitutedTemplate(nodeName); nodeIcon = getIcon(substitutedNode)">
+            <i ng-if="!nodeIcon" class="fa fa-cogs"></i>
             <img ng-if="nodeIcon" ng-src="img?id={{nodeIcon}}&quality=QUALITY_32">
-            {{nodeName}} <i class="fa" ng-class="{'fa-chevron-down': status.open, 'fa-chevron-right': !status.open}"></i>
+            {{nodeName}} <i class="fa"
+                            ng-class="{'fa-chevron-down': status.open && substitutedNode, 'fa-chevron-right': !status.open && substitutedNode, 'fa-exclamation-triangle text-danger': !substitutedNode}"></i>
           </accordion-heading>
-          <table class="table table-hover">
+          <p ng-if="!substitutedNode">
+            No substitution available for this node
+          </p>
+          <table ng-if="substitutedNode" class="table table-hover">
             <thead>
               <tr>
                 <th></th>
@@ -20,7 +24,7 @@
               <tr ng-repeat="template in templates"
                   ng-click="selectTemplate(nodeName, template)"
                   class="clickable"
-                  ng-class="{'warning': selectedResourceTemplate === template}">
+                  ng-class="{'warning': selectedResourceTemplate.id === template.id && selectedNodeName === nodeName}">
                 <td>
                   <i ng-if="getSubstitutedTemplate(nodeName).id === template.id"
                      class="fa fa-check-square-o text-success"></i>
@@ -43,9 +47,9 @@
             resource-template="selectedResourceTemplate"
             resource-type="substitutionContext.substitutionTypes.nodeTypes[selectedResourceTemplate.template.type]"
             resource-capability-types="substitutionContext.substitutionTypes.capabilityTypes"
-            dependencies="deploymentContext.deploymentTopologyDTO.dependencies"
-            on-property-update="updateResourceProperty(propertyName, propertyValue)"
-            on-capability-property-update="updateResourceCapabilityProperty(capabilityName, propertyName, propertyValue)">
+            dependencies="deploymentContext.deploymentTopologyDTO.topology.dependencies"
+            on-property-update="updateSubstitutionProperty(propertyName, propertyValue)"
+            on-capability-property-update="updateSubstitutionCapabilityProperty(capabilityName, propertyName, propertyValue)">
         </orchestrator-location-resource-template>
       </div>
     </div>

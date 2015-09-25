@@ -28,20 +28,6 @@ define(function (require) {
         return ! _.isEmpty($filter('allowedInputs')($scope.inputs));
       };
       
-      // update the deployment configuration for the given environment.
-      function refreshDeploymentSetup() {
-        applicationServices.getDeploymentSetup({
-          applicationId: $scope.application.id,
-          applicationEnvironmentId: $scope.selectedEnvironment.id
-        }, undefined, function(response) {
-          $scope.setup = response.data;
-          // update configuration of the PaaSProvider associated with the deployment setup
-          $scope.deploymentProperties = $scope.setup.providerDeploymentProperties;
-//          refreshSelectedCloud();
-//          checkGroupZonesAssociation();
-        });
-      }
-      
       /* Handle properties inputs */
       $scope.updateInputValue = function(definition, inputValue, inputId) {
         // No update if it's the same value
@@ -59,8 +45,6 @@ define(function (require) {
         }, angular.toJson({
           inputProperties: $scope.setup.inputProperties
         }), function() {
-          refreshDeploymentSetup();
-//          $scope.checkTopology();
         }).$promise;
       };
       
@@ -96,15 +80,6 @@ define(function (require) {
         var file = $files[0];
         $scope.doUploadArtifact(file, artifactName);
       };
-      
-      
-      
-      
-      /**
-       ****************** ON FIRST LAUNCH *********************
-       */
-      
-      refreshDeploymentSetup();
     }
   ]); //controller
 }); //Define
