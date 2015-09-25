@@ -98,7 +98,6 @@ public class DeploymentTopologyService {
         deploymentTopology.setLastInitialTopologyUpdateDate(topology.getLastUpdateDate());
         ReflectionUtil.mergeObject(topology, deploymentTopology);
         deploymentTopology.setLastUpdateDate(new Date());
-        deploymentTopology.setId(id);
         topologyCompositionService.processTopologyComposition(deploymentTopology);
         deploymentInputService.processInputProperties(deploymentTopology);
         inputsPreProcessorService.processGetInput(deploymentTopology, environment);
@@ -111,7 +110,7 @@ public class DeploymentTopologyService {
 
     /**
      * Deployment configuration has been changed, in this case must re-synchronize the deployment topology
-     * 
+     *
      * @param deploymentTopology the deployment topology to update
      */
     public void updateDeploymentTopology(DeploymentTopology deploymentTopology) {
@@ -119,9 +118,7 @@ public class DeploymentTopologyService {
         Topology topology = topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId());
         deploymentTopology.setLastUpdateDate(new Date());
         deploymentTopology.setLastInitialTopologyUpdateDate(topology.getLastUpdateDate());
-        String id = deploymentTopology.getId();
         ReflectionUtil.mergeObject(topology, deploymentTopology);
-        deploymentTopology.setId(id);
         topologyCompositionService.processTopologyComposition(deploymentTopology);
         deploymentInputService.processInputProperties(deploymentTopology);
         inputsPreProcessorService.processGetInput(deploymentTopology, environment);

@@ -44,7 +44,7 @@ import com.wordnik.swagger.annotations.ApiOperation;
 @RestController
 @RequestMapping("/rest/applications/{appId}/environments/{environmentId}/deployment-topology")
 @Api(value = "", description = "Manage configuration of an application before deploying it.")
-public class DeploymentConfigurationController {
+public class DeploymentTopologyController {
 
     @Inject
     private DeploymentTopologyService deploymentTopologyService;

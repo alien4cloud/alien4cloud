@@ -61,12 +61,12 @@ public class TopologyValidationService {
     private WorkflowsBuilderService workflowBuilderService;
 
     /**
-     * Validate if a topology is valid for deployment or not
+     * Validate if a topology is valid for deployment or not, before deployment configuration
      *
      * @param topology topology to be validated
      * @return the validation result
      */
-    public TopologyValidationResult validateTopology(Topology topology) {
+    public TopologyValidationResult validateTopologyBeforeDeploymentConfig(Topology topology) {
         TopologyValidationResult dto = new TopologyValidationResult();
         if (topology.getNodeTemplates() == null || topology.getNodeTemplates().size() < 1) {
             dto.setValid(false);
@@ -106,8 +106,9 @@ public class TopologyValidationService {
         // FIXME property validation doesn't ignore inputs. It should.
         // validate required properties (properties of NodeTemplate, Relationship and Capability)
         // check also CLOUD / ENVIRONMENT meta properties
-        // List<PropertiesTask> validateProperties = topologyPropertiesValidationService.validateProperties(topology);
-        List<PropertiesTask> validateProperties = null;
+        List<PropertiesTask> validateProperties = topologyPropertiesValidationService.validateProperties(topology);
+
+        // List<PropertiesTask> validateProperties = null;
         if (hasOnlyPropertiesWarnings(validateProperties)) {
             dto.addToWarningList(validateProperties);
         } else {

@@ -9,10 +9,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import org.elasticsearch.annotation.ESObject;
+import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
+import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.topology.NodeGroup;
@@ -66,4 +68,21 @@ public class DeploymentTopology extends Topology {
     private Map<String, NodeGroup> locationGroups = Maps.newHashMap();
 
     private Set<CSARDependency> locationDependencies = Sets.newHashSet();
+
+    @Override
+    @Id
+    public String getId() {
+        if (versionId == null) {
+            throw new IndexingServiceException("version id is mandatory");
+        }
+        if (environmentId == null) {
+            throw new IndexingServiceException("environment id is mandatory");
+        }
+        return versionId + "::" + environmentId;
+    }
+
+    @Override
+    public void setId(String id) {
+        // do nothing
+    }
 }

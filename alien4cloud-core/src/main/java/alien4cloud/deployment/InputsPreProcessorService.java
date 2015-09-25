@@ -7,11 +7,13 @@ import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.common.TagService;
+import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.common.MetaPropConfiguration;
@@ -19,6 +21,7 @@ import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.deployment.DeploymentTopology;
+import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
@@ -36,7 +39,6 @@ import com.google.common.collect.Maps;
 @Service
 public class InputsPreProcessorService {
     // TODO cloud_meta is here for backward compatibility but should be removed in next versions
-    private static final String CLOUD_META = "cloud_meta_";
     private static final String LOC_META = "loc_meta_";
     private static final String APP_META = "app_meta_";
     private static final String APP_TAGS = "app_tags_";
@@ -51,8 +53,8 @@ public class InputsPreProcessorService {
     private MetaPropertiesService metaPropertiesService;
 
     /**
-     * Process the get inputs functions of a topology to inject actual input provided by the deployer user (from deployment setup) or from the cloud,
-     * environment or application meta-properties.
+     * Process the get inputs functions of a topology to inject actual input provided by the deployer user (from deployment setup) or from the location
+     * or application meta-properties.
      *
      * @param deploymentTopology The deployment setup that contains the input values.
      * @param environment The environment instance linked to the deployment setup.
@@ -77,34 +79,35 @@ public class InputsPreProcessorService {
     }
 
     /**
-     * Inputs can come from the deployer user (in such situations they are saved in the deployment setup) but also from the cloud or application
+     * Inputs can come from the deployer user (in such situations they are saved in the deployment setup) but also from the location or application
      * meta-properties.
      * This method creates a unified map of inputs to be injected in deployed applications.
      *
-     * @param deploymentTopology The deployment setup.
+     * @param deploymentTopology The deployment topology.
      * @param environment The environment instance linked to the deployment setup.
-     * @return A unified map of input for the topology containing the inputs from the deployment setup as well as the ones comming from cloud or application
+     * @return A unified map of input for the topology containing the inputs from the deployment setup as well as the ones coming from location or application
      *         meta-properties.
      */
     private Map<String, String> getInputs(DeploymentTopology deploymentTopology, ApplicationEnvironment environment) {
         // initialize a map with input from the deployment setup
-        Map<String, String> inputs = MapUtils.isEmpty(deploymentTopology.getInputProperties()) ? Maps.<String, String> newHashMap()
-                : deploymentTopology.getInputProperties();
+        Map<String, String> inputs = MapUtils.isEmpty(deploymentTopology.getInputProperties()) ? Maps.<String, String> newHashMap() : deploymentTopology
+                .getInputProperties();
 
         // Map id -> value of meta properties from cloud or application.
         Map<String, String> metaPropertiesValuesMap = Maps.newHashMap();
 
-        // FIXME add the inputs from the location meta-properties
-        // if (environment.getCloudId() != null) {
-        // Cloud cloud = cloudService.get(environment.getCloudId());
-        // if (cloud.getMetaProperties() != null) {
-        // metaPropertiesValuesMap.putAll(cloud.getMetaProperties());
-        // }
-        //
-        // // inputs from the cloud starts with cloud meta
-        // prefixAndAddContextInput(inputs, InputsPreProcessorService.LOC_META, metaPropertiesValuesMap, true);
-        // prefixAndAddContextInput(inputs, InputsPreProcessorService.CLOUD_META, metaPropertiesValuesMap, true);
-        // }
+        // TODO Multi location case
+        String locationId = TopologyLocationUtils.getLocationId(deploymentTopology);
+        if (StringUtils.isNotBlank(locationId)) {
+            Location location = locationService.getOrFail(locationId);
+            if (MapUtils.isNotEmpty(location.getMetaProperties())) {
+                metaPropertiesValuesMap.putAll(location.getMetaProperties());
+            }
+        }
+
+        // inputs from the location starts with location meta
+        prefixAndAddContextInput(inputs, InputsPreProcessorService.LOC_META, metaPropertiesValuesMap, true);
+
         // and the ones from the application meta-properties
         // meta or tags from application
         if (environment.getApplicationId() != null) {
@@ -158,11 +161,15 @@ public class InputsPreProcessorService {
                     FunctionPropertyValue function = (FunctionPropertyValue) propEntry.getValue();
                     if (ToscaFunctionConstants.GET_INPUT.equals(function.getFunction())) {
                         String inputName = function.getParameters().get(0);
-                        // replace the value from the inputs
-                        ScalarPropertyValue value = new ScalarPropertyValue(inputs.get(inputName));
-                        propEntry.setValue(value);
+                        String value = inputs.get(inputName);
+                        if (value != null) {
+                            // replace the value from the inputs
+                            ScalarPropertyValue scalerValue = new ScalarPropertyValue(value);
+                            propEntry.setValue(scalerValue);
+                        }
                     } else {
-                        log.warn("Function detected for property <{}> while only get_input should be authorized.", propEntry.getKey());
+                        log.warn("Function <{}> detected for property <{}> while only <get_input> should be authorized.", function.getFunction(),
+                                propEntry.getKey());
                     }
                 }
             }

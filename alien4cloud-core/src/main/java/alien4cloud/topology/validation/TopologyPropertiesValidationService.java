@@ -11,10 +11,15 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.collect.Lists;
+import org.springframework.stereotype.Component;
 
 import alien4cloud.component.CSARRepositorySearchService;
-import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.model.components.*;
+import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
@@ -28,7 +33,6 @@ import alien4cloud.tosca.normative.NormativeComputeConstants;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.springframework.stereotype.Component;
 
 /**
  * Performs validation of the properties
@@ -40,6 +44,7 @@ public class TopologyPropertiesValidationService {
 
     /**
      * Validate that the properties values in the topology are matching the property definitions (required & constraints).
+     * Skips properties defined as get_input
      *
      * @param topology The actual topology to validate.
      * @return A list tasks to be done to make this topology valid.
@@ -98,6 +103,7 @@ public class TopologyPropertiesValidationService {
             }
 
             if (MapUtils.isNotEmpty(task.getProperties())) {
+                // why verify this????
                 if (CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.REQUIRED))
                         || CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.WARNING))) {
                     toReturnTaskList.add(task);
@@ -208,7 +214,8 @@ public class TopologyPropertiesValidationService {
                 propertyValue = ((ScalarPropertyValue) value).getValue();
                 isScalar = true;
             } else {
-                throw new InvalidArgumentException("Topology validation only supports scalar value, get_input should be replaced before performing validation");
+                // this is a get_input. Will be validated later on
+                continue;
             }
 
             if (StringUtils.isBlank(propertyValue)) {
@@ -223,6 +230,7 @@ public class TopologyPropertiesValidationService {
                     }
                 }
                 // add required or warning property
+                // ??? why this check?
                 if (TaskLevel.REQUIRED.equals(taskLevel) || isGetInputInternal || isScalar) {
                     task.getProperties().get(taskLevel).add(propertyEntry.getKey());
                 }

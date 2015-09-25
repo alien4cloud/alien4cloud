@@ -46,7 +46,7 @@ define(function (require) {
           angular.toJson(updatePropertyObject), function(response) {
           if (!response.error) {
             if(_.undefined($scope.target.metaProperties)) {
-              $scope.target.metaproperties = {};
+              $scope.target.metaProperties = {};
             }
             $scope.target.metaProperties[updatePropertyObject.definitionId] = updatePropertyObject.value;
           }
