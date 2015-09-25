@@ -30,9 +30,9 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat-start="orchestrator in orchestrators" id='orchestrator_{{orchestrator.id}}' ng-click="openOrchestrator(orchestrator.id)" ng-init="islocationCollapsed = false">
+            <tr ng-repeat-start="orchestrator in orchestrators" id='orchestrator_{{orchestrator.id}}' class="clickable" ng-click="openOrchestrator(orchestrator.id)" ng-init="islocationCollapsed = false">
               <td>
-                <a class="btn btn-default" id="clone_cloud_{{cloud.name}}" ng-click="$event.stopPropagation(); islocationCollapsed = !islocationCollapsed;">
+                <a class="btn btn-default btn-sm" id="show_locations_{{cloud.name}}" ng-click="$event.stopPropagation(); islocationCollapsed = !islocationCollapsed;">
                   <i class="fa" ng-class="{'fa-chevron-down' : !islocationCollapsed, 'fa-chevron-right': islocationCollapsed}"></i>
                 </a>
                 <i class="fa fa-2x ng-scope" tooltip="{{'ORCHESTRATORS.STATES.' + orchestrator.state}}" ng-class="{
