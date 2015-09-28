@@ -35,6 +35,7 @@ import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyService;
+import alien4cloud.topology.TopologyValidationService;
 import alien4cloud.utils.ReflectionUtil;
 
 import com.google.common.collect.Sets;
@@ -59,10 +60,12 @@ public class DeploymentTopologyController {
     private LocationResourceService locationResourceService;
     @Inject
     private TopologyService topologyService;
+    @Inject
+    private TopologyValidationService topologyValidationService;
 
     /**
      * Try to get the available substitutions for node of the topology of the given application on the given environment
-     * 
+     *
      * @param appId id of the application
      * @param environmentId id of the environment
      * @return response containing the available substitutions
@@ -188,6 +191,7 @@ public class DeploymentTopologyController {
         if (StringUtils.isNotBlank(locationId)) {
             deploymentTopologyDTO.getLocationPolicies().put(AlienConstants.GROUP_ALL, locationId);
         }
+        deploymentTopologyDTO.setValidation(topologyValidationService.validateDeploymentTopology(deploymentTopology));
         return deploymentTopologyDTO;
     }
 }

@@ -712,7 +712,7 @@ public class TopologyController {
         Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS,
                 ApplicationRole.APPLICATION_USER);
-        TopologyValidationResult dto = topologyValidationService.validateTopologyBeforeDeploymentConfig(topology);
+        TopologyValidationResult dto = topologyValidationService.validateTopology(topology);
         return RestResponseBuilder.<TopologyValidationResult> builder().data(dto).build();
     }
 

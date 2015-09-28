@@ -10,6 +10,7 @@ import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.topology.AbstractTopologyDTO;
+import alien4cloud.topology.TopologyValidationResult;
 
 import com.google.common.collect.Maps;
 
@@ -18,6 +19,9 @@ import com.google.common.collect.Maps;
 public class DeploymentTopologyDTO extends AbstractTopologyDTO<DeploymentTopology> {
     /** groupeName --> locationId */
     private Map<String, String> locationPolicies = Maps.newHashMap();
+
+    /** validation result of the deployment topology */
+    private TopologyValidationResult validation;
 
     public DeploymentTopologyDTO(DeploymentTopology topology, Map<String, IndexedNodeType> nodeTypes, Map<String, IndexedRelationshipType> relationshipTypes,
             Map<String, IndexedCapabilityType> capabilityTypes, Map<String, Map<String, Set<String>>> outputCapabilityProperties, String yaml) {

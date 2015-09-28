@@ -14,6 +14,7 @@ import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.common.TagService;
+import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.wf.Workflow;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
@@ -61,12 +62,13 @@ public class TopologyValidationService {
     private WorkflowsBuilderService workflowBuilderService;
 
     /**
-     * Validate if a topology is valid for deployment or not, before deployment configuration
+     * Validate if a topology is valid for deployment configuration or not,
+     * This is done before deployment configuration
      *
      * @param topology topology to be validated
      * @return the validation result
      */
-    public TopologyValidationResult validateTopologyBeforeDeploymentConfig(Topology topology) {
+    public TopologyValidationResult validateTopology(Topology topology) {
         TopologyValidationResult dto = new TopologyValidationResult();
         if (topology.getNodeTemplates() == null || topology.getNodeTemplates().size() < 1) {
             dto.setValid(false);
@@ -103,12 +105,37 @@ public class TopologyValidationService {
         // validate the node filters for all relationships
         dto.addToTaskList(nodeFilterValidationService.validateRequirementFilters(topology));
 
-        // FIXME property validation doesn't ignore inputs. It should.
         // validate required properties (properties of NodeTemplate, Relationship and Capability)
-        // check also CLOUD / ENVIRONMENT meta properties
-        List<PropertiesTask> validateProperties = topologyPropertiesValidationService.validateProperties(topology);
+        List<PropertiesTask> validateProperties = topologyPropertiesValidationService.validatePropertiesSkipInputs(topology);
 
         // List<PropertiesTask> validateProperties = null;
+        if (hasOnlyPropertiesWarnings(validateProperties)) {
+            dto.addToWarningList(validateProperties);
+        } else {
+            dto.addToTaskList(validateProperties);
+        }
+
+        dto.setValid(isValidTaskList(dto.getTaskList()));
+
+        return dto;
+    }
+
+    /**
+     * Validate if a topology is valid for deployment (after or during the configuration) or not
+     *
+     * @param deploymentTopology deployment topology to be validated
+     * @return the validation result
+     */
+    public TopologyValidationResult validateDeploymentTopology(DeploymentTopology deploymentTopology) {
+        TopologyValidationResult dto = new TopologyValidationResult();
+        if (deploymentTopology.getNodeTemplates() == null || deploymentTopology.getNodeTemplates().size() < 1) {
+            dto.setValid(false);
+            return dto;
+        }
+        // validate required properties (properties of NodeTemplate, Relationship and Capability)
+        // check also location / ENVIRONMENT meta properties
+        List<PropertiesTask> validateProperties = topologyPropertiesValidationService.validateAllProperties(deploymentTopology);
+
         if (hasOnlyPropertiesWarnings(validateProperties)) {
             dto.addToWarningList(validateProperties);
         } else {

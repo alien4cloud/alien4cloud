@@ -162,10 +162,9 @@ public class InputsPreProcessorService {
                     if (ToscaFunctionConstants.GET_INPUT.equals(function.getFunction())) {
                         String inputName = function.getParameters().get(0);
                         String value = inputs.get(inputName);
+                        // if not null, replace the input value. Otherwise, let it as a function for validation purpose later
                         if (value != null) {
-                            // replace the value from the inputs
-                            ScalarPropertyValue scalerValue = new ScalarPropertyValue(value);
-                            propEntry.setValue(scalerValue);
+                            propEntry.setValue(new ScalarPropertyValue(value));
                         }
                     } else {
                         log.warn("Function <{}> detected for property <{}> while only <get_input> should be authorized.", function.getFunction(),

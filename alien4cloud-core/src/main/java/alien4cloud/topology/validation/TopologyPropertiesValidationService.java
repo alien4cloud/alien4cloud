@@ -7,6 +7,8 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +26,7 @@ import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.paas.exception.NotSupportedException;
 import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.topology.task.PropertiesTask;
 import alien4cloud.topology.task.ScalableTask;
@@ -38,6 +41,7 @@ import com.google.common.collect.Sets;
  * Performs validation of the properties
  */
 @Component
+@Slf4j
 public class TopologyPropertiesValidationService {
     @Resource
     private CSARRepositorySearchService csarRepoSearchService;
@@ -49,7 +53,29 @@ public class TopologyPropertiesValidationService {
      * @param topology The actual topology to validate.
      * @return A list tasks to be done to make this topology valid.
      */
-    public List<PropertiesTask> validateProperties(Topology topology) {
+    public List<PropertiesTask> validatePropertiesSkipInputs(Topology topology) {
+        return validateProperties(topology, true);
+    }
+
+    /**
+     * Validate that the All properties (including dynamic properties (get_input )) values in the topology are matching the property definitions (required &
+     * constraints).
+     *
+     * @param topology The actual topology to validate.
+     * @return A list tasks to be done to make this topology valid.
+     */
+    public List<PropertiesTask> validateAllProperties(Topology topology) {
+        return validateProperties(topology, false);
+    }
+
+    /**
+     * Validate properties.
+     *
+     * @param topology
+     * @param skipInputProperties whether to skip input properties validation or not. This is in case inputs are not yet processed
+     * @return
+     */
+    private List<PropertiesTask> validateProperties(Topology topology, boolean skipInputProperties) {
         List<PropertiesTask> toReturnTaskList = Lists.newArrayList();
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
 
@@ -74,7 +100,7 @@ public class TopologyPropertiesValidationService {
             task.setProperties(Maps.<TaskLevel, List<String>> newHashMap());
 
             // Check the properties of node template
-            addRequiredPropertyIdToTaskProperties(nodeTemplate.getProperties(), relatedIndexedNodeType.getProperties(), task);
+            addRequiredPropertyIdToTaskProperties(nodeTemplate.getProperties(), relatedIndexedNodeType.getProperties(), task, skipInputProperties);
 
             // Check relationships PD
             if (nodeTemplate.getRelationships() != null && !nodeTemplate.getRelationships().isEmpty()) {
@@ -83,7 +109,8 @@ public class TopologyPropertiesValidationService {
                     if (relationship.getProperties() == null || relationship.getProperties().isEmpty()) {
                         continue;
                     }
-                    addRequiredPropertyIdToTaskProperties(relationship.getProperties(), getRelationshipPropertyDefinition(topology, nodeTemplate), task);
+                    addRequiredPropertyIdToTaskProperties(relationship.getProperties(), getRelationshipPropertyDefinition(topology, nodeTemplate), task,
+                            skipInputProperties);
                 }
             }
 
@@ -94,7 +121,8 @@ public class TopologyPropertiesValidationService {
                     if (capability.getProperties() == null || capability.getProperties().isEmpty()) {
                         continue;
                     }
-                    addRequiredPropertyIdToTaskProperties(capability.getProperties(), getCapabilitiesPropertyDefinition(topology, nodeTemplate), task);
+                    addRequiredPropertyIdToTaskProperties(capability.getProperties(), getCapabilitiesPropertyDefinition(topology, nodeTemplate), task,
+                            skipInputProperties);
                     if (capability.getType().equals(NormativeComputeConstants.SCALABLE_CAPABILITY_TYPE)) {
                         Map<String, AbstractPropertyValue> scalableProperties = capability.getProperties();
                         verifyScalableProperties(scalableProperties, toReturnTaskList, nodeTempEntry.getKey());
@@ -178,7 +206,12 @@ public class TopologyPropertiesValidationService {
 
     private int verifyScalableProperty(Map<String, AbstractPropertyValue> scalableProperties, String propertyToVerify, Set<String> missingProperties,
             Set<String> errorProperties) {
-        String rawValue = FunctionEvaluator.getScalarValue(scalableProperties.get(propertyToVerify));
+        String rawValue = null;
+        try {
+            rawValue = FunctionEvaluator.getScalarValue(scalableProperties.get(propertyToVerify));
+        } catch (NotSupportedException e1) {
+            // the value is a function (get_input normally), this means the input is not yet filled.
+        }
         if (StringUtils.isEmpty(rawValue)) {
             missingProperties.add(propertyToVerify);
             return -1;
@@ -198,7 +231,7 @@ public class TopologyPropertiesValidationService {
     }
 
     private void addRequiredPropertyIdToTaskProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> relatedProperties,
-            PropertiesTask task) {
+            PropertiesTask task, boolean skipInputProperties) {
         for (Map.Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
 
             PropertyDefinition propertyDef = relatedProperties.get(propertyEntry.getKey());
@@ -214,8 +247,11 @@ public class TopologyPropertiesValidationService {
                 propertyValue = ((ScalarPropertyValue) value).getValue();
                 isScalar = true;
             } else {
-                // this is a get_input. Will be validated later on
-                continue;
+                // this is a get_input funtion.
+                if (skipInputProperties) {
+                    // get_input Will be validated later on
+                    continue;
+                }
             }
 
             if (StringUtils.isBlank(propertyValue)) {
@@ -237,4 +273,5 @@ public class TopologyPropertiesValidationService {
             }
         }
     }
+
 }
