@@ -14,7 +14,7 @@ import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.ScalingPolicy;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.paas.IConfigurablePaaSProvider;
+import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.IllegalDeploymentStateException;
 import alien4cloud.paas.exception.OperationExecutionException;
@@ -33,7 +33,7 @@ import alien4cloud.utils.MapUtil;
 import com.google.common.collect.Maps;
 
 @Slf4j
-public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<ProviderConfig> {
+public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<ProviderConfig> {
     private ReentrantReadWriteLock providerLock = new ReentrantReadWriteLock();
 
     @Override

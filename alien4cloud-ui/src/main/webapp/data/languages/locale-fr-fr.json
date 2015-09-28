@@ -390,7 +390,7 @@
     },
     "DEPLOYMENT": {
       "MATCHING": "Substitution",
-      "SETUP": "Input",
+      "INPUT": "Input",
       "NAME_MATCHER": "Association des ressources du cloud",
       "TITLE_NODE_ICON": "Icône du noeud",
       "TITLE_COMPONENT": "Nom du composant",
@@ -443,6 +443,7 @@
       "PROPERTIES": "Propriétés",
       "ATTRIBUTES": "Attributs",
       "PROPERTIES_INPUTS": "Propriétés d'entrée",
+      "ORCHESTRATOR_PROPERTIES": "Propriétés de l'orchestrator",
       "INPUTS": {
         "ADD": "Ajouter aux Propriétés d'entrée",
         "NAME": "Nom",

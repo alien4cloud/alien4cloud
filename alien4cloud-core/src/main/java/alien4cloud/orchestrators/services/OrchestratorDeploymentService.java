@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
-import alien4cloud.paas.IDeploymentParameterizablePaaSProviderFactory;
 
 /**
  * Helper service to get deployment properties definitions for an orchestrator.
@@ -22,9 +21,6 @@ public class OrchestratorDeploymentService {
     public Map<String, PropertyDefinition> getDeploymentPropertyDefinitions(String orchestratorId) {
         Orchestrator orchestrator = orchestratorService.getOrFail(orchestratorId);
         IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestrator);
-        if (orchestratorFactory instanceof IDeploymentParameterizablePaaSProviderFactory) {
-            return ((IDeploymentParameterizablePaaSProviderFactory) orchestratorFactory).getDeploymentPropertyDefinitions();
-        }
-        return null;
+        return orchestratorFactory.getDeploymentPropertyDefinitions();
     }
 }

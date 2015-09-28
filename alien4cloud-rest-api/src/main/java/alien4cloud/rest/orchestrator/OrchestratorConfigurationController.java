@@ -8,7 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.model.orchestrators.OrchestratorConfiguration;
@@ -27,7 +31,8 @@ import com.wordnik.swagger.annotations.Authorization;
 @Slf4j
 @RestController
 @RequestMapping(value = "/rest/orchestrators/{id}/configuration", produces = MediaType.APPLICATION_JSON_VALUE)
-@Api(value = "Orchestrator Configuration", description = "Get and update orchestrator configuration.", authorizations = { @Authorization("ADMIN") }, position = 4310)
+@Api(value = "Orchestrator Configuration", description = "Get and update orchestrator configuration.", authorizations = {
+        @Authorization("ADMIN") }, position = 4310)
 public class OrchestratorConfigurationController {
     @Inject
     private OrchestratorConfigurationService orchestratorConfigurationService;
@@ -52,16 +57,13 @@ public class OrchestratorConfigurationController {
             orchestratorConfigurationService.updateConfiguration(id, configurationObject);
         } catch (IOException e) {
             log.error("Failed to update cloud configuration. Specified json cannot be processed.", e);
-            return RestResponseBuilder
-                    .<Void> builder()
-                    .error(RestErrorBuilder.builder(RestErrorCode.INVALID_PLUGIN_CONFIGURATION).message("Fail to parse the provided plugin configuration.")
-                            .build()).build();
+            return RestResponseBuilder.<Void> builder().error(
+                    RestErrorBuilder.builder(RestErrorCode.INVALID_PLUGIN_CONFIGURATION).message("Fail to parse the provided plugin configuration.").build())
+                    .build();
         } catch (PluginConfigurationException e) {
             log.error("Failed to update cloud configuration.", e);
-            return RestResponseBuilder
-                    .<Void> builder()
-                    .error(RestErrorBuilder.builder(RestErrorCode.INVALID_PLUGIN_CONFIGURATION)
-                            .message("Fail to update cloud configuration because Plugin used is not valid.").build()).build();
+            return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.INVALID_PLUGIN_CONFIGURATION)
+                    .message("Fail to update cloud configuration because Plugin used is not valid.").build()).build();
         }
 
         return RestResponseBuilder.<Void> builder().build();

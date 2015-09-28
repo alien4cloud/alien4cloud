@@ -20,9 +20,6 @@ import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.common.collect.Maps;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.model.components.IndexedNodeType;
@@ -56,9 +53,7 @@ import alien4cloud.tosca.normative.NormativeRelationshipConstants;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 @Slf4j
-@Component
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class MockPaaSProvider extends AbstractPaaSProvider {
+public abstract class MockPaaSProvider extends AbstractPaaSProvider {
     public static final String PUBLIC_IP = "ip_address";
     public static final String TOSCA_ID = "tosca_id";
     public static final String TOSCA_NAME = "tosca_name";

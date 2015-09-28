@@ -56,7 +56,7 @@ define(function(require) {
         var propertyRequest = {
           propertyName: $scope.propertyName,
           propertyDefinition: $scope.definition,
-          propertyValue: data
+          propertyValue: data.toString()
         };
         var saveResult = $scope.onSave(propertyRequest);
         // If the callback return a promise

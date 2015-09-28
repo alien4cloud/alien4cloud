@@ -1203,7 +1203,7 @@ public class TopologyController {
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
-    @ApiOperation(value = "Un-associate an artifact from the input artifact.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
+    @ApiOperation(value = "Rename input artifact id.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
     @RequestMapping(value = "/{topologyId:.+}/inputArtifacts/{inputArtifactId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<TopologyDTO> updateInputArtifactId(@PathVariable final String topologyId, @PathVariable final String inputArtifactId,

@@ -1,4 +1,4 @@
-define(function (require) {
+define(function(require) {
   'use strict';
 
   var modules = require('modules');
@@ -12,7 +12,7 @@ define(function (require) {
   modules.get('a4c-topology-editor', ['a4c-common', 'a4c-styles', 'a4c-common-graph']).factory('defaultNodeRendererService', ['commonNodeRendererService', 'toscaService', 'listToMapService', 'runtimeColorsService', 'd3Service',
     function(commonNodeRendererService, toscaService, listToMapService, runtimeColorsService, d3Service) {
       var ConnectorRenderer = function(isRequirement, isRuntime) {
-        if(isRequirement) {
+        if (isRequirement) {
           this.cssClass = 'requirement';
         } else {
           this.cssClass = 'capability';
@@ -28,13 +28,13 @@ define(function (require) {
         },
         create: function(group, element) {
           d3Service.circle(group, element.coordinate.relative.x, element.coordinate.relative.y, 5).attr('class', 'connector');
-          if(this.isRuntime) {
+          if (this.isRuntime) {
             return;
           }
           // actually create bigger circle for user interactions to make it easier.
           var actionCircle = d3Service.circle(group, element.coordinate.relative.x, element.coordinate.relative.y, 10).attr('class', 'connectorAction');
           actionCircle.on('mouseover', this.actions.mouseover).on('mouseout', this.actions.mouseout);
-          if(this.isRequirement) {
+          if (this.isRequirement) {
             actionCircle.call(this.actions.connectorDrag);
           }
         },
@@ -43,12 +43,12 @@ define(function (require) {
           var circle = group.select('.connector');
           circle.attr('cx', element.coordinate.relative.x);
           circle.attr('cy', element.coordinate.relative.y);
-          if(this.isRuntime) {
+          if (this.isRuntime) {
             return;
           }
           // we have to update the drag behavior to work with the new selection element (if not it will keep the creation element).
           var actionCircle = group.select('.connectorAction');
-          if(this.isRequirement) {
+          if (this.isRequirement) {
             actionCircle.call(this.actions.connectorDrag);
           }
           actionCircle.attr('cx', element.coordinate.relative.x);
@@ -69,7 +69,7 @@ define(function (require) {
 
         size: function(node) {
           var connectorCount = Math.max(node.capabilities.length, node.requirements.length);
-          var connectorHeight = connectorCount * 10 + (connectorCount+1) * 5;
+          var connectorHeight = connectorCount * 10 + (connectorCount + 1) * 5;
           var height = Math.max(50, connectorHeight);
           // inject the relative coordinates of the connectors
           this.placeConnectors(node.capabilities);
@@ -112,7 +112,7 @@ define(function (require) {
           }
 
           nodeGroup.append('text').attr('text-anchor', 'start').attr('class', 'title').attr('x', 44).attr('y', 20);
-          nodeGroup.append('text').attr('text-anchor', 'end').attr('class', 'version').attr('x', node.bbox.width()-10).attr('y', 40);
+          nodeGroup.append('text').attr('text-anchor', 'end').attr('class', 'version').attr('x', node.bbox.width() - 10).attr('y', 40);
 
           // if the node has some children we should add the collapse bar.
           // if(_.defined(node.children) && node.children.length>0) {
@@ -123,16 +123,16 @@ define(function (require) {
           if (toscaService.isOneOfType(['tosca.nodes.Network'], nodeTemplate.type, topology.nodeTypes)) {
             var netX = node.bbox.width();
             var netMaxX = layout.bbox.width();
-            var netY = node.bbox.height()/2 - 2;
+            var netY = node.bbox.height() / 2 - 2;
             var netStyle = node.networkId % this.networkStyles;
-            var path = 'M '+netX+','+netY+' '+netMaxX+','+netY;
+            var path = 'M ' + netX + ',' + netY + ' ' + netMaxX + ',' + netY;
             nodeGroup.append('path').attr('d', path).attr('class', 'link-network link-network-' + netStyle + ' link-selected');
           }
           d3Service.rect(nodeGroup, 0, 0, node.bbox.width(), node.bbox.height(), 0, 0).attr('class', 'selector').attr('node-template-id', node.id)
             .attr('id', 'rect_' + node.id).on('click', actions.click).on('mouseover', actions.mouseover).on('mouseout', actions.mouseout);
 
-          this.requirementRenderer.actions= actions;
-          this.capabilityRenderer.actions= actions;
+          this.requirementRenderer.actions = actions;
+          this.capabilityRenderer.actions = actions;
           d3Service.select(nodeGroup, node.requirements, '.requirement', this.requirementRenderer);
           d3Service.select(nodeGroup, node.capabilities, '.capability', this.capabilityRenderer);
         },
@@ -150,7 +150,7 @@ define(function (require) {
             }
           });
 
-          if(_.defined(nodeTemplate.groups)) {
+          if (_.defined(nodeTemplate.groups)) {
             var gIdx = 1;
             // group square width is calculated using the node width (1/15)
             var gW = node.bbox.width() / 15;
@@ -195,9 +195,16 @@ define(function (require) {
           } else { // scaling policy
             var scalingPolicy = toscaService.getScalingPolicy(nodeTemplate);
             var scalingPolicySelection = nodeGroup.select('#scalingPolicy');
-            if(_.defined(scalingPolicy)) {
-              var scalingText = scalingPolicy.minInstances + ' - ' + scalingPolicy.initialInstances + ' - ' + scalingPolicy.maxInstances;
-              if(scalingPolicySelection.empty()) {
+            if (_.defined(scalingPolicy)) {
+              var formatScalingValue = function(scalingValue) {
+                if (scalingValue.hasOwnProperty('function')) {
+                  return "...";
+                } else {
+                  return scalingValue;
+                }
+              };
+              var scalingText = formatScalingValue(scalingPolicy.minInstances) + ' - ' + formatScalingValue(scalingPolicy.initialInstances) + ' - ' + formatScalingValue(scalingPolicy.maxInstances);
+              if (scalingPolicySelection.empty()) {
                 var scaleX = 50;
                 if (nodeType.abstract) {
                   scaleX += 20;
@@ -211,7 +218,7 @@ define(function (require) {
               } else {
                 scalingPolicySelection.select('#scaling-text').text(scalingText);
               }
-            } else if(!scalingPolicySelection.empty()) {
+            } else if (!scalingPolicySelection.empty()) {
               scalingPolicySelection.remove();
             }
           }

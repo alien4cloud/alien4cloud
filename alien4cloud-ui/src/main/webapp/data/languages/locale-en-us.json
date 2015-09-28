@@ -394,7 +394,7 @@
     },
     "DEPLOYMENT": {
       "MATCHING": "Substitution",
-      "SETUP": "Input",
+      "INPUT": "Input",
       "NAME_MATCHER": "Association of cloud resources",
       "TITLE_NODE_ICON": "Icon of the node",
       "TITLE_COMPONENT": "Component name",
@@ -445,6 +445,7 @@
       "ATTRIBUTES": "Attributes",
       "PROPERTIES": "Properties",
       "PROPERTIES_INPUTS": "Input properties",
+      "ORCHESTRATOR_PROPERTIES": "Orchestrator properties",
       "INPUTS": {
         "ADD": "Add To Input",
         "NAME": "Name",

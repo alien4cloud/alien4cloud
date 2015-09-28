@@ -12,27 +12,32 @@ define(function(require) {
 
   require('scripts/applications/controllers/application_deployment_locations');
   require('scripts/applications/controllers/application_deployment_match');
-  require('scripts/applications/controllers/application_deployment_setup');
+  require('scripts/applications/controllers/application_deployment_input');
   require('scripts/applications/services/deployment_topology_processor.js');
 
   require('scripts/deployment/directives/display_outputs');
   require('scripts/common/filters/inputs');
+
+  function refreshDeploymentContext(deploymentContext, application, deploymentTopologyServices, deploymentTopologyProcessor) {
+    return deploymentTopologyServices.get({
+      appId: application.id,
+      envId: deploymentContext.selectedEnvironment.id
+    }).$promise.then(function(response) {
+        deploymentTopologyProcessor.process(response.data);
+        deploymentContext.deploymentTopologyDTO = response.data;
+        return deploymentContext;
+      });
+  }
 
   states.state('applications.detail.deployment', {
     url: '/deployment',
     resolve: {
       deploymentContext: ['application', 'appEnvironments', 'deploymentTopologyServices', 'deploymentTopologyProcessor',
         function(application, appEnvironments, deploymentTopologyServices, deploymentTopologyProcessor) {
-          return deploymentTopologyServices.get({
-            appId: application.data.id,
-            envId: appEnvironments.environments[0].id
-          }).$promise.then(function(response) {
-              deploymentTopologyProcessor.process(response.data);
-              return {
-                selectedEnvironment: appEnvironments.environments[0],
-                deploymentTopologyDTO: response.data
-              };
-            });
+          var deploymentContextResult = {
+            selectedEnvironment: appEnvironments.environments[0]
+          };
+          return refreshDeploymentContext(deploymentContextResult, application.data, deploymentTopologyServices, deploymentTopologyProcessor);
         }
       ]
     },
@@ -59,14 +64,8 @@ define(function(require) {
         $scope.application = applicationResult.data;
         $scope.envs = appEnvironments.deployEnvironments;
 
-        $scope.$watch('deploymentContext.selectedEnvironment', function(newValue) {
-          deploymentTopologyServices.get({
-            appId: $scope.application.id,
-            envId: newValue.id
-          }, function(response) {
-            deploymentTopologyProcessor.process(response.data);
-            $scope.deploymentContext.deploymentTopologyDTO = response.data;
-          });
+        $scope.$watch('deploymentContext.selectedEnvironment', function() {
+          refreshDeploymentContext($scope.deploymentContext, $scope.application, deploymentTopologyServices, deploymentTopologyProcessor);
         });
 
         // Retrieval and validation of the topology associated with the deployment.

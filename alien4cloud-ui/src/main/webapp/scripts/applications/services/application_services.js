@@ -43,7 +43,7 @@ define(function (require) {
         }
       });
 
-      var deploymentProperty = $resource('rest/applications/check-deployment-property', {}, {
+      var deploymentProperty = $resource('rest/orchestrators/:orchestratorId/deployment-prop-check', {}, {
         'check': {
           method: 'POST'
         }

@@ -56,6 +56,16 @@ define(function(require) {
           $scope.selectedNodeName = nodeName;
           var substitutedNode = $scope.getSubstitutedTemplate(nodeName);
           if (substitutedNode.id !== template.id) {
+            $scope.selectedResourceTemplate = template;
+          } else {
+            $scope.selectedResourceTemplate = substitutedNode;
+          }
+        };
+
+        $scope.changeSubstitution = function(nodeName, template) {
+          $scope.selectTemplate(nodeName, template);
+          var substitutedNode = $scope.getSubstitutedTemplate(nodeName);
+          if (substitutedNode.id !== template.id) {
             deploymentTopologyServices.updateSubstitution({
               appId: $scope.application.id,
               envId: $scope.deploymentContext.selectedEnvironment.id,
@@ -66,8 +76,6 @@ define(function(require) {
               $scope.deploymentContext.deploymentTopologyDTO = response.data;
               $scope.selectedResourceTemplate = $scope.getSubstitutedTemplate(nodeName);
             });
-          } else {
-            $scope.selectedResourceTemplate = substitutedNode;
           }
         };
 

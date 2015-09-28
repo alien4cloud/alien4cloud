@@ -7,10 +7,15 @@ import javax.validation.Valid;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.orchestrators.services.OrchestratorDeploymentService;
@@ -25,7 +30,9 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationExc
 import alien4cloud.utils.services.ConstraintPropertyService;
 
 import com.mangofactory.swagger.annotations.ApiIgnore;
+import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
+import com.wordnik.swagger.annotations.Authorization;
 
 /**
  *
@@ -68,5 +75,20 @@ public class OrchestratorDeploymentPropertiesController {
             }
         }
         return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().build();
+    }
+
+    /**
+     * Get deployment properties for an orchestrator.
+     *
+     * @param orchestratorId Id of the orchestrator for which to get properties.
+     */
+    @ApiOperation(value = "Get deployment properties for an orchestrator.", notes = "Deployments properties are properties that can be set by the Application Deployer before deployment. They depends on the IPaaSProvider plugin associated with an orchestrator.", authorizations = {
+            @Authorization("ADMIN") })
+    @RequestMapping(value = "/deployment-property-definitions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<Map<String, PropertyDefinition>> getDeploymentPropertyDefinitions(
+            @ApiParam(value = "Id of the cloud for which to get details.", required = true) @Valid @NotBlank @PathVariable String orchestratorId) {
+        return RestResponseBuilder.<Map<String, PropertyDefinition>> builder()
+                .data(orchestratorDeploymentService.getDeploymentPropertyDefinitions(orchestratorId)).build();
     }
 }

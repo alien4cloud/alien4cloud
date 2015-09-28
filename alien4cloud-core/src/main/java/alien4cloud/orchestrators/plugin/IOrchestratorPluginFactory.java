@@ -1,5 +1,8 @@
 package alien4cloud.orchestrators.plugin;
 
+import java.util.Map;
+
+import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.orchestrators.ArtifactSupport;
 import alien4cloud.model.orchestrators.locations.LocationSupport;
 
@@ -54,4 +57,10 @@ public interface IOrchestratorPluginFactory<T extends IOrchestratorPlugin<V>, V>
      */
     ArtifactSupport getArtifactSupport();
 
+    /**
+     * Get the deployment property definition
+     *
+     * @return A map containing property definitions
+     */
+    Map<String, PropertyDefinition> getDeploymentPropertyDefinitions();
 }
