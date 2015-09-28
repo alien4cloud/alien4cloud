@@ -4,10 +4,14 @@
       <accordion close-others="oneAtATime">
         <accordion-group is-open="status.open" ng-repeat="(nodeName, templates) in substitutionContext.availableSubstitutions">
           <accordion-heading ng-init="substitutedNode = getSubstitutedTemplate(nodeName); nodeIcon = getIcon(substitutedNode)">
-            <i ng-if="!nodeIcon" class="fa fa-cogs"></i>
-            <img ng-if="nodeIcon" ng-src="img?id={{nodeIcon}}&quality=QUALITY_32">
-            {{nodeName}} <i class="fa"
-                            ng-class="{'fa-chevron-down': status.open && substitutedNode, 'fa-chevron-right': !status.open && substitutedNode, 'fa-exclamation-triangle text-danger': !substitutedNode}"></i>
+            <div class = "row">
+              <div class = "col-md-12">
+                <i ng-if="!nodeIcon" class="fa fa-cogs"></i>
+                <img ng-if="nodeIcon" ng-src="img?id={{nodeIcon}}&quality=QUALITY_32">
+                {{nodeName}} <i class="fa"
+                                ng-class="{'fa-chevron-down': status.open && substitutedNode, 'fa-chevron-right': !status.open && substitutedNode, 'fa-exclamation-triangle text-danger': !substitutedNode}"></i>
+              </div>
+            </div>
           </accordion-heading>
           <p ng-if="!substitutedNode">
             No substitution available for this node

@@ -142,6 +142,7 @@ define(function(require) {
         if (!_.defined($scope.definition)) {
           return;
         }
+        
         // Now a property is an AbstractPropertyValue : (Scalar or Function)
         var shownValue = $scope.propertyValue;
         if (_.defined($scope.propertyValue) && $scope.propertyValue.definition === false) {
@@ -150,6 +151,8 @@ define(function(require) {
             shownValue = $scope.propertyValue.value;
           } else if ($scope.propertyValue.hasOwnProperty('function') && $scope.propertyValue.hasOwnProperty('parameters') && $scope.propertyValue.parameters.length > 0) {
             shownValue = $scope.propertyValue.function + ': ' + _($scope.propertyValue.parameters).toString();
+            //should not edit a function
+            $scope.editable=false;
           }
         }
 
