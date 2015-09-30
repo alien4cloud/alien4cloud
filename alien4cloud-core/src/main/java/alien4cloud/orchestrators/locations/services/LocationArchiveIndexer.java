@@ -9,6 +9,9 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
+import alien4cloud.orchestrators.services.OrchestratorService;
+import alien4cloud.paas.exception.OrchestratorDisabledException;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -44,6 +47,8 @@ import com.google.common.collect.Sets;
 @Slf4j
 @Component
 public class LocationArchiveIndexer {
+    @Inject
+    private OrchestratorService orchestratorService;
     @Inject
     private OrchestratorPluginService orchestratorPluginService;
     @Inject
@@ -130,8 +135,15 @@ public class LocationArchiveIndexer {
      * @return Map of usages per archives if found (that means the deletion wasn't performed successfully), null if everything went well.
      */
     public Map<Csar, List<Usage>> deleteArchives(Location location) {
-        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(location.getOrchestratorId());
-        ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
+        ILocationConfiguratorPlugin configuratorPlugin;
+        try {
+            IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(location.getOrchestratorId());
+            configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
+        } catch (OrchestratorDisabledException e) {
+            IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestratorService.getOrFail(location.getOrchestratorId()));
+            IOrchestratorPlugin orchestratorInstance = orchestratorFactory.newInstance();
+            configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
+        }
         List<PluginArchive> pluginArchives = configuratorPlugin.pluginArchives();
         // abort if no archive is exposed by this location
         if (CollectionUtils.isEmpty(pluginArchives)) {
@@ -154,8 +166,8 @@ public class LocationArchiveIndexer {
 
     private Set<String> getAllExposedArchivesIdsExluding(Location excludedLocation) {
         // exclude a location from the search
-        QueryBuilder query = QueryBuilders.boolQuery().mustNot(
-                QueryBuilders.idsQuery(Location.class.getSimpleName().toLowerCase()).ids(excludedLocation.getId()));
+        QueryBuilder query = QueryBuilders.boolQuery()
+                .mustNot(QueryBuilders.idsQuery(Location.class.getSimpleName().toLowerCase()).ids(excludedLocation.getId()));
         List<Location> locations = alienDAO.customFindAll(Location.class, query);
         Set<String> archiveIds = Sets.newHashSet();
         if (locations != null) {
