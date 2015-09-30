@@ -7,14 +7,13 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
-import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 
 /**
  * Mock implementation for an orchestrator instance.
  */
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class MockOrchestrator extends MockPaaSProvider implements IOrchestratorPlugin<ProviderConfig> {
+public class MockOrchestrator extends MockPaaSProvider {
     @Inject
     private MockLocationConfigurerFactory mockLocationConfigurerFactory;
 
