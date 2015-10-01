@@ -62,6 +62,12 @@ public class DeploymentTopology extends Topology {
      */
     private Map<String, LocationResourceTemplate> substitutedNodes;
 
+    /**
+     * When the deployment topology substitution is computed, this map will be filled with available location resources for substitution.
+     * This map contains key which is the initial topology node id and value which are all available location resources ids that are matched for the node.
+     */
+    private Map<String, Set<String>> availableSubstitutions;
+
     private String orchestratorId;
 
     private Map<String, NodeGroup> locationGroups = Maps.newHashMap();
@@ -69,7 +75,7 @@ public class DeploymentTopology extends Topology {
     private Set<CSARDependency> locationDependencies = Sets.newHashSet();
 
     /**
-     * Id of deployment topology is a concatenation of version id and environment id
+     * Utility method to generate an id for a deployment topology by concatenating version id and environment id
      * 
      * @param versionId id of the version
      * @param environmentId id of the environment

@@ -3,6 +3,7 @@ package alien4cloud.deployment;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -23,6 +24,7 @@ import alien4cloud.topology.TopologyServiceCore;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 @Service
 public class DeploymentNodeSubstitutionService {
@@ -34,12 +36,13 @@ public class DeploymentNodeSubstitutionService {
     private NodeMatcherService nodeMatcherService;
 
     /**
-     * Get all available substitutions (LocationResourceTemplate) for the given deployment topology
+     * Get all available substitutions (LocationResourceTemplate) for the given deployment topology. At this point the deployment topology do not contains
+     * substituted nodes and so the matching does always make sense.
      * 
      * @param deploymentTopology the deployment topology
      * @return a map which contains mapping from node template id to its available substitutions
      */
-    public Map<String, List<LocationResourceTemplate>> getAvailableSubstitutions(DeploymentTopology deploymentTopology) {
+    private Map<String, List<LocationResourceTemplate>> getAvailableSubstitutions(DeploymentTopology deploymentTopology) {
         Map<String, IndexedNodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(deploymentTopology, false, false);
         Map<String, NodeGroup> locationGroups = deploymentTopology.getLocationGroups();
         Map<String, List<LocationResourceTemplate>> availableSubstitutions = Maps.newHashMap();
@@ -77,6 +80,15 @@ public class DeploymentNodeSubstitutionService {
         }
         deploymentTopology.getDependencies().addAll(deploymentTopology.getLocationDependencies());
         Map<String, List<LocationResourceTemplate>> availableSubstitutions = getAvailableSubstitutions(deploymentTopology);
+        Map<String, Set<String>> availableSubstitutionsIds = Maps.newHashMap();
+        for (Map.Entry<String, List<LocationResourceTemplate>> availableSubstitutionEntry : availableSubstitutions.entrySet()) {
+            Set<String> ids = Sets.newHashSet();
+            for (LocationResourceTemplate availableSubstitution : availableSubstitutionEntry.getValue()) {
+                ids.add(availableSubstitution.getId());
+            }
+            availableSubstitutionsIds.put(availableSubstitutionEntry.getKey(), ids);
+        }
+        deploymentTopology.setAvailableSubstitutions(availableSubstitutionsIds);
         Map<String, LocationResourceTemplate> substitutedNodes = deploymentTopology.getSubstitutedNodes();
         if (MapUtils.isEmpty(substitutedNodes)) {
             substitutedNodes = Maps.newHashMap();
@@ -122,7 +134,8 @@ public class DeploymentNodeSubstitutionService {
                 if (MapUtils.isEmpty(substitutionNode.getProperties())) {
                     substitutionNode.setProperties(Maps.<String, AbstractPropertyValue> newHashMap());
                 }
-                substitutionNode.getProperties().putAll(originalNode.getProperties());
+                originalNode.getProperties().putAll(substitutionNode.getProperties());
+                substitutionNode.setProperties(originalNode.getProperties());
             }
             if (MapUtils.isNotEmpty(originalNode.getCapabilities()) && MapUtils.isNotEmpty(substitutionNode.getCapabilities())) {
                 for (Map.Entry<String, Capability> originalCapabilityEntry : originalNode.getCapabilities().entrySet()) {
@@ -132,7 +145,8 @@ public class DeploymentNodeSubstitutionService {
                         if (MapUtils.isEmpty(substitutionCapability.getProperties())) {
                             substitutionCapability.setProperties(Maps.<String, AbstractPropertyValue> newHashMap());
                         }
-                        substitutionCapability.getProperties().putAll(originalCapabilityEntry.getValue().getProperties());
+                        originalCapabilityEntry.getValue().getProperties().putAll(substitutionCapability.getProperties());
+                        substitutionCapability.setProperties(originalCapabilityEntry.getValue().getProperties());
                     }
                 }
             }
