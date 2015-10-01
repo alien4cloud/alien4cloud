@@ -2,6 +2,7 @@ package alien4cloud.orchestrators.plugin;
 
 import java.util.List;
 
+import alien4cloud.model.deployment.matching.MatchingConfiguration;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.orchestrators.plugin.model.PluginArchive;
 
@@ -24,6 +25,13 @@ public interface ILocationConfiguratorPlugin {
      * @return A list of location resources types.
      */
     List<String> getResourcesTypes();
+
+    /**
+     * Return the list of matching configurations used to match the nodes provided by the location.
+     * 
+     * @return A list of MatchingConfigurations for the types provided by the location.
+     */
+    List<MatchingConfiguration> getMatchingConfigurations();
 
     /**
      * Auto-configure the instances of location resources.

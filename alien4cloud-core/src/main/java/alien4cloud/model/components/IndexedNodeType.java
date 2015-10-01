@@ -19,7 +19,6 @@ import org.elasticsearch.mapping.IndexType;
 @Setter
 @EqualsAndHashCode(of = {}, callSuper = true)
 @ESObject
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class IndexedNodeType extends IndexedArtifactToscaElement {
 
     @FetchContext(contexts = { QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false })

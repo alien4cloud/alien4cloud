@@ -6,6 +6,9 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import alien4cloud.deployment.matching.services.nodes.MatchingConfigurations;
+import alien4cloud.deployment.matching.services.nodes.MatchingConfigurationsParser;
+import alien4cloud.model.deployment.matching.MatchingConfiguration;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -36,6 +39,8 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
     @Inject
     private ArchiveParser archiveParser;
     @Inject
+    private MatchingConfigurationsParser matchingConfigurationsParser;
+    @Inject
     private PluginManager pluginManager;
     @Inject
     private ManagedPlugin selfContext;
@@ -59,8 +64,8 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
 
     private List<PluginArchive> parseArchives() {
         List<PluginArchive> archives = Lists.newArrayList();
-        addToAchive(archives, "openstack/openstack-resources.yaml.zip");
-        addToAchive(archives, "openstack/mock-resources.yaml.zip");
+        addToAchive(archives, "openstack/mock-openstack-resources");
+        addToAchive(archives, "openstack/mock-resources");
         return archives;
     }
 
@@ -68,7 +73,7 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
         Path archivePath = selfContext.getPluginPath().resolve(path);
         // Parse the archives
         try {
-            ParsingResult<ArchiveRoot> result = archiveParser.parse(archivePath);
+            ParsingResult<ArchiveRoot> result = archiveParser.parseDir(archivePath);
             PluginArchive pluginArchive = new PluginArchive(result.getResult(), archivePath);
             archives.add(pluginArchive);
         } catch (ParsingException e) {
@@ -82,8 +87,13 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
     }
 
     @Override
-    public List<LocationResourceTemplate> instances(ILocationResourceAccessor resourceAccessor) {
+    public List<MatchingConfiguration> getMatchingConfigurations() {
+        MatchingConfigurations matchingConfigurations = matchingConfigurationsParser.parseFile("");
+        return matchingConfigurations.getMatchingConfigurations();
+    }
 
+    @Override
+    public List<LocationResourceTemplate> instances(ILocationResourceAccessor resourceAccessor) {
         ImageFlavorContext imageContext = resourceGeneratorService.buildContext("alien.nodes.mock.openstack.Image", "id", resourceAccessor);
         ImageFlavorContext flavorContext = resourceGeneratorService.buildContext("alien.nodes.mock.openstack.Flavor", "id", resourceAccessor);
         boolean canProceed = true;
@@ -104,5 +114,4 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
 
         return resourceGeneratorService.generateComputeFromImageAndFlavor(imageContext, flavorContext, computeContext, resourceAccessor);
     }
-
 }

@@ -12,6 +12,7 @@ import javax.annotation.Resource;
  */
 @Service
 public class MatchingConfigurationService {
+    public static final String CAPABILITIES_PREFIX = "capabilities";
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
 

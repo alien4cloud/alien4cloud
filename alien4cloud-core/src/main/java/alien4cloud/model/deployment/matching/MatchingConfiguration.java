@@ -5,7 +5,6 @@ import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.model.components.PropertyConstraint;
 
 /**
  * Matching configuration is associated to types provided by a plugin so alien knows how things should be matched.
@@ -14,17 +13,15 @@ import alien4cloud.model.components.PropertyConstraint;
  */
 @Getter
 @Setter
-public class MatchingConfiguration {
+public class MatchingConfiguration extends MatchingFilterDefinition {
     /** Type to be matched */
     private String nodeType;
     /** Version of the node type's archive. */
     private String archiveVersion;
     /** Name of the node type's archive. */
     private String archiveName;
-    /** Matching ordering is used to sort templates in order to find best matches. */
-    private List<String> matchingOrdering;
-    /** Key is the path of the element to check. Value is the constraint to apply. */
-    private Map<String, List<PropertyConstraint>> propsConstraints;
+    /** Sort ordering is used to sort templates in order to find best matches. */
+    private List<String> sortOrdering;
     /** Constraints to be applied to properties capabilities to match the type. */
-    private Map<String, Map<String, List<PropertyConstraint>>> capabilitiesPropsConstraints;
+    private Map<String, MatchingFilterDefinition> capabilities;
 }
