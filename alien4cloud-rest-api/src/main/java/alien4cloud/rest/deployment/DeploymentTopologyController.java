@@ -30,7 +30,7 @@ import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.orchestrators.locations.services.LocationResourceService;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.rest.application.model.SetLocationPoliciesRequest;
-import alien4cloud.rest.application.model.UpdateDeploymentSetupRequest;
+import alien4cloud.rest.application.model.UpdateDeploymentTopologyRequest;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -189,12 +189,12 @@ public class DeploymentTopologyController {
      * @param appId The application id.
      * @return nothing if success, error will be handled in global exception strategy
      */
-    @ApiOperation(value = "Updates by merging the given request into the given application's deployment setup.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
-    @RequestMapping(value = "/deployment-setup", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Updates by merging the given request into the given application's deployment topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
+    @RequestMapping(method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<?> updateDeploymentSetup(@PathVariable String appId, @PathVariable String environmentId,
-            @RequestBody UpdateDeploymentSetupRequest updateRequest) throws OrchestratorDisabledException {
+            @RequestBody UpdateDeploymentTopologyRequest updateRequest) throws OrchestratorDisabledException {
 
         // check rights on related environment
         checkAuthorizations(appId, environmentId);
