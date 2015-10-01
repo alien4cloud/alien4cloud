@@ -1,6 +1,6 @@
 package alien4cloud.rest.deployment;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -77,12 +77,15 @@ public class DeploymentTopologyController {
         checkAuthorizations(appId, environmentId);
         DeploymentTopology deploymentTopology = deploymentTopologyService.getOrCreateDeploymentTopology(environmentId);
         DeploymentNodeSubstitutionsDTO dto = new DeploymentNodeSubstitutionsDTO();
-        dto.setAvailableSubstitutions(deploymentNodeSubstitutionService.getAvailableSubstitutions(deploymentTopology));
-        Set<LocationResourceTemplate> allTemplates = Sets.newHashSet();
-        for (List<LocationResourceTemplate> availableSubstitutions : dto.getAvailableSubstitutions().values()) {
-            allTemplates.addAll(availableSubstitutions);
+        Map<String, Set<String>> availableSubstitutionIds = deploymentTopology.getAvailableSubstitutions();
+        Set<String> allTemplateIds = Sets.newHashSet();
+        for (Set<String> templateIds : availableSubstitutionIds.values()) {
+            allTemplateIds.addAll(templateIds);
         }
-        dto.setSubstitutionTypes(locationResourceService.getLocationResourceTypes(allTemplates));
+        Map<String, LocationResourceTemplate> templates = locationResourceService.getMultiple(allTemplateIds);
+        dto.setAvailableSubstitutions(availableSubstitutionIds);
+        dto.setSubstitutionsTemplates(templates);
+        dto.setSubstitutionTypes(locationResourceService.getLocationResourceTypes(templates.values()));
         return RestResponseBuilder.<DeploymentNodeSubstitutionsDTO> builder().data(dto).build();
     }
 

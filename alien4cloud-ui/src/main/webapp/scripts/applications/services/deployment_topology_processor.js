@@ -20,6 +20,15 @@ define(function(require) {
             }
           },
           processSubstitutionResources: function(substitutionResources) {
+            var availableSubstitutionsIds = substitutionResources.availableSubstitutions;
+            substitutionResources.availableSubstitutions = {};
+            for (var nodeId in availableSubstitutionsIds) {
+              if (availableSubstitutionsIds.hasOwnProperty(nodeId)) {
+                substitutionResources.availableSubstitutions[nodeId] = _.map(availableSubstitutionsIds[nodeId], function(resourceId) {
+                  return substitutionResources.substitutionsTemplates[resourceId];
+                });
+              }
+            }
             listToMapService.processMap(substitutionResources.substitutionTypes.nodeTypes, 'properties');
             listToMapService.processMap(substitutionResources.substitutionTypes.capabilityTypes, 'properties');
             for (var nodeId in substitutionResources.availableSubstitutions) {

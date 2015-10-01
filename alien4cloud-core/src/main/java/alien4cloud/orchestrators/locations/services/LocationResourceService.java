@@ -205,6 +205,15 @@ public class LocationResourceService {
         return getResourcesTemplates(getLocationIdFilter(locationId));
     }
 
+    public Map<String, LocationResourceTemplate> getMultiple(Collection<String> ids) {
+        Map<String, LocationResourceTemplate> result = Maps.newHashMap();
+        List<LocationResourceTemplate> templates = alienDAO.findByIds(LocationResourceTemplate.class, ids.toArray(new String[ids.size()]));
+        for (LocationResourceTemplate template : templates) {
+            result.put(template.getId(), template);
+        }
+        return result;
+    }
+
     public LocationResourceTemplate addResourceTemplate(String locationId, String resourceName, String resourceTypeName) {
         Location location = locationService.getOrFail(locationId);
         IndexedNodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, resourceTypeName,

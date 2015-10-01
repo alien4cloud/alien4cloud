@@ -165,10 +165,7 @@ public class ApplicationDeploymentController {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
         try {
-            boolean isEnvironmentDeployed = applicationEnvironmentService.isDeployed(environment.getId());
-            if (isEnvironmentDeployed) {
-                undeployService.undeploy(applicationEnvironmentId);
-            }
+            undeployService.undeployEnvironment(applicationEnvironmentId);
         } catch (OrchestratorDisabledException e) {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
         }
