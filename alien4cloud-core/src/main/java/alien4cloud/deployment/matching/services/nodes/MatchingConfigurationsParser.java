@@ -33,6 +33,7 @@ public class MatchingConfigurationsParser extends YamlParser<MatchingConfigurati
 
     @Override
     protected INodeParser<MatchingConfigurations> getParser(Node rootNode, ParsingContextExecution context) throws ParsingException {
+        context.setRegistry(parsers);
         return parsers.get(MATCHING_CONFIGURATION_TYPE);
     }
 }

@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.model.deployment.matching.MatchingConfiguration;
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.exception.OrchestratorDisabledException;

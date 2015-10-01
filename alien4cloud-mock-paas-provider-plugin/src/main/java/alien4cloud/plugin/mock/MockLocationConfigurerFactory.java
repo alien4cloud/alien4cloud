@@ -1,10 +1,13 @@
 package alien4cloud.plugin.mock;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
+import alien4cloud.model.deployment.matching.MatchingConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -47,9 +50,16 @@ public class MockLocationConfigurerFactory {
             }
 
             @Override
+            public Map<String, MatchingConfiguration> getMatchingConfigurations() {
+                return new HashMap<>();
+            }
+
+            @Override
             public List<LocationResourceTemplate> instances(ILocationResourceAccessor resourceAccessor) {
                 return null;
             }
+
+
         };
     }
 }

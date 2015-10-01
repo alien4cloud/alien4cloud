@@ -6,6 +6,10 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import alien4cloud.model.deployment.matching.MatchingConfiguration;
+import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.orchestrators.locations.services.LocationMatchingConfigurationService;
+import alien4cloud.orchestrators.locations.services.LocationService;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.deployment.matching.plugins.INodeMatcherPlugin;
@@ -28,9 +32,12 @@ public class NodeMatcherService {
 
     @Inject
     private DefaultNodeMatcher defaultNodeMatcher;
-
+    @Inject
+    private LocationService locationService;
     @Inject
     private LocationResourceService locationResourceService;
+    @Inject
+    private LocationMatchingConfigurationService locationMatchingConfigurationService;
 
     private INodeMatcherPlugin getNodeMatcherPlugin() {
         // TODO manage plugins
@@ -40,7 +47,9 @@ public class NodeMatcherService {
     public Map<String, List<LocationResourceTemplate>> match(Map<String, IndexedNodeType> nodesTypes, Map<String, NodeTemplate> nodesToMatch,
             String locationId) {
         Map<String, List<LocationResourceTemplate>> matchingResult = Maps.newHashMap();
-        LocationResources locationResources = locationResourceService.getLocationResources(locationId);
+        Location location = locationService.getOrFail(locationId);
+        LocationResources locationResources = locationResourceService.getLocationResources(location);
+        Map<String, MatchingConfiguration> matchingConfigurations = locationMatchingConfigurationService.getMatchingConfiguration(location);
         Set<String> typesManagedByLocation = Sets.newHashSet();
         for (IndexedNodeType nodeType : locationResources.getNodeTypes().values()) {
             typesManagedByLocation.add(nodeType.getElementId());
@@ -55,7 +64,7 @@ public class NodeMatcherService {
                 if (nodeTemplateType == null) {
                     throw new InvalidArgumentException("The given node types map must contain the type of the node template");
                 }
-                matchingResult.put(nodeTemplateId, nodeMatcherPlugin.matchNode(nodeTemplate, nodeTemplateType, locationResources));
+                matchingResult.put(nodeTemplateId, nodeMatcherPlugin.matchNode(nodeTemplate, nodeTemplateType, locationResources, matchingConfigurations));
             }
         }
         return matchingResult;

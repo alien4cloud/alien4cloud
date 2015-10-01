@@ -2,6 +2,7 @@ package alien4cloud.plugin.mock;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -9,6 +10,7 @@ import javax.inject.Inject;
 import alien4cloud.deployment.matching.services.nodes.MatchingConfigurations;
 import alien4cloud.deployment.matching.services.nodes.MatchingConfigurationsParser;
 import alien4cloud.model.deployment.matching.MatchingConfiguration;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -87,8 +89,14 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
     }
 
     @Override
-    public List<MatchingConfiguration> getMatchingConfigurations() {
-        MatchingConfigurations matchingConfigurations = matchingConfigurationsParser.parseFile("");
+    public Map<String, MatchingConfiguration> getMatchingConfigurations() {
+        Path matchingConfigPath = selfContext.getPluginPath().resolve("openstack/mock-resources-matching-config.yml");
+        MatchingConfigurations matchingConfigurations = null;
+        try {
+            matchingConfigurations = matchingConfigurationsParser.parseFile(matchingConfigPath).getResult();
+        } catch (ParsingException e) {
+            return Maps.newHashMap();
+        }
         return matchingConfigurations.getMatchingConfigurations();
     }
 

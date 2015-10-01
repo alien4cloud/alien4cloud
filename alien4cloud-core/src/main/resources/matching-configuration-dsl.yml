@@ -1,28 +1,31 @@
 # Mapping definition for matching configurations
+- scalar: alien4cloud.tosca.parser.impl.base.ScalarParser
 
 - constraint: alien4cloud.tosca.parser.impl.advanced.ConstraintParser
 
 - constraint_list: list # This element must be parsed as a list
   type: constraint # the elements in the list are constraints
 
-- matching_filter_definition: alien4cloud.model.components.FilterDefinition
+- matching_filter_definition: alien4cloud.model.deployment.matching.MatchingFilterDefinition
   properties:
     sequence_to_map: properties
     type: constraint_list
     node_is_value: false
 
 - matching_configuration: alien4cloud.model.deployment.matching.MatchingConfiguration
+  sort_ordering:
+    list: sortOrdering
+    type: scalar
   properties:
     sequence_to_map: properties
     type: constraint_list
     node_is_value: false
   capabilities:
     sequence_to_map: capabilities
-    type: filter_definition
+    type: matching_filter_definition
     node_is_value: false
 
 - matching_configurations: alien4cloud.deployment.matching.services.nodes.MatchingConfigurations
-  properties:
-    matching_configurations:
-      list: matchingConfigurations
-      type: matching_configuration
+  matching_configurations:
+    map: matchingConfigurations
+    type: matching_configuration

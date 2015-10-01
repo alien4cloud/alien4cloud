@@ -142,16 +142,6 @@ public class LocationResourceService {
     }
 
     /**
-     * Get the list of resources definitions for a given orchestrator.
-     *
-     * @param locationId the location's id
-     * @return A list of resource definitions for the given location.
-     */
-    public LocationResources getLocationResources(String locationId) {
-        return getLocationResources(locationService.getOrFail(locationId));
-    }
-
-    /**
      * Create an instance of an ILocationResourceAccessor that will perform queries on LocationResourceTemplate for a given location.
      *
      * @param locationId Id of the location for which to get the accessor.
