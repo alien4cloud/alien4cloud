@@ -158,7 +158,7 @@ public class ApplicationEnvironmentService {
      */
     public Deployment getActiveDeployment(String appEnvironmentId) {
         GetMultipleDataResult<Deployment> dataResult = alienDAO.search(Deployment.class, null, MapUtil.newHashMap(
-                new String[] { "deploymentSetup.environmentId", "endDate" }, new String[][] { new String[] { appEnvironmentId }, new String[] { null } }), 1);
+                new String[] { "environmentId", "endDate" }, new String[][] { new String[] { appEnvironmentId }, new String[] { null } }), 1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             return dataResult.getData()[0];
         }

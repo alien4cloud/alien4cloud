@@ -113,7 +113,7 @@ public class DeploymentService {
      * @return active deployment or null if not exist
      */
     public Deployment getActiveDeployment(String applicationEnvironmentId) {
-        Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "deploymentSetup.environmentId", "endDate" },
+        Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "environmentId", "endDate" },
                 new String[][] { new String[] { applicationEnvironmentId }, new String[] { null } });
         GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, 1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {

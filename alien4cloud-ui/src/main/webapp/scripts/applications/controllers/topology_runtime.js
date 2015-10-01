@@ -21,8 +21,8 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('TopologyRuntimeCtrl',
-    ['$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'cloudServices', 'appEnvironments', '$interval', 'toscaService', 'topologyJsonProcessor',
-    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServicesFactory, $state, propertiesServices, toaster, cloudServices, appEnvironments, $interval, toscaService, topologyJsonProcessor) {
+    ['$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'orchestratorService', 'appEnvironments', '$interval', 'toscaService', 'topologyJsonProcessor',
+    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServicesFactory, $state, propertiesServices, toaster, orchestratorService, appEnvironments, $interval, toscaService, topologyJsonProcessor) {
       var pageStateId = $state.current.name;
       var applicationId = $state.params.id;
 
@@ -41,14 +41,13 @@ define(function (require) {
       }
 
       // get the related cloud to display informations.
-      var refreshCloudInfo = function() {
-        cloudServices.get({
-          id: $scope.selectedEnvironment.cloudId
+      var refreshOrchestratorInfo = function() {
+        orchestratorService.get({
+          orchestratorId: $scope.topology.topology.orchestratorId
         }, function(response) {
-          $scope.cloud = response.data.cloud;
+          $scope.orchestrator = response.data;
         });
       };
-      refreshCloudInfo();
 
       $scope.eventTypeLabels = {
         'ALL': 'APPLICATIONS.RUNTIME.EVENTS.ALL',
@@ -249,7 +248,7 @@ define(function (require) {
           $scope.topology = successResult.data;
           topologyJsonProcessor.process($scope.topology);
           refreshInstancesStatuses(); // update instance states
-          refreshCloudInfo(); // cloud info for deployment view
+          refreshOrchestratorInfo(); // cloud info for deployment view
         });
       };
 
