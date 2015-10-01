@@ -1,10 +1,27 @@
 <div>
-  <div class="row">
+  <div class="row" style="margin-top: 10px;">
     <div class="col-md-6">
       <select ng-if="envs" class="form-control" ng-model="deploymentContext.selectedEnvironment" ng-options="env.name for env in envs"
               ng-change="goToLocationTab()" ng-options="loc.location.name for loc in locations"></select>
     </div>
+    <!--  Environment status -->
     <div class="col-md-6">
+      <i class="fa fa-2x vertical-center" tooltip="{{'APPLICATIONS.' + deploymentContext.selectedEnvironment.status | translate }}"
+         tooltip-append-to-body="true" ng-class="{
+            'fa-circle text-success' : deploymentContext.selectedEnvironment.status == 'DEPLOYED',
+            'fa-circle text-muted' : deploymentContext.selectedEnvironment.status == 'UNDEPLOYED',
+            'fa-warning text-warning' : deploymentContext.selectedEnvironment.status == 'WARNING',
+            'fa-circle text-danger' : deploymentContext.selectedEnvironment.status == 'FAILURE',
+            'fa-question-circle text-muted' : deploymentContext.selectedEnvironment.status == 'UNKNOWN',
+            'fa-spinner fa-spin' : deploymentContext.selectedEnvironment.status == 'DEPLOYMENT_IN_PROGRESS' || deploymentContext.selectedEnvironment.status == 'UNDEPLOYMENT_IN_PROGRESS'
+          }">
+      </i>
+
+      <h4 style="display:inline; padding-left:5px; vertical-align:middle;">{{'APPLICATIONS.' + deploymentContext.selectedEnvironment.status | translate}}</h4>
+    </div>
+  </div>
+  <div class="row" style="margin-top: 10px;">
+    <div class="col-md-12">
       <!-- DEPLOY BUTTON -->
       <button id="btn-deploy"
               type="button"
@@ -27,7 +44,6 @@
       </button>
     </div>
   </div>
-
   <!--  Task list -->
   <div class="row" ng-if="showTodoList()">
     <!--       <div class="row"> -->
@@ -358,14 +374,6 @@
   </div>
   <hr class="separator-h">
   <div ng-if="deploymentContext.selectedEnvironment &&  validTopologyDTO.valid">
-    <div class="row">
-      <div class="col-md-4">
-        <b>name:</b>
-        <span>
-          {{deploymentContext.selectedEnvironment.name}}
-        </span>
-      </div>
-    </div>
     <div class="row" style="margin-top: 10px">
       <div class="col-md-12">
         <ul class="nav nav-tabs">
