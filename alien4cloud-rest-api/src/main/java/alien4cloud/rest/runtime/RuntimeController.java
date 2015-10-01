@@ -165,7 +165,7 @@ public class RuntimeController {
      * Get runtime (deployed) topology of an application on a specific environment
      * 
      * @param applicationId application id for which to get the topology
-     * @param environmentId application environment for which to get the topology through the version
+     * @param applicationEnvironmentId application environment for which to get the topology through the version
      * @return {@link RestResponse}<{@link TopologyDTO}> containing the requested runtime {@link Topology} and the
      *         {@link alien4cloud.model.components.IndexedNodeType} related to his {@link NodeTemplate}s
      */
@@ -174,12 +174,12 @@ public class RuntimeController {
     @PreAuthorize("isAuthenticated()")
     public RestResponse<TopologyDTO> getDeployedTopology(
             @ApiParam(value = "Id of the application for which to get deployed topology.", required = true) @PathVariable String applicationId,
-            @ApiParam(value = "Id of the environment for which to get deployed topology.", required = true) @PathVariable String environmentId) {
+            @ApiParam(value = "Id of the environment for which to get deployed topology.", required = true) @PathVariable String applicationEnvironmentId) {
 
         Application application = applicationService.checkAndGetApplication(applicationId);
-        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, environmentId);
+        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
         if (!environment.getApplicationId().equals(applicationId)) {
-            throw new NotFoundException("Unable to find environment with id <" + environmentId + "> for application <" + applicationId + ">");
+            throw new NotFoundException("Unable to find environment with id <" + applicationEnvironmentId + "> for application <" + applicationId + ">");
         }
         // Security check user must be authorized to deploy the environment (or be application manager)
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
@@ -187,13 +187,7 @@ public class RuntimeController {
         }
         Deployment deployment = deploymentService.getActiveDeploymentOrFail(environment.getId());
         DeploymentTopology deploymentTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
-        String locationId = TopologyLocationUtils.getLocationIdOrFail(deploymentTopology);
-        Location location = locationService.getOrFail(locationId);
-        String topologyId = applicationEnvironmentService.getTopologyId(applicationId);
-
-        return RestResponseBuilder.<TopologyDTO> builder().data(
-                topologyService.buildTopologyDTO(deploymentRuntimeStateService.getRuntimeTopologyFromEnvironment(topologyId, location.getOrchestratorId())))
-                .build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(deploymentTopology)).build();
     }
 
     private void validateCommand(OperationExecRequest operationRequest, Topology topology) throws ConstraintFunctionalException {

@@ -99,7 +99,7 @@ public class ApplicationVersionService extends AbtractVersionService<Application
         GetMultipleDataResult<Deployment> dataResult = alienDAO.search(
                 Deployment.class,
                 null,
-                MapUtil.newHashMap(new String[] { "deploymentSetup.versionId", "endDate" }, new String[][] { new String[] { applicationVersionId },
+                MapUtil.newHashMap(new String[] { "versionId", "endDate" }, new String[][] { new String[] { applicationVersionId },
                         new String[] { null } }), 1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             return true;

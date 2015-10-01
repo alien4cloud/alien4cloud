@@ -85,28 +85,30 @@ public class DeploymentTopologyService {
      * @return the related or created deployment topology
      */
     private DeploymentTopology getOrCreateDeploymentTopology(ApplicationEnvironment environment, String topologyId) {
-        String id = generateId(environment.getCurrentVersionId(), environment.getId());
+        String id = DeploymentTopology.generateId(environment.getCurrentVersionId(), environment.getId());
         DeploymentTopology deploymentTopology = alienDAO.findById(DeploymentTopology.class, id);
         Topology topology = topologyServiceCore.getOrFail(topologyId);
         if (deploymentTopology == null) {
             // Generate the deployment topology if none exist
-            deploymentTopology = generateDeploymentTopology(environment, topology);
+            deploymentTopology = generateDeploymentTopology(id, environment, topology);
         } else if (deploymentTopology.getLastInitialTopologyUpdateDate().before(topology.getLastUpdateDate())) {
             // Re-generate the deployment topology if the initial topology has been changed
-            generateDeploymentTopology(environment, topology, deploymentTopology);
+            generateDeploymentTopology(id, environment, topology, deploymentTopology);
         }
         return deploymentTopology;
     }
 
-    private DeploymentTopology generateDeploymentTopology(ApplicationEnvironment environment, Topology topology) {
+    private DeploymentTopology generateDeploymentTopology(String id, ApplicationEnvironment environment, Topology topology) {
         DeploymentTopology deploymentTopology = new DeploymentTopology();
-        return generateDeploymentTopology(environment, topology, deploymentTopology);
+        return generateDeploymentTopology(id, environment, topology, deploymentTopology);
     }
 
-    private DeploymentTopology generateDeploymentTopology(ApplicationEnvironment environment, Topology topology, DeploymentTopology deploymentTopology) {
+    private DeploymentTopology generateDeploymentTopology(String id, ApplicationEnvironment environment, Topology topology,
+            DeploymentTopology deploymentTopology) {
         deploymentTopology.setVersionId(environment.getCurrentVersionId());
         deploymentTopology.setEnvironmentId(environment.getId());
         deploymentTopology.setInitialTopologyId(topology.getId());
+		deploymentTopology.setId(id);
         updateAndSaveDeploymentTopology(deploymentTopology, topology, environment);
         return deploymentTopology;
     }
@@ -190,17 +192,6 @@ public class DeploymentTopologyService {
     }
 
     /**
-     * Generate the id of a deployment topology.
-     *
-     * @param versionId The id of the version of the deployment topology.
-     * @param environmentId The id of the environment of the deployment topology.
-     * @return The generated id.
-     */
-    private String generateId(String versionId, String environmentId) {
-        return versionId + "::" + environmentId;
-    }
-
-    /**
      * Set the location policies of a deployment
      *
      * @param environmentId the environment's id
@@ -216,7 +207,7 @@ public class DeploymentTopologyService {
         deploymentTopology.setOrchestratorId(orchestratorId);
         addLocationPolicies(deploymentTopology, groupsToLocations);
         Topology topology = topologyServiceCore.getOrFail(appVersion.getTopologyId());
-        generateDeploymentTopology(environment, topology, deploymentTopology);
+        generateDeploymentTopology(DeploymentTopology.generateId(appVersion.getId(), environmentId), environment, topology, deploymentTopology);
         return deploymentTopology;
     }
 
