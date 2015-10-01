@@ -57,6 +57,7 @@ import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.DeployerRole;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.topology.TopologyValidationResult;
 
 import com.google.common.collect.Maps;
 import com.wordnik.swagger.annotations.Api;
@@ -105,7 +106,7 @@ public class ApplicationDeploymentController {
     @RequestMapping(value = "/deployment", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     @Audit
-    public RestResponse<Void> deploy(@Valid @RequestBody DeployApplicationRequest deployApplicationRequest) throws OrchestratorDisabledException {
+    public RestResponse<?> deploy(@Valid @RequestBody DeployApplicationRequest deployApplicationRequest) throws OrchestratorDisabledException {
         String applicationId = deployApplicationRequest.getApplicationId();
         String environmentId = deployApplicationRequest.getApplicationEnvironmentId();
         Application application = applicationService.checkAndGetApplication(applicationId);
@@ -131,6 +132,17 @@ public class ApplicationDeploymentController {
         String locationId = TopologyLocationUtils.getLocationIdOrFail(deploymentTopology);
         Location location = locationService.getOrFail(locationId);
         AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.DEPLOYER);
+
+        // prepare the deployment
+        TopologyValidationResult validation = deployService.prepareForDeployment(deploymentTopology);
+
+        // if not valid, then return validation errors
+        if (!validation.isValid()) {
+            return RestResponseBuilder
+                    .<TopologyValidationResult> builder()
+                    .error(new RestError(RestErrorCode.INVALID_DEPLOYMENT_TOPOLOGY.getCode(), "The deployment topology for the application <"
+                            + application.getName() + "> on the environment <" + environment.getName() + "> is not valid.")).data(validation).build();
+        }
 
         // process with the deployment
         deployService.deploy(deploymentTopology, application);

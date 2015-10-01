@@ -481,6 +481,7 @@
       },
       "TASK": {
         "LABEL": "Todo list",
+        "ERRORS_LABEL": "Errors",
         "ABSTRACT_LABEL": "Abstract components",
         "IMPLEMENT_LABEL": "To implement",
         "IMPLEMENT": "Implement the node",

@@ -18,6 +18,8 @@ define(function(require) {
 
   require('scripts/deployment/directives/display_outputs');
   require('scripts/common/filters/inputs');
+  
+  var globalConfTaskCodes = ['SCALABLE_CAPABILITY_INVALID'];
 
   function refreshDeploymentContext(deploymentContext, application, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menus) {
     return deploymentTopologyServices.get({
@@ -156,6 +158,18 @@ define(function(require) {
           return angular.isObject($scope.validTopologyDTO.warningList) && Object.keys($scope.validTopologyDTO.warningList).length > 0;
         };
 
+        $scope.showConfgurationsErrors = function(){
+          var show = false;
+          if( _.definedPath($scope.deploymentContext, 'deploymentTopologyDTO.validation.taskList')){
+            _.each(globalConfTaskCodes, function(taskCode){
+              if (_.defined($scope.deploymentContext.deploymentTopologyDTO.validation.taskList[taskCode])){
+                show=true;
+                return;
+              }
+            });
+          }
+          return show;
+        }
         // Map functions that should be available from scope.
         $scope.changeEnvironment = changeEnvironment;
 

@@ -37,6 +37,7 @@ import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.exception.EmptyMetaPropertyException;
 import alien4cloud.paas.exception.OrchestratorDeploymentIdConflictException;
+import alien4cloud.topology.TopologyValidationResult;
 
 import com.google.common.collect.Maps;
 
@@ -64,6 +65,10 @@ public class DeployService {
     private OrchestratorPluginService orchestratorPluginService;
     @Inject
     private DeploymentContextService deploymentContextService;
+    @Inject
+    private DeploymentTopologyService deploymentTopologyService;
+    @Inject
+    private DeploymentTopologyValidationService deploymentTopologyValidationService;
 
     /**
      * Deploy a topology and return the deployment ID.
@@ -134,8 +139,8 @@ public class DeployService {
         String namePattern = orchestrator.getDeploymentNamePattern();
         ExpressionParser parser = new SpelExpressionParser();
         Expression exp = parser.parseExpression(namePattern);
-        String orchestratorDeploymentId = (String) exp
-                .getValue(new OrchestratorIdContext(env, applicationService.getOrFail(env.getApplicationId()), namePattern.contains("metaProperties[")));
+        String orchestratorDeploymentId = (String) exp.getValue(new OrchestratorIdContext(env, applicationService.getOrFail(env.getApplicationId()),
+                namePattern.contains("metaProperties[")));
         orchestratorDeploymentId = orchestratorDeploymentId.trim().replaceAll(" ", "_");
 
         // ensure that the id is not used by another deployment.
@@ -144,6 +149,22 @@ public class DeployService {
         }
 
         return orchestratorDeploymentId;
+    }
+
+    /**
+     * Performs some actions such as final validation Prepare a deployment topology for deployment
+     *
+     * @param deploymentTopology
+     * @return
+     */
+    public TopologyValidationResult prepareForDeployment(DeploymentTopology deploymentTopology) {
+
+        // finalize the deploymentTopology for deployment
+        deploymentTopologyService.processForDeployment(deploymentTopology);
+
+        // validate again
+        TopologyValidationResult validation = deploymentTopologyValidationService.validateDeploymentTopology(deploymentTopology);
+        return validation;
     }
 
     // Inner class used to build context for generation of the orchestrator id.

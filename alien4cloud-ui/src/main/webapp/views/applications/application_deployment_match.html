@@ -1,8 +1,8 @@
 <div>
   <div class="row" style="margin-top: 10px">
-    <div class="col-md-12" ng-init="tasks = deploymentContext.deploymentTopologyDTO.validation.taskList['IMPLEMENT']">
-      <!--  Required Implementation tasks  -->
-      <div ng-if="tasks.length>0" class="task-list-box" >
+    <!--  Required Implementation tasks  -->
+    <div class="col-md-6" ng-if="(tasks = deploymentContext.deploymentTopologyDTO.validation.taskList['IMPLEMENT']).length>0" >
+      <div class="col-md-6 task-list-box" >
         <h4 class="topology-node-expand clickable" ng-init="isToImplementNodesCollapsed = false" ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed">
           <i class="fa" ng-class="{'fa-chevron-down' : !isToImplementNodesCollapsed, 'fa-chevron-right': isToImplementNodesCollapsed}"></i>
           <span>{{'APPLICATIONS.TOPOLOGY.TASK.IMPLEMENT_LABEL' | translate}}</span>
@@ -20,9 +20,46 @@
             </tbody>
           </table>
         </div>
-        <hr class="separator-h">
-      </div> <!-- End Error Implementation tasks -->
+      </div> 
+    </div> <!-- End Error Implementation tasks -->
+    
+    <!--  Required Replacement tasks  -->
+    <div class="col-md-6" ng-if="(repTasks = deploymentContext.deploymentTopologyDTO.validation.taskList['REPLACE']).length>0">
+      <div class="task-list-box">
+        <h4 class="topology-node-expand clickable" ng-init="isToReplaceNodesCollapsed = false" ng-click="isToReplaceNodesCollapsed = !isToReplaceNodesCollapsed">
+          <i class="fa" ng-class="{'fa-chevron-down' : !isToReplaceNodesCollapsed, 'fa-chevron-right': isToReplaceNodesCollapsed"></i>
+          <span>{{'APPLICATIONS.TOPOLOGY.TASK.REPLACE_LABEL' | translate}}</span>
+        </h4>
+
+        <div collapse="isToReplaceNodesCollapsed" class="topology-level">
+          <table class="table table-condensed">
+            <thead>
+              <tr>
+                <th></th>
+                <th>{{'SUGGESTIONS' | translate}}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat=" toReplaceNodeTask in (repTasks">
+                <td>
+                  <span>{{toReplaceNodeTask.nodeTemplateName}}</span>
+                  <span>({{toReplaceNodeTask.component.elementId}})</span>
+                </td>
+                <td>
+                  <ul class="td_list liste-no-style" ng-if="toReplaceNodeTask.suggestedNodeTypes">
+                    <li ng-repeat="nodeType in toReplaceNodeTask.suggestedNodeTypes">
+                      {{nodeType.elementId}}
+                    </li>
+                  </ul>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div> <!-- End Error Replacement tasks -->
     </div>
+   </div>
+   <div class="row" style="margin-top: 10px">
     <div class="col-md-6">
       <accordion close-others="oneAtATime">
         <accordion-group is-open="status.open" ng-repeat="(nodeName, templates) in substitutionContext.availableSubstitutions">

@@ -108,7 +108,7 @@ public class DeploymentTopologyService {
         deploymentTopology.setVersionId(environment.getCurrentVersionId());
         deploymentTopology.setEnvironmentId(environment.getId());
         deploymentTopology.setInitialTopologyId(topology.getId());
-		deploymentTopology.setId(id);
+        deploymentTopology.setId(id);
         updateAndSaveDeploymentTopology(deploymentTopology, topology, environment);
         return deploymentTopology;
     }
@@ -278,5 +278,17 @@ public class DeploymentTopologyService {
             }
         }
         return deploymentTopologies.toArray(new DeploymentTopology[deploymentTopologies.size()]);
+    }
+
+    /**
+     * Finalize the deployment topology processing and get it ready to deploy
+     *
+     * @param deploymentTopology
+     * @return
+     */
+    public DeploymentTopology processForDeployment(DeploymentTopology deploymentTopology) {
+        // if a property defined as getInput didn't found a value after processing, set it to null
+        inputsPreProcessorService.setUnprocessedGetInputToNullValue(deploymentTopology);
+        return deploymentTopology;
     }
 }

@@ -9,7 +9,7 @@
       <button id="btn-deploy"
               type="button"
               class="btn btn-success application-deploy-button"
-              ng-disabled="!validTopologyDTO.valid || !deploymentContext.selectedLocation || isDeploying"
+              ng-disabled="!deploymentContext.deploymentTopologyDTO.validation.valid || isDeploying"
               ng-click="deploy()"
               ng-show="deploymentContext.selectedEnvironment.status === 'UNDEPLOYED'">
         <i class="fa" ng-class="{'fa-play': !isDeploying, 'fa-spinner fa-spin': isDeploying}"></i> {{'APPLICATIONS.DEPLOY' | translate}}
@@ -22,7 +22,7 @@
                       deploymentContext.selectedEnvironment.status === 'WARNING' ||
                       deploymentContext.selectedEnvironment.status === 'DEPLOYMENT_IN_PROGRESS' ||
                       deploymentContext.selectedEnvironment.status === 'FAILURE') &&
-                      deploymentContext.selectedLocation">
+                      deploymentContext.deploymentTopologyDTO.validation.valid">
         <i class="fa" ng-class="{'fa-stop': !isUnDeploying, 'fa-spinner fa-spin': isUnDeploying}"></i> {{'APPLICATIONS.UNDEPLOY' | translate}}
       </button>
     </div>
@@ -44,42 +44,6 @@
         <span ng-if="!validTopologyDTO.taskList && topologyId">
           {{'APPLICATIONS.TOPOLOGY.TASK.EMPTY_TOPOLOGY_MESSAGE' | translate}}.
         </span>
-
-        <!--  Replacement tasks  -->
-        <div ng-if="(toReplaceNodeTasks = (validTopologyDTO.taskList | filter:{code:'REPLACE'})).length>0">
-
-          <div class="topology-node-expand clickable" ng-init="isToReplaceNodesCollapsed = false"
-               ng-click="isToReplaceNodesCollapsed = !isToReplaceNodesCollapsed">
-            <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isToReplaceNodesCollapsed, 'fa-chevron-right': isToReplaceNodesCollapsed}"></i>
-            <span>{{'APPLICATIONS.TOPOLOGY.TASK.REPLACE_LABEL' | translate}}</span>
-          </div>
-
-          <div collapse="isToReplaceNodesCollapsed" class="topology-level">
-            <table class="table table-condensed">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>{{'SUGGESTIONS' | translate}}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr ng-repeat=" toReplaceNodeTask in toReplaceNodeTasks">
-                  <td>
-                    <span>{{toReplaceNodeTask.nodeTemplateName}}</span>
-                    <span>({{toReplaceNodeTask.component.elementId}})</span>
-                  </td>
-                  <td>
-                    <ul class="td_list liste-no-style" ng-if="toReplaceNodeTask.suggestedNodeTypes">
-                      <li ng-repeat="nodeType in toReplaceNodeTask.suggestedNodeTypes">
-                        {{nodeType.elementId}}
-                      </li>
-                    </ul>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
 
         <!--  Node Filter tasks  -->
         <div ng-if="(nodeFiltersTasks = (validTopologyDTO.taskList | filter:{code:'NODE_FILTER_INVALID'})).length>0">
@@ -242,24 +206,24 @@
               </tbody>
             </table>
           </div>
-
-          <!--  Workflow tasks  -->
-          <div ng-if="(wfTasks = (validTopologyDTO.taskList | filter:{code:'WORKFLOW_INVALID'})).length>0">
-            <div class="topology-node-expand clickable" ng-init="isWorkflowsCollapsed = false" ng-click="isWorkflowsCollapsed = !isWorkflowsCollapsed">
-              <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isWorkflowsCollapsed, 'fa-chevron-right': isWorkflowsCollapsed}"></i>
-              <span>{{'APPLICATIONS.TOPOLOGY.TASK.WORKFLOWS.TITLE' | translate}}</span>
-            </div>
-
-            <div collapse="isWorkflowsCollapsed" class="topology-level">
-              <ul>
-                <li ng-repeat="wfTask in wfTasks">
-                  {{'APPLICATIONS.TOPOLOGY.TASK.WORKFLOWS.HAS_ERROR' | translate:wfTask}}
-                </li>
-              </ul>
-            </div>
+        </div>
+        
+        <!--  Workflow tasks  -->
+        <div ng-if="(wfTasks = (validTopologyDTO.taskList | filter:{code:'WORKFLOW_INVALID'})).length>0">
+          <div class="topology-node-expand clickable" ng-init="isWorkflowsCollapsed = false" ng-click="isWorkflowsCollapsed = !isWorkflowsCollapsed">
+            <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isWorkflowsCollapsed, 'fa-chevron-right': isWorkflowsCollapsed}"></i>
+            <span>{{'APPLICATIONS.TOPOLOGY.TASK.WORKFLOWS.TITLE' | translate}}</span>
           </div>
 
+          <div collapse="isWorkflowsCollapsed" class="topology-level">
+            <ul>
+              <li ng-repeat="wfTask in wfTasks">
+                {{'APPLICATIONS.TOPOLOGY.TASK.WORKFLOWS.HAS_ERROR' | translate:wfTask}}
+              </li>
+            </ul>
+          </div>
         </div>
+        
       </div>
     </div>
   </div>
@@ -270,28 +234,6 @@
       <h3 class="text-warning"><i class="fa fa-exclamation-triangle"></i> {{'APPLICATIONS.TOPOLOGY.WARNING.LABEL' | translate}}</h3>
 
       <div class="warning-list-box" ng-repeat="(taskCode, tasks) in validTopologyDTO.warningList" ng-switch="taskCode">
-
-        
-<!--          Warning Implementation tasks  -->
-<!--         <div ng-if="tasks.length>0" ng-switch-when="IMPLEMENT" > -->
-<!--           <div class="topology-node-expand clickable" ng-init="isToImplementNodesCollapsed = false" ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed"> -->
-<!--             <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isToImplementNodesCollapsed, 'fa-chevron-right': isToImplementNodesCollapsed}"></i> -->
-<!--             <span>{{'APPLICATIONS.TOPOLOGY.TASK.IMPLEMENT_LABEL' | translate}}</span> -->
-<!--           </div> -->
-
-<!--           <div collapse="isToImplementNodesCollapsed" class="topology-level"> -->
-<!--             <table class="table table-condensed"> -->
-<!--               <tbody> -->
-<!--                 <tr ng-repeat=" toImplementNodeTask in tasks"> -->
-<!--                   <td> -->
-<!--                     <span>{{toImplementNodeTask.nodeTemplateName}}</span> -->
-<!--                     <span>({{toImplementNodeTask.component.elementId}})</span> -->
-<!--                   </td> -->
-<!--                 </tr> -->
-<!--               </tbody> -->
-<!--             </table> -->
-<!--           </div> -->
-<!--         </div> End warning Implementation tasks -->
 
         <!--HA warning list -->
         <div ng-if="tasks.length>0" ng-switch-when="HA_INVALID">
@@ -358,12 +300,43 @@
   </div>
   <hr class="separator-h">
   <div ng-if="deploymentContext.selectedEnvironment &&  validTopologyDTO.valid">
-    <div class="row">
-      <div class="col-md-4">
-        <b>name:</b>
-        <span>
-          {{deploymentContext.selectedEnvironment.name}}
-        </span>
+  
+    <!-- DEPLOYMENT TOPO CONFIGURATION ERRORS -->
+    <div id="configurationsErrors" class="row">
+      <div class="col-md-12" ng-if="showConfgurationsErrors()">
+        <h3 class="text-danger"><i class="fa fa-exclamation-triangle"></i> {{'APPLICATIONS.TOPOLOGY.TASK.ERRORS_LABEL' | translate}}</h3>
+      
+       <div class="task-list-box">
+        <!-- SCALABILITY ERRORS -->
+        <div ng-if="(tasks=deploymentContext.deploymentTopologyDTO.validation.taskList['SCALABLE_CAPABILITY_INVALID']).length>0">
+          <div class="topology-node-expand clickable" ng-init="isScalabilityCollapsed = false" ng-click="isScalabilityCollapsed = !isScalabilityCollapsed">
+            <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isScalabilityCollapsed , 'fa-chevron-right': isScalabilityCollapsed }"></i>
+            <span>{{'APPLICATIONS.TOPOLOGY.TASK.SCALABLE_CAPABILITY_INVALID.LABEL' | translate}}</span>
+          </div>
+          <div collapse="isScalabilityCollapsed " class="topology-level">
+            <table class="table table-condensed">
+              <tbody>
+                <tr ng-repeat="scalabilityTask in tasks">
+                  <td>
+                    <strong>{{scalabilityTask.nodeTemplateName}}</strong>
+                  </td>
+                  <td>
+                    <ul class="td_list liste-no-style">
+                      <li ng-repeat="property in scalabilityTask.properties['ERROR']">
+                        {{'APPLICATIONS.TOPOLOGY.TASK.SCALABLE_CAPABILITY_INVALID.ERRORS.' + property | translate }}
+                      </li>
+                      <li ng-repeat="property in scalabilityTask.properties['REQUIRED']">
+                        {{property}} {{'APPLICATIONS.TOPOLOGY.TASK.SCALABLE_CAPABILITY_INVALID.MISSING' | translate}}
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div> <!-- END SCALABILITY ERRORS -->
+        
+       </div>
       </div>
     </div>
     <div class="row" style="margin-top: 10px">

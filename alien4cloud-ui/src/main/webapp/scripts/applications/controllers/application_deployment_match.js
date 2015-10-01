@@ -9,10 +9,6 @@ define(function(require) {
   require('scripts/orchestrators/directives/orchestrator_location_resource_template');
   require('scripts/applications/services/deployment_topology_processor.js');
   
-  var SUBSTITUTION_STEP_CODE = 'IMPLEMENT';
-  var SUBSTITUTION_ID = 'am.applications.detail.deployment.match';
-  var INPUT_ID =  'am.applications.detail.deployment.input';
-
   states.state('applications.detail.deployment.match', {
     url: '/match',
     resolve: {
@@ -48,7 +44,7 @@ define(function(require) {
       priority: 200,
       nextStepId: 'am.applications.detail.deployment.input',
       step: {
-        taskCodes: [SUBSTITUTION_STEP_CODE]
+        taskCodes: ['IMPLEMENT', 'REPLACE']
       }
     }
   });

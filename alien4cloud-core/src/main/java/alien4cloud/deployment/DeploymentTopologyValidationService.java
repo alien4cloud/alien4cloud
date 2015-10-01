@@ -105,18 +105,6 @@ public class DeploymentTopologyValidationService {
     }
 
     /**
-     * Perform validation of a given deployment setup against its topology.
-     *
-     * @param deploymentTopology The deployment setup to validate.
-     * @throws alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException
-     * @throws alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException
-     */
-    public void validate(DeploymentTopology deploymentTopology) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
-        validateInputProperties(deploymentTopology);
-        // FIXME Perform validation of the provider properties!
-    }
-
-    /**
      * Validate that the input properties is correct for a deployment setup
      *
      * @param topology The deployment topology to validate

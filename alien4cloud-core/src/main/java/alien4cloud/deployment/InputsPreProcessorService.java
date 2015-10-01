@@ -79,6 +79,30 @@ public class InputsPreProcessorService {
     }
 
     /**
+     *
+     * Set the value of the not found getInput functions to null
+     *
+     * @param deploymentTopology
+     */
+    public void setUnprocessedGetInputToNullValue(DeploymentTopology deploymentTopology) {
+        if (deploymentTopology.getNodeTemplates() != null) {
+            for (NodeTemplate nodeTemplate : deploymentTopology.getNodeTemplates().values()) {
+                setUnprocessedGetInputToNullValue(nodeTemplate.getProperties());
+                if (nodeTemplate.getRelationships() != null) {
+                    for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
+                        setUnprocessedGetInputToNullValue(relationshipTemplate.getProperties());
+                    }
+                }
+                if (nodeTemplate.getCapabilities() != null) {
+                    for (Capability capability : nodeTemplate.getCapabilities().values()) {
+                        setUnprocessedGetInputToNullValue(capability.getProperties());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Inputs can come from the deployer user (in such situations they are saved in the deployment setup) but also from the location or application
      * meta-properties.
      * This method creates a unified map of inputs to be injected in deployed applications.
@@ -170,6 +194,21 @@ public class InputsPreProcessorService {
                         log.warn("Function <{}> detected for property <{}> while only <get_input> should be authorized.", function.getFunction(),
                                 propEntry.getKey());
                     }
+                }
+            }
+        }
+    }
+
+    private void setUnprocessedGetInputToNullValue(Map<String, AbstractPropertyValue> properties) {
+        if (properties != null) {
+            for (Map.Entry<String, AbstractPropertyValue> propEntry : properties.entrySet()) {
+                if (propEntry.getValue() instanceof FunctionPropertyValue) {
+                    FunctionPropertyValue function = (FunctionPropertyValue) propEntry.getValue();
+                    if (!ToscaFunctionConstants.GET_INPUT.equals(function.getFunction())) {
+                        log.warn("Function <{}> detected for property <{}> while only <get_input> should be authorized. Value will be set to null",
+                                function.getFunction(), propEntry.getKey());
+                    }
+                    propEntry.setValue(null);
                 }
             }
         }
