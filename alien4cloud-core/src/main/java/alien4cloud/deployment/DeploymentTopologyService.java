@@ -90,21 +90,20 @@ public class DeploymentTopologyService {
         Topology topology = topologyServiceCore.getOrFail(topologyId);
         if (deploymentTopology == null) {
             // Generate the deployment topology if none exist
-            deploymentTopology = generateDeploymentTopology(id, environment, topology);
+            deploymentTopology = generateDeploymentTopology(environment, topology);
         } else if (deploymentTopology.getLastInitialTopologyUpdateDate().before(topology.getLastUpdateDate())) {
             // Re-generate the deployment topology if the initial topology has been changed
-            generateDeploymentTopology(id, environment, topology, deploymentTopology);
+            generateDeploymentTopology(environment, topology, deploymentTopology);
         }
         return deploymentTopology;
     }
 
-    private DeploymentTopology generateDeploymentTopology(String id, ApplicationEnvironment environment, Topology topology) {
+    private DeploymentTopology generateDeploymentTopology(ApplicationEnvironment environment, Topology topology) {
         DeploymentTopology deploymentTopology = new DeploymentTopology();
-        return generateDeploymentTopology(id, environment, topology, deploymentTopology);
+        return generateDeploymentTopology(environment, topology, deploymentTopology);
     }
 
-    private DeploymentTopology generateDeploymentTopology(String id, ApplicationEnvironment environment, Topology topology,
-            DeploymentTopology deploymentTopology) {
+    private DeploymentTopology generateDeploymentTopology(ApplicationEnvironment environment, Topology topology, DeploymentTopology deploymentTopology) {
         deploymentTopology.setVersionId(environment.getCurrentVersionId());
         deploymentTopology.setEnvironmentId(environment.getId());
         deploymentTopology.setInitialTopologyId(topology.getId());
@@ -202,7 +201,7 @@ public class DeploymentTopologyService {
     }
 
     /**
-     * Set the location policies of a deloyment
+     * Set the location policies of a deployment
      *
      * @param environmentId the environment's id
      * @param groupsToLocations group to location mapping
@@ -217,7 +216,7 @@ public class DeploymentTopologyService {
         deploymentTopology.setOrchestratorId(orchestratorId);
         addLocationPolicies(deploymentTopology, groupsToLocations);
         Topology topology = topologyServiceCore.getOrFail(appVersion.getTopologyId());
-        generateDeploymentTopology(generateId(environment.getCurrentVersionId(), environmentId), environment, topology, deploymentTopology);
+        generateDeploymentTopology(environment, topology, deploymentTopology);
         return deploymentTopology;
     }
 

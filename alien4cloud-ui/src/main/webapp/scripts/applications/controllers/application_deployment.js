@@ -97,8 +97,8 @@ define(function(require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentCtrl',
-    ['$scope', 'authService', 'application', '$state', 'appEnvironments', 'menu', 'deploymentContext', 'deploymentTopologyServices', 'deploymentTopologyProcessor', 'tasksProcessor',
-      function($scope, authService, applicationResult, $state, appEnvironments, menu, deploymentContext, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor) {
+    ['$scope', 'authService', 'application', '$state', 'appEnvironments', 'menu', 'deploymentContext', 'deploymentTopologyServices', 'deploymentTopologyProcessor', 'applicationServices', 'tasksProcessor',
+      function($scope, authService, applicationResult, $state, appEnvironments, menu, deploymentContext, deploymentTopologyServices, deploymentTopologyProcessor, applicationServices, tasksProcessor) {
         $scope.deploymentContext = deploymentContext;
         var pageStateId = $state.current.name;
         $scope.menu = menu;
@@ -223,6 +223,37 @@ define(function(require) {
         $scope.$on('$destroy', function() {
           $scope.stopEvent();
         });
+
+
+        // Deployment handler
+        $scope.deploy = function() {
+          // Application details with deployment properties
+          var deployApplicationRequest = {
+            applicationId: $scope.application.id,
+            applicationEnvironmentId: $scope.deploymentContext.selectedEnvironment.id
+          };
+          $scope.isDeploying = true;
+          applicationServices.deployApplication.deploy([], angular.toJson(deployApplicationRequest), function() {
+            $scope.deploymentContext.selectedEnvironment.status = 'DEPLOYMENT_IN_PROGRESS';
+            $scope.isDeploying = false;
+          }, function() {
+            $scope.isDeploying = false;
+          });
+        };
+
+        $scope.undeploy = function() {
+          $scope.isUnDeploying = true;
+          applicationServices.deployment.undeploy({
+            applicationId: $scope.application.id,
+            applicationEnvironmentId: $scope.deploymentContext.selectedEnvironment.id
+          }, function() {
+            $scope.deploymentContext.selectedEnvironment.status = 'UNDEPLOYMENT_IN_PROGRESS';
+            $scope.isUnDeploying = false;
+            $scope.stopEvent();
+          }, function() {
+            $scope.isUnDeploying = false;
+          });
+        };
 
       }
     ]); //controller

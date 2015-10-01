@@ -1,13 +1,36 @@
 <div>
   <div class="row">
     <div class="col-md-6">
-      <select ng-if="envs" class="form-control" ng-model="deploymentContext.selectedEnvironment" ng-options="env.name for env in envs" ng-change="goToLocationTab()" ng-options="loc.location.name for loc in locations"></select>
+      <select ng-if="envs" class="form-control" ng-model="deploymentContext.selectedEnvironment" ng-options="env.name for env in envs"
+              ng-change="goToLocationTab()" ng-options="loc.location.name for loc in locations"></select>
+    </div>
+    <div class="col-md-6">
+      <!-- DEPLOY BUTTON -->
+      <button id="btn-deploy"
+              type="button"
+              class="btn btn-success application-deploy-button"
+              ng-disabled="!validTopologyDTO.valid || !deploymentContext.selectedLocation || isDeploying"
+              ng-click="deploy()"
+              ng-show="deploymentContext.selectedEnvironment.status === 'UNDEPLOYED'">
+        <i class="fa" ng-class="{'fa-play': !isDeploying, 'fa-spinner fa-spin': isDeploying}"></i> {{'APPLICATIONS.DEPLOY' | translate}}
+      </button>
+      <button id="btn-undeploy"
+              type="button"
+              class="btn btn-danger application-deploy-button"
+              ng-click="undeploy()"
+              ng-if="(deploymentContext.selectedEnvironment.status === 'DEPLOYED' ||
+                      deploymentContext.selectedEnvironment.status === 'WARNING' ||
+                      deploymentContext.selectedEnvironment.status === 'DEPLOYMENT_IN_PROGRESS' ||
+                      deploymentContext.selectedEnvironment.status === 'FAILURE') &&
+                      deploymentContext.selectedLocation">
+        <i class="fa" ng-class="{'fa-stop': !isUnDeploying, 'fa-spinner fa-spin': isUnDeploying}"></i> {{'APPLICATIONS.UNDEPLOY' | translate}}
+      </button>
     </div>
   </div>
 
   <!--  Task list -->
   <div class="row" ng-if="showTodoList()">
-<!--       <div class="row"> -->
+    <!--       <div class="row"> -->
     <div id="deploymentTodoList" class="col-md-12">
       <h3 class="text-danger"><i class="fa fa-exclamation-triangle"></i> {{'APPLICATIONS.TOPOLOGY.TASK.LABEL' | translate}}</h3>
 
@@ -25,7 +48,8 @@
         <!--  Replacement tasks  -->
         <div ng-if="(toReplaceNodeTasks = (validTopologyDTO.taskList | filter:{code:'REPLACE'})).length>0">
 
-          <div class="topology-node-expand clickable" ng-init="isToReplaceNodesCollapsed = false" ng-click="isToReplaceNodesCollapsed = !isToReplaceNodesCollapsed">
+          <div class="topology-node-expand clickable" ng-init="isToReplaceNodesCollapsed = false"
+               ng-click="isToReplaceNodesCollapsed = !isToReplaceNodesCollapsed">
             <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isToReplaceNodesCollapsed, 'fa-chevron-right': isToReplaceNodesCollapsed}"></i>
             <span>{{'APPLICATIONS.TOPOLOGY.TASK.REPLACE_LABEL' | translate}}</span>
           </div>
@@ -59,7 +83,8 @@
 
         <!--  Node Filter tasks  -->
         <div ng-if="(nodeFiltersTasks = (validTopologyDTO.taskList | filter:{code:'NODE_FILTER_INVALID'})).length>0">
-          <div class="topology-node-expand clickable" ng-init="isToImplementNodesCollapsed = false" ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed">
+          <div class="topology-node-expand clickable" ng-init="isToImplementNodesCollapsed = false"
+               ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed">
             <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isToImplementNodesCollapsed, 'fa-chevron-right': isToImplementNodesCollapsed}"></i>
             <span>{{'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.NODE_FILTER_INVALID' | translate}} :</span>
           </div>
@@ -67,6 +92,7 @@
           <div collapse="isToImplementNodesCollapsed" class="topology-level">
             <div ng-repeat=" nodeFiltersTask in nodeFiltersTasks">
               <span>{{nodeFiltersTask.nodeTemplateName}} :</span>
+
               <div ng-repeat=" nodeFilterToSatisfy in nodeFiltersTask.nodeFiltersToSatisfy">
                 <span style="padding-left: 5px;">{{nodeFilterToSatisfy.relationshipName}} :</span>
                 <!-- node_filters capabilities -->
@@ -110,7 +136,8 @@
 
         <!--  LowerBound not satisfied tasks  -->
         <div ng-if="(lowerBoundTasks = (validTopologyDTO.taskList | filter:{code:'SATISFY_LOWER_BOUND'})).length>0">
-          <div class="topology-node-expand clickable" ng-init="isToAddRelationsCollapsed = false" ng-click="isToAddRelationsCollapsed = !isToAddRelationsCollapsed">
+          <div class="topology-node-expand clickable" ng-init="isToAddRelationsCollapsed = false"
+               ng-click="isToAddRelationsCollapsed = !isToAddRelationsCollapsed">
             <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isToAddRelationsCollapsed , 'fa-chevron-right': isToAddRelationsCollapsed }"></i>
             <span>{{'APPLICATIONS.TOPOLOGY.TASK.TOADD_RELATIONSHIP_LABEL' | translate}}</span>
           </div>
@@ -146,7 +173,8 @@
 
         <!--  Required properties tasks  -->
         <div ng-if="(requiredPropertiesTasks = (validTopologyDTO.taskList| filter:{code:'PROPERTIES'})).length>0">
-          <div class="topology-node-expand clickable" ng-init="isRequiredPropertiesCollapsed = false" ng-click="isRequiredPropertiesCollapsed = !isRequiredPropertiesCollapsed">
+          <div class="topology-node-expand clickable" ng-init="isRequiredPropertiesCollapsed = false"
+               ng-click="isRequiredPropertiesCollapsed = !isRequiredPropertiesCollapsed">
             <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isRequiredPropertiesCollapsed , 'fa-chevron-right': isRequiredPropertiesCollapsed }"></i>
             <span>{{'APPLICATIONS.TOPOLOGY.TASK.REQUIRED_PROPERTIES_LABEL' | translate}}</span>
           </div>
@@ -156,10 +184,13 @@
               <thead>
                 <th></th>
                 <th>{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.REQUIRED' | translate}}</th>
-                <th><i class="fa fa-exclamation-triangle" tooltip="{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING_MESSAGE' | translate}}"></i> {{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING' | translate}}</th>
+                <th><i class="fa fa-exclamation-triangle" tooltip="{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING_MESSAGE' | translate}}"></i>
+                  {{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING' | translate}}
+                </th>
               </thead>
               <tbody>
-                <tr ng-init="existsWarning = requiredPropertiesTask.properties['WARNING'].length>0" ng-repeat="requiredPropertiesTask in requiredPropertiesTasks" ng-class="{'bg-warning':existsWarning}">
+                <tr ng-init="existsWarning = requiredPropertiesTask.properties['WARNING'].length>0"
+                    ng-repeat="requiredPropertiesTask in requiredPropertiesTasks" ng-class="{'bg-warning':existsWarning}">
                   <td>
                     <strong>{{requiredPropertiesTask.nodeTemplateName}}</strong>
                     <span>({{requiredPropertiesTask.component.elementId}})</span>
@@ -211,7 +242,7 @@
               </tbody>
             </table>
           </div>
-          
+
           <!--  Workflow tasks  -->
           <div ng-if="(wfTasks = (validTopologyDTO.taskList | filter:{code:'WORKFLOW_INVALID'})).length>0">
             <div class="topology-node-expand clickable" ng-init="isWorkflowsCollapsed = false" ng-click="isWorkflowsCollapsed = !isWorkflowsCollapsed">
@@ -227,7 +258,7 @@
               </ul>
             </div>
           </div>
-                    
+
         </div>
       </div>
     </div>
@@ -265,7 +296,8 @@
         <!--HA warning list -->
         <div ng-if="tasks.length>0" ng-switch-when="HA_INVALID">
 
-          <div class="topology-node-expand clickable" ng-init="isHAGroupWarningsCollapsed = false" ng-click="isHAGroupWarningsCollapsed = !isHAGroupWarningsCollapsed">
+          <div class="topology-node-expand clickable" ng-init="isHAGroupWarningsCollapsed = false"
+               ng-click="isHAGroupWarningsCollapsed = !isHAGroupWarningsCollapsed">
             <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isHAGroupWarningsCollapsed , 'fa-chevron-right': isHAGroupWarningsCollapsed }"></i>
             <span>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.LABEL' | translate}}</span>
           </div>
@@ -286,13 +318,16 @@
             </table>
           </div>
 
-        </div> <!-- End : HA warning -->
+        </div>
+        <!-- End : HA warning -->
 
         <!-- Properties warning list -->
         <div ng-if="tasks.length>0" ng-switch-when="PROPERTIES">
 
-          <div class="topology-node-expand clickable" ng-init="isPropertiesGroupWarningsCollapsed = false" ng-click="isPropertiesGroupWarningsCollapsed = !isPropertiesGroupWarningsCollapsed">
-            <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isPropertiesGroupWarningsCollapsed , 'fa-chevron-right': isPropertiesGroupWarningsCollapsed }"></i>
+          <div class="topology-node-expand clickable" ng-init="isPropertiesGroupWarningsCollapsed = false"
+               ng-click="isPropertiesGroupWarningsCollapsed = !isPropertiesGroupWarningsCollapsed">
+            <i class="pull-left fa"
+               ng-class="{'fa-chevron-down' : !isPropertiesGroupWarningsCollapsed , 'fa-chevron-right': isPropertiesGroupWarningsCollapsed }"></i>
             <span>{{'APPLICATIONS.TOPOLOGY.WARNING.PROPERTIES.LABEL' | translate}}</span>
           </div>
           <div collapse="isPropertiesGroupWarningsCollapsed" class="topology-level">
@@ -313,9 +348,11 @@
             </table>
           </div>
 
-        </div> <!-- End : properties warning -->
+        </div>
+        <!-- End : properties warning -->
 
-      </div> <!-- End : warning list display -->
+      </div>
+      <!-- End : warning list display -->
 
     </div>
   </div>
@@ -324,7 +361,7 @@
     <div class="row">
       <div class="col-md-4">
         <b>name:</b>
-        <span >
+        <span>
           {{deploymentContext.selectedEnvironment.name}}
         </span>
       </div>
@@ -333,7 +370,7 @@
       <div class="col-md-12">
         <ul class="nav nav-tabs">
           <li role="presentation" ng-repeat="menuItem in menu" ui-sref-active="active"
-            ng-class="{'disabled' : menuItem.disabled}">
+              ng-class="{'disabled' : menuItem.disabled}">
             <a id="{{menuItem.id}}"
                ng-click="onItemClick($event, menuItem)"
                ui-sref="{{menuItem.state}}">
