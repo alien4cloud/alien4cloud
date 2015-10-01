@@ -8,7 +8,7 @@ define(function(require) {
   require('scripts/topology/services/topology_json_processor');
   require('scripts/orchestrators/services/location_resources_processor');
 
-  modules.get('a4c-orchestrators').factory('deploymentTopologyProcessor',
+  modules.get('a4c-applications').factory('deploymentTopologyProcessor',
     ['listToMapService', 'topologyJsonProcessor', 'locationResourcesProcessor',
       function(listToMapService, topologyJsonProcessor, locationResourcesProcessor) {
         // This service post-process a deployment topology in order to add maps field from ordered maps array (array of MapEntry).

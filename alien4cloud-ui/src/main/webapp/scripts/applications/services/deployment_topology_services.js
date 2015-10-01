@@ -16,6 +16,12 @@ define(function(require) {
       });
 
       var deploymentTopology = $resource('rest/applications/:appId/environments/:envId/deployment-topology');
+      
+      var inputs = $resource('rest/applications/:appId/environments/:envId/deployment-topology/deployment-setup', {}, {
+        'update': {
+          method: 'PUT'
+        }
+      });
 
       var nodeSubstitution = $resource('rest/applications/:appId/environments/:envId/deployment-topology/substitutions/:nodeId');
 
@@ -29,7 +35,8 @@ define(function(require) {
         'getAvailableSubstitutions': nodeSubstitution.get,
         'updateSubstitution': nodeSubstitution.save,
         'updateSubstitutionProperty': nodeSubstitutionProperty.save,
-        'updateSubstitutionCapabilityProperty': nodeSubstitutionCapabilityProperty.save
+        'updateSubstitutionCapabilityProperty': nodeSubstitutionCapabilityProperty.save,
+        'updateInputProperties': inputs.update
       };
     }
   ]);

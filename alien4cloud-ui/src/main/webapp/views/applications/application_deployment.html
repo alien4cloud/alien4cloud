@@ -57,27 +57,6 @@
           </div>
         </div>
 
-        <!--  Implementation tasks  -->
-        <div ng-if="(toImplementNodeTasks = (validTopologyDTO.taskList | filter:{code:'IMPLEMENT'})).length>0">
-          <div class="topology-node-expand clickable" ng-init="isToImplementNodesCollapsed = false" ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed">
-            <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isToImplementNodesCollapsed, 'fa-chevron-right': isToImplementNodesCollapsed}"></i>
-            <span>{{'APPLICATIONS.TOPOLOGY.TASK.IMPLEMENT_LABEL' | translate}}</span>
-          </div>
-
-          <div collapse="isToImplementNodesCollapsed" class="topology-level">
-            <table class="table table-condensed">
-              <tbody>
-                <tr ng-repeat=" toImplementNodeTask in toImplementNodeTasks">
-                  <td>
-                    <span>{{toImplementNodeTask.nodeTemplateName}}</span>
-                    <span>({{toImplementNodeTask.component.elementId}})</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
         <!--  Node Filter tasks  -->
         <div ng-if="(nodeFiltersTasks = (validTopologyDTO.taskList | filter:{code:'NODE_FILTER_INVALID'})).length>0">
           <div class="topology-node-expand clickable" ng-init="isToImplementNodesCollapsed = false" ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed">
@@ -261,6 +240,28 @@
 
       <div class="warning-list-box" ng-repeat="(taskCode, tasks) in validTopologyDTO.warningList" ng-switch="taskCode">
 
+        
+<!--          Warning Implementation tasks  -->
+<!--         <div ng-if="tasks.length>0" ng-switch-when="IMPLEMENT" > -->
+<!--           <div class="topology-node-expand clickable" ng-init="isToImplementNodesCollapsed = false" ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed"> -->
+<!--             <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isToImplementNodesCollapsed, 'fa-chevron-right': isToImplementNodesCollapsed}"></i> -->
+<!--             <span>{{'APPLICATIONS.TOPOLOGY.TASK.IMPLEMENT_LABEL' | translate}}</span> -->
+<!--           </div> -->
+
+<!--           <div collapse="isToImplementNodesCollapsed" class="topology-level"> -->
+<!--             <table class="table table-condensed"> -->
+<!--               <tbody> -->
+<!--                 <tr ng-repeat=" toImplementNodeTask in tasks"> -->
+<!--                   <td> -->
+<!--                     <span>{{toImplementNodeTask.nodeTemplateName}}</span> -->
+<!--                     <span>({{toImplementNodeTask.component.elementId}})</span> -->
+<!--                   </td> -->
+<!--                 </tr> -->
+<!--               </tbody> -->
+<!--             </table> -->
+<!--           </div> -->
+<!--         </div> End warning Implementation tasks -->
+
         <!--HA warning list -->
         <div ng-if="tasks.length>0" ng-switch-when="HA_INVALID">
 
@@ -337,6 +338,8 @@
                ng-click="onItemClick($event, menuItem)"
                ui-sref="{{menuItem.state}}">
               <i class="{{menuItem.icon}}" ng-show="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i> {{menuItem.key | translate}}
+              <i class="fa fa-exclamation-triangle" ng-if="showStatusIcon(menuItem)" ng-class="{'text-danger': menuItem.step.status==='ERROR',
+                                                               'text-warning': menuItem.step.status==='WARNING'}"></i>
             </a>
           </li>
         </ul>

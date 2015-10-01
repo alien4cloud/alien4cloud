@@ -48,9 +48,7 @@ import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.rest.application.model.DeployApplicationRequest;
 import alien4cloud.rest.application.model.EnvironmentStatusDTO;
-import alien4cloud.rest.application.model.UpdateDeploymentSetupRequest;
 import alien4cloud.rest.model.RestError;
-import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
@@ -59,10 +57,6 @@ import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.DeployerRole;
 import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.tosca.properties.constraints.ConstraintUtil;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
-import alien4cloud.utils.ReflectionUtil;
 
 import com.google.common.collect.Maps;
 import com.wordnik.swagger.annotations.Api;
@@ -367,55 +361,17 @@ public class ApplicationDeploymentController {
 
                 @Override
                 public void onFailure(Throwable e) {
-                    result.setErrorResult(
-                            RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage())).build());
+                    result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage()))
+                            .build());
                 }
             });
         } catch (OrchestratorDisabledException e) {
-            result.setErrorResult(
-                    RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build());
+            result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage()))
+                    .build());
         } catch (PaaSDeploymentException e) {
             result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage())).build());
         }
 
         return result;
-    }
-
-    // FIXME THIS CANNOT BE USED ANYMORE TO SET MATCHING RESULT
-    /**
-     * Update application's deployment setup
-     *
-     * @param applicationId The application id.
-     * @return nothing if success, error will be handled in global exception strategy
-     */
-    @ApiOperation(value = "Updates by merging the given request into the given application's deployment setup.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
-    @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment-setup", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    @Audit
-    public RestResponse<?> updateDeploymentSetup(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
-            @RequestBody UpdateDeploymentSetupRequest updateRequest) throws OrchestratorDisabledException {
-
-        Application application = applicationService.checkAndGetApplication(applicationId);
-        // check rights on related environment
-        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
-        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-        }
-        DeploymentTopology deploymentTopology = deploymentTopologyService.getOrCreateDeploymentTopology(environment.getId());
-        ReflectionUtil.mergeObject(updateRequest, deploymentTopology);
-        if (deploymentTopology.getInputProperties() != null) {
-            // If someone modified the input properties, must validate them
-            try {
-                deploymentTopologyValidationService.validateInputProperties(deploymentTopology);
-            } catch (ConstraintViolationException e) {
-                return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().data(e.getConstraintInformation())
-                        .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
-            } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
-                return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().data(e.getConstraintInformation())
-                        .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
-            }
-        }
-        alienDAO.save(deploymentTopology);
-        return RestResponseBuilder.<Void> builder().build();
     }
 }

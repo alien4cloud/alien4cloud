@@ -8,6 +8,10 @@ define(function(require) {
   require('scripts/orchestrators/controllers/orchestrator_location_resource_template');
   require('scripts/orchestrators/directives/orchestrator_location_resource_template');
   require('scripts/applications/services/deployment_topology_processor.js');
+  
+  var SUBSTITUTION_STEP_CODE = 'IMPLEMENT';
+  var SUBSTITUTION_ID = 'am.applications.detail.deployment.match';
+  var INPUT_ID =  'am.applications.detail.deployment.input';
 
   states.state('applications.detail.deployment.match', {
     url: '/match',
@@ -22,6 +26,16 @@ define(function(require) {
               return response.data;
             }
           );
+        }],
+      thisStepMenu: ['menu', function(menu){
+          return _.find(menu, function(item){
+            return item.id==='am.applications.detail.deployment.match'
+          })
+        }],
+      nextStepMenu: ['menu', function(menu){
+          return _.find(menu, function(item){
+            return item.id==='am.applications.detail.deployment.input'
+          });
         }]
     },
     templateUrl: 'views/applications/application_deployment_match.html',
@@ -31,13 +45,17 @@ define(function(require) {
       state: 'applications.detail.deployment.match',
       key: 'APPLICATIONS.DEPLOYMENT.MATCHING',
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'],
-      priority: 200
+      priority: 200,
+      nextStepId: 'am.applications.detail.deployment.input',
+      step: {
+        taskCodes: [SUBSTITUTION_STEP_CODE]
+      }
     }
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentMatchCtrl',
-    ['$scope', 'nodeTemplateService', 'substitutionContext', 'deploymentTopologyServices', 'deploymentTopologyProcessor',
-      function($scope, nodeTemplateService, substitutionContext, deploymentTopologyServices, deploymentTopologyProcessor) {
+    ['$scope', 'nodeTemplateService', 'substitutionContext', 'deploymentTopologyServices', 'deploymentTopologyProcessor', 'thisStepMenu', 'nextStepMenu', 
+      function($scope, nodeTemplateService, substitutionContext, deploymentTopologyServices, deploymentTopologyProcessor, thisStepMenu, nextStepMenu) {
         $scope.substitutionContext = substitutionContext;
         $scope.getIcon = function(template) {
           if (!_.isEmpty($scope.substitutionContext.substitutionTypes.nodeTypes)) {
@@ -47,7 +65,7 @@ define(function(require) {
             }
           }
         };
-
+        
         $scope.getSubstitutedTemplate = function(nodeName) {
           return $scope.deploymentContext.deploymentTopologyDTO.topology.substitutedNodes[nodeName];
         };
@@ -72,8 +90,7 @@ define(function(require) {
               nodeId: nodeName,
               locationResourceTemplateId: template.id
             }, undefined, function(response) {
-              deploymentTopologyProcessor.process(response.data);
-              $scope.deploymentContext.deploymentTopologyDTO = response.data;
+              $scope.updateScopeDeploymentTopologyDTO(response.data);
               $scope.selectedResourceTemplate = $scope.getSubstitutedTemplate(nodeName);
             });
           }
@@ -87,7 +104,9 @@ define(function(require) {
           }, angular.toJson({
             propertyName: propertyName,
             propertyValue: propertyValue
-          })).$promise;
+          }), function(result){
+            $scope.updateScopeDeploymentTopologyDTO(result.data);
+          }).$promise;
         };
 
         $scope.updateSubstitutionCapabilityProperty = function(capabilityName, propertyName, propertyValue) {
@@ -99,7 +118,9 @@ define(function(require) {
           }, angular.toJson({
             propertyName: propertyName,
             propertyValue: propertyValue
-          })).$promise;
+          }), function(result){
+            $scope.updateScopeDeploymentTopologyDTO(result.data);
+          }).$promise;
         };
       }
     ]); //controller

@@ -108,15 +108,7 @@ public class DeploymentTopologyService {
         deploymentTopology.setVersionId(environment.getCurrentVersionId());
         deploymentTopology.setEnvironmentId(environment.getId());
         deploymentTopology.setInitialTopologyId(topology.getId());
-        deploymentTopology.setLastInitialTopologyUpdateDate(topology.getLastUpdateDate());
-        ReflectionUtil.mergeObject(topology, deploymentTopology);
-        topologyCompositionService.processTopologyComposition(deploymentTopology);
-        deploymentInputService.processInputProperties(deploymentTopology);
-        inputsPreProcessorService.processGetInput(deploymentTopology, environment);
-        deploymentInputService.processInputArtifacts(deploymentTopology);
-        deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
-        deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology);
-        save(deploymentTopology);
+        updateAndSaveDeploymentTopology(deploymentTopology, topology, environment);
         return deploymentTopology;
     }
 
@@ -125,12 +117,19 @@ public class DeploymentTopologyService {
      *
      * @param deploymentTopology the deployment topology to update
      */
-    public void updateDeploymentTopology(DeploymentTopology deploymentTopology) {
+    public void updateAndSaveDeploymentTopology(DeploymentTopology deploymentTopology) {
         ApplicationEnvironment environment = appEnvironmentServices.getOrFail(deploymentTopology.getEnvironmentId());
         Topology topology = topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId());
-        deploymentTopology.setLastUpdateDate(new Date());
+        updateAndSaveDeploymentTopology(deploymentTopology, topology, environment);
+    }
+
+    private void updateAndSaveDeploymentTopology(DeploymentTopology deploymentTopology, Topology topology, ApplicationEnvironment environment) {
         deploymentTopology.setLastInitialTopologyUpdateDate(topology.getLastUpdateDate());
         ReflectionUtil.mergeObject(topology, deploymentTopology);
+        processDeploymentTopologyAndSave(deploymentTopology, environment);
+    }
+
+    private void processDeploymentTopologyAndSave(DeploymentTopology deploymentTopology, ApplicationEnvironment environment) {
         topologyCompositionService.processTopologyComposition(deploymentTopology);
         deploymentInputService.processInputProperties(deploymentTopology);
         inputsPreProcessorService.processGetInput(deploymentTopology, environment);
@@ -138,6 +137,17 @@ public class DeploymentTopologyService {
         deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
         deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology);
         save(deploymentTopology);
+    }
+
+    /**
+     * Process the deployment topology and save it. This should always be called when the deployment setup has changed
+     *
+     * @param deploymentTopology
+     * @param environment
+     */
+    public void processDeploymentTopologyAndSave(DeploymentTopology deploymentTopology) {
+        ApplicationEnvironment environment = appEnvironmentServices.getOrFail(deploymentTopology.getEnvironmentId());
+        processDeploymentTopologyAndSave(deploymentTopology, environment);
     }
 
     private LocationResourceTemplate getSubstitution(DeploymentTopology deploymentTopology, String nodeId) {
@@ -159,7 +169,7 @@ public class DeploymentTopologyService {
             substituted.setProperties(Maps.<String, AbstractPropertyValue> newHashMap());
         }
         substituted.getProperties().put(propertyName, substitution.getTemplate().getProperties().get(propertyName));
-        save(deploymentTopology);
+        processDeploymentTopologyAndSave(deploymentTopology);
     }
 
     public void updateSubstitutionCapabilityProperty(DeploymentTopology deploymentTopology, String nodeId, String capabilityName, String propertyName,
@@ -173,7 +183,7 @@ public class DeploymentTopologyService {
             substituted.getCapabilities().get(capabilityName).setProperties(substitutedCapabilityProperties);
         }
         substitutedCapabilityProperties.put(propertyName, substitution.getTemplate().getCapabilities().get(capabilityName).getProperties().get(propertyName));
-        save(deploymentTopology);
+        processDeploymentTopologyAndSave(deploymentTopology);
     }
 
     public void deleteByEnvironmentId(String environmentId) {
