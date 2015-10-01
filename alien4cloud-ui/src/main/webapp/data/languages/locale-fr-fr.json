@@ -361,8 +361,8 @@
       "INFORMATIONS": {
         "APP_NAME": "Nom de l'application",
         "DEPLOYMENT_ID": "ID du déploiement",
-        "CLOUD_NAME": "Nom du cloud",
-        "CLOUD_ID": "ID du cloud"
+        "ORCHESTRATOR_NAME": "Nom du cloud",
+        "ORCHESTRATOR_ID": "ID du cloud"
       },
       "EVENTS_TAB": "Evénèments",
       "EVENTS": {

@@ -98,13 +98,13 @@ public class TopologyInputsController {
         log.debug("Add a new input <{}> for the topology <{}>.", inputId, topologyId);
         topologyServiceCore.save(topology);
         if (StringUtils.isNotEmpty(newPropertyDefinition.getDefault())) {
-            DeploymentTopology[] deploymentSetups = deploymentTopologyService.getByTopologyId(topologyId);
-            for (DeploymentTopology deploymentSetup : deploymentSetups) {
-                if (deploymentSetup.getInputProperties() == null) {
-                    deploymentSetup.setInputProperties(Maps.<String, String> newHashMap());
+            DeploymentTopology[] deploymentTopologies = deploymentTopologyService.getByTopologyId(topologyId);
+            for (DeploymentTopology deploymentTopology : deploymentTopologies) {
+                if (deploymentTopology.getInputProperties() == null) {
+                    deploymentTopology.setInputProperties(Maps.<String, String> newHashMap());
                 }
-                deploymentSetup.getInputProperties().put(inputId, newPropertyDefinition.getDefault());
-                alienDAO.save(deploymentSetup);
+                deploymentTopology.getInputProperties().put(inputId, newPropertyDefinition.getDefault());
+                alienDAO.save(deploymentTopology);
             }
         }
         topologyServiceCore.updateSubstitutionType(topology);
@@ -182,12 +182,12 @@ public class TopologyInputsController {
 
         log.debug("Change the name of an input parameter <{}> to <{}> for the topology ", inputId, newInputId, topologyId);
         topologyServiceCore.save(topology);
-        DeploymentTopology[] deploymentSetups = deploymentTopologyService.getByTopologyId(topologyId);
-        for (DeploymentTopology deploymentSetup : deploymentSetups) {
-            if (deploymentSetup.getInputProperties() != null && deploymentSetup.getInputProperties().containsKey(inputId)) {
-                String oldValue = deploymentSetup.getInputProperties().remove(inputId);
-                deploymentSetup.getInputProperties().put(newInputId, oldValue);
-                alienDAO.save(deploymentSetup);
+        DeploymentTopology[] deploymentTopologies = deploymentTopologyService.getByTopologyId(topologyId);
+        for (DeploymentTopology deploymentTopology : deploymentTopologies) {
+            if (deploymentTopology.getInputProperties() != null && deploymentTopology.getInputProperties().containsKey(inputId)) {
+                String oldValue = deploymentTopology.getInputProperties().remove(inputId);
+                deploymentTopology.getInputProperties().put(newInputId, oldValue);
+                alienDAO.save(deploymentTopology);
             }
         }
         topologyServiceCore.updateSubstitutionType(topology);
@@ -264,11 +264,11 @@ public class TopologyInputsController {
 
         log.debug("Remove the input " + inputId + " from the topology " + topologyId);
         topologyServiceCore.save(topology);
-        DeploymentTopology[] deploymentSetups = deploymentTopologyService.getByTopologyId(topologyId);
-        for (DeploymentTopology deploymentSetup : deploymentSetups) {
-            if (deploymentSetup.getInputProperties() != null && deploymentSetup.getInputProperties().containsKey(inputId)) {
-                deploymentSetup.getInputProperties().remove(inputId);
-                alienDAO.save(deploymentSetup);
+        DeploymentTopology[] deploymentTopologies = deploymentTopologyService.getByTopologyId(topologyId);
+        for (DeploymentTopology deploymentTopology : deploymentTopologies) {
+            if (deploymentTopology.getInputProperties() != null && deploymentTopology.getInputProperties().containsKey(inputId)) {
+                deploymentTopology.getInputProperties().remove(inputId);
+                alienDAO.save(deploymentTopology);
             }
         }
         topologyServiceCore.updateSubstitutionType(topology);

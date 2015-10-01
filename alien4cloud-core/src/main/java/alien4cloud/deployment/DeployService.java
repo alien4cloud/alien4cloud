@@ -76,11 +76,6 @@ public class DeployService {
         String locationId = TopologyLocationUtils.getLocationIdOrFail(deploymentTopology);
         Location location = locationService.getOrFail(locationId);
         // FIXME check that all nodes to match are matched
-
-        // FIXME Merge the deployment topology with the initial topology ?
-
-        // FIXME Inject all inputs and perform required pre-processing
-
         // FIXME check that all required properties are defined
         // TODO DeploymentSetupValidator.validate doesn't check that inputs linked to required properties are indeed configured.
 
