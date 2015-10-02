@@ -126,7 +126,7 @@ public class DeploymentTopologyService {
 
     private void updateAndSaveDeploymentTopology(DeploymentTopology deploymentTopology, Topology topology, ApplicationEnvironment environment) {
         deploymentTopology.setLastInitialTopologyUpdateDate(topology.getLastUpdateDate());
-        ReflectionUtil.mergeObject(topology, deploymentTopology);
+        ReflectionUtil.mergeObject(topology, deploymentTopology, "id");
         processDeploymentTopologyAndSave(deploymentTopology, environment);
     }
 

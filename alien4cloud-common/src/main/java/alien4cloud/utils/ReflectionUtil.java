@@ -12,8 +12,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -189,8 +187,10 @@ public final class ReflectionUtil {
      * 
      * @param from source of the update
      * @param to target of the update
+     * @param ignores properties names that should be ignored
      */
-    public static void mergeObject(Object from, Object to) {
+    public static void mergeObject(Object from, Object to, String... ignores) {
+        Set<String> ignoredProps = Sets.newHashSet(ignores);
         try {
             Map<String, Object> settablePropertiesMap = Maps.newHashMap();
             PropertyDescriptor[] propertyDescriptors = getPropertyDescriptors(from.getClass());
@@ -199,7 +199,7 @@ public final class ReflectionUtil {
                     continue;
                 }
                 Object value = property.getReadMethod().invoke(from);
-                if (value != null) {
+                if (value != null && !ignoredProps.contains(property.getName())) {
                     settablePropertiesMap.put(property.getName(), value);
                 }
             }

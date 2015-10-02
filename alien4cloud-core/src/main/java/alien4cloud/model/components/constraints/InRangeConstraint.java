@@ -15,10 +15,13 @@ import alien4cloud.ui.form.annotation.FormProperties;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 @SuppressWarnings({ "PMD.UnusedPrivateField", "unchecked", "rawtypes" })
 @EqualsAndHashCode(callSuper = false, of = { "inRange" })
 @FormProperties({ "rangeMinValue", "rangeMaxValue" })
+@Slf4j
 public class InRangeConstraint extends AbstractPropertyConstraint {
 
     @Getter
@@ -47,8 +50,8 @@ public class InRangeConstraint extends AbstractPropertyConstraint {
             throw new ConstraintViolationException("Value to check is null");
         }
         if (!(min.getClass().isAssignableFrom(propertyValue.getClass()))) {
-            throw new ConstraintViolationException("Value to check is not comparable to range type, value type [" + propertyValue.getClass()
-                    + "], range type [" + min.getClass() + "]");
+            throw new ConstraintViolationException(
+                    "Value to check is not comparable to range type, value type [" + propertyValue.getClass() + "], range type [" + min.getClass() + "]");
         }
         if (min.compareTo(propertyValue) > 0 || max.compareTo(propertyValue) < 0) {
             throw new ConstraintViolationException("The value [" + propertyValue + "] is out of range " + inRange);
