@@ -127,13 +127,13 @@ public class DeploymentTopologyService {
     private void updateAndSaveDeploymentTopology(DeploymentTopology deploymentTopology, Topology topology, ApplicationEnvironment environment) {
         deploymentTopology.setLastInitialTopologyUpdateDate(topology.getLastUpdateDate());
         ReflectionUtil.mergeObject(topology, deploymentTopology, "id");
-        processDeploymentTopologyAndSave(deploymentTopology, environment);
+        processDeploymentTopologyAndSave(deploymentTopology, environment, topology);
     }
 
-    private void processDeploymentTopologyAndSave(DeploymentTopology deploymentTopology, ApplicationEnvironment environment) {
+    private void processDeploymentTopologyAndSave(DeploymentTopology deploymentTopology, ApplicationEnvironment environment, Topology topology) {
         topologyCompositionService.processTopologyComposition(deploymentTopology);
         deploymentInputService.processInputProperties(deploymentTopology);
-        inputsPreProcessorService.processGetInput(deploymentTopology, environment);
+        inputsPreProcessorService.processGetInput(deploymentTopology, environment, topology);
         deploymentInputService.processInputArtifacts(deploymentTopology);
         deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
         deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology);
@@ -148,7 +148,8 @@ public class DeploymentTopologyService {
      */
     public void processDeploymentTopologyAndSave(DeploymentTopology deploymentTopology) {
         ApplicationEnvironment environment = appEnvironmentServices.getOrFail(deploymentTopology.getEnvironmentId());
-        processDeploymentTopologyAndSave(deploymentTopology, environment);
+        Topology topology = topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId());
+        processDeploymentTopologyAndSave(deploymentTopology, environment, topology);
     }
 
     private LocationResourceTemplate getSubstitution(DeploymentTopology deploymentTopology, String nodeId) {

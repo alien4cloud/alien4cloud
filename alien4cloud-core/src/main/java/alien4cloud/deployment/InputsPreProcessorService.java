@@ -1,6 +1,7 @@
 package alien4cloud.deployment;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
@@ -25,6 +26,7 @@ import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 
@@ -58,24 +60,67 @@ public class InputsPreProcessorService {
      *
      * @param deploymentTopology The deployment setup that contains the input values.
      * @param environment The environment instance linked to the deployment setup.
+     * @param topology
      */
-    public void processGetInput(DeploymentTopology deploymentTopology, ApplicationEnvironment environment) {
+    public void processGetInput(DeploymentTopology deploymentTopology, ApplicationEnvironment environment, Topology topology) {
         Map<String, String> inputs = getInputs(deploymentTopology, environment);
         if (deploymentTopology.getNodeTemplates() != null) {
-            for (NodeTemplate nodeTemplate : deploymentTopology.getNodeTemplates().values()) {
+            for (Entry<String, NodeTemplate> entry : deploymentTopology.getNodeTemplates().entrySet()) {
+                NodeTemplate nodeTemplate = entry.getValue();
+                NodeTemplate initialNodeTemplate = topology.getNodeTemplates().get(entry.getKey());
+                mergeGetInputProperties(initialNodeTemplate.getProperties(), nodeTemplate.getProperties());
                 processGetInput(inputs, nodeTemplate.getProperties());
+
+                // process relationships
                 if (nodeTemplate.getRelationships() != null) {
-                    for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
+                    for (Entry<String, RelationshipTemplate> relEntry : nodeTemplate.getRelationships().entrySet()) {
+                        RelationshipTemplate relationshipTemplate = relEntry.getValue();
+                        Map<String, AbstractPropertyValue> initialProperties = getInitialRelationshipProperties(relEntry.getKey(), initialNodeTemplate);
+                        mergeGetInputProperties(initialProperties, relationshipTemplate.getProperties());
                         processGetInput(inputs, relationshipTemplate.getProperties());
                     }
                 }
                 if (nodeTemplate.getCapabilities() != null) {
-                    for (Capability capability : nodeTemplate.getCapabilities().values()) {
+                    for (Entry<String, Capability> capaEntry : nodeTemplate.getCapabilities().entrySet()) {
+                        Capability capability = capaEntry.getValue();
+                        Map<String, AbstractPropertyValue> capaInitialProps = getInitialCapabilityProperties(capaEntry.getKey(), initialNodeTemplate);
+                        mergeGetInputProperties(capaInitialProps, capability.getProperties());
                         processGetInput(inputs, capability.getProperties());
                     }
                 }
             }
         }
+    }
+
+    private void mergeGetInputProperties(Map<String, AbstractPropertyValue> from, Map<String, AbstractPropertyValue> to) {
+        if (from != null && to != null) {
+            for (Entry<String, AbstractPropertyValue> entry : to.entrySet()) {
+                AbstractPropertyValue fromValue = from.get(entry.getKey());
+                if (fromValue instanceof FunctionPropertyValue) {
+                    entry.setValue(fromValue);
+                }
+            }
+        }
+    }
+
+    private Map<String, AbstractPropertyValue> getInitialRelationshipProperties(String relationShipName, NodeTemplate nodeTemplate) {
+        Map<String, AbstractPropertyValue> properties = Maps.newHashMap();
+        if (nodeTemplate.getRelationships() != null && nodeTemplate.getRelationships().get(relationShipName) != null) {
+            if (nodeTemplate.getRelationships().get(relationShipName).getProperties() != null) {
+                properties = nodeTemplate.getRelationships().get(relationShipName).getProperties();
+            }
+        }
+        return properties;
+    }
+
+    private Map<String, AbstractPropertyValue> getInitialCapabilityProperties(String capabilityName, NodeTemplate nodeTemplate) {
+        Map<String, AbstractPropertyValue> properties = Maps.newHashMap();
+        if (nodeTemplate.getCapabilities() != null && nodeTemplate.getCapabilities().get(capabilityName) != null) {
+            if (nodeTemplate.getCapabilities().get(capabilityName).getProperties() != null) {
+                properties = nodeTemplate.getCapabilities().get(capabilityName).getProperties();
+            }
+        }
+        return properties;
     }
 
     /**

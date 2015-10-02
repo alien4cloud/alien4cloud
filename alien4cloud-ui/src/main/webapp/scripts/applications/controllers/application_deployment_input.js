@@ -50,7 +50,9 @@ define(function(require) {
           }, angular.toJson({
             inputProperties: $scope.deploymentContext.deploymentTopologyDTO.topology.inputProperties
           }), function(result){
-            $scope.updateScopeDeploymentTopologyDTO(result.data)
+            if(!result.error) {
+              $scope.updateScopeDeploymentTopologyDTO(result.data)
+            }
           }).$promise;
         };
 
@@ -115,7 +117,11 @@ define(function(require) {
                 envId: $scope.deploymentContext.selectedEnvironment.id
               }, angular.toJson({
                 providerDeploymentProperties: $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties
-              }));
+              }), function(result){
+                  if(!result.error) {
+                    $scope.updateScopeDeploymentTopologyDTO(result.data)
+                  }
+              });
             }
           }).$promise;
         };

@@ -35,7 +35,7 @@ define(function(require) {
   }
   
   var setNextStepMenuEnabled = function(currentStepMenu, nextStepMenu){
-    nextStepMenu.disabled = _.defined(currentStepMenu.step.status) && currentStepMenu.step.status!=='SUCCESS';
+    nextStepMenu.disabled = currentStepMenu.disabled || (_.defined(currentStepMenu.step.status) && currentStepMenu.step.status!=='SUCCESS');
   };
   
   function buildMenuTree(menus) {

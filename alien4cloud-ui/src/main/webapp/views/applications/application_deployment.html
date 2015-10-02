@@ -38,8 +38,7 @@
               ng-if="(deploymentContext.selectedEnvironment.status === 'DEPLOYED' ||
                       deploymentContext.selectedEnvironment.status === 'WARNING' ||
                       deploymentContext.selectedEnvironment.status === 'DEPLOYMENT_IN_PROGRESS' ||
-                      deploymentContext.selectedEnvironment.status === 'FAILURE') &&
-                      deploymentContext.deploymentTopologyDTO.validation.valid">
+                      deploymentContext.selectedEnvironment.status === 'FAILURE')">
         <i class="fa" ng-class="{'fa-stop': !isUnDeploying, 'fa-spinner fa-spin': isUnDeploying}"></i> {{'APPLICATIONS.UNDEPLOY' | translate}}
       </button>
     </div>

@@ -3,6 +3,7 @@ package alien4cloud.topology.validation;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
@@ -82,9 +84,6 @@ public class TopologyPropertiesValidationService {
         // create task by nodetemplate
         for (Map.Entry<String, NodeTemplate> nodeTempEntry : nodeTemplates.entrySet()) {
             NodeTemplate nodeTemplate = nodeTempEntry.getValue();
-            if (nodeTemplate.getProperties() == null || nodeTemplate.getProperties().isEmpty()) {
-                continue;
-            }
             IndexedNodeType relatedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
                     topology.getDependencies());
             // do pass if abstract node
@@ -100,7 +99,9 @@ public class TopologyPropertiesValidationService {
             task.setProperties(Maps.<TaskLevel, List<String>> newHashMap());
 
             // Check the properties of node template
-            addRequiredPropertyIdToTaskProperties(nodeTemplate.getProperties(), relatedIndexedNodeType.getProperties(), task, skipInputProperties);
+            if (nodeTemplate.getProperties() == null || nodeTemplate.getProperties().isEmpty()) {
+                addRequiredPropertyIdToTaskProperties(nodeTemplate.getProperties(), relatedIndexedNodeType.getProperties(), task, skipInputProperties);
+            }
 
             // Check relationships PD
             if (nodeTemplate.getRelationships() != null && !nodeTemplate.getRelationships().isEmpty()) {
@@ -125,7 +126,7 @@ public class TopologyPropertiesValidationService {
                             skipInputProperties);
                     if (capability.getType().equals(NormativeComputeConstants.SCALABLE_CAPABILITY_TYPE)) {
                         Map<String, AbstractPropertyValue> scalableProperties = capability.getProperties();
-                        verifyScalableProperties(scalableProperties, toReturnTaskList, nodeTempEntry.getKey());
+                        verifyScalableProperties(scalableProperties, toReturnTaskList, nodeTempEntry.getKey(), skipInputProperties);
                     }
                 }
             }
@@ -169,9 +170,17 @@ public class TopologyPropertiesValidationService {
         return relatedProperties;
     }
 
-    private void verifyScalableProperties(Map<String, AbstractPropertyValue> scalableProperties, List<PropertiesTask> toReturnTaskList, String nodeTemplateId) {
+    private void verifyScalableProperties(Map<String, AbstractPropertyValue> scalableProperties, List<PropertiesTask> toReturnTaskList, String nodeTemplateId,
+            boolean skipInputProperties) {
         Set<String> missingProperties = Sets.newHashSet();
         Set<String> errorProperties = Sets.newHashSet();
+        if (skipInputProperties) {
+            for (Entry<String, AbstractPropertyValue> entry : scalableProperties.entrySet()) {
+                if (entry.getValue() instanceof FunctionPropertyValue) {
+                    return;
+                }
+            }
+        }
         if (MapUtils.isEmpty(scalableProperties)) {
             missingProperties.addAll(Lists.newArrayList(NormativeComputeConstants.SCALABLE_MIN_INSTANCES, NormativeComputeConstants.SCALABLE_MAX_INSTANCES,
                     NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES));
