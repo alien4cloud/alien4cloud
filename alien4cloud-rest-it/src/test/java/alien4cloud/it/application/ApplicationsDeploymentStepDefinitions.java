@@ -37,7 +37,7 @@ import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.rest.application.model.DeployApplicationRequest;
 import alien4cloud.rest.application.model.UpdateApplicationEnvironmentRequest;
-import alien4cloud.rest.application.model.UpdateDeploymentSetupRequest;
+import alien4cloud.rest.application.model.UpdateDeploymentTopologyRequest;
 import alien4cloud.rest.deployment.DeploymentDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.application.model.CloudDeploymentPropertyValidationRequest;
@@ -95,7 +95,7 @@ public class ApplicationsDeploymentStepDefinitions {
 
         Map<String, String> deploymentProperties = Context.getInstance().getDeployApplicationProperties();
         if (deploymentProperties != null) {
-            UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest();
+            UpdateDeploymentTopologyRequest request = new UpdateDeploymentTopologyRequest();
             request.setProviderDeploymentProperties(deploymentProperties);
             String response = Context.getRestClientInstance().putJSon(
                     "/rest/applications/" + applicationId + "/environments/" + environmentId + "/deployment-setup", JsonUtil.toString(request));

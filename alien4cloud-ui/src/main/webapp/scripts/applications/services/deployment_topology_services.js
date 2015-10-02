@@ -3,8 +3,8 @@ define(function(require) {
 
   var modules = require('modules');
 
-  modules.get('a4c-applications', ['ngResource']).factory('deploymentTopologyServices', ['$resource',
-    function($resource) {
+  modules.get('a4c-applications', ['ngResource']).factory('deploymentTopologyServices', ['$resource', '$alresource',
+    function($resource, $alresource) {
       var location = $resource('rest/applications/:appId/environments/:envId/deployment-topology/location-policies', {}, {
         setLocationPolicies: {
           method: 'POST',
@@ -15,7 +15,7 @@ define(function(require) {
         }
       });
 
-      var deploymentTopology = $resource('rest/applications/:appId/environments/:envId/deployment-topology');
+      var deploymentTopology = $alresource('rest/applications/:appId/environments/:envId/deployment-topology');
 
       var nodeSubstitution = $resource('rest/applications/:appId/environments/:envId/deployment-topology/substitutions/:nodeId');
 
@@ -29,7 +29,8 @@ define(function(require) {
         'getAvailableSubstitutions': nodeSubstitution.get,
         'updateSubstitution': nodeSubstitution.save,
         'updateSubstitutionProperty': nodeSubstitutionProperty.save,
-        'updateSubstitutionCapabilityProperty': nodeSubstitutionCapabilityProperty.save
+        'updateSubstitutionCapabilityProperty': nodeSubstitutionCapabilityProperty.save,
+        'updateInputProperties': deploymentTopology.update
       };
     }
   ]);

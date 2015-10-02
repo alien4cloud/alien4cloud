@@ -478,6 +478,7 @@
       },
       "TASK": {
         "LABEL": "Tâches à faire",
+        "ERRORS_LABEL": "Erreurs",
         "ABSTRACT_LABEL": "Composants abstraits",
         "IMPLEMENT_LABEL": "A implémenter",
         "IMPLEMENT": "Implémenter les noeuds",

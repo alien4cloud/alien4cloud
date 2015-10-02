@@ -40,8 +40,12 @@ public class UndeployService {
     }
 
     public synchronized void undeployEnvironment(String environmentId) {
-        Deployment deployment = deploymentService.getActiveDeploymentOrFail(environmentId);
-        undeploy(deployment);
+        Deployment deployment = deploymentService.getActiveDeployment(environmentId);
+        if (deployment != null) {
+            undeploy(deployment);
+        } else {
+            log.warn("No deployment found for environment " + environmentId);
+        }
     }
 
     /**

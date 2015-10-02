@@ -16,17 +16,22 @@ define(function(require) {
       key: 'APPLICATIONS.DEPLOYMENT.INPUT',
 //      icon: 'fa fa-cloud-upload',
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'], // is deployer,
-      priority: 300
+      priority: 300,
+      step: {
+        taskCodes: ['PROPERTIES']
+      }
     }
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentSetupCtrl',
-    ['$scope', 'authService', '$upload', 'applicationServices', 'toscaService', '$resource', '$http', '$translate', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'toaster', '$filter', 'menu',
-      function($scope, authService, $upload, applicationServices, toscaService, $resource, $http, $translate, applicationResult, $state, applicationEnvironmentServices, appEnvironments, toaster, $filter, menu) {
+    ['$scope', 'authService', '$upload', 'applicationServices', 'toscaService', '$resource', '$http', '$translate', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'toaster', '$filter', 'menu', 'deploymentTopologyServices',
+      function($scope, authService, $upload, applicationServices, toscaService, $resource, $http, $translate, applicationResult, $state, applicationEnvironmentServices, appEnvironments, toaster, $filter, menu, deploymentTopologyServices) {
 
         $scope.isAllowedInputDeployment = function() {
           return !_.isEmpty($filter('allowedInputs')($scope.deploymentContext.deploymentTopologyDTO.topology.inputs));
         };
+        
+        console.log($scope.deploymentContext.deploymentTopologyDTO)
 
         /* Handle properties inputs */
         $scope.updateInputValue = function(definition, inputValue, inputId) {
@@ -39,12 +44,14 @@ define(function(require) {
           } else {
             $scope.deploymentContext.deploymentTopologyDTO.topology.inputProperties[inputId] = inputValue;
           }
-          return applicationServices.updateDeploymentSetup({
-            applicationId: $scope.application.id,
-            applicationEnvironmentId: $scope.deploymentContext.selectedEnvironment.id
+          return deploymentTopologyServices.updateInputProperties({
+            appId: $scope.application.id,
+            envId: $scope.deploymentContext.selectedEnvironment.id
           }, angular.toJson({
             inputProperties: $scope.deploymentContext.deploymentTopologyDTO.topology.inputProperties
-          })).$promise;
+          }), function(result){
+            $scope.updateScopeDeploymentTopologyDTO(result.data)
+          }).$promise;
         };
 
         // Artifact upload handler
@@ -103,9 +110,9 @@ define(function(require) {
             if (data.error === null) {
               $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyName] = propertyValue;
               // Update deployment setup when properties change
-              applicationServices.updateDeploymentSetup({
-                applicationId: $scope.application.id,
-                applicationEnvironmentId: $scope.deploymentContext.selectedEnvironment.id
+              deploymentTopologyServices.updateInputProperties({
+                appId: $scope.application.id,
+                envId: $scope.deploymentContext.selectedEnvironment.id
               }, angular.toJson({
                 providerDeploymentProperties: $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties
               }));
