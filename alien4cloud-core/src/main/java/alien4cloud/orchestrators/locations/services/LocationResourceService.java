@@ -9,6 +9,7 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Component;
@@ -132,8 +133,10 @@ public class LocationResourceService {
                 locationResourceTypes.getNodeTypes().put(exposedType, exposedIndexedNodeType);
                 if (exposedIndexedNodeType.getCapabilities() != null && !exposedIndexedNodeType.getCapabilities().isEmpty()) {
                     for (CapabilityDefinition capabilityDefinition : exposedIndexedNodeType.getCapabilities()) {
-                        locationResourceTypes.getCapabilityTypes().put(capabilityDefinition.getType(), csarRepoSearchService
-                                .getRequiredElementInDependencies(IndexedCapabilityType.class, capabilityDefinition.getType(), location.getDependencies()));
+                        locationResourceTypes.getCapabilityTypes().put(
+                                capabilityDefinition.getType(),
+                                csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class, capabilityDefinition.getType(),
+                                        location.getDependencies()));
                     }
                 }
             }
@@ -207,9 +210,11 @@ public class LocationResourceService {
 
     public Map<String, LocationResourceTemplate> getMultiple(Collection<String> ids) {
         Map<String, LocationResourceTemplate> result = Maps.newHashMap();
-        List<LocationResourceTemplate> templates = alienDAO.findByIds(LocationResourceTemplate.class, ids.toArray(new String[ids.size()]));
-        for (LocationResourceTemplate template : templates) {
-            result.put(template.getId(), template);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            List<LocationResourceTemplate> templates = alienDAO.findByIds(LocationResourceTemplate.class, ids.toArray(new String[ids.size()]));
+            for (LocationResourceTemplate template : templates) {
+                result.put(template.getId(), template);
+            }
         }
         return result;
     }
