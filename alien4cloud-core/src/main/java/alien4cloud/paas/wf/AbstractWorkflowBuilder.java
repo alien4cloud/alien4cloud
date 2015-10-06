@@ -272,7 +272,8 @@ public abstract class AbstractWorkflowBuilder {
             AbstractStep step = steps.next();
             if (step instanceof NodeActivityStep && ((NodeActivityStep) step).getNodeId().equals(nodeId)) {
                 if (step.getFollowingSteps() != null) {
-                    for (String followingId : step.getFollowingSteps()) {
+                    Object[] followingStepIds = step.getFollowingSteps().toArray();
+                    for (Object followingId : followingStepIds) {
                         AbstractStep followingStep = wf.getSteps().get(followingId);
                         if (followingStep instanceof NodeActivityStep && ((NodeActivityStep) followingStep).getNodeId().equals(relationhipTarget)) {
                             unlinkSteps(step, followingStep);

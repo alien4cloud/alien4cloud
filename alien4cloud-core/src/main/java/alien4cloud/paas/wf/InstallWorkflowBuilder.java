@@ -30,7 +30,7 @@ public class InstallWorkflowBuilder extends StandardWorflowBuilder {
                 lastStep = startedStep;
             }
         }
-        boolean forceOperation = WorkflowUtils.isComputeOrVolume(nodeId, toscaTypeFinder);
+        boolean forceOperation = WorkflowUtils.isComputeOrVolume(nodeId, toscaTypeFinder) || WorkflowUtils.isComputeOrNetwork(nodeId, toscaTypeFinder);
         lastStep = appendStateStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.INITIAL);
         lastStep = appendStateStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.CREATING);
         
@@ -53,19 +53,28 @@ public class InstallWorkflowBuilder extends StandardWorflowBuilder {
             TopologyContext toscaTypeFinder) {
         IndexedRelationshipType indexedRelationshipType = toscaTypeFinder.findElement(IndexedRelationshipType.class, relationshipTemplate.getType());
 
-        if (WorkflowUtils.isOfType(indexedRelationshipType, NormativeRelationshipConstants.HOSTED_ON)
-                || WorkflowUtils.isOfType(indexedRelationshipType, NormativeRelationshipConstants.ATTACH_TO)) {
+        if (WorkflowUtils.isOfType(indexedRelationshipType, NormativeRelationshipConstants.HOSTED_ON)) {
             // now the node has a parent, let's sequence the creation
             String parentId = WorkflowUtils.getParentId(wf, nodeId, toscaTypeFinder);
             NodeActivityStep startedTargetStep = WorkflowUtils.getStateStepByNode(wf, parentId, ToscaNodeLifecycleConstants.STARTED);
             NodeActivityStep initSourceStep = WorkflowUtils.getStateStepByNode(wf, nodeId, ToscaNodeLifecycleConstants.INITIAL);
             WorkflowUtils.linkSteps(startedTargetStep, initSourceStep);
-        } else if (WorkflowUtils.isOfType(indexedRelationshipType, NormativeRelationshipConstants.DEPENDS_ON)) {
+        } /*
+           * else if (WorkflowUtils.isOfType(indexedRelationshipType, NormativeRelationshipConstants.ATTACH_TO)) {
+           * String targetId = relationshipTemplate.getTarget();
+           * NodeActivityStep startedTargetStep = WorkflowUtils.getStateStepByNode(wf, targetId, ToscaNodeLifecycleConstants.STARTED);
+           * NodeActivityStep initSourceStep = WorkflowUtils.getStateStepByNode(wf, nodeId, ToscaNodeLifecycleConstants.CONFIGURING);
+           * WorkflowUtils.linkSteps(startedTargetStep, initSourceStep);
+           * }
+           */else /* if (WorkflowUtils.isOfType(indexedRelationshipType, NormativeRelationshipConstants.DEPENDS_ON)) */{
             // now the node has a parent, let's sequence the creation
             String targetId = relationshipTemplate.getTarget();
+            NodeActivityStep configuringTargetStep = WorkflowUtils.getStateStepByNode(wf, targetId, ToscaNodeLifecycleConstants.CONFIGURING);
+            NodeActivityStep createdSourceStep = WorkflowUtils.getStateStepByNode(wf, nodeId, ToscaNodeLifecycleConstants.CREATED);
+            WorkflowUtils.linkSteps(createdSourceStep, configuringTargetStep);
             NodeActivityStep startedTargetStep = WorkflowUtils.getStateStepByNode(wf, targetId, ToscaNodeLifecycleConstants.STARTED);
-            NodeActivityStep configureSourceStep = WorkflowUtils.getStateStepByNode(wf, nodeId, ToscaNodeLifecycleConstants.CONFIGURING);
-            WorkflowUtils.linkSteps(startedTargetStep, configureSourceStep);
+            NodeActivityStep configuringSourceStep = WorkflowUtils.getStateStepByNode(wf, nodeId, ToscaNodeLifecycleConstants.CONFIGURING);
+            WorkflowUtils.linkSteps(startedTargetStep, configuringSourceStep);
         }
     }
 

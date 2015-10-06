@@ -14,7 +14,7 @@ public class LocationPlacementPolicy extends AbstractPolicy {
 
     /**
      * Initialize a location placement policy with the id of a location.
-     * 
+     *
      * @param locationId The id of the location.
      */
     public LocationPlacementPolicy(String locationId) {
@@ -24,5 +24,10 @@ public class LocationPlacementPolicy extends AbstractPolicy {
     @Override
     public String getType() {
         return LOCATION_PLACEMENT_POLICY;
+    }
+
+    @Override
+    public void setType(String type) {
+        // for json serialization
     }
 }

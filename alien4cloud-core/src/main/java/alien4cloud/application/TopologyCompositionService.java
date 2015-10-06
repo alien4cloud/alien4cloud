@@ -24,6 +24,9 @@ import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.SubstitutionTarget;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.paas.wf.Workflow;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import alien4cloud.utils.MapUtil;
@@ -41,6 +44,9 @@ public class TopologyCompositionService {
     @Resource
     private TopologyServiceCore topologyServiceCore;
 
+    @Resource
+    private WorkflowsBuilderService workflowBuilderService;
+
     public void processTopologyComposition(Topology topology) {
         Deque<CompositionCouple> stack = new ArrayDeque<CompositionCouple>();
         recursivelyBuildSubstitutionStack(topology, stack, "");
@@ -55,6 +61,13 @@ public class TopologyCompositionService {
                 log.debug(String.format("Topology composition has been processed for topology <%s> substituting %d embeded topologies", topology.getId(),
                         stack.size()));
             }
+            
+            // std workflows are reinitialized when some composition is processed
+            // TODO: find a better way to manage this
+            TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
+            workflowBuilderService.reinitWorkflow(Workflow.INSTALL_WF, topologyContext);
+            workflowBuilderService.reinitWorkflow(Workflow.UNINSTALL_WF, topologyContext);
+            
         }
     }
 

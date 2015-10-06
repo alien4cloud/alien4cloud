@@ -18,13 +18,14 @@ public class UninstallWorkflowBuilder extends StandardWorflowBuilder {
 
     @Override
     public void addNode(Workflow wf, String nodeId, TopologyContext toscaTypeFinder, boolean isCompute) {
+        boolean forceOperation = WorkflowUtils.isComputeOrVolume(nodeId, toscaTypeFinder) || WorkflowUtils.isComputeOrNetwork(nodeId, toscaTypeFinder);
         AbstractStep lastStep = null;
         // TODO: look for children ?
         lastStep = appendStateStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.STOPPING);
-        lastStep = eventuallyAddStdOperationStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.STOP, toscaTypeFinder, isCompute);
+        lastStep = eventuallyAddStdOperationStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.STOP, toscaTypeFinder, forceOperation);
         lastStep = appendStateStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.STOPPED);
         lastStep = appendStateStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.DELETING);
-        lastStep = eventuallyAddStdOperationStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.DELETE, toscaTypeFinder, isCompute);
+        lastStep = eventuallyAddStdOperationStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.DELETE, toscaTypeFinder, forceOperation);
         lastStep = appendStateStep(wf, lastStep, nodeId, ToscaNodeLifecycleConstants.DELETED);
 
     }

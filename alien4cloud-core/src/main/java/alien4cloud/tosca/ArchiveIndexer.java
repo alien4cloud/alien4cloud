@@ -1,32 +1,32 @@
 package alien4cloud.tosca;
 
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
+import alien4cloud.component.ICSARRepositoryIndexerService;
+import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.component.repository.ICsarRepositry;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyTemplateVersionService;
+import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.ToscaParsingUtil;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.VersionUtil;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.component.ICSARRepositoryIndexerService;
-import alien4cloud.model.components.IndexedInheritableToscaElement;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.tosca.model.ArchiveRoot;
+import javax.inject.Inject;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class ArchiveIndexer {
@@ -42,16 +42,20 @@ public class ArchiveIndexer {
     private TopologyTemplateVersionService topologyTemplateVersionService;
     @Inject
     private ICSARRepositoryIndexerService indexerService;
+    @Inject
+    private WorkflowsBuilderService workflowBuilderService;
+    @Inject
+    private ICSARRepositorySearchService searchService;
 
     /**
      * Import a pre-parsed archive to alien 4 cloud indexed catalog.
      *
-     * @param archiveRoot The parsed archive object.
-     * @param archivePath The optional path of the archive (should be null if the archive has been java-generated and not parsed).
+     * @param archiveRoot   The parsed archive object.
+     * @param archivePath   The optional path of the archive (should be null if the archive has been java-generated and not parsed).
      * @param parsingErrors The non-null list of parsing errors in which to add errors.
      * @throws CSARVersionAlreadyExistsException
      */
-    public void importArchive(ArchiveRoot archiveRoot, Path archivePath, List<ParsingError> parsingErrors) throws CSARVersionAlreadyExistsException {
+    public void importArchive(final ArchiveRoot archiveRoot, Path archivePath, List<ParsingError> parsingErrors) throws CSARVersionAlreadyExistsException {
         String archiveName = archiveRoot.getArchive().getName();
         String archiveVersion = archiveRoot.getArchive().getVersion();
 
@@ -75,7 +79,7 @@ public class ArchiveIndexer {
         // index the archive content in elastic-search
         indexArchive(archiveName, archiveVersion, archiveRoot, archive != null);
 
-        Topology topology = archiveRoot.getTopology();
+        final Topology topology = archiveRoot.getTopology();
         // if a topology has been added we want to notify the user
         if (topology != null && !topology.isEmpty()) {
             if (archiveRoot.hasToscaTypes()) {
@@ -83,6 +87,20 @@ public class ArchiveIndexer {
                 CSARDependency selfDependency = new CSARDependency(archiveRoot.getArchive().getName(), archiveRoot.getArchive().getVersion());
                 topology.getDependencies().add(selfDependency);
             }
+
+            // init the workflows
+            WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildCachedTopologyContext(new WorkflowsBuilderService.TopologyContext() {
+                @Override
+                public Topology getTopology() {
+                    return topology;
+                }
+
+                @Override
+                public <T extends IndexedToscaElement> T findElement(Class<T> clazz, String id) {
+                    return ToscaParsingUtil.getElementFromArchiveOrDependencies(clazz, id, archiveRoot, searchService);
+                }
+            });
+            workflowBuilderService.initWorkflows(topologyContext);
 
             // TODO: here we should update the topology if it already exists
             // TODO: the name should only contains the archiveName
@@ -115,11 +133,11 @@ public class ArchiveIndexer {
 
     /**
      * Index an archive in Alien indexed repository.
-     * 
-     * @param archiveName The name of the archive.
+     *
+     * @param archiveName    The name of the archive.
      * @param archiveVersion The version of the archive.
-     * @param root The archive root.
-     * @param update true if the archive is updated, false if the archive is just indexed.
+     * @param root           The archive root.
+     * @param update         true if the archive is updated, false if the archive is just indexed.
      */
     public void indexArchive(String archiveName, String archiveVersion, ArchiveRoot root, boolean update) {
         if (update) {
@@ -139,7 +157,7 @@ public class ArchiveIndexer {
         updateCreationDates(root.getNodeTypes(), previousElements);
         updateCreationDates(root.getRelationshipTypes(), previousElements);
         updateCreationDates(root.getDataTypes(), previousElements);
-        
+
         if (root.getLocalImports() != null) {
             for (ArchiveRoot child : root.getLocalImports()) {
                 prepareForUpdate(archiveName, archiveVersion, child, previousElements);

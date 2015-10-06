@@ -48,7 +48,7 @@ public class ArchiveUploadService {
         String archiveName = parsingResult.getResult().getArchive().getName();
         String archiveVersion = parsingResult.getResult().getArchive().getVersion();
 
-        ArchiveRoot archiveRoot = parsingResult.getResult();
+        final ArchiveRoot archiveRoot = parsingResult.getResult();
         if (archiveRoot.hasToscaTopologyTemplate()) {
             AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT, Role.ADMIN);
         }

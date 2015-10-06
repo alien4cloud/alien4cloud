@@ -1,15 +1,15 @@
 package alien4cloud.paas.wf;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import alien4cloud.paas.wf.validation.AbstractWorkflowError;
 import lombok.Getter;
 import lombok.Setter;
+import alien4cloud.paas.wf.validation.AbstractWorkflowError;
 
 @Getter
 @Setter
@@ -23,7 +23,10 @@ public class Workflow {
     private String description;
     private boolean isStandard;
 
-    private Map<String, AbstractStep> steps = new HashMap<String, AbstractStep>();
+    /**
+     * FIXME: Here we use a {@link LinkedHashMap} just to pass cfy3 provider generation plueprint tests !
+     */
+    private Map<String, AbstractStep> steps = new LinkedHashMap<String, AbstractStep>();
 
     private Set<String> hosts = new HashSet<String>();
     
