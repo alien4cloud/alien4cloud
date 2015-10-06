@@ -130,15 +130,15 @@ public class OrchestratorStateService {
         // connect the orchestrator
         orchestratorInstance.init(deploymentService.getCloudActiveDeploymentContexts(orchestrator.getId()));
 
+        // register the orchestrator instance to be polled for updates
+        orchestratorPluginService.register(orchestrator.getId(), orchestratorInstance);
+        orchestrator.setState(OrchestratorState.CONNECTED);
+        alienDAO.save(orchestrator);
         if (orchestratorInstance instanceof ILocationAutoConfigurer) {
             // trigger locations auto-configurations
             locationService.autoConfigure(orchestrator, (ILocationAutoConfigurer) orchestratorInstance);
         }
 
-        // register the orchestrator instance to be polled for updates
-        orchestratorPluginService.register(orchestrator.getId(), orchestratorInstance);
-        orchestrator.setState(OrchestratorState.CONNECTED);
-        alienDAO.save(orchestrator);
     }
 
     /**
