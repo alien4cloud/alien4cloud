@@ -1,39 +1,23 @@
 package alien4cloud.topology;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.stereotype.Service;
-
-import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.common.TagService;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
-import alien4cloud.topology.task.AbstractTask;
-import alien4cloud.topology.task.NodeFiltersTask;
-import alien4cloud.topology.task.PropertiesTask;
-import alien4cloud.topology.task.RequirementsTask;
-import alien4cloud.topology.task.SuggestionsTask;
-import alien4cloud.topology.task.TaskLevel;
-import alien4cloud.topology.task.WorkflowTask;
-import alien4cloud.topology.validation.NodeFilterValidationService;
-import alien4cloud.topology.validation.TopologyAbstractNodeValidationService;
-import alien4cloud.topology.validation.TopologyAbstractRelationshipValidationService;
-import alien4cloud.topology.validation.TopologyPropertiesValidationService;
-import alien4cloud.topology.validation.TopologyRequirementBoundsValidationServices;
+import alien4cloud.topology.task.*;
+import alien4cloud.topology.validation.*;
 import alien4cloud.utils.services.ConstraintPropertyService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 @Service
 @Slf4j
 public class TopologyValidationService {
-    @Resource
-    private ApplicationEnvironmentService applicationEnvironmentService;
     @Resource
     private MetaPropertiesService metaPropertiesService;
     @Resource
