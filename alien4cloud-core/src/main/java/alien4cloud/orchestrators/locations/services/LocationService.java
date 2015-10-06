@@ -9,6 +9,7 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.orchestrators.plugin.ILocationAutoConfigurer;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -65,6 +66,27 @@ public class LocationService {
     @Resource
     private CsarService csarService;
 
+
+    /**
+     * Auto-configure locations using the given location auto-configurer.
+     *
+     * @param orchestrator           The id of the orchestrator that own the locations.
+     * @param locationAutoConfigurer The auto-configurer to use for getting locations.
+     */
+    public void autoConfigure(Orchestrator orchestrator, ILocationAutoConfigurer locationAutoConfigurer) {
+        List<Location> locations = locationAutoConfigurer.getLocations();
+        for (Location location : locations) {
+            //
+            location.setId(UUID.randomUUID().toString());
+            location.setOrchestratorId(orchestrator.getId());
+            try {
+                createLocation(orchestrator, location, location.getInfrastructureType());
+            } catch (AlreadyExistException e) {
+                log.debug("Location <" + location.getName() + "> is already configured for this location - skipping", e);
+            }
+        }
+    }
+
     /**
      * Add a new locations for a given orchestrator.
      */
@@ -78,12 +100,19 @@ public class LocationService {
         location.setId(UUID.randomUUID().toString());
         location.setName(locationName);
         location.setOrchestratorId(orchestratorId);
+
+        createLocation(orchestrator, location, infrastructureType);
+
+        return location.getId();
+    }
+
+    private void createLocation(Orchestrator orchestrator, Location location, String infrastructureType) {
         ensureNameUnicityAndSave(location);
 
         // TODO checks that the infrastructure type is valid
         location.setInfrastructureType(infrastructureType);
 
-        // TODO add User and Group manage by the Orchestrator security
+        // TODO add User and Group managed by the Orchestrator security
 
         Set<CSARDependency> dependencies = locationArchiveIndexer.indexArchives(orchestrator, location);
         location.setDependencies(dependencies);
@@ -92,8 +121,6 @@ public class LocationService {
         alienDAO.save(location);
 
         autoConfigure(orchestrator, location);
-
-        return location.getId();
     }
 
     /**
@@ -119,7 +146,7 @@ public class LocationService {
      * This method calls the orchestrator plugin to try to auto-configure the
      *
      * @param orchestrator The orchestrator for which to auto-configure a location.
-     * @param location The location to auto-configure
+     * @param location     The location to auto-configure
      * @return the List of {@link LocationResourceTemplate} generated from the location auto-configuration call, null is a valid answer.
      */
     private List<LocationResourceTemplate> autoConfigure(Orchestrator orchestrator, Location location) {
@@ -216,7 +243,7 @@ public class LocationService {
      */
     public Location[] getOrchestratorLocations(String orchestratorId) {
         GetMultipleDataResult<Location> locations = alienDAO.search(Location.class, null,
-                MapUtil.newHashMap(new String[] { "orchestratorId" }, new String[][] { new String[] { orchestratorId } }), Integer.MAX_VALUE);
+                MapUtil.newHashMap(new String[]{"orchestratorId"}, new String[][]{new String[]{orchestratorId}}), Integer.MAX_VALUE);
         return locations.getData();
     }
 
@@ -229,7 +256,7 @@ public class LocationService {
     public List<Location> getOrchestratorsLocations(Collection<String> orchestratorIds) {
         List<Location> locations = null;
         locations = alienDAO.customFindAll(Location.class, QueryBuilders.termsQuery("orchestratorId", orchestratorIds));
-        return locations == null ? Lists.<Location> newArrayList() : locations;
+        return locations == null ? Lists.<Location>newArrayList() : locations;
     }
 
     private void addFilter(Map<String, String[]> filters, String property, String... values) {
