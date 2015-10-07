@@ -30,8 +30,8 @@ define(function(require) {
   });
 
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorLocationsCtrl',
-    ['$scope', '$modal', '$http', 'locationService', 'orchestrator', 'menu', 'locationResourcesProcessor', '$translate',
-      function($scope, $modal, $http, locationService, orchestrator, menu, locationResourcesProcessor, $translate) {
+    ['$scope', '$modal', '$http', 'locationService', 'orchestrator', 'menu', 'locationResourcesProcessor', '$translate', '$state',
+      function($scope, $modal, $http, locationService, orchestrator, menu, locationResourcesProcessor, $translate, $state) {
         $scope.envTypes = ['OTHER', 'DEVELOPMENT', 'INTEGRATION_TESTS', 'USER_ACCEPTANCE_TESTS', 'PRE_PRODUCTION', 'PRODUCTION'];
         $scope.orchestrator = orchestrator;
         $scope.menu = menu;
@@ -53,6 +53,7 @@ define(function(require) {
             if ($scope.locations.length > 0 && _.isUndefined($scope.location)) {
               // For the moment show only first location
               $scope.selectLocation($scope.locations[0]);
+              $state.go('admin.orchestrators.details.locations.config');
             }
           });
         }
