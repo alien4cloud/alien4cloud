@@ -44,7 +44,6 @@ public class DeploymentTopologyValidationService {
     private TagService tagService;
     @Resource
     private ConstraintPropertyService constraintPropertyService;
-
     @Resource
     private TopologyPropertiesValidationService topologyPropertiesValidationService;
     @Resource
@@ -55,6 +54,8 @@ public class DeploymentTopologyValidationService {
     private LocationPolicyValidationService locationPolicyValidationService;
     @Inject
     private OrchestratorPropertiesValidationService orchestratorPropertiesValidationService;
+    @Inject
+    private DeploymentNodeSubstitutionValidationService substitutionValidationServices;
 
     /**
      * Perform validation of a deployment topology.
@@ -79,6 +80,9 @@ public class DeploymentTopologyValidationService {
 
         // validate abstract node types
         dto.addToTaskList(topologyAbstractNodeValidationService.findReplacementForAbstracts(deploymentTopology));
+
+        // validate substitutions
+        dto.addToTaskList(substitutionValidationServices.validateNodeSubstitutions(deploymentTopology));
 
         // location policies
         dto.addToTaskList(locationPolicyValidationService.validateLocationPolicies(deploymentTopology));

@@ -44,7 +44,7 @@ define(function(require) {
       priority: 200,
       nextStepId: 'am.applications.detail.deployment.input',
       step: {
-        taskCodes: ['IMPLEMENT', 'REPLACE']
+        taskCodes: ['NODE_NOT_SUBSTITUTED', 'IMPLEMENT', 'REPLACE']
       }
     }
   });
