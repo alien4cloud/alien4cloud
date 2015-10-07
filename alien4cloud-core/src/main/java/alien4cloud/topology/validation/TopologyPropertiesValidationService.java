@@ -82,12 +82,12 @@ public class TopologyPropertiesValidationService {
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
 
         // create task by nodetemplate
-        for (Map.Entry<String, NodeTemplate> nodeTempEntry : nodeTemplates.entrySet()) {
+        for(Map.Entry<String, NodeTemplate> nodeTempEntry : nodeTemplates.entrySet()) {
             NodeTemplate nodeTemplate = nodeTempEntry.getValue();
             IndexedNodeType relatedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
                     topology.getDependencies());
             // do pass if abstract node
-            if (relatedIndexedNodeType.isAbstract()) {
+            if(relatedIndexedNodeType.isAbstract()) {
                 continue;
             }
 
@@ -99,15 +99,15 @@ public class TopologyPropertiesValidationService {
             task.setProperties(Maps.<TaskLevel, List<String>> newHashMap());
 
             // Check the properties of node template
-            if (nodeTemplate.getProperties() == null || nodeTemplate.getProperties().isEmpty()) {
+            if(MapUtils.isNotEmpty(nodeTemplate.getProperties())) {
                 addRequiredPropertyIdToTaskProperties(nodeTemplate.getProperties(), relatedIndexedNodeType.getProperties(), task, skipInputProperties);
             }
 
             // Check relationships PD
-            if (nodeTemplate.getRelationships() != null && !nodeTemplate.getRelationships().isEmpty()) {
+            if(MapUtils.isNotEmpty(nodeTemplate.getRelationships())) {
                 Collection<RelationshipTemplate> relationships = nodeTemplate.getRelationships().values();
-                for (RelationshipTemplate relationship : relationships) {
-                    if (relationship.getProperties() == null || relationship.getProperties().isEmpty()) {
+                for(RelationshipTemplate relationship : relationships) {
+                    if(relationship.getProperties() == null || relationship.getProperties().isEmpty()) {
                         continue;
                     }
                     addRequiredPropertyIdToTaskProperties(relationship.getProperties(), getRelationshipPropertyDefinition(topology, nodeTemplate), task,
@@ -116,24 +116,24 @@ public class TopologyPropertiesValidationService {
             }
 
             // Check capabilities PD
-            if (nodeTemplate.getCapabilities() != null && !nodeTemplate.getCapabilities().isEmpty()) {
+            if(MapUtils.isNotEmpty(nodeTemplate.getCapabilities())) {
                 Collection<Capability> capabilities = nodeTemplate.getCapabilities().values();
-                for (Capability capability : capabilities) {
-                    if (capability.getProperties() == null || capability.getProperties().isEmpty()) {
+                for(Capability capability : capabilities) {
+                    if(capability.getProperties() == null || capability.getProperties().isEmpty()) {
                         continue;
                     }
                     addRequiredPropertyIdToTaskProperties(capability.getProperties(), getCapabilitiesPropertyDefinition(topology, nodeTemplate), task,
                             skipInputProperties);
-                    if (capability.getType().equals(NormativeComputeConstants.SCALABLE_CAPABILITY_TYPE)) {
+                    if(capability.getType().equals(NormativeComputeConstants.SCALABLE_CAPABILITY_TYPE)) {
                         Map<String, AbstractPropertyValue> scalableProperties = capability.getProperties();
                         verifyScalableProperties(scalableProperties, toReturnTaskList, nodeTempEntry.getKey(), skipInputProperties);
                     }
                 }
             }
 
-            if (MapUtils.isNotEmpty(task.getProperties())) {
+            if(MapUtils.isNotEmpty(task.getProperties())) {
                 // why verify this????
-                if (CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.REQUIRED))
+                if(CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.REQUIRED))
                         || CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.WARNING))) {
                     toReturnTaskList.add(task);
                 }
@@ -145,10 +145,10 @@ public class TopologyPropertiesValidationService {
     private Map<String, PropertyDefinition> getCapabilitiesPropertyDefinition(Topology topology, NodeTemplate nodeTemplate) {
         Map<String, PropertyDefinition> relatedProperties = Maps.newTreeMap();
 
-        for (Map.Entry<String, Capability> capabilityEntry : nodeTemplate.getCapabilities().entrySet()) {
+        for(Map.Entry<String, Capability> capabilityEntry : nodeTemplate.getCapabilities().entrySet()) {
             IndexedCapabilityType indexedCapabilityType = csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class, capabilityEntry
                     .getValue().getType(), topology.getDependencies());
-            if (indexedCapabilityType.getProperties() != null && !indexedCapabilityType.getProperties().isEmpty()) {
+            if(indexedCapabilityType.getProperties() != null && !indexedCapabilityType.getProperties().isEmpty()) {
                 relatedProperties.putAll(indexedCapabilityType.getProperties());
             }
         }
@@ -159,10 +159,10 @@ public class TopologyPropertiesValidationService {
     private Map<String, PropertyDefinition> getRelationshipPropertyDefinition(Topology topology, NodeTemplate nodeTemplate) {
         Map<String, PropertyDefinition> relatedProperties = Maps.newTreeMap();
 
-        for (Map.Entry<String, RelationshipTemplate> relationshipTemplateEntry : nodeTemplate.getRelationships().entrySet()) {
+        for(Map.Entry<String, RelationshipTemplate> relationshipTemplateEntry : nodeTemplate.getRelationships().entrySet()) {
             IndexedRelationshipType indexedRelationshipType = csarRepoSearchService.getRequiredElementInDependencies(IndexedRelationshipType.class,
                     relationshipTemplateEntry.getValue().getType(), topology.getDependencies());
-            if (indexedRelationshipType.getProperties() != null && !indexedRelationshipType.getProperties().isEmpty()) {
+            if(indexedRelationshipType.getProperties() != null && !indexedRelationshipType.getProperties().isEmpty()) {
                 relatedProperties.putAll(indexedRelationshipType.getProperties());
             }
         }
@@ -174,14 +174,14 @@ public class TopologyPropertiesValidationService {
             boolean skipInputProperties) {
         Set<String> missingProperties = Sets.newHashSet();
         Set<String> errorProperties = Sets.newHashSet();
-        if (skipInputProperties) {
-            for (Entry<String, AbstractPropertyValue> entry : scalableProperties.entrySet()) {
-                if (entry.getValue() instanceof FunctionPropertyValue) {
+        if(skipInputProperties) {
+            for(Entry<String, AbstractPropertyValue> entry : scalableProperties.entrySet()) {
+                if(entry.getValue() instanceof FunctionPropertyValue) {
                     return;
                 }
             }
         }
-        if (MapUtils.isEmpty(scalableProperties)) {
+        if(MapUtils.isEmpty(scalableProperties)) {
             missingProperties.addAll(Lists.newArrayList(NormativeComputeConstants.SCALABLE_MIN_INSTANCES, NormativeComputeConstants.SCALABLE_MAX_INSTANCES,
                     NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES));
 
@@ -189,24 +189,24 @@ public class TopologyPropertiesValidationService {
             int min = verifyScalableProperty(scalableProperties, NormativeComputeConstants.SCALABLE_MIN_INSTANCES, missingProperties, errorProperties);
             int max = verifyScalableProperty(scalableProperties, NormativeComputeConstants.SCALABLE_MAX_INSTANCES, missingProperties, errorProperties);
             int init = verifyScalableProperty(scalableProperties, NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, missingProperties, errorProperties);
-            if (min > 0 && max > 0 && init > 0) {
-                if (min > init || min > max) {
+            if(min > 0 && max > 0 && init > 0) {
+                if(min > init || min > max) {
                     errorProperties.add(NormativeComputeConstants.SCALABLE_MIN_INSTANCES);
                 }
-                if (init > max || init < min) {
+                if(init > max || init < min) {
                     errorProperties.add(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES);
                 }
-                if (max < min || max < init) {
+                if(max < min || max < init) {
                     errorProperties.add(NormativeComputeConstants.SCALABLE_MAX_INSTANCES);
                 }
             }
         }
-        if (!missingProperties.isEmpty()) {
+        if(!missingProperties.isEmpty()) {
             ScalableTask scalableTask = new ScalableTask(nodeTemplateId);
             scalableTask.getProperties().put(TaskLevel.REQUIRED, Lists.newArrayList(missingProperties));
             toReturnTaskList.add(scalableTask);
         }
-        if (!errorProperties.isEmpty()) {
+        if(!errorProperties.isEmpty()) {
             ScalableTask scalableTask = new ScalableTask(nodeTemplateId);
             scalableTask.getProperties().put(TaskLevel.ERROR, Lists.newArrayList(errorProperties));
             toReturnTaskList.add(scalableTask);
@@ -218,21 +218,21 @@ public class TopologyPropertiesValidationService {
         String rawValue = null;
         try {
             rawValue = FunctionEvaluator.getScalarValue(scalableProperties.get(propertyToVerify));
-        } catch (NotSupportedException e1) {
+        } catch(NotSupportedException e1) {
             // the value is a function (get_input normally), this means the input is not yet filled.
         }
-        if (StringUtils.isEmpty(rawValue)) {
+        if(StringUtils.isEmpty(rawValue)) {
             missingProperties.add(propertyToVerify);
             return -1;
         }
         int value;
         try {
             value = Integer.parseInt(rawValue);
-        } catch (Exception e) {
+        } catch(Exception e) {
             errorProperties.add(propertyToVerify);
             return -1;
         }
-        if (value <= 0) {
+        if(value <= 0) {
             errorProperties.add(propertyToVerify);
             return -1;
         }
@@ -241,7 +241,7 @@ public class TopologyPropertiesValidationService {
 
     private void addRequiredPropertyIdToTaskProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> relatedProperties,
             PropertiesTask task, boolean skipInputProperties) {
-        for (Map.Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
+        for(Map.Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
 
             PropertyDefinition propertyDef = relatedProperties.get(propertyEntry.getKey());
             AbstractPropertyValue value = propertyEntry.getValue();
@@ -250,33 +250,33 @@ public class TopologyPropertiesValidationService {
             boolean isGetInputInternal = false;
             boolean isScalar = false;
 
-            if (value == null) {
+            if(value == null) {
                 propertyValue = null;
-            } else if (value instanceof ScalarPropertyValue) {
+            } else if(value instanceof ScalarPropertyValue) {
                 propertyValue = ((ScalarPropertyValue) value).getValue();
                 isScalar = true;
             } else {
                 // this is a get_input funtion.
-                if (skipInputProperties) {
+                if(skipInputProperties) {
                     // get_input Will be validated later on
                     continue;
                 }
             }
 
-            if (StringUtils.isBlank(propertyValue)) {
-                if (propertyDef.isRequired()) {
+            if(StringUtils.isBlank(propertyValue)) {
+                if(propertyDef.isRequired()) {
                     taskLevel = TaskLevel.REQUIRED;
-                    if (!task.getProperties().containsKey(taskLevel)) {
+                    if(!task.getProperties().containsKey(taskLevel)) {
                         task.getProperties().put(taskLevel, Lists.<String> newArrayList());
                     }
                 } else { // warning
-                    if (!task.getProperties().containsKey(taskLevel)) {
+                    if(!task.getProperties().containsKey(taskLevel)) {
                         task.getProperties().put(taskLevel, Lists.<String> newArrayList());
                     }
                 }
                 // add required or warning property
                 // ??? why this check?
-                if (TaskLevel.REQUIRED.equals(taskLevel) || isGetInputInternal || isScalar) {
+                if(TaskLevel.REQUIRED.equals(taskLevel) || isGetInputInternal || isScalar) {
                     task.getProperties().get(taskLevel).add(propertyEntry.getKey());
                 }
             }

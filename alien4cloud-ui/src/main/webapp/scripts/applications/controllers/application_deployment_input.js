@@ -18,7 +18,7 @@ define(function(require) {
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'], // is deployer,
       priority: 300,
       step: {
-        taskCodes: ['PROPERTIES']
+        taskCodes: ['PROPERTIES', 'ORCHESTRATOR_PROPERTY']
       }
     }
   });
