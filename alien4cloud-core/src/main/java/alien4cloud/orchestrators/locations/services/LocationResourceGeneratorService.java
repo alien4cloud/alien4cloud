@@ -52,7 +52,7 @@ public class LocationResourceGeneratorService {
     @AllArgsConstructor
     public static class ComputeContext {
         private List<IndexedNodeType> nodeTypes = Lists.newArrayList();
-        private String generatedNamePrefix = "Compute";
+        private String generatedNamePrefix;
         private String imageIdPropertyName;
         private String flavorIdPropertyName;
 
@@ -76,11 +76,12 @@ public class LocationResourceGeneratorService {
         List<LocationResourceTemplate> generated = Lists.newArrayList();
 
         int count = 0;
-        for (LocationResourceTemplate image : images) {
-            for (LocationResourceTemplate flavor : flavors) {
-                for (IndexedNodeType indexedNodeType : computeContext.getNodeTypes()) {
+        for(LocationResourceTemplate image : images) {
+            for(LocationResourceTemplate flavor : flavors) {
+                String defaultComputeName = generateDefaultName(image, flavor);
+                for(IndexedNodeType indexedNodeType : computeContext.getNodeTypes()) {
                     String namePrefix = StringUtils.isNotBlank(computeContext.getGeneratedNamePrefix()) ? computeContext.getGeneratedNamePrefix()
-                            : "GeneratedCompute";
+                            : defaultComputeName;
                     NodeTemplate node = topologyService.buildNodeTemplate(dependencies, indexedNodeType, null);
                     // set the imageId
                     node.getProperties()
@@ -107,6 +108,10 @@ public class LocationResourceGeneratorService {
         return generated;
     }
 
+    private String generateDefaultName(LocationResourceTemplate image, LocationResourceTemplate flavor) {
+        return image.getName() + "_" + flavor.getName();
+    }
+
     /**
      * Copy a capability based on its type from a node to another
      *
@@ -115,14 +120,14 @@ public class LocationResourceGeneratorService {
      * @param capabilityName
      */
     private void copyCapabilityBasedOnTheType(NodeTemplate from, NodeTemplate to, String capabilityName) {
-        if (MapUtils.isEmpty(from.getCapabilities()) || MapUtils.isEmpty(to.getCapabilities())) {
+        if(MapUtils.isEmpty(from.getCapabilities()) || MapUtils.isEmpty(to.getCapabilities())) {
             return;
         }
         Capability capa = to.getCapabilities().get(capabilityName);
-        if (capa != null) {
+        if(capa != null) {
             // copy the first found and exit
-            for (Capability capaToCheck : from.getCapabilities().values()) {
-                if (Objects.equal(capaToCheck.getType(), capa.getType())) {
+            for(Capability capaToCheck : from.getCapabilities().values()) {
+                if(Objects.equal(capaToCheck.getType(), capa.getType())) {
                     to.getCapabilities().put(capabilityName, capaToCheck);
                     return;
                 }
@@ -143,7 +148,7 @@ public class LocationResourceGeneratorService {
         try {
             IndexedNodeType nodeType = resourceAccessor.getIndexedToscaElement(elementType);
             context.getNodeTypes().add(nodeType);
-        } catch (NotFoundException e) {
+        } catch(NotFoundException e) {
             log.warn("No compute found with the element id: " + elementType, e);
         }
         return context;
