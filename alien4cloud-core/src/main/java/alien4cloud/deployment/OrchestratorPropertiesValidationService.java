@@ -7,8 +7,12 @@ import java.util.Map.Entry;
 import javax.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.deployment.DeploymentTopology;
@@ -16,9 +20,6 @@ import alien4cloud.orchestrators.services.OrchestratorDeploymentService;
 import alien4cloud.topology.task.PropertiesTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.TaskLevel;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * Perform validation of a topology before deployment.
@@ -36,6 +37,9 @@ public class OrchestratorPropertiesValidationService {
 
         Map<String, PropertyDefinition> deploymentProperties = orchestratorDeploymentService.getDeploymentPropertyDefinitions(deploymentTopology
                 .getOrchestratorId());
+        if (MapUtils.isEmpty(deploymentProperties)) {
+            return null;
+        }
         Map<String, String> properties = deploymentTopology.getProviderDeploymentProperties();
         if (properties == null) {
             properties = Maps.newHashMap();
@@ -53,7 +57,7 @@ public class OrchestratorPropertiesValidationService {
         }
 
         if (CollectionUtils.isNotEmpty(required)) {
-            task = new PropertiesTask(Maps.<TaskLevel, List<String>> newHashMap());
+            task = new PropertiesTask(Maps.<TaskLevel, List<String>>newHashMap());
             task.setCode(TaskCode.ORCHESTRATOR_PROPERTY);
             task.getProperties().put(TaskLevel.REQUIRED, required);
         }
