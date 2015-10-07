@@ -1,5 +1,6 @@
 package alien4cloud.rest.deployment;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,12 +41,12 @@ import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyValidationService;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.ReflectionUtil;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -69,8 +70,6 @@ public class DeploymentTopologyController {
     @Inject
     private TopologyService topologyService;
     @Inject
-    private TopologyValidationService topologyValidationService;
-    @Inject
     private DeploymentTopologyValidationService deploymentTopologyValidationService;
 
     /**
@@ -86,14 +85,22 @@ public class DeploymentTopologyController {
     public RestResponse<DeploymentNodeSubstitutionsDTO> getAvailableNodeSubstitutions(@PathVariable String appId, @PathVariable String environmentId) {
         checkAuthorizations(appId, environmentId);
         DeploymentTopology deploymentTopology = deploymentTopologyService.getOrCreateDeploymentTopology(environmentId);
+        Map<String, List<LocationResourceTemplate>> availableSubstitutions = deploymentNodeSubstitutionService.getAvailableSubstitutions(deploymentTopology);
         DeploymentNodeSubstitutionsDTO dto = new DeploymentNodeSubstitutionsDTO();
-        Map<String, Set<String>> availableSubstitutionIds = deploymentTopology.getAvailableSubstitutions();
-        Set<String> allTemplateIds = Sets.newHashSet();
-        for (Set<String> templateIds : availableSubstitutionIds.values()) {
-            allTemplateIds.addAll(templateIds);
+        Map<String, Set<String>> availableSubstitutionsIds = Maps.newHashMap();
+        Map<String, LocationResourceTemplate> templates = Maps.newHashMap();
+        for (Map.Entry<String, List<LocationResourceTemplate>> availableSubstitutionsEntry : availableSubstitutions.entrySet()) {
+            Set<String> existingIds = availableSubstitutionsIds.get(availableSubstitutionsEntry.getKey());
+            if (existingIds == null) {
+                existingIds = Sets.newHashSet();
+                availableSubstitutionsIds.put(availableSubstitutionsEntry.getKey(), existingIds);
+            }
+            for (LocationResourceTemplate template : availableSubstitutionsEntry.getValue()) {
+                existingIds.add(template.getId());
+                templates.put(template.getId(), template);
+            }
         }
-        Map<String, LocationResourceTemplate> templates = locationResourceService.getMultiple(allTemplateIds);
-        dto.setAvailableSubstitutions(availableSubstitutionIds);
+        dto.setAvailableSubstitutions(availableSubstitutionsIds);
         dto.setSubstitutionsTemplates(templates);
         dto.setSubstitutionTypes(locationResourceService.getLocationResourceTypes(templates.values()));
         return RestResponseBuilder.<DeploymentNodeSubstitutionsDTO> builder().data(dto).build();
@@ -114,8 +121,8 @@ public class DeploymentTopologyController {
             @RequestParam String locationResourceTemplateId) {
         checkAuthorizations(appId, environmentId);
         DeploymentTopology deploymentTopology = deploymentTopologyService.getOrCreateDeploymentTopology(environmentId);
-        LocationResourceTemplate locationResourceTemplate = locationResourceService.getOrFail(locationResourceTemplateId);
-        deploymentTopology.getSubstitutedNodes().put(nodeId, locationResourceTemplate);
+        locationResourceService.getOrFail(locationResourceTemplateId);
+        deploymentTopology.getSubstitutedNodes().put(nodeId, locationResourceTemplateId);
         deploymentTopologyService.updateAndSaveDeploymentTopology(deploymentTopology);
         return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(buildDeploymentTopologyDTO(deploymentTopology)).build();
     }
@@ -241,6 +248,8 @@ public class DeploymentTopologyController {
             deploymentTopologyDTO.getLocationPolicies().put(AlienConstants.GROUP_ALL, locationId);
         }
         deploymentTopologyDTO.setValidation(deploymentTopologyValidationService.validateDeploymentTopology(deploymentTopology));
+        Map<String, LocationResourceTemplate> templates = locationResourceService.getMultiple(deploymentTopology.getSubstitutedNodes().values());
+        deploymentTopologyDTO.setLocationResourceTemplates(templates);
         return deploymentTopologyDTO;
     }
 }

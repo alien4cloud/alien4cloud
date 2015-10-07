@@ -15,8 +15,8 @@ import org.elasticsearch.mapping.IndexType;
 
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.topology.NodeGroup;
+import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -58,15 +58,11 @@ public class DeploymentTopology extends Topology {
 
     /**
      * The map that contains the user selected matching for nodes of the topology. key is the initial topology node id, value is the
-     * (on-demand or service).
+     * (on-demand or service) location resource id.
      */
-    private Map<String, LocationResourceTemplate> substitutedNodes;
+    private Map<String, String> substitutedNodes = Maps.newHashMap();
 
-    /**
-     * When the deployment topology substitution is computed, this map will be filled with available location resources for substitution.
-     * This map contains key which is the initial topology node id and value which are all available location resources ids that are matched for the node.
-     */
-    private Map<String, Set<String>> availableSubstitutions;
+    private Map<String, NodeTemplate> originalNodes = Maps.newHashMap();
 
     private String orchestratorId;
 

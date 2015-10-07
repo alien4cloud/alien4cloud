@@ -16,7 +16,13 @@ define(function(require) {
           process: function(deploymentTopology) {
             topologyJsonProcessor.process(deploymentTopology);
             if (!_.isEmpty(deploymentTopology.topology.substitutedNodes)) {
-              locationResourcesProcessor.processLocationResourceTemplatesMap(deploymentTopology.topology.substitutedNodes);
+              for (var nodeId in deploymentTopology.topology.substitutedNodes) {
+                if (deploymentTopology.topology.substitutedNodes.hasOwnProperty(nodeId)) {
+                  var locationResourceTemplateId = deploymentTopology.topology.substitutedNodes[nodeId];
+                  deploymentTopology.topology.substitutedNodes[nodeId] = deploymentTopology.locationResourceTemplates[locationResourceTemplateId];
+                }
+              }
+              locationResourcesProcessor.processLocationResourceTemplatesMap(deploymentTopology.locationResourceTemplates);
             }
           },
           processSubstitutionResources: function(substitutionResources) {

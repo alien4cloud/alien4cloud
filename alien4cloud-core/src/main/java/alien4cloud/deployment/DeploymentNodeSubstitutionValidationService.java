@@ -3,7 +3,6 @@ package alien4cloud.deployment;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -31,6 +30,8 @@ public class DeploymentNodeSubstitutionValidationService {
 
     @Inject
     private WorkflowsBuilderService workflowsBuilderService;
+    @Inject
+    private DeploymentNodeSubstitutionService deploymentNodeSubstitutionService;
 
     /**
      * Perform validation of a deployment topology against substitutions.
@@ -43,14 +44,14 @@ public class DeploymentNodeSubstitutionValidationService {
         TopologyContext topologyContext = workflowsBuilderService.buildTopologyContext(deploymentTopology);
 
         List<AbstractTask> tasks = Lists.newArrayList();
-        Map<String, Set<String>> availableSubtitutions = deploymentTopology.getAvailableSubstitutions();
-        if(MapUtils.isNotEmpty(availableSubtitutions)) {
-            Map<String, LocationResourceTemplate> substitutions = deploymentTopology.getSubstitutedNodes();
-            if(substitutions == null) {
+        Map<String, List<LocationResourceTemplate>> availableSubstitutions = deploymentNodeSubstitutionService.getAvailableSubstitutions(deploymentTopology);
+        if (MapUtils.isNotEmpty(availableSubstitutions)) {
+            Map<String, String> substitutions = deploymentTopology.getSubstitutedNodes();
+            if (substitutions == null) {
                 substitutions = Maps.newHashMap();
             }
-            for(Entry<String, Set<String>> availableSubstitution : availableSubtitutions.entrySet()) {
-                if(substitutions.get(availableSubstitution.getKey()) == null) {
+            for (Entry<String, List<LocationResourceTemplate>> availableSubstitution : availableSubstitutions.entrySet()) {
+                if (substitutions.get(availableSubstitution.getKey()) == null) {
                     addTask(availableSubstitution.getKey(), topologyContext, tasks);
                 }
             }

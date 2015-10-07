@@ -9,6 +9,7 @@ import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.deployment.DeploymentTopology;
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.topology.AbstractTopologyDTO;
 import alien4cloud.topology.TopologyValidationResult;
 
@@ -22,6 +23,9 @@ public class DeploymentTopologyDTO extends AbstractTopologyDTO<DeploymentTopolog
 
     /** validation result of the deployment topology */
     private TopologyValidationResult validation;
+
+    /** template id --> location resource template **/
+    private Map<String, LocationResourceTemplate> locationResourceTemplates;
 
     public DeploymentTopologyDTO(DeploymentTopology topology, Map<String, IndexedNodeType> nodeTypes, Map<String, IndexedRelationshipType> relationshipTypes,
             Map<String, IndexedCapabilityType> capabilityTypes, Map<String, Map<String, Set<String>>> outputCapabilityProperties, String yaml) {
