@@ -25,6 +25,7 @@ import alien4cloud.model.topology.NodeTemplate;
 public class LocationResourceTemplate {
     @Id
     private String id;
+    @NotBlank
     private String name;
     @NotBlank
     @TermFilter
