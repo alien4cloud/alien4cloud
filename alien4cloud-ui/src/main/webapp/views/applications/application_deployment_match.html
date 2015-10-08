@@ -116,10 +116,10 @@
       </accordion>
     </div>
     <div class="col-md-6">
-      <div ng-if="selectedResourceTemplate" class="well" ng-init="substitutedTemplate = getSubstitutedTemplate(selectedNodeName)">
+      <div ng-if="selectedResourceTemplate" class="well">
         <orchestrator-location-resource-template
             is-editable="false"
-            is-property-editable="substitutedTemplate.id === selectedResourceTemplate.id"
+            is-property-editable="getSubstitutedTemplate(selectedNodeName).id === selectedResourceTemplate.id"
             resource-template="selectedResourceTemplate"
             resource-type="deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.nodeTypes[selectedResourceTemplate.template.type]"
             resource-capability-types="deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.capabilityTypes"
