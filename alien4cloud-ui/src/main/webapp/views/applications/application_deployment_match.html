@@ -1,9 +1,10 @@
 <div>
   <div class="row" style="margin-top: 10px">
     <!--  Required Implementation tasks  -->
-    <div class="col-md-6" ng-if="(tasks = deploymentContext.deploymentTopologyDTO.validation.taskList['IMPLEMENT']).length>0" >
-      <div class="col-md-6 task-list-box" >
-        <h4 class="topology-node-expand clickable" ng-init="isToImplementNodesCollapsed = false" ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed">
+    <div class="col-md-6" ng-if="(tasks = deploymentContext.deploymentTopologyDTO.validation.taskList['IMPLEMENT']).length>0">
+      <div class="col-md-6 task-list-box">
+        <h4 class="topology-node-expand clickable" ng-init="isToImplementNodesCollapsed = false"
+            ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed">
           <i class="fa" ng-class="{'fa-chevron-down' : !isToImplementNodesCollapsed, 'fa-chevron-right': isToImplementNodesCollapsed}"></i>
           <span>{{'APPLICATIONS.TOPOLOGY.TASK.IMPLEMENT_LABEL' | translate}}</span>
         </h4>
@@ -20,13 +21,15 @@
             </tbody>
           </table>
         </div>
-      </div> 
-    </div> <!-- End Error Implementation tasks -->
-    
+      </div>
+    </div>
+    <!-- End Error Implementation tasks -->
+
     <!--  Required Replacement tasks  -->
     <div class="col-md-6" ng-if="(repTasks = deploymentContext.deploymentTopologyDTO.validation.taskList['REPLACE']).length>0">
       <div class="task-list-box">
-        <h4 class="topology-node-expand clickable" ng-init="isToReplaceNodesCollapsed = false" ng-click="isToReplaceNodesCollapsed = !isToReplaceNodesCollapsed">
+        <h4 class="topology-node-expand clickable" ng-init="isToReplaceNodesCollapsed = false"
+            ng-click="isToReplaceNodesCollapsed = !isToReplaceNodesCollapsed">
           <i class="fa" ng-class="{'fa-chevron-down' : !isToReplaceNodesCollapsed, 'fa-chevron-right': isToReplaceNodesCollapsed"></i>
           <span>{{'APPLICATIONS.TOPOLOGY.TASK.REPLACE_LABEL' | translate}}</span>
         </h4>
@@ -56,16 +59,18 @@
             </tbody>
           </table>
         </div>
-      </div> <!-- End Error Replacement tasks -->
+      </div>
+      <!-- End Error Replacement tasks -->
     </div>
-   </div>
-   <div class="row" style="margin-top: 10px">
+  </div>
+  <div class="row" style="margin-top: 10px">
     <div class="col-md-6">
       <accordion close-others="oneAtATime">
-        <accordion-group is-open="status.open" ng-repeat="(nodeName, templates) in substitutionContext.availableSubstitutions">
+        <accordion-group is-open="status.open"
+                         ng-repeat="(nodeName, templates) in deploymentContext.deploymentTopologyDTO.availableSubstitutions.availableSubstitutions">
           <accordion-heading ng-init="substitutedNode = getSubstitutedTemplate(nodeName); nodeIcon = getIcon(substitutedNode)">
-            <div class = "row">
-              <div class = "col-md-12">
+            <div class="row">
+              <div class="col-md-12">
                 <i ng-if="!nodeIcon" class="fa fa-cogs"></i>
                 <img ng-if="nodeIcon" ng-src="img?id={{nodeIcon}}&quality=QUALITY_32">
                 {{nodeName}} <i class="fa"
@@ -116,8 +121,8 @@
             is-editable="false"
             is-property-editable="substitutedTemplate.id === selectedResourceTemplate.id"
             resource-template="selectedResourceTemplate"
-            resource-type="substitutionContext.substitutionTypes.nodeTypes[selectedResourceTemplate.template.type]"
-            resource-capability-types="substitutionContext.substitutionTypes.capabilityTypes"
+            resource-type="deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.nodeTypes[selectedResourceTemplate.template.type]"
+            resource-capability-types="deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.capabilityTypes"
             dependencies="deploymentContext.deploymentTopologyDTO.topology.dependencies"
             on-property-update="updateSubstitutionProperty(propertyName, propertyValue)"
             on-capability-property-update="updateSubstitutionCapabilityProperty(capabilityName, propertyName, propertyValue)">

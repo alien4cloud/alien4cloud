@@ -4,21 +4,26 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.TopologyCompositionService;
 import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.deployment.model.DeploymentConfiguration;
+import alien4cloud.deployment.model.DeploymentSubstitutionConfiguration;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
@@ -37,9 +42,7 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.DeployerRole;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.ReflectionUtil;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Manages the deployment topology handling.
@@ -91,6 +94,45 @@ public class DeploymentTopologyService {
         return deploymentTopology;
     }
 
+    private DeploymentSubstitutionConfiguration getAvailableNodeSubstitutions(DeploymentTopology deploymentTopology) {
+        Map<String, List<LocationResourceTemplate>> availableSubstitutions = deploymentNodeSubstitutionService.getAvailableSubstitutions(deploymentTopology);
+        DeploymentSubstitutionConfiguration dsc = new DeploymentSubstitutionConfiguration();
+        Map<String, Set<String>> availableSubstitutionsIds = Maps.newHashMap();
+        Map<String, LocationResourceTemplate> templates = Maps.newHashMap();
+        for (Map.Entry<String, List<LocationResourceTemplate>> availableSubstitutionsEntry : availableSubstitutions.entrySet()) {
+            Set<String> existingIds = availableSubstitutionsIds.get(availableSubstitutionsEntry.getKey());
+            if (existingIds == null) {
+                existingIds = Sets.newHashSet();
+                availableSubstitutionsIds.put(availableSubstitutionsEntry.getKey(), existingIds);
+            }
+            for (LocationResourceTemplate template : availableSubstitutionsEntry.getValue()) {
+                existingIds.add(template.getId());
+                templates.put(template.getId(), template);
+            }
+        }
+        dsc.setAvailableSubstitutions(availableSubstitutionsIds);
+        dsc.setSubstitutionsTemplates(templates);
+        dsc.setSubstitutionTypes(locationResourceService.getLocationResourceTypes(templates.values()));
+        return dsc;
+    }
+
+    public DeploymentConfiguration getDeploymentConfiguration(String environmentId) {
+        DeploymentTopology deploymentTopology = getOrCreateDeploymentTopology(environmentId);
+        return getDeploymentConfiguration(deploymentTopology);
+    }
+
+    public DeploymentConfiguration getDeploymentConfiguration(DeploymentTopology deploymentTopology) {
+        DeploymentSubstitutionConfiguration substitutionConfiguration = getAvailableNodeSubstitutions(deploymentTopology);
+        Map<String, Set<String>> availableSubstitutions = substitutionConfiguration.getAvailableSubstitutions();
+        Map<String, String> existingSubstitutions = deploymentTopology.getSubstitutedNodes();
+        // Handle the case when new resources added
+        // TODO In the case when resource is updated / deleted on the location we should update everywhere where they are used
+        if (availableSubstitutions.size() != existingSubstitutions.size()) {
+            updateDeploymentTopology(deploymentTopology);
+        }
+        return new DeploymentConfiguration(deploymentTopology, substitutionConfiguration);
+    }
+
     /**
      * Get or create if not yet existing the {@link DeploymentTopology}. This method will check if the initial topology has been updated, if so it will try to
      * re-synchronize the topology and the deployment topology
@@ -104,7 +146,7 @@ public class DeploymentTopologyService {
         Topology topology = topologyServiceCore.getOrFail(topologyId);
         if (deploymentTopology == null) {
             // Generate the deployment topology if none exist
-            deploymentTopology = generateDeploymentTopology(id, environment, topology);
+            deploymentTopology = generateDeploymentTopology(id, environment, topology, new DeploymentTopology());
         } else if (deploymentTopology.getLastInitialTopologyUpdateDate().before(topology.getLastUpdateDate())) {
             // Re-generate the deployment topology if the initial topology has been changed
             generateDeploymentTopology(id, environment, topology, deploymentTopology);
@@ -112,18 +154,13 @@ public class DeploymentTopologyService {
         return deploymentTopology;
     }
 
-    private DeploymentTopology generateDeploymentTopology(String id, ApplicationEnvironment environment, Topology topology) {
-        DeploymentTopology deploymentTopology = new DeploymentTopology();
-        return generateDeploymentTopology(id, environment, topology, deploymentTopology);
-    }
-
     private DeploymentTopology generateDeploymentTopology(String id, ApplicationEnvironment environment, Topology topology,
-            DeploymentTopology deploymentTopology) {
+                                                          DeploymentTopology deploymentTopology) {
         deploymentTopology.setVersionId(environment.getCurrentVersionId());
         deploymentTopology.setEnvironmentId(environment.getId());
         deploymentTopology.setInitialTopologyId(topology.getId());
         deploymentTopology.setId(id);
-        updateAndSaveDeploymentTopology(deploymentTopology, topology, environment);
+        doUpdateDeploymentTopology(deploymentTopology, topology, environment);
         return deploymentTopology;
     }
 
@@ -132,37 +169,38 @@ public class DeploymentTopologyService {
      *
      * @param deploymentTopology the deployment topology to update
      */
-    public void updateAndSaveDeploymentTopology(DeploymentTopology deploymentTopology) {
+    public void updateDeploymentTopology(DeploymentTopology deploymentTopology) {
         ApplicationEnvironment environment = appEnvironmentServices.getOrFail(deploymentTopology.getEnvironmentId());
         Topology topology = topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId());
-        updateAndSaveDeploymentTopology(deploymentTopology, topology, environment);
+        doUpdateDeploymentTopology(deploymentTopology, topology, environment);
     }
 
-    private void updateAndSaveDeploymentTopology(DeploymentTopology deploymentTopology, Topology topology, ApplicationEnvironment environment) {
+    private void doUpdateDeploymentTopology(DeploymentTopology deploymentTopology, Topology topology, ApplicationEnvironment environment) {
         deploymentTopology.setLastInitialTopologyUpdateDate(topology.getLastUpdateDate());
+        Map<String, NodeTemplate> previousNodeTemplates = deploymentTopology.getNodeTemplates();
         ReflectionUtil.mergeObject(topology, deploymentTopology, "id");
-        processDeploymentTopologyAndSave(deploymentTopology, environment, topology);
-    }
-
-    private void processDeploymentTopologyAndSave(DeploymentTopology deploymentTopology, ApplicationEnvironment environment, Topology topology) {
         topologyCompositionService.processTopologyComposition(deploymentTopology);
         deploymentInputService.processInputProperties(deploymentTopology);
         inputsPreProcessorService.processGetInput(deploymentTopology, environment, topology);
         deploymentInputService.processInputArtifacts(deploymentTopology);
         deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
-        deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology);
+        deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology, previousNodeTemplates);
         save(deploymentTopology);
     }
 
     /**
-     * Process the deployment topology and save it. This should always be called when the deployment setup has changed
+     * Update the deployment topology's input and save it. This should always be called when the deployment setup has changed
      *
      * @param deploymentTopology the the deployment topology
      */
-    public void processDeploymentTopologyAndSave(DeploymentTopology deploymentTopology) {
+    public void updateDeploymentTopologyInputsAndSave(DeploymentTopology deploymentTopology) {
         ApplicationEnvironment environment = appEnvironmentServices.getOrFail(deploymentTopology.getEnvironmentId());
         Topology topology = topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId());
-        processDeploymentTopologyAndSave(deploymentTopology, environment, topology);
+        deploymentInputService.processInputProperties(deploymentTopology);
+        inputsPreProcessorService.processGetInput(deploymentTopology, environment, topology);
+        deploymentInputService.processInputArtifacts(deploymentTopology);
+        deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
+        save(deploymentTopology);
     }
 
     private LocationResourceTemplate getSubstitution(DeploymentTopology deploymentTopology, String nodeId) {
@@ -181,14 +219,14 @@ public class DeploymentTopologyService {
         NodeTemplate substituted = deploymentTopology.getNodeTemplates().get(nodeId);
         locationResourceService.setTemplateProperty(substitution, propertyName, propertyValue);
         if (substituted.getProperties() == null) {
-            substituted.setProperties(Maps.<String, AbstractPropertyValue> newHashMap());
+            substituted.setProperties(Maps.<String, AbstractPropertyValue>newHashMap());
         }
         substituted.getProperties().put(propertyName, substitution.getTemplate().getProperties().get(propertyName));
-        processDeploymentTopologyAndSave(deploymentTopology);
+        updateDeploymentTopologyInputsAndSave(deploymentTopology);
     }
 
     public void updateSubstitutionCapabilityProperty(DeploymentTopology deploymentTopology, String nodeId, String capabilityName, String propertyName,
-            Object propertyValue) {
+                                                     Object propertyValue) {
         LocationResourceTemplate substitution = getSubstitution(deploymentTopology, nodeId);
         NodeTemplate substituted = deploymentTopology.getNodeTemplates().get(nodeId);
         locationResourceService.setTemplateCapabilityProperty(substitution, capabilityName, propertyName, propertyValue);
@@ -198,7 +236,7 @@ public class DeploymentTopologyService {
             substituted.getCapabilities().get(capabilityName).setProperties(substitutedCapabilityProperties);
         }
         substitutedCapabilityProperties.put(propertyName, substitution.getTemplate().getCapabilities().get(capabilityName).getProperties().get(propertyName));
-        processDeploymentTopologyAndSave(deploymentTopology);
+        updateDeploymentTopologyInputsAndSave(deploymentTopology);
     }
 
     public void deleteByEnvironmentId(String environmentId) {
@@ -208,11 +246,11 @@ public class DeploymentTopologyService {
     /**
      * Set the location policies of a deployment
      *
-     * @param environmentId the environment's id
+     * @param environmentId     the environment's id
      * @param groupsToLocations group to location mapping
      * @return the updated deployment topology
      */
-    public DeploymentTopology setLocationPolicies(String environmentId, String orchestratorId, Map<String, String> groupsToLocations) {
+    public DeploymentConfiguration setLocationPolicies(String environmentId, String orchestratorId, Map<String, String> groupsToLocations) {
         // Change of locations will trigger re-generation of deployment topology
         // Set to new locations and process generation of all default properties
         ApplicationEnvironment environment = appEnvironmentServices.getOrFail(environmentId);
@@ -222,7 +260,7 @@ public class DeploymentTopologyService {
         addLocationPolicies(deploymentTopology, groupsToLocations);
         Topology topology = topologyServiceCore.getOrFail(appVersion.getTopologyId());
         generateDeploymentTopology(DeploymentTopology.generateId(appVersion.getId(), environmentId), environment, topology, deploymentTopology);
-        return deploymentTopology;
+        return getDeploymentConfiguration(deploymentTopology);
     }
 
     /**
@@ -231,7 +269,7 @@ public class DeploymentTopologyService {
      * @param environmentId environment's id
      * @return the existing deployment topology or new created one
      */
-    public DeploymentTopology getOrCreateDeploymentTopology(String environmentId) {
+    private DeploymentTopology getOrCreateDeploymentTopology(String environmentId) {
         ApplicationEnvironment environment = appEnvironmentServices.getOrFail(environmentId);
         ApplicationVersion version = applicationVersionService.getOrFail(environment.getCurrentVersionId());
         return getOrCreateDeploymentTopology(environment, version.getTopologyId());
@@ -240,7 +278,7 @@ public class DeploymentTopologyService {
     /**
      * Add location policies in the deploymentTopology
      *
-     * @param deploymentTopology the deployment topology
+     * @param deploymentTopology     the deployment topology
      * @param groupsLocationsMapping the mapping group name to location policy
      */
     private void addLocationPolicies(DeploymentTopology deploymentTopology, Map<String, String> groupsLocationsMapping) {
@@ -268,7 +306,7 @@ public class DeploymentTopologyService {
             Map<String, NodeGroup> groups = deploymentTopology.getLocationGroups();
             NodeGroup group = new NodeGroup();
             group.setName(groupName);
-            group.setPolicies(Lists.<AbstractPolicy> newArrayList());
+            group.setPolicies(Lists.<AbstractPolicy>newArrayList());
             group.getPolicies().add(locationPolicy);
             groups.put(groupName, group);
         }

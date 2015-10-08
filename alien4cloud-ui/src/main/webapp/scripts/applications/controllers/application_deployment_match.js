@@ -8,31 +8,20 @@ define(function(require) {
   require('scripts/orchestrators/controllers/orchestrator_location_resource_template');
   require('scripts/orchestrators/directives/orchestrator_location_resource_template');
   require('scripts/applications/services/deployment_topology_processor.js');
-  
+
   states.state('applications.detail.deployment.match', {
     url: '/match',
     resolve: {
-      substitutionContext: ['application', 'appEnvironments', 'deploymentTopologyServices', 'deploymentContext', 'deploymentTopologyProcessor',
-        function(application, appEnvironments, deploymentTopologyServices, deploymentContext, deploymentTopologyProcessor) {
-          return deploymentTopologyServices.getAvailableSubstitutions({
-            appId: application.data.id,
-            envId: deploymentContext.selectedEnvironment.id
-          }).$promise.then(function(response) {
-              deploymentTopologyProcessor.processSubstitutionResources(response.data);
-              return response.data;
-            }
-          );
-        }],
-      thisStepMenu: ['menu', function(menu){
-          return _.find(menu, function(item){
-            return item.id==='am.applications.detail.deployment.match'
-          })
-        }],
-      nextStepMenu: ['menu', function(menu){
-          return _.find(menu, function(item){
-            return item.id==='am.applications.detail.deployment.input'
-          });
-        }]
+      thisStepMenu: ['menu', function(menu) {
+        return _.find(menu, function(item) {
+          return item.id === 'am.applications.detail.deployment.match'
+        })
+      }],
+      nextStepMenu: ['menu', function(menu) {
+        return _.find(menu, function(item) {
+          return item.id === 'am.applications.detail.deployment.input'
+        });
+      }]
     },
     templateUrl: 'views/applications/application_deployment_match.html',
     controller: 'ApplicationDeploymentMatchCtrl',
@@ -50,18 +39,17 @@ define(function(require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentMatchCtrl',
-    ['$scope', 'nodeTemplateService', 'substitutionContext', 'deploymentTopologyServices', 'deploymentTopologyProcessor', 'thisStepMenu', 'nextStepMenu', 
-      function($scope, nodeTemplateService, substitutionContext, deploymentTopologyServices, deploymentTopologyProcessor, thisStepMenu, nextStepMenu) {
-        $scope.substitutionContext = substitutionContext;
+    ['$scope', 'nodeTemplateService', 'deploymentTopologyServices',
+      function($scope, nodeTemplateService, deploymentTopologyServices) {
         $scope.getIcon = function(template) {
-          if (!_.isEmpty($scope.substitutionContext.substitutionTypes.nodeTypes)) {
-            var templateType = $scope.substitutionContext.substitutionTypes.nodeTypes[template.template.type];
+          if (!_.isEmpty($scope.deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.nodeTypes)) {
+            var templateType = $scope.deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.nodeTypes[template.template.type];
             if (!_.isEmpty(templateType)) {
               return nodeTemplateService.getNodeTypeIcon(templateType);
             }
           }
         };
-        
+
         $scope.getSubstitutedTemplate = function(nodeName) {
           return $scope.deploymentContext.deploymentTopologyDTO.topology.substitutedNodes[nodeName];
         };
@@ -100,7 +88,7 @@ define(function(require) {
           }, angular.toJson({
             propertyName: propertyName,
             propertyValue: propertyValue
-          }), function(result){
+          }), function(result) {
             $scope.updateScopeDeploymentTopologyDTO(result.data);
           }).$promise;
         };
@@ -114,7 +102,7 @@ define(function(require) {
           }, angular.toJson({
             propertyName: propertyName,
             propertyValue: propertyValue
-          }), function(result){
+          }), function(result) {
             $scope.updateScopeDeploymentTopologyDTO(result.data);
           }).$promise;
         };

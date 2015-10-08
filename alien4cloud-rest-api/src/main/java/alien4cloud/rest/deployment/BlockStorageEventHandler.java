@@ -4,16 +4,17 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.DeploymentTopologyService;
+import alien4cloud.deployment.model.DeploymentConfiguration;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
@@ -29,8 +30,7 @@ import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
-
-import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -104,7 +104,8 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
             FunctionPropertyValue function = (FunctionPropertyValue) abstractPropertyValue;
             if (function.getFunction().equals(ToscaFunctionConstants.GET_INPUT)) {
                 // the value is set in the input (deployment setup)
-                DeploymentTopology deploymentTopology = deploymentTopologyService.getOrCreateDeploymentTopology(applicationEnvironment.getId());
+                DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(applicationEnvironment.getId());
+                DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
                 log.info("Updating deploymentsetup <{}> input properties <{}> to add a new VolumeId", deploymentTopology.getId(), function.getTemplateName());
                 log.debug("VolumeId to add: <{}>. New value is <{}>", storageEvent.getVolumeId(), volumeIds);
                 deploymentTopology.getInputProperties().put(function.getTemplateName(), volumeIds);

@@ -1,8 +1,6 @@
 package alien4cloud.rest.deployment;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -16,6 +14,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.Authorization;
+
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.audit.annotation.Audit;
@@ -24,6 +26,7 @@ import alien4cloud.deployment.DeploymentNodeSubstitutionService;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.deployment.DeploymentTopologyValidationService;
 import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
+import alien4cloud.deployment.model.DeploymentConfiguration;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.deployment.DeploymentTopology;
@@ -46,12 +49,6 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMa
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.ReflectionUtil;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.Authorization;
-
 @RestController
 @RequestMapping("/rest/applications/{appId}/environments/{environmentId}/deployment-topology")
 @Api(value = "", description = "Manage configuration of an application before deploying it.")
@@ -73,43 +70,9 @@ public class DeploymentTopologyController {
     private DeploymentTopologyValidationService deploymentTopologyValidationService;
 
     /**
-     * Try to get the available substitutions for node of the topology of the given application on the given environment
-     *
-     * @param appId id of the application
-     * @param environmentId id of the environment
-     * @return response containing the available substitutions
-     */
-    @ApiOperation(value = "Get available substitutions for the topology of an application given an environment.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
-    @RequestMapping(value = "/substitutions", method = RequestMethod.GET)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<DeploymentNodeSubstitutionsDTO> getAvailableNodeSubstitutions(@PathVariable String appId, @PathVariable String environmentId) {
-        checkAuthorizations(appId, environmentId);
-        DeploymentTopology deploymentTopology = deploymentTopologyService.getOrCreateDeploymentTopology(environmentId);
-        Map<String, List<LocationResourceTemplate>> availableSubstitutions = deploymentNodeSubstitutionService.getAvailableSubstitutions(deploymentTopology);
-        DeploymentNodeSubstitutionsDTO dto = new DeploymentNodeSubstitutionsDTO();
-        Map<String, Set<String>> availableSubstitutionsIds = Maps.newHashMap();
-        Map<String, LocationResourceTemplate> templates = Maps.newHashMap();
-        for (Map.Entry<String, List<LocationResourceTemplate>> availableSubstitutionsEntry : availableSubstitutions.entrySet()) {
-            Set<String> existingIds = availableSubstitutionsIds.get(availableSubstitutionsEntry.getKey());
-            if (existingIds == null) {
-                existingIds = Sets.newHashSet();
-                availableSubstitutionsIds.put(availableSubstitutionsEntry.getKey(), existingIds);
-            }
-            for (LocationResourceTemplate template : availableSubstitutionsEntry.getValue()) {
-                existingIds.add(template.getId());
-                templates.put(template.getId(), template);
-            }
-        }
-        dto.setAvailableSubstitutions(availableSubstitutionsIds);
-        dto.setSubstitutionsTemplates(templates);
-        dto.setSubstitutionTypes(locationResourceService.getLocationResourceTypes(templates.values()));
-        return RestResponseBuilder.<DeploymentNodeSubstitutionsDTO> builder().data(dto).build();
-    }
-
-    /**
      * Update node substitution
      *
-     * @param appId id of the application
+     * @param appId         id of the application
      * @param environmentId id of the environment
      * @return response containing the available substitutions
      */
@@ -118,42 +81,45 @@ public class DeploymentTopologyController {
     @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<DeploymentTopologyDTO> updateSubstitution(@PathVariable String appId, @PathVariable String environmentId, @PathVariable String nodeId,
-            @RequestParam String locationResourceTemplateId) {
+                                                                  @RequestParam String locationResourceTemplateId) {
         checkAuthorizations(appId, environmentId);
-        DeploymentTopology deploymentTopology = deploymentTopologyService.getOrCreateDeploymentTopology(environmentId);
+        DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
+        DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
         locationResourceService.getOrFail(locationResourceTemplateId);
         deploymentTopology.getSubstitutedNodes().put(nodeId, locationResourceTemplateId);
-        deploymentTopologyService.updateAndSaveDeploymentTopology(deploymentTopology);
-        return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(buildDeploymentTopologyDTO(deploymentTopology)).build();
+        deploymentTopologyService.updateDeploymentTopology(deploymentTopology);
+        return RestResponseBuilder.<DeploymentTopologyDTO>builder().data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
     }
 
-    @ApiOperation(value = "Update substitution's property.", authorizations = { @Authorization("ADMIN") })
+    @ApiOperation(value = "Update substitution's property.", authorizations = {@Authorization("ADMIN")})
     @RequestMapping(value = "/substitutions/{nodeId}/properties", method = RequestMethod.POST)
     @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<DeploymentTopologyDTO> updateSubstitutionProperty(@PathVariable String appId, @PathVariable String environmentId,
-            @PathVariable String nodeId, @RequestBody UpdateSubstitutionPropertyRequest updateRequest) {
-        DeploymentTopology deploymentTopology = deploymentTopologyService.getOrCreateDeploymentTopology(environmentId);
+                                                                          @PathVariable String nodeId, @RequestBody UpdateSubstitutionPropertyRequest updateRequest) {
+        DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
+        DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
         deploymentTopologyService.updateSubstitutionProperty(deploymentTopology, nodeId, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
-        return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(buildDeploymentTopologyDTO(deploymentTopology)).build();
+        return RestResponseBuilder.<DeploymentTopologyDTO>builder().data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
     }
 
-    @ApiOperation(value = "Update substitution's capability property.", authorizations = { @Authorization("ADMIN") })
+    @ApiOperation(value = "Update substitution's capability property.", authorizations = {@Authorization("ADMIN")})
     @RequestMapping(value = "/substitutions/{nodeId}/capabilities/{capabilityName}/properties", method = RequestMethod.POST)
     @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<DeploymentTopologyDTO> updateSubstitutionCapabilityProperty(@PathVariable String appId, @PathVariable String environmentId,
-            @PathVariable String nodeId, @PathVariable String capabilityName, @RequestBody UpdateSubstitutionPropertyRequest updateRequest) {
-        DeploymentTopology deploymentTopology = deploymentTopologyService.getOrCreateDeploymentTopology(environmentId);
+                                                                                    @PathVariable String nodeId, @PathVariable String capabilityName, @RequestBody UpdateSubstitutionPropertyRequest updateRequest) {
+        DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
+        DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
         deploymentTopologyService.updateSubstitutionCapabilityProperty(deploymentTopology, nodeId, capabilityName, updateRequest.getPropertyName(),
                 updateRequest.getPropertyValue());
-        return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(buildDeploymentTopologyDTO(deploymentTopology)).build();
+        return RestResponseBuilder.<DeploymentTopologyDTO>builder().data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
     }
 
     /**
      * Get the deployment topology of an application given an environment
      *
-     * @param appId application Id
+     * @param appId         application Id
      * @param environmentId environment Id
      * @return the deployment topology DTO
      */
@@ -161,17 +127,17 @@ public class DeploymentTopologyController {
     @RequestMapping(value = "", method = RequestMethod.GET)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<DeploymentTopologyDTO> getDeploymentTopology(@PathVariable String appId, @PathVariable String environmentId) {
-        RestResponseBuilder<DeploymentTopologyDTO> responseBuilder = RestResponseBuilder.<DeploymentTopologyDTO> builder();
+        RestResponseBuilder<DeploymentTopologyDTO> responseBuilder = RestResponseBuilder.<DeploymentTopologyDTO>builder();
         checkAuthorizations(appId, environmentId);
-        DeploymentTopology deploymentTopology = deploymentTopologyService.getOrCreateDeploymentTopology(environmentId);
-        DeploymentTopologyDTO dto = buildDeploymentTopologyDTO(deploymentTopology);
+        DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
+        DeploymentTopologyDTO dto = buildDeploymentTopologyDTO(deploymentConfiguration);
         return responseBuilder.data(dto).build();
     }
 
     /**
      * Set location policies for a deployment. Creates if not yet the {@link DeploymentTopology} object linked to this deployment
      *
-     * @param appId application Id
+     * @param appId   application Id
      * @param request {@link SetLocationPoliciesRequest} object: location policies
      * @return
      */
@@ -180,16 +146,17 @@ public class DeploymentTopologyController {
     @Audit
     @PreAuthorize("isAuthenticated()")
     public RestResponse<DeploymentTopologyDTO> setLocationPolicies(@PathVariable String appId, @PathVariable String environmentId,
-            @RequestBody SetLocationPoliciesRequest request) {
+                                                                   @RequestBody SetLocationPoliciesRequest request) {
         RestResponseBuilder<DeploymentTopologyDTO> responseBuilder = RestResponseBuilder.builder();
 
         checkAuthorizations(appId, environmentId);
-        DeploymentTopology deploymentTopology = deploymentTopologyService.setLocationPolicies(environmentId, request.getOrchestratorId(),
+        DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.setLocationPolicies(environmentId, request.getOrchestratorId(),
                 request.getGroupsToLocations());
-        return responseBuilder.data(buildDeploymentTopologyDTO(deploymentTopology)).build();
+        return responseBuilder.data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
     }
 
     // FIXME THIS CANNOT BE USED ANYMORE TO SET MATCHING RESULT
+
     /**
      * Update application's deployment setup
      *
@@ -201,33 +168,34 @@ public class DeploymentTopologyController {
     @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<?> updateDeploymentSetup(@PathVariable String appId, @PathVariable String environmentId,
-            @RequestBody UpdateDeploymentTopologyRequest updateRequest) throws OrchestratorDisabledException {
+                                                 @RequestBody UpdateDeploymentTopologyRequest updateRequest) throws OrchestratorDisabledException {
 
         // check rights on related environment
         checkAuthorizations(appId, environmentId);
 
-        DeploymentTopology deploymentTopology = deploymentTopologyService.getOrCreateDeploymentTopology(environmentId);
+        DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
+        DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
         ReflectionUtil.mergeObject(updateRequest, deploymentTopology);
         if (deploymentTopology.getInputProperties() != null) {
             // If someone modified the input properties, must validate them
             try {
                 deploymentTopologyValidationService.validateInputProperties(deploymentTopology);
             } catch (ConstraintViolationException e) {
-                return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().data(e.getConstraintInformation())
+                return RestResponseBuilder.<ConstraintUtil.ConstraintInformation>builder().data(e.getConstraintInformation())
                         .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
             } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
-                return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().data(e.getConstraintInformation())
+                return RestResponseBuilder.<ConstraintUtil.ConstraintInformation>builder().data(e.getConstraintInformation())
                         .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
             }
         }
-        deploymentTopologyService.processDeploymentTopologyAndSave(deploymentTopology);
-        return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(buildDeploymentTopologyDTO(deploymentTopology)).build();
+        deploymentTopologyService.updateDeploymentTopologyInputsAndSave(deploymentTopology);
+        return RestResponseBuilder.<DeploymentTopologyDTO>builder().data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
     }
 
     /**
      * Security check on application and environment
      *
-     * @param appId application's id
+     * @param appId         application's id
      * @param environmentId environment's id
      */
     private void checkAuthorizations(String appId, String environmentId) {
@@ -239,7 +207,8 @@ public class DeploymentTopologyController {
         }
     }
 
-    private DeploymentTopologyDTO buildDeploymentTopologyDTO(DeploymentTopology deploymentTopology) {
+    private DeploymentTopologyDTO buildDeploymentTopologyDTO(DeploymentConfiguration deploymentConfiguration) {
+        DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
         TopologyDTO topologyDTO = topologyService.buildTopologyDTO(deploymentTopology);
         DeploymentTopologyDTO deploymentTopologyDTO = new DeploymentTopologyDTO();
         ReflectionUtil.mergeObject(topologyDTO, deploymentTopologyDTO);
@@ -247,6 +216,7 @@ public class DeploymentTopologyController {
         if (StringUtils.isNotBlank(locationId)) {
             deploymentTopologyDTO.getLocationPolicies().put(AlienConstants.GROUP_ALL, locationId);
         }
+        deploymentTopologyDTO.setAvailableSubstitutions(deploymentConfiguration.getAvailableSubstitutions());
         deploymentTopologyDTO.setValidation(deploymentTopologyValidationService.validateDeploymentTopology(deploymentTopology));
         Map<String, LocationResourceTemplate> templates = locationResourceService.getMultiple(deploymentTopology.getSubstitutedNodes().values());
         deploymentTopologyDTO.setLocationResourceTemplates(templates);
