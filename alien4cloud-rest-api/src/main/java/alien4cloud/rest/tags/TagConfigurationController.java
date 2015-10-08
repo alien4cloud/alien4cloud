@@ -88,9 +88,38 @@ public class TagConfigurationController {
                     .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message("Invalid tag configuration").build()).build();
         } else {
             dao.save(configuration);
+            
+            //for each resource in the targeted class, add the new meta property with default value
+            switch (configuration.getTarget().toString()) {
+			case "application":
+				addMetaPropertyToResources(Application.class, dao, configuration);
+				break;
+			case "cloud":
+				addMetaPropertyToResources(Cloud.class, dao, configuration);
+				break;
+				//TODO : case environment
+			default:
+				break;
+			}
+                        
             return RestResponseBuilder.<TagConfigurationSaveResponse> builder().data(new TagConfigurationSaveResponse(configuration.getId(), null)).build();
         }
     }
+    
+    /**
+     * save the meta properties of the element
+     * @param mpClass class of resources to update with new meta property
+     * @param dao IGenericSearchDAO object to access ES
+     * @param configuration configuration of new meta property
+     */
+     private <T extends IMetaProperties> void addMetaPropertyToResources (Class<T> mpClass, IGenericSearchDAO dao, MetaPropConfiguration configuration){    	 
+    	 GetMultipleDataResult<T> result = dao.find(mpClass, null, Integer.MAX_VALUE);
+    	 for (T element : result.getData()){
+    		 element.getMetaProperties().put(configuration.getId(), configuration.getDefault());
+    		 dao.save(element);
+    		 log.debug("Adding meta property <{}> to a resource of type <{}> ", configuration.getName(), element.getClass());
+    	 }    	 
+     }
 
     @ApiOperation(value = "Search for tag configurations registered in ALIEN.")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
