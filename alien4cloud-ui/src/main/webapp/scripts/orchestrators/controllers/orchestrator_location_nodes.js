@@ -32,7 +32,6 @@ define(function (require) {
         }
       
       $scope.autoConfigureResources = function(){
-        console.log('autoconfiguring');
         $scope.autoConfiguring = true
         $resource('rest/orchestrators/'+$scope.context.orchestrator.id+'/locations/'+$scope.context.location.id+'/resources/auto-configure').get({}, 
             function(result){

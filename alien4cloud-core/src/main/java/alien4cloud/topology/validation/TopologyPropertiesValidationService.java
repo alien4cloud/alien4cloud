@@ -55,7 +55,7 @@ public class TopologyPropertiesValidationService {
      * @param topology The actual topology to validate.
      * @return A list tasks to be done to make this topology valid.
      */
-    public List<PropertiesTask> validatePropertiesSkipInputs(Topology topology) {
+    public List<PropertiesTask> validateStaticProperties(Topology topology) {
         return validateProperties(topology, true);
     }
 

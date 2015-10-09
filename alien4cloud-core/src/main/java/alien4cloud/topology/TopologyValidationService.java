@@ -72,7 +72,7 @@ public class TopologyValidationService {
         dto.addToTaskList(nodeFilterValidationService.validateRequirementFilters(topology));
 
         // validate required properties (properties of NodeTemplate, Relationship and Capability)
-        List<PropertiesTask> validateProperties = topologyPropertiesValidationService.validatePropertiesSkipInputs(topology);
+        List<PropertiesTask> validateProperties = topologyPropertiesValidationService.validateStaticProperties(topology);
 
         // List<PropertiesTask> validateProperties = null;
         if (hasOnlyPropertiesWarnings(validateProperties)) {
