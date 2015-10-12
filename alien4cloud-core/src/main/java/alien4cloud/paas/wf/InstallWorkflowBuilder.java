@@ -69,9 +69,12 @@ public class InstallWorkflowBuilder extends StandardWorflowBuilder {
            */else /* if (WorkflowUtils.isOfType(indexedRelationshipType, NormativeRelationshipConstants.DEPENDS_ON)) */{
             // now the node has a parent, let's sequence the creation
             String targetId = relationshipTemplate.getTarget();
+            NodeActivityStep configuringTargetStep = WorkflowUtils.getStateStepByNode(wf, targetId, ToscaNodeLifecycleConstants.CONFIGURING);
+            NodeActivityStep createdSourceStep = WorkflowUtils.getStateStepByNode(wf, nodeId, ToscaNodeLifecycleConstants.CREATED);
+            WorkflowUtils.linkSteps(createdSourceStep, configuringTargetStep);
             NodeActivityStep startedTargetStep = WorkflowUtils.getStateStepByNode(wf, targetId, ToscaNodeLifecycleConstants.STARTED);
-            NodeActivityStep configureSourceStep = WorkflowUtils.getStateStepByNode(wf, nodeId, ToscaNodeLifecycleConstants.CONFIGURING);
-            WorkflowUtils.linkSteps(startedTargetStep, configureSourceStep);
+            NodeActivityStep configuringSourceStep = WorkflowUtils.getStateStepByNode(wf, nodeId, ToscaNodeLifecycleConstants.CONFIGURING);
+            WorkflowUtils.linkSteps(startedTargetStep, configuringSourceStep);
         }
     }
 

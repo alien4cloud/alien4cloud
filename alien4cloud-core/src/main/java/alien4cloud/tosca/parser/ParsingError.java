@@ -2,6 +2,7 @@ package alien4cloud.tosca.parser;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import org.yaml.snakeyaml.error.Mark;
 import org.yaml.snakeyaml.error.MarkedYAMLException;
@@ -13,6 +14,7 @@ import alien4cloud.tosca.parser.impl.ErrorCode;
  */
 @Getter
 @Setter
+@Slf4j
 public class ParsingError {
     private ParsingErrorLevel errorLevel;
     private ErrorCode errorCode;
@@ -33,26 +35,18 @@ public class ParsingError {
         this.problem = problem;
         this.endMark = endMark == null ? null : new SimpleMark(endMark);
         this.note = note;
+        if (errorLevel == ParsingErrorLevel.ERROR) {
+            // this is a handy place to put a breakpoint if you want to know where errors are coming from
+            log.debug("Error found during parse, rethrowing:\n"+this);
+        }
     }
 
     public ParsingError(ErrorCode errorCode, String context, Mark startMark, String problem, Mark endMark, String note) {
-        this.errorLevel = ParsingErrorLevel.ERROR;
-        this.errorCode = errorCode;
-        this.context = context;
-        this.startMark = startMark == null ? null : new SimpleMark(startMark);
-        this.problem = problem;
-        this.endMark = endMark == null ? null : new SimpleMark(endMark);
-        this.note = note;
+        this(ParsingErrorLevel.ERROR, errorCode, context, startMark, problem, endMark, note);
     }
 
     public ParsingError(ErrorCode errorCode, MarkedYAMLException cause) {
-        this.errorLevel = ParsingErrorLevel.ERROR;
-        this.errorCode = errorCode;
-        this.context = cause.getContext();
-        this.startMark = cause.getContextMark() == null ? null : new SimpleMark(cause.getContextMark());
-        this.problem = cause.getProblem();
-        this.endMark = cause.getContextMark() == null ? null : new SimpleMark(cause.getProblemMark());
-        this.note = null;
+        this(ParsingErrorLevel.ERROR, errorCode, cause.getContext(), cause.getContextMark(), cause.getProblem(), cause.getProblemMark(), null);
     }
 
     @Override

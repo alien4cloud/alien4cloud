@@ -1,6 +1,16 @@
 package alien4cloud.json.deserializer;
 
+import java.io.IOException;
+import java.util.Map;
+
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import alien4cloud.model.topology.AbstractPolicy;
+import alien4cloud.model.topology.GenericPolicy;
 import alien4cloud.model.topology.HaPolicy;
 
 /**
@@ -12,4 +22,15 @@ public class PolicyDeserializer extends AbstractFieldValueDiscriminatorPolymorph
         addToRegistry(HaPolicy.HA_POLICY, HaPolicy.class);
     }
 
+    @Override
+    protected AbstractPolicy deserializeAfterRead(JsonParser jp, DeserializationContext ctxt, ObjectMapper mapper, ObjectNode root) throws JsonProcessingException {
+        AbstractPolicy result = super.deserializeAfterRead(jp, ctxt, mapper, root);
+        if (result!=null) return result;
+
+        // treat anything else as generic policy
+        // all data is stored in the field data so extract that
+        Map data = mapper.treeToValue(root, Map.class);
+        if (data.containsKey("data")) data = (Map) data.get("data");
+        return new GenericPolicy( data );
+    }
 }

@@ -61,7 +61,7 @@ public class NodeTypeScoreServiceTest {
         Topology topology = new Topology();
         topology.setId("topology");
         topology.setNodeTemplates(MapUtil.newHashMap(new String[] { "isengard" }, new NodeTemplate[] { new NodeTemplate(indexedNodeType.getId(), null, null,
-                null, null, null, null) }));
+                null, null, null, null, null) }));
         dao.save(topology);
 
         indexedNodeType.setElementId("osgiliath");

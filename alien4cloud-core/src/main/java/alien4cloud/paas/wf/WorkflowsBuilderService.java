@@ -100,7 +100,6 @@ public class WorkflowsBuilderService {
     }
 
     public void addNode(TopologyContext topologyContext, String nodeName, NodeTemplate nodeTemplate) {
-        initWorkflows(topologyContext);
         boolean forceOperation = WorkflowUtils.isComputeOrNetwork(nodeName, topologyContext);
         for (Workflow wf : topologyContext.getTopology().getWorkflows().values()) {
             AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
@@ -113,7 +112,6 @@ public class WorkflowsBuilderService {
 
     public void removeNode(Topology topology, String nodeName, NodeTemplate nodeTemplate) {
         TopologyContext topologyContext = buildTopologyContext(topology);
-        initWorkflows(topologyContext);
         for (Workflow wf : topology.getWorkflows().values()) {
             AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
             builder.removeNode(wf, nodeName);

@@ -82,12 +82,12 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
                 topology = alienDAO.findById(Topology.class, topologyToCloneId);
             } else {
                 topology = new Topology();
-                workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
             }
             topology.setId(UUID.randomUUID().toString());
         }
         topology.setDelegateId(delegateId);
         topology.setDelegateType(getDelegateClass().getSimpleName().toLowerCase());
+        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
         // first of all, if the new version is a release, we have to ensure that all dependencies are released
         if (!VersionUtil.isSnapshot(version)) {
             checkTopologyReleasable(topology);
