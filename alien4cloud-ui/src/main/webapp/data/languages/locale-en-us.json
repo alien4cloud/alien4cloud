@@ -709,6 +709,9 @@
       "POLICIES": "Policies",
       "SECURITY": "Security"
     },
+    "ARTIFACTS": {
+      "MANAGED": "Managed Artifacts"
+    },
     "CONFIGURATION": {
       "UNLOCK-BTN-TITLE": "Unlock",
       "UNLOCK-BTN-CONTENT": "You can unlock to edit the orchestrator configuration but this will affect the connected driver.",

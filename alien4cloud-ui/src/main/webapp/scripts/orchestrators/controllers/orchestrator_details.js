@@ -36,7 +36,7 @@ define(function (require) {
   states.state('admin.orchestrators.details.info', {
     url: '/info',
     templateUrl: 'views/orchestrators/orchestrator_info.html',
-    controller: 'OrchestratorArtifactsCtrl',
+    controller: 'OrchestratorDetailsCtrl',
     menu: {
       id: 'menu.orchestrators.info',
       state: 'admin.orchestrators.details.info',
@@ -48,7 +48,7 @@ define(function (require) {
 
   states.forward('admin.orchestrators.details', 'admin.orchestrators.details.info');
 
-  modules.get('a4c-orchestrators').controller('OrchestratorArtifactsCtrl',
+  modules.get('a4c-orchestrators').controller('OrchestratorDetailsCtrl',
     ['$scope', '$modal', '$state', '$translate', 'orchestratorService', 'orchestratorInstanceService', 'orchestrator', 'metapropConfServices', 'toaster',
     function($scope, $modal, $state, $translate, orchestratorService, orchestratorInstanceService, orchestrator, metapropConfServices, toaster) {
       $scope.orchestrator = orchestrator;
