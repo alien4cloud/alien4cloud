@@ -32,7 +32,7 @@ public class TopologyValidationResult {
 
     private List<AbstractTask> warningList;
 
-    public <T extends AbstractTask> void addToTaskList(List<T> tasks) {
+    public <T extends AbstractTask> void addTasks(List<T> tasks) {
         if (CollectionUtils.isEmpty(tasks)) {
             return;
         }
@@ -42,7 +42,17 @@ public class TopologyValidationResult {
         taskList.addAll(tasks);
     }
 
-    public <T extends AbstractTask> void addToWarningList(List<T> warnings) {
+    public <T extends AbstractTask> void addTask(T task) {
+        if (task == null) {
+            return;
+        }
+        if (taskList == null) {
+            taskList = Lists.newArrayList();
+        }
+        taskList.add(task);
+    }
+
+    public <T extends AbstractTask> void addWarnings(List<T> warnings) {
         if (CollectionUtils.isEmpty(warnings)) {
             return;
         }
@@ -50,5 +60,15 @@ public class TopologyValidationResult {
             warningList = Lists.newArrayList();
         }
         warningList.addAll(warnings);
+    }
+
+    public <T extends AbstractTask> void addWarning(T warning) {
+        if (warning == null) {
+            return;
+        }
+        if (warningList == null) {
+            warningList = Lists.newArrayList();
+        }
+        warningList.add(warning);
     }
 }

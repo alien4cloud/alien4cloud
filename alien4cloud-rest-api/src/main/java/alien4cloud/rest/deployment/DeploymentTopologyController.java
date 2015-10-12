@@ -179,7 +179,7 @@ public class DeploymentTopologyController {
         if (deploymentTopology.getInputProperties() != null) {
             // If someone modified the input properties, must validate them
             try {
-                deploymentTopologyValidationService.validateInputProperties(deploymentTopology);
+                deploymentTopologyValidationService.checkInputPropertiesContraints(deploymentTopology);
             } catch (ConstraintViolationException e) {
                 return RestResponseBuilder.<ConstraintUtil.ConstraintInformation>builder().data(e.getConstraintInformation())
                         .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();

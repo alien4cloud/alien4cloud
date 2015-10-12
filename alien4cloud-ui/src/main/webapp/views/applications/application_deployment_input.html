@@ -1,7 +1,7 @@
 <div>
   <!-- Input properties  -->
   <div class="row" style="margin-top: 20px;" ng-if="isAllowedInputDeployment()">
-    <div class="col-md-6">
+    <div class="col-md-12">
       <h3 ng-click="isInputPropertiesCollapsed = !isInputPropertiesCollapsed" class="clickable">
         <i class="fa fa-sign-in"> </i>
         <span>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}</span>
@@ -25,48 +25,6 @@
         </table>
       </div>
     </div>
-    
-    <!-- ERROR / WARNINGS DISPLAY -->
-    <div class="col-md-6">
-            <!--  Required properties tasks  -->
-      <div ng-if="deploymentContext.deploymentTopologyDTO.validation.taskList['PROPERTIES']" class="task-list-box">
-        <h4 class="topology-node-expand clickable" ng-init="isRequiredPropertiesCollapsed = false" ng-click="isRequiredPropertiesCollapsed = !isRequiredPropertiesCollapsed">
-          <i class="fa" ng-class="{'fa-chevron-down' : !isRequiredPropertiesCollapsed , 'fa-chevron-right': isRequiredPropertiesCollapsed }"></i>
-          <span>{{'APPLICATIONS.TOPOLOGY.TASK.REQUIRED_PROPERTIES_LABEL' | translate}}</span>
-        </h4>
-        <div collapse="isRequiredPropertiesCollapsed " class="topology-level ">
-          <table class="table table-condensed">
-            <thead>
-              <th></th>
-              <th>{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.REQUIRED' | translate}}</th>
-              <th><i class="fa fa-exclamation-triangle" tooltip="{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING_MESSAGE' | translate}}"></i> {{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING' | translate}}</th>
-            </thead>
-            <tbody>
-              <tr ng-init="existsWarning = requiredPropertiesTask.properties['WARNING'].length>0" ng-repeat="requiredPropertiesTask in deploymentContext.deploymentTopologyDTO.validation.taskList['PROPERTIES']" ng-class="{'bg-warning':existsWarning}">
-                <td>
-                  <strong>{{requiredPropertiesTask.nodeTemplateName}}</strong>
-                  <span>({{requiredPropertiesTask.component.elementId}})</span>
-                </td>
-                <td>
-                  <ul class="td_list liste-no-style">
-                    <li ng-repeat="property in requiredPropertiesTask.properties['REQUIRED']">
-                      {{property}}
-                    </li>
-                  </ul>
-                </td>
-                <td>
-                  <ul class="td_list liste-no-style">
-                    <li ng-repeat="property in requiredPropertiesTask.properties['WARNING']">
-                      {{property}}
-                    </li>
-                  </ul>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div> <!--  End Required properties tasks  -->
-    </div> <!--  End Error display -->
   </div>
 
   <!-- Input artifacts  -->
