@@ -8,6 +8,7 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.model.orchestrators.ArtifactSupport;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.FilterBuilder;
@@ -157,6 +158,18 @@ public class OrchestratorService {
         Orchestrator orchestrator = getOrFail(orchestratorId);
         IOrchestratorPluginFactory orchestratorFactory = getPluginFactory(orchestrator);
         return orchestratorFactory.getLocationSupport();
+    }
+
+    /**
+     * Get the artifacts support information for a given orchestrator.
+     *
+     * @param orchestratorId The id of the orchestrator for which to get location support information.
+     * @return artifact support information
+     */
+    public ArtifactSupport getArtifactSupport(String orchestratorId) {
+        Orchestrator orchestrator = getOrFail(orchestratorId);
+        IOrchestratorPluginFactory orchestratorFactory = getPluginFactory(orchestrator);
+        return orchestratorFactory.getArtifactSupport();
     }
 
     /**
