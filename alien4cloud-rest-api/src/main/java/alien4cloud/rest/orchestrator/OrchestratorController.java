@@ -17,7 +17,6 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.model.orchestrators.locations.LocationSupport;
-import alien4cloud.rest.orchestrator.model.CreateOrchestratorRequest;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.orchestrators.services.OrchestratorStateService;
 import alien4cloud.paas.exception.PluginConfigurationException;
@@ -25,6 +24,7 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.orchestrator.model.CreateOrchestratorRequest;
 import alien4cloud.security.AuthorizationUtil;
 
 import com.wordnik.swagger.annotations.Api;
@@ -134,5 +134,14 @@ public class OrchestratorController {
             @ApiParam(value = "Id of the orchestrator for which to get location support informations", required = true) @PathVariable String id) {
         LocationSupport support = orchestratorService.getLocationSupport(id);
         return RestResponseBuilder.<LocationSupport> builder().data(support).build();
+    }
+
+    @ApiOperation(value = "Get information on the artifacts that an orchestrator can support.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id}/artifacts-support", method = RequestMethod.GET)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public RestResponse<String[]> getArtifactsSupport(
+            @ApiParam(value = "Id of the orchestrator for which to get location support informations", required = true) @PathVariable String id) {
+        String[] supportedArtifacts = orchestratorService.getArtifactSupport(id).getTypes();
+        return RestResponseBuilder.<String[]> builder().data(supportedArtifacts).build();
     }
 }
