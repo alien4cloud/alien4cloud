@@ -161,10 +161,10 @@ public class OrchestratorService {
     }
 
     /**
-     * Get the artifacts support information for a given orchestrator.
+     * Get the artifact support information for a given orchestrator.
      *
      * @param orchestratorId The id of the orchestrator for which to get location support information.
-     * @return artifact support information
+     * @return artifact support information.
      */
     public ArtifactSupport getArtifactSupport(String orchestratorId) {
         Orchestrator orchestrator = getOrFail(orchestratorId);
