@@ -69,7 +69,7 @@ define(function(require) {
         
         // Watch over deployment topology to initialize selected location
         $scope.$watch('deploymentContext.deploymentTopologyDTO', function() {
-          console.log($scope.deploymentContext.deploymentTopologyDTO)
+//          console.log($scope.deploymentContext.deploymentTopologyDTO)
           refreshLocationMatching();
         });
 

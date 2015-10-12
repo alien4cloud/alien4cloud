@@ -18,7 +18,7 @@ define(function(require) {
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'], // is deployer,
       priority: 300,
       step: {
-        taskCodes: ['PROPERTIES', 'ORCHESTRATOR_PROPERTY']
+        taskCodes: ['INPUT_PROPERTY', 'ORCHESTRATOR_PROPERTY']
       }
     }
   });
@@ -31,8 +31,6 @@ define(function(require) {
           return !_.isEmpty($filter('allowedInputs')($scope.deploymentContext.deploymentTopologyDTO.topology.inputs));
         };
         
-        console.log($scope.deploymentContext.deploymentTopologyDTO)
-
         /* Handle properties inputs */
         $scope.updateInputValue = function(definition, inputValue, inputId) {
           // No update if it's the same value

@@ -55,10 +55,10 @@ public class TopologyValidationService {
         }
 
         // validate the workflows
-        dto.addToTaskList(workflowBuilderService.validateWorkflows(topology));
+        dto.addTasks(workflowBuilderService.validateWorkflows(topology));
 
         // validate abstract relationships
-        dto.addToTaskList(topologyAbstractRelationshipValidationService.validateAbstractRelationships(topology));
+        dto.addTasks(topologyAbstractRelationshipValidationService.validateAbstractRelationships(topology));
 
         // validate abstract node types and find suggestions
         // in this step, this is a warning, since they can be replaced by nodes comming from the location
@@ -66,19 +66,19 @@ public class TopologyValidationService {
         // dto.addToWarningList(topologyAbstractNodeValidationService.findReplacementForAbstracts(topology));
 
         // validate requirements lowerBounds
-        dto.addToTaskList(topologyRequirementBoundsValidationServices.validateRequirementsLowerBounds(topology));
+        dto.addTasks(topologyRequirementBoundsValidationServices.validateRequirementsLowerBounds(topology));
 
         // validate the node filters for all relationships
-        dto.addToTaskList(nodeFilterValidationService.validateRequirementFilters(topology));
+        dto.addTasks(nodeFilterValidationService.validateRequirementFilters(topology));
 
         // validate required properties (properties of NodeTemplate, Relationship and Capability)
         List<PropertiesTask> validateProperties = topologyPropertiesValidationService.validateStaticProperties(topology);
 
         // List<PropertiesTask> validateProperties = null;
         if (hasOnlyPropertiesWarnings(validateProperties)) {
-            dto.addToWarningList(validateProperties);
+            dto.addWarnings(validateProperties);
         } else {
-            dto.addToTaskList(validateProperties);
+            dto.addTasks(validateProperties);
         }
 
         dto.setValid(isValidTaskList(dto.getTaskList()));

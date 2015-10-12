@@ -17,9 +17,10 @@ define(function(require) {
   require('scripts/applications/services/tasks_processor.js');
 
   require('scripts/deployment/directives/display_outputs');
+  require('scripts/applications/directives/topology_errors_display');
   require('scripts/common/filters/inputs');
   
-  var globalConfTaskCodes = ['SCALABLE_CAPABILITY_INVALID'];
+  var globalConfTaskCodes = ['SCALABLE_CAPABILITY_INVALID', 'PROPERTIES'];
 
   function refreshDeploymentContext(deploymentContext, application, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menus) {
     return deploymentTopologyServices.get({
@@ -118,7 +119,7 @@ define(function(require) {
 
           $scope.isTopologyValid($scope.topologyId, $scope.deploymentContext.selectedEnvironment.id).$promise.then(function(validTopologyResult) {
             $scope.validTopologyDTO = validTopologyResult.data;
-            tasksProcessor.processWarnings($scope.validTopologyDTO);
+            tasksProcessor.processAll($scope.validTopologyDTO);
           });
 
           var processTopologyInfoResult = $scope.processTopologyInformations($scope.topologyId);
