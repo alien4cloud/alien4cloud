@@ -12,7 +12,11 @@ import org.elasticsearch.common.collect.Lists;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import alien4cloud.application.ApplicationService;
@@ -60,9 +64,9 @@ public class DeploymentController {
     /**
      * Get all deployments for a cloud, including if asked some details of the related applications.
      *
-     * @param cloudId Id of the cloud for which to get deployments (can be null to get deployments for all clouds).
+     * @param orchestratorId Id of the orchestrator for which to get deployments (can be null to get deployments for all orchestrators).
      * @param sourceId Id of the application for which to get deployments (can be null to get deployments for all applications).
-     * @param includeAppSummary include or not the applications summary in the results.
+     * @param includeSourceSummary include or not the sources (application or csar) summary in the results.
      * @param from The start index of the query.
      * @param size The maximum number of elements to return.
      * @return A {@link RestResponse} with as data a list of {@link DeploymentDTO} that contains deployments and applications info.
@@ -71,26 +75,27 @@ public class DeploymentController {
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<List<DeploymentDTO>> get(
-            @ApiParam(value = "Id of the cloud for which to get deployments.") @RequestParam(required = false) String cloudId,
-            @ApiParam(value = "Id of the application for which to get deployments.") @RequestParam(required = false) String sourceId,
-            @ApiParam(value = "include or not the applications summary in the results") @RequestParam(required = false, defaultValue = "false") boolean includeAppSummary,
+            @ApiParam(value = "Id of the orchestrator for which to get deployments. If not provided, get deployments for all orchestrators") @RequestParam(required = false) String orchestratorId,
+            @ApiParam(value = "Id of the application for which to get deployments. if not provided, get deployments for all applications") @RequestParam(required = false) String sourceId,
+            @ApiParam(value = "include or not the source (application or csar) summary in the results") @RequestParam(required = false, defaultValue = "false") boolean includeSourceSummary,
             @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
             @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "20") int size) {
-        return RestResponseBuilder.<List<DeploymentDTO>> builder().data(getDeploymentsAndSources(cloudId, sourceId, includeAppSummary, from, size)).build();
+        return RestResponseBuilder.<List<DeploymentDTO>> builder().data(BuildDeploymentsDTO(orchestratorId, sourceId, includeSourceSummary, from, size))
+                .build();
     }
 
     /**
-     * Get deployments for a given cloud, and some info about the related applications
+     * Get deployments for a given orchestrator, and some info about the related applications and locations
      *
-     * @param cloudId Id of the cloud for which to get deployments (can be null to get deployments for all clouds).
+     * @param orchestratorId Id of the orchestrator for which to get deployments (can be null to get deployments for all orchestrator).
      * @param sourceId Id of the application for which to get deployments (can be null to get deployments for all applications).
      * @param includeSourceSummary include or not the applications summary in the results.
      * @param from The start index of the query.
      * @param size The maximum number of elements to return.
      * @return A list of {@link DeploymentDTO} that contains deployments and applications info.
      */
-    private List<DeploymentDTO> getDeploymentsAndSources(String cloudId, String sourceId, boolean includeSourceSummary, int from, int size) {
-        GetMultipleDataResult results = deploymentService.getDeployments(cloudId, sourceId, from, size);
+    private List<DeploymentDTO> BuildDeploymentsDTO(String orchestratorId, String sourceId, boolean includeSourceSummary, int from, int size) {
+        GetMultipleDataResult results = deploymentService.getDeployments(orchestratorId, sourceId, from, size);
         List<DeploymentDTO> dtos = Lists.newArrayList();
         if (results.getData().length > 0) {
             Object[] deployments = results.getData();
