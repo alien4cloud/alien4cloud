@@ -107,13 +107,13 @@ public class DeploymentController {
                 if (sourceIds != null) {// can have no application deployed
                     switch (sourceType) {
                     case APPLICATION:
-                        Map<String, ? extends IDeploymentSource> appSources = applicationService.findByIdsIfAuthorized(FetchContext.DEPLOYMENT, sourceIds);
+                        Map<String, ? extends IDeploymentSource> appSources = applicationService.findByIdsIfAuthorized(FetchContext.SUMMARY, sourceIds);
                         if (appSources != null) {
                             sources = appSources;
                         }
                         break;
                     case CSAR:
-                        Map<String, ? extends IDeploymentSource> csarSources = csarService.findByIds(FetchContext.DEPLOYMENT, sourceIds);
+                        Map<String, ? extends IDeploymentSource> csarSources = csarService.findByIds(FetchContext.SUMMARY, sourceIds);
                         if (csarSources != null) {
                             sources = csarSources;
                         }

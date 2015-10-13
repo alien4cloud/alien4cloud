@@ -127,7 +127,7 @@ public class EsDaoCrudTest extends AbstractDAOTest {
 
         // findByIdsWithContext
         saveApplications();
-        List<Application> apps = dao.findByIdsWithContext(Application.class, FetchContext.DEPLOYMENT, new String[] { "1", "2", "8" });
+        List<Application> apps = dao.findByIdsWithContext(Application.class, FetchContext.SUMMARY, new String[] { "1", "2", "8" });
         log.info("Search: " + JsonUtil.toString(apps));
         assertNotNull(apps);
         assertFalse(apps.isEmpty());

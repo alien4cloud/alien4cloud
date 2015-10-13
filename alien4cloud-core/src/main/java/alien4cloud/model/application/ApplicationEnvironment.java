@@ -1,6 +1,6 @@
 package alien4cloud.model.application;
 
-import static alien4cloud.dao.model.FetchContext.DEPLOYMENT;
+import static alien4cloud.dao.model.FetchContext.SUMMARY;
 
 import java.util.Map;
 import java.util.Set;
@@ -53,7 +53,7 @@ public class ApplicationEnvironment implements ISecuredResource, IDeploymentSour
     @ConditionalOnAttribute(ConditionalAttributes.ES)
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
-    @FetchContext(contexts = { DEPLOYMENT }, include = { true })
+    @FetchContext(contexts = { SUMMARY }, include = { true })
     private Map<String, Set<String>> userRoles;
 
     @TermFilter(paths = { "key", "value" })
@@ -61,7 +61,7 @@ public class ApplicationEnvironment implements ISecuredResource, IDeploymentSour
     @ConditionalOnAttribute(ConditionalAttributes.ES)
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
-    @FetchContext(contexts = { DEPLOYMENT }, include = { true })
+    @FetchContext(contexts = { SUMMARY }, include = { true })
     private Map<String, Set<String>> groupRoles;
 
     @Override

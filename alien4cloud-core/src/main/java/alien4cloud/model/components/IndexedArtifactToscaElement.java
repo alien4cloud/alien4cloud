@@ -1,7 +1,7 @@
 package alien4cloud.model.components;
 
-import static alien4cloud.dao.model.FetchContext.COMPONENT_SUMMARY;
 import static alien4cloud.dao.model.FetchContext.QUICK_SEARCH;
+import static alien4cloud.dao.model.FetchContext.SUMMARY;
 import static alien4cloud.dao.model.FetchContext.TAG_SUGGESTION;
 
 import java.util.Map;
@@ -22,13 +22,13 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @SuppressWarnings("PMD.UnusedPrivateField")
 @JsonInclude(Include.NON_NULL)
 public class IndexedArtifactToscaElement extends IndexedInheritableToscaElement {
-    @FetchContext(contexts = { COMPONENT_SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
+    @FetchContext(contexts = { SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
     private Map<String, DeploymentArtifact> artifacts;
 
-    @FetchContext(contexts = { COMPONENT_SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
+    @FetchContext(contexts = { SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
     @JsonDeserialize(contentUsing = AttributeDeserializer.class)
     private Map<String, IValue> attributes;
 
-    @FetchContext(contexts = { COMPONENT_SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
+    @FetchContext(contexts = { SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
     private Map<String, Interface> interfaces;
 }
