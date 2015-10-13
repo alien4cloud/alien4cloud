@@ -26,8 +26,6 @@ public class ArchiveUploadService {
     @Inject
     private ToscaCsarDependenciesParser dependenciesParser;
     @Inject
-    private ArchivePostProcessor postProcessor;
-    @Inject
     private ArchiveIndexer archiveIndexer;
     @Inject
     private ICsarRepositry archiveRepositry;
@@ -43,7 +41,6 @@ public class ArchiveUploadService {
     public ParsingResult<Csar> upload(Path path) throws ParsingException, CSARVersionAlreadyExistsException {
         // parse the archive.
         ParsingResult<ArchiveRoot> parsingResult = parser.parse(path);
-        postProcessor.postProcess(parsingResult);
 
         String archiveName = parsingResult.getResult().getArchive().getName();
         String archiveVersion = parsingResult.getResult().getArchive().getVersion();
@@ -79,7 +76,6 @@ public class ArchiveUploadService {
         for (Path path : paths) {
             CsarDependenciesBean csarDepContainer = new CsarDependenciesBean();
             ParsingResult<ArchiveRoot> parsingResult = parser.parse(path);
-            postProcessor.postProcess(parsingResult);
             csarDepContainer.setName(parsingResult.getResult().getArchive().getName());
             csarDepContainer.setVersion(parsingResult.getResult().getArchive().getVersion());
             csarDepContainer.setPath(path);

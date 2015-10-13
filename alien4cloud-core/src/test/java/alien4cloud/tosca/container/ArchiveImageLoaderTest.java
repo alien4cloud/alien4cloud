@@ -49,9 +49,6 @@ public class ArchiveImageLoaderTest {
     private ArchiveParser parser;
 
     @Resource
-    private ArchivePostProcessor processor;
-
-    @Resource
     private IImageDAO imageDAO;
     @Resource(name = "image-dao")
     private IGenericIdDAO imageGenericIdDAO;
@@ -70,7 +67,6 @@ public class ArchiveImageLoaderTest {
 
         // Parse the archive for definitions
         ParsingResult<ArchiveRoot> result = parser.parse(csarFileForTesting);
-        processor.postProcess(result);
         imageLoader.importImages(csarFileForTesting, result.getResult(), result.getContext().getParsingErrors());
 
         checkImages(result.getResult().getNodeTypes());
@@ -103,7 +99,6 @@ public class ArchiveImageLoaderTest {
         FileUtil.zip(PATH_TOSCA_BASE_TYPES_ERROR, csarFileForTesting);
         // Parse the archive for definitions
         ParsingResult<ArchiveRoot> result = parser.parse(csarFileForTesting);
-        processor.postProcess(result);
         imageLoader.importImages(csarFileForTesting, result.getResult(), result.getContext().getParsingErrors());
 
         // we expect to have warning issues due to missing files or invalid formats.

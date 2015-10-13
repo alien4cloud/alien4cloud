@@ -1,35 +1,24 @@
 package alien4cloud.tosca;
 
-import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.ProviderNotFoundException;
-import java.util.EnumSet;
-import java.util.List;
-
-import javax.annotation.Resource;
-import javax.validation.Validator;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.stereotype.Component;
-
 import alien4cloud.model.components.Csar;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.model.ToscaMeta;
-import alien4cloud.tosca.parser.ParsingError;
-import alien4cloud.tosca.parser.ParsingException;
-import alien4cloud.tosca.parser.ParsingResult;
-import alien4cloud.tosca.parser.ToscaParser;
-import alien4cloud.tosca.parser.YamlSimpleParser;
+import alien4cloud.tosca.parser.*;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.ValidatedNodeParser;
 import alien4cloud.tosca.parser.mapping.CsarMetaMapping;
 import alien4cloud.tosca.parser.mapping.ToscaMetaMapping;
 import alien4cloud.utils.FileUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.validation.Validator;
+import java.io.IOException;
+import java.nio.file.*;
+import java.util.EnumSet;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -49,7 +38,16 @@ public class ArchiveParser {
     private ToscaParser toscaParser;
     @Resource
     private Validator validator;
+    @Inject
+    private ArchivePostProcessor postProcessor;
 
+    /**
+     * Parse an archive file from a zip.
+     *
+     * @param archiveFile The archive file currently zipped.
+     * @return A parsing result that contains the Archive Root and eventual errors and/or warnings.
+     * @throws ParsingException
+     */
     public ParsingResult<ArchiveRoot> parse(Path archiveFile) throws ParsingException {
         FileSystem csarFS;
         try {
@@ -65,17 +63,18 @@ public class ArchiveParser {
         }
 
         if (Files.exists(csarFS.getPath(TOSCA_META_FILE_LOCATION))) {
-            return parseFromToscaMeta(csarFS);
+            return postProcess(parseFromToscaMeta(csarFS));
         } else if (Files.exists(csarFS.getPath(ALIEN_META_FILE_LOCATION))) {
-            return parseFromAlienMeta(csarFS);
+            return postProcess(parseFromAlienMeta(csarFS));
         }
-        return parseFromRootDefinitions(csarFS);
+        return postProcess(parseFromRootDefinitions(csarFS));
     }
 
     // TODO Find a proper way to refactor avoid code duplication with parsing methods from file system
+
     /**
      * Parse an archive from a directory, it's very convenient for internal use and test
-     * 
+     *
      * @param archiveDir the directory which contains the archive
      * @return the parsing result
      * @throws ParsingException
@@ -83,10 +82,14 @@ public class ArchiveParser {
     public ParsingResult<ArchiveRoot> parseDir(Path archiveDir) throws ParsingException {
         Path toscaMetaFile = archiveDir.resolve(TOSCA_META_FILE_LOCATION);
         if (Files.exists(toscaMetaFile)) {
-            return parseFromToscaMeta(archiveDir);
-        } else {
-            return parseFromRootDefinitions(archiveDir);
+            return postProcess(parseFromToscaMeta(archiveDir));
         }
+        return postProcess(parseFromRootDefinitions(archiveDir));
+    }
+
+    private ParsingResult<ArchiveRoot> postProcess(ParsingResult<ArchiveRoot> parsingResult) {
+        postProcessor.postProcess(parsingResult);
+        return parsingResult;
     }
 
     @Deprecated
@@ -173,11 +176,11 @@ public class ArchiveParser {
                 return toscaParser.parseFile(visitor.getDefinitionFiles().get(0));
             }
             throw new ParsingException("Archive", new ParsingError(ErrorCode.SINGLE_DEFINITION_SUPPORTED,
-                    "Alien only supports archives with a single root definition.", null, null, null, 
-                    "Matching file count in root of "+csarFS+": "+visitor.getDefinitionFiles().size()));
+                    "Alien only supports archives with a single root definition.", null, null, null,
+                    "Matching file count in root of " + csarFS + ": " + visitor.getDefinitionFiles().size()));
         } catch (IOException e) {
-            throw new ParsingException("Archive", new ParsingError(ErrorCode.FAILED_TO_READ_FILE, "Failed to list root definitions", null, null, null, 
-                "Error reading "+csarFS+": "+e));
+            throw new ParsingException("Archive", new ParsingError(ErrorCode.FAILED_TO_READ_FILE, "Failed to list root definitions", null, null, null,
+                    "Error reading " + csarFS + ": " + e));
         }
     }
 }
