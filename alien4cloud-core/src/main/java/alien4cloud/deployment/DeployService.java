@@ -158,7 +158,6 @@ public class DeployService {
      * @return
      */
     public TopologyValidationResult prepareForDeployment(DeploymentTopology deploymentTopology) {
-
         // finalize the deploymentTopology for deployment
         deploymentTopologyService.processForDeployment(deploymentTopology);
 

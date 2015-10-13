@@ -140,7 +140,11 @@ public class OrchestratorController {
     @RequestMapping(value = "/{id}/artifacts-support", method = RequestMethod.GET)
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<String[]> getArtifactsSupport(
-            @ApiParam(value = "Id of the orchestrator for which to get location support informations", required = true) @PathVariable String id) {
+            @ApiParam(value = "Id of the orchestrator for which to get artifact support informations", required = true) @PathVariable String id) {
+        if (orchestratorService.getArtifactSupport(id) == null || orchestratorService.getArtifactSupport(id).getTypes() == null) {
+            log.error("An orchestrator should have an artifact support information.");
+            return RestResponseBuilder.<String[]> builder().data(null).build();
+        }
         String[] supportedArtifacts = orchestratorService.getArtifactSupport(id).getTypes();
         return RestResponseBuilder.<String[]> builder().data(supportedArtifacts).build();
     }

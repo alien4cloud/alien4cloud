@@ -20,8 +20,21 @@ define(function (require) {
   });
 
   modules.get('a4c-orchestrators').controller('OrchestratorArtifactsCtrl',
-    ['$scope', '$modal', '$state',
-    function($scope, $modal, $state) {
+    ['$scope' , '$state', '$resource', 'orchestrator', 
+    function($scope, $state, $resource, orchestrator) {
+      $scope.artifactTypes = [];
+      $resource('rest/orchestrators/'+orchestrator.id+'/artifacts-support').get(
+        {}, 
+        function(result){
+          if(!_.isEmpty(result.data)){
+            $scope.artifactTypes = result.data;
+          }
+        }, 
+        function(){
+          // error handler
+        }
+      );      
     }
   ]); // controller
+  
 }); // define

@@ -1,7 +1,6 @@
 <div>
-  <h1>Orchestrator artifacts</h1>
-  TODO list:
+  <h1>{{ 'ORCHESTRATORS.ARTIFACTS.MANAGED' | translate }}</h1>
   <ul>
-    <li>Display the list of implementation artifacts supported by this orchestrator</li>
+    <li ng-repeat="artifactType in artifactTypes">{{ artifactType }}</li>
   </ul>
 </div>

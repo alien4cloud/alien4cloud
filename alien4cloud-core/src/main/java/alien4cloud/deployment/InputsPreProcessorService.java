@@ -40,7 +40,6 @@ import com.google.common.collect.Maps;
 @Slf4j
 @Service
 public class InputsPreProcessorService {
-    // TODO cloud_meta is here for backward compatibility but should be removed in next versions
     private static final String LOC_META = "loc_meta_";
     private static final String APP_META = "app_meta_";
     private static final String APP_TAGS = "app_tags_";
@@ -209,8 +208,7 @@ public class InputsPreProcessorService {
             String[] ids = new String[contextInputs.size()];
             int i = 0;
             for (String id : contextInputs.keySet()) {
-                ids[i] = id;
-                i++;
+                ids[i++] = id;
             }
             Map<String, MetaPropConfiguration> configurationMap = metaPropertiesService.getByIds(ids);
             for (Map.Entry<String, String> contextInputEntry : contextInputs.entrySet()) {
