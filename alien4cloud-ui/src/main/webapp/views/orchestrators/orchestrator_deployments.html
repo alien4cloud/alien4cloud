@@ -1,5 +1,5 @@
 <div>
-<!--   <h1>Orchestrator deployments</h1> -->
+<!--   <h1>Deployments</h1> -->
 <!--   TODO list: -->
 <!--   <ul> -->
 <!--     <li>View/Search the deployments of the orchestrator</li> -->
@@ -8,13 +8,9 @@
 <!--     <li>Allow redirecting to the application deployment runtime view to see the actual events /status for the deployment</li> -->
 <!--   </ul> -->
   
-  <div class=col-md-6 id="deployments-div">
-    <fieldset>
-      <legend>
-        <h4><i class="fa fa-cloud-upload"></i> {{'CLOUDS.DEPLOYMENTS' | translate}}</h4>
-      </legend>
-      <div class="table-responsive topology-level">
-        <table class="table table-condensed">
+  <div class=col-md-12 id="deployments-div">
+      <div class="table-responsive large-data-container">
+        <table class="table"  >
           <thead>
             <tr>
               <th>{{'CLOUDS.DEPLOYMENT_SOURCE' | translate}}</th>
@@ -33,7 +29,7 @@
                 {{deploymentDTO.deployment.sourceType | translate}}
               </td>
               <td>
-                <span ng-if="deploymentDTO.deployment.locationIds" ng-repeat="locationId in deploymentDTO.deployment.locationIds"> {{locationId}}</span>
+                <span ng-if="deploymentDTO.deployment.locationIds" ng-repeat="locationId in deploymentDTO.deployment.locationIds"> {{deploymentDTO.locations[locationId].name}}</span>
                 <span ng-if="!deploymentDTO.deployment.locationIds">---</span>
               </td>
               <td>
@@ -46,7 +42,6 @@
           </tbody>
         </table>
       </div>
-    </fieldset>
   </div>
   
 </div>

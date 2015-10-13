@@ -3,11 +3,14 @@ package alien4cloud.rest.deployment;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
@@ -31,6 +34,8 @@ import alien4cloud.deployment.UndeployService;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentSourceType;
 import alien4cloud.model.deployment.IDeploymentSource;
+import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
@@ -40,6 +45,7 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.Authorization;
@@ -60,6 +66,8 @@ public class DeploymentController {
     private DeploymentRuntimeStateService deploymentRuntimeStateService;
     @Inject
     private UndeployService undeployService;
+    @Inject
+    private LocationService locationService;
 
     /**
      * Get all deployments for a cloud, including if asked some details of the related applications.
@@ -120,17 +128,51 @@ public class DeploymentController {
                     }
                 }
             }
+
+            Map<String, Location> locationsSummariesMap = getRelatedLocationsSummaries(deployments);
             for (Object object : deployments) {
                 Deployment deployment = (Deployment) object;
                 IDeploymentSource source = sources.get(deployment.getSourceId());
                 if (source == null) {
                     source = new DeploymentSourceDTO(deployment.getSourceId(), deployment.getSourceName());
                 }
-                DeploymentDTO dto = new DeploymentDTO(deployment, source);
+                List<Location> locationsSummaries = getLocations(deployment.getLocationIds(), locationsSummariesMap);
+
+                DeploymentDTO dto = new DeploymentDTO(deployment, source, locationsSummaries);
                 dtos.add(dto);
             }
         }
         return dtos;
+    }
+
+    private Map<String, Location> getRelatedLocationsSummaries(Object[] deployments) {
+        Set<String> locationIds = Sets.newHashSet();
+        for (Object object : deployments) {
+            Deployment deployment = (Deployment) object;
+            if (ArrayUtils.isNotEmpty(deployment.getLocationIds())) {
+                locationIds.addAll(Sets.newHashSet(deployment.getLocationIds()));
+            }
+        }
+        Map<String, Location> locations = null;
+        if (!locationIds.isEmpty()) {
+            locations = locationService.findByIdsIfAuthorized(FetchContext.SUMMARY, locationIds.toArray(new String[0]));
+        }
+
+        return locations != null ? locations : Maps.<String, Location> newHashMap();
+    }
+
+    private List<Location> getLocations(String[] locationIds, Map<String, Location> locationSummaries) {
+        if (MapUtils.isEmpty(locationSummaries) || ArrayUtils.isEmpty(locationIds)) {
+            return null;
+        }
+        List<Location> locations = Lists.newArrayList();
+        for (String id : locationIds) {
+            if (locationSummaries.containsKey(id)) {
+                locations.add(locationSummaries.get(id));
+            }
+        }
+
+        return locations;
     }
 
     private String[] getSourceIdsFromDeployments(Object[] deployments) {

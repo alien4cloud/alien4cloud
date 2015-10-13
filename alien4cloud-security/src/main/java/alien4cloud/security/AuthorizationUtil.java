@@ -64,7 +64,7 @@ public final class AuthorizationUtil {
      * @param expectedRoles
      */
     public static void checkAuthorizationForLocation(ISecuredResource resource, IResourceRoles... expectedRoles) {
-        if (!hasAuthorizationForCloud(resource, expectedRoles)) {
+        if (!hasAuthorizationForLocation(resource, expectedRoles)) {
             throw new AccessDeniedException("user <" + SecurityContextHolder.getContext().getAuthentication().getName()
                     + "> has no authorization to perform the requested operation on this cloud.");
         }
@@ -87,7 +87,7 @@ public final class AuthorizationUtil {
         return hasAuthorization(getCurrentUser(), resource, ApplicationRole.APPLICATION_MANAGER, expectedRoles);
     }
 
-    public static boolean hasAuthorizationForCloud(ISecuredResource resource, IResourceRoles... expectedRoles) {
+    public static boolean hasAuthorizationForLocation(ISecuredResource resource, IResourceRoles... expectedRoles) {
         return hasAuthorization(getCurrentUser(), resource, CloudRole.CLOUD_DEPLOYER, expectedRoles);
     }
 

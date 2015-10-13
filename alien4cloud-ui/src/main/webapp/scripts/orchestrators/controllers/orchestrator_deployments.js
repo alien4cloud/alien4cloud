@@ -30,8 +30,20 @@ define(function (require) {
         orchestratorId: $scope.orchestrator.id,
         includeSourceSummary: true
       }, function(result) {
+        processDeployments(result.data);
         $scope.deployments = result.data;
       });
+      
+      function processDeployments(deployments){
+        if (_.defined(deployments)){
+          _.each(deployments, function(deploymentDTO){
+            if(_.defined(deploymentDTO.locations)){
+              deploymentDTO.locations = _.indexBy(deploymentDTO.locations, 'id');
+            }
+          });
+        }
+      };
+    
     }
   ]); // controller
 }); // define
