@@ -1,10 +1,52 @@
 <div>
-  <h1>Orchestrator deployments</h1>
-  TODO list:
-  <ul>
-    <li>View/Search the deployments of the orchestrator</li>
-    <li>Allow filtering (per application/locations etc.)</li>
-    <li>Display status of the deployments</li>
-    <li>Allow redirecting to the application deployment runtime view to see the actual events /status for the deployment</li>
-  </ul>
+<!--   <h1>Orchestrator deployments</h1> -->
+<!--   TODO list: -->
+<!--   <ul> -->
+<!--     <li>View/Search the deployments of the orchestrator</li> -->
+<!--     <li>Allow filtering (per application/locations etc.)</li> -->
+<!--     <li>Display status of the deployments</li> -->
+<!--     <li>Allow redirecting to the application deployment runtime view to see the actual events /status for the deployment</li> -->
+<!--   </ul> -->
+  
+  <div class=col-md-6 id="deployments-div">
+    <fieldset>
+      <legend>
+        <h4><i class="fa fa-cloud-upload"></i> {{'CLOUDS.DEPLOYMENTS' | translate}}</h4>
+      </legend>
+      <div class="table-responsive topology-level">
+        <table class="table table-condensed">
+          <thead>
+            <tr>
+              <th>{{'CLOUDS.DEPLOYMENT_SOURCE' | translate}}</th>
+              <th>{{'CLOUDS.DEPLOYMENT_TYPE' | translate}}</th>
+              <th>{{'ORCHESTRATORS.NAV.LOCATIONS' | translate}}</th>
+              <th>{{'START_DATE' | translate}}</th>
+              <th>{{'END_DATE' | translate}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="deploymentDTO in deployments" name="app_{{deploymentDTO.source.name}}">
+              <td>
+                {{deploymentDTO.source.name}}
+              </td>
+              <td>
+                {{deploymentDTO.deployment.sourceType | translate}}
+              </td>
+              <td>
+                <span ng-if="deploymentDTO.deployment.locationIds" ng-repeat="locationId in deploymentDTO.deployment.locationIds"> {{locationId}}</span>
+                <span ng-if="!deploymentDTO.deployment.locationIds">---</span>
+              </td>
+              <td>
+                {{deploymentDTO.deployment.startDate | date:'medium'}}
+              </td>
+              <td>
+                {{deploymentDTO.deployment.endDate | date:'medium' || '---'}}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </fieldset>
+  </div>
+  
 </div>

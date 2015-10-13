@@ -5,6 +5,8 @@ define(function (require) {
   var states = require('states');
   var angular = require('angular');
   var _ = require('lodash');
+  
+  require('scripts/deployment/services/deployment_services');
 
   states.state('admin.orchestrators.details.deployments', {
     url: '/deployments',
@@ -20,8 +22,16 @@ define(function (require) {
   });
 
   modules.get('a4c-orchestrators').controller('OrchestratorDeploymentsCtrl',
-    ['$scope', '$modal', '$state',
-    function($scope, $modal, $state) {
+    ['$scope', '$modal', '$state', 'deploymentServices', 'orchestrator',
+    function($scope, $modal, $state, deploymentServices, orchestrator) {
+      $scope.orchestrator = orchestrator;
+      //get all deployments for this cloud
+      deploymentServices.get({
+        orchestratorId: $scope.orchestrator.id,
+        includeSourceSummary: true
+      }, function(result) {
+        $scope.deployments = result.data;
+      });
     }
   ]); // controller
 }); // define
