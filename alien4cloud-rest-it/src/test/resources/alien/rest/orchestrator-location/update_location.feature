@@ -31,3 +31,7 @@ Scenario: Update a location's name with existing name should fail
     And Response should contains 2 location
     And Response should contains a location with name "Thark location"
     And Response should contains a location with name "Zodanga location"
+    
+Scenario: Update a location's environment type
+  When I update environment type to "DEVELOPMENT" of the location "Thark location" of the orchestrator "Mount doom orchestrator"
+    Then I should receive a RestResponse with no error
