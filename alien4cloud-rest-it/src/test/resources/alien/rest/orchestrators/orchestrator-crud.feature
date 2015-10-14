@@ -1,4 +1,4 @@
-Feature: Plugin management
+Feature: Orchestrator management
 
 # Login and make sure that we upload a plugin first
 Background:
@@ -33,16 +33,7 @@ Scenario: Delete an orchestrator
 
 Scenario: Delete an enabled orchestrator should fail
   When I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
-    Then I should receive a RestResponse with no error
   When I enable the orchestrator "Mount doom orchestrator"
     Then I should receive a RestResponse with no error
-  When I list orchestrators
-    Then I should receive a RestResponse with no error
-    And Response should contains an orchestrator with name "Mount doom orchestrator"
-    And Response should contains an orchestrator with state enabled "true"
   When I delete an orchestrator with name "Mount doom orchestrator"
     Then I should receive a RestResponse with an error code 370
-  When I list orchestrators
-    Then I should receive a RestResponse with no error
-    And Response should contains an orchestrator with name "Mount doom orchestrator"
-    And Response should contains an orchestrator with state enabled "true"

@@ -20,10 +20,6 @@ Scenario: Enable an orchestrator should work
 Scenario: Enable an orchestrator that is already enabled should not fail
   When I enable the orchestrator "Mount doom orchestrator"
     Then I should receive a RestResponse with no error
-  When I list orchestrators
-    Then I should receive a RestResponse with no error
-    And Response should contains an orchestrator with name "Mount doom orchestrator"
-    And Response should contains an orchestrator with state enabled "true"
   When I enable the orchestrator "Mount doom orchestrator"
     Then I should receive a RestResponse with no error
     
