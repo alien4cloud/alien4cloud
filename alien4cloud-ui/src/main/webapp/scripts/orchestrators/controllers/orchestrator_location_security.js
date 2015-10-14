@@ -95,7 +95,7 @@ define(function (require) {
         if (!locationUserRoles || locationUserRoles.indexOf(role) < 0) {
           locationSecurityService.userRoles.addUserRole([], {
             orchestratorId: $scope.orchestrator.id,
-            locationId: $scope.location.id,
+            locationId: $scope.location.location.id,
             username: user.username,
             role: role
           }, function() {
@@ -107,7 +107,7 @@ define(function (require) {
         } else {
           locationSecurityService.userRoles.removeUserRole([], {
             orchestratorId: $scope.orchestrator.id,
-            locationId: $scope.location.id,
+            locationId: $scope.location.location.id,
             username: user.username,
             role: role
           }, function() {
@@ -124,7 +124,7 @@ define(function (require) {
         if (!locationGroupRoles || locationGroupRoles.indexOf(role) < 0) {
           locationSecurityService.groupRoles.addGroupRole([], {
             orchestratorId: $scope.orchestrator.id,
-            locationId: $scope.location.id,
+            locationId: $scope.location.location.id,
             groupId: group.id,
             role: role
           }, function() {
@@ -136,7 +136,7 @@ define(function (require) {
         } else {
           locationSecurityService.groupRoles.removeGroupRole([], {
             orchestratorId: $scope.orchestrator.id,
-            locationId: $scope.location.id,
+            locationId: $scope.location.location.id,
             groupId: group.id,
             role: role
           }, function() {
