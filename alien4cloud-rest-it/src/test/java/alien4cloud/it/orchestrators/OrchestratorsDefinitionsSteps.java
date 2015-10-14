@@ -54,14 +54,25 @@ public class OrchestratorsDefinitionsSteps {
     @When("^I delete an orchestrator with name \"([^\"]*)\"$")
     public void I_delete_an_orchestrator_with_name(String orchestratorName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
-        // TODO:
-        Context.getRestClientInstance().delete("");
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/orchestrators/" + orchestratorId));
     }
 
     @Given("^I enable the orchestrator \"([^\"]*)\"$")
     public void I_enable_the_orchestrator(String orchestratorName) throws IOException {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/orchestrators/" + orchestratorId + "/instance", "{}"));
+    }
+
+    @When("^I disable \"([^\"]*)\"$")
+    public void I_disable(String orchestratorName) throws Throwable {
+        String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/orchestrators/" + orchestratorId + "/instance"));
+    }
+
+    @When("^I update orchestrator name from \"([^\"]*)\" to \"([^\"]*)\"$")
+    public void I_update_orchestrator_name_from_to(String oldName, String newName) throws Throwable {
+        String orchestratorId = Context.getInstance().getOrchestratorId(oldName);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().putJSon("/rest/orchestrators/" + orchestratorId, newName));
     }
 
 }
