@@ -43,6 +43,22 @@ define(function (require) {
           });
         }
       };
+      
+      //Go to runtime view for a deployment
+      $scope.goToRuntimeView = function(deployment){
+        console.log('here for', deployment.endDate)
+        if(_.defined(deployment.endDate)){
+          // do nothing as the deployment is ended already
+          return;
+        }
+        
+        $state.go('applications.detail.runtime', {
+          id:deployment.sourceId,
+          selectedEnvironmentId: deployment.environmentId
+        });
+        
+        
+      };
     
     }
   ]); // controller

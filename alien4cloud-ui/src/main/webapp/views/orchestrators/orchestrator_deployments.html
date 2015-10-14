@@ -21,7 +21,9 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="deploymentDTO in deployments" name="app_{{deploymentDTO.source.name}}">
+            <tr ng-repeat="deploymentDTO in deployments" name="app_{{deploymentDTO.source.name}}"
+              ng-class="{'clickable': !deploymentDTO.deployment.endDate }"
+              ng-click="!deploymentDTO.deployment.endDate && goToRuntimeView(deploymentDTO.deployment)">
               <td>
                 {{deploymentDTO.source.name}}
               </td>
