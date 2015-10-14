@@ -34,10 +34,10 @@ define(function (require) {
       });
 
       $scope.relatedUsers = {};
-      if ($scope.location.userRoles) {
+      if ($scope.context.location.userRoles) {
         var usernames = [];
-        for (var username in $scope.location.userRoles) {
-          if ($scope.location.userRoles.hasOwnProperty(username)) {
+        for (var username in $scope.context.location.userRoles) {
+          if ($scope.context.location.userRoles.hasOwnProperty(username)) {
             usernames.push(username);
           }
         }
@@ -52,10 +52,10 @@ define(function (require) {
       }
 
       $scope.relatedGroups = {};
-      if ($scope.location.groupRoles) {
+      if ($scope.context.location.groupRoles) {
         var groupIds = [];
-        for (var groupId in $scope.location.groupRoles) {
-          if ($scope.location.groupRoles.hasOwnProperty(groupId)) {
+        for (var groupId in $scope.context.location.groupRoles) {
+          if ($scope.context.location.groupRoles.hasOwnProperty(groupId)) {
             groupIds.push(groupId);
           }
         }
@@ -88,18 +88,18 @@ define(function (require) {
 
       // Handle location security action
       $scope.handleRoleSelectionForUser = function(user, role) {
-        if (_.undefined($scope.location.userRoles)) {
-          $scope.location.userRoles = {};
+        if (_.undefined($scope.context.location.userRoles)) {
+          $scope.context.location.userRoles = {};
         }
-        var locationUserRoles = $scope.location.userRoles[user.username];
+        var locationUserRoles = $scope.context.location.userRoles[user.username];
         if (!locationUserRoles || locationUserRoles.indexOf(role) < 0) {
           locationSecurityService.userRoles.addUserRole([], {
             orchestratorId: $scope.orchestrator.id,
-            locationId: $scope.location.location.id,
+            locationId: $scope.context.location.id,
             username: user.username,
             role: role
           }, function() {
-            $scope.location.userRoles[user.username] = updateRoles(locationUserRoles, role, 'add');
+            $scope.context.location.userRoles[user.username] = updateRoles(locationUserRoles, role, 'add');
             if (!$scope.relatedUsers[user.username]) {
               $scope.relatedUsers[user.username] = user;
             }
@@ -107,28 +107,28 @@ define(function (require) {
         } else {
           locationSecurityService.userRoles.removeUserRole([], {
             orchestratorId: $scope.orchestrator.id,
-            locationId: $scope.location.location.id,
+            locationId: $scope.context.location.id,
             username: user.username,
             role: role
           }, function() {
-            $scope.location.userRoles[user.username] = updateRoles(locationUserRoles, role, 'remove');
+            $scope.context.location.userRoles[user.username] = updateRoles(locationUserRoles, role, 'remove');
           });
         }
       };
 
       $scope.handleRoleSelectionForGroup = function(group, role) {
-        if (_.undefined($scope.location.groupRoles)) {
-          $scope.location.groupRoles = {};
+        if (_.undefined($scope.context.location.groupRoles)) {
+          $scope.context.location.groupRoles = {};
         }
-        var locationGroupRoles = $scope.location.groupRoles[group.id];
+        var locationGroupRoles = $scope.context.location.groupRoles[group.id];
         if (!locationGroupRoles || locationGroupRoles.indexOf(role) < 0) {
           locationSecurityService.groupRoles.addGroupRole([], {
             orchestratorId: $scope.orchestrator.id,
-            locationId: $scope.location.location.id,
+            locationId: $scope.context.location.id,
             groupId: group.id,
             role: role
           }, function() {
-            $scope.location.groupRoles[group.id] = updateRoles(locationGroupRoles, role, 'add');
+            $scope.context.location.groupRoles[group.id] = updateRoles(locationGroupRoles, role, 'add');
             if (!$scope.relatedGroups[group.id]) {
               $scope.relatedGroups[group.id] = group;
             }
@@ -136,25 +136,25 @@ define(function (require) {
         } else {
           locationSecurityService.groupRoles.removeGroupRole([], {
             orchestratorId: $scope.orchestrator.id,
-            locationId: $scope.location.location.id,
+            locationId: $scope.context.location.id,
             groupId: group.id,
             role: role
           }, function() {
-            $scope.location.groupRoles[group.id] = updateRoles(locationGroupRoles, role, 'remove');
+            $scope.context.location.groupRoles[group.id] = updateRoles(locationGroupRoles, role, 'remove');
           });
         }
       };
 
       $scope.checklocationRoleSelectedForUser = function(user, role) {
-        if ($scope.location && $scope.location.userRoles && $scope.location.userRoles[user.username]) {
-          return $scope.location.userRoles[user.username].indexOf(role) > -1;
+        if ($scope.context.location && $scope.context.location.userRoles && $scope.context.location.userRoles[user.username]) {
+          return $scope.context.location.userRoles[user.username].indexOf(role) > -1;
         }
         return false;
       };
 
       $scope.checklocationRoleSelectedForGroup = function(group, role) {
-        if ($scope.location && $scope.location.groupRoles && $scope.location.groupRoles[group.id]) {
-          return $scope.location.groupRoles[group.id].indexOf(role) > -1;
+        if ($scope.context.location && $scope.context.location.groupRoles && $scope.context.location.groupRoles[group.id]) {
+          return $scope.context.location.groupRoles[group.id].indexOf(role) > -1;
         }
         return false;
       };
