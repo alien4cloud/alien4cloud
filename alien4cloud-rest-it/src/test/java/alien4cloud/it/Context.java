@@ -156,7 +156,7 @@ public class Context {
 
     private Map<String, String> csarGitInfos;
 
-    private Map<String, String> cloudInfos;
+    private Map<String, String> orchestratorIds;
 
     private String topologyCloudInfos;
 
@@ -450,25 +450,25 @@ public class Context {
         spelEvaluationContext = new StandardEvaluationContext(object);
     }
 
-    public void registerCloud(String cloudId, String cloudName) {
-        if (cloudInfos != null) {
-            cloudInfos.put(cloudName, cloudId);
+    public void registerOrchestrator(String orchestratorId, String orchestratorName) {
+        if (orchestratorIds != null) {
+            orchestratorIds.put(orchestratorName, orchestratorId);
             return;
         }
-        cloudInfos = MapUtil.newHashMap(new String[] { cloudName }, new String[] { cloudId });
+        orchestratorIds = MapUtil.newHashMap(new String[] { orchestratorName }, new String[] { orchestratorId });
     }
 
-    public void unregisterCloud(String cloudName) {
-        cloudInfos.remove(cloudName);
+    public void unregisterOrchestrator(String orchestratorName) {
+        orchestratorIds.remove(orchestratorName);
     }
 
-    public String getCloudId(String cloudName) {
-        return cloudInfos.get(cloudName);
+    public String getOrchestratorId(String orchestratorName) {
+        return orchestratorIds.get(orchestratorName);
     }
 
     public Collection<String> getCloudsIds() {
-        if (cloudInfos != null) {
-            return cloudInfos.values();
+        if (orchestratorIds != null) {
+            return orchestratorIds.values();
         } else {
             return Lists.newArrayList();
         }
@@ -608,4 +608,11 @@ public class Context {
     public String getCloudify2ManagerUrl() {
         return "https://" + getManagementServerPublicIp("openstack.cfy2.manager_name") + ":8100";
     }
+
+    @Deprecated
+    public String getCloudId(String appEnvCloudName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

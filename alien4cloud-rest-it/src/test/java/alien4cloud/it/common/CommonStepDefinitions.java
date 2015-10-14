@@ -24,6 +24,7 @@ import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
+import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.plugin.Plugin;
@@ -50,6 +51,7 @@ public class CommonStepDefinitions {
         indicesToClean.add(DeploymentTopology.class.getSimpleName().toLowerCase());
         indicesToClean.add(ElasticSearchDAO.TOSCA_ELEMENT_INDEX);
         indicesToClean.add(Application.class.getSimpleName().toLowerCase());
+        indicesToClean.add(Orchestrator.class.getSimpleName().toLowerCase());
         indicesToClean.add(Csar.class.getSimpleName().toLowerCase());
         indicesToClean.add(Topology.class.getSimpleName().toLowerCase());
         indicesToClean.add(TopologyTemplate.class.getSimpleName().toLowerCase());
