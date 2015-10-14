@@ -49,10 +49,10 @@ define(function(require) {
         // get all locations (no need for paginations as we never expect a huge number of locations for an orchestrator)
         function updateLocations() {
           locationService.get({orchestratorId: orchestrator.id}, function(result) {
-            $scope.locations = result.data;
-            if ($scope.locations.length > 0 && _.isUndefined($scope.location)) {
+            $scope.locationsDTOs = result.data;
+            if ($scope.locationsDTOs.length > 0 && _.isUndefined($scope.locationDTO)) {
               // For the moment show only first location
-              $scope.selectLocation($scope.locations[0]);
+              $scope.selectLocation($scope.locationsDTOs[0]);
               $state.go('admin.orchestrators.details.locations.config');
             }
           });
@@ -64,8 +64,8 @@ define(function(require) {
 
         $scope.selectLocation = function(location) {
           locationResourcesProcessor.processLocationResources(location.resources);
-          $scope.location = location;
-          $scope.context.location = $scope.location.location;
+          $scope.locationDTO = location;
+          $scope.context.location = $scope.locationDTO.location;
           $scope.context.locationResources = location.resources;
           $scope.context.configurationTypes = _.values(location.resources.configurationTypes);
           $scope.context.nodeTypes = _.values(location.resources.nodeTypes);
@@ -74,15 +74,15 @@ define(function(require) {
         $scope.deleteLocation = function(location){
           locationService.delete({orchestratorId: orchestrator.id, locationId: location.location.id}, null, function(result){
             if(result.data == true){
-              delete $scope.location;
+              delete $scope.locationDTO;
               updateLocations();
             }
           });
         }
         
         $scope.updateLocation = function(request) {
-          if (request.name !== $scope.location.location.name || request.environmentType !== $scope.location.location.environmentType ) {
-            return locationService.update({orchestratorId: orchestrator.id, locationId: $scope.location.location.id}, angular.toJson(request)).$promise.then( 
+          if (request.name !== $scope.locationDTO.location.name || request.environmentType !== $scope.locationDTO.location.environmentType ) {
+            return locationService.update({orchestratorId: orchestrator.id, locationId: $scope.locationDTO.location.id}, angular.toJson(request)).$promise.then( 
               function() { // Success
               },
               function(errorResponse) {
