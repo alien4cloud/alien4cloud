@@ -2,7 +2,7 @@
   <div class="row" style="margin-top: 10px">
     <!--  Required Implementation tasks  -->
     <div class="col-md-6" ng-if="(tasks = deploymentContext.deploymentTopologyDTO.validation.taskList['IMPLEMENT']).length>0">
-      <div class="col-md-6 task-list-box">
+      <div class="task-list-box">
         <h4 class="topology-node-expand clickable" ng-init="isToImplementNodesCollapsed = false"
             ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed">
           <i class="fa" ng-class="{'fa-chevron-down' : !isToImplementNodesCollapsed, 'fa-chevron-right': isToImplementNodesCollapsed}"></i>
