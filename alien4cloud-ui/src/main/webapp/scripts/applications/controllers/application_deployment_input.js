@@ -17,8 +17,8 @@ define(function(require) {
       icon: 'fa fa-sign-in',
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'], // is deployer,
       priority: 300,
-      nextStepId: 'am.applications.detail.deployment.deploy',
       step: {
+        nextStepId: 'am.applications.detail.deployment.deploy',
         taskCodes: ['INPUT_PROPERTY', 'ORCHESTRATOR_PROPERTY']
       }
     }
@@ -31,7 +31,7 @@ define(function(require) {
         $scope.isAllowedInputDeployment = function() {
           return !_.isEmpty($filter('allowedInputs')($scope.deploymentContext.deploymentTopologyDTO.topology.inputs));
         };
-        
+
         /* Handle properties inputs */
         $scope.updateInputValue = function(definition, inputValue, inputId) {
           // No update if it's the same value
@@ -88,7 +88,7 @@ define(function(require) {
         };
 
         $scope.refreshOrchestratorDeploymentPropertyDefinitions = function() {
-          return $http.get('rest/orchestrators/' + $scope.deploymentContext.selectedLocation.orchestratorId + '/deployment-property-definitions').success(function(result) {
+          return $http.get('rest/orchestrators/' + $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId + '/deployment-property-definitions').success(function(result) {
             if (result.data) {
               $scope.deploymentContext.orchestratorDeploymentPropertyDefinitions = result.data;
             }
@@ -106,7 +106,7 @@ define(function(require) {
           };
 
           return applicationServices.checkProperty({
-            orchestratorId: $scope.deploymentContext.selectedLocation.orchestratorId
+            orchestratorId: $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId
           }, angular.toJson(deploymentPropertyObject), function(data) {
             if (data.error === null) {
               $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyName] = propertyValue;
