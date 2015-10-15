@@ -29,6 +29,7 @@ define(function(require) {
       id: 'am.applications.detail.deployment.match',
       state: 'applications.detail.deployment.match',
       key: 'APPLICATIONS.DEPLOYMENT.MATCHING',
+      icon: 'fa fa-exchange',
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'],
       priority: 200,
       nextStepId: 'am.applications.detail.deployment.input',

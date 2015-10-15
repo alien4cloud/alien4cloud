@@ -14,9 +14,10 @@ define(function(require) {
       id: 'am.applications.detail.deployment.input',
       state: 'applications.detail.deployment.input',
       key: 'APPLICATIONS.DEPLOYMENT.INPUT',
-//      icon: 'fa fa-cloud-upload',
+      icon: 'fa fa-sign-in',
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'], // is deployer,
       priority: 300,
+      nextStepId: 'am.applications.detail.deployment.deploy',
       step: {
         taskCodes: ['INPUT_PROPERTY', 'ORCHESTRATOR_PROPERTY']
       }

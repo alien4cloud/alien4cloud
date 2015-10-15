@@ -20,29 +20,6 @@
       <h4 style="display:inline; padding-left:5px; vertical-align:middle;">{{'APPLICATIONS.' + deploymentContext.selectedEnvironment.status | translate}}</h4>
     </div>
   </div>
-  <div class="row" style="margin-top: 10px;">
-    <div class="col-md-12">
-      <!-- DEPLOY BUTTON -->
-      <button id="btn-deploy"
-              type="button"
-              class="btn btn-success application-deploy-button"
-              ng-disabled="!deploymentContext.deploymentTopologyDTO.validation.valid || isDeploying"
-              ng-click="deploy()"
-              ng-show="deploymentContext.selectedEnvironment.status === 'UNDEPLOYED'">
-        <i class="fa" ng-class="{'fa-play': !isDeploying, 'fa-spinner fa-spin': isDeploying}"></i> {{'APPLICATIONS.DEPLOY' | translate}}
-      </button>
-      <button id="btn-undeploy"
-              type="button"
-              class="btn btn-danger application-deploy-button"
-              ng-click="undeploy()"
-              ng-if="(deploymentContext.selectedEnvironment.status === 'DEPLOYED' ||
-                      deploymentContext.selectedEnvironment.status === 'WARNING' ||
-                      deploymentContext.selectedEnvironment.status === 'DEPLOYMENT_IN_PROGRESS' ||
-                      deploymentContext.selectedEnvironment.status === 'FAILURE')">
-        <i class="fa" ng-class="{'fa-stop': !isUnDeploying, 'fa-spinner fa-spin': isUnDeploying}"></i> {{'APPLICATIONS.UNDEPLOY' | translate}}
-      </button>
-    </div>
-  </div>
   <!--  Task list -->
   <div class="row" ng-if="showTodoList()">
     <!--       <div class="row"> -->
