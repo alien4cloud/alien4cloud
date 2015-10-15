@@ -5,8 +5,8 @@ define(function(require) {
   var _ = require('lodash');
 
   modules.get('a4c-orchestrators', ['pascalprecht.translate']).controller('OrchestratorLocationResourceTemplateCtrl', [
-    '$scope',
-    function($scope) {
+    '$scope', '$translate',
+    function($scope, $translate) {
       $scope.getCapabilityPropertyDefinition = function(capabilityTypeId, capabilityPropertyName) {
         var capabilityType = $scope.resourceCapabilityTypes[capabilityTypeId];
         return capabilityType.propertiesMap[capabilityPropertyName].value;
@@ -24,12 +24,13 @@ define(function(require) {
       };
 
       function processResponsePromise(promise, callback) {
-        if (!_.isEmpty(promise) && !_.isEmpty(promise.then)) {
-          promise.then(function(response) {
-            callback(response);
+        if (!_.isEmpty(promise) && promise.hasOwnProperty('then')) {
+          return promise.then(function(response) {
+             callback(response);
+             return response;
           });
         } else {
-          callback();
+           callback();
         }
       }
 
@@ -49,11 +50,15 @@ define(function(require) {
           propertyName: propertyName,
           propertyValue: propertyValue
         });
-        processResponsePromise(updatePromise, function(response) {
-          $scope.resourceTemplate.template.capabilitiesMap[capabilityName].value.propertiesMap[propertyName].value = {
-            value: propertyValue,
-            definition: false
-          };
+        return processResponsePromise(updatePromise, function(response) {
+          if (_.undefined(response.error)) {
+            $scope.resourceTemplate.template.capabilitiesMap[capabilityName].value.propertiesMap[propertyName].value = {
+              value: propertyValue,
+              definition: false
+            };
+          } else {
+            console.log(response.error.message);
+          }
         });
       };
     }]);

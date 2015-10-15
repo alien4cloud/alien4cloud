@@ -228,7 +228,7 @@ public class DeploymentTopologyService {
     }
 
     public void updateSubstitutionCapabilityProperty(DeploymentTopology deploymentTopology, String nodeId, String capabilityName, String propertyName,
-            Object propertyValue) {
+            Object propertyValue) throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         LocationResourceTemplate substitution = getSubstitution(deploymentTopology, nodeId);
         NodeTemplate substituted = deploymentTopology.getNodeTemplates().get(nodeId);
         locationResourceService.setTemplateCapabilityProperty(substitution, capabilityName, propertyName, propertyValue);

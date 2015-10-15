@@ -77,6 +77,13 @@ public class OrchestratorController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> delete(@ApiParam(value = "Id of the orchestrators to delete.", required = true) @PathVariable @Valid @NotEmpty String id) {
+        Orchestrator orchestrator = orchestratorService.getOrFail(id);
+        if (!orchestrator.getState().equals(OrchestratorState.DISABLED)) {
+            return RestResponseBuilder
+                    .<Void> builder()
+                    .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_STATE_OPERATION).message("An activated orchestrator can not be deleted").build())
+                    .build();
+        }
         orchestratorService.delete(id);
         return RestResponseBuilder.<Void> builder().build();
     }
