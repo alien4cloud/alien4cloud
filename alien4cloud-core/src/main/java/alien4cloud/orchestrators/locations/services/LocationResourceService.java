@@ -36,9 +36,12 @@ import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
 import alien4cloud.utils.ReflectionUtil;
+import alien4cloud.utils.services.ConstraintPropertyService;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -61,6 +64,8 @@ public class LocationResourceService {
     private OrchestratorService orchestratorService;
     @Inject
     private OrchestratorPluginService orchestratorPluginService;
+    @Resource
+    private ConstraintPropertyService constraintPropertyService;
 
     /**
      * Get the list of resources definitions for a given orchestrator.
@@ -258,7 +263,8 @@ public class LocationResourceService {
         PropertyUtil.setPropertyValue(resourceTemplate.getTemplate(), resourceType.getProperties().get(propertyName), propertyName, propertyValue);
     }
 
-    public void setTemplateCapabilityProperty(LocationResourceTemplate resourceTemplate, String capabilityName, String propertyName, Object propertyValue) {
+    public void setTemplateCapabilityProperty(LocationResourceTemplate resourceTemplate, String capabilityName, String propertyName, Object propertyValue)
+            throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
         IndexedNodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, resourceTemplate.getTemplate().getType(),
                 location.getDependencies());
@@ -282,11 +288,13 @@ public class LocationResourceService {
         if (propertyDefinition == null) {
             throw new NotFoundException("Capability <" + capabilityName + "> is not found in type <" + resourceType.getElementId() + ">");
         }
+        constraintPropertyService.checkSimplePropertyConstraint(propertyName, (String) propertyValue, propertyDefinition);
         Capability capability = resourceTemplate.getTemplate().getCapabilities().get(capabilityName);
         PropertyUtil.setCapabilityPropertyValue(capability, propertyDefinition, propertyName, propertyValue);
     }
 
-    public void setTemplateCapabilityProperty(String resourceId, String capabilityName, String propertyName, Object propertyValue) {
+    public void setTemplateCapabilityProperty(String resourceId, String capabilityName, String propertyName, Object propertyValue)
+            throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
         setTemplateCapabilityProperty(resourceTemplate, capabilityName, propertyName, propertyValue);
         alienDAO.save(resourceTemplate);

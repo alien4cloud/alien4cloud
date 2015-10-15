@@ -9,13 +9,11 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationVersionService;
@@ -41,8 +39,13 @@ import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.DeployerRole;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.ReflectionUtil;
-import lombok.extern.slf4j.Slf4j;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Manages the deployment topology handling.
@@ -226,7 +229,7 @@ public class DeploymentTopologyService {
     }
 
     public void updateSubstitutionCapabilityProperty(DeploymentTopology deploymentTopology, String nodeId, String capabilityName, String propertyName,
-                                                     Object propertyValue) {
+            Object propertyValue) throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         LocationResourceTemplate substitution = getSubstitution(deploymentTopology, nodeId);
         NodeTemplate substituted = deploymentTopology.getNodeTemplates().get(nodeId);
         locationResourceService.setTemplateCapabilityProperty(substitution, capabilityName, propertyName, propertyValue);
