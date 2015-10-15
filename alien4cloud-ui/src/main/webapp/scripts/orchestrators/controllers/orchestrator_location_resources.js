@@ -14,9 +14,17 @@ define(function(require) {
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorLocationResourcesTemplateCtrl',
     ['$scope', 'locationResourcesService', 'locationResourcesPropertyService', 'locationResourcesCapabilityPropertyService', 'locationResourcesProcessor', 'nodeTemplateService',
       function($scope, locationResourcesService, locationResourcesPropertyService, locationResourcesCapabilityPropertyService, locationResourcesProcessor, nodeTemplateService) {
-        if (_.isNotEmpty($scope.resourcesTypes)) {
-          $scope.selectedConfigurationResourceType = $scope.resourcesTypes[0];
-        }
+        
+        var init = function(){
+          if (_.isNotEmpty($scope.resourcesTypes)) {
+            $scope.selectedConfigurationResourceType = $scope.resourcesTypes[0];
+          }
+        };
+        
+        $scope.$watch('resourcesTypes', function(){
+          init();
+        });
+        
         $scope.addResourceTemplate = function() {
           locationResourcesService.save({
             orchestratorId: $scope.context.orchestrator.id,
