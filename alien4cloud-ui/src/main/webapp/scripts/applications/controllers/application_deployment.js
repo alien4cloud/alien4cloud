@@ -6,19 +6,22 @@ define(function(require) {
   var _ = require('lodash');
   var angular = require('angular');
 
+  require('scripts/common/filters/inputs');
+  
   require('scripts/applications/services/application_services');
   require('scripts/applications/services/application_environment_services');
   require('scripts/applications/services/application_version_services');
+  require('scripts/applications/services/deployment_topology_processor.js');
+  require('scripts/applications/services/tasks_processor.js');
 
   require('scripts/applications/controllers/application_deployment_locations');
   require('scripts/applications/controllers/application_deployment_match');
   require('scripts/applications/controllers/application_deployment_input');
-  require('scripts/applications/services/deployment_topology_processor.js');
-  require('scripts/applications/services/tasks_processor.js');
+  require('scripts/applications/controllers/application_deployment_deploy');
+  
 
   require('scripts/deployment/directives/display_outputs');
   require('scripts/applications/directives/topology_errors_display');
-  require('scripts/common/filters/inputs');
   
   var globalConfTaskCodes = ['SCALABLE_CAPABILITY_INVALID', 'PROPERTIES'];
 

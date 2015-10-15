@@ -109,6 +109,7 @@ public class TestDataRegistry {
         addConditionFolder("topology-groups-unknown-member", "src/test/resources/data/csars/topology_template/topology-groups-unknown-member");
 
         addConditionFolder("tosca-normative-types", GIT_ARTIFACTS_PATH + "tosca-normative-types");
+        addConditionFolder("tosca-normative-types-wd06", GIT_ARTIFACTS_PATH + "tosca-normative-types-wd06");
         addConditionFolder("alien-base-types", GIT_ARTIFACTS_PATH + "alien4cloud-extended-types/alien-base-types-1.0-SNAPSHOT");
         addConditionFolder("alien-extended-storage-types", GIT_ARTIFACTS_PATH + "alien4cloud-extended-types/alien-extended-storage-types-1.0-SNAPSHOT");
         addConditionFolder("samples tomcat-war", GIT_ARTIFACTS_PATH + "samples/tomcat-war");

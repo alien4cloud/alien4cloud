@@ -91,7 +91,8 @@ public class OrchestratorStateService {
     /**
      * Enable an orchestrator.
      *
-     * @param orchestrator The orchestrator to enable.
+     * @param orchestrator
+     *            The orchestrator to enable.
      */
     public synchronized void enable(Orchestrator orchestrator) throws PluginConfigurationException {
         if (orchestrator.getState().equals(OrchestratorState.DISABLED)) {
@@ -105,7 +106,8 @@ public class OrchestratorStateService {
     /**
      * Load and connect the given orchestrator.
      *
-     * @param orchestrator the orchestrator to load and connect.
+     * @param orchestrator
+     *            the orchestrator to load and connect.
      */
     private void load(Orchestrator orchestrator) throws PluginConfigurationException {
         log.info("Loading and connecting orchestrator {} (id: {})", orchestrator.getName(), orchestrator.getId());
@@ -138,20 +140,23 @@ public class OrchestratorStateService {
             // trigger locations auto-configurations
             locationService.autoConfigure(orchestrator, (ILocationAutoConfigurer) orchestratorInstance);
         }
-
     }
 
     /**
      * Disable an orchestrator.
      *
-     * @param orchestrator The orchestrator to disable.
-     * @param force        If true the orchestrator is disabled even if some deployments are currently running.
+     * @param orchestrator
+     *            The orchestrator to disable.
+     * @param force
+     *            If true the orchestrator is disabled even if some deployments are currently running.
      */
     public synchronized boolean disable(Orchestrator orchestrator, boolean force) {
         if (force == false) {
             QueryHelper.SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper
-                    .buildSearchQuery(alienDAO.getIndexForType(Deployment.class)).types(Deployment.class).filters(MapUtil
-                            .newHashMap(new String[]{"cloudId", "endDate"}, new String[][]{new String[]{orchestrator.getId()}, new String[]{null}}))
+                    .buildSearchQuery(alienDAO.getIndexForType(Deployment.class))
+                    .types(Deployment.class)
+                    .filters(MapUtil
+                            .newHashMap(new String[] { "cloudId", "endDate" }, new String[][] { new String[] { orchestrator.getId() }, new String[] { null } }))
                     .fieldSort("_timestamp", true);
             // If there is at least one active deployment.
             GetMultipleDataResult<Object> result = alienDAO.search(searchQueryHelperBuilder, 0, 1);

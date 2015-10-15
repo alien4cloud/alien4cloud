@@ -8,28 +8,25 @@ import lombok.ToString;
 import org.elasticsearch.annotation.ESObject;
 
 /**
- * Audit event related to an instance of a blockStorage node in a runtime topology.
+ * This event allows the PaaS Provider to update the deployment topology of an application so that persistent resources created at deployment time will be
  */
 @Getter
 @Setter
 @ESObject
 @NoArgsConstructor
 @ToString(callSuper = true)
-@SuppressWarnings("PMD.UnusedPrivateField")
-public class PaaSInstanceStorageMonitorEvent extends PaaSInstanceStateMonitorEvent {
+public class PaaSInstancePersistentResourceMonitorEvent extends PaaSInstanceStateMonitorEvent {
     /** The volumeId created / related to this instance **/
-    private String volumeId;
+    private String propertyValue;
+    private String propertyName;
 
-    /** Indicates if the storage is deletable */
-    private boolean isDeletable;
-
-    public PaaSInstanceStorageMonitorEvent(String volumeId, boolean isDeletable) {
+    public PaaSInstancePersistentResourceMonitorEvent(String propertyName, String propertyValue) {
         super();
-        this.volumeId = volumeId;
-        this.isDeletable = isDeletable;
+        this.propertyName = propertyName;
+        this.propertyValue = propertyValue;
     }
 
-    public PaaSInstanceStorageMonitorEvent(PaaSInstanceStateMonitorEvent instanceStateMonitorEvent, String volumeId, boolean isDeletable) {
+    public PaaSInstancePersistentResourceMonitorEvent(PaaSInstanceStateMonitorEvent instanceStateMonitorEvent, String propertyName, String propertyValue) {
         super();
         setAttributes(instanceStateMonitorEvent.getAttributes());
         setRuntimeProperties(instanceStateMonitorEvent.getRuntimeProperties());
@@ -40,7 +37,7 @@ public class PaaSInstanceStorageMonitorEvent extends PaaSInstanceStateMonitorEve
         setCloudId(instanceStateMonitorEvent.getCloudId());
         setDate(instanceStateMonitorEvent.getDate());
         setDeploymentId(instanceStateMonitorEvent.getDeploymentId());
-        setVolumeId(volumeId);
-        setDeletable(isDeletable);
+        this.propertyName = propertyName;
+        this.propertyValue = propertyValue;
     }
 }

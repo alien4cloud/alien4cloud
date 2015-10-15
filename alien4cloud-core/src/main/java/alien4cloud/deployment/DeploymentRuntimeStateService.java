@@ -23,7 +23,7 @@ import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
+import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.utils.MapUtil;
@@ -47,6 +47,8 @@ public class DeploymentRuntimeStateService {
     private OrchestratorPluginService orchestratorPluginService;
     @Inject
     private DeploymentContextService deploymentContextService;
+    @Inject
+    private DeploymentTopologyService deploymentTopologyService;
 
     /**
      * Get the deployed (runtime) topology of an application from the environment id
@@ -130,7 +132,8 @@ public class DeploymentRuntimeStateService {
             return;
         }
         DeploymentTopology runtimeTopology = alienMonitorDao.findById(DeploymentTopology.class, deployment.getId());
-        PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(deployment, runtimeTopology);
+        PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(deployment,
+                deploymentTopologyService.getLocations(runtimeTopology), runtimeTopology);
         IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
         orchestratorPlugin.getInstancesInformation(deploymentContext, callback);
     }
@@ -148,7 +151,7 @@ public class DeploymentRuntimeStateService {
         String index = alienMonitorDao.getIndexForType(AbstractMonitorEvent.class);
         QueryHelper.SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper.buildSearchQuery(index)
                 .types(PaaSDeploymentStatusMonitorEvent.class, PaaSInstanceStateMonitorEvent.class, PaaSMessageMonitorEvent.class,
-                        PaaSInstanceStorageMonitorEvent.class)
+                        PaaSInstancePersistentResourceMonitorEvent.class)
                 .filters(MapUtil.newHashMap(new String[] { "deploymentId" }, new String[][] { new String[] { deployment.getId() } }))
                 .fieldSort("_timestamp", true);
         return alienMonitorDao.search(searchQueryHelperBuilder, from, size);

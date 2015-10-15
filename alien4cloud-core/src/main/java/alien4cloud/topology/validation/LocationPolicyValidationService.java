@@ -22,7 +22,7 @@ public class LocationPolicyValidationService {
     public List<LocationPolicyTask> validateLocationPolicies(DeploymentTopology deploymentTopology) {
         List<LocationPolicyTask> tasks = null;
         try {
-            TopologyLocationUtils.getLocationIdOrFail(deploymentTopology);
+            TopologyLocationUtils.getLocationIdsOrFail(deploymentTopology);
         } catch (LocationRequiredException e) {
             // TODO change this later, as now we only support one location policy
             LocationPolicyTask task = new LocationPolicyTask(AlienConstants.GROUP_ALL);
