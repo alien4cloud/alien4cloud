@@ -8,7 +8,6 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.model.orchestrators.ArtifactSupport;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.FilterBuilder;
@@ -19,6 +18,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.orchestrators.ArtifactSupport;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorConfiguration;
 import alien4cloud.model.orchestrators.OrchestratorState;
@@ -82,6 +82,9 @@ public class OrchestratorService {
      */
     public void updateName(String id, String name) {
         Orchestrator orchestrator = getOrFail(id);
+        if (orchestrator.getName().equals(name)) {
+            return;
+        }
         orchestrator.setName(name);
         ensureNameUnicityAndSave(orchestrator);
     }

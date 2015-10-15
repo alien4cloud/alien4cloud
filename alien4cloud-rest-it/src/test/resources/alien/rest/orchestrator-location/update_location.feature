@@ -2,7 +2,7 @@ Feature: Update location
 
 Background:
   Given I am authenticated with "ADMIN" role
-  And I upload the archive "tosca-normative-types 1.0.0.wd06-SNAPSHOT"
+  And I upload the archive "tosca-normative-types-wd06"
   And I upload a plugin
   And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
   And I enable the orchestrator "Mount doom orchestrator"
@@ -18,9 +18,9 @@ Scenario: Update an location's name
 Scenario: Update a location's name with same name should not fail (just ignored)
   When I update location name from "Thark location" to "Thark location" of the orchestrator "Mount doom orchestrator"
     Then I should receive a RestResponse with no error
-  When I list location of the orchestrator "Mount doom orchestrator"
+  When I list locations of the orchestrator "Mount doom orchestrator"
   Then I should receive a RestResponse with no error
-    And Response should contains an location with name "Thark location"
+    And Response should contains a location with name "Thark location"
 
 Scenario: Update a location's name with existing name should fail
   When I create a location named "Zodanga location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"

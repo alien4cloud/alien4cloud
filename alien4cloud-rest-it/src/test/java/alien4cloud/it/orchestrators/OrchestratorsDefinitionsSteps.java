@@ -7,6 +7,7 @@ import org.junit.Assert;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.model.orchestrators.Orchestrator;
+import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.orchestrator.model.CreateOrchestratorRequest;
 import alien4cloud.rest.utils.JsonUtil;
@@ -73,6 +74,20 @@ public class OrchestratorsDefinitionsSteps {
     public void I_update_orchestrator_name_from_to(String oldName, String newName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(oldName);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().putJSon("/rest/orchestrators/" + orchestratorId, newName));
+    }
+
+    @When("^I get the orchestrator named \"([^\"]*)\"$")
+    public void I_get_the_orchestrator_named(String orchestratorName) throws Throwable {
+        String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/orchestrators/" + orchestratorId));
+    }
+
+    @Then("^Response should contains the orchestrator with name \"([^\"]*)\" and state enabled \"([^\"]*)\"$")
+    public void Response_should_contains_the_orchestrator_with_name_and_state_enabled(String orchestratorName, String isStateEnabled) throws Throwable {
+        RestResponse<Orchestrator> orchestratorResponse = JsonUtil.read(Context.getInstance().getRestResponse(), Orchestrator.class);
+        Assert.assertNotNull(orchestratorResponse.getData());
+        Assert.assertEquals(orchestratorName, orchestratorResponse.getData().getName());
+        Assert.assertEquals(Boolean.valueOf(isStateEnabled), orchestratorResponse.getData().getState() == OrchestratorState.CONNECTED);
     }
 
 }

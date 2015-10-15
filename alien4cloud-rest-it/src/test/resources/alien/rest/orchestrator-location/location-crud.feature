@@ -2,7 +2,7 @@ Feature: Location management
 
 Background:
   Given I am authenticated with "ADMIN" role
-  And I upload the archive "tosca-normative-types 1.0.0.wd06-SNAPSHOT"
+  And I upload the archive "tosca-normative-types-wd06"
   And I upload a plugin
   And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
   And I enable the orchestrator "Mount doom orchestrator"
@@ -23,7 +23,7 @@ Scenario: Create a location with existing name should fail
 Scenario: Delete a location
   When I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
     Then I should receive a RestResponse with no error
-  When I delete a location with name "Mount doom orchestrator" to the orchestrator "Mount doom orchestrator"
+  When I delete a location with name "Thark location" to the orchestrator "Mount doom orchestrator"
     Then I should receive a RestResponse with no error  
   When I list locations of the orchestrator "Mount doom orchestrator"
     Then I should receive a RestResponse with no error

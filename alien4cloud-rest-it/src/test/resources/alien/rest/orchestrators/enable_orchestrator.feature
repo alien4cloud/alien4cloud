@@ -6,33 +6,29 @@ Background:
   And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
 
 Scenario: Enable an orchestrator should work
-  When I list orchestrators
+  When I get the orchestrator named "Mount doom orchestrator"
     Then I should receive a RestResponse with no error
-    And Response should contains an orchestrator with name "Mount doom orchestrator"
-    And Response should contains an orchestrator with state enabled "false"
+    And Response should contains the orchestrator with name "Mount doom orchestrator" and state enabled "false"
   When I enable the orchestrator "Mount doom orchestrator"
     Then I should receive a RestResponse with no error
-  When I list orchestrators
+  When I get the orchestrator named "Mount doom orchestrator"
     Then I should receive a RestResponse with no error
-    And Response should contains an orchestrator with name "Mount doom orchestrator"
-    And Response should contains an orchestrator with state enabled "true"
+    And Response should contains the orchestrator with name "Mount doom orchestrator" and state enabled "true"
 
-Scenario: Enable an orchestrator that is already enabled should not fail
+Scenario: Enable an orchestrator that is already enabled should fail
   When I enable the orchestrator "Mount doom orchestrator"
     Then I should receive a RestResponse with no error
   When I enable the orchestrator "Mount doom orchestrator"
-    Then I should receive a RestResponse with no error
+    Then I should receive a RestResponse with an error code 502
     
-Scenario: Disabled an enabled orchestrator should not fail
+Scenario: Disable an enabled orchestrator should not fail
   When I enable the orchestrator "Mount doom orchestrator"
     Then I should receive a RestResponse with no error
-  When I list orchestrators
+  When I get the orchestrator named "Mount doom orchestrator"
     Then I should receive a RestResponse with no error
-    And Response should contains an orchestrator with name "Mount doom orchestrator"
-    And Response should contains an orchestrator with state enabled "true"
+    And Response should contains the orchestrator with name "Mount doom orchestrator" and state enabled "true"
   When I disable "Mount doom orchestrator"
     Then I should receive a RestResponse with no error
-  When I list orchestrators
+  When I get the orchestrator named "Mount doom orchestrator"
     Then I should receive a RestResponse with no error
-    And Response should contains an orchestrator with name "Mount doom orchestrator"
-    And Response should contains an orchestrator with state enabled "false"
+    And Response should contains the orchestrator with name "Mount doom orchestrator" and state enabled "false"

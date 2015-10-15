@@ -36,4 +36,4 @@ Scenario: Delete an enabled orchestrator should fail
   When I enable the orchestrator "Mount doom orchestrator"
     Then I should receive a RestResponse with no error
   When I delete an orchestrator with name "Mount doom orchestrator"
-    Then I should receive a RestResponse with an error code 370
+    Then I should receive a RestResponse with an error code 505
