@@ -25,8 +25,8 @@ define(function(require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentSetupCtrl',
-    ['$scope', 'authService', '$upload', 'applicationServices', 'toscaService', '$resource', '$http', '$translate', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'toaster', '$filter', 'menu', 'deploymentTopologyServices',
-      function($scope, authService, $upload, applicationServices, toscaService, $resource, $http, $translate, applicationResult, $state, applicationEnvironmentServices, appEnvironments, toaster, $filter, menu, deploymentTopologyServices) {
+    ['$scope', '$upload', 'applicationServices', '$http', '$filter', 'deploymentTopologyServices',
+      function($scope, $upload, applicationServices, $http, $filter, deploymentTopologyServices) {
 
         $scope.isAllowedInputDeployment = function() {
           return !_.isEmpty($filter('allowedInputs')($scope.deploymentContext.deploymentTopologyDTO.topology.inputs));
