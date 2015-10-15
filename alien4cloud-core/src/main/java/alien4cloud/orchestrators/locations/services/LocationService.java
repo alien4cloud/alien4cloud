@@ -194,6 +194,21 @@ public class LocationService {
     }
 
     /**
+     * Get multiple locations from list of ids
+     * 
+     * @param ids ids of location to get
+     * @return map of id to location
+     */
+    public Map<String, Location> getMultiple(Collection<String> ids) {
+        List<Location> locations = alienDAO.findByIds(Location.class, ids.toArray(new String[ids.size()]));
+        Map<String, Location> locationMap = Maps.newHashMap();
+        for (Location location : locations) {
+            locationMap.put(location.getId(), location);
+        }
+        return locationMap;
+    }
+
+    /**
      * Return all locations for a given orchestrator.
      *
      * @param orchestratorId The id of the orchestrator for which to get locations.

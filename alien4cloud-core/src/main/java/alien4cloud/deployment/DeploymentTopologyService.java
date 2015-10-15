@@ -9,19 +9,18 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.TopologyCompositionService;
 import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
 import alien4cloud.deployment.model.DeploymentConfiguration;
 import alien4cloud.deployment.model.DeploymentSubstitutionConfiguration;
 import alien4cloud.exception.NotFoundException;
@@ -42,7 +41,10 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.DeployerRole;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.ReflectionUtil;
-import lombok.extern.slf4j.Slf4j;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Manages the deployment topology handling.
@@ -155,7 +157,7 @@ public class DeploymentTopologyService {
     }
 
     private DeploymentTopology generateDeploymentTopology(String id, ApplicationEnvironment environment, Topology topology,
-                                                          DeploymentTopology deploymentTopology) {
+            DeploymentTopology deploymentTopology) {
         deploymentTopology.setVersionId(environment.getCurrentVersionId());
         deploymentTopology.setEnvironmentId(environment.getId());
         deploymentTopology.setInitialTopologyId(topology.getId());
@@ -219,14 +221,14 @@ public class DeploymentTopologyService {
         NodeTemplate substituted = deploymentTopology.getNodeTemplates().get(nodeId);
         locationResourceService.setTemplateProperty(substitution, propertyName, propertyValue);
         if (substituted.getProperties() == null) {
-            substituted.setProperties(Maps.<String, AbstractPropertyValue>newHashMap());
+            substituted.setProperties(Maps.<String, AbstractPropertyValue> newHashMap());
         }
         substituted.getProperties().put(propertyName, substitution.getTemplate().getProperties().get(propertyName));
         updateDeploymentTopologyInputsAndSave(deploymentTopology);
     }
 
     public void updateSubstitutionCapabilityProperty(DeploymentTopology deploymentTopology, String nodeId, String capabilityName, String propertyName,
-                                                     Object propertyValue) {
+            Object propertyValue) {
         LocationResourceTemplate substitution = getSubstitution(deploymentTopology, nodeId);
         NodeTemplate substituted = deploymentTopology.getNodeTemplates().get(nodeId);
         locationResourceService.setTemplateCapabilityProperty(substitution, capabilityName, propertyName, propertyValue);
@@ -246,7 +248,7 @@ public class DeploymentTopologyService {
     /**
      * Set the location policies of a deployment
      *
-     * @param environmentId     the environment's id
+     * @param environmentId the environment's id
      * @param groupsToLocations group to location mapping
      * @return the updated deployment topology
      */
@@ -264,6 +266,35 @@ public class DeploymentTopologyService {
     }
 
     /**
+     * Get location map from the deployment topology
+     * 
+     * @param deploymentTopology the deploymentTopology
+     * @return map of location group id to location
+     */
+    public Map<String, Location> getLocations(DeploymentTopology deploymentTopology) {
+        Map<String, String> locationIds = TopologyLocationUtils.getLocationIdsOrFail(deploymentTopology);
+        return getLocations(locationIds);
+    }
+
+    /**
+     * Get location map from the deployment topology
+     *
+     * @param locationIds map of group id to location id
+     * @return map of location group id to location
+     */
+    public Map<String, Location> getLocations(Map<String, String> locationIds) {
+        Map<String, Location> locations = locationService.getMultiple(locationIds.values());
+        Map<String, Location> locationMap = Maps.newHashMap();
+        for (Map.Entry<String, String> locationIdsEntry : locationIds.entrySet()) {
+            locationMap.put(locationIdsEntry.getKey(), locations.get(locationIdsEntry.getValue()));
+        }
+        if (locations.size() < locationIds.size()) {
+            throw new NotFoundException("Some locations could not be found " + locationIds);
+        }
+        return locationMap;
+    }
+
+    /**
      * Get or create if not yet existing the {@link DeploymentTopology}
      *
      * @param environmentId environment's id
@@ -278,7 +309,7 @@ public class DeploymentTopologyService {
     /**
      * Add location policies in the deploymentTopology
      *
-     * @param deploymentTopology     the deployment topology
+     * @param deploymentTopology the deployment topology
      * @param groupsLocationsMapping the mapping group name to location policy
      */
     private void addLocationPolicies(DeploymentTopology deploymentTopology, Map<String, String> groupsLocationsMapping) {
@@ -306,7 +337,7 @@ public class DeploymentTopologyService {
             Map<String, NodeGroup> groups = deploymentTopology.getLocationGroups();
             NodeGroup group = new NodeGroup();
             group.setName(groupName);
-            group.setPolicies(Lists.<AbstractPolicy>newArrayList());
+            group.setPolicies(Lists.<AbstractPolicy> newArrayList());
             group.getPolicies().add(locationPolicy);
             groups.put(groupName, group);
         }
