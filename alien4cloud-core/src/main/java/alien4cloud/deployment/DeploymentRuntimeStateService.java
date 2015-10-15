@@ -47,6 +47,8 @@ public class DeploymentRuntimeStateService {
     private OrchestratorPluginService orchestratorPluginService;
     @Inject
     private DeploymentContextService deploymentContextService;
+    @Inject
+    private DeploymentTopologyService deploymentTopologyService;
 
     /**
      * Get the deployed (runtime) topology of an application from the environment id
@@ -130,7 +132,8 @@ public class DeploymentRuntimeStateService {
             return;
         }
         DeploymentTopology runtimeTopology = alienMonitorDao.findById(DeploymentTopology.class, deployment.getId());
-        PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(deployment, runtimeTopology);
+        PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(deployment,
+                deploymentTopologyService.getLocations(runtimeTopology), runtimeTopology);
         IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
         orchestratorPlugin.getInstancesInformation(deploymentContext, callback);
     }

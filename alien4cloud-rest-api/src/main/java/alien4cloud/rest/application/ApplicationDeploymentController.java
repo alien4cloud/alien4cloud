@@ -7,6 +7,8 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,23 +19,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import com.google.common.collect.Maps;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
-import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeployService;
 import alien4cloud.deployment.DeploymentRuntimeService;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.DeploymentTopologyService;
-import alien4cloud.deployment.DeploymentTopologyValidationService;
 import alien4cloud.deployment.UndeployService;
-import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
 import alien4cloud.deployment.model.DeploymentConfiguration;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
@@ -42,7 +36,6 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
@@ -59,32 +52,25 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.DeployerRole;
-import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyValidationResult;
-import lombok.extern.slf4j.Slf4j;
+
+import com.google.common.collect.Maps;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
 
 @Slf4j
 @RestController
 @RequestMapping("/rest/applications")
 @Api(value = "", description = "Manage opertions on deployed application.")
 public class ApplicationDeploymentController {
-
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
     @Resource
     private ApplicationService applicationService;
     @Resource
-    private ApplicationVersionService applicationVersionService;
-    @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
-    @Resource
-    private TopologyServiceCore topologyServiceCore;
     @Resource
     private DeploymentService deploymentService;
     @Inject
     private DeployService deployService;
-    @Inject
-    private LocationService locationService;
     @Inject
     private DeploymentTopologyService deploymentTopologyService;
     @Inject
@@ -93,8 +79,6 @@ public class ApplicationDeploymentController {
     private DeploymentRuntimeStateService deploymentRuntimeStateService;
     @Inject
     private DeploymentRuntimeService deploymentRuntimeService;
-    @Inject
-    private DeploymentTopologyValidationService deploymentTopologyValidationService;
 
     /**
      * Trigger deployment of the application on the current configured PaaS.
@@ -129,19 +113,20 @@ public class ApplicationDeploymentController {
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
         // Check authorization on the location
         // get the target locations of the deployment topology
-        String locationId = TopologyLocationUtils.getLocationIdOrFail(deploymentTopology);
-        Location location = locationService.getOrFail(locationId);
-        AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.DEPLOYER);
+        Map<String, Location> locationMap = deploymentTopologyService.getLocations(deploymentTopology);
+        for (Location location : locationMap.values()) {
+            AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.DEPLOYER);
+        }
 
         // prepare the deployment
         TopologyValidationResult validation = deployService.prepareForDeployment(deploymentTopology);
 
         // if not valid, then return validation errors
         if (!validation.isValid()) {
-            return RestResponseBuilder
-                    .<TopologyValidationResult>builder()
+            return RestResponseBuilder.<TopologyValidationResult> builder()
                     .error(new RestError(RestErrorCode.INVALID_DEPLOYMENT_TOPOLOGY.getCode(), "The deployment topology for the application <"
-                            + application.getName() + "> on the environment <" + environment.getName() + "> is not valid.")).data(validation).build();
+                            + application.getName() + "> on the environment <" + environment.getName() + "> is not valid."))
+                    .data(validation).build();
         }
 
         // process with the deployment
@@ -151,7 +136,7 @@ public class ApplicationDeploymentController {
         // new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), "Cloud with id <" + environment.getCloudId() + "> is disabled or not found"))
         // .build();
 
-        return RestResponseBuilder.<Void>builder().build();
+        return RestResponseBuilder.<Void> builder().build();
     }
 
     /**
@@ -173,9 +158,9 @@ public class ApplicationDeploymentController {
         try {
             undeployService.undeployEnvironment(applicationEnvironmentId);
         } catch (OrchestratorDisabledException e) {
-            return RestResponseBuilder.<Void>builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
         }
-        return RestResponseBuilder.<Void>builder().build();
+        return RestResponseBuilder.<Void> builder().build();
     }
 
     /**
@@ -197,7 +182,7 @@ public class ApplicationDeploymentController {
                     ApplicationEnvironmentRole.APPLICATION_USER);
         }
         Deployment deployment = deploymentService.getActiveDeployment(environment.getId());
-        return RestResponseBuilder.<Deployment>builder().data(deployment).build();
+        return RestResponseBuilder.<Deployment> builder().data(deployment).build();
     }
 
     @ApiOperation(value = "Get the deployment status for the environements that the current user is allowed to see for a given application.", notes = "Returns the current status of an application list from the PaaS it is deployed on for all environments.")
@@ -225,7 +210,7 @@ public class ApplicationDeploymentController {
             }
             statuses.put(applicationId, environmentStatuses);
         }
-        return RestResponseBuilder.<Map<String, Map<String, EnvironmentStatusDTO>>>builder().data(statuses).build();
+        return RestResponseBuilder.<Map<String, Map<String, EnvironmentStatusDTO>>> builder().data(statuses).build();
     }
 
     /**
@@ -238,7 +223,7 @@ public class ApplicationDeploymentController {
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment/informations", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public DeferredResult<RestResponse<Map<String, Map<String, InstanceInformation>>>> getInstanceInformation(@PathVariable String applicationId,
-                                                                                                              @PathVariable String applicationEnvironmentId) {
+            @PathVariable String applicationEnvironmentId) {
         Application application = applicationService.checkAndGetApplication(applicationId);
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
@@ -248,13 +233,13 @@ public class ApplicationDeploymentController {
         Deployment deployment = applicationEnvironmentService.getActiveDeployment(environment.getId());
         final DeferredResult<RestResponse<Map<String, Map<String, InstanceInformation>>>> instancesDeferredResult = new DeferredResult<>(5L * 60L * 1000L);
         if (deployment == null) { // if there is no topology associated with the version it could not have been deployed.
-            instancesDeferredResult.setResult(RestResponseBuilder.<Map<String, Map<String, InstanceInformation>>>builder().build());
+            instancesDeferredResult.setResult(RestResponseBuilder.<Map<String, Map<String, InstanceInformation>>> builder().build());
         } else {
             try {
                 deploymentRuntimeStateService.getInstancesInformation(deployment, new IPaaSCallback<Map<String, Map<String, InstanceInformation>>>() {
                     @Override
                     public void onSuccess(Map<String, Map<String, InstanceInformation>> data) {
-                        instancesDeferredResult.setResult(RestResponseBuilder.<Map<String, Map<String, InstanceInformation>>>builder().data(data).build());
+                        instancesDeferredResult.setResult(RestResponseBuilder.<Map<String, Map<String, InstanceInformation>>> builder().data(data).build());
                     }
 
                     @Override
@@ -264,7 +249,7 @@ public class ApplicationDeploymentController {
                 });
             } catch (OrchestratorDisabledException e) {
                 log.error("Cannot get instance informations as topology plugin cannot be found.", e);
-                instancesDeferredResult.setResult(RestResponseBuilder.<Map<String, Map<String, InstanceInformation>>>builder().build());
+                instancesDeferredResult.setResult(RestResponseBuilder.<Map<String, Map<String, InstanceInformation>>> builder().build());
             }
         }
         return instancesDeferredResult;
@@ -278,11 +263,11 @@ public class ApplicationDeploymentController {
         try {
             deploymentRuntimeService.switchMaintenanceMode(environment.getId(), true);
         } catch (OrchestratorDisabledException e) {
-            return RestResponseBuilder.<Void>builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
         } catch (MaintenanceModeException e) {
-            return RestResponseBuilder.<Void>builder().error(new RestError(RestErrorCode.MAINTENANCE_MODE_ERROR.getCode(), e.getMessage())).build();
+            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.MAINTENANCE_MODE_ERROR.getCode(), e.getMessage())).build();
         }
-        return RestResponseBuilder.<Void>builder().build();
+        return RestResponseBuilder.<Void> builder().build();
     }
 
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment/maintenance", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -293,43 +278,43 @@ public class ApplicationDeploymentController {
         try {
             deploymentRuntimeService.switchMaintenanceMode(environment.getId(), false);
         } catch (OrchestratorDisabledException e) {
-            return RestResponseBuilder.<Void>builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
         } catch (MaintenanceModeException e) {
-            return RestResponseBuilder.<Void>builder().error(new RestError(RestErrorCode.MAINTENANCE_MODE_ERROR.getCode(), e.getMessage())).build();
+            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.MAINTENANCE_MODE_ERROR.getCode(), e.getMessage())).build();
         }
-        return RestResponseBuilder.<Void>builder().build();
+        return RestResponseBuilder.<Void> builder().build();
     }
 
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment/{nodeTemplateId}/{instanceId}/maintenance", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Void> switchInstanceMaintenanceModeOn(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
-                                                              @PathVariable String nodeTemplateId, @PathVariable String instanceId) {
+            @PathVariable String nodeTemplateId, @PathVariable String instanceId) {
         ApplicationEnvironment environment = getAppEnvironmentAndCheckAuthorization(applicationId, applicationEnvironmentId);
         try {
             deploymentRuntimeService.switchInstanceMaintenanceMode(environment.getId(), nodeTemplateId, instanceId, true);
         } catch (OrchestratorDisabledException e) {
-            return RestResponseBuilder.<Void>builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
         } catch (MaintenanceModeException e) {
-            return RestResponseBuilder.<Void>builder().error(new RestError(RestErrorCode.MAINTENANCE_MODE_ERROR.getCode(), e.getMessage())).build();
+            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.MAINTENANCE_MODE_ERROR.getCode(), e.getMessage())).build();
         }
-        return RestResponseBuilder.<Void>builder().build();
+        return RestResponseBuilder.<Void> builder().build();
     }
 
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment/{nodeTemplateId}/{instanceId}/maintenance", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Void> switchInstanceMaintenanceModeOff(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
-                                                               @PathVariable String nodeTemplateId, @PathVariable String instanceId) {
+            @PathVariable String nodeTemplateId, @PathVariable String instanceId) {
         ApplicationEnvironment environment = getAppEnvironmentAndCheckAuthorization(applicationId, applicationEnvironmentId);
         try {
             deploymentRuntimeService.switchInstanceMaintenanceMode(environment.getId(), nodeTemplateId, instanceId, false);
         } catch (OrchestratorDisabledException e) {
-            return RestResponseBuilder.<Void>builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
         } catch (MaintenanceModeException e) {
-            return RestResponseBuilder.<Void>builder().error(new RestError(RestErrorCode.MAINTENANCE_MODE_ERROR.getCode(), e.getMessage())).build();
+            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.MAINTENANCE_MODE_ERROR.getCode(), e.getMessage())).build();
         }
-        return RestResponseBuilder.<Void>builder().build();
+        return RestResponseBuilder.<Void> builder().build();
     }
 
     private ApplicationEnvironment getAppEnvironmentAndCheckAuthorization(String applicationId, String applicationEnvironmentId) {
@@ -346,9 +331,9 @@ public class ApplicationDeploymentController {
     /**
      * Scale an application on a particular node.
      *
-     * @param applicationId  The id of the application to be scaled.
+     * @param applicationId The id of the application to be scaled.
      * @param nodeTemplateId The id of the node template to be scaled.
-     * @param instances      The instances number to be scaled up (if > 0)/ down (if < 0)
+     * @param instances The instances number to be scaled up (if > 0)/ down (if < 0)
      * @return A {@link RestResponse} that contains the application's current {@link DeploymentStatus}.
      */
     @ApiOperation(value = "Scale the application on a particular node.", notes = "Returns the detailed informations of the application on the PaaS it is deployed."
@@ -357,7 +342,7 @@ public class ApplicationDeploymentController {
     @PreAuthorize("isAuthenticated()")
     @Audit
     public DeferredResult<RestResponse<Void>> scale(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
-                                                    @PathVariable String nodeTemplateId, @RequestParam int instances) {
+            @PathVariable String nodeTemplateId, @RequestParam int instances) {
         final DeferredResult<RestResponse<Void>> result = new DeferredResult<>(15L * 60L * 1000L);
         ApplicationEnvironment environment = getAppEnvironmentAndCheckAuthorization(applicationId, applicationEnvironmentId);
 
@@ -365,20 +350,20 @@ public class ApplicationDeploymentController {
             deploymentRuntimeService.scale(environment.getId(), nodeTemplateId, instances, new IPaaSCallback<Object>() {
                 @Override
                 public void onSuccess(Object data) {
-                    result.setResult(RestResponseBuilder.<Void>builder().build());
+                    result.setResult(RestResponseBuilder.<Void> builder().build());
                 }
 
                 @Override
                 public void onFailure(Throwable e) {
-                    result.setErrorResult(RestResponseBuilder.<Void>builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage()))
-                            .build());
+                    result.setErrorResult(
+                            RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage())).build());
                 }
             });
         } catch (OrchestratorDisabledException e) {
-            result.setErrorResult(RestResponseBuilder.<Void>builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage()))
-                    .build());
+            result.setErrorResult(
+                    RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build());
         } catch (PaaSDeploymentException e) {
-            result.setErrorResult(RestResponseBuilder.<Void>builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage())).build());
+            result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage())).build());
         }
 
         return result;

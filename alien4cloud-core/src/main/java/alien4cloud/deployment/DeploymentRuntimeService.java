@@ -41,6 +41,8 @@ public class DeploymentRuntimeService {
     private DeploymentContextService deploymentContextService;
     @Inject
     private DeploymentRuntimeStateService deploymentRuntimeStateService;
+    @Inject
+    private DeploymentTopologyService deploymentTopologyService;
 
     /**
      * Trigger the execution of an operation on a node.
@@ -52,7 +54,8 @@ public class DeploymentRuntimeService {
         Deployment deployment = deploymentService.getActiveDeploymentOrFail(request.getApplicationEnvironmentId());
         DeploymentTopology deploymentTopology = deploymentRuntimeStateService.getRuntimeTopologyFromEnvironment(deployment.getEnvironmentId());
         IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
-        orchestratorPlugin.executeOperation(deploymentContextService.buildTopologyDeploymentContext(deployment, deploymentTopology), request, callback);
+        orchestratorPlugin.executeOperation(deploymentContextService.buildTopologyDeploymentContext(deployment,
+                deploymentTopologyService.getLocations(deploymentTopology), deploymentTopology), request, callback);
     }
 
     /**

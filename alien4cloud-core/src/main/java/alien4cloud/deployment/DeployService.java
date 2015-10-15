@@ -78,23 +78,24 @@ public class DeployService {
      * @return The id of the generated deployment.
      */
     public String deploy(DeploymentTopology deploymentTopology, IDeploymentSource deploymentSource) {
-        String locationId = TopologyLocationUtils.getLocationIdOrFail(deploymentTopology);
-        Location location = locationService.getOrFail(locationId);
+        Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deploymentTopology);
+        Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
+        Location firstLocation = locations.values().iterator().next();
         // FIXME check that all nodes to match are matched
         // FIXME check that all required properties are defined
         // TODO DeploymentSetupValidator.validate doesn't check that inputs linked to required properties are indeed configured.
 
         // Get the orchestrator that will perform the deployment
-        IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(location.getOrchestratorId());
+        IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(firstLocation.getOrchestratorId());
 
         String deploymentTopologyId = deploymentTopology.getId();
 
         // Create a deployment object to be kept in ES.
         Deployment deployment = new Deployment();
         deployment.setId(UUID.randomUUID().toString());
-        deployment.setOrchestratorId(location.getOrchestratorId());
-        deployment.setLocationIds(new String[] { location.getId() });
-        deployment.setOrchestratorDeploymentId(generateOrchestratorDeploymentId(deploymentTopology.getEnvironmentId(), location.getOrchestratorId()));
+        deployment.setOrchestratorId(firstLocation.getOrchestratorId());
+        deployment.setLocationIds(locationIds.values().toArray(new String[locationIds.size()]));
+        deployment.setOrchestratorDeploymentId(generateOrchestratorDeploymentId(deploymentTopology.getEnvironmentId(), firstLocation.getOrchestratorId()));
         deployment.setSourceId(deploymentSource.getId());
         String sourceName;
         if (deploymentSource.getName() == null) {
@@ -117,8 +118,8 @@ public class DeployService {
         // put back the old Id for deployment
         deploymentTopology.setId(deploymentTopologyId);
         // Build the context for deployment and deploy
-        orchestratorPlugin.deploy(deploymentContextService.buildTopologyDeploymentContext(deployment, deploymentTopology), null);
-        log.info("Deployed topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(), location.getId(),
+        orchestratorPlugin.deploy(deploymentContextService.buildTopologyDeploymentContext(deployment, locations, deploymentTopology), null);
+        log.info("Deployed topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(), firstLocation.getId(),
                 deployment.getId());
         return deployment.getId();
     }
@@ -139,8 +140,8 @@ public class DeployService {
         String namePattern = orchestrator.getDeploymentNamePattern();
         ExpressionParser parser = new SpelExpressionParser();
         Expression exp = parser.parseExpression(namePattern);
-        String orchestratorDeploymentId = (String) exp.getValue(new OrchestratorIdContext(env, applicationService.getOrFail(env.getApplicationId()),
-                namePattern.contains("metaProperties[")));
+        String orchestratorDeploymentId = (String) exp
+                .getValue(new OrchestratorIdContext(env, applicationService.getOrFail(env.getApplicationId()), namePattern.contains("metaProperties[")));
         orchestratorDeploymentId = orchestratorDeploymentId.trim().replaceAll(" ", "_");
 
         // ensure that the id is not used by another deployment.

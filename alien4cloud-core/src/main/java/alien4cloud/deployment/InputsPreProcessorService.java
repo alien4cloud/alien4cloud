@@ -8,7 +8,6 @@ import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.application.ApplicationService;
@@ -158,18 +157,19 @@ public class InputsPreProcessorService {
      */
     private Map<String, String> getInputs(DeploymentTopology deploymentTopology, ApplicationEnvironment environment) {
         // initialize a map with input from the deployment setup
-        Map<String, String> inputs = MapUtils.isEmpty(deploymentTopology.getInputProperties()) ? Maps.<String, String> newHashMap() : deploymentTopology
-                .getInputProperties();
+        Map<String, String> inputs = MapUtils.isEmpty(deploymentTopology.getInputProperties()) ? Maps.<String, String> newHashMap()
+                : deploymentTopology.getInputProperties();
 
         // Map id -> value of meta properties from cloud or application.
         Map<String, String> metaPropertiesValuesMap = Maps.newHashMap();
 
-        // TODO Multi location case
-        String locationId = TopologyLocationUtils.getLocationId(deploymentTopology);
-        if (StringUtils.isNotBlank(locationId)) {
-            Location location = locationService.getOrFail(locationId);
-            if (MapUtils.isNotEmpty(location.getMetaProperties())) {
-                metaPropertiesValuesMap.putAll(location.getMetaProperties());
+        Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deploymentTopology);
+        if (MapUtils.isNotEmpty(locationIds)) {
+            Map<String, Location> locations = locationService.getMultiple(locationIds.values());
+            for (Location location : locations.values()) {
+                if (MapUtils.isNotEmpty(location.getMetaProperties())) {
+                    metaPropertiesValuesMap.putAll(location.getMetaProperties());
+                }
             }
         }
 
