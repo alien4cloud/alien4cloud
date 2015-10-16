@@ -15,6 +15,24 @@ import cucumber.api.java.en.When;
 
 public class LocationsDefinitionsSteps {
 
+	public static final String DEFAULT_ORCHESTRATOR_NAME = "Mount doom orchestrator";
+
+    public static final String getLocationIdFromName(final String orchestratorName, final String locationName) throws Throwable {
+        String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
+        String resp = Context.getRestClientInstance().get(String.format("/rest/orchestrators/%s/locations", orchestratorId));
+        RestResponse<List> response = JsonUtil.read(resp, List.class);
+        String locationId = null;
+        for (Object listItem : response.getData()) {
+            Map map = (Map) listItem;
+            String id = ((Map) map.get("location")).get("id").toString();
+            String name = ((Map) map.get("location")).get("name").toString();
+            if (locationName.equals(name)) {
+                locationId = id;
+            }
+        }
+        return locationId;
+    }
+    
     @When("^I create a location named \"([^\"]*)\" and infrastructure type \"([^\"]*)\" to the orchestrator \"([^\"]*)\"$")
     public void I_create_a_location_named_and_infrastructure_type_to_the_orchestrator(String locationName, String infrastructureType, String orchestratorName)
             throws Throwable {
@@ -54,22 +72,6 @@ public class LocationsDefinitionsSteps {
             }
         }
         Assert.assertTrue(contains);
-    }
-
-    private String getLocationIdFromName(String orchestratorName, String locationName) throws Throwable {
-        String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
-        String resp = Context.getRestClientInstance().get(String.format("/rest/orchestrators/%s/locations", orchestratorId));
-        RestResponse<List> response = JsonUtil.read(resp, List.class);
-        String locationId = null;
-        for (Object listItem : response.getData()) {
-            Map map = (Map) listItem;
-            String id = ((Map) map.get("location")).get("id").toString();
-            String name = ((Map) map.get("location")).get("name").toString();
-            if (locationName.equals(name)) {
-                locationId = id;
-            }
-        }
-        return locationId;
     }
 
     @When("^I delete a location with name \"([^\"]*)\" to the orchestrator \"([^\"]*)\"$")

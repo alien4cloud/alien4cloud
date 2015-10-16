@@ -16,31 +16,6 @@ Feature: Manage user's authorizations on an location
     When I remove a role "DEPLOYER" to user "frodon" on the resource type "LOCATION" named "middle_earth"
     Then I should receive a RestResponse with no error
 
-  Scenario: Search / List locations when the user has sufficient right
-    Given I create an orchestrator named "mordor" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
-    And I add a role "DEPLOYER" to user "frodon" on the resource type "LOCATION" named "middle_earth"
-    And I am authenticated with "USER" role
-    When I list locations of the orchestrator "Mount doom orchestrator"
-    And Response should contains 1 location
-    Given I am authenticated with "ADMIN" role
-    When I remove a role "DEPLOYER" to user "frodon" on the resource type "LOCATION" named "middle_earth"
-    Then I should receive a RestResponse with no error
-    Given I am authenticated with "USER" role
-    And I list locations of the orchestrator "Mount doom orchestrator"
-    Then Response should contains 0 location
-    Then I should receive a RestResponse with no error
-    Given I am authenticated with "USER" role
-    When I list locations of the orchestrator "Mount doom orchestrator"
-    Then Response should contains 0 location
-    Given I am authenticated with "ADMIN" role
-    And I add a role "DEPLOYER" to user "frodon" on the resource type "LOCATION" named "mordor"
-    And I add a role "DEPLOYER" to user "frodon" on the resource type "LOCATION" named "middle_earth"
-    Then I should receive a RestResponse with no error
-    Given I am authenticated with "USER" role
-    And I list locations of the orchestrator "Mount doom orchestrator"
-    Then Response should contains 2 location
-    Then I should receive a RestResponse with no error
-
   Scenario: Remove user right on location when i ve no sufficent rights
     Given I add a role "DEPLOYER" to user "frodon" on the resource type "LOCATION" named "middle_earth"
     Then I should receive a RestResponse with no error

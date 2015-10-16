@@ -21,28 +21,6 @@ Feature: Manage group's authorizations on location
     When I remove a role "DEPLOYER" to group "lordOfRing" on the resource type "LOCATION" named "middle_earth"
     Then I should receive a RestResponse with no error
 
-  Scenario: Search / List locations when the user belongs to a group has sufficient right
-    Given I add a role "DEPLOYER" to group "lordOfRing" on the resource type "LOCATION" named "middle_earth"
-    When I am authenticated with "USER" role
-    And I list locations of the orchestrator "Mount doom orchestrator"
-    Then Response should contains 1 location
-    Given I am authenticated with "ADMIN" role
-    When I remove a role "DEPLOYER" to group "lordOfRing" on the resource type "LOCATION" named "middle_earth"
-    Then I should receive a RestResponse with no error
-    Given I am authenticated with "USER" role
-    And I list locations of the orchestrator "Mount doom orchestrator"
-    Then Response should contains 0 location
-    Then I should receive a RestResponse with no error
-    Given I am authenticated with "ADMIN" role
-    And I add a role "DEPLOYER" to group "hobbits" on the resource type "LOCATION" named "middle_earth"
-    And I create an orchestrator named "middle_earth_second" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
-    And I add a role "DEPLOYER" to group "lordOfRing" on the resource type "LOCATION" named "middle_earth_second"
-    Then I should receive a RestResponse with no error
-    Given I am authenticated with "USER" role
-    When I list locations of the orchestrator "Mount doom orchestrator"
-    Then Response should contains 2 location
-    Then I should receive a RestResponse with no error
-
   Scenario: Remove group right on location when i ve no sufficent rights
     Given I add a role "DEPLOYER" to group "lordOfRing" on the resource type "LOCATION" named "middle_earth"
     Then I should receive a RestResponse with no error
