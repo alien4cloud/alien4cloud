@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
+import alien4cloud.utils.TagUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
@@ -186,7 +187,7 @@ public class InputsPreProcessorService {
             }
             prefixAndAddContextInput(inputs, InputsPreProcessorService.APP_META, metaPropertiesValuesMap, true);
 
-            Map<String, String> tags = tagService.tagListToMap(application.getTags());
+            Map<String, String> tags = TagUtil.tagListToMap(application.getTags());
             prefixAndAddContextInput(inputs, InputsPreProcessorService.APP_TAGS, tags, false);
         }
 

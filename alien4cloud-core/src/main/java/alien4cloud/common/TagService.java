@@ -53,19 +53,4 @@ public class TagService {
             alienDAO.save(resource);
         }
     }
-
-    /**
-     * Convert a tag list to a map
-     * 
-     * @param tags
-     * @return
-     */
-    public Map<String, String> tagListToMap(List<Tag> tags) {
-        Map<String, String> tagMap = Maps.newHashMap();
-        for (Tag tag : tags) {
-            tagMap.put(tag.getName(), tag.getValue());
-        }
-        return tagMap;
-    }
-
 }
