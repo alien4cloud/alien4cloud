@@ -46,7 +46,7 @@ public class LocationMetaPropertiesController {
     private MetaPropertiesService metaPropertiesService;
 
     /**
-     * Update or create a property for an cloud
+     * Update or create a property for an orchestrator
      * 
      * @param orchestratorId id of the orchestrator the location belongs to.
      * @param locationId id of the location to update
