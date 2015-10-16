@@ -1,4 +1,4 @@
-package alien4cloud.it.application;
+package alien4cloud.it.application.deployment;
 
 import static org.junit.Assert.*;
 
@@ -23,6 +23,7 @@ import org.elasticsearch.common.collect.Sets;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
+import alien4cloud.it.application.ApplicationStepDefinitions;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.exception.ITException;
 import alien4cloud.it.utils.websocket.IStompDataFuture;
