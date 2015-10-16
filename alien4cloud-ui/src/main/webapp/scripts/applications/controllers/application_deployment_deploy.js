@@ -16,7 +16,6 @@ define(function(require) {
       id: 'am.applications.detail.deployment.deploy',
       state: 'applications.detail.deployment.deploy',
       key: 'APPLICATIONS.DEPLOYMENT.DEPLOY',
-//      icon: 'fa fa-cloud-upload',
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'], // is deployer
       priority: 400
     }
@@ -25,7 +24,6 @@ define(function(require) {
   modules.get('a4c-applications').controller('ApplicationDeploymentTriggerCtrl',
     ['$scope', 'applicationServices', 
       function($scope, applicationServices) {
-        
         // Deployment handler
         $scope.deploy = function() {
           // Application details with deployment properties

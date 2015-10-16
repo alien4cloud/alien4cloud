@@ -269,7 +269,7 @@ public class DeploymentTopologyService {
 
     /**
      * Get location map from the deployment topology
-     * 
+     *
      * @param deploymentTopology the deploymentTopology
      * @return map of location group id to location
      */

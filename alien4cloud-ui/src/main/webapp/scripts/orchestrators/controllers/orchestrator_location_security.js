@@ -33,41 +33,51 @@ define(function (require) {
         $scope.locationRoles = roleResult.data;
       });
 
-      $scope.relatedUsers = {};
-      if ($scope.context.location.userRoles) {
-        var usernames = [];
-        for (var username in $scope.context.location.userRoles) {
-          if ($scope.context.location.userRoles.hasOwnProperty(username)) {
-            usernames.push(username);
+      var refresh = function(){
+        $scope.relatedUsers = {};
+        if ($scope.context.location.userRoles) {
+          var usernames = [];
+          for (var username in $scope.context.location.userRoles) {
+            if ($scope.context.location.userRoles.hasOwnProperty(username)) {
+              usernames.push(username);
+            }
+          }
+          if (usernames.length > 0) {
+            userServices.get([], angular.toJson(usernames), function(usersResults) {
+              var data = usersResults.data;
+              for (var i = 0; i < data.length; i++) {
+                $scope.relatedUsers[data[i].username] = data[i];
+              }
+            });
           }
         }
-        if (usernames.length > 0) {
-          userServices.get([], angular.toJson(usernames), function(usersResults) {
-            var data = usersResults.data;
-            for (var i = 0; i < data.length; i++) {
-              $scope.relatedUsers[data[i].username] = data[i];
+        
+        $scope.relatedGroups = {};
+        if ($scope.context.location.groupRoles) {
+          var groupIds = [];
+          for (var groupId in $scope.context.location.groupRoles) {
+            if ($scope.context.location.groupRoles.hasOwnProperty(groupId)) {
+              groupIds.push(groupId);
             }
-          });
-        }
-      }
-
-      $scope.relatedGroups = {};
-      if ($scope.context.location.groupRoles) {
-        var groupIds = [];
-        for (var groupId in $scope.context.location.groupRoles) {
-          if ($scope.context.location.groupRoles.hasOwnProperty(groupId)) {
-            groupIds.push(groupId);
+          }
+          if (groupIds.length > 0) {
+            groupServices.getMultiple([], angular.toJson(groupIds), function(groupsResults) {
+              var data = groupsResults.data;
+              for (var i = 0; i < data.length; i++) {
+                $scope.relatedGroups[data[i].id] = data[i];
+              }
+            });
           }
         }
-        if (groupIds.length > 0) {
-          groupServices.getMultiple([], angular.toJson(groupIds), function(groupsResults) {
-            var data = groupsResults.data;
-            for (var i = 0; i < data.length; i++) {
-              $scope.relatedGroups[data[i].id] = data[i];
-            }
-          });
-        }
       }
+      
+      //first run 
+      refresh();
+      
+      // Watch over selected location id to refresh
+      $scope.$watch('context.location.id', function() {
+        refresh();
+      });
 
       var updateRoles = function(roles, role, operation) {
         switch (operation) {
@@ -158,6 +168,7 @@ define(function (require) {
         }
         return false;
       };
+
     }
   ]); // controller
 }); // define

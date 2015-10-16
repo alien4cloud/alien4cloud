@@ -5,10 +5,6 @@ define(function(require) {
   var states = require('states');
   var _ = require('lodash');
   var angular = require('angular');
-  var SUBSTITUTION_ID = 'am.applications.detail.deployment.match';
-  var LOCATION_ID = 'am.applications.detail.deployment.locations';
-  var LOCATION_STEP_CODE = 'LOCATION_POLICY'
-
   var GROUP_ALL = '_A4C_ALL';
 
   require('scripts/deployment/directives/display_outputs');
@@ -22,18 +18,6 @@ define(function(require) {
     url: '/locations',
     templateUrl: 'views/applications/application_deployment_locations.html',
     controller: 'ApplicationDeploymentLocationCtrl',
-    resolve: {
-      thisStepMenu: ['menu', function(menu){
-        return _.find(menu, function(item){
-          return item.id==='am.applications.detail.deployment.locations'
-        })
-      }],
-      nextStepMenu: ['menu', function(menu){
-        return _.find(menu, function(item){
-          return item.id==='am.applications.detail.deployment.match'
-        });
-      }]
-    },
     menu: {
       id: 'am.applications.detail.deployment.locations',
       state: 'applications.detail.deployment.locations',
@@ -41,17 +25,17 @@ define(function(require) {
       icon: 'fa fa-cloud-upload',
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'], // is deployer
       priority: 100,
-      nextStepId: 'am.applications.detail.deployment.match',
       step: {
+        nextStepId: 'am.applications.detail.deployment.match',
         // task code in validation DTO bound to this step
-        taskCodes: [LOCATION_STEP_CODE]
+        taskCodes: ['LOCATION_POLICY']
       }
     }
   });
   
   modules.get('a4c-applications').controller('ApplicationDeploymentLocationCtrl',
-    ['$scope', 'locationsMatchingServices', '$state', 'menu', 'deploymentTopologyServices', 'deploymentTopologyProcessor', 'tasksProcessor','thisStepMenu','nextStepMenu',
-      function($scope, locationsMatchingServices, $state, menu, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, thisStepMenu, nextStepMenu) {
+    ['$scope', 'locationsMatchingServices', '$state', 'menu', 'deploymentTopologyServices', 'deploymentTopologyProcessor', 'tasksProcessor',
+      function($scope, locationsMatchingServices, $state, menu, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor) {
 
         function formatLocationMatches(locationMatches) {
           $scope.deploymentContext.locationMatches = {};
