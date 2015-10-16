@@ -158,6 +158,10 @@ public class Context {
 
     private Map<String, String> orchestratorIds;
 
+    private Map<String, Map<String, String>> orchestratorLocationIds;
+
+    private Map<String, Map<String, Map<String, String>>> orchestratorLocationResourceIds;
+
     private String topologyCloudInfos;
 
     private Map<String, String> deployApplicationProperties;
@@ -613,6 +617,43 @@ public class Context {
     public String getCloudId(String appEnvCloudName) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    public void registerOrchestratorLocation(String orchestratorId, String locationId, String locationName) {
+        if (orchestratorLocationIds == null) {
+            orchestratorLocationIds = Maps.newHashMap();
+        }
+        Map<String, String> locations = orchestratorLocationIds.get(orchestratorId);
+        if (locations == null) {
+            locations = Maps.newHashMap();
+            orchestratorLocationIds.put(orchestratorId, locations);
+        }
+        locations.put(locationName, locationId);
+    }
+
+    public String getOrchestratorLocation(String orchestratorId, String locationName) {
+        return orchestratorLocationIds.get(orchestratorId).get(locationName);
+    }
+
+    public void registerOrchestratorLocationResource(String orchestratorId, String locationId, String resourceId, String resourceName) {
+        if (orchestratorLocationResourceIds == null) {
+            orchestratorLocationResourceIds = Maps.newHashMap();
+        }
+        Map<String, Map<String, String>> locations = orchestratorLocationResourceIds.get(orchestratorId);
+        if (locations == null) {
+            locations = Maps.newHashMap();
+            orchestratorLocationResourceIds.put(orchestratorId, locations);
+        }
+        Map<String, String> resources = locations.get(locationId);
+        if (resources == null) {
+            resources = Maps.newHashMap();
+            locations.put(locationId, resources);
+        }
+        resources.put(resourceName, resourceId);
+    }
+
+    public String getOrchestratorLocationResource(String orchestratorId, String locationId, String resourceName) {
+        return orchestratorLocationResourceIds.get(orchestratorId).get(locationId).get(resourceName);
     }
 
 }
