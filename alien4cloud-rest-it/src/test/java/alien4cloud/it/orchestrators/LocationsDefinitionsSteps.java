@@ -24,6 +24,9 @@ public class LocationsDefinitionsSteps {
         request.setInfrastructureType(infrastructureType);
         String resp = Context.getRestClientInstance().postJSon(String.format("/rest/orchestrators/%s/locations", orchestratorId), JsonUtil.toString(request));
         Context.getInstance().registerRestResponse(resp);
+
+        RestResponse<String> idResponse = JsonUtil.read(resp, String.class);
+        Context.getInstance().registerOrchestratorLocation(orchestratorId, idResponse.getData(), locationName);
     }
 
     @When("^I list locations of the orchestrator \"([^\"]*)\"$")
