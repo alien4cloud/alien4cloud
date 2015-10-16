@@ -8,4 +8,5 @@ define(function (require) {
       return $alresource('rest/orchestrators/:orchestratorId');
     }
   ]);
+  
 });
