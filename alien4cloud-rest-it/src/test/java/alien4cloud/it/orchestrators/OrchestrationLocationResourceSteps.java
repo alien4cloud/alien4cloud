@@ -1,13 +1,12 @@
 package alien4cloud.it.orchestrators;
 
-import java.util.Map;
-
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.orchestrator.model.CreateLocationResourceTemplateRequest;
+import alien4cloud.rest.orchestrator.model.LocationDTO;
 import alien4cloud.rest.orchestrator.model.UpdateLocationResourceTemplatePropertyRequest;
 import alien4cloud.rest.utils.JsonUtil;
 import cucumber.api.java.en.Then;
@@ -41,11 +40,18 @@ public class OrchestrationLocationResourceSteps {
     }
 
     @Then("^The location should contains a resource with name \"([^\"]*)\" and type \"([^\"]*)\"$")
-    public void The_location_should_contains_a_resource_with_name_and_type(String arg1, String arg2) throws Throwable {
+    public void The_location_should_contains_a_resource_with_name_and_type(String resourceName, String resourceType) throws Throwable {
         String restResponse = Context.getInstance().getRestResponse();
-        Map<String, Object> locationDto = JsonUtil.toMap(restResponse);
-        // TODO: finalize
-        Assert.assertTrue(true);
+        RestResponse<LocationDTO> response = JsonUtil.read(restResponse, LocationDTO.class);
+        LocationDTO locationDTO = response.getData();
+        boolean found = false;
+        for (LocationResourceTemplate lrt : locationDTO.getResources().getConfigurationTemplates()) {
+            if (lrt.getName().equals(resourceName) && lrt.getTypes().contains(resourceType)) {
+                found = true;
+                break;
+            }
+        }
+        Assert.assertTrue(found);
     }
 
     @When("^I update the property \"([^\"]*)\" to \"([^\"]*)\" for the resource named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")

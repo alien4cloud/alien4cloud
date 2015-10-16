@@ -6,3 +6,4 @@ node_modules
 src/main/webapp/bower_components
 alien4cloud.log
 /yo/
+/.apt_generated/
