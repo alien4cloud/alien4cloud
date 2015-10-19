@@ -97,7 +97,7 @@ public final class IndexedModelUtils {
             }
         }
 
-        mergeProtertiesAndAttributes(from, to);
+        mergePropertiesAndAttributes(from, to);
 
         if (from instanceof IndexedNodeType && to instanceof IndexedNodeType) {
             mergeNodeType((IndexedNodeType) from, (IndexedNodeType) to);
@@ -108,7 +108,7 @@ public final class IndexedModelUtils {
         }
     }
 
-    private static void mergeProtertiesAndAttributes(IndexedInheritableToscaElement from, IndexedInheritableToscaElement to) {
+    private static void mergePropertiesAndAttributes(IndexedInheritableToscaElement from, IndexedInheritableToscaElement to) {
         if (from.getProperties() != null) {
             to.setProperties(CollectionUtils.merge(from.getProperties(), to.getProperties(), false));
         }

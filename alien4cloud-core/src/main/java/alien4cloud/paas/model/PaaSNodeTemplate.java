@@ -24,6 +24,8 @@ public class PaaSNodeTemplate implements IPaaSTemplate<IndexedNodeType> {
     private NodeTemplate nodeTemplate;
     /** Node type for the wrapped node template. */
     private IndexedNodeType indexedToscaElement;
+    /** Derived from types **/
+    private List<IndexedNodeType> derivedFroms;
     /** The path to the archive that contains the node type. **/
     private Path csarPath;
     /** The node tempalte that actually is the parent from the current node. */
