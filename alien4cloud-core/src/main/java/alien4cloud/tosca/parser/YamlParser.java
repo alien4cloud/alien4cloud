@@ -46,8 +46,12 @@ public abstract class YamlParser<T> {
      * @throws ParsingException In case there is a blocking issue while parsing the definition.
      */
     public ParsingResult<T> parseFile(Path yamlPath, T instance) throws ParsingException {
+        
         try {
-            return parseFile(yamlPath.toString(), yamlPath.getFileName().toString(), Files.newInputStream(yamlPath), instance);
+            InputStream inputStream = Files.newInputStream(yamlPath);
+            ParsingResult<T> res = parseFile(yamlPath.toString(), yamlPath.getFileName().toString(), inputStream, instance);
+            inputStream.close();
+            return res;
         } catch (IOException e) {
             throw new ParsingException(yamlPath.getFileName().toString(), new ParsingError(ErrorCode.MISSING_FILE, "File not found in archive.", null, null,
                     null, yamlPath.toString()));
