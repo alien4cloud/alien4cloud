@@ -37,6 +37,7 @@
   "MODAL": {
     "TITLE": {
       "PROPERTY": "Property description",
+      "META_PROPERTY": "Meta-property description",
       "REQUIREMENT": "Requirement description",
       "CAPABILITY": "Capability description",
       "CUSTOM_COMMAND": "Custom command description"
@@ -47,6 +48,7 @@
     "MENU_PLUGINS": "プラグイン",
     "MENU_TAGS": "メタプロパティ",
     "MENU_CLOUDS": "Clouds",
+    "MENU_ORCHESTRATORS": "オーケストレータ",
     "MENU_METRICS": "メトリック",
     "MENU_CLOUD_IMAGES": "クラウドイメージ",
     "MENU_AUDIT": "操作ログ"
@@ -391,6 +393,9 @@
       }
     },
     "DEPLOYMENT": {
+      "DEPLOY": "デプロイ",
+      "MATCHING": "代入",
+      "INPUT": "入力",
       "NAME_MATCHER": "クラウドリソースの関連付け",
       "TITLE_NODE_ICON": "ノードアイコン",
       "TITLE_COMPONENT": "コンポーネント名",
@@ -441,6 +446,7 @@
       "ATTRIBUTES": "属性",
       "PROPERTIES": "プロパティ",
       "PROPERTIES_INPUTS": "プロパティの入力",
+      "ORCHESTRATOR_PROPERTIES": "オーケストレータのプロパティ",
       "INPUTS": {
         "ADD": "入力の追加",
         "NAME": "名前",
@@ -476,6 +482,7 @@
       },
       "TASK": {
         "LABEL": "Todo リスト",
+        "ERRORS_LABEL": "エラー",
         "ABSTRACT_LABEL": "抽象コンポーネント",
         "IMPLEMENT_LABEL": "実装",
         "IMPLEMENT": "ノードの実装",
@@ -670,6 +677,46 @@
     "ENABLED_false": "無効化",
     "TYPES": {
       "IPAASPROVIDER": "Provider PaaS"
+    }
+  },
+  "ORCHESTRATORS": {
+    "NEW": "新規オーケストレータ",
+    "NO_PLUGIN": "オーケストレータプラグインが見つかりません。 プラグインをアップロードしてください。",
+    "NAME": "名前",
+    "PLUGIN": "プラグイン",
+    "PLUGIN_SELECT": "-- Select an orchestrator plugin --",
+    "STATE": "State",
+    "STATES": {
+      "DISABLED": "Disabled",
+      "CONNECTING": "Connecting",
+      "CONNECTED": "Connected",
+      "DISCONNECTED": "Disconnected"
+    },
+    "NAV": {
+      "INFO": "Informations",
+      "DEPLOYMENTS": "Deployments",
+      "CONFIGURATION": "Configuration",
+      "LOCATIONS": "Location(s)",
+      "ARTIFACTS": "Artifacts",
+      "AUTHORIZATIONS": "Authorizations"
+    },
+    "LOCATIONS": {
+      "NEW": "New Location",
+      "INFRA_TYPE": "Infrastructure type",
+      "INFRA_TYPE_SELECT": "-- Select an infrastructure type --",
+      "CONFIGURATION_RESOURCES": "Configuration resources",
+      "ON_DEMAND_RESOURCES": "On demand resources",
+      "SERVICES": "Services",
+      "POLICIES": "Policies",
+      "SECURITY": "Security"
+    },
+    "ARTIFACTS": {
+      "MANAGED": "Managed Artifacts"
+    },
+    "CONFIGURATION": {
+      "UNLOCK-BTN-TITLE": "Unlock",
+      "UNLOCK-BTN-CONTENT": "You can unlock to edit the orchestrator configuration but this will affect the connected driver.",
+      "LOCK_LOCATION_ROLE": "This role is manage in the global orchestrator security"
     }
   },
   "CLOUD_IMAGES": {
