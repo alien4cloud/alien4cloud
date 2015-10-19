@@ -21,9 +21,9 @@ define(function (require) {
         'get': {
           method: 'GET',
           params: {
-            cloudId: '@cloudId',
+            cloudId: '@orchestratorId',
             applicationId: '@applicationId',
-            includeAppSummary: '@includeAppSummary',
+            includeAppSummary: '@includeSourceSummary',
             from: '@from',
             size: '@size'
           },

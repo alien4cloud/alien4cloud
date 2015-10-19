@@ -5,13 +5,13 @@
 .vertical-navbar {
   position: fixed;
   overflow: hidden;
-  top: 0;
-  left: 0;
+  top: 0px;
+  left: 0px;
   height: 100%;
   list-style-type: none;
-  margin: 0;
-  padding: 0;
-  background: #2d87af;
+  margin: 0px;
+  padding: 0px;
+  background: #035b8b;
   z-index: 1000;
 }
 
@@ -30,7 +30,7 @@
 }
 
 .vertical-navbar li:first-child a {
-  margin-top: 74px;
+  margin-top: 64px;
 }
 
 .vertical-navbar li a:hover {
@@ -46,6 +46,23 @@
 
 .vertical-navbar li a.disabled:hover {
   background: #2d87af;
+}
+
+.vertical-panel-shift .vertical-navbar {
+  top: 0px;
+  left: 34px;
+  background: #555555;
+}
+
+.vertical-panel-shift .vertical-navbar li a:hover {
+  background: #666666;
+}
+
+.vertical-panel-shift .vertical-navbar li.active a {
+  background: #444444;
+}
+.vertical-panel-shift .vertical-navbar li a.disabled {
+  cursor: not-allowed;
 }
 
 .vertical-navbar-home {

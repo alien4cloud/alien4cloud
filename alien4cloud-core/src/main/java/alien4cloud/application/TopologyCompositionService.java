@@ -24,6 +24,9 @@ import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.SubstitutionTarget;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.paas.wf.Workflow;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import alien4cloud.utils.MapUtil;
@@ -41,6 +44,9 @@ public class TopologyCompositionService {
     @Resource
     private TopologyServiceCore topologyServiceCore;
 
+    @Resource
+    private WorkflowsBuilderService workflowBuilderService;
+
     public void processTopologyComposition(Topology topology) {
         Deque<CompositionCouple> stack = new ArrayDeque<CompositionCouple>();
         recursivelyBuildSubstitutionStack(topology, stack, "");
@@ -55,6 +61,13 @@ public class TopologyCompositionService {
                 log.debug(String.format("Topology composition has been processed for topology <%s> substituting %d embeded topologies", topology.getId(),
                         stack.size()));
             }
+            
+            // std workflows are reinitialized when some composition is processed
+            // TODO: find a better way to manage this
+            TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
+            workflowBuilderService.reinitWorkflow(Workflow.INSTALL_WF, topologyContext);
+            workflowBuilderService.reinitWorkflow(Workflow.UNINSTALL_WF, topologyContext);
+            
         }
     }
 
@@ -240,7 +253,7 @@ public class TopologyCompositionService {
             IndexedNodeType nodeType = csarRepoSearchService.getElementInDependencies(IndexedNodeType.class, type, topology.getDependencies());
             if (nodeType.getSubstitutionTopologyId() != null) {
                 // this node type is a proxy for a topology template
-                Topology child = topologyServiceCore.getMandatoryTopology(nodeType.getSubstitutionTopologyId());
+                Topology child = topologyServiceCore.getOrFail(nodeType.getSubstitutionTopologyId());
                 CompositionCouple couple = new CompositionCouple(topology, child, nodeName, nodeName + "_");
                 renameNodes(couple);
                 stack.offer(couple);
@@ -322,7 +335,7 @@ public class TopologyCompositionService {
      * Deeply explore composition in order to detect cyclic reference: if a descendant references the mainTopologyId.
      */
     public void recursivelyDetectTopologyCompositionCyclicReference(String mainTopologyId, String substitutionTopologyId) {
-        Topology child = topologyServiceCore.getMandatoryTopology(substitutionTopologyId);
+        Topology child = topologyServiceCore.getOrFail(substitutionTopologyId);
         if (child == null || child.getNodeTemplates() == null || child.getNodeTemplates().isEmpty()) {
             return;
         }

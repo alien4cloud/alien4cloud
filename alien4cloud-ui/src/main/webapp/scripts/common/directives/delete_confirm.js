@@ -12,7 +12,8 @@ define(function (require) {
         position: '@',
         func: '&',
         fastyle: '@',
-        bssize: '@'
+        bssize: '@',
+        text: '@'
       }
     };
   });

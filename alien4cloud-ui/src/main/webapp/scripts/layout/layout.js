@@ -6,8 +6,10 @@ define(function (require) {
 
   var alien4cloud = modules.get('alien4cloud');
 
-  alien4cloud.controller('LayoutCtrl', ['$scope', 'menu', 'authService',
-    function($scope, menu, authService) {
+  // defines layout controller
+  alien4cloud.controller('LayoutCtrl', ['$scope', 'menu', 'authService', 'context',
+    function( $scope, menu, authService, context) {
+      $scope.context = context;
       _.each(menu, function(menuItem) {
         menuItem.show = false;
         if (authService.hasRole('ADMIN')) {

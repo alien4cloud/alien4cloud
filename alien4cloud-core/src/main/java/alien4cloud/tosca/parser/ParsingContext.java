@@ -12,8 +12,10 @@ import com.google.common.collect.Lists;
 public class ParsingContext {
     private String fileName;
     private List<ParsingError> parsingErrors = Lists.newArrayList();
+
+    // TODO manage sub archives
     /** If parsing triggers parsing of other related yaml files. */
-    private List<ParsingResult<?>> subResults = Lists.newArrayList();
+    // private List<ParsingResult<?>> subResults = Lists.newArrayList();
 
     public ParsingContext() {
     }

@@ -38,8 +38,7 @@ import cucumber.api.java.en.When;
 
 @Slf4j
 public class QuickSearchDefinitionsSteps {
-
-    private final ObjectMapper jsonMapper = new ElasticSearchMapper();
+    private final ObjectMapper jsonMapper = ElasticSearchMapper.getInstance();
 
     private static final String DEFAULT_ARCHIVE_VERSION = "1.0";
     private static Map<String, String> indexedTypes = Maps.newHashMap();

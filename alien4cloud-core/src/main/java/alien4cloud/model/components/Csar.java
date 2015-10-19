@@ -1,6 +1,6 @@
 package alien4cloud.model.components;
 
-import static alien4cloud.dao.model.FetchContext.DEPLOYMENT;
+import static alien4cloud.dao.model.FetchContext.SUMMARY;
 
 import java.util.Set;
 
@@ -25,7 +25,7 @@ import alien4cloud.model.deployment.IDeploymentSource;
 @SuppressWarnings("PMD.UnusedPrivateField")
 @ESObject
 public class Csar implements IDeploymentSource {
-	@FetchContext(contexts = { DEPLOYMENT }, include = { true })
+	@FetchContext(contexts = { SUMMARY }, include = { true })
 	private String name;
 
 	@TermFilter
@@ -67,7 +67,7 @@ public class Csar implements IDeploymentSource {
 
 	@Id
 	@StringField(indexType = IndexType.not_analyzed, includeInAll = false)
-	@FetchContext(contexts = { DEPLOYMENT }, include = { true })
+	@FetchContext(contexts = { SUMMARY }, include = { true })
 	public String getId() {
 		if (name == null) {
 			throw new IndexingServiceException("Csar name is mandatory");

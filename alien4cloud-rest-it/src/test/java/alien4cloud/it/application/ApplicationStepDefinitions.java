@@ -29,10 +29,10 @@ import alien4cloud.model.common.Tag;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.rest.application.ApplicationEnvironmentDTO;
-import alien4cloud.rest.application.ApplicationEnvironmentRequest;
-import alien4cloud.rest.application.CreateApplicationRequest;
-import alien4cloud.rest.application.UpdateApplicationEnvironmentRequest;
+import alien4cloud.rest.application.model.ApplicationEnvironmentDTO;
+import alien4cloud.rest.application.model.ApplicationEnvironmentRequest;
+import alien4cloud.rest.application.model.CreateApplicationRequest;
+import alien4cloud.rest.application.model.UpdateApplicationEnvironmentRequest;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.component.UpdateTagRequest;
 import alien4cloud.rest.model.RestResponse;
@@ -80,7 +80,8 @@ public class ApplicationStepDefinitions {
         assertNotNull(searchResp);
         ApplicationEnvironmentDTO appEnvDTO = JsonUtil.readObject(JsonUtil.toString(searchResp.getData()[0]), ApplicationEnvironmentDTO.class);
         assertNotNull(appEnvDTO);
-        assertNull(appEnvDTO.getCloudId());
+//        assertNull(appEnvDTO.getCloudId());
+        Assert.fail("Fix test");
     }
 
     @SuppressWarnings("rawtypes")
@@ -346,7 +347,7 @@ public class ApplicationStepDefinitions {
     public void I_add_a_role_to_user_on_the_application(String role, String username, String applicationName) throws Throwable {
         I_search_for_application(applicationName);
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().put("/rest/applications/" + CURRENT_APPLICATION.getId() + "/userRoles/" + username + "/" + role));
+                Context.getRestClientInstance().put("/rest/applications/" + CURRENT_APPLICATION.getId() + "/roles/users/" + username + "/" + role));
     }
 
     @When("^I search for \"([^\"]*)\" application$")
@@ -400,7 +401,7 @@ public class ApplicationStepDefinitions {
     public void I_remove_a_role_to_user_on_the_application(String role, String username, String applicationName) throws Throwable {
         I_search_for_application(applicationName);
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().delete("/rest/applications/" + CURRENT_APPLICATION.getId() + "/userRoles/" + username + "/" + role));
+                Context.getRestClientInstance().delete("/rest/applications/" + CURRENT_APPLICATION.getId() + "/roles/users/" + username + "/" + role));
     }
 
     @Then("^The application should have a user \"([^\"]*)\" not having \"([^\"]*)\" role$")
@@ -452,7 +453,7 @@ public class ApplicationStepDefinitions {
         I_search_for_application(applicationName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().put(
-                        "/rest/applications/" + CURRENT_APPLICATION.getId() + "/groupRoles/" + Context.getInstance().getGroupId(groupName) + "/" + role));
+                        "/rest/applications/" + CURRENT_APPLICATION.getId() + "/roles/groups/" + Context.getInstance().getGroupId(groupName) + "/" + role));
     }
 
     @And("^The application should have a group \"([^\"]*)\" having \"([^\"]*)\" role$")
@@ -477,7 +478,7 @@ public class ApplicationStepDefinitions {
         I_search_for_application(applicationName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().delete(
-                        "/rest/applications/" + CURRENT_APPLICATION.getId() + "/groupRoles/" + Context.getInstance().getGroupId(groupName) + "/" + role));
+                        "/rest/applications/" + CURRENT_APPLICATION.getId() + "/roles/groups/" + Context.getInstance().getGroupId(groupName) + "/" + role));
     }
 
     @And("^The application should have the group \"([^\"]*)\" not having \"([^\"]*)\" role$")
@@ -537,16 +538,14 @@ public class ApplicationStepDefinitions {
         Assert.assertEquals(fieldValue, ReflectionUtil.getPropertyValue(application, fieldName).toString());
     }
 
-    @When("^I create an application environment of type \"([^\"]*)\" on cloud \"([^\"]*)\" with name \"([^\"]*)\" and description \"([^\"]*)\" for the newly created application$")
-    public void I_create_an_application_environment_of_type_on_cloud_with_name_and_description_for_the_newly_created_application(String appEnvType,
-            String appEnvCloudName, String appEnvName, String appEnvDescription) throws Throwable {
+    @When("^I create an application environment of type \"([^\"]*)\" with name \"([^\"]*)\" and description \"([^\"]*)\" for the newly created application$")
+    public void I_create_an_application_environment_of_type_with_name_and_description_for_the_newly_created_application(String appEnvType,
+            String appEnvName, String appEnvDescription) throws Throwable {
         Assert.assertNotNull(CURRENT_APPLICATION.getId());
-        Assert.assertNotNull(Context.getInstance().getCloudId(appEnvCloudName));
         Assert.assertTrue(EnvironmentType.valueOf(appEnvType).toString().equals(appEnvType));
         Assert.assertNotNull(appEnvName);
 
         ApplicationEnvironmentRequest appEnvRequest = new ApplicationEnvironmentRequest();
-        appEnvRequest.setCloudId(Context.getInstance().getCloudId(appEnvCloudName));
         appEnvRequest.setEnvironmentType(EnvironmentType.valueOf(appEnvType));
         appEnvRequest.setName(appEnvName);
         appEnvRequest.setDescription(appEnvDescription);
@@ -585,7 +584,8 @@ public class ApplicationStepDefinitions {
             case "cloudName":
                 // for attribute cloudName get the ID en set it
                 String cloudId = Context.getInstance().getCloudId(attributeValue);
-                appEnvRequest.setCloudId(cloudId);
+//                appEnvRequest.setCloudId(cloudId);
+                Assert.fail("Fix test");
                 break;
             case "description":
                 appEnvRequest.setDescription(attributeValue);
@@ -609,7 +609,8 @@ public class ApplicationStepDefinitions {
     @When("^I update the environment named \"([^\"]*)\" to use cloud \"([^\"]*)\" for application \"([^\"]*)\"$")
     public void I_update_the_environment_named_to_use_cloud_for_application(String envName, String cloudName, String appName) throws Throwable {
         UpdateApplicationEnvironmentRequest appEnvRequest = new UpdateApplicationEnvironmentRequest();
-        appEnvRequest.setCloudId(Context.getInstance().getCloudId(cloudName));
+//        appEnvRequest.setCloudId(Context.getInstance().getCloudId(cloudName));
+        Assert.fail("Fix test");
         String applicationId = Context.getInstance().getApplicationId(appName);
         String applicationEnvironmentId = Context.getInstance().getApplicationEnvironmentId(appName, envName);
         // send the update request

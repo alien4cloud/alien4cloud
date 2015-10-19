@@ -3,7 +3,6 @@ namespace: myNameSpace
 description: A Basic Web App To test
 
 node_types:
-
   tosca.nodes.Tomcat:
     derived_from: tosca.nodes.Middleware
     properties:

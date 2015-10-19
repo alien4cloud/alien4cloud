@@ -6,8 +6,10 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.DeploymentArtifact;
+import alien4cloud.model.components.Interface;
 import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;
 import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
@@ -24,7 +26,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Getter
 @Setter
 @NoArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class NodeTemplate extends AbstractTemplate {
     /**
      * Id in the map is name.replaceAll(" ", "").toLowerCase();
@@ -63,6 +64,11 @@ public class NodeTemplate extends AbstractTemplate {
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, Capability> capabilities;
 
+    @ConditionalOnAttribute(ConditionalAttributes.REST)
+    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
+    @JsonSerialize(using = JSonMapEntryArraySerializer.class)
+    private Map<String, Interface> interfaces;
+    
     /**
      * The {@link NodeGroup}s this template is member of.
      */
@@ -70,7 +76,7 @@ public class NodeTemplate extends AbstractTemplate {
 
     public NodeTemplate(String type, Map<String, AbstractPropertyValue> properties, Map<String, String> attributes,
             Map<String, RelationshipTemplate> relationships, Map<String, Requirement> requirements, Map<String, Capability> capabilities,
-            Map<String, DeploymentArtifact> artifacts) {
+            Map<String, Interface> interfaces, Map<String, DeploymentArtifact> artifacts) {
         this.setType(type);
         this.setProperties(properties);
         this.setArtifacts(artifacts);
@@ -78,5 +84,6 @@ public class NodeTemplate extends AbstractTemplate {
         this.relationships = relationships;
         this.requirements = requirements;
         this.capabilities = capabilities;
+        this.interfaces = interfaces;
     }
 }

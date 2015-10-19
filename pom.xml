@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>alien4cloud</groupId>
   <artifactId>alien4cloud-parent</artifactId>
-  <version>1.1.0-SM5-SNAPSHOT</version>
+  <version>1.1.0-SM6-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Application LIfecycle ENabler parent project.</name>
   <description>Application LIfecycle ENabler is an application that allows you to manage your application's lifecycle on a cloud environment.</description>
@@ -12,7 +12,6 @@
     <module>alien4cloud-core</module>
     <module>alien4cloud-mock-paas-provider-plugin</module>
     <module>alien4cloud-rest-api</module>
-    <module>alien4cloud-verify-tool</module>
     <module>alien4cloud-rest-it</module>
     <module>alien4cloud-ui</module>
   </modules>

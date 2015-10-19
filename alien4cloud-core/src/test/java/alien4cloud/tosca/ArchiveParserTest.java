@@ -69,9 +69,5 @@ public class ArchiveParserTest {
                 System.out.println(parsingResult.getContext().getFileName() + "\n" + error);
             }
         }
-
-        for (ParsingResult<?> child : parsingResult.getContext().getSubResults()) {
-            displayErrors(child);
-        }
     }
 }

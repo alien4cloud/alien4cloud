@@ -1,11 +1,13 @@
 package alien4cloud.paas.wf;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +20,8 @@ import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.paas.wf.validation.WorkflowValidator;
+import alien4cloud.topology.task.TaskCode;
+import alien4cloud.topology.task.WorkflowTask;
 
 @Component
 @Slf4j
@@ -275,7 +279,7 @@ public class WorkflowsBuilderService {
         workflowValidator.validate(topologyContext, wf);
         return wf;
     }
-    
+
     public static interface TopologyContext {
         Topology getTopology();
 
@@ -298,6 +302,7 @@ public class WorkflowsBuilderService {
             this.topology = topology;
         }
 
+        @Override
         public Topology getTopology() {
             return topology;
         }
@@ -312,7 +317,7 @@ public class WorkflowsBuilderService {
         private TopologyContext wrapped;
 
         private Map<Class<? extends IndexedToscaElement>, Map<String, IndexedToscaElement>> cache = Maps.newHashMap();
-        
+
         public CachedTopologyContext(TopologyContext wrapped) {
             super();
             this.wrapped = wrapped;
@@ -354,5 +359,22 @@ public class WorkflowsBuilderService {
         }
 
     }
-}
 
+    public List<WorkflowTask> validateWorkflows(Topology topology) {
+        List<WorkflowTask> tasks = Lists.newArrayList();
+        if (topology.getWorkflows() != null) {
+            TopologyContext topologyContext = buildTopologyContext(topology);
+            for (Workflow workflow : topology.getWorkflows().values()) {
+                int errorCount = validateWorkflow(topologyContext, workflow);
+                if (errorCount > 0) {
+                    WorkflowTask workflowTask = new WorkflowTask();
+                    workflowTask.setCode(TaskCode.WORKFLOW_INVALID);
+                    workflowTask.setWorkflowName(workflow.getName());
+                    workflowTask.setErrorCount(errorCount);
+                    tasks.add(workflowTask);
+                }
+            }
+        }
+        return tasks;
+    }
+}

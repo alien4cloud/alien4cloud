@@ -33,7 +33,6 @@
               <th>{{'APPLICATIONS.ENVIRONMENT.VERSION' | translate}}</th>
               <th>{{'APPLICATIONS.ENVIRONMENT.TYPE' | translate}}</th>
               <th>{{'APPLICATIONS.ENVIRONMENT.DESCRIPTION' | translate}}</th>
-              <th>{{'APPLICATIONS.ENVIRONMENT.CLOUD' | translate}}</th>
               <th></th>
             </tr>
           </thead>
@@ -63,11 +62,6 @@
                 <select class="form-control" name="envList" id="{{environment.name}}-envlistid" ng-model="environment.environmentType" ng-options="'ENVIRONMENT_TYPE.'+e | translate for e in envTypeList.data" ng-change="updateApplicationEnvironment('environmentType', environment.environmentType, environment.id)"></select>
               </td>
               <td><span editable-text="environment.description" onbeforesave="updateApplicationEnvironment('description',$data, environment.id)" buttons="no" style="font-style:inherit;" blur="submit">{{environment.description}} <i class="fa fa-edit"></i></span></td>
-              <td>
-                <select class="form-control" ng-disabled="environment.status == 'DEPLOYED' || environment.status == 'UNKNOWN' || environment.status == 'DEPLOYMENT_IN_PROGRESS'" name="cloudsList" id="cloudslistid" ng-model="environment.cloudName" ng-options="c.name as c.name for c in clouds" ng-change="updateApplicationEnvironment('cloudId', environment.cloudName, environment.id)">
-                  <option value="">{{'APPLICATIONS.ENVIRONMENT.FORM.CLOUD_SELECT' | translate}}</option>
-                </select>
-              </td>
               <td ng-if="isManager">
                 <!-- Remove an environment -->
                 <delete-confirm class="pull-right" id='delete-env_{{environment.name}}' func="delete(environment.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
@@ -82,7 +76,7 @@
   </div>
 
   <script type="text/ng-template" id="newApplicationEnvironment.html">
-    <form name="newApplicationEnvironment" class="form-horizontal" role="form" ng-submit="create(newApplicationEnvironment.$valid,selectedCloud.id,selectedEnvType,selectedVersion.id)" novalidate>
+    <form name="newApplicationEnvironment" class="form-horizontal" role="form" ng-submit="create(newApplicationEnvironment.$valid,selectedEnvType,selectedVersion.id)" novalidate>
       <div class="modal-header">
         <h3>{{'APPLICATIONS.ENVIRONMENT.NEW' | translate}}</h3>
       </div>
@@ -97,14 +91,6 @@
           <label for="descid" class="col-lg-3 control-label">{{'APPLICATIONS.ENVIRONMENT.FORM.DESCRIPTION' | translate}}</label>
           <div class="col-lg-9">
             <textarea class="form-control" id="descid" rows="3" ng-model="environment.description" placeholder="{{'APPLICATIONS.ENVIRONMENT.FORM.DESCRIPTION' | translate}}"></textarea>
-          </div>
-        </div>
-        <div class="form-group" ng-class="{'has-error': newApplicationEnvironment.clouds.$invalid}">
-          <label for="cloudid" class="col-lg-3 control-label">{{'APPLICATIONS.ENVIRONMENT.FORM.CLOUD' | translate}}</label>
-          <div class="col-lg-9">
-            <select name="clouds" class="form-control" id="cloudid" ng-model="selectedCloud" ng-options="c.name for c in clouds">
-              <option value="">{{'APPLICATIONS.ENVIRONMENT.FORM.CLOUD_SELECT' | translate}}</option>
-            </select>
           </div>
         </div>
         <div class="form-group" ng-class="{'has-error': newApplicationEnvironment.envtypes.$invalid}">

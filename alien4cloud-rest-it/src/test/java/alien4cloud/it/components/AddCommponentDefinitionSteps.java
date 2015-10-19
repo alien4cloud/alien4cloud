@@ -35,7 +35,7 @@ public class AddCommponentDefinitionSteps {
     public static String uploadComponent(String csarId, String componentName) throws IOException {
         String componentJson = FileUtil.readTextFile(Paths.get(COMPONENT_TEST_DATA_PACKAGE + componentName + ".json"));
         // parse the json using an ES mapper
-        IndexedNodeType nodeType = new ElasticSearchMapper().readValue(componentJson, IndexedNodeType.class);
+        IndexedNodeType nodeType = ElasticSearchMapper.getInstance().readValue(componentJson, IndexedNodeType.class);
         nodeType.setArchiveVersion("1.0");
         // and send it to rest API through the REST mapper
         componentJson = Context.getInstance().getJsonMapper().writeValueAsString(nodeType);

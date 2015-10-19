@@ -9,11 +9,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.model.topology.Topology;
+import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
+import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 
 /**
@@ -39,11 +39,11 @@ public class MonitorESDAO extends ESGenericSearchDAO {
             throw new IndexingServiceException("Could not initialize elastic search mapping builder", e);
         }
         // init indices and mapped classes
-        setJsonMapper(new ElasticSearchMapper());
+        setJsonMapper(ElasticSearchMapper.getInstance());
 
         Class<?>[] classes = new Class<?>[] { AbstractMonitorEvent.class, PaaSDeploymentStatusMonitorEvent.class, PaaSInstanceStateMonitorEvent.class,
-                PaaSMessageMonitorEvent.class, PaaSInstanceStorageMonitorEvent.class };
-        initIndices("deployedtopologies", null, Topology.class);
+                PaaSMessageMonitorEvent.class, PaaSInstancePersistentResourceMonitorEvent.class };
+        initIndices("deployedtopologies", null, DeploymentTopology.class);
         initIndices("deploymentmonitorevents", eventMonitoringTtl, classes);
         initCompleted();
     }

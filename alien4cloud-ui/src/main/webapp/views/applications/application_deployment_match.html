@@ -1,0 +1,133 @@
+<div>
+  <div class="row" style="margin-top: 10px">
+    <!--  Required Implementation tasks  -->
+    <div class="col-md-6" ng-if="(tasks = deploymentContext.deploymentTopologyDTO.validation.taskList['IMPLEMENT']).length>0">
+      <div class="task-list-box">
+        <h4 class="topology-node-expand clickable" ng-init="isToImplementNodesCollapsed = false"
+            ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed">
+          <i class="fa" ng-class="{'fa-chevron-down' : !isToImplementNodesCollapsed, 'fa-chevron-right': isToImplementNodesCollapsed}"></i>
+          <span>{{'APPLICATIONS.TOPOLOGY.TASK.IMPLEMENT_LABEL' | translate}}</span>
+        </h4>
+
+        <div collapse="isToImplementNodesCollapsed" class="topology-level">
+          <table class="table table-condensed">
+            <tbody>
+              <tr ng-repeat=" toImplementNodeTask in tasks">
+                <td>
+                  <span>{{toImplementNodeTask.nodeTemplateName}}</span>
+                  <span>({{toImplementNodeTask.component.elementId}})</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- End Error Implementation tasks -->
+
+    <!--  Required Replacement tasks  -->
+    <div class="col-md-6" ng-if="(repTasks = deploymentContext.deploymentTopologyDTO.validation.taskList['REPLACE']).length>0">
+      <div class="task-list-box">
+        <h4 class="topology-node-expand clickable" ng-init="isToReplaceNodesCollapsed = false"
+            ng-click="isToReplaceNodesCollapsed = !isToReplaceNodesCollapsed">
+          <i class="fa" ng-class="{'fa-chevron-down' : !isToReplaceNodesCollapsed, 'fa-chevron-right': isToReplaceNodesCollapsed"></i>
+          <span>{{'APPLICATIONS.TOPOLOGY.TASK.REPLACE_LABEL' | translate}}</span>
+        </h4>
+
+        <div collapse="isToReplaceNodesCollapsed" class="topology-level">
+          <table class="table table-condensed">
+            <thead>
+              <tr>
+                <th></th>
+                <th>{{'SUGGESTIONS' | translate}}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat=" toReplaceNodeTask in (repTasks">
+                <td>
+                  <span>{{toReplaceNodeTask.nodeTemplateName}}</span>
+                  <span>({{toReplaceNodeTask.component.elementId}})</span>
+                </td>
+                <td>
+                  <ul class="td_list liste-no-style" ng-if="toReplaceNodeTask.suggestedNodeTypes">
+                    <li ng-repeat="nodeType in toReplaceNodeTask.suggestedNodeTypes">
+                      {{nodeType.elementId}}
+                    </li>
+                  </ul>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- End Error Replacement tasks -->
+    </div>
+  </div>
+  <div class="row" style="margin-top: 10px">
+    <div class="col-md-6">
+      <accordion close-others="oneAtATime">
+        <accordion-group is-open="status.open"
+                         ng-repeat="(nodeName, templates) in deploymentContext.deploymentTopologyDTO.availableSubstitutions.availableSubstitutions">
+          <accordion-heading ng-init="substitutedNode = getSubstitutedTemplate(nodeName); nodeIcon = getIcon(substitutedNode)">
+            <div class="row">
+              <div class="col-md-12">
+                <i ng-if="!nodeIcon" class="fa fa-cogs"></i>
+                <img ng-if="nodeIcon" ng-src="img?id={{nodeIcon}}&quality=QUALITY_32">
+                {{nodeName}} <i class="fa"
+                                ng-class="{'fa-chevron-down': status.open && substitutedNode, 'fa-chevron-right': !status.open && substitutedNode, 'fa-exclamation-triangle text-danger': !substitutedNode}"></i>
+              </div>
+            </div>
+          </accordion-heading>
+          <p ng-if="!substitutedNode">
+            No substitution available for this node
+          </p>
+          <table ng-if="substitutedNode" class="table table-hover">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="template in templates"
+                  class="clickable"
+                  ng-class="{'warning': selectedResourceTemplate.id === template.id && selectedNodeName === nodeName}">
+                <td ng-click="changeSubstitution(nodeName, template)" class="col-md-1">
+                  <a>
+                    <i class="fa fa-fw"
+                       ng-class="{
+                                 'fa-dot-circle-o text-success' : getSubstitutedTemplate(nodeName).id === template.id ,
+                                 'fa-circle-o': getSubstitutedTemplate(nodeName).id !== template.id,
+                                 }">
+                    </i>
+                  </a>
+                </td>
+                <td class="col-md-1" ng-click="selectTemplate(nodeName, template)">
+                  {{template.name}}
+                </td>
+                <td class="col-md-10" ng-click="selectTemplate(nodeName, template)">
+                  {{template.template.type}}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </accordion-group>
+      </accordion>
+    </div>
+    <div class="col-md-6">
+      <div ng-if="selectedResourceTemplate" class="well">
+        <orchestrator-location-resource-template
+            is-editable="false"
+            is-property-editable="getSubstitutedTemplate(selectedNodeName).id === selectedResourceTemplate.id"
+            resource-template="selectedResourceTemplate"
+            resource-type="deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.nodeTypes[selectedResourceTemplate.template.type]"
+            resource-capability-types="deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.capabilityTypes"
+            dependencies="deploymentContext.deploymentTopologyDTO.topology.dependencies"
+            on-property-update="updateSubstitutionProperty(propertyName, propertyValue)"
+            on-capability-property-update="updateSubstitutionCapabilityProperty(capabilityName, propertyName, propertyValue)">
+        </orchestrator-location-resource-template>
+      </div>
+    </div>
+  </div>
+</div>

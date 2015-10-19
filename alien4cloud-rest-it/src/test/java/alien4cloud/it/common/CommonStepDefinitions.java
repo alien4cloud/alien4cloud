@@ -16,17 +16,17 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 import alien4cloud.audit.AuditESDAO;
 import alien4cloud.dao.ElasticSearchDAO;
+import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.model.application.DeploymentSetup;
-import alien4cloud.model.cloud.Cloud;
-import alien4cloud.model.cloud.CloudConfiguration;
-import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.deployment.Deployment;
+import alien4cloud.model.deployment.DeploymentTopology;
+import alien4cloud.model.orchestrators.Orchestrator;
+import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.plugin.Plugin;
@@ -50,21 +50,19 @@ public class CommonStepDefinitions {
         indicesToClean = Lists.newArrayList();
         indicesToClean.add(ApplicationEnvironment.class.getSimpleName().toLowerCase());
         indicesToClean.add(ApplicationVersion.class.getSimpleName().toLowerCase());
-        indicesToClean.add(DeploymentSetup.class.getSimpleName().toLowerCase());
+        indicesToClean.add(DeploymentTopology.class.getSimpleName().toLowerCase());
         indicesToClean.add(ElasticSearchDAO.TOSCA_ELEMENT_INDEX);
         indicesToClean.add(Application.class.getSimpleName().toLowerCase());
+        indicesToClean.add(Orchestrator.class.getSimpleName().toLowerCase());
+        indicesToClean.add(Location.class.getSimpleName().toLowerCase());
         indicesToClean.add(Csar.class.getSimpleName().toLowerCase());
         indicesToClean.add(Topology.class.getSimpleName().toLowerCase());
         indicesToClean.add(TopologyTemplate.class.getSimpleName().toLowerCase());
         indicesToClean.add(Plugin.class.getSimpleName().toLowerCase());
         indicesToClean.add(PluginConfiguration.class.getSimpleName().toLowerCase());
-        indicesToClean.add(Cloud.class.getSimpleName().toLowerCase());
-        indicesToClean.add(CloudConfiguration.class.getSimpleName().toLowerCase());
         indicesToClean.add(Deployment.class.getSimpleName().toLowerCase());
         indicesToClean.add(Group.class.getSimpleName().toLowerCase());
         indicesToClean.add(User.class.getSimpleName().toLowerCase());
-        indicesToClean.add(CloudImage.class.getSimpleName().toLowerCase());
-        indicesToClean.add(CloudImage.class.getSimpleName().toLowerCase());
         indicesToClean.add(MetaPropConfiguration.class.getSimpleName().toLowerCase());
         indicesToClean.add(AuditESDAO.ALIEN_AUDIT_INDEX);
     }
@@ -214,4 +212,9 @@ public class CommonStepDefinitions {
         Context.getInstance().buildEvaluationContext(response.getData());
     }
 
+    @Then("^Response should contains (\\d+) items$")
+    public void Response_should_contains_items(int count) throws Throwable {
+        RestResponse<GetMultipleDataResult> response = JsonUtil.read(Context.getInstance().getRestResponse(), GetMultipleDataResult.class);
+        Assert.assertEquals(count, response.getData().getTotalResults());
+    }
 }

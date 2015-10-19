@@ -10,9 +10,11 @@ define(function (require) {
       templateUrl: 'views/meta-props/meta_properties_display.html',
       restrict: 'E',
       scope: {
-        'properties': '=',
-        'application': '=',
-        'cloud': '=',
+        'propertiesType': '=',
+        'target': '=',
+        'resturl': '=',
+        'params': '=',
+        'collapsable': '=',
         'collapse': '=',
       },
       link: {}

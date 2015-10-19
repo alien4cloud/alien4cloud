@@ -6,21 +6,29 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Component;
 
+import alien4cloud.application.ApplicationService;
 import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.application.Application;
+import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
+import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.topology.TopologyService;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -28,6 +36,7 @@ import com.google.common.collect.Sets;
  * Manages cloud services archives and their dependencies.
  */
 @Component
+@Slf4j
 public class CsarService implements ICsarDependencyLoader {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO csarDAO;
@@ -38,9 +47,14 @@ public class CsarService implements ICsarDependencyLoader {
     @Resource
     private CsarFileRepository alienRepository;
 
+    @Resource
+    private TopologyService topologyService;
+    @Resource
+    private ApplicationService applicationService;
+
     /**
      * Get a cloud service if exists in Dao.
-     * 
+     *
      * @param name The name of the archive.
      * @param version The version of the archive.
      * @return The {@link Csar Cloud Service Archive} if found in the repository or null.
@@ -88,10 +102,10 @@ public class CsarService implements ICsarDependencyLoader {
         GetMultipleDataResult<Topology> result = csarDAO.search(Topology.class, null, null, filter, null, 0, Integer.MAX_VALUE);
         return result.getData();
     }
-    
+
     /**
      * Save a Cloud Service Archive in ElasticSearch.
-     * 
+     *
      * @param csar The csar to save.
      */
     public void save(Csar csar) {
@@ -120,7 +134,7 @@ public class CsarService implements ICsarDependencyLoader {
         return csarMap;
     }
 
-    public Csar getMandatoryCsar(String csarId) {
+    public Csar getOrFail(String csarId) {
         Csar csar = csarDAO.findById(Csar.class, csarId);
         if (csar == null) {
             throw new NotFoundException("Csar with id [" + csarId + "] do not exist");
@@ -155,7 +169,7 @@ public class CsarService implements ICsarDependencyLoader {
     }
 
     public void deleteCsar(String csarId, boolean ignoreSubtisutionTopology) {
-        Csar csar = getMandatoryCsar(csarId);
+        Csar csar = getOrFail(csarId);
         // a csar that is a dependency of another csar can not be deleted
         if (isDependency(csar.getName(), csar.getVersion())) {
             throw new DeleteReferencedObjectException("This csar can not be deleted since it's a dependencie for others");
@@ -183,6 +197,26 @@ public class CsarService implements ICsarDependencyLoader {
 
     }
 
+    /**
+     * Delete an archive an all its registered / saved elements
+     * Abort the deletion if the archive is used by some resources
+     *
+     * @param csar
+     * @return A List of {@link Usage} representing the resources using this archive.
+     */
+    public List<Usage> deleteCsarWithElements(Csar csar) {
+        List<Usage> relatedResourceList = getCsarRelatedResourceList(csar);
+        if (relatedResourceList.isEmpty()) {
+            // latest version indicator will be recomputed to match this new reality
+            indexerService.deleteElements(csar.getName(), csar.getVersion());
+            csarDAO.delete(Csar.class, csar.getId());
+
+            // physically delete files
+            alienRepository.removeCSAR(csar.getName(), csar.getVersion());
+        }
+        return relatedResourceList;
+    }
+
     public Csar getTopologySubstitutionCsar(String topologyId) {
         Csar csarResult = csarDAO.customFind(Csar.class, QueryBuilders.termQuery("substitutionTopologyId", topologyId));
         if (csarResult != null) {
@@ -190,6 +224,91 @@ public class CsarService implements ICsarDependencyLoader {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Get resources related to a Csar
+     *
+     * @param csar
+     * @return
+     */
+    public List<Usage> getCsarRelatedResourceList(Csar csar) {
+        List<Usage> relatedResourceList = Lists.newArrayList();
+
+        if (csar == null) {
+            log.warn("You have requested a resource list for a invalid csar object : <" + csar + ">");
+            return relatedResourceList;
+        }
+
+        // a csar that is a dependency of another csar can not be deleted
+        Csar[] relatedCsars = getDependantCsars(csar.getName(), csar.getVersion());
+        if (relatedCsars != null && relatedCsars.length > 0) {
+            relatedResourceList.addAll(generateCsarsInfo(relatedCsars));
+        }
+
+        // check if some of the nodes are used in topologies.
+        Topology[] topologies = getDependantTopologies(csar.getName(), csar.getVersion());
+        if (topologies != null && topologies.length > 0) {
+            relatedResourceList.addAll(generateTopologiesInfo(topologies));
+        }
+
+        return relatedResourceList;
+    }
+
+    /**
+     * Generate resources related to a csar list
+     *
+     * @param csars
+     * @return
+     */
+    private List<Usage> generateCsarsInfo(Csar[] csars) {
+        String resourceName = null;
+        String resourceId = null;
+        List<Usage> resourceList = Lists.newArrayList();
+        for (Csar csar : csars) {
+            resourceName = csar.getName();
+            resourceId = csar.getId();
+            Usage temp = new Usage(resourceName, Csar.class.getSimpleName().toLowerCase(), resourceId);
+            resourceList.add(temp);
+        }
+        return resourceList;
+    }
+
+    /**
+     * Generate resources (application or template) related to a topology list
+     *
+     * @param topologies
+     * @return
+     */
+    private List<Usage> generateTopologiesInfo(Topology[] topologies) {
+        String resourceName = null;
+        String resourceId = null;
+        boolean typeHandled = true;
+        List<Usage> resourceList = Lists.newArrayList();
+        for (Topology topology : topologies) {
+            String delegateType = topology.getDelegateType();
+            if (delegateType.equals("application")) {
+                // get the related application
+                Application application = applicationService.checkAndGetApplication(topology.getDelegateId());
+                resourceName = application.getName();
+            } else if (delegateType.equals("topologytemplate")) {
+                // get the related template
+                TopologyTemplate template = topologyService.getOrFailTopologyTemplate(topology.getDelegateId());
+                resourceName = template.getName();
+            } else {
+                typeHandled = false;
+                log.info("The topology <" + topology.getId() + "> of type <" + delegateType + " is not yet handled.");
+            }
+
+            if (typeHandled) {
+                resourceId = topology.getDelegateId();
+                Usage temp = new Usage(resourceName, delegateType, resourceId);
+                resourceList.add(temp);
+            } else {
+                typeHandled = true;
+            }
+        }
+        return resourceList;
     }
 
 }

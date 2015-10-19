@@ -1,10 +1,10 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
-import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
 import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.impl.base.ScalarParser;
 
 @Component
 public class BoundParser extends ScalarParser {
@@ -13,6 +13,9 @@ public class BoundParser extends ScalarParser {
     @Override
     public String parse(Node node, ParsingContextExecution context) {
         String value = super.parse(node, context);
-        return UNBOUNDED.equals(value) ? String.valueOf(Integer.MAX_VALUE) : value;
+        if (value == null) {
+            value = "";
+        }
+        return UNBOUNDED.equals(value.toLowerCase()) ? String.valueOf(Integer.MAX_VALUE) : value;
     }
 }

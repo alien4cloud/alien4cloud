@@ -36,8 +36,9 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationInfosCtrl',
-    ['$scope', '$state', 'authService', '$upload', '$translate', 'applicationServices', 'suggestionServices', 'metapropConfServices', 'toaster', 'application', 'appEnvironments',
-    function($scope, $state, authService, $upload, $translate, applicationServices, suggestionServices, metapropConfServices, toaster, applicationResult, appEnvironments) {
+    ['$scope', '$state', 'authService', '$upload', '$translate', 'applicationServices', 'suggestionServices', 'toaster', 'application', 'appEnvironments',
+    function($scope, $state, authService, $upload, $translate, applicationServices, suggestionServices,  toaster, applicationResult, appEnvironments) {
+      $scope.applicationServices = applicationServices;
 
       /* Tag name with all letters a-Z and - and _ and no space */
       $scope.tagKeyPattern = /^[\-\w\d_]*$/;
@@ -205,25 +206,6 @@ define(function (require) {
           }
         );
       };
-
-      $scope.loadConfigurationTag = function() {
-        // filter only by target 'application'
-        var filterApplication = {};
-        filterApplication.target = [];
-        filterApplication.target.push('application'); // or 'component'
-
-        var searchRequestObject = {
-          'query': '',
-          'filters': filterApplication,
-          'from': 0,
-          'size': 50
-        };
-
-        metapropConfServices.search([], angular.toJson(searchRequestObject), function(successResult) {
-          $scope.configurationProperties = successResult.data.data;
-        });
-      };
-      $scope.loadConfigurationTag();
     }
   ]);
 });

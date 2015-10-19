@@ -1,8 +1,6 @@
 package alien4cloud.rest.csar;
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,7 +9,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -19,6 +16,7 @@ import javax.validation.Valid;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.collect.Sets;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -38,41 +36,27 @@ import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
-import alien4cloud.application.DeploymentSetupService;
-import alien4cloud.application.InvalidDeploymentSetupException;
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.cloud.CloudResourceMatcherService;
-import alien4cloud.cloud.CloudService;
-import alien4cloud.cloud.DeploymentService;
 import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
-import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.deployment.DeploymentService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.application.Application;
-import alien4cloud.model.application.DeploymentSetup;
-import alien4cloud.model.application.DeploymentSetupMatchInfo;
-import alien4cloud.model.cloud.Cloud;
+import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.deployment.Deployment;
-import alien4cloud.model.templates.TopologyTemplate;
-import alien4cloud.model.topology.Topology;
-import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.rest.topology.CsarRelatedResourceDTO;
-import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.model.CloudRole;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.tosca.ArchiveUploadService;
 import alien4cloud.tosca.parser.ParsingError;
@@ -83,7 +67,6 @@ import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.FileUploadUtil;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.VersionUtil;
-import alien4cloud.utils.YamlParserUtil;
 
 import com.google.common.collect.Lists;
 import com.mangofactory.swagger.annotations.ApiIgnore;
@@ -111,12 +94,6 @@ public class CloudServiceArchiveController {
     private CsarService csarService;
     @Resource
     private TopologyService topologyService;
-    @Resource
-    private CloudService cloudService;
-    @Resource
-    private CloudResourceMatcherService cloudResourceMatcherService;
-    @Resource
-    private DeploymentSetupService deploymentSetupService;
     @Resource
     private ApplicationService applicationService;
     @Resource
@@ -172,17 +149,10 @@ public class CloudServiceArchiveController {
     private CsarUploadResult toUploadResult(ParsingResult<Csar> result) {
         CsarUploadResult uploadResult = new CsarUploadResult();
         uploadResult.setCsar(result.getResult());
-        addAllSubResultErrors(result, uploadResult);
-        return uploadResult;
-    }
-
-    private void addAllSubResultErrors(ParsingResult<?> result, CsarUploadResult uploadResult) {
         if (result.getContext().getParsingErrors() != null && !result.getContext().getParsingErrors().isEmpty()) {
             uploadResult.getErrors().put(result.getContext().getFileName(), result.getContext().getParsingErrors());
         }
-        for (ParsingResult<?> subResult : result.getContext().getSubResults()) {
-            addAllSubResultErrors(subResult, uploadResult);
-        }
+        return uploadResult;
     }
 
     /**
@@ -239,110 +209,18 @@ public class CloudServiceArchiveController {
     @RequestMapping(value = "/{csarId:.+?}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     @Audit
-    public RestResponse<List<CsarRelatedResourceDTO>> delete(@PathVariable String csarId) {
-        Csar csar = csarService.getMandatoryCsar(csarId);
-        List<CsarRelatedResourceDTO> relatedResourceList = getCsarRelatedResourceList(csar);
-        boolean isCsarDeletable = relatedResourceList.isEmpty() ? true : false;
+    public RestResponse<List<Usage>> delete(@PathVariable String csarId) {
+        Csar csar = csarService.getOrFail(csarId);
+        List<Usage> relatedResourceList = csarService.deleteCsarWithElements(csar);
 
-        if (!isCsarDeletable) {
+        if (CollectionUtils.isNotEmpty(relatedResourceList)) {
             String errorMessage = "The csar named <" + csar.getName() + "> in version <" + csar.getVersion()
                     + "> can not be deleted since it is referenced by other resources";
-            return RestResponseBuilder.<List<CsarRelatedResourceDTO>> builder().data(relatedResourceList)
+            return RestResponseBuilder.<List<Usage>> builder().data(relatedResourceList)
                     .error(RestErrorBuilder.builder(RestErrorCode.DELETE_REFERENCED_OBJECT_ERROR).message(errorMessage).build()).build();
         }
 
-        // latest version indicator will be recomputed to match this new reality
-        indexerService.deleteElements(csar.getName(), csar.getVersion());
-        csarDAO.delete(Csar.class, csarId);
-
-        // physically delete files
-        alienRepository.removeCSAR(csar.getName(), csar.getVersion());
-        return RestResponseBuilder.<List<CsarRelatedResourceDTO>> builder().build();
-    }
-
-    /**
-     * Get resources related to a Csar
-     * 
-     * @param csar
-     * @return
-     */
-    private List<CsarRelatedResourceDTO> getCsarRelatedResourceList(Csar csar) {
-        List<CsarRelatedResourceDTO> relatedResourceList = Lists.newArrayList();
-
-        if (csar == null) {
-            log.warn("You have requested a resource list for a invalid csar object : <" + csar + ">");
-            return relatedResourceList;
-        }
-
-        // a csar that is a dependency of another csar can not be deleted
-        Csar[] relatedCsars = csarService.getDependantCsars(csar.getName(), csar.getVersion());
-        if (relatedCsars != null && relatedCsars.length > 0) {
-            relatedResourceList.addAll(generateCsarsInfo(relatedCsars));
-        }
-
-        // check if some of the nodes are used in topologies.
-        Topology[] topologies = csarService.getDependantTopologies(csar.getName(), csar.getVersion());
-        if (topologies != null && topologies.length > 0) {
-            relatedResourceList.addAll(generateTopologiesInfo(topologies));
-        }
-
-        return relatedResourceList;
-    }
-
-    /**
-     * Generate resources related to a csar list
-     * 
-     * @param csars
-     * @return
-     */
-    private List<CsarRelatedResourceDTO> generateCsarsInfo(Csar[] csars) {
-        String resourceName = null;
-        String resourceId = null;
-        List<CsarRelatedResourceDTO> resourceList = Lists.newArrayList();
-        for (Csar csar : csars) {
-            resourceName = csar.getName();
-            resourceId = csar.getId();
-            CsarRelatedResourceDTO temp = new CsarRelatedResourceDTO(resourceName, CSAR_TYPE_NAME, resourceId);
-            resourceList.add(temp);
-        }
-        return resourceList;
-    }
-
-    /**
-     * Generate resources (application or template) related to a topology list
-     * 
-     * @param topologies
-     * @return
-     */
-    private List<CsarRelatedResourceDTO> generateTopologiesInfo(Topology[] topologies) {
-        String resourceName = null;
-        String resourceId = null;
-        boolean typeHandled = true;
-        List<CsarRelatedResourceDTO> resourceList = Lists.newArrayList();
-        for (Topology topology : topologies) {
-            String delegateType = topology.getDelegateType();
-            if (delegateType.equals("application")) {
-                // get the related application
-                Application application = applicationService.checkAndGetApplication(topology.getDelegateId());
-                resourceName = application.getName();
-            } else if (delegateType.equals("topologytemplate")) {
-                // get the related template
-                TopologyTemplate template = topologyService.getOrFailTopologyTemplate(topology.getDelegateId());
-                resourceName = template.getName();
-            } else {
-                typeHandled = false;
-                log.info("The topology <" + topology.getId() + "> of type <" + delegateType + " is not yet handled.");
-            }
-
-            if (typeHandled) {
-                resourceId = topology.getDelegateId();
-                CsarRelatedResourceDTO temp = new CsarRelatedResourceDTO(resourceName, delegateType, resourceId);
-                resourceList.add(temp);
-            } else {
-                typeHandled = true;
-            }
-        }
-        return resourceList;
+        return RestResponseBuilder.<List<Usage>> builder().build();
     }
 
     @ApiOperation(value = "Get a CSAR given its id.", notes = "Returns a CSAR.")
@@ -350,7 +228,7 @@ public class CloudServiceArchiveController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     public RestResponse<CsarInfoDTO> read(@PathVariable String csarId) {
         Csar csar = csarDAO.findById(Csar.class, csarId);
-        List<CsarRelatedResourceDTO> relatedResourceList = getCsarRelatedResourceList(csar);
+        List<Usage> relatedResourceList = csarService.getCsarRelatedResourceList(csar);
         CsarInfoDTO csarInfo = new CsarInfoDTO(csar, relatedResourceList);
         return RestResponseBuilder.<CsarInfoDTO> builder().data(csarInfo).build();
     }
@@ -374,7 +252,7 @@ public class CloudServiceArchiveController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     @Audit
     public RestResponse<Void> saveNodeType(@PathVariable String csarId, @RequestBody IndexedNodeType nodeType) {
-        Csar csar = csarService.getMandatoryCsar(csarId);
+        Csar csar = csarService.getOrFail(csarId);
         // check that the csar version is snapshot.
         if (VersionUtil.isSnapshot(csar.getVersion())) {
             nodeType.setArchiveName(csar.getName());
@@ -415,7 +293,7 @@ public class CloudServiceArchiveController {
     @RequestMapping(value = "/{csarId:.+?}/active-deployment", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     public RestResponse<Deployment> getActiveDeployment(@PathVariable String csarId) {
-        Csar csar = csarService.getMandatoryCsar(csarId);
+        Csar csar = csarService.getOrFail(csarId);
         if (csar.getTopologyId() == null || csar.getCloudId() == null) {
             return RestResponseBuilder.<Deployment> builder().build();
         }
@@ -423,73 +301,74 @@ public class CloudServiceArchiveController {
         return RestResponseBuilder.<Deployment> builder().data(deployment).build();
     }
 
-    @ApiOperation(value = "Deploy snapshot archive on a given cloud.")
-    @RequestMapping(value = "/{csarName:.+?}/version/{csarVersion:.+?}/cloudid/{cloudId:.+?}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
-    @Audit
-    public RestResponse<String> deploySnapshot(@PathVariable String csarName, @PathVariable String csarVersion, @PathVariable String cloudId)
-            throws CSARVersionNotFoundException, IOException {
-        Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.values());
-
-        String archiveId = csarName + ":" + csarVersion;
-        Csar csar = csarDAO.findById(Csar.class, archiveId);
-        String deploymentId = null;
-        if (csar == null) {
-            throw new NotFoundException("Cannot find the CSAR with name [" + csarName + "] and version [" + csarVersion + "]");
-        }
-
-        if (deploymentService.getActiveDeployment(csar.getTopologyId(), csar.getCloudId()) != null) {
-            throw new AlreadyExistException("You cannot have more than a single deployment for a given CSAR.");
-        }
-
-        String version = csar.getVersion();
-        if (!version.contains("-SNAPSHOT")) {
-            throw new NotFoundException("Csar with id [" + csarName + "] is not in SNAPSHOT");
-        } else {
-            try {
-                // load topology yaml file from "test" folder
-                Path myCsar = alienRepository.getCSAR(csarName, csarVersion);
-                FileSystem csarFS = FileSystems.newFileSystem(myCsar, null);
-                Path definitionsFolderPath = csarFS.getPath(DEFAULT_TEST_FOLDER);
-                if (!Files.exists(definitionsFolderPath)) {
-                    throw new NotFoundException("yaml template should exist in folder [" + DEFAULT_TEST_FOLDER + "]");
-                }
-                // read the first yaml file found (only one currently)
-                YamlTestFileVisitor testFileExtractor = new YamlTestFileVisitor();
-                Files.walkFileTree(definitionsFolderPath, testFileExtractor);
-                testFileExtractor.getYamlTestFile();
-                Path yamlFilePath = testFileExtractor.getYamlTestFile();
-                if (yamlFilePath == null) {
-                    throw new NotFoundException("Cannot find a yaml file in subfolder [" + DEFAULT_TEST_FOLDER + "]");
-                }
-                // define a new topology
-                String topologyId = csar.getTopologyId();
-                if (topologyId == null) {
-                    topologyId = UUID.randomUUID().toString();
-                    csar.setTopologyId(topologyId);
-                }
-                csar.setCloudId(cloudId);
-                csarDAO.save(csar);
-                // update the topology object for the CSAR.
-                Topology topology = YamlParserUtil.parseFromUTF8File(yamlFilePath, Topology.class);
-                topology.setId(topologyId);
-                csarDAO.save(topology);
-                // deploy this topology
-                DeploymentSetup deploymentSetup = new DeploymentSetup();
-                DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topology, cloud,
-                        false);
-                if (!deploymentSetupMatchInfo.isValid()) {
-                    throw new InvalidDeploymentSetupException("Test topology for CSAR [" + csar.getId() + "] is not deployable on the cloud [" + cloud.getId()
-                            + "] because it contains unmatchable resources");
-                }
-                deploymentSetupService.generatePropertyDefinition(deploymentSetup, cloud);
-                deploymentId = deploymentService.deployTopology(topology, csar, deploymentSetup, cloudId);
-            } catch (CloudDisabledException e) {
-                return RestResponseBuilder.<String> builder().data(null).error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage()))
-                        .build();
-            }
-        }
-        return RestResponseBuilder.<String> builder().data(deploymentId).build();
-    }
+    // @ApiOperation(value = "Deploy snapshot archive on a given cloud.")
+    // @RequestMapping(value = "/{csarName:.+?}/version/{csarVersion:.+?}/cloudid/{cloudId:.+?}", method = RequestMethod.GET, produces =
+    // MediaType.APPLICATION_JSON_VALUE)
+    // @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
+    // @Audit
+    // public RestResponse<String> deploySnapshot(@PathVariable String csarName, @PathVariable String csarVersion, @PathVariable String cloudId)
+    // throws CSARVersionNotFoundException, IOException {
+    // Cloud cloud = cloudService.getMandatoryCloud(cloudId);
+    // AuthorizationUtil.checkAuthorizationForLocation(cloud, CloudRole.values());
+    //
+    // String archiveId = csarName + ":" + csarVersion;
+    // Csar csar = csarDAO.findById(Csar.class, archiveId);
+    // String deploymentId = null;
+    // if (csar == null) {
+    // throw new NotFoundException("Cannot find the CSAR with name [" + csarName + "] and version [" + csarVersion + "]");
+    // }
+    //
+    // if (deploymentService.getActiveDeployment(csar.getTopologyId(), csar.getCloudId()) != null) {
+    // throw new AlreadyExistException("You cannot have more than a single deployment for a given CSAR.");
+    // }
+    //
+    // String version = csar.getVersion();
+    // if (!version.contains("-SNAPSHOT")) {
+    // throw new NotFoundException("Csar with id [" + csarName + "] is not in SNAPSHOT");
+    // } else {
+    // try {
+    // // load topology yaml file from "test" folder
+    // Path myCsar = alienRepository.getCSAR(csarName, csarVersion);
+    // FileSystem csarFS = FileSystems.newFileSystem(myCsar, null);
+    // Path definitionsFolderPath = csarFS.getPath(DEFAULT_TEST_FOLDER);
+    // if (!Files.exists(definitionsFolderPath)) {
+    // throw new NotFoundException("yaml template should exist in folder [" + DEFAULT_TEST_FOLDER + "]");
+    // }
+    // // read the first yaml file found (only one currently)
+    // YamlTestFileVisitor testFileExtractor = new YamlTestFileVisitor();
+    // Files.walkFileTree(definitionsFolderPath, testFileExtractor);
+    // testFileExtractor.getYamlTestFile();
+    // Path yamlFilePath = testFileExtractor.getYamlTestFile();
+    // if (yamlFilePath == null) {
+    // throw new NotFoundException("Cannot find a yaml file in subfolder [" + DEFAULT_TEST_FOLDER + "]");
+    // }
+    // // define a new topology
+    // String topologyId = csar.getTopologyId();
+    // if (topologyId == null) {
+    // topologyId = UUID.randomUUID().toString();
+    // csar.setTopologyId(topologyId);
+    // }
+    // csar.setCloudId(cloudId);
+    // csarDAO.save(csar);
+    // // update the topology object for the CSAR.
+    // Topology topology = YamlParserUtil.parseFromUTF8File(yamlFilePath, Topology.class);
+    // topology.setId(topologyId);
+    // csarDAO.save(topology);
+    // // deploy this topology
+    // DeploymentSetup deploymentSetup = new DeploymentSetup();
+    // DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topology, cloud,
+    // false);
+    // if (!deploymentSetupMatchInfo.isValid()) {
+    // throw new InvalidDeploymentSetupException("Test topology for CSAR [" + csar.getId() + "] is not deployable on the cloud [" + cloud.getId()
+    // + "] because it contains unmatchable resources");
+    // }
+    // deploymentSetupService.generatePropertyDefinition(deploymentSetup, cloud);
+    // deploymentId = deploymentService.deployTopology(topology, csar, deploymentSetup, cloudId);
+    // } catch (OrchestratorDisabledException e) {
+    // return RestResponseBuilder.<String> builder().data(null).error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage()))
+    // .build();
+    // }
+    // }
+    // return RestResponseBuilder.<String> builder().data(deploymentId).build();
+    // }
 }

@@ -38,12 +38,19 @@ define(function(require) {
 
   modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$modal',
     function($scope, propertiesServices, $translate, $modal) {
+      if (_.undefined($scope.translate)) {
+        $scope.translate = false;
+      }
 
       $scope.propertySave = function(data, unit) {
         delete $scope.unitError;
-        if (_.undefined(data) || data.toString() === '') {
+        if (_.isEmpty(data)) {
           data = null;
-        } else if (_.defined($scope.definitionObject.units)) {
+        } else if (!_.isString(data)) {
+          data = data.toString();
+        }
+
+        if (!_.isEmpty(data) && _.defined($scope.definitionObject.units)) {
           if (_.undefined(unit)) {
             unit = $scope.definitionObject.uiUnit;
           }
@@ -139,6 +146,7 @@ define(function(require) {
         if (!_.defined($scope.definition)) {
           return;
         }
+
         // Now a property is an AbstractPropertyValue : (Scalar or Function)
         var shownValue = $scope.propertyValue;
         if (_.defined($scope.propertyValue) && $scope.propertyValue.definition === false) {
@@ -147,6 +155,8 @@ define(function(require) {
             shownValue = $scope.propertyValue.value;
           } else if ($scope.propertyValue.hasOwnProperty('function') && $scope.propertyValue.hasOwnProperty('parameters') && $scope.propertyValue.parameters.length > 0) {
             shownValue = $scope.propertyValue.function + ': ' + _($scope.propertyValue.parameters).toString();
+            //should not edit a function
+            $scope.editable = false;
           }
         }
 

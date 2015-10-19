@@ -34,12 +34,13 @@ public class ArchivePostProcessor {
         Map<String, String> globalElementsMap = Maps.newHashMap();
         postProcessArchive(parsedArchive.getResult().getArchive().getName(), parsedArchive.getResult().getArchive().getVersion(), parsedArchive,
                 globalElementsMap);
-        for (ParsingResult<?> subParsingResult : parsedArchive.getContext().getSubResults()) {
-            if (subParsingResult.getResult() instanceof ArchiveRoot) {
-                postProcessArchive(parsedArchive.getResult().getArchive().getName(), parsedArchive.getResult().getArchive().getVersion(),
-                        (ParsingResult<ArchiveRoot>) subParsingResult, globalElementsMap);
-            }
-        }
+        // TODO manage sub-archives
+        // for (ParsingResult<?> subParsingResult : parsedArchive.getContext().getSubResults()) {
+        // if (subParsingResult.getResult() instanceof ArchiveRoot) {
+        // postProcessArchive(parsedArchive.getResult().getArchive().getName(), parsedArchive.getResult().getArchive().getVersion(),
+        // (ParsingResult<ArchiveRoot>) subParsingResult, globalElementsMap);
+        // }
+        // }
     }
 
     private final void postProcessArchive(String archiveName, String archiveVersion, ParsingResult<ArchiveRoot> parsedArchive,

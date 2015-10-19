@@ -1,6 +1,6 @@
 package alien4cloud.model.application;
 
-import static alien4cloud.dao.model.FetchContext.DEPLOYMENT;
+import static alien4cloud.dao.model.FetchContext.SUMMARY;
 
 import java.util.Date;
 import java.util.List;
@@ -51,10 +51,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public class Application implements ISecuredResource, IDeploymentSource, ITaggableResource, IMetaProperties {
 
     @Id
-    @FetchContext(contexts = { DEPLOYMENT }, include = { true })
+    @FetchContext(contexts = { SUMMARY }, include = { true })
     private String id;
 
-    @FetchContext(contexts = { DEPLOYMENT }, include = { true })
+    @FetchContext(contexts = { SUMMARY }, include = { true })
     @StringField(includeInAll = true, indexType = IndexType.not_analyzed)
     private String name;
 
@@ -81,7 +81,7 @@ public class Application implements ISecuredResource, IDeploymentSource, ITaggab
     @ConditionalOnAttribute(ConditionalAttributes.ES)
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
-    @FetchContext(contexts = { DEPLOYMENT }, include = { true })
+    @FetchContext(contexts = { SUMMARY }, include = { true })
     private Map<String, Set<String>> userRoles;
 
     @TermFilter(paths = { "key", "value" })
@@ -89,7 +89,7 @@ public class Application implements ISecuredResource, IDeploymentSource, ITaggab
     @ConditionalOnAttribute(ConditionalAttributes.ES)
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
-    @FetchContext(contexts = { DEPLOYMENT }, include = { true })
+    @FetchContext(contexts = { SUMMARY }, include = { true })
     private Map<String, Set<String>> groupRoles;
 
     @Override

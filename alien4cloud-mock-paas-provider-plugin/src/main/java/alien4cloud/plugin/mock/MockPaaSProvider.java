@@ -17,16 +17,12 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
+import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.common.collect.Maps;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.model.cloud.CloudResourceMatcherConfig;
-import alien4cloud.model.cloud.CloudResourceType;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.deployment.Deployment;
@@ -45,7 +41,7 @@ import alien4cloud.paas.model.NodeOperationExecRequest;
 import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
+import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
@@ -58,9 +54,7 @@ import alien4cloud.tosca.normative.NormativeRelationshipConstants;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 @Slf4j
-@Component
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class MockPaaSProvider extends AbstractPaaSProvider {
+public abstract class MockPaaSProvider extends AbstractPaaSProvider {
     public static final String PUBLIC_IP = "ip_address";
     public static final String TOSCA_ID = "tosca_id";
     public static final String TOSCA_NAME = "tosca_name";
@@ -95,11 +89,6 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
             }
         }, 2L, 2L, TimeUnit.SECONDS);
 
-    }
-
-    @Override
-    public void updateMatcherConfig(CloudResourceMatcherConfig config) {
-        // Do nothing
     }
 
     @PreDestroy
@@ -155,7 +144,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     protected synchronized void doDeploy(final PaaSTopologyDeploymentContext deploymentContext) {
         log.info("Deploying deployment [" + deploymentContext.getDeploymentPaaSId() + "]");
         paaSDeploymentIdToAlienDeploymentIdMap.put(deploymentContext.getDeploymentPaaSId(), deploymentContext.getDeploymentId());
-        Topology topology = deploymentContext.getTopology();
+        Topology topology = deploymentContext.getDeploymentTopology();
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
         if (nodeTemplates == null) {
             nodeTemplates = Maps.newHashMap();
@@ -173,8 +162,8 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
             }
         }
 
-        runtimeDeploymentInfos.put(deploymentContext.getDeploymentPaaSId(), new MockRuntimeDeploymentInfo(deploymentContext,
-                DeploymentStatus.DEPLOYMENT_IN_PROGRESS, currentInformations));
+        runtimeDeploymentInfos.put(deploymentContext.getDeploymentPaaSId(),
+                new MockRuntimeDeploymentInfo(deploymentContext, DeploymentStatus.DEPLOYMENT_IN_PROGRESS, currentInformations));
 
         changeStatus(deploymentContext.getDeploymentPaaSId(), DeploymentStatus.DEPLOYMENT_IN_PROGRESS);
 
@@ -207,7 +196,8 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
                 for (Map.Entry<String, InstanceInformation> instanceEntry : nodeEntry.getValue().entrySet()) {
                     instanceEntry.getValue().setState("stopping");
                     instanceEntry.getValue().setInstanceStatus(InstanceStatus.PROCESSING);
-                    notifyInstanceStateChanged(deploymentContext.getDeploymentPaaSId(), nodeEntry.getKey(), instanceEntry.getKey(), instanceEntry.getValue(), 1);
+                    notifyInstanceStateChanged(deploymentContext.getDeploymentPaaSId(), nodeEntry.getKey(), instanceEntry.getKey(), instanceEntry.getValue(),
+                            1);
                 }
             }
         }
@@ -263,8 +253,9 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
                 Deployment deployment = deploymentInfo.getDeploymentContext().getDeployment();
                 PaaSInstanceStateMonitorEvent event;
                 if (deployment.getSourceName().equals(BLOCKSTORAGE_APPLICATION) && cloned.getState().equalsIgnoreCase("created")) {
-                    PaaSInstanceStorageMonitorEvent bsEvent = new PaaSInstanceStorageMonitorEvent();
-                    bsEvent.setVolumeId(UUID.randomUUID().toString());
+                    PaaSInstancePersistentResourceMonitorEvent bsEvent = new PaaSInstancePersistentResourceMonitorEvent();
+                    bsEvent.setPropertyName(NormativeBlockStorageConstants.VOLUME_ID);
+                    bsEvent.setPropertyValue(UUID.randomUUID().toString());
                     event = bsEvent;
                 } else {
                     event = new PaaSInstanceStateMonitorEvent();
@@ -402,7 +393,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
             return;
         }
 
-        Topology topology = runtimeDeploymentInfo.getDeploymentContext().getTopology();
+        Topology topology = runtimeDeploymentInfo.getDeploymentContext().getDeploymentTopology();
         final Map<String, Map<String, InstanceInformation>> existingInformations = runtimeDeploymentInfo.getInstanceInformations();
         if (existingInformations != null && existingInformations.containsKey(nodeTemplateId)) {
             ScalingVisitor scalingVisitor = new ScalingVisitor() {
@@ -437,7 +428,8 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     }
 
     @Override
-    public void getInstancesInformation(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
+    public void getInstancesInformation(PaaSTopologyDeploymentContext deploymentContext,
+            IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
         MockRuntimeDeploymentInfo runtimeDeploymentInfo = runtimeDeploymentInfos.get(deploymentContext.getDeploymentPaaSId());
         if (runtimeDeploymentInfo != null) {
             callback.onSuccess(runtimeDeploymentInfo.getInstanceInformations());
@@ -487,34 +479,12 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     }
 
     @Override
-    public String[] getAvailableResourceIds(CloudResourceType resourceType) {
-        if (providerConfiguration != null && providerConfiguration.isProvideResourceIds()) {
-            int idCount = providerConfiguration.getResourceIdsCount();
-            if (idCount == 0) {
-                idCount = 10;
-            }
-            String[] ids = new String[idCount];
-            for (int i = 0; i < idCount; i++) {
-                ids[i] = "yetAnotherResourceId-" + resourceType.name() + "-" + i;
-            }
-            return ids;
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public String[] getAvailableResourceIds(CloudResourceType resourceType, String imageId) {
-        return null;
-    }
-
-    @Override
     public void switchMaintenanceMode(PaaSDeploymentContext deploymentContext, boolean maintenanceModeOn) {
         String deploymentPaaSId = deploymentContext.getDeploymentPaaSId();
 
         MockRuntimeDeploymentInfo runtimeDeploymentInfo = runtimeDeploymentInfos.get(deploymentContext.getDeploymentPaaSId());
 
-        Topology topology = runtimeDeploymentInfo.getDeploymentContext().getTopology();
+        Topology topology = runtimeDeploymentInfo.getDeploymentContext().getDeploymentTopology();
         Map<String, Map<String, InstanceInformation>> nodes = runtimeDeploymentInfo.getInstanceInformations();
 
         if (nodes == null || nodes.isEmpty()) {

@@ -1,10 +1,6 @@
 package alien4cloud.model.components;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import alien4cloud.json.deserializer.BoundDeserializer;
 import alien4cloud.json.serializer.BoundSerializer;
 import alien4cloud.ui.form.annotation.FormProperties;
@@ -36,6 +32,7 @@ public class RequirementDefinition {
      */
     @FormSuggestion(fromClass = IndexedCapabilityType.class, path = "elementId")
     private String type;
+    private String description;
     /** Specifies the default relationship type to be used for the relationship. This can be overriden by user but should be used as default. */
     private String relationshipType;
     /** Can specify the optional target capability name on which to bind the relationship. */

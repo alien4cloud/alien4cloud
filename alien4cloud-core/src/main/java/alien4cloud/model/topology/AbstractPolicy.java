@@ -13,8 +13,7 @@ public abstract class AbstractPolicy {
 
     public abstract String getType();
 
-    public void setType(String type) {
-        // here only for JSON deserialization
-    }
+    // needed for JSON deserialization ?
+    public abstract void setType(String type);
 
 }

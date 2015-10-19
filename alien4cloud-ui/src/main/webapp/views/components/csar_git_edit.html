@@ -1,0 +1,31 @@
+<form name="CsarGitEdited" class="form" role="form" novalidate>
+  <div class="modal-header">
+    <h3>{{'CSAR.EDIT' | translate}}</h3>
+  </div>
+  <div class="modal-body" >
+    <div class="form-group" >
+      <label for="csargit_url" class="control-label">
+        {{'CSAR.URL' | translate}}
+      </label>
+      <input type="url" class="form-control"  id="csargit_url" ng-model="url" name="url" required="" placeholder="{{'CSAR.URL' | translate}}">
+    </div>
+    <div class="form-group" >
+      <label for="csargit_credentials" class="control-label">
+        {{'CSAR.CREDENTIALS' | translate}}
+      </label>
+      <div class="input-group">
+        <span class="input-group-addon">{{'CSAR.USERNAME' | translate}}</span>
+        <input type="text"class="form-control" id="username" ng-model="username" name="username" placeholder="{{'OPTIONAL' | translate}}"></input>
+        <span class="input-group-addon" style="border-left: 0; border-right: 0;">{{'CSAR.PASSWORD' | translate}}</span>
+        <input type="password" class="form-control" id="password" ng-model="password" name="password"  placeholder="{{'OPTIONAL' | translate}}">
+      </div>
+      <span class="help-block">
+        <i class="fa fa-question-circle"></i><i>  {{'CSAR.CREDENTIALSINFO' | translate}}</i>
+      </span>
+    </div>
+    <div class="modal-footer">
+      <button id="btn-create" ng-disabled="!url" ng-click="update(url,username,password)" class="btn btn-primary">{{'CSAR.UPDATE' | translate}}</button>
+      <button id="btn-cancel" type="button" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
+    </div>
+  </div>
+</form>

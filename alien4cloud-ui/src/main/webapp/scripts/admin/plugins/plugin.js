@@ -54,7 +54,7 @@ define(function (require) {
       $scope.onSearchCompleted = function(searchResult) {
         $scope.data = searchResult.data;
       };
-      $scope.searchService = searchServiceFactory('rest/plugin/search', false, $scope, 20);
+      $scope.searchService = searchServiceFactory('rest/plugins', true, $scope, 20);
 
       $scope.search = function() {
         $scope.searchService.search();
@@ -63,7 +63,7 @@ define(function (require) {
       //first load
       $scope.search();
 
-      var enableResource = $resource('rest/plugin/:pluginId/enable', {}, {
+      var enableResource = $resource('rest/plugins/:pluginId/enable', {}, {
         'enable': {
           method: 'GET',
           params: {
@@ -72,7 +72,7 @@ define(function (require) {
         }
       });
 
-      var disableResource = $resource('rest/plugin/:pluginId/disable', {}, {
+      var disableResource = $resource('rest/plugins/:pluginId/disable', {}, {
         'disable': {
           method: 'GET',
           params: {

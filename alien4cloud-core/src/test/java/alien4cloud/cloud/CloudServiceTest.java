@@ -1,33 +1,37 @@
 package alien4cloud.cloud;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
-import org.elasticsearch.index.query.FilterBuilder;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.model.cloud.Cloud;
-import alien4cloud.model.cloud.CloudConfiguration;
-import alien4cloud.paas.IConfigurablePaaSProvider;
-import alien4cloud.paas.IConfigurablePaaSProviderFactory;
-import alien4cloud.paas.IPaaSProvider;
-import alien4cloud.paas.IPaaSProviderFactory;
-import alien4cloud.paas.PaaSProviderFactoriesService;
-import alien4cloud.paas.PaaSProviderService;
+import alien4cloud.deployment.DeploymentService;
+import alien4cloud.model.orchestrators.Orchestrator;
+import alien4cloud.model.orchestrators.OrchestratorConfiguration;
+import alien4cloud.model.orchestrators.OrchestratorState;
+import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
+import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
+import alien4cloud.orchestrators.services.OrchestratorConfigurationService;
+import alien4cloud.orchestrators.services.OrchestratorService;
+import alien4cloud.orchestrators.services.OrchestratorStateService;
+import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.exception.PluginConfigurationException;
-import alien4cloud.paas.plan.MockPaaSProvider;
+
+import com.google.common.collect.Lists;
 
 public class CloudServiceTest {
-
     public static final String DEFAULT_CLOUD_CONFIGURATION = "This is the cloud configuration";
-    private PaaSProviderService paaSProviderService;
-    private PaaSProviderFactoriesService paaSProviderFactoriesService;
+    private OrchestratorPluginService orchestratorPluginService;
+    private OrchestratorConfigurationService orchestratorConfigurationService;
     private IGenericSearchDAO alienDAO;
-    private CloudImageService cloudImageService;
     private DeploymentService deploymentService;
-    private CloudService cloudService;
+    private OrchestratorStateService orchestratorStateService;
+    private OrchestratorService orchestratorService;
 
     private void setPrivateField(Object target, String fieldName, Object fieldValue) {
         Field field;
@@ -42,185 +46,120 @@ public class CloudServiceTest {
 
     private void initializeMockedCloudService() {
         alienDAO = Mockito.mock(IGenericSearchDAO.class);
-        paaSProviderFactoriesService = Mockito.mock(PaaSProviderFactoriesService.class);
-        paaSProviderService = Mockito.mock(PaaSProviderService.class);
-        cloudImageService = Mockito.mock(CloudImageService.class);
+        orchestratorConfigurationService = Mockito.mock(OrchestratorConfigurationService.class);
+        orchestratorPluginService = Mockito.mock(OrchestratorPluginService.class);
         deploymentService = Mockito.mock(DeploymentService.class);
-        // initialize cloud service instance with mocks
-        cloudService = new CloudService();
-        setPrivateField(cloudService, "alienDAO", alienDAO);
-        setPrivateField(cloudService, "paaSProviderFactoriesService", paaSProviderFactoriesService);
-        setPrivateField(cloudService, "paaSProviderService", paaSProviderService);
-        setPrivateField(cloudService, "cloudImageService", cloudImageService);
-        setPrivateField(cloudService, "deploymentService", deploymentService);
+        orchestratorService = Mockito.mock(OrchestratorService.class);
+        // initialize orchestrator state service instance with mocks
+        orchestratorStateService = new OrchestratorStateService();
+        setPrivateField(orchestratorStateService, "alienDAO", alienDAO);
+        setPrivateField(orchestratorStateService, "orchestratorConfigurationService", orchestratorConfigurationService);
+        setPrivateField(orchestratorStateService, "orchestratorPluginService", orchestratorPluginService);
+        setPrivateField(orchestratorStateService, "deploymentService", deploymentService);
+        setPrivateField(orchestratorStateService, "orchestratorService", orchestratorService);
     }
 
     @Test
     public void testInitializeNullData() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
         initializeMockedCloudService();
 
-        GetMultipleDataResult<Cloud> enabledClouds = new GetMultipleDataResult<Cloud>();
+        List<Orchestrator> enabledClouds = Lists.newArrayList();
         initSearch(enabledClouds);
 
-        cloudService.initialize();
+        orchestratorStateService.initialize();
     }
 
     @Test
     public void testInitializeEmptyData() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
         initializeMockedCloudService();
 
-        GetMultipleDataResult<Cloud> enabledClouds = new GetMultipleDataResult<Cloud>();
-        enabledClouds.setData(new Cloud[0]);
-        enabledClouds.setTypes(new String[0]);
+        List<Orchestrator> enabledClouds = Lists.newArrayList(new Orchestrator[0]);
         initSearch(enabledClouds);
 
-        cloudService.initialize();
+        orchestratorStateService.initialize();
     }
 
     @SuppressWarnings("unchecked")
-    private void initSearch(GetMultipleDataResult<Cloud> enabledClouds) {
-        Mockito.when(
-                alienDAO.search(Mockito.eq(Cloud.class), Mockito.isNull(String.class), Mockito.anyMap(), Mockito.isNull(FilterBuilder.class),
-                        Mockito.isNull(String.class), Mockito.eq(0), Mockito.eq(20))).thenReturn(enabledClouds);
+    private void initSearch(List<Orchestrator> enabledClouds) {
+        Mockito.when(orchestratorService.getAllEnabledOrchestrators()).thenReturn(enabledClouds);
     }
 
-    private GetMultipleDataResult<Cloud> searchCloud(boolean configurable) {
-        Cloud cloud = new Cloud();
+    private List<Orchestrator> searchCloud() {
+        Orchestrator cloud = new Orchestrator();
         cloud.setId("id");
         cloud.setName("name");
-        cloud.setEnabled(true);
-        cloud.setPaasPluginId("paasPluginId");
-        cloud.setPaasPluginBean("paasPluginBean");
-        cloud.setConfigurable(configurable);
+        cloud.setState(OrchestratorState.CONNECTED);
+        cloud.setPluginId("paasPluginId");
+        cloud.setPluginBean("paasPluginBean");
 
-        GetMultipleDataResult<Cloud> enabledClouds = new GetMultipleDataResult<Cloud>();
-        enabledClouds.setData(new Cloud[] { cloud });
-        enabledClouds.setTypes(new String[] { Cloud.class.getName() });
-        return enabledClouds;
+        return Lists.newArrayList(cloud);
     }
 
-    @Test
-    public void testInitializeUnconfigurableCloud() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-        initializeMockedCloudService();
-
-        IPaaSProviderFactory paaSProviderFactory = Mockito.mock(IPaaSProviderFactory.class);
-        IPaaSProvider paaSProvider = Mockito.mock(IPaaSProvider.class);
-
-        GetMultipleDataResult<Cloud> enabledClouds = searchCloud(false);
-        Cloud cloud = enabledClouds.getData()[0];
-
-        initSearch(enabledClouds);
-        Mockito.when(paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean())).thenReturn(paaSProviderFactory);
-        Mockito.when(paaSProviderFactory.newInstance()).thenReturn(paaSProvider);
-
-        cloudService.initializeAndWait();
-
-        Mockito.verify(paaSProviderService, Mockito.times(1)).register(cloud.getId(), paaSProvider);
-    }
-
-    @Test
-    public void testInitializeConfigurableCloudNoConfig() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-        initializeMockedCloudService();
-
-        IPaaSProviderFactory paaSProviderFactory = Mockito.mock(IPaaSProviderFactory.class);
-        IPaaSProvider paaSProvider = Mockito.mock(IPaaSProvider.class, Mockito.withSettings().extraInterfaces(IConfigurablePaaSProvider.class));
-
-        GetMultipleDataResult<Cloud> enabledClouds = searchCloud(true);
-        Cloud cloud = enabledClouds.getData()[0];
-
-        initSearch(enabledClouds);
-        Mockito.when(paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean())).thenReturn(paaSProviderFactory);
-        Mockito.when(paaSProviderFactory.newInstance()).thenReturn(paaSProvider);
-        Mockito.when(alienDAO.findById(CloudConfiguration.class, cloud.getId())).thenReturn(null);
-
-        cloudService.initializeAndWait();
-
-        Mockito.verify(paaSProviderService, Mockito.times(1)).register(cloud.getId(), paaSProvider);
-    }
-
-    @Test
-    public void testInitializeConfigurableCloudInvalidPlugin() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-        initializeMockedCloudService();
-
-        IConfigurablePaaSProviderFactory<String> paaSProviderFactory = Mockito.mock(IConfigurablePaaSProviderFactory.class);
-        IConfigurablePaaSProvider<String> paaSProvider = Mockito.mock(IConfigurablePaaSProvider.class);
-
-        GetMultipleDataResult<Cloud> enabledClouds = searchCloud(true);
-        Cloud cloud = enabledClouds.getData()[0];
-        CloudConfiguration configuration = new CloudConfiguration(cloud.getId(), DEFAULT_CLOUD_CONFIGURATION);
-
-        initSearch(enabledClouds);
-        Mockito.when(paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean())).thenReturn(paaSProviderFactory);
-        Mockito.when(paaSProviderFactory.newInstance()).thenReturn(paaSProvider);
-        Mockito.when(alienDAO.findById(CloudConfiguration.class, cloud.getId())).thenReturn(configuration);
-
-        cloudService.initializeAndWait();
-
-        Mockito.verify(paaSProviderService, Mockito.times(0)).register(cloud.getId(), paaSProvider);
-        Mockito.verify(paaSProviderService, Mockito.times(1)).unregister(cloud.getId());
-        cloud = (Cloud) searchCloud(true).getData()[0];
-        cloud.setEnabled(false);
-        Mockito.verify(alienDAO, Mockito.times(1)).save(Mockito.refEq(cloud));
+    private void initializeAndWait() throws ExecutionException, InterruptedException {
+        List<Future<?>> futures = orchestratorStateService.initialize();
+        for (Future<?> future : futures) {
+            future.get();
+        }
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void testInitializeConfigurableCloudValidConfig() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException,
-            PluginConfigurationException {
+            PluginConfigurationException, ExecutionException, InterruptedException, IOException {
         initializeMockedCloudService();
 
-        IConfigurablePaaSProviderFactory paaSProviderFactory = Mockito.mock(IConfigurablePaaSProviderFactory.class);
-        IConfigurablePaaSProvider<String> paaSProvider = Mockito.mock(MockPaaSProvider.class);
+        IOrchestratorPluginFactory orchestratorPluginFactory = Mockito.mock(IOrchestratorPluginFactory.class);
+        IOrchestratorPlugin orchestratorPlugin = Mockito.mock(IOrchestratorPlugin.class);
 
-        GetMultipleDataResult<Cloud> enabledClouds = searchCloud(true);
-        Cloud cloud = enabledClouds.getData()[0];
-        CloudConfiguration configuration = new CloudConfiguration(cloud.getId(), DEFAULT_CLOUD_CONFIGURATION);
-        enabledClouds.setFrom(0);
-        enabledClouds.setTotalResults(1);
+        List<Orchestrator> enabledClouds = searchCloud();
+        Orchestrator cloud = enabledClouds.get(0);
+        OrchestratorConfiguration configuration = new OrchestratorConfiguration(cloud.getId(), DEFAULT_CLOUD_CONFIGURATION);
 
         initSearch(enabledClouds);
 
-        Mockito.when(paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean())).thenReturn(paaSProviderFactory);
-        Mockito.when(paaSProviderFactory.newInstance()).thenReturn(paaSProvider);
-        Mockito.when(paaSProviderFactory.getConfigurationType()).thenReturn(String.class);
-        Mockito.when(paaSProviderFactory.getDefaultConfiguration()).thenReturn(DEFAULT_CLOUD_CONFIGURATION);
-        Mockito.when(alienDAO.findById(CloudConfiguration.class, cloud.getId())).thenReturn(configuration);
-        cloudService.initializeAndWait();
+        Mockito.when(orchestratorService.getPluginFactory(cloud)).thenReturn(orchestratorPluginFactory);
+        Mockito.when(orchestratorPluginFactory.newInstance()).thenReturn(orchestratorPlugin);
+        Mockito.when(orchestratorPluginFactory.getConfigurationType()).thenReturn(String.class);
+        Mockito.when(orchestratorPluginFactory.getDefaultConfiguration()).thenReturn(DEFAULT_CLOUD_CONFIGURATION);
+        Mockito.when(orchestratorConfigurationService.configurationAsValidObject(cloud.getId(), configuration.getConfiguration()))
+                .thenReturn(DEFAULT_CLOUD_CONFIGURATION);
+        Mockito.when(orchestratorConfigurationService.getConfigurationOrFail(cloud.getId())).thenReturn(configuration);
+        initializeAndWait();
 
-        Mockito.verify(paaSProvider, Mockito.times(1)).setConfiguration((String) configuration.getConfiguration());
-        Mockito.verify(paaSProviderService, Mockito.times(1)).register(cloud.getId(), paaSProvider);
+        Mockito.verify(orchestratorPlugin, Mockito.times(1)).setConfiguration((String) configuration.getConfiguration());
+        Mockito.verify(orchestratorPluginService, Mockito.times(1)).register(cloud.getId(), orchestratorPlugin);
     }
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testInitializeConfigurableCloudInvalidConfig() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException,
-            SecurityException, PluginConfigurationException {
+    public void testInitializeConfigurableCloudInvalidConfig() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException,
+            PluginConfigurationException, ExecutionException, InterruptedException, IOException {
         initializeMockedCloudService();
 
-        IConfigurablePaaSProviderFactory<String> paaSProviderFactory = Mockito.mock(IConfigurablePaaSProviderFactory.class);
-        IConfigurablePaaSProvider<String> paaSProvider = Mockito.mock(MockPaaSProvider.class);
+        IOrchestratorPluginFactory orchestratorPluginFactory = Mockito.mock(IOrchestratorPluginFactory.class);
+        IOrchestratorPlugin orchestratorPlugin = Mockito.mock(IOrchestratorPlugin.class);
 
-        GetMultipleDataResult<Cloud> enabledClouds = searchCloud(true);
-        Cloud cloud = enabledClouds.getData()[0];
-        CloudConfiguration configuration = new CloudConfiguration(cloud.getId(), DEFAULT_CLOUD_CONFIGURATION);
+        List<Orchestrator> enabledClouds = searchCloud();
+        Orchestrator cloud = enabledClouds.get(0);
+        OrchestratorConfiguration configuration = new OrchestratorConfiguration(cloud.getId(), DEFAULT_CLOUD_CONFIGURATION);
 
         initSearch(enabledClouds);
 
-        Mockito.when(paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean())).thenReturn(paaSProviderFactory);
-        Mockito.when(paaSProviderFactory.newInstance()).thenReturn(paaSProvider);
-        Mockito.when(paaSProviderFactory.getConfigurationType()).thenReturn(String.class);
-        Mockito.when(paaSProviderFactory.getDefaultConfiguration()).thenReturn(DEFAULT_CLOUD_CONFIGURATION);
-        Mockito.when(alienDAO.findById(CloudConfiguration.class, cloud.getId())).thenReturn(configuration);
-        Mockito.when(alienDAO.findById(CloudConfiguration.class, cloud.getId())).thenReturn(configuration);
+        Mockito.when(orchestratorService.getPluginFactory(cloud)).thenReturn(orchestratorPluginFactory);
+        Mockito.when(orchestratorPluginFactory.newInstance()).thenReturn(orchestratorPlugin);
+        Mockito.when(orchestratorPluginFactory.getConfigurationType()).thenReturn(String.class);
+        Mockito.when(orchestratorPluginFactory.getDefaultConfiguration()).thenReturn(DEFAULT_CLOUD_CONFIGURATION);
+        Mockito.when(orchestratorConfigurationService.getConfigurationOrFail(cloud.getId())).thenReturn(configuration);
+        Mockito.when(orchestratorConfigurationService.configurationAsValidObject(cloud.getId(), configuration.getConfiguration()))
+                .thenReturn(DEFAULT_CLOUD_CONFIGURATION);
 
-        Mockito.doThrow(PluginConfigurationException.class).when(paaSProvider).setConfiguration((String) configuration.getConfiguration());
+        Mockito.doThrow(PluginConfigurationException.class).when(orchestratorPlugin).setConfiguration((String) configuration.getConfiguration());
 
-        cloudService.initializeAndWait();
+        initializeAndWait();
 
-        Mockito.verify(paaSProviderService, Mockito.times(0)).register(cloud.getId(), paaSProvider);
-        Mockito.verify(paaSProviderService, Mockito.times(1)).unregister(cloud.getId());
-        cloud = (Cloud) searchCloud(true).getData()[0];
-        cloud.setEnabled(false);
-        Mockito.verify(alienDAO, Mockito.times(1)).save(Mockito.refEq(cloud));
+        Mockito.verify(orchestratorPluginService, Mockito.times(0)).register(cloud.getId(), orchestratorPlugin);
+        cloud = (Orchestrator) searchCloud().get(0);
+        cloud.setState(OrchestratorState.DISABLED);
+        Mockito.verify(alienDAO, Mockito.times(2)).save(Mockito.refEq(cloud));
     }
 }

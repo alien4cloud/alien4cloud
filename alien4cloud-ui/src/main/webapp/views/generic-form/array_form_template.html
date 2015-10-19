@@ -10,7 +10,7 @@
     <div class="col-md-8">
       <div tooltip="Add" style="display: inline-block;" tooltip-placement="top">
         <button id="{{idPrefix + 'addelementbutton'}}" type="button" class="btn btn-default btn-sm"
-                ng-click="addElementToArray()">
+                ng-click="addElementToArray()" ng-disabled="configuration.isReadOnly">
           <i class="fa fa-plus"></i>
         </button>
       </div>

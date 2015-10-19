@@ -3,7 +3,7 @@ package alien4cloud.topology.task;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import alien4cloud.paas.ha.AllocationErrorCode;
+import alien4cloud.paas.policies.AllocationErrorCode;
 
 @Getter
 @Setter

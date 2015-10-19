@@ -18,6 +18,7 @@ import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.AbstractTopologyVersion;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
 
@@ -28,6 +29,9 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
 
     @Resource(name = "alien-es-dao")
     protected IGenericSearchDAO alienDAO;
+
+    @Resource
+    private TopologyServiceCore topologyServiceCore;
 
     @Resource
     private WorkflowsBuilderService workflowBuilderService;
@@ -93,7 +97,7 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
             checkTopologyReleasable(topology);
         }
 
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
 
         appVersion.setTopologyId(topology.getId());
         alienDAO.save(appVersion);

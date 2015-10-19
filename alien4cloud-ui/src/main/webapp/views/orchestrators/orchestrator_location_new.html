@@ -1,0 +1,33 @@
+<form name="newLocationForm" class="form-horizontal" role="form" ng-submit="save(locationTypes && newLocationForm.$valid)" novalidate>
+  <div class="modal-header">
+    <h3>{{'ORCHESTRATORS.LOCATIONS.NEW' | translate}}</h3>
+  </div>
+  <div class="modal-body">
+    <div class="form-group" ng-class="{'has-error': newLocationForm.name.$invalid}">
+      <label for="location_name_id" class="col-lg-3 control-label">
+        {{'ORCHESTRATORS.NAME' | translate}}
+      </label>
+      <div class="col-lg-9">
+        <input type="text" class="form-control" id="location_name_id" ng-model="newLocation.name" name="name" required placeholder="{{'ORCHESTRATORS.NAME' | translate}}">
+      </div>
+    </div>
+    <div class="form-group" ng-class="{'has-error': newLocationForm.provider.$invalid}">
+      <label class="col-lg-3 control-label">
+        {{'ORCHESTRATORS.LOCATIONS.INFRA_TYPE' | translate}}
+      </label>
+      <div class="col-lg-9">
+        <select class="form-control" name="infrastructureType" required ng-model="newLocation.infrastructureType" ng-options="infrastructureType for infrastructureType in locationTypes">
+          <option value="">{{'ORCHESTRATORS.LOCATIONS.INFRA_TYPE_SELECT' | translate}}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button id="new-location-create-button" ng-disabled="newLocationForm.$invalid" class="btn btn-primary">
+      {{'CREATE' | translate}}
+    </button>
+    <a class="btn btn-default" ng-click="cancel()">
+      {{'CANCEL' | translate}}
+    </a>
+  </div>
+</form>

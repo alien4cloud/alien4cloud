@@ -17,38 +17,58 @@ define(function (require) {
       icon: 'fa fa-cogs',
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'], // is deployer
       priority: 400
+    },
+    params:{
+      selectedEnvironmentId:null
     }
   });
 
   modules.get('a4c-applications').controller('TopologyRuntimeCtrl',
-    ['$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'cloudServices', 'appEnvironments', '$interval', 'toscaService', 'topologyJsonProcessor',
-    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServicesFactory, $state, propertiesServices, toaster, cloudServices, appEnvironments, $interval, toscaService, topologyJsonProcessor) {
+    ['$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'orchestratorService', 'appEnvironments', '$interval', 'toscaService', 'topologyJsonProcessor',
+    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServicesFactory, $state, propertiesServices, toaster, orchestratorService, appEnvironments, $interval, toscaService, topologyJsonProcessor) {
       var pageStateId = $state.current.name;
       var applicationId = $state.params.id;
+      var selectedEnvironmentId = $state.params.selectedEnvironmentId;
+      $scope.selectedEnvironment = null;
+      
+      console.log($state);
 
-      $scope.runtimeEnvironments = appEnvironments.deployEnvironments;
-      // select current environment
-      if (_.defined(appEnvironments.selectedEnvironment) && appEnvironments.selectedEnvironment.status !== 'UNDEPLOYED') {
-        $scope.selectedEnvironment = appEnvironments.selectedEnvironment;
-      } else {
-        $scope.selectedEnvironment = null;
-        for (var i = 0; i < appEnvironments.deployEnvironments.length && $scope.selectedEnvironment === null; i++) {
-          if (appEnvironments.deployEnvironments[i].status !== 'UNDEPLOYED') {
-            $scope.selectedEnvironment = appEnvironments.deployEnvironments[i];
+      
+      var updateSelectedEnvionment = function() {
+        $scope.runtimeEnvironments = appEnvironments.deployEnvironments;
+        // select current environment
+        if (_.defined(appEnvironments.selectedEnvironment) && appEnvironments.selectedEnvironment.status !== 'UNDEPLOYED') {
+          $scope.selectedEnvironment = appEnvironments.selectedEnvironment;
+        } else if(_.defined(selectedEnvironmentId)){
+          //or maybe the state request was made to open the view on a specific environment
+          var environmentsById = _.indexBy(appEnvironments.deployEnvironments, 'id');
+          if(_.defined( environmentsById[selectedEnvironmentId]) &&  environmentsById[selectedEnvironmentId].status!=='UNDEPLOYED'){
+            $scope.selectedEnvironment = environmentsById[selectedEnvironmentId];
+            appEnvironments.selectedEnvironment = $scope.selectedEnvironment;
           }
-          appEnvironments.selectedEnvironment = $scope.selectedEnvironment;
+        }else {
+          //otherwise, just select the first deployed envionment
+          for (var i = 0; i < appEnvironments.deployEnvironments.length && _.undefined($scope.selectedEnvironment); i++) {
+            if (appEnvironments.deployEnvironments[i].status !== 'UNDEPLOYED') {
+              $scope.selectedEnvironment = appEnvironments.deployEnvironments[i];
+            }
+            appEnvironments.selectedEnvironment = $scope.selectedEnvironment;
+          }
         }
       }
+      
+      //update the selectedEnvironment
+      updateSelectedEnvionment();
+      
 
       // get the related cloud to display informations.
-      var refreshCloudInfo = function() {
-        cloudServices.get({
-          id: $scope.selectedEnvironment.cloudId
+      var refreshOrchestratorInfo = function() {
+        orchestratorService.get({
+          orchestratorId: $scope.topology.topology.orchestratorId
         }, function(response) {
-          $scope.cloud = response.data.cloud;
+          $scope.orchestrator = response.data;
         });
       };
-      refreshCloudInfo();
 
       $scope.eventTypeLabels = {
         'ALL': 'APPLICATIONS.RUNTIME.EVENTS.ALL',
@@ -249,7 +269,7 @@ define(function (require) {
           $scope.topology = successResult.data;
           topologyJsonProcessor.process($scope.topology);
           refreshInstancesStatuses(); // update instance states
-          refreshCloudInfo(); // cloud info for deployment view
+          refreshOrchestratorInfo(); // cloud info for deployment view
         });
       };
 

@@ -24,6 +24,12 @@ var envRoles = {
 }
 module.exports.envRoles = envRoles;
 
+// Orchestrator Roles
+var orchestratorRoles = {
+  orchestratorDeployer: 'ORCHESTRATOR_DEPLOYER'
+};
+module.exports.orchestratorRoles = orchestratorRoles;
+
 // Cloud Roles
 var cloudRoles = {
   cloudDeployer: 'CLOUD_DEPLOYER'

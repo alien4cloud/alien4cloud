@@ -3,7 +3,7 @@
 @import "bootstrap_variables";
 
 .property-required {
-  font-weight: bold;
+  font-weight: 500;
   font-style: italic;
 
 }
@@ -27,7 +27,7 @@ a.editable-click:hover {
 
 }
 .editable-empty i {
-  color: #428bca;
+  color: $brand-primary;
 
 }
 .editable-discreet.editable-click {

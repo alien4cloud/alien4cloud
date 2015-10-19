@@ -43,7 +43,7 @@ define(function (require) {
         }
       });
 
-      var deploymentProperty = $resource('rest/applications/check-deployment-property', {}, {
+      var deploymentProperty = $resource('rest/orchestrators/:orchestratorId/deployment-prop-check', {}, {
         'check': {
           method: 'POST'
         }
@@ -84,17 +84,6 @@ define(function (require) {
         }
       });
 
-      // Application tags & properties
-      var applicationProperty = $resource('rest/applications/:applicationId/properties', {}, {
-        'upsert': {
-          method: 'POST',
-          isArray: false,
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8'
-          }
-        }
-      });
-
       var applicationTags = $resource('rest/applications/:applicationId/tags/:tagKey', {}, {
         'upsert': {
           method: 'POST',
@@ -112,7 +101,7 @@ define(function (require) {
       });
 
       // Handle roles on application
-      var manageAppUserRoles = $resource('rest/applications/:applicationId/userRoles/:username/:role', {}, {
+      var manageAppUserRoles = $resource('rest/applications/:applicationId/roles/users/:username/:role', {}, {
         'addUserRole': {
           method: 'PUT',
           headers: {
@@ -137,7 +126,7 @@ define(function (require) {
         }
       });
 
-      var manageAppGroupRoles = $resource('rest/applications/:applicationId/groupRoles/:groupId/:role', {}, {
+      var manageAppGroupRoles = $resource('rest/applications/:applicationId/roles/groups/:groupId/:role', {}, {
         'addGroupRole': {
           method: 'PUT',
           headers: {
@@ -166,7 +155,6 @@ define(function (require) {
         'get': applicationDAO.get,
         'remove': applicationDAO.remove,
         'update': applicationDAO.update,
-        'upsertProperty': applicationProperty.upsert,
         'getActiveDeployment': applicationActiveDeploymentDAO,
         'deployment': applicationDeploymentDAO,
         'deployApplication': applicationDeployment,

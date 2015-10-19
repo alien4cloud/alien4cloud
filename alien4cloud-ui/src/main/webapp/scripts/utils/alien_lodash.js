@@ -78,7 +78,10 @@ define(function (require) {
       }
       var result = string.slice(string.length - end);
       return omission + result;
-    }    
+    },
+    definedPath: function (object, path){
+      return this.defined(_.get(object, path));
+    }
   });
   return _;
 });

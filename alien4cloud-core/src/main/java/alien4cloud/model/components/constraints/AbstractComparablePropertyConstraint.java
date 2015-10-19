@@ -8,7 +8,7 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationExc
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @SuppressWarnings("rawtypes")
-public abstract class AbstractComparablePropertyConstraint extends AbstractPropertyConstraint {
+public abstract class AbstractComparablePropertyConstraint extends AbstractPropertyConstraint implements IMatchPropertyConstraint {
 
     private Comparable comparable;
 
@@ -25,6 +25,11 @@ public abstract class AbstractComparablePropertyConstraint extends AbstractPrope
     }
 
     protected abstract void doValidate(Object propertyValue) throws ConstraintViolationException;
+
+    @Override
+    public void setConstraintValue(IPropertyType<?> propertyType, String value) throws ConstraintValueDoNotMatchPropertyTypeException {
+        this.comparable = ConstraintUtil.convertToComparable(propertyType, value);
+    }
 
     @Override
     public void validate(Object propertyValue) throws ConstraintViolationException {

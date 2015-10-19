@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import org.elasticsearch.annotation.ESObject;
@@ -18,18 +19,13 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @Getter
 @Setter
-@AllArgsConstructor
+@NoArgsConstructor
 @JsonInclude(Include.NON_NULL)
-@SuppressWarnings("PMD.UnusedPrivateField")
 @ESObject
 public class CsarGitRepository {
-
-    /**
-     * Technical internal id
-     */
     @Id
     private String id;
-   
+
     @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
     @TermFilter
     private String repositoryUrl;
@@ -43,17 +39,4 @@ public class CsarGitRepository {
     private List<CsarGitCheckoutLocation> importLocations;
 
     private boolean storedLocally;
-
-    private String lastCommitHash;
-
-    private String checkedOutLocation;
-
-    public CsarGitRepository() {
-        this.id = UUID.randomUUID().toString();
-    }
-
-
-    public void setId() {
-        // Do nothing, technical id was set at creation
-    }
 }

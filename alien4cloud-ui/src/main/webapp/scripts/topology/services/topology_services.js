@@ -134,7 +134,7 @@ define(function (require) {
         }
       });
 
-      var artifactInputCandidates = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/artifact/:artifactId/inputcandidates');
+      var artifactInputCandidates = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/artifacts/:artifactId/inputcandidates');
 
       var getRelationshipPropertyInputCandidates = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/relationship/:relationshipId/property/:propertyId/inputcandidats', {}, {
         'getCandidates': {
