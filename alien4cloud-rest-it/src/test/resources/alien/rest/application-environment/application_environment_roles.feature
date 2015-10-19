@@ -2,9 +2,6 @@ Feature: Create / Delete operations on application environment
 
 Background:
   Given I am authenticated with "ADMIN" role
-  And I upload a plugin
-  And I create a cloud with name "mock-paas-cloud" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-paas-provider"
-  And I enable the cloud "mock-paas-cloud"
   And There are these users in the system
     | frodon |
   And I create a new group with name "hobbits" in the system

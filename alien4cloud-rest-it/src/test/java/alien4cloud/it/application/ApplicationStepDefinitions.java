@@ -538,17 +538,14 @@ public class ApplicationStepDefinitions {
         Assert.assertEquals(fieldValue, ReflectionUtil.getPropertyValue(application, fieldName).toString());
     }
 
-    @When("^I create an application environment of type \"([^\"]*)\" on cloud \"([^\"]*)\" with name \"([^\"]*)\" and description \"([^\"]*)\" for the newly created application$")
-    public void I_create_an_application_environment_of_type_on_cloud_with_name_and_description_for_the_newly_created_application(String appEnvType,
-            String appEnvCloudName, String appEnvName, String appEnvDescription) throws Throwable {
+    @When("^I create an application environment of type \"([^\"]*)\" with name \"([^\"]*)\" and description \"([^\"]*)\" for the newly created application$")
+    public void I_create_an_application_environment_of_type_with_name_and_description_for_the_newly_created_application(String appEnvType,
+            String appEnvName, String appEnvDescription) throws Throwable {
         Assert.assertNotNull(CURRENT_APPLICATION.getId());
-        Assert.assertNotNull(Context.getInstance().getCloudId(appEnvCloudName));
         Assert.assertTrue(EnvironmentType.valueOf(appEnvType).toString().equals(appEnvType));
         Assert.assertNotNull(appEnvName);
 
         ApplicationEnvironmentRequest appEnvRequest = new ApplicationEnvironmentRequest();
-//        appEnvRequest.setCloudId(Context.getInstance().getCloudId(appEnvCloudName));
-        Assert.fail("Fix test");
         appEnvRequest.setEnvironmentType(EnvironmentType.valueOf(appEnvType));
         appEnvRequest.setName(appEnvName);
         appEnvRequest.setDescription(appEnvDescription);
