@@ -122,14 +122,13 @@ public class LocationResourcesController {
         return RestResponseBuilder.<ConstraintInformation> builder().data(null).build();
     }
 
-
     @ApiOperation(value = "Auto configure the resources, if the location configurator plugin provides a way for.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/auto-configure", method = RequestMethod.GET)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<List<LocationResourceTemplate>> autoConfigureResources(
-            @ApiParam(value = "Id of the orchestrator for which to update resource template capability property.", required = true) @PathVariable String orchestratorId,
-            @ApiParam(value = "Id of the location of the orchestrator to update resource template capability property.", required = true) @PathVariable String locationId) {
+            @ApiParam(value = "Id of the orchestrator for which to Auto configure the resources.", required = true) @PathVariable String orchestratorId,
+            @ApiParam(value = "Id of the location of the orchestrator to Auto configure the resources.", required = true) @PathVariable String locationId) {
         locationResourceService.deleteGeneratedResources(locationId);
         List<LocationResourceTemplate> generatedResoucres = locationResourceService.autoConfigureResources(locationId);
         return RestResponseBuilder.<List<LocationResourceTemplate>> builder().data(generatedResoucres).build();
