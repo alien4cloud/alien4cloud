@@ -111,6 +111,9 @@ public class TagConfigurationController {
      private <T extends IMetaProperties> void addMetaPropertyToResources (Class<T> mpClass, IGenericSearchDAO dao, MetaPropConfiguration configuration){
     	 GetMultipleDataResult<T> result = dao.find(mpClass, null, Integer.MAX_VALUE);
     	 for (T element : result.getData()){
+    	 	 if(element.getMetaProperties() == null){
+    			 element.setMetaProperties(Maps.<String, String> newHashMap());
+    		 }
     		 element.getMetaProperties().put(configuration.getId(), configuration.getDefault());
     		 dao.save(element);
     		 log.debug("Adding meta property <{}> to a resource of type <{}> ", configuration.getName(), element.getClass());
