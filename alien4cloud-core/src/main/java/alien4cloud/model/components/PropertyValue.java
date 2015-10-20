@@ -11,6 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-public class PropertyValue<T> extends AbstractPropertyValue {
+public abstract class PropertyValue<T> extends AbstractPropertyValue {
     protected T value;
 }
