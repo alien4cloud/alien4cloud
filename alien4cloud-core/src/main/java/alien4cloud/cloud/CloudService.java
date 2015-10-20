@@ -151,7 +151,9 @@ public class CloudService {
         cloud.setId(UUID.randomUUID().toString());
         // by default clouds are disabled as it should be configured before being enabled.
         cloud.setEnabled(false);
-
+        //initialize metaProperties
+        cloud.setMetaProperties(Maps.<String, String> newHashMap());
+        
         // save default configuration
         IPaaSProviderFactory passProviderFactory = paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean());
         if (passProviderFactory instanceof IConfigurablePaaSProviderFactory) {
