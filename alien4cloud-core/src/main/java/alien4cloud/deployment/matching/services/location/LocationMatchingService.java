@@ -49,7 +49,7 @@ public class LocationMatchingService {
         // keep only the authorized ones
         authorizationFilter.filter(matches, null);
 
-        return matches;
+        return matches.isEmpty() ? null : matches;
     }
 
     /**

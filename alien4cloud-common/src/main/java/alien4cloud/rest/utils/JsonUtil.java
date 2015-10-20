@@ -37,7 +37,7 @@ public final class JsonUtil {
         mapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false);
         return mapper;
     }
-    
+
     private static ObjectMapper getNewObjectMapper() {
         return getNewObjectMapper(false);
     }
@@ -54,7 +54,19 @@ public final class JsonUtil {
      * @throws IOException In case of an IO error.
      */
     public static <T> RestResponse<T> read(String responseAsString, Class<T> dataType) throws IOException {
-        ObjectMapper mapper = createRestMapper();
+        return read(responseAsString, dataType, createRestMapper());
+    }
+
+    /**
+     * Parse a {@link RestResponse} by using the specified dataType as the expected data object's class.
+     *
+     * @param responseAsString The {@link RestResponse} as a JSon String
+     * @param dataType The type of the data object.
+     * @param @param mapper the {@link ObjectMapper} to use
+     * @return The parsed {@link RestResponse} object matching the given JSon.
+     * @throws IOException In case of an IO error.
+     */
+    public static <T> RestResponse<T> read(String responseAsString, Class<T> dataType, ObjectMapper mapper) throws IOException {
         JavaType restResponseType = mapper.getTypeFactory().constructParametricType(RestResponse.class, dataType);
         return mapper.readValue(responseAsString, restResponseType);
     }
@@ -67,7 +79,19 @@ public final class JsonUtil {
      * @throws IOException
      */
     public static RestResponse<?> read(String responseAsString) throws IOException {
-        return createRestMapper().readValue(responseAsString, RestResponse.class);
+        return read(responseAsString, createRestMapper());
+    }
+
+    /**
+     * Parse a {@link RestResponse} without being interested in parameterized type
+     *
+     * @param responseAsString
+     * @param mapper the {@link ObjectMapper} to use
+     * @return
+     * @throws IOException
+     */
+    public static RestResponse<?> read(String responseAsString, ObjectMapper mapper) throws IOException {
+        return mapper.readValue(responseAsString, RestResponse.class);
     }
 
     /**
@@ -160,7 +184,10 @@ public final class JsonUtil {
     }
 
     public static <V> V[] toArray(String json, Class<V> valueTypeClass) throws IOException {
-        ObjectMapper mapper = createRestMapper();
+        return toArray(json, valueTypeClass, createRestMapper());
+    }
+
+    public static <V> V[] toArray(String json, Class<V> valueTypeClass, ObjectMapper mapper) throws IOException {
         JavaType arrayStringObjectType = mapper.getTypeFactory().constructArrayType(valueTypeClass);
         return mapper.readValue(json, arrayStringObjectType);
     }

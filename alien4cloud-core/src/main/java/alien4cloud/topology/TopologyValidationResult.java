@@ -9,8 +9,12 @@ import lombok.Setter;
 
 import org.apache.commons.collections4.CollectionUtils;
 
+import alien4cloud.json.deserializer.TaskDeserializer;
 import alien4cloud.topology.task.AbstractTask;
+import alien4cloud.utils.jackson.ConditionalAttributes;
+import alien4cloud.utils.jackson.ConditionalOnAttribute;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.Lists;
 
 /**
@@ -28,8 +32,12 @@ public class TopologyValidationResult {
 
     private boolean isValid;
 
+    @ConditionalOnAttribute(ConditionalAttributes.REST)
+    @JsonDeserialize(contentUsing = TaskDeserializer.class)
     private List<AbstractTask> taskList;
 
+    @ConditionalOnAttribute(ConditionalAttributes.REST)
+    @JsonDeserialize(contentUsing = TaskDeserializer.class)
     private List<AbstractTask> warningList;
 
     public <T extends AbstractTask> void addTasks(List<T> tasks) {

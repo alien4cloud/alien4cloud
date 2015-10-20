@@ -1,11 +1,15 @@
 package alien4cloud.it.application.deployment;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
-import org.junit.Assert;
 
 import alien4cloud.it.Context;
 import alien4cloud.model.deployment.matching.LocationMatch;
@@ -19,8 +23,8 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 public class ApplicationMatchingStepDefinitions {
-    @When("^I ask for the locations matching for this application$")
-    public void I_ask_for_the_locations_matching_for_this_application() throws Throwable {
+    @When("^I ask for the locations matching for the current application$")
+    public void I_ask_for_the_locations_matching_for_the_current_application() throws Throwable {
         // now matching result is in object DeploymentSetupMatchInfo
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().get("/rest/topology/" + Context.getInstance().getTopologyId() + "/locations"));
@@ -29,10 +33,17 @@ public class ApplicationMatchingStepDefinitions {
     @Then("^I should receive a match result with (\\d+) locations$")
     public void I_should_receive_a_match_result_with_locations(int expectedCount, List<String> locationNames) throws Throwable {
         RestResponse<?> response = JsonUtil.read(Context.getInstance().getRestResponse());
-        Assert.assertNull(response.getError());
-        Assert.assertNotNull(response.getData());
+        assertNull(response.getError());
+        assertNotNull(response.getData());
         List<LocationMatch> locationMatches = JsonUtil.toList(JsonUtil.toString(response.getData()), LocationMatch.class);
         assertLocationMatches(locationMatches, expectedCount, locationNames);
+    }
+
+    @Then("^I should receive a match result with no locations$")
+    public void I_should_receive_a_match_result_with_locations() throws Throwable {
+        RestResponse<?> response = JsonUtil.read(Context.getInstance().getRestResponse());
+        assertNull(response.getError());
+        assertNull(response.getData());
     }
 
     private static void assertLocationMatches(List<LocationMatch> matches, int expectedCount, List<String> expectedNames) {
@@ -40,12 +51,13 @@ public class ApplicationMatchingStepDefinitions {
             matches = Lists.newArrayList();
         }
 
-        Assert.assertEquals(matches.size(), expectedCount);
+        assertEquals(matches.size(), expectedCount);
 
         Set<String> names = Sets.newHashSet();
         for (LocationMatch locationMatch : matches) {
             names.add(locationMatch.getLocation().getName());
         }
-        Assert.assertTrue(SetUtils.isEqualSet(names, expectedNames));
+        assertTrue(SetUtils.isEqualSet(names, expectedNames));
     }
+
 }

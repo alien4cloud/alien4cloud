@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -55,5 +56,9 @@ public class AbstractFieldValueDiscriminatorPolymorphicDeserializer<T> extends S
             return null;
         }
         return mapper.treeToValue(root, parameterClass);
+    }
+
+    protected void failedToFindImplementation(JsonParser jp, ObjectNode root) throws JsonParseException {
+        throw new JsonParseException("Failed to find implementation for node " + root + " from registry " + registry, jp.getCurrentLocation());
     }
 }
