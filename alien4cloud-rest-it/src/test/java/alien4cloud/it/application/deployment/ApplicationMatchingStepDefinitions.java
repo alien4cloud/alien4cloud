@@ -26,8 +26,9 @@ public class ApplicationMatchingStepDefinitions {
     @When("^I ask for the locations matching for the current application$")
     public void I_ask_for_the_locations_matching_for_the_current_application() throws Throwable {
         // now matching result is in object DeploymentSetupMatchInfo
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().get("/rest/topology/" + Context.getInstance().getTopologyId() + "/locations"));
+        String restUrl = String.format("/rest/topology/%s//locations", Context.getInstance().getTopologyId());
+        String response = Context.getRestClientInstance().get(restUrl);
+        Context.getInstance().registerRestResponse(response);
     }
 
     @Then("^I should receive a match result with (\\d+) locations$")

@@ -171,6 +171,7 @@ public class Context {
 
     private Map<String, Map<String, String>> orchestratorLocationIds;
 
+    /* orchestratorId -> { locationID -> { resourceName -> resourceId } } */
     private Map<String, Map<String, Map<String, String>>> orchestratorLocationResourceIds;
 
     private String topologyCloudInfos;
@@ -663,7 +664,7 @@ public class Context {
         resources.put(resourceName, resourceId);
     }
 
-    public String getOrchestratorLocationResource(String orchestratorId, String locationId, String resourceName) {
+    public String getLocationResourceId(String orchestratorId, String locationId, String resourceName) {
         return orchestratorLocationResourceIds.get(orchestratorId).get(locationId).get(resourceName);
     }
 
