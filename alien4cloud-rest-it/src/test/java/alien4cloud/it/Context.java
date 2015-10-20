@@ -33,13 +33,17 @@ import alien4cloud.it.exception.ITException;
 import alien4cloud.it.provider.util.OpenStackClient;
 import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
 import alien4cloud.json.deserializer.PropertyValueDeserializer;
+import alien4cloud.json.deserializer.TaskDeserializer;
+import alien4cloud.json.deserializer.TaskIndexedInheritableToscaElementDeserializer;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.rest.utils.RestClient;
 import alien4cloud.rest.utils.RestMapper;
+import alien4cloud.topology.task.AbstractTask;
 import alien4cloud.utils.MapUtil;
 
 import com.fasterxml.jackson.core.Version;
@@ -128,6 +132,13 @@ public class Context {
                 log.error("Unable to initialize test context.");
             }
             JSON_MAPPER.registerModule(module);
+
+            // task deserializers
+            module = new SimpleModule("taskDeser", new Version(1, 0, 0, null, null, null));
+            module.addDeserializer(AbstractTask.class, new TaskDeserializer());
+            module.addDeserializer(IndexedInheritableToscaElement.class, new TaskIndexedInheritableToscaElementDeserializer());
+            JSON_MAPPER.registerModule(module);
+
         }
         return JSON_MAPPER;
     }
