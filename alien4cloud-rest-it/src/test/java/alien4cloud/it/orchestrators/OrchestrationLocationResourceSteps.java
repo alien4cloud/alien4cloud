@@ -18,7 +18,7 @@ public class OrchestrationLocationResourceSteps {
     public void I_create_a_resource_of_type_named_related_to_the_location_(String resourceType, String resourceName, String orchestratorName, String locationName)
             throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
-        String locationId = Context.getInstance().getOrchestratorLocation(orchestratorId, locationName);
+        String locationId = Context.getInstance().getLocationId(orchestratorId, locationName);
         String restUrl = String.format("/rest/orchestrators/%s/locations/%s/resources", orchestratorId, locationId);
         CreateLocationResourceTemplateRequest request = new CreateLocationResourceTemplateRequest();
         request.setResourceName(resourceName);
@@ -33,7 +33,7 @@ public class OrchestrationLocationResourceSteps {
     @When("^I get the location \"([^\"]*)\"/\"([^\"]*)\"$")
     public void I_get_the_location_(String orchestratorName, String locationName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
-        String locationId = Context.getInstance().getOrchestratorLocation(orchestratorId, locationName);
+        String locationId = Context.getInstance().getLocationId(orchestratorId, locationName);
         String restUrl = String.format("/rest/orchestrators/%s/locations/%s", orchestratorId, locationId);
         String resp = Context.getRestClientInstance().get(restUrl);
         Context.getInstance().registerRestResponse(resp);
@@ -59,7 +59,7 @@ public class OrchestrationLocationResourceSteps {
             String orchestratorName, String locationName)
             throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
-        String locationId = Context.getInstance().getOrchestratorLocation(orchestratorId, locationName);
+        String locationId = Context.getInstance().getLocationId(orchestratorId, locationName);
         String resourceId = Context.getInstance().getOrchestratorLocationResource(orchestratorId, locationId, resourceName);
         String restUrl = String.format("/rest/orchestrators/%s/locations/%s/resources/%s/template/properties", orchestratorId, locationId, resourceId);
         UpdateLocationResourceTemplatePropertyRequest request = new UpdateLocationResourceTemplatePropertyRequest();
@@ -73,7 +73,7 @@ public class OrchestrationLocationResourceSteps {
     public void I_update_the_capability_property_to_for_the_resource_named_related_to_the_location_(String capabilityName, String propertyName,
             String propertyValue, String resourceName, String orchestratorName, String locationName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
-        String locationId = Context.getInstance().getOrchestratorLocation(orchestratorId, locationName);
+        String locationId = Context.getInstance().getLocationId(orchestratorId, locationName);
         String resourceId = Context.getInstance().getOrchestratorLocationResource(orchestratorId, locationId, resourceName);
         String restUrl = String.format("/rest/orchestrators/%s/locations/%s/resources/%s/template/capabilities/%s/properties", orchestratorId, locationId,
                 resourceId, capabilityName);
@@ -87,7 +87,7 @@ public class OrchestrationLocationResourceSteps {
     @When("^I autogenerate the on-demand resources for the location \"([^\"]*)\"/\"([^\"]*)\"$")
     public void I_autogenerate_the_on_demand_resources_for_the_location_(String orchestratorName, String locationName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
-        String locationId = Context.getInstance().getOrchestratorLocation(orchestratorId, locationName);
+        String locationId = Context.getInstance().getLocationId(orchestratorId, locationName);
         String restUrl = String.format("/rest/orchestrators/%s/locations/%s/resources/auto-configure", orchestratorId, locationId);
         String resp = Context.getRestClientInstance().get(restUrl);
         Context.getInstance().registerRestResponse(resp);

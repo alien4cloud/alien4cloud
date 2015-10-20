@@ -642,7 +642,7 @@ public class Context {
         locations.put(locationName, locationId);
     }
 
-    public String getOrchestratorLocation(String orchestratorId, String locationName) {
+    public String getLocationId(String orchestratorId, String locationName) {
         return orchestratorLocationIds.get(orchestratorId).get(locationName);
     }
 
