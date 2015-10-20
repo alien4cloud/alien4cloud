@@ -6,6 +6,8 @@ import java.util.Map;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
+import alien4cloud.model.common.MetaPropConfiguration;
+import alien4cloud.rest.internal.model.PropertyValidationRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.orchestrator.model.CreateLocationRequest;
 import alien4cloud.rest.orchestrator.model.UpdateLocationRequest;
@@ -91,5 +93,16 @@ public class LocationsDefinitionsSteps {
         String restUrl = String.format("/rest/orchestrators/%s/locations/%s", orchestratorId, locationId);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().putJSon(restUrl, JsonUtil.toString(request)));
     }
+    
+    @When("^I set the value \"([^\"]*)\" to the location meta-property \"([^\"]*)\" of the location \"([^\"]*)\" of the orchestrator \"([^\"]*)\"$")
+    public void I_set_the_value_to_the_location_meta_property_of_the_location_of_the_orchestrator(String value, String metaPropertyName, String locationName, String orchestratorName) throws Throwable {
+        MetaPropConfiguration propertyDefinition = Context.getInstance().getConfigurationTag(metaPropertyName);
+        PropertyValidationRequest propertyCheckRequest = new PropertyValidationRequest(value, propertyDefinition.getId(), propertyDefinition);
+        String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
+        String locationId = getLocationIdFromName(orchestratorName, locationName);
+        String restUrl = String.format("/rest/orchestrators/%s/locations/%s/properties", orchestratorId, locationId);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(restUrl, JsonUtil.toString(propertyCheckRequest)));
+    }
+
 
 }

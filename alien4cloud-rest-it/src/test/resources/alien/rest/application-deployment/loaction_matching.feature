@@ -1,4 +1,4 @@
-Feature: Match locations and set location policies.
+Feature: Match location for a deployment configuration.
 
   Background: 
     Given I am authenticated with "ADMIN" role
@@ -31,12 +31,3 @@ Feature: Match locations and set location policies.
 		When I ask for the locations matching for the current application
 		Then I should receive a match result with 1 locations
 			| Thark location |
-			
-	Scenario: Set location policy for all groups in the topology
-		Given I add a role "DEPLOYER" to user "frodon" on the resource type "LOCATION" named "Thark location"
-#		When I Set the following location policies with orchestrator "Mount doom orchestrator" for groups
-#			| _A4C_ALL | Thark location |
-		When I Set a unique location policy with location "Thark location" on orchestrator "Mount doom orchestrator" for all nodes
-		Then I should receive a RestResponse with no error
-		And the deployment topology shoud have the following location policies
-			| _A4C_ALL |  Mount doom orchestrator | Thark location |

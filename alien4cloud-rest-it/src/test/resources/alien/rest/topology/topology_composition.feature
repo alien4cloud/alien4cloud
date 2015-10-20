@@ -3,14 +3,16 @@ Feature: Topology composition
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I upload a plugin
-    And I create a cloud with name "mock cloud" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-paas-provider"
-    And I enable the cloud "mock cloud"
-    And I have already created a cloud image with name "Ubuntu Trusty", architecture "x86_64", type "linux", distribution "Ubuntu" and version "14.04.1"
-    And I add the cloud image "Ubuntu Trusty" to the cloud "mock cloud"
-    And I match the image "Ubuntu Trusty" of the cloud "mock cloud" to the PaaS resource "I1"
-    And I add the flavor with name "small", number of CPUs 2, disk size 32 and memory size 2048 to the cloud "mock cloud"
-    And I match the flavor "small" of the cloud "mock cloud" to the PaaS resource "F1"
+	  And I upload the archive "tosca-normative-types-wd06"
+	  And I upload a plugin
+	  And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
+	  And I enable the orchestrator "Mount doom orchestrator"
+	  And I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator" 
+    #And I have already created a cloud image with name "Ubuntu Trusty", architecture "x86_64", type "linux", distribution "Ubuntu" and version "14.04.1"
+    #And I add the cloud image "Ubuntu Trusty" to the cloud "mock cloud"
+    #And I match the image "Ubuntu Trusty" of the cloud "mock cloud" to the PaaS resource "I1"
+    #And I add the flavor with name "small", number of CPUs 2, disk size 32 and memory size 2048 to the cloud "mock cloud"
+    #And I match the flavor "small" of the cloud "mock cloud" to the PaaS resource "F1"
     Given I upload the archive "tosca-normative-types"
     And I upload the archive "samples apache"
     And I upload the archive "samples mysql"
