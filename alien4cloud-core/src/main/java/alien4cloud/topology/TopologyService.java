@@ -373,6 +373,7 @@ public class TopologyService {
                     for (Entry<String, NodeTemplate> nodeTemplateEntry : existingNodeTemplates.entrySet()) {
                         NodeTemplate newNodeTemplate = buildNodeTemplate(topology.getDependencies(), nodeTypes.get(nodeTemplateEntry.getValue().getType()),
                                 nodeTemplateEntry.getValue());
+                        newNodeTemplate.setName(nodeTemplateEntry.getKey());
                         newNodeTemplates.put(nodeTemplateEntry.getKey(), newNodeTemplate);
                     }
                     topology.setNodeTemplates(newNodeTemplates);
