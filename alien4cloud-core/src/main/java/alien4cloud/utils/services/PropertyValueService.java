@@ -19,10 +19,8 @@ public class PropertyValueService {
     /**
      * Extract the value from a sub-path of a property.
      * 
-     * @param propertyValue
-     *            The value of the property.
-     * @param path
-     *            The path to get the value.
+     * @param propertyValue The value of the property.
+     * @param path The path to get the value.
      * @return The value at the given path or propertyValue if the path is null or empty.
      */
     public static Object getValue(Object propertyValue, String path) {
@@ -40,7 +38,7 @@ public class PropertyValueService {
      * @param propertyValue The property value from which to get the value in a specified unit
      * @param unit The unit in which to get the value.
      * @param propertyDefinition The property definition of the root property.
-     * @return
+     * @return The value in the correct unit.
      */
     public static String getValueInUnit(Object propertyValue, String unit, PropertyDefinition propertyDefinition) {
         // TODO manage complex objects and sub-paths
@@ -64,12 +62,19 @@ public class PropertyValueService {
         if (type instanceof ScalarType) {
             try {
                 ScalarUnit scalarUnit = ((ScalarType) type).parse(propertyValue);
-                return String.valueOf(scalarUnit.convert(unit));
+                return format(scalarUnit.convert(unit));
             } catch (InvalidPropertyValueException e) {
                 log.error("e");
                 throw new InvalidArgumentException(e.getMessage());
             }
         }
         throw new InvalidArgumentException("Type is not a scalar type");
+    }
+
+    private static String format(double d) {
+        if (d == (long) d)
+            return String.format("%d", (long) d);
+        else
+            return String.format("%s", d);
     }
 }
