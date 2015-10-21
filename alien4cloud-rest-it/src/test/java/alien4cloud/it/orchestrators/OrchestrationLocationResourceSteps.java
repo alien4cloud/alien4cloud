@@ -1,5 +1,7 @@
 package alien4cloud.it.orchestrators;
 
+import java.util.List;
+
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
@@ -15,8 +17,8 @@ import cucumber.api.java.en.When;
 public class OrchestrationLocationResourceSteps {
 
     @When("^I create a resource of type \"([^\"]*)\" named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
-    public void I_create_a_resource_of_type_named_related_to_the_location_(String resourceType, String resourceName, String orchestratorName, String locationName)
-            throws Throwable {
+    public void I_create_a_resource_of_type_named_related_to_the_location_(String resourceType, String resourceName, String orchestratorName,
+            String locationName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         String locationId = Context.getInstance().getLocationId(orchestratorId, locationName);
         String restUrl = String.format("/rest/orchestrators/%s/locations/%s/resources", orchestratorId, locationId);
@@ -25,7 +27,7 @@ public class OrchestrationLocationResourceSteps {
         request.setResourceType(resourceType);
         String resp = Context.getRestClientInstance().postJSon(restUrl, JsonUtil.toString(request));
 
-        RestResponse<LocationResourceTemplate> response = JsonUtil.read(resp, LocationResourceTemplate.class);
+        RestResponse<LocationResourceTemplate> response = JsonUtil.read(resp, LocationResourceTemplate.class, Context.getJsonMapper());
         Context.getInstance().registerOrchestratorLocationResource(orchestratorId, locationId, response.getData().getId(), resourceName);
         Context.getInstance().registerRestResponse(resp);
     }
@@ -56,11 +58,10 @@ public class OrchestrationLocationResourceSteps {
 
     @When("^I update the property \"([^\"]*)\" to \"([^\"]*)\" for the resource named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
     public void I_update_the_property_to_for_the_resource_named_related_to_the_location_(String propertyName, String propertyValue, String resourceName,
-            String orchestratorName, String locationName)
-            throws Throwable {
+            String orchestratorName, String locationName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         String locationId = Context.getInstance().getLocationId(orchestratorId, locationName);
-        String resourceId = Context.getInstance().getOrchestratorLocationResource(orchestratorId, locationId, resourceName);
+        String resourceId = Context.getInstance().getLocationResourceId(orchestratorId, locationId, resourceName);
         String restUrl = String.format("/rest/orchestrators/%s/locations/%s/resources/%s/template/properties", orchestratorId, locationId, resourceId);
         UpdateLocationResourceTemplatePropertyRequest request = new UpdateLocationResourceTemplatePropertyRequest();
         request.setPropertyName(propertyName);
@@ -74,7 +75,7 @@ public class OrchestrationLocationResourceSteps {
             String propertyValue, String resourceName, String orchestratorName, String locationName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         String locationId = Context.getInstance().getLocationId(orchestratorId, locationName);
-        String resourceId = Context.getInstance().getOrchestratorLocationResource(orchestratorId, locationId, resourceName);
+        String resourceId = Context.getInstance().getLocationResourceId(orchestratorId, locationId, resourceName);
         String restUrl = String.format("/rest/orchestrators/%s/locations/%s/resources/%s/template/capabilities/%s/properties", orchestratorId, locationId,
                 resourceId, capabilityName);
         UpdateLocationResourceTemplatePropertyRequest request = new UpdateLocationResourceTemplatePropertyRequest();
@@ -91,6 +92,16 @@ public class OrchestrationLocationResourceSteps {
         String restUrl = String.format("/rest/orchestrators/%s/locations/%s/resources/auto-configure", orchestratorId, locationId);
         String resp = Context.getRestClientInstance().get(restUrl);
         Context.getInstance().registerRestResponse(resp);
-    }
 
+        RestResponse<List> response = JsonUtil.read(resp, List.class, Context.getJsonMapper());
+        if (response.getData() != null) {
+            List<LocationResourceTemplate> resources = JsonUtil.toList(JsonUtil.toString(response.getData()), LocationResourceTemplate.class,
+                    Context.getJsonMapper());
+            for (LocationResourceTemplate locationResourceTemplate : resources) {
+                Context.getInstance().registerOrchestratorLocationResource(orchestratorId, locationId, locationResourceTemplate.getId(),
+                        locationResourceTemplate.getName());
+            }
+        }
+
+    }
 }

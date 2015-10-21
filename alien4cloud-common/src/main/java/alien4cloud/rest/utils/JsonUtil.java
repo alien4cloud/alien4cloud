@@ -200,7 +200,18 @@ public final class JsonUtil {
      * @throws IOException
      */
     public static <T> List<T> toList(String json, Class<T> clazz) throws IOException {
-        ObjectMapper mapper = getNewObjectMapper();
+        return toList(json, clazz, getNewObjectMapper());
+    }
+
+    /**
+     * Deserialize the given json string to a list
+     *
+     * @param json json text
+     * @param mapper the {@link ObjectMapper} to use
+     * @return list object
+     * @throws IOException
+     */
+    public static <T> List<T> toList(String json, Class<T> clazz, ObjectMapper mapper) throws IOException {
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, clazz);
         return mapper.readValue(json, type);
     }

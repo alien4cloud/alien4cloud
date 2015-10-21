@@ -10,16 +10,29 @@ Background:
   And I load several configuration tags
   Then I should have 11 configuration tags loaded
 
- Scenario: I can set properties constraint for the meta-properties of a location
-  Given I am authenticated with "ADMIN" role
-  And I have the tag "LOCATION_META_2" registered for "location"
-  And I set the value "TT" to the location meta-property "LOCATION_META_1" of the location "Thark location" of the orchestrator "Mount doom orchestrator"
-    Then I should receive a RestResponse with no error
-  And I set the value "TT" to the location meta-property "LOCATION_META_2" of the location "Thark location" of the orchestrator "Mount doom orchestrator"
-    Then I should receive a RestResponse with an error code 804
+ #Scenario: I can set properties constraint for the meta-properties of a location
+  #Given I am authenticated with "ADMIN" role
+  #And I have the tag "LOCATION_META_2" registered for "location"
+  #And I set the value "TT" to the location meta-property "LOCATION_META_1" of the location "Thark location" of the orchestrator "Mount doom orchestrator"
+    #Then I should receive a RestResponse with no error
+  #And I set the value "TT" to the location meta-property "LOCATION_META_2" of the location "Thark location" of the orchestrator "Mount doom orchestrator"
+    #Then I should receive a RestResponse with an error code 804
+#
+ #Scenario: Add a tag with an already existing name and target should failed
+  #Given I am authenticated with "ADMIN" role
+  #And I have the tag "LOCATION_META_2" registered for "location"
+  #And I create a new tag with name "LOCATION_META_2" and the target "location"
+    #Then I should receive a RestResponse with an error code 502
 
- Scenario: Add a tag with an already existing name and target should failed
+ Scenario: I can set properties and list their values from location
   Given I am authenticated with "ADMIN" role
   And I have the tag "LOCATION_META_2" registered for "location"
-  And I create a new tag with name "LOCATION_META_2" and the target "location"
-    Then I should receive a RestResponse with an error code 502
+  And I set the value "test1" to the location meta-property "LOCATION_META_1" of the location "Thark location" of the orchestrator "Mount doom orchestrator"
+    Then I should receive a RestResponse with no error
+  And I set the value "2" to the location meta-property "LOCATION_META_2" of the location "Thark location" of the orchestrator "Mount doom orchestrator"
+    Then I should receive a RestResponse with no error
+  When I list locations of the orchestrator "Mount doom orchestrator"
+    Then I should receive a RestResponse with no error
+    And Response should contains 4 meta-property for the location "Thark location"
+    And Response should contains a meta-property with value "test1" for "LOCATION_META_1"
+    And Response should contains a meta-property with value "2" for "LOCATION_META_2"

@@ -1,5 +1,7 @@
 package alien4cloud.it.orchestrators;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.util.List;
 import java.util.Map;
 
@@ -10,14 +12,18 @@ import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.rest.internal.model.PropertyValidationRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.orchestrator.model.CreateLocationRequest;
+import alien4cloud.rest.orchestrator.model.LocationDTO;
 import alien4cloud.rest.orchestrator.model.UpdateLocationRequest;
 import alien4cloud.rest.utils.JsonUtil;
+import cucumber.api.PendingException;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 public class LocationsDefinitionsSteps {
 
-	public static final String DEFAULT_ORCHESTRATOR_NAME = "Mount doom orchestrator";
+    public static final String DEFAULT_ORCHESTRATOR_NAME = "Mount doom orchestrator";
+
+    private Map<String, String> currentMetaProperties = null;
 
     public static final String getLocationIdFromName(final String orchestratorName, final String locationName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
@@ -34,7 +40,7 @@ public class LocationsDefinitionsSteps {
         }
         return locationId;
     }
-    
+
     @When("^I create a location named \"([^\"]*)\" and infrastructure type \"([^\"]*)\" to the orchestrator \"([^\"]*)\"$")
     public void I_create_a_location_named_and_infrastructure_type_to_the_orchestrator(String locationName, String infrastructureType, String orchestratorName)
             throws Throwable {
@@ -93,7 +99,7 @@ public class LocationsDefinitionsSteps {
         String restUrl = String.format("/rest/orchestrators/%s/locations/%s", orchestratorId, locationId);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().putJSon(restUrl, JsonUtil.toString(request)));
     }
-    
+
     @When("^I set the value \"([^\"]*)\" to the location meta-property \"([^\"]*)\" of the location \"([^\"]*)\" of the orchestrator \"([^\"]*)\"$")
     public void I_set_the_value_to_the_location_meta_property_of_the_location_of_the_orchestrator(String value, String metaPropertyName, String locationName, String orchestratorName) throws Throwable {
         MetaPropConfiguration propertyDefinition = Context.getInstance().getConfigurationTag(metaPropertyName);
@@ -104,5 +110,30 @@ public class LocationsDefinitionsSteps {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(restUrl, JsonUtil.toString(propertyCheckRequest)));
     }
 
+    @Then("^Response should contains (\\d+) meta-property for the location \"([^\"]*)\"$")
+    public void Response_should_contains_meta_property_for_the_location(int count, String locationName) throws Throwable {
+        RestResponse<List> response = JsonUtil.read(Context.getInstance().getRestResponse(), List.class);
+        assertNotNull(response);
+        for (Object obj : response.getData()) {
+            LocationDTO location = Context.getInstance().getJsonMapper().readValue(Context.getInstance().getJsonMapper().writeValueAsString(obj), LocationDTO.class);
+            if (locationName.equals(location.getLocation().getName())) {
+                currentMetaProperties = location.getLocation().getMetaProperties();
+                break;
+            }
+        }
+        Assert.assertEquals(count, currentMetaProperties.size());
+    }
 
+    // Only work after a Response_should_contains_meta_property_for_the_location call
+    @Then("^Response should contains a meta-property with value \"([^\"]*)\" for \"([^\"]*)\"$")
+    public void Response_should_contains_a_meta_property_with_value_for(String metaPropertyValue, String metaPropertyName) throws Throwable {
+        for (String tagId : currentMetaProperties.keySet()) {
+            String resp = Context.getRestClientInstance().get(String.format("/rest/tagconfigurations/%s", tagId));
+            RestResponse<MetaPropConfiguration> response = JsonUtil.read(resp, MetaPropConfiguration.class);
+            if (metaPropertyName.equals(response.getData().getName())) {
+                Assert.assertEquals(metaPropertyValue, currentMetaProperties.get(tagId));
+                break;
+            }
+        }
+    }
 }
