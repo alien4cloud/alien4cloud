@@ -3,6 +3,7 @@ package alien4cloud.utils.services;
 import java.util.List;
 import java.util.Map;
 
+import alien4cloud.utils.MapUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.BeanWrapper;
@@ -27,9 +28,7 @@ public class PropertyValueService {
         if (path == null || path.isEmpty()) {
             return propertyValue;
         }
-        // TODO probably need a fix here.
-        BeanWrapper target = new BeanWrapperImpl(propertyValue);
-        return target.getPropertyValue(path);
+        return MapUtil.get(propertyValue, path);
     }
 
     /**

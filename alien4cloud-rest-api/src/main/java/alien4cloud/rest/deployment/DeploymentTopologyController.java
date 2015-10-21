@@ -33,6 +33,7 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
@@ -95,7 +96,7 @@ public class DeploymentTopologyController {
     @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<DeploymentTopologyDTO> updateSubstitutionProperty(@PathVariable String appId, @PathVariable String environmentId,
-            @PathVariable String nodeId, @RequestBody UpdateSubstitutionPropertyRequest updateRequest) {
+            @PathVariable String nodeId, @RequestBody UpdatePropertyRequest updateRequest) {
         DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
         deploymentTopologyService.updateSubstitutionProperty(deploymentTopology, nodeId, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
@@ -107,7 +108,7 @@ public class DeploymentTopologyController {
     @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<?> updateSubstitutionCapabilityProperty(@PathVariable String appId, @PathVariable String environmentId, @PathVariable String nodeId,
-            @PathVariable String capabilityName, @RequestBody UpdateSubstitutionPropertyRequest updateRequest) {
+            @PathVariable String capabilityName, @RequestBody UpdatePropertyRequest updateRequest) {
         DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
         try {

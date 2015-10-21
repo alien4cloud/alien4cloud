@@ -28,7 +28,7 @@ Feature: Node substitution in the deployment topology.
     
 
   Scenario: Set a subsitution for a node
-    When I substitute for the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Small_Ubuntu"
+    When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Small_Ubuntu"
     Then I should receive a RestResponse with no error
     And The deployment topology sould have the substituted nodes
     	| Compute | Small_Ubuntu | alien.nodes.mock.Compute |
@@ -36,4 +36,17 @@ Feature: Node substitution in the deployment topology.
     Then I should receive a RestResponse with no error
     And The deployment topology sould have the substituted nodes
     	| Compute | Manual_Small_Ubuntu | alien.nodes.mock.Compute |
+    	
+  Scenario: Update a substituted node's property
+  	Given I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
+  	When I update the property "imageId" to "updatedImg" for the subtituted node "Compute"
+  	Then I should receive a RestResponse with no error
+  	And The node "Compute" in the deployment topology should have the property "imageId" with value "updatedImg"
+  	 
+  Scenario: Update a substituted node's capability property
+  	Given I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
+  	When I update the capability "scalable" property "max_instances" to "5" for the subtituted node "Compute"
+  	Then I should receive a RestResponse with no error
+  	And The the node "Compute" in the deployment topology should have the capability "scalable"'s property "max_instances" with value "5" 
+  	
 	

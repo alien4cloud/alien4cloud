@@ -10,6 +10,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.CapabilityDefinition;
 import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.PropertyDefinition;
@@ -268,29 +270,38 @@ public class LocationResourceService {
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
         IndexedNodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, resourceTemplate.getTemplate().getType(),
                 location.getDependencies());
-        if (resourceTemplate.getTemplate().getCapabilities() == null || !resourceTemplate.getTemplate().getCapabilities().containsKey(capabilityName)) {
-            throw new NotFoundException("Capability <" + capabilityName + "> is not found in template");
+        Capability capability = getOrFailCapability(resourceTemplate.getTemplate(), capabilityName);
+        CapabilityDefinition capabilityDefinition = getOrFailCapabilityDefinition(resourceType, capabilityName);
+        IndexedCapabilityType capabilityType = csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class,
+                capabilityDefinition.getType(), location.getDependencies());
+        PropertyDefinition propertyDefinition = getOrFailCapabilityPropertyDefinition(capabilityType, propertyName);
 
-        }
-        PropertyDefinition propertyDefinition = null;
-        if (resourceType.getCapabilities() != null) {
-            for (CapabilityDefinition capabilityDefinition : resourceType.getCapabilities()) {
-                if (capabilityName.equals(capabilityDefinition.getId())) {
-                    String capabilityTypeName = capabilityDefinition.getType();
-                    IndexedCapabilityType capabilityType = csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class,
-                            capabilityTypeName, location.getDependencies());
-                    if (capabilityType.getProperties() != null) {
-                        propertyDefinition = capabilityType.getProperties().get(propertyName);
-                    }
-                }
-            }
-        }
-        if (propertyDefinition == null) {
-            throw new NotFoundException("Capability <" + capabilityName + "> is not found in type <" + resourceType.getElementId() + ">");
-        }
         constraintPropertyService.checkSimplePropertyConstraint(propertyName, (String) propertyValue, propertyDefinition);
-        Capability capability = resourceTemplate.getTemplate().getCapabilities().get(capabilityName);
         PropertyUtil.setCapabilityPropertyValue(capability, propertyDefinition, propertyName, propertyValue);
+    }
+
+    private Capability getOrFailCapability(NodeTemplate nodeTemplate, String capabilityName) {
+        Capability capability = MapUtils.getObject(nodeTemplate.getCapabilities(), capabilityName);
+        if (capability != null) {
+            return capability;
+        }
+        throw new NotFoundException("Capability <" + capabilityName + "> not found in template.");
+    }
+
+    private PropertyDefinition getOrFailCapabilityPropertyDefinition(IndexedCapabilityType capabilityType, String propertyName) {
+        PropertyDefinition propertyDefinition = MapUtils.getObject(capabilityType.getProperties(), propertyName);
+        if (propertyDefinition != null) {
+            return propertyDefinition;
+        }
+        throw new NotFoundException("Property <" + propertyName + "> not found in capability type <" + capabilityType.getElementId() + ">");
+    }
+
+    private CapabilityDefinition getOrFailCapabilityDefinition(IndexedNodeType resourceType, String capabilityName) {
+        CapabilityDefinition capabilityDefinition = IndexedModelUtils.getCapabilityDefinitionById(resourceType.getCapabilities(), capabilityName);
+        if (capabilityDefinition != null) {
+            return capabilityDefinition;
+        }
+        throw new NotFoundException("Capability <" + capabilityName + "> not found in type <" + resourceType.getElementId() + ">");
     }
 
     public void setTemplateCapabilityProperty(String resourceId, String capabilityName, String propertyName, Object propertyValue)
