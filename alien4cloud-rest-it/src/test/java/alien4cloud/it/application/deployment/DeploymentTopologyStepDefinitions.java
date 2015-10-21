@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -24,12 +25,14 @@ import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.rest.application.model.SetLocationPoliciesRequest;
+import alien4cloud.rest.application.model.UpdateDeploymentTopologyRequest;
 import alien4cloud.rest.deployment.DeploymentTopologyDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.MapUtil;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -102,11 +105,16 @@ public class DeploymentTopologyStepDefinitions {
         context.registerRestResponse(response);
     }
 
-    @Then("^The deployment topology sould have the substituted nodes$")
-    public void The_deployment_topology_sould_have_the_substituted_nodes(List<NodeSubstitutionSetting> expectedSubstitutionSettings) throws Throwable {
+    private DeploymentTopologyDTO getDTOAndassertNotNull() throws IOException {
         String response = Context.getInstance().getRestResponse();
         DeploymentTopologyDTO dto = JsonUtil.read(response, DeploymentTopologyDTO.class, Context.getJsonMapper()).getData();
         assertNotNull(dto);
+        return dto;
+    }
+
+    @Then("^The deployment topology sould have the substituted nodes$")
+    public void The_deployment_topology_sould_have_the_substituted_nodes(List<NodeSubstitutionSetting> expectedSubstitutionSettings) throws Throwable {
+        DeploymentTopologyDTO dto = getDTOAndassertNotNull();
         Map<String, String> substitutions = dto.getTopology().getSubstitutedNodes();
         Map<String, LocationResourceTemplate> resources = dto.getLocationResourceTemplates();
         assertTrue(MapUtils.isNotEmpty(substitutions));
@@ -161,6 +169,38 @@ public class DeploymentTopologyStepDefinitions {
         assertNotNull(dto);
         NodeTemplate node = dto.getTopology().getNodeTemplates().get(nodeName);
         assertCapabilityPropertyValueEquals(node, capabilityName, propertyName, expectedPropertyValue);
+    }
+
+    @When("^I set the input property \"([^\"]*)\" of the deployment to \"([^\"]*)\"$")
+    public void I_set_the_input_property_of_the_deployment_to(String inputName, String inputValue) throws Throwable {
+        UpdateDeploymentTopologyRequest request = new UpdateDeploymentTopologyRequest();
+        Map<String, String> inputProperties = Maps.newHashMap();
+        inputProperties.put(inputName, inputValue);
+        request.setInputProperties(inputProperties);
+        executeUpdateDeploymentTopologyCall(request);
+    }
+
+    @Then("^The deployment topology sould have the input \"(.*?)\" with value \"(.*?)\"$")
+    public void The_deployment_topology_sould_have_the_input_with_value(String inputName, String expectedValue) throws Throwable {
+        DeploymentTopologyDTO dto = getDTOAndassertNotNull();
+        assertEquals(expectedValue, MapUtils.getObject(dto.getTopology().getInputProperties(), inputName));
+    }
+
+    @Then("^the following nodes properties values sould be \"(.*?)\"$")
+    public void The_following_nodes_properties_values_should_be(String expectedValue, Map<String, String> nodesProperties) throws Throwable {
+        DeploymentTopologyDTO dto = getDTOAndassertNotNull();
+        for (Entry<String, String> entry : nodesProperties.entrySet()) {
+            NodeTemplate template = MapUtils.getObject(dto.getTopology().getNodeTemplates(), entry.getKey());
+            assertNodePropertyValueEquals(template, entry.getValue(), expectedValue);
+        }
+    }
+
+    private void executeUpdateDeploymentTopologyCall(UpdateDeploymentTopologyRequest request) throws IOException, JsonProcessingException {
+        Application application = Context.getInstance().getApplication();
+        String envId = Context.getInstance().getDefaultApplicationEnvironmentId(application.getName());
+        String restUrl = String.format("/rest/applications/%s/environments/%s/deployment-topology", application.getId(), envId);
+        String response = Context.getRestClientInstance().putJSon(restUrl, JsonUtil.toString(request));
+        Context.getInstance().registerRestResponse(response);
     }
 
     private void assertNodePropertyValueEquals(NodeTemplate node, String propertyName, String expectedPropertyValue) {
