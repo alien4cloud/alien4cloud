@@ -19,13 +19,14 @@ import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.ConcatPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IValue;
 import alien4cloud.model.components.IndexedArtifactToscaElement;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.Interface;
 import alien4cloud.model.components.Operation;
 import alien4cloud.model.components.OperationOutput;
@@ -258,18 +259,31 @@ public class TopologyTreeBuilderService {
         return relationships;
     }
 
-    @SuppressWarnings("unchecked")
-    private <V extends IndexedToscaElement> void fillType(TypeMap typeMap, Topology topology, AbstractTemplate template, IPaaSTemplate<V> paaSTemplate,
-            Class<? extends IndexedToscaElement> clazz) {
-        IndexedToscaElement indexedToscaElement = typeMap.get(clazz, template.getType());
+    private <V extends IndexedInheritableToscaElement> V getToscaType(String type, TypeMap typeMap, Set<CSARDependency> dependencies, Class<V> clazz) {
+        V indexedToscaElement = typeMap.get(clazz, type);
         if (indexedToscaElement == null) {
-            indexedToscaElement = csarSearchService.getElementInDependencies(clazz, template.getType(), topology.getDependencies());
+            indexedToscaElement = csarSearchService.getElementInDependencies(clazz, type, dependencies);
             if (indexedToscaElement == null) {
-                throw new NotFoundException("Type <" + template.getType() + "> required in the topology cannot be found in the repository.");
+                throw new NotFoundException("Type <" + type + "> required in the topology cannot be found in the repository.");
             }
-            typeMap.put(template.getType(), indexedToscaElement);
+            typeMap.put(type, indexedToscaElement);
         }
+        return indexedToscaElement;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <V extends IndexedInheritableToscaElement> void fillType(TypeMap typeMap, Topology topology, AbstractTemplate template,
+            IPaaSTemplate<V> paaSTemplate, Class<V> clazz) {
+        V indexedToscaElement = getToscaType(template.getType(), typeMap, topology.getDependencies(), clazz);
         paaSTemplate.setIndexedToscaElement((V) indexedToscaElement);
+        List<String> derivedFroms = indexedToscaElement.getDerivedFrom();
+        List<V> derivedFromTypes = Lists.newArrayList();
+        if (derivedFroms != null) {
+            for (String derivedFrom : derivedFroms) {
+                derivedFromTypes.add(getToscaType(derivedFrom, typeMap, topology.getDependencies(), clazz));
+            }
+        }
+        paaSTemplate.setDerivedFroms(derivedFromTypes);
         try {
             Path csarPath = repository.getCSAR(indexedToscaElement.getArchiveName(), indexedToscaElement.getArchiveVersion());
             paaSTemplate.setCsarPath(csarPath);

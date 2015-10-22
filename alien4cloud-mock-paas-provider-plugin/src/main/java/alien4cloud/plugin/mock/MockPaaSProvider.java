@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
+import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.common.collect.Maps;
@@ -40,7 +41,7 @@ import alien4cloud.paas.model.NodeOperationExecRequest;
 import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
+import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
@@ -252,8 +253,9 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
                 Deployment deployment = deploymentInfo.getDeploymentContext().getDeployment();
                 PaaSInstanceStateMonitorEvent event;
                 if (deployment.getSourceName().equals(BLOCKSTORAGE_APPLICATION) && cloned.getState().equalsIgnoreCase("created")) {
-                    PaaSInstanceStorageMonitorEvent bsEvent = new PaaSInstanceStorageMonitorEvent();
-                    bsEvent.setVolumeId(UUID.randomUUID().toString());
+                    PaaSInstancePersistentResourceMonitorEvent bsEvent = new PaaSInstancePersistentResourceMonitorEvent();
+                    bsEvent.setPropertyName(NormativeBlockStorageConstants.VOLUME_ID);
+                    bsEvent.setPropertyValue(UUID.randomUUID().toString());
                     event = bsEvent;
                 } else {
                     event = new PaaSInstanceStateMonitorEvent();

@@ -1,16 +1,13 @@
 package alien4cloud;
 
-import java.io.IOException;
-
-import javax.servlet.MultipartConfigElement;
-
+import alien4cloud.servlet.ImageServlet;
+import alien4cloud.utils.AlienYamlPropertiesFactoryBeanFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.embedded.MultipartConfigFactory;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
-import org.springframework.beans.factory.config.YamlPropertiesFactoryBean
-;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -18,8 +15,8 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.DispatcherServlet;
 
-import alien4cloud.servlet.ImageServlet;
-import alien4cloud.utils.AlienYamlPropertiesFactoryBeanFactory;
+import javax.servlet.MultipartConfigElement;
+import java.io.IOException;
 
 @Configuration
 @EnableAutoConfiguration

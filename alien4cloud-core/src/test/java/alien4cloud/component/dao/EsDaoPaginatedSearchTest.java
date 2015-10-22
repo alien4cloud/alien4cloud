@@ -1,6 +1,8 @@
 package alien4cloud.component.dao;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -30,6 +32,7 @@ import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchFacet;
 import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.components.CapabilityDefinition;
@@ -56,6 +59,7 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
     List<IndexedNodeType> testDataList = new ArrayList<>();
     List<IndexedNodeType> jndiTestDataList = new ArrayList<>();
 
+    @Override
     @Before
     public void before() throws Exception {
         super.before();
@@ -143,7 +147,7 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
         filters.put("capabilities.type", new String[] { "jndi" });
 
         assertTrue(maxElement > 0);
-        testFacetedSearchWellPaginated(maxElement, size, searchText, filters, "component_summary");
+        testFacetedSearchWellPaginated(maxElement, size, searchText, filters, FetchContext.SUMMARY);
 
         // test nothing found
         // test when nothing found

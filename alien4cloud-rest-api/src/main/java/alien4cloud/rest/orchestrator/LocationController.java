@@ -94,7 +94,7 @@ public class LocationController {
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public void update(
+    public RestResponse<Void> update(
             @ApiParam(value = "Id of the orchestrator for which the location is defined.") @PathVariable String orchestratorId,
             @ApiParam(value = "Id of the location to update", required = true) @PathVariable String id,
             @ApiParam(value = "Location update request, representing the fields to updates and their new values.", required = true) @Valid @NotEmpty @RequestBody UpdateLocationRequest updateRequest) {
@@ -102,6 +102,7 @@ public class LocationController {
         String currentName = location.getName();
         ReflectionUtil.mergeObject(updateRequest, location);
         locationService.ensureNameUnicityAndSave(location, currentName);
+        return RestResponseBuilder.<Void> builder().build();
     }
 
     private LocationDTO buildLocationDTO(Location location) {

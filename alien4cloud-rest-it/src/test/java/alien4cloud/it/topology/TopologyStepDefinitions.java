@@ -374,8 +374,8 @@ public class TopologyStepDefinitions {
         }
     }
 
-    @When("^I check for the deployable status of the topology$")
-    public void I_check_for_the_deployable_status_of_the_topology() throws Throwable {
+    @When("^I check for the valid status of the topology$")
+    public void I_check_for_the_valid_status_of_the_topology() throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().get(
@@ -383,8 +383,8 @@ public class TopologyStepDefinitions {
                                 + Context.getInstance().getDefaultApplicationEnvironmentId(Context.getInstance().getApplication().getName())));
     }
 
-    @When("^I check for the deployable status of the topology on the default environment$")
-    public void I_check_for_the_deployable_status_of_the_topology_on_the_default_environment() throws Throwable {
+    @When("^I check for the valid status of the topology on the default environment$")
+    public void I_check_for_the_valid_status_of_the_topology_on_the_default_environment() throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().get(
@@ -392,16 +392,16 @@ public class TopologyStepDefinitions {
                                 + Context.getInstance().getDefaultApplicationEnvironmentId(Context.getInstance().getApplication().getName())));
     }
 
-    @Then("^the topology should be deployable$")
-    public void the_topology_should_be_deployable() throws Throwable {
+    @Then("^the topology should be valid$")
+    public void the_topology_should_be_valid() throws Throwable {
         RestResponse<?> restResponse = JsonTestUtil.read(Context.getInstance().getRestResponse());
         assertNotNull(restResponse.getData());
         Map<String, Object> dataMap = JsonTestUtil.toMap(JsonTestUtil.toString(restResponse.getData()));
         assertTrue(Boolean.valueOf(dataMap.get("valid").toString()));
     }
 
-    @Then("^the topology should not be deployable$")
-    public void the_topology_should_not_be_deployable() throws Throwable {
+    @Then("^the topology should not be valid$")
+    public void the_topology_should_not_be_valid() throws Throwable {
         RestResponse<?> restResponse = JsonTestUtil.read(Context.getInstance().getRestResponse());
         assertNotNull(restResponse.getData());
         Map<String, Object> dataMap = JsonTestUtil.toMap(JsonTestUtil.toString(restResponse.getData()));

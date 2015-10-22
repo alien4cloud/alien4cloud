@@ -33,6 +33,8 @@ public class DeploymentService {
     private DeploymentRuntimeStateService deploymentRuntimeStateService;
     @Inject
     private DeploymentContextService deploymentContextService;
+    @Inject
+    private DeploymentTopologyService deploymentTopologyService;
 
     /**
      * Get all deployments for a given cloud
@@ -179,7 +181,7 @@ public class DeploymentService {
         for (Deployment deployment : deployments) {
             DeploymentTopology topology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
             activeDeploymentContexts.put(deployment.getOrchestratorDeploymentId(),
-                    deploymentContextService.buildTopologyDeploymentContext(deployment, topology));
+                    deploymentContextService.buildTopologyDeploymentContext(deployment, deploymentTopologyService.getLocations(topology), topology));
         }
         return activeDeploymentContexts;
     }

@@ -1,4 +1,4 @@
-package alien4cloud.it.application;
+package alien4cloud.it.application.deployment;
 
 import static org.junit.Assert.*;
 
@@ -23,6 +23,7 @@ import org.elasticsearch.common.collect.Sets;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
+import alien4cloud.it.application.ApplicationStepDefinitions;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.exception.ITException;
 import alien4cloud.it.utils.websocket.IStompDataFuture;
@@ -34,7 +35,7 @@ import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceStatus;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
+import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
 import alien4cloud.rest.application.model.DeployApplicationRequest;
 import alien4cloud.rest.application.model.UpdateApplicationEnvironmentRequest;
 import alien4cloud.rest.application.model.UpdateDeploymentTopologyRequest;
@@ -426,8 +427,8 @@ public class ApplicationsDeploymentStepDefinitions {
             break;
         case "storage":
             topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getName()) + "/"
-                    + PaaSInstanceStorageMonitorEvent.class.getSimpleName().toLowerCase();
-            this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSInstanceStorageMonitorEvent.class));
+                    + PaaSInstancePersistentResourceMonitorEvent.class.getSimpleName().toLowerCase();
+            this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSInstancePersistentResourceMonitorEvent.class));
             break;
         }
     }
@@ -455,9 +456,9 @@ public class ApplicationsDeploymentStepDefinitions {
                 }
                 break;
             case "storage":
-                StompData<PaaSInstanceStorageMonitorEvent>[] storageEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), WAIT_TIME,
+                StompData<PaaSInstancePersistentResourceMonitorEvent>[] storageEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), WAIT_TIME,
                         TimeUnit.SECONDS);
-                for (StompData<PaaSInstanceStorageMonitorEvent> data : storageEvents) {
+                for (StompData<PaaSInstancePersistentResourceMonitorEvent> data : storageEvents) {
                     actualEvents.add(data.getData().getInstanceState());
                 }
                 break;

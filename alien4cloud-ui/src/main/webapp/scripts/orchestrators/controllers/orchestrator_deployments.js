@@ -5,6 +5,8 @@ define(function (require) {
   var states = require('states');
   var angular = require('angular');
   var _ = require('lodash');
+  
+  require('scripts/deployment/services/deployment_services');
 
   states.state('admin.orchestrators.details.deployments', {
     url: '/deployments',
@@ -20,8 +22,44 @@ define(function (require) {
   });
 
   modules.get('a4c-orchestrators').controller('OrchestratorDeploymentsCtrl',
-    ['$scope', '$modal', '$state',
-    function($scope, $modal, $state) {
+    ['$scope', '$modal', '$state', 'deploymentServices', 'orchestrator',
+    function($scope, $modal, $state, deploymentServices, orchestrator) {
+      $scope.orchestrator = orchestrator;
+      //get all deployments for this cloud
+      deploymentServices.get({
+        orchestratorId: $scope.orchestrator.id,
+        includeSourceSummary: true
+      }, function(result) {
+        processDeployments(result.data);
+        $scope.deployments = result.data;
+      });
+      
+      function processDeployments(deployments){
+        if (_.defined(deployments)){
+          _.each(deployments, function(deploymentDTO){
+            if(_.defined(deploymentDTO.locations)){
+              deploymentDTO.locations = _.indexBy(deploymentDTO.locations, 'id');
+            }
+          });
+        }
+      };
+      
+      //Go to runtime view for a deployment
+      $scope.goToRuntimeView = function(deployment){
+        console.log('here for', deployment.endDate)
+        if(_.defined(deployment.endDate)){
+          // do nothing as the deployment is ended already
+          return;
+        }
+        
+        $state.go('applications.detail.runtime', {
+          id:deployment.sourceId,
+          selectedEnvironmentId: deployment.environmentId
+        });
+        
+        
+      };
+    
     }
   ]); // controller
 }); // define

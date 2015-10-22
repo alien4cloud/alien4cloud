@@ -1,6 +1,7 @@
 package alien4cloud.orchestrators.locations.services;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -9,7 +10,6 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.orchestrators.plugin.ILocationAutoConfigurer;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -34,11 +34,14 @@ import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.orchestrators.plugin.ILocationAutoConfigurer;
 import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
+import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.model.DeployerRole;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.base.Objects;
@@ -66,11 +69,10 @@ public class LocationService {
     @Resource
     private CsarService csarService;
 
-
     /**
      * Auto-configure locations using the given location auto-configurer.
      *
-     * @param orchestrator           The id of the orchestrator that own the locations.
+     * @param orchestrator The id of the orchestrator that own the locations.
      * @param locationAutoConfigurer The auto-configurer to use for getting locations.
      */
     public void autoConfigure(Orchestrator orchestrator, ILocationAutoConfigurer locationAutoConfigurer) {
@@ -146,7 +148,7 @@ public class LocationService {
      * This method calls the orchestrator plugin to try to auto-configure the
      *
      * @param orchestrator The orchestrator for which to auto-configure a location.
-     * @param location     The location to auto-configure
+     * @param location The location to auto-configure
      * @return the List of {@link LocationResourceTemplate} generated from the location auto-configuration call, null is a valid answer.
      */
     private List<LocationResourceTemplate> autoConfigure(Orchestrator orchestrator, Location location) {
@@ -189,6 +191,21 @@ public class LocationService {
             throw new NotFoundException("Location [" + id + "] doesn't exists.");
         }
         return location;
+    }
+
+    /**
+     * Get multiple locations from list of ids
+     * 
+     * @param ids ids of location to get
+     * @return map of id to location
+     */
+    public Map<String, Location> getMultiple(Collection<String> ids) {
+        List<Location> locations = alienDAO.findByIds(Location.class, ids.toArray(new String[ids.size()]));
+        Map<String, Location> locationMap = Maps.newHashMap();
+        for (Location location : locations) {
+            locationMap.put(location.getId(), location);
+        }
+        return locationMap;
     }
 
     /**
@@ -243,7 +260,7 @@ public class LocationService {
      */
     public Location[] getOrchestratorLocations(String orchestratorId) {
         GetMultipleDataResult<Location> locations = alienDAO.search(Location.class, null,
-                MapUtil.newHashMap(new String[]{"orchestratorId"}, new String[][]{new String[]{orchestratorId}}), Integer.MAX_VALUE);
+                MapUtil.newHashMap(new String[] { "orchestratorId" }, new String[][] { new String[] { orchestratorId } }), Integer.MAX_VALUE);
         return locations.getData();
     }
 
@@ -256,7 +273,34 @@ public class LocationService {
     public List<Location> getOrchestratorsLocations(Collection<String> orchestratorIds) {
         List<Location> locations = null;
         locations = alienDAO.customFindAll(Location.class, QueryBuilders.termsQuery("orchestratorId", orchestratorIds));
-        return locations == null ? Lists.<Location>newArrayList() : locations;
+        return locations == null ? Lists.<Location> newArrayList() : locations;
+    }
+
+    /**
+     * Retrieve location given a list of ids, and a specific context
+     * Only retrieves the authorized ones.
+     *
+     * @param fetchContext The fetch context to recover only the required field (Note that this should be simplified to directly use the given field...).
+     * @param ids array of id of the applications to find
+     * @return Map of locations that has the given ids and for which the user is authorized (key is application Id), or null if no location matching the
+     *         request is found.
+     */
+    public Map<String, Location> findByIdsIfAuthorized(String fetchContext, String... ids) {
+        List<Location> results = alienDAO.findByIdsWithContext(Location.class, fetchContext, ids);
+        if (results == null) {
+            return null;
+        }
+        Map<String, Location> locations = Maps.newHashMap();
+        Iterator<Location> iterator = results.iterator();
+        while (iterator.hasNext()) {
+            Location location = iterator.next();
+            if (!AuthorizationUtil.hasAuthorizationForLocation(location, DeployerRole.values())) {
+                iterator.remove();
+                continue;
+            }
+            locations.put(location.getId(), location);
+        }
+        return locations.isEmpty() ? null : locations;
     }
 
     private void addFilter(Map<String, String[]> filters, String property, String... values) {

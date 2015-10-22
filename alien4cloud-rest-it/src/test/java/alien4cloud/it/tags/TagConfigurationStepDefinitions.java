@@ -62,7 +62,7 @@ public class TagConfigurationStepDefinitions {
     public void I_have_the_tag_registered_for_applications(String tagName, String target) throws Throwable {
         // we assume that all saved tags are also in the context
         Assert.assertTrue(Context.getInstance().getConfigurationTags().containsKey(tagName));
-        // possible targets : application / component / cloud
+        // possible targets : application / component / location
         Assert.assertEquals(target, Context.getInstance().getConfigurationTags().get(tagName).getTarget());
     }
 

@@ -1,6 +1,6 @@
 package alien4cloud.model.orchestrators.locations;
 
-import static alien4cloud.dao.model.FetchContext.DEPLOYMENT;
+import static alien4cloud.dao.model.FetchContext.SUMMARY;
 
 import java.util.Map;
 import java.util.Set;
@@ -21,7 +21,11 @@ import alien4cloud.model.common.IMetaProperties;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.security.ISecuredResource;
 import alien4cloud.security.model.DeployerRole;
-import alien4cloud.utils.jackson.*;
+import alien4cloud.utils.jackson.ConditionalAttributes;
+import alien4cloud.utils.jackson.ConditionalOnAttribute;
+import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
+import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
+import alien4cloud.utils.jackson.NotAnalyzedTextMapEntry;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -37,14 +41,17 @@ import com.wordnik.swagger.annotations.ApiModel;
         + "basically any location on which alien will be allowed to perform deployment. Locations are managed by orchestrators.")
 public class Location implements ISecuredResource, IMetaProperties {
     @Id
+    @FetchContext(contexts = SUMMARY, include = true)
     private String id;
     @NotBlank
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
+    @FetchContext(contexts = SUMMARY, include = true)
     private String name;
     @NotBlank
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
+    @FetchContext(contexts = SUMMARY, include = true)
     private String orchestratorId;
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
@@ -66,7 +73,7 @@ public class Location implements ISecuredResource, IMetaProperties {
     @ConditionalOnAttribute(ConditionalAttributes.ES)
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
-    @FetchContext(contexts = { DEPLOYMENT }, include = { true })
+    @FetchContext(contexts = { SUMMARY }, include = { true })
     private Map<String, Set<String>> userRoles;
 
     @TermFilter(paths = { "key", "value" })
@@ -74,7 +81,7 @@ public class Location implements ISecuredResource, IMetaProperties {
     @ConditionalOnAttribute(ConditionalAttributes.ES)
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
-    @FetchContext(contexts = { DEPLOYMENT }, include = { true })
+    @FetchContext(contexts = { SUMMARY }, include = { true })
     private Map<String, Set<String>> groupRoles;
 
     @Override

@@ -6,19 +6,22 @@ define(function(require) {
   var _ = require('lodash');
   var angular = require('angular');
 
+  require('scripts/common/filters/inputs');
+  
   require('scripts/applications/services/application_services');
   require('scripts/applications/services/application_environment_services');
   require('scripts/applications/services/application_version_services');
+  require('scripts/applications/services/deployment_topology_processor.js');
+  require('scripts/applications/services/tasks_processor.js');
 
   require('scripts/applications/controllers/application_deployment_locations');
   require('scripts/applications/controllers/application_deployment_match');
   require('scripts/applications/controllers/application_deployment_input');
-  require('scripts/applications/services/deployment_topology_processor.js');
-  require('scripts/applications/services/tasks_processor.js');
+  require('scripts/applications/controllers/application_deployment_deploy');
+  
 
   require('scripts/deployment/directives/display_outputs');
   require('scripts/applications/directives/topology_errors_display');
-  require('scripts/common/filters/inputs');
   
   var globalConfTaskCodes = ['SCALABLE_CAPABILITY_INVALID', 'PROPERTIES'];
 
@@ -36,14 +39,14 @@ define(function(require) {
   }
   
   var setNextStepMenuEnabled = function(currentStepMenu, nextStepMenu){
-    nextStepMenu.disabled = currentStepMenu.disabled || (_.defined(currentStepMenu.step.status) && currentStepMenu.step.status!=='SUCCESS');
+    nextStepMenu.disabled = currentStepMenu.disabled || (_.get(currentStepMenu, 'step.status', 'SUCCESS')!=='SUCCESS');
   };
   
   function buildMenuTree(menus) {
     _.each(menus, function(menu){
-      if (_.defined(menu.nextStepId)){
+      if (_.definedPath(menu, 'step.nextStepId')){
         menu.nextStep = _.find(menus, function(item){
-          return item.id===menu.nextStepId
+          return item.id===menu.step.nextStepId
         });
       }
     });
@@ -60,7 +63,7 @@ define(function(require) {
   function updateStepsStatuses(menus, validationDTO){
     _.each(menus, function(menu){
       if(_.definedPath(menu, 'step.taskCodes')){
-        menu.step.status=null;
+        delete menu.step.status;
         _.each(menu.step.taskCodes, function(taskCode){
           if(_.definedPath(validationDTO, 'taskList['+taskCode+']')){
             menu.step.status = 'ERROR';
@@ -110,10 +113,6 @@ define(function(require) {
         $scope.application = applicationResult.data;
         $scope.envs = appEnvironments.deployEnvironments;
 
-        $scope.$watch('deploymentContext.selectedEnvironment', function() {
-          refreshDeploymentContext($scope.deploymentContext, $scope.application, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menu);
-        });
-
         // Retrieval and validation of the topology associated with the deployment.
         var checkTopology = function() {
 
@@ -135,21 +134,38 @@ define(function(require) {
 
         //register the checking topo function for others states to use it
         $scope.checkTopology = checkTopology;
+        
+        function doGoToNextInvalidStep(){
+          //first step is locations 
+          var stepToGo = _.find($scope.menu, function(menu){
+            return menu.id==='am.applications.detail.deployment.locations';
+          });
+          
+          //look for the first invalid step, or the last one if all are valid 
+          while(stepToGo.nextStep){
+            if(_.get(stepToGo, 'step.status', 'SUCCESS') !== 'SUCCESS'){
+              break;
+            }
+            stepToGo = stepToGo.nextStep;
+          }
+          
+          //go to the found step
+          $state.go(stepToGo.state);
+        }
 
-        $scope.goToLocationTab = function() {
+        $scope.goToNextInvalidStep = function() {
+          //refresh initial topo validation first
           $scope.setTopologyId($scope.application.id, $scope.deploymentContext.selectedEnvironment.id, checkTopology).$promise.then(function() {
-            $state.go('applications.detail.deployment.locations');
+            //then refresh deployment context
+            refreshDeploymentContext($scope.deploymentContext, $scope.application, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menu).then(function(result) {
+              //finally, go to the next invalid step
+              doGoToNextInvalidStep();
+            });
           });
         };
 
-        $scope.goToLocationTab(); // immediately go to location tab
-
-        // Change the selected environment (set only if required).
-        var changeEnvironment = function(newEnvironment) {
-          if (_.defined(newEnvironment) && newEnvironment.id !== $scope.deploymentContext.selectedEnvironment.id) {
-            setEnvironmentAndForwardToLocations(newEnvironment);
-          }
-        };
+        $scope.goToNextInvalidStep(); // immediately go to the next invalid tab
+        
 
         $scope.showTodoList = function() {
           return !$scope.validTopologyDTO.valid && $scope.isManager;
@@ -171,8 +187,8 @@ define(function(require) {
           }
           return show;
         }
+        
         // Map functions that should be available from scope.
-        $scope.changeEnvironment = changeEnvironment;
 
         // Application rights
         $scope.isManager = authService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
@@ -218,17 +234,9 @@ define(function(require) {
           updateStepsStatuses($scope.menu, $scope.deploymentContext.deploymentTopologyDTO.validation);
         };
         
-        //enable or diable the next menu
-        $scope.setNextStepMenuEnabled = function(currentStepMenu, nextStepMenu){
-          nextStepMenu.disabled = _.defined(currentStepMenu.status) && currentStepMenu.status!=='SUCCESS';
-        };
-        
         //show or not the status icon
         $scope.showStatusIcon = function(menuItem){
-          if(menuItem.disabled){
-            return false;
-          }
-          if(!_.definedPath(menuItem, 'step.status') || menuItem.step.status==='SUCCESS'){
+          if(menuItem.disabled || _.get(menuItem, 'step.status','SUCCESS')==='SUCCESS'){
             return false;
           }
           return true;
@@ -238,37 +246,6 @@ define(function(require) {
         $scope.$on('$destroy', function() {
           $scope.stopEvent();
         });
-
-
-        // Deployment handler
-        $scope.deploy = function() {
-          // Application details with deployment properties
-          var deployApplicationRequest = {
-            applicationId: $scope.application.id,
-            applicationEnvironmentId: $scope.deploymentContext.selectedEnvironment.id
-          };
-          $scope.isDeploying = true;
-          applicationServices.deployApplication.deploy([], angular.toJson(deployApplicationRequest), function() {
-            $scope.deploymentContext.selectedEnvironment.status = 'DEPLOYMENT_IN_PROGRESS';
-            $scope.isDeploying = false;
-          }, function() {
-            $scope.isDeploying = false;
-          });
-        };
-
-        $scope.undeploy = function() {
-          $scope.isUnDeploying = true;
-          applicationServices.deployment.undeploy({
-            applicationId: $scope.application.id,
-            applicationEnvironmentId: $scope.deploymentContext.selectedEnvironment.id
-          }, function() {
-            $scope.deploymentContext.selectedEnvironment.status = 'UNDEPLOYMENT_IN_PROGRESS';
-            $scope.isUnDeploying = false;
-            $scope.stopEvent();
-          }, function() {
-            $scope.isUnDeploying = false;
-          });
-        };
 
       }
     ]); //controller

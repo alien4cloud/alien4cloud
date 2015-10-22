@@ -11,28 +11,17 @@ define(function(require) {
 
   states.state('applications.detail.deployment.match', {
     url: '/match',
-    resolve: {
-      thisStepMenu: ['menu', function(menu) {
-        return _.find(menu, function(item) {
-          return item.id === 'am.applications.detail.deployment.match'
-        })
-      }],
-      nextStepMenu: ['menu', function(menu) {
-        return _.find(menu, function(item) {
-          return item.id === 'am.applications.detail.deployment.input'
-        });
-      }]
-    },
     templateUrl: 'views/applications/application_deployment_match.html',
     controller: 'ApplicationDeploymentMatchCtrl',
     menu: {
       id: 'am.applications.detail.deployment.match',
       state: 'applications.detail.deployment.match',
       key: 'APPLICATIONS.DEPLOYMENT.MATCHING',
+      icon: 'fa fa-exchange',
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'],
       priority: 200,
-      nextStepId: 'am.applications.detail.deployment.input',
       step: {
+        nextStepId: 'am.applications.detail.deployment.input',
         taskCodes: ['NODE_NOT_SUBSTITUTED', 'IMPLEMENT', 'REPLACE']
       }
     }

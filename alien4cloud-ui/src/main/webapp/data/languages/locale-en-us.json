@@ -393,6 +393,7 @@
       }
     },
     "DEPLOYMENT": {
+      "DEPLOY": "Deploy",
       "MATCHING": "Substitution",
       "INPUT": "Input",
       "NAME_MATCHER": "Association of cloud resources",

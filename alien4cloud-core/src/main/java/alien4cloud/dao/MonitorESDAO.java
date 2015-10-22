@@ -13,7 +13,7 @@ import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
+import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 
 /**
@@ -42,7 +42,7 @@ public class MonitorESDAO extends ESGenericSearchDAO {
         setJsonMapper(ElasticSearchMapper.getInstance());
 
         Class<?>[] classes = new Class<?>[] { AbstractMonitorEvent.class, PaaSDeploymentStatusMonitorEvent.class, PaaSInstanceStateMonitorEvent.class,
-                PaaSMessageMonitorEvent.class, PaaSInstanceStorageMonitorEvent.class };
+                PaaSMessageMonitorEvent.class, PaaSInstancePersistentResourceMonitorEvent.class };
         initIndices("deployedtopologies", null, DeploymentTopology.class);
         initIndices("deploymentmonitorevents", eventMonitoringTtl, classes);
         initCompleted();
