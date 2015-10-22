@@ -112,6 +112,7 @@
   keys:
     set_state: set_state_activity
     call_operation: call_operation_activity
+    delegate: delegate_activity
   
 - set_state_activity: alien4cloud.paas.wf.SetStateActivity
   set_state: stateName
@@ -119,6 +120,9 @@
 - call_operation_activity: alien4cloud.paas.wf.OperationCallActivity
   call_operation: operationFqn
   
+- delegate_activity: alien4cloud.paas.wf.DelegateWorkflowActivity
+  delegate: workflowName
+
 - template_deployment_artifact: alien4cloud.model.components.DeploymentArtifact
   type: artifactType
   implementation:

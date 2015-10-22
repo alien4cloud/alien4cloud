@@ -28,6 +28,7 @@ import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.paas.wf.AbstractActivity;
 import alien4cloud.paas.wf.AbstractStep;
+import alien4cloud.paas.wf.DelegateWorkflowActivity;
 import alien4cloud.paas.wf.NodeActivityStep;
 import alien4cloud.paas.wf.OperationCallActivity;
 import alien4cloud.paas.wf.SetStateActivity;
@@ -241,6 +242,8 @@ public class ToscaSerializerUtils {
             return "call_operation";
         } else if (activity instanceof SetStateActivity) {
             return "set_state";
+        } else if (activity instanceof DelegateWorkflowActivity) {
+            return "delegate";
         } else {
             return activity.getClass().getSimpleName();
         }
@@ -258,6 +261,9 @@ public class ToscaSerializerUtils {
         } else if (activity instanceof SetStateActivity) {
             SetStateActivity stateActivity = (SetStateActivity) activity;
             return stateActivity.getStateName();
+        } else if (activity instanceof DelegateWorkflowActivity) {
+            DelegateWorkflowActivity delegateWorkflowActivity = (DelegateWorkflowActivity) activity;
+            return delegateWorkflowActivity.getWorkflowName();
         } else {
             return "void";
         }
