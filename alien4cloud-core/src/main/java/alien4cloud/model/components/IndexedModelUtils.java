@@ -31,7 +31,7 @@ public final class IndexedModelUtils {
      * This utility method returns an ordered {@link alien4cloud.component.model.IndexedInheritableToscaElement} collection. The parent elements will be before
      * the children elements
      * This utility method returns an ordered {@link IndexedInheritableToscaElement} collection. The parent elements will be before the children elements
-     * 
+     *
      * @param elementsByIdMap map of {@link IndexedInheritableToscaElement} by id
      * @return
      */
@@ -176,9 +176,11 @@ public final class IndexedModelUtils {
     }
 
     public static CapabilityDefinition getCapabilityDefinitionById(List<CapabilityDefinition> list, String id) {
-        for (CapabilityDefinition cd : list) {
-            if (cd.getId().equals(id)) {
-                return cd;
+        if (list != null) {
+            for (CapabilityDefinition cd : list) {
+                if (cd.getId().equals(id)) {
+                    return cd;
+                }
             }
         }
         return null;

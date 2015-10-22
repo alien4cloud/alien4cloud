@@ -1,4 +1,4 @@
-Feature: Node substitution in the deployment topology.
+Feature: inputs and orchestrator proerties settings in deployment topology.
 
   Background: 
     Given I am authenticated with "ADMIN" role
@@ -22,31 +22,19 @@ Feature: Node substitution in the deployment topology.
     And I update the property "flavorId" to "1" for the resource named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
   	And I add a role "DEPLOYER" to user "frodon" on the resource type "LOCATION" named "Thark location"
   
-    And I have an application "ALIEN" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT"
+#    And I have an application "ALIEN" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT"
+    And I have an application "ALIEN" with a topology containing a nodeTemplate "WebServer" related to "tosca.nodes.WebServer:1.0.0.wd06-SNAPSHOT"
+  	And I add a role "APPLICATION_MANAGER" to user "frodon" on the resource type "APPLICATION" named "ALIEN"
     
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     
+    
 
-  Scenario: Set a subsitution for a node
-    When I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Small_Ubuntu"
+  Scenario: Setting values to input properties
+  	Given I define and associate the property "component_version" of the node "WebServer" as input property
+    And I am authenticated with user named "frodon"
+    When I set the input property "component_version" of the deployment to "3.0"
     Then I should receive a RestResponse with no error
-    And The deployment topology sould have the substituted nodes
-    	| Compute | Small_Ubuntu | alien.nodes.mock.Compute |
-    When I substitute for the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
-    Then I should receive a RestResponse with no error
-    And The deployment topology sould have the substituted nodes
-    	| Compute | Manual_Small_Ubuntu | alien.nodes.mock.Compute |
-    	
-  Scenario: Update a substituted node's property
-  	Given I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
-  	When I update the property "imageId" to "updatedImg" for the subtituted node "Compute"
-  	Then I should receive a RestResponse with no error
-  	And The node "Compute" in the deployment topology should have the property "imageId" with value "updatedImg"
-  	 
-  Scenario: Update a substituted node's capability property
-  	Given I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
-  	When I update the capability "scalable" property "max_instances" to "5" for the subtituted node "Compute"
-  	Then I should receive a RestResponse with no error
-  	And The the node "Compute" in the deployment topology should have the capability "scalable"'s property "max_instances" with value "5" 
-  	
-	
+    And The deployment topology sould have the input "component_version" with value "3.0"
+    And the following nodes properties values sould be "3.0"
+    	| WebServer | component_version |
