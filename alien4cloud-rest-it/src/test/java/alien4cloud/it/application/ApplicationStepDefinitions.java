@@ -1,6 +1,10 @@
 package alien4cloud.it.application;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,6 +23,7 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.security.AuthenticationStepDefinitions;
+import alien4cloud.it.topology.TopologyStepDefinitions;
 import alien4cloud.it.topology.TopologyTemplateStepDefinitions;
 import alien4cloud.it.utils.JsonTestUtil;
 import alien4cloud.model.application.Application;
@@ -59,6 +64,7 @@ public class ApplicationStepDefinitions {
 
     private AuthenticationStepDefinitions authSteps = new AuthenticationStepDefinitions();
     private CommonStepDefinitions commonStepDefinitions = new CommonStepDefinitions();
+    private TopologyStepDefinitions topoSteps = new TopologyStepDefinitions();
 
     private void setAppVersionIdToContext(String appId) throws IOException {
         String applicationVersionJson = Context.getRestClientInstance().get("/rest/applications/" + appId + "/versions");
@@ -80,7 +86,7 @@ public class ApplicationStepDefinitions {
         assertNotNull(searchResp);
         ApplicationEnvironmentDTO appEnvDTO = JsonUtil.readObject(JsonUtil.toString(searchResp.getData()[0]), ApplicationEnvironmentDTO.class);
         assertNotNull(appEnvDTO);
-//        assertNull(appEnvDTO.getCloudId());
+        // assertNull(appEnvDTO.getCloudId());
         Assert.fail("Fix test");
     }
 
@@ -343,6 +349,13 @@ public class ApplicationStepDefinitions {
         I_create_a_new_application_with_name_and_description(appName, "Default application description...");
     }
 
+    @Given("^I have an application \"([^\"]*)\" with a topology containing a nodeTemplate \"([^\"]*)\" related to \"([^\"]*)\"$")
+    public void I_have_an_application_with_a_topology_containing_a_nodeTemplate_related_to(String applicationName, String nodeTemplateName, String nodeTypeId)
+            throws Throwable {
+        I_have_an_application_with_name(applicationName);
+        topoSteps.I_have_added_a_node_template_related_to_the_node_type(nodeTemplateName, nodeTypeId);
+    }
+
     @When("^I add a role \"([^\"]*)\" to user \"([^\"]*)\" on the application \"([^\"]*)\"$")
     public void I_add_a_role_to_user_on_the_application(String role, String username, String applicationName) throws Throwable {
         I_search_for_application(applicationName);
@@ -430,7 +443,7 @@ public class ApplicationStepDefinitions {
     }
 
     @Given("^I have applications with names and descriptions$")
-    public void I_have_applications_with_names(DataTable applicationNames) throws Throwable {
+    public void I_have_applications_with_names_and_description(DataTable applicationNames) throws Throwable {
         CURRENT_APPLICATIONS.clear();
         // Create each application and store in CURRENT_APPS
         for (List<String> app : applicationNames.raw()) {
@@ -446,6 +459,20 @@ public class ApplicationStepDefinitions {
 
         assertEquals(CURRENT_APPLICATIONS.size(), applicationNames.raw().size());
 
+    }
+
+    @Given("^I have applications with names and descriptions and a topology containing a nodeTemplate \"([^\"]*)\" related to \"([^\"]*)\"$")
+    public void I_have_applications_with_names_and_description_containing_nodetemplate(String nodeName, String componentType,
+            Map<String, String> applicationRequests) throws Throwable {
+        CURRENT_APPLICATIONS.clear();
+        // Create each application and store in CURRENT_APPS
+        for (java.util.Map.Entry<String, String> request : applicationRequests.entrySet()) {
+            I_create_a_new_application_with_name_and_description_without_errors(request.getKey(), request.getValue());
+            topoSteps.I_have_added_a_node_template_related_to_the_node_type(nodeName, componentType);
+            CURRENT_APPLICATIONS.put(request.getKey(), CURRENT_APPLICATION);
+        }
+
+        assertEquals(CURRENT_APPLICATIONS.size(), applicationRequests.size());
     }
 
     @Given("^I add a role \"([^\"]*)\" to group \"([^\"]*)\" on the application \"([^\"]*)\"$")
@@ -539,8 +566,8 @@ public class ApplicationStepDefinitions {
     }
 
     @When("^I create an application environment of type \"([^\"]*)\" with name \"([^\"]*)\" and description \"([^\"]*)\" for the newly created application$")
-    public void I_create_an_application_environment_of_type_with_name_and_description_for_the_newly_created_application(String appEnvType,
-            String appEnvName, String appEnvDescription) throws Throwable {
+    public void I_create_an_application_environment_of_type_with_name_and_description_for_the_newly_created_application(String appEnvType, String appEnvName,
+            String appEnvDescription) throws Throwable {
         Assert.assertNotNull(CURRENT_APPLICATION.getId());
         Assert.assertTrue(EnvironmentType.valueOf(appEnvType).toString().equals(appEnvType));
         Assert.assertNotNull(appEnvName);
@@ -584,7 +611,7 @@ public class ApplicationStepDefinitions {
             case "cloudName":
                 // for attribute cloudName get the ID en set it
                 String cloudId = Context.getInstance().getCloudId(attributeValue);
-//                appEnvRequest.setCloudId(cloudId);
+                // appEnvRequest.setCloudId(cloudId);
                 Assert.fail("Fix test");
                 break;
             case "description":
@@ -609,7 +636,7 @@ public class ApplicationStepDefinitions {
     @When("^I update the environment named \"([^\"]*)\" to use cloud \"([^\"]*)\" for application \"([^\"]*)\"$")
     public void I_update_the_environment_named_to_use_cloud_for_application(String envName, String cloudName, String appName) throws Throwable {
         UpdateApplicationEnvironmentRequest appEnvRequest = new UpdateApplicationEnvironmentRequest();
-//        appEnvRequest.setCloudId(Context.getInstance().getCloudId(cloudName));
+        // appEnvRequest.setCloudId(Context.getInstance().getCloudId(cloudName));
         Assert.fail("Fix test");
         String applicationId = Context.getInstance().getApplicationId(appName);
         String applicationEnvironmentId = Context.getInstance().getApplicationEnvironmentId(appName, envName);
