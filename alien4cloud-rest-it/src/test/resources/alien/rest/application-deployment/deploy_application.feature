@@ -2,32 +2,51 @@ Feature: Deploy an application
 
   Background:
     Given I am authenticated with "ADMIN" role
+    And I upload the archive "tosca-normative-types-wd06"
     And I upload a plugin
-    And I create a cloud with name "Mount doom cloud" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-paas-provider"
-    And I enable the cloud "Mount doom cloud"
+    And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
+    And I enable the orchestrator "Mount doom orchestrator"
+    And I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
+    And I create a resource of type "alien.nodes.mock.openstack.Flavor" named "Small" related to the location "Mount doom orchestrator"/"Thark location"
+    And I update the property "id" to "1" for the resource named "Small" related to the location "Mount doom orchestrator"/"Thark location"
+    And I create a resource of type "alien.nodes.mock.openstack.Image" named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+    And I update the property "id" to "img1" for the resource named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+    And I create a resource of type "alien.nodes.mock.openstack.Image" named "Debian" related to the location "Mount doom orchestrator"/"Thark location"
+    And I update the property "id" to "img2" for the resource named "Debian" related to the location "Mount doom orchestrator"/"Thark location"
+  	And I autogenerate the on-demand resources for the location "Mount doom orchestrator"/"Thark location"
+    And I create a resource of type "alien.nodes.mock.Compute" named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+    And I update the property "imageId" to "img1" for the resource named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+    And I update the property "flavorId" to "1" for the resource named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+
     And There are these users in the system
       | sangoku |
     And I add a role "APPLICATIONS_MANAGER" to user "sangoku"
-    And I add a role "CLOUD_DEPLOYER" to user "sangoku" on the resource type "CLOUD" named "Mount doom cloud"
+  	And I add a role "DEPLOYER" to user "sangoku" on the resource type "LOCATION" named "Thark location"
     And I am authenticated with user named "sangoku"
+    
+   	And I pre register orchestrator properties
+      | managementUrl | http://cloudifyurl:8099 |
+      | numberBackup  | 1                       |
+      | managerEmail  | admin@alien.fr          |
+    
 
   Scenario: Deploy an application with success
-    Given I have an application with name "ALIEN"
-    And I assign the cloud with name "Mount doom cloud" for the application
+		 Given I have an application "ALIEN" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT"
+    And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     When I deploy it
     Then I should receive a RestResponse with no error
     And The application's deployment must succeed
 
   Scenario: Deploy an application with failure
-    Given I have an application with name "BAD-APPLICATION"
-    And I assign the cloud with name "Mount doom cloud" for the application
+ 		Given I have an application "BAD-APPLICATION" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT"
+    And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     When I deploy it
     Then I should receive a RestResponse with no error
     And The application's deployment must fail
 
   Scenario: Deploy an application with warning
-    Given I have an application with name "WARN-APPLICATION"
-    And I assign the cloud with name "Mount doom cloud" for the application
+  	Given I have an application "WARN-APPLICATION" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT"
+    And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     When I deploy it
     Then I should receive a RestResponse with no error
     And The application's deployment must finish with warning
@@ -43,36 +62,36 @@ Feature: Deploy an application
     And I should receive a RestResponse with no error
 
   Scenario: Create 4 applications, deploy all and final check statuses
-    Given I have applications with names and descriptions
+    Given I have applications with names and descriptions and a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT"
       | My Software Factory | This application should be in DEPLOYED status... |
       | WARN-APPLICATION    | This application should be in WARNING status...  |
       | BAD-APPLICATION     | This Application should be in FAILURE status...  |
       | ALIEN               | This application should be in DEPLOYED status... |
     Then I can get applications statuses
-    When I deploy all applications with cloud "Mount doom cloud"
+    When I deploy all applications on the location "Mount doom orchestrator"/"Thark location"
     Then I have expected applications statuses for "deployment" operation
       | BAD-APPLICATION     | FAILURE  |
       | ALIEN               | DEPLOYED |
       | WARN-APPLICATION    | WARNING  |
       | My Software Factory | DEPLOYED |
     And I should receive a RestResponse with no error
-
-  Scenario: deleting an deployed application should fail
-    Given I have an application with name "ALIEN"
-    And I deploy the application "ALIEN" with cloud "Mount doom cloud" for the topology
-    When I delete the application "ALIEN"
-    Then I should receive a RestResponse with an error code 607
-    And the application can be found in ALIEN
-    And The application's deployment must succeed
-    
-  Scenario: Create two app with similar names and deploy them on the same cloud should fail for the second app
-    Given I have an application with name "App Test"
-    And I deploy the application "App Test" with cloud "Mount doom cloud" for the topology
-    And I have an application with name "App_Test"
-    And I deploy the application "App_Test" with cloud "Mount doom cloud" for the topology without waiting for the end of deployment
-    Then I should receive a RestResponse with an error code 613
-    When I have an application with name "App-Test"
-    And I assign the cloud with name "Mount doom cloud" for the application
-    When I deploy it
-    Then I should receive a RestResponse with no error
+#
+#  Scenario: deleting an deployed application should fail
+#    Given I have an application with name "ALIEN"
+#    And I deploy the application "ALIEN" on the location "Mount doom orchestrator"/"Thark location"
+#    When I delete the application "ALIEN"
+#    Then I should receive a RestResponse with an error code 607
+#    And the application can be found in ALIEN
+#    And The application's deployment must succeed
+#    
+#  Scenario: Create two app with similar names and deploy them on the same location should fail for the second app
+#    Given I have an application with name "App Test"
+#    And I deploy the application "App Test" on the location "Mount doom orchestrator"/"Thark location"
+#    And I have an application with name "App_Test"
+#    And I deploy the application "App_Test" on the location "Mount doom orchestrator"/"Thark location" without waiting for the end of deployment
+#    Then I should receive a RestResponse with an error code 613
+#    When I have an application with name "App-Test"
+#    And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
+#    When I deploy it
+#    Then I should receive a RestResponse with no error
      

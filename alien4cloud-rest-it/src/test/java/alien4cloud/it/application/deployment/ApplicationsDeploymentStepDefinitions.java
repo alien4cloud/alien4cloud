@@ -1,6 +1,9 @@
 package alien4cloud.it.application.deployment;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -34,14 +37,11 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceStatus;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.rest.application.model.DeployApplicationRequest;
-import alien4cloud.rest.application.model.UpdateApplicationEnvironmentRequest;
-import alien4cloud.rest.application.model.UpdateDeploymentTopologyRequest;
 import alien4cloud.rest.deployment.DeploymentDTO;
 import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.application.model.CloudDeploymentPropertyValidationRequest;
 import alien4cloud.rest.utils.JsonUtil;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
@@ -52,6 +52,7 @@ import cucumber.api.java.en.When;
 @Slf4j
 public class ApplicationsDeploymentStepDefinitions {
     private CommonStepDefinitions commonSteps = new CommonStepDefinitions();
+    private DeploymentTopologyStepDefinitions deploymentTopoSteps = new DeploymentTopologyStepDefinitions();
     private static Map<String, DeploymentStatus> pendingStatuses;
 
     static {
@@ -78,9 +79,16 @@ public class ApplicationsDeploymentStepDefinitions {
     @When("^I deploy it$")
     public void I_deploy_it() throws Throwable {
         // deploys the current application on default "Environment"
+        setOrchestratorProperties();
         DeployApplicationRequest deployApplicationRequest = getDeploymentAppRequest(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null);
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/applications/deployment", JsonUtil.toString(deployApplicationRequest)));
+        String response = Context.getRestClientInstance().postJSon("/rest/applications/deployment", JsonUtil.toString(deployApplicationRequest));
+        Context.getInstance().registerRestResponse(response);
+    }
+
+    private void setOrchestratorProperties() throws Throwable {
+        if (Context.getInstance().getPreRegisteredOrchestratorProperties() != null) {
+            deploymentTopoSteps.I_set_the_following_orchestrator_properties(Context.getInstance().getPreRegisteredOrchestratorProperties());
+        }
     }
 
     private DeployApplicationRequest getDeploymentAppRequest(String applicationName, String environmentName) throws IOException {
@@ -94,15 +102,6 @@ public class ApplicationsDeploymentStepDefinitions {
                 .getApplicationEnvironmentId(applicationName, environmentName);
         deployApplicationRequest.setApplicationEnvironmentId(environmentId);
 
-        Map<String, String> deploymentProperties = Context.getInstance().getDeployApplicationProperties();
-        if (deploymentProperties != null) {
-            UpdateDeploymentTopologyRequest request = new UpdateDeploymentTopologyRequest();
-            request.setProviderDeploymentProperties(deploymentProperties);
-            String response = Context.getRestClientInstance().putJSon(
-                    "/rest/applications/" + applicationId + "/environments/" + environmentId + "/deployment-setup", JsonUtil.toString(request));
-            RestResponse<?> marshaledResponse = JsonUtil.read(response);
-            Assert.assertNull(marshaledResponse.getError());
-        }
         return deployApplicationRequest;
     }
 
@@ -203,41 +202,28 @@ public class ApplicationsDeploymentStepDefinitions {
         assertEquals(ApplicationStepDefinitions.CURRENT_APPLICATIONS.size(), applicationStatuses.size());
     }
 
-    @When("^I assign the cloud with name \"([^\"]*)\" for the application$")
-    public void I_assign_the_cloud_with_name_for_the_application(String cloudName) throws Throwable {
-        String cloudId = Context.getInstance().getCloudId(cloudName);
-        UpdateApplicationEnvironmentRequest updateApplicationCloudRequest = new UpdateApplicationEnvironmentRequest();
-//        updateApplicationCloudRequest.setCloudId(cloudId);
-        Assert.fail("Fix test");
-        Application application = Context.getInstance().getApplication();
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().putJSon(
-                        "/rest/applications/" + application.getId() + "/environments/"
-                                + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()),
-                        JsonUtil.toString(updateApplicationCloudRequest)));
-        Context.getInstance().registerCloudForTopology(cloudId);
-    }
-
-    @When("^I deploy all applications with cloud \"([^\"]*)\"$")
-    public void I_deploy_all_applications_with_cloud(String cloudName) throws Throwable {
+    @When("^I deploy all applications on the location \"([^\"]*)\"/\"([^\"]*)\"$")
+    public void I_deploy_all_applications_on_the_location(String orchestratorName, String locationName) throws Throwable {
         assertNotNull(ApplicationStepDefinitions.CURRENT_APPLICATIONS);
         for (String key : ApplicationStepDefinitions.CURRENT_APPLICATIONS.keySet()) {
             Application app = ApplicationStepDefinitions.CURRENT_APPLICATIONS.get(key);
             Context.getInstance().registerApplication(app);
-            I_assign_the_cloud_with_name_for_the_application(cloudName);
+            deploymentTopoSteps.I_Set_a_unique_location_policy_to_for_all_nodes(orchestratorName, locationName);
             String appName = app.getName();
             Map<String, String> environments = Context.getInstance().getAllEnvironmentForApplication(appName);
             DeployApplicationRequest deployApplicationRequest = null;
             for (Map.Entry<String, String> env : environments.entrySet()) {
                 String envName = env.getKey();
                 deployApplicationRequest = getDeploymentAppRequest(appName, envName);
-                Context.getInstance().registerRestResponse(deploy(deployApplicationRequest));
+                String response = deploy(deployApplicationRequest);
+                Context.getInstance().registerRestResponse(response);
             }
             commonSteps.I_should_receive_a_RestResponse_with_no_error();
         }
     }
 
-    private String deploy(DeployApplicationRequest deployApplicationRequest) throws IOException {
+    private String deploy(DeployApplicationRequest deployApplicationRequest) throws Throwable {
+        setOrchestratorProperties();
         return Context.getRestClientInstance().postJSon("/rest/applications/deployment", JsonUtil.toString(deployApplicationRequest));
     }
 
@@ -250,39 +236,16 @@ public class ApplicationsDeploymentStepDefinitions {
         }
     }
 
-    @Given("^I deploy the application \"([^\"]*)\" with cloud \"([^\"]*)\" for the topology$")
-    public void I_deploy_the_application_with_cloud_for_the_topology(String appName, String cloudName) throws Throwable {
-        I_deploy_the_application_with_cloud_for_the_topology_without_waiting_for_the_end_of_deployment(appName, cloudName);
+    @Given("^I deploy the application \"([^\"]*)\" on the location \"([^\"]*)\"/\"([^\"]*)\"$")
+    public void I_deploy_the_application_on_location(String appName, String orchestratorName, String locationName) throws Throwable {
+        I_deploy_the_application_on_the_location_without_waiting_for_the_end_of_deployment(appName, orchestratorName, locationName);
         The_application_s_deployment_must_succeed();
     }
 
-    @Given("^I give deployment properties:$")
-    public void I_give_deployment_properties(DataTable deploymentProperties) throws Throwable {
-        String deploymentPropertyName = null;
-        String deploymentPropertyValue = null;
-
-        CloudDeploymentPropertyValidationRequest checkDeploymentPropertyRequest = new CloudDeploymentPropertyValidationRequest();
-        checkDeploymentPropertyRequest.setCloudId(Context.getInstance().getCloudForTopology());
-
-        // check properties validity
-        Map<String, String> finalDeploymentProperties = Maps.newHashMap();
-        for (List<String> app : deploymentProperties.raw()) {
-            deploymentPropertyName = app.get(0).trim();
-            deploymentPropertyValue = app.get(1).trim();
-            checkDeploymentPropertyRequest.setDeploymentPropertyName(deploymentPropertyName);
-            checkDeploymentPropertyRequest.setDeploymentPropertyValue(deploymentPropertyValue);
-            Context.getInstance()
-                    .registerRestResponse(
-                            Context.getRestClientInstance().postJSon("/rest/applications/check-deployment-property",
-                                    JsonUtil.toString(checkDeploymentPropertyRequest)));
-            if (JsonUtil.read(Context.getInstance().getRestResponse()).getError() != null) {
-                log.info("Error in deployment properties for deployment property {} with value {}", deploymentPropertyName, deploymentPropertyValue);
-                break;
-            }
-            finalDeploymentProperties.put(deploymentPropertyName, deploymentPropertyValue);
-        }
-        // register deployment application properties to use it
-        Context.getInstance().registerDeployApplicationProperties(finalDeploymentProperties);
+    @Given("^I pre register orchestrator properties$")
+    public void I_pre_register_orchestrator_properties(Map<String, String> orchestratorProperties) throws Throwable {
+        // // register deployment application properties to use it
+        Context.getInstance().registerOrchestratorProperties(orchestratorProperties);
     }
 
     @Given("^I undeploy all environments for applications$")
@@ -456,8 +419,8 @@ public class ApplicationsDeploymentStepDefinitions {
                 }
                 break;
             case "storage":
-                StompData<PaaSInstancePersistentResourceMonitorEvent>[] storageEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), WAIT_TIME,
-                        TimeUnit.SECONDS);
+                StompData<PaaSInstancePersistentResourceMonitorEvent>[] storageEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(),
+                        WAIT_TIME, TimeUnit.SECONDS);
                 for (StompData<PaaSInstancePersistentResourceMonitorEvent> data : storageEvents) {
                     actualEvents.add(data.getData().getInstanceState());
                 }
@@ -474,10 +437,10 @@ public class ApplicationsDeploymentStepDefinitions {
         }
     }
 
-    @Given("^I deploy the application \"([^\"]*)\" with cloud \"([^\"]*)\" for the topology without waiting for the end of deployment$")
-    public void I_deploy_the_application_with_cloud_for_the_topology_without_waiting_for_the_end_of_deployment(String appName, String cloudName)
+    @Given("^I deploy the application \"([^\"]*)\" on the location \"([^\"]*)\"/\"([^\"]*)\" without waiting for the end of deployment$")
+    public void I_deploy_the_application_on_the_location_without_waiting_for_the_end_of_deployment(String appName, String orchestratorName, String locationName)
             throws Throwable {
-        I_assign_the_cloud_with_name_for_the_application(cloudName);
+        deploymentTopoSteps.I_Set_a_unique_location_policy_to_for_all_nodes(orchestratorName, locationName);
         DeployApplicationRequest deployApplicationRequest = getDeploymentAppRequest(appName, null);
         deployApplicationRequest.setApplicationId(Context.getInstance().getApplication().getId());
         Context.getInstance().registerRestResponse(
@@ -493,13 +456,13 @@ public class ApplicationsDeploymentStepDefinitions {
             expectedDeploymentProperties.put(deploymentPropertyName, deploymentPropertyValue);
         }
         Assert.fail("Fix test");
-//        DeploymentSetupMatchInfo deploymentSetupMatchInfo = JsonUtil.read(
-//                Context.getRestClientInstance().get(
-//                        "/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
-//                                + Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName())
-//                                + "/deployment-setup"), DeploymentSetupMatchInfo.class).getData();
-//        Assert.assertNotNull(deploymentSetupMatchInfo.getProviderDeploymentProperties());
-//        Assert.assertEquals(expectedDeploymentProperties, deploymentSetupMatchInfo.getProviderDeploymentProperties());
+        // DeploymentSetupMatchInfo deploymentSetupMatchInfo = JsonUtil.read(
+        // Context.getRestClientInstance().get(
+        // "/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
+        // + Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName())
+        // + "/deployment-setup"), DeploymentSetupMatchInfo.class).getData();
+        // Assert.assertNotNull(deploymentSetupMatchInfo.getProviderDeploymentProperties());
+        // Assert.assertEquals(expectedDeploymentProperties, deploymentSetupMatchInfo.getProviderDeploymentProperties());
     }
 
     @Given("^I deploy an application environment \"([^\"]*)\" for application \"([^\"]*)\"$")

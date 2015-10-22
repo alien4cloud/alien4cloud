@@ -1,6 +1,11 @@
 package alien4cloud.it.topology;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -583,6 +588,13 @@ public class TopologyStepDefinitions {
             Arrays.sort(requirementsNames);
             assertArrayEquals(expectedNames, requirementsNames);
         }
+    }
+
+    @Given("^I have deleted a node template \"([^\"]*)\" from the topology$")
+    public void I_have_deleted_a_node_template_from_the_topology(String nodeTemplateName) throws Throwable {
+        I_delete_a_node_template_from_the_topology(nodeTemplateName);
+        commonStepDefinitions.I_should_receive_a_RestResponse_with_no_error();
+        The_RestResponse_should_not_contain_a_nodetemplate_named(nodeTemplateName);
     }
 
     private List<RequirementToSatisfy> getRequirementsToSatisfy(String nodeTemplateName, Object taskList) throws IOException {

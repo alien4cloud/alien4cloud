@@ -99,15 +99,15 @@ public class TopologyPropertiesValidationService {
             task.setProperties(Maps.<TaskLevel, List<String>> newHashMap());
 
             // Check the properties of node template
-            if(MapUtils.isNotEmpty(nodeTemplate.getProperties())) {
+            if (MapUtils.isNotEmpty(nodeTemplate.getProperties())) {
                 addRequiredPropertyIdToTaskProperties(nodeTemplate.getProperties(), relatedIndexedNodeType.getProperties(), task, skipInputProperties);
             }
 
             // Check relationships PD
-            if(MapUtils.isNotEmpty(nodeTemplate.getRelationships())) {
+            if (MapUtils.isNotEmpty(nodeTemplate.getRelationships())) {
                 Collection<RelationshipTemplate> relationships = nodeTemplate.getRelationships().values();
-                for(RelationshipTemplate relationship : relationships) {
-                    if(relationship.getProperties() == null || relationship.getProperties().isEmpty()) {
+                for (RelationshipTemplate relationship : relationships) {
+                    if (relationship.getProperties() == null || relationship.getProperties().isEmpty()) {
                         continue;
                     }
                     addRequiredPropertyIdToTaskProperties(relationship.getProperties(), getRelationshipPropertyDefinition(topology, nodeTemplate), task,
@@ -116,7 +116,7 @@ public class TopologyPropertiesValidationService {
             }
 
             // Check capabilities PD
-            if( MapUtils.isNotEmpty(nodeTemplate.getCapabilities())) {
+            if (MapUtils.isNotEmpty(nodeTemplate.getCapabilities())) {
                 Collection<Capability> capabilities = nodeTemplate.getCapabilities().values();
                 for (Capability capability : capabilities) {
                     if (capability.getProperties() == null || capability.getProperties().isEmpty()) {
@@ -133,7 +133,7 @@ public class TopologyPropertiesValidationService {
 
             if (MapUtils.isNotEmpty(task.getProperties())) {
                 // why verify this????
-                if(CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.REQUIRED))
+                if (CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.REQUIRED))
                         || CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.WARNING))) {
                     toReturnTaskList.add(task);
                 }
@@ -176,7 +176,7 @@ public class TopologyPropertiesValidationService {
         Set<String> errorProperties = Sets.newHashSet();
         if (skipInputProperties) {
             for (Entry<String, AbstractPropertyValue> entry : scalableProperties.entrySet()) {
-                if(entry.getValue() instanceof FunctionPropertyValue) {
+                if (entry.getValue() instanceof FunctionPropertyValue) {
                     return;
                 }
             }
@@ -193,7 +193,7 @@ public class TopologyPropertiesValidationService {
                 if (min > init || min > max) {
                     errorProperties.add(NormativeComputeConstants.SCALABLE_MIN_INSTANCES);
                 }
-                if ( init > max || init < min) {
+                if (init > max || init < min) {
                     errorProperties.add(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES);
                 }
                 if (max < min || max < init) {
@@ -218,7 +218,7 @@ public class TopologyPropertiesValidationService {
         String rawValue = null;
         try {
             rawValue = FunctionEvaluator.getScalarValue(scalableProperties.get(propertyToVerify));
-        } catch(NotSupportedException e1) {
+        } catch (NotSupportedException e1) {
             // the value is a function (get_input normally), this means the input is not yet filled.
         }
         if (StringUtils.isEmpty(rawValue)) {
@@ -228,7 +228,7 @@ public class TopologyPropertiesValidationService {
         int value;
         try {
             value = Integer.parseInt(rawValue);
-        } catch(Exception e) {
+        } catch (Exception e) {
             errorProperties.add(propertyToVerify);
             return -1;
         }
@@ -241,7 +241,7 @@ public class TopologyPropertiesValidationService {
 
     private void addRequiredPropertyIdToTaskProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> relatedProperties,
             PropertiesTask task, boolean skipInputProperties) {
-        for(Map.Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
+        for (Map.Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
 
             PropertyDefinition propertyDef = relatedProperties.get(propertyEntry.getKey());
             AbstractPropertyValue value = propertyEntry.getValue();
@@ -257,7 +257,7 @@ public class TopologyPropertiesValidationService {
                 isScalar = true;
             } else {
                 // this is a get_input funtion.
-                if(skipInputProperties) {
+                if (skipInputProperties) {
                     // get_input Will be validated later on
                     continue;
                 }

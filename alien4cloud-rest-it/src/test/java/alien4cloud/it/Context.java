@@ -176,7 +176,7 @@ public class Context {
 
     private String topologyCloudInfos;
 
-    private Map<String, String> deployApplicationProperties;
+    private Map<String, String> preRegisteredOrchestratorProperties;
 
     private Map<String, MetaPropConfiguration> configurationTags;
 
@@ -507,17 +507,17 @@ public class Context {
         return topologyCloudInfos;
     }
 
-    public void registerDeployApplicationProperties(Map<String, String> deployApplicationProperties) {
-        this.deployApplicationProperties = deployApplicationProperties;
+    public void registerOrchestratorProperties(Map<String, String> deployApplicationProperties) {
+        this.preRegisteredOrchestratorProperties = deployApplicationProperties;
     }
 
-    public Map<String, String> getDeployApplicationProperties() {
-        return deployApplicationProperties;
+    public Map<String, String> getPreRegisteredOrchestratorProperties() {
+        return preRegisteredOrchestratorProperties;
     }
 
-    public Map<String, String> takeDeployApplicationProperties() {
-        Map<String, String> tmp = deployApplicationProperties;
-        deployApplicationProperties = null;
+    public Map<String, String> takePreRegisteredOrchestratorProperties() {
+        Map<String, String> tmp = preRegisteredOrchestratorProperties;
+        preRegisteredOrchestratorProperties = null;
         return tmp;
     }
 

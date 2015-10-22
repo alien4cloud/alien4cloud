@@ -76,6 +76,7 @@ public class DeploymentTopologyValidationService {
             dto.setValid(false);
             return dto;
         }
+        // TODO may be include the hoe topology validation here?
 
         // TODO Perform validation of policies
         // If a policy is not matched on the location this is a warning as we allow deployment but some features may be missing
@@ -119,20 +120,25 @@ public class DeploymentTopologyValidationService {
     }
 
     /**
-     * Check that the constraint on an input properties is respected for a deployment setup
+     * Check that the constraint on an input properties and orchestrator properties is respected for a deployment setup
      *
      * @param topology The deployment topology to validate
      * @param topology The topology that contains the inputs and properties definitions.
      * @throws ConstraintValueDoNotMatchPropertyTypeException
      * @throws ConstraintViolationException
      */
-    public void checkInputPropertiesContraints(DeploymentTopology topology) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+    public void checkPropertiesContraints(DeploymentTopology topology) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+        checkInputsContraints(topology);
+        orchestratorPropertiesValidationService.checkConstraints(topology.getOrchestratorId(), topology.getProviderDeploymentProperties());
+    }
+
+    private void checkInputsContraints(DeploymentTopology topology) throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         if (topology.getInputProperties() == null) {
             return;
         }
         Map<String, String> inputProperties = topology.getInputProperties();
         Map<String, PropertyDefinition> inputDefinitions = topology.getInputs();
-        if (inputDefinitions == null) {
+        if (MapUtils.isEmpty(inputDefinitions)) {
             throw new NotFoundException("No input is defined for the topology");
         }
         for (Map.Entry<String, String> inputPropertyEntry : inputProperties.entrySet()) {

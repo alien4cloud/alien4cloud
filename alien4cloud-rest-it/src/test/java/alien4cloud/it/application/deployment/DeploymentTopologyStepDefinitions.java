@@ -171,19 +171,30 @@ public class DeploymentTopologyStepDefinitions {
         assertCapabilityPropertyValueEquals(node, capabilityName, propertyName, expectedPropertyValue);
     }
 
-    @When("^I set the input property \"([^\"]*)\" of the deployment to \"([^\"]*)\"$")
-    public void I_set_the_input_property_of_the_deployment_to(String inputName, String inputValue) throws Throwable {
+    @When("^I set the following inputs properties$")
+    public void I_set_the_following_inputs_properties(Map<String, String> inputProperties) throws Throwable {
         UpdateDeploymentTopologyRequest request = new UpdateDeploymentTopologyRequest();
-        Map<String, String> inputProperties = Maps.newHashMap();
-        inputProperties.put(inputName, inputValue);
         request.setInputProperties(inputProperties);
         executeUpdateDeploymentTopologyCall(request);
     }
 
-    @Then("^The deployment topology sould have the input \"(.*?)\" with value \"(.*?)\"$")
-    public void The_deployment_topology_sould_have_the_input_with_value(String inputName, String expectedValue) throws Throwable {
+    @When("^I set the following orchestrator properties$")
+    public void I_set_the_following_orchestrator_properties(Map<String, String> orchestratorProperties) throws Throwable {
+        UpdateDeploymentTopologyRequest request = new UpdateDeploymentTopologyRequest();
+        request.setProviderDeploymentProperties(orchestratorProperties);
+        executeUpdateDeploymentTopologyCall(request);
+    }
+
+    @Then("^the deployment topology should have the following inputs properties$")
+    public void The_deployment_topology_sould_have_the_following_input_properties(Map<String, String> expectedInputProperties) throws Throwable {
         DeploymentTopologyDTO dto = getDTOAndassertNotNull();
-        assertEquals(expectedValue, MapUtils.getObject(dto.getTopology().getInputProperties(), inputName));
+        assertMapContains(dto.getTopology().getInputProperties(), expectedInputProperties);
+    }
+
+    @Then("^the deployment topology should have the following orchestrator properties$")
+    public void The_deployment_topology_sould_have_the_following_orchestrator_properties(Map<String, String> expectedInputProperties) throws Throwable {
+        DeploymentTopologyDTO dto = getDTOAndassertNotNull();
+        assertMapContains(dto.getTopology().getProviderDeploymentProperties(), expectedInputProperties);
     }
 
     @Then("^the following nodes properties values sould be \"(.*?)\"$")
@@ -215,6 +226,12 @@ public class DeploymentTopologyStepDefinitions {
         assertNotNull(capability);
         AbstractPropertyValue abstractProperty = MapUtils.getObject(capability.getProperties(), propertyName);
         assertEquals(expectedPropertyValue, FunctionEvaluator.getScalarValue(abstractProperty));
+    }
+
+    private void assertMapContains(Map<String, String> map, Map<String, String> expectedMap) {
+        for (Entry<String, String> entry : expectedMap.entrySet()) {
+            assertEquals(entry.getValue(), MapUtils.getObject(map, entry.getKey()));
+        }
     }
 
     @Getter
