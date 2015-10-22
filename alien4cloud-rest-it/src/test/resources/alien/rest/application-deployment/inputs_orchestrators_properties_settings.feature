@@ -33,8 +33,39 @@ Feature: inputs and orchestrator proerties settings in deployment topology.
   Scenario: Setting values to input properties
   	Given I define and associate the property "component_version" of the node "WebServer" as input property
     And I am authenticated with user named "frodon"
-    When I set the input property "component_version" of the deployment to "3.0"
+    When I set the following inputs properties
+    	| component_version | 3.0 |
     Then I should receive a RestResponse with no error
-    And The deployment topology sould have the input "component_version" with value "3.0"
+    And the deployment topology should have the following inputs properties
+    	| component_version | 3.0 |
     And the following nodes properties values sould be "3.0"
     	| WebServer | component_version |
+    	
+  Scenario: Setting wrong values to inputs properties should fail
+  	Given I define and associate the property "component_version" of the node "WebServer" as input property
+    And I am authenticated with user named "frodon"
+    When I set the following inputs properties
+    	| component_version | hahahaha |
+    Then I should receive a RestResponse with an error code 804
+    	
+
+###### ORCHESTRATOR PROPERTIES ######
+#####################################
+  Scenario: Setting values to orchestrator properties
+    Given I am authenticated with user named "frodon"
+    When I set the following orchestrator properties
+      | managementUrl | http://cloudifyurl:8099 |
+      | numberBackup  | 1                       |
+    Then I should receive a RestResponse with no error
+    And the deployment topology should have the following orchestrator properties
+      | managementUrl | http://cloudifyurl:8099 |
+      | numberBackup  | 1                       |
+      
+  Scenario: Setting wrong values to orchestrator properties should fail
+    Given I am authenticated with user named "frodon"
+    When I set the following orchestrator properties
+      | numberBackup  | not an integer          |
+    Then I should receive a RestResponse with an error code 800
+    When I set the following orchestrator properties
+      | numberBackup  | 0   |
+    Then I should receive a RestResponse with an error code 800
