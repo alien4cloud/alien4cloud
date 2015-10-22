@@ -2,17 +2,21 @@ Feature: trigger custom commands
 
   Background:
     Given I am authenticated with "ADMIN" role
+    And I upload the archive "tosca-normative-types-wd06"
     And I upload a plugin
-    And I create a cloud with name "Mount doom cloud" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-paas-provider"
-    And I enable the cloud "Mount doom cloud"
-    And I have already created a cloud image with name "Ubuntu Trusty", architecture "x86_64", type "linux", distribution "Ubuntu" and version "14.04.1"
-    And I add the cloud image "Ubuntu Trusty" to the cloud "Mount doom cloud" and match it to paaS image "UBUNTU"
-    And I add the flavor with name "small", number of CPUs 2, disk size 32 and memory size 2048 to the cloud "Mount doom cloud" and match it to paaS flavor "2"
+    And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
+    And I enable the orchestrator "Mount doom orchestrator"
+    And I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
+    And I create a resource of type "alien.nodes.mock.openstack.Flavor" named "Medium" related to the location "Mount doom orchestrator"/"Thark location"
+    And I update the property "id" to "2" for the resource named "Medium" related to the location "Mount doom orchestrator"/"Thark location"
+    And I create a resource of type "alien.nodes.mock.openstack.Image" named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+    And I update the property "id" to "img1" for the resource named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+    And I autogenerate the on-demand resources for the location "Mount doom orchestrator"/"Thark location"
     And There are these users in the system
       | sangoku |
     And I add a role "APPLICATIONS_MANAGER" to user "sangoku"
     And I add a role "COMPONENTS_MANAGER" to user "sangoku"
-    And I add a role "CLOUD_DEPLOYER" to user "sangoku" on the resource type "CLOUD" named "Mount doom cloud"
+    And I add a role "DEPLOYER" to user "sangoku" on the resource type "LOCATION" named "Mount doom cloud"
     And I am authenticated with user named "sangoku"
     And I upload the archive "tosca base types 1.0"
     And I should receive a RestResponse with no error

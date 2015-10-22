@@ -50,10 +50,3 @@ Scenario: Remove a plugin
 #  When I remove the plugin
 #  Then I should receive a RestResponse with an error code 350
 #  Then I should receive a RestResponse with a non-empty list of plugin usages.
-
-Scenario: get the list of available PaaSProvider
-  Given I upload a plugin
-    And I enable the plugin
-  When I get the list of PaaSProvider
-  Then I should receive a RestResponse with no error
-    And the result should not be empty
