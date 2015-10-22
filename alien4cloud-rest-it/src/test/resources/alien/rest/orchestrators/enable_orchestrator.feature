@@ -1,4 +1,4 @@
-Feature: Enable orchestrator
+Feature: Enable/disable an orchestrator
 
 Background:
   Given I am authenticated with "ADMIN" role

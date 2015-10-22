@@ -19,7 +19,12 @@ Scenario: Create a location with existing name should fail
   When I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
   And I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
     Then I should receive a RestResponse with an error code 502
-  
+
+Scenario: Create a location on disable orchestor should fail
+  When I disable "Mount doom orchestrator"
+  And I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
+    Then I should receive a RestResponse with an error code 500
+
 Scenario: Delete a location
   When I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
     Then I should receive a RestResponse with no error

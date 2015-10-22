@@ -100,6 +100,16 @@ public class LocationsDefinitionsSteps {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().putJSon(restUrl, JsonUtil.toString(request)));
     }
 
+    @When("^I update environment type to \"([^\"]*)\" of the location \"([^\"]*)\" of the orchestrator \"([^\"]*)\"$")
+    public void I_update_environment_type_to_of_the_location_of_the_orchestrator(String newEnvType, String locationName, String orchestratorName) throws Throwable {
+        String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
+        String locationId = getLocationIdFromName(orchestratorName, locationName);
+        UpdateLocationRequest request = new UpdateLocationRequest();
+        request.setEnvironmentType(newEnvType);
+        String restUrl = String.format("/rest/orchestrators/%s/locations/%s", orchestratorId, locationId);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().putJSon(restUrl, JsonUtil.toString(request)));
+    }
+
     @When("^I set the value \"([^\"]*)\" to the location meta-property \"([^\"]*)\" of the location \"([^\"]*)\" of the orchestrator \"([^\"]*)\"$")
     public void I_set_the_value_to_the_location_meta_property_of_the_location_of_the_orchestrator(String value, String metaPropertyName, String locationName, String orchestratorName) throws Throwable {
         MetaPropConfiguration propertyDefinition = Context.getInstance().getConfigurationTag(metaPropertyName);
