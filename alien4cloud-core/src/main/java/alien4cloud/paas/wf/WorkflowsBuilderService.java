@@ -226,7 +226,7 @@ public class WorkflowsBuilderService {
         }
         TopologyContext topologyContext = buildTopologyContext(topology);
         AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);
-        builder.addActivity(wf, relatedStepId, before, activity);
+        builder.addActivity(wf, relatedStepId, before, activity, topologyContext);
         WorkflowUtils.fillHostId(wf, topologyContext);
         if (log.isDebugEnabled()) {
             log.debug(WorkflowUtils.debugWorkflow(wf));

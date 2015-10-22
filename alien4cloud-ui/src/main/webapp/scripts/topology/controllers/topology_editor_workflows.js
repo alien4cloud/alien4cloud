@@ -612,6 +612,8 @@ define(function (require) {
           var shortType = this.getStepActivityType(step);
           if (shortType === 'OperationCallActivity') {
             return '\uf085'; // fa-cogs
+          } else if (shortType === 'DelegateWorkflowActivity') {
+            return '\uf011'; // fa-power-off 
           } else if (shortType === 'SetStateActivity') {
             if (this.stateIcon[step.activity.stateName]) {
               return this.stateIcon[step.activity.stateName];
@@ -623,7 +625,11 @@ define(function (require) {
           }            
         },        
         getStepActivityType: function(step) {
-          return $filter('splitAndGet')(step.activity.type, '.', 'last');
+          if (step.activity) {
+            return $filter('splitAndGet')(step.activity.type, '.', 'last');
+          } else {
+            return undefined;
+          }
         },
         getStepActivityDetails: function(step) {
           var details = {};
@@ -633,6 +639,8 @@ define(function (require) {
             details['operationName'] = step.activity.operationName;
           } else if (shortType === 'SetStateActivity') {
             details['stateName'] = step.activity.stateName;
+          } else if (shortType === 'DelegateWorkflowActivity') {
+            details['delegateWorkflow'] = step.activity.workflowName;
           } else {
             details = step.activity;
           }     
