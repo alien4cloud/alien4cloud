@@ -54,17 +54,19 @@ public class DeploymentNodeSubstitutionService {
         for (final Map.Entry<String, NodeGroup> locationGroupEntry : locationGroups.entrySet()) {
             String groupName = locationGroupEntry.getKey();
             final NodeGroup locationNodeGroup = locationGroupEntry.getValue();
-            Map<String, NodeTemplate> nodesToMatch;
-            if (AlienConstants.GROUP_ALL.equals(groupName)) {
-                locationNodeGroup.setMembers(nodeTemplates.keySet());
-                nodesToMatch = nodeTemplates;
-            } else {
-                nodesToMatch = Maps.filterEntries(nodeTemplates, new Predicate<Map.Entry<String, NodeTemplate>>() {
-                    @Override
-                    public boolean apply(Map.Entry<String, NodeTemplate> input) {
-                        return locationNodeGroup.getMembers().contains(input.getKey());
-                    }
-                });
+            Map<String, NodeTemplate> nodesToMatch = Maps.newHashMap();
+            if (MapUtils.isNotEmpty(nodeTemplates)) {
+                if (AlienConstants.GROUP_ALL.equals(groupName)) {
+                    locationNodeGroup.setMembers(nodeTemplates.keySet());
+                    nodesToMatch = nodeTemplates;
+                } else {
+                    nodesToMatch = Maps.filterEntries(nodeTemplates, new Predicate<Map.Entry<String, NodeTemplate>>() {
+                        @Override
+                        public boolean apply(Map.Entry<String, NodeTemplate> input) {
+                            return locationNodeGroup.getMembers().contains(input.getKey());
+                        }
+                    });
+                }
             }
             LocationPlacementPolicy locationPlacementPolicy = (LocationPlacementPolicy) locationGroupEntry.getValue().getPolicies().get(0);
             availableSubstitutions.putAll(nodeMatcherService.match(nodeTypes, nodesToMatch, locationPlacementPolicy.getLocationId()));

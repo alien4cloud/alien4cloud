@@ -76,6 +76,7 @@ public class DeploymentTopologyValidationService {
             dto.setValid(false);
             return dto;
         }
+        // TODO may be include the hoe topology validation here?
 
         // TODO Perform validation of policies
         // If a policy is not matched on the location this is a warning as we allow deployment but some features may be missing
