@@ -127,10 +127,10 @@ define(function(require) {
                         icon = parent.append('text').attr('class', 'fa').attr('x', x + w - 22).attr('y', y + 16).text(scope.workflows.getStepActivityTypeIcon(step));
                       }
                       if (shortActivityType === 'OperationCallActivity') {
-//                        html.append("xhtml:body").attr('class', 'svgHtml').html('<i class="fa fa-cogs"></i>');
                         parent.append('text').attr('class', 'wfOperationLabel').attr('y', y + h - 10).text(_.trunc(step.activity.operationName, {'length': 10})).style("text-anchor", "middle");
+                      } else if (shortActivityType === 'DelegateWorkflowActivity') {
+                        parent.append('text').attr('class', 'wfDelegateLabel').attr('fill', '#7A7A52').attr('y', y + h - 10).text(_.trunc(step.activity.workflowName, {'length': 10})).style("text-anchor", "middle");
                       } else if (shortActivityType === 'SetStateActivity' && !simpleView) {
-//                        html.append("xhtml:body").attr('class', 'svgHtml').html('<i class="fa fa-wifi"></i>');
                         parent.append('text').attr('class', 'wfStateLabel').attr('fill', '#003399').attr('y', y + h - 8).text(_.trunc(step.activity.stateName, {'length': 13})).style("text-anchor", "middle");
                         iconSize = 16;
                       }
@@ -217,9 +217,12 @@ define(function(require) {
                     }
 
                     function appendStepNode(g, stepName, step) {
-                      if (step.activity.type === 'alien4cloud.paas.wf.OperationCallActivity') {
+                      var shortActivityType = scope.workflows.getStepActivityType(step);
+                      if (shortActivityType === 'OperationCallActivity') {
                         g.setNode(stepName, {label: '', width: 60, height: 40, shape: 'operationStep'});
-                      } else if (step.activity.type === 'alien4cloud.paas.wf.SetStateActivity') {
+                      } else if (shortActivityType === 'DelegateWorkflowActivity') {
+                        g.setNode(stepName, {label: '', width: 60, height: 40, shape: 'operationStep'});
+                      } else if (shortActivityType === 'SetStateActivity') {
                         if (scope.wfViewMode === 'simple') {
                           g.setNode(stepName, {label: '', width: 12, height: 4, shape: 'operationStep'});
                         } else {
