@@ -54,9 +54,10 @@ define(function (require) {
       $scope.orchestrator = orchestrator;
       $scope.showForceDisable = false;
 
-      $scope.updateOrchestrator = function(name) {
+      $scope.updateName = function(name) {
         if (name !== orchestrator.name) {
-          return orchestratorService.update({orchestratorId: orchestrator.id}, name).$promise.then(
+          var request = {name:name};
+          return orchestratorService.update({orchestratorId: orchestrator.id}, angular.toJson(request)).$promise.then(
             function() { // Success
             },
             function(errorResponse) {
