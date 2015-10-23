@@ -130,9 +130,7 @@ public final class PropertyUtil {
     public static void mergeProperties(Map<String, AbstractPropertyValue> from, Map<String, AbstractPropertyValue> into) {
         if (MapUtils.isNotEmpty(from)) {
             for (Map.Entry<String, AbstractPropertyValue> fromEntry : from.entrySet()) {
-                if (fromEntry.getValue() != null) {
-                    into.put(fromEntry.getKey(), fromEntry.getValue());
-                }
+                into.put(fromEntry.getKey(), fromEntry.getValue());
             }
         }
     }
