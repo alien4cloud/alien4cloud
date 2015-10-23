@@ -40,7 +40,6 @@ define(function (require) {
 
       console.log($state);
 
-
       var updateSelectedEnvionment = function() {
         $scope.runtimeEnvironments = appEnvironments.deployEnvironments;
         // select current environment
@@ -440,14 +439,16 @@ define(function (require) {
       };
 
       $scope.launchWorkflow = function() {
+        $scope.isLaunchingWorkflow = true;
         applicationServices.launchWorkflow({
           applicationId: applicationId,
           applicationEnvironmentId: $scope.selectedEnvironment.id,
           workflowName: $scope.currentWorkflowName
         }, undefined, function success() {
-        });        
+          $scope.isLaunchingWorkflow = false;
+        });
       };
-      
+
       $scope.filter = null;
 
       /** EXECUTE OPERATIONS */

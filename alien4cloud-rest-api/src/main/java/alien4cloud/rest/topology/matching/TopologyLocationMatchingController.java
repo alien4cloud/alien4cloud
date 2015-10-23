@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import alien4cloud.model.deployment.matching.LocationMatch;
+import alien4cloud.audit.annotation.Audit;
 import alien4cloud.deployment.matching.services.location.LocationMatchingService;
+import alien4cloud.model.deployment.matching.LocationMatch;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 
@@ -34,7 +35,7 @@ public class TopologyLocationMatchingController {
 
     @ApiOperation(value = "Update the configuration for an orchestrator.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    // @Audit
+    @Audit
     public RestResponse<List<LocationMatch>> match(@PathVariable String topologyId) {
 
         // TODO check deployer authorizations

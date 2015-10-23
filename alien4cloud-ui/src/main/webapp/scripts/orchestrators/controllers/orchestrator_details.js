@@ -54,9 +54,10 @@ define(function (require) {
       $scope.orchestrator = orchestrator;
       $scope.showForceDisable = false;
 
-      $scope.updateOrchestrator = function(name) {
+      $scope.updateName = function(name) {
         if (name !== orchestrator.name) {
-          return orchestratorService.update({orchestratorId: orchestrator.id}, name).$promise.then(
+          var request = {name:name};
+          return orchestratorService.update({orchestratorId: orchestrator.id}, angular.toJson(request)).$promise.then(
             function() { // Success
             },
             function(errorResponse) {
@@ -77,7 +78,7 @@ define(function (require) {
         orchestrator.state = 'CONNECTING';
         // .then(function(result){ console.log('enable orchestrator', result); })
         orchestratorInstanceService.create({orchestratorId: orchestrator.id}, {},function(result){
-            console.log('enable orchestrator', result);
+            //do somthing here
           })
           .$promise['finally'](function() {
             $state.reload(); // do something with web-sockets to get notifications on the orchestrator state.
@@ -87,7 +88,9 @@ define(function (require) {
       $scope.disable = function(force) {
         orchestrator.state = 'DISABLING';
         orchestratorInstanceService.remove({orchestratorId: orchestrator.id, force: force})
-          .$promise.then(function(result){ console.log('disable orchestrator', result); })
+          .$promise.then(function(result){ 
+            //do something here, and manage errors
+          })
           ['finally'](function() {
             $state.reload(); // do something with web-sockets to get notifications on the orchestrator state.
           });

@@ -390,8 +390,10 @@
 			        </select>
 	          </div>
 	          <div class="col-md-4">
-			        <button id="btn-deploy" type="button" class="btn btn-success application-deploy-button" ng-click="launchWorkflow()">
-			          <i class="fa" ng-class="{'fa-play': !isLaunching, 'fa-spinner fa-spin': isLaunching}"></i> {{'APPLICATIONS.WF.launch' | translate}}
+			        <button id="btn-deploy" type="button" class="btn btn-success application-deploy-button" 
+			           ng-click="launchWorkflow()"
+			           ng-disabled="topology.topology.workflows[currentWorkflowName].standard || isLaunchingWorkflow" >
+			          <i class="fa" ng-class="{'fa-play': !isLaunchingWorkflow, 'fa-spinner fa-spin': isLaunchingWorkflow}"></i> {{'APPLICATIONS.WF.launch' | translate}}
 			        </button>          
 	          </div>
 	        </div> 
