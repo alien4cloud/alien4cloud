@@ -647,7 +647,8 @@
         "BadStateSequenceError": "Bad sequence : step '{{from}}' should not be found before '{{to}}'",
         "ParallelSetStatesError": "State changes are done in parallel for node '{{nodeId}}'",
         "UnknownNodeError": "The node '{{nodeId}}' referenced by the step '{{stepId}}' doesn't exists"
-      }
+      },
+      "launch": "Launch"
     }
   },
   "TEMPLATE": {

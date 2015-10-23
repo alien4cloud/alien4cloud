@@ -9,6 +9,7 @@ import javax.validation.Valid;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +29,7 @@ import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.deployment.UndeployService;
+import alien4cloud.deployment.WorkflowExecutionService;
 import alien4cloud.deployment.model.DeploymentConfiguration;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
@@ -57,6 +59,8 @@ import alien4cloud.topology.TopologyValidationResult;
 import com.google.common.collect.Maps;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
+import com.wordnik.swagger.annotations.Authorization;
 
 @Slf4j
 @RestController
@@ -79,6 +83,8 @@ public class ApplicationDeploymentController {
     private DeploymentRuntimeStateService deploymentRuntimeStateService;
     @Inject
     private DeploymentRuntimeService deploymentRuntimeService;
+    @Inject
+    private WorkflowExecutionService workflowExecutionService;
 
     /**
      * Trigger deployment of the application on the current configured PaaS.
@@ -368,4 +374,43 @@ public class ApplicationDeploymentController {
 
         return result;
     }
+
+    @ApiOperation(value = "Launch a given workflow.", authorizations = { @Authorization("ADMIN"), @Authorization("APPLICATION_MANAGER") })
+    @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/workflows/{workflowName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    @Audit
+    public DeferredResult<RestResponse<Void>> launchWorkflow(
+            @ApiParam(value = "Application id.", required = true) @Valid @NotBlank @PathVariable String applicationId,
+            @ApiParam(value = "Deployment id.", required = true) @Valid @NotBlank @PathVariable String applicationEnvironmentId,
+            @ApiParam(value = "Workflow name.", required = true) @Valid @NotBlank @PathVariable String workflowName) {
+
+        final DeferredResult<RestResponse<Void>> result = new DeferredResult<>(15L * 60L * 1000L);
+        ApplicationEnvironment environment = getAppEnvironmentAndCheckAuthorization(applicationId, applicationEnvironmentId);
+
+        // TODO merge with incoming params
+        Map<String, Object> params = Maps.newHashMap();
+
+        try {
+            workflowExecutionService.launchWorkflow(environment.getId(), workflowName, params, new IPaaSCallback<Object>() {
+                @Override
+                public void onSuccess(Object data) {
+                    result.setResult(RestResponseBuilder.<Void> builder().build());
+                }
+
+                @Override
+                public void onFailure(Throwable e) {
+                    result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage()))
+                            .build());
+                }
+            });
+        } catch (OrchestratorDisabledException e) {
+            result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage()))
+                    .build());
+        } catch (PaaSDeploymentException e) {
+            result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage())).build());
+        }
+
+        return result;
+    }
+
 }

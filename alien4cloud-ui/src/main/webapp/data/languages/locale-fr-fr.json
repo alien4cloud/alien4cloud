@@ -644,7 +644,8 @@
         "BadStateSequenceError": "Mauvaise séquence : le pas '{{from}}' ne devrait pas se trouver avant le pas '{{to}}'",
         "ParallelSetStatesError": "Des changements d'état sont effectués en parallèle pour le noeud '{{nodeId}}'",
         "UnknownNodeError": "Le noeud '{{nodeId}}' référencé par le pas '{{stepId}}' n'existe pas"
-      }
+      },
+      "launch": "Lancer"
     }
   },
   "TEMPLATE": {
