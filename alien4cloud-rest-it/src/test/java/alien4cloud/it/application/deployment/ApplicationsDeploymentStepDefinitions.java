@@ -79,9 +79,8 @@ public class ApplicationsDeploymentStepDefinitions {
     @When("^I deploy it$")
     public void I_deploy_it() throws Throwable {
         // deploys the current application on default "Environment"
-        setOrchestratorProperties();
         DeployApplicationRequest deployApplicationRequest = getDeploymentAppRequest(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null);
-        String response = Context.getRestClientInstance().postJSon("/rest/applications/deployment", JsonUtil.toString(deployApplicationRequest));
+        String response = deploy(deployApplicationRequest);
         Context.getInstance().registerRestResponse(response);
     }
 
@@ -443,8 +442,8 @@ public class ApplicationsDeploymentStepDefinitions {
         deploymentTopoSteps.I_Set_a_unique_location_policy_to_for_all_nodes(orchestratorName, locationName);
         DeployApplicationRequest deployApplicationRequest = getDeploymentAppRequest(appName, null);
         deployApplicationRequest.setApplicationId(Context.getInstance().getApplication().getId());
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/applications/deployment", JsonUtil.toString(deployApplicationRequest)));
+        String response = deploy(deployApplicationRequest);
+        Context.getInstance().registerRestResponse(response);
     }
 
     @And("^The deployment setup of the application should contain following deployment properties:$")
@@ -469,8 +468,8 @@ public class ApplicationsDeploymentStepDefinitions {
     public void I_deploy_an_application_environment_for_application(String envName, String appName) throws Throwable {
         DeployApplicationRequest deployApplicationRequest = getDeploymentAppRequest(appName, envName);
         deployApplicationRequest.setApplicationId(Context.getInstance().getApplicationId(appName));
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/applications/deployment", JsonUtil.toString(deployApplicationRequest)));
+        String response = deploy(deployApplicationRequest);
+        Context.getInstance().registerRestResponse(response);
     }
 
     @When("^I have the environment \"([^\"]*)\" with status \"([^\"]*)\" for the application \"([^\"]*)\"$")
