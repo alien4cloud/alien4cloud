@@ -7,14 +7,24 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.tosca.parser.impl.ErrorCode;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.repository.ICsarRepositry;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
+import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
+import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.templates.TopologyTemplate;
+import alien4cloud.model.templates.TopologyTemplateVersion;
+import alien4cloud.model.topology.Topology;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.CsarDependenciesBean;
 import alien4cloud.security.model.Role;
+import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.topology.TopologyTemplateVersionService;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.*;
 
@@ -29,6 +39,14 @@ public class ArchiveUploadService {
     private ArchiveIndexer archiveIndexer;
     @Inject
     private ICsarRepositry archiveRepositry;
+    @Inject
+    TopologyServiceCore topologyServiceCore;
+    @Inject
+    TopologyTemplateVersionService topologyTemplateVersionService;
+    @Inject
+    private WorkflowsBuilderService workflowsBuilderService;
+    @Inject
+    private ICSARRepositorySearchService searchService;
 
     /**
      * Upload a TOSCA archive and index its components.
@@ -60,14 +78,68 @@ public class ArchiveUploadService {
             if (ArchiveUploadService.hasError(parsingResult, ParsingErrorLevel.ERROR)) {
                 // do not save anything if any blocker error has been found during import.
                 return toSimpleResult(parsingResult);
-            } else {
-                // save the parsing results so users can keep track of the warnings or infos from parsing.
-                archiveRepositry.storeParsingResults(archiveName, archiveVersion, simpleResult);
             }
+        }
+        // if a topology has been added we want to notify the user
+        if (parsingResult.getResult().getTopology() != null && !parsingResult.getResult().getTopology().isEmpty()) {
+            final Topology topology = parsingResult.getResult().getTopology();
+            if (archiveRoot.hasToscaTypes()) {
+                // the archive contains types
+                // we assume those types are used in the embedded topology
+                // so we add the dependency to this CSAR
+                CSARDependency selfDependency = new CSARDependency(archiveRoot.getArchive().getName(), archiveRoot.getArchive().getVersion());
+                topology.getDependencies().add(selfDependency);
+            }
+
+            // init the workflows
+            WorkflowsBuilderService.TopologyContext topologyContext = workflowsBuilderService.buildCachedTopologyContext(new WorkflowsBuilderService.TopologyContext() {
+                @Override
+                public Topology getTopology() {
+                    return topology;
+                }
+
+                @Override
+                public <T extends IndexedToscaElement> T findElement(Class<T> clazz, String id) {
+                    return ToscaParsingUtil.getElementFromArchiveOrDependencies(clazz, id, archiveRoot, searchService);
+                }
+            });
+            workflowsBuilderService.initWorkflows(topologyContext);
+
+            // TODO: here we should update the topology if it already exists
+            // TODO: the name should only contains the archiveName
+            TopologyTemplate existingTemplate = topologyServiceCore.searchTopologyTemplateByName(archiveRoot.getArchive().getName());
+            if (existingTemplate != null) {
+                // the topology template already exists
+                topology.setDelegateId(existingTemplate.getId());
+                topology.setDelegateType(TopologyTemplate.class.getSimpleName().toLowerCase());
+                String topologyId = topologyServiceCore.saveTopology(topology);
+                // now search the version
+                TopologyTemplateVersion ttv = topologyTemplateVersionService.searchByDelegateAndVersion(existingTemplate.getId(), archiveVersion);
+                if (ttv != null) {
+                    // the version exists, we will update it's topology id and delete the old topology
+                    topologyTemplateVersionService.changeTopology(ttv, topologyId);
+                } else {
+                    // we just create a new version
+                    topologyTemplateVersionService.createVersion(existingTemplate.getId(), null, archiveVersion, null, topology);
+                }
+                simpleResult
+                        .getContext()
+                        .getParsingErrors()
+                        .add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_UPDATED, "", null, "A topology template has been detected", null,
+                                archiveName));
+
+            } else {
+                simpleResult
+                        .getContext()
+                        .getParsingErrors()
+                        .add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_DETECTED, "", null, "A topology template has been detected", null,
+                                archiveName));
+                topologyServiceCore.createTopologyTemplate(topology, archiveName, parsingResult.getResult().getTopologyTemplateDescription(), archiveVersion);
+            }
+            topologyServiceCore.updateSubstitutionType(topology);
         }
 
         archiveIndexer.importArchive(archiveRoot, path, parsingResult.getContext().getParsingErrors());
-
         return simpleResult;
     }
 

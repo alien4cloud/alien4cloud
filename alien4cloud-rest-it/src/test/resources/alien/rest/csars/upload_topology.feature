@@ -176,8 +176,7 @@ Scenario: Re-Upload CSAR containing embeded topology template with inputs
   And The SPEL expression "nodeTemplates['compute1'].properties['os_type'].parameters[0]" should return "os_type"
   And The SPEL expression "nodeTemplates['compute2'].properties['os_type'].function" should return "get_input"
   And The SPEL int expression "nodeTemplates['compute2'].properties['os_type'].parameters.size()" should return 1
-  And The SPEL expression "nodeTemplates['compute2'].properties['os_type'].parameters[0]" should return "os_type" 
-  
+  And The SPEL expression "nodeTemplates['compute2'].properties['os_type'].parameters[0]" should return "os_type"
     
 Scenario: Upload CSAR containing embeded topology template with outputs
   Given I upload the archive "tosca base types 1.0"

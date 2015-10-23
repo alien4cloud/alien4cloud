@@ -1,8 +1,7 @@
-Feature: get runtime topology
+Feature: get runtime topology ubuntu type
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I upload a plugin
     And I upload the archive "tosca-normative-types-wd06"
     And I upload a plugin
     And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
@@ -26,13 +25,13 @@ Feature: get runtime topology
     And I upload the archive "ubuntu types 0.1"
     And I should receive a RestResponse with no error
     And I have an application "ALIEN" with a topology containing a nodeTemplate "apacheLBGroovy" related to "fastconnect.nodes.apacheLBGroovy:0.1"
+    And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     And I have added a node template "Ubuntu" related to the "alien.nodes.Ubuntu:0.1" node type
     And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-base-types" version "1.0" with source "apacheLBGroovy" and target "Ubuntu" for requirement "host" of type "tosca.capabilities.Container" and target capability "Ubuntu"
-    And I deploy the application "ALIEN" with cloud "Mount doom cloud" for the topology
 
   Scenario: Getting the runtime version of the deployed topology
     Given I have deleted a node template "apacheLBGroovy" from the topology
-    When I ask the runtime topology of the application "ALIEN" on the cloud "Mount doom cloud"
+    When I ask the runtime topology of the application "ALIEN" on the location "Thark location" of "Mount doom orchestrator"
     Then I should receive a RestResponse with no error
     And The RestResponse should contain a nodetemplate named "apacheLBGroovy" and type "fastconnect.nodes.apacheLBGroovy"
     And The RestResponse should contain a nodetemplate named "Ubuntu" and type "alien.nodes.Ubuntu"

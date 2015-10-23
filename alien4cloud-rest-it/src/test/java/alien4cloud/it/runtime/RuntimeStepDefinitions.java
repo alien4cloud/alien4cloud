@@ -39,12 +39,12 @@ public class RuntimeStepDefinitions {
                 appName, null);
     }
 
-    @When("^I ask the runtime topology of the application \"([^\"]*)\" on the cloud \"([^\"]*)\"$")
-    public void I_ask_the_runtime_topology_of_the_application_on_the_cloud(String applicationName, String cloudName) throws Throwable {
-        Context context = Context.getInstance();
-        NameValuePair nvp = new BasicNameValuePair("cloudId", Context.getInstance().getCloudId(cloudName));
+    @When("^I ask the runtime topology of the application \"([^\"]*)\" on the location \"([^\"]*)\" of \"([^\"]*)\"$")
+    public void I_ask_the_runtime_topology_of_the_application_on_the_cloud(String applicationName, String locationName, String orchestratorName) throws Throwable {
+        String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
+        NameValuePair nvp = new BasicNameValuePair("locationId", Context.getInstance().getLocationId(orchestratorId, locationName));
         String applicationId = Context.getInstance().getApplication().getId();
-        context.registerRestResponse(Context.getRestClientInstance().getUrlEncoded(
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().getUrlEncoded(
                 "/rest/runtime/" + applicationId + "/environment/" + Context.getInstance().getDefaultApplicationEnvironmentId(applicationName) + "/topology",
                 Lists.newArrayList(nvp)));
 

@@ -16,16 +16,17 @@ Feature: trigger custom commands
       | sangoku |
     And I add a role "APPLICATIONS_MANAGER" to user "sangoku"
     And I add a role "COMPONENTS_MANAGER" to user "sangoku"
-    And I add a role "DEPLOYER" to user "sangoku" on the resource type "LOCATION" named "Mount doom cloud"
+    And I add a role "DEPLOYER" to user "sangoku" on the resource type "LOCATION" named "Thark location"
     And I am authenticated with user named "sangoku"
     And I upload the archive "tosca base types 1.0"
     And I should receive a RestResponse with no error
     And I upload the archive "sample apache lb types 0.1"
     And I should receive a RestResponse with no error
     Given I have an application "ALIEN" with a topology containing a nodeTemplate "apacheLBGroovy" related to "fastconnect.nodes.apacheLBGroovy:0.1"
+    And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     And I have added a node template "Compute" related to the "tosca.nodes.Compute:1.0" node type
     And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-base-types" version "1.0" with source "apacheLBGroovy" and target "Compute" for requirement "host" of type "tosca.capabilities.Container" and target capability "compute"
-    And I deploy the application "ALIEN" with cloud "Mount doom cloud" for the topology
+    When I deploy it
 
   Scenario: Trigger a custom command other than [updateWar,updateWarFile, addNode] on apache LB node and throw an operation failed error
     When I trigger on the node template "apacheLBGroovy" the custom command "removeNode" of the interface "custom" for application "ALIEN"
