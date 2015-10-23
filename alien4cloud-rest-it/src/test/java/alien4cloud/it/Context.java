@@ -33,13 +33,17 @@ import alien4cloud.it.exception.ITException;
 import alien4cloud.it.provider.util.OpenStackClient;
 import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
 import alien4cloud.json.deserializer.PropertyValueDeserializer;
+import alien4cloud.json.deserializer.TaskDeserializer;
+import alien4cloud.json.deserializer.TaskIndexedInheritableToscaElementDeserializer;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.rest.utils.RestClient;
 import alien4cloud.rest.utils.RestMapper;
+import alien4cloud.topology.task.AbstractTask;
 import alien4cloud.utils.MapUtil;
 
 import com.fasterxml.jackson.core.Version;
@@ -128,6 +132,13 @@ public class Context {
                 log.error("Unable to initialize test context.");
             }
             JSON_MAPPER.registerModule(module);
+
+            // task deserializers
+            module = new SimpleModule("taskDeser", new Version(1, 0, 0, null, null, null));
+            module.addDeserializer(AbstractTask.class, new TaskDeserializer());
+            module.addDeserializer(IndexedInheritableToscaElement.class, new TaskIndexedInheritableToscaElementDeserializer());
+            JSON_MAPPER.registerModule(module);
+
         }
         return JSON_MAPPER;
     }
@@ -160,11 +171,12 @@ public class Context {
 
     private Map<String, Map<String, String>> orchestratorLocationIds;
 
+    /* orchestratorId -> { locationID -> { resourceName -> resourceId } } */
     private Map<String, Map<String, Map<String, String>>> orchestratorLocationResourceIds;
 
     private String topologyCloudInfos;
 
-    private Map<String, String> deployApplicationProperties;
+    private Map<String, String> preRegisteredOrchestratorProperties;
 
     private Map<String, MetaPropConfiguration> configurationTags;
 
@@ -495,17 +507,17 @@ public class Context {
         return topologyCloudInfos;
     }
 
-    public void registerDeployApplicationProperties(Map<String, String> deployApplicationProperties) {
-        this.deployApplicationProperties = deployApplicationProperties;
+    public void registerOrchestratorProperties(Map<String, String> deployApplicationProperties) {
+        this.preRegisteredOrchestratorProperties = deployApplicationProperties;
     }
 
-    public Map<String, String> getDeployApplicationProperties() {
-        return deployApplicationProperties;
+    public Map<String, String> getPreRegisteredOrchestratorProperties() {
+        return preRegisteredOrchestratorProperties;
     }
 
-    public Map<String, String> takeDeployApplicationProperties() {
-        Map<String, String> tmp = deployApplicationProperties;
-        deployApplicationProperties = null;
+    public Map<String, String> takePreRegisteredOrchestratorProperties() {
+        Map<String, String> tmp = preRegisteredOrchestratorProperties;
+        preRegisteredOrchestratorProperties = null;
         return tmp;
     }
 
@@ -631,7 +643,7 @@ public class Context {
         locations.put(locationName, locationId);
     }
 
-    public String getOrchestratorLocation(String orchestratorId, String locationName) {
+    public String getLocationId(String orchestratorId, String locationName) {
         return orchestratorLocationIds.get(orchestratorId).get(locationName);
     }
 
@@ -652,7 +664,7 @@ public class Context {
         resources.put(resourceName, resourceId);
     }
 
-    public String getOrchestratorLocationResource(String orchestratorId, String locationId, String resourceName) {
+    public String getLocationResourceId(String orchestratorId, String locationId, String resourceName) {
         return orchestratorLocationResourceIds.get(orchestratorId).get(locationId).get(resourceName);
     }
 

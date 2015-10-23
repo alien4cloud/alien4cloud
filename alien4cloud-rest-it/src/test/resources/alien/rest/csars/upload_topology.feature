@@ -91,9 +91,9 @@ Scenario: Upload CSAR containing cutom types and embeded topology template using
   And The SPEL expression "nodeTemplates['software'].relationships['myRelationTypeCompute'].target" should return "compute"
   And The SPEL expression "nodeTemplates['software'].relationships['myRelationTypeCompute'].requirementName" should return "host"
   And The SPEL expression "nodeTemplates['software'].relationships['myRelationTypeCompute'].requirementType" should return "custom.capabilities.MyCapability"
-  And The SPEL expression "nodeTemplates['software'].relationships['myRelationTypeCompute'].targetedCapabilityName" should return "host"  
+  And The SPEL expression "nodeTemplates['software'].relationships['myRelationTypeCompute'].targetedCapabilityName" should return "host"
 
-Scenario: Re-Upload CSAR containing cutom types and embeded topology template using short notation for requirements  
+Scenario: Re-Upload CSAR containing cutom types and embeded topology template using short notation for requirements
   Given I upload the archive "tosca-normative-types"
   And I upload the archive "topology custom types"
   And I export the YAML from topology template named "AllInclusiveArchive" and build a test dataset named "AllInclusiveArchive-replay" changing the version from "1.0.0-SNAPSHOT" to "2.0.0-SNAPSHOT"

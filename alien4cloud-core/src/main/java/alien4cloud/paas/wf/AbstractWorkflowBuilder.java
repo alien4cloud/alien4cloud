@@ -14,6 +14,7 @@ import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
+import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
 import alien4cloud.paas.wf.exception.InconsistentWorkflowException;
 import alien4cloud.paas.wf.util.WorkflowUtils;
 
@@ -147,7 +148,16 @@ public abstract class AbstractWorkflowBuilder {
         return false;
     }
 
-    public void addActivity(Workflow wf, String relatedStepId, boolean before, AbstractActivity activity) {
+    /**
+     * @param wf
+     * @param relatedStepId if specified, the step will be added near this one (maybe before)
+     * @param before if true, the step will be added before the relatedStepId
+     * @param activity
+     */
+    public void addActivity(Workflow wf, String relatedStepId, boolean before, AbstractActivity activity, TopologyContext topologyContext) {
+        if (WorkflowUtils.isNativeNode(activity.getNodeId(), topologyContext)) {
+            throw new BadWorkflowOperationException("Activity can not be added for abstract nodes");
+        }
         if (relatedStepId != null) {
             if (before) {
                 // insert
@@ -197,6 +207,9 @@ public abstract class AbstractWorkflowBuilder {
             throw new InconsistentWorkflowException(String.format(
                     "Inconsistent workflow: a step nammed '%s' can not be found while it's referenced else where ...", stepId));
         }
+        if (!force && step instanceof NodeActivityStep && ((NodeActivityStep) step).getActivity() instanceof DelegateWorkflowActivity) {
+            throw new BadWorkflowOperationException("Native steps can not be removed from workflow");
+        }        
         if (step.getPrecedingSteps() != null) {
             if (step.getFollowingSteps() != null) {
                 // connect all preceding to all following
@@ -256,7 +269,7 @@ public abstract class AbstractWorkflowBuilder {
     }
 
     /**
-     * When a relationship is remove, we remove all links between src and target.
+     * When a relationship is removed, we remove all links between src and target.
      * <p>
      * TODO : a better implem should be to just remove the links that rely to this relationship. But to do this, we have to associate the link with the
      * relationship (when the link is created consecutively to a relationship add).

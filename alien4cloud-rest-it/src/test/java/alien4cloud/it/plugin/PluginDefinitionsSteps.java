@@ -114,11 +114,6 @@ public class PluginDefinitionsSteps {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/plugins/" + PLUGIN_ID));
     }
 
-    @When("^I get the list of PaaSProvider$")
-    public void I_get_the_list_of_PaaSProvider() throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/passprovider"));
-    }
-
     @Then("^the result should not be empty$")
     public void the_result_should_not_be_empty() throws Throwable {
         RestResponse<?> response = JsonUtil.read(Context.getInstance().takeRestResponse());

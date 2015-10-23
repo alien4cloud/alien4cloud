@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.yaml.snakeyaml.composer.Composer;
 import org.yaml.snakeyaml.error.Mark;
 import org.yaml.snakeyaml.error.MarkedYAMLException;
@@ -24,6 +26,7 @@ import alien4cloud.tosca.parser.impl.base.TypeNodeParser;
  *
  * @param <T> The object instance in which to parse the object.
  */
+@Slf4j
 public abstract class YamlParser<T> {
 
     /**
@@ -46,11 +49,22 @@ public abstract class YamlParser<T> {
      * @throws ParsingException In case there is a blocking issue while parsing the definition.
      */
     public ParsingResult<T> parseFile(Path yamlPath, T instance) throws ParsingException {
+        InputStream inputStream = null;
+
         try {
-            return parseFile(yamlPath.toString(), yamlPath.getFileName().toString(), Files.newInputStream(yamlPath), instance);
+            inputStream = Files.newInputStream(yamlPath);
+            return parseFile(yamlPath.toString(), yamlPath.getFileName().toString(), inputStream, instance);
         } catch (IOException e) {
-            throw new ParsingException(yamlPath.getFileName().toString(), new ParsingError(ErrorCode.MISSING_FILE, "File not found in archive.", null, null,
-                    null, yamlPath.toString()));
+            throw new ParsingException(yamlPath.getFileName().toString(), new ParsingError(ErrorCode.MISSING_FILE, "File not found in archive.", null, null, null, 
+                yamlPath.toString()));
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    log.error("Failed to close input stream after parsing.", e);
+                }
+            }
         }
     }
 

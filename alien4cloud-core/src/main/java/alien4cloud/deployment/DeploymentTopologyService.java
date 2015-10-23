@@ -160,6 +160,7 @@ public class DeploymentTopologyService {
 
     private DeploymentTopology generateDeploymentTopology(String id, ApplicationEnvironment environment, Topology topology,
             DeploymentTopology deploymentTopology) {
+        // TODO first check the initial topology is valid before doing this
         deploymentTopology.setVersionId(environment.getCurrentVersionId());
         deploymentTopology.setEnvironmentId(environment.getId());
         deploymentTopology.setInitialTopologyId(topology.getId());

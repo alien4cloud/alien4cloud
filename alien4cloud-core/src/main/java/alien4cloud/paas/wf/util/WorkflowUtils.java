@@ -10,6 +10,7 @@ import alien4cloud.model.components.Operation;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.paas.wf.AbstractStep;
+import alien4cloud.paas.wf.DelegateWorkflowActivity;
 import alien4cloud.paas.wf.NodeActivityStep;
 import alien4cloud.paas.wf.OperationCallActivity;
 import alien4cloud.paas.wf.SetStateActivity;
@@ -169,6 +170,24 @@ public class WorkflowUtils {
         }
     }
 
+    public static boolean isNativeNode(String nodeId, TopologyContext topologyContext) {
+        NodeTemplate nodeTemplate = topologyContext.getTopology().getNodeTemplates().get(nodeId);
+        if (nodeTemplate == null) {
+            return false;
+        }
+        IndexedNodeType nodeType = (IndexedNodeType) topologyContext.findElement(IndexedNodeType.class, nodeTemplate.getType());
+        if (nodeType.isAbstract()) {
+            return true;
+        }
+        // TODO: the following should be removed after merge with orchestrator refactoring branch
+        // (since these types will be abstract)
+        if (isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE) || isOfType(nodeType, NETWORK_TYPE)) {
+            return true;
+        } else {
+            return isOfType(nodeType, "tosca.nodes.BlockStorage");
+        }
+    }
+
     public static void linkSteps(AbstractStep from, AbstractStep to) {
         if (from != null && to != null) {
             from.addFollowing(to.getName());
@@ -176,7 +195,7 @@ public class WorkflowUtils {
         }
     }
 
-    public static String buildStepName(Workflow wf, NodeActivityStep step, int increment) {
+    public static String buildStepName(Workflow wf, AbstractStep step, int increment) {
         StringBuilder nameBuilder = new StringBuilder(step.getStepAsString());
         if (increment > 0) {
             nameBuilder.append("_").append(increment);
@@ -252,6 +271,30 @@ public class WorkflowUtils {
         step.setName(buildStepName(wf, step, 0));
         wf.addStep(step);
         return step;
+    }
+
+    public static NodeActivityStep addDelegateWorkflowStep(Workflow wf, String nodeId) {
+        DelegateWorkflowActivity activity = new DelegateWorkflowActivity();
+        activity.setNodeId(nodeId);
+        activity.setWorkflowName(wf.getName());
+        NodeActivityStep step = new NodeActivityStep();
+        step.setNodeId(nodeId);
+        step.setActivity(activity);
+        step.setName(buildStepName(wf, step, 0));
+        wf.addStep(step);
+        return step;
+    }
+
+    public static AbstractStep getDelegateWorkflowStepByNode(Workflow wf, String nodeName) {
+        for (AbstractStep step : wf.getSteps().values()) {
+            if (step instanceof NodeActivityStep) {
+                NodeActivityStep defaultStep = (NodeActivityStep) step;
+                if (defaultStep.getNodeId().equals(nodeName) && (defaultStep.getActivity() instanceof DelegateWorkflowActivity)) {
+                    return defaultStep;
+                }
+            }
+        }
+        return null;
     }
 
     public static NodeActivityStep getStateStepByNode(Workflow wf, String nodeName, String stateName) {

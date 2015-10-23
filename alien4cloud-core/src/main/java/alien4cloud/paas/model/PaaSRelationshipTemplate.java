@@ -1,6 +1,7 @@
 package alien4cloud.paas.model;
 
 import java.nio.file.Path;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +19,7 @@ public class PaaSRelationshipTemplate implements IPaaSTemplate<IndexedRelationsh
     private RelationshipTemplate relationshipTemplate;
     private IndexedRelationshipType indexedToscaElement;
     private Path csarPath;
+    private List<IndexedRelationshipType> derivedFroms;
 
     public PaaSRelationshipTemplate(String id, RelationshipTemplate wrapped, String source) {
         this.id = id;

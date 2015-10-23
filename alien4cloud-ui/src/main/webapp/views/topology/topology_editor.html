@@ -153,7 +153,7 @@
           <div ng-init="isGroupsCollapsed = true" ng-if="selectedNodeTemplate.groups && selectedNodeTemplate.groups.length > 0">
             <div id="node-details-groups" class="topology-node-expand clickable" ng-click="isGroupsCollapsed = !isGroupsCollapsed">
               <h4>
-                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isGroupsCollapsed, 'fa-chevron-right': isGroupsCollapsed}"></i>
+                <i class=" fa" ng-class="{'fa-chevron-down' : !isGroupsCollapsed, 'fa-chevron-right': isGroupsCollapsed}"></i>
                 {{'APPLICATIONS.TOPOLOGY.GROUPS.TITLE' | translate}}
               </h4>
             </div>
@@ -177,7 +177,7 @@
             <div id="node-details-properties" class="topology-node-expand clickable"
                  ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
               <h4>
-                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isPropertiesCollapsed, 'fa-chevron-right': isPropertiesCollapsed}"></i>
+                <i class=" fa" ng-class="{'fa-chevron-down' : !isPropertiesCollapsed, 'fa-chevron-right': isPropertiesCollapsed}"></i>
                 {{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}
               </h4>
             </div>
@@ -250,7 +250,7 @@
             <div id="node-details-attributes" class="topology-node-expand clickable"
                  ng-click="isAttributesCollapsed = !isAttributesCollapsed">
               <h4>
-                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isAttributesCollapsed, 'fa-chevron-right': isAttributesCollapsed}"></i>
+                <i class=" fa" ng-class="{'fa-chevron-down' : !isAttributesCollapsed, 'fa-chevron-right': isAttributesCollapsed}"></i>
                 {{'APPLICATIONS.TOPOLOGY.ATTRIBUTES' | translate}}
               </h4>
             </div>
@@ -278,7 +278,7 @@
             <div id="node-details-requirements" class="topology-node-expand clickable"
                  ng-click="isRequirementsCollapsed = !isRequirementsCollapsed">
               <h4>
-                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isRequirementsCollapsed, 'fa-chevron-right': isRequirementsCollapsed}"></i>
+                <i class=" fa" ng-class="{'fa-chevron-down' : !isRequirementsCollapsed, 'fa-chevron-right': isRequirementsCollapsed}"></i>
                 {{'APPLICATIONS.TOPOLOGY.REQUIREMENTS' | translate}}
               </h4>
             </div>
@@ -290,7 +290,7 @@
                      ng-click="isReqPropsCollapsed[requirementEntry.key] = !isReqPropsCollapsed[requirementEntry.key]">
                   <div class="row">
                     <div class="col-md-3">
-                      <i ng-if="!emptyProps" class="pull-left fa"
+                      <i ng-if="!emptyProps" class=" fa"
                          ng-class="{'fa-chevron-down' : !isReqPropsCollapsed[requirementEntry.key], 'fa-chevron-right': isReqPropsCollapsed[requirementEntry.key]}">
                       </i>
                       <span tooltip="{{requirementEntry.key}}" tooltip-append-to-body="true">{{requirementEntry.key | truncate:12}}</span>
@@ -356,7 +356,7 @@
             <div id="node-details-capabilities" class="topology-node-expand clickable"
                  ng-click="isCapabilitiesCollapsed = !isCapabilitiesCollapsed">
               <h4>
-                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isCapabilitiesCollapsed, 'fa-chevron-right': isCapabilitiesCollapsed}"></i>
+                <i class=" fa" ng-class="{'fa-chevron-down' : !isCapabilitiesCollapsed, 'fa-chevron-right': isCapabilitiesCollapsed}"></i>
                 {{'APPLICATIONS.TOPOLOGY.CAPABILITIES' | translate}}
               </h4>
             </div>
@@ -368,7 +368,7 @@
                      ng-click="isReqPropsCollapsed[capabilityEntry.key] = !isReqPropsCollapsed[capabilityEntry.key]">
                   <div class="row">
                     <div class="col-md-3 ">
-                      <i ng-if="!emptyProps" class="pull-left fa"
+                      <i ng-if="!emptyProps" class=" fa"
                          ng-class="{'fa-chevron-down' : !isReqPropsCollapsed[capabilityEntry.key], 'fa-chevron-right': isReqPropsCollapsed[capabilityEntry.key]}">
                       </i>
                       <span tooltip="{{capabilityEntry.key}}" tooltip-append-to-body="true">{{capabilityEntry.key | truncate:12}}</span>
@@ -467,7 +467,7 @@
             <div id="node-details-relationships" class="topology-node-expand clickable"
                  ng-click="isRelationshipsCollapsed = !isRelationshipsCollapsed">
               <h4>
-                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isRelationshipsCollapsed, 'fa-chevron-right': isRelationshipsCollapsed}"></i>
+                <i class=" fa" ng-class="{'fa-chevron-down' : !isRelationshipsCollapsed, 'fa-chevron-right': isRelationshipsCollapsed}"></i>
                 {{'APPLICATIONS.TOPOLOGY.RELATIONSHIPS' | translate}}
               </h4>
             </div>
@@ -477,7 +477,7 @@
                 <div class="topology-node-expand clickable editable-small"
                      ng-click="isRelationshipCollapsed = !isRelationshipCollapsed"
                      id="relationship_{{relationshipEntry.key}}">
-                  <i class="pull-left fa"
+                  <i class=" fa"
                      ng-class="{'fa-chevron-down' : !isRelationshipCollapsed, 'fa-chevron-right': isRelationshipCollapsed}"></i>
                 <span
                   ng-init="relNameObj[relationshipEntry.key] = relationshipEntry.key"
@@ -574,7 +574,7 @@
             <div id="node-details-artifacts" class="topology-node-expand clickable"
                  ng-click="isArtifactsCollapsed = !isArtifactsCollapsed">
               <h4>
-                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isArtifactsCollapsed, 'fa-chevron-right': isArtifactsCollapsed}"></i>
+                <i class=" fa" ng-class="{'fa-chevron-down' : !isArtifactsCollapsed, 'fa-chevron-right': isArtifactsCollapsed}"></i>
                 {{'APPLICATIONS.TOPOLOGY.ARTIFACTS.TITLE' | translate}}
               </h4>
             </div>
@@ -583,7 +583,7 @@
                    ng-repeat="(artifactId, artifact) in selectedNodeTemplate.artifacts">
                 <div class="topology-node-expand clickable"
                      ng-click="isArtifactCollapsed = !isArtifactCollapsed">
-                  <i class="pull-left fa"
+                  <i class=" fa"
                      ng-class="{'fa-chevron-down' : !isArtifactCollapsed, 'fa-chevron-right': isArtifactCollapsed}"></i>
                   <span>{{artifactId}}</span>
                   <span id='reset-artifact-{{artifactId}}' class="btn btn-xs" ng-click="artifacts.reset(artifactId); $event.stopPropagation();">
@@ -772,7 +772,7 @@
           <div ng-repeat="group in orderedNodeGroups">
             <div id="group-details-{{group.name}}-header" class="topology-node-expand clickable">
               <h4>
-                <i class="pull-left fa clickable {{groups.getColorCss(group.name)}}" ng-class="{'fa-chevron-down' : !groupCollapsed[group.name].main, 'fa-chevron-right': groupCollapsed[group.name].main}"
+                <i class=" fa clickable {{groups.getColorCss(group.name)}}" ng-class="{'fa-chevron-down' : !groupCollapsed[group.name].main, 'fa-chevron-right': groupCollapsed[group.name].main}"
                 ng-click="groupCollapsed[group.name].main = !groupCollapsed[group.name].main"></i>
                 <span editable-text="group.name" id="nodeGroupName_{{group.name}}" buttons="no" e-required onbeforesave="groups.updateName(group.name, $data)" blur="submit">
                   {{group.name}}
@@ -786,7 +786,7 @@
               <div id="group-members-{{group.name}}-header" class="topology-node-expand clickable"
                    ng-click="groupCollapsed[group.name].members = !groupCollapsed[group.name].members">
                 <h5>
-                  <i class="pull-left fa" ng-class="{'fa-chevron-down' : !groupCollapsed[group.name].members, 'fa-chevron-right': groupCollapsed[group.name].members}"></i>
+                  <i class=" fa" ng-class="{'fa-chevron-down' : !groupCollapsed[group.name].members, 'fa-chevron-right': groupCollapsed[group.name].members}"></i>
                   {{'APPLICATIONS.TOPOLOGY.GROUPS.MEMBERS' | translate}}
                 </h5>
               </div>
@@ -805,7 +805,7 @@
               <div id="group-policies-{{group.name}}-header" class="topology-node-expand clickable"
                    ng-click="groupCollapsed[group.name].policies = !groupCollapsed[group.name].policies">
                 <h5>
-                  <i class="pull-left fa" ng-class="{'fa-chevron-down' : !groupCollapsed[group.name].policies, 'fa-chevron-right': groupCollapsed[group.name].policies}"></i>
+                  <i class=" fa" ng-class="{'fa-chevron-down' : !groupCollapsed[group.name].policies, 'fa-chevron-right': groupCollapsed[group.name].policies}"></i>
                   {{'APPLICATIONS.TOPOLOGY.GROUPS.POLICIES' | translate}}
                 </h5>
               </div>
@@ -1000,7 +1000,7 @@
             <div id="wf-errors-header" class="topology-node-expand clickable text-danger"
                  ng-click="isWfErrorsCollapsed = !isWfErrorsCollapsed">
               <h5>
-                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isWfErrorsCollapsed, 'fa-chevron-right': isWfErrorsCollapsed}"></i>
+                <i class=" fa" ng-class="{'fa-chevron-down' : !isWfErrorsCollapsed, 'fa-chevron-right': isWfErrorsCollapsed}"></i>
                 {{topology.topology.workflows[currentWorkflowName].errors.length}} {{'APPLICATIONS.WF.hasErrors' | translate}}
               </h5>
             </div>

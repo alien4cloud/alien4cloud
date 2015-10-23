@@ -5,15 +5,12 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.Topology;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.OrchestratorPluginService;
@@ -24,6 +21,7 @@ import alien4cloud.paas.model.OperationExecRequest;
 import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Manages operations performed on a running deployment.
@@ -60,11 +58,11 @@ public class DeploymentRuntimeService {
 
     /**
      * Switch an instance in a deployment to maintenance mode. If so the orchestrator should not perform self healing operations for this instance.
-     * 
+     *
      * @param applicationEnvironmentId The id of the application environment.
-     * @param nodeTemplateId The id of the node template on which to enable maintenance mode.
-     * @param instanceId The id of the instance.
-     * @param maintenanceModeOn true if we should enable the maintenance mode, false if we should disable it.
+     * @param nodeTemplateId           The id of the node template on which to enable maintenance mode.
+     * @param instanceId               The id of the instance.
+     * @param maintenanceModeOn        true if we should enable the maintenance mode, false if we should disable it.
      * @throws MaintenanceModeException In case the operation fails.
      */
     public void switchInstanceMaintenanceMode(String applicationEnvironmentId, String nodeTemplateId, String instanceId, boolean maintenanceModeOn)
@@ -80,7 +78,7 @@ public class DeploymentRuntimeService {
      * Switch all instances in a deployment to maintenance mode. If so the orchestrator should not perform self healing operations for this instance.
      *
      * @param applicationEnvironmentId The id of the application environment.
-     * @param maintenanceModeOn true if we should enable the maintenance mode, false if we should disable it.
+     * @param maintenanceModeOn        true if we should enable the maintenance mode, false if we should disable it.
      * @throws MaintenanceModeException In case the operation fails.
      */
     public void switchMaintenanceMode(String applicationEnvironmentId, boolean maintenanceModeOn) throws MaintenanceModeException {
@@ -95,14 +93,14 @@ public class DeploymentRuntimeService {
      * Scale up/down a node in a topology
      *
      * @param applicationEnvironmentId id of the targeted environment
-     * @param nodeTemplateId id of the compute node to scale up
-     * @param instances the number of instances to be added (if positive) or removed (if negative)
+     * @param nodeTemplateId           id of the compute node to scale up
+     * @param instances                the number of instances to be added (if positive) or removed (if negative)
      */
     public void scale(String applicationEnvironmentId, final String nodeTemplateId, int instances, final IPaaSCallback<Object> callback)
             throws OrchestratorDisabledException {
         Deployment deployment = deploymentService.getActiveDeploymentOrFail(applicationEnvironmentId);
         DeploymentTopology deploymentTopology = deploymentRuntimeStateService.getRuntimeTopologyFromEnvironment(deployment.getEnvironmentId());
-        final Topology topology = alienMonitorDao.findById(Topology.class, deployment.getId());
+        final DeploymentTopology topology = alienMonitorDao.findById(DeploymentTopology.class, deployment.getId());
         final Capability capability = TopologyUtils.getScalableCapability(topology, nodeTemplateId, true);
         final int previousInitialInstances = TopologyUtils.getScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, capability);
         final int newInitialInstances = previousInitialInstances + instances;

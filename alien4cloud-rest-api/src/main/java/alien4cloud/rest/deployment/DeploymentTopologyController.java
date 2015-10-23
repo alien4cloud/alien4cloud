@@ -33,6 +33,7 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
@@ -84,6 +85,7 @@ public class DeploymentTopologyController {
         DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
         locationResourceService.getOrFail(locationResourceTemplateId);
+        // TODO maybe check if the substituted is compatible with the provided substitute and return a specific error for REST users?
         deploymentTopology.getSubstitutedNodes().put(nodeId, locationResourceTemplateId);
         deploymentTopologyService.updateDeploymentTopology(deploymentTopology);
         return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
@@ -94,7 +96,7 @@ public class DeploymentTopologyController {
     @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<DeploymentTopologyDTO> updateSubstitutionProperty(@PathVariable String appId, @PathVariable String environmentId,
-            @PathVariable String nodeId, @RequestBody UpdateSubstitutionPropertyRequest updateRequest) {
+            @PathVariable String nodeId, @RequestBody UpdatePropertyRequest updateRequest) {
         DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
         deploymentTopologyService.updateSubstitutionProperty(deploymentTopology, nodeId, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
@@ -105,8 +107,8 @@ public class DeploymentTopologyController {
     @RequestMapping(value = "/substitutions/{nodeId}/capabilities/{capabilityName}/properties", method = RequestMethod.POST)
     @PreAuthorize("isAuthenticated()")
     @Audit
-    public RestResponse<?> updateSubstitutionCapabilityProperty(@PathVariable String appId, @PathVariable String environmentId,
-                                                                                    @PathVariable String nodeId, @PathVariable String capabilityName, @RequestBody UpdateSubstitutionPropertyRequest updateRequest) {
+    public RestResponse<?> updateSubstitutionCapabilityProperty(@PathVariable String appId, @PathVariable String environmentId, @PathVariable String nodeId,
+            @PathVariable String capabilityName, @RequestBody UpdatePropertyRequest updateRequest) {
         DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
         try {
@@ -119,7 +121,7 @@ public class DeploymentTopologyController {
             return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().data(e.getConstraintInformation())
                     .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
         }
-        return RestResponseBuilder.<DeploymentTopologyDTO>builder().data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
+        return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
     }
 
     /**
@@ -182,17 +184,15 @@ public class DeploymentTopologyController {
         DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
         ReflectionUtil.mergeObject(updateRequest, deploymentTopology);
-        if (deploymentTopology.getInputProperties() != null) {
-            // If someone modified the input properties, must validate them
-            try {
-                deploymentTopologyValidationService.checkInputPropertiesContraints(deploymentTopology);
-            } catch (ConstraintViolationException e) {
-                return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().data(e.getConstraintInformation())
-                        .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
-            } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
-                return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().data(e.getConstraintInformation())
-                        .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
-            }
+        // If someone modified the input properties, must validate them
+        try {
+            deploymentTopologyValidationService.checkPropertiesContraints(deploymentTopology);
+        } catch (ConstraintViolationException e) {
+            return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().data(e.getConstraintInformation())
+                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
+        } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
+            return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().data(e.getConstraintInformation())
+                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
         }
         deploymentTopologyService.updateDeploymentTopologyInputsAndSave(deploymentTopology);
         return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();

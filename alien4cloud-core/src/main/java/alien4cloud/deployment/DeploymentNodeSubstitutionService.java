@@ -11,6 +11,10 @@ import javax.inject.Inject;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import alien4cloud.common.AlienConstants;
 import alien4cloud.deployment.matching.services.nodes.NodeMatcherService;
 import alien4cloud.model.components.AbstractPropertyValue;
@@ -26,10 +30,6 @@ import alien4cloud.orchestrators.locations.services.LocationResourceService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.PropertyUtil;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 @Service
 public class DeploymentNodeSubstitutionService {
     @Inject
@@ -42,29 +42,31 @@ public class DeploymentNodeSubstitutionService {
     /**
      * Get all available substitutions (LocationResourceTemplate) for the given node templates with given dependencies and location groups
      *
-     * @param nodeTemplates the node template to check
-     * @param dependencies dependencies of those node templates
+     * @param nodeTemplates  the node template to check
+     * @param dependencies   dependencies of those node templates
      * @param locationGroups group of location policy
      * @return a map which contains mapping from node template id to its available substitutions
      */
     private Map<String, List<LocationResourceTemplate>> getAvailableSubstitutions(Map<String, NodeTemplate> nodeTemplates, Set<CSARDependency> dependencies,
-            Map<String, NodeGroup> locationGroups) {
+                                                                                  Map<String, NodeGroup> locationGroups) {
         Map<String, IndexedNodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromDependencies(nodeTemplates, dependencies, false, false);
         Map<String, List<LocationResourceTemplate>> availableSubstitutions = Maps.newHashMap();
-        for(final Map.Entry<String, NodeGroup> locationGroupEntry : locationGroups.entrySet()) {
+        for (final Map.Entry<String, NodeGroup> locationGroupEntry : locationGroups.entrySet()) {
             String groupName = locationGroupEntry.getKey();
             final NodeGroup locationNodeGroup = locationGroupEntry.getValue();
-            Map<String, NodeTemplate> nodesToMatch;
-            if(AlienConstants.GROUP_ALL.equals(groupName)) {
-                locationNodeGroup.setMembers(nodeTemplates.keySet());
-                nodesToMatch = nodeTemplates;
-            } else {
-                nodesToMatch = Maps.filterEntries(nodeTemplates, new Predicate<Map.Entry<String, NodeTemplate>>() {
-                    @Override
-                    public boolean apply(Map.Entry<String, NodeTemplate> input) {
-                        return locationNodeGroup.getMembers().contains(input.getKey());
-                    }
-                });
+            Map<String, NodeTemplate> nodesToMatch = Maps.newHashMap();
+            if (MapUtils.isNotEmpty(nodeTemplates)) {
+                if (AlienConstants.GROUP_ALL.equals(groupName)) {
+                    locationNodeGroup.setMembers(nodeTemplates.keySet());
+                    nodesToMatch = nodeTemplates;
+                } else {
+                    nodesToMatch = Maps.filterEntries(nodeTemplates, new Predicate<Map.Entry<String, NodeTemplate>>() {
+                        @Override
+                        public boolean apply(Map.Entry<String, NodeTemplate> input) {
+                            return locationNodeGroup.getMembers().contains(input.getKey());
+                        }
+                    });
+                }
             }
             LocationPlacementPolicy locationPlacementPolicy = (LocationPlacementPolicy) locationGroupEntry.getValue().getPolicies().get(0);
             availableSubstitutions.putAll(nodeMatcherService.match(nodeTypes, nodesToMatch, locationPlacementPolicy.getLocationId()));
@@ -88,7 +90,7 @@ public class DeploymentNodeSubstitutionService {
      * @param deploymentTopology the deployment topology to process substitution
      */
     public void processNodesSubstitution(DeploymentTopology deploymentTopology, Map<String, NodeTemplate> nodesToMergeProperties) {
-        if(MapUtils.isEmpty(deploymentTopology.getLocationGroups())) {
+        if (MapUtils.isEmpty(deploymentTopology.getLocationGroups())) {
             // No location group is defined do nothing
             return;
         }
@@ -96,9 +98,9 @@ public class DeploymentNodeSubstitutionService {
         Map<String, List<LocationResourceTemplate>> availableSubstitutions = getAvailableSubstitutions(deploymentTopology.getNodeTemplates(),
                 deploymentTopology.getDependencies(), deploymentTopology.getLocationGroups());
         Map<String, Set<String>> availableSubstitutionsIds = Maps.newHashMap();
-        for(Map.Entry<String, List<LocationResourceTemplate>> availableSubstitutionEntry : availableSubstitutions.entrySet()) {
+        for (Map.Entry<String, List<LocationResourceTemplate>> availableSubstitutionEntry : availableSubstitutions.entrySet()) {
             Set<String> ids = Sets.newHashSet();
-            for(LocationResourceTemplate availableSubstitution : availableSubstitutionEntry.getValue()) {
+            for (LocationResourceTemplate availableSubstitution : availableSubstitutionEntry.getValue()) {
                 ids.add(availableSubstitution.getId());
             }
             availableSubstitutionsIds.put(availableSubstitutionEntry.getKey(), ids);
@@ -106,22 +108,22 @@ public class DeploymentNodeSubstitutionService {
         Map<String, String> substitutedNodes = deploymentTopology.getSubstitutedNodes();
         // Try to remove unknown mapping from existing config
         Iterator<Map.Entry<String, String>> mappingEntryIterator = substitutedNodes.entrySet().iterator();
-        while(mappingEntryIterator.hasNext()) {
+        while (mappingEntryIterator.hasNext()) {
             Map.Entry<String, String> entry = mappingEntryIterator.next();
-            if(deploymentTopology.getNodeTemplates() == null || !deploymentTopology.getNodeTemplates().containsKey(entry.getKey())) {
-                if(!availableSubstitutions.containsKey(entry.getKey())) {
+            if (deploymentTopology.getNodeTemplates() == null || !deploymentTopology.getNodeTemplates().containsKey(entry.getKey())) {
+                if (!availableSubstitutions.containsKey(entry.getKey())) {
                     // Remove the mapping if topology do not contain the node with that name and of type compute
                     mappingEntryIterator.remove();
                 } else {
                     List<LocationResourceTemplate> availableSubstitutionsForNode = availableSubstitutions.get(entry.getKey());
                     boolean substitutedTemplateExist = false;
-                    for(LocationResourceTemplate availableSubstitutionForNode : availableSubstitutionsForNode) {
-                        if(availableSubstitutionForNode.getId().equals(entry.getValue())) {
+                    for (LocationResourceTemplate availableSubstitutionForNode : availableSubstitutionsForNode) {
+                        if (availableSubstitutionForNode.getId().equals(entry.getValue())) {
                             substitutedTemplateExist = true;
                             break;
                         }
                     }
-                    if(!substitutedTemplateExist) {
+                    if (!substitutedTemplateExist) {
                         // The mapping do not exist anymore in the match result
                         mappingEntryIterator.remove();
                     }
@@ -131,51 +133,54 @@ public class DeploymentNodeSubstitutionService {
 
         // clean the originalNodes map since some nodes might have been deleted from the initial topology, and thus not appearing in the availableSubstitutions
         Iterator<Entry<String, NodeTemplate>> originalNodesIter = deploymentTopology.getOriginalNodes().entrySet().iterator();
-        while(originalNodesIter.hasNext()) {
+        while (originalNodesIter.hasNext()) {
             Entry<String, NodeTemplate> next = originalNodesIter.next();
-            if(!availableSubstitutions.containsKey(next.getKey())) {
+            if (!availableSubstitutions.containsKey(next.getKey())) {
                 originalNodesIter.remove();
             }
         }
 
-        for(Map.Entry<String, List<LocationResourceTemplate>> entry : availableSubstitutions.entrySet()) {
-            if(!substitutedNodes.containsKey(entry.getKey())) {
+        for (Map.Entry<String, List<LocationResourceTemplate>> entry : availableSubstitutions.entrySet()) {
+            if (!substitutedNodes.containsKey(entry.getKey())) {
                 deploymentTopology.getOriginalNodes().put(entry.getKey(), deploymentTopology.getNodeTemplates().get(entry.getKey()));
-                if(!entry.getValue().isEmpty()) {
+                if (!entry.getValue().isEmpty()) {
                     // Only take the first element as selected if no configuration has been set before
                     substitutedNodes.put(entry.getKey(), entry.getValue().iterator().next().getId());
                 }
             }
         }
         deploymentTopology.setSubstitutedNodes(substitutedNodes);
-        for(Map.Entry<String, String> substitutedNodeEntry : substitutedNodes.entrySet()) {
+        for (Map.Entry<String, String> substitutedNodeEntry : substitutedNodes.entrySet()) {
             // Substitute the node template of the topology by those matched
             NodeTemplate locationNode = locationResourceService.getOrFail(substitutedNodeEntry.getValue()).getTemplate();
             NodeTemplate abstractTopologyNode = deploymentTopology.getNodeTemplates().put(substitutedNodeEntry.getKey(), locationNode);
             NodeTemplate previousNode = null;
-            if(nodesToMergeProperties != null) {
+            if (nodesToMergeProperties != null) {
                 previousNode = nodesToMergeProperties.get(substitutedNodeEntry.getKey());
             }
             // TODO define what need to be merged and what not to be merged
-            // Merge properties and capability properties
-            if(MapUtils.isNotEmpty(abstractTopologyNode.getProperties())) {
+            // Merge name, properties and capability properties
+            locationNode.setName(abstractTopologyNode.getName());
+            // Also merge relationships
+            locationNode.setRelationships(abstractTopologyNode.getRelationships());
+            if (MapUtils.isNotEmpty(abstractTopologyNode.getProperties())) {
                 Map<String, AbstractPropertyValue> mergedProperties = Maps.newHashMap(abstractTopologyNode.getProperties());
                 PropertyUtil.mergeProperties(locationNode.getProperties(), mergedProperties);
-                if(previousNode != null) {
+                if (previousNode != null) {
                     PropertyUtil.mergeProperties(previousNode.getProperties(), mergedProperties);
                 }
                 locationNode.setProperties(mergedProperties);
             }
-            if(MapUtils.isNotEmpty(abstractTopologyNode.getCapabilities()) && MapUtils.isNotEmpty(locationNode.getCapabilities())) {
-                for(Map.Entry<String, Capability> abstractCapabilityEntry : abstractTopologyNode.getCapabilities().entrySet()) {
+            if (MapUtils.isNotEmpty(abstractTopologyNode.getCapabilities()) && MapUtils.isNotEmpty(locationNode.getCapabilities())) {
+                for (Map.Entry<String, Capability> abstractCapabilityEntry : abstractTopologyNode.getCapabilities().entrySet()) {
                     Capability locationCapability = locationNode.getCapabilities().get(abstractCapabilityEntry.getKey());
-                    if(locationCapability != null && locationCapability.getType().equals(abstractCapabilityEntry.getValue().getType())
+                    if (locationCapability != null && locationCapability.getType().equals(abstractCapabilityEntry.getValue().getType())
                             && MapUtils.isNotEmpty(abstractCapabilityEntry.getValue().getProperties())) {
                         Map<String, AbstractPropertyValue> mergedProperties = Maps.newHashMap(abstractCapabilityEntry.getValue().getProperties());
                         PropertyUtil.mergeProperties(locationCapability.getProperties(), mergedProperties);
-                        if(previousNode != null && MapUtils.isNotEmpty(previousNode.getCapabilities())) {
+                        if (previousNode != null && MapUtils.isNotEmpty(previousNode.getCapabilities())) {
                             Capability previousCapability = previousNode.getCapabilities().get(abstractCapabilityEntry.getKey());
-                            if(previousCapability != null) {
+                            if (previousCapability != null) {
                                 PropertyUtil.mergeProperties(previousCapability.getProperties(), mergedProperties);
                             }
                         }

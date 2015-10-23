@@ -108,8 +108,8 @@ public class CommonStepDefinitions {
         Context.getInstance().clearComponentsIds();
         Context.getInstance().takeTopologyId();
         Context.getInstance().takeApplication();
-        Context.getInstance().takeDeployApplicationProperties();
         Context.getRestClientInstance().clearCookies();
+        Context.getInstance().takePreRegisteredOrchestratorProperties();
     }
 
     @Then("^I should receive a RestResponse with no error$")
