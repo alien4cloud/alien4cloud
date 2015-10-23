@@ -421,7 +421,7 @@ public class ApplicationsDeploymentStepDefinitions {
                 StompData<PaaSInstancePersistentResourceMonitorEvent>[] storageEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(),
                         WAIT_TIME, TimeUnit.SECONDS);
                 for (StompData<PaaSInstancePersistentResourceMonitorEvent> data : storageEvents) {
-                    actualEvents.add(data.getData().getInstanceState());
+                    // FIXME actualEvents.add(data.getData().getInstanceState());
                 }
                 break;
             }

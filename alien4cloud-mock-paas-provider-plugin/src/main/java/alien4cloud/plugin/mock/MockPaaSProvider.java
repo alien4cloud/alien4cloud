@@ -252,14 +252,7 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
                 final MockRuntimeDeploymentInfo deploymentInfo = runtimeDeploymentInfos.get(deploymentPaaSId);
                 Deployment deployment = deploymentInfo.getDeploymentContext().getDeployment();
                 PaaSInstanceStateMonitorEvent event;
-                if (deployment.getSourceName().equals(BLOCKSTORAGE_APPLICATION) && cloned.getState().equalsIgnoreCase("created")) {
-                    PaaSInstancePersistentResourceMonitorEvent bsEvent = new PaaSInstancePersistentResourceMonitorEvent();
-                    bsEvent.setPropertyName(NormativeBlockStorageConstants.VOLUME_ID);
-                    bsEvent.setPropertyValue(UUID.randomUUID().toString());
-                    event = bsEvent;
-                } else {
-                    event = new PaaSInstanceStateMonitorEvent();
-                }
+                event = new PaaSInstanceStateMonitorEvent();
                 event.setInstanceId(instanceId.toString());
                 event.setInstanceState(cloned.getState());
                 event.setInstanceStatus(cloned.getInstanceStatus());
@@ -269,6 +262,13 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
                 event.setRuntimeProperties(cloned.getRuntimeProperties());
                 event.setAttributes(cloned.getAttributes());
                 toBeDeliveredEvents.add(event);
+
+                if (deployment.getSourceName().equals(BLOCKSTORAGE_APPLICATION) && cloned.getState().equalsIgnoreCase("created")) {
+                    PaaSInstancePersistentResourceMonitorEvent prme = new PaaSInstancePersistentResourceMonitorEvent(nodeId, instanceId.toString(),
+                            NormativeBlockStorageConstants.VOLUME_ID, UUID.randomUUID().toString());
+                    toBeDeliveredEvents.add(prme);
+                }
+
                 PaaSMessageMonitorEvent messageMonitorEvent = new PaaSMessageMonitorEvent();
                 messageMonitorEvent.setDate((new Date()).getTime());
                 messageMonitorEvent.setDeploymentId(paaSDeploymentIdToAlienDeploymentIdMap.get(deploymentPaaSId));
