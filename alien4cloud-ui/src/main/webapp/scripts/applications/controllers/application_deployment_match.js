@@ -30,12 +30,16 @@ define(function(require) {
   modules.get('a4c-applications').controller('ApplicationDeploymentMatchCtrl',
     ['$scope', 'nodeTemplateService', 'deploymentTopologyServices',
       function($scope, nodeTemplateService, deploymentTopologyServices) {
-        $scope.getIcon = function(template) {
-          if (!_.isEmpty($scope.deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.nodeTypes)) {
-            var templateType = $scope.deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.nodeTypes[template.template.type];
-            if (!_.isEmpty(templateType)) {
-              return nodeTemplateService.getNodeTypeIcon(templateType);
-            }
+        $scope.getIcon = function(template, templateName) {
+          var templateType;
+          if (_.undefined(template)) {
+            var templateTypeName = $scope.deploymentContext.deploymentTopologyDTO.topology.nodeTemplates[templateName].type;
+            templateType = $scope.deploymentContext.deploymentTopologyDTO.nodeTypes[templateTypeName];
+          } else if (!_.isEmpty($scope.deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.nodeTypes)) {
+            templateType = $scope.deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.nodeTypes[template.template.type];
+          }
+          if (!_.isEmpty(templateType)) {
+            return nodeTemplateService.getNodeTypeIcon(templateType);
           }
         };
 
