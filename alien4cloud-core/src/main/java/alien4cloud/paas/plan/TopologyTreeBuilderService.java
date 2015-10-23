@@ -306,6 +306,7 @@ public class TopologyTreeBuilderService {
             processOperationsInputsForOperationOutputs(paaSNodeTemplate, paaSNodeTemplates);
             // do the same for the relationships
             for (PaaSRelationshipTemplate paaSRelationshipTemplate : paaSNodeTemplate.getRelationshipTemplates()) {
+                processAttributesForOperationOutputs(paaSRelationshipTemplate, paaSNodeTemplates);
                 processOperationsInputsForOperationOutputs(paaSRelationshipTemplate, paaSNodeTemplates);
             }
         }
@@ -317,7 +318,7 @@ public class TopologyTreeBuilderService {
      * @param paaSNodeTemplate
      * @param paaSNodeTemplates
      */
-    private void processAttributesForOperationOutputs(final PaaSNodeTemplate paaSNodeTemplate, final Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
+    private void processAttributesForOperationOutputs(final IPaaSTemplate<? extends IndexedArtifactToscaElement> paaSNodeTemplate, final Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
         Map<String, IValue> attributes = paaSNodeTemplate.getIndexedToscaElement().getAttributes();
         if (MapUtils.isEmpty(attributes)) {
             return;
