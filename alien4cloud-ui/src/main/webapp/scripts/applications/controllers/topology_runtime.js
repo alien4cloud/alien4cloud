@@ -31,9 +31,6 @@ define(function (require) {
       var selectedEnvironmentId = $state.params.selectedEnvironmentId;
       $scope.selectedEnvironment = null;
       
-      console.log($state);
-
-      
       var updateSelectedEnvionment = function() {
         $scope.runtimeEnvironments = appEnvironments.deployEnvironments;
         // select current environment
