@@ -10,8 +10,6 @@ import java.util.concurrent.Future;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.orchestrators.locations.services.LocationService;
-import alien4cloud.orchestrators.plugin.ILocationAutoConfigurer;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.mapping.QueryHelper;
@@ -25,6 +23,8 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorConfiguration;
 import alien4cloud.model.orchestrators.OrchestratorState;
+import alien4cloud.orchestrators.locations.services.LocationService;
+import alien4cloud.orchestrators.plugin.ILocationAutoConfigurer;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import alien4cloud.paas.OrchestratorPluginService;
@@ -155,9 +155,9 @@ public class OrchestratorStateService {
             QueryHelper.SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper
                     .buildSearchQuery(alienDAO.getIndexForType(Deployment.class))
                     .types(Deployment.class)
-                    .filters(MapUtil
-                            .newHashMap(new String[] { "cloudId", "endDate" }, new String[][] { new String[] { orchestrator.getId() }, new String[] { null } }))
-                    .fieldSort("_timestamp", true);
+                    .filters(
+                            MapUtil.newHashMap(new String[] { "orchestratorId", "endDate" }, new String[][] { new String[] { orchestrator.getId() },
+                                    new String[] { null } })).fieldSort("_timestamp", true);
             // If there is at least one active deployment.
             GetMultipleDataResult<Object> result = alienDAO.search(searchQueryHelperBuilder, 0, 1);
 
@@ -177,7 +177,7 @@ public class OrchestratorStateService {
         } catch (Exception e) {
             log.info("Unable to destroy orchestrator, it may not be created yet", e);
         } finally {
-            // Mark the cloud as disabled
+            // Mark the orchestrator as disabled
             orchestrator.setState(OrchestratorState.DISABLED);
             alienDAO.save(orchestrator);
         }
