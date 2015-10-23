@@ -14,29 +14,19 @@ import org.elasticsearch.annotation.ESObject;
 @Setter
 @ESObject
 @NoArgsConstructor
-@ToString(callSuper = true)
-public class PaaSInstancePersistentResourceMonitorEvent extends PaaSInstanceStateMonitorEvent {
+@ToString
+public class PaaSInstancePersistentResourceMonitorEvent extends AbstractMonitorEvent {
+    /** Id of the node template that describe the instance. */
+    private String nodeTemplateId;
+    /** Id of the instance within the node template group (for scalability purpose) */
+    private String instanceId;
     /** The volumeId created / related to this instance **/
     private String propertyValue;
     private String propertyName;
 
-    public PaaSInstancePersistentResourceMonitorEvent(String propertyName, String propertyValue) {
-        super();
-        this.propertyName = propertyName;
-        this.propertyValue = propertyValue;
-    }
-
-    public PaaSInstancePersistentResourceMonitorEvent(PaaSInstanceStateMonitorEvent instanceStateMonitorEvent, String propertyName, String propertyValue) {
-        super();
-        setAttributes(instanceStateMonitorEvent.getAttributes());
-        setRuntimeProperties(instanceStateMonitorEvent.getRuntimeProperties());
-        setInstanceId(instanceStateMonitorEvent.getInstanceId());
-        setNodeTemplateId(instanceStateMonitorEvent.getNodeTemplateId());
-        setInstanceState(instanceStateMonitorEvent.getInstanceState());
-        setInstanceStatus(instanceStateMonitorEvent.getInstanceStatus());
-        setCloudId(instanceStateMonitorEvent.getCloudId());
-        setDate(instanceStateMonitorEvent.getDate());
-        setDeploymentId(instanceStateMonitorEvent.getDeploymentId());
+    public PaaSInstancePersistentResourceMonitorEvent(String nodeTemplateId, String instanceId, String propertyName, String propertyValue) {
+        this.nodeTemplateId = nodeTemplateId;
+        this.instanceId = instanceId;
         this.propertyName = propertyName;
         this.propertyValue = propertyValue;
     }

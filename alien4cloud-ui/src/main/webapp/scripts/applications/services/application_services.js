@@ -42,6 +42,12 @@ define(function (require) {
           method: 'POST'
         }
       });
+      
+      var applicationWorkflowResource = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/workflows/:workflowName', {}, {
+        'launch': {
+          method: 'POST'
+        }
+      });      
 
       var deploymentProperty = $resource('rest/orchestrators/:orchestratorId/deployment-prop-check', {}, {
         'check': {
@@ -168,7 +174,8 @@ define(function (require) {
         'getDeploymentSetup': applicationDeploymentSetupDAO.get,
         'updateDeploymentSetup': applicationDeploymentSetupDAO.update,
         'create': applicationCreate.create,
-        'search': applicationSearch.search
+        'search': applicationSearch.search,
+        'launchWorkflow' : applicationWorkflowResource.launch
       };
     }
   ]);

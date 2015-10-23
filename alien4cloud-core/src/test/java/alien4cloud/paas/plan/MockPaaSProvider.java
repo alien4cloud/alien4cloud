@@ -13,7 +13,13 @@ import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.exception.PluginConfigurationException;
-import alien4cloud.paas.model.*;
+import alien4cloud.paas.model.AbstractMonitorEvent;
+import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.paas.model.InstanceInformation;
+import alien4cloud.paas.model.NodeOperationExecRequest;
+import alien4cloud.paas.model.PaaSDeploymentContext;
+import alien4cloud.paas.model.PaaSNodeTemplate;
+import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 
 @Getter
 @Component
@@ -77,4 +83,9 @@ public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvide
     public void switchInstanceMaintenanceMode(PaaSDeploymentContext deploymentContext, String nodeId, String instanceId, boolean maintenanceModeOn) {
 
     }
+
+    @Override
+    public void launchWorkflow(PaaSDeploymentContext deploymentContext, String workflowName, Map<String, Object> inputs, IPaaSCallback<?> callback) {
+    }
+
 }

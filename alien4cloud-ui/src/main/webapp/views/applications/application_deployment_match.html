@@ -30,7 +30,7 @@
       <div class="task-list-box">
         <h4 class="topology-node-expand clickable" ng-init="isToReplaceNodesCollapsed = false"
             ng-click="isToReplaceNodesCollapsed = !isToReplaceNodesCollapsed">
-          <i class="fa" ng-class="{'fa-chevron-down' : !isToReplaceNodesCollapsed, 'fa-chevron-right': isToReplaceNodesCollapsed"></i>
+          <i class="fa" ng-class="{'fa-chevron-down' : !isToReplaceNodesCollapsed, 'fa-chevron-right': isToReplaceNodesCollapsed}"></i>
           <span>{{'APPLICATIONS.TOPOLOGY.TASK.REPLACE_LABEL' | translate}}</span>
         </h4>
 
@@ -43,7 +43,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr ng-repeat=" toReplaceNodeTask in (repTasks">
+              <tr ng-repeat="toReplaceNodeTask in repTasks">
                 <td>
                   <span>{{toReplaceNodeTask.nodeTemplateName}}</span>
                   <span>({{toReplaceNodeTask.component.elementId}})</span>
@@ -68,7 +68,7 @@
       <accordion close-others="oneAtATime">
         <accordion-group is-open="status.open"
                          ng-repeat="(nodeName, templates) in deploymentContext.deploymentTopologyDTO.availableSubstitutions.availableSubstitutions">
-          <accordion-heading ng-init="substitutedNode = getSubstitutedTemplate(nodeName); nodeIcon = getIcon(substitutedNode)">
+          <accordion-heading ng-init="substitutedNode = getSubstitutedTemplate(nodeName); nodeIcon = getIcon(substitutedNode, nodeName)">
             <div class="row">
               <div class="col-md-12">
                 <i ng-if="!nodeIcon" class="fa fa-cogs"></i>

@@ -5,7 +5,12 @@ import java.util.Map;
 
 import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OperationExecutionException;
-import alien4cloud.paas.model.*;
+import alien4cloud.paas.model.AbstractMonitorEvent;
+import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.paas.model.InstanceInformation;
+import alien4cloud.paas.model.NodeOperationExecRequest;
+import alien4cloud.paas.model.PaaSDeploymentContext;
+import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 
 /**
  * Interface of a Platform as a Service provider.
@@ -42,6 +47,15 @@ public interface IPaaSProvider {
      * @param instances the number of instances to be added (if positive) or removed (if negative)
      */
     void scale(PaaSDeploymentContext deploymentContext, String nodeTemplateId, int instances, IPaaSCallback<?> callback);
+
+    /**
+     * Launch a workflow.
+     *
+     * @param deploymentContext the deployment context
+     * @param workflowName the workflow to launch
+     * @param inputs the workflow params
+     */
+    void launchWorkflow(PaaSDeploymentContext deploymentContext, String workflowName, Map<String, Object> inputs, IPaaSCallback<?> callback);
 
     /**
      * Get status of a deployment

@@ -76,16 +76,15 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
     }
 
     private void updateApplicationTopology(PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent, final String volumeIds) {
-        // FIXME Update the deployment topology only.
         Deployment deployment = deploymentService.get(persistentResourceEvent.getDeploymentId());
-        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(deployment.getEnvironmentId());
-        ApplicationVersion applicationVersion = applicationVersionService.getOrFail(applicationEnvironment.getCurrentVersionId());
-        Topology topology = topoServiceCore.getOrFail(applicationVersion.getTopologyId());
+
+        String deploymentTopologyId = DeploymentTopology.generateId(deployment.getVersionId(), deployment.getEnvironmentId());
+        DeploymentTopology deploymentTopology = deploymentTopologyService.getOrFail(deploymentTopologyId);
 
         // The deployment topology may have changed and the node removed, in such situations there is nothing to update as the block won't be reused.
         NodeTemplate nodeTemplate;
         try {
-            nodeTemplate = topoServiceCore.getNodeTemplate(topology, persistentResourceEvent.getNodeTemplateId());
+            nodeTemplate = topoServiceCore.getNodeTemplate(deploymentTopology, persistentResourceEvent.getNodeTemplateId());
         } catch (NotFoundException e) {
             log.warn("Fail to update persistent resource property {} for node {}", persistentResourceEvent.getPropertyName(),
                     persistentResourceEvent.getNodeTemplateId(), e);
@@ -94,26 +93,25 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
 
         AbstractPropertyValue abstractPropertyValue = nodeTemplate.getProperties().get(persistentResourceEvent.getPropertyName());
         if (abstractPropertyValue == null || abstractPropertyValue instanceof ScalarPropertyValue) { // the value is set in the topology
-            log.info("Updating application topology: Persistent resource node template <{}.{}> to add a value", topology.getId(),
+            log.info("Updating application topology: Persistent resource node template <{}.{}> to add a value", deploymentTopology.getId(),
                     persistentResourceEvent.getNodeTemplateId());
             log.debug("Value to add: <{}>. New value is <{}>", persistentResourceEvent.getPropertyValue(), volumeIds);
             nodeTemplate.getProperties().put(persistentResourceEvent.getPropertyName(), new ScalarPropertyValue(volumeIds));
-            topologyServiceCore.save(topology);
         } else {
             FunctionPropertyValue function = (FunctionPropertyValue) abstractPropertyValue;
             if (function.getFunction().equals(ToscaFunctionConstants.GET_INPUT)) {
                 // the value is set in the input (deployment setup)
-                DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(applicationEnvironment.getId());
-                DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
                 log.info("Updating deploymentsetup <{}> input properties <{}> to add a new VolumeId", deploymentTopology.getId(), function.getTemplateName());
                 log.debug("VolumeId to add: <{}>. New value is <{}>", persistentResourceEvent.getPropertyValue(), volumeIds);
                 deploymentTopology.getInputProperties().put(function.getTemplateName(), volumeIds);
-                alienDAO.save(deploymentTopology);
             } else {
                 // this is not supported / print a warning
                 log.warn("Failed to store the id of the created block storage <{}> for deployment <{}> application <{}> environment <{}>");
+                return;
             }
         }
+        alienDAO.save(deploymentTopology);
+
     }
 
     private void updateRuntimeTopology(Topology runtimeTopo, PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent, String volumeIds) {

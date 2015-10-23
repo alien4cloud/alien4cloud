@@ -3,6 +3,7 @@ package alien4cloud.orchestrators.services;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -10,6 +11,7 @@ import javax.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
@@ -75,18 +77,12 @@ public class OrchestratorService {
     }
 
     /**
-     * Update the name of an existing orchestrator.
+     * Save the orchestrator but ensure that the name is unique before saving it.
      *
-     * @param id Unique id of the orchestrator.
-     * @param name Name of the orchestrator.
+     * @param orchestrator The orchestrator to save.
      */
-    public void updateName(String id, String name) {
-        Orchestrator orchestrator = getOrFail(id);
-        if (orchestrator.getName().equals(name)) {
-            return;
-        }
-        orchestrator.setName(name);
-        ensureNameUnicityAndSave(orchestrator);
+    private synchronized void ensureNameUnicityAndSave(Orchestrator orchestrator) {
+        ensureNameUnicityAndSave(orchestrator, null);
     }
 
     /**
@@ -94,10 +90,12 @@ public class OrchestratorService {
      *
      * @param orchestrator The orchestrator to save.
      */
-    private synchronized void ensureNameUnicityAndSave(Orchestrator orchestrator) {
-        // check that the cloud doesn't already exists
-        if (alienDAO.count(Orchestrator.class, QueryBuilders.termQuery("name", orchestrator.getName())) > 0) {
-            throw new AlreadyExistException("a cloud with the given name already exists.");
+    public synchronized void ensureNameUnicityAndSave(Orchestrator orchestrator, String oldName) {
+        if (StringUtils.isBlank(oldName) || !Objects.equals(orchestrator.getName(), oldName)) {
+            // check that the cloud doesn't already exists
+            if (alienDAO.count(Orchestrator.class, QueryBuilders.termQuery("name", orchestrator.getName())) > 0) {
+                throw new AlreadyExistException("a cloud with the given name already exists.");
+            }
         }
         alienDAO.save(orchestrator);
     }
@@ -177,7 +175,7 @@ public class OrchestratorService {
 
     /**
      * Get the orchestrator plugin factory for the given orchestrator.
-     * 
+     *
      * @param orchestrator The orchestrator for which to get the orchestrator plugin factory.
      * @return An instance of the orchestrator plugin factory for the given orchestrator.
      */

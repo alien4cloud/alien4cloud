@@ -77,7 +77,7 @@ public class Context {
 
     public static final String HOST = "localhost";
 
-    public static final int PORT = 8088;
+    public static final int PORT = 9999;
 
     public static final String CONTEXT_PATH = "";
 

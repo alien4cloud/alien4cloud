@@ -32,6 +32,7 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.orchestrator.model.CreateOrchestratorRequest;
 import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.utils.ReflectionUtil;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -66,9 +67,13 @@ public class OrchestratorController {
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<Void> update(@ApiParam(value = "Id of the orchestrators to update.", required = true) @PathVariable @Valid @NotEmpty String id,
-            @ApiParam(value = "Orchestrator's new name.", required = true) @Valid @NotEmpty @RequestBody String name) {
-        orchestratorService.updateName(id, name);
+    public RestResponse<Void> update(
+            @ApiParam(value = "Id of the orchestrators to update.", required = true) @PathVariable @Valid @NotEmpty String id,
+            @ApiParam(value = "Orchestrator update request, representing the fields to updates and their new values.", required = true) @Valid @NotEmpty @RequestBody UpdateOrchestratorRequest request) {
+        Orchestrator orchestration = orchestratorService.getOrFail(id);
+        String currentName = orchestration.getName();
+        ReflectionUtil.mergeObject(request, orchestration);
+        orchestratorService.ensureNameUnicityAndSave(orchestration, currentName);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -79,8 +84,7 @@ public class OrchestratorController {
     public RestResponse<Void> delete(@ApiParam(value = "Id of the orchestrators to delete.", required = true) @PathVariable @Valid @NotEmpty String id) {
         Orchestrator orchestrator = orchestratorService.getOrFail(id);
         if (!orchestrator.getState().equals(OrchestratorState.DISABLED)) {
-            return RestResponseBuilder
-                    .<Void> builder()
+            return RestResponseBuilder.<Void> builder()
                     .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_STATE_OPERATION).message("An activated orchestrator can not be deleted").build())
                     .build();
         }
