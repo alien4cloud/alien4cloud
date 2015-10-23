@@ -247,9 +247,9 @@ define(function (require) {
       }
     };
 
-    // Init : by default, don't display abastract components on topology view
-    if (!$scope.globalContext) {
-      $scope.addFilter('abstract', 'F');
-    }
+    //// Init : by default, don't display abastract components on topology view
+    //if (!$scope.globalContext) {
+    //  $scope.addFilter('abstract', 'F');
+    //}
   }]); // controller
 }); // define
