@@ -20,6 +20,7 @@ import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.TopologyCompositionService;
 import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.deployment.exceptions.LocationRequiredException;
 import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
 import alien4cloud.deployment.model.DeploymentConfiguration;
 import alien4cloud.deployment.model.DeploymentSubstitutionConfiguration;
@@ -148,14 +149,26 @@ public class DeploymentTopologyService {
         String id = DeploymentTopology.generateId(environment.getCurrentVersionId(), environment.getId());
         DeploymentTopology deploymentTopology = alienDAO.findById(DeploymentTopology.class, id);
         Topology topology = topologyServiceCore.getOrFail(topologyId);
-        if (deploymentTopology == null) {
+        if (deploymentTopology == null || locationsNoMoreValid(deploymentTopology)) {
             // Generate the deployment topology if none exist
             deploymentTopology = generateDeploymentTopology(id, environment, topology, new DeploymentTopology());
-        } else if (deploymentTopology.getLastInitialTopologyUpdateDate().before(topology.getLastUpdateDate())) {
+        } else {
+            // TODO Mange this in a better way!
             // Re-generate the deployment topology if the initial topology has been changed
             generateDeploymentTopology(id, environment, topology, deploymentTopology);
         }
         return deploymentTopology;
+    }
+
+    private boolean locationsNoMoreValid(DeploymentTopology deploymentTopology) {
+        try {
+            getLocations(deploymentTopology);
+        } catch (NotFoundException e) {
+            return true;
+        } catch (LocationRequiredException e) {
+            return false;
+        }
+        return false;
     }
 
     private DeploymentTopology generateDeploymentTopology(String id, ApplicationEnvironment environment, Topology topology,
