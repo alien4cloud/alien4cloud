@@ -140,10 +140,8 @@ public class LocationResourceService {
                 locationResourceTypes.getNodeTypes().put(exposedType, exposedIndexedNodeType);
                 if (exposedIndexedNodeType.getCapabilities() != null && !exposedIndexedNodeType.getCapabilities().isEmpty()) {
                     for (CapabilityDefinition capabilityDefinition : exposedIndexedNodeType.getCapabilities()) {
-                        locationResourceTypes.getCapabilityTypes().put(
-                                capabilityDefinition.getType(),
-                                csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class, capabilityDefinition.getType(),
-                                        location.getDependencies()));
+                        locationResourceTypes.getCapabilityTypes().put(capabilityDefinition.getType(), csarRepoSearchService
+                                .getRequiredElementInDependencies(IndexedCapabilityType.class, capabilityDefinition.getType(), location.getDependencies()));
                     }
                 }
             }
@@ -240,7 +238,11 @@ public class LocationResourceService {
     }
 
     public LocationResourceTemplate getOrFail(String resourceId) {
-        return alienDAO.findById(LocationResourceTemplate.class, resourceId);
+        LocationResourceTemplate locationResourceTemplate = alienDAO.findById(LocationResourceTemplate.class, resourceId);
+        if (locationResourceTemplate == null) {
+            throw new NotFoundException("Location Resource Template [" + resourceId + "] doesn't exists.");
+        }
+        return locationResourceTemplate;
     }
 
     public void merge(Object mergeRequest, String resourceId) {
