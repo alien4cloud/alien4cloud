@@ -17,7 +17,6 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
-import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.common.collect.Maps;
@@ -40,14 +39,15 @@ import alien4cloud.paas.model.InstanceStatus;
 import alien4cloud.paas.model.NodeOperationExecRequest;
 import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.ToscaUtils;
+import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
 import alien4cloud.tosca.normative.NormativeRelationshipConstants;
 
@@ -419,6 +419,18 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
             };
             doScaledUpNode(scalingVisitor, nodeTemplateId, topology.getNodeTemplates());
         }
+    }
+
+    @Override
+    public void launchWorkflow(PaaSDeploymentContext deploymentContext, final String workflowName, Map<String, Object> inputs, final IPaaSCallback<?> callback) {
+        log.info(String.format("Execution of workflow %s is scheduled", workflowName));
+        executorService.schedule(new Runnable() {
+            @Override
+            public void run() {
+                log.info(String.format("Execution of workflow %s is done", workflowName));
+                callback.onSuccess(null);
+            }
+        }, 5l, TimeUnit.SECONDS);
     }
 
     @Override

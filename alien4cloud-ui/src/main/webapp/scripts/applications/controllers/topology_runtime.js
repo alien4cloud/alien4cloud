@@ -6,6 +6,10 @@ define(function (require) {
   var _ = require('lodash');
   var angular = require('angular');
 
+  require('d3');
+  require('scripts/topology/controllers/topology_editor_workflows');
+  require('scripts/topology/directives/plan_rendering');
+
   states.state('applications.detail.runtime', {
     url: '/runtime',
     templateUrl: 'views/applications/topology_runtime.html',
@@ -24,13 +28,18 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('TopologyRuntimeCtrl',
-    ['$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'orchestratorService', 'appEnvironments', '$interval', 'toscaService', 'topologyJsonProcessor',
-    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServicesFactory, $state, propertiesServices, toaster, orchestratorService, appEnvironments, $interval, toscaService, topologyJsonProcessor) {
+    ['$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'orchestratorService', 'appEnvironments', '$interval', 'toscaService', 'topologyJsonProcessor', 'topoEditWf',
+    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServicesFactory, $state, propertiesServices, toaster, orchestratorService, appEnvironments, $interval, toscaService, topologyJsonProcessor, topoEditWf) {
+
+      topoEditWf($scope);
+
       var pageStateId = $state.current.name;
       var applicationId = $state.params.id;
       var selectedEnvironmentId = $state.params.selectedEnvironmentId;
       $scope.selectedEnvironment = null;
-      
+
+      console.log($state);
+
       var updateSelectedEnvionment = function() {
         $scope.runtimeEnvironments = appEnvironments.deployEnvironments;
         // select current environment
@@ -53,10 +62,10 @@ define(function (require) {
           }
         }
       }
-      
+
       //update the selectedEnvironment
       updateSelectedEnvionment();
-      
+
 
       // get the related cloud to display informations.
       var refreshOrchestratorInfo = function() {
@@ -103,7 +112,7 @@ define(function (require) {
           width: width,
           height: height
         };
-
+        $scope.visualDimensions = $scope.dimensions;
         $scope.eventsDivHeight = resizeServices.getHeight(236);
       }
 
@@ -113,6 +122,7 @@ define(function (require) {
         height: resizeServices.getHeight(124),
         width: resizeServices.getWidth(widthOffset)
       };
+      $scope.visualDimensions = $scope.dimensions;
       $scope.eventsDivHeight = resizeServices.getHeight(236);
       // End Layout resize
 
@@ -264,6 +274,7 @@ define(function (require) {
           applicationEnvironmentId: $scope.selectedEnvironment.id
         }, function(successResult) { // get the topology
           $scope.topology = successResult.data;
+          $scope.workflows.setCurrentWorkflowName('install');
           topologyJsonProcessor.process($scope.topology);
           refreshInstancesStatuses(); // update instance states
           refreshOrchestratorInfo(); // cloud info for deployment view
@@ -427,6 +438,17 @@ define(function (require) {
         }
       };
 
+      $scope.launchWorkflow = function() {
+        $scope.isLaunchingWorkflow = true;
+        applicationServices.launchWorkflow({
+          applicationId: applicationId,
+          applicationEnvironmentId: $scope.selectedEnvironment.id,
+          workflowName: $scope.currentWorkflowName
+        }, undefined, function success() {
+          $scope.isLaunchingWorkflow = false;
+        });
+      };
+
       $scope.filter = null;
 
       /** EXECUTE OPERATIONS */
@@ -566,6 +588,7 @@ define(function (require) {
 
       // first topology load
       $scope.loadTopologyRuntime();
+      $scope.view = 'RENDERED';
     }
   ]);
 });
