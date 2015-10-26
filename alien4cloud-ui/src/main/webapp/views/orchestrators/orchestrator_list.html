@@ -1,0 +1,71 @@
+<div>
+  <div class="row" style="margin-bottom: 10px;">
+    <div class="col-md-9">
+      <button id="new-cloud-button" class="btn btn-success" ng-click="openNewModal()">
+        <i class="fa fa-plus-circle"></i> {{'ORCHESTRATORS.NEW' | translate}}
+      </button>
+    </div>
+    <div class="col-md-3 pull-right">
+      <form role="search" ng-submit="searchService.search()">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="..." ng-model="query"> <span class="input-group-btn">
+            <button type="submit" class="btn btn-default" data-loading-text="Loading...">
+              <i class="fa fa-search"></i>
+            </button>
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="large-data-container">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>{{ 'ORCHESTRATORS.STATE' | translate}}</th>
+              <th>{{ 'ORCHESTRATORS.NAME' | translate}}</th>
+              <th>{{ 'ORCHESTRATORS.PLUGIN' | translate}}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat-start="orchestrator in orchestrators" id='orchestrator_{{orchestrator.id}}' class="clickable" ng-click="openOrchestrator(orchestrator.id)" ng-init="islocationCollapsed = false">
+              <td>
+                <a class="btn btn-default btn-sm" id="show_locations_{{cloud.name}}" ng-click="$event.stopPropagation(); islocationCollapsed = !islocationCollapsed;">
+                  <i class="fa" ng-class="{'fa-chevron-down' : !islocationCollapsed, 'fa-chevron-right': islocationCollapsed}"></i>
+                </a>
+                <i class="fa fa-2x ng-scope" tooltip="{{'ORCHESTRATORS.STATES.' + orchestrator.state}}" ng-class="{
+                  'fa-circle text-success' : orchestrator.state == 'CONNECTED',
+                  'fa-circle text-muted' : orchestrator.state == 'DISABLED',
+                  'fa-question-circle text-danger' : orchestrator.state == 'DISCONNECTED',
+                  'fa-spinner fa-spin' : orchestrator.state == 'CONNECTING'
+                }"></i> {{'ORCHESTRATORS.STATES.' + orchestrator.state | translate }}
+              </td>
+              <td>{{orchestrator.name  || '---' }}</td>
+              <td>{{orchestrator.pluginName || '---' }}</td>
+              <td>
+                <a class="btn btn-success" id="clone_cloud_{{cloud.name}}" ng-click="$event.stopPropagation(); cloneCloud(cloud.id)">
+                  <i class="fa fa-copy" tooltip="{{'CLONE' | translate }}" ></i>
+                </a>
+              </td>
+            </tr>
+            <tr ng-repeat-end ng-repeat="location in orchestrator.locations" id='location_{{orchestrator.id}}_{{location.id}}' ng-click="openLocation(orchestrator.id, location.id)" >
+              <td style="padding: 0px;"></td>
+              <td colspan="3" style="padding: 0px;">
+                <div collapse="islocationCollapsed" style="padding: 8px;">
+                  <i class="fa fa-circle fa-2x" ng-class="{'text-success': orchestrator.enabled,'text-danger': !orchestrator.enabled}"
+                    tooltip="{{'CLOUDS.ENABLED_' + orchestrator.enabled | translate }}"></i>
+                  <i ng-if="!orchestrator.iaaSType" class="fa fa-cloud fa-2x"></i>
+                  <img ng-if="orchestrator.iaaSType" ng-src="images/cloud-{{orchestrator.iaaSType | lowercase}}-small.png" />
+                    {{location.name}}
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <pagination-directive pagination-info="searchService.pagination"/>
+      </div>
+    </div>
+  </div>
+</div>

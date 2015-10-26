@@ -1,6 +1,8 @@
 package alien4cloud.model.components;
 
-import static alien4cloud.dao.model.FetchContext.*;
+import static alien4cloud.dao.model.FetchContext.QUICK_SEARCH;
+import static alien4cloud.dao.model.FetchContext.SUMMARY;
+import static alien4cloud.dao.model.FetchContext.TAG_SUGGESTION;
 
 import java.util.List;
 import java.util.Map;
@@ -36,6 +38,6 @@ public class IndexedInheritableToscaElement extends IndexedToscaElement {
     @ConditionalOnAttribute(ConditionalAttributes.REST)
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
-    @FetchContext(contexts = { COMPONENT_SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
+    @FetchContext(contexts = { SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
     private Map<String, PropertyDefinition> properties;
 }

@@ -3,7 +3,6 @@ package alien4cloud.security;
 import java.util.Map;
 import java.util.Set;
 
-import alien4cloud.security.model.*;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.FilterBuilder;
@@ -18,8 +17,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.Constants;
-import alien4cloud.security.model.Group;
 import alien4cloud.security.groups.IAlienGroupDao;
+import alien4cloud.security.model.ApplicationEnvironmentRole;
+import alien4cloud.security.model.ApplicationRole;
+import alien4cloud.security.model.CloudRole;
+import alien4cloud.security.model.Group;
+import alien4cloud.security.model.Role;
+import alien4cloud.security.model.User;
 
 import com.google.common.collect.Sets;
 
@@ -59,8 +63,8 @@ public final class AuthorizationUtil {
      * @param resource
      * @param expectedRoles
      */
-    public static void checkAuthorizationForCloud(ISecuredResource resource, IResourceRoles... expectedRoles) {
-        if (!hasAuthorizationForCloud(resource, expectedRoles)) {
+    public static void checkAuthorizationForLocation(ISecuredResource resource, IResourceRoles... expectedRoles) {
+        if (!hasAuthorizationForLocation(resource, expectedRoles)) {
             throw new AccessDeniedException("user <" + SecurityContextHolder.getContext().getAuthentication().getName()
                     + "> has no authorization to perform the requested operation on this cloud.");
         }
@@ -68,7 +72,7 @@ public final class AuthorizationUtil {
 
     /**
      * Check that the user has one of the requested rights for the given application environment
-     * 
+     *
      * @param resource
      * @param expectedRoles
      */
@@ -83,7 +87,7 @@ public final class AuthorizationUtil {
         return hasAuthorization(getCurrentUser(), resource, ApplicationRole.APPLICATION_MANAGER, expectedRoles);
     }
 
-    public static boolean hasAuthorizationForCloud(ISecuredResource resource, IResourceRoles... expectedRoles) {
+    public static boolean hasAuthorizationForLocation(ISecuredResource resource, IResourceRoles... expectedRoles) {
         return hasAuthorization(getCurrentUser(), resource, CloudRole.CLOUD_DEPLOYER, expectedRoles);
     }
 
@@ -250,7 +254,7 @@ public final class AuthorizationUtil {
             return false;
         }
         // Check admin role => true when got adminRole
-        if (actualRoles.contains(adminRole.toString())) {
+        if (adminRole != null && actualRoles.contains(adminRole.toString())) {
             return true;
         }
         for (IResourceRoles expectedRole : expectedRoles) {
@@ -300,8 +304,20 @@ public final class AuthorizationUtil {
     }
 
     /**
+     * check if the current user is authorized
+     *
+     * @param resource the resource to check for
+     * @param resourceAdminRole the role which has the god/admin right on the resource
+     * @param expectedRoles the role that the user is expected to have in order to have access to the resources
+     * @return true if user has access, false otherwise
+     */
+    public static boolean hasAuthorization(ISecuredResource resource, IResourceRoles resourceAdminRole, IResourceRoles... expectedRoles) {
+        return hasAuthorization(getCurrentUser(), resource, resourceAdminRole, expectedRoles);
+    }
+
+    /**
      * Recover the alien's default all user group
-     * 
+     *
      * @return
      */
     private static Group getAllUsersGroup() {
@@ -315,7 +331,7 @@ public final class AuthorizationUtil {
 
     /**
      * Create an authentication token from an Alien user
-     * 
+     *
      * @param user the alien user
      * @param password the password
      * @return the authentication token
@@ -343,7 +359,7 @@ public final class AuthorizationUtil {
 
     /**
      * Check if a group has only one specific role on a resource
-     * 
+     *
      * @param groupId
      * @param resource
      * @param role
@@ -357,7 +373,7 @@ public final class AuthorizationUtil {
 
     /**
      * Check if a user has only a specific role on a resource
-     * 
+     *
      * @param user
      * @param resource
      * @param role

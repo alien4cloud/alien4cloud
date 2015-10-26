@@ -102,6 +102,12 @@ public class AuthController {
     }
 
     @ApiIgnore
+    @RequestMapping(value = "/roles/deployer", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<DeployerRole[]> getLocationRoles() {
+        return RestResponseBuilder.<DeployerRole[]> builder().data(DeployerRole.values()).build();
+    }
+
+    @ApiIgnore
     @RequestMapping(value = "/groups/allusers", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Group> getAllUsersGroup() {
         Group group = alienGroupDao.findByName(Constants.GROUP_NAME_ALL_USERS);

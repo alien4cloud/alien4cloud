@@ -44,7 +44,6 @@ public class TopologyWorkflowController {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
 
-
     @RequestMapping(value = "/{topologyId}/workflows", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Set<String>> getWorkflows(@PathVariable String topologyId) {
         return new RestResponse<Set<String>>();
@@ -53,19 +52,19 @@ public class TopologyWorkflowController {
     @RequestMapping(value = "/{topologyId}/workflows", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Workflow> createWorkflow(@PathVariable String topologyId) {
 
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
         Workflow wf = workflowBuilderService.ceateWorkflow(topology);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
     @RequestMapping(value = "/{topologyId}/workflows/{workflowName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> removeWorkflow(@PathVariable String topologyId, @PathVariable String workflowName) {
 
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
@@ -73,14 +72,14 @@ public class TopologyWorkflowController {
         if (wf.isStandard()) {
             throw new RuntimeException("standard wf can not be removed");
         }
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return new RestResponse<Void>();
     }
 
     @RequestMapping(value = "/{topologyId}/workflows/{workflowName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Workflow> renameWorkflow(@PathVariable String topologyId, @PathVariable String workflowName, @RequestParam String newName) {
 
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
@@ -93,19 +92,19 @@ public class TopologyWorkflowController {
         }
         wf.setName(newName);
         topology.getWorkflows().put(newName, wf);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
     @RequestMapping(value = "/{topologyId}/workflows/{workflowName}/init", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Workflow> initWorkflow(@PathVariable String topologyId, @PathVariable String workflowName) {
 
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
         Workflow wf = workflowBuilderService.reinitWorkflow(workflowName, workflowBuilderService.buildTopologyContext(topology));
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
@@ -113,12 +112,12 @@ public class TopologyWorkflowController {
     public RestResponse<Workflow> removeEdge(@PathVariable String topologyId, @PathVariable String workflowName, @PathVariable String from,
             @PathVariable String to) {
 
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
         Workflow wf = workflowBuilderService.removeEdge(topology, workflowName, from, to);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
@@ -126,12 +125,12 @@ public class TopologyWorkflowController {
     public RestResponse<Workflow> connectStepFrom(@PathVariable String topologyId, @PathVariable String workflowName, @PathVariable String stepId,
             @RequestBody String[] stepNames) {
 
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
         Workflow wf = workflowBuilderService.connectStepFrom(topology, workflowName, stepId, stepNames);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
@@ -139,12 +138,12 @@ public class TopologyWorkflowController {
     public RestResponse<Workflow> renameStep(@PathVariable String topologyId, @PathVariable String workflowName, @PathVariable String stepId,
             @RequestParam String newStepName) {
 
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
         Workflow wf = workflowBuilderService.renameStep(topology, workflowName, stepId, newStepName);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
@@ -152,12 +151,12 @@ public class TopologyWorkflowController {
     public RestResponse<Workflow> connectStepTo(@PathVariable String topologyId, @PathVariable String workflowName, @PathVariable String stepId,
             @RequestBody String[] stepNames) {
 
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
         Workflow wf = workflowBuilderService.connectStepTo(topology, workflowName, stepId, stepNames);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
@@ -165,12 +164,12 @@ public class TopologyWorkflowController {
     public RestResponse<Workflow> swap(@PathVariable String topologyId, @PathVariable String workflowName, @PathVariable String stepId,
             @RequestParam String targetId) {
 
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
         Workflow wf = workflowBuilderService.swapSteps(topology, workflowName, stepId, targetId);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
@@ -178,24 +177,24 @@ public class TopologyWorkflowController {
     public RestResponse<Workflow> addActivity(@PathVariable String topologyId, @PathVariable String workflowName,
             @RequestBody TopologyWorkflowAddActivityRequest activityRequest) {
 
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
         Workflow wf = workflowBuilderService.addActivity(topology, workflowName, activityRequest.getRelatedStepId(), activityRequest.isBefore(),
                 activityRequest.getActivity());
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
     @RequestMapping(value = "/{topologyId}/workflows/{workflowName}/steps/{stepId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Workflow> removeStep(@PathVariable String topologyId, @PathVariable String workflowName, @PathVariable String stepId) {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
         Workflow wf = workflowBuilderService.removeStep(topology, workflowName, stepId, false);
-        alienDAO.save(topology);
+        topologyServiceCore.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 

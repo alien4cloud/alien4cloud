@@ -33,13 +33,17 @@ import alien4cloud.it.exception.ITException;
 import alien4cloud.it.provider.util.OpenStackClient;
 import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
 import alien4cloud.json.deserializer.PropertyValueDeserializer;
+import alien4cloud.json.deserializer.TaskDeserializer;
+import alien4cloud.json.deserializer.TaskIndexedInheritableToscaElementDeserializer;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.rest.utils.RestClient;
 import alien4cloud.rest.utils.RestMapper;
+import alien4cloud.topology.task.AbstractTask;
 import alien4cloud.utils.MapUtil;
 
 import com.fasterxml.jackson.core.Version;
@@ -73,7 +77,7 @@ public class Context {
 
     public static final String HOST = "localhost";
 
-    public static final int PORT = 8088;
+    public static final int PORT = 9999;
 
     public static final String CONTEXT_PATH = "";
 
@@ -128,6 +132,13 @@ public class Context {
                 log.error("Unable to initialize test context.");
             }
             JSON_MAPPER.registerModule(module);
+
+            // task deserializers
+            module = new SimpleModule("taskDeser", new Version(1, 0, 0, null, null, null));
+            module.addDeserializer(AbstractTask.class, new TaskDeserializer());
+            module.addDeserializer(IndexedInheritableToscaElement.class, new TaskIndexedInheritableToscaElementDeserializer());
+            JSON_MAPPER.registerModule(module);
+
         }
         return JSON_MAPPER;
     }
@@ -156,11 +167,16 @@ public class Context {
 
     private Map<String, String> csarGitInfos;
 
-    private Map<String, String> cloudInfos;
+    private Map<String, String> orchestratorIds;
+
+    private Map<String, Map<String, String>> orchestratorLocationIds;
+
+    /* orchestratorId -> { locationID -> { resourceName -> resourceId } } */
+    private Map<String, Map<String, Map<String, String>>> orchestratorLocationResourceIds;
 
     private String topologyCloudInfos;
 
-    private Map<String, String> deployApplicationProperties;
+    private Map<String, String> preRegisteredOrchestratorProperties;
 
     private Map<String, MetaPropConfiguration> configurationTags;
 
@@ -450,25 +466,25 @@ public class Context {
         spelEvaluationContext = new StandardEvaluationContext(object);
     }
 
-    public void registerCloud(String cloudId, String cloudName) {
-        if (cloudInfos != null) {
-            cloudInfos.put(cloudName, cloudId);
+    public void registerOrchestrator(String orchestratorId, String orchestratorName) {
+        if (orchestratorIds != null) {
+            orchestratorIds.put(orchestratorName, orchestratorId);
             return;
         }
-        cloudInfos = MapUtil.newHashMap(new String[] { cloudName }, new String[] { cloudId });
+        orchestratorIds = MapUtil.newHashMap(new String[] { orchestratorName }, new String[] { orchestratorId });
     }
 
-    public void unregisterCloud(String cloudName) {
-        cloudInfos.remove(cloudName);
+    public void unregisterOrchestrator(String orchestratorName) {
+        orchestratorIds.remove(orchestratorName);
     }
 
-    public String getCloudId(String cloudName) {
-        return cloudInfos.get(cloudName);
+    public String getOrchestratorId(String orchestratorName) {
+        return orchestratorIds.get(orchestratorName);
     }
 
     public Collection<String> getCloudsIds() {
-        if (cloudInfos != null) {
-            return cloudInfos.values();
+        if (orchestratorIds != null) {
+            return orchestratorIds.values();
         } else {
             return Lists.newArrayList();
         }
@@ -491,17 +507,17 @@ public class Context {
         return topologyCloudInfos;
     }
 
-    public void registerDeployApplicationProperties(Map<String, String> deployApplicationProperties) {
-        this.deployApplicationProperties = deployApplicationProperties;
+    public void registerOrchestratorProperties(Map<String, String> deployApplicationProperties) {
+        this.preRegisteredOrchestratorProperties = deployApplicationProperties;
     }
 
-    public Map<String, String> getDeployApplicationProperties() {
-        return deployApplicationProperties;
+    public Map<String, String> getPreRegisteredOrchestratorProperties() {
+        return preRegisteredOrchestratorProperties;
     }
 
-    public Map<String, String> takeDeployApplicationProperties() {
-        Map<String, String> tmp = deployApplicationProperties;
-        deployApplicationProperties = null;
+    public Map<String, String> takePreRegisteredOrchestratorProperties() {
+        Map<String, String> tmp = preRegisteredOrchestratorProperties;
+        preRegisteredOrchestratorProperties = null;
         return tmp;
     }
 
@@ -608,4 +624,48 @@ public class Context {
     public String getCloudify2ManagerUrl() {
         return "https://" + getManagementServerPublicIp("openstack.cfy2.manager_name") + ":8100";
     }
+
+    @Deprecated
+    public String getCloudId(String appEnvCloudName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public void registerOrchestratorLocation(String orchestratorId, String locationId, String locationName) {
+        if (orchestratorLocationIds == null) {
+            orchestratorLocationIds = Maps.newHashMap();
+        }
+        Map<String, String> locations = orchestratorLocationIds.get(orchestratorId);
+        if (locations == null) {
+            locations = Maps.newHashMap();
+            orchestratorLocationIds.put(orchestratorId, locations);
+        }
+        locations.put(locationName, locationId);
+    }
+
+    public String getLocationId(String orchestratorId, String locationName) {
+        return orchestratorLocationIds.get(orchestratorId).get(locationName);
+    }
+
+    public void registerOrchestratorLocationResource(String orchestratorId, String locationId, String resourceId, String resourceName) {
+        if (orchestratorLocationResourceIds == null) {
+            orchestratorLocationResourceIds = Maps.newHashMap();
+        }
+        Map<String, Map<String, String>> locations = orchestratorLocationResourceIds.get(orchestratorId);
+        if (locations == null) {
+            locations = Maps.newHashMap();
+            orchestratorLocationResourceIds.put(orchestratorId, locations);
+        }
+        Map<String, String> resources = locations.get(locationId);
+        if (resources == null) {
+            resources = Maps.newHashMap();
+            locations.put(locationId, resources);
+        }
+        resources.put(resourceName, resourceId);
+    }
+
+    public String getLocationResourceId(String orchestratorId, String locationId, String resourceName) {
+        return orchestratorLocationResourceIds.get(orchestratorId).get(locationId).get(resourceName);
+    }
+
 }

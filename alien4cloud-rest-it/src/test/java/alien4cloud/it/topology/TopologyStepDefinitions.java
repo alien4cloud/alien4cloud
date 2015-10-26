@@ -1,6 +1,11 @@
 package alien4cloud.it.topology;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -374,8 +379,8 @@ public class TopologyStepDefinitions {
         }
     }
 
-    @When("^I check for the deployable status of the topology$")
-    public void I_check_for_the_deployable_status_of_the_topology() throws Throwable {
+    @When("^I check for the valid status of the topology$")
+    public void I_check_for_the_valid_status_of_the_topology() throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().get(
@@ -383,8 +388,8 @@ public class TopologyStepDefinitions {
                                 + Context.getInstance().getDefaultApplicationEnvironmentId(Context.getInstance().getApplication().getName())));
     }
 
-    @When("^I check for the deployable status of the topology on the default environment$")
-    public void I_check_for_the_deployable_status_of_the_topology_on_the_default_environment() throws Throwable {
+    @When("^I check for the valid status of the topology on the default environment$")
+    public void I_check_for_the_valid_status_of_the_topology_on_the_default_environment() throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().get(
@@ -392,16 +397,16 @@ public class TopologyStepDefinitions {
                                 + Context.getInstance().getDefaultApplicationEnvironmentId(Context.getInstance().getApplication().getName())));
     }
 
-    @Then("^the topology should be deployable$")
-    public void the_topology_should_be_deployable() throws Throwable {
+    @Then("^the topology should be valid$")
+    public void the_topology_should_be_valid() throws Throwable {
         RestResponse<?> restResponse = JsonTestUtil.read(Context.getInstance().getRestResponse());
         assertNotNull(restResponse.getData());
         Map<String, Object> dataMap = JsonTestUtil.toMap(JsonTestUtil.toString(restResponse.getData()));
         assertTrue(Boolean.valueOf(dataMap.get("valid").toString()));
     }
 
-    @Then("^the topology should not be deployable$")
-    public void the_topology_should_not_be_deployable() throws Throwable {
+    @Then("^the topology should not be valid$")
+    public void the_topology_should_not_be_valid() throws Throwable {
         RestResponse<?> restResponse = JsonTestUtil.read(Context.getInstance().getRestResponse());
         assertNotNull(restResponse.getData());
         Map<String, Object> dataMap = JsonTestUtil.toMap(JsonTestUtil.toString(restResponse.getData()));
@@ -583,6 +588,13 @@ public class TopologyStepDefinitions {
             Arrays.sort(requirementsNames);
             assertArrayEquals(expectedNames, requirementsNames);
         }
+    }
+
+    @Given("^I have deleted a node template \"([^\"]*)\" from the topology$")
+    public void I_have_deleted_a_node_template_from_the_topology(String nodeTemplateName) throws Throwable {
+        I_delete_a_node_template_from_the_topology(nodeTemplateName);
+        commonStepDefinitions.I_should_receive_a_RestResponse_with_no_error();
+        The_RestResponse_should_not_contain_a_nodetemplate_named(nodeTemplateName);
     }
 
     private List<RequirementToSatisfy> getRequirementsToSatisfy(String nodeTemplateName, Object taskList) throws IOException {

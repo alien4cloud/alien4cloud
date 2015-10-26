@@ -65,9 +65,7 @@ define(function(require) {
 
         getFormatedCapabilityProperty: function(capability, propertyKey) {
           var scope = this.scope;
-          var formatedProperty = scope.topology.capabilityTypes[capability].propertiesMap[propertyKey].value;
-          formatedProperty.name = propertyKey;
-          return formatedProperty;
+          return scope.topology.capabilityTypes[capability].propertiesMap[propertyKey].value;
         },
 
         getPropertyDescription: function(propertyKey) {

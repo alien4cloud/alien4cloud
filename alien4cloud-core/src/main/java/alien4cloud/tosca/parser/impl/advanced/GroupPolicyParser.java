@@ -1,25 +1,25 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.annotation.Resource;
-
+import alien4cloud.model.topology.AbstractPolicy;
+import alien4cloud.model.topology.GenericPolicy;
+import alien4cloud.model.topology.HaPolicy;
+import alien4cloud.model.topology.LocationPlacementPolicy;
+import alien4cloud.tosca.parser.ParserUtils;
+import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.tosca.parser.impl.base.ScalarParser;
+import alien4cloud.tosca.parser.mapping.DefaultParser;
 import org.elasticsearch.common.collect.Maps;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import alien4cloud.model.topology.AbstractPolicy;
-import alien4cloud.model.topology.GenericPolicy;
-import alien4cloud.model.topology.HaPolicy;
-import alien4cloud.tosca.parser.ParserUtils;
-import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.ParsingError;
-import alien4cloud.tosca.parser.impl.ErrorCode;
-import alien4cloud.tosca.parser.impl.base.ScalarParser;
-import alien4cloud.tosca.parser.mapping.DefaultParser;
+import javax.annotation.Resource;
+import java.util.Map;
+import java.util.Map.Entry;
 
 @Component
 public class GroupPolicyParser extends DefaultParser<AbstractPolicy> {
@@ -30,9 +30,9 @@ public class GroupPolicyParser extends DefaultParser<AbstractPolicy> {
     public static final String NAME = "name";
     public static final String TYPE = "type";
     public static final String VALUE = "value";
-    
-    private static final Map<String,Class<? extends AbstractPolicy>> POLICY_TYPES = Maps.newLinkedHashMap();
-    
+
+    private static final Map<String, Class<? extends AbstractPolicy>> POLICY_TYPES = Maps.newLinkedHashMap();
+
     static {
         POLICY_TYPES.put(HaPolicy.HA_POLICY, HaPolicy.class);
     }
@@ -52,7 +52,7 @@ public class GroupPolicyParser extends DefaultParser<AbstractPolicy> {
             }
             return buildPolicy(nodeMap, node, context);
         }
-        
+
         if (!(node instanceof MappingNode)) {
             // we expect a MappingNode
             context.getParsingErrors().add(new ParsingError(ErrorCode.YAML_MAPPING_NODE_EXPECTED, null, node.getStartMark(), null, node.getEndMark(), null));
@@ -60,9 +60,10 @@ public class GroupPolicyParser extends DefaultParser<AbstractPolicy> {
         }
         Map<String, Object> nodeMap = ParserUtils.parseMap((MappingNode) node);
 
-        String name = (String) nodeMap.get(NAME);
-        String type = (String) nodeMap.get(TYPE);
-        if (nodeMap.size() == 1 && name==null && type==null) {
+        Object nameO = (Object) nodeMap.get(NAME);
+        Object typeO = (Object) nodeMap.get(TYPE);
+
+        if (nodeMap.size() == 1 && nameO == null && typeO == null) {
             // short notation '<key>: <value>' where (in priority order) 
             // - <value> is a map and <key> matches a known pre-defined type, then <value> is a map of data passed to the type
             // - <value> matches a known pre-defined type, then <key> is taken as a name
@@ -72,7 +73,7 @@ public class GroupPolicyParser extends DefaultParser<AbstractPolicy> {
             nodeMap.clear();
             if (e.getValue() instanceof Map) {
                 @SuppressWarnings("unchecked")
-                Map<String, Object> v = (Map<String,Object>)e.getValue();
+                Map<String, Object> v = (Map<String, Object>) e.getValue();
                 nodeMap.putAll(v);
                 if (POLICY_TYPES.containsKey(e.getKey())) {
                     nodeMap.put(TYPE, e.getKey());
@@ -88,6 +89,17 @@ public class GroupPolicyParser extends DefaultParser<AbstractPolicy> {
                     nodeMap.put(VALUE, e.getValue().toString());
                 }
             }
+        } else {
+            if (!(nameO instanceof String)) {
+                context.getParsingErrors()
+                        .add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.SYNTAX_ERROR, null, node.getStartMark(), null, node.getEndMark(), nameO.toString()));
+                return null;
+            }
+            if (!(typeO instanceof String)) {
+                context.getParsingErrors()
+                        .add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.SYNTAX_ERROR, null, node.getStartMark(), null, node.getEndMark(), nameO.toString()));
+                return null;
+            }
         }
 
         return buildPolicy(nodeMap, node, context);
@@ -96,14 +108,27 @@ public class GroupPolicyParser extends DefaultParser<AbstractPolicy> {
     private AbstractPolicy buildPolicy(Map<String, Object> nodeMap, Node node, ParsingContextExecution context) {
         String type = (String) nodeMap.get(TYPE);
         AbstractPolicy result = null;
-        if (type!=null) {
+
+        if (type != null) {
             switch (type) {
-            case HaPolicy.HA_POLICY:
-                result = new HaPolicy(nodeMap);
-                break;
+                case HaPolicy.HA_POLICY:
+
+
+                    result = new HaPolicy(nodeMap);
+                    break;
+                case LocationPlacementPolicy.LOCATION_PLACEMENT_POLICY:
+                    Object locationO = nodeMap.get(LocationPlacementPolicy.LOCATION_ID_PROPERTY);
+                    if (locationO instanceof String) {
+                        result = new LocationPlacementPolicy();
+                    } else {
+                        context.getParsingErrors()
+                                .add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.SYNTAX_ERROR, null, node.getStartMark(), "Location id should be a string.", node.getEndMark(), locationO.toString()));
+                        return null;
+                    }
+                    break;
             }
         }
-        if (result==null) {
+        if (result == null) {
             result = new GenericPolicy(nodeMap);
         }
         return result;

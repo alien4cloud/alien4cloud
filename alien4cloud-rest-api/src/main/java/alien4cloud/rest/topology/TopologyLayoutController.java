@@ -36,7 +36,7 @@ public class TopologyLayoutController {
      * @return A rest response that contains the topology layout.
      */
     public RestResponse<TopologyLayout> get(@PathVariable String topologyId) {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService
                 .checkAuthorizations(topology, ApplicationRole.APPLICATION_USER, ApplicationRole.APPLICATION_DEVOPS, ApplicationRole.APPLICATION_MANAGER);
         TopologyLayout layout = alienDAO.findById(TopologyLayout.class, topologyId);
@@ -53,7 +53,7 @@ public class TopologyLayoutController {
      */
     @RequestMapping(value = "/{nodeName}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> setNodeLocation(@PathVariable String topologyId, @PathVariable String nodeName, @RequestBody Point point) {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         TopologyLayout layout = alienDAO.findById(TopologyLayout.class, topologyId);
         layout.getNodeLocations().put(nodeName, point);

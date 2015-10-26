@@ -7,15 +7,16 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
 
-import alien4cloud.cloud.CloudService;
-import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.deployment.DeploymentRuntimeStateService;
+import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
@@ -24,7 +25,7 @@ import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IPaaSCallback;
-import alien4cloud.paas.exception.CloudDisabledException;
+import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
@@ -39,23 +40,18 @@ import com.google.common.util.concurrent.SettableFuture;
 @Slf4j
 @Service
 public class ApplicationEnvironmentService {
-
     private final static String DEFAULT_ENVIRONMENT_NAME = "Environment";
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
-    @Resource
-    private DeploymentSetupService deploymentSetupService;
-    @Resource
-    private DeploymentService deploymentService;
-    @Resource
-    private ApplicationEnvironmentService applicationEnvironmentService;
-    @Resource
+    @Inject
     private ApplicationService applicationService;
-    @Resource
+    @Inject
     private ApplicationVersionService applicationVersionService;
-    @Resource
-    private CloudService cloudService;
+    @Inject
+    private DeploymentRuntimeStateService deploymentRuntimeStateService;
+    @Inject
+    private DeploymentTopologyService deploymentTopologyService;
 
     /**
      * Method used to create a default environment
@@ -124,8 +120,8 @@ public class ApplicationEnvironmentService {
      * @param id The id of the version to delete.
      */
     public boolean delete(String id) {
-        deploymentSetupService.deleteByEnvironmentId(id);
         // TODO : do not delete if it's last environment
+        deploymentTopologyService.deleteByEnvironmentId(id);
         alienDAO.delete(ApplicationEnvironment.class, id);
         return true;
     }
@@ -134,9 +130,9 @@ public class ApplicationEnvironmentService {
      * Delete all environments related to an application
      *
      * @param applicationId The application id
-     * @throws CloudDisabledException
+     * @throws alien4cloud.paas.exception.OrchestratorDisabledException
      */
-    public void deleteByApplication(String applicationId) throws CloudDisabledException {
+    public void deleteByApplication(String applicationId) throws OrchestratorDisabledException {
         List<String> deployedEnvironments = Lists.newArrayList();
         ApplicationEnvironment[] environments = getByApplicationId(applicationId);
         for (ApplicationEnvironment environment : environments) {
@@ -161,11 +157,8 @@ public class ApplicationEnvironmentService {
      * @return The deployment associated with the environment.
      */
     public Deployment getActiveDeployment(String appEnvironmentId) {
-        GetMultipleDataResult<Deployment> dataResult = alienDAO.search(
-                Deployment.class,
-                null,
-                MapUtil.newHashMap(new String[] { "deploymentSetup.environmentId", "endDate" }, new String[][] { new String[] { appEnvironmentId },
-                        new String[] { null } }), 1);
+        GetMultipleDataResult<Deployment> dataResult = alienDAO.search(Deployment.class, null, MapUtil.newHashMap(
+                new String[] { "environmentId", "endDate" }, new String[][] { new String[] { appEnvironmentId }, new String[] { null } }), 1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             return dataResult.getData()[0];
         }
@@ -222,7 +215,7 @@ public class ApplicationEnvironmentService {
      * @return the corresponding application environment
      */
     public ApplicationEnvironment checkAndGetApplicationEnvironment(String applicationEnvironmentId, ApplicationRole... roles) {
-        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
+        ApplicationEnvironment applicationEnvironment = getOrFail(applicationEnvironmentId);
         Application application = applicationService.checkAndGetApplication(applicationEnvironment.getApplicationId());
         roles = (roles == null || roles.length == 0) ? ApplicationRole.values() : roles;
         // check rights on the application linked to this application environment
@@ -235,7 +228,7 @@ public class ApplicationEnvironmentService {
      * 
      * @param environment to determine the status
      * @return {@link DeploymentStatus}
-     * @throws CloudDisabledException
+     * @throws alien4cloud.paas.exception.OrchestratorDisabledException
      */
     public DeploymentStatus getStatus(ApplicationEnvironment environment) throws Exception {
         final Deployment deployment = getActiveDeployment(environment.getId());
@@ -244,7 +237,7 @@ public class ApplicationEnvironmentService {
         }
         final SettableFuture<DeploymentStatus> statusSettableFuture = SettableFuture.create();
         // update the deployment status from PaaS if it cannot be found.
-        deploymentService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
+        deploymentRuntimeStateService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
             @Override
             public void onSuccess(DeploymentStatus data) {
                 statusSettableFuture.set(data);
@@ -285,10 +278,10 @@ public class ApplicationEnvironmentService {
     public ApplicationEnvironment getEnvironmentByIdOrDefault(String applicationId, String applicationEnvironmentId) {
         ApplicationEnvironment environment = null;
         if (applicationEnvironmentId == null) {
-            ApplicationEnvironment[] applicationEnvironments = applicationEnvironmentService.getByApplicationId(applicationId);
+            ApplicationEnvironment[] applicationEnvironments = getByApplicationId(applicationId);
             environment = applicationEnvironments[0];
         } else {
-            environment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
+            environment = getOrFail(applicationEnvironmentId);
         }
         return environment;
     }

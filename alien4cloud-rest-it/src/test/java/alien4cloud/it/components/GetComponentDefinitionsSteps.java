@@ -32,7 +32,7 @@ import cucumber.api.java.en.When;
 
 public class GetComponentDefinitionsSteps {
 
-    private final ObjectMapper jsonMapper = new ElasticSearchMapper();
+    private final ObjectMapper jsonMapper = ElasticSearchMapper.getInstance();
     private final Client esClient = Context.getEsClientInstance();
 
     @Given("^I have a component with uuid \"([^\"]*)\"$")

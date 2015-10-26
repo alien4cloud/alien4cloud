@@ -1,5 +1,6 @@
 package alien4cloud.topology.validation;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -192,6 +193,9 @@ public class NodeFilterValidationService {
 
             Map<String, List<NodeFilterConstraintViolation>> violations = validatePropertyFilters(filterDefinitionEntry.getValue().getProperties(), target
                     .getCapabilities().get(definition.getId()).getProperties(), capabilityType.getProperties());
+            if (nodeFilterToSatisfy.getViolatedConstraints() == null) {
+                nodeFilterToSatisfy.setViolatedConstraints(new HashMap<String, List<NodeFilterConstraintViolation>>());
+            }
             nodeFilterToSatisfy.getViolatedConstraints().putAll(violations);
         }
     }

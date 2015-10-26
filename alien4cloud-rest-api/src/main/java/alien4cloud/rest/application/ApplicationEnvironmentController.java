@@ -23,14 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
-import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.cloud.CloudService;
-import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.ApplicationVersionNotFoundException;
 import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
@@ -38,23 +34,20 @@ import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.model.application.DeploymentSetupMatchInfo;
-import alien4cloud.model.cloud.Cloud;
-import alien4cloud.paas.exception.CloudDisabledException;
+import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.rest.application.model.ApplicationEnvironmentDTO;
+import alien4cloud.rest.application.model.ApplicationEnvironmentRequest;
+import alien4cloud.rest.application.model.UpdateApplicationEnvironmentRequest;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.ResourceRoleService;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.security.model.CloudRole;
 import alien4cloud.security.model.Role;
-import alien4cloud.security.users.UserService;
-import alien4cloud.topology.TopologyService;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
 
@@ -73,21 +66,9 @@ public class ApplicationEnvironmentController {
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Resource
-    private CloudService cloudService;
-    @Resource
     private ApplicationService applicationService;
     @Resource
-    private ResourceRoleService resourceRoleService;
-    @Resource
     private ApplicationVersionService applicationVersionService;
-    @Resource
-    private DeploymentService deploymentService;
-    @Resource
-    private DeploymentSetupService deploymentSetupService;
-    @Resource
-    private UserService userService;
-    @Resource
-    private TopologyService topologyService;
 
     /**
      * Search for application environment for a given application id
@@ -177,7 +158,8 @@ public class ApplicationEnvironmentController {
     @ResponseStatus(value = HttpStatus.CREATED)
     @PreAuthorize("isAuthenticated()")
     @Audit
-    public RestResponse<String> create(@PathVariable String applicationId, @RequestBody ApplicationEnvironmentRequest request) throws CloudDisabledException {
+    public RestResponse<String> create(@PathVariable String applicationId, @RequestBody ApplicationEnvironmentRequest request)
+            throws OrchestratorDisabledException {
         // User should be APPLICATIONS_MANAGER to create an application
         AuthorizationUtil.checkHasOneRoleIn(Role.APPLICATIONS_MANAGER);
         Application application = applicationService.getOrFail(applicationId);
@@ -187,20 +169,6 @@ public class ApplicationEnvironmentController {
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         ApplicationEnvironment appEnvironment = applicationEnvironmentService.createApplicationEnvironment(auth.getName(), applicationId, request.getName(),
                 request.getDescription(), request.getEnvironmentType(), request.getVersionId());
-
-        if (request.getCloudId() != null) {
-            Cloud cloud = cloudService.getMandatoryCloud(request.getCloudId());
-            AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.values());
-            appEnvironment.setCloudId(request.getCloudId());
-            alienDAO.save(appEnvironment);
-            try {
-                DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.getDeploymentSetupMatchInfo(applicationId, appEnvironment.getId());
-                deploymentSetupService.generatePropertyDefinition(deploymentSetupMatchInfo, cloud);
-                alienDAO.save(deploymentSetupMatchInfo.getDeploymentSetup());
-            } catch (AlreadyExistException e) {
-                log.error("DeploymentSetup already exists");
-            }
-        }
 
         alienDAO.save(appEnvironment);
         return RestResponseBuilder.<String> builder().data(appEnvironment.getId()).build();
@@ -218,47 +186,16 @@ public class ApplicationEnvironmentController {
     @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Void> update(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
-            @RequestBody UpdateApplicationEnvironmentRequest request) throws CloudDisabledException {
+            @RequestBody UpdateApplicationEnvironmentRequest request) throws OrchestratorDisabledException {
 
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
-        // Deployment manager can update a environment
-        if (request.getCloudId() != null
-                && !AuthorizationUtil.hasAuthorizationForEnvironment(applicationEnvironment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER)) {
-            // Only APPLICATION_MANAGER on the underlying application can update an application environment
-            Application application = applicationService.getOrFail(applicationId);
-            AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        }
+        // Only APPLICATION_MANAGER on the underlying application can update an application environment
+        Application application = applicationService.getOrFail(applicationId);
+        AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
 
         if (applicationEnvironment == null) {
-            return RestResponseBuilder
-                    .<Void> builder()
-                    .data(null)
-                    .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
-                            .message("Application environment with id <" + applicationEnvironmentId + "> does not exist").build()).build();
-        }
-
-        // prevent cloud id update when the environment is deployed
-        if (request.getCloudId() != null && applicationEnvironmentService.isDeployed(applicationEnvironmentId)) {
-            return RestResponseBuilder
-                    .<Void> builder()
-                    .data(null)
-                    .error(RestErrorBuilder
-                            .builder(RestErrorCode.CANNOT_UPDATE_DEPLOYED_ENVIRONMENT)
-                            .message(
-                                    "Application environment with id <" + applicationEnvironmentId + "> is currently deployed on cloud <"
-                                            + request.getCloudId() + ">. Cloud update is not possible.").build()).build();
-
-        }
-
-        if (request.getCloudId() != null) {
-            // Check Cloud rights
-            Cloud cloud = cloudService.getMandatoryCloud(request.getCloudId());
-            AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.values());
-
-            // Update the linked deployment setup
-            DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.getDeploymentSetupMatchInfo(applicationId, applicationEnvironmentId);
-            deploymentSetupService.generatePropertyDefinition(deploymentSetupMatchInfo, cloud);
-            alienDAO.save(deploymentSetupMatchInfo.getDeploymentSetup());
+            return RestResponseBuilder.<Void> builder().data(null).error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
+                    .message("Application environment with id <" + applicationEnvironmentId + "> does not exist").build()).build();
         }
 
         applicationEnvironmentService.ensureNameUnicity(applicationEnvironment.getApplicationId(), request.getName());
@@ -281,7 +218,6 @@ public class ApplicationEnvironmentController {
     @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Boolean> delete(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
-
         // Only APPLICATION_MANAGER on the underlying application can delete an application environment
         applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId, ApplicationRole.APPLICATION_MANAGER);
 
@@ -316,140 +252,6 @@ public class ApplicationEnvironmentController {
     }
 
     /**
-     * Add a role to a user on a specific application environment
-     *
-     * @param applicationEnvironmentId application environment id
-     * @param username user for who to add role
-     * @param role the application role to add to this user
-     * @return A {@link Void} {@link RestResponse}.
-     */
-    @ApiOperation(value = "Add a role to a user on a specific application environment", notes = "Any user with application role APPLICATION_MANAGER can assign any role to another user. Application role required [ APPLICATION_MANAGER ]")
-    @RequestMapping(value = "/{applicationEnvironmentId:.+}/userRoles/{username}/{role}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    @Audit
-    public RestResponse<Void> addUserRole(@PathVariable String applicationEnvironmentId, @PathVariable String username, @PathVariable String role) {
-        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
-                ApplicationRole.APPLICATION_MANAGER);
-        resourceRoleService.addUserRole(applicationEnvironment, username, role);
-        handleAddUserRoleOnApplication(applicationEnvironment.getApplicationId(), username);
-        return RestResponseBuilder.<Void> builder().build();
-    }
-
-    /**
-     * Add a role to a group on a specific application environment
-     *
-     * @param applicationEnvironmentId application environment id
-     * @param groupId The id of the group to update roles
-     * @param role The role to add to the group on the application environment from {@link ApplicationEnvironmentRole}
-     * @return A {@link Void} {@link RestResponse}.
-     */
-    @ApiOperation(value = "Add a role to a group on a specific application environment", notes = "Any user with application role APPLICATION_MANAGER can assign any role to a group of users. Application role required [ APPLICATION_MANAGER ]")
-    @RequestMapping(value = "/{applicationEnvironmentId:.+}/groupRoles/{groupId}/{role}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    @Audit
-    public RestResponse<Void> addGroupRole(@PathVariable String applicationEnvironmentId, @PathVariable String groupId, @PathVariable String role) {
-        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
-                ApplicationRole.APPLICATION_MANAGER);
-        resourceRoleService.addGroupRole(applicationEnvironment, groupId, role);
-        handleAddGrpRoleOnApplication(applicationEnvironment.getApplicationId(), groupId);
-        return RestResponseBuilder.<Void> builder().build();
-    }
-
-    /**
-     * Remove a role from a user on a specific application environment
-     *
-     * @param applicationEnvironmentId application environment id
-     * @param username The username of the user to update roles
-     * @param role The role to add to the user on the application environment
-     * @return A {@link Void} {@link RestResponse}
-     */
-    @ApiOperation(value = "Remove a role to a user on a specific application environment", notes = "Any user with application role APPLICATION_MANAGER can unassign any role to another user. Application role required [ APPLICATION_MANAGER ]")
-    @RequestMapping(value = "/{applicationEnvironmentId:.+}/userRoles/{username}/{role}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    @Audit
-    public RestResponse<Void> removeUserRole(@PathVariable String applicationEnvironmentId, @PathVariable String username, @PathVariable String role) {
-        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
-                ApplicationRole.APPLICATION_MANAGER);
-        resourceRoleService.removeUserRole(applicationEnvironment, username, role);
-        handleRemoveUserRoleOnApplication(applicationEnvironment.getApplicationId(), username);
-        return RestResponseBuilder.<Void> builder().build();
-    }
-
-    /**
-     * Remove a role from a group on a specific application environment
-     *
-     * @param applicationEnvironmentId application environment id
-     * @param groupId The id of the group to update roles
-     * @param role The role to add to the user on the application environment
-     * @return A {@link Void} {@link RestResponse}.
-     */
-    @ApiOperation(value = "Remove a role of a group on a specific application environment", notes = "Any user with application role APPLICATION_MANAGER can un-assign any role to a group. Application role required [ APPLICATION_MANAGER ]")
-    @RequestMapping(value = "/{applicationEnvironmentId:.+}/groupRoles/{groupId}/{role}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    @Audit
-    public RestResponse<Void> removeGroupRole(@PathVariable String applicationEnvironmentId, @PathVariable String groupId, @PathVariable String role) {
-        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
-                ApplicationRole.APPLICATION_MANAGER);
-        resourceRoleService.removeGroupRole(applicationEnvironment, groupId, role);
-        handleRemoveGrpRoleOnApplication(applicationEnvironment.getApplicationId(), groupId);
-        return RestResponseBuilder.<Void> builder().build();
-    }
-
-    /**
-     * Handle user roles on the targeted application
-     * Any role on an environment implies APPLICATION_USER role on the linked application
-     * 
-     * @param applicationId
-     * @param username
-     */
-    private void handleAddUserRoleOnApplication(String applicationId, String username) {
-        Application application = applicationService.getOrFail(applicationId);
-        resourceRoleService.addUserRole(application, username, ApplicationRole.APPLICATION_USER.toString());
-    }
-
-    /**
-     * Handle remove roles on the targeted application
-     * 
-     * @param applicationId
-     * @param username
-     */
-    private void handleRemoveUserRoleOnApplication(String applicationId, String username) {
-        Application application = applicationService.getOrFail(applicationId);
-        boolean isApplicationUserOnly = AuthorizationUtil.hasUniqueUserRoleOnResource(userService.retrieveUser(username), application,
-                ApplicationRole.APPLICATION_USER);
-        // check this condition > remove the role only if it is not the only role
-        if (!isApplicationUserOnly) {
-            resourceRoleService.removeUserRole(application, username, ApplicationRole.APPLICATION_USER.toString());
-        }
-    }
-
-    /**
-     * Handle group roles on the targeted application
-     * Any role on an environment implies APPLICATION_USER role on the linked application
-     * 
-     * @param applicationId
-     * @param groupId
-     */
-    private void handleAddGrpRoleOnApplication(String applicationId, String groupId) {
-        Application application = applicationService.getOrFail(applicationId);
-        resourceRoleService.addGroupRole(application, groupId, ApplicationRole.APPLICATION_USER.toString());
-    }
-
-    /**
-     * Handle group roles on the targeted application
-     * 
-     * @param applicationId
-     * @param groupId
-     */
-    private void handleRemoveGrpRoleOnApplication(String applicationId, String groupId) {
-        Application application = applicationService.getOrFail(applicationId);
-        boolean isApplicationGroupOnly = AuthorizationUtil.hasUniqueGroupRoleOnResource(groupId, application, ApplicationRole.APPLICATION_USER);
-        if (!isApplicationGroupOnly) {
-            resourceRoleService.removeGroupRole(application, groupId, ApplicationRole.APPLICATION_USER.toString());
-        }
-    }
-
-    /**
      * Get a list a application environment DTO
      *
      * @param applicationEnvironments
@@ -467,19 +269,13 @@ public class ApplicationEnvironmentController {
             tempEnvDTO.setName(env.getName());
             tempEnvDTO.setUserRoles(env.getUserRoles());
             tempEnvDTO.setGroupRoles(env.getGroupRoles());
-            if (env.getCloudId() != null) {
-                tempEnvDTO.setCloudName(cloudService.get(env.getCloudId()).getName());
-            } else {
-                tempEnvDTO.setCloudName(null);
-            }
-            tempEnvDTO.setCloudId(env.getCloudId());
             ApplicationVersion applicationVersion = applicationVersionService.get(env.getCurrentVersionId());
             tempEnvDTO.setCurrentVersionName(applicationVersion != null ? applicationVersion.getVersion() : null);
             try {
                 tempEnvDTO.setStatus(applicationEnvironmentService.getStatus(env));
             } catch (Exception e) {
-                log.debug("Getting status for the environment <" + env.getId() + "> failed because the associated cloud <" + env.getCloudId()
-                        + "> seems disabled. Returned status is UNKNOWN.", e);
+                log.debug("Getting status for the environment <" + env.getId()
+                        + "> failed because the associated orchestrator cannot be reached. Returned status is UNKNOWN.", e);
                 tempEnvDTO.setStatus(DeploymentStatus.UNKNOWN);
             }
             listApplicationEnvironmentsDTO.add(tempEnvDTO);
@@ -493,8 +289,8 @@ public class ApplicationEnvironmentController {
     public RestResponse<String> getTopologyId(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
-        ApplicationEnvironment environment = applicationEnvironmentService
-                .checkAndGetApplicationEnvironment(applicationEnvironmentId, ApplicationRole.values());
+        ApplicationEnvironment environment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
+                ApplicationRole.values());
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.values())) {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }

@@ -1,0 +1,106 @@
+<div>
+  <!-- Input properties  -->
+  <div class="row" style="margin-top: 20px;" ng-if="isAllowedInputDeployment()">
+    <div class="col-md-12">
+      <h3 ng-click="isInputPropertiesCollapsed = !isInputPropertiesCollapsed" class="clickable">
+        <i class="fa fa-sign-in"> </i>
+        <span>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}</span>
+        <i class="fa" ng-class="{'fa-chevron-down' : !isInputPropertiesCollapsed, 'fa-chevron-right': isInputPropertiesCollapsed}"></i>
+      </h3>
+
+      <div collapse="isInputPropertiesCollapsed" class="topology-level">
+        <table class="table table-condensed" id="inputsTable">
+          <tr ng-repeat="(inputId, inputDefinition) in deploymentContext.deploymentTopologyDTO.topology.inputs | allowedInputs">
+            <td 
+              ng-class="{'bg-danger': inputDefinition.required && !deploymentContext.deploymentTopologyDTO.topology.inputProperties[inputId]}">
+              <property-display definition="inputDefinition"
+                                property-name="inputId"
+                                property-value="deploymentContext.deploymentTopologyDTO.topology.inputProperties[inputId]"
+                                on-save="updateInputValue(propertyDefinition, propertyValue, inputId)"
+                                editable="deploymentContext.selectedEnvironment.status === 'UNDEPLOYED'"
+                                condensed="true">
+              </property-display>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input artifacts  -->
+  <div class="row" style="margin-top: 20px;" ng-if="deploymentContext.deploymentTopologyDTO.topology.inputArtifacts">
+    <div class="col-md-6">
+      <hr class="separator-h">
+      <h3 ng-click="isInputArtifactsCollapsed = !isInputArtifactsCollapsed" class="clickable">
+        <i class="fa fa-archive"> </i>
+        <span>{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.INPUTS' | translate}}</span>
+        <i class="fa" ng-class="{'fa-chevron-down' : !isInputArtifactsCollapsed, 'fa-chevron-right': isInputArtifactsCollapsed}"></i>
+      </h3>
+
+      <div collapse="isInputArtifactsCollapsed" class="topology-level">
+        <ul>
+          <li ng-repeat="(artifactKey,artifactValue) in deploymentContext.deploymentTopologyDTO.topology.inputArtifacts">
+            {{artifactKey}}
+            <div class="topology-level" collapse="isArtifactCollapsed">
+              <div class="row">
+                <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</div>
+                <div class="col-md-9">{{artifactValue.artifactType}}</div>
+              </div>
+              <div class="row">
+                <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.REFERENCE' | translate}}</div>
+                <div class="col-md-9">
+                  <div ng-if="!uploads[artifactKey].isUploading">
+                  <span tooltip="{{artifactValue.artifactName}}"
+                        tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[artifactValue.artifactName.length > 20]}}">{{artifactValue.artifactName | truncate:20}}</span>
+
+                    <div class="fileUploadImg btn" tooltip="{{'APPLICATIONS.TOPOLOGY.UPDATE_ARTIFACT' | translate}}">
+                    <span>
+                      <i class="fa fa-upload text-primary"></i>
+                    </span>
+                      <input type="file" class="upload" ng-file-select="onArtifactSelected($files, artifactKey, inputArtifactValue)">
+                    </div>
+                  </div>
+                  <progressbar ng-if="uploads[artifactKey].isUploading" class="progress-striped active" value="uploads[artifactKey].uploadProgress"
+                               type="{{uploads[artifactKey].type}}" />
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    
+    
+  </div>
+
+  <!-- Provider deployment properties -->
+  <div ng-if="deploymentContext.orchestratorDeploymentPropertyDefinitions" class="row" style="margin-top: 20px;">
+    <div class="col-md-12">
+      <hr class="separator-h">
+      <h3 ng-click="isOrchestratorDeploymentPropertiesCollapsed = !isOrchestratorDeploymentPropertiesCollapsed" class="clickable">
+        <i class="fa fa-cog"> </i>
+        <span>{{'APPLICATIONS.TOPOLOGY.ORCHESTRATOR_PROPERTIES' | translate}}</span>
+        <i class="fa"
+           ng-class="{'fa-chevron-down' : !isOrchestratorDeploymentPropertiesCollapsed, 'fa-chevron-right': isOrchestratorDeploymentPropertiesCollapsed}"></i>
+      </h3>
+
+      <div collapse="isOrchestratorDeploymentPropertiesCollapsed" class="topology-level">
+        <table class="table table-condensed" id="nodeTemplateProperties" style="margin-left:10px;">
+          <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentContext.orchestratorDeploymentPropertyDefinitions">
+            <td id="p_deployment_{{propertyKey}}"
+              ng-class="{'bg-danger': propertyDefinition.required && !deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyKey]}">
+              <property-display ng-init="condensed = true"
+                                definition="propertyDefinition"
+                                property-name="propertyKey"
+                                property-value="deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyKey]"
+                                on-save="updateDeploymentProperty(propertyDefinition, propertyKey, propertyValue)"
+                                editable="deploymentContext.selectedEnvironment.status === 'UNDEPLOYED'"
+                                condensed="condensed">
+              </property-display>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -29,7 +29,7 @@ import alien4cloud.utils.version.InvalidVersionException;
 
 /**
  * Common property constraint utils
- * 
+ *
  * @author mourouvi
  *
  */
@@ -56,13 +56,14 @@ public class ConstraintPropertyService {
 
     /**
      * Check constraints defined on a property for a specified value
-     * 
+     *
      * @param propertyName Property name (mainly used to create a comprehensive error message)
      * @param stringValue Tested property value
      * @param propertyDefinition Full property definition with type, constraints, default value,...
      * @throws ConstraintViolationException
      * @throws ConstraintValueDoNotMatchPropertyTypeException
      */
+    // FIXME check type first, and constraint after
     public void checkSimplePropertyConstraint(final String propertyName, final String stringValue, final PropertyDefinition propertyDefinition)
             throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         ConstraintInformation consInformation = null;
@@ -79,8 +80,7 @@ public class ConstraintPropertyService {
                 } catch (IntrospectionException e) {
                     // ConstraintValueDoNotMatchPropertyTypeException is not supposed to be raised here (only in constraint definition validation)
                     log.error("Constraint introspection error for property <" + propertyName + "> value <" + stringValue + ">", e);
-                    throw new ConstraintTechnicalException("Constraint introspection error for property <" + propertyName + "> value <"
-                            + stringValue + ">", e);
+                    throw new ConstraintTechnicalException("Constraint introspection error for property <" + propertyName + "> value <" + stringValue + ">", e);
                 }
             }
         } else {
@@ -98,6 +98,10 @@ public class ConstraintPropertyService {
     public void checkDataTypePropertyConstraint(String propertyName, Map<String, Object> complexPropertyValue, PropertyDefinition propertyDefinition,
             ArchiveRoot archive) throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         IndexedDataType dataType = ToscaParsingUtil.getDataTypeFromArchiveOrDependencies(propertyDefinition.getType(), archive, searchService);
+        if (dataType == null) {
+            throw new ConstraintViolationException("Complex type " + propertyDefinition.getType()
+                    + " is not complex or it cannot be found in the archive nor in Alien");
+        }
         for (Map.Entry<String, Object> complexPropertyValueEntry : complexPropertyValue.entrySet()) {
             if (dataType.getProperties() == null || !dataType.getProperties().containsKey(complexPropertyValueEntry.getKey())) {
                 throw new ConstraintViolationException("Complex type " + propertyDefinition.getType() + " do not have nested property with name "
@@ -110,8 +114,8 @@ public class ConstraintPropertyService {
         }
     }
 
-    public void checkListPropertyConstraint(String propertyName, List<Object> listPropertyValue, PropertyDefinition propertyDefinition,
-            ArchiveRoot archive) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+    public void checkListPropertyConstraint(String propertyName, List<Object> listPropertyValue, PropertyDefinition propertyDefinition, ArchiveRoot archive)
+            throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         PropertyDefinition entrySchema = propertyDefinition.getEntrySchema();
         for (int i = 0; i < listPropertyValue.size(); i++) {
             checkPropertyConstraint(propertyName + "[" + String.valueOf(i) + "]", listPropertyValue.get(i), entrySchema, archive);
@@ -128,7 +132,7 @@ public class ConstraintPropertyService {
 
     /**
      * Verify that a complex property value correspond to its definition of constraints
-     * 
+     *
      * @param propertyName name of the property
      * @param complexPropertyValue the value
      * @param propertyDefinition the definition
@@ -147,7 +151,7 @@ public class ConstraintPropertyService {
 
     /**
      * Test type/value regardless constraints
-     * 
+     *
      * @param propertyDefinition
      * @param propertyValue
      * @throws Exception
@@ -178,5 +182,4 @@ public class ConstraintPropertyService {
             throw new InvalidVersionException(propertyName + "'s value is not a version [ " + propertyValue + " ]");
         }
     }
-
 }

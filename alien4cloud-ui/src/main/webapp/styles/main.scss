@@ -28,6 +28,7 @@ $fa-font-path: "../bower_components/font-awesome/fonts" !default;
 @import "horizontal-menu";
 @import "flip-card";
 @import "hopscotch";
+@import "bold-override";
 
 // Navbar and global layout
 
@@ -116,7 +117,7 @@ a.accordion-toggle[ng-click] {
 
 .facet-category {
   border-top: 1px solid #ddd;
-  font-weight: bold;
+  font-weight: 500;
   margin-top: 10px;
   padding-bottom: 5px;
   padding-left: 5px;
@@ -151,7 +152,7 @@ a.accordion-toggle[ng-click] {
 
 .facet-option .nav > li > a:hover {
   background-color: transparent;
-  border-left: 1px solid #428bca;
+  border-left: 1px solid $brand-primary;
   padding-left: 4px;
   text-decoration: none;
 }
@@ -181,7 +182,7 @@ a.accordion-toggle[ng-click] {
 }
 
 fieldset legend {
-  border-bottom: 1px solid #428bca;
+  border-bottom: 1px solid $brand-primary;
 }
 
 .detail-bloc > div {
@@ -193,7 +194,7 @@ fieldset legend {
 }
 
 .separator-h {
-  border-top: 1px solid #428bca;
+  border-top: 1px solid $brand-primary;
 }
 
 #sideBar {
@@ -207,7 +208,7 @@ fieldset legend {
 }
 
 .starHover {
-  color: #428bca;
+  color: $brand-primary;
 }
 
 .searchModal .modal-dialog {
@@ -330,7 +331,7 @@ img.icon_32 {
   text-align: center;
   font-size: 25px;
   color: #C8C8C8;
-  font-weight: bold;
+  font-weight: 500;
   position: absolute;
   top: 50%;
   left: 0;
@@ -346,7 +347,7 @@ img.icon_32 {
 }
 
 .title-border {
-  border-bottom: 1px solid #428BCA;
+  border-bottom: 1px solid $brand-primary;
 }
 
 .padding-right {

@@ -1,5 +1,7 @@
 package alien4cloud.rest.csar;
 
+import com.wordnik.swagger.annotations.ApiModel;
+import com.wordnik.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -8,20 +10,16 @@ import lombok.Setter;
 import lombok.ToString;
 
 import org.hibernate.validator.constraints.NotBlank;
+
 @Getter
 @Setter
-@Data
-@ToString
-@AllArgsConstructor
 @NoArgsConstructor
+@ApiModel("Request for creation of a new csar git repository.")
 public class UpdateCsarGitRequest {
-
-    @SuppressWarnings("PMD.UnusedPrivateField")
-    @NotBlank
+    @ApiModelProperty(value = "Url of the git repository.", required = false)
     private String repositoryUrl;
-    @NotBlank
+    @ApiModelProperty(value = "Username to access the git repository.", required = false)
     private String username;
-    @NotBlank
+    @ApiModelProperty(value = "Password to access the git repository.", required = false)
     private String password;
-
 }

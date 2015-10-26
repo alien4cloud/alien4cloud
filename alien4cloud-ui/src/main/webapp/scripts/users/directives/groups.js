@@ -1,6 +1,6 @@
 define(function (require) {
   'use strict';
-  
+
   var modules = require('modules');
   require('scripts/users/controllers/groups_directive_ctrl');
 
@@ -14,6 +14,7 @@ define(function (require) {
         'managedEnvRoleList': '=',
         'checkAppRoleSelectedCallback': '&',
         'checkEnvRoleSelectedCallback': '&',
+        'notEditableRoleList': '=',
         'onSelectAppRoleCallback': '&',
         'onSelectEnvRoleCallback': '&',
         'onSelectAppGroupCallback': '&',

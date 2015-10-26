@@ -4,11 +4,13 @@ import java.util.regex.Pattern;
 
 import javax.validation.constraints.NotNull;
 
+import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 @Getter
 @EqualsAndHashCode(callSuper = false, of = { "pattern" })

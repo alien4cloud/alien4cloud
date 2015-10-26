@@ -253,7 +253,7 @@ public class TopologyCompositionService {
             IndexedNodeType nodeType = csarRepoSearchService.getElementInDependencies(IndexedNodeType.class, type, topology.getDependencies());
             if (nodeType.getSubstitutionTopologyId() != null) {
                 // this node type is a proxy for a topology template
-                Topology child = topologyServiceCore.getMandatoryTopology(nodeType.getSubstitutionTopologyId());
+                Topology child = topologyServiceCore.getOrFail(nodeType.getSubstitutionTopologyId());
                 CompositionCouple couple = new CompositionCouple(topology, child, nodeName, nodeName + "_");
                 renameNodes(couple);
                 stack.offer(couple);
@@ -335,7 +335,7 @@ public class TopologyCompositionService {
      * Deeply explore composition in order to detect cyclic reference: if a descendant references the mainTopologyId.
      */
     public void recursivelyDetectTopologyCompositionCyclicReference(String mainTopologyId, String substitutionTopologyId) {
-        Topology child = topologyServiceCore.getMandatoryTopology(substitutionTopologyId);
+        Topology child = topologyServiceCore.getOrFail(substitutionTopologyId);
         if (child == null || child.getNodeTemplates() == null || child.getNodeTemplates().isEmpty()) {
             return;
         }

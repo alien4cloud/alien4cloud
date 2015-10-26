@@ -1,0 +1,1180 @@
+{
+  "LANGUAGE": "言語",
+  "DATE_FORMAT": "yyyy-MM-dd",
+  "BUTTON_RUN": "スタート",
+  "CLOSE": "閉じる",
+  "CODE": "ja-jp",
+  "CANCEL": "キャンセル",
+  "CREATE": "作成",
+  "CLONE": "クローン",
+  "DELETE": "削除",
+  "DELETE_CONFIRM": "本当に削除しますか ?",
+  "CONFIRM_MESSAGE": "続けますか ?",
+  "CONFIRM": "確認",
+  "APPLICATION": "アプリケーション",
+  "CSAR": "Csar",
+  "TRUE": "True",
+  "FALSE": "False",
+  "YES": "Yes",
+  "NO": "No",
+  "NAME": "Name",
+  "VALUE": "Value",
+  "NAVBAR": {
+    "BUTTON_LOGIN": "ログイン",
+    "BUTTON_LOGOUT": "ログアウト",
+    "MENU_APPS": "アプリケーション",
+    "MENU_COMPONENTS": "コンポーネント",
+    "MENU_CSARS": "CSARS",
+    "MENU_ADMIN": "管理",
+    "MENU_TOPOLOGY_TEMPLATE": "トポロジテンプレート",
+    "INPUT_SEARCH_MESSAGE": "検索"
+  },
+  "HOME": {
+    "ADMIN": {
+      "TOUR": "Alien 4 Cloud　の使い方ツアー"
+    }
+  },
+  "MODAL": {
+    "TITLE": {
+      "PROPERTY": "Property description",
+      "META_PROPERTY": "Meta-property description",
+      "REQUIREMENT": "Requirement description",
+      "CAPABILITY": "Capability description",
+      "CUSTOM_COMMAND": "Custom command description"
+    }
+  },
+  "NAVADMIN": {
+    "MENU_USERS": "ユーザ",
+    "MENU_PLUGINS": "プラグイン",
+    "MENU_TAGS": "メタプロパティ",
+    "MENU_CLOUDS": "Clouds",
+    "MENU_ORCHESTRATORS": "オーケストレータ",
+    "MENU_METRICS": "メトリック",
+    "MENU_CLOUD_IMAGES": "クラウドイメージ",
+    "MENU_AUDIT": "操作ログ"
+  },
+  "MAIN": {
+    "WELCOME": "ようこそ",
+    "BUTTON_LOGIN": "ログイン",
+   "CONTACT": "Alien 4 Cloud の管理者へ問い合わせてください。",
+    "RESTRICTED_START": "You are not enough",
+    "RESTRICTED_END": "to access to this resource."
+  },
+  "UPLOAD": {
+    "COMPLETE": "Complete"
+  },
+  "COMPONENTS": {
+    "UPLOAD": "Upload CSAR",
+    "DRAG_DROP_UPLOAD": "アップロードするファイルをここにドロップ",
+    "DEFINE_CSAR": "Define a CSAR",
+    "COMPLETE": "Complete",
+    "UPLOAD_ERROR": {
+      "LABEL": "Errors",
+      "FILE_PATH": "File path",
+      "ERRONEOUS_ARCHIVE_FILE": "Cannot load the archive file. Please check that the file is a valid zip.",
+      "FAILED_TO_READ_FILE": "Unable to read the file {{note}}",
+      "ENTRY_DEFINITION_NOT_FOUND": "Entry definition file has not been found. Please put a valid definition file at the root of the archive.",
+      "SINGLE_DEFINITION_SUPPORTED": "Alien 4 Cloud currently supports a single definition file within an archive.",
+      "INVALID_YAML": "The File does not respect YAML format.",
+      "MISSING_TOSCA_VERSION": "Tosca version is not specified and is required.",
+      "SYNTAX_ERROR": "Syntax error: Yaml definition for the type {{note}} doesn't follow the TOSCA specification.",
+      "UNRECOGNIZED_PROPERTY": "Property [ {{note}} ] is unknown and has been ignored.",
+      "UNKNWON_DISCRIMINATOR_KEY": "Key {{note}} is not known.",
+      "CSAR_ALREADY_EXISTS": "A released archive with the same name and version already exists in Alien repository. In order to ensure stability for user using it, Alien doesn't allow override of released archives. It is however possible to override a SNAPSHOT archive.",
+      "MISSING_FILE": "Reference file {{note}} cannot be found within the archive.",
+      "DUPLICATED_ELEMENT_DECLARATION": "The element [ {{note}} ] has already be defined in this definition file.",
+      "TYPE_NOT_FOUND": "Referenced type [ {{note}} ] cannot be found neither in the archive or its dependencies. Please check the import section or add the type to your archive.",
+      "INVALID_ICON_FORMAT": "Icon file is not a supported image format.",
+      "ALIEN_MAPPING_ERROR": "An internal error caused the import to fail. Please submit an issue with the stacktrace and archive.",
+      "UNKNOWN_CONSTRAINT": "Constraint [{{note}}] does not exists in TOSCA specification.",
+      "MISSING_DEPENDENCY": "Dependency [{{note}}] cannot be found in Alien repository.",
+      "INVALID_SCALAR_UNIT": "Expected type was a TOSCA scalar unit, both unit and value are required.",
+      "UNKNOWN_IMPLEMENTATION_ARTIFACT": "Failed to find any Artifact Type for the extension [ {{note}} ]. The artifact type won't be supported.",
+      "VALIDATION_ERROR": "Declared type is not valid: {{context | translate:note}}",
+      "TOPOLOGY_DETECTED": "A topology template has been detected in the archive and created with name: {{note}}",
+      "TOPOLOGY_UPDATED": "A topology template has been detected in the archive and updated  : {{note}}",
+      "NotNull": "The property [ {{path}} ] cannot be null",
+      "Size": "The property [ {{path}} ]'s size does not satisfy constraint (empty)",
+      "ToscaPropertyType": "Property [ {{path}} ] has an invalid type, please check supported TOSCA types. Details [ {{message}} ]",
+      "ToscaPropertyConstraint": "Constraint [ {{path}} ] is not valid or cannot be applied on the defined property.",
+      "ToscaPropertyConstraintDuplicate": "The constraint [ {{path}} ] already existed. The same constraint cannot be defined more than once.",
+      "ToscaPropertyDefaultValueType": "The default value for the property [ {{path}} ] do not follow its type.",
+      "ToscaPropertyDefaultValueConstraints": "The default value for the property [ {{path}} ] do not respect its constraint.",
+      "YAML_SEQUENCE_EXPECTED": "A YAML sequence is expected.",
+      "YAML_MAPPING_NODE_EXPECTED": "A mapping node is expected.",
+      "REQUIREMENT_TARGET_NODE_TEMPLATE_NAME_REQUIRED": "Node template name is required for the requirement definition, it should be defined as the value of a node 'node'.",
+      "RELATIONSHIP_NOT_BUILT": "Not able to build the relationship for the requirement [{{note}}] (please read errors).",
+      "REQUIREMENT_NOT_FOUND": "Requirement definition for [{{note}}] was not found.",
+      "REQUIREMENT_TARGET_NOT_FOUND": "The requirement's target for [{{note}}] doesn't exists.",
+      "REQUIREMENT_CAPABILITY_NOT_FOUND": "The capability corresponding to the requirement [{{note}}] can't be identified.",
+      "OUTPUTS_BAD_PARAMS_COUNT": "Function arguments count is incorrect",
+      "OUTPUTS_UNKNOWN_FUNCTION": "Unknown function [{{note}}]",
+      "UNKNOWN_CAPABILITY": "Capability [{{note}}] is unknown for this node.",
+      "YAML_SCALAR_NODE_EXPECTED": "A YAML node of type scalar is expected here.",
+      "UNKOWN_GROUP_POLICY": "Group policy [{{note}}] is not managed",
+      "UNKOWN_GROUP_MEMBER": "The group member [{{note}}] doesn't exist so is ignored",
+      "UNKNWON_WORKFLOW_STEP": "Workflow step [{{note}}] doesn't exists and has been ignored",
+      "WORKFLOW_HAS_ERRORS" : "Workflow [{{note}}] is not valid",
+      "MISSING_TOPOLOGY_INPUT": "The input [{{problem}}] referenced by the property [{{problem}}] of [{{context}}] node was not found in the inputs list",
+      "300": "Unexpected IO error on plugin upload.",
+      "353": "The META-INF/plugin.yml file is missing in your plugin."
+    },
+    "UPLOAD_MODAL": {
+      "HEADER": "CSARをアップロードします。",
+      "OK": "Ok"
+    },
+    "COMPONENT": {
+      "NAME": "コンポーネント名",
+      "DETAILS_TITLE": "詳細",
+      "DOC_TITLE": "説明",
+      "PROPERTIES": "プロパティ",
+      "ATTRIBUTES": "属性",
+      "INTERFACES": "インタフェース",
+      "OPERATION": "オプション",
+      "RECOMMEND_MESSAGE": "このコンポーネントをデフォルトとする。",
+      "UNRECOMMEND_MESSAGE": "このコンポーネントをデフォルトとしない。",
+      "ABSTRACT_COMPONENT": "抽象コンポーネント"
+    },
+    "RELATIONSHIPS": {
+      "SOURCE": "ソース",
+      "TARGET": "ターゲット"
+    },
+    "CONFIRM_RECOMMENDATION_MODAL": {
+      "HEADER": "デフォルトコンポーネントの確認",
+      "MESSAGE": "コンポーネント[ {{componentId}} ]は、デフォルトとして設定されています。機能名： [ {{capability}} ]. 上書きしますか？",
+      "OK": "上書き"
+    },
+    "FORM_ERRORS": {
+      "TAG_KEY": "タグ名に使用できるのは、 a to Z, -, _ spaceは除く"
+    },
+    "CAPABILITIES": {
+      "TYPE": "機能",
+      "CARDINALITIES_TOOLTIP": "upperBound"
+    },
+    "ABSTRACT": "抽象コンポーネント",
+    "DEFAULTCAPABILITIES": "デフォルト機能",
+    "DERIVEDFROM": "派生元",
+    "REQUIREMENTS": {
+      "TYPE": "必須コンポーネント"
+    },
+    "SEARCH": {
+      "SHOW_ADV_SEARCH": "高度な検索...",
+      "SIMPLE_SEARCH": "簡易検索...",
+      "SEARCH_COMP": "コンポーネントの検索"
+    },
+    "ACTIVE_FILTERS": "アクティブフィルター",
+    "RESULT_TITLE": "コンポーネント",
+    "ARCHIVE": "アーカイブ",
+    "ARCHIVE_VERSION": "アーカイブバージョン",
+    "ARCHIVE_NAME": "アーカイブ名",
+    "GET_DETAILS": "詳細",
+    "VALIDSOURCES": "有効なソース",
+    "VALIDTARGET": "有効なターゲット",
+    "CARDINALITIES_TOOLTIP": "lowerBound..upperBound"
+  },
+  "CSAR": {
+    "BUTTON_NEWCSAR": "CSARスナップショットの作成",
+    "MODAL_NEWCSAR": "CSARの新規作成",
+    "BUTTON_DELETE": "削除",
+    "BUTTON_MODIFY": "変更",
+    "NAME": "CSAR名",
+    "ID":"Id",
+    "AJOUT": "The archive has been imported",
+    "LEGEND":"Csars added",
+    "IMPORT_ALL":"Import all",
+    "IMPORT_SUCCESS":"CSAR have been imported",
+    "FROMGIT":"Imported from Git",
+    "ACTIONS":"Operations",
+    "URL": "Repository URL",
+    "BRANCHESLIST": "Branches list",
+    "BRANCHE":"Branche",
+    "ARCHIVE":"Archive's folder",
+    "ARCHIVELIST":"Archive list",
+    "ARCHIVE_TO_IMPORT":"Archive(s) to import",
+    "BRANCHE_TO_IMPORT":"On branch",
+    "DESCRIPTION": "説明",
+    "IMPORTTOOLTIP":"Import",
+    "EDITTOOLTIP":"Edit",
+    "USERNAME":"Username",
+    "PASSWORD":"Password",
+    "UPDATE":"Update",
+    "EDIT":"Update a CSAR",
+    "CREDENTIALS":"Credentials",
+    "CREDENTIALSINFO":"Mandatory for private repositories only",
+    "VERSION": "バージョン",
+    "BC_CSAR": "CSAR",
+    "DETAILS_TITLE": "CSAR 詳細",
+    "TEST_TOPOLOGY": "Test topology's status",
+    "AUTHOR": "作成者",
+    "SAVE_LOCALLY":"Save the repository locally",
+    "DETAILS": {
+      "BUTTON_ADD_NODE_TYPE": "新しいコンポーネントの追加",
+      "ARCHIVE_COMPONENTS": "アーカイブコンポーネント",
+      "COMPONENT_FORM_TITLE": "新規コンポーネント",
+      "LIST": "Csars リスト",
+      "RESOURCES": "リソースリスト",
+      "NO_RESOURCES": "リンク切れリソース",
+      "RESOURCE": {
+        "TYPE": "タイプ",
+        "NAME": "リソース名",
+        "VERSION": "バージョン",
+        "CSAR_TEXT": "CSAR 詳細",
+        "APP_TEXT": "アプリケーション詳細",
+        "TOPOLOGY_TEXT": "トポロジテンプレート詳細"
+        }
+      },
+      "DELETE": "削除",
+      "ERRORS": {
+        "IMPORT":"CSAR cannot be imported",
+        "507_TITLE": "Delete a CSAR",
+        "501_TITLE": "CSAR with this URL already exists",
+        "507": "CSAR deletion failed since it is referenced by other resources",
+        "NO_DATA":{
+          "HEADER":"No CSAR to import",
+          "BODY":"Please add a new CSAR from a Git location"
+      }
+    }
+  },
+  "GENERIC_FORM": {
+    "SAVE": "保存",
+    "CANCEL": "キャンセル",
+    "DELETE": "削除",
+    "ADD": "追加",
+    "EDIT": "編集",
+    "GOTO": "移動",
+    "ROOT": "ルート",
+    "MAP_KEY_PLACEHOLDER": "新しいキーの入力",
+    "UNDEFINED": "クリックして編集",
+    "UNDEFINED_READ_ONLY": "未定義",
+    "TRUE": "Yes",
+    "FALSE": "No",
+    "YES": "Yes",
+    "NO": "No",
+    "REQUIRED": "必須フィールド",
+    "FORM_INVALID_MESSAGE": "注意!フォームは無効となり、すべての問題が解決されるまで保存されません:",
+    "SAVE_IS_DONE": "保存済み",
+    "VALIDATION_ERROR": {
+      "greaterOrEqual": "Value must be >= {{reference}}",
+      "greaterThan": "Value must be > {{reference}}",
+      "inRange": "Value must be in [ {{reference}} ]",
+      "length": "Value length must be {{reference}}",
+      "lessOrEqual": "Value must be <= {{reference}}",
+      "lessThan": "Value must be < {{reference}}",
+      "maxLength": "Max value length is {{reference}}",
+      "minLength": "Min value length is {{reference}}",
+      "pattern": "Value must match the pattern {{reference}}"
+    }
+  },
+  "USERS": {
+    "NEW": "新しいユーザ",
+    "FIRST_NAME": "First Name",
+    "LAST_NAME": "Last Name",
+    "USERNAME": "Username",
+    "PASSWORD": "Password",
+    "CONFIRM_PASSWORD": "確認",
+    "CONFIRM_PASSWORD_HOLDER": "確認",
+    "EMAIL": "Email",
+    "CONFIRM_PASSWORD_ERROR": "パスワードが一致しません",
+    "EMAIL_INVALID": "Emailが無効です",
+    "GROUPS": "グループ",
+    "EDIT_GROUPS": "グループの編集",
+    "NEW_GROUP_HEADER": "新しいグループの追加",
+    "EDIT_GROUP_HEADER": "グループの追加もしくは削除",
+    "ROLES": "ロール",
+    "OPERATIONS": "オペレーション",
+    "DELETE": "削除"
+  },
+  "GROUPS": {
+    "NEW": "新しいグループ",
+    "NAME": "グループ名",
+    "DESC": "説明",
+    "EMAIL": "Email",
+    "EMAIL_INVALID": "Emailが無効です",
+    "GROUPS": "グループ",
+    "EDIT_GROUPS": "グループの編集",
+    "NEW_GROUP_HEADER": "新しいグループの追加",
+    "EDIT_GROUP_HEADER": "グループの追加もしくは削除",
+    "ROLES": "ロール",
+    "DELETE": "削除",
+    "OPERATIONS": "オペレーション"
+  },
+  "EDIT_RIGHTS": {
+    "EDIT_ROLE_RESOURCE": "リソースロールの編集",
+    "EDIT_ROLE_HEADER_RESOURCE": "リソースロールの追加もしくは削除",
+    "EDIT_ROLE_ENV": "環境ロールの編集",
+    "EDIT_ROLE_HEADER_ENV": "環境ロールの追加もしくは削除"
+  },
+  "NAVAPPLICATIONS": {
+    "MENU_INFO": "情報",
+    "MENU_TOPOLOGY": "トポロジ",
+    "MENU_DEPLOYMENT": "配備",
+    "MENU_RUNTIME": "ランタイム",
+    "MENU_USERS": "ユーザとグループ",
+    "MENU_ENVIRONMENT": "環境",
+    "MENU_VERSIONS": "バージョン"
+  },
+  "ROLE_TABS": {
+    "USERS": "ユーザ",
+    "GROUPS": "グループ"
+  },
+  "APPLICATIONS": {
+    "APPLICATION": "アプリケーション",
+    "SHOW_DEPLOYED_APP": "Only show deployed applications.",
+    "APPLICATION_ROLES": "アプリケーションロール",
+    "NEW": "新規アプリケーション",
+    "NAME": "アプリケーション名",
+    "DESC": "説明",
+    "RESULT_TITLE": "アプリケーション",
+    "DETAILS_TITLE": "アプリケーション詳細",
+    "IMAGE_UPLOAD": "新しいイメージのアップロード",
+    "OWNER": "オーナー",
+    "STATUS": "ステータス",
+    "DEPLOYED": "デプロイ済み",
+    "UNDEPLOYED": "デプロイ解除済み",
+    "DEPLOYMENT_IN_PROGRESS": "デプロイ中",
+    "UNDEPLOYMENT_IN_PROGRESS": "デプロイ解除中",
+    "UNKNOWN": "Unknown",
+    "WARNING": "Warning",
+    "FAILURE": "Failed",
+    "DEPLOY": "デプロイ",
+    "UNDEPLOY": "デプロイ解除",
+    "MANAGE_ROLES": "管理ロール",
+    "DEPLOYMENT_MANAGER_INVALID": "トポロジーが無効のため、デプロイできません。 トポロジを有効にするためにアプリケーションマネージャへお問い合わせください。",
+    "META_PROPERTIES": "メタプロパティ",
+    "RUNTIME": {
+      "RUNTIME": "ランタイム",
+      "INSTANCE": "インスタンス",
+      "STATE": "State",
+      "STATUS": "Status",
+      "KEY": "キー",
+      "VALUE": "値",
+      "BACK": "戻る",
+      "SCALE_BUTTON": "Scale this node",
+      "MAINTENANCE": "メンテナンスモード",
+      "MAINTENANCE_BUTTON": {
+        "ON": "メンテナンスモードにしますか",
+        "OFF": "メンテナンスモードを終了しますか"
+      },
+      "DEPLOYMENT": "デプロイ",
+      "SCALE": "スケール",
+      "INSTANCES": "インスタンス",
+      "PROPERTIES": "プロパティ",
+      "ATTRIBUTES": "属性",
+      "RUNTIMEPROPS": "ランタイムプロパティ",
+      "INFORMATIONS_TAB": "情報",
+      "INFORMATIONS": {
+        "APP_NAME": "アプリケーション名",
+        "DEPLOYMENT_ID": "デプロイID",
+        "CLOUD_NAME": "クラウド名",
+        "CLOUD_ID": "クラウドID"
+      },
+      "EVENTS_TAB": "イベント",
+      "EVENTS": {
+        "ALL": "すべてのイベント",
+        "STATUS": "デプロイステータス",
+        "INSTANCES": "インスタンスステータス",
+        "STORAGE": "インスタンスステータス(BlockStorage)",
+        "MESSAGES": "メッセージ",
+        "DATE": "日付",
+        "TYPE": "タイプ",
+        "MESSAGE": "メッセージ",
+        "DEPLOYMENT_STATUS_MESSAGE": "{{status | translate}}",
+        "INSTANCE_STATE_MESSAGE": "Instance {{nodeId}}/{{instanceId}} changed status to {{state}}",
+        "STORAGE_MESSAGE": "Instance {{nodeId}}/{{instanceId}} changed status to {{state}}. Volume ID is: < {{volumeId}} >",
+        "INSTANCE_DELETED_MESSAGE": "Instance {{nodeId}}/{{instanceId}} has been removed",
+        "MESSAGE_EVENT": {
+          "STATUS_DEPLOYMENT_CHANGED": "デプロイステータスが変わりました",
+          "INSTANCE_STATE_CHANGED": "インスタンスステータスが変わりました"
+        }
+      },
+      "OPERATION_EXECUTION": {
+        "RESULT_TITLE": "Execution result for operation {{operation}}",
+        "NO_RETURN": "No return"
+      }
+    },
+    "DEPLOYMENT": {
+      "DEPLOY": "デプロイ",
+      "MATCHING": "代入",
+      "INPUT": "入力",
+      "NAME_MATCHER": "クラウドリソースの関連付け",
+      "TITLE_NODE_ICON": "ノードアイコン",
+      "TITLE_COMPONENT": "コンポーネント名",
+      "TITLE_IMAGE": "イメージ名",
+      "TITLE_FLAVOR": "フレーバー名",
+      "TITLE_IMAGE_ICON": "イメージアイコン",
+      "TITLE_DISTRIBUTION": "ディストリビューション",
+      "TITLE_TYPE": "タイプ",
+      "TITLE_VERSION": "バージョン",
+      "TITLE_ARCH": "アーキテクチャ",
+      "TITLE_CPUS": "CPUs",
+      "TITLE_SIZE_DISK": "Disk",
+      "TITLE_RAM": "RAM",
+      "TITLE_NETWORK": "ネットワーク名",
+      "TITLE_STORAGE": "Block storage名",
+      "TITLE_GROUP": "グループ",
+      "TITLE_ZONE": "ゾーン",
+      "TITLE_DESCRIPTION": "説明",
+      "RESOURCES_NOT_MATCHED": "トポロジは、クラウドリソースとの互換性がありません",
+      "COMPUTE_RESOURCES": "Machine",
+      "NETWORK_RESOURCES": "Network",
+      "STORAGE_RESOURCES": "Block Storages",
+      "ENVIRONMENT_INVALID": "Selected environment is not valid to run a deployment. Please update it in order to deploy.",
+      "CLOUD_ERROR_TITLE": "Select cloud",
+      "CLOUD_ERROR_MESSAGE": "You have not enough rights on the related cloud or the cloud is disabled to deploy. Please contact an admin.",
+      "PROPERTIES": {
+        "REQUIRED": "Required",
+        "WARNING": "Warning",
+        "WARNING_MESSAGE": "Those input properties have no values provided by the application, the cloud or the environment. Please contact your administrator."
+      }
+    },
+    "TOPOLOGY": {
+      "LABEL": "トポロジ",
+      "VISUAL_DETAILED": "詳細ビュー",
+      "VISUAL_SIMPLE": "簡易ビュー",
+      "YAML": "yaml",
+      "PLAN": "Workflow",
+      "MODIFY_TOPOLOGY": "トポロジ変更",
+      "ADD_NODETEMPLATE": "ノードテンプレートの追加",
+      "DEPENDENCY": "依存関係",
+      "DEPENDENCY_NAME": "依存関係名",
+      "DEPENDENCY_VERSION": "バージョン",
+      "SELECT_NODETYPE": "ノードタイプの選択",
+      "TOPOLOGY": "トポロジ",
+      "NODE_INFO": "選択ノード",
+      "TYPE": "タイプ",
+      "ARCHIVE": "アーカイブ",
+      "ATTRIBUTES": "属性",
+      "PROPERTIES": "プロパティ",
+      "PROPERTIES_INPUTS": "プロパティの入力",
+      "ORCHESTRATOR_PROPERTIES": "オーケストレータのプロパティ",
+      "INPUTS": {
+        "ADD": "入力の追加",
+        "NAME": "名前",
+        "TYPE": "タイプ",
+        "CONSTRAINT": "制約"
+      },
+      "PROPERTIES_OUTPUTS": "プロパティ出力",
+      "NO_OUTPUTS": "プロパティ、属性の出力なし",
+      "REQUIREMENTS": "前提条件",
+      "CAPABILITIES": "ケーパビリティ",
+      "ADD_RELATIONSHIP": "他ノードとの関連追加",
+      "REMOVE_RELATIONSHIP": "関連削除",
+      "REMOVE_NODE": "ノード削除",
+      "RELATIONSHIPS": "関連定義",
+      "REFERENCE": "参照",
+      "ARTIFACTS": "アーティファクト",
+      "ARTIFACTS_INPUTS": "アーティファクトの入力",
+      "UPDATE_ARTIFACT": "アーティファクトの更新",
+      "SCALE": "スケール",
+      "UNSCALE": "スケール解除",
+      "SCALING_POLICY": "スケーリング",
+      "NAME": "名前",
+      "DESC": "説明",
+      "DESC_TEMPLATE": "トポロジテンプレートの説明",
+      "SEARCH_RELATIONSHIP_MODAL": {
+        "NO_TARGETS": "トポロジの要素は、要求を満たすことができません。",
+        "SELECT_TARGET_HEADER": "ターゲットの関連を選択",
+        "SELECT_RELATIONSHIP_HEADER": "関連のタイプを選択",
+        "SELECT_NAME_HEADER": "関連名を選択",
+        "NAME": "名前",
+        "FINISH": "完了",
+        "BACK": "戻る"
+      },
+      "TASK": {
+        "LABEL": "Todo リスト",
+        "ERRORS_LABEL": "エラー",
+        "ABSTRACT_LABEL": "抽象コンポーネント",
+        "IMPLEMENT_LABEL": "実装",
+        "IMPLEMENT": "ノードの実装",
+        "REPLACE_LABEL": "置換",
+        "REPLACE": "指定内容で置換",
+        "TOADD_RELATIONSHIP_LABEL": "要求不足 (関連を追加する必要あり)",
+        "REQUIRED_PROPERTIES_LABEL": "必須プロパティ",
+        "EMPTY_TOPOLOGY_MESSAGE": "現在のトポロジは空です。 ノードテンプレートを追加してください。",
+        "CREATE_TOPOLOGY_MESSAGE": "トポロジが見つかりません。 ノードタイプを使った新しいトポロジを作成してください。",
+        "NODE_FILTER": {
+          "NODE_FILTER_INVALID": "NodeFilters not satisfy",
+          "PROPERTY_CONSTRAINT_VIOLATION_ERROR": "One constraint on this property is not respected",
+          "CAPABILITY_NAME": "Capacity name",
+          "CAPABILITY_MISSING_ERROR": "The target has not this ability",
+          "PROPERTY_MISSING_ERROR": "La cible de posséde pas cette propriété",
+          "PROPERTY_TYPE_VIOLATION_ERROR": "The property has no such target",
+          "PROPERTY_NAME": "Property name"
+        },
+        "SCALABLE_CAPABILITY_INVALID": {
+          "LABEL": "無効なスケーラブルポリシー",
+          "MISSING": "必須プロパティ",
+          "ERRORS": {
+            "min_instances": "Invalid min_instances property, please verify that 0 < min_instances < default_instances < max_instances",
+            "default_instances": "Invalid default_instances property, please verify that 0 < min_instances < default_instances < max_instances",
+            "max_instances": "Invalid max_instances property, please verify that 0 < min_instances < default_instances < max_instances"
+          }
+        },
+        "WORKFLOWS": {
+          "TITLE" : "Workflows",
+          "HAS_ERROR": "Workflow '{{workflowName}}' is not valid : {{errorCount}} error(s)"
+        }
+      },
+      "WARNING": {
+        "LABEL": "警告",
+        "HA_INVALID": {
+          "LABEL": "無効なHAポリシー",
+          "GROUP": "グループ",
+          "NODE": "ノード",
+          "ERROR": "Error",
+          "NODE_NOT_ALLOCATED": "No Availability zone is allocated to the node",
+          "NODE_BELONG_TO_MULTIPLE_HA_GROUPS": "Node belongs to multiples groups",
+          "NODE_HAS_VOLUME_NOT_IN_THE_SAME_ZONE": "Node is not in the same availability zone as its volume",
+          "ZONES_NOT_DISTRIBUTED_EQUALLY": "Availability zones are not distributed in an optimized manner because of existing volumes",
+          "NODE_HAS_ALLOCATED_ZONE_NOT_IN_DEPLOYMENT_SETUP": "Node's Availability zone has been allocated based on its volume, allocated zone is not in application's deployment setup",
+          "CONFIGURATION_ERROR": "HA policy validation has failed due to bad configuration of availability zones",
+          "UNKNOWN_ERROR": "HA policy validation has failed due to unknown error"
+        },
+        "PROPERTIES": {
+          "LABEL": "ノードプロパティ",
+          "NODENAME": "ノード",
+          "PROP": "プロパティ"
+        }
+      },
+      "GROUPS": {
+        "TITLE": "グループ",
+        "MEMBERS": "メンバー",
+        "POLICIES": "ポリシー",
+        "ADD": "グループの追加",
+        "TOOLTIP": "グループの管理"
+      },
+      "ARTIFACTS": {
+        "TITLE": "アーティファクト",
+        "ID": "ID",
+        "TYPE": "タイプ",
+        "INPUTS": "アーティファクトの入力",
+        "ADDINPUT": "アーティファクト入力の定義"
+      },
+      "SUBSTITUTIONS": {
+        "TITLE": "代入",
+        "TYPE": "タイプ",
+        "CAPABILITIES": "ケーパビリティ",
+        "CAPABILITY": "ケーパビリティ",
+        "REQUIREMENTS": "要求",
+        "REQUIREMENT": "要求",
+        "TARGET_NODE": "ターゲット",
+        "SOURCE_NODE": "ソース",
+        "NOM": "名前",
+        "VERSION": "バージョン",
+        "EXPOSE": "公開",
+        "DISPLAY": "代入トポロジの表示"
+      },
+      "REPLACE_NODETEMPLATE": "置換",
+      "TEMPLATE_BASE": "トポロジテンプレート",
+      "TEMPLATE_SELECT": "-- トポロジテンプレートの選択 --",
+      "TEMPLATE_SELECT_VERSION": "-- テンプレートバージョンの選択 --",
+      "CARDINALITIES_TOOLTIP": "lowerBound..upperBound (remaining)",
+      "CAPABILITY_CARDINALITIES_TOOLTIP": "upperBound (remaining)",
+      "CLOUD_SELECT": "-- クラウドの選択 --",
+      "NODETEMPLATE_PROPERTY_REQUIRED": "必須プロパティ"
+    },
+    "ENVIRONMENT": {
+      "ENV": "環境",
+      "ENV_ROLES": "環境のロール",
+      "NEW": "新規環境",
+      "STATUS": "ステータス",
+      "NAME": "名前",
+      "TYPE": "タイプ",
+      "DESCRIPTION": "説明",
+      "CLOUD": "クラウド",
+      "VERSION": "バージョン",
+      "FORM": {
+        "NAME": "名前",
+        "DESCRIPTION": "説明",
+        "CLOUD": "アクティブクラウド",
+        "CLOUD_SELECT": "-- ターゲットクラウドの選択 --",
+        "ENV_TYPE": "環境タイプ",
+        "ENV_TYPE_SELECT": "-- 環境タイプの選択 --",
+        "ENV_VERSION": "アプリケーションバージョン",
+        "ENV_VERSION_SELECT": "-- アプリケーションバージョンの選択 --"
+      }
+    },
+    "VERSION": {
+      "NEW": "新しいバージョンの作成",
+      "VERSION": "バージョンNo.",
+      "DESCRIPTION": "説明",
+      "ID": "バージョン ID",
+      "TITLE": "新バージョン",
+      "MODAL": {
+        "SELECT-TITLE": "トポロジ",
+        "DESC": "トポロジを複製するバージョンを選択",
+        "PATTERN": "無効なフォーマットバージョン"
+      }
+    },
+    "ERRORS": {
+      "DELETE_TITLE": "Delete an application",
+      "DELETING_FAILED": "Unable to delete the application. First, undeploy it and retry."
+    },
+    "WF": {
+      "title" : "Workflows",
+      "addWorkflow": "Add workflow",
+      "changeViewMode": "Simplified view",
+      "nodeName": "Node",
+      "host": "Host",      
+      "interfaceName": "Interface",
+      "operationName": "Operation",
+      "stateName": "State",
+      "delegateWorkflow": "Workflow",
+      "reinit": "Reset workflow",
+      "addOperationActivity": "Add opreration call",
+      "addStateActivity": "Add state change",
+      "insertOperationActivity": "Insert opreration call",
+      "appendOperationActivity": "Append opreration call",   
+      "insertStateActivity": "Insert state change",
+      "appendStateActivity": "Append state change",             
+      "activity": "Activity",
+      "disconnect": "Disconnect",
+      "disconnectFrom": "Disconnect from",
+      "disconnectTo": "Disconnect to",
+      "swapLeft": "Swap to left",
+      "swapRigth": "Swap to right",
+      "connectFromSelection": "Connect from selection",
+      "connectToSelection": "Connect to selection",        
+      "removeStep": "Remove step",
+      "OperationCallActivity": "Operation call",
+      "SetStateActivity": "State change",
+      "DelegateWorkflowActivity": "Delegate workflow",
+      "unpin": "Unpin",
+      "currentSelection" : "Current selection",
+      "hasErrors" : "error(s)",
+      "errors": {
+        "WorkflowHasCycleError": "Workflow contains one cycle",
+        "BadStateSequenceError": "Bad sequence : step '{{from}}' should not be found before '{{to}}'",
+        "ParallelSetStatesError": "State changes are done in parallel for node '{{nodeId}}'",
+        "UnknownNodeError": "The node '{{nodeId}}' referenced by the step '{{stepId}}' doesn't exists"
+      }
+    }      
+  },
+  "TEMPLATE": {
+    "NEW": "新規テンプレート",
+    "NAME": "名前",
+    "DESCRIPTION": "説明",
+    "BREADCRUMB": {
+      "TEMPLATE_LIST": "トポロジテンプレート"
+    }
+  },
+  "PLUGINS": {
+    "UPLOAD": "プラグインのアップロード",
+    "DRAG_DROP_UPLOAD": "プラグインファイルをここにドロップ",
+    "ID": "ID",
+    "VERSION": "バージョン",
+    "NAME": "名前",
+    "DESCRIPTION": "説明",
+    "BEANS": "コンポーネント",
+    "ENABLED": "有効",
+    "DEPRECATED": "非推奨",
+    "ENABLE": "有効",
+    "DISABLE": "無効",
+    "CONFIGURE": "設定",
+    "ERRORS": {
+      "350_TITLE": "Delete / Disable a plugin",
+      "350": "Deleting or disabling this plugin is not possible since it is used by one or more resources"
+    },
+    "ENABLED_true": "有効化",
+    "ENABLED_false": "無効化",
+    "TYPES": {
+      "IPAASPROVIDER": "Provider PaaS"
+    }
+  },
+  "ORCHESTRATORS": {
+    "NEW": "新規オーケストレータ",
+    "NO_PLUGIN": "オーケストレータプラグインが見つかりません。 プラグインをアップロードしてください。",
+    "NAME": "名前",
+    "PLUGIN": "プラグイン",
+    "PLUGIN_SELECT": "-- Select an orchestrator plugin --",
+    "STATE": "State",
+    "STATES": {
+      "DISABLED": "Disabled",
+      "CONNECTING": "Connecting",
+      "CONNECTED": "Connected",
+      "DISCONNECTED": "Disconnected"
+    },
+    "NAV": {
+      "INFO": "Informations",
+      "DEPLOYMENTS": "Deployments",
+      "CONFIGURATION": "Configuration",
+      "LOCATIONS": "Location(s)",
+      "ARTIFACTS": "Artifacts",
+      "AUTHORIZATIONS": "Authorizations"
+    },
+    "LOCATIONS": {
+      "NEW": "New Location",
+      "INFRA_TYPE": "Infrastructure type",
+      "INFRA_TYPE_SELECT": "-- Select an infrastructure type --",
+      "CONFIGURATION_RESOURCES": "Configuration resources",
+      "ON_DEMAND_RESOURCES": "On demand resources",
+      "SERVICES": "Services",
+      "POLICIES": "Policies",
+      "SECURITY": "Security"
+    },
+    "ARTIFACTS": {
+      "MANAGED": "Managed Artifacts"
+    },
+    "CONFIGURATION": {
+      "UNLOCK-BTN-TITLE": "Unlock",
+      "UNLOCK-BTN-CONTENT": "You can unlock to edit the orchestrator configuration but this will affect the connected driver.",
+      "LOCK_LOCATION_ROLE": "This role is manage in the global orchestrator security"
+    }
+  },
+  "CLOUD_IMAGES": {
+    "NEW": "新規イメージ",
+    "NAME": "名前",
+    "OS_DISTRIBUTION": "配布先",
+    "OS_TYPE": "タイプ",
+    "OS_VERSION": "バージョン",
+    "OS_ARCH": "アーキテクチャ",
+    "ICON_UPLOAD": "アイコンをここにドロップ",
+    "NUM_CPUS": "CPU cores",
+    "DISK_SIZE": "disk size",
+    "MEM_SIZE": "memory size",
+    "LINKED_TO_CLOUDS": "このイメージは複数のクラウドに関連しています。変更すると次のクラウドに影響があります。: {{cloudNames}}."
+  },
+  "CLOUDS": {
+    "CLOUDS": "クラウド",
+    "NEW": "新規クラウド",
+    "NAME": "名前",
+    "STATE": "状態",
+    "PAAS_PROVIDER": "PaaS provider",
+    "PAAS_PROVIDER_SELECT": "-- PaaS Providerの選択 --",
+    "DEPLOYMENTS": "配布",
+    "DEPLOYMENT_SOURCE": "ソース",
+    "DEPLOYMENT_TYPE": "タイプ",
+    "NO_PROVIDERS": "PaaS providers が見つかりません。 プラグインを更新してください。",
+    "DETAILS": "詳細",
+    "CLOUD": "クラウド",
+    "IAAS_TYPE": "IaaS タイプ",
+    "ENVIRONMENT_TYPE": "環境タイプ",
+    "ENABLE": "有効",
+    "DISABLE": "無効",
+    "FORCE-DISABLE": "強制シャットダウン",
+    "FORCE-DISABLE-TITLE": "強制クラウドシャットダウン",
+    "FORCE-DISABLE-CONTENT": "アプリケーション使用中ですが、本当にクラウドをシャットダウンしますか？",
+    "REFRESH": "最新の情報に更新",
+    "CONFIGURATION": "設定",
+    "CONFIGURATION_REQUIRES_DISABLE": "設定は保存しますが、 変更はクラウドの再有効化時に反映されます。 (再有効化 - もしくはALIENの再起動).",
+    "MANAGE_ROLES": "認証",
+    "AUTHORIZED_GROUPS": "認証されたグループ",
+    "AUTHORIZED_USERS": "認証されたユーザ",
+    "IMAGE": "イメージ",
+    "FLAVOR": "フレーバー",
+    "TEMPLATE": "テンプレート",
+    "TEMPLATE_DETAILS": "詳細",
+    "PAAS_RESOURCE_ID": "PaaS リソース ID",
+    "RESOURCE_NOT_CONFIGURED": "設定不可",
+    "RESOURCE_NOT_MAPPED": "マップ不可",
+    "IMAGES": {
+      "NEW": "新規",
+      "NEW_MODAL_TITLE": "イメージの追加",
+      "NO_SELECTED_IMAGES": "クリックもしくはドラックアンドドロップでイメージを追加"
+    },
+    "FLAVORS": {
+      "ID": "名前",
+      "NUM_CPUS": "CPU 数",
+      "DISK_SIZE": "Disk サイズ",
+      "MEM_SIZE": "Memory サイズ",
+      "NEW": "フレーバーの追加",
+      "NEW_MODAL_TITLE": "新規フレーバーの追加"
+    },
+    "TEMPLATES": {
+      "ENABLED": "有効",
+      "NOT_CONFIGURED": "設定不可",
+      "FILTERED": "フィルター",
+      "ENABLE": "有効",
+      "IMAGE_NAME": "イメージ名",
+      "FLAVOR_NAME": "フレーバー名",
+      "DESCRIPTION": "説明"
+    },
+    "NETWORK": "ネットワーク",
+    "NETWORKS": {
+      "NEW": "追加",
+      "NAME": "名前",
+      "CIDR": "CIDR",
+      "GATEWAY_IP": "Gateway's IP",
+      "IP_VERSION": "IP version",
+      "IS_EXTERNAL": "External Network",
+      "IS_EXTERNAL_true": "Yes",
+      "IS_EXTERNAL_false": "No",
+      "NEW_MODAL_TITLE": "新規ネットワークの作成"
+    },
+    "STORAGE": "Block Storages",
+    "STORAGES": {
+      "ID": "ID",
+      "DEVICE": "Device",
+      "LOCATION": "Location",
+      "SIZE": "サイズ",
+      "NEW_MODAL_TITLE": "新規 block storage の作成"
+    },
+    "ZONE": "Zones",
+    "ZONES": {
+      "ID": "ID",
+      "NEW_MODAL_TITLE": "新規ゾーンの作成"
+    },
+    "IAAS": {
+      "OTHER": "Other",
+      "OPENSTACK": "OpenStack",
+      "VMWARE": "VMware",
+      "AMAZON": "Amazon",
+      "VIRTUALBOX": "Virtual box",
+      "AZURE": "Microsoft Azure"
+    },
+    "ENVIRONMENT": {
+      "OTHER": "Other",
+      "DEVELOPMENT": "デプロイ",
+      "INTEGRATION_TESTS": "インテグレーションテスト",
+      "USER_ACCEPTANCE_TESTS": "ユーザ受入テスト",
+      "PRE_PRODUCTION": "運用開始前",
+      "PRODUCTION": "実運用"
+    },
+    "ADMINISTRATION": {
+      "GLOBAL": {
+        "TITLE": "グローバル設定",
+        "DEPLOYMENT_NAME": "デプロイポリシーの名前"
+      },
+      "DRIVER": {
+        "TITLE": "Driver 設定"
+      },
+      "HELP": {
+        "TITLE": "デプロイ名の名前付けポリシーについてのヘルプ",
+        "CONTENT": "You can use the environment, the application, the meta properties of the application and a timestamp. We use the Spring Expression Language syntax, make sure to define a correct expression. In addition, we recommend that you set a rule that will generate a unique name for each deployment."
+      }
+    },
+    "DRIVER": {
+      "CLOUDIFY": {
+        "CLOUDIFY_CONNECTION_CONFIGURATION": "Cloudify 接続設定",
+        "CONNECTION_CONFIGURATION": {
+          "CLOUDIFY_URLS": "Cloudify URL (Many URLs in case of HA)",
+          "USER_NAME": "User name",
+          "PASSWORD": "Password",
+          "TIMEOUT": "Connection timeout (Sec)"
+        },
+        "COMPUTE_TEMPLATES": "Compute テンプレート",
+        "COMPUTE_TEMPLATE": {
+          "ID": "ID",
+          "NUM_CPU": "CPU 数",
+          "DISK_SIZE": "Disk サイズ",
+          "MEM_SIZE": "Memory サイズ",
+          "OS_ARCH": "OS アーキテクチャ",
+          "OS_TYPE": "OS タイプ",
+          "OS_DISTRIBUTION": "OS Distribution",
+          "OS_VERSION": "OS Version",
+          "IP_ADDRESS": "IP Address"
+        },
+        "STORAGE_TEMPLATES": "Storage テンプレート",
+        "STORAGE_TEMPLATE": {
+          "ID": "ID",
+          "SIZE": "サイズ (GB)",
+          "FS": "File system"
+        },
+        "PE": {
+          "MAIL_CONFIGURATION": "メール設定",
+          "MAIL": {
+            "ACTIVATED": "有効化",
+            "DEFAULT_ENCODING": "Default encoding",
+            "FROM": "From",
+            "SMTP_HOST": "SMTP host",
+            "SMTP_PORT": "SMTP port",
+            "SUBJECT": "Subject",
+            "TO": "To"
+          },
+          "POLLER_CONFIGURATION": "Poller 設定",
+          "POLLER": {
+            "FOLDER_TO_POLL": "Folder to poll"
+          },
+          "SKIP_CSV_VALIDATION": "Skip CSV validation"
+        }
+      }
+    },
+    "ERRORS": {
+      "DELETING_FAILED_TITLE": "Delete a cloud",
+      "DELETING_FAILED": "Unable to delete the cloud. It is used by some resources.",
+      "ENABLING_FAILED_TITLE": "Enable a cloud",
+      "ENABLING_FAILED": "Unable to activate this cloud due to bad configuration.",
+      "REFRESHING_FAILED_TITLE": "Refresh a cloud",
+      "REFRESHING_FAILED": "An error occurred while refreshing.",
+      "352_TITLE": "Save the cloud configuration",
+      "352": "Invalid cloud configuration. Please change it and retry."
+    },
+    "ENABLED_true": "有効",
+    "ENABLED_false": "無効",
+    "DESCRIPTION": "説明"
+  },
+  "ERRORS": {
+    "INTERNAL": "Internal error",
+    "UNKNOWN": "Unknown error",
+    "100": "Authentication required",
+    "101": "Authentication error, please check your login and password",
+    "102": "Insufficient rights for this module or this resource",
+    "200": "Unexpected error happened while parsing CSAR",
+    "300": "Unexpected error happened while accessing to CSAR indexing service",
+    "371": {
+      "TITLE": "Operation execution failed {{operation}}",
+      "MESSAGE": "Value {{value}} for parameter {{name}} of type {{type}} is not valid"
+    },
+    "372": "Error in naming policy of deployment.",
+    "373": "Unexpected error happened while switching on / off maintenance mode ",
+    "374": "One of your meta-property is empty and does not have a default value.",
+    "375": "Error occurs on provider when trying to scale.",
+    "390": "It's forbidden to remove the last admin user.",
+    "391": "It's forbidden to remove the ADMIN role of the last admin user.",
+    "400": "Unexpected error happened while accessing to CSAR repository",
+    "401": "You have to be connected to perform this operation. You are going to be redirected now.",
+    "500": "Unknown error",
+    "501": "Illegal parameter",
+    "502": "Object already exists",
+    "503": "The upload of image has encountered unexpected error",
+    "504": "Object not found",
+    "507": "Cannot delete this object as it's still being used by other objects",
+    "601": "Application failed to deploy",
+    "602": "Application failed to undeploy",
+    "604": "An application must necessarily have at least one environment",
+    "605": "Invalid format version",
+    "607": "A deployed environment can not be deleted",
+    "608": "Only SNAPSHOT applications can be modified",
+    "609": "PaaS provider unreachable after triggering the deployment",
+    "610": "An application must necessarily have at least one version",
+    "611": "An application environment must necessarily have an application version.",
+    "612": "Cloud of an application environment cannot be updated when it's deployed.",
+    "613": "Conflict detected on the generated deployment PaaS Id. Check your applications names. (see <a target='_blank' href = 'http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html'>http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html, naming policy</a> for specific details) ",
+    "615": "The Git repository url doesn't exists or isn't a correct one.",
+    "616": "You are not authorized to clone this Git repository. Please check your credentials.",
+    "617": "No modification have been detected since the last import process",
+    "650": "At least two of your Compute have a conflict name.",
+    "651": "A BlockStorage can not have a VolumeID when the cloud has the 'deletable' option to set.",
+    "800": {
+      "equal": "Value is constant equals to {{reference}}",
+      "greaterOrEqual": "Value must be >= {{reference}}",
+      "greaterThan": "Value must be > {{reference}}",
+      "inRange": "Value must be in [ {{reference}} ]",
+      "length": "Value length must be {{reference}}",
+      "lessOrEqual": "Value must be <= {{reference}}",
+      "lessThan": "Value must be < {{reference}}",
+      "maxLength": "Max value length is {{reference}}",
+      "minLength": "Min value length is {{reference}}",
+      "pattern": "Value must match the pattern {{reference}}",
+      "validValues": "Value must be in values [ {{reference}} ]"
+    },
+    "804": "{{value}} type is not {{type}}",
+    "805": {
+      "TITLE": "Operation execution failed {{operation}}",
+      "MESSAGE": "One or several parameters are required : {{value}}"
+    },
+    "807": "Only the topology of a SNAPSHOT version can be modified",
+    "808": "The name doesn't respect the expected pattern",
+    "820": "Cyclic reference : a topology template can not reference itself !",
+    "830": "A released version can not reference SNAPSHOT dependencies",
+    "831": "This version can not be renamed since it's already used elsewhere",
+    "850": "Not allowed operation for this type of workflow"
+  },
+  "TAG_CONFIG": {
+    "TAGS": "メタプロパティ",
+    "TARGET": "ターゲット",
+    "NAME": "名前",
+    "TYPE": "タイプ",
+    "DESCRIPTION": "説明",
+    "CREATE": "新規メタプロパティ",
+    "DEFAULT": "デフォルト値"
+  },
+  "CONSTRAINT": {
+    "EQUAL": "Equal",
+    "GREATER_OR_EQUAL": "Greater or equal",
+    "LESS_OR_EQUAL": "Less or equal",
+    "GREATER_THAN": "Greater than",
+    "LESS_THAN": "Less than",
+    "IN_RANGE": "In range",
+    "LENGTH": "Length equal",
+    "MIN_LENGTH": "Length minimum",
+    "MAX_LENGTH": "Length maximum",
+    "PATTERN": "Pattern",
+    "VALID_VALUES": "Valid values"
+  },
+  "CREATION_DATE": "作成日付",
+  "UPDATE_DATE": "更新日付",
+  "START_DATE": "開始日",
+  "END_DATE": "終了日",
+  "id": "ID",
+  "final": "Inextensible",
+  "derivedFrom": "Heritage",
+  "properties": "Properties",
+  "attributes": "Attributes",
+  "requirements": "Prerequisites",
+  "capabilities": "Capabilities",
+  "instanceStates": "Component's states",
+  "interfaces": "Interfaces",
+  "type": "Type",
+  "scope": "Scope",
+  "default": "By default",
+  "description": "Description",
+  "lowerBound": "Lower bound",
+  "upperBound": "Upper bound",
+  "operations": "Operations",
+  "ACTIONS": "Actions",
+  "SUGGESTIONS": "suggestions",
+  "REQUIRED": "Required",
+  "required": "Required",
+  "OPTIONAL": "Optional",
+  "PROVIDED": "Provided",
+  "INSTANCE": "Instance",
+  "EXECUTE": "Execute",
+  "DETAILS": "Details",
+  "STATIC": "Static",
+  "RUNTIME": "Runtime",
+  "BOUNDS": "Bounds",
+  "RECOMMEND": "Recommend",
+  "name": "Name",
+  "target": "Target",
+  "constraints": "Constraints",
+  "PROPERTY_RESET": "Set to default value or reset",
+  "CONSTRAINTS": {
+    "VALIDATION": {
+      "TYPE": "The value defined in constraint do not match its declared type",
+      "DEFAULT_VALUE_TYPE": "The default value defined in constraint do not match its declared type",
+      "ROOT": "The constraint is not valid"
+    }
+  },
+  "SEARCH": "検索",
+  "STATES": {
+    "unknown": "Waiting for the orchestrator",
+    "creating": "Creating",
+    "created": "Created",
+    "configuring": "Configuring",
+    "configured": "Configured",
+    "starting": "Starting",
+    "started": "Started",
+    "stopping": "Stopping",
+    "stopped": "Stopped",
+    "deleting": "Deleting",
+    "deleted": "Deleted",
+    "uninstalling": "Uninstalling",
+    "uninstalled": "Uninstalled",
+    "initial": "Initial",
+    "available": "Available",
+    "uninitialized": "Uninitialized",
+    "maintenance": "Maintenance",
+    "error": "Error"
+  },
+  "metrics": {
+    "title": "Alien 4 Cloud's Metrics",
+    "refresh.button": "Refresh",
+    "health": {
+      "title": "Health checks",
+      "database": "Database: ",
+      "email": "Email: ",
+      "stacktrace": "Stacktrace"
+    },
+    "jvm": {
+      "title": "JVM Metrics",
+      "memory": {
+        "title": "Memory",
+        "total": "Total Memory",
+        "heap": "Heap Memory",
+        "nonheap": "Non-Heap Memory"
+      },
+      "threads": {
+        "title": "Threads",
+        "all": "All",
+        "runnable": "Runnable",
+        "timedwaiting": "Timed waiting",
+        "waiting": "Waiting",
+        "blocked": "Blocked",
+        "dump": {
+          "title": "Threads dump",
+          "id": "Id: ",
+          "blockedtime": "Blocked Time",
+          "blockedcount": "Blocked Count",
+          "waitedtime": "Waited Time",
+          "waitedcount": "Waited Count",
+          "lockname": "Lock name",
+          "stacktrace": "Stacktrace",
+          "show": "Show",
+          "hide": "Hide"
+        }
+      },
+      "gc": {
+        "title": "Garbage collections",
+        "marksweepcount": "Mark Sweep count",
+        "marksweeptime": "Mark Sweep time",
+        "scavengecount": "Scavenge count",
+        "scavengetime": "Scavenge time"
+      },
+      "http": {
+        "title": "HTTP requests (events per second)",
+        "active": "Active requests:",
+        "total": "Total requests:",
+        "table": {
+          "code": "Code",
+          "count": "Count",
+          "mean": "Mean",
+          "average": "Average"
+        },
+        "code": {
+          "ok": "Ok",
+          "notfound": "Not found",
+          "servererror": "Server Error"
+        }
+      }
+    },
+    "servicesstats": {
+      "title": "Services statistics (time in millisecond)",
+      "table": {
+        "name": "Service name",
+        "count": "Count",
+        "mean": "Mean",
+        "min": "Min",
+        "max": "Max",
+        "p50": "p50",
+        "p75": "p75",
+        "p95": "p95",
+        "p99": "p99"
+      }
+    }
+  },
+  "HOPSCOTCH_MISSING": {
+    "TITLE": "Tour guide",
+    "CONTENT": "The guide tour is missing for page."
+  },
+  "AUDIT": {
+    "CONFIGURATION": {
+      "ENABLED": {
+        "LABEL": "Enabled",
+        "ON": "Yes",
+        "OFF": "No"
+      },
+      "BACK_TO_AUDIT_LOG": "Back to audit logs",
+      "LABEL": "Audit Configuration",
+      "ACTION_NAME": "Action's name",
+      "RESET": "Reset",
+      "CONFIGURATION_IS_RESETED": "Audit configuration has been reseted with success"
+    },
+    "LOG": "Operations Audit",
+    "ACTIVE_FILTERS": "Active filters",
+    "COLUMNS": {
+      "TIMESTAMP": "Date",
+      "CATEGORY": "Category",
+      "ACTION": "Operation",
+      "ACTIONDESCRIPTION": "Description",
+      "USERNAME": "Username",
+      "USEREMAIL": "Email",
+      "USERFIRSTNAME": "First name",
+      "USERLASTNAME": "Last name",
+      "PATH": "Call",
+      "METHOD": "Method",
+      "REQUESTPARAMETERS": "Request parameters",
+      "REQUESTBODY": "Request body",
+      "RESPONSESTATUS": "Response status",
+      "SOURCEIP": "Source IP"
+    }
+  },
+  "ENVIRONMENT_TYPE": {
+    "OTHER": "Other",
+    "DEVELOPMENT": "デプロイ",
+    "INTEGRATION_TESTS": "インテグレーションテスト",
+    "USER_ACCEPTANCE_TESTS": "ユーザ受入テスト",
+    "PRE_PRODUCTION": "運用開始前",
+    "PRODUCTION": "実運用"
+  }
+}

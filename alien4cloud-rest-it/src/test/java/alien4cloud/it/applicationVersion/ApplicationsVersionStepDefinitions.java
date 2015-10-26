@@ -7,7 +7,7 @@ import org.junit.Assert;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.model.application.Application;
-import alien4cloud.rest.application.ApplicationVersionRequest;
+import alien4cloud.rest.application.model.ApplicationVersionRequest;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;

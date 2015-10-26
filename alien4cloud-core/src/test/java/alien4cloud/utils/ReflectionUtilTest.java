@@ -7,10 +7,9 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-import alien4cloud.paas.IPaaSProviderFactory;
-import alien4cloud.paas.PaaSProviderFactoriesService;
+import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
+import alien4cloud.orchestrators.services.OrchestratorFactoriesRegistry;
 import alien4cloud.plugin.IPluginLinker;
-import alien4cloud.utils.ReflectionUtil;
 
 public class ReflectionUtilTest {
     @Test
@@ -27,7 +26,7 @@ public class ReflectionUtilTest {
 
     @Test
     public void testGetGenericArgumentTypeSubClass() {
-        Class<?> clazz = ReflectionUtil.getGenericArgumentType(PaaSProviderFactoriesService.class, IPluginLinker.class, 0);
-        Assert.assertEquals(IPaaSProviderFactory.class, clazz);
+        Class<?> clazz = ReflectionUtil.getGenericArgumentType(OrchestratorFactoriesRegistry.class, IPluginLinker.class, 0);
+        Assert.assertEquals(IOrchestratorPluginFactory.class, clazz);
     }
 }

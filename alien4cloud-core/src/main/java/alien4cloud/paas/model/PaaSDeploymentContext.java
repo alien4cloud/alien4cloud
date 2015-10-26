@@ -1,22 +1,27 @@
 package alien4cloud.paas.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 import org.elasticsearch.annotation.ESObject;
 
-import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.deployment.Deployment;
+import alien4cloud.model.deployment.DeploymentTopology;
 
 @Getter
 @Setter
 @ESObject
 @ToString
-@SuppressWarnings("PMD.UnusedPrivateField")
+@AllArgsConstructor
+@NoArgsConstructor
 public class PaaSDeploymentContext {
 
     private Deployment deployment;
+
+    private DeploymentTopology deploymentTopology;
 
     /**
      * Id to be used by the orchestration technology (PaaS) for the deployment.
@@ -24,7 +29,7 @@ public class PaaSDeploymentContext {
      * @return Id to be used by the orchestration technology (PaaS) for the deployment.
      */
     public String getDeploymentPaaSId() {
-        return deployment.getPaasId();
+        return deployment.getOrchestratorDeploymentId();
     }
 
     /**
@@ -34,9 +39,5 @@ public class PaaSDeploymentContext {
      */
     public String getDeploymentId() {
         return deployment.getId();
-    }
-
-    public DeploymentSetup getDeploymentSetup() {
-        return deployment.getDeploymentSetup();
     }
 }

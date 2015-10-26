@@ -4,53 +4,61 @@ define(function (require) {
   var modules = require('modules');
   var _ = require('lodash');
 
-  modules.get('a4c-metas').controller('MetaPropertiesCtrl', ['$scope', 'propertiesServices', '$translate', 'applicationServices', 'cloudServices',
-    function($scope, propertiesServices, $translate, applicationServices, cloudServices) {
+  modules.get('a4c-metas').controller('MetaPropertiesCtrl', ['$scope', 'propertiesServices', '$translate', 'metapropConfServices', '$resource',
+    function($scope, propertiesServices, $translate, metapropConfServices, $resource) {
+      if ($scope.collapsable === undefined) {
+        $scope.collapsable = true;
+      }
 
-      var updateApplicationMetaProperty = function(updateApplicationPropertyObject) {
-        return applicationServices.upsertProperty({
-          applicationId: $scope.application.id
-        }, angular.toJson(updateApplicationPropertyObject), function(response) {
-          if (!response.error) {
-            $scope.application.metaProperties[updateApplicationPropertyObject.definitionId] = updateApplicationPropertyObject.value;
-          }
-        }).$promise;
-      };
+      function loadMetaProperties() {
+        var request = {
+          'query': '',
+          'filters': {
+            target: [$scope.propertiesType]
+          },
+          'from': 0,
+          'size': 5000000 // get all in a single call as we don't have pagination feature here.
+        };
 
-      var updateCloudMetaProperty = function(updateApplicationPropertyObject) {
-        return cloudServices.upsertProperty({
-          cloudId: $scope.cloud.id
-        }, angular.toJson(updateApplicationPropertyObject), function(response) {
-          if (!response.error) {
-            if (!$scope.cloud.hasOwnProperty('metaProperties')) {
-              $scope.cloud.metaProperties = {};
-            }
-            $scope.cloud.metaProperties[updateApplicationPropertyObject.definitionId] = updateApplicationPropertyObject.value;
-          }
-        }).$promise;
+        metapropConfServices.search([], angular.toJson(request), function(result) {
+          $scope.properties = result.data.data;
+        });
       };
+      loadMetaProperties();
+
+      var upsertService = $resource($scope.resturl, {}, {
+        'upsert': {
+          method: 'POST',
+          isArray: false,
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8'
+          }
+        }
+      });
 
       /* Call the appropriate service */
       $scope.updateProperty = function(type, propertyDefinitionId, value) {
-        var updateApplicationPropertyObject = {
+        var updatePropertyObject = {
           'definitionId': propertyDefinitionId,
           'value': value
         };
-        // In future, we need to add component here
-        if (_.defined($scope.application)) {
-          return updateApplicationMetaProperty(updateApplicationPropertyObject);
-        } else if (_.defined($scope.cloud)) {
-          return updateCloudMetaProperty(updateApplicationPropertyObject);
-        }
+        return upsertService.upsert($scope.params,
+          angular.toJson(updatePropertyObject), function(response) {
+          if (!response.error) {
+            if(_.undefined($scope.target.metaProperties)) {
+              $scope.target.metaProperties = {};
+            }
+            $scope.target.metaProperties[updatePropertyObject.definitionId] = updatePropertyObject.value;
+          }
+        }).$promise;
       };
 
       /* Return the current value */
       $scope.getPropertyValue = function(metaPropId) {
-        if (_.defined($scope.application) && _.defined($scope.application.metaProperties)) {
-          return $scope.application.metaProperties[metaPropId];
-        } else if (_.defined($scope.cloud) && _.defined($scope.cloud.metaProperties)) {
-          return $scope.cloud.metaProperties[metaPropId];
+        if(_.defined($scope.target.metaProperties)) {
+          return $scope.target.metaProperties[metaPropId];
         }
+        return null;
       };
 
       /* By default, we collapse the meta-properties tab*/

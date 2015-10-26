@@ -6,12 +6,12 @@ import org.junit.Assert;
 
 import alien4cloud.it.Context;
 import alien4cloud.it.utils.JsonTestUtil;
+import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.rest.csar.CreateCsarRequest;
 import alien4cloud.rest.csar.CsarInfoDTO;
 import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.topology.CsarRelatedResourceDTO;
 import alien4cloud.rest.utils.JsonUtil;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -107,7 +107,8 @@ public class CrudCSARSStepDefinition {
                 Context.getRestClientInstance().get("/rest/csars/" + CURRENT_CSAR_NAME + ":" + CURRENT_CSAR_VERSION + "/active-deployment"), Deployment.class);
         Assert.assertNotNull(dep.getData());
         Assert.assertNotNull(dep.getData().getId());
-        Assert.assertNotNull(dep.getData().getCloudId());
+//        Assert.assertNotNull(dep.getData().getCloudId());
+        Assert.fail("Fix test");
         Assert.assertEquals(CURRENT_CSAR_NAME + ":" + CURRENT_CSAR_VERSION, dep.getData().getSourceId());
         Assert.assertEquals(CURRENT_CSAR_NAME, dep.getData().getSourceName());
     }
@@ -116,7 +117,7 @@ public class CrudCSARSStepDefinition {
     public void I_should_have_a_delete_csar_response_with_related_resources(String resourceCount) throws Throwable {
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
         Assert.assertNotNull(restResponse);
-        List<CsarRelatedResourceDTO> resultData = JsonUtil.toList(JsonUtil.toString(restResponse.getData()), CsarRelatedResourceDTO.class);
+        List<Usage> resultData = JsonUtil.toList(JsonUtil.toString(restResponse.getData()), Usage.class);
         Assert.assertEquals(resultData.size(), Integer.parseInt(resourceCount));
     }
 }

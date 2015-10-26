@@ -5,10 +5,12 @@
         <div class="btn-toolbar">
           <div class="btn-group">
             <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; ">{{'APPLICATIONS.TOPOLOGY.VISUAL_DETAILED' | translate}}</a>
+            <a class="btn btn-default btn-xs" ng-click="view = 'PLAN'" id="btn-run-topology-plan">{{'APPLICATIONS.TOPOLOGY.PLAN' | translate}}</a>
           </div>
         </div>
-        <topology-rendering ng-if="topology" topology="topology" dimensions="dimensions"
-          select-callback="selectNodeTemplate(newSelectedName, oldSelectedName)" runtime="true"/>
+        <topology-rendering ng-if="view === 'RENDERED' && topology" topology="topology" dimensions="dimensions"
+          select-callback="selectNodeTemplate(newSelectedName, oldSelectedName)" runtime="true"></topology-rendering>
+        <topology-plan ng-if="view === 'PLAN' && topology" id="plan-graph-container"></topology-plan>
       </div>
     </div>
     <div class="col-md-5 col-lg-4">
@@ -17,9 +19,8 @@
       <select id="app-environment-select" ng-model="selectedEnvironment" class="form-control " ng-options="environment.name for environment in runtimeEnvironments | filter:{status: '!UNDEPLOYED'}"
               ng-change="changeEnvironment()">
       </select>
-
+      <div ng-if="view === 'RENDERED'">
       <tabset>
-
         <tab>
           <tab-heading id="details-tab">
             <i class="fa fa-info"></i>  {{'DETAILS' | translate}}
@@ -63,13 +64,13 @@
                       <td class="col-md-1"></td>
                     </tr>
                     <tr>
-                      <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.CLOUD_NAME' | translate}}</strong></td>
-                      <td class="col-md-7">{{cloud.name}}</td>
+                      <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.ORCHESTRATOR_NAME' | translate}}</strong></td>
+                      <td class="col-md-7">{{orchestrator.name}}</td>
                       <td class="col-md-1"></td>
                     </tr>
                     <tr>
-                      <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.CLOUD_ID' | translate}}</strong></td>
-                      <td class="col-md-7">{{cloud.id}}</td>
+                      <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.ORCHESTRATOR_ID' | translate}}</strong></td>
+                      <td class="col-md-7">{{orchestrator.id}}</td>
                       <td class="col-md-1"></td>
                     </tr>
                   </tbody>
@@ -379,6 +380,25 @@
           </div>
         </tab>
       </tabset>
+      </div>
+      <div ng-if="view === 'PLAN'">
+		    <div class="well">
+	        <div class="row">
+	          <div class="col-md-8">
+			        <select name="wf-select" id="wf-select" ng-model="currentWorkflowName" ng-change="workflows.setCurrentWorkflowName(currentWorkflowName)">
+			          <option ng-repeat="w in topology.topology.workflows" value="{{w.name}}" ng-selected="w.name === currentWorkflowName">{{w.name}}</option>
+			        </select>
+	          </div>
+	          <div class="col-md-4">
+			        <button id="btn-deploy" type="button" class="btn btn-success application-deploy-button" 
+			           ng-click="launchWorkflow()"
+			           ng-disabled="topology.topology.workflows[currentWorkflowName].standard || isLaunchingWorkflow" >
+			          <i class="fa" ng-class="{'fa-play': !isLaunchingWorkflow, 'fa-spinner fa-spin': isLaunchingWorkflow}"></i> {{'APPLICATIONS.WF.launch' | translate}}
+			        </button>          
+	          </div>
+	        </div> 
+		    </div>
+      </div>
     </div>
   </div>
 </div>

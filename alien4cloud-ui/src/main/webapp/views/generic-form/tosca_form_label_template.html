@@ -1,11 +1,10 @@
 <property-display
-    ng-init="editRights = true; propertyType._definition.name = labelName"
     definition="propertyType._definition"
     dependencies="configuration.dependencies"
     property-name="labelName"
     property-value="input.value"
     on-save="inputChanged(propertyDefinition, propertyValue)"
+    editable="!configuration.isReadOnly"
     deletable="isDeletable"
-    on-delete="deleteForm()"
-    editable="editRights">
+    on-delete="deleteForm()">
 </property-display>

@@ -25,11 +25,10 @@ define(function (require) {
   var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', '$state',
     function($scope, $modalInstance, $resource, $state) {
       $scope.environment = {};
-      $scope.create = function(valid, cloudId, envType, version) {
+      $scope.create = function(valid, envType, version) {
         if (valid) {
           // prepare the good request
           var applicationId = $state.params.id;
-          $scope.environment.cloudId = cloudId;
           $scope.environment.applicationId = applicationId;
           $scope.environment.environmentType = envType;
           $scope.environment.versionId = version;
@@ -64,16 +63,6 @@ define(function (require) {
 
       };
       searchVersions();
-
-      // Cloud search
-      $scope.onSearchCompleted = function(searchResult) {
-        $scope.clouds = searchResult.data.data;
-      };
-      $scope.searchService = searchServiceFactory('rest/clouds/search', true, $scope, 50);
-      $scope.searchClouds = function() {
-        $scope.searchService.search();
-      };
-      $scope.searchClouds();
 
       // Modal to create an new application environment
       $scope.openNewAppEnv = function() {
@@ -147,14 +136,6 @@ define(function (require) {
         }
       };
 
-      var getCloudIdByName = function(name) {
-        for (var i = 0; i < $scope.clouds.length; i++) {
-          if ($scope.clouds[i].name === name) {
-            return $scope.clouds[i].id;
-          }
-        }
-      };
-
       function updateEnvironment(environmentId, fieldName, fieldValue) {
         // update the environments
         var done = false;
@@ -175,9 +156,7 @@ define(function (require) {
           var realFieldValue = fieldValue;
           if (fieldName === 'currentVersionId') {
             realFieldValue = getVersionIdByName(fieldValue);
-          } else if (fieldName === 'cloudId') {
-            realFieldValue = getCloudIdByName(fieldValue);
-          }
+          } 
           updateApplicationEnvironmentRequest[fieldName] = realFieldValue;
 
           return applicationEnvironmentServices.update({

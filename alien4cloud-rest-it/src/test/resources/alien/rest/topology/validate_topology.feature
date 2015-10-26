@@ -1,4 +1,4 @@
-Feature: Check if topology is deployable
+Feature: Check if topology is valid
 
 Background:
   Given I am authenticated with "APPLICATIONS_MANAGER" role
@@ -19,28 +19,27 @@ Background:
       |validTarget     | tosca.capabilities.Feature|
       |abstract        |true|
 
-Scenario: checking if an empty topology is deployable
+Scenario: checking if an empty topology is valid
   Given I am authenticated with "APPLICATIONS_MANAGER" role
-  When I check for the deployable status of the topology
+  When I check for the valid status of the topology
   Then I should receive a RestResponse with no error
-    And the topology should not be deployable
+    And the topology should not be valid
 
-Scenario: adding nodes templates and check if topology is deployable
+Scenario: adding nodes templates and check if topology is valid
   Given I am authenticated with "APPLICATIONS_MANAGER" role
     And I add to the csar "myCsar" "1.0-SNAPSHOT" the components
       |computeNodeType|
       |javaNodeType|
     And I have added a node template "Compute" related to the "fastconnect.nodes.Compute:1.0-SNAPSHOT" node type
-  When I check for the deployable status of the topology
+  When I check for the valid status of the topology
   Then I should receive a RestResponse with no error
-    And the topology should be deployable
+    And the topology should be valid
   When I add a node template "Java" related to the "fastconnect.nodes.Java:1.0-SNAPSHOT" node type
-    And I check for the deployable status of the topology
+    And I check for the valid status of the topology
   Then I should receive a RestResponse with no error
-    And the topology should not be deployable
-    And there should not be suggested nodetypes for the "Java" node template
+    And the topology should be valid
 
-Scenario: adding non abstract relationships and check if topology is deployable
+Scenario: adding non abstract relationships and check if topology is valid
   Given I am authenticated with "APPLICATIONS_MANAGER" role
     And I add to the csar "myCsar" "1.0-SNAPSHOT" the components
       |computeNodeType|
@@ -51,11 +50,11 @@ Scenario: adding non abstract relationships and check if topology is deployable
     And I have added a node template "JavaChef" related to the "fastconnect.nodes.JavaChef:1.0-SNAPSHOT" node type
   When I add a relationship of type "test.HostedOn" defined in archive "myCsar" version "1.0-SNAPSHOT" with source "JavaChef" and target "Compute" for requirement "container" of type "tosca.capabilities.Container" and target capability "container"
     And I add a relationship of type "test.HostedOn" defined in archive "myCsar" version "1.0-SNAPSHOT" with source "JavaChef" and target "Compute-2" for requirement "compute" of type "tosca.capabilities.Container" and target capability "container"
-    And I check for the deployable status of the topology
+    And I check for the valid status of the topology
   Then I should receive a RestResponse with no error
-    And the topology should be deployable
+    And the topology should be valid
 
-Scenario: adding abstract relationships and check if topology is deployable
+Scenario: adding abstract relationships and check if topology is valid
   Given I am authenticated with "APPLICATIONS_MANAGER" role
     And I add to the csar "myCsar" "1.0-SNAPSHOT" the components
       |computeNodeType|
@@ -64,11 +63,11 @@ Scenario: adding abstract relationships and check if topology is deployable
     And I have added a node template "Compute" related to the "fastconnect.nodes.Compute:1.0-SNAPSHOT" node type
     And I have added a node template "JavaChef" related to the "fastconnect.nodes.JavaChef:1.0-SNAPSHOT" node type
   When I add a relationship of type "test.DependsOn" defined in archive "myCsar" version "1.0-SNAPSHOT" with source "JavaChef" and target "Compute" for requirement "featureYup" of type "tosca.capabilities.Feature" and target capability "feature"
-    And I check for the deployable status of the topology
+    And I check for the valid status of the topology
   Then I should receive a RestResponse with no error
-    And the topology should not be deployable
+    And the topology should not be valid
 
-Scenario: adding abstract nodes templates and check for suggested nodes
+Scenario: adding abstract nodes templates and check, should be valid
   Given I am authenticated with "APPLICATIONS_MANAGER" role
     And I add to the csar "myCsar" "1.0-SNAPSHOT" the components
       |applicationServerNodeType|
@@ -82,14 +81,11 @@ Scenario: adding abstract nodes templates and check for suggested nodes
     And I have added a node template "Tier" related to the "tosca.nodes.Tier:1.0-SNAPSHOT" node type
     And I add a relationship of type "test.HostedOn" defined in archive "myCsar" version "1.0-SNAPSHOT" with source "Java" and target "ApplicationServer" for requirement "compute" of type "tosca.capabilities.Container" and target capability "container"
     And I add a relationship of type "test.DependsOn" defined in archive "myCsar" version "1.0-SNAPSHOT" with source "Java" and target "Tier" for requirement "dependency" of type "tosca.capabilities.Feature" and target capability "feature"
-  When I check for the deployable status of the topology
+  When I check for the valid status of the topology
   Then I should receive a RestResponse with no error
-    And the topology should not be deployable
-    And the suggested nodes types for the abstracts nodes templates should be:
-      |Java|fastconnect.nodes.JavaChef|
-      |ApplicationServer|fastconnect.nodes.Compute|
+    And the topology should be valid
 
-Scenario: adding nodetemplates without requirements lowerbounds satisfied and check if topology is deployable
+Scenario: adding nodetemplates without requirements lowerbounds satisfied and check if topology is valid
   Given I am authenticated with "APPLICATIONS_MANAGER" role
     And I add to the csar "myCsar" "1.0-SNAPSHOT" the components
       |computeNodeType|
@@ -97,9 +93,9 @@ Scenario: adding nodetemplates without requirements lowerbounds satisfied and ch
       |javaChefNodeType|
     And I have added a node template "Compute" related to the "fastconnect.nodes.Compute:1.0-SNAPSHOT" node type
     And I have added a node template "JavaChef" related to the "fastconnect.nodes.JavaChef:1.0-SNAPSHOT" node type
-  When I check for the deployable status of the topology
+  When I check for the valid status of the topology
   Then I should receive a RestResponse with no error
-    And the topology should not be deployable
+    And the topology should not be valid
     And the node with requirements lowerbound not satisfied should be
       |JavaChef|container,compute|
 
@@ -116,21 +112,21 @@ Scenario: Add a relationship between 2 nodes when upperbound is already reached 
   When I add a relationship "hostedOnCompute" of type "test.HostedOn" defined in archive "myCsar" version "1.0-SNAPSHOT" with source "JavaChef" and target "ComputeModified" for requirement "container" of type "tosca.capabilities.Container" and target capability "container"
   Then I should receive a RestResponse with an error code 810
 
-Scenario: adding nodetemplate with required properties not set and check if topology is deployable
+Scenario: adding nodetemplate with required properties not set and check if topology is valid
   Given I am authenticated with "APPLICATIONS_MANAGER" role
     And I add to the csar "myCsar" "1.0-SNAPSHOT" the components
        |javaFakeNodeType|
     And I have added a node template "JavaFake" related to the "fastconnect.nodes.JavaFake:1.0-SNAPSHOT" node type
-  When I check for the deployable status of the topology
+  When I check for the valid status of the topology
   Then I should receive a RestResponse with no error
-    And the topology should not be deployable
+    And the topology should not be valid
     And the node with required properties not set should be
       |JavaFake|os_name|
   When I update the node template "JavaFake"'s property "os_name" to "Linux"
     Then I should receive a RestResponse with no error
-  When I check for the deployable status of the topology
+  When I check for the valid status of the topology
     Then I should receive a RestResponse with no error
-    And the topology should be deployable
+    And the topology should be valid
 
 Scenario: Release while SNAPSHOT dependency remain should failed
   Given I am authenticated with "APPLICATIONS_MANAGER" role

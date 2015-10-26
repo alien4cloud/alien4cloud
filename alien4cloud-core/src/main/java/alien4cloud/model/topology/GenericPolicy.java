@@ -1,11 +1,11 @@
 package alien4cloud.model.topology;
 
-import java.util.Map;
-
+import alien4cloud.tosca.parser.impl.advanced.GroupPolicyParser;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import alien4cloud.tosca.parser.impl.advanced.GroupPolicyParser;
+
+import java.util.Map;
 
 /** For any unknown policy, let's record its data; maybe an external system can make use of it. */
 @Getter

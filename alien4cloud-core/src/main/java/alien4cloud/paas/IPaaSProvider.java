@@ -3,8 +3,6 @@ package alien4cloud.paas;
 import java.util.Date;
 import java.util.Map;
 
-import alien4cloud.model.cloud.CloudResourceMatcherConfig;
-import alien4cloud.model.cloud.CloudResourceType;
 import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
@@ -51,6 +49,15 @@ public interface IPaaSProvider {
     void scale(PaaSDeploymentContext deploymentContext, String nodeTemplateId, int instances, IPaaSCallback<?> callback);
 
     /**
+     * Launch a workflow.
+     *
+     * @param deploymentContext the deployment context
+     * @param workflowName the workflow to launch
+     * @param inputs the workflow params
+     */
+    void launchWorkflow(PaaSDeploymentContext deploymentContext, String workflowName, Map<String, Object> inputs, IPaaSCallback<?> callback);
+
+    /**
      * Get status of a deployment
      *
      * @param deploymentContext the deployment context
@@ -86,31 +93,6 @@ public interface IPaaSProvider {
      */
     void executeOperation(PaaSTopologyDeploymentContext deploymentContext, NodeOperationExecRequest request,
             IPaaSCallback<Map<String, String>> operationResultCallback) throws OperationExecutionException;
-
-    /**
-     * Call to determine available ids for the given resource type
-     *
-     * @param resourceType the type of the resource
-     * @return ids for the given resource type
-     */
-    String[] getAvailableResourceIds(CloudResourceType resourceType);
-
-    /**
-     * Call to determine available ids for the given resource type restricted to the given image.
-     * Many resources are available only on a certain type of image.
-     *
-     * @param resourceType the type of the resource
-     * @param imageId id for the image
-     * @return ids for the given resource type
-     */
-    String[] getAvailableResourceIds(CloudResourceType resourceType, String imageId);
-
-    /**
-     * Call to initialize or notify the paaS provider about matcher configuration change
-     *
-     * @param config the config to take into account
-     */
-    void updateMatcherConfig(CloudResourceMatcherConfig config);
 
     /**
      * Switch the maintenance mode for this deployed topology.

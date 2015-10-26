@@ -8,8 +8,6 @@ import lombok.Getter;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.cloud.CloudResourceMatcherConfig;
-import alien4cloud.model.cloud.CloudResourceType;
 import alien4cloud.paas.IConfigurablePaaSProvider;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.IPaaSProvider;
@@ -71,22 +69,8 @@ public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvide
     }
 
     @Override
-    public void getInstancesInformation(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
-
-    }
-
-    @Override
-    public String[] getAvailableResourceIds(CloudResourceType resourceType) {
-        return new String[0];
-    }
-
-    @Override
-    public String[] getAvailableResourceIds(CloudResourceType resourceType, String imageId) {
-        return new String[0];
-    }
-
-    @Override
-    public void updateMatcherConfig(CloudResourceMatcherConfig config) {
+    public void getInstancesInformation(PaaSTopologyDeploymentContext deploymentContext,
+            IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
 
     }
 
@@ -99,4 +83,9 @@ public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvide
     public void switchInstanceMaintenanceMode(PaaSDeploymentContext deploymentContext, String nodeId, String instanceId, boolean maintenanceModeOn) {
 
     }
+
+    @Override
+    public void launchWorkflow(PaaSDeploymentContext deploymentContext, String workflowName, Map<String, Object> inputs, IPaaSCallback<?> callback) {
+    }
+
 }

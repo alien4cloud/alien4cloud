@@ -3,7 +3,7 @@
      id="{{idPrefix + 'input'}}">
   <div class="col-md-8 col-md-offset-4">
     <div class="h3 form-editable" style="display: inline-block;">
-      <span ng-if="!propertyType._isReadOnly"
+      <span ng-if="!propertyType._isReadOnly && !configuration.isReadOnly"
             class="form-input-editable"
             editable-text="input.value"
             buttons="no"
@@ -17,7 +17,7 @@
             | translate}}</em>
           <i class="fa fa-pencil-square-o"></i>
       </span>
-      <span ng-if="propertyType._isReadOnly">
+      <span ng-if="propertyType._isReadOnly || configuration.isReadOnly">
           {{input.value}}
           <em ng-if="input.value === null || input.value === undefined" class="text-muted">{{'GENERIC_FORM.UNDEFINED_READ_ONLY'
             | translate}}</em>
@@ -34,7 +34,7 @@
 
     <div id="{{idPrefix + 'input'}}" class="form-editable"
          ng-class="{'col-md-5': isDeletable, 'col-md-8': !isDeletable}">
-      <div ng-if="!propertyType._isReadOnly">
+      <div ng-if="!propertyType._isReadOnly && !configuration.isReadOnly">
         <span ng-if="configuration.useXeditable"
               class="form-input-editable"
               editable-text="input.value"
@@ -59,8 +59,8 @@
                 <span ng-if="input.error && !configuration.useXeditable"
                       class="help-inline text-danger">{{input.error}}</span>
       </div>
-      <div ng-if="propertyType._isReadOnly">
-                <span ng-if="propertyType._isReadOnly">
+      <div ng-if="propertyType._isReadOnly || configuration.isReadOnly">
+                <span ng-if="propertyType._isReadOnly || configuration.isReadOnly">
                 {{input.value}}
                     <em ng-if="input.value === null || input.value === undefined" class="text-muted">{{'GENERIC_FORM.UNDEFINED_READ_ONLY'
                       | translate}}</em>
@@ -82,7 +82,7 @@
 
     <div id="{{idPrefix + 'input'}}" class="form-editable"
          ng-class="{'col-md-5': isDeletable, 'col-md-8': !isDeletable}">
-      <div ng-if="!propertyType._isReadOnly">
+      <div ng-if="!propertyType._isReadOnly && !configuration.isReadOnly">
         <span ng-if="configuration.useXeditable"
               class="form-input-editable"
               editable-textarea="input.value"
@@ -107,8 +107,8 @@
                 <span ng-if="input.error && !configuration.useXeditable"
                       class="help-inline text-danger">{{input.error}}</span>
       </div>
-      <div ng-if="propertyType._isReadOnly">
-                <span ng-if="propertyType._isReadOnly">
+      <div ng-if="propertyType._isReadOnly || configuration.isReadOnly">
+                <span ng-if="propertyType._isReadOnly || configuration.isReadOnly">
                 {{input.value}}
                     <em ng-if="input.value === null || input.value === undefined" class="text-muted">{{'GENERIC_FORM.UNDEFINED_READ_ONLY'
                       | translate}}</em>
@@ -129,7 +129,7 @@
       {{labelName | translate | truncate:configuration.labelSize}} </label>
 
     <div ng-class="{'col-md-5': isDeletable, 'col-md-8': !isDeletable}">
-      <div ng-if="!propertyType._isReadOnly" class="btn-group" id="{{idPrefix + 'input'}}">
+      <div ng-if="!propertyType._isReadOnly && !configuration.isReadOnly" class="btn-group" id="{{idPrefix + 'input'}}">
         <a id="{{idPrefix + 'true'}}"
            class="btn btn-default"
            ng-class="{'active': input.value === true}"
@@ -143,7 +143,7 @@
           {{'GENERIC_FORM.FALSE' | translate}}
         </a>
       </div>
-      <div ng-if="propertyType._isReadOnly">
+      <div ng-if="propertyType._isReadOnly || configuration.isReadOnly">
         <span ng-if="input.value === true">
             {{'GENERIC_FORM.TRUE' | translate}}
         </span>
@@ -170,7 +170,7 @@
 
     <div id="{{idPrefix + 'input'}}" class="form-editable"
          ng-class="{'col-md-5': isDeletable, 'col-md-8': !isDeletable}">
-      <div ng-if="!propertyType._isReadOnly">
+      <div ng-if="!propertyType._isReadOnly && !configuration.isReadOnly">
         <span ng-if="configuration.useXeditable"
               class="form-input-editable"
               editable-number="input.value"
@@ -198,7 +198,7 @@
                       class="help-inline text-danger">{{input.error}}</span>
       </div>
       <div>
-        <span ng-if="propertyType._isReadOnly">
+        <span ng-if="propertyType._isReadOnly || configuration.isReadOnly">
         {{input.value}} <span
             ng-if="propertyType._unit && input.value !== null && input.value !== undefined">{{propertyType._unit}}</span>
             <em ng-if="input.value === null || input.value === undefined" class="text-muted">{{'GENERIC_FORM.UNDEFINED_READ_ONLY'
@@ -221,14 +221,14 @@
     | translate | truncate:configuration.labelSize}} </label>
 
   <div ng-class="{'col-md-5': isDeletable, 'col-md-8': !isDeletable}">
-    <div ng-if="!propertyType._isReadOnly">
+    <div ng-if="!propertyType._isReadOnly && !configuration.isReadOnly">
       <select class="form-control" ng-model="input.value" ng-change="inputChanged()" id="{{idPrefix + 'input'}}">
         <option value="" ng-selected="!inputValue">-- {{'GENERIC_FORM.UNDEFINED' | translate}} --</option>
         <option ng-repeat="value in validValues" value="{{value}}" ng-selected="value == input.value">{{value}}
         </option>
       </select>
     </div>
-    <div class="form-editable" ng-if="propertyType._isReadOnly" id="{{idPrefix + 'input'}}">
+    <div class="form-editable" ng-if="propertyType._isReadOnly || configuration.isReadOnly" id="{{idPrefix + 'input'}}">
       <span>
       {{input.value}}
           <em ng-if="input.value === null || input.value === undefined" class="text-muted">{{'GENERIC_FORM.UNDEFINED_READ_ONLY'

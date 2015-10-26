@@ -37,6 +37,7 @@
   "MODAL": {
     "TITLE": {
       "PROPERTY": "Description de la propriété",
+      "META_PROPERTY": "Description de la méta-propriété",
       "REQUIREMENT": "Description du pré-requis",
       "CAPABILITY": "Description de la capacité",
       "CUSTOM_COMMAND": "Description de l'opération"
@@ -110,7 +111,7 @@
       "UNKOWN_GROUP_POLICY": "La politique de groupe [{{note}}] n'est pas gérée",
       "UNKOWN_GROUP_MEMBER": "Le membre du group [{{note}}] n'existe pas et est ignoré",
       "UNKNWON_WORKFLOW_STEP": "Le pas de workflow [{{note}}] n'existe pas et est ignoré",
-      "WORKFLOW_HAS_ERRORS" : "Le workflow [{{note}}] n'est pas valide",
+      "WORKFLOW_HAS_ERRORS": "Le workflow [{{note}}] n'est pas valide",
       "MISSING_TOPOLOGY_INPUT": "L'input [{{problem}}] référéncé part la propriété [{{problem}}] du noeud [{{context}}] est introuvable dans la liste des inputs",
       "300": "Erreur inattendue lors de l'écriture du plugin.",
       "353": "Votre plugin doit nécessairement avoir le fichier META-INF/plugin.yml."
@@ -175,29 +176,29 @@
     "BUTTON_DELETE": "Supprimer",
     "BUTTON_MODIFY": "Modifier",
     "NAME": "Nom",
-    "ID":"Id",
-    "ARCHIVELIST":"Liste des archives",
-    "IMPORT_SUCCESS":"L'import a été effectué",
-    "IMPORT_ALL":"Importer tout",
-    "LEGEND":"Csars ajoutés",
-    "FROMGIT":"Importés depuis Git",
-    "ACTIONS":"Opérations",
+    "ID": "Id",
+    "ARCHIVELIST": "Liste des archives",
+    "IMPORT_SUCCESS": "L'import a été effectué",
+    "IMPORT_ALL": "Importer tout",
+    "LEGEND": "Csars ajoutés",
+    "FROMGIT": "Importés depuis Git",
+    "ACTIONS": "Opérations",
     "URL": "URL du repository",
     "BRANCHESLIST": "Liste des branches",
-    "BRANCHE":"Branche",
-    "ARCHIVE":"Nom du dossier",
-    "ARCHIVE_TO_IMPORT":"Archive(s) à importer",
-    "BRANCHE_TO_IMPORT":"Sur la branche",
+    "BRANCHE": "Branche",
+    "ARCHIVE": "Nom du dossier",
+    "ARCHIVE_TO_IMPORT": "Archive(s) à importer",
+    "BRANCHE_TO_IMPORT": "Sur la branche",
     "AJOUT": "L'archive a été importé",
     "DESCRIPTION": "Description",
-    "IMPORTTOOLTIP":"Importer",
-    "EDITTOOLTIP":"Editer",
-    "EDIT":"Modifier un CSAR",
-    "UPDATE":"Modifier",
-    "CREDENTIALS":"Authentification",
-    "CREDENTIALSINFO":"Ces informations ne sont utiles que pour les dépôts privés",
-    "USERNAME":"Nom de compte",
-    "PASSWORD":"Mot de passe",
+    "IMPORTTOOLTIP": "Importer",
+    "EDITTOOLTIP": "Editer",
+    "EDIT": "Modifier un CSAR",
+    "UPDATE": "Modifier",
+    "CREDENTIALS": "Authentification",
+    "CREDENTIALSINFO": "Ces informations ne sont utiles que pour les dépôts privés",
+    "USERNAME": "Nom de compte",
+    "PASSWORD": "Mot de passe",
     "VERSION": "Version",
     "BC_CSAR": "CSAR",
     "DETAILS_TITLE": "Détails du CSAR",
@@ -219,16 +220,16 @@
         "TOPOLOGY_TEXT": "Détails de la topology"
       }
     },
-    "SAVE_LOCALLY":"Conserver une copie locale du dépôt",
+    "SAVE_LOCALLY": "Conserver une copie locale du dépôt",
     "DELETE": "Supprimé",
     "ERRORS": {
-      "IMPORT":"Le CSAR ne peut être importé",
+      "IMPORT": "Le CSAR ne peut être importé",
       "507_TITLE": "Suppression d'un CSAR",
       "501_TITLE": "Un CSAR avec cette URL existe déjà",
       "507": "La suppression du CSAR a échoué car elle est utilisée par d'autres resources",
-      "NO_DATA":{
-        "HEADER":"Aucun CSAR à importer",
-        "BODY":"Veuillez renseigner un nouveau CSAR depuis Git"
+      "NO_DATA": {
+        "HEADER": "Aucun CSAR à importer",
+        "BODY": "Veuillez renseigner un nouveau CSAR depuis Git"
       }
     }
   },
@@ -360,8 +361,8 @@
       "INFORMATIONS": {
         "APP_NAME": "Nom de l'application",
         "DEPLOYMENT_ID": "ID du déploiement",
-        "CLOUD_NAME": "Nom du cloud",
-        "CLOUD_ID": "ID du cloud"
+        "ORCHESTRATOR_NAME": "Nom du cloud",
+        "ORCHESTRATOR_ID": "ID du cloud"
       },
       "EVENTS_TAB": "Evénèments",
       "EVENTS": {
@@ -388,6 +389,9 @@
       }
     },
     "DEPLOYMENT": {
+      "DEPLOY": "Déployer",
+      "MATCHING": "Substitution",
+      "INPUT": "Input",
       "NAME_MATCHER": "Association des ressources du cloud",
       "TITLE_NODE_ICON": "Icône du noeud",
       "TITLE_COMPONENT": "Nom du composant",
@@ -440,6 +444,7 @@
       "PROPERTIES": "Propriétés",
       "ATTRIBUTES": "Attributs",
       "PROPERTIES_INPUTS": "Propriétés d'entrée",
+      "ORCHESTRATOR_PROPERTIES": "Propriétés de l'orchestrator",
       "INPUTS": {
         "ADD": "Ajouter aux Propriétés d'entrée",
         "NAME": "Nom",
@@ -474,6 +479,7 @@
       },
       "TASK": {
         "LABEL": "Tâches à faire",
+        "ERRORS_LABEL": "Erreurs",
         "ABSTRACT_LABEL": "Composants abstraits",
         "IMPLEMENT_LABEL": "A implémenter",
         "IMPLEMENT": "Implémenter les noeuds",
@@ -502,7 +508,7 @@
           }
         },
         "WORKFLOWS": {
-          "TITLE" : "Workflows",
+          "TITLE": "Workflows",
           "HAS_ERROR": "Le workflow '{{workflowName}}' n'est pas valide : {{errorCount}} erreur(s)"
         }
       },
@@ -602,7 +608,7 @@
       "DELETING_FAILED": "Impossible de supprimer l'application. Annuler son déploiement et réessayez."
     },
     "WF": {
-      "title" : "Workflows",
+      "title": "Workflows",
       "addWorkflow": "Ajouter un nouveau workflow",
       "changeViewMode": "Vue simplifiée",
       "nodeName": "Noeud",
@@ -610,13 +616,14 @@
       "interfaceName": "Interface",
       "operationName": "Opération",
       "stateName": "Etat",
+      "delegateWorkflow": "Workflow",
       "reinit": "Réinitialiser",
       "addOperationActivity": "Ajouter un appel d'opération",
       "addStateActivity": "Ajouter un changement d'état",
       "insertOperationActivity": "Insérer un appel d'opération (avant)",
-      "appendOperationActivity": "Ajouter un appel d'opération (après)",   
+      "appendOperationActivity": "Ajouter un appel d'opération (après)",
       "insertStateActivity": "Insérer un changement d'état (avant)",
-      "appendStateActivity": "Ajouter un changement d'état (après)",             
+      "appendStateActivity": "Ajouter un changement d'état (après)",
       "activity": "Activité",
       "disconnect": "Déconnecter",
       "disconnectFrom": "Déconnecter depuis",
@@ -624,20 +631,22 @@
       "swapLeft": "Interchanger à gauche",
       "swapRigth": "Interchanger à droite",
       "connectFromSelection": "Connecter depuis la sélection",
-      "connectToSelection": "Connecter vers la sélection",        
+      "connectToSelection": "Connecter vers la sélection",
       "removeStep": "Supprimer le pas",
       "OperationCallActivity": "Appel d'opération",
       "SetStateActivity": "Changement d'état",
+      "DelegateWorkflowActivity": "Workflow sous-traité",
       "unpin": "Dévérouiller",
-      "currentSelection" : "Sélection courrante",
-      "hasErrors" : "erreur(s)",
+      "currentSelection": "Sélection courrante",
+      "hasErrors": "erreur(s)",
       "errors": {
         "WorkflowHasCycleError": "Le workflow contient un cycle",
         "BadStateSequenceError": "Mauvaise séquence : le pas '{{from}}' ne devrait pas se trouver avant le pas '{{to}}'",
         "ParallelSetStatesError": "Des changements d'état sont effectués en parallèle pour le noeud '{{nodeId}}'",
         "UnknownNodeError": "Le noeud '{{nodeId}}' référencé par le pas '{{stepId}}' n'existe pas"
-      }
-    }    
+      },
+      "launch": "Lancer"
+    }
   },
   "TEMPLATE": {
     "NEW": "Nouveau Modèle",

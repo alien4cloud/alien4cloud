@@ -16,7 +16,6 @@ import org.elasticsearch.mapping.IndexType;
  */
 @Getter
 @Setter
-@SuppressWarnings("PMD.UnusedPrivateField")
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode

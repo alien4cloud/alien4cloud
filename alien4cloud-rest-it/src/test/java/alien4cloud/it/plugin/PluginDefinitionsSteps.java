@@ -11,6 +11,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.common.collect.Lists;
+import org.junit.Assert;
 
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
@@ -19,7 +20,6 @@ import alien4cloud.model.common.Tag;
 import alien4cloud.plugin.model.PluginUsage;
 import alien4cloud.rest.model.BasicSearchRequest;
 import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.paasprovider.PaaSProviderDTO;
 import alien4cloud.rest.utils.JsonUtil;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -57,7 +57,7 @@ public class PluginDefinitionsSteps {
 
     @Given("^I upload a plugin$")
     public void I_upload_a_plugin() throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart("/rest/plugin", "file", Files.newInputStream(PLUGIN_PATH)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart("/rest/plugins", "file", Files.newInputStream(PLUGIN_PATH)));
     }
 
     @Given("^I have uploaded a plugin$")
@@ -69,13 +69,12 @@ public class PluginDefinitionsSteps {
     @Given("^I upload an invalid plugin$")
     public void I_upload_an_invalid_plugin() throws Throwable {
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postMultipart("/rest/plugin", "file", Files.newInputStream(INVALID_PLUGIN_PATH)));
+                Context.getRestClientInstance().postMultipart("/rest/plugins", "file", Files.newInputStream(INVALID_PLUGIN_PATH)));
     }
 
     @When("^I search for plugins$")
     public void I_search_for_plugins() throws Throwable {
-        BasicSearchRequest request = new BasicSearchRequest(null, 0, 10);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/plugin/search", mapper.writeValueAsString(request)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/plugins"));
     }
 
     @Then("^The plugin response should contains (\\d+) plugin$")
@@ -89,12 +88,12 @@ public class PluginDefinitionsSteps {
 
     @When("^I enable the plugin$")
     public void I_enable_the_plugin() throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/plugin/" + PLUGIN_ID + "/enable"));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/plugins/" + PLUGIN_ID + "/enable"));
     }
 
     @When("^I disable the plugin$")
     public void I_disable_the_plugin() throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/plugin/" + PLUGIN_ID + "/disable"));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/plugins/" + PLUGIN_ID + "/disable"));
     }
 
     @Given("^I use the plugin$")
@@ -112,25 +111,21 @@ public class PluginDefinitionsSteps {
 
     @When("^I remove the plugin$")
     public void I_remove_the_plugin() throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/plugin/" + PLUGIN_ID));
-    }
-
-    @When("^I get the list of PaaSProvider$")
-    public void I_get_the_list_of_PaaSProvider() throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/passprovider"));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/plugins/" + PLUGIN_ID));
     }
 
     @Then("^the result should not be empty$")
     public void the_result_should_not_be_empty() throws Throwable {
         RestResponse<?> response = JsonUtil.read(Context.getInstance().takeRestResponse());
-        List<PaaSProviderDTO> providersResponse = JsonUtil.toList(JsonUtil.toString(response.getData()), PaaSProviderDTO.class);
-        assertNotNull(providersResponse);
-        assertTrue(providersResponse.size() > 0);
+//        List<PaaSProviderDTO> providersResponse = JsonUtil.toList(JsonUtil.toString(response.getData()), PaaSProviderDTO.class);
+//        assertNotNull(providersResponse);
+//        assertTrue(providersResponse.size() > 0);
+        Assert.fail("Fix test");
     }
 
     @When("^I get the plugin configuration$")
     public void I_get_the_plugin_configuration() throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/plugin/" + PLUGIN_ID + "/config"));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/plugins/" + PLUGIN_ID + "/config"));
     }
 
     @Then("^there should be a configuration object in the response$")
@@ -151,7 +146,7 @@ public class PluginDefinitionsSteps {
         tags.add(new Tag("usefull", "no"));
         config.setTags(tags);
         Context.getInstance()
-                .registerRestResponse(Context.getRestClientInstance().postJSon("/rest/plugin/" + PLUGIN_ID + "/config", JsonUtil.toString(config)));
+                .registerRestResponse(Context.getRestClientInstance().postJSon("/rest/plugins/" + PLUGIN_ID + "/config", JsonUtil.toString(config)));
     }
 
     @When("^I set the plugin configuration with an invalid configuration object$")
@@ -160,7 +155,7 @@ public class PluginDefinitionsSteps {
         tags.add(new Tag("version", "1.0"));
         tags.add(new Tag("maturity", "none"));
         tags.add(new Tag("usefull", "no"));
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/plugin/" + PLUGIN_ID + "/config", JsonUtil.toString(tags)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/plugins/" + PLUGIN_ID + "/config", JsonUtil.toString(tags)));
     }
 
     @Given("^I have set the plugin configuration with a valid configuration object$")
@@ -180,13 +175,13 @@ public class PluginDefinitionsSteps {
     @When("^I upload a plugin which \"([^\"]*)\"$")
     public void I_upload_a_plugin_which(String pluginCondition) throws Throwable {
         Path path = conditionToPath.get(pluginCondition);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart("/rest/plugin", "file", Files.newInputStream(path)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart("/rest/plugins", "file", Files.newInputStream(path)));
     }
 
     @Then("^the new plugin configuration should be the same as for the previous version$")
     public void the_new_plugin_configuration_should_be_the_same_as_for_the_previous_version() throws Throwable {
-        String prevPluginResp = Context.getRestClientInstance().get("/rest/plugin/" + PLUGIN_ID + "/config");
-        String pluginResp = Context.getRestClientInstance().get("/rest/plugin/" + NEXT_VERSION_PLUGIN_ID + "/config");
+        String prevPluginResp = Context.getRestClientInstance().get("/rest/plugins/" + PLUGIN_ID + "/config");
+        String pluginResp = Context.getRestClientInstance().get("/rest/plugins/" + NEXT_VERSION_PLUGIN_ID + "/config");
         Object pluginConfig = JsonUtil.read(pluginResp).getData();
         Object prevPluginConfig = JsonUtil.read(prevPluginResp).getData();
 
@@ -197,8 +192,8 @@ public class PluginDefinitionsSteps {
 
     @Then("^the new plugin configuration should not be the same as for the previous version$")
     public void the_new_plugin_configuration_should_not_be_the_same_as_for_the_previous_version() throws Throwable {
-        String prevPluginResp = Context.getRestClientInstance().get("/rest/plugin/" + PLUGIN_ID + "/config");
-        String pluginResp = Context.getRestClientInstance().get("/rest/plugin/" + NEXT_VERSION_PLUGIN_ID + "/config");
+        String prevPluginResp = Context.getRestClientInstance().get("/rest/plugins/" + PLUGIN_ID + "/config");
+        String pluginResp = Context.getRestClientInstance().get("/rest/plugins/" + NEXT_VERSION_PLUGIN_ID + "/config");
         Object pluginConfig = JsonUtil.read(pluginResp).getData();
         Object prevPluginConfig = JsonUtil.read(prevPluginResp).getData();
 
@@ -212,6 +207,6 @@ public class PluginDefinitionsSteps {
         Path pluginDirPath = Paths.get(pluginPathText);
         String pluginName = pluginDirPath.getFileName().toString();
         Path pluginPath = pluginDirPath.resolve("target").resolve(pluginName + "-" + Context.VERSION + ".zip");
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart("/rest/plugin", "file", Files.newInputStream(pluginPath)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart("/rest/plugins", "file", Files.newInputStream(pluginPath)));
     }
 }

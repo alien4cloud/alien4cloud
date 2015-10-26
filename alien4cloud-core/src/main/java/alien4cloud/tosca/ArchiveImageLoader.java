@@ -6,19 +6,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.annotation.Resource;
+import javax.inject.Inject;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.components.IndexedInheritableToscaElement;
-import alien4cloud.model.common.Tag;
 import alien4cloud.images.IImageDAO;
 import alien4cloud.images.ImageData;
 import alien4cloud.images.exception.ImageUploadException;
+import alien4cloud.model.common.Tag;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 
 /**
@@ -27,32 +26,24 @@ import alien4cloud.tosca.parser.impl.ErrorCode;
 @Component
 public class ArchiveImageLoader {
     private static final String ALIEN_ICON_TAG = "icon";
-
-    @Resource
+    @Inject
     private IImageDAO imageDAO;
 
     /**
      * Import all images from the artifacts types in an archive.
-     * 
-     * @param archiveFile The path to the archive root.
-     * @param archiveRoot The archive root object.
+     *
+     * @param archiveFile The path to the root of the archive file.
+     * @param archiveRoot The parsed archive object that contains all the types and topologies.
+     * @param parsingErrors The list of parsing error in which to add errors in case there are (format error, file not found etc.)
      */
-    @SuppressWarnings("unchecked")
-    public void importImages(Path archiveFile, ParsingResult<ArchiveRoot> parsingResult) {
-        importImages(archiveFile, parsingResult, parsingResult.getResult().getNodeTypes());
-        importImages(archiveFile, parsingResult, parsingResult.getResult().getRelationshipTypes());
-        importImages(archiveFile, parsingResult, parsingResult.getResult().getCapabilityTypes());
-        importImages(archiveFile, parsingResult, parsingResult.getResult().getArtifactTypes());
-
-        for (ParsingResult<?> subResult : parsingResult.getContext().getSubResults()) {
-            if (subResult.getResult() instanceof ArchiveRoot) {
-                importImages(archiveFile, (ParsingResult<ArchiveRoot>) subResult);
-            }
-        }
+    public void importImages(Path archiveFile, ArchiveRoot archiveRoot, List<ParsingError> parsingErrors) {
+        importImages(archiveFile, archiveRoot.getNodeTypes(), parsingErrors);
+        importImages(archiveFile, archiveRoot.getRelationshipTypes(), parsingErrors);
+        importImages(archiveFile, archiveRoot.getCapabilityTypes(), parsingErrors);
+        importImages(archiveFile, archiveRoot.getArtifactTypes(), parsingErrors);
     }
 
-    private void importImages(Path archiveFile, ParsingResult<ArchiveRoot> parsingResult,
-            Map<String, ? extends IndexedInheritableToscaElement> toscaInheritableElement) {
+    private void importImages(Path archiveFile, Map<String, ? extends IndexedInheritableToscaElement> toscaInheritableElement, List<ParsingError> parsingErrors) {
         if (toscaInheritableElement == null) {
             return;
         }
@@ -61,49 +52,41 @@ public class ArchiveImageLoader {
                 List<Tag> tags = element.getValue().getTags();
                 Tag iconTag = ArchiveImageLoader.getIconTag(tags);
                 if (iconTag != null) {
-                    FileSystem csarFS = null;
-                    Path iconPath = null;
-
-                    try {
-                        csarFS = FileSystems.newFileSystem(archiveFile, null);
-                        iconPath = csarFS.getPath(iconTag.getValue());
-                        if (!Files.isDirectory(iconPath)) {
-                            String iconId = UUID.randomUUID().toString();
-                            // Saving the image
-                            ImageData imageData = new ImageData();
-                            imageData.setData(Files.readAllBytes(iconPath));
-                            imageData.setId(iconId);
-                            imageDAO.writeImage(imageData);
-                            // Replace the image uri by the indexed image ID
-                            iconTag.setValue(iconId);
-                        } else {
-                            parsingResult
-                                    .getContext()
-                                    .getParsingErrors()
-                                    .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_ICON_FORMAT, "Icon loading", null,
-                                            "Invalid icon format at path <" + iconPath + ">", null, iconPath.toString()));
-                        }
-                    } catch (NoSuchFileException | InvalidPathException e) {
-                        parsingResult
-                                .getContext()
-                                .getParsingErrors()
-                                .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.MISSING_FILE, "Icon loading", null, "No icon file found at path <"
-                                        + iconPath + ">", null, iconPath.toString()));
-                    } catch (ImageUploadException e) {
-                        parsingResult
-                                .getContext()
-                                .getParsingErrors()
-                                .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_ICON_FORMAT, "Icon loading", null,
-                                        "Invalid icon format at path <" + iconPath + ">", null, iconPath.toString()));
-                    } catch (IOException e) {
-                        parsingResult
-                                .getContext()
-                                .getParsingErrors()
-                                .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.FAILED_TO_READ_FILE, "Icon loading", null,
-                                        "IO error while loading icon at path <" + iconPath + ">", null, iconPath.toString()));
-                    }
+                    importImage(archiveFile, parsingErrors, iconTag);
                 }
             }
+        }
+    }
+
+    private void importImage(Path archiveFile, List<ParsingError> parsingErrors, Tag iconTag) {
+        FileSystem csarFS = null;
+        Path iconPath = null;
+
+        try {
+            csarFS = FileSystems.newFileSystem(archiveFile, null);
+            iconPath = csarFS.getPath(iconTag.getValue());
+            if (!Files.isDirectory(iconPath)) {
+                String iconId = UUID.randomUUID().toString();
+                // Saving the image
+                ImageData imageData = new ImageData();
+                imageData.setData(Files.readAllBytes(iconPath));
+                imageData.setId(iconId);
+                imageDAO.writeImage(imageData);
+                // Replace the image uri by the indexed image ID
+                iconTag.setValue(iconId);
+            } else {
+                parsingErrors.add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_ICON_FORMAT, "Icon loading", null,
+                        "Invalid icon format at path <" + iconPath + ">", null, iconPath.toString()));
+            }
+        } catch (NoSuchFileException | InvalidPathException e) {
+            parsingErrors.add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.MISSING_FILE, "Icon loading", null, "No icon file found at path <"
+                    + iconPath + ">", null, iconPath.toString()));
+        } catch (ImageUploadException e) {
+            parsingErrors.add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_ICON_FORMAT, "Icon loading", null, "Invalid icon format at path <"
+                    + iconPath + ">", null, iconPath.toString()));
+        } catch (IOException e) {
+            parsingErrors.add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.FAILED_TO_READ_FILE, "Icon loading", null,
+                    "IO error while loading icon at path <" + iconPath + ">", null, iconPath.toString()));
         }
     }
 

@@ -9,13 +9,10 @@ import lombok.Setter;
 
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
-import org.elasticsearch.annotation.NestedObject;
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.TimeStamp;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
-
-import alien4cloud.model.application.DeploymentSetup;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -28,10 +25,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(Include.NON_NULL)
-@SuppressWarnings("PMD.UnusedPrivateField")
 @ESObject
 public class Deployment {
-
     /** Unique id of the deployment as stored in Alien */
     @Id
     private String id;
@@ -42,16 +37,21 @@ public class Deployment {
      */
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
-    private String paasId;
+    private String orchestratorDeploymentId;
 
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
     private DeploymentSourceType sourceType;
 
-    /** Id of the cloud on which the deployment is performed. */
+    /** Id of the orchestrator that manages the deployment. */
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
-    private String cloudId;
+    private String orchestratorId;
+
+    /** Id of the locations on which it is deployed. */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
+    private String[] locationIds;
 
     /** Id of the application that has been deployed */
     @TermFilter
@@ -63,10 +63,15 @@ public class Deployment {
     @StringField(indexType = IndexType.not_analyzed)
     private String sourceName;
 
-    /** Id of the topology that is deployed (runtime topology) */
+    /** Id of the environment on which this deployment has been created */
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
-    private String topologyId;
+    private String environmentId;
+
+    /** Id of the version of the topology on which this deployment has been created */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
+    private String versionId;
 
     /** Start date of the deployment */
     @TimeStamp(format = "")
@@ -75,8 +80,4 @@ public class Deployment {
     /** End date of the deployment. */
     @TermFilter
     private Date endDate;
-
-    /** Linked deployment setup */
-    @NestedObject
-    private DeploymentSetup deploymentSetup;
 }

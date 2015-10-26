@@ -5,10 +5,17 @@ description: >
   Plugin that contains a single paas provider for deployments' mocking.
 configuration_class: alien4cloud.plugin.mock.MockPaaSProviderPluginConfiguration
 component_descriptors:
-  - bean_name: mock-paas-provider
-    name: Mock PaaS Provider
+  - bean_name: mock-orchestrator-factory
+    name: Mock Orchestrator Factory
     description: >
-      A PaaS provider that just mocks deployment.
+      Orchestrator Factory that instanciate orchestrators that just mocks deployment.
       Used for our automated tests the plugin suceed for every application except an application named:
        - BAD-APPLICATION: The deployment will fail.
        - WARN-APPLICATION: The deployment will ends up in a warning state.
+#  - bean_name: mock-location-matcher
+#    name: Mock location matcher
+#    description: >
+#      A location matcher that matches a topology against locations based on some properties.
+#      It'll only matches locations managed by orchestrators from the mock-orchestrator-factory
+#       - BAD-APPLICATION: The deployment will fail.
+#       - WARN-APPLICATION: The deployment will ends up in a warning state.            

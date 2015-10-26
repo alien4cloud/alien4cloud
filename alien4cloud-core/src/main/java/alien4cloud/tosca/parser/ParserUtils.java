@@ -30,7 +30,7 @@ public final class ParserUtils {
      */
     public static String getScalar(Node node, ParsingContextExecution context) {
         if (node instanceof ScalarNode) {
-            return ((ScalarNode) node).getValue();
+            return ((ScalarNode) node).getValue().trim();
         }
         addTypeError(node, context.getParsingErrors(), "scalar");
         return null;

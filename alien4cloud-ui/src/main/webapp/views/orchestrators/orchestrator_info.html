@@ -1,0 +1,59 @@
+<div class="row">
+  <div class="col-sm-9">
+    <div class="h2" style="margin: 0px" id="orchestrator-name">
+      <span editable-text="orchestrator.name" buttons="no" e-required e-class="input-lg" onbeforesave="updateName($data)" blur="submit">
+        {{orchestrator.name}} <i class="fa fa-edit"></i>
+      </span>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-9">
+    <i class="fa fa-2x ng-scope" ng-class="{
+      'fa-circle text-success' : orchestrator.state === 'CONNECTED',
+      'fa-circle text-muted' : orchestrator.state === 'DISABLED',
+      'fa-question-circle text-danger' : orchestrator.state === 'DISCONNECTED',
+      'fa-spinner fa-spin text-success' : orchestrator.state === 'CONNECTING',
+      'fa-spinner fa-spin text-muted' : orchestrator.state === 'DISABLING'
+    }"></i>
+    {{'ORCHESTRATORS.STATES.' + orchestrator.state | translate }}
+  </div>
+  <div class="col-sm-3">
+    <a id="orchestrator-enable-button" class="btn btn-success" ng-click="enable()" ng-if="orchestrator.state === 'DISABLED'">
+      <i class="fa fa-play"></i> {{'CLOUDS.ENABLE' | translate}}
+    </a>
+    <a id="orchestrator-disable-button" class="btn btn-danger" ng-click="disable(false)" ng-if="orchestrator.state !== 'DISABLED' &&
+    orchestrator.state !== 'DISABLING' && !showForceDisable">
+      <i class="fa fa-stop"></i> {{'CLOUDS.DISABLE' | translate}}
+    </a>
+    <a id="orchestrator-force-disable-button"
+       ng-if="orchestrator.state !== 'DISABLED' && orchestrator.state !== 'DISABLING' && showForceDisable"
+       class="btn btn-danger"
+       confirm="{{'CLOUDS.FORCE-DISABLE-CONTENT' | translate}}"
+       confirm-title="{{'CLOUDS.FORCE-DISABLE-TITLE' | translate }}"
+       confirm-placement="left"
+       confirm-handler="disable(true)"
+       ng-click="$event.stopPropagation();">
+      <i class="fa fa-stop"></i> {{'CLOUDS.FORCE-DISABLE' | translate}}
+    </a>
+    <delete-confirm ng-if="orchestrator.state === 'DISABLED'" id="btn-delete-app" func="removeOrchestrator()" position="left" fastyle="fa-trash-o" text="{{'DELETE' | translate}}"></delete-confirm>
+  </div>
+</div>
+<div class="row" ng-if="orchestratorProperties">
+  <div class="col-md-12">
+    <hr class="separator-h">
+    <meta-properties-display
+      properties="orchestratorProperties"
+      target="orchestrator"
+      
+      collapsable="false">
+    </meta-properties-display>
+  </div>
+</div>
+<hr class="separator-h">
+<div class="row">
+  TODO list:
+  <ul>
+    <li>Display an icon of the orchestrator if the IOrchestrator plugin provides one.</li>
+  </ul>
+</div>

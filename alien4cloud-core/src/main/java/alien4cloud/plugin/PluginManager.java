@@ -57,6 +57,7 @@ import com.google.common.collect.Sets;
 @Component("plugin-manager")
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class PluginManager {
+    private static final String UNKNOWN_PLUGIN_COMPONENT_TYPE = "Unknown component type";
     private static final String LIB_DIRECTORY = "lib";
     private static final String UI_DIRECTORY = "ui";
     private static final String PLUGIN_DESCRIPTOR_FILE = "META-INF/plugin.yml";
@@ -78,7 +79,7 @@ public class PluginManager {
 
     /**
      * Initialize the plugins for alien.
-     * 
+     *
      * @throws IOException In case we fail to iterate over the plugin directory.
      */
     public void initialize() throws IOException {
@@ -107,7 +108,6 @@ public class PluginManager {
 
         // TODO look for plugins on disk and load them
         // Files.walkFileTree()
-
     }
 
     /**
@@ -162,7 +162,7 @@ public class PluginManager {
 
     /**
      * Upload a plugin from a given path.
-     * 
+     *
      * @param uploadedPluginPath The path of the plugin to upload.
      * @throws IOException In case there is an issue with the access to the plugin file.
      * @throws PluginLoadingException
@@ -194,7 +194,7 @@ public class PluginManager {
             // copy ui directory in case it exists
             Path pluginUiSourcePath = pluginPath.resolve(UI_DIRECTORY);
             Path pluginUiPath = getPluginUiPath(pluginPathId);
-            if(Files.exists(pluginUiSourcePath)) {
+            if (Files.exists(pluginUiSourcePath)) {
                 FileUtil.copy(pluginUiSourcePath, pluginUiPath);
             }
 
@@ -216,7 +216,7 @@ public class PluginManager {
 
     /**
      * Disable a plugin.
-     * 
+     *
      * @param pluginId The id of the plugin to disable.
      * @param remove If true the plugin is not only disabled but also removed from the plugin repository.
      * @return Empty list if the plugin was successfully disabled (and removed), or a list of usages that prevent the plugin to be disabled/removed.
@@ -284,7 +284,7 @@ public class PluginManager {
 
     /**
      * Enable a plugin in alien.
-     * 
+     *
      * @param pluginId The id of the plugin to load.
      * @throws PluginLoadingException In case plugin loading fails.
      */
@@ -376,12 +376,18 @@ public class PluginManager {
         pluginContext.setClassLoader(pluginClassLoader);
 
         // Register beans from dependencies
+        // FIXME and if the plugin doesn't have any config class? for ex a typical ui plugin?
         registerDependencies(plugin, pluginContext);
-
-        pluginContext.register(pluginClassLoader.loadClass(plugin.getDescriptor().getConfigurationClass()));
-        pluginContext.refresh();
+        if (plugin.getDescriptor().getConfigurationClass() != null) {
+            pluginContext.register(pluginClassLoader.loadClass(plugin.getDescriptor().getConfigurationClass()));
+        }
 
         ManagedPlugin managedPlugin = new ManagedPlugin(pluginContext, plugin, pluginPath, pluginUiPath);
+
+        // Register the context so that it can be injected by other beans
+        pluginContext.getBeanFactory().registerSingleton("alien-plugin-context", managedPlugin);
+
+        pluginContext.refresh();
 
         Map<String, PluginComponentDescriptor> componentDescriptors = getPluginComponentDescriptorAsMap(plugin);
 
@@ -430,7 +436,7 @@ public class PluginManager {
 
     /**
      * Link the plugin against alien components that may need to use it.
-     * 
+     *
      * @param plugin The plugin to link.
      * @param managedPlugin The managed plugin related to the plugin.
      * @param componentDescriptors The map of component descriptors.
@@ -456,6 +462,12 @@ public class PluginManager {
                 componentDescriptor.setType(linker.linkedType.getSimpleName());
             }
         }
+        // Add a default undefined type for all componentDescriptor that haven't been linked.
+        for (PluginComponentDescriptor componentDescriptor : componentDescriptors.values()) {
+            if (componentDescriptor.getType() == null) {
+                componentDescriptor.setType(UNKNOWN_PLUGIN_COMPONENT_TYPE);
+            }
+        }
     }
 
     private Map<String, PluginComponentDescriptor> getPluginComponentDescriptorAsMap(Plugin plugin) {
@@ -471,7 +483,7 @@ public class PluginManager {
 
     /**
      * The the plugin descriptor for a given plugin.
-     * 
+     *
      * @param pluginId The id of the plugin for which to get the descriptor.
      * @return The plugin descriptor for the given plugin.
      */
@@ -486,7 +498,7 @@ public class PluginManager {
     /**
      * Return true if the plugin can be configured using a configuration object (basically if the plugin spring context contains an instance of
      * {@link IPluginConfigurator}.
-     * 
+     *
      * @param pluginId Id of the plugin for which to know if configurable.
      * @return True if the plugin can be configured, false if not.
      */
@@ -498,7 +510,7 @@ public class PluginManager {
 
     /**
      * Get the class of the configuration object for a given plugin.
-     * 
+     *
      * @param pluginId Id of the plugin for which to get configuration object's class.
      * @return The class of the plugin configuration object.
      */
@@ -514,7 +526,7 @@ public class PluginManager {
 
     /**
      * Get the instance of the {@link IPluginConfigurator} for a given plugin.
-     * 
+     *
      * @param pluginId Id of the plugin for which to get a the {@link IPluginConfigurator}
      * @return Null if no {@link IPluginConfigurator} is defined within the plugin's spring context or the first instance of {@link IPluginConfigurator}.
      */

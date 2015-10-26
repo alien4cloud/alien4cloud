@@ -63,6 +63,9 @@ define(function (require) {
         var menu = self.menu(childStates);
         if(_.defined(menu) && !_.isEmpty(menu)) {
           _.set(stateConfig, 'resolve.menu', function() { return menu; });
+          if(_.undefined(stateConfig.resolve.context)){
+            _.set(stateConfig, 'resolve.context', function() { return {}; });
+          }
         }
 
         $stateProvider.state(stateName, stateConfig);

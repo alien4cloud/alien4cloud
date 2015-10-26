@@ -6,9 +6,9 @@ import java.util.Map;
 import com.google.common.collect.Maps;
 
 public class TypeMap {
-    private Map<Class<? extends Object>, Map<String, Object>> cacheMap = Maps.newHashMap();
+    private Map<Class<?>, Map<String, Object>> cacheMap = Maps.newHashMap();
 
-    private Map<String, Object> getMap(Class<? extends Object> clazz) {
+    private Map<String, Object> getMap(Class<?> clazz) {
         Map<String, Object> map = cacheMap.get(clazz);
         if (map == null) {
             cacheMap.put(clazz, new HashMap<String, Object>());
