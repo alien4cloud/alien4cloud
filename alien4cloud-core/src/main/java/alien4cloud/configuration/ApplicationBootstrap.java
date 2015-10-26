@@ -20,6 +20,8 @@ public class ApplicationBootstrap implements ApplicationListener<ContextRefreshe
     private PluginManager pluginManager;
     @Inject
     private OrchestratorStateService orchestratorStateService;
+    @Inject
+    private InitialLoader initialLoader;
 
     private boolean initialized = false;
 
@@ -30,7 +32,11 @@ public class ApplicationBootstrap implements ApplicationListener<ContextRefreshe
         }
         initialized = true;
         try {
+            // initialize existing plugins
             pluginManager.initialize();
+
+            // try to load plugins from init folder.
+            initialLoader.loadPlugins();
         } catch (IOException e) {
             log.error("Error while loading plugins.", e);
         }
