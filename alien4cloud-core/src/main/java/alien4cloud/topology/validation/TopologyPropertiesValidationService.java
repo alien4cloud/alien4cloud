@@ -8,20 +8,23 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.ComplexPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.ListPropertyValue;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.Capability;
@@ -35,9 +38,7 @@ import alien4cloud.topology.task.ScalableTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.TaskLevel;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Performs validation of the properties
@@ -96,7 +97,7 @@ public class TopologyPropertiesValidationService {
             task.setNodeTemplateName(nodeTempEntry.getKey());
             task.setComponent(relatedIndexedNodeType);
             task.setCode(TaskCode.PROPERTIES);
-            task.setProperties(Maps.<TaskLevel, List<String>> newHashMap());
+            task.setProperties(Maps.<TaskLevel, List<String>>newHashMap());
 
             // Check the properties of node template
             if (MapUtils.isNotEmpty(nodeTemplate.getProperties())) {
@@ -171,7 +172,7 @@ public class TopologyPropertiesValidationService {
     }
 
     private void verifyScalableProperties(Map<String, AbstractPropertyValue> scalableProperties, List<PropertiesTask> toReturnTaskList, String nodeTemplateId,
-            boolean skipInputProperties) {
+                                          boolean skipInputProperties) {
         Set<String> missingProperties = Sets.newHashSet();
         Set<String> errorProperties = Sets.newHashSet();
         if (skipInputProperties) {
@@ -214,7 +215,7 @@ public class TopologyPropertiesValidationService {
     }
 
     private int verifyScalableProperty(Map<String, AbstractPropertyValue> scalableProperties, String propertyToVerify, Set<String> missingProperties,
-            Set<String> errorProperties) {
+                                       Set<String> errorProperties) {
         String rawValue = null;
         try {
             rawValue = FunctionEvaluator.getScalarValue(scalableProperties.get(propertyToVerify));
@@ -239,45 +240,41 @@ public class TopologyPropertiesValidationService {
         return value;
     }
 
-    private void addRequiredPropertyIdToTaskProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> relatedProperties,
-            PropertiesTask task, boolean skipInputProperties) {
-        for (Map.Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
+    private void addRequiredPropertyError(PropertiesTask task, String propertyName) {
+        if (!task.getProperties().containsKey(TaskLevel.REQUIRED)) {
+            task.getProperties().put(TaskLevel.REQUIRED, Lists.<String>newArrayList());
+        }
+        task.getProperties().get(TaskLevel.REQUIRED).add(propertyName);
+    }
 
+    private void addRequiredPropertyIdToTaskProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> relatedProperties, PropertiesTask task, boolean skipInputProperties) {
+        for (Map.Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
             PropertyDefinition propertyDef = relatedProperties.get(propertyEntry.getKey());
             AbstractPropertyValue value = propertyEntry.getValue();
-            String propertyValue = null;
-            TaskLevel taskLevel = TaskLevel.WARNING; // default property task level
-            boolean isGetInputInternal = false;
-            boolean isScalar = false;
-
-            if (value == null) {
-                propertyValue = null;
-            } else if (value instanceof ScalarPropertyValue) {
-                propertyValue = ((ScalarPropertyValue) value).getValue();
-                isScalar = true;
-            } else {
-                // this is a get_input funtion.
-                if (skipInputProperties) {
-                    // get_input Will be validated later on
-                    continue;
-                }
-            }
-
-            if (StringUtils.isBlank(propertyValue)) {
-                if (propertyDef.isRequired()) {
-                    taskLevel = TaskLevel.REQUIRED;
-                    if (!task.getProperties().containsKey(taskLevel)) {
-                        task.getProperties().put(taskLevel, Lists.<String> newArrayList());
+            if (propertyDef.isRequired()) {
+                if (value == null) {
+                    addRequiredPropertyError(task, propertyEntry.getKey());
+                } else if (value instanceof ScalarPropertyValue) {
+                    String propertyValue = ((ScalarPropertyValue) value).getValue();
+                    if (StringUtils.isBlank(propertyValue)) {
+                        addRequiredPropertyError(task, propertyEntry.getKey());
                     }
-                } else { // warning
-                    if (!task.getProperties().containsKey(taskLevel)) {
-                        task.getProperties().put(taskLevel, Lists.<String> newArrayList());
+                } else if (value instanceof ComplexPropertyValue) {
+                    Map<String, Object> mapValue = ((ComplexPropertyValue) value).getValue();
+                    if (MapUtils.isEmpty(mapValue)) {
+                        addRequiredPropertyError(task, propertyEntry.getKey());
                     }
-                }
-                // add required or warning property
-                // ??? why this check?
-                if (TaskLevel.REQUIRED.equals(taskLevel) || isGetInputInternal || isScalar) {
-                    task.getProperties().get(taskLevel).add(propertyEntry.getKey());
+                } else if (value instanceof ListPropertyValue) {
+                    List<Object> listValue = ((ListPropertyValue) value).getValue();
+                    if (listValue.isEmpty()) {
+                        addRequiredPropertyError(task, propertyEntry.getKey());
+                    }
+                } else {
+                    // this is a get_input funtion.
+                    if (skipInputProperties) {
+                        // get_input Will be validated later on
+                        continue;
+                    }
                 }
             }
         }
