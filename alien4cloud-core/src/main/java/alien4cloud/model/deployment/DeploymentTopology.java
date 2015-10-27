@@ -26,10 +26,10 @@ import com.google.common.collect.Sets;
 
 /**
  * Deployment topology is the topology for a given environment.
- *
+ * <p/>
  * It contains the location matching policies as well as node matching. Users can also add additional node templates (like network specific settings for
  * example).
- *
+ * <p/>
  * Anything can be added to this topology, nodes matched from the initial topology are specified here so additional properties can be configured.
  */
 @Getter
@@ -45,11 +45,15 @@ public class DeploymentTopology extends Topology {
     @TermFilter
     @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
     private String environmentId;
-    /** Id of the initial topology that this topology completes. */
+    /**
+     * Id of the initial topology that this topology completes.
+     */
     private String initialTopologyId;
 
-    /** Save the last update date of the original topology **/
-    private Date lastInitialTopologyUpdateDate = new Date();
+    /**
+     * Save the last update date of the original topology or of the orchestrator
+     **/
+    private Date lastDeploymentTopologyUpdateDate = new Date();
 
     private Map<String, String> providerDeploymentProperties;
 
@@ -72,7 +76,7 @@ public class DeploymentTopology extends Topology {
 
     /**
      * Utility method to generate an id for a deployment topology by concatenating version id and environment id
-     * 
+     *
      * @param versionId id of the version
      * @param environmentId id of the environment
      * @return concatenated id

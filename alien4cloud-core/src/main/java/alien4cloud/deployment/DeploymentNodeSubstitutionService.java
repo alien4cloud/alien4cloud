@@ -11,10 +11,6 @@ import javax.inject.Inject;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import alien4cloud.common.AlienConstants;
 import alien4cloud.deployment.matching.services.nodes.NodeMatcherService;
 import alien4cloud.model.components.AbstractPropertyValue;
@@ -29,6 +25,10 @@ import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.orchestrators.locations.services.LocationResourceService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.PropertyUtil;
+
+import com.google.common.base.Predicate;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 @Service
 public class DeploymentNodeSubstitutionService {
@@ -143,29 +143,53 @@ public class DeploymentNodeSubstitutionService {
             locationNode.setName(abstractTopologyNode.getName());
             // Also merge relationships
             locationNode.setRelationships(abstractTopologyNode.getRelationships());
-            if (MapUtils.isNotEmpty(abstractTopologyNode.getProperties())) {
-                Map<String, AbstractPropertyValue> mergedProperties = Maps.newHashMap(abstractTopologyNode.getProperties());
-                PropertyUtil.mergeProperties(locationNode.getProperties(), mergedProperties);
-                if (previousNode != null) {
-                    PropertyUtil.mergeProperties(previousNode.getProperties(), mergedProperties);
+            if (MapUtils.isNotEmpty(locationNode.getProperties())) {
+                // Merge properties from previous values
+                Set<String> keysToConsider = locationNode.getProperties().keySet();
+                Map<String, AbstractPropertyValue> mergedProperties = Maps.newLinkedHashMap();
+                if (previousNode != null && MapUtils.isNotEmpty(previousNode.getProperties())) {
+                    PropertyUtil.mergeProperties(previousNode.getProperties(), mergedProperties, keysToConsider);
+                }
+                // Merge properties from location resources
+                if (MapUtils.isNotEmpty(locationNode.getProperties())) {
+                    PropertyUtil.mergeProperties(locationNode.getProperties(), mergedProperties, keysToConsider);
+                }
+                // Merge properties from abstract topology
+                if (MapUtils.isNotEmpty(abstractTopologyNode.getProperties())) {
+                    PropertyUtil.mergeProperties(abstractTopologyNode.getProperties(), mergedProperties, keysToConsider);
                 }
                 locationNode.setProperties(mergedProperties);
             }
-            if (MapUtils.isNotEmpty(abstractTopologyNode.getCapabilities()) && MapUtils.isNotEmpty(locationNode.getCapabilities())) {
-                for (Map.Entry<String, Capability> abstractCapabilityEntry : abstractTopologyNode.getCapabilities().entrySet()) {
-                    Capability locationCapability = locationNode.getCapabilities().get(abstractCapabilityEntry.getKey());
-                    if (locationCapability != null && locationCapability.getType().equals(abstractCapabilityEntry.getValue().getType())
-                            && MapUtils.isNotEmpty(abstractCapabilityEntry.getValue().getProperties())) {
-                        Map<String, AbstractPropertyValue> mergedProperties = Maps.newHashMap(abstractCapabilityEntry.getValue().getProperties());
-                        PropertyUtil.mergeProperties(locationCapability.getProperties(), mergedProperties);
-                        if (previousNode != null && MapUtils.isNotEmpty(previousNode.getCapabilities())) {
-                            Capability previousCapability = previousNode.getCapabilities().get(abstractCapabilityEntry.getKey());
-                            if (previousCapability != null) {
-                                PropertyUtil.mergeProperties(previousCapability.getProperties(), mergedProperties);
-                            }
-                        }
-                        locationCapability.setProperties(mergedProperties);
+            if (MapUtils.isNotEmpty(locationNode.getCapabilities())) {
+                // The location node is the node from orchestrator which must be a child type of the abstract topology node so should loop on this node to do
+                // not miss any capability
+                for (Map.Entry<String, Capability> locationCapabilityEntry : locationNode.getCapabilities().entrySet()) {
+                    Capability locationCapability = locationCapabilityEntry.getValue();
+                    if (MapUtils.isEmpty(locationCapability.getProperties())) {
+                        continue;
                     }
+                    Set<String> keysToConsider = locationCapability.getProperties().keySet();
+                    Map<String, AbstractPropertyValue> mergedCapabilityProperties = Maps.newLinkedHashMap();
+
+                    // Merge from previous existing nodes
+                    Capability previousCapability = null;
+                    if (previousNode != null && MapUtils.isNotEmpty(previousNode.getCapabilities())) {
+                        previousCapability = previousNode.getCapabilities().get(locationCapabilityEntry.getKey());
+                    }
+                    if (previousCapability != null && MapUtils.isNotEmpty(previousCapability.getProperties())) {
+                        PropertyUtil.mergeProperties(previousCapability.getProperties(), mergedCapabilityProperties, keysToConsider);
+                    }
+                    // Merge from location resources
+                    PropertyUtil.mergeProperties(locationCapability.getProperties(), mergedCapabilityProperties, keysToConsider);
+                    // Merge from abstract topology
+                    Capability abstractCapability = null;
+                    if (MapUtils.isNotEmpty(abstractTopologyNode.getCapabilities())) {
+                        abstractCapability = abstractTopologyNode.getCapabilities().get(locationCapabilityEntry.getKey());
+                    }
+                    if (abstractCapability != null && MapUtils.isNotEmpty(abstractCapability.getProperties())) {
+                        PropertyUtil.mergeProperties(abstractCapability.getProperties(), mergedCapabilityProperties, keysToConsider);
+                    }
+                    locationCapability.setProperties(mergedCapabilityProperties);
                 }
             }
         }

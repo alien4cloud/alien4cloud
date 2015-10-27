@@ -1,5 +1,6 @@
 package alien4cloud.deployment;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,6 @@ import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.TopologyCompositionService;
 import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.deployment.exceptions.LocationRequiredException;
 import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
 import alien4cloud.deployment.model.DeploymentConfiguration;
 import alien4cloud.deployment.model.DeploymentSubstitutionConfiguration;
@@ -149,24 +149,38 @@ public class DeploymentTopologyService {
         String id = DeploymentTopology.generateId(environment.getCurrentVersionId(), environment.getId());
         DeploymentTopology deploymentTopology = alienDAO.findById(DeploymentTopology.class, id);
         Topology topology = topologyServiceCore.getOrFail(topologyId);
-        if (deploymentTopology == null || locationsNoMoreValid(deploymentTopology)) {
-            // Generate the deployment topology if none exist
+        if (deploymentTopology == null) {
             deploymentTopology = generateDeploymentTopology(id, environment, topology, new DeploymentTopology());
         } else {
-            // TODO Mange this in a better way!
-            // Re-generate the deployment topology if the initial topology has been changed
-            generateDeploymentTopology(id, environment, topology, deploymentTopology);
+            Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deploymentTopology);
+            boolean locationsInvalid = false;
+            Map<String, Location> locations = Maps.newHashMap();
+            if (!MapUtils.isEmpty(locationIds)) {
+                try {
+                    locations = getLocations(locationIds);
+                } catch (NotFoundException ignored) {
+                    locationsInvalid = true;
+                }
+            }
+            if (locationsInvalid) {
+                // Generate the deployment topology if none exist or if locations are not valid anymore
+                deploymentTopology = generateDeploymentTopology(id, environment, topology, new DeploymentTopology());
+            } else if (checkIfTopologyOrLocationHasChanged(deploymentTopology, locations.values(), topology)) {
+                // Re-generate the deployment topology if the initial topology has been changed
+                generateDeploymentTopology(id, environment, topology, deploymentTopology);
+            }
         }
         return deploymentTopology;
     }
 
-    private boolean locationsNoMoreValid(DeploymentTopology deploymentTopology) {
-        try {
-            getLocations(deploymentTopology);
-        } catch (NotFoundException e) {
+    private boolean checkIfTopologyOrLocationHasChanged(DeploymentTopology deploymentTopology, Collection<Location> locations, Topology topology) {
+        if (deploymentTopology.getLastDeploymentTopologyUpdateDate().before(topology.getLastUpdateDate())) {
             return true;
-        } catch (LocationRequiredException e) {
-            return false;
+        }
+        for (Location location : locations) {
+            if (deploymentTopology.getLastDeploymentTopologyUpdateDate().before(location.getLastUpdateDate())) {
+                return true;
+            }
         }
         return false;
     }
@@ -194,7 +208,7 @@ public class DeploymentTopologyService {
     }
 
     private void doUpdateDeploymentTopology(DeploymentTopology deploymentTopology, Topology topology, ApplicationEnvironment environment) {
-        deploymentTopology.setLastInitialTopologyUpdateDate(topology.getLastUpdateDate());
+        deploymentTopology.setLastDeploymentTopologyUpdateDate(topology.getLastUpdateDate());
         Map<String, NodeTemplate> previousNodeTemplates = deploymentTopology.getNodeTemplates();
         ReflectionUtil.mergeObject(topology, deploymentTopology, "id");
         topologyCompositionService.processTopologyComposition(deploymentTopology);

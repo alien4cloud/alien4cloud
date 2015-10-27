@@ -2,6 +2,7 @@ package alien4cloud.model.orchestrators.locations;
 
 import static alien4cloud.dao.model.FetchContext.SUMMARY;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
@@ -60,7 +61,9 @@ public class Location implements ISecuredResource, IMetaProperties {
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String environmentType;
 
-    /** A Location defines and uses some types, it thus basically have a set of CSARDependency */
+    /**
+     * A Location defines and uses some types, it thus basically have a set of CSARDependency
+     */
     @TermFilter(paths = { "name", "version" })
     @NestedObject(nestedClass = CSARDependency.class)
     private Set<CSARDependency> dependencies = Sets.newHashSet();
@@ -88,4 +91,9 @@ public class Location implements ISecuredResource, IMetaProperties {
     public Class<DeployerRole> roleEnum() {
         return DeployerRole.class;
     }
+
+    /**
+     * Last modification date for the location. Alien needs this information in order to re-synchronize deployment topology if resources has been changed.
+     */
+    private Date lastUpdateDate = new Date();
 }
