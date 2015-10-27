@@ -11,12 +11,7 @@ Feature: Deploy an application
     And I update the property "id" to "1" for the resource named "Small" related to the location "Mount doom orchestrator"/"Thark location"
     And I create a resource of type "alien.nodes.mock.openstack.Image" named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "id" to "img1" for the resource named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
-    And I create a resource of type "alien.nodes.mock.openstack.Image" named "Debian" related to the location "Mount doom orchestrator"/"Thark location"
-    And I update the property "id" to "img2" for the resource named "Debian" related to the location "Mount doom orchestrator"/"Thark location"
   	And I autogenerate the on-demand resources for the location "Mount doom orchestrator"/"Thark location"
-    And I create a resource of type "alien.nodes.mock.Compute" named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
-    And I update the property "imageId" to "img1" for the resource named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
-    And I update the property "flavorId" to "1" for the resource named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
 
     And There are these users in the system
       | sangoku |
