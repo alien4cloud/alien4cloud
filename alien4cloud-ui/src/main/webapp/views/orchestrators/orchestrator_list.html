@@ -23,6 +23,7 @@
         <table class="table table-hover">
           <thead>
             <tr>
+              <th></th>
               <th>{{ 'ORCHESTRATORS.STATE' | translate}}</th>
               <th>{{ 'ORCHESTRATORS.NAME' | translate}}</th>
               <th>{{ 'ORCHESTRATORS.PLUGIN' | translate}}</th>
@@ -30,17 +31,21 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat-start="orchestrator in orchestrators" id='orchestrator_{{orchestrator.id}}' class="clickable" ng-click="openOrchestrator(orchestrator.id)" ng-init="islocationCollapsed = false">
+            <tr ng-repeat-start="orchestrator in orchestrators" id='orchestrator_{{orchestrator.id}}' class="clickable" ng-click="openOrchestrator(orchestrator.id)" ng-init="islocationCollapsed = true">
+                  <td></td>
+                  <!-- When locations table will be displayed -->
+<!--               <td style="width: 2%"  -->
+<!--                 id="show_locations_{{orchestrator.name}}" -->
+<!--                 ng-click="$event.stopPropagation(); islocationCollapsed = !islocationCollapsed;" > -->
+<!--                 <i class="fa fa-2x" ng-class="{'fa-chevron-down' : !islocationCollapsed, 'fa-chevron-right': islocationCollapsed}"></i> -->
+<!--               </td> -->
               <td>
-                <a class="btn btn-default btn-sm" id="show_locations_{{cloud.name}}" ng-click="$event.stopPropagation(); islocationCollapsed = !islocationCollapsed;">
-                  <i class="fa" ng-class="{'fa-chevron-down' : !islocationCollapsed, 'fa-chevron-right': islocationCollapsed}"></i>
-                </a>
-                <i class="fa fa-2x ng-scope" tooltip="{{'ORCHESTRATORS.STATES.' + orchestrator.state}}" ng-class="{
+                <i class="fa fa-2x ng-scope" tooltip="{{'ORCHESTRATORS.STATES.' + orchestrator.state | translate}}" ng-class="{
                   'fa-circle text-success' : orchestrator.state == 'CONNECTED',
                   'fa-circle text-muted' : orchestrator.state == 'DISABLED',
                   'fa-question-circle text-danger' : orchestrator.state == 'DISCONNECTED',
                   'fa-spinner fa-spin' : orchestrator.state == 'CONNECTING'
-                }"></i> {{'ORCHESTRATORS.STATES.' + orchestrator.state | translate }}
+                }"></i>
               </td>
               <td>{{orchestrator.name  || '---' }}</td>
               <td>{{orchestrator.pluginName || '---' }}</td>
@@ -64,6 +69,10 @@
             </tr>
           </tbody>
         </table>
+        <empty-place-holder
+          for="'orchestrators'"
+          data="orchestrators">
+        </empty-place-holder>
         <pagination-directive pagination-info="searchService.pagination"/>
       </div>
     </div>
