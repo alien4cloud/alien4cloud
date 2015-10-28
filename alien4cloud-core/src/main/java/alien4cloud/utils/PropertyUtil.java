@@ -2,10 +2,9 @@ package alien4cloud.utils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections4.MapUtils;
-
-import com.google.common.collect.Maps;
 
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.components.AbstractPropertyValue;
@@ -15,6 +14,8 @@ import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
+
+import com.google.common.collect.Maps;
 
 public final class PropertyUtil {
     private PropertyUtil() {
@@ -27,8 +28,8 @@ public final class PropertyUtil {
      *
      * @param propertyDefinitions The map of {@link PropertyDefinition}s to convert.
      * @return An equivalent map of default {@link alien4cloud.model.components.ScalarPropertyValue}s, that contains all properties definitions keys (default
-     * value
-     * is null when no default value is specified in the property definition).
+     *         value
+     *         is null when no default value is specified in the property definition).
      */
     public static Map<String, AbstractPropertyValue> getDefaultPropertyValuesFromPropertyDefinitions(Map<String, PropertyDefinition> propertyDefinitions) {
         if (propertyDefinitions == null) {
@@ -75,7 +76,7 @@ public final class PropertyUtil {
     }
 
     private static void doSetPropertyValue(Map<String, AbstractPropertyValue> properties, PropertyDefinition propertyDefinition, String propertyName,
-                                           Object propertyValue) {
+            Object propertyValue) {
         // take the default value
         if (propertyValue == null) {
             propertyValue = propertyDefinition.getDefault();
@@ -100,14 +101,14 @@ public final class PropertyUtil {
     /**
      * Set value for a property
      *
-     * @param nodeTemplate       the node template
+     * @param nodeTemplate the node template
      * @param propertyDefinition the definition of the property to be set
-     * @param propertyName       the name of the property to set
-     * @param propertyValue      the value to be set
+     * @param propertyName the name of the property to set
+     * @param propertyValue the value to be set
      */
     public static void setPropertyValue(NodeTemplate nodeTemplate, PropertyDefinition propertyDefinition, String propertyName, Object propertyValue) {
         if (nodeTemplate.getProperties() == null) {
-            nodeTemplate.setProperties(Maps.<String, AbstractPropertyValue>newHashMap());
+            nodeTemplate.setProperties(Maps.<String, AbstractPropertyValue> newHashMap());
         }
         doSetPropertyValue(nodeTemplate.getProperties(), propertyDefinition, propertyName, propertyValue);
     }
@@ -115,22 +116,36 @@ public final class PropertyUtil {
     /**
      * Set value for a capability property
      *
-     * @param capability         the capability
+     * @param capability the capability
      * @param propertyDefinition the definition of the property
-     * @param propertyName       the name of the property
-     * @param propertyValue      the value of the property
+     * @param propertyName the name of the property
+     * @param propertyValue the value of the property
      */
     public static void setCapabilityPropertyValue(Capability capability, PropertyDefinition propertyDefinition, String propertyName, Object propertyValue) {
         if (capability.getProperties() == null) {
-            capability.setProperties(Maps.<String, AbstractPropertyValue>newHashMap());
+            capability.setProperties(Maps.<String, AbstractPropertyValue> newHashMap());
         }
         doSetPropertyValue(capability.getProperties(), propertyDefinition, propertyName, propertyValue);
     }
 
-    public static void mergeProperties(Map<String, AbstractPropertyValue> from, Map<String, AbstractPropertyValue> into) {
+    /**
+     * Merge from map into 'into' map
+     * 
+     * @param from from map
+     * @param into into map
+     * @param keysToConsider if defined only keys contained by this set are considered
+     */
+    public static void mergeProperties(Map<String, AbstractPropertyValue> from, Map<String, AbstractPropertyValue> into, Set<String> keysToConsider) {
         if (MapUtils.isNotEmpty(from)) {
             for (Map.Entry<String, AbstractPropertyValue> fromEntry : from.entrySet()) {
-                into.put(fromEntry.getKey(), fromEntry.getValue());
+                if (keysToConsider != null && !keysToConsider.contains(fromEntry.getKey())) {
+                    // If the key filter do not contain the key then do not consider
+                    continue;
+                }
+                AbstractPropertyValue existingValue = into.get(fromEntry.getKey());
+                if (fromEntry.getValue() != null || existingValue == null) {
+                    into.put(fromEntry.getKey(), fromEntry.getValue());
+                }
             }
         }
     }

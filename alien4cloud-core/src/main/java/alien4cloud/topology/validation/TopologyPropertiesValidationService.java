@@ -8,14 +8,13 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.model.components.AbstractPropertyValue;
@@ -38,7 +37,9 @@ import alien4cloud.topology.task.ScalableTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.TaskLevel;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
-import lombok.extern.slf4j.Slf4j;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Performs validation of the properties
@@ -97,7 +98,7 @@ public class TopologyPropertiesValidationService {
             task.setNodeTemplateName(nodeTempEntry.getKey());
             task.setComponent(relatedIndexedNodeType);
             task.setCode(TaskCode.PROPERTIES);
-            task.setProperties(Maps.<TaskLevel, List<String>>newHashMap());
+            task.setProperties(Maps.<TaskLevel, List<String>> newHashMap());
 
             // Check the properties of node template
             if (MapUtils.isNotEmpty(nodeTemplate.getProperties())) {
@@ -147,8 +148,8 @@ public class TopologyPropertiesValidationService {
         Map<String, PropertyDefinition> relatedProperties = Maps.newTreeMap();
 
         for (Map.Entry<String, Capability> capabilityEntry : nodeTemplate.getCapabilities().entrySet()) {
-            IndexedCapabilityType indexedCapabilityType = csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class, capabilityEntry
-                    .getValue().getType(), topology.getDependencies());
+            IndexedCapabilityType indexedCapabilityType = csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class,
+                    capabilityEntry.getValue().getType(), topology.getDependencies());
             if (indexedCapabilityType.getProperties() != null && !indexedCapabilityType.getProperties().isEmpty()) {
                 relatedProperties.putAll(indexedCapabilityType.getProperties());
             }
@@ -172,7 +173,7 @@ public class TopologyPropertiesValidationService {
     }
 
     private void verifyScalableProperties(Map<String, AbstractPropertyValue> scalableProperties, List<PropertiesTask> toReturnTaskList, String nodeTemplateId,
-                                          boolean skipInputProperties) {
+            boolean skipInputProperties) {
         Set<String> missingProperties = Sets.newHashSet();
         Set<String> errorProperties = Sets.newHashSet();
         if (skipInputProperties) {
@@ -215,7 +216,7 @@ public class TopologyPropertiesValidationService {
     }
 
     private int verifyScalableProperty(Map<String, AbstractPropertyValue> scalableProperties, String propertyToVerify, Set<String> missingProperties,
-                                       Set<String> errorProperties) {
+            Set<String> errorProperties) {
         String rawValue = null;
         try {
             rawValue = FunctionEvaluator.getScalarValue(scalableProperties.get(propertyToVerify));
@@ -242,16 +243,17 @@ public class TopologyPropertiesValidationService {
 
     private void addRequiredPropertyError(PropertiesTask task, String propertyName) {
         if (!task.getProperties().containsKey(TaskLevel.REQUIRED)) {
-            task.getProperties().put(TaskLevel.REQUIRED, Lists.<String>newArrayList());
+            task.getProperties().put(TaskLevel.REQUIRED, Lists.<String> newArrayList());
         }
         task.getProperties().get(TaskLevel.REQUIRED).add(propertyName);
     }
 
-    private void addRequiredPropertyIdToTaskProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> relatedProperties, PropertiesTask task, boolean skipInputProperties) {
+    private void addRequiredPropertyIdToTaskProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> relatedProperties,
+            PropertiesTask task, boolean skipInputProperties) {
         for (Map.Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
             PropertyDefinition propertyDef = relatedProperties.get(propertyEntry.getKey());
             AbstractPropertyValue value = propertyEntry.getValue();
-            if (propertyDef.isRequired()) {
+            if (propertyDef != null && propertyDef.isRequired()) {
                 if (value == null) {
                     addRequiredPropertyError(task, propertyEntry.getKey());
                 } else if (value instanceof ScalarPropertyValue) {
