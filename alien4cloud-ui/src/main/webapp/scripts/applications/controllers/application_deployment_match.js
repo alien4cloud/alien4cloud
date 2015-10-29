@@ -82,7 +82,10 @@ define(function(require) {
             propertyName: propertyName,
             propertyValue: propertyValue
           }), function(result) {
-            $scope.updateScopeDeploymentTopologyDTO(result.data);
+            if (_.undefined(result.error)) {
+              $scope.updateScopeDeploymentTopologyDTO(result.data);
+            }
+            return result;
           }).$promise;
         };
 
@@ -96,7 +99,10 @@ define(function(require) {
             propertyName: propertyName,
             propertyValue: propertyValue
           }), function(result) {
-            $scope.updateScopeDeploymentTopologyDTO(result.data);
+            if (_.undefined(result.error)) {
+              $scope.updateScopeDeploymentTopologyDTO(result.data);
+            }
+            return result;
           }).$promise;
         };
       }

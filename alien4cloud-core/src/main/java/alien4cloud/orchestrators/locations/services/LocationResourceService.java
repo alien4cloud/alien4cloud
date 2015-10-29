@@ -1,6 +1,7 @@
 package alien4cloud.orchestrators.locations.services;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -229,12 +230,16 @@ public class LocationResourceService {
         locationResourceTemplate.setTypes(Lists.<String> newArrayList(resourceType.getElementId()));
         locationResourceTemplate.getTypes().addAll(resourceType.getDerivedFrom());
         locationResourceTemplate.setTemplate(nodeTemplate);
-        alienDAO.save(locationResourceTemplate);
+        saveResource(location, locationResourceTemplate);
         return locationResourceTemplate;
     }
 
     public void deleteResourceTemplate(String resourceId) {
+        LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
+        Location location = locationService.getOrFail(resourceTemplate.getLocationId());
+        location.setLastUpdateDate(new Date());
         alienDAO.delete(LocationResourceTemplate.class, resourceId);
+        alienDAO.save(location);
     }
 
     public LocationResourceTemplate getOrFail(String resourceId) {
@@ -248,13 +253,13 @@ public class LocationResourceService {
     public void merge(Object mergeRequest, String resourceId) {
         LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
         ReflectionUtil.mergeObject(mergeRequest, resourceTemplate);
-        alienDAO.save(resourceTemplate);
+        saveResource(resourceTemplate);
     }
 
     public void setTemplateProperty(String resourceId, String propertyName, Object propertyValue) {
         LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
         setTemplateProperty(resourceTemplate, propertyName, propertyValue);
-        alienDAO.save(resourceTemplate);
+        saveResource(resourceTemplate);
     }
 
     public void setTemplateProperty(LocationResourceTemplate resourceTemplate, String propertyName, Object propertyValue) {
@@ -310,7 +315,7 @@ public class LocationResourceService {
             throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
         setTemplateCapabilityProperty(resourceTemplate, capabilityName, propertyName, propertyValue);
-        alienDAO.save(resourceTemplate);
+        saveResource(resourceTemplate);
     }
 
     /**
@@ -332,6 +337,20 @@ public class LocationResourceService {
         QueryBuilder generatedFieldQuery = QueryBuilders.termQuery("generated", true);
         // QueryBuilder builder = QueryBuilders.filteredQuery(locationIdQuery, filterBuilder);
         QueryBuilder builder = QueryBuilders.boolQuery().must(locationIdQuery).must(generatedFieldQuery);
+        Location location = locationService.getOrFail(locationId);
+        location.setLastUpdateDate(new Date());
         alienDAO.delete(LocationResourceTemplate.class, builder);
+        alienDAO.save(location);
+    }
+
+    public void saveResource(Location location, LocationResourceTemplate resourceTemplate) {
+        location.setLastUpdateDate(new Date());
+        alienDAO.save(location);
+        alienDAO.save(resourceTemplate);
+    }
+
+    public void saveResource(LocationResourceTemplate resourceTemplate) {
+        Location location = locationService.getOrFail(resourceTemplate.getLocationId());
+        saveResource(location, resourceTemplate);
     }
 }

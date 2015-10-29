@@ -14,17 +14,13 @@ import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.DeploymentTopologyService;
-import alien4cloud.deployment.model.DeploymentConfiguration;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
 import alien4cloud.topology.TopologyServiceCore;
@@ -63,7 +59,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
             return;
         }
 
-        Topology runtimeTopo = alienMonitorDao.findById(Topology.class, persistentResourceEvent.getDeploymentId());
+        DeploymentTopology runtimeTopo = alienMonitorDao.findById(DeploymentTopology.class, persistentResourceEvent.getDeploymentId());
         String volumeIdss = getAggregatedVolumeIds(runtimeTopo, persistentResourceEvent);
 
         if (StringUtils.isBlank(volumeIdss)) {
@@ -114,7 +110,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
 
     }
 
-    private void updateRuntimeTopology(Topology runtimeTopo, PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent, String volumeIds) {
+    private void updateRuntimeTopology(DeploymentTopology runtimeTopo, PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent, String volumeIds) {
         NodeTemplate nodeTemplate = topoServiceCore.getNodeTemplate(runtimeTopo, persistentResourceEvent.getNodeTemplateId());
         log.info("Updating Runtime topology: Storage NodeTemplate <{}.{}> to add a new volumeId", runtimeTopo.getId(),
                 persistentResourceEvent.getNodeTemplateId());
@@ -123,7 +119,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
         alienMonitorDao.save(runtimeTopo);
     }
 
-    private String getAggregatedVolumeIds(Topology topology, PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent) {
+    private String getAggregatedVolumeIds(DeploymentTopology topology, PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent) {
         NodeTemplate nodeTemplate;
         try {
             nodeTemplate = topoServiceCore.getNodeTemplate(topology, persistentResourceEvent.getNodeTemplateId());

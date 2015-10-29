@@ -46,7 +46,7 @@ define(function(require) {
         delete $scope.unitError;
         if (_.isEmpty(data)) {
           data = null;
-        } else if (!_.isString(data)) {
+        } else if (_.isBoolean(data)) {
           data = data.toString();
         }
 

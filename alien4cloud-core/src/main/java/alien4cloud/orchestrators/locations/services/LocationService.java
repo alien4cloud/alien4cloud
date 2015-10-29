@@ -1,6 +1,7 @@
 package alien4cloud.orchestrators.locations.services;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -175,6 +176,8 @@ public class LocationService {
                 template.setTypes(nodeType.getDerivedFrom());
             }
             alienDAO.save(templates.toArray(new LocationResourceTemplate[templates.size()]));
+            location.setLastUpdateDate(new Date());
+            alienDAO.save(location);
         }
         return templates;
     }
@@ -195,7 +198,7 @@ public class LocationService {
 
     /**
      * Get multiple locations from list of ids
-     * 
+     *
      * @param ids ids of location to get
      * @return map of id to location
      */

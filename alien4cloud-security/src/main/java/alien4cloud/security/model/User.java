@@ -24,7 +24,6 @@ import com.google.common.collect.Sets;
 @Getter
 @Setter
 @JsonInclude(Include.NON_NULL)
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class User implements SocialUserDetails {
     private static final long serialVersionUID = 1L;
     @Id

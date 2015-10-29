@@ -79,7 +79,7 @@ public class DeploymentController {
      * @param size The maximum number of elements to return.
      * @return A {@link RestResponse} with as data a list of {@link DeploymentDTO} that contains deployments and applications info.
      */
-    @ApiOperation(value = "Get deployments for a cloud.", authorizations = { @Authorization("ADMIN") })
+    @ApiOperation(value = "Get deployments for an orchestrator.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<List<DeploymentDTO>> get(
@@ -252,5 +252,5 @@ public class DeploymentController {
         }
         return RestResponseBuilder.<Void> builder().data(null).build();
     }
-    
+
 }
