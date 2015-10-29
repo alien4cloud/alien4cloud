@@ -8,7 +8,7 @@ template_version: 1.0.0-SNAPSHOT
 description: A single topology with only one compute node (wrong type)
 
 imports:
-  - tosca-normative-types:1.0.0.wd03-SNAPSHOT
+  - "tosca-base-types:1.0"
   
 topology_template:
   node_templates:

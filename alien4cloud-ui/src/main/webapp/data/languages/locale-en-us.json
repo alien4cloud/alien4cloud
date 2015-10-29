@@ -19,6 +19,7 @@
   "NO": "No",
   "NAME": "Name",
   "VALUE": "Value",
+  "PLACE_HOLDER_NO": "No ",
   "NAVBAR": {
     "BUTTON_LOGIN": "Login",
     "BUTTON_LOGOUT": "Logout",
