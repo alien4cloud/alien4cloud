@@ -92,7 +92,7 @@ public class OrchestratorService {
      */
     public synchronized void ensureNameUnicityAndSave(Orchestrator orchestrator, String oldName) {
         if (StringUtils.isBlank(oldName) || !Objects.equals(orchestrator.getName(), oldName)) {
-            // check that the cloud doesn't already exists
+            // check that the orchestrator doesn't already exists
             if (alienDAO.count(Orchestrator.class, QueryBuilders.termQuery("name", orchestrator.getName())) > 0) {
                 throw new AlreadyExistException("a cloud with the given name already exists.");
             }
