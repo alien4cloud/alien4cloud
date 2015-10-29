@@ -67,8 +67,6 @@ public class LocationService {
     private LocationResourceService locationResourceService;
     @Resource
     private ICSARRepositorySearchService csarRepoSearchService;
-    @Resource
-    private CsarService csarService;
 
     /**
      * Auto-configure locations using the given location auto-configurer.

@@ -15,6 +15,7 @@
     </context:component-scan>
 
     <bean id="archiveParser" class="alien4cloud.tosca.ArchiveParser"/>
+    <bean id="archivePostProcessor" class="alien4cloud.tosca.ArchivePostProcessor"/>
     <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
 
     <mockito:mock id="alien-es-dao" class="alien4cloud.dao.IGenericSearchDAO"/>

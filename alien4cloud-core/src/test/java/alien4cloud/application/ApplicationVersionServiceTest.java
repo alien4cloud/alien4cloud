@@ -1,9 +1,11 @@
 package alien4cloud.application;
 
+import java.util.Date;
 import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import alien4cloud.model.deployment.Deployment;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,46 +33,37 @@ public class ApplicationVersionServiceTest {
 
     @Test
     public void versionShouldNotBeDeployedDeploymentOnOtherVersion() {
-        // String versionId = UUID.randomUUID().toString();
-        // DeploymentSetup deploymentSetup = new DeploymentSetup();
-        // deploymentSetup.setId(UUID.randomUUID().toString());
-        // deploymentSetup.setVersionId(UUID.randomUUID().toString());
-        // Deployment deployment = new Deployment(UUID.randomUUID().toString(), UUID.randomUUID().toString(), DeploymentSourceType.APPLICATION,
-        // UUID.randomUUID().toString(), new String[] { UUID.randomUUID().toString() }, UUID.randomUUID().toString(), UUID.randomUUID().toString(),
-        // UUID.randomUUID().toString(), new Date(), null, deploymentSetup);
-        // dao.save(deployment);
-        // // this is supposed to find if a matching deployment object exists in ES.
-        // Assert.assertFalse(appVersionSrv.isApplicationVersionDeployed(versionId));
-        Assert.fail("Failed");
+        String versionId = UUID.randomUUID().toString();
+        Deployment deployment = new Deployment();
+        deployment.setId(UUID.randomUUID().toString());
+        deployment.setVersionId(UUID.randomUUID().toString());
+        deployment.setEndDate(null);
+        dao.save(deployment);
+        // this is supposed to find if a matching deployment object exists in ES.
+        Assert.assertFalse(appVersionSrv.isApplicationVersionDeployed(versionId));
     }
 
     @Test
     public void versionShouldNotBeDeployedDeploymentComplete() {
-        // String versionId = UUID.randomUUID().toString();
-        // DeploymentSetup deploymentSetup = new DeploymentSetup();
-        // deploymentSetup.setId(UUID.randomUUID().toString());
-        // deploymentSetup.setVersionId(versionId);
-        // Deployment deployment = new Deployment(UUID.randomUUID().toString(), UUID.randomUUID().toString(), DeploymentSourceType.APPLICATION,
-        // UUID.randomUUID().toString(), new String[] { UUID.randomUUID().toString() }, UUID.randomUUID().toString(), UUID.randomUUID().toString(),
-        // UUID.randomUUID().toString(), new Date(), new Date(), deploymentSetup);
-        // dao.save(deployment);
-        // // this is supposed to find if a matching deployment object exists in ES.
-        // Assert.assertFalse(appVersionSrv.isApplicationVersionDeployed(versionId));
-        Assert.fail("Fix test");
+        String versionId = UUID.randomUUID().toString();
+        Deployment deployment = new Deployment();
+        deployment.setId(UUID.randomUUID().toString());
+        deployment.setVersionId(versionId);
+        deployment.setEndDate(new Date());
+        dao.save(deployment);
+        // this is supposed to find if a matching deployment object exists in ES.
+        Assert.assertFalse(appVersionSrv.isApplicationVersionDeployed(versionId));
     }
 
     @Test
     public void versionBeDeployed() {
-        // String versionId = UUID.randomUUID().toString();
-        // DeploymentSetup deploymentSetup = new DeploymentSetup();
-        // deploymentSetup.setId(UUID.randomUUID().toString());
-        // deploymentSetup.setVersionId(versionId);
-        // Deployment deployment = new Deployment(UUID.randomUUID().toString(), UUID.randomUUID().toString(), DeploymentSourceType.APPLICATION,
-        // UUID.randomUUID().toString(), new String[] { UUID.randomUUID().toString() }, UUID.randomUUID().toString(), UUID.randomUUID().toString(),
-        // UUID.randomUUID().toString(), new Date(), null, deploymentSetup);
-        // dao.save(deployment);
-        // // this is supposed to find if a matching deployment object exists in ES.
-        // Assert.assertTrue(appVersionSrv.isApplicationVersionDeployed(versionId));
-        Assert.fail("Fix test");
+        String versionId = UUID.randomUUID().toString();
+        Deployment deployment = new Deployment();
+        deployment.setId(UUID.randomUUID().toString());
+        deployment.setVersionId(versionId);
+        deployment.setEndDate(null);
+        dao.save(deployment);
+        // this is supposed to find if a matching deployment object exists in ES.
+        Assert.assertTrue(appVersionSrv.isApplicationVersionDeployed(versionId));
     }
 }

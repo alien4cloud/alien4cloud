@@ -1,58 +1,31 @@
 package alien4cloud.orchestrators.services;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.dao.ElasticSearchDAO;
-import alien4cloud.orchestrators.locations.services.LocationResourceService;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.orchestrators.locations.services.LocationResourceService;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
-import alien4cloud.utils.AlienYamlPropertiesFactoryBeanFactory;
 
 import com.google.common.collect.Lists;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(loader = AnnotationConfigContextLoader.class)
+@ContextConfiguration("classpath:application-context-test.xml")
 public class LocationResourceServiceTest {
-    @Configuration
-    @ComponentScan(basePackages = { "org.elasticsearch.mapping" })
-    static class ContextConfiguration {
-
-        @Bean(name = "alien-es-dao")
-        public ElasticSearchDAO elasticSearchDAO() {
-            return new ElasticSearchDAO();
-        }
-
-        @Bean
-        public LocationResourceService locationResourceService() {
-            return new LocationResourceService();
-        }
-
-        @Bean(name = { "alienconfig", "elasticsearchConfig" })
-        public static YamlPropertiesFactoryBean alienConfig(ResourceLoader resourceLoader) throws IOException {
-            return AlienYamlPropertiesFactoryBeanFactory.get(resourceLoader);
-        }
-    }
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
@@ -75,6 +48,11 @@ public class LocationResourceServiceTest {
     }
 
     private void initLocation(String locationId) {
+        Location location = new Location();
+        location.setId(LOCATION_ID);
+        alienDAO.save(location);
+        location.setId(UNCONFIGURED_LOCATION_ID);
+        alienDAO.save(location);
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < TYPE_CONFIGURED_ELEMENTS; j++) {
                 String type = i == 0 ? CONFIGURED_TYPE : CONFIGURED_TYPE + "." + i;
