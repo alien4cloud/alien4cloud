@@ -21,7 +21,7 @@ import com.google.common.collect.Sets;
  * Map using a child parser based on a discriminator key (valid only for MappingNode).
  */
 public class KeyDiscriminatorParser<T> extends DefaultParser<T> {
-    private static final String CATCH_ALL = "__";
+    private static final String MAPPING_NODE_FALLBACK_KEY = "__";
 
     private Map<String, INodeParser<T>> parserByExistKey;
     private INodeParser<T> fallbackParser;
@@ -50,19 +50,26 @@ public class KeyDiscriminatorParser<T> extends DefaultParser<T> {
             for (NodeTuple tuple : mappingNode.getValue()) {
                 keySet.add(((ScalarNode) tuple.getKeyNode()).getValue());
             }
+            INodeParser<T> mappingNodeFallbackParser = null;
             // check if one of the discriminator key exists and if so use it for parsing.
             for (Map.Entry<String, INodeParser<T>> entry : parserByExistKey.entrySet()) {
-                if (CATCH_ALL.equals(entry.getKey()) || keySet.contains(entry.getKey())) {
+                if (keySet.contains(entry.getKey())) {
                     return entry.getValue().parse(node, context);
+                } else if (MAPPING_NODE_FALLBACK_KEY.equals(entry.getKey())) {
+                    mappingNodeFallbackParser = entry.getValue();
                 }
+            }
+
+            // if not we should use the mapping node fallback parser.
+            if (mappingNodeFallbackParser != null) {
+                return mappingNodeFallbackParser.parse(node, context);
             }
         }
         if (fallbackParser != null) {
             return fallbackParser.parse(node, context);
         } else {
-            context.getParsingErrors().add(
-                    new ParsingError(ErrorCode.UNKNWON_DISCRIMINATOR_KEY, "Invalid scalar value.", node.getStartMark(),
-                            "Tosca type cannot be expressed with the given scalar value.", node.getEndMark(), keySet.toString()));
+            context.getParsingErrors().add(new ParsingError(ErrorCode.UNKNWON_DISCRIMINATOR_KEY, "Invalid scalar value.", node.getStartMark(),
+                    "Tosca type cannot be expressed with the given scalar value.", node.getEndMark(), keySet.toString()));
         }
         return null;
     }
