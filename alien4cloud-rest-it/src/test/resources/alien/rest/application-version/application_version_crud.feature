@@ -33,8 +33,24 @@ Feature: CRUD operations on application version
     Then I should receive a RestResponse with an error code 504
 
   Scenario: Delete an application version with failure when application is deployed
-    Given I have an application with name "ALIEN"
-    And I deploy the application "ALIEN" with cloud "Mount doom cloud" for the topology
+    Given I am authenticated with "ADMIN" role
+    And I upload the archive "tosca-normative-types-wd06"
+    And I upload a plugin
+    And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
+    And I enable the orchestrator "Mount doom orchestrator"
+    And I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
+    And I create a resource of type "alien.nodes.mock.openstack.Flavor" named "Small" related to the location "Mount doom orchestrator"/"Thark location"
+    And I update the property "id" to "1" for the resource named "Small" related to the location "Mount doom orchestrator"/"Thark location"
+    And I create a resource of type "alien.nodes.mock.openstack.Image" named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+    And I update the property "id" to "img1" for the resource named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+    And I autogenerate the on-demand resources for the location "Mount doom orchestrator"/"Thark location"
+    And I pre register orchestrator properties
+      | managementUrl | http://cloudifyurl:8099 |
+      | numberBackup  | 1                       |
+      | managerEmail  | admin@alien.fr          |
+    Given I have an application "ALIEN" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT"
+    And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
+    When I deploy it
     And I delete an application version with name "0.1.0-SNAPSHOT"
     Then I should receive a RestResponse with an error code 507
 
