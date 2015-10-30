@@ -51,9 +51,6 @@ import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.SubstitutionTarget;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.paas.model.PaaSNodeTemplate;
-import alien4cloud.paas.plan.BuildPlanGenerator;
-import alien4cloud.paas.plan.StartEvent;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
@@ -83,7 +80,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.Closeables;
 import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.Authorization;
 
 @Slf4j
 @RestController
@@ -1473,21 +1469,6 @@ public class TopologyController {
             }
         }
         return map;
-    }
-
-    @ApiOperation(value = "Get TOSCA plan/workflow to start the application.", authorizations = { @Authorization("ADMIN") })
-    @RequestMapping(value = "/{topologyId:.+}/startplan", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<StartEvent> getStartPlan(@PathVariable String topologyId) {
-        Topology topology = topologyServiceCore.getOrFail(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
-
-        Map<String, PaaSNodeTemplate> nodeTemplates = topologyTreeBuilderService.buildPaaSNodeTemplates(topology);
-        List<PaaSNodeTemplate> roots = topologyTreeBuilderService.buildPaaSTopology(nodeTemplates).getComputes();
-
-        StartEvent startEvent = new BuildPlanGenerator(true).generate(roots);
-
-        return RestResponseBuilder.<StartEvent> builder().data(startEvent).build();
     }
 
     @ApiOperation(value = "Get the version of application or topology related to this topology.")
