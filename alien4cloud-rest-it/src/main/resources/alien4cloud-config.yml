@@ -1,5 +1,5 @@
 server:
-  port: 9999
+  port: 8088
 
 # Configuration of alien4cloud's CSAR repository, temporary folder and upload settings.
 directories:

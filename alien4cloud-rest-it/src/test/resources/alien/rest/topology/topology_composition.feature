@@ -7,7 +7,7 @@ Feature: Topology composition
 	  And I upload a plugin
 	  And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
 	  And I enable the orchestrator "Mount doom orchestrator"
-	  And I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator" 
+	  And I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
     #And I have already created a cloud image with name "Ubuntu Trusty", architecture "x86_64", type "linux", distribution "Ubuntu" and version "14.04.1"
     #And I add the cloud image "Ubuntu Trusty" to the cloud "mock cloud"
     #And I match the image "Ubuntu Trusty" of the cloud "mock cloud" to the PaaS resource "I1"
@@ -22,10 +22,10 @@ Feature: Topology composition
     Then I should receive a RestResponse with no error
     And The RestResponse should contain a topology template id
     And I can get and register the topology for the last version of the registered topology template
-    Given I add a node template "MyCompute" related to the "tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT" node type
-    And I define the property "os_arch" of the node "MyCompute" of typeId "tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT" as input property
+    Given I add a node template "MyCompute" related to the "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT" node type
+    And I define the property "os_arch" of the node "MyCompute" of typeId "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT" as input property
     And I associate the property "os_arch" of a node template "MyCompute" to the input "os_arch"
-    And I define the property "os_type" of the node "MyCompute" of typeId "tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT" as input property
+    And I define the property "os_type" of the node "MyCompute" of typeId "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT" as input property
     And I associate the property "os_type" of a node template "MyCompute" to the input "os_type"
     And I add a node template "MyApache" related to the "alien.nodes.Apache:2.0.0-SNAPSHOT" node type
     And I add a node template "MyMysql" related to the "alien.nodes.Mysql:2.0.0-SNAPSHOT" node type
@@ -39,9 +39,9 @@ Feature: Topology composition
     And I associate the property "db_password" of a node template "MyMysql" to the input "db_password"
     And I define the property "db_port" of the node "MyMysql" as output property
     And I add a node template "MyPHP" related to the "alien.nodes.PHP:2.0.0-SNAPSHOT" node type
-    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd03-SNAPSHOT" with source "MyMysql" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
-    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd03-SNAPSHOT" with source "MyApache" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
-    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd03-SNAPSHOT" with source "MyPHP" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
+    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd06-SNAPSHOT" with source "MyMysql" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
+    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd06-SNAPSHOT" with source "MyApache" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
+    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd06-SNAPSHOT" with source "MyPHP" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
 
   Scenario: Expose the template as a type and check type properties and attributes
     Given I expose the template as type "tosca.nodes.Root"
@@ -133,15 +133,15 @@ Scenario: Recursive composition
     And I should receive a RestResponse with no error
     And The RestResponse should contain a topology template id
     And I can get and register the topology for the last version of the registered topology template
-    And I add a node template "MyCompute" related to the "tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT" node type
-    And I define the property "os_arch" of the node "MyCompute" of typeId "tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT" as input property
+    And I add a node template "MyCompute" related to the "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT" node type
+    And I define the property "os_arch" of the node "MyCompute" of typeId "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT" as input property
     And I rename the input "os_arch" to "db_arch"
     And I associate the property "os_arch" of a node template "MyCompute" to the input "db_arch"
-    And I define the property "os_type" of the node "MyCompute" of typeId "tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT" as input property
+    And I define the property "os_type" of the node "MyCompute" of typeId "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT" as input property
     And I rename the input "os_type" to "db_type"
     And I associate the property "os_type" of a node template "MyCompute" to the input "db_type"
     And I add a node template "MyMysql" related to the "alien.nodes.Mysql:2.0.0-SNAPSHOT" node type
-    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd03-SNAPSHOT" with source "MyMysql" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
+    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd06-SNAPSHOT" with source "MyMysql" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
     And I expose the template as type "alien.nodes.Mysql"
     And I expose the capability "host" for the node "MyMysql"
     # The second topology template containing a Apache + PHP + Compute
@@ -149,17 +149,17 @@ Scenario: Recursive composition
     And I should receive a RestResponse with no error
     And The RestResponse should contain a topology template id
     And I can get and register the topology for the last version of the registered topology template
-    And I add a node template "MyCompute" related to the "tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT" node type
-    And I define the property "os_arch" of the node "MyCompute" of typeId "tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT" as input property
+    And I add a node template "MyCompute" related to the "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT" node type
+    And I define the property "os_arch" of the node "MyCompute" of typeId "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT" as input property
     And I rename the input "os_arch" to "www_arch"
     And I associate the property "os_arch" of a node template "MyCompute" to the input "www_arch"
-    And I define the property "os_type" of the node "MyCompute" of typeId "tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT" as input property
+    And I define the property "os_type" of the node "MyCompute" of typeId "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT" as input property
     And I rename the input "os_type" to "www_type"
     And I associate the property "os_type" of a node template "MyCompute" to the input "www_type"
     And I add a node template "MyApache" related to the "alien.nodes.Apache:2.0.0-SNAPSHOT" node type
     And I add a node template "MyPHP" related to the "alien.nodes.PHP:2.0.0-SNAPSHOT" node type
-    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd03-SNAPSHOT" with source "MyApache" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
-    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd03-SNAPSHOT" with source "MyPHP" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
+    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd06-SNAPSHOT" with source "MyApache" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
+    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd06-SNAPSHOT" with source "MyPHP" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
     And I expose the template as type "tosca.nodes.Root"
     And I expose the capability "host" for the node "MyApache"
     And I rename the exposed capability "host" to "hostApache"
@@ -230,17 +230,17 @@ Scenario: Topology composition with interaction
     And I should receive a RestResponse with no error
     And The RestResponse should contain a topology template id
     And I can get and register the topology for the last version of the registered topology template
-    And I add a node template "MyCompute" related to the "tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT" node type
-    And I define the property "os_arch" of the node "MyCompute" of typeId "tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT" as input property
+    And I add a node template "MyCompute" related to the "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT" node type
+    And I define the property "os_arch" of the node "MyCompute" of typeId "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT" as input property
     And I rename the input "os_arch" to "www_arch"
     And I associate the property "os_arch" of a node template "MyCompute" to the input "www_arch"
-    And I define the property "os_type" of the node "MyCompute" of typeId "tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT" as input property
+    And I define the property "os_type" of the node "MyCompute" of typeId "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT" as input property
     And I rename the input "os_type" to "www_type"
     And I associate the property "os_type" of a node template "MyCompute" to the input "www_type"
     And I add a node template "MyApache" related to the "alien.nodes.Apache:2.0.0-SNAPSHOT" node type
     And I add a node template "MyPHP" related to the "alien.nodes.PHP:2.0.0-SNAPSHOT" node type
-    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd03-SNAPSHOT" with source "MyApache" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
-    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd03-SNAPSHOT" with source "MyPHP" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
+    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd06-SNAPSHOT" with source "MyApache" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
+    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd06-SNAPSHOT" with source "MyPHP" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
     And I expose the template as type "tosca.nodes.Root"
     And I expose the capability "host" for the node "MyApache"
     And I rename the exposed capability "host" to "hostApache"
@@ -259,7 +259,7 @@ Scenario: Topology composition with interaction
     And I rename the input "www_type" to "sys_type"
     And I associate the property "www_type" of a node template "WWW" to the input "sys_type"
     And I add a node template "DB" related to the "net.sample.MySqlSubsystem:0.1.0-SNAPSHOT" node type
-    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd03-SNAPSHOT" with source "DB" and target "WWW" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
+    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd06-SNAPSHOT" with source "DB" and target "WWW" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
     And I expose the template as type "tosca.nodes.Root"
     And I expose the capability "host" for the node "DB"
     And I rename the exposed capability "host" to "hostMysql"

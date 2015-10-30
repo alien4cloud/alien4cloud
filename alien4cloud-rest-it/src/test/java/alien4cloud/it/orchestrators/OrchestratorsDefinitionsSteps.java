@@ -2,6 +2,7 @@ package alien4cloud.it.orchestrators;
 
 import java.io.IOException;
 
+import alien4cloud.rest.orchestrator.UpdateOrchestratorRequest;
 import org.junit.Assert;
 
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -73,7 +74,9 @@ public class OrchestratorsDefinitionsSteps {
     @When("^I update orchestrator name from \"([^\"]*)\" to \"([^\"]*)\"$")
     public void I_update_orchestrator_name_from_to(String oldName, String newName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(oldName);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().putJSon("/rest/orchestrators/" + orchestratorId, newName));
+        UpdateOrchestratorRequest updateOrchestratorRequest = new UpdateOrchestratorRequest();
+        updateOrchestratorRequest.setName(newName);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().putJSon("/rest/orchestrators/" + orchestratorId, JsonUtil.toString(updateOrchestratorRequest)));
     }
 
     @When("^I get the orchestrator named \"([^\"]*)\"$")

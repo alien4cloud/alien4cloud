@@ -60,6 +60,19 @@
             </configuration>
           </execution>
           <execution>
+            <id>assembly-1.0</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <finalName>alien4cloud-mock-paas-provider-plugin-1.0-${project.version}</finalName>
+              <descriptors>
+                <descriptor>src/main/assembly/mock-plugin-assembly-1.0.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+          <execution>
             <id>assembly-1.1</id>
             <phase>package</phase>
             <goals>

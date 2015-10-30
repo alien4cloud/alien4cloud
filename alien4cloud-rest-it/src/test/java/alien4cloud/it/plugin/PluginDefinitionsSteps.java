@@ -35,7 +35,7 @@ import cucumber.api.java.en.When;
 @Slf4j
 public class PluginDefinitionsSteps {
     private static final Map<String, Path> conditionToPath = Maps.newHashMap();
-    private static final Path PLUGIN_PATH = Paths.get("../alien4cloud-mock-paas-provider-plugin/target/alien4cloud-mock-paas-provider-plugin-"
+    private static final Path PLUGIN_PATH = Paths.get("../alien4cloud-mock-paas-provider-plugin/target/alien4cloud-mock-paas-provider-plugin-1.0-"
             + Context.VERSION + ".zip");
 
     private static final Path INVALID_PLUGIN_PATH = Paths.get("../alien4cloud-mock-paas-provider-plugin/target/alien4cloud-mock-paas-provider-plugin-invalid-"

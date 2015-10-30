@@ -15,7 +15,7 @@ Background:
 Scenario: Upload CSAR containing apache types and embeded topology template
   Given I upload the archive "tosca base types 1.0"
   When I upload the archive "topology apache"
-  Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
+  Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos
   And If I search for topology templates I can find one with the name "apache-type" and store the related topology as a SPEL context
   And The SPEL expression "dependencies.^[name == 'tosca-base-types'].version" should return "1.0"
   And The SPEL int expression "nodeTemplates.size()" should return 2
@@ -33,7 +33,7 @@ Scenario: Upload CSAR containing apache types and embeded topology template
   And The SPEL boolean expression "nodeTemplates['compute'].capabilities.containsKey('scalable')" should return true
   And The SPEL int expression "nodeTemplates['compute'].requirements.size()" should return 2
   And The SPEL boolean expression "nodeTemplates['compute'].requirements.containsKey('dependency')" should return true
-  And The SPEL boolean expression "nodeTemplates['compute'].requirements.containsKey('network')" should return true  
+  And The SPEL boolean expression "nodeTemplates['compute'].requirements.containsKey('network')" should return true
   And The SPEL int expression "nodeTemplates['apache'].relationships.size()" should return 1
   And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].type" should return "tosca.relationships.HostedOn"
   And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].target" should return "compute"
@@ -68,7 +68,7 @@ Scenario: Re-Upload CSAR containing apache types and embeded topology template
   And The SPEL boolean expression "nodeTemplates['compute'].capabilities.containsKey('scalable')" should return true
   And The SPEL boolean expression "nodeTemplates['compute'].requirements.size() == 2" should return true
   And The SPEL boolean expression "nodeTemplates['compute'].requirements.containsKey('dependency')" should return true
-  And The SPEL boolean expression "nodeTemplates['compute'].requirements.containsKey('network')" should return true  
+  And The SPEL boolean expression "nodeTemplates['compute'].requirements.containsKey('network')" should return true
   And The SPEL int expression "nodeTemplates['apache'].relationships.size()" should return 1
   And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].type" should return "tosca.relationships.HostedOn"
   And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].target" should return "compute"
@@ -81,7 +81,7 @@ Scenario: Re-Upload CSAR containing apache types and embeded topology template
 Scenario: Upload CSAR containing cutom types and embeded topology template using short notation for requirements  
   Given I upload the archive "tosca base types 1.0"
   When I upload the archive "topology custom types"
-  Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
+  Then I should receive a RestResponse with 3 alerts in 1 files : 0 errors 2 warnings and 1 infos
   And If I search for topology templates I can find one with the name "AllInclusiveArchive" and store the related topology as a SPEL context
   And The SPEL expression "dependencies.^[name == 'AllInclusiveArchive'].version" should return "1.0.0-SNAPSHOT"
   And The SPEL expression "dependencies.^[name == 'tosca-base-types'].version" should return "1.0"
@@ -112,7 +112,7 @@ Scenario: Upload twice a CSAR SNAPSHOT containing embeded topology template resu
   Given I upload the archive "tosca base types 1.0"
   And I upload the archive "topology custom types"
   When I upload the archive "topology custom types"
-  Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
+  Then I should receive a RestResponse with 3 alerts in 1 files : 0 errors 2 warnings and 1 infos
   And If I search for topology templates I can find one with the name "AllInclusiveArchive" and store the related topology as a SPEL context
   And If I search for topology templates I can find one with the name "AllInclusiveArchive" and store the related topology as a SPEL context
 
@@ -179,7 +179,7 @@ Scenario: Re-Upload CSAR containing embeded topology template with inputs
 Scenario: Upload CSAR containing embeded topology template with outputs
   Given I upload the archive "tosca base types 1.0"
   When I upload the archive "topology_outputs"
-  Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos    
+  Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos
   And If I search for topology templates I can find one with the name "topology-outputs" and store the related topology as a SPEL context
   And The SPEL int expression "outputProperties['apache'].size()" should return 1
   And The SPEL expression "outputProperties['apache'][0]" should return "port"
@@ -276,7 +276,7 @@ Scenario: Re-Upload CSAR containing embeded topology template with capability pr
 Scenario: Upload and delete CSAR containing only topology
   Given I upload the archive "tosca base types 1.0"
   And I upload the archive "topology_inputs"
-  And I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos  
+  And I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
   When I delete a CSAR with id "topology-inputs:1.0.0-SNAPSHOT"
   Then I should receive a RestResponse with no error
   And I have no CSAR created with id "topology-inputs:1.0.0-SNAPSHOT"   
@@ -287,7 +287,7 @@ Scenario: Upload and delete CSAR containing only topology
 Scenario: Upload and delete CSAR containing types and topology
   Given I upload the archive "tosca base types 1.0"
   And I upload the archive "topology apache"
-  And I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos  
+  And I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos
   And I delete the topology template with name "apache-type"
   And I should receive a RestResponse with no error
   When I delete a CSAR with id "apache-type:1.1.0-SNAPSHOT"

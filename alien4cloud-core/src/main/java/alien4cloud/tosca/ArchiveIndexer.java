@@ -119,7 +119,7 @@ public class ArchiveIndexer {
                     // we just create a new version
                     topologyTemplateVersionService.createVersion(existingTemplate.getId(), null, archiveVersion, null, topology);
                 }
-                parsingErrors.add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_UPDATED, "", null, "A topology template has been detected", null,
+                parsingErrors.add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_UPDATED, "", null, "A topology template has been updated", null,
                         archiveName));
 
             } else {
