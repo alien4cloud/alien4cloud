@@ -1,10 +1,11 @@
 package alien4cloud.utils;
 
-import alien4cloud.model.common.Tag;
-import org.elasticsearch.common.collect.Maps;
-
 import java.util.List;
 import java.util.Map;
+
+import org.elasticsearch.common.collect.Maps;
+
+import alien4cloud.model.common.Tag;
 
 /**
  * Utility to work with tags.
@@ -22,8 +23,11 @@ public final class TagUtil {
      */
     public static Map<String, String> tagListToMap(List<Tag> tags) {
         Map<String, String> tagMap = Maps.newHashMap();
-        for (Tag tag : tags) {
-            tagMap.put(tag.getName(), tag.getValue());
+        if (tags != null) {
+
+            for (Tag tag : tags) {
+                tagMap.put(tag.getName(), tag.getValue());
+            }
         }
         return tagMap;
     }
@@ -31,7 +35,7 @@ public final class TagUtil {
     /**
      * Utility method to extract a single tag value from a tag list. If you want to extract more that a single tag value you should convert the tag list to map
      * rather than calling this method multiple times.
-     * 
+     *
      * @param tags
      *            The list of tags from which to extract a tag value.
      * @param key
@@ -39,9 +43,11 @@ public final class TagUtil {
      * @return The value of the tag or null if no value exists.
      */
     public static String getTagValue(List<Tag> tags, String key) {
-        for (Tag tag : tags) {
-            if (tag.getName().equals(key)) {
-                return tag.getValue();
+        if (tags != null) {
+            for (Tag tag : tags) {
+                if (tag.getName().equals(key)) {
+                    return tag.getValue();
+                }
             }
         }
         return null;
