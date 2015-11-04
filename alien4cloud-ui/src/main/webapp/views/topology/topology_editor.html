@@ -217,24 +217,13 @@
                   </td>
                   <td>
                     <property-display
-                      ng-if="properties.isInputProperty(propEntry.key)"
-                      ng-init="condensed = true"
-                      definition="properties.getFormatedProperty(propEntry.key)"
-                      property-name="propEntry.key"
-                      property-value="propEntry.value"
-                      on-save="nodes.updateProperty(propertyDefinition, propertyName, propertyValue)"
-                      editable="false"
-                      condensed="condensed">
-                    </property-display>
-                    <property-display
-                      ng-if="!properties.isInputProperty(propEntry.key)"
                       ng-init="condensed = true"
                       definition="properties.getFormatedProperty(propEntry.key)"
                       dependencies="topology.topology.dependencies"
                       property-name="propEntry.key"
                       property-value="propEntry.value"
                       on-save="nodes.updateProperty(propertyDefinition, propertyName, propertyValue)"
-                      editable="true"
+                      editable="!properties.isInputProperty(propEntry.key)"
                       condensed="condensed">
                     </property-display>
                   </td>
