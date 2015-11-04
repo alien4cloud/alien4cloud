@@ -114,6 +114,11 @@ node_types:
     description: >
       The TOSCA BlockStorage node currently represents a server-local block storage device
       (i.e., not shared) offering evenly sized blocks of data from which raw storage volumes can be created.
+    properties:
+      fake_password:
+        type: string
+        description: user_pass
+        required: false
     tags:
       icon: /images/volume.png
     requirements:

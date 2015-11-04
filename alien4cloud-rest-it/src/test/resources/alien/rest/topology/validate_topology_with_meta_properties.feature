@@ -16,6 +16,7 @@ Background:
     Then I should have 11 configuration tags loaded
 
 Scenario: Use location metas to define a property on a node and check deployability
+  Given this test is not yet implemented
   Given I have the tag "NUMcpus" registered for "location"
   And I have the tag "osARCH" registered for "location"
   And I set the value "x86_64" to the location meta-property "osARCH" of the location "Thark location" of the orchestrator "Mount doom orchestrator"
