@@ -48,6 +48,10 @@
       <em ng-if="definitionObject.uiPassword && !editable">{{ definitionObject.uiValue | password:'*' }}</em>
 
       <em ng-if="definitionObject.units && definitionObject.uiUnit && !editable">{{definitionObject.uiUnit}}</em>
+      <!-- Reset button for any property definition -->
+      <span id='reset-property-{{propertyName}}' ng-if="editable" class="btn btn-xs" ng-click="resetProperty();">
+        <i class="fa fa-undo text-default" tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
+      </span>
     </div>
     <div ng-if="!isStringDisplayType" ng-switch="definitionObject.uiName" ng-class="{'property-required' : definition.required}">
 
