@@ -16,13 +16,13 @@ import cucumber.api.java.en.When;
 
 public class TagConfigurationStepDefinitions {
 
-    private static final String CONFIGURATION_TAGS = "./src/test/resources/data/tagConfigurations/configuration-tags.json";
+    private static final String CONFIGURATION_TAGS = "./src/test/resources/data/tagconfigurations/configuration-tags.json";
 
     @When("^I delete the tag configuration \"([^\"]*)\"$")
     public void I_delete_the_tag_configuration(String tagName) throws Throwable {
         // delete in ES
         MetaPropConfiguration tagConfiguration = Context.getInstance().getConfigurationTags().get(tagName);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/tagconfigurations/" + tagConfiguration.getId()));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/metaproperties/" + tagConfiguration.getId()));
         // delete in context
         Context.getInstance().getConfigurationTags().remove(tagName);
     }

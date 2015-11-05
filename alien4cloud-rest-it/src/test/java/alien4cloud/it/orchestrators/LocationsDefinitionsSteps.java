@@ -138,7 +138,7 @@ public class LocationsDefinitionsSteps {
     @Then("^Response should contains a meta-property with value \"([^\"]*)\" for \"([^\"]*)\"$")
     public void Response_should_contains_a_meta_property_with_value_for(String metaPropertyValue, String metaPropertyName) throws Throwable {
         for (String tagId : currentMetaProperties.keySet()) {
-            String resp = Context.getRestClientInstance().get(String.format("/rest/tagconfigurations/%s", tagId));
+            String resp = Context.getRestClientInstance().get(String.format("/rest/metaproperties/%s", tagId));
             RestResponse<MetaPropConfiguration> response = JsonUtil.read(resp, MetaPropConfiguration.class);
             if (metaPropertyName.equals(response.getData().getName())) {
                 Assert.assertEquals(metaPropertyValue, currentMetaProperties.get(tagId));
