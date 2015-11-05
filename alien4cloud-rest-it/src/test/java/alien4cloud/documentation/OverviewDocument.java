@@ -1,26 +1,25 @@
 package alien4cloud.documentation;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import io.github.robwin.markup.builder.MarkupDocBuilders;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import io.github.robwin.markup.builder.MarkupDocBuilder;
 import io.github.robwin.markup.builder.MarkupLanguage;
-import io.swagger.models.*;
+import io.swagger.models.Info;
+import io.swagger.models.Swagger;
 
 public class OverviewDocument extends MarkupDocument {
+    public static final AtomicInteger INCREMENT = new AtomicInteger();
 
     private static final String OVERVIEW = "Overview";
     private static final String CURRENT_VERSION = "Version information";
     private static final String VERSION = "Version: ";
 
-    public OverviewDocument(Swagger swagger, MarkupLanguage markupLanguage) {
+    private String category;
+
+    public OverviewDocument(Swagger swagger, String category, MarkupLanguage markupLanguage) {
         super(swagger, markupLanguage);
+        this.category = category;
     }
 
     /**
@@ -28,14 +27,19 @@ public class OverviewDocument extends MarkupDocument {
      */
     @Override
     public MarkupDocument build() {
+        String parent = category == null ? "parent: []" : "parent: [rest_api]";
+        String node = category == null ? "node_name: rest_api" : "node_name: rest_api_" + category;
+        String title = category == null ? "title: Rest API" : "title: " + category;
+        String weight = category == null ? "weight: 9000" : "weight: " + INCREMENT.incrementAndGet();
+
         this.markupDocBuilder.textLine("---");
         this.markupDocBuilder.textLine("layout: post");
-        this.markupDocBuilder.textLine("title: Rest API");
+        this.markupDocBuilder.textLine(title);
         this.markupDocBuilder.textLine("root: ../../");
         this.markupDocBuilder.textLine("categories: DOCUMENTATION-1.1.0");
-        this.markupDocBuilder.textLine("parent: []");
-        this.markupDocBuilder.textLine("node_name: rest_api");
-        this.markupDocBuilder.textLine("weight: 9000");
+        this.markupDocBuilder.textLine(parent);
+        this.markupDocBuilder.textLine(node);
+        this.markupDocBuilder.textLine(weight);
         this.markupDocBuilder.textLine("---");
         this.markupDocBuilder.newLine();
 

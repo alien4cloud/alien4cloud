@@ -15,7 +15,6 @@ import alien4cloud.deployment.matching.services.location.LocationMatchingService
 import alien4cloud.model.deployment.matching.LocationMatch;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
@@ -26,24 +25,22 @@ import io.swagger.annotations.Authorization;
  */
 
 @RestController
-@RequestMapping(value = "/rest/topology/{topologyId}/locations", produces = MediaType.APPLICATION_JSON_VALUE)
-@Api(value = "Orchestrator Configuration", description = "Get and update orchestrator configuration.", authorizations = { @Authorization("ADMIN") }, position = 4310)
+@RequestMapping(value = "/rest/topologies/{topologyId}/locations", produces = MediaType.APPLICATION_JSON_VALUE)
+@Api(value = "Location matching", description = "Get matching options for a given topology.", authorizations = { @Authorization("ADMIN") }, position = 4310)
 public class TopologyLocationMatchingController {
 
     @Resource
     private LocationMatchingService locationMatchingService;
 
-    @ApiOperation(value = "Update the configuration for an orchestrator.", authorizations = { @Authorization("ADMIN") })
+    @ApiOperation(value = "Retrieve the list of locations on which the current user can deploy the topology.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
     public RestResponse<List<LocationMatch>> match(@PathVariable String topologyId) {
-
         // TODO check deployer authorizations
         RestResponseBuilder<List<LocationMatch>> responseBuilder = RestResponseBuilder.builder();
 
         List<LocationMatch> matchedLocation = locationMatchingService.match(topologyId);
 
         return responseBuilder.data(matchedLocation).build();
-
     }
 }

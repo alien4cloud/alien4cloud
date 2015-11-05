@@ -20,10 +20,12 @@ import alien4cloud.webconfiguration.StaticResourcesConfiguration;
 
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiOperation;
+import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * UI Controller provide services used to manage the UI view including Angular Route management, User custom dashboards etc.
  */
+@ApiIgnore
 @RestController
 @RequestMapping("/rest/modules")
 public class UiController {

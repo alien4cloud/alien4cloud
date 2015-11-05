@@ -39,7 +39,7 @@ import io.swagger.annotations.Authorization;
 @Slf4j
 @RestController
 @RequestMapping(value = "/rest/orchestrators/{orchestratorId}/locations/{locationId}/resources", produces = MediaType.APPLICATION_JSON_VALUE)
-@Api(value = "Orchestrator's Locations", description = "Manages locations for a given orchestrator.", authorizations = { @Authorization("ADMIN") }, position = 4400)
+@Api(value = "Orchestrator Location Resources", description = "Manages locations for a given orchestrator.", authorizations = { @Authorization("ADMIN") }, position = 4400)
 public class LocationResourcesController {
     @Inject
     private LocationResourceService locationResourceService;
