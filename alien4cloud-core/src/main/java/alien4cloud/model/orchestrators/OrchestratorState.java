@@ -1,6 +1,6 @@
 package alien4cloud.model.orchestrators;
 
-import com.wordnik.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Created by lucboutier on 06/08/15.

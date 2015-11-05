@@ -32,7 +32,7 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 
 import com.google.common.collect.Sets;
-import com.mangofactory.swagger.annotations.ApiIgnore;
+import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * Handle Suggestion requests.

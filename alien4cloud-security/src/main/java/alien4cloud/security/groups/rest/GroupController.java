@@ -17,13 +17,13 @@ import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.rest.model.*;
-import alien4cloud.security.model.User;
-import alien4cloud.security.model.Group;
+import alien4cloud.security.ResourceRoleService;
 import alien4cloud.security.groups.GroupService;
 import alien4cloud.security.groups.IAlienGroupDao;
-import alien4cloud.security.ResourceRoleService;
+import alien4cloud.security.model.Group;
+import alien4cloud.security.model.User;
+import io.swagger.annotations.ApiOperation;
 
-import com.wordnik.swagger.annotations.ApiOperation;
 
 /**
  * GroupController allows ALIEN administrators to create, delete, update, or

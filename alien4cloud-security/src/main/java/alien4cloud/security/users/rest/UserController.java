@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -13,7 +12,6 @@ import javax.validation.Valid;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +31,7 @@ import alien4cloud.security.users.IAlienUserDao;
 import alien4cloud.security.users.UserService;
 
 import com.google.common.collect.Sets;
-import com.wordnik.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * UserController allows ALIEN administrators to create, delete, update, or search users.
@@ -151,10 +149,9 @@ public class UserController {
             return RestResponseBuilder.<Void> builder().build();
         } else if (userService.isAdmin(username) && userService.countAdminUser() == 1) {
             servletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            return RestResponseBuilder
-                    .<Void> builder()
-                    .error(RestErrorBuilder.builder(RestErrorCode.DELETE_LAST_ADMIN_USER_ERROR).message("It's forbidden to remove the last admin user.")
-                            .build()).build();
+            return RestResponseBuilder.<Void> builder().error(
+                    RestErrorBuilder.builder(RestErrorCode.DELETE_LAST_ADMIN_USER_ERROR).message("It's forbidden to remove the last admin user.").build())
+                    .build();
         }
 
         resourceRoleService.deleteUserRoles(username);
@@ -207,11 +204,8 @@ public class UserController {
                     .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("username cannot be null or empty").build()).build();
         } else if (userService.isAdmin(username) && userService.countAdminUser() == 1) {
             servletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            return RestResponseBuilder
-                    .<Void> builder()
-                    .error(RestErrorBuilder.builder(RestErrorCode.DELETE_LAST_ADMIN_ROLE_ERROR)
-                            .message("It's forbidden to remove the admin role of the last admin user.")
-                            .build()).build();
+            return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.DELETE_LAST_ADMIN_ROLE_ERROR)
+                    .message("It's forbidden to remove the admin role of the last admin user.").build()).build();
         }
         String goodRoleToAdd = Role.getStringFormatedRole(role);
         User user = userService.retrieveUser(username);

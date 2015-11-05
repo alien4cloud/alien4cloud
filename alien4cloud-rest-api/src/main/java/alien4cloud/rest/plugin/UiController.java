@@ -19,7 +19,7 @@ import alien4cloud.plugin.model.ManagedPlugin;
 import alien4cloud.webconfiguration.StaticResourcesConfiguration;
 
 import com.google.common.collect.Maps;
-import com.wordnik.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * UI Controller provide services used to manage the UI view including Angular Route management, User custom dashboards etc.

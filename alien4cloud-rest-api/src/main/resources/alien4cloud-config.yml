@@ -85,10 +85,5 @@ ldap:
 upload:
   max_archive_size: 52428800
 
-documentation:
-  services:
-    version: 1.0
-    basePath: rest
-
 audit:
   ttl: 1d

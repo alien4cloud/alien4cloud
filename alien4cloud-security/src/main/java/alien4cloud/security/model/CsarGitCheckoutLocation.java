@@ -1,14 +1,13 @@
 package alien4cloud.security.model;
 
-import com.mangofactory.swagger.annotations.ApiIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import org.hibernate.validator.constraints.NotBlank;
 
-import com.wordnik.swagger.annotations.ApiModel;
-import com.wordnik.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 @Getter
 @Setter

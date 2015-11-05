@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>alien4cloud</groupId>
@@ -34,6 +35,16 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-staticdocs</artifactId>
+            <version>${springfox-swagger2.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
         </dependency>
         <dependency>
             <groupId>info.cukes</groupId>
@@ -169,7 +180,8 @@
                     <webResources>
                         <!-- Add default types archives folder to the war file -->
                         <resource>
-                            <directory>${project.parent.basedir}/alien4cloud-core/src/main/default-normative-types</directory>
+                            <directory>${project.parent.basedir}/alien4cloud-core/src/main/default-normative-types
+                            </directory>
                             <!-- override the destination directory for this resource -->
                             <targetPath>WEB-INF/classes/default-normative-types</targetPath>
                         </resource>
@@ -211,7 +223,7 @@
                                 <configuration>
                                     <tasks>
                                         <delete includeemptydirs="true" failonerror="false">
-                                            <fileset dir="${user.home}/.alien" includes="**/*" />
+                                            <fileset dir="${user.home}/.alien" includes="**/*"/>
                                         </delete>
                                     </tasks>
                                 </configuration>
@@ -258,7 +270,9 @@
                                 <properties>
                                     <cargo.servlet.port>8088</cargo.servlet.port>
                                     <cargo.logging>high</cargo.logging>
-                                    <cargo.jvmargs>${jacocoargline} -Denv=ittest -Dspring.profiles.active=security-demo -Xdebug</cargo.jvmargs>
+                                    <cargo.jvmargs>${jacocoargline} -Denv=ittest -Dspring.profiles.active=security-demo
+                                        -Xdebug
+                                    </cargo.jvmargs>
                                 </properties>
                             </configuration>
 

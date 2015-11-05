@@ -26,7 +26,7 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.User;
 
 import com.google.common.base.Charsets;
-import com.wordnik.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * This filter is used to intercept all rest call that need to be audited

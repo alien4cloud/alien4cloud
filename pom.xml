@@ -71,7 +71,7 @@
     <slf4j.version>1.7.5</slf4j.version>
 
     <!-- Documentation -->
-    <swagger-springmvc.version>0.8.8</swagger-springmvc.version>
+    <springfox-swagger2.version>2.2.2</springfox-swagger2.version>
 
     <!-- Tests -->
     <junit.version>4.11</junit.version>
@@ -201,9 +201,9 @@
         <version>${metrics-spring.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.mangofactory</groupId>
-        <artifactId>swagger-springmvc</artifactId>
-        <version>${swagger-springmvc.version}</version>
+        <groupId>io.springfox</groupId>
+        <artifactId>springfox-swagger2</artifactId>
+        <version>${springfox-swagger2.version}</version>
       </dependency>
       <dependency>
         <groupId>javax.servlet</groupId>
@@ -493,6 +493,11 @@
       <id>sonatype-snapshot</id>
       <name>Sonatype snapshot</name>
       <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </repository>
+    <repository>
+      <id>jcenter-snapshots</id>
+      <name>jcenter</name>
+      <url>https://jcenter.bintray.com/</url>
     </repository>
   </repositories>
 

@@ -7,9 +7,9 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.Authorization;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.QueryBuilder;
@@ -48,7 +48,7 @@ import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.FileUploadUtil;
 import alien4cloud.utils.FileUtil;
 
-import com.wordnik.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * Controller for plugins.

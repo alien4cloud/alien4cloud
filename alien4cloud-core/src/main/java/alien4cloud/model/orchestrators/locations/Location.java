@@ -22,17 +22,13 @@ import alien4cloud.model.common.IMetaProperties;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.security.ISecuredResource;
 import alien4cloud.security.model.DeployerRole;
-import alien4cloud.utils.jackson.ConditionalAttributes;
-import alien4cloud.utils.jackson.ConditionalOnAttribute;
-import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
-import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
-import alien4cloud.utils.jackson.NotAnalyzedTextMapEntry;
+import alien4cloud.utils.jackson.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.Sets;
-import com.wordnik.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModel;
 
 @Getter
 @Setter

@@ -36,7 +36,7 @@ import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.wordnik.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiOperation;
 
 @Slf4j
 @RestController

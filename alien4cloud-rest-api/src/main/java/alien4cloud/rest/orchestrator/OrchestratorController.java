@@ -34,10 +34,10 @@ import alien4cloud.rest.orchestrator.model.CreateOrchestratorRequest;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.utils.ReflectionUtil;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.Authorization;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
 
 /**
  * Controller to manage orchestrators.

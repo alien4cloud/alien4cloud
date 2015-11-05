@@ -30,17 +30,17 @@ import alien4cloud.security.model.DeployerRole;
 import alien4cloud.utils.ReflectionUtil;
 
 import com.google.common.collect.Lists;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.Authorization;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
 
 /**
  * Controller that manages locations for orchestrators.
  */
 @RestController
 @RequestMapping(value = "/rest/orchestrators/{orchestratorId}/locations", produces = MediaType.APPLICATION_JSON_VALUE)
-@Api(value = "Orchestrator's Locations", description = "Manages locations for a given orchestrator.", authorizations = { @Authorization("ADMIN") }, position = 4400)
+@Api(value = "Orchestrators Locations", description = "Manages locations for a given orchestrator.", authorizations = { @Authorization("ADMIN") }, position = 4400)
 public class LocationController {
     @Inject
     private LocationService locationService;

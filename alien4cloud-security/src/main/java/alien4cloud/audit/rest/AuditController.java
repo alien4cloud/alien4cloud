@@ -28,7 +28,7 @@ import alien4cloud.rest.model.RestResponseBuilder;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.wordnik.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping("/rest/audit")

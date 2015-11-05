@@ -20,7 +20,7 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 
-import com.wordnik.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping("/rest/applications/{applicationId:.+}/tags")

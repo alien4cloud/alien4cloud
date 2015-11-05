@@ -19,7 +19,7 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.ui.form.PojoFormDescriptorGenerator;
 import alien4cloud.ui.form.ToscaPropertyFormDescriptorGenerator;
 
-import com.mangofactory.swagger.annotations.ApiIgnore;
+import springfox.documentation.annotations.ApiIgnore;
 
 @ApiIgnore
 @Component
