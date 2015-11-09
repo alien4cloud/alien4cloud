@@ -48,13 +48,15 @@ public class ControllerDocument extends MarkupDocument {
 
     private boolean examplesEnabled;
     private String examplesFolderPath;
+    private String category;
 
     private String controllerName;
     private AlienSwagger2MarkupConverter.Controller controller;
 
-    public ControllerDocument(Swagger swagger, Map.Entry<String, AlienSwagger2MarkupConverter.Controller> controllerEntry, MarkupLanguage markupLanguage,
-            String examplesFolderPath) {
+    public ControllerDocument(Swagger swagger, String category, Map.Entry<String, AlienSwagger2MarkupConverter.Controller> controllerEntry,
+            MarkupLanguage markupLanguage, String examplesFolderPath) {
         super(swagger, markupLanguage);
+        this.category = category;
         if (StringUtils.isNotBlank(examplesFolderPath)) {
             this.examplesEnabled = true;
             this.examplesFolderPath = examplesFolderPath;
@@ -68,12 +70,13 @@ public class ControllerDocument extends MarkupDocument {
      */
     @Override
     public MarkupDocument build() throws IOException {
+        String parent = category == null ? "parent: [rest_api]" : "parent: [rest_api, rest_api_" + category + "]";
         this.markupDocBuilder.textLine("---");
         this.markupDocBuilder.textLine("layout: post");
         this.markupDocBuilder.textLine("title: " + controller.description);
         this.markupDocBuilder.textLine("root: ../../");
         this.markupDocBuilder.textLine("categories: DOCUMENTATION-1.1.0");
-        this.markupDocBuilder.textLine("parent: [rest_api]");
+        this.markupDocBuilder.textLine(parent);
         this.markupDocBuilder.textLine("node_name: rest_api_controller_" + controllerName);
         this.markupDocBuilder.textLine("weight: " + INCREMENT.incrementAndGet());
         this.markupDocBuilder.textLine("---");

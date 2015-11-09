@@ -40,7 +40,7 @@ import io.swagger.annotations.ApiOperation;
 
 @Slf4j
 @RestController
-@RequestMapping("/rest/tagconfigurations")
+@RequestMapping("/rest/metaproperties")
 public class TagConfigurationController {
 
     @Resource

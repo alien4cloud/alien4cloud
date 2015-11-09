@@ -1,26 +1,26 @@
 package alien4cloud.documentation;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.Validate;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import groovyjarjarantlr.StringUtils;
+
 import io.github.robwin.markup.builder.MarkupLanguage;
-import io.github.robwin.swagger2markup.Swagger2MarkupConverter;
 import io.swagger.models.Path;
 import io.swagger.models.Swagger;
 import io.swagger.models.Tag;
 import io.swagger.parser.SwaggerParser;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.Validate;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * Custom markdown generation to be easily included in alien 4 cloud documentation.
@@ -32,6 +32,8 @@ public class AlienSwagger2MarkupConverter {
     private final String schemasFolderPath;
     private final String descriptionsFolderPath;
     private final boolean separatedDefinitions;
+    private final String category;
+
     private static final String OVERVIEW_DOCUMENT = "overview";
     private static final String CONTROLLER_DOCUMENT = "controller_";
     private static final String DEFINITIONS_DOCUMENT = "definitions";
@@ -44,10 +46,11 @@ public class AlienSwagger2MarkupConverter {
      * @param descriptionsFolderPath the folderPath where descriptions are stored
      * @param separatedDefinitions create separate definition files for each model definition.
      */
-    AlienSwagger2MarkupConverter(MarkupLanguage markupLanguage, Swagger swagger, String examplesFolderPath, String schemasFolderPath,
+    AlienSwagger2MarkupConverter(MarkupLanguage markupLanguage, Swagger swagger, String category, String examplesFolderPath, String schemasFolderPath,
             String descriptionsFolderPath, boolean separatedDefinitions) {
         this.markupLanguage = markupLanguage;
         this.swagger = swagger;
+        this.category = category;
         this.examplesFolderPath = examplesFolderPath;
         this.schemasFolderPath = schemasFolderPath;
         this.descriptionsFolderPath = descriptionsFolderPath;
@@ -120,7 +123,7 @@ public class AlienSwagger2MarkupConverter {
      * @throws IOException if a file cannot be written
      */
     private void buildDocuments(String directory) throws IOException {
-        new OverviewDocument(swagger, markupLanguage).build().writeToFile(directory, OVERVIEW_DOCUMENT, StandardCharsets.UTF_8);
+        new OverviewDocument(swagger, category, markupLanguage).build().writeToFile(directory, OVERVIEW_DOCUMENT + "_" + category, StandardCharsets.UTF_8);
 
         List<Tag> tags = swagger.getTags();
         Map<String, Controller> controllerMap = Maps.newHashMap();
@@ -141,7 +144,7 @@ public class AlienSwagger2MarkupConverter {
         }
 
         for (Map.Entry<String, Controller> controllerEntry : controllerMap.entrySet()) {
-            new ControllerDocument(swagger, controllerEntry, markupLanguage, examplesFolderPath).build().writeToFile(directory,
+            new ControllerDocument(swagger, category, controllerEntry, markupLanguage, examplesFolderPath).build().writeToFile(directory,
                     CONTROLLER_DOCUMENT + controllerEntry.getKey(), StandardCharsets.UTF_8);
         }
 
@@ -167,6 +170,7 @@ public class AlienSwagger2MarkupConverter {
         private String schemasFolderPath;
         private String descriptionsFolderPath;
         private boolean separatedDefinitions;
+        private String category = null;
         private MarkupLanguage markupLanguage = MarkupLanguage.ASCIIDOC;
 
         /**
@@ -191,7 +195,7 @@ public class AlienSwagger2MarkupConverter {
         }
 
         public AlienSwagger2MarkupConverter build() {
-            return new AlienSwagger2MarkupConverter(markupLanguage, swagger, examplesFolderPath, schemasFolderPath, descriptionsFolderPath,
+            return new AlienSwagger2MarkupConverter(markupLanguage, swagger, category, examplesFolderPath, schemasFolderPath, descriptionsFolderPath,
                     separatedDefinitions);
         }
 
@@ -203,6 +207,11 @@ public class AlienSwagger2MarkupConverter {
          */
         public Builder withMarkupLanguage(MarkupLanguage markupLanguage) {
             this.markupLanguage = markupLanguage;
+            return this;
+        }
+
+        public Builder withCategory(String category) {
+            this.category = category;
             return this;
         }
 
