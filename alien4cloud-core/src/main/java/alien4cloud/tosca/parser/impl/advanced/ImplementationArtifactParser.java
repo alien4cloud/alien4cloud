@@ -2,6 +2,7 @@ package alien4cloud.tosca.parser.impl.advanced;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -11,6 +12,7 @@ import org.yaml.snakeyaml.nodes.ScalarNode;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.ImplementationArtifact;
 import alien4cloud.model.components.IndexedArtifactType;
 import alien4cloud.tosca.model.ArchiveRoot;
@@ -44,13 +46,18 @@ public class ImplementationArtifactParser extends DefaultDeferredParser<Implemen
                 if (indexedType == null) {
                     GetMultipleDataResult<IndexedArtifactType> artifactType = alienDao.find(IndexedArtifactType.class,
                             MapUtil.newHashMap(new String[] { "fileExt" }, new String[][] { new String[] { extension } }), 1);
-
                     if (artifactType != null && artifactType.getData() != null && artifactType.getData().length > 0) {
-                        type = artifactType.getData()[0].getElementId();
-                    } else {
-                        context.getParsingErrors().add(
-                                new ParsingError(ErrorCode.UNKNOWN_IMPLEMENTATION_ARTIFACT, "Implementation artifact", node.getStartMark(),
-                                        "No artifact type in the repository references the artifact's extension", node.getEndMark(), extension));
+                        Set<CSARDependency> archiveDependencies = archiveRoot.getArchive().getDependencies();
+                        for (IndexedArtifactType foundType : artifactType.getData()) {
+                            if (archiveDependencies.contains(new CSARDependency(foundType.getArchiveName(), foundType.getArchiveVersion()))) {
+                                type = foundType.getElementId();
+                                break;
+                            }
+                        }
+                    }
+                    if (type == null) {
+                        context.getParsingErrors().add(new ParsingError(ErrorCode.UNKNOWN_IMPLEMENTATION_ARTIFACT, "Implementation artifact",
+                                node.getStartMark(), "No artifact type in the repository references the artifact's extension", node.getEndMark(), extension));
                         type = "unknown";
                     }
                 } else {
