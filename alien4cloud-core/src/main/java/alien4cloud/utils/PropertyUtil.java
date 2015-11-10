@@ -75,7 +75,7 @@ public final class PropertyUtil {
         }
     }
 
-    private static void doSetPropertyValue(Map<String, AbstractPropertyValue> properties, PropertyDefinition propertyDefinition, String propertyName,
+    public static void setPropertyValue(Map<String, AbstractPropertyValue> properties, PropertyDefinition propertyDefinition, String propertyName,
             Object propertyValue) {
         // take the default value
         if (propertyValue == null) {
@@ -110,7 +110,7 @@ public final class PropertyUtil {
         if (nodeTemplate.getProperties() == null) {
             nodeTemplate.setProperties(Maps.<String, AbstractPropertyValue> newHashMap());
         }
-        doSetPropertyValue(nodeTemplate.getProperties(), propertyDefinition, propertyName, propertyValue);
+        setPropertyValue(nodeTemplate.getProperties(), propertyDefinition, propertyName, propertyValue);
     }
 
     /**
@@ -125,12 +125,12 @@ public final class PropertyUtil {
         if (capability.getProperties() == null) {
             capability.setProperties(Maps.<String, AbstractPropertyValue> newHashMap());
         }
-        doSetPropertyValue(capability.getProperties(), propertyDefinition, propertyName, propertyValue);
+        setPropertyValue(capability.getProperties(), propertyDefinition, propertyName, propertyValue);
     }
 
     /**
      * Merge from map into 'into' map
-     * 
+     *
      * @param from from map
      * @param into into map
      * @param keysToConsider if defined only keys contained by this set are considered

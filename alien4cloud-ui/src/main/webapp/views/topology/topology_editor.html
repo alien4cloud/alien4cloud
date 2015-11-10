@@ -423,23 +423,13 @@
                     </td>
                     <td>
                       <property-display
-                        ng-if="properties.isInputPropertyValue(propertyEntry.value)"
                         ng-init="condensed = true"
+                        dependencies="topology.topology.dependencies"
                         definition="properties.getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
                         property-name="propertyEntry.key"
                         property-value="propertyEntry.value"
                         on-save="properties.updateCapabilityProperty(propertyName, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
-                        editable="false"
-                        condensed="condensed">
-                      </property-display>
-                      <property-display
-                        ng-if="!properties.isInputPropertyValue(propertyEntry.value)"
-                        ng-init="condensed = true"
-                        definition="properties.getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
-                        property-name="propertyEntry.key"
-                        property-value="propertyEntry.value"
-                        on-save="properties.updateCapabilityProperty(propertyName, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
-                        editable="true"
+                        editable="!properties.isInputPropertyValue(propertyEntry.value)"
                         condensed="condensed">
                       </property-display>
                     </td>
@@ -527,23 +517,13 @@
                           </td>
                           <td ng-init="propertyEntry.value.name=propertyEntry.key" class="col-md-10">
                             <property-display
-                              ng-if="properties.isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
                               ng-init="condensed = true"
+                              dependencies="topology.topology.dependencies"
                               definition="propertyEntry.value"
                               property-name="propertyEntry.key"
                               property-value="relationshipEntry.value.propertiesMap[propertyEntry.key].value"
                               on-save="relationships.updateRelationshipProperty(propertyEntry.value, propertyName, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
-                              editable="false"
-                              condensed="condensed">
-                            </property-display>
-                            <property-display
-                              ng-if="!properties.isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
-                              ng-init="condensed = true"
-                              definition="propertyEntry.value"
-                              property-name="propertyEntry.key"
-                              property-value="relationshipEntry.value.propertiesMap[propertyEntry.key].value"
-                              on-save="relationships.updateRelationshipProperty(propertyEntry.value, propertyName, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
-                              editable="true"
+                              editable="!properties.isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
                               condensed="condensed">
                             </property-display>
                           </td>
