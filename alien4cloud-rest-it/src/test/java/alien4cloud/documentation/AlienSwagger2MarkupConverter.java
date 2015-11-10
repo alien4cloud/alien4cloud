@@ -126,7 +126,7 @@ public class AlienSwagger2MarkupConverter {
         new OverviewDocument(swagger, category, markupLanguage).build().writeToFile(directory, OVERVIEW_DOCUMENT + "_" + category, StandardCharsets.UTF_8);
 
         List<Tag> tags = swagger.getTags();
-        Map<String, Controller> controllerMap = Maps.newHashMap();
+        Map<String, Controller> controllerMap = Maps.newLinkedHashMap();
         for (Tag tag : tags) {
             String ctrlDesc = org.apache.commons.lang3.StringUtils.isBlank(tag.getDescription()) ? tag.getName() : tag.getDescription();
             controllerMap.put(tag.getName(), new Controller(ctrlDesc));
@@ -148,10 +148,8 @@ public class AlienSwagger2MarkupConverter {
                     CONTROLLER_DOCUMENT + controllerEntry.getKey(), StandardCharsets.UTF_8);
         }
 
-        // new PathsDocument(swagger, markupLanguage, examplesFolderPath, descriptionsFolderPath).build().writeToFile(directory, PATHS_DOCUMENT,
-        // StandardCharsets.UTF_8);
-        // new DefinitionsDocument(swagger, markupLanguage, schemasFolderPath, descriptionsFolderPath, separatedDefinitions, directory).build()
-        // .writeToFile(directory, DEFINITIONS_DOCUMENT, StandardCharsets.UTF_8);
+        new DefinitionsDocument(swagger, category, markupLanguage, schemasFolderPath, descriptionsFolderPath, separatedDefinitions, directory).build()
+                .writeToFile(directory, DEFINITIONS_DOCUMENT + "_" + category, StandardCharsets.UTF_8);
     }
 
     public class Controller {
