@@ -43,7 +43,7 @@ public class TagConfigurationStepDefinitions {
             // register in ES
             MetaPropConfiguration tagObject = JsonUtil.readObject(JsonUtil.toString(tag), MetaPropConfiguration.class);
             String tagConfigurationJson = JsonUtil.toString(tagObject);
-            String response = Context.getRestClientInstance().postJSon("/rest/tagconfigurations", tagConfigurationJson);
+            String response = Context.getRestClientInstance().postJSon("/rest/metaproperties", tagConfigurationJson);
             TagConfigurationSaveResponse tagReceived = JsonUtil.read(response, TagConfigurationSaveResponse.class).getData();
             // register in context
             tagObject.setId(tagReceived.getId());
@@ -72,7 +72,7 @@ public class TagConfigurationStepDefinitions {
         tagObject.setName(name);
         tagObject.setTarget(target);
         // we just save the response, we don't add the tag in the Context
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/tagconfigurations", JsonUtil.toString(tagObject)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/metaproperties", JsonUtil.toString(tagObject)));
     }
 
 }
