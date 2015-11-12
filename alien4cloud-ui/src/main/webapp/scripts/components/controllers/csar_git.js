@@ -33,7 +33,7 @@ define(function (require) {
       'success': 'success',
       'progress': 'info'
     };
-    $scope.uploadErrors = [];
+    $scope.importInfos = [];
     $scope.id = 0;
 
     $scope.query = '';
@@ -43,7 +43,7 @@ define(function (require) {
     };
     // we have to insert the search service in the scope so it is available for the pagination directive.
     $scope.searchService = searchServiceFactory('rest/csarsgit', true, $scope, 20);
-    $scope.search = function() {$scope.searchService.search();};
+    $scope.search = function() { $scope.searchService.search(); };
     $scope.search(); // initialize
 
     $scope.triggerImport = function(id, url) {
@@ -52,108 +52,129 @@ define(function (require) {
         id: id
       }, angular.toJson(id),
       function(result) {
-        $scope.handleResult(result,url);
+        handleResult(result, url);
         $scope.isImporting = false;
         $scope.isImportingAll = false;
       }, function(error) {
+        $scope.importInfos.push({
+          'name': url,
+          'infoType': statesToClasses.error,
+          'error': {
+            'code': status,
+            'message': 'An Error has occurred on the server.'
+          }
+        });
         $scope.isImporting = false;
         $scope.isImportingAll = false;
       });
     };
 
-    $scope.handleResult = function(result, url) {
-      var state = statesToClasses.progress;
-      var progress = 100;
-      var isCollapsed = false;
-      var index = $scope.uploadErrors.length;
-      for(var j=0;j<result.data.length;j++){
-        if(result.data[j].context.parsingErrors.length >0){
-          state = statesToClasses.error;
-          isCollapsed = true;
-        }
-        else{
-          state = statesToClasses.success;
-          isCollapsed = true;
-        }
+    function processImportData(data, importResult) {
+      if (_.defined(data.data) && data.data.length > 0) {
+        _.each(data.data, function(parsingResult){
+          // if(_.defined(parsingResult.context.parsingErrors) && parsingResult.context.parsingErrors.length > 0) {
+          // push to the errors
+          importResult.errors.push({
+            'fileName': parsingResult.context.fileName,
+            'parsingErrors': parsingResult.context.parsingErrors
+          });
+          // }
+        });
       }
-      $scope.uploadErrors.push({
-        'url': url,
-        'isErrorBlocCollapsed':isCollapsed,
-        'data': result,
-        'infoType': state,
-        'progress': progress
-      }
-    );
-    $scope.search();
-  }
+    };
 
-  $scope.closeUploadInfos = function(index) {
-    $scope.uploadErrors.splice(index, 1);
-  };
-  $scope.triggerImportAllCsarGit = function() {
-    if (_.defined($scope.csarGits) && $scope.csarGits.length > 0) {
-      for (var i=0; i<$scope.csarGits.length; i++) {
-        $scope.triggerImport($scope.csarGits[i].id, $scope.csarGits[i].repositoryUrl);
+    function handleResult(data, url) {
+      var importResult = {
+        'name': url,
+        'progress': 100,
+        'errors': []
+      };
+      // file is uploaded successfully and the server respond without error
+      if (data.error === null) {
+        importResult.infoType = statesToClasses.success;
+        // there might be warnings. display them
+        processImportData(data, importResult)
+      } else {
+        importResult.infoType = statesToClasses.error;
+        if (_.undefined(data.data)) {
+          importResult.otherError = {};
+          importResult.otherError.code = data.error.code;
+          importResult.otherError.message = data.error.message;
+        } else {
+          processImportData(data, importResult)
+        }
       }
-    }
-    else{
-      var titleError = $translate('CSAR.ERRORS.NO_DATA.HEADER');
-      var bodyError=$translate('CSAR.ERRORS.NO_DATA.BODY')
-      toaster.pop('note', titleError, bodyError, 4000, 'trustedHtml',null);
-    }
-  };
-
-  $scope.removeCsarGit = function(id) {
-    csarGitService.remove({
-      id: id
-    }, function() {
-      // refresh csargit list
+      $scope.importInfos.push(importResult);
       $scope.search();
-    });
-  };
+    };
 
-  $scope.openNewCsarGitTemplate = function() {
-    var modalInstance = $modal.open({
-      templateUrl: 'views/components/csar_git_new.html',
-      controller: 'NewCsarGitController',
-      scope: $scope
-    });
-    modalInstance.result.then(function(csarGitTemplate) {
-      csarGitService.create([], angular.toJson(csarGitTemplate), function(successResponse) {
-        var errorMessage = successResponse;
-        if (errorMessage.error != null) {
-          var title = $translate('CSAR.ERRORS.' + errorMessage.error.code + '_TITLE');
-          toaster.pop('error', title, errorMessage.message, 4000, 'trustedHtml', null);
-        }
-        $scope.search();
-        $scope.id = 0;
-      });
-    });
-  };
+    $scope.closeUploadInfos = function(index) {
+      $scope.importInfos.splice(index, 1);
+    };
 
-  $scope.openCsarGit = function(csar) {
-    var modalInstance = $modal.open({
-      templateUrl: 'views/components/csar_git_edit.html',
-      controller: 'EditCsarGitController',
-      scope: $scope,
-      resolve:{
-        csar: function () {
-          return csar;
+    $scope.triggerImportAllCsarGit = function() {
+      if (_.defined($scope.csarGits) && $scope.csarGits.length > 0) {
+        for (var i=0; i<$scope.csarGits.length; i++) {
+          $scope.triggerImport($scope.csarGits[i].id, $scope.csarGits[i].repositoryUrl);
         }
       }
-    });
-    modalInstance.result.then(function(DTOObject) {
-      var JsonId = angular.toJson(DTOObject.id);
-      csarGitService.update({id: DTOObject.id },angular.toJson(DTOObject.dto), function(successResponse) {
-        var errorMessage = successResponse;
-        if (errorMessage.error != null) {
-          var title = $translate('CSAR.ERRORS.' + errorMessage.error.code + '_TITLE');
-          toaster.pop('error', title, errorMessage.message, 4000, 'trustedHtml', null);
-        }
+      else{
+        var titleError = $translate('CSAR.ERRORS.NO_DATA.HEADER');
+        var bodyError=$translate('CSAR.ERRORS.NO_DATA.BODY')
+        toaster.pop('note', titleError, bodyError, 4000, 'trustedHtml',null);
+      }
+    };
+
+    $scope.removeCsarGit = function(id) {
+      csarGitService.remove({
+        id: id
+      }, function() {
+        // refresh csargit list
         $scope.search();
       });
-    });
-  };
-}
-]); // controller
+    };
+
+    $scope.openNewCsarGitTemplate = function() {
+      var modalInstance = $modal.open({
+        templateUrl: 'views/components/csar_git_new.html',
+        controller: 'NewCsarGitController',
+        scope: $scope
+      });
+      modalInstance.result.then(function(csarGitTemplate) {
+        csarGitService.create([], angular.toJson(csarGitTemplate), function(successResponse) {
+          var errorMessage = successResponse;
+          if (errorMessage.error != null) {
+            var title = $translate('CSAR.ERRORS.' + errorMessage.error.code + '_TITLE');
+            toaster.pop('error', title, errorMessage.message, 4000, 'trustedHtml', null);
+          }
+          $scope.search();
+          $scope.id = 0;
+        });
+      });
+    };
+
+    $scope.openCsarGit = function(csar) {
+      var modalInstance = $modal.open({
+        templateUrl: 'views/components/csar_git_edit.html',
+        controller: 'EditCsarGitController',
+        scope: $scope,
+        resolve:{
+          csar: function () {
+            return csar;
+          }
+        }
+      });
+      modalInstance.result.then(function(DTOObject) {
+        var JsonId = angular.toJson(DTOObject.id);
+        csarGitService.update({id: DTOObject.id },angular.toJson(DTOObject.dto), function(successResponse) {
+          var errorMessage = successResponse;
+          if (errorMessage.error != null) {
+            var title = $translate('CSAR.ERRORS.' + errorMessage.error.code + '_TITLE');
+            toaster.pop('error', title, errorMessage.message, 4000, 'trustedHtml', null);
+          }
+          $scope.search();
+        });
+      });
+    };
+  }]); // controller
 }); // define

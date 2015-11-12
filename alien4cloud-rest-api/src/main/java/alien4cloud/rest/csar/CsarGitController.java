@@ -7,9 +7,10 @@ import alien4cloud.csar.services.CsarGitService;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.Csar;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.model.*;
 import alien4cloud.security.model.CsarGitRepository;
+import alien4cloud.tosca.ArchiveUploadService;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
 import io.swagger.annotations.ApiOperation;
@@ -172,6 +173,13 @@ public class CsarGitController {
     @Audit
     public RestResponse<List<ParsingResult<Csar>>> importCsar(@Valid @PathVariable String id) {
         List<ParsingResult<Csar>> parsingResult = csarGitService.importFromGitRepository(id);
-        return RestResponseBuilder.<List<ParsingResult<Csar>>> builder().data(parsingResult).build();
+        RestError error = null;
+        for (ParsingResult<Csar> result : parsingResult) {
+            // check if there is any critical failure in the import
+            if (ArchiveUploadService.hasError(result, ParsingErrorLevel.ERROR)) {
+                error = RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build();
+            }
+        }
+        return RestResponseBuilder.<List<ParsingResult<Csar>>> builder().error(error).data(parsingResult).build();
     }
 }

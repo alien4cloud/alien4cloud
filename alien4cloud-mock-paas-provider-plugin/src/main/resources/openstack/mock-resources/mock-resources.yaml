@@ -19,3 +19,7 @@ node_types:
       flavorId:
         type: string
         required: true
+  alien.nodes.mock.BlockStorage:
+    derived_from: tosca.nodes.BlockStorage
+  alien.nodes.mock.Network:
+    derived_from: tosca.nodes.Network

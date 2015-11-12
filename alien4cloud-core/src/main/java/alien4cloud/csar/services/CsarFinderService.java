@@ -67,7 +67,7 @@ public class CsarFinderService {
         }
 
         private void addToscaArchive(Path path) {
-            Path relativePath = path.relativize(rootPath);
+            Path relativePath = rootPath.relativize(path);
             Path zipPath = zipRootPath.resolve(relativePath).resolve("archive.zip");
             try {
                 FileUtil.zip(path, zipPath);
