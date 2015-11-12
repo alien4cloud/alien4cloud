@@ -83,7 +83,7 @@ public class LocationMatchNodesArtifactsElector implements ILocationMatchElector
                 for (Operation operation : interfaz.getOperations().values()) {
                     if (operation.getImplementationArtifact() != null) {
                         String artifactTypeString = operation.getImplementationArtifact().getArtifactType();
-                        IndexedArtifactType artifactType = csarSearchService.getElementInDependencies(IndexedArtifactType.class, artifactTypeString,
+                        IndexedArtifactType artifactType = csarSearchService.getRequiredElementInDependencies(IndexedArtifactType.class, artifactTypeString,
                                 dependencies);
 
                         // stop the checking once one artifactType is not supported
@@ -99,11 +99,12 @@ public class LocationMatchNodesArtifactsElector implements ILocationMatchElector
     }
 
     private boolean isFromOneOfTypes(String[] supportedArtifacts, IndexedArtifactType artifactType) {
-        boolean result = false;
-        for (int i = 0; (i < supportedArtifacts.length && result == false); i++) {
-            result = ToscaUtils.isFromType(supportedArtifacts[i], artifactType);
+        for (String supportedArtifact : supportedArtifacts) {
+            if (ToscaUtils.isFromType(supportedArtifact, artifactType)) {
+                return true;
+            }
         }
-        return result;
+        return false;
     }
 
     private boolean areRelationshipsArtifactSupported(LocationMatch locationMatch, NodeTemplate nodeTemplate) {
