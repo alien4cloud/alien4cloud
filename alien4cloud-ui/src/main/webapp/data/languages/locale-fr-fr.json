@@ -19,7 +19,7 @@
   "NO": "Non",
   "NAME": "Nom",
   "VALUE": "Valeur",
-  "PLACE_HOLDER_NO":"Pas de ", 
+  "PLACE_HOLDER_NO":"Pas de ",
   "NAVBAR": {
     "BUTTON_LOGIN": "Connexion",
     "BUTTON_LOGOUT": "Déconnexion",
@@ -173,7 +173,7 @@
   },
   "CSAR": {
     "BUTTON_NEWCSAR": "Créer un CSAR SNAPSHOT",
-    "MODAL_NEWCSAR": "Nouveau CSAR",
+    "NEW_GIT": "Nouvelle location Git",
     "BUTTON_DELETE": "Supprimer",
     "BUTTON_MODIFY": "Modifier",
     "NAME": "Nom",
@@ -186,7 +186,7 @@
     "ACTIONS": "Opérations",
     "URL": "URL du repository",
     "BRANCHESLIST": "Liste des branches",
-    "BRANCHE": "Branche",
+    "BRANCH": "Branche",
     "ARCHIVE": "Nom du dossier",
     "ARCHIVE_TO_IMPORT": "Archive(s) à importer",
     "BRANCHE_TO_IMPORT": "Sur la branche",

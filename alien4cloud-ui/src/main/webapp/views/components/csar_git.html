@@ -1,30 +1,74 @@
 <div>
+  <!-- Import result display -->
+  <div class="row">
+    <div class="upload-infos-bloc" ng-repeat="importInfo in importInfos">
+      <alert type="importInfo.infoType" close="closeUploadInfos($index)" style="margin-top: 15px;">
+        <div class="col-md-5 upload-file-infos">
+          <div class=" show-error-link col-md-2"
+             ng-click="importInfo.isErrorBlocCollapsed = !importInfo.isErrorBlocCollapsed"
+             ng-show="importInfo.errors || importInfo.otherError">
+             <i ng-class="{'fa fa-angle-double-down fa-lg' : importInfo.isErrorBlocCollapsed,  'fa fa-angle-double-up fa-lg' : !importInfo.isErrorBlocCollapsed }"></i>
+             <i class="fa fa-exclamation-triangle"></i>
+          </div>
+          <span><strong>{{importInfo.name}}</strong></span>
+        </div>
+        <progressbar class="progress-striped active"
+          value="importInfo.progress" type="{{importInfo.infoType}}">{{importInfo.progress}}% {{'UPLOAD.COMPLETE' | translate}}</progressbar>
+      </alert>
+      <!-- Error details -->
+      <div ng-if="importInfo.errors || importInfo.otherError" collapse="importInfo.isErrorBlocCollapsed">
+        <div class="well well-sm">
+          <div class="panel panel-default" ng-repeat="error in importInfo.errors">
+            <div class="panel-heading">
+               <i class="fa fa-file"></i> <b>{{'COMPONENTS.UPLOAD_ERROR.FILE_PATH' | translate}}</b> : {{error.fileName}}
+            </div>
+            <div class="panel-body table-responsive">
+              <table class="table table-condensed">
+                <tr ng-repeat="csarError in error.parsingErrors" ng-class="{'warning': csarError.errorLevel==='WARNING', 'info': csarError.errorLevel==='INFO', 'danger': csarError.errorLevel==='ERROR'}">
+                  <td><i class="fa" ng-class="{'fa-warning': csarError.errorLevel==='WARNING', 'fa-info': csarError.errorLevel==='INFO', 'fa-minus-circle': csarError.errorLevel==='ERROR'}"></i></td>
+                  <td>
+                    <span ng-if="csarError.startMark">
+                      l:{{csarError.startMark.line}} c: {{csarError.startMark.column}}</td>
+                    </span>
+                  <td>{{'COMPONENTS.UPLOAD_ERROR.'+csarError.errorCode | translate:csarError}}</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <div ng-if="importInfo.otherError"  class="input-group">
+            <span class="input-group-addon">
+              <span><i class="fa fa-info"></i></span>
+            </span>
+            <span class="form-control-noheightlimit">{{'COMPONENTS.UPLOAD_ERROR.'+importInfo.otherError.code | translate:csarError }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- search form -->
   <div class="row" style="margin-top: 10px;">
     <div class="col-md-2 well">
-      <div class="row" style="padding-bottom: 15px;">
-        <form  class="col-md-12" role="search" ng-submit="searchCsarsGit()">
-          <div class="input-group">
-            <input type="text" class="form-control" placeholder="..."
-            ng-model="queryCsarGit">
-            <span class="input-group-btn">
-              <button type="submit" class="btn btn-default"
-                data-loading-text="Loading...">
-                <i class="fa fa-search"></i>
-              </button>
-            </span>
-          </div>
-        </form>
-      </div>
-      <div class="row-fluid">
-        <div class="span4 text-left">
-          <button class="btn btn-success" ng-disabled="isImporting" id="MODAL_NEWCSAR" ng-click="openNewCsarGitTemplate()">
-            <i class="fa fa fa-plus-circle"></i>  {{ 'CSAR.MODAL_NEWCSAR' | translate}}
-          </button>
-          <button class="btn ng-binding"  id="IMPORTALL_CSARGIT"  ng-disabled="isImporting" ng-click="triggerImportAllCsarGit()">
-            <i class="fa fa-download fa-lg"> </i>  {{'CSAR.IMPORT_ALL' | translate}}
-          </button>
+      <form role="search" ng-submit="searchCsarsGit()">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="..."
+          ng-model="queryCsarGit">
+          <span class="input-group-btn">
+            <button type="submit" class="btn btn-default"
+              data-loading-text="Loading...">
+              <i class="fa fa-search"></i>
+            </button>
+          </span>
         </div>
+      </form>
+      <div class="btn-group-vertical btn-block" style="margin-top: 5px" role="group" aria-label="...">
+        <button class="btn btn-success" ng-disabled="isImporting" id="MODAL_NEWCSAR" ng-click="openNewCsarGitTemplate()">
+          <i class="fa fa fa-plus-circle"></i>  {{ 'CSAR.NEW_GIT' | translate}}
+        </button>
+        <button class="btn btn-default ng-binding"  id="IMPORTALL_CSARGIT"  ng-disabled="isImporting" ng-click="triggerImportAllCsarGit()">
+          <i class="fa fa-download fa-lg"> </i>  {{'CSAR.IMPORT_ALL' | translate}}
+        </button>
       </div>
     </div>
 
@@ -36,72 +80,32 @@
             <tr>
               <th>{{ 'CSAR.URL' | translate}}</th>
               <th>{{ 'CSAR.ARCHIVE' | translate}}</th>
-              <th>{{ 'CSAR.BRANCHE' | translate}}</th>
+              <th>{{ 'CSAR.BRANCH' | translate}}</th>
               <th>{{ 'CSAR.ACTIONS' | translate}}</th>
             </tr>
           </thead>
           <tbody>
             <tr ng-repeat="csar in csarGits"  id="csar_{{csar.id}}" name="csar_{{csar.id}}" >
-                <td>{{csar.repositoryUrl}}</td>
-                <td>
-                  <span style="display:block;"ng-repeat="location in csar.importLocations"> {{location.subPath || '*'}}</span>
-                </td>
-                <td>
-                  <span style="display:block;"ng-repeat="location in csar.importLocations"> {{location.branchId || '*'}}</span>
-                </td>
-                <td>
-                  <button class=" btn-sm btn ng-binding" ng-disabled="isImporting" tooltip="{{ 'CSAR.IMPORTTOOLTIP' | translate}}" ng bssize="btn-sm" position="left" id="IMPORT_CSARGIT" ng-click="triggerImport(csar.id, csar.repositoryUrl)">
-                    <i class="fa fa-download fa-lg" ng-class="{'fa-download fa-lg': !isImporting, 'fa-spinner fa-spin': isImporting}"></i>
-                  </button>
-                  <button class=" btn-sm btn ng-binding"  ng-disabled="isImporting" ng bssize="btn-sm" tooltip="{{ 'CSAR.EDITTOOLTIP' | translate}}" position="left" id="UPDATE_CSARGIT" ng-click="openCsarGit(csar)">
-                    <i class="fa fa-pencil-square-o fa-lg" ></i>
-                  </button>
-                  <delete-confirm id="delete-csargit" ng-disabled="isImporting" func="removeCsarGit(csar.id);" position="left" bssize="btn-sm" fastyle="fa-trash-o"></delete-confirm>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <pagination-directive pagination-info="searchService.pagination"/>
-        </div>
-        <hr></hr>
-
-        <!-- CSAR Git search result display -->
-        <div ng-show="uploadErrors.length>0" ng-repeat="error in uploadErrors">
-          <alert type="error.infoType" close="closeUploadInfos($index)" style="margin-top: 15px;">
-            <div class="col-md-5 upload-file-infos">
-              <div class=" show-error-link col-md-2"
-              ng-click="error.isErrorBlocCollapsed = !error.isErrorBlocCollapsed"
-              ng-show="error.data">
-              <i ng-class="{'fa fa-angle-double-down fa-lg' : error.isErrorBlocCollapsed,  'fa fa-angle-double-up fa-lg' : !error.isErrorBlocCollapsed }"></i>
-              <i class="fa fa-exclamation-triangle"></i>
-            </div>
-            <span><strong>{{error.url}}</strong></span>
-          </div>
-          <progressbar class="progress-striped active"
-          value="error.progress" type="{{error.infoType}}">{{error.progress}}% {{'UPLOAD.COMPLETE' | translate}}</progressbar>
-        </alert>
-        <div ng-show="error.data" collapse="error.isErrorBlocCollapsed">
-          <div class="well well-sm">
-            <div class="panel panel-default" ng-repeat="err in error.data.data" ng-click="">
-              <div class="panel-heading" >
-                <i class="fa fa-file"></i> <b>{{'COMPONENTS.UPLOAD_ERROR.FILE_PATH' | translate}}</b> : {{err.context.fileName}}
-              </div>
-              <div class="panel-body table-responsive">
-                <table class="table">
-                  <tr ng-repeat="e in err.context.parsingErrors" ng-class="{'warning': e.errorLevel==='WARNING', 'info': e.errorLevel==='INFO', 'danger': e.errorLevel==='ERROR'}" >
-                    <td><i class="fa" ng-class="{'fa-warning': e.errorLevel==='WARNING', 'fa-info': e.errorLevel==='INFO', 'fa-minus-circle': e.errorLevel==='ERROR'}"></i></td>
-                    <td>
-                      <span ng-if="e.startMark">
-                        l:{{e.startMark.line}} c: {{e.startMark.column}}
-                      </span>
-                    </td>
-                    <td>{{'COMPONENTS.UPLOAD_ERROR.'+e.errorCode | translate:e}}</td>
-                  </tr>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
+              <td>{{csar.repositoryUrl}}</td>
+              <td>
+                <span style="display:block;"ng-repeat="location in csar.importLocations"> {{location.subPath || '*'}}</span>
+              </td>
+              <td>
+                <span style="display:block;"ng-repeat="location in csar.importLocations"> {{location.branchId || '*'}}</span>
+              </td>
+              <td>
+                <button class=" btn-sm btn btn-default ng-binding" ng-disabled="isImporting" tooltip="{{ 'CSAR.IMPORTTOOLTIP' | translate}}" ng bssize="btn-sm" position="left" id="IMPORT_CSARGIT" ng-click="triggerImport(csar.id, csar.repositoryUrl)">
+                  <i class="fa fa-download fa-lg" ng-class="{'fa-download fa-lg': !isImporting, 'fa-spinner fa-spin': isImporting}"></i>
+                </button>
+                <button class=" btn-sm btn btn-default ng-binding"  ng-disabled="isImporting" ng bssize="btn-sm" tooltip="{{ 'CSAR.EDITTOOLTIP' | translate}}" position="left" id="UPDATE_CSARGIT" ng-click="openCsarGit(csar)">
+                  <i class="fa fa-pencil-square-o fa-lg" ></i>
+                </button>
+                <delete-confirm id="delete-csargit" ng-disabled="isImporting" func="removeCsarGit(csar.id);" position="left" bssize="btn-sm" fastyle="fa-trash-o"></delete-confirm>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <pagination-directive pagination-info="searchService.pagination"/>
       </div>
     </div>
   </div>
