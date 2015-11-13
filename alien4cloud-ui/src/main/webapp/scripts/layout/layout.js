@@ -15,12 +15,12 @@ define(function (require) {
         if (authService.hasRole('ADMIN')) {
           menuItem.show = true;
         } else if(_.has(menuItem, 'roles')) {
-          for (var role in menuItem.roles) {
+          _.every(menuItem.roles, function(role){
             if (authService.hasRole(role)) {
               menuItem.show = true;
-              break;
+              return false; // stop the every loop
             }
-          }
+          });
         } else { // if there is no roles requirement or if it's an ADMIN then the menu is visible
           menuItem.show = true;
         }
