@@ -1,10 +1,12 @@
 <div class="row" ng-if="isActivePath">
-  <primitive-type-form-label property-name="propertyName"
-                             property-type="propertyType"
-                             path="path"
-                             label-path="labelPath"
-                             root-object="rootObject"
-                             suggest="suggest(searchConfiguration, text)"
-                             configuration="configuration">
+  <primitive-type-form-label
+      property-name="propertyName"
+      property-type="propertyType"
+      path="path"
+      label-path="labelPath"
+      root-object="rootObject"
+      suggest="suggest(searchConfiguration, text)"
+      save-action="saveAction(object)"
+      configuration="configuration">
   </primitive-type-form-label>
 </div>
