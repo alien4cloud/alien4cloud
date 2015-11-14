@@ -9,6 +9,9 @@ import java.util.Set;
 
 import lombok.Getter;
 import lombok.Setter;
+
+import org.apache.commons.collections4.CollectionUtils;
+
 import alien4cloud.paas.wf.validation.AbstractWorkflowError;
 
 @Getter
@@ -22,27 +25,25 @@ public class Workflow {
     private String name;
     private String description;
     private boolean isStandard;
+    private Set<String> hosts = new HashSet<String>();
+    private List<AbstractWorkflowError> errors;
 
     /**
      * FIXME: Here we use a {@link LinkedHashMap} just to pass cfy3 provider generation plueprint tests !
      */
     private Map<String, AbstractStep> steps = new LinkedHashMap<String, AbstractStep>();
 
-    private Set<String> hosts = new HashSet<String>();
-    
     public <S extends AbstractStep> S addStep(S step) {
         steps.put(step.getName(), step);
         return step;
     }
-
-    private List<AbstractWorkflowError> errors;
 
     public void clearErrors() {
         errors = new ArrayList<AbstractWorkflowError>();
     }
 
     public boolean hasErrors() {
-        return errors != null && errors.size() > 0;
+        return CollectionUtils.isNotEmpty(errors);
     }
 
     public void addErrors(List<AbstractWorkflowError> errorsToAdd) {

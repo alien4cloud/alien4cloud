@@ -9,6 +9,7 @@ import javax.validation.Validator;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.collections.MapUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,6 +37,7 @@ import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+
 import io.swagger.annotations.ApiOperation;
 
 @Slf4j
@@ -129,6 +131,17 @@ public class TagConfigurationController {
         }
     }
 
+    private <T extends IMetaProperties> void removeMetaPropertyFromResources(Class<T> mpClass, IGenericSearchDAO dao, MetaPropConfiguration configuration) {
+        GetMultipleDataResult<T> result = dao.find(mpClass, null, Integer.MAX_VALUE);
+        for (T element : result.getData()) {
+            if (MapUtils.isNotEmpty(element.getMetaProperties())) {
+                element.getMetaProperties().remove(configuration.getId());
+            }
+            dao.save(element);
+            log.debug("Adding meta property <{}> to a resource of type <{}> ", configuration.getName(), element.getClass());
+        }
+    }
+
     @ApiOperation(value = "Search for tag configurations registered in ALIEN.")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
@@ -143,6 +156,21 @@ public class TagConfigurationController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> removeConfiguration(@PathVariable String tagConfigurationId) {
+        MetaPropConfiguration configuration = dao.findById(MetaPropConfiguration.class, tagConfigurationId);
+        if (configuration == null) {
+            throw new NotFoundException("Configuration is not found");
+        }
+        switch (configuration.getTarget().toString()) {
+        case "application":
+            removeMetaPropertyFromResources(Application.class, dao, configuration);
+            break;
+        case "location":
+            removeMetaPropertyFromResources(Location.class, dao, configuration);
+            break;
+        // TODO : case environment
+        default:
+            break;
+        }
         dao.delete(MetaPropConfiguration.class, tagConfigurationId);
         return RestResponseBuilder.<Void> builder().build();
     }

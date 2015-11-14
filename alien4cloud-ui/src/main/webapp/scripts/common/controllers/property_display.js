@@ -36,12 +36,18 @@ define(function(require) {
     }
   ];
 
-  modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$modal',
-    function($scope, propertiesServices, $translate, $modal) {
+  modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$modal', '$timeout',
+    function($scope, propertiesServices, $translate, $modal, $timeout) {
       if (_.undefined($scope.translate)) {
         $scope.translate = false;
       }
-
+      $scope.isLongText = false;
+      $scope.switchToLongText = function($event) {
+        $scope.isLongText = true;
+        $timeout(function() {
+          angular.element($event.target).prev().trigger('click');
+        });
+      };
       $scope.propertySave = function(data, unit) {
         delete $scope.unitError;
         if (_.isEmpty(data)) {

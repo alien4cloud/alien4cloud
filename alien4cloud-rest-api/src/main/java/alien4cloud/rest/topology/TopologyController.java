@@ -1,5 +1,7 @@
 package alien4cloud.rest.topology;
 
+import io.swagger.annotations.ApiOperation;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -40,7 +42,6 @@ import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.AbstractPolicy;
 import alien4cloud.model.topology.AbstractTopologyVersion;
@@ -79,7 +80,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.Closeables;
-import io.swagger.annotations.ApiOperation;
 
 @Slf4j
 @RestController
@@ -634,11 +634,8 @@ public class TopologyController {
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         Map<String, RelationshipTemplate> relationships = nodeTemplate.getRelationships();
 
-        // case "reset" : take the default value
-        if (propertyValue == null) {
-            propertyValue = relationshipTypes.get(relationshipType).getProperties().get(propertyName).getDefault();
-        }
-        relationships.get(relationshipName).getProperties().put(propertyName, new ScalarPropertyValue(propertyValue));
+        PropertyUtil.setPropertyValue(relationships.get(relationshipName).getProperties(),
+                relationshipTypes.get(relationshipType).getProperties().get(propertyName), propertyName, propertyValue);
 
         topologyServiceCore.save(topology);
         return RestResponseBuilder.<ConstraintInformation> builder().build();
@@ -685,11 +682,8 @@ public class TopologyController {
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         Map<String, Capability> capabilities = nodeTemplate.getCapabilities();
 
-        // case "reset" : take the default value
-        if (propertyValue == null) {
-            propertyValue = capabilityTypes.get(capabilityType).getProperties().get(propertyName).getDefault();
-        }
-        capabilities.get(capabilityId).getProperties().put(propertyName, new ScalarPropertyValue(propertyValue));
+        PropertyUtil.setPropertyValue(capabilities.get(capabilityId).getProperties(), capabilityTypes.get(capabilityType).getProperties().get(propertyName),
+                propertyName, propertyValue);
 
         topologyServiceCore.save(topology);
         return RestResponseBuilder.<ConstraintInformation> builder().build();

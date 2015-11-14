@@ -2,15 +2,15 @@ package alien4cloud.model.components;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import alien4cloud.tosca.ToscaUtils;
-import alien4cloud.tosca.normative.ToscaFunctionConstants;
-import alien4cloud.ui.form.annotation.FormProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import alien4cloud.tosca.ToscaUtils;
+import alien4cloud.tosca.normative.ToscaFunctionConstants;
+import alien4cloud.ui.form.annotation.FormProperties;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * A TOSCA function to be used as the value for a property (or operation parameter).
@@ -19,7 +19,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@FormProperties({"function", "parameters"})
+@FormProperties({ "function", "parameters" })
 public class FunctionPropertyValue extends AbstractPropertyValue {
     private String function;
 
@@ -58,12 +58,12 @@ public class FunctionPropertyValue extends AbstractPropertyValue {
     public String getCapabilityOrRequirementName() {
         if (function != null && parameters.size() > 2) {
             switch (function) {
-                case ToscaFunctionConstants.GET_PROPERTY:
-                case ToscaFunctionConstants.GET_ATTRIBUTE:
-                case ToscaFunctionConstants.GET_INPUT:
-                    return parameters.get(1);
-                default:
-                    return null;
+            case ToscaFunctionConstants.GET_PROPERTY:
+            case ToscaFunctionConstants.GET_ATTRIBUTE:
+            case ToscaFunctionConstants.GET_INPUT:
+                return parameters.get(1);
+            default:
+                return null;
             }
         }
         return null;
@@ -76,10 +76,10 @@ public class FunctionPropertyValue extends AbstractPropertyValue {
     public String getInterfaceName() {
         if (function != null) {
             switch (function) {
-                case ToscaFunctionConstants.GET_OPERATION_OUTPUT:
-                    return parameters.size() > 2 ? ToscaUtils.getProperInterfaceName(parameters.get(1)) : null;
-                default:
-                    return null;
+            case ToscaFunctionConstants.GET_OPERATION_OUTPUT:
+                return parameters.size() > 2 ? ToscaUtils.getProperInterfaceName(parameters.get(1)) : null;
+            default:
+                return null;
             }
         }
         return null;
@@ -92,12 +92,23 @@ public class FunctionPropertyValue extends AbstractPropertyValue {
     public String getOperationName() {
         if (function != null) {
             switch (function) {
-                case ToscaFunctionConstants.GET_OPERATION_OUTPUT:
-                    return parameters.size() > 3 ? parameters.get(2) : null;
-                default:
-                    return null;
+            case ToscaFunctionConstants.GET_OPERATION_OUTPUT:
+                return parameters.size() > 3 ? parameters.get(2) : null;
+            default:
+                return null;
             }
         }
         return null;
+    }
+
+    public void replaceAllParamsExceptTemplateNameWith(String... replacements) {
+        if (parameters.size() > 0) {
+            parameters.subList(1, parameters.size()).clear();
+        } else {
+            parameters.set(0, "");
+        }
+        for (String string : replacements) {
+            parameters.add(string);
+        }
     }
 }
