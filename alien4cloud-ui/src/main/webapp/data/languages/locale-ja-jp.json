@@ -19,6 +19,7 @@
   "NO": "No",
   "NAME": "Name",
   "VALUE": "Value",
+  "PLACE_HOLDER_NO": "No ",
   "NAVBAR": {
     "BUTTON_LOGIN": "ログイン",
     "BUTTON_LOGOUT": "ログアウト",
@@ -174,7 +175,7 @@
   },
   "CSAR": {
     "BUTTON_NEWCSAR": "CSARスナップショットの作成",
-    "NEW_GIT": "Gitの新規作成",
+    "NEW_GIT": "Gitの新規ロケーション",
     "BUTTON_DELETE": "削除",
     "BUTTON_MODIFY": "変更",
     "NAME": "CSAR名",
@@ -187,7 +188,7 @@
     "ACTIONS":"Operations",
     "URL": "Repository URL",
     "BRANCHESLIST": "Branches list",
-    "BRANCH":"Branche",
+    "BRANCH":"Branch",
     "ARCHIVE":"Archive's folder",
     "ARCHIVELIST":"Archive list",
     "ARCHIVE_TO_IMPORT":"Archive(s) to import",
@@ -647,7 +648,8 @@
         "BadStateSequenceError": "Bad sequence : step '{{from}}' should not be found before '{{to}}'",
         "ParallelSetStatesError": "State changes are done in parallel for node '{{nodeId}}'",
         "UnknownNodeError": "The node '{{nodeId}}' referenced by the step '{{stepId}}' doesn't exists"
-      }
+      },
+      "launch": "Launch"
     }
   },
   "TEMPLATE": {
