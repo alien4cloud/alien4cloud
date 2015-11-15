@@ -20,7 +20,7 @@
 
   <!-- Properties -->
   <div ng-if="resourceTemplate.template.properties.length > 0">
-    <div id="node-details-properties" class="topology-node-expand clickable"
+    <div id="node-details-properties" class="clickable"
          ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
       <h4>
         <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isPropertiesCollapsed, 'fa-chevron-right': isPropertiesCollapsed}"></i>
@@ -54,7 +54,7 @@
 
   <!-- Capabilities -->
   <div ng-if="resourceTemplate.template.capabilities.length > 0">
-    <div id="node-details-capabilities" class="topology-node-expand clickable"
+    <div id="node-details-capabilities" class="clickable"
          ng-click="isCapabilitiesCollapsed = !isCapabilitiesCollapsed">
       <h4>
         <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isCapabilitiesCollapsed, 'fa-chevron-right': isCapabilitiesCollapsed}"></i>
@@ -64,7 +64,7 @@
     <div id="node-details-capabilities-panel" collapse="isCapabilitiesCollapsed" class="topology-level">
       <div id="node-details-capabilities-{{capabilityEntry.key}}-block" ng-repeat="capabilityEntry in resourceTemplate.template.capabilities"
            ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(capabilityEntry.value.properties)">
-        <div class="topology-node-expand" style="font-weight: normal"
+        <div style="font-weight: normal"
              ng-class="{'clickable' : !emptyProps}"
              ng-click="isReqPropsCollapsed[capabilityEntry.key] = !isReqPropsCollapsed[capabilityEntry.key]">
           <div class="row">

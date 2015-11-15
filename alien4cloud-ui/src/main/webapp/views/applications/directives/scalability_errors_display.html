@@ -1,5 +1,5 @@
 <div ng-if="tasks.length>0">
-  <h4 class="topology-node-expand clickable" ng-init="isScalabilityCollapsed = false" ng-click="isScalabilityCollapsed = !isScalabilityCollapsed">
+  <h4 class="clickable" ng-init="isScalabilityCollapsed = false" ng-click="isScalabilityCollapsed = !isScalabilityCollapsed">
     <i class="fa" ng-class="{'fa-chevron-down' : !isScalabilityCollapsed , 'fa-chevron-right': isScalabilityCollapsed }"></i>
     <span>{{'APPLICATIONS.TOPOLOGY.TASK.SCALABLE_CAPABILITY_INVALID.LABEL' | translate}}</span>
   </h4>

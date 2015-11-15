@@ -151,7 +151,7 @@
 
           <!-- Groups -->
           <div ng-init="isGroupsCollapsed = true" ng-if="selectedNodeTemplate.groups && selectedNodeTemplate.groups.length > 0">
-            <div id="node-details-groups" class="topology-node-expand clickable" ng-click="isGroupsCollapsed = !isGroupsCollapsed">
+            <div id="node-details-groups" class="clickable" ng-click="isGroupsCollapsed = !isGroupsCollapsed">
               <h4>
                 <i class=" fa" ng-class="{'fa-chevron-down' : !isGroupsCollapsed, 'fa-chevron-right': isGroupsCollapsed}"></i>
                 {{'APPLICATIONS.TOPOLOGY.GROUPS.TITLE' | translate}}
@@ -174,7 +174,7 @@
 
           <!-- Properties -->
           <div ng-if="selectedNodeTemplate.properties.length > 0">
-            <div id="node-details-properties" class="topology-node-expand clickable"
+            <div id="node-details-properties" class="clickable"
                  ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
               <h4>
                 <i class=" fa" ng-class="{'fa-chevron-down' : !isPropertiesCollapsed, 'fa-chevron-right': isPropertiesCollapsed}"></i>
@@ -236,7 +236,7 @@
           </div>
           <!-- Attributes -->
           <div ng-if="selectedNodeTemplate.attributes.length > 0">
-            <div id="node-details-attributes" class="topology-node-expand clickable"
+            <div id="node-details-attributes" class="clickable"
                  ng-click="isAttributesCollapsed = !isAttributesCollapsed">
               <h4>
                 <i class=" fa" ng-class="{'fa-chevron-down' : !isAttributesCollapsed, 'fa-chevron-right': isAttributesCollapsed}"></i>
@@ -264,7 +264,7 @@
           </div>
           <!-- Requirements -->
           <div ng-if="selectedNodeTemplate.requirements.length > 0">
-            <div id="node-details-requirements" class="topology-node-expand clickable"
+            <div id="node-details-requirements" class="clickable"
                  ng-click="isRequirementsCollapsed = !isRequirementsCollapsed">
               <h4>
                 <i class=" fa" ng-class="{'fa-chevron-down' : !isRequirementsCollapsed, 'fa-chevron-right': isRequirementsCollapsed}"></i>
@@ -274,7 +274,7 @@
             <div id="node-details-requirements-panel" collapse="isRequirementsCollapsed" class="topology-level">
               <div ng-repeat="requirementEntry in selectedNodeTemplate.requirements"
                    ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(requirementEntry.value.properties)">
-                <div class="topology-node-expand" style="font-weight: normal"
+                <div style="font-weight: normal"
                      ng-class="{'clickable' : !emptyProps}"
                      ng-click="isReqPropsCollapsed[requirementEntry.key] = !isReqPropsCollapsed[requirementEntry.key]">
                   <div class="row">
@@ -342,7 +342,7 @@
           </div>
           <!-- Capabilities -->
           <div ng-if="selectedNodeTemplate.capabilities.length > 0">
-            <div id="node-details-capabilities" class="topology-node-expand clickable"
+            <div id="node-details-capabilities" class="clickable"
                  ng-click="isCapabilitiesCollapsed = !isCapabilitiesCollapsed">
               <h4>
                 <i class=" fa" ng-class="{'fa-chevron-down' : !isCapabilitiesCollapsed, 'fa-chevron-right': isCapabilitiesCollapsed}"></i>
@@ -352,7 +352,7 @@
             <div id="node-details-capabilities-panel" collapse="isCapabilitiesCollapsed" class="topology-level">
               <div id="node-details-capabilities-{{capabilityEntry.key}}-block" ng-repeat="capabilityEntry in selectedNodeTemplate.capabilities"
                    ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(capabilityEntry.value.properties)">
-                <div class="topology-node-expand" style="font-weight: normal"
+                <div style="font-weight: normal"
                      ng-class="{'clickable' : !emptyProps}"
                      ng-click="isReqPropsCollapsed[capabilityEntry.key] = !isReqPropsCollapsed[capabilityEntry.key]">
                   <div class="row">
@@ -443,7 +443,7 @@
           </div>
           <!-- Relationships -->
           <div ng-if="selectedNodeTemplate.relationships.length > 0">
-            <div id="node-details-relationships" class="topology-node-expand clickable"
+            <div id="node-details-relationships" class="clickable"
                  ng-click="isRelationshipsCollapsed = !isRelationshipsCollapsed">
               <h4>
                 <i class=" fa" ng-class="{'fa-chevron-down' : !isRelationshipsCollapsed, 'fa-chevron-right': isRelationshipsCollapsed}"></i>
@@ -453,7 +453,7 @@
             <div id="node-details-relationships-panel" collapse="isRelationshipsCollapsed">
               <div class="topology-level"
                    ng-repeat="relationshipEntry in selectedNodeTemplate.relationships">
-                <div class="topology-node-expand clickable editable-small"
+                <div class="clickable editable-small"
                      ng-click="isRelationshipCollapsed = !isRelationshipCollapsed"
                      id="relationship_{{relationshipEntry.key}}">
                   <i class=" fa"
@@ -540,7 +540,7 @@
           </div>
           <!-- Artifacts -->
           <div ng-if="checkMapSize(selectedNodeTemplate.artifacts)">
-            <div id="node-details-artifacts" class="topology-node-expand clickable"
+            <div id="node-details-artifacts" class="clickable"
                  ng-click="isArtifactsCollapsed = !isArtifactsCollapsed">
               <h4>
                 <i class=" fa" ng-class="{'fa-chevron-down' : !isArtifactsCollapsed, 'fa-chevron-right': isArtifactsCollapsed}"></i>
@@ -550,7 +550,7 @@
             <div id="node-details-artifacts-panel" collapse="isArtifactsCollapsed">
               <div class="topology-level clearfix"
                    ng-repeat="(artifactId, artifact) in selectedNodeTemplate.artifacts">
-                <div class="topology-node-expand clickable"
+                <div class="clickable"
                      ng-click="isArtifactCollapsed = !isArtifactCollapsed">
                   <i class=" fa"
                      ng-class="{'fa-chevron-down' : !isArtifactCollapsed, 'fa-chevron-right': isArtifactCollapsed}"></i>
@@ -739,7 +739,7 @@
             </span>
           </div>
           <div ng-repeat="group in orderedNodeGroups">
-            <div id="group-details-{{group.name}}-header" class="topology-node-expand clickable">
+            <div id="group-details-{{group.name}}-header" class="clickable">
               <h4>
                 <i class=" fa clickable {{groups.getColorCss(group.name)}}" ng-class="{'fa-chevron-down' : !groupCollapsed[group.name].main, 'fa-chevron-right': groupCollapsed[group.name].main}"
                 ng-click="groupCollapsed[group.name].main = !groupCollapsed[group.name].main"></i>
@@ -752,7 +752,7 @@
               </h4>
             </div>
             <div id="group-details-{{group.name}}-content" collapse="groupCollapsed[group.name].main" class="topology-level">
-              <div id="group-members-{{group.name}}-header" class="topology-node-expand clickable"
+              <div id="group-members-{{group.name}}-header" class="clickable"
                    ng-click="groupCollapsed[group.name].members = !groupCollapsed[group.name].members">
                 <h5>
                   <i class=" fa" ng-class="{'fa-chevron-down' : !groupCollapsed[group.name].members, 'fa-chevron-right': groupCollapsed[group.name].members}"></i>
@@ -771,7 +771,7 @@
                   </li>
                 </ul>
               </div>
-              <div id="group-policies-{{group.name}}-header" class="topology-node-expand clickable"
+              <div id="group-policies-{{group.name}}-header" class="clickable"
                    ng-click="groupCollapsed[group.name].policies = !groupCollapsed[group.name].policies">
                 <h5>
                   <i class=" fa" ng-class="{'fa-chevron-down' : !groupCollapsed[group.name].policies, 'fa-chevron-right': groupCollapsed[group.name].policies}"></i>
@@ -944,7 +944,7 @@
               <i class="fa fa-power-off"></i> {{'APPLICATIONS.WF.title' | translate}}
             </span>
           </div>
-          <!-- The workflow selection box --> 
+          <!-- The workflow selection box -->
           <div class="well wfbox">
 	          <div class="row">
 	            <div class="col-md-10">
@@ -959,14 +959,14 @@
 	                     tooltip="{{ 'APPLICATIONS.WF.addWorkflow' | translate}}"
 	                     tooltip-append-to-body="true" ng-click="workflows.createWorkflow()">
 	                    <i class="fa fa-plus-square"></i>
-	                  </a>                 
+	                  </a>
 	              </div>
 	            </div>
 	          </div>
 	        </div>
-	        <!-- The error box --> 
+	        <!-- The error box -->
 	        <div class="well wfbox" ng-if="currentWorkflowName && topology.topology.workflows[currentWorkflowName].errors">
-            <div id="wf-errors-header" class="topology-node-expand clickable text-danger"
+            <div id="wf-errors-header" class="clickable text-danger"
                  ng-click="isWfErrorsCollapsed = !isWfErrorsCollapsed">
               <h5>
                 <i class=" fa" ng-class="{'fa-chevron-down' : !isWfErrorsCollapsed, 'fa-chevron-right': isWfErrorsCollapsed}"></i>
@@ -977,9 +977,9 @@
 	            <span class="label label-danger wfLabelError" ng-repeat="error in topology.topology.workflows[currentWorkflowName].errors" ng-init="errorType = workflows.getErrorType(error)">
 	              {{'APPLICATIONS.WF.errors.' + errorType | translate:error}}
 	            </span>
-            </div>	        
+            </div>
 	        </div>
-	        <!-- The workflow edition box -->        
+	        <!-- The workflow edition box -->
           <div class="well wfbox" ng-if="currentWorkflowName">
             <div class="row">
               <div class="col-md-8">
@@ -987,8 +987,8 @@
 		              <span editable-text="workflows.workflowName" buttons="no" e-required onbeforesave="workflows.renameWorkflow($data)" blur="submit" ng-if="!topology.topology.workflows[currentWorkflowName].standard">
 		                {{ currentWorkflowName }}
 		                <i class="fa fa-pencil-square-o"></i>
-		              </span>    
-		              <span ng-if="topology.topology.workflows[currentWorkflowName].standard">{{ currentWorkflowName }}</span>               
+		              </span>
+		              <span ng-if="topology.topology.workflows[currentWorkflowName].standard">{{ currentWorkflowName }}</span>
                 </h4>
               </div>
               <div class="col-md-4" style="margin-top: 6px;">
@@ -1001,11 +1001,11 @@
 									</delete-confirm>
 	                <a id="wfViewMode"
 	                   class="btn btn-default btn-sm pull-right"
-	                   ng-class="{'active' : wfViewMode === 'full'}" 
+	                   ng-class="{'active' : wfViewMode === 'full'}"
 	                   tooltip="{{ 'APPLICATIONS.WF.changeViewMode' | translate}}"
 	                   tooltip-append-to-body="true" ng-click="workflows.switchViewMode()">
 	                  <i class="fa fa-binoculars"></i>
-	                </a>                
+	                </a>
 								</div>
               </div>
             </div>
@@ -1014,8 +1014,8 @@
                 confirm="{{'CONFIRM_MESSAGE' | translate}}"
                 confirm-title="{{'CONFIRM' | translate }}"
                 confirm-handler="workflows.reinitWorkflow()"
-                confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.reinit' | translate}}</a>            
-            </div>                          
+                confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.reinit' | translate}}</a>
+            </div>
 						<div>
 							<a class="btn btn-default btn-md"
 								ng-mouseover="workflows.addStepPreview()"
@@ -1023,7 +1023,7 @@
 								ng-click="workflows.addOperation()">{{'APPLICATIONS.WF.addOperationActivity' | translate}}</a>
 						</div>
 						<div>
-							<a class="btn btn-default btn-md" 
+							<a class="btn btn-default btn-md"
 								ng-mouseover="workflows.addStepPreview()"
 								ng-mouseleave="workflows.resetPreview()"
 								ng-click="workflows.addState()">{{'APPLICATIONS.WF.addStateActivity' | translate}}</a>
@@ -1047,7 +1047,7 @@
            <div class="row" ng-repeat="(k,v) in workflows.getStepActivityDetails(previewWorkflowStep)">
              <div class="col-md-3">{{'APPLICATIONS.WF.' + k | translate}}: </div>
              <div class="col-md-9 wfActivityDetail"><b>{{v}}</b></div>
-           </div>					 
+           </div>
 					</div>
 					<!-- The current selection -->
           <div class="well wfbox" ng-if="workflowCurrentStepSelection.length > 0">
@@ -1059,7 +1059,7 @@
                   <i class="fa fa-times"></i>
                 </a>
               </li>
-            </ul>           
+            </ul>
           </div>
           <!-- The pinned edge to be edited -->
           <div class="well wfbox" ng-if="wfPinnedEdge">
@@ -1074,10 +1074,10 @@
                        tooltip="{{ 'APPLICATIONS.WF.unpin' | translate}}"
                        tooltip-append-to-body="true" ng-click="workflows.unPinCurrentEdge()">
                       <i class="fa fa-unlock"></i>
-                    </a>              
+                    </a>
                 </div>
               </div>
-            </div>          
+            </div>
               <div>
                 <a class="btn btn-default btn-md"
                   ng-mouseover="workflows.removeEdgePreview(wfPinnedEdge.from, wfPinnedEdge.to)"
@@ -1087,7 +1087,7 @@
                   confirm-handler="workflows.removeEdge(wfPinnedEdge.from, wfPinnedEdge.to)"
                   confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.disconnect' | translate}}</a>
               </div>
-          </div>          
+          </div>
           <!-- The pinned step to be edited -->
           <div class="well wfbox" ng-if="pinnedWorkflowStep">
 	          <div class="row">
@@ -1096,7 +1096,7 @@
 	               <span editable-text="pinnedWorkflowStep.name" buttons="no" e-required onbeforesave="workflows.renameStep(pinnedWorkflowStep.name, $data)" blur="submit">
 	                  {{ pinnedWorkflowStep.name }}
 	                  <i class="fa fa-pencil-square-o"></i>
-	                </span>                 
+	                </span>
 	              </h4>
 	            </div>
 	            <div class="col-md-2" style="margin-top: 6px;">
@@ -1106,11 +1106,11 @@
 	                     tooltip="{{ 'APPLICATIONS.WF.unpin' | translate}}"
 	                     tooltip-append-to-body="true" ng-click="workflows.unpinCurrent()">
 	                    <i class="fa fa-unlock"></i>
-	                  </a>              
+	                  </a>
 	              </div>
 	            </div>
-	          </div>          
-	          
+	          </div>
+
 							<div
 								ng-repeat="precedingNodeId in pinnedWorkflowStep.precedingSteps">
 								<a class="btn btn-default btn-md"

@@ -1,5 +1,5 @@
 <div ng-if="tasks.length>0">
-  <h4 class="topology-node-expand clickable" ng-init="isToImplementNodesCollapsed = false"
+  <h4 class="clickable" ng-init="isToImplementNodesCollapsed = false"
        ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed">
     <i class="fa" ng-class="{'fa-chevron-down' : !isToImplementNodesCollapsed, 'fa-chevron-right': isToImplementNodesCollapsed}"></i>
     <span>{{'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.NODE_FILTER_INVALID' | translate}} :</span>

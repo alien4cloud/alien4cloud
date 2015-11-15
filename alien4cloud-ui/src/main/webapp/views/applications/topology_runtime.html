@@ -286,7 +286,7 @@
               <div ng-repeat="(interfaceName, interface) in selectedNodeCustomInterfaces">
                 <div ng-init="isOpCollapsed={}; emptyInputs = !isMapNotNullOrEmpty(operation.inputParameters)" id="operation_{{interfaceName}}_{{operationName}}" ng-repeat="(operationName, operation) in interface.operations">
                   <!-- Operation div with "execute" button -->
-                  <div class="topology-node-expand" ng-class="{'clickable': !emptyInputs}" ng-init="isOpCollapsed[operationName] = true" ng-click="isOpCollapsed[operationName] = !isOpCollapsed[operationName]">
+                  <div ng-class="{'clickable': !emptyInputs}" ng-init="isOpCollapsed[operationName] = true" ng-click="isOpCollapsed[operationName] = !isOpCollapsed[operationName]">
                     <i ng-if="!emptyInputs" class="pull-left fa vertical-center" ng-class="{'fa-chevron-down' : !isOpCollapsed[operationName], 'fa-chevron-right': isOpCollapsed[operationName]}"></i>
                     <span>{{interfaceName}}.{{operationName}}</span>
                     <span class="pull-right" tooltip="{{'EXECUTE' | translate }}" tooltip-placement="left" tooltip-append-to-body="false">
@@ -390,13 +390,13 @@
 			        </select>
 	          </div>
 	          <div class="col-md-4">
-			        <button id="btn-deploy" type="button" class="btn btn-success application-deploy-button" 
+			        <button id="btn-deploy" type="button" class="btn btn-success application-deploy-button"
 			           ng-click="launchWorkflow()"
 			           ng-disabled="topology.topology.workflows[currentWorkflowName].standard || isLaunchingWorkflow" >
 			          <i class="fa" ng-class="{'fa-play': !isLaunchingWorkflow, 'fa-spinner fa-spin': isLaunchingWorkflow}"></i> {{'APPLICATIONS.WF.launch' | translate}}
-			        </button>          
+			        </button>
 	          </div>
-	        </div> 
+	        </div>
 		    </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 <div ng-if="tasks.length>0" >
-  <h4 class="topology-node-expand clickable" ng-init="isRequiredPropertiesCollapsed = false" ng-click="isRequiredPropertiesCollapsed = !isRequiredPropertiesCollapsed">
+  <h4 class="clickable" ng-init="isRequiredPropertiesCollapsed = false" ng-click="isRequiredPropertiesCollapsed = !isRequiredPropertiesCollapsed">
     <i class="fa" ng-class="{'fa-chevron-down' : !isRequiredPropertiesCollapsed , 'fa-chevron-right': isRequiredPropertiesCollapsed }"></i>
     <span>{{'APPLICATIONS.TOPOLOGY.TASK.REQUIRED_PROPERTIES_LABEL' | translate}}</span>
   </h4>
