@@ -60,7 +60,7 @@
             <!--  Workflow tasks  -->
             <div ng-if="(wfTasks = validTopologyDTO.taskList['WORKFLOW_INVALID']).length>0">
               <h4 class="clickable" ng-init="isWorkflowsCollapsed = false" ng-click="isWorkflowsCollapsed = !isWorkflowsCollapsed">
-                <i class="fa" ng-class="{'fa-chevron-down' : !isWorkflowsCollapsed, 'fa-chevron-right': isWorkflowsCollapsed}"></i>
+                <i class="fa" ng-class="{'fa-caret-down' : !isWorkflowsCollapsed, 'fa-caret-right': isWorkflowsCollapsed}"></i>
                 <span>{{'APPLICATIONS.TOPOLOGY.TASK.WORKFLOWS.TITLE' | translate}}</span>
               </h4>
     
@@ -89,7 +89,7 @@
     
               <h4 class="clickable" ng-init="isHAGroupWarningsCollapsed = false"
                    ng-click="isHAGroupWarningsCollapsed = !isHAGroupWarningsCollapsed">
-                <i class="fa" ng-class="{'fa-chevron-down' : !isHAGroupWarningsCollapsed , 'fa-chevron-right': isHAGroupWarningsCollapsed }"></i>
+                <i class="fa" ng-class="{'fa-caret-down' : !isHAGroupWarningsCollapsed , 'fa-caret-right': isHAGroupWarningsCollapsed }"></i>
                 <span>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.LABEL' | translate}}</span>
               </h4>
               <div collapse="isHAGroupWarningsCollapsed" class="topology-level">
@@ -118,7 +118,7 @@
               <h4 class="clickable" ng-init="isPropertiesGroupWarningsCollapsed = false"
                    ng-click="isPropertiesGroupWarningsCollapsed = !isPropertiesGroupWarningsCollapsed">
                 <i class="fa"
-                   ng-class="{'fa-chevron-down' : !isPropertiesGroupWarningsCollapsed , 'fa-chevron-right': isPropertiesGroupWarningsCollapsed }"></i>
+                   ng-class="{'fa-caret-down' : !isPropertiesGroupWarningsCollapsed , 'fa-caret-right': isPropertiesGroupWarningsCollapsed }"></i>
                 <span>{{'APPLICATIONS.TOPOLOGY.WARNING.PROPERTIES.LABEL' | translate}}</span>
               </h4>
               <div collapse="isPropertiesGroupWarningsCollapsed" class="topology-level">

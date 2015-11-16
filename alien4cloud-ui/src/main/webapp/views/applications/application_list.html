@@ -31,7 +31,7 @@
           <div ng-repeat="application in searchResult.data.data | filter:{ isDeployed: onlyShowDeployedApplications } | orderBy: '-countDeployedEnvironment'" class="alien-table-row" ng-init="isEnvironmentsCollapsed = true">
             <div style="margin-top: -4px; padding-top: 8px;" class="row clickable-media" ng-click="openApplication(application.id)">
               <div class="col-md-1" style="width: 36px;" ng-click="isEnvironmentsCollapsed = !isEnvironmentsCollapsed; $event.stopPropagation();">
-                <i style="padding: 8px;" class="pull-left fa fa-chevron-right" ng-class="{'fa-chevron-down' : !isEnvironmentsCollapsed, 'fa-chevron-right': isEnvironmentsCollapsed}"></i>
+                <i style="padding: 8px;" class="pull-left fa fa-caret-right" ng-class="{'fa-caret-down' : !isEnvironmentsCollapsed, 'fa-caret-right': isEnvironmentsCollapsed}"></i>
               </div>
               <div class="col-md-4"><i class="pull-left media-object fa fa-desktop fa-2x" ng-show="!application.imageId"></i>{{application.name}}</div>
               <div class="col-md-5" class="">{{application.description}}</div>

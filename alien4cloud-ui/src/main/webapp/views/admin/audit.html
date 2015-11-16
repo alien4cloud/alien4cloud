@@ -59,7 +59,7 @@
           <div ng-repeat="(term, termFacets) in facets">
             <div ng-click="isFacetCollapsed = !isFacetCollapsed" class="facet-category">
               <span>{{'AUDIT.COLUMNS.'+(term | uppercase) | translate}}</span>
-              <i class="pull-right fa" ng-class="{'fa-chevron-down' : !isFacetCollapsed, 'fa-chevron-right': isFacetCollapsed}"></i>
+              <i class="pull-right fa" ng-class="{'fa-caret-down' : !isFacetCollapsed, 'fa-caret-right': isFacetCollapsed}"></i>
             </div>
             <div class="facet-option" collapse="isFacetCollapsed">
               <ul class="nav facet-option">

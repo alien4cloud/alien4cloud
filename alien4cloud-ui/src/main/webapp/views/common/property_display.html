@@ -57,7 +57,7 @@
 
       <em ng-if="definitionObject.units && definitionObject.uiUnit && !editable">{{definitionObject.uiUnit}}</em>
       <!-- Reset button for any property definition -->
-      <span id='reset-property-{{propertyName}}' ng-if="editable" class="btn btn-xs" ng-click="resetProperty();">
+      <span id='reset-property-{{propertyName}}' ng-if="editable" class="btn btn-xs pull-right" ng-click="resetProperty();">
         <i class="fa fa-undo text-default" tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
       </span>
     </div>
@@ -98,9 +98,7 @@
         <em ng-if="!editable">{{definitionObject.uiValue}}</em>
       </span>
 
-      <span ng-switch-when="string" id="p_{{propertyName}}" ng-class="{'editable-empty': !definitionObject.uiValue}">
-
-      </span>
+      <span ng-switch-when="string" id="p_{{propertyName}}" ng-class="{'editable-empty': !definitionObject.uiValue}"></span>
 
       <span ng-switch-default id="p_{{propertyName}}" ng-class="{'editable-empty': !definitionObject.uiValue}">
         <!-- Default case (list, map or data type)-->
@@ -109,12 +107,13 @@
 
       <label ng-if="definition.required" tooltip="{{ 'REQUIRED' | translate }}">*</label>
       <!-- Reset button for any property definition -->
-      <span id='reset-property-{{propertyName}}' ng-if="editable" class="btn btn-xs" ng-click="resetProperty();">
+      <span id='reset-property-{{propertyName}}' ng-if="editable" class="btn btn-xs pull-right" ng-click="resetProperty();">
         <i class="fa fa-undo text-default" tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
       </span>
-      <span class="pull-right">
+      <!-- TODO Should we have description here ? if so this should be in string too and removed from topology editor. -->
+      <!-- <span class="pull-right">
         <simple-modal title="{{ 'MODAL.TITLE.META_PROPERTY' | translate}}" content="{{definition.description}}"> </simple-modal>
-      </span>
+      </span> -->
     </div>
   </div>
   <div class="col-md-3" ng-if="deletable">

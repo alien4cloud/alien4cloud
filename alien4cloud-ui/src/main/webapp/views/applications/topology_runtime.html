@@ -99,7 +99,7 @@
               <div id="node-scale-command" class="clickable"
                    ng-click="isNodeScaleCollapsed = !isNodeScaleCollapsed">
                 <h4>
-                  <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isNodeScaleCollapsed, 'fa-chevron-right': isNodeScaleCollapsed}"></i>
+                  <i class="pull-left fa" ng-class="{'fa-caret-down' : !isNodeScaleCollapsed, 'fa-caret-right': isNodeScaleCollapsed}"></i>
                   {{'APPLICATIONS.RUNTIME.SCALE' | translate}}
                 </h4>
               </div>
@@ -127,7 +127,7 @@
               <div id="node-instance-list-command" class="clickable"
                    ng-click="isNodeInstanceListCollapsed = !isNodeInstanceListCollapsed">
                 <h4>
-                  <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isNodeInstanceListCollapsed, 'fa-chevron-right': isNodeInstanceListCollapsed}"></i>
+                  <i class="pull-left fa" ng-class="{'fa-caret-down' : !isNodeInstanceListCollapsed, 'fa-caret-right': isNodeInstanceListCollapsed}"></i>
                   {{'APPLICATIONS.RUNTIME.INSTANCES' | translate}}
                 </h4>
               </div>
@@ -200,7 +200,7 @@
             </div>
             <div id="node-instance-properties-command" class="clickable" ng-click="isNodeInstancePropertiesCollapsed = !isNodeInstancePropertiesCollapsed">
               <h4>
-                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isNodeInstancePropertiesCollapsed, 'fa-chevron-right': isNodeInstancePropertiesCollapsed}"></i>
+                <i class="pull-left fa" ng-class="{'fa-caret-down' : !isNodeInstancePropertiesCollapsed, 'fa-caret-right': isNodeInstancePropertiesCollapsed}"></i>
                 {{'APPLICATIONS.RUNTIME.PROPERTIES' | translate}}
               </h4>
             </div>
@@ -225,7 +225,7 @@
             </div>
             <div id="node-instance-attributes-command" class="clickable" ng-click="isNodeInstanceAttributesCollapsed = !isNodeInstanceAttributesCollapsed">
               <h4>
-                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isNodeInstanceAttributesCollapsed, 'fa-chevron-right': isNodeInstanceAttributesCollapsed}"></i>
+                <i class="pull-left fa" ng-class="{'fa-caret-down' : !isNodeInstanceAttributesCollapsed, 'fa-caret-right': isNodeInstanceAttributesCollapsed}"></i>
                 {{'APPLICATIONS.RUNTIME.ATTRIBUTES' | translate}}
               </h4>
             </div>
@@ -249,7 +249,7 @@
             </div>
             <div id="node-instance-runtimeprops-command" class="clickable" ng-click="isNodeInstanceRuntimePropsCollapsed = !isNodeInstanceRuntimePropsCollapsed">
               <h4>
-                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isNodeInstanceRuntimePropsCollapsed, 'fa-chevron-right': isNodeInstanceRuntimePropsCollapsed}"></i>
+                <i class="pull-left fa" ng-class="{'fa-caret-down' : !isNodeInstanceRuntimePropsCollapsed, 'fa-caret-right': isNodeInstanceRuntimePropsCollapsed}"></i>
                 {{'APPLICATIONS.RUNTIME.RUNTIMEPROPS' | translate}}
               </h4>
             </div>
@@ -278,7 +278,7 @@
           <div ng-show="(selectedNodeTemplate || selectedInstance) && isMapNotNullOrEmpty(selectedNodeCustomInterfaces)">
             <div id="node-instance-attributes-command" class="clickable" ng-click="isNodeOperationsCollapsed = !isNodeOperationsCollapsed">
               <h4>
-                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isNodeOperationsCollapsed, 'fa-chevron-right': isNodeOperationsCollapsed}"></i>
+                <i class="pull-left fa" ng-class="{'fa-caret-down' : !isNodeOperationsCollapsed, 'fa-caret-right': isNodeOperationsCollapsed}"></i>
                 {{'operations' | translate}}
               </h4>
             </div>
@@ -287,7 +287,7 @@
                 <div ng-init="isOpCollapsed={}; emptyInputs = !isMapNotNullOrEmpty(operation.inputParameters)" id="operation_{{interfaceName}}_{{operationName}}" ng-repeat="(operationName, operation) in interface.operations">
                   <!-- Operation div with "execute" button -->
                   <div ng-class="{'clickable': !emptyInputs}" ng-init="isOpCollapsed[operationName] = true" ng-click="isOpCollapsed[operationName] = !isOpCollapsed[operationName]">
-                    <i ng-if="!emptyInputs" class="pull-left fa vertical-center" ng-class="{'fa-chevron-down' : !isOpCollapsed[operationName], 'fa-chevron-right': isOpCollapsed[operationName]}"></i>
+                    <i ng-if="!emptyInputs" class="pull-left fa vertical-center" ng-class="{'fa-caret-down' : !isOpCollapsed[operationName], 'fa-caret-right': isOpCollapsed[operationName]}"></i>
                     <span>{{interfaceName}}.{{operationName}}</span>
                     <span class="pull-right" tooltip="{{'EXECUTE' | translate }}" tooltip-placement="left" tooltip-append-to-body="false">
                       <button class="btn btn-success btn-xs"
