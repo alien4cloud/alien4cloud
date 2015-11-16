@@ -1,5 +1,6 @@
 tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
 
+template_version: 1.0
 description: >
   Contains demo types used for Alien 4 Cloud tests. Warning: those types are not the actual tosca-normative types.
 
@@ -106,12 +107,18 @@ node_types:
         type: tosca.capabilities.Container
         upper_bound: unbounded
       scalable: tosca.capabilities.Scalable
+      host: tosca.capabilities.Container
 
   tosca.nodes.BlockStorage:
     derived_from: tosca.nodes.Root
     description: >
       The TOSCA BlockStorage node currently represents a server-local block storage device
       (i.e., not shared) offering evenly sized blocks of data from which raw storage volumes can be created.
+    properties:
+      fake_password:
+        type: string
+        description: user_pass
+        required: false
     tags:
       icon: /images/volume.png
     requirements:
@@ -239,6 +246,9 @@ capability_types:
     properties:
       containee_types:
         type: string
+      valid_node_types:
+        type: string
+        required: false
     description: >
       The TOSCA Container Capability represents that a given component can act as a container.
   tosca.capabilities.Endpoint:

@@ -39,7 +39,7 @@
                  'fa-square-o': categories[category].enabledCount == 0 && categories[category].totalCount > 0,
                  'fa-minus-square-o': categories[category].enabledCount < categories[category].totalCount && categories[category].enabledCount > 0
                  }"></i>
-            </a> {{category}} <i class="pull-right fa" ng-class="{'fa-chevron-down': status.open, 'fa-chevron-right': !status.open}"></i>
+            </a> {{category}} <i class="pull-right fa" ng-class="{'fa-caret-down': status.open, 'fa-caret-right': !status.open}"></i>
           </accordion-heading>
           <table class="table table-hover">
             <thead>

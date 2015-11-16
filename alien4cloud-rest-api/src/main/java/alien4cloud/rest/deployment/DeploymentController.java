@@ -46,9 +46,9 @@ import alien4cloud.rest.model.RestResponseBuilder;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.Authorization;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
 
 @RestController
 @RequestMapping("/rest/deployments")
@@ -79,7 +79,7 @@ public class DeploymentController {
      * @param size The maximum number of elements to return.
      * @return A {@link RestResponse} with as data a list of {@link DeploymentDTO} that contains deployments and applications info.
      */
-    @ApiOperation(value = "Get deployments for a cloud.", authorizations = { @Authorization("ADMIN") })
+    @ApiOperation(value = "Get deployments for an orchestrator.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<List<DeploymentDTO>> get(
@@ -88,7 +88,7 @@ public class DeploymentController {
             @ApiParam(value = "include or not the source (application or csar) summary in the results") @RequestParam(required = false, defaultValue = "false") boolean includeSourceSummary,
             @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
             @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "20") int size) {
-        return RestResponseBuilder.<List<DeploymentDTO>> builder().data(BuildDeploymentsDTO(orchestratorId, sourceId, includeSourceSummary, from, size))
+        return RestResponseBuilder.<List<DeploymentDTO>> builder().data(buildDeploymentsDTO(orchestratorId, sourceId, includeSourceSummary, from, size))
                 .build();
     }
 
@@ -102,7 +102,7 @@ public class DeploymentController {
      * @param size The maximum number of elements to return.
      * @return A list of {@link DeploymentDTO} that contains deployments and applications info.
      */
-    private List<DeploymentDTO> BuildDeploymentsDTO(String orchestratorId, String sourceId, boolean includeSourceSummary, int from, int size) {
+    private List<DeploymentDTO> buildDeploymentsDTO(String orchestratorId, String sourceId, boolean includeSourceSummary, int from, int size) {
         GetMultipleDataResult results = deploymentService.getDeployments(orchestratorId, sourceId, from, size);
         List<DeploymentDTO> dtos = Lists.newArrayList();
         if (results.getData().length > 0) {
@@ -252,5 +252,5 @@ public class DeploymentController {
         }
         return RestResponseBuilder.<Void> builder().data(null).build();
     }
-    
+
 }

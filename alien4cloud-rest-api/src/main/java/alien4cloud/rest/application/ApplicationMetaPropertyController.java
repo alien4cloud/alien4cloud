@@ -24,7 +24,7 @@ import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 
-import com.wordnik.swagger.annotations.Api;
+import io.swagger.annotations.Api;
 
 @Slf4j
 @RestController

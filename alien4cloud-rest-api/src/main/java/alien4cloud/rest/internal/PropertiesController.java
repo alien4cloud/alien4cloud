@@ -3,7 +3,7 @@ package alien4cloud.rest.internal;
 import javax.annotation.Resource;
 
 import alien4cloud.rest.internal.model.PropertyValidationRequest;
-import com.mangofactory.swagger.annotations.ApiIgnore;
+import springfox.documentation.annotations.ApiIgnore;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;

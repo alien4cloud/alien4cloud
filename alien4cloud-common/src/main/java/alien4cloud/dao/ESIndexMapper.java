@@ -2,11 +2,7 @@ package alien4cloud.dao;
 
 import java.beans.IntrospectionException;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import javax.annotation.Resource;
@@ -40,6 +36,8 @@ import com.google.common.collect.Maps;
  */
 @Slf4j
 public abstract class ESIndexMapper {
+    /** Custom score field for alien. */
+    public static final String ALIEN_SCORE = "alienScore";
 
     @Resource
     private ElasticSearchClient esClient;
@@ -88,28 +86,53 @@ public abstract class ESIndexMapper {
             for (Class<?> clazz : classes) {
                 String typeName = addToMappedClasses(indexName, clazz);
                 String typeMapping = mappingBuilder.getMapping(clazz);
+                Map<String, Object> typesMap = JsonUtil.toMap(typeMapping);
 
-                // Adding TTL for a type
-                if (ttl != null) {
-                    Map<String, Object> typeMap = JsonUtil.toMap(typeMapping);
-                    for (Object typeMappingObject : typeMap.values()) {
-                        @SuppressWarnings("unchecked")
-                        Map<String, Object> typeMappingMap = (Map<String, Object>) typeMappingObject;
-                        Map<String, Object> ttlMapping = MapUtil.getMap(new String[] { "enabled", "default" }, new String[] { "true", ttl });
-                        typeMappingMap.put("_ttl", ttlMapping);
-                    }
-                    String mapping = jsonMapper.writeValueAsString(typeMap);
+                addAlienScore(typesMap);
+                addTTL(typesMap, ttl);
 
-                    createIndexRequestBuilder.addMapping(typeName, mapping);
-                } else {
-                    createIndexRequestBuilder.addMapping(typeName, typeMapping);
-                }
-
+                String mapping = jsonMapper.writeValueAsString(typesMap);
+                createIndexRequestBuilder.addMapping(typeName, mapping);
             }
             final CreateIndexResponse createResponse = createIndexRequestBuilder.execute().actionGet();
             if (!createResponse.isAcknowledged()) {
                 throw new IndexingServiceException("Failed to create index <" + indexName + ">");
             }
+        }
+    }
+
+    /**
+     * Add the alien score field for each type in the map.
+     * 
+     * @param typesMap The type map.
+     */
+    private void addAlienScore(Map<String, Object> typesMap) {
+        for (Object typeMappingObject : typesMap.values()) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> typeMappingMap = (Map<String, Object>) typeMappingObject;
+            Map<String, Object> propertiesMap = (Map<String, Object>) typeMappingMap.get("properties");
+            Map<String, Object> scoreMapping = MapUtil.getMap(
+                    new String[] { "include_in_all", "precision_step", "index", "boost", "store", "ignore_malformed", "type" },
+                    new String[] { "false", "4", "not_analyzed", "1.0", "false", "false", "long" });
+            propertiesMap.put(ALIEN_SCORE, scoreMapping);
+        }
+    }
+
+    /**
+     * Add the ttl field for each type in the map.
+     *
+     * @param typesMap The type map.
+     */
+    private void addTTL(Map<String, Object> typesMap, String ttl) {
+        if (ttl == null) {
+            // if no ttl value is provided then just return.
+            return;
+        }
+        for (Object typeMappingObject : typesMap.values()) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> typeMappingMap = (Map<String, Object>) typeMappingObject;
+            Map<String, Object> ttlMapping = MapUtil.getMap(new String[] { "enabled", "default" }, new String[] { "true", ttl });
+            typeMappingMap.put("_ttl", ttlMapping);
         }
     }
 

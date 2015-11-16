@@ -107,7 +107,7 @@ public class ToscaParserSimpleProfileWd03Test {
         Assert.assertEquals(TOSCA_VERSION, archiveRoot.getArchive().getToscaDefinitionsVersion());
         Assert.assertNotNull(archiveRoot.getArchive().getDescription());
         Assert.assertEquals(
-                "This is an example of a multi-line description using YAML. It permits for line breaks for easier readability...\nif needed.  However, (multiple) line breaks are folded into a single space character when processed into a single string value.\n",
+                "This is an example of a multi-line description using YAML. It permits for line breaks for easier readability...\nif needed.  However, (multiple) line breaks are folded into a single space character when processed into a single string value.",
                 archiveRoot.getArchive().getDescription());
     }
 

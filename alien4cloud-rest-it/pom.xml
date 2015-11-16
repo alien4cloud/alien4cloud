@@ -3,7 +3,7 @@
     <parent>
         <groupId>alien4cloud</groupId>
         <artifactId>alien4cloud-parent</artifactId>
-        <version>1.1.0-SM6</version>
+        <version>1.1.0-SM7</version>
     </parent>
     <artifactId>alien4cloud-rest-it</artifactId>
     <packaging>war</packaging>
@@ -34,6 +34,16 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-staticdocs</artifactId>
+            <version>${springfox-swagger2.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
         </dependency>
         <dependency>
             <groupId>info.cukes</groupId>
@@ -130,19 +140,34 @@
                 <version>1.3.2</version>
                 <executions>
                     <execution>
+                        <id>prepare-test-data</id>
                         <phase>pre-integration-test</phase>
                         <goals>
                             <goal>java</goal>
                         </goals>
+                        <configuration>
+                            <mainClass>alien4cloud.it.setup.PrepareTestData</mainClass>
+                            <classpathScope>test</classpathScope>
+                            <arguments>
+                                <argument>${project.basedir}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>merge-reports</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>alien4cloud.cucumber.report.ReportMerger</mainClass>
+                            <classpathScope>test</classpathScope>
+                            <arguments>
+                                <argument>${project.basedir}/target/cucumber</argument>
+                            </arguments>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <mainClass>alien4cloud.it.setup.PrepareTestData</mainClass>
-                    <classpathScope>test</classpathScope>
-                    <arguments>
-                        <argument>${project.basedir}</argument>
-                    </arguments>
-                </configuration>
             </plugin>
             <!-- Add resources directories to the war file -->
             <plugin>
@@ -154,7 +179,8 @@
                     <webResources>
                         <!-- Add default types archives folder to the war file -->
                         <resource>
-                            <directory>${project.parent.basedir}/alien4cloud-core/src/main/default-normative-types</directory>
+                            <directory>${project.parent.basedir}/alien4cloud-core/src/main/default-normative-types
+                            </directory>
                             <!-- override the destination directory for this resource -->
                             <targetPath>WEB-INF/classes/default-normative-types</targetPath>
                         </resource>
@@ -243,7 +269,9 @@
                                 <properties>
                                     <cargo.servlet.port>8088</cargo.servlet.port>
                                     <cargo.logging>high</cargo.logging>
-                                    <cargo.jvmargs>${jacocoargline} -Denv=ittest -Dspring.profiles.active=security-demo -Xdebug</cargo.jvmargs>
+                                    <cargo.jvmargs>${jacocoargline} -Denv=ittest -Dspring.profiles.active=security-demo
+                                        -Xdebug
+                                    </cargo.jvmargs>
                                 </properties>
                             </configuration>
 

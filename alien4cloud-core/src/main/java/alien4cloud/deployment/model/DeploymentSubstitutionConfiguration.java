@@ -3,13 +3,12 @@ package alien4cloud.deployment.model;
 import java.util.Map;
 import java.util.Set;
 
-import com.wordnik.swagger.annotations.ApiModel;
-import com.wordnik.swagger.annotations.ApiModelProperty;
-
-import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import alien4cloud.orchestrators.locations.services.LocationResourceTypes;
 import lombok.Getter;
 import lombok.Setter;
+import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.orchestrators.locations.services.LocationResourceTypes;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 @Getter
 @Setter

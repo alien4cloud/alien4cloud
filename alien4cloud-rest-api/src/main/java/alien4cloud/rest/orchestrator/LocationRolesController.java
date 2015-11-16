@@ -20,7 +20,7 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.ResourceRoleService;
 import alien4cloud.security.model.Role;
 
-import com.wordnik.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping("/rest/orchestrators/{orchestratorId}/locations/{locationId}/roles/")

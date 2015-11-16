@@ -15,15 +15,13 @@ import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.common.lucene.search.function.CombineFunction;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.mapping.ElasticSearchClient;
-import org.elasticsearch.mapping.FilterValuesStrategy;
-import org.elasticsearch.mapping.MappingBuilder;
-import org.elasticsearch.mapping.QueryHelper;
+import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
+import org.elasticsearch.mapping.*;
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
-import org.elasticsearch.mapping.SourceFetchContext;
 import org.elasticsearch.search.facet.Facet;
 import org.elasticsearch.search.facet.Facets;
 import org.elasticsearch.search.facet.terms.TermsFacet;
@@ -46,7 +44,7 @@ import com.google.common.collect.Lists;
  * @author luc boutier
  */
 public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearchDAO {
-    private static final String SCORE_SCRIPT = "_score * ((doc.containsKey('alienScore') && !doc['alienScore'].empty) ? doc['alienScore'].value : 1)";
+    // private static final String SCORE_SCRIPT = "_score * ((doc.containsKey('alienScore') && !doc['alienScore'].empty) ? doc['alienScore'].value : 1)";
     @Resource
     private ElasticSearchClient esClient;
     @Resource
@@ -145,7 +143,8 @@ public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearch
     }
 
     @Override
-    public <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters, String fetchContext, int from, int maxElements) {
+    public <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters, String fetchContext, int from,
+            int maxElements) {
         return search(clazz, searchText, filters, null, fetchContext, from, maxElements);
     }
 
@@ -311,14 +310,23 @@ public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearch
             int from, int maxElements, boolean enableFacets, String fieldSort, boolean sortOrder) {
         String[] searchIndexes = clazz == null ? getAllIndexes() : new String[] { getIndexForType(clazz) };
         Class<?>[] requestedTypes = getRequestedTypes(clazz);
+        String[] esTypes = getTypesStrings(requestedTypes);
 
-        // we use for now a generic score computation based on a alienScore field.
         SearchQueryHelperBuilder query = this.queryHelper.buildSearchQuery(searchIndexes, searchText).types(requestedTypes).fetchContext(fetchContext)
-                .filters(filters).customFilter(customFilter).functionScore(ESGenericSearchDAO.SCORE_SCRIPT).facets(enableFacets);
+                .filters(filters).customFilter(customFilter).facets(enableFacets);
         if (fieldSort != null) {
             query.fieldSort(fieldSort, sortOrder);
         }
-        return query.search(from, maxElements);
+
+        SearchRequestBuilder searchRequestBuilder = query.generate(from, maxElements, new QueryBuilderAdapter() {
+            @Override
+            public QueryBuilder adapt(QueryBuilder queryBuilder) {
+                return QueryBuilders.functionScoreQuery(queryBuilder).scoreMode("multiply").boostMode(CombineFunction.MULT)
+                        .add(ScoreFunctionBuilders.fieldValueFactorFunction("alienScore").missing(1));
+            }
+        });
+        searchRequestBuilder.setTypes(esTypes);
+        return searchRequestBuilder.execute().actionGet();
     }
 
     private boolean somethingFound(final SearchResponse searchResponse) {

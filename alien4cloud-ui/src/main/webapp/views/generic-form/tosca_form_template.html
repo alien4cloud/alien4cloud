@@ -1,4 +1,12 @@
 <div class="row" ng-if="isActivePath">
-  <tosca-type-form-label property-name="propertyName" property-type="propertyType" path="path" active-path="activePath" root-object="rootObject"
-                             suggest="suggest(searchConfiguration, text)" show-tree="showTree" configuration="configuration"></tosca-type-form-label>
+  <tosca-type-form-label
+      property-name="propertyName"
+      property-type="propertyType"
+      path="path"
+      label-path="labelPath"
+      root-object="rootObject"
+      suggest="suggest(searchConfiguration, text)"
+      save-action="saveAction(object)"
+      configuration="configuration">
+  </tosca-type-form-label>
 </div>

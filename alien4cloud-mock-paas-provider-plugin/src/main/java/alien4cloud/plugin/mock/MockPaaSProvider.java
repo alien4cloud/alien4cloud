@@ -457,7 +457,7 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
 
     @Override
     protected String doExecuteOperation(NodeOperationExecRequest request) {
-        List<String> allowedOperation = Arrays.asList("updateWar", "updateWarFile", "addNode");
+        List<String> allowedOperation = Arrays.asList("success", "success_param");
         String result = null;
         try {
             log.info("TRIGGERING OPERATION : {}", request.getOperationName());

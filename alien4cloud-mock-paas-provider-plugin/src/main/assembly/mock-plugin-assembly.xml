@@ -19,8 +19,9 @@
 	</fileSets>
 	<files>
 		<file>
-			<source>${basedir}/src/main/resources/META-INF/plugin-valid-1.0.yml</source>
+			<source>${basedir}/src/main/resources/META-INF/plugin.yml</source>
 			<destName>plugin.yml</destName>
+      <filtered>true</filtered>
 			<outputDirectory>META-INF</outputDirectory>
 		</file>
 	</files>

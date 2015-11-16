@@ -11,12 +11,7 @@ Feature: Deploy an application
     And I update the property "id" to "1" for the resource named "Small" related to the location "Mount doom orchestrator"/"Thark location"
     And I create a resource of type "alien.nodes.mock.openstack.Image" named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "id" to "img1" for the resource named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
-    And I create a resource of type "alien.nodes.mock.openstack.Image" named "Debian" related to the location "Mount doom orchestrator"/"Thark location"
-    And I update the property "id" to "img2" for the resource named "Debian" related to the location "Mount doom orchestrator"/"Thark location"
   	And I autogenerate the on-demand resources for the location "Mount doom orchestrator"/"Thark location"
-    And I create a resource of type "alien.nodes.mock.Compute" named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
-    And I update the property "imageId" to "img1" for the resource named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
-    And I update the property "flavorId" to "1" for the resource named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
 
     And There are these users in the system
       | sangoku |
@@ -75,23 +70,23 @@ Feature: Deploy an application
       | WARN-APPLICATION    | WARNING  |
       | My Software Factory | DEPLOYED |
     And I should receive a RestResponse with no error
-#
-#  Scenario: deleting an deployed application should fail
-#    Given I have an application with name "ALIEN"
-#    And I deploy the application "ALIEN" on the location "Mount doom orchestrator"/"Thark location"
-#    When I delete the application "ALIEN"
-#    Then I should receive a RestResponse with an error code 607
-#    And the application can be found in ALIEN
-#    And The application's deployment must succeed
-#    
-#  Scenario: Create two app with similar names and deploy them on the same location should fail for the second app
-#    Given I have an application with name "App Test"
-#    And I deploy the application "App Test" on the location "Mount doom orchestrator"/"Thark location"
-#    And I have an application with name "App_Test"
-#    And I deploy the application "App_Test" on the location "Mount doom orchestrator"/"Thark location" without waiting for the end of deployment
-#    Then I should receive a RestResponse with an error code 613
-#    When I have an application with name "App-Test"
-#    And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
-#    When I deploy it
-#    Then I should receive a RestResponse with no error
+
+  Scenario: deleting an deployed application should fail
+    Given I have an application "ALIEN" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT"
+    And I deploy the application "ALIEN" on the location "Mount doom orchestrator"/"Thark location"
+    When I delete the application "ALIEN"
+    Then I should receive a RestResponse with an error code 607
+    And the application can be found in ALIEN
+    And The application's deployment must succeed
+    
+  Scenario: Create two app with similar names and deploy them on the same orchestrator should fail for the second app
+    Given I have an application "App Test" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT"
+    And I deploy the application "App Test" on the location "Mount doom orchestrator"/"Thark location"
+    When I have an application "App_Test" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT"
+    And I deploy the application "App_Test" on the location "Mount doom orchestrator"/"Thark location" without waiting for the end of deployment
+    Then I should receive a RestResponse with an error code 613
+    When I have an application "App-Test" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT"
+    And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
+    When I deploy it
+    Then I should receive a RestResponse with no error
      

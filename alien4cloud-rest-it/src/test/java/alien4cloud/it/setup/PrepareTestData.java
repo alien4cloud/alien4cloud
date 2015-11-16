@@ -30,14 +30,15 @@ public class PrepareTestData {
             log.error("Failed to delete zipped archives repository.", e);
         }
 
-        repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/tosca-normative-types.git", "master",
-                "tosca-normative-types");
-        // TODO: for the moment we checkout both master and 1.0.0.wd06.alien branches
         repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/tosca-normative-types.git", "1.0.0.wd06.alien",
                 "tosca-normative-types-wd06");
-        repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/alien4cloud-extended-types.git", "master",
+
+        // TODO: Tests stills runs on wd03 data based on 1.1.0-SM4 tag
+        repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/tosca-normative-types.git", "1.1.0-SM4",
+                "tosca-normative-types");
+        repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/alien4cloud-extended-types.git", "1.1.0-SM4",
                 "alien4cloud-extended-types");
-        repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/samples.git", "master", "samples");
+        repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/samples.git", "1.1.0-SM4", "samples");
         for (Map.Entry<Path, Path> entry : TestDataRegistry.SOURCE_TO_TARGET_ARTIFACT_MAPPING.entrySet()) {
             try {
                 Path from = entry.getKey();

@@ -3,7 +3,7 @@ package alien4cloud.rest.orchestrator;
 import lombok.Getter;
 import lombok.Setter;
 
-import com.wordnik.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModel;
 
 /**
  * Update request for an orchestrator.

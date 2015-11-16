@@ -43,11 +43,11 @@
         {{'APPLICATIONS.TOPOLOGY.SEARCH_RELATIONSHIP_MODAL.NO_TARGETS' | translate}}
       </div>
       <div ng-repeat="match in targets">
-        <div class="topology-node-expand clickable" ng-click="isTargetCollapsed = !isTargetCollapsed" name="{{match.template.name}}">
+        <div class="clickable" ng-click="isTargetCollapsed = !isTargetCollapsed" name="{{match.template.name}}">
           <h4>
             <i class="pull-left fa"
               style="margin-top: 0px"
-              ng-class="{'fa-chevron-down' : !isTargetCollapsed, 'fa-chevron-right': isTargetCollapsed}"></i>
+              ng-class="{'fa-caret-down' : !isTargetCollapsed, 'fa-caret-right': isTargetCollapsed}"></i>
             <span>{{match.template.name}}</span> ( {{match.template.type}} )
           </h4>
         </div>

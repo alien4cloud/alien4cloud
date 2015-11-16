@@ -23,7 +23,6 @@
                             add-relationship-callback="editorCallback.addRelationship(sourceId, requirementName, requirementType, targetId, capabilityName, relationship)"
                             runtime="false"></topology-rendering>
         <topology-plan ng-if="view === 'PLAN' && topology"  id="plan-graph-container"></topology-plan>
-        <!--  dimensions="visualDimensions" topology="topology" workflows="workflows"  -->
       </div>
     </div>
 
@@ -111,33 +110,30 @@
               <span class="text-danger">{{''+nodeTempNameEditError.code | translate}}</span>
             </div>
           </div>
-          <div class="row">
-            <div class="col-md-9">
+
+          <div class="row" style="margin-left: -10px; margin-right: -10px; margin-bottom: 10px;">
+            <div class="col-md-12">
               <div class="input-group">
-              <span class="input-group-addon">
-                <span><i>{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</i></span>
-              </span>
-                <span class="form-control"> {{selectedNodeTemplate.type}} </span>
+                <span class="input-group-addon">
+                  <span><i>{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</i></span>
+                </span>
+                <span class="form-control">
+                  <a href="/#/components/details/{{selectedNodeTemplate.type}}:{{topology.nodeTypes[selectedNodeTemplate.type].archiveVersion}}" target="_blank">
+                    {{selectedNodeTemplate.type}}
+                  </a>
+                </span>
+                <span class="input-group-btn" ng-if="topology.nodeTypes[selectedNodeTemplate.type].substitutionTopologyId">
+                  <button
+                    ng-click="substitution.displayEmbededTopology(topology.nodeTypes[selectedNodeTemplate.type].substitutionTopologyId)"
+                    class="btn btn-default"
+                    tooltip="{{ 'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.DISPLAY' | translate}}"
+                    tooltip-append-to-body="true">
+                    <i class="fa fa-sitemap text-primary"></i>
+                  </button>
+                </span>
               </div>
             </div>
-            <div class="col-md-3">
-              <span class="btn-group pull-right">
-                <button
-                  ng-if="topology.nodeTypes[selectedNodeTemplate.type].substitutionTopologyId"
-                  ng-click="substitution.displayEmbededTopology(topology.nodeTypes[selectedNodeTemplate.type].substitutionTopologyId)"
-                  class="btn btn-default"
-                  tooltip="{{ 'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.DISPLAY' | translate}}"
-                  tooltip-append-to-body="true">
-                  <i class="fa fa-sitemap text-primary"></i>
-                </button>
-                <a class=" btn btn-default"
-                   href="/#/components/details/{{selectedNodeTemplate.type}}:{{topology.nodeTypes[selectedNodeTemplate.type].archiveVersion}}" target="_blank"><i
-                  class="fa fa-eye text-primary"></i></a>
-              </span>
-            </div>
-          </div>
-          <div class="row" style="margin-top: 5px;">
-            <div class="col-md-12">
+            <div class="col-md-12" style="margin-top: 5px;">
               <div class="input-group">
               <span class="input-group-addon">
                 <i class="fa fa-archive"></i>  {{topology.nodeTypes[selectedNodeTemplate.type].archiveName}}
@@ -151,9 +147,10 @@
 
           <!-- Groups -->
           <div ng-init="isGroupsCollapsed = true" ng-if="selectedNodeTemplate.groups && selectedNodeTemplate.groups.length > 0">
-            <div id="node-details-groups" class="topology-node-expand clickable" ng-click="isGroupsCollapsed = !isGroupsCollapsed">
+            <div id="node-details-groups" class="clickable topology-props-section"
+              ng-click="isGroupsCollapsed = !isGroupsCollapsed">
               <h4>
-                <i class=" fa" ng-class="{'fa-chevron-down' : !isGroupsCollapsed, 'fa-chevron-right': isGroupsCollapsed}"></i>
+                <i class=" fa" ng-class="{'fa-caret-down' : !isGroupsCollapsed, 'fa-caret-right': isGroupsCollapsed}"></i>
                 {{'APPLICATIONS.TOPOLOGY.GROUPS.TITLE' | translate}}
               </h4>
             </div>
@@ -174,17 +171,17 @@
 
           <!-- Properties -->
           <div ng-if="selectedNodeTemplate.properties.length > 0">
-            <div id="node-details-properties" class="topology-node-expand clickable"
+            <div id="node-details-properties" class="clickable topology-props-section"
                  ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
               <h4>
-                <i class=" fa" ng-class="{'fa-chevron-down' : !isPropertiesCollapsed, 'fa-chevron-right': isPropertiesCollapsed}"></i>
+                <i class="fa" ng-class="{'fa-caret-down' : !isPropertiesCollapsed, 'fa-caret-right': isPropertiesCollapsed}"></i>
                 {{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}
               </h4>
             </div>
             <div id="node-details-properties-panel" collapse="isPropertiesCollapsed" class="topology-level">
               <table class="table table-condensed" id="nodeTemplateProperties">
                 <tr ng-repeat="propEntry in selectedNodeTemplate.properties">
-                  <td>
+                  <td class="topology-props-td-inp">
                     <div class="btn-group" data-toggle="buttons">
                       <a id="p_input_pro_{{propEntry.key}}"
                          ng-click="inputs.getCandidatesForProperty(propEntry.key)"
@@ -217,47 +214,136 @@
                   </td>
                   <td>
                     <property-display
-                      ng-if="properties.isInputProperty(propEntry.key)"
-                      ng-init="condensed = true"
-                      definition="properties.getFormatedProperty(propEntry.key)"
-                      property-name="propEntry.key"
-                      property-value="propEntry.value"
-                      on-save="nodes.updateProperty(propertyDefinition, propertyName, propertyValue)"
-                      editable="false"
-                      condensed="condensed">
-                    </property-display>
-                    <property-display
-                      ng-if="!properties.isInputProperty(propEntry.key)"
                       ng-init="condensed = true"
                       definition="properties.getFormatedProperty(propEntry.key)"
                       dependencies="topology.topology.dependencies"
                       property-name="propEntry.key"
                       property-value="propEntry.value"
                       on-save="nodes.updateProperty(propertyDefinition, propertyName, propertyValue)"
-                      editable="true"
+                      editable="!properties.isInputProperty(propEntry.key)"
                       condensed="condensed">
                     </property-display>
                   </td>
-                  <td>
+                  <td class="topology-props-td-inf">
                     <simple-modal title="{{ 'MODAL.TITLE.PROPERTY' | translate}}" content="{{properties.getPropertyDescription(propEntry.key)}}" key="{{propEntry.key}}"> </simple-modal>
                   </td>
                 </tr>
               </table>
             </div>
           </div>
+          <!-- Capabilities -->
+          <div ng-if="selectedNodeTemplate.capabilities.length > 0">
+            <div id="node-details-capabilities" class="clickable topology-props-section"
+                 ng-click="isCapabilitiesCollapsed = !isCapabilitiesCollapsed">
+              <h4>
+                <i class=" fa" ng-class="{'fa-caret-down' : !isCapabilitiesCollapsed, 'fa-caret-right': isCapabilitiesCollapsed}"></i>
+                {{'APPLICATIONS.TOPOLOGY.CAPABILITIES' | translate}}
+              </h4>
+            </div>
+            <div id="node-details-capabilities-panel" collapse="isCapabilitiesCollapsed" class="topology-level">
+              <div id="node-details-capabilities-{{capabilityEntry.key}}-block" ng-repeat="capabilityEntry in selectedNodeTemplate.capabilities"
+                   ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(capabilityEntry.value.properties)">
+                <div ng-class="{'clickable' : !emptyProps}"
+                     ng-click="isReqPropsCollapsed[capabilityEntry.key] = !isReqPropsCollapsed[capabilityEntry.key]">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <i ng-if="!emptyProps" class=" fa"
+                         ng-class="{'fa-caret-down' : !isReqPropsCollapsed[capabilityEntry.key], 'fa-caret-right': isReqPropsCollapsed[capabilityEntry.key]}">
+                      </i>
+                      <span tooltip="{{capabilityEntry.key}}" tooltip-append-to-body="true"><strong>{{capabilityEntry.key | truncate:20}}</strong></span>
+                    </div>
+                    <div class="col-md-3" id="capability-{{capabilityEntry.key}}">
+                    <span tooltip="{{capabilityEntry.value.type}}"
+                          tooltip-append-to-body="true">{{getShortName(capabilityEntry.value.type)}}</span>
+                    </div>
+                    <div class="col-md-5" ng-init="capaComp = getComponent(selectedNodeTemplate, capabilityEntry.value.type)">
+                      <span class="btn-group pull-right">
+                        <span class="btn btn-default btn-xs cardinalities_show"
+                              tooltip="{{'APPLICATIONS.TOPOLOGY.CAPABILITY_CARDINALITIES_TOOLTIP' | translate}}"
+                              tooltip-append-to-body="true">
+                            {{capabilityEntry.value.upperBound | replaceAll:'unbounded':'&infin;' }}
+                            ({{capabilityEntry.value.canAddRel.remaining | replaceAll:'unbounded':'&infin;' }})
+                        </span>
+                        <simple-modal title="{{ 'MODAL.TITLE.CAPABILITY' | translate}}" content="{{capaComp.data.description}}" key="{{capabilityEntry.value.type}}"> </simple-modal>
+                        <button id="btn-expose-{{capabilityEntry.value.type}}"
+                                ng-if="isTopologyTemplate && topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType"
+                                ng-click="substitution.exposeCapability(capabilityEntry.key); $event.stopPropagation()"
+                                class="btn btn-default btn-xs"
+                                ng-class="{'active' : substitution.isCapabilityExposed(capabilityEntry.key)}"
+                                tooltip="{{ 'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.EXPOSE' | translate}}"
+                                tooltip-append-to-body="true">
+                          <i class="fa fa-recycle"></i>
+                        </button>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <table ng-if="!isReqPropsCollapsed[capabilityEntry.key]" class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
+                  <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
+                    <td class="topology-props-td-inp">
+                      <div class="btn-group" data-toggle="buttons">
+                        <a id="p_input_cap_{{propertyEntry.key}}"
+                           ng-click="inputs.getCandidatesForCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
+                           class="btn btn-default btn-xs dropdown-toggle"
+                           ng-class="{'active' : properties.isInputPropertyValue(propertyEntry.value)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
+                           tooltip-append-to-body="true">
+                          <i class="fa fa-sign-in"></i>
+                        </a>
+                        <a id="p_output_cap_{{propertyEntry.key}}" ng-click="outputs.toggleCapabilityOutput(capabilityEntry.key, propertyEntry.key)" class="btn btn-default btn-xs"
+                           ng-class="{'active' : properties.isOutputCapabilityProperty(capabilityEntry.key, propertyEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
+                           tooltip-append-to-body="true">
+                          <i class="fa fa-sign-out"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-left" role="menu">
+                          <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
+                          <li>
+                            <a id="addToInputBtn_cap_{{propertyEntry.key}}" ng-click="inputs.createFromCapabilityProperty(capabilityEntry.key, propertyEntry.key)">
+                              <strong>{{'APPLICATIONS.TOPOLOGY.INPUTS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
+                            </a>
+                          </li>
+                          <li ng-repeat="inputId in currentInputCandidatesForCapabilityProperty | orderBy:'toString()'">
+                            <a id="{{selectedNodeTemplate.name}}_{{propertyEntry.key}}_toAssociate_{{inputId}}" ng-click="inputs.toggleCapabilityProperty(capabilityEntry.key, propertyEntry.key, inputId)">
+                              <i class="fa fa-fw"
+                                 ng-class="inputs.isCapabilityPropertyAssociatedToInput(capabilityEntry.key, propertyEntry.key, inputId) ? 'fa-check-square-o' : 'fa-square-o'"></i>
+                              {{inputId}}
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                    </td>
+                    <td>
+                      <property-display
+                        ng-init="condensed = true"
+                        dependencies="topology.topology.dependencies"
+                        definition="properties.getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
+                        property-name="propertyEntry.key"
+                        property-value="propertyEntry.value"
+                        on-save="properties.updateCapabilityProperty(propertyName, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
+                        editable="!properties.isInputPropertyValue(propertyEntry.value)"
+                        condensed="condensed">
+                      </property-display>
+                    </td>
+                    <td class="topology-props-td-inf">
+                      <simple-modal title="{{ 'MODAL.TITLE.PROPERTY' | translate}}" content="{{topology.capabilityTypes[capabilityEntry.value.type].propertiesMap[propertyEntry.key].value.description}}" key="{{propertyEntry.key}}"> </simple-modal>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
           <!-- Attributes -->
           <div ng-if="selectedNodeTemplate.attributes.length > 0">
-            <div id="node-details-attributes" class="topology-node-expand clickable"
+            <div id="node-details-attributes" class="clickable topology-props-section"
                  ng-click="isAttributesCollapsed = !isAttributesCollapsed">
               <h4>
-                <i class=" fa" ng-class="{'fa-chevron-down' : !isAttributesCollapsed, 'fa-chevron-right': isAttributesCollapsed}"></i>
+                <i class=" fa" ng-class="{'fa-caret-down' : !isAttributesCollapsed, 'fa-caret-right': isAttributesCollapsed}"></i>
                 {{'APPLICATIONS.TOPOLOGY.ATTRIBUTES' | translate}}
               </h4>
             </div>
             <div id="node-details-attributes-panel" collapse="isAttributesCollapsed" class="topology-level">
               <table class="table table-condensed" id="nodeTemplateAttributes">
                 <tr ng-repeat="attrEntry in selectedNodeTemplate.attributes">
-                  <td class="col-md-2">
+                  <td class="topology-props-td-inp">
                     <div class="btn-group" data-toggle="buttons">
                       <a id="a_output_{{attrEntry.key}}" ng-click="outputs.toggleOutputAttribute(attrEntry.key)" class="btn btn-default btn-xs"
                          ng-class="{'active' : properties.isOutputAttribute(attrEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
@@ -266,7 +352,7 @@
                       </a>
                     </div>
                   </td>
-                  <td class="col-md-10">
+                  <td>
                     <span><em>{{attrEntry.key}}</em></span>
                   </td>
                 </tr>
@@ -275,23 +361,23 @@
           </div>
           <!-- Requirements -->
           <div ng-if="selectedNodeTemplate.requirements.length > 0">
-            <div id="node-details-requirements" class="topology-node-expand clickable"
+            <div id="node-details-requirements" class="clickable topology-props-section"
                  ng-click="isRequirementsCollapsed = !isRequirementsCollapsed">
               <h4>
-                <i class=" fa" ng-class="{'fa-chevron-down' : !isRequirementsCollapsed, 'fa-chevron-right': isRequirementsCollapsed}"></i>
+                <i class=" fa" ng-class="{'fa-caret-down' : !isRequirementsCollapsed, 'fa-caret-right': isRequirementsCollapsed}"></i>
                 {{'APPLICATIONS.TOPOLOGY.REQUIREMENTS' | translate}}
               </h4>
             </div>
             <div id="node-details-requirements-panel" collapse="isRequirementsCollapsed" class="topology-level">
               <div ng-repeat="requirementEntry in selectedNodeTemplate.requirements"
                    ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(requirementEntry.value.properties)">
-                <div class="topology-node-expand" style="font-weight: normal"
+                <div style="font-weight: normal"
                      ng-class="{'clickable' : !emptyProps}"
                      ng-click="isReqPropsCollapsed[requirementEntry.key] = !isReqPropsCollapsed[requirementEntry.key]">
                   <div class="row">
                     <div class="col-md-3">
                       <i ng-if="!emptyProps" class=" fa"
-                         ng-class="{'fa-chevron-down' : !isReqPropsCollapsed[requirementEntry.key], 'fa-chevron-right': isReqPropsCollapsed[requirementEntry.key]}">
+                         ng-class="{'fa-caret-down' : !isReqPropsCollapsed[requirementEntry.key], 'fa-caret-right': isReqPropsCollapsed[requirementEntry.key]}">
                       </i>
                       <span tooltip="{{requirementEntry.key}}" tooltip-append-to-body="true">{{requirementEntry.key | truncate:12}}</span>
                     </div>
@@ -351,134 +437,23 @@
               </div>
             </div>
           </div>
-          <!-- Capabilities -->
-          <div ng-if="selectedNodeTemplate.capabilities.length > 0">
-            <div id="node-details-capabilities" class="topology-node-expand clickable"
-                 ng-click="isCapabilitiesCollapsed = !isCapabilitiesCollapsed">
-              <h4>
-                <i class=" fa" ng-class="{'fa-chevron-down' : !isCapabilitiesCollapsed, 'fa-chevron-right': isCapabilitiesCollapsed}"></i>
-                {{'APPLICATIONS.TOPOLOGY.CAPABILITIES' | translate}}
-              </h4>
-            </div>
-            <div id="node-details-capabilities-panel" collapse="isCapabilitiesCollapsed" class="topology-level">
-              <div id="node-details-capabilities-{{capabilityEntry.key}}-block" ng-repeat="capabilityEntry in selectedNodeTemplate.capabilities"
-                   ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(capabilityEntry.value.properties)">
-                <div class="topology-node-expand" style="font-weight: normal"
-                     ng-class="{'clickable' : !emptyProps}"
-                     ng-click="isReqPropsCollapsed[capabilityEntry.key] = !isReqPropsCollapsed[capabilityEntry.key]">
-                  <div class="row">
-                    <div class="col-md-3 ">
-                      <i ng-if="!emptyProps" class=" fa"
-                         ng-class="{'fa-chevron-down' : !isReqPropsCollapsed[capabilityEntry.key], 'fa-chevron-right': isReqPropsCollapsed[capabilityEntry.key]}">
-                      </i>
-                      <span tooltip="{{capabilityEntry.key}}" tooltip-append-to-body="true">{{capabilityEntry.key | truncate:12}}</span>
-                    </div>
-                    <div class="col-md-3" id="capability-{{capabilityEntry.key}}">
-                    <span tooltip="{{capabilityEntry.value.type}}"
-                          tooltip-append-to-body="true">{{getShortName(capabilityEntry.value.type)}}</span>
-                    </div>
-                    <div class="col-md-6" ng-init="capaComp = getComponent(selectedNodeTemplate, capabilityEntry.value.type)">
-                    <span class="btn-group pull-right">
-                      <span class="btn btn-default btn-xs cardinalities_show"
-                            tooltip="{{'APPLICATIONS.TOPOLOGY.CAPABILITY_CARDINALITIES_TOOLTIP' | translate}}"
-                            tooltip-append-to-body="true">
-                          {{capabilityEntry.value.upperBound | replaceAll:'unbounded':'&infin;' }}
-                          ({{capabilityEntry.value.canAddRel.remaining | replaceAll:'unbounded':'&infin;' }})
-                      </span>
-                      <simple-modal title="{{ 'MODAL.TITLE.CAPABILITY' | translate}}" content="{{capaComp.data.description}}" key="{{capabilityEntry.value.type}}"> </simple-modal>
-                      <button id="btn-expose-{{capabilityEntry.value.type}}"
-                              ng-if="isTopologyTemplate && topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType"
-                              ng-click="substitution.exposeCapability(capabilityEntry.key); $event.stopPropagation()"
-                              class="btn btn-default btn-xs"
-                              ng-class="{'active' : substitution.isCapabilityExposed(capabilityEntry.key)}"
-                              tooltip="{{ 'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.EXPOSE' | translate}}"
-                              tooltip-append-to-body="true">
-                        <i class="fa fa-recycle"></i>
-                      </button>
-                    </span>
-                    </div>
-                  </div>
-                </div>
-                <table ng-if="!isReqPropsCollapsed[capabilityEntry.key]" class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
-                  <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
-                    <td>
-                      <div class="btn-group" data-toggle="buttons">
-                        <a id="p_input_cap_{{propertyEntry.key}}"
-                           ng-click="inputs.getCandidatesForCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
-                           class="btn btn-default btn-xs dropdown-toggle"
-                           ng-class="{'active' : properties.isInputPropertyValue(propertyEntry.value)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
-                           tooltip-append-to-body="true">
-                          <i class="fa fa-sign-in"></i>
-                        </a>
-                        <a id="p_output_cap_{{propertyEntry.key}}" ng-click="outputs.toggleCapabilityOutput(capabilityEntry.key, propertyEntry.key)" class="btn btn-default btn-xs"
-                           ng-class="{'active' : properties.isOutputCapabilityProperty(capabilityEntry.key, propertyEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
-                           tooltip-append-to-body="true">
-                          <i class="fa fa-sign-out"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-left" role="menu">
-                          <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
-                          <li>
-                            <a id="addToInputBtn_cap_{{propertyEntry.key}}" ng-click="inputs.createFromCapabilityProperty(capabilityEntry.key, propertyEntry.key)">
-                              <strong>{{'APPLICATIONS.TOPOLOGY.INPUTS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
-                            </a>
-                          </li>
-                          <li ng-repeat="inputId in currentInputCandidatesForCapabilityProperty | orderBy:'toString()'">
-                            <a id="{{selectedNodeTemplate.name}}_{{propertyEntry.key}}_toAssociate_{{inputId}}" ng-click="inputs.toggleCapabilityProperty(capabilityEntry.key, propertyEntry.key, inputId)">
-                              <i class="fa fa-fw"
-                                 ng-class="inputs.isCapabilityPropertyAssociatedToInput(capabilityEntry.key, propertyEntry.key, inputId) ? 'fa-check-square-o' : 'fa-square-o'"></i>
-                              {{inputId}}
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
-                    </td>
-                    <td>
-                      <property-display
-                        ng-if="properties.isInputPropertyValue(propertyEntry.value)"
-                        ng-init="condensed = true"
-                        definition="properties.getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
-                        property-name="propertyEntry.key"
-                        property-value="propertyEntry.value"
-                        on-save="properties.updateCapabilityProperty(propertyName, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
-                        editable="false"
-                        condensed="condensed">
-                      </property-display>
-                      <property-display
-                        ng-if="!properties.isInputPropertyValue(propertyEntry.value)"
-                        ng-init="condensed = true"
-                        definition="properties.getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
-                        property-name="propertyEntry.key"
-                        property-value="propertyEntry.value"
-                        on-save="properties.updateCapabilityProperty(propertyName, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
-                        editable="true"
-                        condensed="condensed">
-                      </property-display>
-                    </td>
-                    <td>
-                      <simple-modal title="{{ 'MODAL.TITLE.PROPERTY' | translate}}" content="{{topology.capabilityTypes[capabilityEntry.value.type].propertiesMap[propertyEntry.key].value.description}}" key="{{propertyEntry.key}}"> </simple-modal>
-                    </td>
-                  </tr>
-                </table>
-              </div>
-            </div>
-          </div>
           <!-- Relationships -->
           <div ng-if="selectedNodeTemplate.relationships.length > 0">
-            <div id="node-details-relationships" class="topology-node-expand clickable"
+            <div id="node-details-relationships" class="clickable topology-props-section"
                  ng-click="isRelationshipsCollapsed = !isRelationshipsCollapsed">
               <h4>
-                <i class=" fa" ng-class="{'fa-chevron-down' : !isRelationshipsCollapsed, 'fa-chevron-right': isRelationshipsCollapsed}"></i>
+                <i class=" fa" ng-class="{'fa-caret-down' : !isRelationshipsCollapsed, 'fa-caret-right': isRelationshipsCollapsed}"></i>
                 {{'APPLICATIONS.TOPOLOGY.RELATIONSHIPS' | translate}}
               </h4>
             </div>
             <div id="node-details-relationships-panel" collapse="isRelationshipsCollapsed">
               <div class="topology-level"
                    ng-repeat="relationshipEntry in selectedNodeTemplate.relationships">
-                <div class="topology-node-expand clickable editable-small"
+                <div class="clickable editable-small"
                      ng-click="isRelationshipCollapsed = !isRelationshipCollapsed"
                      id="relationship_{{relationshipEntry.key}}">
                   <i class=" fa"
-                     ng-class="{'fa-chevron-down' : !isRelationshipCollapsed, 'fa-chevron-right': isRelationshipCollapsed}"></i>
+                     ng-class="{'fa-caret-down' : !isRelationshipCollapsed, 'fa-caret-right': isRelationshipCollapsed}"></i>
                 <span
                   ng-init="relNameObj[relationshipEntry.key] = relationshipEntry.key"
                   editable-text="relNameObj[relationshipEntry.key]" buttons="no" e-required onbeforesave="relationships.updateRelationshipName(relationshipEntry.key, $data)"
@@ -538,23 +513,13 @@
                           </td>
                           <td ng-init="propertyEntry.value.name=propertyEntry.key" class="col-md-10">
                             <property-display
-                              ng-if="properties.isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
                               ng-init="condensed = true"
+                              dependencies="topology.topology.dependencies"
                               definition="propertyEntry.value"
                               property-name="propertyEntry.key"
                               property-value="relationshipEntry.value.propertiesMap[propertyEntry.key].value"
                               on-save="relationships.updateRelationshipProperty(propertyEntry.value, propertyName, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
-                              editable="false"
-                              condensed="condensed">
-                            </property-display>
-                            <property-display
-                              ng-if="!properties.isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
-                              ng-init="condensed = true"
-                              definition="propertyEntry.value"
-                              property-name="propertyEntry.key"
-                              property-value="relationshipEntry.value.propertiesMap[propertyEntry.key].value"
-                              on-save="relationships.updateRelationshipProperty(propertyEntry.value, propertyName, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
-                              editable="true"
+                              editable="!properties.isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
                               condensed="condensed">
                             </property-display>
                           </td>
@@ -571,20 +536,20 @@
           </div>
           <!-- Artifacts -->
           <div ng-if="checkMapSize(selectedNodeTemplate.artifacts)">
-            <div id="node-details-artifacts" class="topology-node-expand clickable"
+            <div id="node-details-artifacts" class="clickable topology-props-section"
                  ng-click="isArtifactsCollapsed = !isArtifactsCollapsed">
               <h4>
-                <i class=" fa" ng-class="{'fa-chevron-down' : !isArtifactsCollapsed, 'fa-chevron-right': isArtifactsCollapsed}"></i>
+                <i class=" fa" ng-class="{'fa-caret-down' : !isArtifactsCollapsed, 'fa-caret-right': isArtifactsCollapsed}"></i>
                 {{'APPLICATIONS.TOPOLOGY.ARTIFACTS.TITLE' | translate}}
               </h4>
             </div>
             <div id="node-details-artifacts-panel" collapse="isArtifactsCollapsed">
               <div class="topology-level clearfix"
                    ng-repeat="(artifactId, artifact) in selectedNodeTemplate.artifacts">
-                <div class="topology-node-expand clickable"
+                <div class="clickable"
                      ng-click="isArtifactCollapsed = !isArtifactCollapsed">
                   <i class=" fa"
-                     ng-class="{'fa-chevron-down' : !isArtifactCollapsed, 'fa-chevron-right': isArtifactCollapsed}"></i>
+                     ng-class="{'fa-caret-down' : !isArtifactCollapsed, 'fa-caret-right': isArtifactCollapsed}"></i>
                   <span>{{artifactId}}</span>
                   <span id='reset-artifact-{{artifactId}}' class="btn btn-xs" ng-click="artifacts.reset(artifactId); $event.stopPropagation();">
                     <i class="fa fa-undo text-default" tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
@@ -770,9 +735,9 @@
             </span>
           </div>
           <div ng-repeat="group in orderedNodeGroups">
-            <div id="group-details-{{group.name}}-header" class="topology-node-expand clickable">
+            <div id="group-details-{{group.name}}-header" class="clickable">
               <h4>
-                <i class=" fa clickable {{groups.getColorCss(group.name)}}" ng-class="{'fa-chevron-down' : !groupCollapsed[group.name].main, 'fa-chevron-right': groupCollapsed[group.name].main}"
+                <i class=" fa clickable {{groups.getColorCss(group.name)}}" ng-class="{'fa-caret-down' : !groupCollapsed[group.name].main, 'fa-caret-right': groupCollapsed[group.name].main}"
                 ng-click="groupCollapsed[group.name].main = !groupCollapsed[group.name].main"></i>
                 <span editable-text="group.name" id="nodeGroupName_{{group.name}}" buttons="no" e-required onbeforesave="groups.updateName(group.name, $data)" blur="submit">
                   {{group.name}}
@@ -783,10 +748,10 @@
               </h4>
             </div>
             <div id="group-details-{{group.name}}-content" collapse="groupCollapsed[group.name].main" class="topology-level">
-              <div id="group-members-{{group.name}}-header" class="topology-node-expand clickable"
+              <div id="group-members-{{group.name}}-header" class="clickable"
                    ng-click="groupCollapsed[group.name].members = !groupCollapsed[group.name].members">
                 <h5>
-                  <i class=" fa" ng-class="{'fa-chevron-down' : !groupCollapsed[group.name].members, 'fa-chevron-right': groupCollapsed[group.name].members}"></i>
+                  <i class=" fa" ng-class="{'fa-caret-down' : !groupCollapsed[group.name].members, 'fa-caret-right': groupCollapsed[group.name].members}"></i>
                   {{'APPLICATIONS.TOPOLOGY.GROUPS.MEMBERS' | translate}}
                 </h5>
               </div>
@@ -802,10 +767,10 @@
                   </li>
                 </ul>
               </div>
-              <div id="group-policies-{{group.name}}-header" class="topology-node-expand clickable"
+              <div id="group-policies-{{group.name}}-header" class="clickable"
                    ng-click="groupCollapsed[group.name].policies = !groupCollapsed[group.name].policies">
                 <h5>
-                  <i class=" fa" ng-class="{'fa-chevron-down' : !groupCollapsed[group.name].policies, 'fa-chevron-right': groupCollapsed[group.name].policies}"></i>
+                  <i class=" fa" ng-class="{'fa-caret-down' : !groupCollapsed[group.name].policies, 'fa-caret-right': groupCollapsed[group.name].policies}"></i>
                   {{'APPLICATIONS.TOPOLOGY.GROUPS.POLICIES' | translate}}
                 </h5>
               </div>
@@ -975,7 +940,7 @@
               <i class="fa fa-power-off"></i> {{'APPLICATIONS.WF.title' | translate}}
             </span>
           </div>
-          <!-- The workflow selection box --> 
+          <!-- The workflow selection box -->
           <div class="well wfbox">
 	          <div class="row">
 	            <div class="col-md-10">
@@ -990,17 +955,17 @@
 	                     tooltip="{{ 'APPLICATIONS.WF.addWorkflow' | translate}}"
 	                     tooltip-append-to-body="true" ng-click="workflows.createWorkflow()">
 	                    <i class="fa fa-plus-square"></i>
-	                  </a>                 
+	                  </a>
 	              </div>
 	            </div>
 	          </div>
 	        </div>
-	        <!-- The error box --> 
+	        <!-- The error box -->
 	        <div class="well wfbox" ng-if="currentWorkflowName && topology.topology.workflows[currentWorkflowName].errors">
-            <div id="wf-errors-header" class="topology-node-expand clickable text-danger"
+            <div id="wf-errors-header" class="clickable text-danger"
                  ng-click="isWfErrorsCollapsed = !isWfErrorsCollapsed">
               <h5>
-                <i class=" fa" ng-class="{'fa-chevron-down' : !isWfErrorsCollapsed, 'fa-chevron-right': isWfErrorsCollapsed}"></i>
+                <i class=" fa" ng-class="{'fa-caret-down' : !isWfErrorsCollapsed, 'fa-caret-right': isWfErrorsCollapsed}"></i>
                 {{topology.topology.workflows[currentWorkflowName].errors.length}} {{'APPLICATIONS.WF.hasErrors' | translate}}
               </h5>
             </div>
@@ -1008,9 +973,9 @@
 	            <span class="label label-danger wfLabelError" ng-repeat="error in topology.topology.workflows[currentWorkflowName].errors" ng-init="errorType = workflows.getErrorType(error)">
 	              {{'APPLICATIONS.WF.errors.' + errorType | translate:error}}
 	            </span>
-            </div>	        
+            </div>
 	        </div>
-	        <!-- The workflow edition box -->        
+	        <!-- The workflow edition box -->
           <div class="well wfbox" ng-if="currentWorkflowName">
             <div class="row">
               <div class="col-md-8">
@@ -1018,8 +983,8 @@
 		              <span editable-text="workflows.workflowName" buttons="no" e-required onbeforesave="workflows.renameWorkflow($data)" blur="submit" ng-if="!topology.topology.workflows[currentWorkflowName].standard">
 		                {{ currentWorkflowName }}
 		                <i class="fa fa-pencil-square-o"></i>
-		              </span>    
-		              <span ng-if="topology.topology.workflows[currentWorkflowName].standard">{{ currentWorkflowName }}</span>               
+		              </span>
+		              <span ng-if="topology.topology.workflows[currentWorkflowName].standard">{{ currentWorkflowName }}</span>
                 </h4>
               </div>
               <div class="col-md-4" style="margin-top: 6px;">
@@ -1032,11 +997,11 @@
 									</delete-confirm>
 	                <a id="wfViewMode"
 	                   class="btn btn-default btn-sm pull-right"
-	                   ng-class="{'active' : wfViewMode === 'full'}" 
+	                   ng-class="{'active' : wfViewMode === 'full'}"
 	                   tooltip="{{ 'APPLICATIONS.WF.changeViewMode' | translate}}"
 	                   tooltip-append-to-body="true" ng-click="workflows.switchViewMode()">
 	                  <i class="fa fa-binoculars"></i>
-	                </a>                
+	                </a>
 								</div>
               </div>
             </div>
@@ -1045,8 +1010,8 @@
                 confirm="{{'CONFIRM_MESSAGE' | translate}}"
                 confirm-title="{{'CONFIRM' | translate }}"
                 confirm-handler="workflows.reinitWorkflow()"
-                confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.reinit' | translate}}</a>            
-            </div>                          
+                confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.reinit' | translate}}</a>
+            </div>
 						<div>
 							<a class="btn btn-default btn-md"
 								ng-mouseover="workflows.addStepPreview()"
@@ -1054,7 +1019,7 @@
 								ng-click="workflows.addOperation()">{{'APPLICATIONS.WF.addOperationActivity' | translate}}</a>
 						</div>
 						<div>
-							<a class="btn btn-default btn-md" 
+							<a class="btn btn-default btn-md"
 								ng-mouseover="workflows.addStepPreview()"
 								ng-mouseleave="workflows.resetPreview()"
 								ng-click="workflows.addState()">{{'APPLICATIONS.WF.addStateActivity' | translate}}</a>
@@ -1078,7 +1043,7 @@
            <div class="row" ng-repeat="(k,v) in workflows.getStepActivityDetails(previewWorkflowStep)">
              <div class="col-md-3">{{'APPLICATIONS.WF.' + k | translate}}: </div>
              <div class="col-md-9 wfActivityDetail"><b>{{v}}</b></div>
-           </div>					 
+           </div>
 					</div>
 					<!-- The current selection -->
           <div class="well wfbox" ng-if="workflowCurrentStepSelection.length > 0">
@@ -1090,7 +1055,7 @@
                   <i class="fa fa-times"></i>
                 </a>
               </li>
-            </ul>           
+            </ul>
           </div>
           <!-- The pinned edge to be edited -->
           <div class="well wfbox" ng-if="wfPinnedEdge">
@@ -1105,10 +1070,10 @@
                        tooltip="{{ 'APPLICATIONS.WF.unpin' | translate}}"
                        tooltip-append-to-body="true" ng-click="workflows.unPinCurrentEdge()">
                       <i class="fa fa-unlock"></i>
-                    </a>              
+                    </a>
                 </div>
               </div>
-            </div>          
+            </div>
               <div>
                 <a class="btn btn-default btn-md"
                   ng-mouseover="workflows.removeEdgePreview(wfPinnedEdge.from, wfPinnedEdge.to)"
@@ -1118,7 +1083,7 @@
                   confirm-handler="workflows.removeEdge(wfPinnedEdge.from, wfPinnedEdge.to)"
                   confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.disconnect' | translate}}</a>
               </div>
-          </div>          
+          </div>
           <!-- The pinned step to be edited -->
           <div class="well wfbox" ng-if="pinnedWorkflowStep">
 	          <div class="row">
@@ -1127,7 +1092,7 @@
 	               <span editable-text="pinnedWorkflowStep.name" buttons="no" e-required onbeforesave="workflows.renameStep(pinnedWorkflowStep.name, $data)" blur="submit">
 	                  {{ pinnedWorkflowStep.name }}
 	                  <i class="fa fa-pencil-square-o"></i>
-	                </span>                 
+	                </span>
 	              </h4>
 	            </div>
 	            <div class="col-md-2" style="margin-top: 6px;">
@@ -1137,11 +1102,11 @@
 	                     tooltip="{{ 'APPLICATIONS.WF.unpin' | translate}}"
 	                     tooltip-append-to-body="true" ng-click="workflows.unpinCurrent()">
 	                    <i class="fa fa-unlock"></i>
-	                  </a>              
+	                  </a>
 	              </div>
 	            </div>
-	          </div>          
-	          
+	          </div>
+
 							<div
 								ng-repeat="precedingNodeId in pinnedWorkflowStep.precedingSteps">
 								<a class="btn btn-default btn-md"

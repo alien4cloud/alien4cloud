@@ -6,30 +6,13 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+
+import org.hibernate.validator.constraints.NotBlank;
+
 import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
-import alien4cloud.model.components.constraints.EqualConstraint;
-import alien4cloud.model.components.constraints.GreaterOrEqualConstraint;
-import alien4cloud.model.components.constraints.GreaterThanConstraint;
-import alien4cloud.model.components.constraints.InRangeConstraint;
-import alien4cloud.model.components.constraints.LengthConstraint;
-import alien4cloud.model.components.constraints.LessOrEqualConstraint;
-import alien4cloud.model.components.constraints.LessThanConstraint;
-import alien4cloud.model.components.constraints.MaxLengthConstraint;
-import alien4cloud.model.components.constraints.MinLengthConstraint;
-import alien4cloud.model.components.constraints.PatternConstraint;
-import alien4cloud.model.components.constraints.ValidValuesConstraint;
-import alien4cloud.tosca.container.validation.ToscaPropertyConstraint;
-import alien4cloud.tosca.container.validation.ToscaPropertyConstraintDuplicate;
-import alien4cloud.tosca.container.validation.ToscaPropertyDefaultValueConstraints;
-import alien4cloud.tosca.container.validation.ToscaPropertyDefaultValueType;
-import alien4cloud.tosca.container.validation.ToscaPropertyPostValidationGroup;
-import alien4cloud.tosca.container.validation.ToscaPropertyType;
+import alien4cloud.model.components.constraints.*;
+import alien4cloud.tosca.container.validation.*;
 import alien4cloud.ui.form.annotation.FormContentTypes;
 import alien4cloud.ui.form.annotation.FormProperties;
 import alien4cloud.ui.form.annotation.FormType;
@@ -51,7 +34,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode(of = { "type", "required", "description", "defaultValue", "constraints", "entrySchema" })
-@SuppressWarnings("PMD.UnusedPrivateField")
 @ToscaPropertyDefaultValueType
 @ToscaPropertyConstraint
 @ToscaPropertyDefaultValueConstraints(groups = { ToscaPropertyPostValidationGroup.class })

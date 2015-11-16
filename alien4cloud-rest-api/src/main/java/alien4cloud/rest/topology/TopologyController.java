@@ -1,5 +1,7 @@
 package alien4cloud.rest.topology;
 
+import io.swagger.annotations.ApiOperation;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -40,7 +42,6 @@ import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.AbstractPolicy;
 import alien4cloud.model.topology.AbstractTopologyVersion;
@@ -51,9 +52,6 @@ import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.SubstitutionTarget;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.paas.model.PaaSNodeTemplate;
-import alien4cloud.paas.plan.BuildPlanGenerator;
-import alien4cloud.paas.plan.StartEvent;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
@@ -82,8 +80,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.Closeables;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.Authorization;
 
 @Slf4j
 @RestController
@@ -638,11 +634,8 @@ public class TopologyController {
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         Map<String, RelationshipTemplate> relationships = nodeTemplate.getRelationships();
 
-        // case "reset" : take the default value
-        if (propertyValue == null) {
-            propertyValue = relationshipTypes.get(relationshipType).getProperties().get(propertyName).getDefault();
-        }
-        relationships.get(relationshipName).getProperties().put(propertyName, new ScalarPropertyValue(propertyValue));
+        PropertyUtil.setPropertyValue(relationships.get(relationshipName).getProperties(),
+                relationshipTypes.get(relationshipType).getProperties().get(propertyName), propertyName, propertyValue);
 
         topologyServiceCore.save(topology);
         return RestResponseBuilder.<ConstraintInformation> builder().build();
@@ -689,11 +682,8 @@ public class TopologyController {
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         Map<String, Capability> capabilities = nodeTemplate.getCapabilities();
 
-        // case "reset" : take the default value
-        if (propertyValue == null) {
-            propertyValue = capabilityTypes.get(capabilityType).getProperties().get(propertyName).getDefault();
-        }
-        capabilities.get(capabilityId).getProperties().put(propertyName, new ScalarPropertyValue(propertyValue));
+        PropertyUtil.setPropertyValue(capabilities.get(capabilityId).getProperties(), capabilityTypes.get(capabilityType).getProperties().get(propertyName),
+                propertyName, propertyValue);
 
         topologyServiceCore.save(topology);
         return RestResponseBuilder.<ConstraintInformation> builder().build();
@@ -1473,21 +1463,6 @@ public class TopologyController {
             }
         }
         return map;
-    }
-
-    @ApiOperation(value = "Get TOSCA plan/workflow to start the application.", authorizations = { @Authorization("ADMIN") })
-    @RequestMapping(value = "/{topologyId:.+}/startplan", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<StartEvent> getStartPlan(@PathVariable String topologyId) {
-        Topology topology = topologyServiceCore.getOrFail(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
-
-        Map<String, PaaSNodeTemplate> nodeTemplates = topologyTreeBuilderService.buildPaaSNodeTemplates(topology);
-        List<PaaSNodeTemplate> roots = topologyTreeBuilderService.buildPaaSTopology(nodeTemplates).getComputes();
-
-        StartEvent startEvent = new BuildPlanGenerator(true).generate(roots);
-
-        return RestResponseBuilder.<StartEvent> builder().data(startEvent).build();
     }
 
     @ApiOperation(value = "Get the version of application or topology related to this topology.")

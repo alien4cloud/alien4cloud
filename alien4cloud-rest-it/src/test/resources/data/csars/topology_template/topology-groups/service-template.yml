@@ -7,7 +7,7 @@ template_author: FastConnect
 description: define groups with ha policies
 
 imports:
-  - tosca-normative-types:1.0.0.wd03-SNAPSHOT
+  - "tosca-base-types:1.0"
   
 topology_template:
   node_templates:

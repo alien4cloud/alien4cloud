@@ -19,6 +19,7 @@
   "NO": "No",
   "NAME": "Name",
   "VALUE": "Value",
+  "PLACE_HOLDER_NO": "No ",
   "NAVBAR": {
     "BUTTON_LOGIN": "ログイン",
     "BUTTON_LOGOUT": "ログアウト",
@@ -174,7 +175,7 @@
   },
   "CSAR": {
     "BUTTON_NEWCSAR": "CSARスナップショットの作成",
-    "MODAL_NEWCSAR": "CSARの新規作成",
+    "NEW_GIT": "Gitの新規ロケーション",
     "BUTTON_DELETE": "削除",
     "BUTTON_MODIFY": "変更",
     "NAME": "CSAR名",
@@ -187,7 +188,7 @@
     "ACTIONS":"Operations",
     "URL": "Repository URL",
     "BRANCHESLIST": "Branches list",
-    "BRANCHE":"Branche",
+    "BRANCH":"Branch",
     "ARCHIVE":"Archive's folder",
     "ARCHIVELIST":"Archive list",
     "ARCHIVE_TO_IMPORT":"Archive(s) to import",
@@ -615,7 +616,7 @@
       "addWorkflow": "Add workflow",
       "changeViewMode": "Simplified view",
       "nodeName": "Node",
-      "host": "Host",      
+      "host": "Host",
       "interfaceName": "Interface",
       "operationName": "Operation",
       "stateName": "State",
@@ -624,9 +625,9 @@
       "addOperationActivity": "Add opreration call",
       "addStateActivity": "Add state change",
       "insertOperationActivity": "Insert opreration call",
-      "appendOperationActivity": "Append opreration call",   
+      "appendOperationActivity": "Append opreration call",
       "insertStateActivity": "Insert state change",
-      "appendStateActivity": "Append state change",             
+      "appendStateActivity": "Append state change",
       "activity": "Activity",
       "disconnect": "Disconnect",
       "disconnectFrom": "Disconnect from",
@@ -634,7 +635,7 @@
       "swapLeft": "Swap to left",
       "swapRigth": "Swap to right",
       "connectFromSelection": "Connect from selection",
-      "connectToSelection": "Connect to selection",        
+      "connectToSelection": "Connect to selection",
       "removeStep": "Remove step",
       "OperationCallActivity": "Operation call",
       "SetStateActivity": "State change",
@@ -647,8 +648,9 @@
         "BadStateSequenceError": "Bad sequence : step '{{from}}' should not be found before '{{to}}'",
         "ParallelSetStatesError": "State changes are done in parallel for node '{{nodeId}}'",
         "UnknownNodeError": "The node '{{nodeId}}' referenced by the step '{{stepId}}' doesn't exists"
-      }
-    }      
+      },
+      "launch": "Launch"
+    }
   },
   "TEMPLATE": {
     "NEW": "新規テンプレート",

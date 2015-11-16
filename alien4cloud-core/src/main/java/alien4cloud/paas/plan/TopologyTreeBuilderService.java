@@ -68,17 +68,23 @@ public class TopologyTreeBuilderService {
     @Resource
     private CSARRepositorySearchService csarSearchService;
 
+    public Map<String, PaaSNodeTemplate> buildPaaSNodeTemplates(Topology topology) {
+        // cache IndexedToscaElements, CloudServiceArchive and ToscaElements to limit queries.
+        TypeMap cache = new TypeMap();
+        return buildPaaSNodeTemplates(topology, cache);
+    }
+
     /**
      * Fetch informations from the repository to complete the topology node template informations with additional data such as artifacts paths etc.
      *
      * @param topology The topology for which to build PaaSNodeTemplate map.
      * @return A map of PaaSNodeTemplate that match the one of the NodeTempaltes in the given topology (and filled with artifact paths etc.).
      */
-    public Map<String, PaaSNodeTemplate> buildPaaSNodeTemplates(Topology topology) {
+    public Map<String, PaaSNodeTemplate> buildPaaSNodeTemplates(Topology topology, TypeMap cache) {
         Map<String, PaaSNodeTemplate> nodeTemplates = Maps.newHashMap();
 
         // cache IndexedToscaElements, CloudServiceArchive and ToscaElements to limit queries.
-        TypeMap cache = new TypeMap();
+        // TypeMap cache = new TypeMap();
 
         // Fill in PaaSNodeTemplate by fetching node types and CSAR path from the repositories.
         if (topology.getNodeTemplates() != null) {
@@ -127,8 +133,18 @@ public class TopologyTreeBuilderService {
      * @param topology The topology.
      * @return The parsed topology for the PaaS with.
      */
+    public PaaSTopology buildPaaSTopology(Topology topology, TypeMap cache) {
+        return buildPaaSTopology(buildPaaSNodeTemplates(topology, cache));
+    }
+
+    /**
+     * Build the topology for deployment on the PaaS.
+     *
+     * @param topology The topology.
+     * @return The parsed topology for the PaaS with.
+     */
     public PaaSTopology buildPaaSTopology(Topology topology) {
-        return buildPaaSTopology(buildPaaSNodeTemplates(topology));
+        return buildPaaSTopology(buildPaaSNodeTemplates(topology, new TypeMap()));
     }
 
     /**

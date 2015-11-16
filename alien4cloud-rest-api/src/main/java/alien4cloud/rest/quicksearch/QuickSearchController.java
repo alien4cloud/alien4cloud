@@ -27,7 +27,7 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.Role;
 
 import com.google.common.collect.Sets;
-import com.wordnik.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * Handle Quick Search requests.

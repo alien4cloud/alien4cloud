@@ -182,6 +182,6 @@ Feature: Topology inputs controller
     Given I add a node template "Compute2" related to the "tosca.nodes.Compute:1.0" node type
     When I ask for the input candidate for the node template "Compute" and property "containee_types" of capability "compute"
     Then The SPEL boolean expression "#root.size() == 0" should return true
-    And I define the property "containee_types" of the node "Compute" as input property
+    And I define the property "os_arch" of the node "Compute" as input property
     When I ask for the input candidate for the node template "Compute" and property "containee_types" of capability "compute"
     Then The SPEL boolean expression "#root.size() == 1" should return true

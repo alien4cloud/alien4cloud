@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 
@@ -27,6 +26,7 @@ import alien4cloud.security.model.CsarDependenciesBean;
 import alien4cloud.security.model.CsarGitCheckoutLocation;
 import alien4cloud.security.model.CsarGitRepository;
 import alien4cloud.tosca.ArchiveUploadService;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
@@ -122,10 +122,20 @@ public class CsarGitService {
                 return null; // no commit since last import.
             }
             // now that the repository is checked out and up to date process with the import
-            List<ParsingResult<Csar>> result = processImport(csarGitRepository, csarGitCheckoutLocation);
-            csarGitCheckoutLocation.setLastImportedHash(hash);
-            alienDAO.save(csarGitRepository); // update the hash for this location.
-            return result;
+            List<ParsingResult<Csar>> results = processImport(csarGitRepository, csarGitCheckoutLocation);
+            // let's save only is import was successful as we don't keep errors
+            // TODO best would be to provide with a better result to show that we didn't retried import
+            boolean updateHash = true;
+            for (ParsingResult<Csar> result : results) {
+                if (ArchiveUploadService.hasError(result, ParsingErrorLevel.ERROR)) {
+                    updateHash = false;
+                }
+            }
+            if (updateHash) {
+                csarGitCheckoutLocation.setLastImportedHash(hash);
+                alienDAO.save(csarGitRepository); // update the hash for this location.
+            }
+            return results;
         } finally {
             if (git != null) {
                 git.close();

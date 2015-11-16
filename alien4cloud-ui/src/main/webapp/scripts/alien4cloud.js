@@ -14,6 +14,10 @@ define(function(require) {
   require('angular-translate');
   require('angular-xeditable');
   require('scripts/layout/layout');
+  
+  //some common directives directives
+  require('scripts/common/directives/empty_place_holder');
+  
   // require alien4cloud modules
   require('scripts/authentication/controllers/navbar');
   require('scripts/admin/admin');

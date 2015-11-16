@@ -28,14 +28,13 @@ import com.google.common.collect.Maps;
 @Slf4j
 @Component
 public class NodeTypeScoreService implements Runnable {
-    /** Every hours. TODO This should be a configuration param. */
-    private static final long SCORE_RATE_MILLISECONDS = 1000 * 60 * 60;
-
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienESDAO;
     @Resource(name = "node-type-score-scheduler")
     private TaskScheduler scheduler;
 
+    @Value("${components.search.boost.frequency}")
+    private long frequencyH = 1;
     @Value("${components.search.boost.usage}")
     private long usageBoost;
     @Value("${components.search.boost.version}")
@@ -46,8 +45,9 @@ public class NodeTypeScoreService implements Runnable {
     /** Refresh boost for all indexed node types in the system. */
     @PostConstruct
     public void refreshBoostCompute() {
-        Date date = new Date(System.currentTimeMillis() + SCORE_RATE_MILLISECONDS);
-        scheduler.scheduleAtFixedRate(this, date, SCORE_RATE_MILLISECONDS);
+        long frequencyMs = frequencyH * 1000 * 60 * 60;
+        Date date = new Date(System.currentTimeMillis() + frequencyMs);
+        scheduler.scheduleAtFixedRate(this, date, frequencyMs);
     }
 
     @Override

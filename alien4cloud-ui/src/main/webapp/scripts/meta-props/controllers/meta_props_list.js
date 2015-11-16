@@ -43,7 +43,7 @@ define(function (require) {
       $scope.data = searchResult.data;
     };
 
-    $scope.searchService = searchServiceFactory('rest/tagconfigurations/search', false, $scope, 20);
+    $scope.searchService = searchServiceFactory('rest/metaproperties/search', false, $scope, 20);
 
     //first load
     $scope.searchService.search();

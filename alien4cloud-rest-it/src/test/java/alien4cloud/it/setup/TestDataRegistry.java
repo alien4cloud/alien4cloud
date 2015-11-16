@@ -67,6 +67,7 @@ public class TestDataRegistry {
         addConditionFolder("sample apache lb types 0.1", "src/test/resources/data/csars/sample/apache-lb-types-0.1");
         addConditionFolder("sample apache lb types 0.2", "src/test/resources/data/csars/sample/apache-lb-types-0.2");
 
+        // Types and constraints parsing data
         addConditionFolder("constraints", "src/test/resources/data/csars/definition/constraints");
         addConditionFolder("invalid (definition file not found)", "src/test/resources/data/csars/definition/missing");
         addConditionFolder("invalid (definition file is not valid yaml file)", "src/test/resources/data/csars/definition/erroneous");
@@ -84,6 +85,7 @@ public class TestDataRegistry {
         addConditionFolder("valid-csar-with-update3", "src/test/resources/data/csars/snapshot-test/snapshot-test-update3");
         addConditionFolder("csar-test-no-topology", "src/test/resources/data/csars/snapshot-test/missing-topology-yaml");
 
+        // Topology parsing data
         addConditionFolder("topology-singlecompute", "src/test/resources/data/csars/topology_template/topology-singlecompute");
         addConditionFolder("topology-missing-inputs", "src/test/resources/data/csars/topology_template/topology-missing-inputs");
         addConditionFolder("topology apache", "src/test/resources/data/csars/topology_template/topology-apache-it");
@@ -107,6 +109,9 @@ public class TestDataRegistry {
         addConditionFolder("topology-groups", "src/test/resources/data/csars/topology_template/topology-groups");
         addConditionFolder("topology-groups-unknown-policy", "src/test/resources/data/csars/topology_template/topology-groups-unknown-policy");
         addConditionFolder("topology-groups-unknown-member", "src/test/resources/data/csars/topology_template/topology-groups-unknown-member");
+
+        // Runtime archive
+        addConditionFolder("custom-interface-mock-types", "src/test/resources/data/csars/custom-interface-mock-types");
 
         addConditionFolder("tosca-normative-types", GIT_ARTIFACTS_PATH + "tosca-normative-types");
         addConditionFolder("tosca-normative-types-wd06", GIT_ARTIFACTS_PATH + "tosca-normative-types-wd06");

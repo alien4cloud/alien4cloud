@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import springfox.documentation.annotations.ApiIgnore;
 import alien4cloud.Constants;
 import alien4cloud.rest.model.*;
 import alien4cloud.security.groups.IAlienGroupDao;
 import alien4cloud.security.model.*;
 
 import com.google.common.collect.Lists;
-import com.mangofactory.swagger.annotations.ApiIgnore;
-import com.wordnik.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * Authentication service manages security related operations including Authentication and Authorization management.
@@ -68,10 +68,9 @@ public class AuthController {
     @RequestMapping(value = "/authenticationfailed", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
     public RestResponse<Void> authenticationFailed() {
-        return RestResponseBuilder
-                .<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.AUTHENTICATION_FAILED_ERROR).message("Authentication failed, check username and password.")
-                        .build()).build();
+        return RestResponseBuilder.<Void> builder().error(
+                RestErrorBuilder.builder(RestErrorCode.AUTHENTICATION_FAILED_ERROR).message("Authentication failed, check username and password.").build())
+                .build();
     }
 
     @ApiIgnore

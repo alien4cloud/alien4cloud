@@ -34,10 +34,10 @@ import alien4cloud.rest.orchestrator.model.CreateOrchestratorRequest;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.utils.ReflectionUtil;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
-import com.wordnik.swagger.annotations.Authorization;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
 
 /**
  * Controller to manage orchestrators.
@@ -67,13 +67,12 @@ public class OrchestratorController {
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<Void> update(
-            @ApiParam(value = "Id of the orchestrators to update.", required = true) @PathVariable @Valid @NotEmpty String id,
+    public RestResponse<Void> update(@ApiParam(value = "Id of the orchestrators to update.", required = true) @PathVariable @Valid @NotEmpty String id,
             @ApiParam(value = "Orchestrator update request, representing the fields to updates and their new values.", required = true) @Valid @NotEmpty @RequestBody UpdateOrchestratorRequest request) {
-        Orchestrator orchestration = orchestratorService.getOrFail(id);
-        String currentName = orchestration.getName();
-        ReflectionUtil.mergeObject(request, orchestration);
-        orchestratorService.ensureNameUnicityAndSave(orchestration, currentName);
+        Orchestrator orchestrator = orchestratorService.getOrFail(id);
+        String currentName = orchestrator.getName();
+        ReflectionUtil.mergeObject(request, orchestrator);
+        orchestratorService.ensureNameUnicityAndSave(orchestrator, currentName);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -95,8 +94,7 @@ public class OrchestratorController {
     @ApiOperation(value = "Search for orchestrators.")
     @RequestMapping(method = RequestMethod.GET)
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<GetMultipleDataResult<Orchestrator>> search(
-            @ApiParam(value = "Query text.") @RequestParam(required = false) String query,
+    public RestResponse<GetMultipleDataResult<Orchestrator>> search(@ApiParam(value = "Query text.") @RequestParam(required = false) String query,
             @ApiParam(value = "If true only connected orchestrators will be retrieved.") @RequestParam(required = false, defaultValue = "false") boolean connectedOnly,
             @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
             @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "20") int size) {
@@ -124,10 +122,8 @@ public class OrchestratorController {
             orchestratorStateService.enable(orchestrator);
         } catch (PluginConfigurationException e) {
             log.error("Failed to instanciate orchestrator because of invalid configuration.", e);
-            return RestResponseBuilder
-                    .<Void> builder()
-                    .error(RestErrorBuilder.builder(RestErrorCode.INVALID_PLUGIN_CONFIGURATION)
-                            .message("Fail to update cloud configuration because Plugin used is not valid.").build()).build();
+            return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.INVALID_PLUGIN_CONFIGURATION)
+                    .message("Fail to update cloud configuration because Plugin used is not valid.").build()).build();
         }
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -135,8 +131,7 @@ public class OrchestratorController {
     @ApiOperation(value = "Disable an orchestrator. Destroys the instance of the orchestrator connector.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}/instance", method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public RestResponse<Void> disable(
-            @ApiParam(value = "Id of the orchestrator to enable", required = true) @PathVariable String id,
+    public RestResponse<Void> disable(@ApiParam(value = "Id of the orchestrator to enable", required = true) @PathVariable String id,
             @ApiParam(value = "This parameter is useful only when trying to disable the orchestrator, if deployments are performed using this orchestrator disable "
                     + "operation will fail unnless the force flag is true", required = false) @RequestParam(required = false, defaultValue = "false") boolean force,
             @ApiParam(value = "In case an orchestrator with deployment is forced to be disabled, the user may decide to mark all deployments managed "

@@ -18,8 +18,8 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.ResourceRoleService;
 import alien4cloud.security.model.ApplicationRole;
 
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * Service that allows managing applications roles.

@@ -71,8 +71,6 @@ public class ArchiveUploadService {
             AuthorizationUtil.checkHasOneRoleIn(Role.COMPONENTS_MANAGER, Role.ADMIN);
         }
 
-        ParsingResult<Csar> simpleResult = toSimpleResult(parsingResult);
-
         if (ArchiveUploadService.hasError(parsingResult, null)) {
             // check if any blocker error has been found during parsing process.
             if (ArchiveUploadService.hasError(parsingResult, ParsingErrorLevel.ERROR)) {
@@ -80,67 +78,10 @@ public class ArchiveUploadService {
                 return toSimpleResult(parsingResult);
             }
         }
-        // if a topology has been added we want to notify the user
-        if (parsingResult.getResult().getTopology() != null && !parsingResult.getResult().getTopology().isEmpty()) {
-            final Topology topology = parsingResult.getResult().getTopology();
-            if (archiveRoot.hasToscaTypes()) {
-                // the archive contains types
-                // we assume those types are used in the embedded topology
-                // so we add the dependency to this CSAR
-                CSARDependency selfDependency = new CSARDependency(archiveRoot.getArchive().getName(), archiveRoot.getArchive().getVersion());
-                topology.getDependencies().add(selfDependency);
-            }
-
-            // init the workflows
-            WorkflowsBuilderService.TopologyContext topologyContext = workflowsBuilderService.buildCachedTopologyContext(new WorkflowsBuilderService.TopologyContext() {
-                @Override
-                public Topology getTopology() {
-                    return topology;
-                }
-
-                @Override
-                public <T extends IndexedToscaElement> T findElement(Class<T> clazz, String id) {
-                    return ToscaParsingUtil.getElementFromArchiveOrDependencies(clazz, id, archiveRoot, searchService);
-                }
-            });
-            workflowsBuilderService.initWorkflows(topologyContext);
-
-            // TODO: here we should update the topology if it already exists
-            // TODO: the name should only contains the archiveName
-            TopologyTemplate existingTemplate = topologyServiceCore.searchTopologyTemplateByName(archiveRoot.getArchive().getName());
-            if (existingTemplate != null) {
-                // the topology template already exists
-                topology.setDelegateId(existingTemplate.getId());
-                topology.setDelegateType(TopologyTemplate.class.getSimpleName().toLowerCase());
-                String topologyId = topologyServiceCore.saveTopology(topology);
-                // now search the version
-                TopologyTemplateVersion ttv = topologyTemplateVersionService.searchByDelegateAndVersion(existingTemplate.getId(), archiveVersion);
-                if (ttv != null) {
-                    // the version exists, we will update it's topology id and delete the old topology
-                    topologyTemplateVersionService.changeTopology(ttv, topologyId);
-                } else {
-                    // we just create a new version
-                    topologyTemplateVersionService.createVersion(existingTemplate.getId(), null, archiveVersion, null, topology);
-                }
-                simpleResult
-                        .getContext()
-                        .getParsingErrors()
-                        .add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_UPDATED, "", null, "A topology template has been detected", null,
-                                archiveName));
-
-            } else {
-                simpleResult
-                        .getContext()
-                        .getParsingErrors()
-                        .add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_DETECTED, "", null, "A topology template has been detected", null,
-                                archiveName));
-                topologyServiceCore.createTopologyTemplate(topology, archiveName, parsingResult.getResult().getTopologyTemplateDescription(), archiveVersion);
-            }
-            topologyServiceCore.updateSubstitutionType(topology);
-        }
 
         archiveIndexer.importArchive(archiveRoot, path, parsingResult.getContext().getParsingErrors());
-        return simpleResult;
+
+        return toSimpleResult(parsingResult);
     }
 
     public List<CsarDependenciesBean> preParsing(Set<Path> paths) throws ParsingException {

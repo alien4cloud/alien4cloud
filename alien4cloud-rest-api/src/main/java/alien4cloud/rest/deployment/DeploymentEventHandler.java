@@ -22,6 +22,7 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IPaasEventListener;
 import alien4cloud.paas.IPaasEventService;
 import alien4cloud.paas.model.AbstractMonitorEvent;
+import alien4cloud.paas.model.AbstractPaaSWorkflowMonitorEvent;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.rest.websocket.ISecuredHandler;
@@ -157,7 +158,7 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
 
     @Override
     public boolean canHandle(AbstractMonitorEvent event) {
-        return AbstractMonitorEvent.class.isAssignableFrom(event.getClass());
+        return AbstractMonitorEvent.class.isAssignableFrom(event.getClass()) && !AbstractPaaSWorkflowMonitorEvent.class.isAssignableFrom(event.getClass());
     }
 
     @Override

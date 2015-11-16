@@ -12,6 +12,9 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import alien4cloud.model.components.*;
+import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.ParsingResult;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,15 +23,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import alien4cloud.git.RepositoryManager;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.ConcatPropertyValue;
-import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.IValue;
-import alien4cloud.model.components.IndexedArtifactToscaElement;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.Operation;
-import alien4cloud.model.components.OperationOutput;
-import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
@@ -87,22 +81,22 @@ public class FunctionEvaluatorTest {
         Path typesPath = artifactsDirectory.resolve(normativeLocalName);
         Path typesZipPath = artifactsDirectory.resolve(normativeLocalName + ".zip");
         FileUtil.zip(typesPath, typesZipPath);
-        archiveUploadService.upload(typesZipPath);
+        ParsingResult<Csar> result = archiveUploadService.upload(typesZipPath);
 
         typesPath = artifactsDirectory.resolve(extendedLocalName).resolve("alien-base-types-1.0-SNAPSHOT");
         typesZipPath = artifactsDirectory.resolve("alien-base-types-1.0-SNAPSHOT.zip");
         FileUtil.zip(typesPath, typesZipPath);
-        archiveUploadService.upload(typesZipPath);
+        result = archiveUploadService.upload(typesZipPath);
 
         typesPath = artifactsDirectory.resolve(sampleLocalName).resolve("tomcat-war");
         typesZipPath = artifactsDirectory.resolve("tomcat_war.zip");
         FileUtil.zip(typesPath, typesZipPath);
-        archiveUploadService.upload(typesZipPath);
+        result = archiveUploadService.upload(typesZipPath);
 
         typesPath = Paths.get("src/test/resources/alien/paas/function/csars/test-types");
         typesZipPath = artifactsDirectory.resolve("target/test-types.zip");
         FileUtil.zip(typesPath, typesZipPath);
-        archiveUploadService.upload(typesZipPath);
+        result = archiveUploadService.upload(typesZipPath);
 
         Topology topology = YamlParserUtil.parseFromUTF8File(Paths.get("src/test/resources/alien/paas/function/topology/badFunctionsTomcatWar.yml"),
                 Topology.class);
@@ -115,12 +109,12 @@ public class FunctionEvaluatorTest {
 
         Map<String, NodeTemplate> nodeTemplates = Maps.newHashMap();
         NodeTemplate nodeTemplate1 = new NodeTemplate();
-        nodeTemplate1.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_1" }, new AbstractPropertyValue[] { new ScalarPropertyValue(
-                "the_property_value_1") }));
+        nodeTemplate1.setProperties(
+                MapUtil.newHashMap(new String[] { "the_property_name_1" }, new AbstractPropertyValue[] { new ScalarPropertyValue("the_property_value_1") }));
         nodeTemplates.put("the_node_tempalte_1", nodeTemplate1);
         NodeTemplate nodeTemplate2 = new NodeTemplate();
-        nodeTemplate2.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_2" }, new AbstractPropertyValue[] { new ScalarPropertyValue(
-                "the_property_value_2") }));
+        nodeTemplate2.setProperties(
+                MapUtil.newHashMap(new String[] { "the_property_name_2" }, new AbstractPropertyValue[] { new ScalarPropertyValue("the_property_value_2") }));
         nodeTemplates.put("the_node_tempalte_2", nodeTemplate2);
         Topology topology = new Topology();
         topology.setNodeTemplates(nodeTemplates);

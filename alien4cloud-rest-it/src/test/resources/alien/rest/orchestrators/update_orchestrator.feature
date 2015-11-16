@@ -12,7 +12,7 @@ Scenario: Update an orchestrator's name
     Then I should receive a RestResponse with no error
     And Response should contains an orchestrator with name "Mordor orchestrator"
 
-Scenario: Update an orchestrator's name with same name should not fail (just ignored)
+Scenario: Update an orchestrator's name with same name should not fail, just ignored
   When I update orchestrator name from "Mount doom orchestrator" to "Mount doom orchestrator"
     Then I should receive a RestResponse with no error
   When I list orchestrators

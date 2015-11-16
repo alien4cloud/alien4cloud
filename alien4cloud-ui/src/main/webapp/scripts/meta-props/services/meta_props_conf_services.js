@@ -7,9 +7,9 @@ define(function (require) {
 
   modules.get('a4c-metas', ['ngResource']).factory('metapropConfServices', ['$resource',
     function($resource) {
-      var MetapropConfigurationDAO = $resource('rest/tagconfigurations/:id');
+      var MetapropConfigurationDAO = $resource('rest/metaproperties/:id');
 
-      var searchMetapropConfiguration = $resource('rest/tagconfigurations/search', {}, {
+      var searchMetapropConfiguration = $resource('rest/metaproperties/search', {}, {
         'search': {
           method: 'POST',
           isArray: false,

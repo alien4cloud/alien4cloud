@@ -11,7 +11,7 @@ public class PropertiesDefinitionsSteps {
     @When("^I fill the value \"([^\"]*)\" for \"([^\"]*)\" tag to check$")
     public void I_fill_the_value_for_tag(String value, String configurationTagName) throws Throwable {
         MetaPropConfiguration tag = Context.getInstance().getConfigurationTag(configurationTagName);
-        PropertyValidationRequest propertyCheckRequest = new PropertyValidationRequest(configurationTagName, value, tag);
+        PropertyValidationRequest propertyCheckRequest = new PropertyValidationRequest(value, configurationTagName, tag);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/properties/check", JsonUtil.toString(propertyCheckRequest)));
     }
 }

@@ -1,5 +1,5 @@
 server:
-  port: 9999
+  port: 8088
 
 # Configuration of alien4cloud's CSAR repository, temporary folder and upload settings.
 directories:
@@ -37,6 +37,8 @@ components.search.boost:
   version: 1000
   # components that are configured as default for at least 1 capability get the following a boost factor.
   default: 10
+  # define in hours at what frequency the components boost should be recalculated.
+  frequency: 24
 
 # Configuration of the elastic search cluster.
 elasticSearch:

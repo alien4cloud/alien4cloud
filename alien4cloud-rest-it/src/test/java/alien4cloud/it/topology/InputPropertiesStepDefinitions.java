@@ -58,8 +58,11 @@ public class InputPropertiesStepDefinitions {
             IndexedNodeType nodeType = MapUtils.getObject(topologyDTO.getNodeTypes(), template.getType());
             if (nodeType != null) {
                 propDef = MapUtils.getObject(nodeType.getProperties(), propertyName);
-
             }
+        }
+        if (propDef == null) {
+            throw new NullPointerException(
+                    "The property definition is required for node " + nodeName + " and property " + propertyName + ", please check your cucumber scenario.");
         }
         return propDef;
     }
@@ -118,8 +121,8 @@ public class InputPropertiesStepDefinitions {
 
     @Then("^The topology should not have the property \"([^\"]*)\" defined as input property$")
     public void The_topology_should_not_have_the_property_defined_as_input_property(String inputId) throws Throwable {
-        TopologyDTO topologyDTO = JsonTestUtil.read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()),
-                TopologyDTO.class).getData();
+        TopologyDTO topologyDTO = JsonTestUtil
+                .read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()), TopologyDTO.class).getData();
         Map<String, PropertyDefinition> inputProperties = topologyDTO.getTopology().getInputs();
         Assert.assertFalse(inputProperties.containsKey(inputId));
     }
@@ -134,8 +137,8 @@ public class InputPropertiesStepDefinitions {
     }
 
     @Then("^I set the property \"([^\"]*)\" of a relationship \"([^\"]*)\" for the node template \"([^\"]*)\" to the input \"([^\"]*)\"$")
-    public void I_set_the_property_of_a_relationship_for_the_node_template_to_the_input(String property, String relationshipTemplateId,
-            String nodeTemplateName, String inputId) throws Throwable {
+    public void I_set_the_property_of_a_relationship_for_the_node_template_to_the_input(String property, String relationshipTemplateId, String nodeTemplateName,
+            String inputId) throws Throwable {
         String fullUrl = String.format("/rest/topologies/%s/nodetemplates/%s/relationship/%s/property/%s/input", Context.getInstance().getTopologyId(),
                 nodeTemplateName, relationshipTemplateId, property);
         List<NameValuePair> nvps = new ArrayList<NameValuePair>();

@@ -20,8 +20,6 @@ public class TopologyTemplateVersionService extends AbtractVersionService<Topolo
     @Resource
     private TopologyServiceCore topologyServiceCore;
     @Resource
-    private TopologyService topologyService;
-    @Resource
     private CsarService csarService;
 
     @PostConstruct

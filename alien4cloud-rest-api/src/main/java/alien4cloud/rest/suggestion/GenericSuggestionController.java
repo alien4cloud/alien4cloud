@@ -19,7 +19,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 
-import com.mangofactory.swagger.annotations.ApiIgnore;
+import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
 @RequestMapping("/rest/suggestions")

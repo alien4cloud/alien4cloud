@@ -14,10 +14,18 @@
     <!-- Property Value -->
     <div ng-if="isStringDisplayType" ng-class="{'property-required' : definition.required}">
       <!-- Case : string -->
-      <span ng-if="!definitionObject.uiPassword && !definitionObject.units && editable" editable-text="definitionObject.uiValue" buttons="no"
-            onbeforesave="propertySave($data)" blur="submit">
-        {{definitionObject.uiValue}}
-        <i class="fa fa-pencil-square-o"></i>
+      <span ng-if="!definitionObject.uiPassword && !definitionObject.units && editable">
+        <span ng-if="!definitionObject.uiPassword && !definitionObject.units && editable  &&!isLongText" editable-text="definitionObject.uiValue" buttons="no"
+              onbeforesave="propertySave($data)" blur="submit">
+          {{definitionObject.uiValue | truncate:20}}
+          <i class="fa fa-pencil-square-o"></i>
+        </span>
+        <span ng-if="!definitionObject.uiPassword && !definitionObject.units && editable && isLongText" editable-textarea="definitionObject.uiValue" buttons="no"
+                      onbeforesave="propertySave($data)" blur="submit">
+          {{definitionObject.uiValue | truncate:20}}
+          <i class="fa fa-pencil-square-o"></i>
+        </span>
+        <span class="fa fa-text-height clickable" ng-click="switchToLongText($event)"></span>
       </span>
       <span ng-if="!definitionObject.uiPassword && definitionObject.units && editable">
         <!-- Property with unit -->
@@ -48,6 +56,10 @@
       <em ng-if="definitionObject.uiPassword && !editable">{{ definitionObject.uiValue | password:'*' }}</em>
 
       <em ng-if="definitionObject.units && definitionObject.uiUnit && !editable">{{definitionObject.uiUnit}}</em>
+      <!-- Reset button for any property definition -->
+      <span id='reset-property-{{propertyName}}' ng-if="editable" class="btn btn-xs pull-right" ng-click="resetProperty();">
+        <i class="fa fa-undo text-default" tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
+      </span>
     </div>
     <div ng-if="!isStringDisplayType" ng-switch="definitionObject.uiName" ng-class="{'property-required' : definition.required}">
 
@@ -86,9 +98,7 @@
         <em ng-if="!editable">{{definitionObject.uiValue}}</em>
       </span>
 
-      <span ng-switch-when="string" id="p_{{propertyName}}" ng-class="{'editable-empty': !definitionObject.uiValue}">
-
-      </span>
+      <span ng-switch-when="string" id="p_{{propertyName}}" ng-class="{'editable-empty': !definitionObject.uiValue}"></span>
 
       <span ng-switch-default id="p_{{propertyName}}" ng-class="{'editable-empty': !definitionObject.uiValue}">
         <!-- Default case (list, map or data type)-->
@@ -97,12 +107,13 @@
 
       <label ng-if="definition.required" tooltip="{{ 'REQUIRED' | translate }}">*</label>
       <!-- Reset button for any property definition -->
-      <span id='reset-property-{{propertyName}}' ng-if="editable" class="btn btn-xs" ng-click="resetProperty();">
+      <span id='reset-property-{{propertyName}}' ng-if="editable" class="btn btn-xs pull-right" ng-click="resetProperty();">
         <i class="fa fa-undo text-default" tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
       </span>
-      <span class="pull-right">
+      <!-- TODO Should we have description here ? if so this should be in string too and removed from topology editor. -->
+      <!-- <span class="pull-right">
         <simple-modal title="{{ 'MODAL.TITLE.META_PROPERTY' | translate}}" content="{{definition.description}}"> </simple-modal>
-      </span>
+      </span> -->
     </div>
   </div>
   <div class="col-md-3" ng-if="deletable">

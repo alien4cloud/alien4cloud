@@ -100,8 +100,10 @@ node_templates:
 
 dependencies:
   - name: tosca-normative-types
-    version: 1.0.0.wd03-SNAPSHOT
+    version: 1.0.0.wd06-SNAPSHOT
   - name: test-types
     version: 1.0-SNAPSHOT
   - name: tomcat-war-types
     version: 2.0.0-SNAPSHOT
+  - name: alien-base-types
+    version: 1.0-SNAPSHOT

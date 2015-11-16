@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.http.Header;
 import org.apache.http.NameValuePair;
@@ -263,52 +264,54 @@ public class ApplicationsDeploymentStepDefinitions {
         }
     }
 
-    @Then("^I should not get a deployment if I ask one for application \"([^\"]*)\" on cloud \"([^\"]*)\"$")
-    public void I_should_not_get_a_deployment_if_I_ask_one_for_application(String applicationName, String cloudName) throws Throwable {
-        String cloudId = Context.getInstance().getCloudId(cloudName);
+    @Then("^I should not get a deployment if I ask one for application \"([^\"]*)\" on orchestrator \"([^\"]*)\"$")
+    public void I_should_not_get_a_deployment_if_I_ask_one_for_application(String applicationName, String orchestrator) throws Throwable {
+        String orchestratorId = Context.getInstance().getOrchestratorId(orchestrator);
         assertNotNull(ApplicationStepDefinitions.CURRENT_APPLICATIONS);
         Application app = ApplicationStepDefinitions.CURRENT_APPLICATIONS.get(applicationName);
-        NameValuePair nvp = new BasicNameValuePair("applicationId", app.getId());
-        NameValuePair nvp1 = new BasicNameValuePair("cloudId", cloudId);
-        Context.getRestClientInstance().getUrlEncoded("/rest/deployments", Lists.newArrayList(nvp, nvp1));
-        RestResponse<?> response = JsonUtil.read(Context.getInstance().getRestResponse());
+        NameValuePair nvp = new BasicNameValuePair("sourceId", app.getId());
+        NameValuePair nvp1 = new BasicNameValuePair("orchestratorId", orchestratorId);
+        String responseString = Context.getRestClientInstance().getUrlEncoded("/rest/deployments", Lists.newArrayList(nvp, nvp1));
+        RestResponse<?> response = JsonUtil.read(responseString);
         assertNull(response.getError());
-        assertNull(response.getData());
+        List<DeploymentDTO> deployments = JsonUtil.toList(JsonUtil.toString(response.getData()), DeploymentDTO.class, Application.class,
+                Context.getJsonMapper());
+        Assert.assertTrue(CollectionUtils.isEmpty(deployments));
     }
 
-    @When("^I ask for detailed deployments for cloud \"([^\"]*)\"$")
-    public void I_ask_for_detailed_deployments_for_cloud(String cloudName) throws Throwable {
+    @When("^I ask for detailed deployments for orchestrator \"([^\"]*)\"$")
+    public void I_ask_for_detailed_deployments_for_orchestrator(String orchestratorName) throws Throwable {
         List<NameValuePair> nvps = Lists.newArrayList();
         NameValuePair nvp0 = new BasicNameValuePair("includeAppSummary", "true");
         nvps.add(nvp0);
-        if (cloudName != null) {
-            String cloudId = Context.getInstance().getCloudId(cloudName);
-            NameValuePair nvp1 = new BasicNameValuePair("cloudId", cloudId);
+        if (orchestratorName != null) {
+            String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
+            NameValuePair nvp1 = new BasicNameValuePair("orchestratorId", orchestratorId);
             nvps.add(nvp1);
         }
-
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().getUrlEncoded("/rest/deployments", nvps));
+        String response = Context.getRestClientInstance().getUrlEncoded("/rest/deployments", nvps);
+        Context.getInstance().registerRestResponse(response);
     }
 
-    @When("^I ask for detailed deployments for all cloud$")
-    public void I_ask_for_deployments_for_all_cloud() throws Throwable {
-        I_ask_for_detailed_deployments_for_cloud(null);
+    @When("^I ask for detailed deployments for all orchestrators$")
+    public void I_ask_for_deployments_for_all_orchestrators() throws Throwable {
+        I_ask_for_detailed_deployments_for_orchestrator(null);
     }
 
     @Then("^the response should contains (\\d+) deployments DTO and applications$")
-    public void the_response_should_contains_deployments_DTO_and_applications(int deploymentsCount, DataTable applicationNames) throws Throwable {
+    public void the_response_should_contains_deployments_DTO_and_applications(int deploymentsCount, List<String> applicationNames) throws Throwable {
 
         RestResponse<?> response = JsonUtil.read(Context.getInstance().getRestResponse());
         assertNotNull(response.getData());
-        List<DeploymentDTO> dtoList = JsonUtil.toList(JsonUtil.toString(response.getData()), DeploymentDTO.class, Application.class);
-        assertNotNull(dtoList);
-        assertEquals(deploymentsCount, dtoList.size());
+        List<DeploymentDTO> deployments = JsonUtil.toList(JsonUtil.toString(response.getData()), DeploymentDTO.class, Application.class);
+        assertNotNull(deployments);
+        assertEquals(deploymentsCount, deployments.size());
         String[] expectedNames = null;
-        for (List<String> appName : applicationNames.raw()) {
-            expectedNames = ArrayUtils.add(expectedNames, appName.get(0));
+        for (String appName : applicationNames) {
+            expectedNames = ArrayUtils.add(expectedNames, appName);
         }
         Arrays.sort(expectedNames);
-        String[] actualNames = getApplicationNames(dtoList);
+        String[] actualNames = getApplicationNames(deployments);
         assertArrayEquals(expectedNames, actualNames);
     }
 
