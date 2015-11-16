@@ -1,7 +1,7 @@
 package alien4cloud.rest.deployment;
 
 import java.security.Principal;
-import java.util.Date;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -23,8 +24,7 @@ import alien4cloud.paas.IPaasEventListener;
 import alien4cloud.paas.IPaasEventService;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.AbstractPaaSWorkflowMonitorEvent;
-import alien4cloud.paas.model.DeploymentStatus;
-import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
+import alien4cloud.paas.model.PaaSWorkflowMonitorEvent;
 import alien4cloud.rest.websocket.ISecuredHandler;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
@@ -34,13 +34,11 @@ import alien4cloud.security.model.User;
 
 @Slf4j
 @Component
-public class DeploymentEventHandler implements IPaasEventListener<AbstractMonitorEvent>, ISecuredHandler, InitializingBean {
+public class WorkflowEventHandler implements IPaasEventListener<AbstractMonitorEvent>, ISecuredHandler, InitializingBean {
 
-    private static final String TOPIC_PREFIX = "/topic/deployment-events";
-    private static final String ENV_TOPIC_PREFIX = "/topic/environment-events";
+    private static final String TOPIC_PREFIX = "/topic/workflow-events";
 
     private static final Pattern DESTINATION_PATTERN = Pattern.compile(TOPIC_PREFIX + "/(.*?)(:?/.*)?");
-    private static final Pattern ENV_DESTINATION_PATTERN = Pattern.compile(ENV_TOPIC_PREFIX + "/(.*?)(:?/.*)?");
 
     @Resource
     private IPaasEventService paasEventService;
@@ -58,31 +56,33 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
             log.debug("Send [" + event.getClass().getSimpleName() + "] to [" + topicName + "]: " + event);
         }
         template.convertAndSend(topicName, event);
-
-        if (event instanceof PaaSDeploymentStatusMonitorEvent) {
-
+        if (event instanceof PaaSWorkflowMonitorEvent) {
             Deployment deployment = alienDAO.findById(Deployment.class, event.getDeploymentId());
 
             if (deployment != null) {
-                updateDeploymentStatus(deployment, ((PaaSDeploymentStatusMonitorEvent) event).getDeploymentStatus());
-
-                if (deployment.getEnvironmentId() != null) {
-                    // dispatch an event on the environment topic
-                    topicName = ENV_TOPIC_PREFIX + "/" + deployment.getEnvironmentId();
-                    if (log.isDebugEnabled()) {
-                        log.debug("Send [" + event.getClass().getSimpleName() + "] to [" + topicName + "]: " + event);
-                    }
-                    template.convertAndSend(topicName, event);
+                PaaSWorkflowMonitorEvent pwme = (PaaSWorkflowMonitorEvent)event;
+                if (log.isDebugEnabled()) {
+                    log.debug("Workflow {} started with executionId {} (subkworkflow: {})", pwme.getWorkflowId(), pwme.getExecutionId(), pwme.getSubworkflow());
                 }
+                String workflowId = pwme.getWorkflowId();
+                if (pwme.getSubworkflow() != null) {
+                    workflowId = pwme.getSubworkflow();
+                }
+                updateDeploymentExecutionId(deployment, workflowId, pwme.getExecutionId());
             }
         }
     }
 
-    private void updateDeploymentStatus(Deployment deployment, DeploymentStatus newStatus) {
-        if (DeploymentStatus.UNDEPLOYED.equals(newStatus)) {
-            deployment.setEndDate(new Date());
+    private void updateDeploymentExecutionId(Deployment deployment, String workflowId, String executionId) {
+        if (deployment.getWorkflowExecutions() == null) {
+            Map<String, String> workflowExecutions = Maps.newHashMap();
+            deployment.setWorkflowExecutions(workflowExecutions);
         }
-        alienDAO.save(deployment);
+        String knownExecutionId = deployment.getWorkflowExecutions().get(workflowId);
+        if (knownExecutionId == null || !executionId.equals(knownExecutionId)) {
+            deployment.getWorkflowExecutions().put(workflowId, executionId);
+            alienDAO.save(deployment);
+        }
     }
 
     /**
@@ -111,13 +111,7 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
             String deploymentId = matcher.group(1);
             checkDeploymentAuthorization(authentication, a4cUser, deploymentId);
         } else {
-            matcher = ENV_DESTINATION_PATTERN.matcher(destination);
-            if (matcher.matches()) {
-                String environmentId = matcher.group(1);
-                checkEnvironmentAuthorization(a4cUser, environmentId);
-            } else {
-                throw new IllegalArgumentException("Cannot handle this destination [" + destination + "]");
-            }
+            throw new IllegalArgumentException("Cannot handle this destination [" + destination + "]");
         }
     }
 
@@ -139,26 +133,17 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
         }
     }
 
-    private void checkEnvironmentAuthorization(User a4cUser, String environmentId) {
-        ApplicationEnvironment environment = alienDAO.findById(ApplicationEnvironment.class, environmentId);
-        if (environment == null) {
-            log.error("Environment with id [{}] do not exist any more", environmentId);
-            throw new NotFoundException("Environment with id [" + environmentId + "] do not exist any more");
-        }
-        AuthorizationUtil.checkAuthorization(a4cUser, environment, ApplicationRole.APPLICATION_MANAGER, ApplicationEnvironmentRole.values());
-    }
-
     @Override
     public void eventHappened(AbstractMonitorEvent event) {
         send(event);
         if (log.isTraceEnabled()) {
-            log.trace("Pushed event {} for deployment {}", event, event.getDeploymentId());
+            log.trace("Pushed event {} for workflow {}", event, event.getDeploymentId());
         }
     }
 
     @Override
     public boolean canHandle(AbstractMonitorEvent event) {
-        return AbstractMonitorEvent.class.isAssignableFrom(event.getClass()) && !AbstractPaaSWorkflowMonitorEvent.class.isAssignableFrom(event.getClass());
+        return AbstractPaaSWorkflowMonitorEvent.class.isAssignableFrom(event.getClass());
     }
 
     @Override
