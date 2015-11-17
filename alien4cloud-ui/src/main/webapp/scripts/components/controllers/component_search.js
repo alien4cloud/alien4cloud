@@ -6,12 +6,11 @@ define(function (require) {
 
   require('scripts/tosca/services/tosca_service');
 
-  modules.get('a4c-components', ['a4c-tosca']).controller('alienSearchComponentCtrl', ['$scope', '$filter', 'facetedSearch', 'searchContext', '$resource', 'toscaService', function($scope, $filter, facetedSearch, searchContext, $resource, toscaService) {
+  modules.get('a4c-components', ['a4c-tosca']).controller('alienSearchComponentCtrl', ['$scope', '$filter', 'searchContext', '$resource', 'toscaService', 'searchServiceFactory', function($scope, $filter, searchContext, $resource, toscaService, searchServiceFactory) {
     var alienInternalTags = ['icon'];
-    /** pagination handlers */
-    $scope.pagination = {};
-    $scope.pagination.maxItemsPerPage = 20;
-    $scope.pagination.maxSize = 10;
+
+    $scope.searchService = searchServiceFactory('rest/components/search', false, $scope, 20, 10);
+    $scope.searchService.filtered(true);
 
     /** Used to display the correct text in UI */
     $scope.getFormatedFacetValue = function(term, value) {
@@ -41,18 +40,6 @@ define(function (require) {
       }
     }
 
-    //update paginations vars
-    function updatePagination() {
-      if(_.defined($scope.searchResult.data)) {
-        $scope.pagination.totalItems = $scope.searchResult.data.totalResults;
-      }
-    }
-
-    function resetPagination() {
-      $scope.pagination.from = 0;
-      $scope.currentPage = 1;
-    }
-
     $scope.setComponent = function(component) {
       $scope.detailComponent = component;
     };
@@ -64,16 +51,15 @@ define(function (require) {
 
     //bind the scope search vars to the searchContext service
     if ($scope.globalContext) {
-      $scope.searchedKeyword = searchContext.searchedKeyword;
+      $scope.query = searchContext.query;
       $scope.facetFilters = searchContext.facetFilters;
     } else {
-      $scope.searchedKeyword = '';
+      $scope.query = '';
       $scope.facetFilters = [];
     }
 
-
     /*update a search*/
-    function updateSearch(keyword, filters) {
+    function updateSearch(filters) {
 
       /*
        Search api expect a json object matching the following pattern:
@@ -100,31 +86,30 @@ define(function (require) {
       });
 
       var searchRequestObject = {
-        'type': $scope.queryComponentType,
-        'query': keyword,
-        'filters': objectFilters,
-        'from': $scope.pagination.from,
-        'size': $scope.pagination.maxItemsPerPage
+        'type': $scope.queryComponentType
       };
-
-      // Gather search result
-      $scope.searchResult = facetedSearch.search([], angular.toJson(searchRequestObject));
-      //wait for the asynchronous request to finish. If successful then...
-      $scope.searchResult.$promise.then(updatePagination);
+      $scope.filters = objectFilters;
+      $scope.searchService.search(null, searchRequestObject);
     }
 
-    /*trigger a new search, when params are changed. Reset the pagination also*/
+    /*trigger a new search, when params are changed*/
     $scope.doSearch = function() {
-      resetPagination();
       var allFacetFilters = [];
       allFacetFilters.push.apply(allFacetFilters, $scope.facetFilters);
       if (angular.isDefined($scope.hiddenFilters)) {
         allFacetFilters.push.apply(allFacetFilters, $scope.hiddenFilters);
       }
-      updateSearch($scope.searchedKeyword, allFacetFilters);
-      // Handling facets
-      $scope.searchResultFacets = $scope.searchResult.facets;
-      $scope.detailComponent = null;
+      updateSearch(allFacetFilters);
+    };
+
+    //on search completed
+    $scope.onSearchCompleted = function(searchResult) {
+      if(_.undefined(searchResult.error)){
+        $scope.searchResult = searchResult.data;
+        $scope.detailComponent = null;
+      }else{
+        console.log('error when searching...', searchResult.error);
+      }
     };
 
     // Getting full search result from /data folder
@@ -170,13 +155,6 @@ define(function (require) {
       // Reset all filters
       $scope.facetFilters.splice(0, $scope.facetFilters.length);
       $scope.doSearch();
-    };
-
-    //when selecting a page to display
-    $scope.pagination.onSelectPage = function(page) {
-      $scope.pagination.from = (page - 1) * $scope.pagination.maxItemsPerPage;
-      updateSearch($scope.searchedKeyword, $scope.facetFilters);
-      $scope.detailComponent = null;
     };
 
     /** check if this component is default for a capability */
@@ -247,9 +225,5 @@ define(function (require) {
       }
     };
 
-    //// Init : by default, don't display abastract components on topology view
-    //if (!$scope.globalContext) {
-    //  $scope.addFilter('abstract', 'F');
-    //}
   }]); // controller
 }); // define

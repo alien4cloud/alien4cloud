@@ -7,8 +7,8 @@ define(function (require) {
 
   require('scripts/common/services/search_services'); // make sure that we have the search services loaded.
 
-  modules.get('a4c-auth', ['a4c-search']).factory('quickSearchServices', ['facetedSearch', '$state','$resource',
-    function(facetedSearch, $state, $resource ) {
+  modules.get('a4c-auth', ['a4c-search']).factory('quickSearchServices', ['$state','$resource',
+    function($state, $resource ) {
       var quickSearchResource = $resource('rest/quicksearch', {}, {
         'search': {
           method : 'POST',
