@@ -1,0 +1,50 @@
+{
+  "id": "admin-hopscotch",
+  "i18n": {
+    "nextBtn": "次へ",
+    "prevBtn": "戻る",
+    "doneBtn": "終了",
+    "closeTooltip": "ツアーの終わり"
+  },
+  "steps": [{
+    "title": "Alien 4 Cloudの設定",
+    "content": "ユーザ、プラグイン、モニターなどの設定はここをクリック",
+    "target": "menu.admin",
+    "placement": "bottom"
+  }, {
+    "title": "ユーザの設定",
+    "content": "ユーザ、グループおよびロールの設定はここをクリック",
+    "target": "am.admin.users",
+    "placement": "right"
+  }, {
+    "title": "プラグインの設定はここ...",
+    "content": "プラグインの追加/削除および設定はここをクリック。プラグインは、オーケストレータの設定に必須です。また、少なくとも１つのPaaSプロバイダプラグインが必要です。",
+    "target": "am.admin.plugins",
+    "placement": "right"
+  }, {
+    "title": "そして、ここでは...",
+    "content": "左のメニューボタンと同じ主な管理ページのリンクを使うことができます。",
+    "target": "homepage.am.admin.plugins",
+    "placement": "bottom"
+  }, {
+    "title": "オーケストレータの設定",
+    "content": "PaaSプロバイダプラグインと関連するオーケストレータの作成はここをクリック",
+    "target": "menu.orchestrators",
+    "placement": "right"
+  }, {
+    "title": "オプション : メタプロパティ",
+    "content": "メタプロパティは、アプリケーションやコンポーネントに管理者によって追加で必要となるプロパティです。管理用途で利用します。",
+    "target": "am.admin.metaprops",
+    "placement": "right"
+  }, {
+    "title": "モニタリング : A4C metrics",
+    "content": "Alien 4 Cloud の動作上の情報 (memory, cpu,...)",
+    "target": "homepage.am.admin.metrics",
+    "placement": "bottom"
+  }, {
+    "title": "モニタリング : 操作ログ",
+    "content": "操作に関する情報をチェック (category, http request, author,...)",
+    "target": "homepage.am.admin.audit",
+    "placement": "bottom"
+  }]
+}
