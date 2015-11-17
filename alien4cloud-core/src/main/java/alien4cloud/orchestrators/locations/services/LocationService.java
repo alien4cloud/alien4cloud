@@ -26,6 +26,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
@@ -117,6 +118,18 @@ public class LocationService {
 
         Set<CSARDependency> dependencies = locationArchiveIndexer.indexArchives(orchestrator, location);
         location.setDependencies(dependencies);
+
+        //initialize meta properties
+        location.setMetaProperties(Maps.<String, String> newHashMap());        
+        //add existing meta properties to the cloud
+        GetMultipleDataResult<MetaPropConfiguration > result = alienDAO.find(MetaPropConfiguration.class, null, Integer.MAX_VALUE);
+        for (MetaPropConfiguration element : result.getData()) {
+            if (element.getTarget().toString().equals("cloud")) {
+            	location.setMetaProperties(Maps.<String, String> newHashMap());
+            	location.getMetaProperties().put(element.getId(), element.getDefault());
+	            log.debug("Adding meta property <{}> to the new location <{}> ", element.getName(), location.getName());
+        	}
+        }   
 
         // save the new location
         alienDAO.save(location);
