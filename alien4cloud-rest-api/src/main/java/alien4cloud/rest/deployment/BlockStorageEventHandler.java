@@ -1,5 +1,7 @@
 package alien4cloud.rest.deployment;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -15,9 +17,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.components.*;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.topology.NodeTemplate;
@@ -55,23 +55,28 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
     }
 
     private void processBlockStorageEvent(PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent) {
-        if (StringUtils.isBlank(persistentResourceEvent.getPropertyValue())) {
+        if (persistentResourceEvent.getPropertyValue() == null
+                || (persistentResourceEvent.getPropertyValue() instanceof String && StringUtils.isBlank((String) persistentResourceEvent.getPropertyValue()))) {
             return;
         }
 
         DeploymentTopology runtimeTopo = alienMonitorDao.findById(DeploymentTopology.class, persistentResourceEvent.getDeploymentId());
-        String volumeIdss = getAggregatedVolumeIds(runtimeTopo, persistentResourceEvent);
 
-        if (StringUtils.isBlank(volumeIdss)) {
-            return;
+        Object propertyValue = persistentResourceEvent.getPropertyValue();
+        if (propertyValue instanceof String) {
+            propertyValue = getAggregatedVolumeIds(runtimeTopo, persistentResourceEvent.getNodeTemplateId(), persistentResourceEvent.getPropertyName(),
+                    (String) propertyValue);
+
+            if (StringUtils.isBlank((String) propertyValue)) {
+                return;
+            }
         }
 
-        updateRuntimeTopology(runtimeTopo, persistentResourceEvent, volumeIdss);
-        updateApplicationTopology(persistentResourceEvent, volumeIdss);
-
+        updateRuntimeTopology(runtimeTopo, persistentResourceEvent, propertyValue);
+        updateApplicationTopology(persistentResourceEvent, propertyValue);
     }
 
-    private void updateApplicationTopology(PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent, final String volumeIds) {
+    private void updateApplicationTopology(PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent, final Object propertyValue) {
         Deployment deployment = deploymentService.get(persistentResourceEvent.getDeploymentId());
 
         String deploymentTopologyId = DeploymentTopology.generateId(deployment.getVersionId(), deployment.getEnvironmentId());
@@ -88,66 +93,79 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
         }
 
         AbstractPropertyValue abstractPropertyValue = nodeTemplate.getProperties().get(persistentResourceEvent.getPropertyName());
-        if (abstractPropertyValue == null || abstractPropertyValue instanceof ScalarPropertyValue) { // the value is set in the topology
-            log.info("Updating application topology: Persistent resource node template <{}.{}> to add a value", deploymentTopology.getId(),
-                    persistentResourceEvent.getNodeTemplateId());
-            log.debug("Value to add: <{}>. New value is <{}>", persistentResourceEvent.getPropertyValue(), volumeIds);
-            nodeTemplate.getProperties().put(persistentResourceEvent.getPropertyName(), new ScalarPropertyValue(volumeIds));
-        } else {
+        if (abstractPropertyValue != null && abstractPropertyValue instanceof FunctionPropertyValue) { // the value is set in the topology
             FunctionPropertyValue function = (FunctionPropertyValue) abstractPropertyValue;
-            if (function.getFunction().equals(ToscaFunctionConstants.GET_INPUT)) {
+            if (function.getFunction().equals(ToscaFunctionConstants.GET_INPUT) && propertyValue instanceof String) {
                 // the value is set in the input (deployment setup)
                 log.info("Updating deploymentsetup <{}> input properties <{}> to add a new VolumeId", deploymentTopology.getId(), function.getTemplateName());
-                log.debug("VolumeId to add: <{}>. New value is <{}>", persistentResourceEvent.getPropertyValue(), volumeIds);
-                deploymentTopology.getInputProperties().put(function.getTemplateName(), volumeIds);
+                log.debug("VolumeId to add: <{}>. New value is <{}>", persistentResourceEvent.getPropertyValue(), propertyValue);
+                deploymentTopology.getInputProperties().put(function.getTemplateName(), (String) propertyValue);
             } else {
                 // this is not supported / print a warning
                 log.warn("Failed to store the id of the created block storage <{}> for deployment <{}> application <{}> environment <{}>");
                 return;
             }
+        } else {
+            log.info("Updating application topology: Persistent resource node template <{}.{}> to add a value", deploymentTopology.getId(),
+                    persistentResourceEvent.getNodeTemplateId());
+            log.debug("Value to add: <{}>. New value is <{}>", persistentResourceEvent.getPropertyValue(), propertyValue);
+            nodeTemplate.getProperties().put(persistentResourceEvent.getPropertyName(), getPropertyValue(propertyValue));
         }
         alienDAO.save(deploymentTopology);
 
     }
 
-    private void updateRuntimeTopology(DeploymentTopology runtimeTopo, PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent, String volumeIds) {
+    private void updateRuntimeTopology(DeploymentTopology runtimeTopo, PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent,
+            Object propertyValue) {
         NodeTemplate nodeTemplate = topoServiceCore.getNodeTemplate(runtimeTopo, persistentResourceEvent.getNodeTemplateId());
         log.info("Updating Runtime topology: Storage NodeTemplate <{}.{}> to add a new volumeId", runtimeTopo.getId(),
                 persistentResourceEvent.getNodeTemplateId());
-        nodeTemplate.getProperties().put(persistentResourceEvent.getPropertyName(), new ScalarPropertyValue(volumeIds));
-        log.debug("VolumeId to add: <{}>. New value is <{}>", persistentResourceEvent.getPropertyValue(), volumeIds);
+        nodeTemplate.getProperties().put(persistentResourceEvent.getPropertyName(), getPropertyValue(propertyValue));
+        log.debug("VolumeId to add: <{}>. New value is <{}>", persistentResourceEvent.getPropertyValue(), propertyValue);
         alienMonitorDao.save(runtimeTopo);
     }
 
-    private String getAggregatedVolumeIds(DeploymentTopology topology, PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent) {
+    private PropertyValue getPropertyValue(Object propertyValue) {
+        if (propertyValue instanceof String) {
+            return new ScalarPropertyValue((String) propertyValue);
+        } else if (propertyValue instanceof Map) {
+            return new ComplexPropertyValue((Map<String, Object>) propertyValue);
+        } else if (propertyValue instanceof List) {
+            return new ListPropertyValue((List<Object>) propertyValue);
+        }
+        log.error("Property value should be a string, a map or a list.", propertyValue);
+        return null;
+    }
+
+    private String getAggregatedVolumeIds(DeploymentTopology topology, String nodeTemplateId, String propertyName, String propertyValue) {
         NodeTemplate nodeTemplate;
         try {
-            nodeTemplate = topoServiceCore.getNodeTemplate(topology, persistentResourceEvent.getNodeTemplateId());
+            nodeTemplate = topoServiceCore.getNodeTemplate(topology, nodeTemplateId);
         } catch (NotFoundException e) {
-            log.warn("Fail to update volumeIds for node " + persistentResourceEvent.getNodeTemplateId(), e);
+            log.warn("Fail to update volumeIds for node " + nodeTemplateId, e);
             return null;
         }
 
-        AbstractPropertyValue abstractPropertyValue = nodeTemplate.getProperties().get(persistentResourceEvent.getPropertyName());
+        AbstractPropertyValue abstractPropertyValue = nodeTemplate.getProperties().get(propertyName);
         if (abstractPropertyValue instanceof ScalarPropertyValue) { // the value is set in the topology
             String volumeIds = ((ScalarPropertyValue) abstractPropertyValue).getValue();
-            return getAggregatedVolumeIds(volumeIds, persistentResourceEvent);
+            return getAggregatedValues(volumeIds, propertyValue);
         }
-        return persistentResourceEvent.getPropertyValue();
+        return propertyValue;
     }
 
-    private String getAggregatedVolumeIds(String volumeIds, PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent) {
+    private String getAggregatedValues(String volumeIds, String propertyValue) {
         if (volumeIds == null) {
             volumeIds = "";
         }
         Set<String> existingVolumes = Sets.newHashSet(volumeIds.split(","));
-        if (existingVolumes.contains(persistentResourceEvent.getPropertyValue())) {
+        if (existingVolumes.contains(propertyValue)) {
             return null;
         }
         if (StringUtils.isBlank(volumeIds)) {
-            volumeIds = persistentResourceEvent.getPropertyValue();
+            volumeIds = propertyValue;
         } else {
-            volumeIds = volumeIds + "," + persistentResourceEvent.getPropertyValue();
+            volumeIds = volumeIds + "," + propertyValue;
         }
         return volumeIds;
     }
