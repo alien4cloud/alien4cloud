@@ -237,6 +237,7 @@ public class TopologyController {
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         isUniqueNodeTemplateName(topologyId, newNodeTemplateName, nodeTemplates);
 
+        nodeTemplate.setName(newNodeTemplateName);
         nodeTemplates.put(newNodeTemplateName, nodeTemplate);
         nodeTemplates.remove(nodeTemplateName);
         refreshNodeTempNameInRelationships(nodeTemplateName, newNodeTemplateName, nodeTemplates);
