@@ -17,7 +17,12 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.*;
+import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.ComplexPropertyValue;
+import alien4cloud.model.components.FunctionPropertyValue;
+import alien4cloud.model.components.ListPropertyValue;
+import alien4cloud.model.components.PropertyValue;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.topology.NodeTemplate;
@@ -106,8 +111,8 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
                 return;
             }
         } else {
-            log.info("Updating application topology: Persistent resource node template <{}.{}> to add a value", deploymentTopology.getId(),
-                    persistentResourceEvent.getNodeTemplateId());
+            log.info("Updating application topology: Persistent resource property <{}> for node template <{}.{}> to add a value",
+                    persistentResourceEvent.getPropertyName(), deploymentTopology.getId(), persistentResourceEvent.getNodeTemplateId());
             log.debug("Value to add: <{}>. New value is <{}>", persistentResourceEvent.getPropertyValue(), propertyValue);
             nodeTemplate.getProperties().put(persistentResourceEvent.getPropertyName(), getPropertyValue(propertyValue));
         }
@@ -115,8 +120,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
 
     }
 
-    private void updateRuntimeTopology(DeploymentTopology runtimeTopo, PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent,
-            Object propertyValue) {
+    private void updateRuntimeTopology(DeploymentTopology runtimeTopo, PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent, Object propertyValue) {
         NodeTemplate nodeTemplate = topoServiceCore.getNodeTemplate(runtimeTopo, persistentResourceEvent.getNodeTemplateId());
         log.info("Updating Runtime topology: Storage NodeTemplate <{}.{}> to add a new volumeId", runtimeTopo.getId(),
                 persistentResourceEvent.getNodeTemplateId());
