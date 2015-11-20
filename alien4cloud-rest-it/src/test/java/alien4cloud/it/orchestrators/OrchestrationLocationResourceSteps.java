@@ -2,6 +2,7 @@ package alien4cloud.it.orchestrators;
 
 import java.util.List;
 
+import alien4cloud.model.components.ComplexPropertyValue;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
@@ -67,6 +68,18 @@ public class OrchestrationLocationResourceSteps {
         request.setPropertyName(propertyName);
         request.setPropertyValue(propertyValue);
         String resp = Context.getRestClientInstance().postJSon(restUrl, JsonUtil.toString(request));
+        Context.getInstance().registerRestResponse(resp);
+    }
+
+    @When("^I update the property complexe \"([^\"]*)\" to \"([^\"]*)\" of \"([^\"]*)\" for the resource named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
+    public void I_update_the_property_complexe_to_of_for_the_resource_named_related_to_the_location_(String propertyComplexeName, String propertyValue, String propertyName, String resourceName,
+                                                                                         String orchestratorName, String locationName) throws Throwable {
+        String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
+        String locationId = Context.getInstance().getLocationId(orchestratorId, locationName);
+        String resourceId = Context.getInstance().getLocationResourceId(orchestratorId, locationId, resourceName);
+        String restUrl = String.format("/rest/orchestrators/%s/locations/%s/resources/%s/template/properties", orchestratorId, locationId, resourceId);
+        String request = String.format("{\"propertyName\":\"%s\",\"propertyValue\":{\"%s\":\"%s\"}}", propertyName, propertyComplexeName, propertyValue);
+        String resp = Context.getRestClientInstance().postJSon(restUrl, request);
         Context.getInstance().registerRestResponse(resp);
     }
 

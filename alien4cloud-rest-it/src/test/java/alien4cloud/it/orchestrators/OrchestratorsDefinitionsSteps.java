@@ -71,6 +71,13 @@ public class OrchestratorsDefinitionsSteps {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/orchestrators/" + orchestratorId + "/instance"));
     }
 
+    @When("^I disable all orchestrators$")
+    public void I_disable_all_orchestrators() throws Throwable {
+        for (String orchestratorId : Context.getInstance().getCloudsIds()) {
+            Context.getRestClientInstance().delete("/rest/orchestrators/" + orchestratorId + "/instance");
+        }
+    }
+
     @When("^I update orchestrator name from \"([^\"]*)\" to \"([^\"]*)\"$")
     public void I_update_orchestrator_name_from_to(String oldName, String newName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(oldName);
