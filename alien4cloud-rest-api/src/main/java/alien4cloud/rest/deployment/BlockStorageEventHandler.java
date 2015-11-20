@@ -111,7 +111,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
                 return;
             }
         } else {
-            log.info("Updating application topology: Persistent resource property <{}> for node template <{}.{}> to add a value",
+            log.info("Updating deployment topology: Persistent resource property <{}> for node template <{}.{}> to add a value",
                     persistentResourceEvent.getPropertyName(), deploymentTopology.getId(), persistentResourceEvent.getNodeTemplateId());
             log.debug("Value to add: <{}>. New value is <{}>", persistentResourceEvent.getPropertyValue(), propertyValue);
             nodeTemplate.getProperties().put(persistentResourceEvent.getPropertyName(), getPropertyValue(propertyValue));
