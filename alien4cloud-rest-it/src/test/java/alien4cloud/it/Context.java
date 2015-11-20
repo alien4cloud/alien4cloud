@@ -619,7 +619,7 @@ public class Context {
     }
 
     public String getCloudify3ManagerUrl() {
-        return "http://" + getManagementServerPublicIp("openstack.cfy3.manager_name") + ":8100";
+        return "http://" + getManagementServerPublicIp("openstack.cfy3.manager_name");
     }
 
     public String getCloudify2ManagerUrl() {
