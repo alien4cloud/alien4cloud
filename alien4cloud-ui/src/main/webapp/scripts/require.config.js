@@ -35,7 +35,6 @@ require.config({
     'stomp': 'bower_components/stomp-websocket/lib/stomp',
     'd3': 'bower_components/d3/d3',
     'd3-tip': 'bower_components/d3-tip/index',
-//    'dagre-d3': 'js-lib/dagre-d3.core',
     'dagre': 'bower_components/dagre/dist/dagre.core',
     'dagre-d3': 'bower_components/dagre-d3/dist/dagre-d3.core',
     'd3-pie': 'bower_components/d3pie/d3pie/d3pie',
@@ -64,6 +63,7 @@ require.config({
     'angular-ui-ace': { deps: ['angular', 'ace'] },
     'angular-tree-control': { deps: ['angular'] },
     'stomp':  { deps: ['sockjs'] },
+    'graphlib': { deps: ['lodash-base'] },
     'dagre': { deps: ['graphlib'] },
     'dagre-d3': { deps: ['lodash-base', 'graphlib', 'dagre', 'd3'] },
     'd3-pie': { deps: ['d3'] }
