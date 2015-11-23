@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import alien4cloud.rest.deployment.DeploymentTopologyDTO;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -260,6 +261,7 @@ public class ApplicationsDeploymentStepDefinitions {
                 log.info(env.getKey() + "/" + env.getValue());
                 log.info("ENVIRONMENT to undeploy : {} - {}", env.getKey(), env.getValue());
                 Context.getRestClientInstance().delete("/rest/applications/" + application.getId() + "/environments/" + env.getValue() + "/deployment");
+                assertStatus(application.getName(), DeploymentStatus.UNDEPLOYED, DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS, 10 * 60L * 1000L, null);
             }
         }
     }
@@ -291,6 +293,14 @@ public class ApplicationsDeploymentStepDefinitions {
         }
         String response = Context.getRestClientInstance().getUrlEncoded("/rest/deployments", nvps);
         Context.getInstance().registerRestResponse(response);
+    }
+
+    @When("^I ask for the deployment topology of the application \"([^\"]*)\"$")
+    public void I_ask_for_the_deployment_topology_of_the_application(String applicationName) throws Throwable {
+        String appId = Context.getInstance().getApplicationId(applicationName);
+        String environmentId = Context.getInstance().getApplicationEnvironmentId(applicationName, "Environment");
+        String restUrl = String.format("/rest/applications/%s/environments/%s/deployment-topology", appId, environmentId);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get(restUrl));
     }
 
     @When("^I ask for detailed deployments for all orchestrators$")
