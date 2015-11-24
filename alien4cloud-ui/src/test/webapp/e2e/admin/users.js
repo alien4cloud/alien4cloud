@@ -1,23 +1,8 @@
-/* global element, by */
+/* global by */
 
 'use strict';
 
 var common = require('../common/common');
-var navigation = require('../common/navigation');
-
-function navigationUsers() {
-  navigation.go('main', 'admin');
-  navigation.go('admin', 'users');
-}
-module.exports.navigationUsers = navigationUsers;
-
-function navigationGroups() {
-  navigation.go('main', 'admin');
-  navigation.go('admin', 'users');
-  element(by.id('groups-tab')).element(by.tagName('a')).click();
-  browser.waitForAngular();
-}
-module.exports.navigationGroups = navigationGroups;
 
 module.exports.groups = {
   architects: {
@@ -43,60 +28,66 @@ module.exports.groups = {
   }
 };
 
+function go() {
+  common.click(by.id('menu.admin'));
+  common.click(by.id('am.admin.users'));
+}
+module.exports.go = go;
+
+function goToGroups() {
+  go();
+  var groupTab = common.element(by.id('groups-tab'));
+  common.click(by.tagName('a'), groupTab);
+}
+module.exports.goToGroups = goToGroups;
+
 module.exports.createUser = function(userInfos) {
-  navigationUsers();
+  go();
+  // Open the creation modal
+  common.click(by.binding('USERS.NEW'));
 
-  // Can add a new user
-  var btnNewUser = browser.element(by.binding('USERS.NEW'));
-  browser.actions().click(btnNewUser).perform();
-
-  element(by.model('user.username')).sendKeys(userInfos.username);
-  element(by.model('user.password')).sendKeys(userInfos.password);
-  element(by.model('confirmPwd')).sendKeys(userInfos.password);
+  // Fill form data
+  common.sendKeys(by.model('user.username'), userInfos.username);
+  common.sendKeys(by.model('user.password'), userInfos.password);
+  common.sendKeys(by.model('confirmPwd'), userInfos.password);
   if (userInfos.firstName) {
-    element(by.model('user.firstName')).sendKeys(userInfos.firstName);
+    common.sendKeys(by.model('user.firstName'), userInfos.firstName);
   }
   if (userInfos.lastName) {
-    element(by.model('user.lastName')).sendKeys(userInfos.lastName);
+    common.sendKeys(by.model('user.lastName'), userInfos.lastName);
   }
   if (userInfos.email) {
-    element(by.model('user.email')).sendKeys(userInfos.email);
+    common.sendKeys(by.model('user.email'), userInfos.email);
   }
 
-  // Create a user
-  var btnCreate = browser.element(by.binding('CREATE'));
-  browser.actions().click(btnCreate).perform();
-  browser.waitForAngular();
-};
-
-module.exports.createGroup = function(groupInfos) {
-  navigationGroups();
-
-  // Can add a new group
-  var btnNewGroup = browser.element(by.binding('GROUPS.NEW'));
-  browser.actions().click(btnNewGroup).perform();
-
-  element(by.model('group.name')).sendKeys(groupInfos.name);
-  if (groupInfos.email) {
-    element(by.model('group.email')).sendKeys(groupInfos.email);
-  }
-  if (groupInfos.desc) {
-    element(by.model('group.description')).sendKeys(groupInfos.desc);
-  }
-  // Create a group
-  var btnCreate = browser.element(by.binding('CREATE'));
-  browser.actions().click(btnCreate).perform();
-  browser.waitForAngular();
-};
-
-module.exports.deleteGroup = function(groupName) {
-  navigationGroups();
-
-  common.deleteWithConfirm('group_' + groupName + '_delete', true);
+  // Create
+  common.click(by.binding('CREATE'));
 };
 
 module.exports.deleteUser = function(userName) {
-  navigationUsers();
-
+  go();
   common.deleteWithConfirm('user_' + userName + '_delete', true);
+};
+
+module.exports.createGroup = function(groupInfos) {
+  goToGroups();
+
+  // Open the creation modal
+  common.click(by.binding('GROUPS.NEW'));
+
+  // Fill form data
+  common.sendKeys(by.model('group.name'), groupInfos.name);
+  if (groupInfos.email) {
+    common.sendKeys(by.model('group.email'), groupInfos.email);
+  }
+  if (groupInfos.desc) {
+    common.sendKeys(by.model('group.description'), groupInfos.desc);
+  }
+  // Create
+  common.click(by.binding('CREATE'));
+};
+
+module.exports.deleteGroup = function(groupName) {
+  goToGroups();
+  common.deleteWithConfirm('group_' + groupName + '_delete', true);
 };

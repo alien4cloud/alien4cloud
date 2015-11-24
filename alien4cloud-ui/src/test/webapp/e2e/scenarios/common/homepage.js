@@ -1,17 +1,19 @@
+/* global describe, it, expect, browser */
+
 'use strict';
 
+var setup = require('../../common/setup');
 var common = require('../../common/common');
-var SCREENSHOT = require('../../common/screenshot');
+var screenshot = require('../../common/screenshot');
 
 describe('Homepage', function() {
-  // Load up a view and wait for it to be done with its rendering and epicycles.
-  beforeEach(function() {
-    common.before();
-  });
+  it('beforeAll', function() { setup.setup(); });
 
-  // All tests
-  it('should have `ALIEN 4 Cloud` as title', function() {
-    SCREENSHOT.takeScreenShot('main-homepage');
+  it('should have `ALIEN 4 Cloud` as page title', function() {
+    console.log('################# should have `ALIEN 4 Cloud` as page title');
+
+    screenshot.take('main-homepage');
+    common.home();
     expect(browser.getTitle()).toEqual('ALIEN 4 Cloud');
   });
 });

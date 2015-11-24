@@ -1,38 +1,31 @@
-/* global element, by */
+/* global by, element, describe, it, expect */
 
 'use strict';
 
-var authentication = require('../../authentication/authentication');
+var setup = require('../../common/setup');
 var common = require('../../common/common');
+var authentication = require('../../authentication/authentication');
 var genericForm = require('../../generic_form/generic_form');
-var pluginsCommon = require('../../admin/plugins_common');
-var cloudsCommon = require('../../admin/clouds_common');
+var plugins = require('../../admin/plugins');
 
 var pluginId = 'plugin_alien4cloud-mock-paas-provider:1.0';
 var pluginName = 'alien4cloud-mock-paas-provider';
 
 describe('Upload and handle paas plugins', function() {
-
-  /* Before each spec in the tests suite */
-  beforeEach(function() {
-    common.before();
+  it('beforeAll', function() {
+    setup.setup();
+    common.home();
     authentication.login('admin');
   });
 
-  /* After each spec in the tests suite(s) */
-  afterEach(function() {
-    authentication.logout();
-  });
-
-  // All tests
   it('should be able to go on plugins list page with ADMIN role', function() {
-    pluginsCommon.goToPluginsPage();
+    plugins.go();
+    // TODO we should check here that we are on the right page.
   });
 
   it('should be able to upload plugins mock paas archive from fresh mock jar build', function() {
-
     // upload mock paas plugin
-    pluginsCommon.pluginsUploadInit();
+    plugins.pluginsUploadInit();
 
     // check plugin list content
     var results = element.all(by.repeater('plugin in data.data'));
@@ -48,17 +41,13 @@ describe('Upload and handle paas plugins', function() {
   });
 
   it('should be able to configure uploaded plugin', function() {
-
     // upload mock paas plugin
-    pluginsCommon.pluginsUploadInit();
+    plugins.pluginsUploadInit();
 
-    var configureButton = browser.element(by.id(pluginId + '_configure'));
-    browser.actions().click(configureButton).perform();
+    common.click(by.id(pluginId + '_configure'));
 
     genericForm.sendValueToPrimitive('firstArgument', 'myVeryFirstArgument', false, 'xeditable');
-
     genericForm.sendValueToPrimitive('secondArgument', 'mySecondArgument', false, 'xeditable');
-
     genericForm.sendValueToPrimitive('javaVersion', '1.7', false, 'tosca');
 
     var cpuProperty = {
@@ -98,67 +87,35 @@ describe('Upload and handle paas plugins', function() {
 
     genericForm.saveForm();
 
-    configureButton = browser.element(by.id(pluginId + '_configure'));
-    browser.waitForAngular();
-    browser.actions().click(configureButton).perform();
-    browser.waitForAngular();
+    common.click(by.id(pluginId + '_configure'));
     genericForm.expectValueFromPrimitive('firstArgument', 'myVeryFirstArgument', 'xeditable');
     genericForm.expectValueFromPrimitive('secondArgument', 'mySecondArgument', 'xeditable');
     genericForm.expectValueFromPrimitive('javaVersion', '1.7', 'tosca');
     genericForm.expectValueFromMap('properties', 'cpu', cpuProperty, cpuPropertyElementType);
     genericForm.expectValueFromArray('tags', tags, tagsElementType);
-    browser.actions().click(browser.element(by.binding('GENERIC_FORM.CANCEL'))).perform();
-    browser.waitForAngular();
+
+    common.click(by.binding('GENERIC_FORM.CANCEL'));
   });
 
   it('shoud be able to drop a plugin when it\'s not used by a another resource', function() {
     console.log('################# shoud be able to drop a plugin when it\'s not used by a another resource');
-    // go on plugin list page
-    pluginsCommon.goToPluginsPage();
-
     // upload mock paas plugin
-    pluginsCommon.pluginsUploadInit();
+    plugins.pluginsUploadInit();
 
     var mockPluginId = 'plugin_alien4cloud-mock-paas-provider:1.0';
     var mockPluginLine = element(by.id(mockPluginId));
     common.deleteWithConfirm('delete-' + mockPluginId, true);
     expect(mockPluginLine.isPresent()).toBe(false);
-
   });
 
   it('should be able to cancel the plugin deletion', function() {
     console.log('################# should be able to cancel the plugin deletion');
-    pluginsCommon.goToPluginsPage();
-    pluginsCommon.pluginsUploadInit();
+    plugins.pluginsUploadInit();
     var mockPluginId = 'plugin_alien4cloud-mock-paas-provider:1.0';
     var mockPluginLine = element(by.id(mockPluginId));
     common.deleteWithConfirm('delete-' + mockPluginId, false);
     expect(mockPluginLine.isPresent()).toBe(true);
   });
 
-
-  it('should have an error when trying to activate a cloud without a good configuration', function() {
-    console.log('################# should have an error when trying to activate a cloud without a good configuration');
-    pluginsCommon.pluginsUploadInit();
-    cloudsCommon.goToCloudList();
-    cloudsCommon.createNewCloud('testcloud');
-    cloudsCommon.goToCloudDetail('testcloud');
-
-    // set bad config to true, deploy it and recive error
-    cloudsCommon.goToCloudConfiguration();
-    var badConfigurationSwitch = browser.element(by.id('primitiveTypeFormLabelwithBadConfiguratontrue'));
-    browser.actions().click(badConfigurationSwitch).perform();
-    cloudsCommon.goToCloudDetail('testcloud');
-    cloudsCommon.enableCloud();
-    common.expectErrors();
-
-    // set bad config to false, deploy whit success
-    cloudsCommon.goToCloudConfiguration();
-    badConfigurationSwitch = browser.element(by.id('primitiveTypeFormLabelwithBadConfiguratonfalse'));
-    browser.actions().click(badConfigurationSwitch).perform();
-    cloudsCommon.goToCloudDetail('testcloud');
-    cloudsCommon.enableCloud();
-    common.expectNoErrors();
-  });
-
+  it('afterAll', function() { authentication.logout(); });
 });

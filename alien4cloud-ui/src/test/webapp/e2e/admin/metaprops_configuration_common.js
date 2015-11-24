@@ -1,8 +1,8 @@
-/* global by, element */
+/* global by, expect, browser, element */
 'use strict';
 
-var navigation = require('../common/navigation');
 var common = require('../common/common');
+var xedit = require('../common/xedit');
 var genericForm = require('../generic_form/generic_form');
 
 var constraintsMap = {
@@ -182,30 +182,27 @@ var tagMinLengthConstraint = [{
 module.exports.tagMinLengthConstraint = tagMinLengthConstraint;
 
 function selectConstraint(selectNumberId, constraintType) {
-  var selectElement = element(by.id('abstractTypeFormLabelconstraints' + selectNumberId + 'selectImplementation'));
-  var selectConstraintChoice = selectElement.element(by.id(constraintType));
-  selectConstraintChoice.click();
+  var selectElement = common.element(by.id('abstractTypeFormLabelconstraints' + selectNumberId + 'selectImplementation'));
+  common.click(by.id(constraintType), selectElement);
 }
 
 // Action to be executed before each topology test
 var addTagConfiguration = function(tagConfigObject, tagConstraints) {
-  navigation.go('main', 'admin');
-  navigation.go('admin', 'meta');
+  common.click(by.id('menu.admin'));
+  common.click(by.id('am.admin.metaprops'));
 
   // Open add node type form button
-  var tagConfigurationCreationButton = browser.element(by.binding('TAG_CONFIG.CREATE'));
   var createTagConfigurationForm = element(by.id('createTagConfigurationForm'));
   var tagConfigurationsTable = element(by.id('tagConfigurationsTable'));
 
   expect(createTagConfigurationForm.isPresent()).toBe(false);
   expect(tagConfigurationsTable.isPresent()).toBe(true);
 
-  // Open create node type form+
-  browser.actions().click(tagConfigurationCreationButton).perform();
+  // Open create node type form
+  common.click(by.binding('TAG_CONFIG.CREATE'));
   expect(createTagConfigurationForm.isPresent()).toBe(true);
   expect(createTagConfigurationForm.isDisplayed()).toBe(true);
 
-  browser.waitForAngular();
   var elemObject = null;
   if (tagConfigObject !== {}) {
     Object.keys(tagConfigObject).forEach(function(element) {
@@ -218,75 +215,52 @@ var addTagConfiguration = function(tagConfigObject, tagConstraints) {
   if (tagConstraints !== null && tagConstraints.length > 0) {
 
     // click 'Constraints' button
-    var btnNewConstraints = element(by.id('arrayTypeFormLabelconstraintseditbutton'));
-    browser.actions().click(btnNewConstraints).perform();
+    common.click(by.id('arrayTypeFormLabelconstraintseditbutton'));
 
     for (var i = 0; i < tagConstraints.length; i++) {
-
       // explode the current constraint
       var constraintType = tagConstraints[i].constraint;
       var constraintValue = tagConstraints[i].value;
 
       // click + add constraint
-      var btnAddConstraint = element(by.id('arrayTypeFormconstraintsaddelementbutton'));
-      browser.actions().click(btnAddConstraint).perform();
+      common.click(by.id('arrayTypeFormconstraintsaddelementbutton'));
 
-      var btnConstraintValuesFirst, editField;
+      var editField;
       switch (constraintType) {
 
         case constraintsMap.validValues: // VALID VALUES
-
           // select the good type for the current constraint select
           selectConstraint(i, constraintType);
-
           // first > for validValues constraint
-          btnConstraintValuesFirst = element(by.id('abstractTypeFormLabelconstraints' + i + 'editbutton'));
-          btnConstraintValuesFirst.click();
-
+          common.click(by.id('abstractTypeFormLabelconstraints' + i + 'editbutton'));
           // second > for validValues constraint
-          var btnConstraintValuesSecond = element(by.id('arrayTypeFormLabelconstraints' + i + 'validValueseditbutton'));
-          btnConstraintValuesSecond.click();
-
+          common.click(by.id('arrayTypeFormLabelconstraints' + i + 'validValueseditbutton'));
           // enter all valid values
           for (var j = 0; j < constraintValue.length; j++) {
-
             // + add new value
-            var btnAddValue = element(by.id('arrayTypeFormconstraints' + i + 'validValuesaddelementbutton'));
-            btnAddValue.click();
-
+            common.click(by.id('arrayTypeFormconstraints' + i + 'validValuesaddelementbutton'));
             // enter value
             editField = 'primitiveTypeFormLabelconstraints' + i + 'validValues' + j + 'input';
-            common.sendValueToXEditable(editField, constraintValue[j], false);
+            xedit.sendKeys(editField, constraintValue[j], false);
           }
-
           break;
         case constraintsMap.minLength: // min string LENGTH
-
           // select the good type for the current constraint select
           selectConstraint(i, constraintType);
-
           // click > to add the value
-          btnConstraintValuesFirst = element(by.id('abstractTypeFormLabelconstraints' + i + 'editbutton'));
-          btnConstraintValuesFirst.click();
-
+          common.click(by.id('abstractTypeFormLabelconstraints' + i + 'editbutton'));
           // enter the value
           editField = 'primitiveTypeFormLabelconstraints' + i + 'minLengthinput';
-          common.sendValueToXEditable(editField, constraintValue, false);
-
+          xedit.sendKeys(editField, constraintValue, false);
           break;
         case constraintsMap.maxLength: // max string LENGTH
-
           // select the good type for the current constraint select
           selectConstraint(i, constraintType);
-
           // click > to add the value
-          btnConstraintValuesFirst = element(by.id('abstractTypeFormLabelconstraints' + i + 'editbutton'));
-          btnConstraintValuesFirst.click();
-
+          common.click(by.id('abstractTypeFormLabelconstraints' + i + 'editbutton'));
           // enter the value
           editField = 'primitiveTypeFormLabelconstraints' + i + 'maxLengthinput';
-          common.sendValueToXEditable(editField, constraintValue, false);
-
+          xedit.sendKeys(editField, constraintValue, false);
           break;
         default:
           console.error('CONSTRAINT NOT FOUND');
@@ -295,58 +269,54 @@ var addTagConfiguration = function(tagConfigObject, tagConstraints) {
   }
   // Save
   genericForm.saveForm();
+  tagConfigurationsTable = common.element(by.id('tagConfigurationsTable'));
   expect(tagConfigurationsTable.isDisplayed()).toBe(true);
-
 };
 module.exports.addTagConfiguration = addTagConfiguration;
 
 var createConfigurationTags = function() {
-
   // Add 2 tags
   addTagConfiguration(tagValidValues, tagValidValuesConstraint);
   addTagConfiguration(tagMinLength, tagMinLengthConstraint);
-
 };
 module.exports.createConfigurationTags = createConfigurationTags;
 
-var getFirstElementInTagList = function(expectedName) {
-  var tagList = element(by.id('tagConfigurationsTable'));
+var clickFirstElementInTagList = function(expectedName) {
+  var tagList = common.element(by.id('tagConfigurationsTable'));
   expect(tagList.all(by.tagName('tr')).count()).toEqual(1);
   var firstTag = tagList.all(by.tagName('tr')).first();
   expect(firstTag.all(by.tagName('td')).first().getText()).toContain(expectedName);
+  // click on the element.
+  browser.actions().click(firstTag).perform();
+  browser.waitForAngular();
   return firstTag;
 };
-module.exports.getFirstElementInTagList = getFirstElementInTagList;
+module.exports.clickFirstElementInTagList = clickFirstElementInTagList;
 
 var editTagConfiguration = function(propertyName, propertyValue) {
-
-  var propertyElement = element(by.id('p_' + propertyName));
+  var propertyElement = common.element(by.id('p_' + propertyName));
   expect(propertyElement.isPresent()).toBe(true);
-  var spanPropertyValue = propertyElement.element(by.tagName('span'));
-  spanPropertyValue.click();
+  common.click(by.tagName('span'), propertyElement);
 
-  var editForm = propertyElement.element(by.tagName('form'));
-  var inputValue = editForm.element(by.tagName('input'));
+  var editForm = common.element(by.tagName('form'), propertyElement);
+  var inputValue = common.element(by.tagName('input'), editForm);
 
   inputValue.clear();
   inputValue.sendKeys(propertyValue);
   editForm.submit();
   browser.waitForAngular();
-
 };
 module.exports.editTagConfiguration = editTagConfiguration;
 
 // check if a text is present in the error message while editing a property
 var checkTagEditionError = function(propertyName, containedInErrorText) {
-
-  var propertyElement = element(by.id('p_' + propertyName));
-  var formElement = propertyElement.element(by.tagName('form'));
+  var propertyElement = common.element(by.id('p_' + propertyName));
+  var formElement = common.element(by.tagName('form'), propertyElement);
 
   // getting error div under the input
-  var divError = formElement.element(by.tagName('div'));
+  var divError = common.element(by.tagName('div'), formElement);
   expect(divError.isDisplayed()).toBe(true);
   expect(divError.getText()).not.toEqual('');
   expect(divError.getText()).toContain(containedInErrorText);
-
 };
 module.exports.checkTagEditionError = checkTagEditionError;
