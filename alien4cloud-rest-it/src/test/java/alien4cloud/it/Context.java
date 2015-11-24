@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -618,7 +619,7 @@ public class Context {
     }
 
     public String getCloudify3ManagerUrl() {
-        return "http://" + getManagementServerPublicIp("openstack.cfy3.manager_name") + ":8100";
+        return "http://" + getManagementServerPublicIp("openstack.cfy3.manager_name");
     }
 
     public String getCloudify2ManagerUrl() {

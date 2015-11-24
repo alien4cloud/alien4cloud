@@ -52,6 +52,19 @@ public class OrchestratorConfigurationService {
     }
 
     /**
+     * Ensure that the configuration object parsed from json without typing is valid based on the orchestrator configuration type and return a valid typed
+     * object.
+     *
+     * @param id if of the orchestrator.
+     * @param configurationAsMap Configuration object (that may be a map parsed from json).
+     * @return A typed configuration object.
+     */
+    public Object configurationAsValidObject(String id, Object configurationAsMap) throws IOException, PluginConfigurationException {
+        Orchestrator orchestrator = orchestratorService.getOrFail(id);
+        return configurationAsValidObject(orchestrator, configurationAsMap);
+    }
+
+    /**
      * Get the configuration for a given orchestrator.
      *
      * @param id Id of the orchestrator for which to get the configuration.
@@ -63,19 +76,6 @@ public class OrchestratorConfigurationService {
             throw new NotFoundException("Orchestrator Configuration for id [" + id + "] doesn't exists.");
         }
         return configuration;
-    }
-
-    /**
-     * Ensure that the configuration object parsed from json without typing is valid based on the orchestrator configuration type and return a valid typed
-     * object.
-     *
-     * @param id if of the orchestrator.
-     * @param configurationAsMap Configuration object (that may be a map parsed from json).
-     * @return A typed configuration object.
-     */
-    public Object configurationAsValidObject(String id, Object configurationAsMap) throws IOException, PluginConfigurationException {
-        Orchestrator orchestrator = orchestratorService.getOrFail(id);
-        return configurationAsValidObject(orchestrator, configurationAsMap);
     }
 
     /**
