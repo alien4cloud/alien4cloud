@@ -1,57 +1,34 @@
 // ElasticSearch client utilities
-/* global protractor */
 
 'use strict';
 
-var settings = require('./settings');
-var http = require('http');
+var http = require('./simplehttp');
 
-function getOptions(method, indexName, content, typeName) {
+function getOptions(method, indexName, typeName, content) {
   var path = '/' + indexName;
   if(typeName && typeName!==null) {
     path = path + '/' + typeName;
   }
-  return {
+  var options = {
     host: 'localhost',
     port: '9200',
     path: path,
     method: method,
     headers: {
       'Content-Type': 'application/json; charset=UTF-8',
-      'Content-Length': content.length
+      // 'Content-Length': content.length
     }
   };
-}
-
-function buildOptions(method, indexName, query) {
-  var options = getOptions(method, indexName, query);
-  options.path = options.path + '/_query';
+  if(content && content !== null) {
+    options.headers['Content-Length'] = content.length;
+  }
   return options;
 }
 
-function call(method, options, indexName, content) {
-  var defer = protractor.promise.defer();
-  // Set up the request
-  var request = http.request(options, function(res) {
-    res.setEncoding('utf8');
-    res.on('data', function(chunk) {
-      if (settings.debug) {
-        console.log('ES request method [' + method + '] index [' + indexName + '] content [' + content + '] received [' + chunk + ']');
-      }
-      defer.fulfill(res);
-    });
-  });
-  request.on('error', function(e) {
-    console.log('################# Clean index [' + indexName + '] request encountered error [' + e.message + ']');
-    defer.reject({
-      error: e,
-      message: '################# Clean index [' + indexName + '] request encountered error [' + e.message + ']'
-    });
-  });
-
-  request.write(content);
-  request.end();
-  return defer.promise;
+function buildOptions(method, indexName, query) {
+  var options = getOptions(method, indexName, null, query);
+  options.path = options.path + '/_query';
+  return options;
 }
 
 module.exports.delete = function(indexName, query) {
@@ -62,13 +39,11 @@ module.exports.delete = function(indexName, query) {
       }
     });
   }
-  var method = 'DELETE';
-  var options = buildOptions(method, indexName, query);
-  return call(method, options, indexName, query);
+  var options = buildOptions('DELETE', indexName, query);
+  return http.call(options, query);
 };
 
 module.exports.index = function(indexName, typeName, content) {
-  var method = 'POST';
-  var options = getOptions(method, indexName, content, typeName);
-  return call(method, options, indexName, content);
+  var options = getOptions('POST', indexName, typeName);
+  return http.call(options, content);
 };

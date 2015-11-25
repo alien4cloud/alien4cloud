@@ -21,7 +21,7 @@ var constraintsMap = {
 module.exports.constraintsMap = constraintsMap;
 
 // TAGS BASIC OBJECTS
-var maturityTag = {
+module.exports.maturityTag = {
   name: {
     'field': 'name',
     'ui': 'xeditable',
@@ -53,7 +53,6 @@ var maturityTag = {
     'value': 'Milestone maturity...'
   }
 };
-module.exports.maturityTag = maturityTag;
 
 var tagValidValues = {
   name: {
@@ -128,7 +127,7 @@ var tagMinLength = {
 };
 module.exports.tagMinLength = tagMinLength;
 
-var defaultCloudProperty = {
+module.exports.defaultLocationProperty = {
   name: {
     'field': 'name',
     'ui': 'xeditable',
@@ -147,7 +146,7 @@ var defaultCloudProperty = {
   target: {
     'field': 'target',
     'ui': 'select',
-    'value': 'cloud'
+    'value': 'location'
   },
   type: {
     'field': 'type',
@@ -160,7 +159,6 @@ var defaultCloudProperty = {
     'value': ''
   }
 };
-module.exports.defaultCloudProperty = defaultCloudProperty;
 
 // CONSTRAINTS
 var tagValidValuesConstraint = [{
@@ -169,11 +167,10 @@ var tagValidValuesConstraint = [{
 }];
 module.exports.tagValidValuesConstraint = tagValidValuesConstraint;
 
-var tagMaturityValidValuesConstraint = [{
+module.exports.tagMaturityValidValuesConstraint = [{
   constraint: constraintsMap.validValues,
   value: ['M1', 'M2', 'M2']
 }];
-module.exports.tagMaturityValidValuesConstraint = tagMaturityValidValuesConstraint;
 
 var tagMinLengthConstraint = [{
   constraint: constraintsMap.minLength,

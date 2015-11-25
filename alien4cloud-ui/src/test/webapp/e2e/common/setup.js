@@ -9,12 +9,17 @@ var repositories = require('./repositories');
 var settings = require('./settings');
 var path = require('path');
 var es = require('./elasticsearch');
+var alien = require('./alienapi');
 var flow = protractor.promise.controlFlow();
 
 // constants to be used for the setup.
 var csargitrepositories = require(__dirname + '/../_data/csargitrepositories.json');
 var csars = require(__dirname + '/../_data/csars.json');
-var toscaelements = require(__dirname + '/../_data/toscaelements.json');
+var indexedartifacttypes = require(__dirname + '/../_data/indexedartifacttypes.json');
+var indexedcapabilitytypes = require(__dirname + '/../_data/indexedcapabilitytypes.json');
+var indexeddatatypes = require(__dirname + '/../_data/indexeddatatypes.json');
+var indexednodetypes = require(__dirname + '/../_data/indexednodetypes.json');
+var indexedrelationshiptypes = require(__dirname + '/../_data/indexedrelationshiptypes.json');
 
 var plugins = require(__dirname + '/../_data/plugins.json');
 var orchestrators = require(__dirname + '/../_data/orchestrators.json');
@@ -32,14 +37,7 @@ var mockPluginArchive = path.resolve(__dirname, '../../../../../../alien4cloud-m
 var mockPluginOSArchive = path.resolve(__dirname, '../../../../../../alien4cloud-mock-paas-provider-plugin/src/main/resources/openstack/mock-openstack-resources');
 
 function index(indexName, typeName, data) {
-  // var batch = null;
   for(var i=0; i < data.length ;i++) {
-    // if(batch === null) {
-    //   batch = '{ "index": { "_index": "'+indexName+'", "_type": "'+typeName+'", "_id": "' + element[idField] + '" }}\n';
-    //   batch += element
-    // } else {
-    //
-    // }
     es.index(indexName, typeName, JSON.stringify(data[i]));
   }
 }
@@ -54,7 +52,12 @@ function doSetup() {
   // Update ElasticSearch
   index('csargitrepository', 'csargitrepository', csargitrepositories);
   index('csar', 'csar', csars);
-  index('toscaelement', 'toscaelement', toscaelements);
+  index('toscaelement', 'indexedartifacttype', indexedartifacttypes);
+  index('toscaelement', 'indexedcapabilitytype', indexedcapabilitytypes);
+  index('toscaelement', 'indexeddatatype', indexeddatatypes);
+  index('toscaelement', 'indexednodetype', indexednodetypes);
+  index('toscaelement', 'indexedrelationshiptype', indexedrelationshiptypes);
+
   index('plugin', 'plugin', plugins);
   index('orchestrator', 'orchestrator', orchestrators);
   index('orchestratorconfiguration', 'orchestratorconfiguration', orchestratorsconf);
@@ -62,6 +65,17 @@ function doSetup() {
   index('locationresourcetemplate', 'locationresourcetemplate', locationresourcetemplates);
 
   index('application', 'application', applications);
+
+
+  // 'Cookie': 'JSESSIONID = ',
+  alien.login('admin', 'admin').then(function(response){
+    var cookies = response.headers['set-cookie'];
+    // Enable the plugins - this has to be done through alien API as it has to load classes.
+    alien.enablePlugin('alien4cloud-mock-paas-provider:1.0', cookies);
+    // Enable the orchestrators - this has to be done through alien API as it has to register the orchestrator monitor.
+    alien.enableOrchestrator('f3657e4d-4250-45b4-a862-2e91699ef7a1', cookies);
+    alien.enableOrchestrator('91c78b3e-e9fa-4cda-80ba-b44551e4a475', cookies);
+  });
 }
 
 module.exports.setup = function() {

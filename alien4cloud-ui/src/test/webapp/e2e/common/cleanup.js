@@ -86,6 +86,10 @@ function cleanCsar() {
   return es.delete('csar');
 }
 
+function cleanCsarGit() {
+  return es.delete('csargitrepository');
+}
+
 function cleanImagedata() {
   return es.delete('imagedata');
 }
@@ -116,6 +120,7 @@ module.exports.cleanup = cleanup;
 module.exports.fullCleanup = function() {
   flow.execute(cleanToscaElement);
   flow.execute(cleanCsar);
+  flow.execute(cleanCsarGit);
   flow.execute(cleanImagedata);
   flow.execute(cleanPlugin);
   cleanup();
