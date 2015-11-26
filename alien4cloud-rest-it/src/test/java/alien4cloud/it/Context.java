@@ -179,6 +179,8 @@ public class Context {
 
     private Map<String, String> preRegisteredOrchestratorProperties;
 
+    private Map<String, Object> orchestratorConfiguration;
+
     private Map<String, MetaPropConfiguration> configurationTags;
 
     private String topologyDeploymentId;
@@ -520,6 +522,14 @@ public class Context {
         Map<String, String> tmp = preRegisteredOrchestratorProperties;
         preRegisteredOrchestratorProperties = null;
         return tmp;
+    }
+
+    public Map<String, Object> getOrchestratorConfiguration() {
+        return orchestratorConfiguration;
+    }
+
+    public void setOrchestratorConfiguration(Map<String, Object> orchestratorConfiguration) {
+        this.orchestratorConfiguration = orchestratorConfiguration;
     }
 
     public void registerConfigurationTag(String configurationTagName, MetaPropConfiguration tagConfiguration) {
