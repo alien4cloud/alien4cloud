@@ -9,16 +9,9 @@ import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
-/**
- *
- * @author mourouvi
- *
- */
 @Getter
-@SuppressWarnings("PMD.UnusedPrivateField")
 @ESObject
 public class TopologyTemplate {
-
     @Id
     @Setter
     private String id;
@@ -29,5 +22,4 @@ public class TopologyTemplate {
     @Setter
     private String description;
     private String topologyId;
-
 }

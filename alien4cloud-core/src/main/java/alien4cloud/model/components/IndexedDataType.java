@@ -13,6 +13,5 @@ import org.elasticsearch.annotation.ESObject;
 @Setter
 @EqualsAndHashCode(of = {}, callSuper = true)
 @ESObject
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class IndexedDataType extends IndexedInheritableToscaElement {
 }

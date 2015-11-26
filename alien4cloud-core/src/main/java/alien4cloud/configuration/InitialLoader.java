@@ -113,8 +113,8 @@ public class InitialLoader {
      * Load plugins from the initialiaztion plugins folder.
      */
     public void loadPlugins() {
-        if (alienInitDirectory == null || alienInitDirectory.isEmpty()) {
-            log.debug("No init directory is configured - skipping initial loading of archives and plugins.");
+        if (alienInitDirectory == null || alienInitDirectory.isEmpty() || alienPluginsInitPath == null) {
+            log.debug("No init directory is configured - skipping initial loading of plugins.");
             return;
         }
 

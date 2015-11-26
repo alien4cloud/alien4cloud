@@ -9,7 +9,6 @@ import org.elasticsearch.annotation.Id;
 @ESObject
 @Getter
 @Setter
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class ImageData {
     @Id
     private String id;
