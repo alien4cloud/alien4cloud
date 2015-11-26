@@ -4,18 +4,17 @@ define(function (require) {
   var modules = require('modules');
   var states = require('states');
   var angular = require('angular');
-  var _ = require('lodash');
 
   require('scripts/common/services/alien_resource');
   require('scripts/orchestrators/controllers/orchestrator_new');
   require('scripts/orchestrators/services/orchestrator_service');
   require('scripts/orchestrators/controllers/orchestrator_details');
-  
+
   states.state('admin.orchestrators', {
     url: '/orchestrators',
     template: '<ui-view/>',
     menu: {
-      id: 'menu.orchestrators',
+      id: 'am.admin.orchestrators',
       state: 'admin.orchestrators',
       key: 'NAVADMIN.MENU_ORCHESTRATORS',
       icon: 'fa fa-magic',

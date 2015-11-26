@@ -1,6 +1,5 @@
 <div ng-class="{'row':condensed, 'form-group': !condensed}" ng-controller="PropertiesCtrl" id="meta_properties">
   <!-- Property Name -->
-
   <label ng-if="translate" id="p_name_{{propertyName}}" class="col-md-4 property-display-label-ellipsed control-label" ng-class="{'property-required': definition.required }"
          tooltip="{{propertyName | translate}}" tooltip-append-to-body="true">
     {{propertyName | translate}}
@@ -14,13 +13,13 @@
     <!-- Property Value -->
     <div ng-if="isStringDisplayType" ng-class="{'property-required' : definition.required}">
       <!-- Case : string -->
-      <span ng-if="!definitionObject.uiPassword && !definitionObject.units && editable">
-        <span ng-if="!definitionObject.uiPassword && !definitionObject.units && editable  &&!isLongText" editable-text="definitionObject.uiValue" buttons="no"
+      <span ng-if="!definitionObject.uiPassword && !definitionObject.units && editable" id="p_{{propertyName}}">
+        <span ng-if="!isLongText" editable-text="definitionObject.uiValue" buttons="no"
               onbeforesave="propertySave($data)" blur="submit">
           {{definitionObject.uiValue | truncate:20}}
           <i class="fa fa-pencil-square-o"></i>
         </span>
-        <span ng-if="!definitionObject.uiPassword && !definitionObject.units && editable && isLongText" editable-textarea="definitionObject.uiValue" buttons="no"
+        <span ng-if="isLongText" editable-textarea="definitionObject.uiValue" buttons="no"
                       onbeforesave="propertySave($data)" blur="submit">
           {{definitionObject.uiValue | truncate:20}}
           <i class="fa fa-pencil-square-o"></i>

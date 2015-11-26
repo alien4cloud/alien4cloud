@@ -1,9 +1,11 @@
-/* global by, element */
+/* global describe, it, beforeEach, by, element, expect */
 
 'use strict';
 
-var authentication = require('../../authentication/authentication');
+var setup = require('../../common/setup');
 var common = require('../../common/common');
+var xedit = require('../../common/xedit');
+var authentication = require('../../authentication/authentication');
 var rolesCommon = require('../../common/roles_common.js');
 var users = require('../../admin/users');
 
@@ -27,33 +29,31 @@ function assertUserHasRoles(username, roles) {
   });
 }
 
-function assertUserHasRolesFrom(username, roles, fromType, exists) {
-
+/*
+* used to check if the user has a role from direct assignement or from a group.
+* @param username The name of the user.
+* @param roles The roles to check.
+* @param groupRole If true this means we expect the role from a group, if false from a direct assignement.
+* @param exists If true we check that the user has the role, if not that he doesn't have the role.
+*/
+function assertUserHasRolesFrom(username, roles, groupRole, exists) {
   if (!Array.isArray(roles)) {
     roles = [roles];
   }
 
   roles.forEach(function(role) {
-    element(by.id('user_' + username)).element(by.name('roles')).then(function(role) {
-      var roleRepeater = element.all(by.repeater('(role, from) in user.allRoles'));
-      roleRepeater.then(function(roleItems) {
-        roleItems.forEach(function(role) {
-          var current = role.element(by.tagName('i'));
-          role.getText().then(function(text) {
-            if (roles.indexOf(text) != -1) {
-              var searhedClass = (fromType == 'g') ? 'fa-users' : 'fa-user';
-              if (!exists) {
-                expect(current.getAttribute('class')).not.toEndsWith(searhedClass);
-              } else {
-                expect(current.getAttribute('class')).toEndsWith(searhedClass);
-              }
-            }
-          });
+    var roleElements = common.element(by.name('roles'),common.element(by.id('user_' + username)));
+    roleElements.all(by.repeater('(role, from) in user.allRoles')).then(function(roleItems) {
+      roleItems.forEach(function(roleElement) {
+        var searchedClass = groupRole ? 'fa-users' : 'fa-user';
+        roleElement.getText().then(function(text) {
+          if(text.indexOf(role) > -1) {
+            expect(roleElement.element(by.className(searchedClass)).isPresent()).toBe(exists);
+          }
         });
       });
     });
   });
-
 }
 
 function assertGroupHasRoles(groupname, roles) {
@@ -65,7 +65,6 @@ function assertGroupHasRoles(groupname, roles) {
   });
   rolesCommon.assertGroupHasRoles('app', groupname, roles);
 }
-
 
 function assertGroupDoesNotHaveRoles(groupname, roles) {
   if (!Array.isArray(roles)) {
@@ -83,37 +82,20 @@ function jumpToTab(tabName) {
 
 describe('Group management', function() {
   // Load up a view and wait for it to be done with its rendering and epicycles.
-  beforeEach(function() {
-
-    common.before();
-
-    // add specific matcher
-    this.addMatchers({
-      toEndsWith: function(toFindAtEnd) {
-        var regex = new RegExp(toFindAtEnd + '$');
-        return this.actual.match(regex) != null ? true : false;
-      }
-    });
-
+  it('beforeAll', function() {
+    common.home();
+    authentication.login('admin');
   });
 
-  afterEach(function() {
-    // Logout action
-    authentication.logout();
+  beforeEach(function(){
+    setup.setup(); // reset data.
   });
 
   it('should be able to create a new group, and find it in the group list', function() {
-    console.log('################# should be able to create a new group, and find it in the group list');
+    users.goToGroups();
 
-    authentication.login('admin');
-
-    //go to the group search page
-    users.navigationGroups();
-
-    expect(element(by.id('groups-table')).isPresent()).toBe(true);
-
-    //check new group button
-    expect(element(by.binding('GROUPS.NEW')).isPresent()).toBe(true);
+    expect(common.element(by.id('groups-table')).isPresent()).toBe(true);
+    expect(common.element(by.binding('GROUPS.NEW')).isPresent()).toBe(true);
 
     //create and check a group
     users.createGroup(users.groups.managers);
@@ -121,12 +103,8 @@ describe('Group management', function() {
   });
 
   it('should be able to see and edit group\'s roles', function() {
-    console.log('################# should be able to see and edit group\'s roles');
-    //login
-    authentication.login('admin');
+    users.goToGroups();
 
-    //create a user and check no roles for now
-    users.navigationGroups();
     users.createGroup(users.groups.managers);
     assertGroupHasNoRoles(users.groups.managers.name);
 
@@ -137,24 +115,20 @@ describe('Group management', function() {
     assertGroupHasRoles(users.groups.managers.name, rolesCommon.alienRoles.componentsManager);
 
     //refresh the page and check again
-    users.navigationGroups();
+    users.goToGroups();
     assertGroupHasRoles(users.groups.managers.name, rolesCommon.alienRoles.applicationsManager);
     assertGroupHasRoles(users.groups.managers.name, rolesCommon.alienRoles.componentsManager);
 
     //remove roles from managers
     rolesCommon.editGroupRole(users.groups.managers.name, rolesCommon.alienRoles.componentsManager);
     assertGroupDoesNotHaveRoles(users.groups.managers.name, rolesCommon.alienRoles.componentsManager);
-    users.navigationGroups();
+    users.goToGroups();
     assertGroupDoesNotHaveRoles(users.groups.managers.name, rolesCommon.alienRoles.componentsManager);
   });
 
   it('should be able to delete a group', function() {
-    console.log('################# should be able to delete a group');
-    //login
-    authentication.login('admin');
+    users.goToGroups();
 
-    //create a group
-    users.navigationGroups();
     users.createGroup(users.groups.managers);
     assertGroupExists(users.groups.managers.name, true);
     users.createGroup(users.groups.architects);
@@ -165,88 +139,72 @@ describe('Group management', function() {
     assertGroupExists(users.groups.architects.name, false);
 
     //refresh the page and check again
-    users.navigationGroups();
+    users.goToGroups();
     assertGroupExists(users.groups.architects.name, false);
   });
 
   it('should be able to edit group\'s properties and fields', function() {
-    console.log('################# should be able to edit group\'s properties and fields');
-    //login
-    authentication.login('admin');
+    users.goToGroups();
 
-    //create a group
-    users.navigationGroups();
     users.createGroup(users.groups.managers);
     assertGroupExists(users.groups.managers.name, true);
 
     //edit the description field
     var description = 'This is the description';
-    common.sendValueToXEditable('group_' + users.groups.managers.name + '_description', description, false, 'textarea');
-    users.navigationGroups();
-    common.expectValueFromXEditable('group_' + users.groups.managers.name + '_description', description);
+    xedit.sendKeys('group_' + users.groups.managers.name + '_description', description, false, 'textarea');
+    xedit.expect('group_' + users.groups.managers.name + '_description', description);
 
     //edit the email field
     var newEmail = 'obama@whitehouse.us';
-    common.sendValueToXEditable('group_' + users.groups.managers.name + '_email', newEmail);
-    users.navigationGroups();
-    common.expectValueFromXEditable('group_' + users.groups.managers.name + '_email', newEmail);
+    xedit.sendKeys('group_' + users.groups.managers.name + '_email', newEmail);
+    xedit.expect('group_' + users.groups.managers.name + '_email', newEmail);
 
     //edit the name field
     var newName = 'ManagersS';
-    common.sendValueToXEditable('group_' + users.groups.managers.name + '_name', newName);
-    users.navigationGroups();
-    common.expectValueFromXEditable('group_' + newName + '_name', newName);
+    xedit.sendKeys('group_' + users.groups.managers.name + '_name', newName);
+    users.goToGroups();
+    xedit.expect('group_' + newName + '_name', newName);
   });
 
 
   it('should be able to update users info when modifying a group', function() {
-
-    console.log('################# should be able to update users info when modifying a group');
-    // login
-    authentication.login('admin');
-
     // create groups
-    users.navigationGroups();
+    users.goToGroups();
     users.createGroup(users.groups.managers);
     assertGroupExists(users.groups.managers.name, true);
 
-    // add roles to managers
+    // add APPLICATION_MANAGER roles to managers group
     rolesCommon.editGroupRole(users.groups.managers.name, rolesCommon.alienRoles.applicationsManager);
     assertGroupHasRoles(users.groups.managers.name, rolesCommon.alienRoles.applicationsManager);
 
-    // create and check a user
+    // Create sauron
     jumpToTab('users');
     users.createUser(authentication.users.sauron);
-
-    // add sauron to Managers group
+    // add sauron to Managers group (should have APPLICATION_MANAGER role)
     rolesCommon.addUserToGroup(authentication.users.sauron.username, users.groups.managers.name);
     rolesCommon.assertUserHasGroups('app', authentication.users.sauron.username, users.groups.managers.name);
     assertUserHasRoles(authentication.users.sauron.username, rolesCommon.alienRoles.applicationsManager);
-    assertUserHasRolesFrom(authentication.users.sauron.username, rolesCommon.alienRoles.componentsManager, 'g', true);
+    assertUserHasRolesFrom(authentication.users.sauron.username, rolesCommon.alienRoles.applicationsManager, true, true);
 
     // add a role to managers group and check users roles
     jumpToTab('groups');
     rolesCommon.editGroupRole(users.groups.managers.name, rolesCommon.alienRoles.componentsManager);
-    rolesCommon.editGroupRole(users.groups.managers.name, rolesCommon.alienRoles.admin);
     assertGroupHasRoles(users.groups.managers.name, [rolesCommon.alienRoles.componentsManager, rolesCommon.alienRoles.applicationsManager]);
 
     jumpToTab('users');
     assertUserHasRoles(authentication.users.sauron.username, [rolesCommon.alienRoles.componentsManager, rolesCommon.alienRoles.applicationsManager]);
-    // sauron user hase 2 roles granted by 'Manager' group
-    assertUserHasRolesFrom(authentication.users.sauron.username, [rolesCommon.alienRoles.componentsManager, rolesCommon.alienRoles.applicationsManager], 'g', true);
+    // sauron is COMPONENTS_MANAGER and APPLICATIONS_MANAGER from group assignment but NOT from direct assignment.
+    assertUserHasRolesFrom(authentication.users.sauron.username, [rolesCommon.alienRoles.componentsManager, rolesCommon.alienRoles.applicationsManager], true, true);
+    assertUserHasRolesFrom(authentication.users.sauron.username, [rolesCommon.alienRoles.componentsManager, rolesCommon.alienRoles.applicationsManager], false, false);
 
-    // check roles list icons
-    // the user has no COMPONENTS_MANAGER / APPLICATIONS_MANAGER by himself
-    assertUserHasRolesFrom(authentication.users.sauron.username, rolesCommon.alienRoles.componentsManager, 'u', false);
-    assertUserHasRolesFrom(authentication.users.sauron.username, rolesCommon.alienRoles.applicationsManager, 'u', false);
-
-    //add a role to the user, delete the group and check user's roles
+    // sauron is directly assigned to COMPONENTS_MANAGER
     rolesCommon.editUserRole(authentication.users.sauron.username, rolesCommon.alienRoles.componentsManager);
 
     // the user has the role COMPONENTS_MANAGER from the group and by himself now
-    assertUserHasRolesFrom(authentication.users.sauron.username, rolesCommon.alienRoles.componentsManager, 'g', true);
-    assertUserHasRolesFrom(authentication.users.sauron.username, rolesCommon.alienRoles.componentsManager, 'u', true);
     assertUserHasRoles(authentication.users.sauron.username, [rolesCommon.alienRoles.componentsManager, rolesCommon.alienRoles.applicationsManager]);
+    assertUserHasRolesFrom(authentication.users.sauron.username, rolesCommon.alienRoles.componentsManager, true, true);
+    assertUserHasRolesFrom(authentication.users.sauron.username, rolesCommon.alienRoles.componentsManager, false, true);
+
 
     jumpToTab('groups');
     users.deleteGroup(users.groups.managers.name);
@@ -254,8 +212,8 @@ describe('Group management', function() {
     jumpToTab('users');
     assertUserHasRoles(authentication.users.sauron.username, rolesCommon.alienRoles.componentsManager);
     rolesCommon.assertUserDoesNotHaveRoles(authentication.users.sauron.username, rolesCommon.alienRoles.applicationsManager);
-    assertUserHasRolesFrom(authentication.users.sauron.username, rolesCommon.alienRoles.componentsManager, 'u', true);
-
+    assertUserHasRolesFrom(authentication.users.sauron.username, rolesCommon.alienRoles.componentsManager, false, true);
   });
 
+  it('afterAll', function() { authentication.logout(); });
 });

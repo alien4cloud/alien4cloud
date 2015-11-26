@@ -26,11 +26,11 @@
     </div>
   </div>
   <div class="modal-footer">
-    <button id="new-orchestrator-create-button" ng-disabled="newOrchestratorForm.$invalid" class="btn btn-primary">
+    <button id="modal-create-button" ng-disabled="newOrchestratorForm.$invalid" class="btn btn-primary">
       {{'CREATE' | translate}}
     </button>
-    <a class="btn btn-default" ng-click="cancel()">
+    <button id="modal-cancel-button" class="btn btn-default" ng-click="cancel()">
       {{'CANCEL' | translate}}
-    </a>
+    </button>
   </div>
 </form>

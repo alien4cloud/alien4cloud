@@ -9,7 +9,6 @@ import org.elasticsearch.annotation.query.TermsFacet;
 @Getter
 @Setter
 @ESObject
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class IndexedRelationshipType extends IndexedArtifactToscaElement {
     @TermsFacet
     private String[] validSources;
