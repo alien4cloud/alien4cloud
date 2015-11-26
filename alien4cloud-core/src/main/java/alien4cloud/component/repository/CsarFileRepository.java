@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -97,7 +98,7 @@ public class CsarFileRepository implements ICsarRepositry {
                 Files.copy(tmpPath, csarTargetPath);
                 FileUtil.unzip(csarTargetPath, expandedPath);
             } else {
-                FileUtil.copy(tmpPath, expandedPath);
+                FileUtil.copy(tmpPath, expandedPath, StandardCopyOption.REPLACE_EXISTING);
             }
             DirectoryJSonWalker.directoryJson(expandedPath, csarDirectoryPath.resolve("content.json"));
         } catch (IOException e) {
