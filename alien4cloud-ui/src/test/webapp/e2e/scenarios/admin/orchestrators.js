@@ -88,7 +88,7 @@ describe('Orchestrators management', function() {
     orchestrators.go();
     common.click(by.id('orchestrator_f3657e4d-4250-45b4-a862-2e91699ef7a1'));
     var stateDiv = common.element(by.id('orchestrator-state'));
-    var stateIcon = common.element(by.className('text-success'), stateDiv);
+    var stateIcon = stateDiv.element(by.className('text-success'));
     expect(stateIcon.isPresent()).toBe(true); // assert that the orchestrator is enabled
     common.click(by.id('menu.orchestrators.configuration')); // go to configuration page
     // expect the configuration element to be disabled

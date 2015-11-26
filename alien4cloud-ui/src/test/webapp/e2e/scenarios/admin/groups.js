@@ -92,7 +92,6 @@ describe('Group management', function() {
   });
 
   it('should be able to create a new group, and find it in the group list', function() {
-    console.log('################# should be able to create a new group, and find it in the group list');
     users.goToGroups();
 
     expect(common.element(by.id('groups-table')).isPresent()).toBe(true);
@@ -104,7 +103,6 @@ describe('Group management', function() {
   });
 
   it('should be able to see and edit group\'s roles', function() {
-    console.log('################# should be able to see and edit group\'s roles');
     users.goToGroups();
 
     users.createGroup(users.groups.managers);
@@ -129,7 +127,6 @@ describe('Group management', function() {
   });
 
   it('should be able to delete a group', function() {
-    console.log('################# should be able to delete a group');
     users.goToGroups();
 
     users.createGroup(users.groups.managers);
@@ -147,7 +144,6 @@ describe('Group management', function() {
   });
 
   it('should be able to edit group\'s properties and fields', function() {
-    console.log('################# should be able to edit group\'s properties and fields');
     users.goToGroups();
 
     users.createGroup(users.groups.managers);
@@ -172,8 +168,6 @@ describe('Group management', function() {
 
 
   it('should be able to update users info when modifying a group', function() {
-    console.log('################# should be able to update users info when modifying a group');
-
     // create groups
     users.goToGroups();
     users.createGroup(users.groups.managers);

@@ -9,7 +9,9 @@ var genericForm = require('../../generic_form/generic_form');
 var plugins = require('../../admin/plugins');
 
 var pluginId = 'plugin_alien4cloud-mock-paas-provider:1.0';
+var newPluginId = 'plugin_alien4cloud-mock-paas-provider:1.1';
 var pluginName = 'alien4cloud-mock-paas-provider';
+
 
 describe('Upload and handle paas plugins', function() {
   it('beforeAll', function() {
@@ -24,26 +26,27 @@ describe('Upload and handle paas plugins', function() {
   });
 
   it('should be able to upload plugins mock paas archive from fresh mock jar build', function() {
-    // upload mock paas plugin
-    plugins.pluginsUploadInit();
+    // upload mock paas plugin 1.1
+    plugins.upload();
 
     // check plugin list content
     var results = element.all(by.repeater('plugin in data.data'));
-    expect(results.count()).toBeGreaterThan(0);
+    expect(results.count()).toBeGreaterThan(1);
 
-    results.first().getText().then(function(text) {
+    results.get(0).getText().then(function(text) {
+      expect(text).toContain(pluginName);
+    });
+    results.get(1).getText().then(function(text) {
       expect(text).toContain(pluginName);
     });
 
     // plugin id in html : may change if the plugin version change
-    var alienMockPaasProviderPlugin = element(by.id(pluginId));
+    var alienMockPaasProviderPlugin = element(by.id(newPluginId));
     expect(alienMockPaasProviderPlugin.isPresent()).toBe(true);
   });
 
   it('should be able to configure uploaded plugin', function() {
     // upload mock paas plugin
-    plugins.pluginsUploadInit();
-
     common.click(by.id(pluginId + '_configure'));
 
     genericForm.sendValueToPrimitive('firstArgument', 'myVeryFirstArgument', false, 'xeditable');
@@ -98,19 +101,15 @@ describe('Upload and handle paas plugins', function() {
   });
 
   it('shoud be able to drop a plugin when it\'s not used by a another resource', function() {
-    console.log('################# shoud be able to drop a plugin when it\'s not used by a another resource');
     // upload mock paas plugin
-    plugins.pluginsUploadInit();
-
-    var mockPluginId = 'plugin_alien4cloud-mock-paas-provider:1.0';
+    plugins.upload();
+    var mockPluginId = 'plugin_alien4cloud-mock-paas-provider:1.1';
     var mockPluginLine = element(by.id(mockPluginId));
     common.deleteWithConfirm('delete-' + mockPluginId, true);
     expect(mockPluginLine.isPresent()).toBe(false);
   });
 
   it('should be able to cancel the plugin deletion', function() {
-    console.log('################# should be able to cancel the plugin deletion');
-    plugins.pluginsUploadInit();
     var mockPluginId = 'plugin_alien4cloud-mock-paas-provider:1.0';
     var mockPluginLine = element(by.id(mockPluginId));
     common.deleteWithConfirm('delete-' + mockPluginId, false);

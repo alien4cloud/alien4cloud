@@ -94,7 +94,7 @@ module.exports.expectValueFromSelectPrimitive = expectValueFromSelectPrimitive;
 
 function expectValueFromPrimitive(path, value, elementType) {
   if (elementType === 'tosca') {
-    xedit.expect(path, value);
+    xedit.expect('p_' + path, value);
   } else if (elementType === 'xeditable') {
     xedit.expect('primitiveTypeFormLabel' + path + 'input', value);
   } else if (elementType === 'select') {

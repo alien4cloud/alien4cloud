@@ -16,7 +16,6 @@ describe('Meta properties configuration', function() {
   });
 
   it('should be able to add/edit/delete a meta properties configuration', function() {
-    console.log('################# should be able to add/edit/delete a meta properties configuration');
     tagConfigCommon.addTagConfiguration(tagConfigCommon.maturityTag, tagConfigCommon.tagMaturityValidValuesConstraint);
 
     tagConfigCommon.clickFirstElementInTagList(tagConfigCommon.maturityTag.name.value);
@@ -35,7 +34,6 @@ describe('Meta properties configuration', function() {
   });
 
   it('should add 2 configuration meta properties and check meta property configurations table', function() {
-    console.log('################# should add 2 configuration meta properties and check meta property configurations table');
     // add tags
     tagConfigCommon.createConfigurationTags();
 
@@ -45,7 +43,6 @@ describe('Meta properties configuration', function() {
   });
 
   it('should add a location meta-property and set <success> as value', function() {
-    console.log('################# should add a location meta-property and set <success> as value');
     orchestrators.go();
     common.click(by.id('orchestrator_f3657e4d-4250-45b4-a862-2e91699ef7a1'));
     common.click(by.id('menu.orchestrators.locations'));
@@ -56,12 +53,12 @@ describe('Meta properties configuration', function() {
     // cloudsCommon.goToCloudConfiguration();
     expect(element(by.id('cloudMetaPropertiesDisplay')).isPresent()).toBe(false);
 
-    tagConfigCommon.addTagConfiguration(tagConfigCommon.defaultCloudProperty, null);
-    // cloudsCommon.goToCloudDetail('testcloud');
-    // cloudsCommon.goToCloudConfiguration();
-    // cloudsCommon.showMetaProperties();
-    expect(element(by.id('cloudMetaPropertiesDisplay')).isDisplayed()).toBe(true);
-    tagConfigCommon.editTagConfiguration('distribution', 'success');
+    tagConfigCommon.addTagConfiguration(tagConfigCommon.defaultLocationProperty, null);
+    // // cloudsCommon.goToCloudDetail('testcloud');
+    // // cloudsCommon.goToCloudConfiguration();
+    // // cloudsCommon.showMetaProperties();
+    // expect(element(by.id('cloudMetaPropertiesDisplay')).isDisplayed()).toBe(true);
+    // tagConfigCommon.editTagConfiguration('distribution', 'success');
   });
 
   it('afterAll', function() { authentication.logout(); });

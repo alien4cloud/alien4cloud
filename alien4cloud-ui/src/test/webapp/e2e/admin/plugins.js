@@ -6,13 +6,7 @@ var settings = require('../common/settings');
 var path = require('path');
 
 // Plugins related details paths
-var pathToMockPaasPlugin = path.resolve(__dirname, '../../../../../../alien4cloud-mock-paas-provider-plugin/target/alien4cloud-mock-paas-provider-plugin-1.0-' + settings.version.version + '.zip');
-
-// Utils to upload plugin archive
-var uploadTestMockPaasPlugin = function() {
-  common.uploadFile(pathToMockPaasPlugin);
-};
-module.exports.uploadTestMockPaasPlugin = uploadTestMockPaasPlugin;
+var pluginPath = path.resolve(__dirname, '../../../../../../alien4cloud-mock-paas-provider-plugin/target/alien4cloud-mock-paas-provider-plugin-1.1-' + settings.version.version + '.zip');
 
 // jump to plugins page
 var go = function() {
@@ -21,12 +15,12 @@ var go = function() {
 };
 module.exports.go = go;
 
-var pluginsUploadInit = function() {
+var upload = function() {
   go();
-  uploadTestMockPaasPlugin();
+  common.uploadFile(pluginPath);
   common.dismissAlertIfPresent();
 };
-module.exports.pluginsUploadInit = pluginsUploadInit;
+module.exports.upload = upload;
 
 var selectMockPaasProvider = function(paasProviderIndex) {
   // Plugin to select

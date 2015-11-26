@@ -28,7 +28,6 @@ describe('User management :', function() {
   });
 
   it('should be able to go to users search page', function() {
-    common.log('################# should be able to go to users search page ');
     //go to the users search page
     users.go();
     // the user list table
@@ -36,7 +35,6 @@ describe('User management :', function() {
   });
 
   it('should be able to create/delete a new user, and find it in the users list', function() {
-    console.log('################# should be able to create a new user, and find it in the users list');
     //go to the users search page
     users.go();
     //check new user button
@@ -51,7 +49,6 @@ describe('User management :', function() {
   });
 
   it('should be able to see and edit user\'s roles', function() {
-    console.log('################# should be able to see and edit user\'s roles');
     //create a user and check no roles for now
     users.createUser(authentication.users.bilbo);
     assertUserHasNoRoles(authentication.users.bilbo.username);
@@ -75,7 +72,6 @@ describe('User management :', function() {
   });
 
   it('should be able to edit user\'s properties and fields', function() {
-    console.log('################# should be able to edit user\'s properties and fields');
     // create a user
     users.createUser(authentication.users.sauron);
 

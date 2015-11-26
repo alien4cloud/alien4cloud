@@ -75,6 +75,8 @@ public class OrchestratorStateService {
                 public void run() {
                     try {
                         load(orchestrator);
+                    } catch (AlreadyExistException e) {
+                        log.info("Orchestrator was already loaded at initialization for {}.", orchestrator.getId());
                     } catch (Throwable t) {
                         // we have to catch everything as we don't know what a plugin can do here and cannot interrupt startup.
                         // Any orchestrator that failed to load will be considered as DISABLED as the registration didn't occurred
@@ -111,6 +113,10 @@ public class OrchestratorStateService {
      */
     private void load(Orchestrator orchestrator) throws PluginConfigurationException {
         log.info("Loading and connecting orchestrator {} (id: {})", orchestrator.getName(), orchestrator.getId());
+        // check that the orchestrator is not already loaded.
+        if (orchestratorPluginService.get(orchestrator.getId()) != null) {
+            throw new AlreadyExistException("Plugin is already loaded.");
+        }
         // switch the state to connecting
         orchestrator.setState(OrchestratorState.CONNECTING);
         alienDAO.save(orchestrator);
@@ -152,12 +158,10 @@ public class OrchestratorStateService {
      */
     public synchronized boolean disable(Orchestrator orchestrator, boolean force) {
         if (force == false) {
-            QueryHelper.SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper
-                    .buildSearchQuery(alienDAO.getIndexForType(Deployment.class))
-                    .types(Deployment.class)
-                    .filters(
-                            MapUtil.newHashMap(new String[] { "orchestratorId", "endDate" }, new String[][] { new String[] { orchestrator.getId() },
-                                    new String[] { null } })).fieldSort("_timestamp", true);
+            QueryHelper.SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper.buildSearchQuery(alienDAO.getIndexForType(Deployment.class))
+                    .types(Deployment.class).filters(MapUtil.newHashMap(new String[] { "orchestratorId", "endDate" },
+                            new String[][] { new String[] { orchestrator.getId() }, new String[] { null } }))
+                    .fieldSort("_timestamp", true);
             // If there is at least one active deployment.
             GetMultipleDataResult<Object> result = alienDAO.search(searchQueryHelperBuilder, 0, 1);
 
