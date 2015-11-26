@@ -632,16 +632,6 @@ public class Context {
         return "http://" + getManagementServerPublicIp("openstack.cfy3.manager_name");
     }
 
-    public String getCloudify2ManagerUrl() {
-        return "https://" + getManagementServerPublicIp("openstack.cfy2.manager_name") + ":8100";
-    }
-
-    @Deprecated
-    public String getCloudId(String appEnvCloudName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     public void registerOrchestratorLocation(String orchestratorId, String locationId, String locationName) {
         if (orchestratorLocationIds == null) {
             orchestratorLocationIds = Maps.newHashMap();
