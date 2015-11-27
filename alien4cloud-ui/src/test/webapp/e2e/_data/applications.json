@@ -1,0 +1,12 @@
+[
+  {
+    "id":"0e48363c-1d7e-4bc3-9e42-5695af60ddaf",
+    "name":"Application 1",
+    "description":"This is the first test application.",
+    "creationDate":1448092204672,
+    "lastUpdateDate":1448092204672,
+    "tags":[],
+    "metaProperties":{},
+    "userRoles":[{"key":"admin","value":["APPLICATION_MANAGER"]}]
+  }
+]

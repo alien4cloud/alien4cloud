@@ -1,3 +1,5 @@
+/* global jasmine, browser */
+
 'use strict';
 
 var debugEnabled = false;
@@ -18,7 +20,7 @@ function writeScreenShot(data, filename) {
   stream.end();
 }
 
-var takeScreenShot = function(imgName) {
+var take = function(imgName) {
   if (SCREENSHOT === true) {
     var specDescription = jasmine.getEnv().currentSpec.description;
     if (debugEnabled) {
@@ -40,5 +42,4 @@ var takeScreenShot = function(imgName) {
     });
   }
 };
-
-module.exports.takeScreenShot = takeScreenShot;
+module.exports.take = take;

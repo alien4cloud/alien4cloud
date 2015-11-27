@@ -13,7 +13,6 @@ import org.elasticsearch.mapping.IndexType;
 @Getter
 @Setter
 @ESObject
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class IndexedArtifactType extends IndexedInheritableToscaElement {
     private String mimeType;
     @TermFilter

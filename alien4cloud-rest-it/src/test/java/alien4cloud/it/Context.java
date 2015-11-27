@@ -179,6 +179,8 @@ public class Context {
 
     private Map<String, String> preRegisteredOrchestratorProperties;
 
+    private Map<String, Object> orchestratorConfiguration;
+
     private Map<String, MetaPropConfiguration> configurationTags;
 
     private String topologyDeploymentId;
@@ -522,6 +524,14 @@ public class Context {
         return tmp;
     }
 
+    public Map<String, Object> getOrchestratorConfiguration() {
+        return orchestratorConfiguration;
+    }
+
+    public void setOrchestratorConfiguration(Map<String, Object> orchestratorConfiguration) {
+        this.orchestratorConfiguration = orchestratorConfiguration;
+    }
+
     public void registerConfigurationTag(String configurationTagName, MetaPropConfiguration tagConfiguration) {
         if (configurationTags != null) {
             configurationTags.put(configurationTagName, tagConfiguration);
@@ -619,17 +629,7 @@ public class Context {
     }
 
     public String getCloudify3ManagerUrl() {
-        return "http://" + getManagementServerPublicIp("openstack.cfy3.manager_name") + ":8100";
-    }
-
-    public String getCloudify2ManagerUrl() {
-        return "https://" + getManagementServerPublicIp("openstack.cfy2.manager_name") + ":8100";
-    }
-
-    @Deprecated
-    public String getCloudId(String appEnvCloudName) {
-        // TODO Auto-generated method stub
-        return null;
+        return "http://" + getManagementServerPublicIp("openstack.cfy3.manager_name");
     }
 
     public void registerOrchestratorLocation(String orchestratorId, String locationId, String locationName) {

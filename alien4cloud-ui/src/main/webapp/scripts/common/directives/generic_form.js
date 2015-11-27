@@ -875,6 +875,14 @@ define(function(require) {
         scope.childrenElements[i].remove();
       }
       delete scope.childrenElements;
+      delete scope.configuration.validationStatuses[scope.pathText];
+      if (scope.configuration.validationErrors && scope.configuration.validationErrors[FORMS.valueRequiredError]) {
+        // For the moment only error that a field is required exist
+        var indexOfError = scope.configuration.validationErrors[FORMS.valueRequiredError].indexOf(scope.labelPath);
+        if (indexOfError >= 0) {
+          scope.configuration.validationErrors[FORMS.valueRequiredError].splice(indexOfError, 1);
+        }
+      }
       scope.isDestroyed = true;
     };
 
