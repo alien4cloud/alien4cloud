@@ -16,6 +16,7 @@ import org.elasticsearch.mapping.QueryHelper;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
+import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.deployment.DeploymentService;
@@ -88,6 +89,7 @@ public class OrchestratorStateService {
                     } catch (Throwable t) {
                         // we have to catch everything as we don't know what a plugin can do here and cannot interrupt startup.
                         // Any orchestrator that failed to load will be considered as DISABLED as the registration didn't occurred
+                        log.error("Unexpected error in plugin", t);
                         orchestrator.setState(OrchestratorState.DISABLED);
                         alienDAO.save(orchestrator);
                     }
@@ -172,7 +174,7 @@ public class OrchestratorStateService {
      *            If true the orchestrator is disabled even if some deployments are currently running.
      */
     public synchronized boolean disable(Orchestrator orchestrator, boolean force) {
-        if (force == false) {
+        if (!force) {
             QueryHelper.SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper.buildSearchQuery(alienDAO.getIndexForType(Deployment.class))
                     .types(Deployment.class).filters(MapUtil.newHashMap(new String[] { "orchestratorId", "endDate" },
                             new String[][] { new String[] { orchestrator.getId() }, new String[] { null } }))
