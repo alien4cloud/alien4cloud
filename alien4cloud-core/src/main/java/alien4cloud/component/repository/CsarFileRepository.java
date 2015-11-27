@@ -60,8 +60,8 @@ public class CsarFileRepository implements ICsarRepositry {
         try {
             Files.createDirectories(csarDirectoryPath);
         } catch (IOException e) {
-            throw new CSARDirectoryCreationFailureException(
-                    "Error while trying to create the CSAR directory <" + csarDirectoryPath.toString() + ">. " + e.getMessage(), e);
+            throw new CSARDirectoryCreationFailureException("Error while trying to create the CSAR directory <" + csarDirectoryPath.toString() + ">. "
+                    + e.getMessage(), e);
         }
 
         try {
@@ -108,11 +108,20 @@ public class CsarFileRepository implements ICsarRepositry {
 
     @Override
     public Path getCSAR(String name, String version) throws CSARVersionNotFoundException {
-        String realName = name.concat("-").concat(version).concat("." + CSAR_EXTENSION);
-
-        Path path = rootPath.resolve(name).resolve(version).resolve(realName);
-        if (Files.exists(path)) {
-            return path;
+        Path csarDir = rootPath.resolve(name).resolve(version);
+        Path expandedPath = csarDir.resolve("expanded");
+        Path zippedPath = csarDir.resolve(name.concat("-").concat(version).concat("." + CSAR_EXTENSION));
+        if (Files.exists(zippedPath)) {
+            return zippedPath;
+        } else if (Files.exists(expandedPath)) {
+            // the csar wasn't stored as a zip file. Zip the expanded dir then
+            try {
+                FileUtil.zip(expandedPath, zippedPath);
+                return zippedPath;
+            } catch (IOException e) {
+                log.error("Failed to zip directory " + expandedPath, e);
+                throw new CSARVersionNotFoundException("CSAR: " + name + ", Version: " + version + " not found in the repository.");
+            }
         }
 
         throw new CSARVersionNotFoundException("CSAR: " + name + ", Version: " + version + " not found in the repository.");
@@ -124,8 +133,8 @@ public class CsarFileRepository implements ICsarRepositry {
                 Files.createDirectories(rootPath);
                 log.info("Alien Repository folder set to " + rootPath.toAbsolutePath());
             } catch (IOException e) {
-                throw new CSARDirectoryCreationFailureException(
-                        "Error while trying to create the CSAR repository <" + rootPath.toString() + ">. " + e.getMessage(), e);
+                throw new CSARDirectoryCreationFailureException("Error while trying to create the CSAR repository <" + rootPath.toString() + ">. "
+                        + e.getMessage(), e);
             }
         } else {
             log.info("Alien Repository folder already created! " + rootPath.toAbsolutePath());
@@ -138,16 +147,16 @@ public class CsarFileRepository implements ICsarRepositry {
             try {
                 FileUtil.delete(csarDirectoryPath);
             } catch (IOException e) {
-                throw new CSARDirectoryCreationFailureException(
-                        "Error while trying to delete the CSAR directory <" + csarDirectoryPath.toString() + ">. " + e.getMessage(), e);
+                throw new CSARDirectoryCreationFailureException("Error while trying to delete the CSAR directory <" + csarDirectoryPath.toString() + ">. "
+                        + e.getMessage(), e);
             }
         }
 
         try {
             Files.createDirectories(csarDirectoryPath);
         } catch (IOException e) {
-            throw new CSARDirectoryCreationFailureException(
-                    "Error while trying to create the CSAR directory <" + csarDirectoryPath.toString() + ">. " + e.getMessage(), e);
+            throw new CSARDirectoryCreationFailureException("Error while trying to create the CSAR directory <" + csarDirectoryPath.toString() + ">. "
+                    + e.getMessage(), e);
         }
     }
 
