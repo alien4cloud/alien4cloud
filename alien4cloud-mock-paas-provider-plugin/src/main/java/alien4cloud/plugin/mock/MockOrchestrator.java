@@ -28,7 +28,7 @@ public class MockOrchestrator extends MockPaaSProvider {
     }
 
     @Override
-    public List<PluginArchive> getPluginArchives() {
+    public List<PluginArchive> pluginArchives() {
         return Lists.newArrayList();
     }
 }

@@ -24,5 +24,5 @@ public interface IOrchestratorPlugin<T> extends IConfigurablePaaSProvider<T>, IP
      *
      * @return The archives provided by the plugin.
      */
-    List<PluginArchive> getPluginArchives();
+    List<PluginArchive> pluginArchives();
 }

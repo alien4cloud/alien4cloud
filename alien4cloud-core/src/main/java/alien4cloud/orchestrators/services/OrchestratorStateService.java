@@ -134,7 +134,7 @@ public class OrchestratorStateService {
         IOrchestratorPlugin<Object> orchestratorInstance = orchestratorFactory.newInstance();
         // index the archive in alien catalog
         try {
-            for (PluginArchive pluginArchive : orchestratorInstance.getPluginArchives()) {
+            for (PluginArchive pluginArchive : orchestratorInstance.pluginArchives()) {
                 archiveIndexer.importArchive(pluginArchive.getArchive(), pluginArchive.getArchiveFilePath(), Lists.<ParsingError> newArrayList());
             }
         } catch (CSARVersionAlreadyExistsException e) {
