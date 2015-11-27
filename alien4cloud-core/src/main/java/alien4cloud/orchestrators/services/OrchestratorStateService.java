@@ -133,7 +133,6 @@ public class OrchestratorStateService {
         IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestrator);
         IOrchestratorPlugin<Object> orchestratorInstance = orchestratorFactory.newInstance();
         // index the archive in alien catalog
-        orchestratorInstance.getPluginArchives().iterator();
         try {
             for (PluginArchive pluginArchive : orchestratorInstance.getPluginArchives()) {
                 archiveIndexer.importArchive(pluginArchive.getArchive(), pluginArchive.getArchiveFilePath(), Lists.<ParsingError> newArrayList());
