@@ -29,6 +29,7 @@ module.exports.before = function() {
 
 // Common utilities to work with protractor
 function wElement(selector, fromElement) {
+  var selectorStr = selector.toString();
   // wait for the element to be there for 3 sec
   browser.wait(function() {
     var deferred = protractor.promise.defer();
@@ -40,7 +41,7 @@ function wElement(selector, fromElement) {
     }
     isPresentPromise.then(function (isPresent) {
       if(!isPresent) {
-        log('waiting for element...');
+        log('waiting for element using selector ' + selectorStr);
       }
       deferred.fulfill(isPresent);
     });

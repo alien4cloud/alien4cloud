@@ -101,6 +101,9 @@
                   <i class="fa fa-pencil-square-o fa-lg" ></i>
                 </button>
                 <delete-confirm id="delete-csargit" ng-disabled="isImporting" func="removeCsarGit(csar.id);" position="left" bssize="btn-sm" fastyle="fa-trash-o"></delete-confirm>
+                <button ng-if="csar.storedLocally" class=" btn-sm btn btn-default ng-binding"  ng-disabled="isImporting" ng bssize="btn-sm" tooltip="{{ 'CSAR.EDITTOOLTIP' | translate}}" position="left" id="UPDATE_CSARGIT" ng-click="openCsarGit(csar)">
+                  <i class="fa fa-pencil-square-o fa-lg" ></i>
+                </button>
               </td>
             </tr>
           </tbody>
