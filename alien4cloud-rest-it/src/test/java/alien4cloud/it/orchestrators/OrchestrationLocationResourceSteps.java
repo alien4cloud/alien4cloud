@@ -1,8 +1,9 @@
 package alien4cloud.it.orchestrators;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
-import alien4cloud.model.components.ComplexPropertyValue;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
@@ -12,6 +13,9 @@ import alien4cloud.rest.orchestrator.model.CreateLocationResourceTemplateRequest
 import alien4cloud.rest.orchestrator.model.LocationDTO;
 import alien4cloud.rest.orchestrator.model.UpdateLocationResourceTemplatePropertyRequest;
 import alien4cloud.rest.utils.JsonUtil;
+
+import com.google.common.collect.Lists;
+
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
@@ -57,13 +61,19 @@ public class OrchestrationLocationResourceSteps {
         Assert.assertTrue(found);
     }
 
-    @When("^I update the property \"([^\"]*)\" to \"([^\"]*)\" for the resource named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
-    public void I_update_the_property_to_for_the_resource_named_related_to_the_location_(String propertyName, String propertyValue, String resourceName,
-            String orchestratorName, String locationName) throws Throwable {
+    private void updatePropertyValue(String orchestratorName, String locationName, String resourceName, String propertyName, Object propertyValue,
+            String restUrlFormat, String... extraArgs) throws IOException {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         String locationId = Context.getInstance().getLocationId(orchestratorId, locationName);
         String resourceId = Context.getInstance().getLocationResourceId(orchestratorId, locationId, resourceName);
-        String restUrl = String.format("/rest/orchestrators/%s/locations/%s/resources/%s/template/properties", orchestratorId, locationId, resourceId);
+        String restUrl;
+        if (extraArgs.length > 0) {
+            List<String> args = Lists.newArrayList(orchestratorId, locationId, resourceId);
+            args.addAll(Arrays.asList(extraArgs));
+            restUrl = String.format(restUrlFormat, args.toArray());
+        } else {
+            restUrl = String.format(restUrlFormat, orchestratorId, locationId, resourceId);
+        }
         UpdateLocationResourceTemplatePropertyRequest request = new UpdateLocationResourceTemplatePropertyRequest();
         request.setPropertyName(propertyName);
         request.setPropertyValue(propertyValue);
@@ -71,31 +81,25 @@ public class OrchestrationLocationResourceSteps {
         Context.getInstance().registerRestResponse(resp);
     }
 
-    @When("^I update the property complexe \"([^\"]*)\" to \"([^\"]*)\" of \"([^\"]*)\" for the resource named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
-    public void I_update_the_property_complexe_to_of_for_the_resource_named_related_to_the_location_(String propertyComplexeName, String propertyValue, String propertyName, String resourceName,
-                                                                                         String orchestratorName, String locationName) throws Throwable {
-        String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
-        String locationId = Context.getInstance().getLocationId(orchestratorId, locationName);
-        String resourceId = Context.getInstance().getLocationResourceId(orchestratorId, locationId, resourceName);
-        String restUrl = String.format("/rest/orchestrators/%s/locations/%s/resources/%s/template/properties", orchestratorId, locationId, resourceId);
-        String request = String.format("{\"propertyName\":\"%s\",\"propertyValue\":{\"%s\":\"%s\"}}", propertyName, propertyComplexeName, propertyValue);
-        String resp = Context.getRestClientInstance().postJSon(restUrl, request);
-        Context.getInstance().registerRestResponse(resp);
+    @When("^I update the property \"([^\"]*)\" to \"([^\"]*)\" for the resource named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
+    public void I_update_the_property_to_for_the_resource_named_related_to_the_location_(String propertyName, String propertyValue, String resourceName,
+            String orchestratorName, String locationName) throws Throwable {
+        updatePropertyValue(orchestratorName, locationName, resourceName, propertyName, propertyValue,
+                "/rest/orchestrators/%s/locations/%s/resources/%s/template/properties");
+    }
+
+    @When("^I update the complex property \"([^\"]*)\" to \"\"\"(.*?)\"\"\" for the resource named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
+    public void I_update_the_complex_property_to_for_the_resource_named_related_to_the_location_(String propertyName, String propertyValue,
+            String resourceName, String orchestratorName, String locationName) throws Throwable {
+        updatePropertyValue(orchestratorName, locationName, resourceName, propertyName, propertyValue,
+                "/rest/orchestrators/%s/locations/%s/resources/%s/template/properties");
     }
 
     @When("^I update the capability \"([^\"]*)\" property \"([^\"]*)\" to \"([^\"]*)\" for the resource named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
     public void I_update_the_capability_property_to_for_the_resource_named_related_to_the_location_(String capabilityName, String propertyName,
             String propertyValue, String resourceName, String orchestratorName, String locationName) throws Throwable {
-        String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
-        String locationId = Context.getInstance().getLocationId(orchestratorId, locationName);
-        String resourceId = Context.getInstance().getLocationResourceId(orchestratorId, locationId, resourceName);
-        String restUrl = String.format("/rest/orchestrators/%s/locations/%s/resources/%s/template/capabilities/%s/properties", orchestratorId, locationId,
-                resourceId, capabilityName);
-        UpdateLocationResourceTemplatePropertyRequest request = new UpdateLocationResourceTemplatePropertyRequest();
-        request.setPropertyName(propertyName);
-        request.setPropertyValue(propertyValue);
-        String resp = Context.getRestClientInstance().postJSon(restUrl, JsonUtil.toString(request));
-        Context.getInstance().registerRestResponse(resp);
+        updatePropertyValue(orchestratorName, locationName, resourceName, propertyName, propertyValue,
+                "/rest/orchestrators/%s/locations/%s/resources/%s/template/capabilities/%s/properties", capabilityName);
     }
 
     @When("^I autogenerate the on-demand resources for the location \"([^\"]*)\"/\"([^\"]*)\"$")

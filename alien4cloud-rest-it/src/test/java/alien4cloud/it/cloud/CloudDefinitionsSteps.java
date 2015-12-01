@@ -175,7 +175,7 @@
 //
 //    @When("^I disable all clouds$")
 //    public void I_disable_all_clouds() throws Throwable {
-//        for (String cloudId : Context.getInstance().getCloudsIds()) {
+//        for (String cloudId : Context.getInstance().getOrchestratorIds()) {
 //            Context.getRestClientInstance().get("/rest/clouds/" + cloudId + "/disable");
 //        }
 //    }

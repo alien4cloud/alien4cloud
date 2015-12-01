@@ -484,7 +484,7 @@ public class Context {
         return orchestratorIds.get(orchestratorName);
     }
 
-    public Collection<String> getCloudsIds() {
+    public Collection<String> getOrchestratorIds() {
         if (orchestratorIds != null) {
             return orchestratorIds.values();
         } else {
