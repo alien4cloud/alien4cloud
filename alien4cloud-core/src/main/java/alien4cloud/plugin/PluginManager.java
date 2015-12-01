@@ -345,6 +345,7 @@ public class PluginManager {
     private void loadPlugin(Plugin plugin, Path pluginPath, Path pluginUiPath) throws IOException, ClassNotFoundException {
         // create a class loader to manage this plugin.
         final List<URL> classPathUrls = Lists.newArrayList();
+        pluginPath = pluginPath.toRealPath();
         classPathUrls.add(pluginPath.toUri().toURL());
         Path libPath = pluginPath.resolve(LIB_DIRECTORY);
         if (Files.exists(libPath)) {
