@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 
 import javax.annotation.Resource;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,11 +25,10 @@ import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsExcept
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
 import alien4cloud.utils.FileUtil;
 
+@Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:application-context-test.xml")
 public class CsarRepositoryTest {
-
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(CsarFileRepository.class);
 
     @Resource
     private ICsarRepositry repo;
@@ -90,7 +90,7 @@ public class CsarRepositoryTest {
         String expectedName = testFileName.concat("-".concat("1.0").concat(".").concat(ARCHIVE_EXTENSION));
         assertEquals(expectedName, name);
 
-        LOGGER.info("GET Result: " + path);
+        log.debug("GET Result: " + path);
     }
 
     private boolean fileExists(Path path, boolean isDirectory) {
@@ -104,11 +104,10 @@ public class CsarRepositoryTest {
     @After
     public void cleanup() {
         if (fileExists(Paths.get(alienRepoDir), true)) {
-            LOGGER.info("cleaning the test env");
+            log.debug("cleaning the test env");
             try {
                 FileUtil.delete(Paths.get(alienRepoDir));
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
