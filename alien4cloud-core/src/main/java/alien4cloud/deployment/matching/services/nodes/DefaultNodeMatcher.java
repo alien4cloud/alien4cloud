@@ -118,7 +118,7 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
         }
 
         // Check that the note template properties are matching the constraints specified for matching.
-        MatchingConfiguration matchingConfiguration = matchingConfigurations.get(nodeType.getElementId());
+        MatchingConfiguration matchingConfiguration = matchingConfigurations.get(candidateType.getElementId());
 
         if (matchingConfiguration == null) {
             return true;

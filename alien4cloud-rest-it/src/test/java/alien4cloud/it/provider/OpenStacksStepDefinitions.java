@@ -2,6 +2,7 @@ package alien4cloud.it.provider;
 
 import java.io.IOException;
 
+import alien4cloud.rest.deployment.DeploymentTopologyDTO;
 import org.jclouds.openstack.cinder.v1.domain.Volume;
 import org.junit.Assert;
 
@@ -14,9 +15,9 @@ import cucumber.api.java.en.And;
 
 public class OpenStacksStepDefinitions {
 
-    private String getVolumeId(String propertyName, String nodeName) throws IOException {
-        String topologyResponseText = Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId());
-        RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyResponseText, TopologyDTO.class);
+    private String getVolumeId(String propertyName, String nodeName, String appName) throws IOException {
+        String topologyResponseText = Context.getRestClientInstance().get("/rest/applications/" + Context.getInstance().getApplicationId(appName) + "/environments/" + Context.getInstance().getDefaultApplicationEnvironmentId(appName) + "/deployment-topology");
+        RestResponse<DeploymentTopologyDTO> topologyResponse = JsonTestUtil.read(topologyResponseText, DeploymentTopologyDTO.class);
         String volumeId = FunctionEvaluator.getScalarValue(topologyResponse.getData().getTopology().getNodeTemplates().get(nodeName).getProperties()
                 .get(propertyName));
         int indexOfEndRegion = volumeId.indexOf('/');
@@ -26,14 +27,14 @@ public class OpenStacksStepDefinitions {
         return volumeId;
     }
 
-    @And("^I should have a volume on OpenStack with id defined in property \"([^\"]*)\" of the node \"([^\"]*)\"$")
-    public void I_should_have_a_volume_on_OpenStack_with_id_defined_in_property_of_the_node(String propertyName, String nodeName) throws Throwable {
-        Volume volume = Context.getInstance().getOpenStackClient().getVolume(getVolumeId(propertyName, nodeName));
+    @And("^I should have a volume on OpenStack with id defined in property \"([^\"]*)\" of the node \"([^\"]*)\" for \"([^\"]*)\"$")
+    public void I_should_have_a_volume_on_OpenStack_with_id_defined_in_property_of_the_node(String propertyName, String nodeName, String appName) throws Throwable {
+        Volume volume = Context.getInstance().getOpenStackClient().getVolume(getVolumeId(propertyName, nodeName, appName));
         Assert.assertNotNull(volume);
     }
 
-    @And("^I delete the volume on OpenStack with id defined in property \"([^\"]*)\" of the node \"([^\"]*)\"$")
-    public void I_delete_the_volume_on_OpenStack_with_id_defined_in_property_of_the_node(String propertyName, String nodeName) throws Throwable {
-        Assert.assertTrue(Context.getInstance().getOpenStackClient().deleteVolume(getVolumeId(propertyName, nodeName)));
+    @And("^I delete the volume on OpenStack with id defined in property \"([^\"]*)\" of the node \"([^\"]*)\" for \"([^\"]*)\"$")
+    public void I_delete_the_volume_on_OpenStack_with_id_defined_in_property_of_the_node(String propertyName, String nodeName, String appName) throws Throwable {
+        Assert.assertTrue(Context.getInstance().getOpenStackClient().deleteVolume(getVolumeId(propertyName, nodeName, appName)));
     }
 }

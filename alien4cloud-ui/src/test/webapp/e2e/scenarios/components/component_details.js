@@ -63,50 +63,6 @@ describe('Component Details :', function() {
     authentication.logout();
   });
 
-  it('should be able to go to component search page, upload a csar, list components and check pagination', function() {
-    console.log('################# should be able to go to component search page, upload a csar, list components and check pagination');
-    // the serach side panel
-    expect(element(by.id('comp-search-side-panel')).isPresent()).toBe(true);
-    // the search result panel
-    expect(element(by.id('comp-search-result-panel')).isPresent()).toBe(true);
-
-    var results = element.all(by.repeater('component in searchResult.data.data'));
-    expect(results.count()).toEqual(20);
-
-    // pagination
-    var pagination = element.all(by.repeater('page in pages'));
-    expect(pagination.count()).toEqual(6);
-
-    // go to the second page and check
-    pagination.get(3).element(by.tagName('a')).click();
-    results = element.all(by.repeater('component in searchResult.data.data'));
-    expect(results.count()).toEqual(7);
-  });
-
-  it('should be able to have components grouped by version when there are multiple versions of the same component', function() {
-    console.log('################# should be able to have components grouped by version when there are multiple versions of the same component');
-    var results = element.all(by.repeater('component in searchResult.data.data'));
-    expect(results.count()).toEqual(20);
-
-    // pagination
-    var pagination = element.all(by.repeater('page in pages'));
-    expect(pagination.count()).toEqual(6);
-
-    // go to the second page and check
-    pagination.get(3).element(by.tagName('a')).click();
-    results = element.all(by.repeater('component in searchResult.data.data'));
-    expect(results.count()).toEqual(7);
-    pagination.get(0).element(by.tagName('a')).click();
-    browser.waitForAngular();
-    components.goToComponentDetailPage(computeComponentV2.id);
-    expect(element.all(by.binding('component.elementId')).first().getText()).toContain(computeComponentV2.elementId);
-    expect(element(by.binding('component.archiveVersion')).getText()).toContain(computeComponentV2.archiveVersion);
-
-    navigation.go('main', 'components');
-    components.changeComponentVersionAndGo(computeComponentV2.id, computeComponent.archiveVersion);
-    expect(element.all(by.binding('component.elementId')).first().getText()).toContain(computeComponent.elementId);
-    expect(element(by.binding('component.archiveVersion')).getText()).toContain(computeComponent.archiveVersion);
-  });
 
   it('should be able to see details of the component [' + blockStorageComponent.id + '], and recommend that component as default for a capability ', function() {
     console.log('################# should be able to see details of the component [' + blockStorageComponent.id + '], and recommend that component as default for a capability ');

@@ -144,6 +144,7 @@ curl -X DELETE "http://localhost:9200/deployment/_query?pretty=true" -d '
 ## Images
 curl -X POST "http://localhost:9200/imagedata/_search?pretty=true" -d '
 {
+    "from" : 0, "size" : 1000,
     "query" : {
         "match_all" : {}
     }

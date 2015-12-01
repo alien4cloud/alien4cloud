@@ -29,8 +29,10 @@ module.exports = function (grunt) {
             // '<%= yeoman.test %>/e2e/scenarios/admin/users.js',
             // '<%= yeoman.test %>/e2e/scenarios/admin/groups.js',
             // '<%= yeoman.test %>/e2e/scenarios/admin/plugins.js',
-            '<%= yeoman.test %>/e2e/scenarios/admin/orchestrators.js'
+            // '<%= yeoman.test %>/e2e/scenarios/admin/orchestrators.js'
             // '<%= yeoman.test %>/e2e/scenarios/admin/metaprops_configuration.js'
+            // '<%= yeoman.test %>/e2e/scenarios/components/component_list.js',
+            '<%= yeoman.test %>/e2e/scenarios/components/component_details.js'
           ]
         }
       }

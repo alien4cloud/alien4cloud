@@ -42,7 +42,11 @@ module.exports.copyPlugin = function(pluginId, from) {
 
 module.exports.copyArchive = function(archiveId, archiveVersion, from, contentJsonPath) {
   if(contentJsonPath && contentJsonPath !== null) {
-    fs.copySync(contentJsonPath, ALIEN_BASE + 'csar/' + archiveId + '/' + archiveVersion);  
+    fs.copySync(contentJsonPath, ALIEN_BASE + 'csar/' + archiveId + '/' + archiveVersion);
   }
   fs.copySync(from, ALIEN_BASE + 'csar/' + archiveId + '/' + archiveVersion + '/expanded');
+};
+
+module.exports.copyImages = function(from) {
+  fs.copySync(from, ALIEN_BASE + 'images');
 };

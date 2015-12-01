@@ -20,6 +20,7 @@ var indexedcapabilitytypes = require(__dirname + '/../_data/indexedcapabilitytyp
 var indexeddatatypes = require(__dirname + '/../_data/indexeddatatypes.json');
 var indexednodetypes = require(__dirname + '/../_data/indexednodetypes.json');
 var indexedrelationshiptypes = require(__dirname + '/../_data/indexedrelationshiptypes.json');
+var imagedatas = require(__dirname + '/../_data/imagedatas.json');
 
 var plugins = require(__dirname + '/../_data/plugins.json');
 var orchestrators = require(__dirname + '/../_data/orchestrators.json');
@@ -30,6 +31,7 @@ var locationresourcetemplates = require(__dirname + '/../_data/locationresourcet
 var applications = require(__dirname + '/../_data/applications.json');
 // archives folders to copy
 var toscaNormativeTypes = path.resolve(__dirname, '../../../../../../alien4cloud-rest-it/target/git/tosca-normative-types-wd06');
+var imagesPath = path.resolve(__dirname + '/../_data/images');
 
 // plugins to copy
 var mockPlugin10Path = path.resolve(__dirname, '../../../../../../alien4cloud-mock-paas-provider-plugin/target/alien4cloud-mock-paas-provider-plugin-1.0-' + settings.version.version);
@@ -48,6 +50,7 @@ function doSetup() {
   repositories.copyArchive('mock-plugin-types', '1.1.0-SM6-SNAPSHOT', mockPluginArchive);
   repositories.copyArchive('mock-plugin-openstack-types', '1.1.0-SM6-SNAPSHOT', mockPluginOSArchive);
   repositories.copyArchive('tosca-normative-types', '1.0.0.wd06-SNAPSHOT', toscaNormativeTypes);
+  repositories.copyImages(imagesPath);
 
   // Update ElasticSearch
   index('csargitrepository', 'csargitrepository', csargitrepositories);
@@ -57,6 +60,7 @@ function doSetup() {
   index('toscaelement', 'indexeddatatype', indexeddatatypes);
   index('toscaelement', 'indexednodetype', indexednodetypes);
   index('toscaelement', 'indexedrelationshiptype', indexedrelationshiptypes);
+  index('imagedata', 'imagedata', imagedatas);
 
   index('plugin', 'plugin', plugins);
   index('orchestrator', 'orchestrator', orchestrators);
@@ -65,7 +69,6 @@ function doSetup() {
   index('locationresourcetemplate', 'locationresourcetemplate', locationresourcetemplates);
 
   index('application', 'application', applications);
-
 
   // 'Cookie': 'JSESSIONID = ',
   alien.login('admin', 'admin').then(function(response){

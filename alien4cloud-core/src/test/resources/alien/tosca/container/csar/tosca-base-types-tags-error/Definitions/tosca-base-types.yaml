@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
 
-name: tosca-base-types
-namespace: alien
+template_name: tosca-base-types
+tosca_default_namespace: alien
 description: Contains the normative types definition.
 
 node_types:
@@ -13,28 +13,26 @@ node_types:
       (e.g, consistent definitions for requirements, capabilities, and lifecycle interfaces).
     requirements:
       dependency:
-        type: tosca.requirements.Feature
+        type: tosca.capabilities.Feature
         lower_bound: 0
         upper_bound: unbounded
     capabilities:
       feature:
         type: tosca.capabilities.Feature
-        lower_bound: 0
         upper_bound: unbounded
     interfaces:
       lifecycle:
         description: Default lifecycle for nodes in TOSCA.
-        operations:
-          create:
-            description: Basic lifecycle create operation.
-          configure:
-            description: Basic lifecycle configure operation.
-          start:
-            description: Basic lifecycle start operation.
-          stop:
-            description: Basic lifecycle stop operation.
-          delete:
-            description: Basic lifecycle delete operation.
+        create:
+          description: Basic lifecycle create operation.
+        configure:
+          description: Basic lifecycle configure operation.
+        start:
+          description: Basic lifecycle start operation.
+        stop:
+          description: Basic lifecycle stop operation.
+        delete:
+          description: Basic lifecycle delete operation.
     tags:
       icon: ./work.jpg
 
@@ -54,15 +52,15 @@ node_types:
     description: Represents a compute instance in the IaaS layer.
     properties:
       disk_size:
-        type: long
+        type: integer
         constraints:
           - greater_than: 0
       num_cpus:
-        type: int
+        type: integer
         constraints:
           -  greater_than: 0
       mem_size:
-        type: long
+        type: integer
         constraints:
           - greater_than: 0
       os_arch:
@@ -123,6 +121,7 @@ node_types:
 
 capability_types:
   tosca.capabilities.Feature:
+      description: a custom feature of my company’s application
   tosca.capabilities.Container:
     derived_from: tosca.capabilities.Feature
   tosca.capabilities.Endpoint:

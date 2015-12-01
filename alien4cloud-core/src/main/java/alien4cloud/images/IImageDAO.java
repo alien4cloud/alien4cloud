@@ -12,7 +12,7 @@ public interface IImageDAO {
     /**
      * Save an image in the DAO layer.
      * 
-     * @param imageData
+     * @param imageBytes
      */
     String writeImage(byte[] imageBytes);
 
