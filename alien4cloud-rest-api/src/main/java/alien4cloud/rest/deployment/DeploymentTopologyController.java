@@ -86,6 +86,7 @@ public class DeploymentTopologyController {
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
         locationResourceService.getOrFail(locationResourceTemplateId);
         // TODO maybe check if the substituted is compatible with the provided substitute and return a specific error for REST users?
+
         deploymentTopology.getSubstitutedNodes().put(nodeId, locationResourceTemplateId);
         deploymentTopologyService.updateDeploymentTopology(deploymentTopology);
         return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
@@ -97,6 +98,7 @@ public class DeploymentTopologyController {
     @Audit
     public RestResponse<DeploymentTopologyDTO> updateSubstitutionProperty(@PathVariable String appId, @PathVariable String environmentId,
             @PathVariable String nodeId, @RequestBody UpdatePropertyRequest updateRequest) {
+        checkAuthorizations(appId, environmentId);
         DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
         deploymentTopologyService.updateSubstitutionProperty(deploymentTopology, nodeId, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
@@ -109,6 +111,7 @@ public class DeploymentTopologyController {
     @Audit
     public RestResponse<?> updateSubstitutionCapabilityProperty(@PathVariable String appId, @PathVariable String environmentId, @PathVariable String nodeId,
             @PathVariable String capabilityName, @RequestBody UpdatePropertyRequest updateRequest) {
+        checkAuthorizations(appId, environmentId);
         DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
         try {
@@ -135,11 +138,10 @@ public class DeploymentTopologyController {
     @RequestMapping(value = "", method = RequestMethod.GET)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<DeploymentTopologyDTO> getDeploymentTopology(@PathVariable String appId, @PathVariable String environmentId) {
-        RestResponseBuilder<DeploymentTopologyDTO> responseBuilder = RestResponseBuilder.<DeploymentTopologyDTO> builder();
         checkAuthorizations(appId, environmentId);
         DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
         DeploymentTopologyDTO dto = buildDeploymentTopologyDTO(deploymentConfiguration);
-        return responseBuilder.data(dto).build();
+        return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(dto).build();
     }
 
     /**
@@ -155,12 +157,10 @@ public class DeploymentTopologyController {
     @PreAuthorize("isAuthenticated()")
     public RestResponse<DeploymentTopologyDTO> setLocationPolicies(@PathVariable String appId, @PathVariable String environmentId,
             @RequestBody SetLocationPoliciesRequest request) {
-        RestResponseBuilder<DeploymentTopologyDTO> responseBuilder = RestResponseBuilder.builder();
-
         checkAuthorizations(appId, environmentId);
         DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.setLocationPolicies(environmentId, request.getOrchestratorId(),
                 request.getGroupsToLocations());
-        return responseBuilder.data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
+        return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
     }
 
     // FIXME THIS CANNOT BE USED ANYMORE TO SET MATCHING RESULT
@@ -177,7 +177,6 @@ public class DeploymentTopologyController {
     @Audit
     public RestResponse<?> updateDeploymentSetup(@PathVariable String appId, @PathVariable String environmentId,
             @RequestBody UpdateDeploymentTopologyRequest updateRequest) throws OrchestratorDisabledException {
-
         // check rights on related environment
         checkAuthorizations(appId, environmentId);
 

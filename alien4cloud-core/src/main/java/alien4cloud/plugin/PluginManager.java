@@ -178,6 +178,13 @@ public class PluginManager {
             String pluginPathId = getPluginPathId();
             Plugin plugin = new Plugin(descriptor, pluginPathId);
 
+            // check plugin already exists
+            long count = alienDAO.count(Plugin.class, QueryBuilders.idsQuery(MappingBuilder.indexTypeFromClass(Plugin.class)).ids(plugin.getId()));
+            if (count > 0) {
+                log.warn("Uploading Plugin <{}> impossible (already exists)", plugin.getId());
+                throw new AlreadyExistException("A plugin with the given id and version already exists.");
+            }
+
             Path pluginPath = getPluginPath(pluginPathId);
             FileUtil.unzip(uploadedPluginPath, pluginPath);
 
@@ -188,12 +195,6 @@ public class PluginManager {
                 FileUtil.copy(pluginUiSourcePath, pluginUiPath);
             }
 
-            // check plugin already exists
-            long count = alienDAO.count(Plugin.class, QueryBuilders.idsQuery(MappingBuilder.indexTypeFromClass(Plugin.class)).ids(plugin.getId()));
-            if (count > 0) {
-                log.warn("Uploading Plugin <{}> impossible (already exists)", plugin.getId());
-                throw new AlreadyExistException("A plugin with the given id and version already exists.");
-            }
             loadPlugin(plugin);
             plugin.setConfigurable(isPluginConfigurable(plugin.getId()));
             alienDAO.save(plugin);
