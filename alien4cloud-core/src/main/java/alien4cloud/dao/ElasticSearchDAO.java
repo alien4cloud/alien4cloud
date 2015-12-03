@@ -33,7 +33,7 @@ import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.model.PluginConfiguration;
-import alien4cloud.security.model.CsarGitRepository;
+import alien4cloud.model.git.CsarGitRepository;
 
 /**
  * Elastic Search DAO for alien 4 cloud application.
