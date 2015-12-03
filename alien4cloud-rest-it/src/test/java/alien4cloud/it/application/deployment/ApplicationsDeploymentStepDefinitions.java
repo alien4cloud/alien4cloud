@@ -11,10 +11,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import alien4cloud.rest.deployment.DeploymentTopologyDTO;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -507,6 +507,28 @@ public class ApplicationsDeploymentStepDefinitions {
         log.info("Re-deploy : Deploying the application " + ApplicationStepDefinitions.CURRENT_APPLICATION.getName());
         I_deploy_it();
         log.info("Re-deploy : Finished deployment of the application " + ApplicationStepDefinitions.CURRENT_APPLICATION.getName());
+    }
+
+    @And("^The node \"([^\"]*)\" should contain (\\d+) instance\\(s\\) not started$")
+    public void The_node_should_contain_instances_not_started(String nodeName, int expectedNumberOfInstancesNotStarted) throws Throwable {
+        RestResponse<?> response = JsonUtil.read(Context.getRestClientInstance().get(
+                "/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
+                        + Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName())
+                        + "/deployment/informations"));
+        Assert.assertNotNull(response.getData());
+        Map<String, Object> instancesInformation = (Map<String, Object>) response.getData();
+        Assert.assertNotNull(instancesInformation.get(nodeName));
+        Map<String, Object> nodeInformation = (Map<String, Object>) instancesInformation.get(nodeName);
+        int countNotStarted = 0;
+        for (Map.Entry<String, Object> instanceInformationEntry : nodeInformation.entrySet()) {
+            Map<String, Object> instanceInformation = (Map<String, Object>) instanceInformationEntry.getValue();
+            if (!Objects.equals(InstanceStatus.SUCCESS, instanceInformation.get("instanceStatus"))) {
+                countNotStarted++;
+            }
+        }
+        assertEquals(
+                "should have " + expectedNumberOfInstancesNotStarted + " instances not started, but got theses instances: "
+                        + JsonUtil.toString(nodeInformation), expectedNumberOfInstancesNotStarted, countNotStarted);
     }
 
     @And("^The node \"([^\"]*)\" should contain (\\d+) instance\\(s\\)$")
