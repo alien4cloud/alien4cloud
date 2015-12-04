@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -37,6 +38,7 @@ import alien4cloud.it.utils.websocket.StompData;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.InstanceStatus;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
@@ -117,7 +119,7 @@ public class ApplicationsDeploymentStepDefinitions {
 
     @SuppressWarnings("rawtypes")
     private void checkStatus(String applicationName, String deploymentId, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout,
-            String applicationEnvironmentName) throws IOException, InterruptedException {
+            String applicationEnvironmentName) throws Throwable {
         String statusRequest = null;
         String applicationEnvironmentId = null;
         String applicationId = applicationName != null ? Context.getInstance().getApplicationId(applicationName) : null;
@@ -159,6 +161,15 @@ public class ApplicationsDeploymentStepDefinitions {
                 }
             }
         }
+    }
+
+    private boolean checkNodeInstancesState(String key, Map<String, InstanceInformation> nodeInstancesInfos, String expectedState) {
+        for (Entry<String, InstanceInformation> entry : nodeInstancesInfos.entrySet()) {
+            if (!Objects.equals(expectedState, entry.getValue().getState())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Then("^The application's deployment must succeed$")
@@ -495,6 +506,40 @@ public class ApplicationsDeploymentStepDefinitions {
         // null value for environmentName => use default environment
         assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), DeploymentStatus.DEPLOYED, DeploymentStatus.DEPLOYMENT_IN_PROGRESS,
                 numberOfMinutes * 60L * 1000L, null);
+    }
+
+    @Then("^all nodes instances must be in \"([^\"]*)\" state after (\\d+) minutes$")
+    public void all_nodes_instances_must_be_in_state_after_minutes(String expectedState, long numberOfMinutes) throws Throwable {
+        long timeout = numberOfMinutes * 60L * 1000L;
+        String applicationId = Context.getInstance().getApplicationId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName());
+        String applicationEnvironmentId = Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName());
+        long now = System.currentTimeMillis();
+        while (true) {
+            if (System.currentTimeMillis() - now > timeout) {
+                throw new ITException("Expected All instances to be in state [" + expectedState + "] but Test has timeouted");
+            }
+
+            String restInfoResponseText = Context.getRestClientInstance().get(
+                    "/rest/applications/" + applicationId + "/environments/" + applicationEnvironmentId + "/deployment/informations");
+            RestResponse<?> infoResponse = JsonUtil.read(restInfoResponseText);
+            assertNull(infoResponse.getError());
+            Assert.assertNotNull(infoResponse.getData());
+            Map<String, Object> instancesInformation = (Map<String, Object>) infoResponse.getData();
+            boolean ok = true;
+            for (Entry<String, Object> entry : instancesInformation.entrySet()) {
+                Map<String, InstanceInformation> nodeInstancesInfos = JsonUtil.toMap(JsonUtil.toString(entry.getValue()), String.class,
+                        InstanceInformation.class, Context.getJsonMapper());
+                if (!checkNodeInstancesState(entry.getKey(), nodeInstancesInfos, expectedState)) {
+                    Thread.sleep(1000L);
+                    ok = false;
+                    break;
+                }
+            }
+
+            if (ok) {
+                return;
+            }
+        }
     }
 
     @And("^I re-deploy the application$")
