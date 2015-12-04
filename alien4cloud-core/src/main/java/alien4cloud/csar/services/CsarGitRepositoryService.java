@@ -1,9 +1,5 @@
 package alien4cloud.csar.services;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,12 +12,10 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.security.model.CsarGitCheckoutLocation;
-import alien4cloud.security.model.CsarGitRepository;
-import alien4cloud.utils.FileUtil;
+import alien4cloud.model.git.CsarGitCheckoutLocation;
+import alien4cloud.model.git.CsarGitRepository;
 import alien4cloud.utils.UrlUtil;
 import org.springframework.stereotype.Service;
-import org.springframework.util.FileSystemUtils;
 
 /**
  * Manages operations on a CsarGitRepository
