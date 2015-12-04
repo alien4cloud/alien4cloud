@@ -8,6 +8,7 @@ import java.util.*;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 
 import org.eclipse.jgit.api.Git;
@@ -22,9 +23,9 @@ import alien4cloud.exception.GitException;
 import alien4cloud.git.RepositoryManager;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
-import alien4cloud.security.model.CsarDependenciesBean;
-import alien4cloud.security.model.CsarGitCheckoutLocation;
-import alien4cloud.security.model.CsarGitRepository;
+import alien4cloud.model.git.CsarDependenciesBean;
+import alien4cloud.model.git.CsarGitCheckoutLocation;
+import alien4cloud.model.git.CsarGitRepository;
 import alien4cloud.tosca.ArchiveUploadService;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
@@ -150,18 +151,14 @@ public class CsarGitService {
         Set<Path> archivePaths = csarFinderService.prepare(archiveGitRoot, archiveZipRoot);
 
         // TODO code review has to be completed to further cleanup below processing.
-        List<ParsingResult<Csar>> parsingResult = new ArrayList<ParsingResult<Csar>>();
-        List<CsarDependenciesBean> csarDependenciesBeanList = null;
+        List<ParsingResult<Csar>> parsingResult = Lists.newArrayList();
         try {
-            csarDependenciesBeanList = uploadService.preParsing(archivePaths);
-            for (CsarDependenciesBean dep : csarDependenciesBeanList) {
-                if (dep.getDependencies() == null || dep.getDependencies().isEmpty()) {
-                    parsingResult.add(uploadService.upload(dep.getPath()));
-                    return parsingResult;
-                }
+            Map<CSARDependency, CsarDependenciesBean> csarDependenciesBeans = uploadService.preParsing(archivePaths);
+            List<CsarDependenciesBean> sorted = sort(csarDependenciesBeans);
+            for (CsarDependenciesBean csarBean : sorted) {
+                ParsingResult<Csar> result = uploadService.upload(csarBean.getPath());
+                parsingResult.add(result);
             }
-            this.updateDependenciesList(csarDependenciesBeanList);
-            parsingResult = this.handleImportLogic(csarDependenciesBeanList, parsingResult);
             return parsingResult;
         } catch (ParsingException e) {
             // TODO Actually add a parsing result with error.
@@ -171,106 +168,52 @@ public class CsarGitService {
         }
     }
 
-    /**
-     * Update the CsarDependenciesBean list based on the CSARDependency found (i.e : deleted or imported
-     *
-     * @param csarDependenciesBeanList List containing the CsarDependenciesBean
-     */
-    private void updateDependenciesList(List<CsarDependenciesBean> csarDependenciesBeanList) {
-        for (CsarDependenciesBean csarContainer : csarDependenciesBeanList) {
-            Iterator<?> it = csarContainer.getDependencies().iterator();
-            while (it.hasNext()) {
-                CSARDependency dependencie = (CSARDependency) it.next();
-                if (lookupForDependencie(dependencie, csarDependenciesBeanList) == null) {
-                    it.remove();
-                }
-            }
-        }
-    }
+    private List<CsarDependenciesBean> sort(Map<CSARDependency, CsarDependenciesBean> elements) {
+        List<CsarDependenciesBean> sortedCsars = Lists.newArrayList();
 
-    /**
-     * Process to a lookup in the CsarDependenciesBean list to check if a CSARDependency is in the list
-     *
-     * @param dependencie
-     * @param csarDependenciesBeanList
-     * @return the csarBean matching the dependency
-     */
-    private CsarDependenciesBean lookupForDependencie(CSARDependency dependencie, List<CsarDependenciesBean> csarDependenciesBeanList) {
-        for (CsarDependenciesBean csarBean : csarDependenciesBeanList) {
-            if ((dependencie.getName() + ":" + dependencie.getVersion()).equals(csarBean.getName() + ":" + csarBean.getVersion())) {
-                return csarBean;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Method to import a repository based on its inter-dependencies
-     *
-     * @param csarDependenciesBeanList List of the CsarGitRepository to import
-     * @param parsingResult Result of the pre-process parsing
-     * @return The result of the final import
-     * @throws CSARVersionAlreadyExistsException
-     * @throws ParsingException
-     */
-    private List<ParsingResult<Csar>> handleImportLogic(List<CsarDependenciesBean> csarDependenciesBeanList, List<ParsingResult<Csar>> parsingResult)
-            throws CSARVersionAlreadyExistsException, ParsingException {
-        ParsingResult<Csar> result = null;
-        for (CsarDependenciesBean csarBean : csarDependenciesBeanList) {
-            if (csarBean.getDependencies().isEmpty()) {
-                result = uploadService.upload(csarBean.getPath());
-                removeExistingDependencies(csarBean, csarDependenciesBeanList);
-                parsingResult.add(result);
+        List<CsarDependenciesBean> independents = Lists.newArrayList();
+        for (Map.Entry<CSARDependency, CsarDependenciesBean> entry : elements.entrySet()) {
+            CsarDependenciesBean csar = entry.getValue();
+            if (csar.getDependencies() == null) {
+                // the element has no dependencies
+                independents.add(csar);
             } else {
-                Iterator<?> it = csarBean.getDependencies().iterator();
-                while (it.hasNext()) {
-                    CSARDependency dep = (CSARDependency) it.next();
-                    CsarDependenciesBean bean = lookupForDependencie(dep, csarDependenciesBeanList);
-                    this.analyseCsarBean(result, bean, parsingResult, csarDependenciesBeanList);
+                // complete the list of dependent elements
+                List<CSARDependency> toClears = Lists.newArrayList();
+                for (CSARDependency dependent : csar.getDependencies()) {
+                    CsarDependenciesBean providedDependency = elements.get(dependent);
+                    if (providedDependency == null) {
+                        // remove the dependency as it may be in the alien repo
+                        toClears.add(dependent);
+                    } else {
+                        providedDependency.getDependents().add(entry.getValue());
+                    }
+                }
+                for (CSARDependency toClear : toClears) {
+                    csar.getDependencies().remove(toClear);
+                }
+                if(csar.getDependencies().isEmpty()) {
+                    independents.add(csar);
                 }
             }
         }
-        return parsingResult;
-    }
 
-    /**
-     * Analyse a CsarDependenciesBean to check if it is ready to import
-     *
-     * @param result Result of the pre-parsing process
-     * @param bean Bean containing the CsarGitRepository informations
-     * @param parsingResult Global result of the pre-parsing result
-     * @param csarDependenciesBeanList
-     * @throws CSARVersionAlreadyExistsException
-     * @throws ParsingException
-     */
-    private void analyseCsarBean(ParsingResult<Csar> result, CsarDependenciesBean bean, List<ParsingResult<Csar>> parsingResult,
-            List<CsarDependenciesBean> csarDependenciesBeanList) throws CSARVersionAlreadyExistsException, ParsingException {
-        if (bean != null) {
-            result = uploadService.upload(bean.getPath());
-            parsingResult.add(result);
-            removeExistingDependencies(bean, csarDependenciesBeanList);
-        }
-    }
-
-    /**
-     * Remove all the occurences of the dependencie when uploaded
-     *
-     * @param bean Bean representing the Csar to import with detailed data
-     * @param csarDependenciesBeanList The list containing the other CsarDependenciesBean
-     */
-    private void removeExistingDependencies(CsarDependenciesBean bean, List<CsarDependenciesBean> csarDependenciesBeanList) {
-        Set<?> tmpSet;
-        for (CsarDependenciesBean csarBean : csarDependenciesBeanList) {
-            // To avoid concurrentmodificationexception we clone the set before fetching
-            tmpSet = new HashSet(csarBean.getDependencies());
-            Iterator<?> it = tmpSet.iterator();
-            while (it.hasNext()) {
-                CSARDependency dep = (CSARDependency) it.next();
-                if ((dep.getName() + ":" + dep.getVersion()).equals(bean.getName() + ":" + bean.getVersion())) {
-                    it.remove();
+        while (independents.size() > 0) {
+            CsarDependenciesBean independent = independents.remove(0);
+            elements.remove(independent.getSelf()); // remove from the elements
+            sortedCsars.add(independent); // element has no more dependencies
+            for (CsarDependenciesBean dependent : independent.getDependents()) {
+                dependent.getDependencies().remove(independent.getSelf());
+                if (dependent.getDependencies().isEmpty()) {
+                    independents.add(dependent);
                 }
             }
-            csarBean.setDependencies(tmpSet);
         }
+
+        if (elements.size() > 0) {
+            // TODO there is looping dependencies throw exception or ignore ?
+        }
+
+        return sortedCsars;
     }
 }

@@ -1,23 +1,17 @@
 package alien4cloud.rest.csar;
 
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.csar.services.CsarGitRepositoryService;
 import alien4cloud.csar.services.CsarGitService;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.Csar;
 import alien4cloud.rest.model.*;
-import alien4cloud.security.model.CsarGitRepository;
+import alien4cloud.model.git.CsarGitRepository;
 import alien4cloud.tosca.ArchiveUploadService;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.NoHeadException;
-import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
-import java.io.IOException;
 import java.util.List;
 
 @RestController

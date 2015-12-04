@@ -7,7 +7,7 @@ import lombok.Setter;
 
 import org.hibernate.validator.constraints.NotBlank;
 
-import alien4cloud.security.model.CsarGitCheckoutLocation;
+import alien4cloud.model.git.CsarGitCheckoutLocation;
 @Getter
 @Setter
 public class AddCsarGitLocation {
