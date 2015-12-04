@@ -91,7 +91,7 @@ public class OrchestrationLocationResourceSteps {
     @When("^I update the complex property \"([^\"]*)\" to \"\"\"(.*?)\"\"\" for the resource named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
     public void I_update_the_complex_property_to_for_the_resource_named_related_to_the_location_(String propertyName, String propertyValue,
             String resourceName, String orchestratorName, String locationName) throws Throwable {
-        updatePropertyValue(orchestratorName, locationName, resourceName, propertyName, propertyValue,
+        updatePropertyValue(orchestratorName, locationName, resourceName, propertyName, JsonUtil.toMap(propertyValue),
                 "/rest/orchestrators/%s/locations/%s/resources/%s/template/properties");
     }
 
