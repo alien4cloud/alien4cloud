@@ -50,7 +50,7 @@ define(function(require) {
             inputProperties: $scope.deploymentContext.deploymentTopologyDTO.topology.inputProperties
           }), function(result){
             if(!result.error) {
-              $scope.updateScopeDeploymentTopologyDTO(result.data)
+              $scope.updateScopeDeploymentTopologyDTO(result.data);
             }
           }).$promise;
         };
@@ -118,7 +118,7 @@ define(function(require) {
                 providerDeploymentProperties: $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties
               }), function(result){
                   if(!result.error) {
-                    $scope.updateScopeDeploymentTopologyDTO(result.data)
+                    $scope.updateScopeDeploymentTopologyDTO(result.data);
                   }
               });
             }
