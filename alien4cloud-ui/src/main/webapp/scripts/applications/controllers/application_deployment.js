@@ -37,21 +37,21 @@ define(function(require) {
         return deploymentContext;
       });
   }
-  
+
   var setNextStepMenuEnabled = function(currentStepMenu, nextStepMenu){
     nextStepMenu.disabled = currentStepMenu.disabled || (_.get(currentStepMenu, 'step.status', 'SUCCESS')!=='SUCCESS');
   };
-  
+
   function buildMenuTree(menus) {
     _.each(menus, function(menu){
       if (_.definedPath(menu, 'step.nextStepId')){
         menu.nextStep = _.find(menus, function(item){
-          return item.id===menu.step.nextStepId
+          return item.id===menu.step.nextStepId;
         });
       }
     });
   }
-  
+
   function enabledOrDisableMenus(menus){
     _.each(menus, function(menu){
       if (_.defined(menu.nextStep)){
@@ -69,17 +69,17 @@ define(function(require) {
             menu.step.status = 'ERROR';
             return;
           }
-        })
+        });
       }
     });
-    
+
     enabledOrDisableMenus(menus);
   }
 
   states.state('applications.detail.deployment', {
     url: '/deployment',
     resolve: {
-      deploymentContext: ['application', 'appEnvironments', 'deploymentTopologyServices', 'deploymentTopologyProcessor', 'tasksProcessor', 'menu', 
+      deploymentContext: ['application', 'appEnvironments', 'deploymentTopologyServices', 'deploymentTopologyProcessor', 'tasksProcessor', 'menu',
         function(application, appEnvironments, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menu) {
           //build the menu tree
           buildMenuTree(menu);
