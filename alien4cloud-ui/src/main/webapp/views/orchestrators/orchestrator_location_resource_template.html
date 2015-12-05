@@ -66,7 +66,7 @@
            ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(capabilityEntry.value.properties)">
         <div style="font-weight: normal"
              ng-class="{'clickable' : !emptyProps}"
-             ng-click="isReqPropsCollapsed[capabilityEntry.key] = !isReqPropsCollapsed[capabilityEntry.key]">
+             ng-click="!emptyProps && (isReqPropsCollapsed[capabilityEntry.key] = !isReqPropsCollapsed[capabilityEntry.key])">
           <div class="row">
             <div class="col-md-3 ">
               <i ng-if="!emptyProps" class="pull-left fa"
