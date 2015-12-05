@@ -105,6 +105,23 @@ define(function(require) {
             return result;
           }).$promise;
         };
+        
+        $scope.isPropertyEditable = function(propertyName){
+          if($scope.getSubstitutedTemplate($scope.selectedNodeName).id === $scope.selectedResourceTemplate.id){
+            var originalNode =  $scope.deploymentContext.deploymentTopologyDTO.topology.originalNodes[$scope.selectedNodeName];
+            
+            var locationTemplate = $scope.deploymentContext.deploymentTopologyDTO.locationResourceTemplates[$scope.selectedResourceTemplate.id].template;
+            var originalProperty = _.result(_.find(originalNode.properties, {'key':propertyName}), 'value');
+            var originalLocationTemplateProperty = _.result(_.get(locationTemplate, 'propertiesMap.'+propertyName), 'value');
+            
+            if(originalProperty || originalLocationTemplateProperty ){
+              return false;
+            }
+            return true;
+          }
+          
+          return false;
+        };
       }
     ]); //controller
 }); //Define

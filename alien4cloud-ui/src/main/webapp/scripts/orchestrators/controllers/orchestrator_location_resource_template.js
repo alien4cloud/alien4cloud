@@ -61,5 +61,11 @@ define(function(require) {
           }
         });
       };
+      
+      $scope.canEditProperty = function(propertyName){
+        return $scope.isPropertyEditable({
+          propertyName: propertyName
+        });
+      };
     }]);
 });

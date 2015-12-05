@@ -37,9 +37,8 @@
                 dependencies="dependencies"
                 property-name="propEntry.key"
                 property-value="propEntry.value"
-                editable = "isPropertyEditable"
+                editable = "canEditProperty(propEntry.key)"
                 on-save="updateResourceProperty(propertyName, propertyValue)"
-                editable="true"
                 condensed="condensed">
             </property-display>
           </td>
@@ -93,9 +92,8 @@
                   dependencies="dependencies"
                   property-name="propertyEntry.key"
                   property-value="propertyEntry.value"
-                  editable = "isPropertyEditable"
+                  editable = "canEditProperty()"
                   on-save="updateResourceCapabilityProperty(capabilityEntry.key, propertyName, propertyValue)"
-                  editable="true"
                   condensed="condensed">
               </property-display>
             </td>
