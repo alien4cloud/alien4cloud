@@ -64,7 +64,17 @@ define(function(require) {
       
       $scope.canEditProperty = function(propertyName){
         return $scope.isPropertyEditable({
-          propertyName: propertyName
+          propertyPath: {
+            propertyName: propertyName
+          }
+        });
+      };
+      $scope.canEditCapabilityProperty = function(capabilityName, propertyName){
+        return $scope.isPropertyEditable({
+          propertyPath: {
+            capabilityName: capabilityName,
+            propertyName: propertyName
+          }
         });
       };
     }]);

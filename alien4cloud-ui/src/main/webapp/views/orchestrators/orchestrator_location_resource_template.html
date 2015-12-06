@@ -23,7 +23,7 @@
     <div id="node-details-properties" class="clickable"
          ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
       <h4>
-        <i class="pull-left fa" ng-class="{'fa-caret-down' : !isPropertiesCollapsed, 'fa-caret-right': isPropertiesCollapsed}"></i>
+        <i class=" fa" ng-class="{'fa-caret-down' : !isPropertiesCollapsed, 'fa-caret-right': isPropertiesCollapsed}"></i>
         {{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}
       </h4>
     </div>
@@ -56,7 +56,7 @@
     <div id="node-details-capabilities" class="clickable"
          ng-click="isCapabilitiesCollapsed = !isCapabilitiesCollapsed">
       <h4>
-        <i class="pull-left fa" ng-class="{'fa-caret-down' : !isCapabilitiesCollapsed, 'fa-caret-right': isCapabilitiesCollapsed}"></i>
+        <i class=" fa" ng-class="{'fa-caret-down' : !isCapabilitiesCollapsed, 'fa-caret-right': isCapabilitiesCollapsed}"></i>
         {{'APPLICATIONS.TOPOLOGY.CAPABILITIES' | translate}}
       </h4>
     </div>
@@ -83,7 +83,7 @@
             </div>
           </div>
         </div>
-        <table ng-if="!isReqPropsCollapsed[capabilityEntry.key]" class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
+        <table ng-if="!emptyProps && !isReqPropsCollapsed[capabilityEntry.key]" class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
           <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
             <td>
               <property-display
@@ -92,7 +92,7 @@
                   dependencies="dependencies"
                   property-name="propertyEntry.key"
                   property-value="propertyEntry.value"
-                  editable = "canEditProperty()"
+                  editable = "canEditCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
                   on-save="updateResourceCapabilityProperty(capabilityEntry.key, propertyName, propertyValue)"
                   condensed="condensed">
               </property-display>
