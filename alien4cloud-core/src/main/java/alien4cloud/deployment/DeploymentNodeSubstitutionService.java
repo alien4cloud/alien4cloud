@@ -110,11 +110,14 @@ public class DeploymentNodeSubstitutionService {
         removeUnsynchronizedSubstitutions(deploymentTopology, substitutedNodes, availableSubstitutions);
 
         // clean the originalNodes map since some nodes might have been deleted from the initial topology, and thus not appearing in the availableSubstitutions
+        // also update the original node, since it might have changed since it was added
         Iterator<Entry<String, NodeTemplate>> originalNodesIter = deploymentTopology.getOriginalNodes().entrySet().iterator();
         while (originalNodesIter.hasNext()) {
             Entry<String, NodeTemplate> next = originalNodesIter.next();
             if (!availableSubstitutions.containsKey(next.getKey())) {
                 originalNodesIter.remove();
+            } else {
+                next.setValue(deploymentTopology.getNodeTemplates().get(next.getKey()));
             }
         }
 
