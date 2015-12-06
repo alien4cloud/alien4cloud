@@ -50,10 +50,10 @@ define(function(require) {
       };
       $scope.propertySave = function(data, unit) {
         delete $scope.unitError;
-        if (_.isEmpty(data)) {
-          data = null;
-        } else if (_.isBoolean(data)) {
+        if (_.isBoolean(data)) {
           data = data.toString();
+        } else if (_.isEmpty(data)) {
+          data = null;
         }
 
         if (!_.isEmpty(data) && _.defined($scope.definitionObject.units)) {
