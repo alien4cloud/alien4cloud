@@ -5,15 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Resource;
-
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.deployment.DeploymentService;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.utils.MapUtil;
@@ -28,9 +25,7 @@ import com.google.common.collect.Sets;
 @SuppressWarnings("unchecked")
 @Slf4j
 public class PaaSProviderPollingMonitor implements Runnable {
-    @Resource(name = "deploymentService")
-    private DeploymentService deploymentService;
-    private static final int MAX_POLLED_EVENTS = 100;
+    private static final int MAX_POLLED_EVENTS = 500;
     private final IGenericSearchDAO dao;
     private final IGenericSearchDAO monitorDAO;
     private final IPaaSProvider paaSProvider;
