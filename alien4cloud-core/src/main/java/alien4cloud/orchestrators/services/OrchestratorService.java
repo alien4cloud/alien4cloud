@@ -119,6 +119,16 @@ public class OrchestratorService {
     }
 
     /**
+     * Get the orchestrator matching the given id
+     *
+     * @param id If of the orchestrator that we want to get.
+     * @return An instance of the orchestrator.
+     */
+    public Orchestrator get(String id) {
+        return alienDAO.findById(Orchestrator.class, id);
+    }
+
+    /**
      * Get the orchestrator matching the given id or throw a NotFoundException
      *
      * @param id If of the orchestrator that we want to get.
