@@ -8,26 +8,21 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.orchestrators.locations.services.LocationResourceService;
-import alien4cloud.rest.model.RestErrorBuilder;
-import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.orchestrator.model.CreateLocationResourceTemplateRequest;
 import alien4cloud.rest.orchestrator.model.UpdateLocationResourceTemplatePropertyRequest;
 import alien4cloud.rest.orchestrator.model.UpdateLocationResourceTemplateRequest;
+import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
-
+import alien4cloud.utils.RestConstraintValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -39,7 +34,8 @@ import io.swagger.annotations.Authorization;
 @Slf4j
 @RestController
 @RequestMapping(value = "/rest/orchestrators/{orchestratorId}/locations/{locationId}/resources", produces = MediaType.APPLICATION_JSON_VALUE)
-@Api(value = "Orchestrator Location Resources", description = "Manages locations for a given orchestrator.", authorizations = { @Authorization("ADMIN") }, position = 4400)
+@Api(value = "Orchestrator Location Resources", description = "Manages locations for a given orchestrator.", authorizations = {
+        @Authorization("ADMIN") }, position = 4400)
 public class LocationResourcesController {
     @Inject
     private LocationResourceService locationResourceService;
@@ -86,13 +82,17 @@ public class LocationResourcesController {
     @RequestMapping(value = "/{id}/template/properties", method = RequestMethod.POST)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<Void> updateResourceTemplateProperty(
+    public RestResponse<ConstraintUtil.ConstraintInformation> updateResourceTemplateProperty(
             @ApiParam(value = "Id of the orchestrator for which to update resource template property.", required = true) @PathVariable String orchestratorId,
             @ApiParam(value = "Id of the location of the orchestrator to update resource template property.", required = true) @PathVariable String locationId,
             @ApiParam(value = "Id of the location's resource.", required = true) @PathVariable String id,
             @RequestBody UpdateLocationResourceTemplatePropertyRequest updateRequest) {
-        locationResourceService.setTemplateProperty(id, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
-        return RestResponseBuilder.<Void> builder().build();
+        try {
+            locationResourceService.setTemplateProperty(id, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
+            return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().build();
+        } catch (ConstraintValueDoNotMatchPropertyTypeException | ConstraintViolationException e) {
+            return RestConstraintValidator.fromException(e, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
+        }
     }
 
     @ApiOperation(value = "Update location's resource's capability template capability property.", authorizations = { @Authorization("ADMIN") })
@@ -107,19 +107,10 @@ public class LocationResourcesController {
             @RequestBody UpdateLocationResourceTemplatePropertyRequest updateRequest) {
         try {
             locationResourceService.setTemplateCapabilityProperty(id, capabilityName, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
-        } catch (ConstraintViolationException e) {
-            log.error(
-                    "Constraint violation error for property <" + updateRequest.getPropertyName() + "> with value <" + updateRequest.getPropertyValue() + ">",
-                    e);
-            return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
-                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
-        } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
-            log.error("Constraint value violation error for property <" + e.getConstraintInformation().getName() + "> with value <"
-                    + e.getConstraintInformation().getValue() + "> and type <" + e.getConstraintInformation().getType() + ">", e);
-            return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
-                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
+            return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().build();
+        } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
+            return RestConstraintValidator.fromException(e, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
         }
-        return RestResponseBuilder.<ConstraintInformation> builder().data(null).build();
     }
 
     @ApiOperation(value = "Auto configure the resources, if the location configurator plugin provides a way for.", authorizations = { @Authorization("ADMIN") })

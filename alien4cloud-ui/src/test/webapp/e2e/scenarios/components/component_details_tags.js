@@ -1,90 +1,63 @@
-/* global element, by */
+/* global describe, it, element, by, expect */
+
 'use strict';
 
+var setup = require('../../common/setup');
 var authentication = require('../../authentication/authentication');
 var common = require('../../common/common');
 var components = require('../../components/components');
 
-var computeComponent = {
-  id: 'tosca.nodes.Compute:2.0',
-  elementId: 'tosca.nodes.Compute',
-  archiveVersion: '2.0'
-};
-
-// Tags definition
-var goodTag = {
-  'key': 'my_good_tag',
-  'value': 'Whatever i want to add as value here...'
-};
-
-var goodTag2 = {
-  'key': 'my_good_tag2',
-  'value': 'Whatever i want to add as value here for ...'
-};
-
-var badTag = {
-  'key': 'my_good*tag',
-  'value': 'This tag should not be added to tag list with *...'
-};
-
 describe('Component details tags edition', function() {
   /* Before each spec in the tests suite */
-  beforeEach(function() {
-    common.before();
-    /* Login */
-    authentication.login('componentManager');
+  it('beforeAll', function() {
+    setup.setup();
+    common.home();
+    authentication.login('admin');
   });
 
-  /* After each spec in the tests suite(s) */
-  afterEach(function() {
-    // Logout action
-    authentication.logout();
-  });
-
-  it('should go on #/components and select details for the first element', function() {
-    console.log('################# should go on #/components and select details for the first element');
-    // ensure i've data on my ES
+  it('should be able to add a valid tag', function() {
+    var goodTag = components.tags.goodTag;
     components.goToComponentDetailPage(computeComponent.id);
-  });
-
-  var tags = element.all(by.repeater('tag in component.tags'));
-  it('should add a good tag without errors', function() {
-    console.log('################# should add a good tag without errors');
-    components.goToComponentDetailPage(computeComponent.id);
-
+    var tags = element.all(by.repeater('tag in component.tags'));
     tags.count().then(function() {
+      var btnAddTag = element(by.id('btn-add-tag'));
 
       /* Add a new valid tag i should have the tags count +1 */
       element(by.model('newTag.key')).sendKeys(goodTag.key);
       element(by.model('newTag.val')).sendKeys(goodTag.key);
-
-      /* Click to add the new element */
-      var btnAddTag = browser.element(by.id('btn-add-tag'));
       btnAddTag.click();
 
       /* New tags count is the same after the bad tag add */
-      expect(tags.count()).toBeGreaterThan(0);
-
-      /* Add the same tag a second time : case update tag */
-      element(by.model('newTag.key')).sendKeys(goodTag.key);
-      element(by.model('newTag.val')).sendKeys(goodTag.key);
-
-      /* Click to add the good tag twice */
-      btnAddTag.click();
-
-      /* New tags count is the same after the bad tag add */
-      expect(tags.count()).toBeGreaterThan(0);
-
-      /* Add the same tag a second time : case update tag */
-      element(by.model('newTag.key')).sendKeys(goodTag2.key);
-      element(by.model('newTag.val')).sendKeys(goodTag2.key);
-      btnAddTag.click();
-
-      /* New tags count at least at 1 */
-      expect(tags.count()).toBeGreaterThan(1);
-
+      expect(tags.count()).toBe(1);
     });
+  });
 
+  it('should be able to update a tag', function() {
+    var goodTag = components.tags.goodTag;
+    var btnAddTag = element(by.id('btn-add-tag'));
+
+    /* update a tag */
+    element(by.model('newTag.key')).sendKeys(goodTag.key);
+    element(by.model('newTag.val')).sendKeys(goodTag.key);
+    btnAddTag.click();
+
+    /* This should not add a new tag. */
+    var tags = element.all(by.repeater('tag in component.tags'));
+    expect(tags.count()).toBe(1);
+  });
+
+  it('should be able to add a second tag', function() {
+    var goodTag2 = components.tags.goodTag2;
+    var btnAddTag = element(by.id('btn-add-tag'));
+
+    /* add another tag */
+    element(by.model('newTag.key')).sendKeys(goodTag2.key);
+    element(by.model('newTag.val')).sendKeys(goodTag2.key);
+    btnAddTag.click();
+
+    /* New tags count at least at 1 */
+    var tags = element.all(by.repeater('tag in component.tags'));
+    expect(tags.count()).toBe(2);
   });
 
   it('should keep button (+) disabled when typing a bad tag', function() {
@@ -103,4 +76,6 @@ describe('Component details tags edition', function() {
     });
 
   });
+
+  it('afterAll', function() { authentication.logout(); });
 });

@@ -18,12 +18,11 @@ Feature: Node substitution in the deployment topology.
     And I update the property "id" to "img2" for the resource named "Debian" related to the location "Mount doom orchestrator"/"Thark location"
   	And I autogenerate the on-demand resources for the location "Mount doom orchestrator"/"Thark location"
     And I create a resource of type "alien.nodes.mock.Compute" named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
-    And I update the property "imageId" to "img1" for the resource named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+    # Do not update the image Id as we want to be able to update it at deployment
     And I update the property "flavorId" to "1" for the resource named "Manual_Small_Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+
   	And I add a role "DEPLOYER" to user "frodon" on the resource type "LOCATION" named "Thark location"
-
     And I have an application "ALIEN" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT"
-
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
 
 
@@ -41,10 +40,19 @@ Feature: Node substitution in the deployment topology.
   	Given I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
   	When I update the property "imageId" to "updatedImg" for the subtituted node "Compute"
   	Then I should receive a RestResponse with no error
-  	And The node "Compute" in the deployment topology should have the property "imageId" with value "updatedImg"
+    When I ask for the deployment topology of the application "ALIEN"
+    Then The node "Compute" in the deployment topology should have the property "imageId" with value "updatedImg"
+
+  Scenario: Update a substituted node's property should fail if configured by admin
+    Given I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
+    When I update the property "flavorId" to "2" for the subtituted node "Compute"
+    Then I should receive a RestResponse with an error code 800
+    When I ask for the deployment topology of the application "ALIEN"
+    Then The node "Compute" in the deployment topology should have the property "flavorId" with value "1"
 
   Scenario: Update a substituted node's capability property
   	Given I substitute on the current application the node "Compute" with the location resource "Mount doom orchestrator"/"Thark location"/"Manual_Small_Ubuntu"
-  	When I update the capability "scalable" property "max_instances" to "5" for the subtituted node "Compute"
+  	When I update the capability "os" property "type" to "linux" for the subtituted node "Compute"
   	Then I should receive a RestResponse with no error
-  	And The the node "Compute" in the deployment topology should have the capability "scalable"'s property "max_instances" with value "5"
+    When I ask for the deployment topology of the application "ALIEN"
+  	And The the node "Compute" in the deployment topology should have the capability "os"'s property "type" with value "linux"

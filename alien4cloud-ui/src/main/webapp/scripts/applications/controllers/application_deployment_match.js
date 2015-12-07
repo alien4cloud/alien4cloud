@@ -81,12 +81,7 @@ define(function(require) {
           }, angular.toJson({
             propertyName: propertyName,
             propertyValue: propertyValue
-          }), function(result) {
-            if (_.undefined(result.error)) {
-              $scope.updateScopeDeploymentTopologyDTO(result.data);
-            }
-            return result;
-          }).$promise;
+          })).$promise;
         };
 
         $scope.updateSubstitutionCapabilityProperty = function(capabilityName, propertyName, propertyValue) {

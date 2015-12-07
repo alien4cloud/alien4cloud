@@ -81,7 +81,7 @@ define(function (require) {
 
       $scope.openNewTopologyTemplate = function() {
         var modalInstance = $modal.open({
-          templateUrl: 'newTopologyTemplate.html',
+          templateUrl: 'views/topologytemplates/topology_template_new.html',
           controller: NewTopologyTemplateCtrl
         });
 

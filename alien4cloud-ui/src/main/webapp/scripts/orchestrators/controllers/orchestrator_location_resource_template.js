@@ -4,16 +4,15 @@ define(function(require) {
   var modules = require('modules');
   var _ = require('lodash');
 
-  modules.get('a4c-orchestrators', ['pascalprecht.translate']).controller('OrchestratorLocationResourceTemplateCtrl', [
-    '$scope', '$translate',
-    function($scope, $translate) {
+  modules.get('a4c-orchestrators', ['pascalprecht.translate']).controller('OrchestratorLocationResourceTemplateCtrl', ['$scope',
+    function($scope) {
       $scope.getCapabilityPropertyDefinition = function(capabilityTypeId, capabilityPropertyName) {
         var capabilityType = $scope.resourceCapabilityTypes[capabilityTypeId];
         return capabilityType.propertiesMap[capabilityPropertyName].value;
       };
 
       $scope.checkMapSize = function(map) {
-        return angular.isDefined(map) && map !== null && Object.keys(map).length > 0;
+        return _.defined(map) && Object.keys(map).length > 0;
       };
 
       $scope.updateLocationResource = function(propertyName, propertyValue) {
@@ -23,24 +22,16 @@ define(function(require) {
         });
       };
 
-      function processResponsePromise(promise, callback) {
-        if (!_.isEmpty(promise) && promise.hasOwnProperty('then')) {
-          return promise.then(function(response) {
-             callback(response);
-             return response;
-          });
-        } else {
-           callback();
-        }
-      }
-
       $scope.updateResourceProperty = function(propertyName, propertyValue) {
         var updatePromise = $scope.onPropertyUpdate({
           propertyName: propertyName,
           propertyValue: propertyValue
         });
-        processResponsePromise(updatePromise, function(response) {
-          $scope.resourceTemplate.template.propertiesMap[propertyName].value = {value: propertyValue, definition: false};
+        return updatePromise.then(function(response) {
+          if (_.undefined(response.error)) { // update was performed on server side - impact js data.
+            $scope.resourceTemplate.template.propertiesMap[propertyName].value = {value: propertyValue, definition: false};
+          }
+          return response; // dispatch response to property display
         });
       };
 
@@ -50,15 +41,14 @@ define(function(require) {
           propertyName: propertyName,
           propertyValue: propertyValue
         });
-        return processResponsePromise(updatePromise, function(response) {
+        return updatePromise.then(updatePromise, function(response) {
           if (_.undefined(response.error)) {
             $scope.resourceTemplate.template.capabilitiesMap[capabilityName].value.propertiesMap[propertyName].value = {
               value: propertyValue,
               definition: false
             };
-          } else {
-            console.log(response.error.message);
           }
+          return response;
         });
       };
     }]);
