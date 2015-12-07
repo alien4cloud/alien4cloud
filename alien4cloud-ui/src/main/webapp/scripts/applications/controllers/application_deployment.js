@@ -7,7 +7,7 @@ define(function(require) {
   var angular = require('angular');
 
   require('scripts/common/filters/inputs');
-  
+
   require('scripts/applications/services/application_services');
   require('scripts/applications/services/application_environment_services');
   require('scripts/applications/services/application_version_services');
@@ -18,11 +18,11 @@ define(function(require) {
   require('scripts/applications/controllers/application_deployment_match');
   require('scripts/applications/controllers/application_deployment_input');
   require('scripts/applications/controllers/application_deployment_deploy');
-  
+
 
   require('scripts/deployment/directives/display_outputs');
   require('scripts/applications/directives/topology_errors_display');
-  
+
   var globalConfTaskCodes = ['SCALABLE_CAPABILITY_INVALID', 'PROPERTIES'];
 
   function refreshDeploymentContext(deploymentContext, application, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menus) {
@@ -59,7 +59,7 @@ define(function(require) {
       }
     });
   }
-  
+
   function updateStepsStatuses(menus, validationDTO){
     _.each(menus, function(menu){
       if(_.definedPath(menu, 'step.taskCodes')){
@@ -108,7 +108,7 @@ define(function(require) {
         $scope.deploymentContext = deploymentContext;
         var pageStateId = $state.current.name;
         $scope.menu = menu;
-        
+
         // Initialization
         $scope.application = applicationResult.data;
         $scope.envs = appEnvironments.deployEnvironments;
@@ -134,21 +134,21 @@ define(function(require) {
 
         //register the checking topo function for others states to use it
         $scope.checkTopology = checkTopology;
-        
+
         function doGoToNextInvalidStep(){
-          //first step is locations 
+          //first step is locations
           var stepToGo = _.find($scope.menu, function(menu){
             return menu.id==='am.applications.detail.deployment.locations';
           });
-          
-          //look for the first invalid step, or the last one if all are valid 
+
+          //look for the first invalid step, or the last one if all are valid
           while(stepToGo.nextStep){
             if(_.get(stepToGo, 'step.status', 'SUCCESS') !== 'SUCCESS'){
               break;
             }
             stepToGo = stepToGo.nextStep;
           }
-          
+
           //go to the found step
           $state.go(stepToGo.state);
         }
@@ -157,7 +157,7 @@ define(function(require) {
           //refresh initial topo validation first
           $scope.setTopologyId($scope.application.id, $scope.deploymentContext.selectedEnvironment.id, checkTopology).$promise.then(function() {
             //then refresh deployment context
-            refreshDeploymentContext($scope.deploymentContext, $scope.application, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menu).then(function(result) {
+            refreshDeploymentContext($scope.deploymentContext, $scope.application, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menu).then(function() {
               //finally, go to the next invalid step
               doGoToNextInvalidStep();
             });
@@ -165,7 +165,7 @@ define(function(require) {
         };
 
         $scope.goToNextInvalidStep(); // immediately go to the next invalid tab
-        
+
 
         $scope.showTodoList = function() {
           return !$scope.validTopologyDTO.valid && $scope.isManager;
@@ -186,8 +186,8 @@ define(function(require) {
             });
           }
           return show;
-        }
-        
+        };
+
         // Map functions that should be available from scope.
 
         // Application rights
@@ -205,7 +205,7 @@ define(function(require) {
         };
 
         // if the status or the environment changes we must update the event registration.
-        $scope.$watch(function(scope) {
+        $scope.$watch(function() {
           if (_.defined($scope.deploymentContext.selectedEnvironment)) {
             return $scope.deploymentContext.selectedEnvironment.id + '__' + $scope.deploymentContext.selectedEnvironment.status;
           }
@@ -225,22 +225,25 @@ define(function(require) {
             });
           }
         });
-        
+
         //proceed the deploymentTopologyDTO
         $scope.updateScopeDeploymentTopologyDTO = function(deploymentTopologyDTO){
+          if(_.undefined(deploymentTopologyDTO)){
+            return;
+          }
           deploymentTopologyProcessor.process(deploymentTopologyDTO);
           tasksProcessor.processAll(deploymentTopologyDTO.validation);
           $scope.deploymentContext.deploymentTopologyDTO = deploymentTopologyDTO;
           updateStepsStatuses($scope.menu, $scope.deploymentContext.deploymentTopologyDTO.validation);
         };
-        
+
         //show or not the status icon
         $scope.showStatusIcon = function(menuItem){
           if(menuItem.disabled || _.get(menuItem, 'step.status','SUCCESS')==='SUCCESS'){
             return false;
           }
           return true;
-        }
+        };
 
         // when scope change, stop current event listener
         $scope.$on('$destroy', function() {

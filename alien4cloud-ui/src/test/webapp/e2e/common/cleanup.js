@@ -126,4 +126,5 @@ module.exports.fullCleanup = function() {
   cleanup();
   repositories.rmArchives();
   repositories.rmPlugins();
+  repositories.rmImages();
 };

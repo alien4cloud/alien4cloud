@@ -14,7 +14,6 @@ import io.swagger.annotations.ApiModelProperty;
 @Setter
 @ApiModel("Contains the types and templates of resources that can be substituted for a deployment.")
 public class DeploymentSubstitutionConfiguration {
-
     @ApiModelProperty(value = "Map of node id to list of available location resource templates' id.")
     private Map<String, Set<String>> availableSubstitutions;
 

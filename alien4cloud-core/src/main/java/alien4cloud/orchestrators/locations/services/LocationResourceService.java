@@ -1,11 +1,6 @@
 package alien4cloud.orchestrators.locations.services;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -20,13 +15,7 @@ import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedModelUtils;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.*;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
@@ -42,9 +31,8 @@ import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.MapUtil;
-import alien4cloud.utils.PropertyUtil;
 import alien4cloud.utils.ReflectionUtil;
-import alien4cloud.utils.services.ConstraintPropertyService;
+import alien4cloud.utils.services.PropertyService;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -68,7 +56,7 @@ public class LocationResourceService {
     @Inject
     private OrchestratorPluginService orchestratorPluginService;
     @Resource
-    private ConstraintPropertyService constraintPropertyService;
+    private PropertyService propertyService;
 
     /**
      * Get the list of resources definitions for a given orchestrator.
@@ -270,20 +258,17 @@ public class LocationResourceService {
         saveResource(resourceTemplate);
     }
 
-    public void setTemplateProperty(String resourceId, String propertyName, Object propertyValue) {
+    public void setTemplateProperty(String resourceId, String propertyName, Object propertyValue)
+            throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
-        setTemplateProperty(resourceTemplate, propertyName, propertyValue);
-        saveResource(resourceTemplate);
-    }
-
-    public void setTemplateProperty(LocationResourceTemplate resourceTemplate, String propertyName, Object propertyValue) {
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
         IndexedNodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, resourceTemplate.getTemplate().getType(),
                 location.getDependencies());
         if (resourceType.getProperties() == null || !resourceType.getProperties().containsKey(propertyName)) {
             throw new NotFoundException("Property <" + propertyName + "> is not found in type <" + resourceType.getElementId() + ">");
         }
-        PropertyUtil.setPropertyValue(resourceTemplate.getTemplate(), resourceType.getProperties().get(propertyName), propertyName, propertyValue);
+        propertyService.setPropertyValue(resourceTemplate.getTemplate(), resourceType.getProperties().get(propertyName), propertyName, propertyValue);
+        saveResource(resourceTemplate);
     }
 
     public void setTemplateCapabilityProperty(LocationResourceTemplate resourceTemplate, String capabilityName, String propertyName, Object propertyValue)
@@ -296,9 +281,7 @@ public class LocationResourceService {
         IndexedCapabilityType capabilityType = csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class,
                 capabilityDefinition.getType(), location.getDependencies());
         PropertyDefinition propertyDefinition = getOrFailCapabilityPropertyDefinition(capabilityType, propertyName);
-
-        constraintPropertyService.checkSimplePropertyConstraint(propertyName, (String) propertyValue, propertyDefinition);
-        PropertyUtil.setCapabilityPropertyValue(capability, propertyDefinition, propertyName, propertyValue);
+        propertyService.setCapabilityPropertyValue(capability, propertyDefinition, propertyName, propertyValue);
     }
 
     private Capability getOrFailCapability(NodeTemplate nodeTemplate, String capabilityName) {

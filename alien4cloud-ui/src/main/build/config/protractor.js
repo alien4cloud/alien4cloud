@@ -24,6 +24,8 @@ module.exports = function (grunt) {
           // baseUrl: 'http://localhost:8088',
           baseUrl: 'http://127.0.0.1:9999',
           specs: [
+            '<%= yeoman.test %>/e2e/setup-scenario/before-all.js',
+            '<%= yeoman.test %>/e2e/setup-scenario/setup.js'
             // '<%= yeoman.test %>/e2e/scenarios/common/homepage.js',
             // '<%= yeoman.test %>/e2e/scenarios/common/language.js',
             // '<%= yeoman.test %>/e2e/scenarios/admin/users.js',
@@ -31,8 +33,10 @@ module.exports = function (grunt) {
             // '<%= yeoman.test %>/e2e/scenarios/admin/plugins.js',
             // '<%= yeoman.test %>/e2e/scenarios/admin/orchestrators.js'
             // '<%= yeoman.test %>/e2e/scenarios/admin/metaprops_configuration.js'
+
             // '<%= yeoman.test %>/e2e/scenarios/components/component_list.js',
-            '<%= yeoman.test %>/e2e/scenarios/components/component_details.js'
+            // '<%= yeoman.test %>/e2e/scenarios/components/component_details.js'
+
           ]
         }
       }

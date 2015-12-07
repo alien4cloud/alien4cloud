@@ -89,6 +89,14 @@ public class DeploymentNodeSubstitutionService {
      *
      * @param deploymentTopology the deployment topology to process substitution
      */
+
+    /**
+     * This method updates the node substitution choices and default selections for a given deployment topology.
+     *
+     * @param deploymentTopology The deployment topology in which to save substitutions / deploymentTopology.getNodeTemplates() are the nodes from the original
+     *            topology.
+     * @param nodesToMergeProperties The node that where substituted previously with specific configurations from deployment user.
+     */
     public void processNodesSubstitution(DeploymentTopology deploymentTopology, Map<String, NodeTemplate> nodesToMergeProperties) {
         if (MapUtils.isEmpty(deploymentTopology.getLocationGroups())) {
             // No location group is defined do nothing
@@ -116,7 +124,7 @@ public class DeploymentNodeSubstitutionService {
             Entry<String, NodeTemplate> next = originalNodesIter.next();
             if (!availableSubstitutions.containsKey(next.getKey())) {
                 originalNodesIter.remove();
-            } else {
+            } else { // override with the latest value.
                 next.setValue(deploymentTopology.getNodeTemplates().get(next.getKey()));
             }
         }
@@ -153,13 +161,13 @@ public class DeploymentNodeSubstitutionService {
                 if (previousNode != null && MapUtils.isNotEmpty(previousNode.getProperties())) {
                     PropertyUtil.mergeProperties(previousNode.getProperties(), mergedProperties, keysToConsider);
                 }
-                // Merge properties from location resources
-                if (MapUtils.isNotEmpty(locationNode.getProperties())) {
-                    PropertyUtil.mergeProperties(locationNode.getProperties(), mergedProperties, keysToConsider);
-                }
                 // Merge properties from abstract topology
                 if (MapUtils.isNotEmpty(abstractTopologyNode.getProperties())) {
                     PropertyUtil.mergeProperties(abstractTopologyNode.getProperties(), mergedProperties, keysToConsider);
+                }
+                // Merge properties from location resources
+                if (MapUtils.isNotEmpty(locationNode.getProperties())) {
+                    PropertyUtil.mergeProperties(locationNode.getProperties(), mergedProperties, keysToConsider);
                 }
                 locationNode.setProperties(mergedProperties);
             }
@@ -182,8 +190,6 @@ public class DeploymentNodeSubstitutionService {
                     if (previousCapability != null && MapUtils.isNotEmpty(previousCapability.getProperties())) {
                         PropertyUtil.mergeProperties(previousCapability.getProperties(), mergedCapabilityProperties, keysToConsider);
                     }
-                    // Merge from location resources
-                    PropertyUtil.mergeProperties(locationCapability.getProperties(), mergedCapabilityProperties, keysToConsider);
                     // Merge from abstract topology
                     Capability abstractCapability = null;
                     if (MapUtils.isNotEmpty(abstractTopologyNode.getCapabilities())) {
@@ -192,6 +198,9 @@ public class DeploymentNodeSubstitutionService {
                     if (abstractCapability != null && MapUtils.isNotEmpty(abstractCapability.getProperties())) {
                         PropertyUtil.mergeProperties(abstractCapability.getProperties(), mergedCapabilityProperties, keysToConsider);
                     }
+
+                    // Merge from location resources
+                    PropertyUtil.mergeProperties(locationCapability.getProperties(), mergedCapabilityProperties, keysToConsider);
                     locationCapability.setProperties(mergedCapabilityProperties);
                 }
             }

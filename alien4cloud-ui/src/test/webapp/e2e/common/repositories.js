@@ -36,6 +36,10 @@ module.exports.rmArtifacts = function() {
   deleteFolderRecursive(ALIEN_BASE + 'artifacts');
 };
 
+module.exports.rmImages = function() {
+  deleteFolderRecursive(ALIEN_BASE + 'images');
+};
+
 module.exports.copyPlugin = function(pluginId, from) {
   fs.copySync(from, ALIEN_BASE + 'work/plugins/content/' + pluginId);
 };

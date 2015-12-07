@@ -72,7 +72,7 @@ define(function(require) {
         // If the callback return a promise
         if (_.defined(saveResult) && _.defined(saveResult.then)) {
           return saveResult.then(function(saveResult) {
-            if (saveResult.error !== null) {
+            if (_.defined(saveResult.error)) {
               // Constraint error display + translation
               var constraintInfo = saveResult.data;
               // Error message handled by x-editable

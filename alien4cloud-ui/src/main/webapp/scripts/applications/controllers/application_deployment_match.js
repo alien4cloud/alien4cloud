@@ -81,12 +81,7 @@ define(function(require) {
           }, angular.toJson({
             propertyName: propertyName,
             propertyValue: propertyValue
-          }), function(result) {
-            if (_.undefined(result.error)) {
-              $scope.updateScopeDeploymentTopologyDTO(result.data);
-            }
-            return result;
-          }).$promise;
+          })).$promise;
         };
 
         $scope.updateSubstitutionCapabilityProperty = function(capabilityName, propertyName, propertyValue) {
@@ -106,6 +101,8 @@ define(function(require) {
           }).$promise;
         };
         
+        
+        //property is editable only when not set in topology or in locationResource
         $scope.isPropertyEditable = function(propertyPath){
           if($scope.getSubstitutedTemplate($scope.selectedNodeName).id === $scope.selectedResourceTemplate.id){
             if(_.definedPath(propertyPath, 'capabilityName')){
@@ -117,21 +114,17 @@ define(function(require) {
           return false;
         };
         
-        function isPropertyValueNullOrDefault(toscaType, propertyName, value){
-          var propertyDef = _.result(_.find(toscaType.properties, {'key': propertyName}), 'value');
-          return _.undefined(value) || _.isEqual(_.get(value, 'value'), _.get(propertyDef, 'default'));
+        function isPropertyValueNull(value){
+          return _.undefined(value) || _.undefinedPath(value, 'value');
         }
         
         function isNodePropertyEditable(propertyName){
           var originalNode =  $scope.deploymentContext.deploymentTopologyDTO.topology.originalNodes[$scope.selectedNodeName] || {};
           var locationTemplate = $scope.deploymentContext.deploymentTopologyDTO.locationResourceTemplates[$scope.selectedResourceTemplate.id].template || {};
           var originalProperty = _.result(_.find(originalNode.properties, {'key':propertyName}), 'value');
-          var originalLocationTemplateProperty = _.result(_.get(locationTemplate, 'propertiesMap.'+propertyName), 'value');
+          var originalLocationTemplateProperty = _.result(_.find(locationTemplate.properties, {'key':propertyName}), 'value');
           
-          var toscaType = $scope.deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.nodeTypes[locationTemplate.type];
-          
-          if(isPropertyValueNullOrDefault(toscaType, propertyName, originalProperty) 
-              && isPropertyValueNullOrDefault(toscaType, propertyName, originalLocationTemplateProperty) ){
+          if(isPropertyValueNull(originalProperty) && isPropertyValueNull(originalLocationTemplateProperty)){
             return true;
           }
           return false;
@@ -141,19 +134,11 @@ define(function(require) {
           var originalNode =  $scope.deploymentContext.deploymentTopologyDTO.topology.originalNodes[$scope.selectedNodeName] || {};
           var locationTemplate = $scope.deploymentContext.deploymentTopologyDTO.locationResourceTemplates[$scope.selectedResourceTemplate.id].template || {};
           var originalCapability = _.result(_.find(originalNode.capabilities, {'key':capabilityName}), 'value') || {};
-          var locationTemplateCapability = _.result(_.get(locationTemplate, 'capabilitiesMap.'+capabilityName), 'value') || {};
+          var locationTemplateCapability = _.result(_.find(locationTemplate.capabilities, {'key':capabilityName}), 'value') || {};
           var originalCapaProp = _.result(_.find(originalCapability.properties, {'key':propertyName}), 'value');
-          var originalLocationTemplateCapaProp = _.result(_.get(locationTemplateCapability, 'propertiesMap.'+propertyName), 'value');
+          var originalLocationTemplateCapaProp = _.result(_.find(locationTemplateCapability.properties, {'key':propertyName}), 'value');
           
-          var originalToscaType = $scope.deploymentContext.deploymentTopologyDTO.capabilityTypes[originalCapability.type];
-          var locationTemplateToscaType = $scope.deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.capabilityTypes[locationTemplateCapability.type];
-          
-        // edit if:
-          // - the initial topology value is null or default value
-         //   AND
-        //   - the location resource value is null or default value
-          if(isPropertyValueNullOrDefault(originalToscaType, propertyName, originalCapaProp) 
-              && isPropertyValueNullOrDefault(locationTemplateToscaType, propertyName, originalLocationTemplateCapaProp) ){
+          if(isPropertyValueNull(originalCapaProp) && isPropertyValueNull(originalLocationTemplateCapaProp)){
             return true;
           }
           return false;
