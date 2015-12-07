@@ -227,12 +227,11 @@ public class DeploymentNodeSubstitutionService {
             Map.Entry<String, String> entry = mappingEntryIterator.next();
             if (deploymentTopology.getNodeTemplates().containsKey(entry.getKey())) {
                 // The node is still in the topology but we have to check that the existing substitution value is still a valid option.
-                List<LocationResourceTemplate> options = availableSubstitutions.get(entry.getKey());
-                if (options == null) {
+                List<LocationResourceTemplate> availableSubstitutionsForNode = availableSubstitutions.get(entry.getKey());
+                if (availableSubstitutionsForNode == null) {
                     // no options => remove existing mapping
                     mappingEntryIterator.remove();
                 } else {
-                    List<LocationResourceTemplate> availableSubstitutionsForNode = availableSubstitutions.get(entry.getKey());
                     boolean substitutedTemplateExist = false;
                     for (LocationResourceTemplate availableSubstitutionForNode : availableSubstitutionsForNode) {
                         if (availableSubstitutionForNode.getId().equals(entry.getValue())) {
