@@ -65,11 +65,12 @@ public class LocationResourceService {
      * @return A list of resource definitions for the given location.
      */
     public LocationResources getLocationResources(Location location) {
-        List<LocationResourceTemplate> locationResourceTemplates = getResourcesTemplates(location.getId());
-        // TODO : change route to call the other method
-        if (locationResourceTemplates == null || locationResourceTemplates.size() == 0) {
+        Orchestrator orchestrator = orchestratorService.get(location.getOrchestratorId());
+        if (orchestrator != null && orchestratorPluginService.get(orchestrator.getId()) != null ) {
             return getLocationResourcesFromOrchestrator(location);
         }
+
+        List<LocationResourceTemplate> locationResourceTemplates = getResourcesTemplates(location.getId());
         LocationResources locationResources = new LocationResources(getLocationResourceTypes(locationResourceTemplates));
         setLocationRessource(locationResourceTemplates, locationResources);
         return locationResources;
