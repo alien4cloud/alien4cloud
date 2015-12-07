@@ -80,7 +80,7 @@ define(function (require) {
         'ALL': 'APPLICATIONS.RUNTIME.EVENTS.ALL',
         'paasdeploymentstatusmonitorevent': 'APPLICATIONS.RUNTIME.EVENTS.STATUS',
         'paasinstancestatemonitorevent': 'APPLICATIONS.RUNTIME.EVENTS.INSTANCES',
-        'paasinstancestoragemonitorevent': 'APPLICATIONS.RUNTIME.EVENTS.STORAGE',
+        'paasinstancepersistentresourcemonitorevent': 'APPLICATIONS.RUNTIME.EVENTS.STORAGE',
         'paasmessagemonitorevent': 'APPLICATIONS.RUNTIME.EVENTS.MESSAGES'
       };
 
@@ -91,7 +91,7 @@ define(function (require) {
       }, {
         'value': 'paasinstancestatemonitorevent'
       }, {
-        'value': 'paasinstancestoragemonitorevent'
+        'value': 'paasinstancepersistentresourcemonitorevent'
       }, {
         'value': 'paasmessagemonitorevent'
       }];
@@ -191,26 +191,16 @@ define(function (require) {
               };
             }
             break;
-          case 'paasinstancestoragemonitorevent':
-            if (_.defined(event.instanceState)) {
-              event.message = {
-                template: 'APPLICATIONS.RUNTIME.EVENTS.STORAGE_MESSAGE',
-                data: {
-                  state: event.instanceState,
-                  nodeId: event.nodeTemplateId,
-                  instanceId: event.instanceId,
-                  volumeId: event.volumeId
-                }
-              };
-            } else {
-              event.message = {
-                template: 'APPLICATIONS.RUNTIME.EVENTS.INSTANCE_DELETED_MESSAGE',
-                data: {
-                  nodeId: event.nodeTemplateId,
-                  instanceId: event.instanceId
-                }
-              };
-            }
+          case 'paasinstancepersistentresourcemonitorevent':
+            event.message = {
+              template: 'APPLICATIONS.RUNTIME.EVENTS.STORAGE_MESSAGE',
+              data: {
+                state: event.instanceState,
+                nodeId: event.nodeTemplateId,
+                instanceId: event.instanceId,
+                volumeId: event.propertyValue
+              }
+            };
             break;
           case 'paasmessagemonitorevent':
             event.message = {
