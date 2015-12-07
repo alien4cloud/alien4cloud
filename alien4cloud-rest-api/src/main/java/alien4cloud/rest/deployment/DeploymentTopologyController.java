@@ -108,12 +108,13 @@ public class DeploymentTopologyController {
     @RequestMapping(value = "/substitutions/{nodeId}/properties", method = RequestMethod.POST)
     @PreAuthorize("isAuthenticated()")
     @Audit
-    public RestResponse<ConstraintUtil.ConstraintInformation> updateSubstitutionProperty(@PathVariable String appId, @PathVariable String environmentId,
-            @PathVariable String nodeId, @RequestBody UpdatePropertyRequest updateRequest) {
+    public RestResponse<?> updateSubstitutionProperty(@PathVariable String appId, @PathVariable String environmentId, @PathVariable String nodeId,
+            @RequestBody UpdatePropertyRequest updateRequest) {
         checkAuthorizations(appId, environmentId);
         try {
             deploymentTopologyService.updateProperty(environmentId, nodeId, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
-            return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().build();
+            return RestResponseBuilder.<DeploymentTopologyDTO> builder()
+                    .data(buildDeploymentTopologyDTO(deploymentTopologyService.getDeploymentConfiguration(environmentId))).build();
         } catch (ConstraintFunctionalException e) {
             return RestConstraintValidator.fromException(e, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
         }
@@ -129,7 +130,8 @@ public class DeploymentTopologyController {
         try {
             deploymentTopologyService.updateCapabilityProperty(environmentId, nodeId, capabilityName, updateRequest.getPropertyName(),
                     updateRequest.getPropertyValue());
-            return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().build();
+            return RestResponseBuilder.<DeploymentTopologyDTO> builder()
+                    .data(buildDeploymentTopologyDTO(deploymentTopologyService.getDeploymentConfiguration(environmentId))).build();
         } catch (ConstraintFunctionalException e) {
             return RestConstraintValidator.fromException(e, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
         }
