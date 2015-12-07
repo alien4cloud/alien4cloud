@@ -14,7 +14,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Getter
 @Setter
-@SuppressWarnings({ "PMD.UnusedPrivateField" })
 @EqualsAndHashCode(callSuper = false, of = { "equal" })
 public class EqualConstraint extends AbstractPropertyConstraint implements IMatchPropertyConstraint {
     @NotNull
@@ -30,6 +29,7 @@ public class EqualConstraint extends AbstractPropertyConstraint implements IMatc
 
     @Override
     public void setConstraintValue(IPropertyType<?> toscaType, String textValue) throws ConstraintValueDoNotMatchPropertyTypeException {
+        equal = textValue;
         typed = ConstraintUtil.convert(toscaType, textValue);
     }
 
@@ -47,7 +47,7 @@ public class EqualConstraint extends AbstractPropertyConstraint implements IMatc
     }
 
     private void fail(Object propertyValue) throws ConstraintViolationException {
-        throw new ConstraintViolationException("Equal constraint violation, the reference is <" + equal + "> but the value to compare is <" + propertyValue
-                + ">");
+        throw new ConstraintViolationException(
+                "Equal constraint violation, the reference is <" + equal + "> but the value to compare is <" + propertyValue + ">");
     }
 }

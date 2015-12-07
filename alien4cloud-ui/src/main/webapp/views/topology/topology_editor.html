@@ -244,7 +244,7 @@
               <div id="node-details-capabilities-{{capabilityEntry.key}}-block" ng-repeat="capabilityEntry in selectedNodeTemplate.capabilities"
                    ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(capabilityEntry.value.properties)">
                 <div ng-class="{'clickable' : !emptyProps}"
-                     ng-click="isReqPropsCollapsed[capabilityEntry.key] = !isReqPropsCollapsed[capabilityEntry.key]">
+                     ng-click="!emptyProps && (isReqPropsCollapsed[capabilityEntry.key] = !isReqPropsCollapsed[capabilityEntry.key])">
                   <div class="row">
                     <div class="col-md-4">
                       <i ng-if="!emptyProps" class=" fa"
@@ -373,7 +373,7 @@
                    ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(requirementEntry.value.properties)">
                 <div style="font-weight: normal"
                      ng-class="{'clickable' : !emptyProps}"
-                     ng-click="isReqPropsCollapsed[requirementEntry.key] = !isReqPropsCollapsed[requirementEntry.key]">
+                     ng-click="!emptyProps && (isReqPropsCollapsed[requirementEntry.key] = !isReqPropsCollapsed[requirementEntry.key])">
                   <div class="row">
                     <div class="col-md-3">
                       <i ng-if="!emptyProps" class=" fa"

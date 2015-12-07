@@ -119,7 +119,7 @@
       <div ng-if="selectedResourceTemplate" class="well">
         <orchestrator-location-resource-template
             is-editable="false"
-            is-property-editable="getSubstitutedTemplate(selectedNodeName).id === selectedResourceTemplate.id"
+            is-property-editable="isPropertyEditable(propertyPath)"
             resource-template="selectedResourceTemplate"
             resource-type="deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.nodeTypes[selectedResourceTemplate.template.type]"
             resource-capability-types="deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.capabilityTypes"

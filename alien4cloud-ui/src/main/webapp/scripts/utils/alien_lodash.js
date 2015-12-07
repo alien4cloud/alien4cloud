@@ -79,8 +79,11 @@ define(function (require) {
       var result = string.slice(string.length - end);
       return omission + result;
     },
+    undefinedPath: function (object, path){
+      return this.undefined(_.get(object, path));
+    },
     definedPath: function (object, path){
-      return this.defined(_.get(object, path));
+      return !this.undefinedPath(object, path);
     }
   });
   return _;
