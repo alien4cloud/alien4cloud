@@ -44,7 +44,7 @@
               e-typeahead="item for item in suggestion.get($viewValue)"
               typeahead-min-length="suggestion.minLength"
               blur="submit">
-            {{input.value}}
+            {{input.value | truncate:30}}
             <em ng-if="input.value === null || input.value === undefined" class="text-muted">{{'GENERIC_FORM.UNDEFINED'
               | translate}}</em>
             <i class="fa fa-pencil-square-o"></i>
@@ -61,7 +61,7 @@
       </div>
       <div ng-if="propertyType._isReadOnly || configuration.isReadOnly">
                 <span ng-if="propertyType._isReadOnly || configuration.isReadOnly">
-                {{input.value}}
+                {{input.value | truncate:30}}
                     <em ng-if="input.value === null || input.value === undefined" class="text-muted">{{'GENERIC_FORM.UNDEFINED_READ_ONLY'
                       | translate}}</em>
                 </span>
@@ -92,7 +92,7 @@
               e-typeahead="item for item in suggestion.get($viewValue)"
               typeahead-min-length="suggestion.minLength"
               blur="submit">
-            {{input.value}}
+            {{input.value | truncate:30}}
             <em ng-if="input.value === null || input.value === undefined" class="text-muted">{{'GENERIC_FORM.UNDEFINED'
               | translate}}</em>
             <i class="fa fa-pencil-square-o"></i>
@@ -109,7 +109,7 @@
       </div>
       <div ng-if="propertyType._isReadOnly || configuration.isReadOnly">
                 <span ng-if="propertyType._isReadOnly || configuration.isReadOnly">
-                {{input.value}}
+                {{input.value | truncate:30}}
                     <em ng-if="input.value === null || input.value === undefined" class="text-muted">{{'GENERIC_FORM.UNDEFINED_READ_ONLY'
                       | translate}}</em>
                 </span>
@@ -230,7 +230,7 @@
     </div>
     <div class="form-editable" ng-if="propertyType._isReadOnly || configuration.isReadOnly" id="{{idPrefix + 'input'}}">
       <span>
-      {{input.value}}
+      {{input.value | truncate:30}}
           <em ng-if="input.value === null || input.value === undefined" class="text-muted">{{'GENERIC_FORM.UNDEFINED_READ_ONLY'
             | translate}}</em>
       </span>

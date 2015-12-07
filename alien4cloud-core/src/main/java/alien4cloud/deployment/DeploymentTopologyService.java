@@ -83,7 +83,7 @@ public class DeploymentTopologyService {
     private PropertyService propertyService;
 
     public void save(DeploymentTopology deploymentTopology) {
-        deploymentTopology.setLastUpdateDate(new Date());
+        deploymentTopology.setLastDeploymentTopologyUpdateDate(new Date());
         alienDAO.save(deploymentTopology);
     }
 
@@ -222,7 +222,6 @@ public class DeploymentTopologyService {
     }
 
     private void doUpdateDeploymentTopology(DeploymentTopology deploymentTopology, Topology topology, ApplicationEnvironment environment) {
-        deploymentTopology.setLastDeploymentTopologyUpdateDate(topology.getLastUpdateDate());
         Map<String, NodeTemplate> previousNodeTemplates = deploymentTopology.getNodeTemplates();
         ReflectionUtil.mergeObject(topology, deploymentTopology, "id");
         topologyCompositionService.processTopologyComposition(deploymentTopology);

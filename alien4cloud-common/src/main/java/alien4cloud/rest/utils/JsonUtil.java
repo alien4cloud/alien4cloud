@@ -178,7 +178,20 @@ public final class JsonUtil {
      * @throws IOException
      */
     public static <K, V> Map<K, V> toMap(String json, Class<K> keyTypeClass, Class<V> valueTypeClass) throws IOException {
-        ObjectMapper mapper = getNewObjectMapper();
+        return toMap(json, keyTypeClass, valueTypeClass, getNewObjectMapper());
+    }
+
+    /**
+     * Deserialize the given json string to a map
+     *
+     * @param json
+     * @param keyTypeClass
+     * @param valueTypeClass
+     * @param mapper the {@link ObjectMapper} to use
+     * @return
+     * @throws IOException
+     */
+    public static <K, V> Map<K, V> toMap(String json, Class<K> keyTypeClass, Class<V> valueTypeClass, ObjectMapper mapper) throws IOException {
         JavaType mapStringObjectType = mapper.getTypeFactory().constructParametricType(HashMap.class, keyTypeClass, valueTypeClass);
         return mapper.readValue(json, mapStringObjectType);
     }

@@ -107,4 +107,8 @@ public class OpenStackClient {
         }
         return null;
     }
+
+    public boolean deleteCompute(String computeId) {
+        return serverApi.delete(computeId);
+    }
 }

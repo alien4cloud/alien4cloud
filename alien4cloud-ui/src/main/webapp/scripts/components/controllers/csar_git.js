@@ -34,6 +34,7 @@ define(function (require) {
       'progress': 'info'
     };
     $scope.importInfos = [];
+    $scope.importing = {};
     $scope.id = 0;
 
     $scope.query = '';
@@ -47,12 +48,14 @@ define(function (require) {
     $scope.search(); // initialize
 
     $scope.triggerImport = function(id, url) {
+      $scope.importing[id] = true;
       $scope.isImporting = true;
       csarGitService.fetch({
         id: id
       }, angular.toJson(id),
       function(result) {
         handleResult(result, url);
+        $scope.importing[id] = false;
         $scope.isImporting = false;
         $scope.isImportingAll = false;
       }, function(error) {
@@ -64,6 +67,7 @@ define(function (require) {
             'message': 'An Error has occurred on the server.'
           }
         });
+        $scope.importing[id] = false;
         $scope.isImporting = false;
         $scope.isImportingAll = false;
       });

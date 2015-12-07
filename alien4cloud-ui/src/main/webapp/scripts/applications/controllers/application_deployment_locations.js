@@ -32,10 +32,10 @@ define(function(require) {
       }
     }
   });
-  
+
   modules.get('a4c-applications').controller('ApplicationDeploymentLocationCtrl',
-    ['$scope', 'locationsMatchingServices', '$state', 'menu', 'deploymentTopologyServices', 'deploymentTopologyProcessor', 'tasksProcessor',
-      function($scope, locationsMatchingServices, $state, menu, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor) {
+    ['$scope', 'locationsMatchingServices', '$state', 'menu', 'deploymentTopologyServices',
+      function($scope, locationsMatchingServices, $state, menu, deploymentTopologyServices) {
 
         function formatLocationMatches(locationMatches) {
           $scope.deploymentContext.locationMatches = {};

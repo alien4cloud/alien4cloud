@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -485,7 +484,7 @@ public class Context {
         return orchestratorIds.get(orchestratorName);
     }
 
-    public Collection<String> getCloudsIds() {
+    public Collection<String> getOrchestratorIds() {
         if (orchestratorIds != null) {
             return orchestratorIds.values();
         } else {
