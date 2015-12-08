@@ -66,13 +66,6 @@ public class OrchestratorsConfigurationDefinitionsSteps {
         switch (cloudifyVersion) {
         case 3:
             config.put("url", cloudifyUrl);
-            Map<String, Object> locations = Maps.newHashMap();
-            config.put("locations", locations);
-            Map<String, Object> openstack = Maps.newHashMap();
-            locations.put("openstack", openstack);
-            openstack.put("imports", Lists.newArrayList("http://www.getcloudify.org/spec/cloudify/" + CFY_VERSION + "/types.yaml",
-                    "http://www.getcloudify.org/spec/openstack-plugin/" + CFY_SCRIPT_VERSION + "/plugin.yaml"));
-            openstack.put("dsl", "cloudify_dsl_1_2");
             break;
         default:
             throw new IllegalArgumentException("Cloudify version not supported " + cloudifyVersion);
@@ -87,7 +80,7 @@ public class OrchestratorsConfigurationDefinitionsSteps {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         Map<String, Object> config = Context.getInstance().getOrchestratorConfiguration();
         Map<String, Object> locations = Maps.newHashMap();
-        locations = (Map<String, Object>)config.getOrDefault("locations", locations);
+        locations = (Map<String, Object>) config.getOrDefault("locations", locations);
         config.put("locations", locations);
         Map<String, Object> openstack = Maps.newHashMap();
         openstack = (Map<String, Object>) locations.getOrDefault("openstack", locations);
