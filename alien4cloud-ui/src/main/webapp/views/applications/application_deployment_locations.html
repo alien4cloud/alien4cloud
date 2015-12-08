@@ -1,4 +1,5 @@
 <div>
+  <div ng-if="hasAnOldLocationLinkedToDisabledOrchestrator()"> <i class="fa fa-exclamation-triangle ng-scope text-danger"></i> Your location {{oldSelectedLocationId}} from orchestrator  {{oldSelectedOrchestratorId}} is not enabled.</div><br>
     <div class=row>
       <div ng-repeat="locationMatch in deploymentContext.locationMatches" class="col-xs-6 col-md-3" >
         <span ng-if="(isSelected=isLocationSelected(locationMatch.location))" class="thumbnail alert-success">
