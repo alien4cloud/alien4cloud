@@ -1,12 +1,21 @@
 package alien4cloud.rest.deployment;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
+
 import java.util.Map;
 
 import javax.inject.Inject;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
@@ -40,9 +49,6 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMa
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.RestConstraintValidator;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Authorization;
 
 @RestController
 @RequestMapping("/rest/applications/{appId}/environments/{environmentId}/deployment-topology")
@@ -94,13 +100,7 @@ public class DeploymentTopologyController {
     public RestResponse<DeploymentTopologyDTO> updateSubstitution(@PathVariable String appId, @PathVariable String environmentId, @PathVariable String nodeId,
             @RequestParam String locationResourceTemplateId) {
         checkAuthorizations(appId, environmentId);
-        DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
-        DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
-        locationResourceService.getOrFail(locationResourceTemplateId);
-        // TODO maybe check if the substituted is compatible with the provided substitute and return a specific error for REST users?
-
-        deploymentTopology.getSubstitutedNodes().put(nodeId, locationResourceTemplateId);
-        deploymentTopologyService.updateDeploymentTopology(deploymentTopology);
+        DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.updateSubstitution(environmentId, nodeId, locationResourceTemplateId);
         return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
     }
 
@@ -108,12 +108,13 @@ public class DeploymentTopologyController {
     @RequestMapping(value = "/substitutions/{nodeId}/properties", method = RequestMethod.POST)
     @PreAuthorize("isAuthenticated()")
     @Audit
-    public RestResponse<ConstraintUtil.ConstraintInformation> updateSubstitutionProperty(@PathVariable String appId, @PathVariable String environmentId,
-            @PathVariable String nodeId, @RequestBody UpdatePropertyRequest updateRequest) {
+    public RestResponse<?> updateSubstitutionProperty(@PathVariable String appId, @PathVariable String environmentId, @PathVariable String nodeId,
+            @RequestBody UpdatePropertyRequest updateRequest) {
         checkAuthorizations(appId, environmentId);
         try {
             deploymentTopologyService.updateProperty(environmentId, nodeId, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
-            return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().build();
+            return RestResponseBuilder.<DeploymentTopologyDTO> builder()
+                    .data(buildDeploymentTopologyDTO(deploymentTopologyService.getDeploymentConfiguration(environmentId))).build();
         } catch (ConstraintFunctionalException e) {
             return RestConstraintValidator.fromException(e, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
         }
@@ -129,7 +130,8 @@ public class DeploymentTopologyController {
         try {
             deploymentTopologyService.updateCapabilityProperty(environmentId, nodeId, capabilityName, updateRequest.getPropertyName(),
                     updateRequest.getPropertyValue());
-            return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().build();
+            return RestResponseBuilder.<DeploymentTopologyDTO> builder()
+                    .data(buildDeploymentTopologyDTO(deploymentTopologyService.getDeploymentConfiguration(environmentId))).build();
         } catch (ConstraintFunctionalException e) {
             return RestConstraintValidator.fromException(e, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
         }

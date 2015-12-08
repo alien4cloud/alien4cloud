@@ -1,5 +1,6 @@
 package alien4cloud.it.orchestrators;
 
+import java.util.List;
 import java.util.Map;
 
 import alien4cloud.it.Context;
@@ -12,6 +13,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import cucumber.api.java.en.And;
+import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
 
 public class OrchestratorsConfigurationDefinitionsSteps {
@@ -78,6 +80,22 @@ public class OrchestratorsConfigurationDefinitionsSteps {
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().putJSon("/rest/orchestrators/" + orchestratorId + "/configuration", JsonUtil.toString(config)));
 
+    }
+
+    @Given("^I update openstack location import param for orchestrator with name \"(.*?)\" using \"(.*?)\"$")
+    public void i_update_import_param_for_orchestrator_with_name_using(String orchestratorName, String importsCsv) throws Throwable {
+        String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
+        Map<String, Object> config = Context.getInstance().getOrchestratorConfiguration();
+        Map<String, Object> locations = Maps.newHashMap();
+        locations = (Map<String, Object>)config.getOrDefault("locations", locations);
+        config.put("locations", locations);
+        Map<String, Object> openstack = Maps.newHashMap();
+        openstack = (Map<String, Object>) locations.getOrDefault("openstack", locations);
+        locations.put("openstack", openstack);
+        List<String> imports = Lists.newArrayList(importsCsv.split(","));
+        openstack.put("imports", imports);
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().putJSon("/rest/orchestrators/" + orchestratorId + "/configuration", JsonUtil.toString(config)));
     }
 
     // @When("^I update configuration for orchestrator \"([^\"]*)\" with wrong configuration$")

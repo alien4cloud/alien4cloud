@@ -73,7 +73,7 @@ public class RepositoryManager {
             CheckoutCommand checkoutCommand = repository.checkout();
             checkoutCommand.setName(branch);
             Ref ref = checkoutCommand.call();
-            if (branch.equals(ref.getName())) {
+            if (ref == null || branch.equals(ref.getName())) {
                 // failed to checkout the branch, let's fetch it
                 FetchCommand fetchCommand = repository.fetch();
                 setCredentials(fetchCommand, username, password);

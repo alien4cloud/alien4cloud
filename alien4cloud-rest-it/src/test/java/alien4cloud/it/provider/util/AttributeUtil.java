@@ -1,6 +1,7 @@
 package alien4cloud.it.provider.util;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.collections4.MapUtils;
@@ -34,9 +35,17 @@ public class AttributeUtil {
     }
 
     public static String getAttribute(String nodeName, String attributeName) throws IOException {
+        return getAttribute(nodeName, attributeName, 0);
+    }
+
+    public static String getAttribute(String nodeName, String attributeName, int instanceIdx) throws IOException {
         Map<String, String> allInstancesAttributes = getAttributes(nodeName, attributeName);
         Assert.assertTrue(MapUtils.isNotEmpty(allInstancesAttributes));
-        Assert.assertTrue(allInstancesAttributes.size() == 1);
-        return allInstancesAttributes.values().iterator().next();
+        Assert.assertTrue(allInstancesAttributes.size() >= instanceIdx + 1);
+        Iterator<String> it = allInstancesAttributes.values().iterator();
+        for (int i = 0; i < instanceIdx; i++) {
+            it.next();
+        }
+        return it.next();
     }
 }

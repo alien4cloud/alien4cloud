@@ -1,8 +1,12 @@
 package alien4cloud.deployment;
 
 import java.beans.IntrospectionException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -32,7 +36,12 @@ import alien4cloud.model.components.constraints.EqualConstraint;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import alien4cloud.model.topology.*;
+import alien4cloud.model.topology.AbstractPolicy;
+import alien4cloud.model.topology.Capability;
+import alien4cloud.model.topology.LocationPlacementPolicy;
+import alien4cloud.model.topology.NodeGroup;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.orchestrators.locations.services.LocationResourceService;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.security.AuthorizationUtil;
@@ -248,34 +257,23 @@ public class DeploymentTopologyService {
         save(deploymentTopology);
     }
 
-    private LocationResourceTemplate getSubstitution(DeploymentTopology deploymentTopology, String nodeId) {
-        if (MapUtils.isEmpty(deploymentTopology.getSubstitutedNodes())) {
-            throw new NotFoundException("Topology does not have any node substituted");
-        }
-        String substitutionId = deploymentTopology.getSubstitutedNodes().get(nodeId);
-        if (substitutionId == null) {
-            throw new NotFoundException("Topology does not have the node <" + nodeId + "> substituted");
-        }
-        return locationResourceService.getOrFail(substitutionId);
-    }
-
     /**
      * Update the value of a property.
-     * 
+     *
      * @param environmentId The id of the environment for which to update the deployment topology.
      * @param nodeTemplateId The id of the node template to update (this must be a substituted node).
      * @param propertyName The name of the property for which to update the value.
      * @param propertyValue The new value of the property.
      */
-    public void updateProperty(String environmentId, String nodeTemplateId, String propertyName, Object propertyValue)
-            throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
+    public void updateProperty(String environmentId, String nodeTemplateId, String propertyName, Object propertyValue) throws ConstraintViolationException,
+            ConstraintValueDoNotMatchPropertyTypeException {
         DeploymentConfiguration deploymentConfiguration = getDeploymentConfiguration(environmentId);
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
         // It is not allowed to override a value from an original node or from a location resource.
         NodeTemplate substitutedNode = deploymentTopology.getNodeTemplates().get(nodeTemplateId);
         if (substitutedNode == null) {
-            throw new NotFoundException(
-                    "The deployment topology <" + deploymentTopology.getId() + "> doesn't contains any node with id <" + nodeTemplateId + ">");
+            throw new NotFoundException("The deployment topology <" + deploymentTopology.getId() + "> doesn't contains any node with id <" + nodeTemplateId
+                    + ">");
         }
         String substitutionId = deploymentTopology.getSubstitutedNodes().get(nodeTemplateId);
         if (substitutionId == null) {
@@ -308,8 +306,8 @@ public class DeploymentTopologyService {
         // It is not allowed to override a value from an original node or from a location resource.
         NodeTemplate substitutedNode = deploymentTopology.getNodeTemplates().get(nodeTemplateId);
         if (substitutedNode == null) {
-            throw new NotFoundException(
-                    "The deployment topology <" + deploymentTopology.getId() + "> doesn't contains any node with id <" + nodeTemplateId + ">");
+            throw new NotFoundException("The deployment topology <" + deploymentTopology.getId() + "> doesn't contains any node with id <" + nodeTemplateId
+                    + ">");
         }
         String substitutionId = deploymentTopology.getSubstitutedNodes().get(nodeTemplateId);
         if (substitutionId == null) {
@@ -345,7 +343,7 @@ public class DeploymentTopologyService {
 
     /**
      * Check that the property is not already defined in a source
-     * 
+     *
      * @param sourcePropertyValue null or an already defined Property Value.
      * @param messageSource The named source to add in the exception message in case of failure.
      */
@@ -488,5 +486,27 @@ public class DeploymentTopologyService {
         // if a property defined as getInput didn't found a value after processing, set it to null
         inputsPreProcessorService.setUnprocessedGetInputToNullValue(deploymentTopology);
         return deploymentTopology;
+    }
+
+    /**
+     *
+     * Update a chosen substitution for a node
+     *
+     * @param environmentId
+     * @param nodeId
+     * @param locationResourceTemplateId
+     * @return The {@link DeploymentTopologyService} related to the specified environment
+     */
+    public DeploymentConfiguration updateSubstitution(String environmentId, String nodeId, String locationResourceTemplateId) {
+        // TODO maybe check if the substituted is compatible with the provided substitute and return a specific error for REST users?
+        DeploymentConfiguration deploymentConfiguration = getDeploymentConfiguration(environmentId);
+        DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
+        // check if the resource exists
+        locationResourceService.getOrFail(locationResourceTemplateId);
+        deploymentTopology.getSubstitutedNodes().put(nodeId, locationResourceTemplateId);
+        // revert the old substituted to the original one. It will be updated when processing the substitutions in updateDeploymentTopology
+        deploymentTopology.getNodeTemplates().put(nodeId, deploymentTopology.getOriginalNodes().get(nodeId));
+        updateDeploymentTopology(deploymentTopology);
+        return deploymentConfiguration;
     }
 }
