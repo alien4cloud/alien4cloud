@@ -36,6 +36,10 @@ define(function(require) {
   modules.get('a4c-applications').controller('ApplicationDeploymentLocationCtrl',
     ['$scope', 'locationsMatchingServices', '$state', 'menu', 'deploymentTopologyServices',
       function($scope, locationsMatchingServices, $state, menu, deploymentTopologyServices) {
+        if (_.has($scope, 'deploymentContext.deploymentTopologyDTO.topology.orchestratorId') && _.has($scope, 'deploymentContext.deploymentTopologyDTO.locationPolicies.' + GROUP_ALL)) {
+          $scope.oldSelectedOrchestratorId = $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId;
+          $scope.oldSelectedLocationId = $scope.deploymentContext.deploymentTopologyDTO.locationPolicies[GROUP_ALL];
+        }
 
         function formatLocationMatches(locationMatches) {
           $scope.deploymentContext.locationMatches = {};
@@ -50,10 +54,9 @@ define(function(require) {
             initSelectedLocation();
           });
         };
-        
+
         // Watch over deployment topology to initialize selected location
         $scope.$watch('deploymentContext.deploymentTopologyDTO', function() {
-//          console.log($scope.deploymentContext.deploymentTopologyDTO)
           refreshLocationMatching();
         });
 
@@ -86,10 +89,28 @@ define(function(require) {
             $state.go('applications.detail.deployment.match');
           });
         };
+
         // checks if a location is the selected one for this deployment
         $scope.isLocationSelected = function(location) {
-          return _.has($scope, "deploymentContext.selectedLocation") && $scope.deploymentContext.selectedLocation.id === location.id;
+          return _.has($scope, 'deploymentContext.selectedLocation') && $scope.deploymentContext.selectedLocation.id === location.id;
         };
+
+        // check if the current locationMatches are selected, if not, check if the we have an oldSelectedLocationId from previous configuration
+        $scope.hasAnOldLocationLinkedToDisabledOrchestrator = function() {
+          if ($scope.deploymentContext.locationMatches) {
+            var currentLocationIsPresent = false;
+            _.each($scope.deploymentContext.locationMatches, function(matche){
+                if ($scope.isLocationSelected(matche.location)) {
+                  currentLocationIsPresent = true;
+                }
+            });
+            if (!currentLocationIsPresent && $scope.oldSelectedLocationId) {
+              return true;
+            }
+            return false;
+          }
+        };
+
       }
     ]); //controller
 }); //Define
