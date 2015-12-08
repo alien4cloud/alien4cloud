@@ -156,13 +156,17 @@ public class DeploymentTopologyController {
         return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
     }
 
-    // FIXME THIS CANNOT BE USED ANYMORE TO SET MATCHING RESULT
-
     /**
-     * Update application's deployment setup
      *
-     * @param appId The application id.
-     * @return nothing if success, error will be handled in global exception strategy
+     *
+     * @param appId The application id
+     * @param environmentId Id of the environment we want to update
+     * @param updateRequest an {@link UpdateDeploymentTopologyRequest} object
+     * @return a {@link RestResponse} with:<br>
+     *         the {@link DeploymentTopologyDTO} if everithing went well, the <br>
+     *         Error if not
+     *
+     * @throws OrchestratorDisabledException
      */
     @ApiOperation(value = "Updates by merging the given request into the given application's deployment topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
