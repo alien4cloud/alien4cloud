@@ -2,7 +2,7 @@
 <empty-place-holder
   for="'NAVBAR.MENU_COMPONENTS'"
   data="searchResult.data">
-</empty-place-holder> 
+</empty-place-holder>
 <ul class="list-group" style="overflow: auto; margin-bottom: 0px; {{listHeight}}">
   <li class="list-group-item clickable-media overflowmedia" ng-repeat="component in searchResult.data">
     <div class="media" ng-mouseover="setComponent(component)" id="li_{{component.id}}" alien-draggable drag-enabled="dragAndDropEnabled" drag-data="component" ng-click="handleItemSelection(component)">
@@ -30,12 +30,11 @@
               </span>
               <div class="btn-group btn-group-xs">
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  id="{{component.id}}_versions">
-                  {{component.selectedVersion || component.archiveVersion}}
+                  {{component.selectedVersion}}
                   <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-right" role="menu" ng-init="itemIdex = $index">
-                  <li class="option-selected"><a id="{{component.id}}_version_{{component.archiveVersion}}" ng-click="$event.stopPropagation()">{{component.archiveVersion}}</a></li>
-                  <li ng-repeat="olderVersion in component.olderVersions"><a id="{{component.id}}_version_{{olderVersion}}" ng-click="selectOtherComponentVersion(component, olderVersion, itemIdex, $event)">{{olderVersion}}</a></li>
+                  <li ng-repeat="olderVersion in component.olderVersions" class="option-selected"><a id="{{component.id}}_version_{{olderVersion}}" ng-click="selectOtherComponentVersion(component, olderVersion, itemIdex, $event)">{{olderVersion}}</a></li>
                 </ul>
               </div>
             </div>
