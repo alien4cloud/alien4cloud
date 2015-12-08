@@ -84,7 +84,7 @@ public class OrchestratorsConfigurationDefinitionsSteps {
             locations = Maps.newHashMap();
         }
         config.put("locations", locations);
-        Map<String, Object> openstack = (Map<String, Object>) locations.getOrDefault("openstack", locations);
+        Map<String, Object> openstack = (Map<String, Object>) locations.get("openstack");
         if (openstack == null) {
             openstack = Maps.newHashMap();
         }
