@@ -3,6 +3,7 @@ define(function (require) {
 
   var angular = require('angular');
   var modules = require('modules');
+  var _ = require('lodash');
 
   require('scripts/tosca/services/tosca_service');
 
@@ -44,11 +45,9 @@ define(function (require) {
       $scope.detailComponent = component;
     };
 
-
     /**
      * search handlers
      */
-
     //bind the scope search vars to the searchContext service
     if ($scope.globalContext) {
       $scope.query = searchContext.query;
@@ -60,7 +59,6 @@ define(function (require) {
 
     /*update a search*/
     function updateSearch(filters) {
-
       /*
        Search api expect a json object matching the following pattern:
        {
@@ -104,10 +102,18 @@ define(function (require) {
 
     //on search completed
     $scope.onSearchCompleted = function(searchResult) {
-      if(_.undefined(searchResult.error)){
+      if(_.undefined(searchResult.error)) {
+        // inject selecte version for each result
+        _.each(searchResult.data.data, function(component){
+          component.selectedVersion = component.archiveVersion;
+          if(_.undefined(component.olderVersions)) {
+            component.olderVersions = [];
+          }
+          component.olderVersions.splice(0, 0, component.archiveVersion);
+        });
         $scope.searchResult = searchResult.data;
         $scope.detailComponent = null;
-      }else{
+      } else {
         console.log('error when searching...', searchResult.error);
       }
     };
@@ -197,7 +203,7 @@ define(function (require) {
     //get the icon
     $scope.getIcon = toscaService.getIcon;
 
-    var ComponentResource = $resource('rest/components/:componentId', {}, {
+    var componentResource = $resource('rest/components/:componentId', {}, {
       method: 'GET',
       isArray: false,
       headers: {
@@ -212,15 +218,14 @@ define(function (require) {
       component.selectedVersion = newVersion;
       if (component.archiveVersion !== newVersion) {
         // Retrieve the other version
-        ComponentResource.get({
+        componentResource.get({
           componentId: component.elementId + ':' + newVersion
         }, function(successResult) {
-          var oldVersion = successResult.data;
-          oldVersion.olderVersions = component.olderVersions;
-          var indexOfOldVersion = oldVersion.olderVersions.indexOf(oldVersion.archiveVersion);
-          oldVersion.olderVersions.splice(indexOfOldVersion, 1);
-          oldVersion.olderVersions.push(component.archiveVersion);
-          $scope.searchResult.data.data[index] = oldVersion;
+          // override the component with the retrieved version
+          var selectedVersionComponent = successResult.data;
+          selectedVersionComponent.olderVersions = component.olderVersions;
+          selectedVersionComponent.selectedVersion = newVersion;
+          $scope.searchResult.data[index] = selectedVersionComponent;
         });
       }
     };
