@@ -21,6 +21,16 @@ public class ScpStepsDefinitions {
                 .toString(), remotePath, Context.LOCAL_TEST_DATA_PATH.resolve(localFile).toString());
     }
 
+    @When("^I upload the local file \"(.*?)\" to the node \"(.*?)\" instance (\\d+) remote path \"(.*?)\" with the keypair \"(.*?)\" and user \"(.*?)\"$")
+    public void i_upload_the_local_file_to_the_node_instance_remote_path_with_the_keypair_and_user(String localFile, String nodeName, int instanceIdx,
+            String remotePath,
+            String keypair, String user) throws Throwable {
+        String ip = AttributeUtil.getAttribute(nodeName, "public_ip_address", instanceIdx);
+        SSHUtil.upload(user, ip, Context.SCP_PORT,
+                Context.LOCAL_TEST_DATA_PATH.resolve(keypair).toString(), remotePath, Context.LOCAL_TEST_DATA_PATH.resolve(localFile).toString());
+    }
+
+    
     @When("^I upload to a node's remote path the local file with the keypair \"([^\"]*)\" and user \"([^\"]*)\"$")
     public void i_upload_to_a_node_s_remote_path_the_local_file_with_the_keypair_and_user(String keypair, String user, List<List<String>> uploadInfos)
             throws Throwable {
@@ -46,6 +56,13 @@ public class ScpStepsDefinitions {
     public void I_download_the_remote_file_from_the_node_with_the_keypair_and_user(String remoteFilePath, String nodeName, String keypair, String user)
             throws Throwable {
         SSHUtil.download(user, AttributeUtil.getAttribute(nodeName, "public_ip_address"), Context.SCP_PORT, Context.LOCAL_TEST_DATA_PATH.resolve(keypair)
+                .toString(), remoteFilePath, CURRENT_DOWNLOADED_FILE_PATH);
+    }
+
+    @When("^I download the remote file \"(.*?)\" from the node \"(.*?)\" instance (\\d+) with the keypair \"(.*?)\" and user \"(.*?)\"$")
+    public void i_download_the_remote_file_from_the_node_instance_with_the_keypair_and_user(String remoteFilePath, String nodeName, int instanceIdx,
+            String keypair, String user) throws Throwable {
+        SSHUtil.download(user, AttributeUtil.getAttribute(nodeName, "public_ip_address", instanceIdx), Context.SCP_PORT, Context.LOCAL_TEST_DATA_PATH.resolve(keypair)
                 .toString(), remoteFilePath, CURRENT_DOWNLOADED_FILE_PATH);
     }
 
