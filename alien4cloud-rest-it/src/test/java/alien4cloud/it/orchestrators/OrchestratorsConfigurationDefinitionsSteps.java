@@ -79,11 +79,15 @@ public class OrchestratorsConfigurationDefinitionsSteps {
     public void i_update_import_param_for_orchestrator_with_name_using(String orchestratorName, String importsCsv) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         Map<String, Object> config = Context.getInstance().getOrchestratorConfiguration();
-        Map<String, Object> locations = Maps.newHashMap();
-        locations = (Map<String, Object>) config.getOrDefault("locations", locations);
+        Map<String, Object> locations = (Map<String, Object>) config.get("locations");
+        if (locations == null) {
+            locations = Maps.newHashMap();
+        }
         config.put("locations", locations);
-        Map<String, Object> openstack = Maps.newHashMap();
-        openstack = (Map<String, Object>) locations.getOrDefault("openstack", locations);
+        Map<String, Object> openstack = (Map<String, Object>) locations.getOrDefault("openstack", locations);
+        if (openstack == null) {
+            openstack = Maps.newHashMap();
+        }
         locations.put("openstack", openstack);
         List<String> imports = Lists.newArrayList(importsCsv.split(","));
         openstack.put("imports", imports);
