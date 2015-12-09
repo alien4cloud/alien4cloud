@@ -21,7 +21,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
@@ -43,6 +42,7 @@ import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.DeployerRole;
+import alien4cloud.topology.TopologyUtils;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.base.Objects;
@@ -172,6 +172,8 @@ public class LocationService {
                         location.getDependencies());
                 nodeType.getDerivedFrom().add(0, template.getTemplate().getType());
                 template.setTypes(nodeType.getDerivedFrom());
+                // FIXME Workaround to remove default scalable properties from compute
+                TopologyUtils.setNullScalingPolicy(template.getTemplate(), nodeType);
             }
             alienDAO.save(templates.toArray(new LocationResourceTemplate[templates.size()]));
             location.setLastUpdateDate(new Date());

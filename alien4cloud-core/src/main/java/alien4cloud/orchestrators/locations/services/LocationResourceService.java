@@ -1,6 +1,11 @@
 package alien4cloud.orchestrators.locations.services;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -15,7 +20,13 @@ import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.*;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedModelUtils;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
@@ -28,6 +39,7 @@ import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.MapUtil;
@@ -66,7 +78,7 @@ public class LocationResourceService {
      */
     public LocationResources getLocationResources(Location location) {
         Orchestrator orchestrator = orchestratorService.get(location.getOrchestratorId());
-        if (orchestrator != null && orchestratorPluginService.get(orchestrator.getId()) != null ) {
+        if (orchestrator != null && orchestratorPluginService.get(orchestrator.getId()) != null) {
             return getLocationResourcesFromOrchestrator(location);
         }
 
@@ -118,7 +130,7 @@ public class LocationResourceService {
     /**
      * Put the exposed types to the appropriate List of locationResourceTypes passed as param
      */
-    private void setLocationRessourceTypes(Collection<String> exposedTypes, Location location, LocationResourceTypes locationResourceTypes ) {
+    private void setLocationRessourceTypes(Collection<String> exposedTypes, Location location, LocationResourceTypes locationResourceTypes) {
         for (String exposedType : exposedTypes) {
             IndexedNodeType exposedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, exposedType,
                     location.getDependencies());
@@ -131,8 +143,10 @@ public class LocationResourceService {
 
             if (exposedIndexedNodeType.getCapabilities() != null && !exposedIndexedNodeType.getCapabilities().isEmpty()) {
                 for (CapabilityDefinition capabilityDefinition : exposedIndexedNodeType.getCapabilities()) {
-                    locationResourceTypes.getCapabilityTypes().put(capabilityDefinition.getType(),
-                            csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class, capabilityDefinition.getType(), location.getDependencies()));
+                    locationResourceTypes.getCapabilityTypes().put(
+                            capabilityDefinition.getType(),
+                            csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class, capabilityDefinition.getType(),
+                                    location.getDependencies()));
                 }
             }
         }
@@ -191,7 +205,7 @@ public class LocationResourceService {
     }
 
     private Map<String, String[]> getLocationIdFilter(String locationId) {
-        return MapUtil.newHashMap(new String[]{"locationId"}, new String[][]{new String[]{locationId}});
+        return MapUtil.newHashMap(new String[] { "locationId" }, new String[][] { new String[] { locationId } });
     }
 
     private List<LocationResourceTemplate> getResourcesTemplates(Map<String, String[]> filter) {
@@ -223,6 +237,8 @@ public class LocationResourceService {
         IndexedNodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, resourceTypeName,
                 location.getDependencies());
         NodeTemplate nodeTemplate = topologyService.buildNodeTemplate(location.getDependencies(), resourceType, null);
+        // FIXME Workaround to remove default scalable properties from compute
+        TopologyUtils.setNullScalingPolicy(nodeTemplate, resourceType);
         LocationResourceTemplate locationResourceTemplate = new LocationResourceTemplate();
         locationResourceTemplate.setName(resourceName);
         locationResourceTemplate.setEnabled(true);
@@ -259,8 +275,8 @@ public class LocationResourceService {
         saveResource(resourceTemplate);
     }
 
-    public void setTemplateProperty(String resourceId, String propertyName, Object propertyValue)
-            throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+    public void setTemplateProperty(String resourceId, String propertyName, Object propertyValue) throws ConstraintValueDoNotMatchPropertyTypeException,
+            ConstraintViolationException {
         LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
         IndexedNodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, resourceTemplate.getTemplate().getType(),

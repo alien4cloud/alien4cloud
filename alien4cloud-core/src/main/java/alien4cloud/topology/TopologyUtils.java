@@ -8,6 +8,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeGroup;
@@ -15,11 +16,26 @@ import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.ScalingPolicy;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.function.FunctionEvaluator;
+import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
 
 public class TopologyUtils {
 
     private TopologyUtils() {
+    }
+
+    public static void setNullScalingPolicy(NodeTemplate nodeTemplate, IndexedNodeType resourceType) {
+        // FIXME Workaround to remove default scalable properties from compute
+        if (ToscaUtils.isFromType(NormativeComputeConstants.COMPUTE_TYPE, resourceType)) {
+            if (nodeTemplate.getCapabilities() != null) {
+                Capability scalableCapability = nodeTemplate.getCapabilities().get(NormativeComputeConstants.SCALABLE);
+                if (scalableCapability != null && scalableCapability.getProperties() != null) {
+                    scalableCapability.getProperties().put(NormativeComputeConstants.SCALABLE_MIN_INSTANCES, null);
+                    scalableCapability.getProperties().put(NormativeComputeConstants.SCALABLE_MAX_INSTANCES, null);
+                    scalableCapability.getProperties().put(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, null);
+                }
+            }
+        }
     }
 
     public static ScalingPolicy getScalingPolicy(Capability capability) {
