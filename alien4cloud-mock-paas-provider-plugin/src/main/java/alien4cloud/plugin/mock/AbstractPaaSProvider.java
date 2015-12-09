@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.client.RestClientException;
 
-import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
@@ -70,8 +69,8 @@ public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<Provid
                 doDeploy(deploymentContext);
                 break;
             default:
-                throw new IllegalDeploymentStateException(
-                        "Topology [" + deploymentId + "] is in illegal status [" + deploymentStatus + "] and cannot be deployed");
+                throw new IllegalDeploymentStateException("Topology [" + deploymentId + "] is in illegal status [" + deploymentStatus
+                        + "] and cannot be deployed");
             }
         } finally {
             providerLock.writeLock().unlock();
@@ -79,8 +78,7 @@ public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<Provid
     }
 
     @Override
-    public void getInstancesInformation(PaaSTopologyDeploymentContext deploymentContext,
-            IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
+    public void getInstancesInformation(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
         callback.onSuccess(getInstancesInformation(deploymentContext.getDeploymentPaaSId(), deploymentContext.getDeploymentTopology()));
     }
 
@@ -112,10 +110,10 @@ public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<Provid
             // get the current number of instances
             int currentPlannedInstances = getPlannedInstancesCount(nodeTempalteEntry.getKey(), topology);
             for (int i = 1; i <= currentPlannedInstances; i++) {
-                Map<String, AbstractPropertyValue> properties = nodeTempalteEntry.getValue().getProperties() == null ? null
-                        : Maps.newHashMap(nodeTempalteEntry.getValue().getProperties());
-                Map<String, String> attributes = nodeTempalteEntry.getValue().getAttributes() == null ? null
-                        : Maps.newHashMap(nodeTempalteEntry.getValue().getAttributes());
+                // Map<String, AbstractPropertyValue> properties = nodeTempalteEntry.getValue().getProperties() == null ? null
+                // : Maps.newHashMap(nodeTempalteEntry.getValue().getProperties());
+                // Map<String, String> attributes = nodeTempalteEntry.getValue().getAttributes() == null ? null
+                // : Maps.newHashMap(nodeTempalteEntry.getValue().getAttributes());
                 // Map<String, String> runtimeProperties = Maps.newHashMap();
                 // TODO remove thoses infos
                 // InstanceInformation instanceInfo = new InstanceInformation(ToscaNodeLifecycleConstants.INITIAL, InstanceStatus.PROCESSING, properties,
@@ -153,8 +151,7 @@ public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<Provid
             case UNDEPLOYED:
                 throw new PaaSNotYetDeployedException("Application [" + deploymentId + "] is in status [" + deploymentStatus + "] and cannot be undeployed");
             case UNKNOWN:
-                throw new IllegalDeploymentStateException(
-                        "Application [" + deploymentId + "] is in status [" + deploymentStatus + "] and cannot be undeployed");
+                throw new IllegalDeploymentStateException("Application [" + deploymentId + "] is in status [" + deploymentStatus + "] and cannot be undeployed");
             case DEPLOYMENT_IN_PROGRESS:
             case FAILURE:
             case DEPLOYED:
@@ -162,8 +159,8 @@ public abstract class AbstractPaaSProvider implements IOrchestratorPlugin<Provid
                 doUndeploy(deploymentContext);
                 break;
             default:
-                throw new IllegalDeploymentStateException(
-                        "Application [" + deploymentId + "] is in illegal status [" + deploymentStatus + "] and cannot be undeployed");
+                throw new IllegalDeploymentStateException("Application [" + deploymentId + "] is in illegal status [" + deploymentStatus
+                        + "] and cannot be undeployed");
             }
         } finally {
             providerLock.writeLock().unlock();

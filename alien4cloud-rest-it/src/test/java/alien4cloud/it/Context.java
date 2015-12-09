@@ -31,6 +31,7 @@ import org.springframework.util.PropertyPlaceholderHelper;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.it.exception.ITException;
 import alien4cloud.it.provider.util.OpenStackClient;
+import alien4cloud.json.deserializer.AttributeDeserializer;
 import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
 import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import alien4cloud.json.deserializer.TaskDeserializer;
@@ -38,6 +39,7 @@ import alien4cloud.json.deserializer.TaskIndexedInheritableToscaElementDeseriali
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.IValue;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.templates.TopologyTemplate;
@@ -126,6 +128,7 @@ public class Context {
             JSON_MAPPER = new RestMapper();
             SimpleModule module = new SimpleModule("PropDeser", new Version(1, 0, 0, null, null, null));
             module.addDeserializer(AbstractPropertyValue.class, new PropertyValueDeserializer());
+            module.addDeserializer(IValue.class, new AttributeDeserializer());
             try {
                 module.addDeserializer(PropertyConstraint.class, new PropertyConstraintDeserializer());
             } catch (ClassNotFoundException | IOException | IntrospectionException e) {

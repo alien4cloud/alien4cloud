@@ -204,10 +204,10 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
         // IndexedNodeType indexedTargetNodeType = ToscaParsingUtil.getNodeTypeFromArchiveOrDependencies(targetNodeTemplate.getType(), archiveRoot,
         // searchService);
         // if (!indexedTargetNodeType.getDerivedFrom().contains(rd.getType())) {
-            // an error ?
-            // context.getParsingErrors().add(
-            // new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.VALIDATION_ERROR, "node_template requirements parsing", node.getStartMark(),
-            // "The relation target doesn't seem to be compibatble with the requirement", node.getEndMark(), targetNodeTemplate.getType()));
+        // an error ?
+        // context.getParsingErrors().add(
+        // new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.VALIDATION_ERROR, "node_template requirements parsing", node.getStartMark(),
+        // "The relation target doesn't seem to be compibatble with the requirement", node.getEndMark(), targetNodeTemplate.getType()));
         // }
 
         Capability capability = null;
@@ -248,6 +248,8 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
         Map<String, AbstractPropertyValue> properties = Maps.newHashMap();
         TopologyServiceCore.fillProperties(properties, indexedRelationshipType.getProperties(), relationshipProperties);
         relationshipTemplate.setProperties(properties);
+        relationshipTemplate.setAttributes(indexedRelationshipType.getAttributes());
+        relationshipTemplate.setInterfaces(indexedRelationshipType.getInterfaces());
         return relationshipTemplate;
     }
 

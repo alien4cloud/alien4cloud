@@ -400,9 +400,8 @@ public class TopologyTreeBuilderService {
     private <V extends IndexedArtifactToscaElement> void registerOperationOutput(final List<? extends IPaaSTemplate> paaSTemplates, final String interfaceName,
             final String operationName, final String output, final String formatedAttributeName) {
         for (IPaaSTemplate<V> paaSTemplate : paaSTemplates) {
-            if (paaSTemplate.getIndexedToscaElement() instanceof IndexedArtifactToscaElement) {
-                IndexedArtifactToscaElement toscaElement = (IndexedArtifactToscaElement) paaSTemplate.getIndexedToscaElement();
-                Interface interfass = MapUtils.getObject(toscaElement.getInterfaces(), (interfaceName));
+            if (paaSTemplate.getTemplate().getInterfaces() != null) {
+                Interface interfass = MapUtils.getObject(paaSTemplate.getTemplate().getInterfaces(), (interfaceName));
                 if (interfass != null && interfass.getOperations().containsKey(operationName)) {
                     OperationOutput toAdd = new OperationOutput(output);
                     if (StringUtils.isNotBlank(formatedAttributeName)) {
