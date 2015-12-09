@@ -7,6 +7,13 @@ var authentication = require('../../authentication/authentication');
 var common = require('../../common/common');
 var components = require('../../components/components');
 
+function expectElementList() {
+  expect(element(by.id('comp-search-side-panel')).isPresent()).toBe(true);
+  expect(element(by.id('comp-search-result-panel')).isPresent()).toBe(true);
+  var results = element.all(by.repeater('component in searchResult.data'));
+  expect(results.count()).toEqual(20);
+}
+
 describe('Component List :', function() {
   it('beforeAll', function() {
     setup.setup();
@@ -14,45 +21,69 @@ describe('Component List :', function() {
     authentication.login('admin');
   });
 
-  it('should be able to list components and check pagination', function() {
+  it('Admin should be able to see the upload box and element list', function(){
+    components.go();
+    expect(element(by.id('upload-csar')).isPresent()).toBe(true);
+    expectElementList();
+  });
+
+  it('Component manager should be able to see the upload box and element list', function(){
+    authentication.logout();
+    authentication.login('componentManager');
+    components.go();
+    expect(element(by.id('upload-csar')).isPresent()).toBe(true);
+    expectElementList();
+  });
+
+  it('Component browser should not be able to see the upload box and element list', function(){
+    authentication.logout();
+    authentication.login('componentBrowser');
+    components.go();
+    expect(element(by.id('upload-csar')).isPresent()).toBe(false);
+    expectElementList();
+  });
+
+  it('Component browser should be able to list components and check pagination', function() {
     components.go();
 
     expect(element(by.id('comp-search-side-panel')).isPresent()).toBe(true);
     expect(element(by.id('comp-search-result-panel')).isPresent()).toBe(true);
 
     var results = element.all(by.repeater('component in searchResult.data'));
-    // expect(results.count()).toEqual(20);
-    expect(results.count()).toEqual(17);
+    expect(results.count()).toEqual(20);
 
     // pagination
     var pagination = element.all(by.repeater('page in pages'));
-    expect(pagination.count()).toEqual(5);
-
+    expect(pagination.count()).toEqual(6); // First, Previous, 1, 2, Next, Last
     // go to the second page and check
-    //pagination.get(3).element(by.tagName('a')).click();
-    // results = element.all(by.repeater('component in searchResult.data'));
-    // expect(results.count()).toEqual(7);
+    var secondPageElement = pagination.get(3);
+    common.click(by.tagName('a'), secondPageElement);
+    results = element.all(by.repeater('component in searchResult.data'));
+    expect(results.count()).toEqual(10);
   });
 
-  xit('should be able to have components grouped by version when there are multiple versions of the same component', function() {
-    // go to the second page and check
-    pagination.get(3).element(by.tagName('a')).click();
-    results = element.all(by.repeater('component in searchResult.data.data'));
-    expect(results.count()).toEqual(7);
-    pagination.get(0).element(by.tagName('a')).click();
-    browser.waitForAngular();
-    components.goToComponentDetailPage(computeComponentV2.id);
-    expect(element.all(by.binding('component.elementId')).first().getText()).toContain(computeComponentV2.elementId);
-    expect(element(by.binding('component.archiveVersion')).getText()).toContain(computeComponentV2.archiveVersion);
+  it('should be able to have components grouped by version when there are multiple versions of the same component', function() {
+    components.go();
+    var computeLine = common.element(by.id('li_tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT'));
 
-    navigation.go('main', 'components');
-    components.changeComponentVersionAndGo(computeComponentV2.id, computeComponent.archiveVersion);
-    expect(element.all(by.binding('component.elementId')).first().getText()).toContain(computeComponent.elementId);
-    expect(element(by.binding('component.archiveVersion')).getText()).toContain(computeComponent.archiveVersion);
+    // version should be the latest
+    var versionButton = common.element(by.id('tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT_versions'));
+    expect(versionButton.getText()).toBe('1.0.0.wd06-SNAPSHOT');
+    common.click(by.id('tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT_versions'));
+
+    // assert that we have 2 versions
+    var versions = computeLine.all(by.repeater('olderVersion in component.olderVersions'));
+    expect(versions.count()).toEqual(2);
+
+    // change version
+    common.click(by.id('tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT_version_1.0.0.wd03-SNAPSHOT'));
+
+    var oldVersionButton = common.element(by.id('tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT_versions'));
+    // assert the version is the right one
+    expect(oldVersionButton.getText()).toBe('1.0.0.wd03-SNAPSHOT');
   });
 
-  xit('should be able to use search to find components', function() {
-  });
-
+  xit('should be able to use search to find components', function() {});
+  
   it('afterAll', function() { authentication.logout(); });
 });

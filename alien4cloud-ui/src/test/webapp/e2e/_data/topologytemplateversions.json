@@ -1,0 +1,7 @@
+[
+  {"id":"b3f51680-d33c-49e0-94c7-a4437efd105f","version":"1.2.0-SNAPSHOT","topologyId":"d3c25da0-0268-4016-8b1b-63fd2aa8dcbb","released":false,"latest":true,"topologyTemplateId":"380e272c-ea5d-4980-bc0e-860c78434a03","snapshot":true},
+  {"id":"ee748d09-e683-4b51-8869-6ddd0b0a1bf0","version":"1.0.0-SNAPSHOT","topologyId":"4f596d6b-4b91-43cf-9a49-59d3ad863dd0","released":false,"latest":true,"topologyTemplateId":"55ef6ea4-42a1-4de7-ab21-cbe098edace1","snapshot":true},
+  {"id":"a3423596-e360-428f-8e79-a1f3a1126afe","version":"0.1.0-SNAPSHOT","topologyId":"14baeb2b-84d0-4c73-942d-849444d2d9e1","released":false,"latest":true,"topologyTemplateId":"b71a8bc5-7d85-42ec-a064-0f43668c6dfc","snapshot":true},
+  {"id":"85fd07e5-718f-43f6-b9f2-b2d24be63253","version":"0.1.0-SNAPSHOT","topologyId":"6411abc2-5227-42ba-a8f3-99e9e2068f35","released":false,"latest":true,"topologyTemplateId":"8a1afcc9-537e-4537-b6e4-e3dc017a582a","snapshot":true},
+  {"id":"cd0ec11b-4390-4391-85fa-bdabd6fa5c6c","version":"1.1.0-SNAPSHOT","topologyId":"55d059f9-3655-4db1-980b-562ff5d5e0d9","released":false,"latest":true,"topologyTemplateId":"838449ca-0b1d-4810-accd-6f0731f8bda5","snapshot":true}
+]

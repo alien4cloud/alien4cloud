@@ -15,10 +15,24 @@ describe('Component details', function() {
   });
 
   it('should be able to see a component details.', function() {
+    components.go();
+    common.click(by.id('li_tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT'));
+
   });
+
+  it('should be able to see a component details in a older version', function() {
+    components.go();
+    // change version
+    common.click(by.id('tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT_versions'));
+    common.click(by.id('tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT_version_1.0.0.wd03-SNAPSHOT'));
+    // click
+    common.click(by.id('li_tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT'));
+  });
+
 
   it('should be able to see the content of an archive from a component detail.', function(){
   });
+
 
   it('afterAll', function() { authentication.logout(); });
 });

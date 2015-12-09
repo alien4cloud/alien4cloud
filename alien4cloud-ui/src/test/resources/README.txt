@@ -142,14 +142,7 @@ curl -X DELETE "http://localhost:9200/deployment/_query?pretty=true" -d '
 
 # ElasticSearch get queries
 ## Images
-curl -X POST "http://localhost:9200/imagedata/_search?pretty=true" -d '
-{
-    "from" : 0, "size" : 1000,
-    "query" : {
-        "match_all" : {}
-    }
-}
-'
+curl -X POST "http://localhost:9200/imagedata/_search?pretty=true" -d '{"from" : 0, "size" : 1000,"query" : {"match_all" : {}}}'
 
 ## Applications
 curl -X POST "http://localhost:9200/application/_search?pretty=true" -d '
@@ -184,71 +177,16 @@ curl -X POST "http://localhost:9200/metapropconfiguration/_search?pretty=true" -
 '
 
 ## Components
-curl -X POST "http://localhost:9200/csar/_search?pretty=true" -d '
-{
-    "query" : {
-        "match_all" : {}
-    }
-}
-'
+curl -X POST "http://localhost:9200/csar/_search?pretty=true" -d '{"from" : 0, "size" : 1000,"query" : {"match_all" : {}}}'
+curl -X POST "http://localhost:9200/csargitrepository/_search?pretty=true" -d '{"from" : 0, "size" : 1000,"query" : {"match_all" : {}}}'
+curl -X POST "http://localhost:9200/toscaelement/_search?pretty=true" -d '{"from" : 0, "size" : 1000,"query" : {"match_all" : {}}}'
 
-curl -X POST "http://localhost:9200/csargitrepository/_search?pretty=true" -d '
-{
-    "query" : {
-        "match_all" : {}
-    }
-}
-'
-
-curl -X POST "http://localhost:9200/toscaelement/_search?pretty=true" -d '
-{
-    "from" : 0, "size" : 1000,
-    "query" : {
-        "match_all" : {}
-    }
-}
-'
 ### Specific types
-curl -X POST "http://localhost:9200/toscaelement/indexedartifacttype/_search?pretty=true" -d '
-{
-    "from" : 0, "size" : 1000,
-    "query" : {
-        "match_all" : {}
-    }
-}
-'
-curl -X POST "http://localhost:9200/toscaelement/indexedcapabilitytype/_search?pretty=true" -d '
-{
-    "from" : 0, "size" : 1000,
-    "query" : {
-        "match_all" : {}
-    }
-}
-'
-curl -X POST "http://localhost:9200/toscaelement/indexeddatatype/_search?pretty=true" -d '
-{
-    "from" : 0, "size" : 1000,
-    "query" : {
-        "match_all" : {}
-    }
-}
-'
-curl -X POST "http://localhost:9200/toscaelement/indexednodetype/_search?pretty=true" -d '
-{
-    "from" : 0, "size" : 1000,
-    "query" : {
-        "match_all" : {}
-    }
-}
-'
-curl -X POST "http://localhost:9200/toscaelement/indexedrelationshiptype/_search?pretty=true" -d '
-{
-    "from" : 0, "size" : 1000,
-    "query" : {
-        "match_all" : {}
-    }
-}
-'
+curl -X POST "http://localhost:9200/toscaelement/indexedartifacttype/_search?pretty=true" -d '{"from" : 0, "size" : 1000,"query" : {"match_all" : {}}}'
+curl -X POST "http://localhost:9200/toscaelement/indexedcapabilitytype/_search?pretty=true" -d '{"from" : 0, "size" : 1000,"query" : {"match_all" : {}}}'
+curl -X POST "http://localhost:9200/toscaelement/indexeddatatype/_search?pretty=true" -d '{"from" : 0, "size" : 1000,"query" : {"match_all" : {}}}'
+curl -X POST "http://localhost:9200/toscaelement/indexednodetype/_search?pretty=true" -d '{"from" : 0, "size" : 1000,"query" : {"match_all" : {}}}'
+curl -X POST "http://localhost:9200/toscaelement/indexedrelationshiptype/_search?pretty=true" -d '{"from" : 0, "size" : 1000,"query" : {"match_all" : {}}}'
 
 ## Deployments
 curl -X POST "http://localhost:9200/deployment/_search?pretty=true" -d '
@@ -267,72 +205,19 @@ curl -X POST "http://localhost:9200/deploymenttopology/_search?pretty=true" -d '
 '
 
 ## Orchestrators
-
-curl -X POST "http://localhost:9200/orchestrator/_search?pretty=true" -d '
-{
-    "query" : {
-        "match_all" : {}
-    }
-}
-'
-curl -X POST "http://localhost:9200/orchestratorconfiguration/_search?pretty=true" -d '
-{
-    "query" : {
-        "match_all" : {}
-    }
-}
-'
+curl -X POST "http://localhost:9200/orchestrator/_search?pretty=true" -d '{"from" : 0, "size" : 100,"query" : {"match_all" : {}}}'
+curl -X POST "http://localhost:9200/orchestratorconfiguration/_search?pretty=true" -d '{"from" : 0, "size" : 100,"query" : {"match_all" : {}}}'
 
 ## Locations
-
-curl -X POST "http://localhost:9200/location/_search?pretty=true" -d '
-{
-    "query" : {
-        "match_all" : {}
-    }
-}
-'
-curl -X POST "http://localhost:9200/locationresourcetemplate/_search?pretty=true" -d '
-{
-    "from" : 0, "size" : 100,
-    "query" : {
-        "match_all" : {}
-    }
-}
-'
+curl -X POST "http://localhost:9200/location/_search?pretty=true" -d '{"from" : 0, "size" : 100,"query" : {"match_all" : {}}}'
+curl -X POST "http://localhost:9200/locationresourcetemplate/_search?pretty=true" -d '{"from" : 0, "size" : 100,"query" : {"match_all" : {}}}'
 
 ## Topology templates
-curl -X POST "http://localhost:9200/topologytemplate/_search?pretty=true" -d '
-{
-    "query" : {
-        "match_all" : {}
-    }
-}
-'
-curl -X POST "http://localhost:9200/topologytemplateversion/_search?pretty=true" -d '
-{
-    "query" : {
-        "match_all" : {}
-    }
-}
-'
+curl -X POST "http://localhost:9200/topologytemplate/_search?pretty=true" -d '{"from" : 0, "size" : 100,"query" : {"match_all" : {}}}'
+curl -X POST "http://localhost:9200/topologytemplateversion/_search?pretty=true" -d '{"from" : 0, "size" : 100,"query" : {"match_all" : {}}}'
+
 ## Topology
-
-curl -X POST "http://localhost:9200/topology/_search?pretty=true" -d '
-{
-    "query" : {
-        "match_all" : {}
-    }
-}
-'
-
-curl -X POST "http://localhost:9200/topology/_search?pretty=true" -d '
-{
-    "query" : {
-        "match_all" : {}
-    }
-}
-'
+curl -X POST "http://localhost:9200/topology/_search?pretty=true" -d '{"from" : 0, "size" : 100,"query" : {"match_all" : {}}}'
 
 ## Events
 

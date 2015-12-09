@@ -22,6 +22,10 @@ var indexednodetypes = require(__dirname + '/../_data/indexednodetypes.json');
 var indexedrelationshiptypes = require(__dirname + '/../_data/indexedrelationshiptypes.json');
 var imagedatas = require(__dirname + '/../_data/imagedatas.json');
 
+var topologytemplates = require(__dirname + '/../_data/topologytemplates.json');
+var topologytemplateversions = require(__dirname + '/../_data/topologytemplateversions.json');
+var topologies = require(__dirname + '/../_data/topologies.json');
+
 var plugins = require(__dirname + '/../_data/plugins.json');
 var orchestrators = require(__dirname + '/../_data/orchestrators.json');
 var orchestratorsconf = require(__dirname + '/../_data/orchestratorconfiguration.json');
@@ -61,6 +65,10 @@ function doSetup() {
   index('toscaelement', 'indexednodetype', indexednodetypes);
   index('toscaelement', 'indexedrelationshiptype', indexedrelationshiptypes);
   index('imagedata', 'imagedata', imagedatas);
+
+  index('topologytemplates', 'topologytemplates', imagedatas);
+  index('topologytemplateversions', 'topologytemplateversions', imagedatas);
+  index('topologies', 'topologies', imagedatas);
 
   index('plugin', 'plugin', plugins);
   index('orchestrator', 'orchestrator', orchestrators);
