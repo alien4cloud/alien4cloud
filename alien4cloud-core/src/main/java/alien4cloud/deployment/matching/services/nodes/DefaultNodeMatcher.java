@@ -117,8 +117,13 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
             return false;
         }
 
+        // The matchingConfigurations can be null when the associate orchestrator is disabled
+        if (matchingConfigurations == null)  {
+            return false;
+        }
+
         // Check that the note template properties are matching the constraints specified for matching.
-        MatchingConfiguration matchingConfiguration = matchingConfigurations.get(nodeType.getElementId());
+        MatchingConfiguration matchingConfiguration = matchingConfigurations.get(candidateType.getElementId());
 
         if (matchingConfiguration == null) {
             return true;

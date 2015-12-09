@@ -1,11 +1,11 @@
-/* global element, by */
+/* global describe, it, element, by, expect */
+
 'use strict';
 
+var setup = require('../../common/setup');
 var authentication = require('../../authentication/authentication');
 var common = require('../../common/common');
-var navigation = require('../../common/navigation');
-var topologyEditorCommon = require('../../topology/topology_editor_common');
-var topologyTemplatesCommon = require('../../topology/topology_templates_common');
+var topologyTemplates = require('../../topology_templates/topology_templates');
 
 var topologyTemplateName = 'MyNewTopologyTemplate';
 
@@ -13,48 +13,41 @@ var checkTopologyTemplate = function(templateName) {
   var elemTemplateId = element(by.id('template_' + templateName + '_name'));
   expect(elemTemplateId.isPresent()).toBe(true);
   expect(elemTemplateId.getText()).toEqual(templateName);
+  expect(element(by.id('am.topologytemplate.detail.topology').isPresent())).toBe(true);
 };
 
-describe('Create topology templates', function() {
-
-  beforeEach(function() {
-    common.before();
-    authentication.login('admin');
-    authentication.reLogin('architect');
+describe('Topology templates:', function() {
+  it('beforeAll', function() {
+    setup.setup();
+    common.home();
+    authentication.login('architect');
   });
 
-  // After each spec in the tests suite(s)
-  afterEach(function() {
-    // Logout action
-    authentication.logout();
-  });
-
-  it('should add a new topology template and be redirected on template topology edition', function() {
-    console.log('################# should add a new topology template and be redirected on template topology edition');
-    topologyTemplatesCommon.createTopologyTemplate(topologyTemplateName, 'A first basic topology template');
-
-    // Testing URL and id displayed
+  it('should be able to add a new topology template', function() {
+    topologyTemplates.create('ui test topology template', 'description');
     checkTopologyTemplate(topologyTemplateName);
 
-    // Jump to Template list for count()
-    navigation.go('main', 'topologyTemplates');
-
-    var topologyTemplates = element.all(by.repeater('topologyTemplate in searchResult.data.data'));
-    expect(topologyTemplates.count()).toBe(1);
+    topologyTemplates.go();
+    var templates = element.all(by.repeater('topologyTemplate in searchResult.data.data'));
+    expect(templates.count()).toBe(1);
   });
 
-  it('should add ' + Object.keys(topologyEditorCommon.topologyTemplates).length + ' topology templates, and delete one (cancel then confirm delete)', function() {
-    console.log('################# should add ' + Object.keys(topologyEditorCommon.topologyTemplates).length + ' topology templates, and delete one (cancel then confirm delete)');
-    // Jump to Template list for count()
-    Object.keys(topologyEditorCommon.topologyTemplates).forEach(function(templateKey) {
-      topologyTemplatesCommon.createTopologyTemplate(topologyEditorCommon.topologyTemplates[templateKey].tName, topologyEditorCommon.topologyTemplates[templateKey].tDescription);
-      checkTopologyTemplate(topologyEditorCommon.topologyTemplates[templateKey].tName);
-    });
+  it('should not be able to add a new topology template with an existing name', function() {
+    topologyTemplates.create('ui test topology template', 'description');
+    checkTopologyTemplate(topologyTemplateName);
 
-    navigation.go('main', 'topologyTemplates');
-    var topoTemplates = element.all(by.repeater('topologyTemplate in searchResult.data.data'));
-    expect(topoTemplates.count()).toBe(Object.keys(topologyEditorCommon.topologyTemplates).length);
+    topologyTemplates.go();
+    var templates = element.all(by.repeater('topologyTemplate in searchResult.data.data'));
+    expect(templates.count()).toBe(1);
+  });
 
+  it('should be able to cancel creation of a new topology template', function() {
+    topologyTemplates.create('name', 'description', true);
+    var templates = element.all(by.repeater('topologyTemplate in searchResult.data.data'));
+    expect(templates.count()).toBe(1);
+  });
+
+  it('should be able to delete a topology template', function() {
     // click remove topology and cancel
     var topologyId = 'template_' + topologyEditorCommon.topologyTemplates.template1.tName;
     var topoTempElement = element(by.id(topologyId));
@@ -66,30 +59,17 @@ describe('Create topology templates', function() {
     expect(topoTempElement.isPresent()).toBe(false);
   });
 
-  it('should be able to edit a template', function() {
-    console.log('################# should be able to edit a template name');
-    var secondTemplateName = 'secondTemplate';
-    var newName = 'templateRenamed';
-    topologyTemplatesCommon.createTopologyTemplate(topologyTemplateName, 'A first basic topology template');
-    checkTopologyTemplate(topologyTemplateName);
-    topologyTemplatesCommon.createTopologyTemplate(secondTemplateName, 'A second basic topology template');
-    checkTopologyTemplate(secondTemplateName);
+  it('should be able to rename a topology template', function() {
+  });
 
-    topologyTemplatesCommon.goToTemplateDetailPage(topologyTemplateName);
-    common.sendValueToXEditable('template_' + topologyTemplateName + '_name', newName, false);
-    checkTopologyTemplate(newName);
+  it('should not be able to rename a topology template with an existing name', function() {
+  });
 
-    // Change the template's description
+  it('should be able to edit the topology template description', function() {
     common.sendValueToXEditable('template_' + newName + '_description', 'New brilliant description', false);
     expect(element(by.binding('topologyTemplate.description')).getText()).toEqual('New brilliant description');
     common.expectNoErrors();
-
-    //should fail to rename with an existing name
-    topologyTemplatesCommon.goToTemplateDetailPage(secondTemplateName);
-    common.sendValueToXEditable('template_' + secondTemplateName + '_name', newName, false);
-    common.abortXEditable('template_' + secondTemplateName + '_name');
-    common.expectTitleMessage('409');
-    common.dismissAlert();
-    checkTopologyTemplate(secondTemplateName);
   });
+
+  it('afterAll', function() { authentication.logout(); });
 });

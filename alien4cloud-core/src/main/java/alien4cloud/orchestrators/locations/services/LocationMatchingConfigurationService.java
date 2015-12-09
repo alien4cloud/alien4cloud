@@ -32,7 +32,10 @@ public class LocationMatchingConfigurationService {
      */
     public Map<String, MatchingConfiguration> getMatchingConfiguration(Location location) {
         Orchestrator orchestrator = orchestratorService.getOrFail(location.getOrchestratorId());
-        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(orchestrator.getId());
+        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.get(orchestrator.getId());
+        if (orchestratorInstance == null) {
+            return null;
+        }
         ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
         return configuratorPlugin.getMatchingConfigurations();
     }

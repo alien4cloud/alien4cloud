@@ -1,9 +1,6 @@
 package alien4cloud.paas.model;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import org.elasticsearch.annotation.ESObject;
 
@@ -13,6 +10,7 @@ import org.elasticsearch.annotation.ESObject;
 @Getter
 @Setter
 @ESObject
+@AllArgsConstructor
 @NoArgsConstructor
 @ToString
 public class PaaSInstancePersistentResourceMonitorEvent extends AbstractMonitorEvent {
@@ -20,14 +18,7 @@ public class PaaSInstancePersistentResourceMonitorEvent extends AbstractMonitorE
     private String nodeTemplateId;
     /** Id of the instance within the node template group (for scalability purpose) */
     private String instanceId;
-    /** The volumeId created / related to this instance **/
-    private String propertyValue;
     private String propertyName;
-
-    public PaaSInstancePersistentResourceMonitorEvent(String nodeTemplateId, String instanceId, String propertyName, String propertyValue) {
-        this.nodeTemplateId = nodeTemplateId;
-        this.instanceId = instanceId;
-        this.propertyName = propertyName;
-        this.propertyValue = propertyValue;
-    }
+    /** The volumeId created / related to this instance **/
+    private Object propertyValue;
 }

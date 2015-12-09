@@ -94,8 +94,8 @@
                 <span style="display:block;"ng-repeat="location in csar.importLocations"> {{location.branchId || '*'}}</span>
               </td>
               <td>
-                <button class=" btn-sm btn btn-default ng-binding" ng-disabled="isImporting" tooltip="{{ 'CSAR.IMPORTTOOLTIP' | translate}}" ng bssize="btn-sm" position="left" id="IMPORT_CSARGIT" ng-click="triggerImport(csar.id, csar.repositoryUrl)">
-                  <i class="fa fa-download fa-lg" ng-class="{'fa-download fa-lg': !isImporting, 'fa-spinner fa-spin': isImporting}"></i>
+                <button class=" btn-sm btn btn-default ng-binding" ng-disabled="importing[csar.id]" tooltip="{{ 'CSAR.IMPORTTOOLTIP' | translate}}" ng bssize="btn-sm" position="left" id="IMPORT_CSARGIT" ng-click="triggerImport(csar.id, csar.repositoryUrl)">
+                  <i class="fa fa-download fa-lg" ng-class="{'fa-download fa-lg': !importing[csar.id], 'fa-spinner fa-spin': importing[csar.id]}"></i>
                 </button>
                 <button class=" btn-sm btn btn-default ng-binding"  ng-disabled="isImporting" ng bssize="btn-sm" tooltip="{{ 'CSAR.EDITTOOLTIP' | translate}}" position="left" id="UPDATE_CSARGIT" ng-click="openCsarGit(csar)">
                   <i class="fa fa-pencil-square-o fa-lg" ></i>

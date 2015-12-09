@@ -608,12 +608,6 @@ public class ApplicationStepDefinitions {
             case "name":
                 appEnvRequest.setName(attributeValue);
                 break;
-            case "cloudName":
-                // for attribute cloudName get the ID en set it
-                String cloudId = Context.getInstance().getCloudId(attributeValue);
-                // appEnvRequest.setCloudId(cloudId);
-                Assert.fail("Fix test");
-                break;
             case "description":
                 appEnvRequest.setDescription(attributeValue);
                 break;

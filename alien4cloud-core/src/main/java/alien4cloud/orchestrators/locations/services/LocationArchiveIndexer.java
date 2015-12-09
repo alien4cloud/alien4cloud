@@ -9,10 +9,6 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.model.deployment.matching.MatchingConfiguration;
-import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
-import alien4cloud.orchestrators.services.OrchestratorService;
-import alien4cloud.paas.exception.OrchestratorDisabledException;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -32,8 +28,11 @@ import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
+import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import alien4cloud.orchestrators.plugin.model.PluginArchive;
+import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
+import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.tosca.ArchiveIndexer;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
@@ -56,8 +55,6 @@ public class LocationArchiveIndexer {
     private CsarService csarService;
     @Inject
     private ArchiveIndexer archiveIndexer;
-    @Inject
-    private LocationService locationService;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
 

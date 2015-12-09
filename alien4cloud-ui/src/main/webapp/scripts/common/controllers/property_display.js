@@ -50,10 +50,10 @@ define(function(require) {
       };
       $scope.propertySave = function(data, unit) {
         delete $scope.unitError;
-        if (_.isEmpty(data)) {
-          data = null;
-        } else if (_.isBoolean(data)) {
+        if (_.isBoolean(data)) {
           data = data.toString();
+        } else if (_.isEmpty(data)) {
+          data = null;
         }
 
         if (!_.isEmpty(data) && _.defined($scope.definitionObject.units)) {
@@ -72,7 +72,7 @@ define(function(require) {
         // If the callback return a promise
         if (_.defined(saveResult) && _.defined(saveResult.then)) {
           return saveResult.then(function(saveResult) {
-            if (saveResult.error !== null) {
+            if (_.defined(saveResult.error)) {
               // Constraint error display + translation
               var constraintInfo = saveResult.data;
               // Error message handled by x-editable

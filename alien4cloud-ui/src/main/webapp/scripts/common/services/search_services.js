@@ -27,7 +27,7 @@ define(function (require) {
     var searchContext = {};
 
     //search query keyword: empty for the begining
-    searchContext.searchedKeyword = '';
+    searchContext.query = '';
 
     //facets filters
     searchContext.facetFilters = [];

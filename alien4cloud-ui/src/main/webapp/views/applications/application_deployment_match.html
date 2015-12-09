@@ -103,10 +103,10 @@
                     </i>
                   </a>
                 </td>
-                <td class="col-md-1" ng-click="selectTemplate(nodeName, template)">
+                <td class="col-md-4" ng-click="selectTemplate(nodeName, template)">
                   {{template.name}}
                 </td>
-                <td class="col-md-10" ng-click="selectTemplate(nodeName, template)">
+                <td class="col-md-7" ng-click="selectTemplate(nodeName, template)">
                   {{template.template.type}}
                 </td>
               </tr>
@@ -119,7 +119,7 @@
       <div ng-if="selectedResourceTemplate" class="well">
         <orchestrator-location-resource-template
             is-editable="false"
-            is-property-editable="getSubstitutedTemplate(selectedNodeName).id === selectedResourceTemplate.id"
+            is-property-editable="isPropertyEditable(propertyPath)"
             resource-template="selectedResourceTemplate"
             resource-type="deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.nodeTypes[selectedResourceTemplate.template.type]"
             resource-capability-types="deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.capabilityTypes"

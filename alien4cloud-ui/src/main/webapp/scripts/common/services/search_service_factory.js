@@ -15,6 +15,7 @@ define(function (require) {
       if (!maxPageNumbers) {
         maxPageNumbers = 10;
       }
+      var isFiltered=false;
       var resource;
       if (useParam) {
         var searchParams = {
@@ -60,7 +61,7 @@ define(function (require) {
       var selectPage = function(page) {
         this.currentPage = page;
         this.from = (page - 1) * this.maxSearchSize;
-        search(this.from);
+        search(this.from, this.searchContext.additionalBody);
       };
 
       var pagination = {
@@ -69,10 +70,19 @@ define(function (require) {
         'reset': reset,
         'maxSearchSize': maxSearchSize,
         'maxPageNumbers': maxPageNumbers,
-        'totalItems': 0
+        'totalItems': 0,
+        'searchContext':{}
       };
 
-      var search = function(from) {
+      var filtered = function(filtered){
+        if(_.defined(filtered)){
+          isFiltered = filtered;
+        }else{
+          isFiltered = false;
+        }
+      };
+      
+      var search = function(from, additionalBody) {
         if (!from) {
           pagination.reset();
           from = pagination.from;
@@ -98,6 +108,13 @@ define(function (require) {
           if (_.defined(body)) {
             searchBody = _.merge(body, searchBody);
           }
+          if(_.defined(additionalBody)){
+            searchBody = _.merge(searchBody, additionalBody);
+            pagination.searchContext.additionalBody = additionalBody;
+          }
+          if(isFiltered){
+            searchBody.filters=queryProvider.filters;
+          }
           resource.search(params, angular.toJson(searchBody), function(searchResult) {
             pagination.update(searchResult);
             queryProvider.onSearchCompleted(searchResult);
@@ -107,7 +124,8 @@ define(function (require) {
 
       return  {
         'pagination': pagination,
-        'search': search
+        'search': search,
+        'filtered': filtered
       };
     };
 

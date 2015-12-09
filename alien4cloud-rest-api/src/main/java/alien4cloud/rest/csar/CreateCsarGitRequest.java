@@ -6,15 +6,13 @@ import javax.validation.constraints.NotNull;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import org.hibernate.validator.constraints.NotBlank;
 
-import alien4cloud.security.model.CsarGitCheckoutLocation;
+import alien4cloud.model.git.CsarGitCheckoutLocation;
 import org.hibernate.validator.constraints.NotEmpty;
 
 @Getter

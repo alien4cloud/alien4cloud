@@ -22,7 +22,6 @@ import alien4cloud.model.deployment.IDeploymentSource;
 @Getter
 @Setter
 @EqualsAndHashCode(of = { "name", "version" })
-@SuppressWarnings("PMD.UnusedPrivateField")
 @ESObject
 public class Csar implements IDeploymentSource {
 	@FetchContext(contexts = { SUMMARY }, include = { true })

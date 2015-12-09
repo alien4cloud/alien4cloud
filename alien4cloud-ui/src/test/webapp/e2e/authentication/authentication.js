@@ -1,11 +1,11 @@
 /**
  * Module that exposes functions to login - logout and re-login with various users.
  */
-/* global by, element */
-
-var common = require('../common/common');
+/* global by, browser */
 
 'use strict';
+
+var common = require('../common/common');
 
 //users
 var users = {
@@ -72,15 +72,22 @@ function logout() {
 }
 
 function login(username) {
+  common.dismissAlertIfPresent();
+  // check also that the language selection is not on
+  var isPresentPromise = browser.element(by.name('link-language-fr')).isDisplayed();
+  isPresentPromise.then(function (isPresent) {
+    if(isPresent) {
+      common.click(by.id('navbar-rightdrop'));
+    }
+  });
   var user = users[username];
   // Setting the model
-  var userInput = common.waitElement(by.model('login.username'));
+  var userInput = common.element(by.model('login.username'));
   userInput.clear();
   userInput.sendKeys(user.username);
-  var pwdInput = common.waitElement(by.model('login.password'));
+  var pwdInput = common.element(by.model('login.password'));
   pwdInput.clear();
   pwdInput.sendKeys(user.password);
-
   // Login click action
   common.click(by.name('btn-login'));
 }

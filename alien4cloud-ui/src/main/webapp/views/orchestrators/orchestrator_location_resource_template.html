@@ -23,7 +23,7 @@
     <div id="node-details-properties" class="clickable"
          ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
       <h4>
-        <i class="pull-left fa" ng-class="{'fa-caret-down' : !isPropertiesCollapsed, 'fa-caret-right': isPropertiesCollapsed}"></i>
+        <i class=" fa" ng-class="{'fa-caret-down' : !isPropertiesCollapsed, 'fa-caret-right': isPropertiesCollapsed}"></i>
         {{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}
       </h4>
     </div>
@@ -37,9 +37,8 @@
                 dependencies="dependencies"
                 property-name="propEntry.key"
                 property-value="propEntry.value"
-                editable = "isPropertyEditable"
+                editable = "canEditProperty(propEntry.key)"
                 on-save="updateResourceProperty(propertyName, propertyValue)"
-                editable="true"
                 condensed="condensed">
             </property-display>
           </td>
@@ -57,7 +56,7 @@
     <div id="node-details-capabilities" class="clickable"
          ng-click="isCapabilitiesCollapsed = !isCapabilitiesCollapsed">
       <h4>
-        <i class="pull-left fa" ng-class="{'fa-caret-down' : !isCapabilitiesCollapsed, 'fa-caret-right': isCapabilitiesCollapsed}"></i>
+        <i class=" fa" ng-class="{'fa-caret-down' : !isCapabilitiesCollapsed, 'fa-caret-right': isCapabilitiesCollapsed}"></i>
         {{'APPLICATIONS.TOPOLOGY.CAPABILITIES' | translate}}
       </h4>
     </div>
@@ -66,7 +65,7 @@
            ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(capabilityEntry.value.properties)">
         <div style="font-weight: normal"
              ng-class="{'clickable' : !emptyProps}"
-             ng-click="isReqPropsCollapsed[capabilityEntry.key] = !isReqPropsCollapsed[capabilityEntry.key]">
+             ng-click="!emptyProps && (isReqPropsCollapsed[capabilityEntry.key] = !isReqPropsCollapsed[capabilityEntry.key])">
           <div class="row">
             <div class="col-md-3 ">
               <i ng-if="!emptyProps" class="pull-left fa"
@@ -84,7 +83,7 @@
             </div>
           </div>
         </div>
-        <table ng-if="!isReqPropsCollapsed[capabilityEntry.key]" class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
+        <table ng-if="!emptyProps && !isReqPropsCollapsed[capabilityEntry.key]" class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
           <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
             <td>
               <property-display
@@ -93,9 +92,8 @@
                   dependencies="dependencies"
                   property-name="propertyEntry.key"
                   property-value="propertyEntry.value"
-                  editable = "isPropertyEditable"
+                  editable = "canEditCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
                   on-save="updateResourceCapabilityProperty(capabilityEntry.key, propertyName, propertyValue)"
-                  editable="true"
                   condensed="condensed">
               </property-display>
             </td>

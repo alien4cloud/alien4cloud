@@ -3,12 +3,34 @@
 'use strict';
 
 var cleanup = require('./cleanup');
-var navigation = require('./navigation');
-var SCREENSHOT = require('./screenshot');
+var screenshot = require('./screenshot');
+
+// Load languages strings for locale related tests
+var frLanguage = require(__dirname + '/../../../../main/webapp/data/languages/locale-fr-fr.json');
+var usLanguage = require(__dirname + '/../../../../main/webapp/data/languages/locale-en-us.json');
+module.exports.frLanguage = frLanguage;
+module.exports.usLanguage = usLanguage;
+
+function log(message) {
+  browser.sleep(0).then(function(){ console.log(message); });
+}
+module.exports.log = log;
+
+function home() {
+  browser.get('#/');
+  browser.waitForAngular();
+}
+module.exports.home = home;
+
+module.exports.before = function() {
+  // cleanup ElasticSearch and alien folders.
+  cleanup.cleanup();
+};
 
 // Common utilities to work with protractor
-var waitElement = function(selector, fromElement) {
-  // wait for the element to be there for 10 sec
+function wElement(selector, fromElement) {
+  var selectorStr = selector.toString();
+  // wait for the element to be there for 3 sec
   browser.wait(function() {
     var deferred = protractor.promise.defer();
     var isPresentPromise;
@@ -19,74 +41,36 @@ var waitElement = function(selector, fromElement) {
     }
     isPresentPromise.then(function (isPresent) {
       if(!isPresent) {
-        console.log('waiting for element...');
+        log('waiting for element using selector ' + selectorStr);
       }
       deferred.fulfill(isPresent);
     });
     return deferred.promise;
-  }, 10000);
+  }, 3000);
   if(fromElement && fromElement !== null) {
     return fromElement.element(selector);
   }
   return browser.element(selector);
-};
-module.exports.waitElement = waitElement;
+}
+module.exports.element = wElement;
 
-var click = function(selector, fromElement, skipWaitAngular) {
-  var target = waitElement(selector, fromElement);
+function click(selector, fromElement, skipWaitAngular) {
+  var target = wElement(selector, fromElement);
   browser.actions().click(target).perform();
   if(!skipWaitAngular) {
     browser.waitForAngular();
   }
   return target;
-};
+}
 module.exports.click = click;
 
-var dismissAlert = function() { // toast-close-button
-  element(by.css('.toast-close-button')).click();
-  browser.waitForAngular();
-};
-module.exports.dismissAlert = dismissAlert;
-
-var flow = protractor.promise.controlFlow();
-
-var dismissAlertIfPresent = function() { // toast-close-button
-  flow.execute(function() {
-    var closeAlertButton = element(by.css('.toast-close-button'));
-    closeAlertButton.click();
-    browser.waitForAngular();
-  }).then(function(value) {
-  }, function(error) {
-    return true;
-  });
-};
-module.exports.dismissAlertIfPresent = dismissAlertIfPresent;
-
-module.exports.before = function() {
-  // cleanup ElasticSearch and alien folders.
-  cleanup.cleanup();
-  navigation.home();
+module.exports.sendKeys = function(selector, keys, fromElement) {
+  var target = wElement(selector, fromElement);
+  target.sendKeys(keys);
 };
 
-// Loading and exposing languages for tests
-var frLanguage = require(__dirname + '/../../../../main/webapp/data/languages/locale-fr-fr.json');
-var usLanguage = require(__dirname + '/../../../../main/webapp/data/languages/locale-en-us.json');
-
-module.exports.frLanguage = frLanguage;
-module.exports.usLanguage = usLanguage;
-
-module.exports.uploadFile = function(path) {
-  browser.driver.executeScript('var $scope = angular.element($(\'#fileUpload\')).scope(); $scope.dropSupported=false; $scope.$apply();').then(function() {
-    browser.waitForAngular();
-    var fileInput = browser.element(by.css('input[type="file"]'));
-    fileInput.sendKeys(path);
-    SCREENSHOT.takeScreenShot('upload-components');
-    browser.waitForAngular();
-  });
-  browser.waitForAngular();
-};
-
-module.exports.chooseSelectOption = function(selectElement, value) {
+module.exports.select = function(selector, value) {
+  var selectElement = wElement(selector);
   selectElement.all(by.tagName('option')).then(function() {
     var desiredOption;
     selectElement.all(by.tagName('option'))
@@ -108,230 +92,47 @@ module.exports.chooseSelectOption = function(selectElement, value) {
   });
 };
 
-// Get URL by number
-var getUrlElement = function(url, elementIndex) {
-  var urlElements = url.split('#');
-  var secondPart = urlElements[1];
-  if (elementIndex !== '' && elementIndex >= 0 && elementIndex <= secondPart.length) {
-    return secondPart.split('/')[elementIndex];
-  }
-  return secondPart.split('/');
-};
-module.exports.getUrlElement = getUrlElement;
-
-var abortXEditable = function(id, type) {
-  var container = element(by.id(id));
-  var editForm = container.element(by.tagName('form'));
-  var editInput;
-  if (type) {
-    editInput = editForm.element(by.tagName(type));
-  } else {
-    editInput = editForm.element(by.tagName('input'));
-  }
-  editInput.sendKeys(protractor.Key.ESCAPE);
-  browser.waitForAngular();
-};
-module.exports.abortXEditable = abortXEditable;
-
-var sendValueToXEditable = function(id, value, withAutoCompletion, type) {
-  // Find the container of x-editable
-  var container = element(by.id(id));
-  expect(container.isPresent()).toBe(true);
-  expect(container.isDisplayed()).toBe(true);
-
-  var span = container.element(by.css('.editable-click'));
-  expect(span.isDisplayed()).toBe(true);
-  // click on the span of x-editable to trigger input
-  span.element(by.tagName('i')).click();
-  var editForm = container.element(by.tagName('form')); // this fucking shit doesn't work on firefox !
-  var editInput;
-  if (type) {
-    editInput = editForm.element(by.tagName(type));
-  } else {
-    editInput = editForm.element(by.tagName('input'));
-  }
-  editInput.clear();
-  editInput.sendKeys(value);
-  browser.waitForAngular();
-  if (withAutoCompletion) {
-    editForm.element(by.tagName('ul')).all(by.tagName('li')).then(function(autoCompletionProposals) {
-      var firstProposal = autoCompletionProposals[0];
-      browser.actions().click(firstProposal).perform();
-      browser.waitForAngular();
-      editForm.submit();
-      browser.waitForAngular();
-      span.getText().then(function(spanText) {
-        expect(spanText.toLowerCase()).toContain(value);
-      });
-    });
-  } else {
-    editForm.submit();
+var flow = protractor.promise.controlFlow();
+var dismissAlertIfPresent = function() { // toast-close-button
+  flow.execute(function() {
+    var closeAlertButton = element(by.css('.toast-close-button'));
+    closeAlertButton.click();
     browser.waitForAngular();
+  }).then(function() {
+  }, function() {
+    return true;
+  });
+};
+module.exports.dismissAlertIfPresent = dismissAlertIfPresent;
+
+var confirmAction = function(confirm) {
+  // get popover div and grab the Yes / No buttons
+  var divPopover = wElement(by.css('.popover'));
+  if (confirm === true) { // confirm deletion
+    click(by.css('.btn-success'), divPopover);
+  } else { // cancel
+    click(by.css('.btn-danger'), divPopover);
   }
 };
-module.exports.sendValueToXEditable = sendValueToXEditable;
-
-var sendValueToToscaProperty = function(id, value) {
-  // For the moment only consider x-editable
-  sendValueToXEditable('p_' + id, value);
-};
-
-module.exports.sendValueToToscaProperty = sendValueToToscaProperty;
-
-var expectValueFromXEditable = function(id, value) {
-  var container = element(by.id(id));
-  expect(container.isPresent()).toBe(true);
-  expect(container.isDisplayed()).toBe(true);
-  var span = container.element(by.tagName('span'));
-  expect(span.isDisplayed()).toBe(true);
-  span.getText().then(function(spanText) {
-    expect(spanText.toLowerCase()).toContain(value.toString().toLowerCase());
-  });
-};
-
-module.exports.expectValueFromXEditable = expectValueFromXEditable;
-
-var expectValueFromToscaProperty = function(id, value) {
-  // For the moment only consider x-editable.log
-  expectValueFromXEditable('p_' + id, value);
-};
-module.exports.expectValueFromToscaProperty = expectValueFromToscaProperty;
-
-/* Handeling error assert */
-var expectNoErrors = function() {
-  expectToasterDivClass('error', false);
-};
-module.exports.expectNoErrors = expectNoErrors;
-
-var expectErrors = function() {
-  expect(element.all(by.repeater('toaster in toasters')).count()).toBeGreaterThan(0);
-  expectToasterDivClass('error', true);
-};
-module.exports.expectErrors = expectErrors;
-
-var expectSuccess = function() {
-  expect(element.all(by.repeater('toaster in toasters')).count()).toBeGreaterThan(0);
-  expectToasterDivClass('success', true);
-};
-module.exports.expectSuccess = expectSuccess;
-
-// not exported
-var expectToasterDivClass = function(clazz, exists) {
-  expect(browser.isElementPresent(by.className('toast-' + clazz))).toBe(exists);
-};
-
-var expectTitleMessage = function(code) {
-  element(by.css('.toast-title')).getText().then(function(fullErrorMessage) {
-    expect(fullErrorMessage).toContain(code);
-  });
-};
-module.exports.expectTitleMessage = expectTitleMessage;
-
-var expectMessageContent = function(text) {
-  // check if the error toaster body contains 'text"
-  element(by.css('.toast-message')).getText().then(function(fullErrorMessage) {
-    expect(fullErrorMessage).toContain(text);
-  });
-};
-module.exports.expectMessageContent = expectMessageContent;
-
-// For a SELECT element : select by value
-// WARNING : no error is the item is not found
-var selectDropdownByText = function selectOption(selectElement, item, milliseconds) {
-  var desiredOption = null;
-  var deferred = protractor.promise.defer();
-  selectElement.all(by.tagName('option'))
-    .then(function findMatchingOption(options) {
-      options.some(function(option) {
-        option.getText().then(function doesOptionMatch(text) {
-          if (text.indexOf(item) !== -1) {
-            desiredOption = option;
-            return true;
-          }
-        });
-      });
-    })
-    .then(function clickOption() {
-      var itemFoundInSelect = false;
-      if (desiredOption) {
-        desiredOption.click();
-        itemFoundInSelect = true;
-      } else {
-        console.error('Desired item {', item, '} not found in the select');
-      }
-      deferred.fulfill(itemFoundInSelect);
-    });
-
-  // waiting time after selection
-  if (typeof milliseconds !== 'undefined') {
-    browser.sleep(milliseconds);
-  }
-  return deferred.promise;
-
-};
-module.exports.selectDropdownByText = selectDropdownByText;
-
-// For a SELECT element : return select count
-var selectCount = function selectCount(selectId) {
-  var deferred = protractor.promise.defer();
-  var selectOptions = element.all(by.css('select[id="' + selectId + '"] option'));
-  selectOptions.count().then(function(count) {
-    deferred.fulfill(count);
-  });
-  return deferred.promise;
-};
-module.exports.selectCount = selectCount;
+module.exports.confirmAction = confirmAction;
 
 // Remove an element with confirm popover
 // The button/a generated by <delete-confirm/> directive has no id
 // we have to get the directive child <a> to click on it (or not)
 var deleteWithConfirm = function(deleteConfirmDirectiveId, confirm) {
-  var deleteConfirm = element(by.id(deleteConfirmDirectiveId));
-  deleteConfirm.element(by.tagName('a')).click();
+  var deleteConfirm = wElement(by.id(deleteConfirmDirectiveId));
+  click(by.tagName('a'), deleteConfirm);
   confirmAction(confirm);
 };
 module.exports.deleteWithConfirm = deleteWithConfirm;
 
-var confirmAction = function(confirm) {
-  // get popover div and grab the Yes / No buttons
-  var divPopover = element(by.css('.popover'));
-  var buttonToClick = null;
-  if (confirm === true) { // confirm deletion
-    buttonToClick = divPopover.element(by.css('.btn-success'));
-  } else { // cancel
-    buttonToClick = divPopover.element(by.css('.btn-danger'));
-  }
-  browser.actions().click(buttonToClick).perform();
-}
-module.exports.confirmAction = confirmAction;
-
-var toggleDisplayFacetManagementButton = function toggleDisplayFacetManagementButton() {
-  element(by.id('displayFacetManagement')).isDisplayed().then(function(isDisplay) {
-    if (isDisplay) {
-      element(by.id('displayFacetManagement')).click();
-    }
+module.exports.uploadFile = function(path) {
+  browser.driver.executeScript('var $scope = angular.element($(\'#fileUpload\')).scope(); $scope.dropSupported=false; $scope.$apply();').then(function() {
+    browser.waitForAngular();
+    var fileInput = browser.element(by.css('input[type="file"]'));
+    fileInput.sendKeys(path);
+    screenshot.take('upload');
+    browser.waitForAngular();
   });
-  browser.sleep(1000); // DO NOT REMOVE, wait few seconds for the ui to be ready
-};
-
-var removeAllFacetFilters = function removeAllFacetFilters() {
-  toggleDisplayFacetManagementButton();
-  element.all(by.repeater('filter in facetFilters')).each(function(facet) {
-    facet.element(by.tagName('a')).click();
-  });
-  toggleDisplayFacetManagementButton();
   browser.waitForAngular();
 };
-module.exports.removeAllFacetFilters = removeAllFacetFilters;
-
-var sendXEditableWithConfirm = function(id, newValue) {
-  var container = element(by.id(id));
-  var span = container.element(by.css('.editable-click'));
-  span.element(by.tagName('i')).click();
-  var editForm = container.element(by.tagName('form'));
-  var editInput = editForm.element(by.tagName('input'));
-  editInput.clear();
-  editInput.sendKeys(newValue);
-};
-
-module.exports.sendXEditableWithConfirm = sendXEditableWithConfirm;

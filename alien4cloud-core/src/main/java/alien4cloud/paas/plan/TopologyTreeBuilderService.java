@@ -275,7 +275,7 @@ public class TopologyTreeBuilderService {
         return relationships;
     }
 
-    private <V extends IndexedInheritableToscaElement> V getToscaType(String type, TypeMap typeMap, Set<CSARDependency> dependencies, Class<V> clazz) {
+    public <V extends IndexedInheritableToscaElement> V getToscaType(String type, TypeMap typeMap, Set<CSARDependency> dependencies, Class<V> clazz) {
         V indexedToscaElement = typeMap.get(clazz, type);
         if (indexedToscaElement == null) {
             indexedToscaElement = csarSearchService.getElementInDependencies(clazz, type, dependencies);
@@ -334,7 +334,8 @@ public class TopologyTreeBuilderService {
      * @param paaSNodeTemplate
      * @param paaSNodeTemplates
      */
-    private void processAttributesForOperationOutputs(final IPaaSTemplate<? extends IndexedArtifactToscaElement> paaSNodeTemplate, final Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
+    private void processAttributesForOperationOutputs(final IPaaSTemplate<? extends IndexedArtifactToscaElement> paaSNodeTemplate,
+            final Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
         Map<String, IValue> attributes = paaSNodeTemplate.getIndexedToscaElement().getAttributes();
         if (MapUtils.isEmpty(attributes)) {
             return;

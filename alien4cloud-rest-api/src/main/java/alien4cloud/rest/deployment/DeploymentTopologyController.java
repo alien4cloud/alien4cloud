@@ -1,5 +1,9 @@
 package alien4cloud.rest.deployment;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
+
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -40,19 +44,16 @@ import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.ReflectionUtil;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Authorization;
+import alien4cloud.utils.RestConstraintValidator;
 
 @RestController
 @RequestMapping("/rest/applications/{appId}/environments/{environmentId}/deployment-topology")
-@Api(value = "", description = "Manage configuration of an application before deploying it.")
+@Api(value = "", description = "Prepare a topology to be deployed on a specific environment (location matching, node matching and inputs configuration).")
 public class DeploymentTopologyController {
-
     @Inject
     private DeploymentTopologyService deploymentTopologyService;
     @Inject
@@ -69,62 +70,6 @@ public class DeploymentTopologyController {
     private DeploymentTopologyValidationService deploymentTopologyValidationService;
 
     /**
-     * Update node substitution
-     *
-     * @param appId id of the application
-     * @param environmentId id of the environment
-     * @return response containing the available substitutions
-     */
-    @ApiOperation(value = "Substitute a specific node by the location resource template in the topology of an application given an environment.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
-    @RequestMapping(value = "/substitutions/{nodeId}", method = RequestMethod.POST)
-    @PreAuthorize("isAuthenticated()")
-    @Audit
-    public RestResponse<DeploymentTopologyDTO> updateSubstitution(@PathVariable String appId, @PathVariable String environmentId, @PathVariable String nodeId,
-            @RequestParam String locationResourceTemplateId) {
-        checkAuthorizations(appId, environmentId);
-        DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
-        DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
-        locationResourceService.getOrFail(locationResourceTemplateId);
-        // TODO maybe check if the substituted is compatible with the provided substitute and return a specific error for REST users?
-        deploymentTopology.getSubstitutedNodes().put(nodeId, locationResourceTemplateId);
-        deploymentTopologyService.updateDeploymentTopology(deploymentTopology);
-        return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
-    }
-
-    @ApiOperation(value = "Update substitution's property.", authorizations = { @Authorization("ADMIN") })
-    @RequestMapping(value = "/substitutions/{nodeId}/properties", method = RequestMethod.POST)
-    @PreAuthorize("isAuthenticated()")
-    @Audit
-    public RestResponse<DeploymentTopologyDTO> updateSubstitutionProperty(@PathVariable String appId, @PathVariable String environmentId,
-            @PathVariable String nodeId, @RequestBody UpdatePropertyRequest updateRequest) {
-        DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
-        DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
-        deploymentTopologyService.updateSubstitutionProperty(deploymentTopology, nodeId, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
-        return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
-    }
-
-    @ApiOperation(value = "Update substitution's capability property.", authorizations = { @Authorization("ADMIN") })
-    @RequestMapping(value = "/substitutions/{nodeId}/capabilities/{capabilityName}/properties", method = RequestMethod.POST)
-    @PreAuthorize("isAuthenticated()")
-    @Audit
-    public RestResponse<?> updateSubstitutionCapabilityProperty(@PathVariable String appId, @PathVariable String environmentId, @PathVariable String nodeId,
-            @PathVariable String capabilityName, @RequestBody UpdatePropertyRequest updateRequest) {
-        DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
-        DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
-        try {
-            deploymentTopologyService.updateSubstitutionCapabilityProperty(deploymentTopology, nodeId, capabilityName, updateRequest.getPropertyName(),
-                    updateRequest.getPropertyValue());
-        } catch (ConstraintViolationException e) {
-            return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().data(e.getConstraintInformation())
-                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
-        } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
-            return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().data(e.getConstraintInformation())
-                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
-        }
-        return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
-    }
-
-    /**
      * Get the deployment topology of an application given an environment
      *
      * @param appId application Id
@@ -135,11 +80,61 @@ public class DeploymentTopologyController {
     @RequestMapping(value = "", method = RequestMethod.GET)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<DeploymentTopologyDTO> getDeploymentTopology(@PathVariable String appId, @PathVariable String environmentId) {
-        RestResponseBuilder<DeploymentTopologyDTO> responseBuilder = RestResponseBuilder.<DeploymentTopologyDTO> builder();
         checkAuthorizations(appId, environmentId);
         DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
         DeploymentTopologyDTO dto = buildDeploymentTopologyDTO(deploymentConfiguration);
-        return responseBuilder.data(dto).build();
+        return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(dto).build();
+    }
+
+    /**
+     * Update node substitution.
+     *
+     * @param appId id of the application.
+     * @param environmentId id of the environment.
+     * @return response containing the available substitutions.
+     */
+    @ApiOperation(value = "Substitute a specific node by the location resource template in the topology of an application given an environment.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
+    @RequestMapping(value = "/substitutions/{nodeId}", method = RequestMethod.POST)
+    @PreAuthorize("isAuthenticated()")
+    @Audit
+    public RestResponse<DeploymentTopologyDTO> updateSubstitution(@PathVariable String appId, @PathVariable String environmentId, @PathVariable String nodeId,
+            @RequestParam String locationResourceTemplateId) {
+        checkAuthorizations(appId, environmentId);
+        DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.updateSubstitution(environmentId, nodeId, locationResourceTemplateId);
+        return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
+    }
+
+    @ApiOperation(value = "Update substitution's property.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/substitutions/{nodeId}/properties", method = RequestMethod.POST)
+    @PreAuthorize("isAuthenticated()")
+    @Audit
+    public RestResponse<?> updateSubstitutionProperty(@PathVariable String appId, @PathVariable String environmentId, @PathVariable String nodeId,
+            @RequestBody UpdatePropertyRequest updateRequest) {
+        checkAuthorizations(appId, environmentId);
+        try {
+            deploymentTopologyService.updateProperty(environmentId, nodeId, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
+            return RestResponseBuilder.<DeploymentTopologyDTO> builder()
+                    .data(buildDeploymentTopologyDTO(deploymentTopologyService.getDeploymentConfiguration(environmentId))).build();
+        } catch (ConstraintFunctionalException e) {
+            return RestConstraintValidator.fromException(e, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
+        }
+    }
+
+    @ApiOperation(value = "Update substitution's capability property.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/substitutions/{nodeId}/capabilities/{capabilityName}/properties", method = RequestMethod.POST)
+    @PreAuthorize("isAuthenticated()")
+    @Audit
+    public RestResponse<?> updateSubstitutionCapabilityProperty(@PathVariable String appId, @PathVariable String environmentId, @PathVariable String nodeId,
+            @PathVariable String capabilityName, @RequestBody UpdatePropertyRequest updateRequest) {
+        checkAuthorizations(appId, environmentId);
+        try {
+            deploymentTopologyService.updateCapabilityProperty(environmentId, nodeId, capabilityName, updateRequest.getPropertyName(),
+                    updateRequest.getPropertyValue());
+            return RestResponseBuilder.<DeploymentTopologyDTO> builder()
+                    .data(buildDeploymentTopologyDTO(deploymentTopologyService.getDeploymentConfiguration(environmentId))).build();
+        } catch (ConstraintFunctionalException e) {
+            return RestConstraintValidator.fromException(e, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
+        }
     }
 
     /**
@@ -155,21 +150,23 @@ public class DeploymentTopologyController {
     @PreAuthorize("isAuthenticated()")
     public RestResponse<DeploymentTopologyDTO> setLocationPolicies(@PathVariable String appId, @PathVariable String environmentId,
             @RequestBody SetLocationPoliciesRequest request) {
-        RestResponseBuilder<DeploymentTopologyDTO> responseBuilder = RestResponseBuilder.builder();
-
         checkAuthorizations(appId, environmentId);
         DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.setLocationPolicies(environmentId, request.getOrchestratorId(),
                 request.getGroupsToLocations());
-        return responseBuilder.data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
+        return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
     }
 
-    // FIXME THIS CANNOT BE USED ANYMORE TO SET MATCHING RESULT
-
     /**
-     * Update application's deployment setup
      *
-     * @param appId The application id.
-     * @return nothing if success, error will be handled in global exception strategy
+     *
+     * @param appId The application id
+     * @param environmentId Id of the environment we want to update
+     * @param updateRequest an {@link UpdateDeploymentTopologyRequest} object
+     * @return a {@link RestResponse} with:<br>
+     *         the {@link DeploymentTopologyDTO} if everithing went well, the <br>
+     *         Error if not
+     *
+     * @throws OrchestratorDisabledException
      */
     @ApiOperation(value = "Updates by merging the given request into the given application's deployment topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -177,7 +174,6 @@ public class DeploymentTopologyController {
     @Audit
     public RestResponse<?> updateDeploymentSetup(@PathVariable String appId, @PathVariable String environmentId,
             @RequestBody UpdateDeploymentTopologyRequest updateRequest) throws OrchestratorDisabledException {
-
         // check rights on related environment
         checkAuthorizations(appId, environmentId);
 

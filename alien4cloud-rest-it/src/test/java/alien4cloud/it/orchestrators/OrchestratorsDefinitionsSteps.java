@@ -2,7 +2,6 @@ package alien4cloud.it.orchestrators;
 
 import java.io.IOException;
 
-import alien4cloud.rest.orchestrator.UpdateOrchestratorRequest;
 import org.junit.Assert;
 
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -10,6 +9,7 @@ import alien4cloud.it.Context;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.rest.model.RestResponse;
+import alien4cloud.rest.orchestrator.UpdateOrchestratorRequest;
 import alien4cloud.rest.orchestrator.model.CreateOrchestratorRequest;
 import alien4cloud.rest.utils.JsonUtil;
 import cucumber.api.java.en.Given;
@@ -71,12 +71,20 @@ public class OrchestratorsDefinitionsSteps {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/orchestrators/" + orchestratorId + "/instance"));
     }
 
+    @When("^I disable all orchestrators$")
+    public void I_disable_all_orchestrators() throws Throwable {
+        for (String orchestratorId : Context.getInstance().getOrchestratorIds()) {
+            Context.getRestClientInstance().delete("/rest/orchestrators/" + orchestratorId + "/instance");
+        }
+    }
+
     @When("^I update orchestrator name from \"([^\"]*)\" to \"([^\"]*)\"$")
     public void I_update_orchestrator_name_from_to(String oldName, String newName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(oldName);
         UpdateOrchestratorRequest updateOrchestratorRequest = new UpdateOrchestratorRequest();
         updateOrchestratorRequest.setName(newName);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().putJSon("/rest/orchestrators/" + orchestratorId, JsonUtil.toString(updateOrchestratorRequest)));
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().putJSon("/rest/orchestrators/" + orchestratorId, JsonUtil.toString(updateOrchestratorRequest)));
     }
 
     @When("^I get the orchestrator named \"([^\"]*)\"$")

@@ -15,8 +15,8 @@ import alien4cloud.rest.csar.UpdateCsarGitRequest;
 import alien4cloud.rest.csar.UpdateCsarGitWithUrlRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.security.model.CsarGitCheckoutLocation;
-import alien4cloud.security.model.CsarGitRepository;
+import alien4cloud.model.git.CsarGitCheckoutLocation;
+import alien4cloud.model.git.CsarGitRepository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 

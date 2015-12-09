@@ -25,7 +25,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @ESObject
 @Getter
 @Setter
-@SuppressWarnings("PMD.UnusedPrivateField")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @FormProperties({ "name", "description", "required", "target", "type", "password", "default", "constraints" })
 public class MetaPropConfiguration extends PropertyDefinition {

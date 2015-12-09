@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -36,6 +38,7 @@ import alien4cloud.it.utils.websocket.StompData;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.InstanceStatus;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
@@ -116,7 +119,7 @@ public class ApplicationsDeploymentStepDefinitions {
 
     @SuppressWarnings("rawtypes")
     private void checkStatus(String applicationName, String deploymentId, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout,
-            String applicationEnvironmentName) throws IOException, InterruptedException {
+            String applicationEnvironmentName) throws Throwable {
         String statusRequest = null;
         String applicationEnvironmentId = null;
         String applicationId = applicationName != null ? Context.getInstance().getApplicationId(applicationName) : null;
@@ -158,6 +161,15 @@ public class ApplicationsDeploymentStepDefinitions {
                 }
             }
         }
+    }
+
+    private boolean checkNodeInstancesState(String key, Map<String, InstanceInformation> nodeInstancesInfos, String expectedState) {
+        for (Entry<String, InstanceInformation> entry : nodeInstancesInfos.entrySet()) {
+            if (!Objects.equals(expectedState, entry.getValue().getState())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Then("^The application's deployment must succeed$")
@@ -260,6 +272,7 @@ public class ApplicationsDeploymentStepDefinitions {
                 log.info(env.getKey() + "/" + env.getValue());
                 log.info("ENVIRONMENT to undeploy : {} - {}", env.getKey(), env.getValue());
                 Context.getRestClientInstance().delete("/rest/applications/" + application.getId() + "/environments/" + env.getValue() + "/deployment");
+                assertStatus(application.getName(), DeploymentStatus.UNDEPLOYED, DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS, 10 * 60L * 1000L, null);
             }
         }
     }
@@ -291,6 +304,14 @@ public class ApplicationsDeploymentStepDefinitions {
         }
         String response = Context.getRestClientInstance().getUrlEncoded("/rest/deployments", nvps);
         Context.getInstance().registerRestResponse(response);
+    }
+
+    @When("^I ask for the deployment topology of the application \"([^\"]*)\"$")
+    public void I_ask_for_the_deployment_topology_of_the_application(String applicationName) throws Throwable {
+        String appId = Context.getInstance().getApplicationId(applicationName);
+        String environmentId = Context.getInstance().getApplicationEnvironmentId(applicationName, "Environment");
+        String restUrl = String.format("/rest/applications/%s/environments/%s/deployment-topology", appId, environmentId);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get(restUrl));
     }
 
     @When("^I ask for detailed deployments for all orchestrators$")
@@ -487,6 +508,40 @@ public class ApplicationsDeploymentStepDefinitions {
                 numberOfMinutes * 60L * 1000L, null);
     }
 
+    @Then("^all nodes instances must be in \"([^\"]*)\" state after (\\d+) minutes$")
+    public void all_nodes_instances_must_be_in_state_after_minutes(String expectedState, long numberOfMinutes) throws Throwable {
+        long timeout = numberOfMinutes * 60L * 1000L;
+        String applicationId = Context.getInstance().getApplicationId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName());
+        String applicationEnvironmentId = Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName());
+        long now = System.currentTimeMillis();
+        while (true) {
+            if (System.currentTimeMillis() - now > timeout) {
+                throw new ITException("Expected All instances to be in state [" + expectedState + "] but Test has timeouted");
+            }
+
+            String restInfoResponseText = Context.getRestClientInstance().get(
+                    "/rest/applications/" + applicationId + "/environments/" + applicationEnvironmentId + "/deployment/informations");
+            RestResponse<?> infoResponse = JsonUtil.read(restInfoResponseText);
+            assertNull(infoResponse.getError());
+            Assert.assertNotNull(infoResponse.getData());
+            Map<String, Object> instancesInformation = (Map<String, Object>) infoResponse.getData();
+            boolean ok = true;
+            for (Entry<String, Object> entry : instancesInformation.entrySet()) {
+                Map<String, InstanceInformation> nodeInstancesInfos = JsonUtil.toMap(JsonUtil.toString(entry.getValue()), String.class,
+                        InstanceInformation.class, Context.getJsonMapper());
+                if (!checkNodeInstancesState(entry.getKey(), nodeInstancesInfos, expectedState)) {
+                    Thread.sleep(1000L);
+                    ok = false;
+                    break;
+                }
+            }
+
+            if (ok) {
+                return;
+            }
+        }
+    }
+
     @And("^I re-deploy the application$")
     public void I_re_deploy_the_application() throws Throwable {
         log.info("Re-deploy : Un-deploying application " + ApplicationStepDefinitions.CURRENT_APPLICATION.getName());
@@ -497,6 +552,28 @@ public class ApplicationsDeploymentStepDefinitions {
         log.info("Re-deploy : Deploying the application " + ApplicationStepDefinitions.CURRENT_APPLICATION.getName());
         I_deploy_it();
         log.info("Re-deploy : Finished deployment of the application " + ApplicationStepDefinitions.CURRENT_APPLICATION.getName());
+    }
+
+    @And("^The node \"([^\"]*)\" should contain (\\d+) instance\\(s\\) not started$")
+    public void The_node_should_contain_instances_not_started(String nodeName, int expectedNumberOfInstancesNotStarted) throws Throwable {
+        RestResponse<?> response = JsonUtil.read(Context.getRestClientInstance().get(
+                "/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
+                        + Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName())
+                        + "/deployment/informations"));
+        Assert.assertNotNull(response.getData());
+        Map<String, Object> instancesInformation = (Map<String, Object>) response.getData();
+        Assert.assertNotNull(instancesInformation.get(nodeName));
+        Map<String, Object> nodeInformation = (Map<String, Object>) instancesInformation.get(nodeName);
+        int countNotStarted = 0;
+        for (Map.Entry<String, Object> instanceInformationEntry : nodeInformation.entrySet()) {
+            Map<String, Object> instanceInformation = (Map<String, Object>) instanceInformationEntry.getValue();
+            if (!Objects.equals(InstanceStatus.SUCCESS, instanceInformation.get("instanceStatus"))) {
+                countNotStarted++;
+            }
+        }
+        assertEquals(
+                "should have " + expectedNumberOfInstancesNotStarted + " instances not started, but got theses instances: "
+                        + JsonUtil.toString(nodeInformation), expectedNumberOfInstancesNotStarted, countNotStarted);
     }
 
     @And("^The node \"([^\"]*)\" should contain (\\d+) instance\\(s\\)$")

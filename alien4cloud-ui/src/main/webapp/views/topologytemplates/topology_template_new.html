@@ -1,0 +1,23 @@
+<form name="newTopologyTemplate" class="form-horizontal" role="form" ng-submit="create(newTopologyTemplate.$valid)" novalidate>
+  <div class="modal-header">
+    <h3>{{'TEMPLATE.NEW' | translate}}</h3>
+  </div>
+  <div class="modal-body">
+    <div class="form-group" ng-class="{'has-error': newTopologyTemplate.name.$invalid}">
+      <label for="nameid" class="col-lg-2 control-label">{{'TEMPLATE.NAME' | translate}}</label>
+      <div class="col-lg-10">
+        <input type="text" class="form-control" id="topo-template-name" ng-model="topologytemplate.name" name="name" required="" placeholder="{{'TEMPLATE.NAME' | translate}}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="descid" class="col-lg-2 control-label">{{'TEMPLATE.DESCRIPTION' | translate}}</label>
+      <div class="col-lg-10">
+        <textarea class="form-control" id="topo-template-desc" rows="3" ng-model="topologytemplate.description" placeholder="{{'TEMPLATE.DESCRIPTION' | translate}}"></textarea>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button id="modal-create-button" ng-disabled="newTopologyTemplate.name.$invalid" class="btn btn-primary">{{'CREATE' | translate}}</button>
+    <button id="modal-cancel-button" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
+  </div>
+</form>
