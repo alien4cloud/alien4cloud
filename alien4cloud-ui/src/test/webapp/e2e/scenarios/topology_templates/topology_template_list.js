@@ -2,8 +2,9 @@
 'use strict';
 
 var setup = require('../../common/setup');
-var authentication = require('../../authentication/authentication');
 var common = require('../../common/common');
+var toaster = require('../../common/toaster');
+var authentication = require('../../authentication/authentication');
 var topologyTemplates = require('../../topology_templates/topology_templates');
 
 var topologyTemplateName = 'MyTopologyTemplate';
@@ -26,7 +27,7 @@ describe('Topology templates list:', function() {
 
   it('Architect should not be able to add a new topology template with an existing name', function() {
     topologyTemplates.create(topologyTemplateName, 'description');
-    common.dismissAlertIfPresent();
+    toaster.dismissIfPresent();
     var templates = element.all(by.repeater('topologyTemplate in searchResult.data.data'));
     expect(templates.count()).toBe(1);
   });

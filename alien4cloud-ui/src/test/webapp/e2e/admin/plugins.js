@@ -2,6 +2,7 @@
 'use strict';
 
 var common = require('../common/common');
+var toaster = require('../common/toaster');
 var settings = require('../common/settings');
 var path = require('path');
 
@@ -18,7 +19,7 @@ module.exports.go = go;
 var upload = function() {
   go();
   common.uploadFile(pluginPath);
-  common.dismissAlertIfPresent();
+  toaster.dismissIfPresent();
 };
 module.exports.upload = upload;
 

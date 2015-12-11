@@ -2,6 +2,7 @@
 'use strict';
 
 var setup = require('../../common/setup');
+var toaster = require('../../common/toaster');
 var authentication = require('../../authentication/authentication');
 var common = require('../../common/common');
 var xedit = require('../../common/xedit');
@@ -30,7 +31,7 @@ describe('Topology templates details:', function() {
     xedit.sendKeys('template_' + topologyTemplateNewName + '_name', topologyTemplateName, false);
     expect(element.all(by.repeater('toaster in toasters')).count()).toBeGreaterThan(0);
     element(by.css('#template_' + topologyTemplateNewName + '_name input')).sendKeys('0');
-    common.dismissAlertIfPresent();
+    toaster.dismissIfPresent();
   });
 
   it('Architect should be able to edit the topology template description', function() {
