@@ -8,7 +8,7 @@ import cucumber.api.junit.Cucumber;
 @RunWith(Cucumber.class)
 @CucumberOptions(features = {
 //
- "classpath:alien/rest/topology"
+"classpath:alien/rest/topology"
 // "classpath:alien/rest/topology/get_topology.feature"
 // "classpath:alien/rest/topology/out_properties.feature"
 // "classpath:alien/rest/topology/inputs_properties.feature"
@@ -23,6 +23,7 @@ import cucumber.api.junit.Cucumber;
 // "classpath:alien/rest/topology/validate_topology.feature"
 // "classpath:alien/rest/topology/validate_topology_with_meta_properties.feature"
 // "classpath:alien/rest/topology/topology_composition.feature"
+// "classpath:alien/rest/topology/workflow_edition.feature"
 //
 }, format = { "pretty", "html:target/cucumber/topology", "json:target/cucumber/cucumber-topology.json" })
 public class RunTopologyIT {
