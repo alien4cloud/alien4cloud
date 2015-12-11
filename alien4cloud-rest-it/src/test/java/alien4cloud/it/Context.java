@@ -197,6 +197,8 @@ public class Context {
 
     private OpenStackClient openStackClient;
 
+    private String currentWorkflowName;
+
     private Context() {
         ClasspathResourceLoader classpathResourceLoader = new ClasspathResourceLoader(Thread.currentThread().getContextClassLoader());
         Iterable<cucumber.runtime.io.Resource> properties = classpathResourceLoader.resources("", "alien4cloud-config.yml");
@@ -669,6 +671,14 @@ public class Context {
 
     public String getLocationResourceId(String orchestratorId, String locationId, String resourceName) {
         return orchestratorLocationResourceIds.get(orchestratorId).get(locationId).get(resourceName);
+    }
+
+    public void setCurrentWorkflowName(String workflowName) {
+        currentWorkflowName = workflowName;
+    }
+
+    public String getCurrentWorkflowName() {
+        return currentWorkflowName;
     }
 
 }
