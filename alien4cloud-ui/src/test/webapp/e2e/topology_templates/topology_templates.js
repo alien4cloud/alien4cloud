@@ -23,7 +23,7 @@ module.exports.create = function(name, description, cancel) {
   }
 };
 
-module.exports.goToTopologyTemplate = function(name) {
+module.exports.goToTopologyTemplateDetails = function(name) {
   go();
   common.click(by.id('row_' + name));
 };
