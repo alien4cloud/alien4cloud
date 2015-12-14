@@ -460,7 +460,7 @@ public class DeploymentTopologyService {
         }
 
         String groupName = groupsLocationsMapping.entrySet().iterator().next().getKey();
-        if (Objects.equals(groupName, AlienConstants.GROUP_ALL)) {
+        if (!Objects.equals(groupName, AlienConstants.GROUP_ALL)) {
             throw new IllegalArgumentException("Group name should be <" + AlienConstants.GROUP_ALL + ">, as we do not yet support multiple Location policies.");
         }
     }
