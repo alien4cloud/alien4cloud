@@ -57,39 +57,47 @@ function doSetup() {
   repositories.copyImages(imagesPath);
 
   // Update ElasticSearch
-  index('csargitrepository', 'csargitrepository', csargitrepositories);
-  index('csar', 'csar', csars);
-  index('toscaelement', 'indexedartifacttype', indexedartifacttypes);
-  index('toscaelement', 'indexedcapabilitytype', indexedcapabilitytypes);
-  index('toscaelement', 'indexeddatatype', indexeddatatypes);
-  index('toscaelement', 'indexednodetype', indexednodetypes);
-  index('toscaelement', 'indexedrelationshiptype', indexedrelationshiptypes);
-  index('imagedata', 'imagedata', imagedatas);
+  flow.execute(function(){return index('csargitrepository', 'csargitrepository', csargitrepositories);});
+  flow.execute(function(){return index('csar', 'csar', csars);});
+  flow.execute(function(){return index('toscaelement', 'indexedartifacttype', indexedartifacttypes);});
+  flow.execute(function(){return index('toscaelement', 'indexedcapabilitytype', indexedcapabilitytypes);});
+  flow.execute(function(){return index('toscaelement', 'indexeddatatype', indexeddatatypes);});
+  flow.execute(function(){return index('toscaelement', 'indexednodetype', indexednodetypes);});
+  flow.execute(function(){return index('toscaelement', 'indexedrelationshiptype', indexedrelationshiptypes);});
+  flow.execute(function(){return index('imagedata', 'imagedata', imagedatas);});
 
-  index('topologytemplates', 'topologytemplates', imagedatas);
-  index('topologytemplateversions', 'topologytemplateversions', imagedatas);
-  index('topologies', 'topologies', imagedatas);
+  flow.execute(function(){return index('topologytemplate', 'topologytemplate', topologytemplates);});
+  flow.execute(function(){return index('topologytemplateversion', 'topologytemplateversion', topologytemplateversions);});
+  flow.execute(function(){return index('topology', 'topology', topologies);});
 
-  index('plugin', 'plugin', plugins);
-  index('orchestrator', 'orchestrator', orchestrators);
-  index('orchestratorconfiguration', 'orchestratorconfiguration', orchestratorsconf);
-  index('location', 'location', locations);
-  index('locationresourcetemplate', 'locationresourcetemplate', locationresourcetemplates);
+  flow.execute(function(){return index('plugin', 'plugin', plugins);});
+  flow.execute(function(){return index('orchestrator', 'orchestrator', orchestrators);});
+  flow.execute(function(){return index('orchestratorconfiguration', 'orchestratorconfiguration', orchestratorsconf);});
+  flow.execute(function(){return index('location', 'location', locations);});
+  flow.execute(function(){return index('locationresourcetemplate', 'locationresourcetemplate', locationresourcetemplates);});
 
-  index('application', 'application', applications);
+  flow.execute(function(){return index('application', 'application', applications);});
+}
 
-  // 'Cookie': 'JSESSIONID = ',
+function doEnableOrchestrator() {
+  var defer = protractor.promise.defer();
   alien.login('admin', 'admin').then(function(response){
     var cookies = response.headers['set-cookie'];
     // Enable the plugins - this has to be done through alien API as it has to load classes.
-    alien.enablePlugin('alien4cloud-mock-paas-provider:1.0', cookies);
-    // Enable the orchestrators - this has to be done through alien API as it has to register the orchestrator monitor.
-    alien.enableOrchestrator('f3657e4d-4250-45b4-a862-2e91699ef7a1', cookies);
-    alien.enableOrchestrator('91c78b3e-e9fa-4cda-80ba-b44551e4a475', cookies);
+    alien.enablePlugin('alien4cloud-mock-paas-provider:1.0', cookies).then(function(){
+      // Enable the orchestrators - this has to be done through alien API as it has to register the orchestrator monitor.
+      alien.enableOrchestrator('f3657e4d-4250-45b4-a862-2e91699ef7a1', cookies).then(function(){
+        alien.enableOrchestrator('91c78b3e-e9fa-4cda-80ba-b44551e4a475', cookies).then(function(){
+          defer.fulfill('done');
+        });
+      });
+    });
   });
+  return defer.promise;
 }
 
 module.exports.setup = function() {
   cleanup.fullCleanup();
-  flow.execute(doSetup);
+  doSetup();
+  flow.execute(doEnableOrchestrator);
 };

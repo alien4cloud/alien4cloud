@@ -15,8 +15,7 @@ function getOptions(method, indexName, typeName, content) {
     path: path,
     method: method,
     headers: {
-      'Content-Type': 'application/json; charset=UTF-8',
-      // 'Content-Length': content.length
+      'Content-Type': 'application/json; charset=UTF-8'
     }
   };
   if(content && content !== null) {
@@ -40,10 +39,10 @@ module.exports.delete = function(indexName, query) {
     });
   }
   var options = buildOptions('DELETE', indexName, query);
-  return http.call(options, query);
+  return http.call(options, query, true);
 };
 
 module.exports.index = function(indexName, typeName, content) {
   var options = getOptions('POST', indexName, typeName);
-  return http.call(options, content);
+  return http.call(options, content, true, true);
 };

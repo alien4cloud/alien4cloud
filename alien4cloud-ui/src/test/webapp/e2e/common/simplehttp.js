@@ -5,13 +5,19 @@
 var http = require('http');
 var settings = require('./settings');
 
-module.exports.call = function(options, content, forcelog) {
+module.exports.call = function(options, content, checkError, forcelog) {
   var defer = protractor.promise.defer();
   // Set up the request
   var request = http.request(options, function(response) {
     defer.fulfill(response);
     response.setEncoding('utf8');
     response.on('data', function(chunk) {
+      if(checkError) {
+        var response = JSON.parse(chunk);
+        if(response.error) {
+          console.log('ERROR', response);
+        }
+      }
       if (forcelog || settings.debug) {
         console.log('ES request method [' + options.method + '] path [' + options.path + '] content [' + content + '] received [' + chunk + ']');
       }
