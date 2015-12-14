@@ -17,7 +17,6 @@ import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.Entry;
 import alien4cloud.it.common.CommonStepDefinitions;
-import alien4cloud.it.utils.JsonTestUtil;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.rest.component.SearchRequest;
@@ -96,7 +95,7 @@ public class TopologyTemplateStepDefinitions {
 
         // Created topology should have a node template count == count(nodeTemplates)
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()));
-        TopologyDTO topologyTemplateBase = JsonTestUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
+        TopologyDTO topologyTemplateBase = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class, Context.getJsonMapper()).getData();
 
         assertEquals(topologyTemplateBase.getTopology().getNodeTemplates().size(), nodeTemplates.raw().size());
 

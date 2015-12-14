@@ -208,7 +208,7 @@ public class CommonStepDefinitions {
 
     @When("^I register the rest response data as SPEL context of type2 \"([^\"]*)\"$")
     public void I_register_the_rest_response_data_as_SPEL_context2(String type) throws Throwable {
-        RestResponse<?> response = alien4cloud.it.utils.JsonTestUtil.read(Context.getInstance().getRestResponse(), Class.forName(type));
+        RestResponse<?> response = JsonUtil.read(Context.getInstance().getRestResponse(), Class.forName(type), Context.getJsonMapper());
         Context.getInstance().buildEvaluationContext(response.getData());
     }
 

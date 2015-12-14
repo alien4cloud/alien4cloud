@@ -1,109 +1,85 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: Output operation test
+template_name: output_operation_test
+template_version: 0.1.0-SNAPSHOT
+template_author: admin
 
-node_templates:
-  comp_tomcat_war:
-    type: alien.test.BadTestCompute
-    properties:
-      os_type:
-        value: linux
-      os_distribution:
-        value: ubuntu
-      os_version:
-        value: ubuntu
-      customHostName:
-        value: testHostname
-        
-  comp_getOpOutput:
-    type: alien.test.TestComputeWithGetOperationOutput
-    properties:
-      os_type:
-        value: linux
-      os_distribution:
-        value: ubuntu
-      os_version:
-        value: ubuntu
-      customHostName:
-        value: testHostname
-  java:
-    type: alien.nodes.Java
-    properties:
-      java_url: 
-        value: "http://download.oracle.com/otn-pub/java/jdk/7u75-b13/jdk-7u75-linux-x64.tar.gz"
-      java_home: 
-        value: /opt/java
-    relationships:
-      hostedOnServeurWeb:
-        target: comp_tomcat_war
-        type: tosca.relationships.HostedOn
-        requirement_name: host
-        requirement_type: tosca.capabilities.Container
-        targeted_capability_name: host
-        
-  tomcat:
-    type: alien.nodes.Tomcat
-    properties:
-      tomcat_home:
-        value: "/opt/tomcat"
-      tomcat_port: 
-        value: "9999"
-      tomcat_url: 
-        value: "http://apache.crihan.fr/dist/tomcat/tomcat-8/v8.0.20/bin/apache-tomcat-8.0.20.tar.gz"
-      version:
-        value: "7.0.0"
-    capabilities:
-      http_endpoint:
-        type: alien.capabilities.HttpEndpoint
-      war_host:
-        type: alien.capabilities.WarHosting
-        properties:
-          valid_node_types: alien.nodes.War
-    relationships:
-      runOnJVMJava:
-        target: java
-        type: alien.relationships.RunOnJVM
-        requirement_name: java
-        requirement_type: alien.capabilities.Java
-        targeted_capability_name: java
-      hostedOnServeurWeb:
-        target: comp_tomcat_war
-        type: tosca.relationships.HostedOn
-        requirement_name: host
-        requirement_type: tosca.capabilities.Container
-        targeted_capability_name: host
-  war_1:
-    type: alien.nodes.War
-    properties:
-      context_path:
-        value: war1
-    relationships:
-      hostedOnTomcat:
-        target: tomcat
-        type: alien.test.functions.relationships.WarHostedOnTomcat
-        requirement_name: host
-        requirement_type: alien.capabilities.WarHosting
-        targeted_capability_name: war_host
-        properties:
-          relName: war_1_hostedOnTomcat_relname
-  war_2:
-    type: alien.nodes.War
-    properties:
-      context_path:
-        value: war2
-    relationships:
-      hostedOnTomcat:
-        target: tomcat
-        type: alien.test.functions.relationships.WarHostedOnTomcat
-        requirement_name: host
-        requirement_type: alien.capabilities.WarHosting
-        targeted_capability_name: war_host
-        properties:
-          relName: war_2_hostedOnTomcat_relname        
+imports:
+    - tosca-normative-types:1.0.0.wd06-SNAPSHOT
+    - test-types:1.0-SNAPSHOT
+    - tomcat-war-types:2.0.0-SNAPSHOT
+    - alien-base-types:1.0-SNAPSHOT
 
-dependencies:
-  - name: tosca-normative-types
-    version: 1.0.0.wd06-SNAPSHOT
-  - name: test-types
-    version: 1.0-SNAPSHOT
-  - name: tomcat-war-types
-    version: 2.0.0-SNAPSHOT
-  - name: alien-base-types
-    version: 1.0-SNAPSHOT
+topology_template:
+  node_templates:
+    comp_tomcat_war:
+      type: alien.test.BadTestCompute
+      properties:
+        os_type: linux
+        os_distribution: ubuntu
+        os_version: ubuntu
+        customHostName: testHostname
+          
+    comp_getOpOutput:
+      type: alien.test.TestComputeWithGetOperationOutput
+      properties:
+        os_type: linux
+        os_distribution: ubuntu
+        os_version: ubuntu
+        customHostName: testHostname
+    java:
+      type: alien.nodes.Java
+      properties:
+        java_url: "http://download.oracle.com/otn-pub/java/jdk/7u75-b13/jdk-7u75-linux-x64.tar.gz"
+        java_home: /opt/java
+      requirements:
+        - host:
+            node: comp_tomcat_war
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+          
+    tomcat:
+      type: alien.nodes.Tomcat
+      properties:
+        tomcat_home: "/opt/tomcat"
+        tomcat_port: "9999"
+        tomcat_url: "http://apache.crihan.fr/dist/tomcat/tomcat-8/v8.0.20/bin/apache-tomcat-8.0.20.tar.gz"
+        component_version: "7.0.0"
+      capabilities:
+        http_endpoint:
+          type: alien.capabilities.HttpEndpoint
+        war_host:
+          type: alien.capabilities.WarHosting
+          properties:
+            valid_node_types: alien.nodes.War
+      requirements:
+        - java:
+            node: java
+            capability: alien.capabilities.Java
+            relationship: alien.relationships.RunOnJVM
+        - host:
+            node: comp_tomcat_war
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn      
+    war_1:
+      type: alien.nodes.War
+      properties:
+        context_path: war1
+      requirements:
+        - host:
+            node: tomcat
+            capability: alien.capabilities.WarHosting
+            relationship: alien.test.functions.relationships.WarHostedOnTomcat
+            properties:
+              relName: war_1_hostedOnTomcat_relname
+    war_2:
+      type: alien.nodes.War
+      properties:
+        context_path: war2
+      requirements:
+        - host:
+            node: tomcat
+            capability: alien.capabilities.WarHosting
+            relationship: alien.test.functions.relationships.WarHostedOnTomcat
+            properties:
+              relName: war_2_hostedOnTomcat_relname                 

@@ -2,6 +2,7 @@ package alien4cloud.rest.deployment;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 
 import java.util.Map;
@@ -148,8 +149,10 @@ public class DeploymentTopologyController {
     @RequestMapping(value = "/location-policies", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @Audit
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<DeploymentTopologyDTO> setLocationPolicies(@PathVariable String appId, @PathVariable String environmentId,
-            @RequestBody SetLocationPoliciesRequest request) {
+    public RestResponse<DeploymentTopologyDTO> setLocationPolicies(
+            @ApiParam(value = "Id of the application.", required = true) @PathVariable String appId, 
+            @ApiParam(value = "Id of the environment on which to set the location policies.", required = true) @PathVariable String environmentId,
+            @ApiParam(value = "Location policies request body.", required = true) @RequestBody SetLocationPoliciesRequest request) {
         checkAuthorizations(appId, environmentId);
         DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.setLocationPolicies(environmentId, request.getOrchestratorId(),
                 request.getGroupsToLocations());
