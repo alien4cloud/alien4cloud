@@ -49,7 +49,7 @@ public class OrchestrationLocationResourceSteps {
     @Then("^The location should contains a resource with name \"([^\"]*)\" and type \"([^\"]*)\"$")
     public void The_location_should_contains_a_resource_with_name_and_type(String resourceName, String resourceType) throws Throwable {
         String restResponse = Context.getInstance().getRestResponse();
-        RestResponse<LocationDTO> response = JsonUtil.read(restResponse, LocationDTO.class);
+        RestResponse<LocationDTO> response = JsonUtil.read(restResponse, LocationDTO.class, Context.getJsonMapper());
         LocationDTO locationDTO = response.getData();
         boolean found = false;
         for (LocationResourceTemplate lrt : locationDTO.getResources().getConfigurationTemplates()) {
