@@ -12,7 +12,6 @@ import org.apache.http.message.BasicNameValuePair;
 import org.elasticsearch.common.collect.Lists;
 
 import alien4cloud.it.Context;
-import alien4cloud.it.utils.JsonTestUtil;
 import alien4cloud.paas.wf.AbstractActivity;
 import alien4cloud.paas.wf.AbstractStep;
 import alien4cloud.paas.wf.OperationCallActivity;
@@ -112,7 +111,7 @@ public class WorkflowStepDefinitions {
     @When("^The workflow step \"(.*?)\" is followed by: (.*)$")
     public void the_workflow_step_is_followed_by(String stepId, List<String> followers) throws Throwable {
         String topologyResponseText = Context.getInstance().getRestResponse();
-        RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyResponseText, TopologyDTO.class);
+        RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, TopologyDTO.class, Context.getJsonMapper());
         String workflowName = Context.getInstance().getCurrentWorkflowName();
         Workflow workflow = topologyResponse.getData().getTopology().getWorkflows().get(workflowName);
         AbstractStep step = workflow.getSteps().get(stepId);
@@ -129,7 +128,7 @@ public class WorkflowStepDefinitions {
     @When("^The workflow step \"(.*?)\" is preceded by: (.*)$")
     public void the_workflow_step_is_preceded_by(String stepId, List<String> predecesors) throws Throwable {
         String topologyResponseText = Context.getInstance().getRestResponse();
-        RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyResponseText, TopologyDTO.class);
+        RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, TopologyDTO.class, Context.getJsonMapper());
         String workflowName = Context.getInstance().getCurrentWorkflowName();
         Workflow workflow = topologyResponse.getData().getTopology().getWorkflows().get(workflowName);
         AbstractStep step = workflow.getSteps().get(stepId);
@@ -146,7 +145,7 @@ public class WorkflowStepDefinitions {
     @Then("^The workflow step \"(.*?)\" has no followers$")
     public void the_workflow_step_has_no_followers(String stepId) throws Throwable {
         String topologyResponseText = Context.getInstance().getRestResponse();
-        RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyResponseText, TopologyDTO.class);
+        RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, TopologyDTO.class, Context.getJsonMapper());
         String workflowName = Context.getInstance().getCurrentWorkflowName();
         Workflow workflow = topologyResponse.getData().getTopology().getWorkflows().get(workflowName);
         AbstractStep step = workflow.getSteps().get(stepId);
@@ -156,13 +155,13 @@ public class WorkflowStepDefinitions {
     @Then("^The workflow step \"(.*?)\" has no predecessors$")
     public void the_workflow_step_has_no_predecessors(String stepId) throws Throwable {
         String topologyResponseText = Context.getInstance().getRestResponse();
-        RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyResponseText, TopologyDTO.class);
+        RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, TopologyDTO.class, Context.getJsonMapper());
         String workflowName = Context.getInstance().getCurrentWorkflowName();
         Workflow workflow = topologyResponse.getData().getTopology().getWorkflows().get(workflowName);
         AbstractStep step = workflow.getSteps().get(stepId);
         assertTrue(step.getPrecedingSteps() == null || step.getPrecedingSteps().isEmpty());
     }
-    
+
     @When("^I swap the workflow step \"(.*?)\" with \"(.*?)\"$")
     public void i_swap_the_workflow_step_with(String stepId, String targetId) throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
@@ -251,10 +250,10 @@ public class WorkflowStepDefinitions {
     @Then("^the workflow should exist in the topology and I start editing it$")
     public void the_workflow_should_exist_in_the_topology_and_I_start_editing_it() throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
-        RestResponse<Workflow> workflowResponse = JsonTestUtil.read(Context.getInstance().takeRestResponse(), Workflow.class);
+        RestResponse<Workflow> workflowResponse = JsonUtil.read(Context.getInstance().takeRestResponse(), Workflow.class, Context.getJsonMapper());
         String workflowName = workflowResponse.getData().getName();
         String topologyRestResponse = Context.getRestClientInstance().get("/rest/topologies/" + topologyId);
-        RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyRestResponse, TopologyDTO.class);
+        RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyRestResponse, TopologyDTO.class, Context.getJsonMapper());
         assertTrue(topologyResponse.getData().getTopology().getWorkflows().containsKey(workflowName));
         Context.getInstance().setCurrentWorkflowName(workflowName);
     }
