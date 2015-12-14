@@ -12,8 +12,8 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ldap.core.LdapTemplate;
 
-import alien4cloud.ldap.LdapUserDao;
-import alien4cloud.ldap.UserLdapAttributeMapper;
+import alien4cloud.security.spring.ldap.LdapUserDao;
+import alien4cloud.security.spring.ldap.UserLdapAttributeMapper;
 import alien4cloud.security.model.User;
 
 /**

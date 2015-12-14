@@ -1,4 +1,4 @@
-package alien4cloud.ldap;
+package alien4cloud.security.spring.ldap;
 
 import java.util.List;
 import java.util.Map;
@@ -27,8 +27,6 @@ import com.google.common.collect.Maps;
 /**
  * Provider responsible to authenticate agains LDAP.
  * Note: we don't use the native Spring security (3.x) provider it is not compatible with spring ldap 2.x
- *
- * @author mourouvi
  */
 @Slf4j
 @Conditional(LdapCondition.class)
