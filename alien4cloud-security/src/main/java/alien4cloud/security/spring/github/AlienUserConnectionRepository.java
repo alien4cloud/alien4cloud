@@ -1,4 +1,4 @@
-package alien4cloud.security.spring;
+package alien4cloud.security.spring.github;
 
 import java.util.List;
 import java.util.Set;
@@ -13,8 +13,6 @@ import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionKey;
 import org.springframework.social.connect.ConnectionRepository;
 import org.springframework.social.connect.UsersConnectionRepository;
-import org.springframework.social.github.api.GitHub;
-import org.springframework.social.github.api.impl.GitHubTemplate;
 import org.springframework.util.MultiValueMap;
 
 import alien4cloud.security.model.User;
