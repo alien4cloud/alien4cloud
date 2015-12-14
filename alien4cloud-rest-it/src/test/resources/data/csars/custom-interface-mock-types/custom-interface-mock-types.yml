@@ -12,11 +12,15 @@ node_types:
     derived_from: tosca.nodes.SoftwareComponent
     description: Mock node that has custom interfaces.
     interfaces:
+      Standard:
+        create: scripts/create.sh
+        configure: scripts/configure.sh
+        start: scripts/start.sh
+        stop: scripts/stop.sh
+        delete: scripts/delete.sh        
       lifecycle:
         create: scripts/create.sh
         start: scripts/start.sh
-        stop: scripts/stop.sh
-        delete: scripts/delete.sh
       mock:
         success:
           implementation: scripts/success.sh

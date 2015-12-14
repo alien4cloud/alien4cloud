@@ -2,6 +2,7 @@
 'use strict';
 
 var common = require('../common/common');
+var toaster = require('../common/toaster');
 var xedit = require('../common/xedit');
 
 function sendValueToPrimitiveSelect(path, value) {
@@ -154,12 +155,12 @@ module.exports.expectConstraintAlertPresent = expectConstraintAlertPresent;
 
 function saveForm() {
   common.click(by.binding('GENERIC_FORM.SAVE'));
-  common.dismissAlertIfPresent();
+  toaster.dismissIfPresent();
 }
 module.exports.saveForm = saveForm;
 
 function cancelForm() {
   common.click(by.binding('GENERIC_FORM.CANCEL'));
-  common.dismissAlertIfPresent();
+  toaster.dismissIfPresent();
 }
 module.exports.cancelForm = cancelForm;
