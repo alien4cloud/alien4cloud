@@ -23,9 +23,17 @@ module.exports.create = function(name, description, cancel) {
   }
 };
 
-module.exports.goToTopologyTemplateDetails = function(name) {
+var searchTopologyTemplate = function(templateName) {
+  var searchInput = element(by.id('seach-topology-template-input'));
+  searchInput.sendKeys(templateName);
+  common.click(by.id('seach-topology-template-btn'));
+};
+module.exports.searchTopologyTemplate = searchTopologyTemplate;
+
+module.exports.goToTopologyTemplateDetails = function(templateName) {
   go();
-  common.click(by.id('row_' + name));
+  searchTopologyTemplate(templateName);
+  common.click(by.id('row_' + templateName));
 };
 
 module.exports.checkTopologyTemplate = function(templateName) {

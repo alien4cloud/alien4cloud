@@ -18,39 +18,35 @@ describe('Topology templates list:', function() {
 
   it('Architect should be able to add a new topology template', function() {
     topologyTemplates.create(topologyTemplateName, 'description');
+    toaster.expectNoErrors();
     topologyTemplates.checkTopologyTemplate(topologyTemplateName);
-
-    topologyTemplates.go();
-    var templates = element.all(by.repeater('topologyTemplate in searchResult.data.data'));
-    expect(templates.count()).toBe(1);
   });
 
   it('Architect should not be able to add a new topology template with an existing name', function() {
     topologyTemplates.create(topologyTemplateName, 'description');
+    toaster.expectErrors();
     toaster.dismissIfPresent();
-    var templates = element.all(by.repeater('topologyTemplate in searchResult.data.data'));
-    expect(templates.count()).toBe(1);
   });
 
   it('Architect should be able to cancel creation of a new topology template', function() {
-    topologyTemplates.create('name', 'description', true);
-    var templates = element.all(by.repeater('topologyTemplate in searchResult.data.data'));
-    expect(templates.count()).toBe(1);
+    topologyTemplates.create(topologyTemplateName, 'description', true);
+    toaster.expectNoErrors();
   });
 
   it('Architect should be able to delete a topology template', function() {
     topologyTemplates.go();
+    topologyTemplates.searchTopologyTemplate(topologyTemplateName);
     common.deleteWithConfirm('delete-template_' + topologyTemplateName, true);
-    var templates = element.all(by.repeater('topologyTemplate in searchResult.data.data'));
-    expect(templates.count()).toBe(0);
+    toaster.expectNoErrors();
   });
 
-  // TODO: check the pagination
   it('Admin should be able to see topology template list and check pagination', function() {
     authentication.logout();
     authentication.login('admin');
     topologyTemplates.go();
     expect(element(by.id('btn-add-template')).isPresent()).toBe(true);
+    var pages = element.all(by.repeater('page in pages'));
+    expect(pages.count()).toBe(7);
   });
 
   it('Component manager should not be able to see topology template list', function() {
