@@ -6,6 +6,7 @@
 'use strict';
 
 var common = require('../common/common');
+var toaster = require('../common/toaster');
 
 //users
 var users = {
@@ -65,14 +66,14 @@ var users = {
 module.exports.users = users;
 
 function logout() {
-  common.dismissAlertIfPresent();
+  toaster.dismissIfPresent();
   common.click(by.id('navbar-rightdrop'));
   // skip the wait for angular after a logout operation as there is a redirect operation on the browser.
   common.click(by.name('btn-logout'), null, true);
 }
 
 function login(username) {
-  common.dismissAlertIfPresent();
+  toaster.dismissIfPresent();
   // check also that the language selection is not on
   var isPresentPromise = browser.element(by.name('link-language-fr')).isDisplayed();
   isPresentPromise.then(function (isPresent) {

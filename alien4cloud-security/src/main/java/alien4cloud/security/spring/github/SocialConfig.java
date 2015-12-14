@@ -1,7 +1,8 @@
-package alien4cloud.security.spring;
+package alien4cloud.security.spring.github;
 
 import javax.annotation.Resource;
 
+import alien4cloud.security.spring.AlienUserConnectionRepository;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;

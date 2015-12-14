@@ -1,4 +1,4 @@
-package alien4cloud.ldap;
+package alien4cloud.security.spring.ldap;
 
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean
 ;

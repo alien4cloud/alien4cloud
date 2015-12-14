@@ -2,6 +2,7 @@
 'use strict';
 
 var setup = require('../../common/setup');
+var toaster = require('../../common/toaster');
 var authentication = require('../../authentication/authentication');
 var common = require('../../common/common');
 var xedit = require('../../common/xedit');
@@ -18,37 +19,36 @@ describe('Topology templates details:', function() {
     topologyTemplates.create(topologyTemplateName, 'description');
   });
 
-  it('should be able to rename a topology template', function() {
-    topologyTemplates.goToTopologyTemplate(topologyTemplateName);
+  it('Architect should be able to rename a topology template', function() {
+    topologyTemplates.goToTopologyTemplateDetails(topologyTemplateName);
     xedit.sendKeys('template_' + topologyTemplateName + '_name', topologyTemplateNewName, false);
+    expect(element(by.id('template_' + topologyTemplateNewName + '_name')).isPresent()).toBe(true);
   });
 
-  it('should not be able to rename a topology template with an existing name', function() {
+  it('Architect should not be able to rename a topology template with an existing name', function() {
     topologyTemplates.create(topologyTemplateName, 'description');
-    topologyTemplates.goToTopologyTemplate(topologyTemplateName);
-    xedit.sendKeys('template_' + topologyTemplateName + '_name', topologyTemplateNewName, false);
-    common.dismissAlertIfPresent();
+    topologyTemplates.goToTopologyTemplateDetails(topologyTemplateNewName);
+    xedit.sendKeys('template_' + topologyTemplateNewName + '_name', topologyTemplateName, false);
+    expect(element.all(by.repeater('toaster in toasters')).count()).toBeGreaterThan(0);
+    element(by.css('#template_' + topologyTemplateNewName + '_name input')).sendKeys('0');
+    toaster.dismissIfPresent();
   });
 
-  it('should be able to edit the topology template description', function() {
+  it('Architect should be able to edit the topology template description', function() {
     var newDescription = 'New brilliant description';
-    topologyTemplates.goToTopologyTemplate(topologyTemplateName);
+    topologyTemplates.goToTopologyTemplateDetails(topologyTemplateName);
     xedit.sendKeys('template_' + topologyTemplateName + '_description', newDescription, false);
     expect(element(by.binding('topologyTemplate.description')).getText()).toEqual(newDescription);
   });
 
   it('Architect should be able to see the topology editor and the version menu element on the detail page', function() {
-    authentication.logout();
-    authentication.login('architect');
-    topologyTemplates.goToTopologyTemplate(topologyTemplateName);
+    topologyTemplates.goToTopologyTemplateDetails(topologyTemplateName);
     topologyTemplates.checkTopologyTemplate(topologyTemplateName);
     expect(element(by.id('app-version-select')).isPresent()).toBe(true);
   });
 
   it('Component manager should be redirected to error page in case he goes to a topology template url in browser', function() {
-    authentication.logout();
-    authentication.login('admin');
-    topologyTemplates.goToTopologyTemplate(topologyTemplateName);
+    topologyTemplates.goToTopologyTemplateDetails(topologyTemplateName);
     browser.getCurrentUrl().then(function(topologyUrl) {
       authentication.logout();
       authentication.login('componentManager');

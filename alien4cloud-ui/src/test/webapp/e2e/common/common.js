@@ -92,19 +92,6 @@ module.exports.select = function(selector, value) {
   });
 };
 
-var flow = protractor.promise.controlFlow();
-var dismissAlertIfPresent = function() { // toast-close-button
-  flow.execute(function() {
-    var closeAlertButton = element(by.css('.toast-close-button'));
-    closeAlertButton.click();
-    browser.waitForAngular();
-  }).then(function() {
-  }, function() {
-    return true;
-  });
-};
-module.exports.dismissAlertIfPresent = dismissAlertIfPresent;
-
 var confirmAction = function(confirm) {
   // get popover div and grab the Yes / No buttons
   var divPopover = wElement(by.css('.popover'));
