@@ -20,6 +20,12 @@ describe('Applications management list:', function() {
     expect(element(by.id('app-new-btn')).isPresent()).toBe(true);
   });
 
+  it('Admin should be able to remove an application on which he has no roles', function() {
+    applications.createApplication('AlienUITest', 'Great Application');
+    common.deleteWithConfirm('delete-app_Application 1', true);
+    toaster.expectNoErrors();
+  });
+
   it('Architect should be able to see see it\'s own application and not the create button', function() {
     authentication.logout();
     authentication.login('architect');
@@ -49,6 +55,23 @@ describe('Applications management list:', function() {
   it('Application manager should not be able to add a new topology template with existing name', function() {
     applications.createApplication('AlienUITest', 'Great Application');
     toaster.expectErrors();
+  });
+
+  it('Application manager be able to remove an application he own', function() {
+    applications.createApplication('AlienUITest', 'Great Application');
+    common.deleteWithConfirm('delete-app_Application 1', true);
+    toaster.expectNoErrors();
+  });
+
+  it('Application manager should not be able to remove an application he is user for', function() {
+    applications.createApplication('AlienUITest', 'Great Application');
+    common.deleteWithConfirm('delete-app_Application 1', true);
+    toaster.expectErrors();
+  });
+
+  it('Application manager should be able to create a new application from an existing topology and check that the topology tab has a not empty topology.', function() {
+    applications.createApplication('AlienUITestWithTopology', 'Great Application', 2);
+    // go to topology and check is not empty
   });
 
   it('afterAll', function() { authentication.logout(); });

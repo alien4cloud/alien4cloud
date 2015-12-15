@@ -1,0 +1,4 @@
+[
+  {"id":"1ff5e44f-519f-4ed0-af7f-096aa84abfef","name":"Environment","applicationId":"eba0863b-5b84-4736-a572-cdd908708ecc","environmentType":"OTHER","currentVersionId":"a6cbc6a2-1233-41c0-80ab-58362afa89c4","userRoles":[{"key":"admin","value":["DEPLOYMENT_MANAGER"]}]},
+  {"id":"901e09af-f138-4362-82c3-bf3dbba9a4e5","name":"Environment","applicationId":"a24e17b6-2c40-4806-a6cc-627d06f82359","environmentType":"OTHER","currentVersionId":"11464446-942f-48da-9b74-49a6cdd76662","userRoles":[{"key":"admin","value":["DEPLOYMENT_MANAGER"]}]}
+]

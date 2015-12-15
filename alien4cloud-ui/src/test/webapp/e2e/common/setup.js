@@ -33,6 +33,9 @@ var locations = require(__dirname + '/../_data/locations.json');
 var locationresourcetemplates = require(__dirname + '/../_data/locationresourcetemplates.json');
 
 var applications = require(__dirname + '/../_data/applications.json');
+var applicationenvironments = require(__dirname + '/../_data/applicationenvironments.json');
+var applicationversions = require(__dirname + '/../_data/applicationversions.json');
+
 // archives folders to copy
 var toscaNormativeTypes = path.resolve(__dirname, '../../../../../../alien4cloud-rest-it/target/git/tosca-normative-types-wd06');
 var imagesPath = path.resolve(__dirname + '/../_data/images');
@@ -43,9 +46,16 @@ var mockPluginArchive = path.resolve(__dirname, '../../../../../../alien4cloud-m
 var mockPluginOSArchive = path.resolve(__dirname, '../../../../../../alien4cloud-mock-paas-provider-plugin/src/main/resources/openstack/mock-openstack-resources');
 
 function index(indexName, typeName, data) {
+  var defer = protractor.promise.defer();
+  var promises = [];
   for(var i=0; i < data.length ;i++) {
-    es.index(indexName, typeName, JSON.stringify(data[i]));
+    var indexPromise = es.index(indexName, typeName, JSON.stringify(data[i]));
+    promises.push(indexPromise);
   }
+  protractor.promise.all(promises).then(function () {
+      defer.fulfill('done');
+  });
+  return defer.promise;
 }
 
 function doSetup() {
@@ -77,6 +87,9 @@ function doSetup() {
   flow.execute(function(){return index('locationresourcetemplate', 'locationresourcetemplate', locationresourcetemplates);});
 
   flow.execute(function(){return index('application', 'application', applications);});
+  flow.execute(function(){return index('applicationenvironment', 'applicationenvironment', applicationenvironments);});
+  flow.execute(function(){return index('applicationversion', 'applicationversion', applicationversions);});
+
 }
 
 function doEnableOrchestrator() {
