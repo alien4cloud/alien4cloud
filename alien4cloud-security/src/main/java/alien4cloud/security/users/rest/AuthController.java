@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -32,9 +35,12 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @RequestMapping("/rest/auth")
 public class AuthController {
-
     @Resource
     private IAlienGroupDao alienGroupDao;
+    @Value("${saml.enabled:false}")
+    private boolean samlEnabled;
+    @Resource
+    private Environment env;
 
     /**
      * Get the current user's status (login, roles etc.).
@@ -59,6 +65,14 @@ public class AuthController {
             for (GrantedAuthority role : auth.getAuthorities()) {
                 userStatus.getRoles().add(role.getAuthority());
             }
+        }
+
+        if (env.acceptsProfiles("github-auth")) {
+            userStatus.setAuthSystem("github");
+        } else if (samlEnabled) {
+            userStatus.setAuthSystem("saml");
+        } else {
+            userStatus.setAuthSystem("alien");
         }
 
         return RestResponseBuilder.<UserStatus> builder().data(userStatus).build();

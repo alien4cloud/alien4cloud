@@ -1,4 +1,4 @@
-package alien4cloud.security.spring;
+package alien4cloud.security.spring.github;
 
 import java.util.List;
 import java.util.Set;

@@ -54,7 +54,7 @@ elasticSearch:
 # Configuration of default admin ensurer, if true it creates a default admin user if no admin can be found in the system.
 alien_security:
   admin:
-    # alien4cloud checks that an admin user is defined at the application launch.
+    # alien4cloud checks that an admin user is defined at the application startup.
     ensure: true
     username: admin
     password: admin
@@ -84,7 +84,22 @@ ldap:
       # optional configuration for role mapping (when you want to manage roles in ldap and not in alien for ldap users).
       #key: description
       #mapping: ROLE_CLOUDADMINS=ADMIN
-### End Ldap Configuration
+
+saml:
+  enabled: false
+#  proxy:
+#    host: 193.56.47.20
+#    port: 8080
+  ssl:
+    keystore: samlKeystore.jks
+    defaultKey: apollo
+    keystorepassword: nalle123
+  metadata:
+    sp:
+      entityId: "org:alien4cloud:sp"
+      # entityBaseURL: defaults to localhost:8088
+      # requestSigned:
+      # wantAssertionSigned:
 
 # configuration for the upload module.
 upload:

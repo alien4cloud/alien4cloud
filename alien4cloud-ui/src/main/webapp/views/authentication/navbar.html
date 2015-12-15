@@ -42,7 +42,7 @@
               <img alt="" src="images/flags/flags_iso/24/ja-jp.png" /> Japanese
             </a>
           </li>
-          <li ng-show="status.currentStatus.data.isLogged" role="presentation" class="divider"></li>
+          <li role="presentation" class="divider"></li>
           <li>
             <a href="https://github.com/alien4cloud/alien4cloud/releases/tag/{{version.tag}}" target="_blank" ng-if="!version.isSnapshot">
               <i class="fa fa-codepen"></i> <strong>{{version.tag}}</strong>
@@ -60,7 +60,7 @@
         </ul>
       </li>
     </ul>
-    <div ng-if="!status.currentStatus.data.isLogged" class="nav navbar-nav navbar-right">
+    <div ng-if="!status.currentStatus.data.isLogged && (status.currentStatus.data.authSystem==='alien' || internalLogin)" class="nav navbar-nav navbar-right">
       <form name="loginForm" class="navbar-form" role="login" ng-submit="signIn()">
         <div class="form-group">
           <input name="userName" placeholder="{{ 'USERS.USERNAME' | translate }}" type="text" class="form-control" ng-model="login.username" required />
@@ -80,6 +80,16 @@
           </div>
         </form>
       </div>
+    </div>
+    <div ng-if="!status.currentStatus.data.isLogged && status.currentStatus.data.authSystem==='saml'" class="nav navbar-nav btn-group navbar-right"
+      style="margin-right: 4px;">
+      <a class="btn btn-success navbar-btn" href="saml/login">
+        <i class="fa fa-sign-in"></i> {{ 'NAVBAR.BUTTON_SAML_LOGIN' | translate }}
+      </a>
+      <button ng-click="displayInternalLogin()" class="btn btn-success navbar-btn" name="btn-login"><i class="fa fa-user-secret"></i></button>
+    </div>
+    <div ng-if="!status.currentStatus.data.isLogged && status.currentStatus.data.authSystem==='github'" class="nav navbar-nav navbar-right">
+      GitHub
     </div>
   </div>
 </nav>
