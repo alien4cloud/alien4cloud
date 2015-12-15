@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +33,7 @@ import com.google.common.collect.Lists;
 
 @Slf4j
 @Configuration
+@ConditionalOnProperty(value = "saml.enabled", havingValue = "false")
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Order(ManagementServerProperties.ACCESS_OVERRIDE_ORDER)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
@@ -97,7 +99,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         // handle non authenticated request
         http.exceptionHandling().authenticationEntryPoint(new FailureAuthenticationEntryPoint());
-        
+
         if(env.acceptsProfiles("github-auth")){
             log.info("GitHub profile is active - enabling Spring Social features");
             http.apply(new SpringSocialConfigurer().postLoginUrl("/").alwaysUsePostLoginUrl(true));

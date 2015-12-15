@@ -22,6 +22,7 @@
   "PLACE_HOLDER_NO": "No ",
   "NAVBAR": {
     "BUTTON_LOGIN": "ログイン",
+    "BUTTON_SAML_LOGIN": "ログイン SAML",
     "BUTTON_LOGOUT": "ログアウト",
     "MENU_APPS": "アプリケーション",
     "MENU_COMPONENTS": "コンポーネント",
