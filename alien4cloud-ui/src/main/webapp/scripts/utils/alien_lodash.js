@@ -58,10 +58,10 @@ define(function (require) {
       var deferred = $.Deferred();
       var image = new Image();
       image.onerror = function() {
-          deferred.resolve(false);
+        deferred.resolve(false);
       };
       image.onload = function() {
-          deferred.resolve(true);
+        deferred.resolve(true);
       };
       image.src = src;
       return deferred;

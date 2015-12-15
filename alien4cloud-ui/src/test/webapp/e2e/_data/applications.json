@@ -8,5 +8,135 @@
     "tags":[],
     "metaProperties":{},
     "userRoles":[{"key":"admin","value":["APPLICATION_MANAGER"]}]
+  },
+  {
+    "id":"1e48363c-1d7e-4bc3-9e42-5695af60ddaf",
+    "name":"Application 2",
+    "description":"This is the first test application.",
+    "creationDate":1448092204672,
+    "lastUpdateDate":1448092204672,
+    "tags":[],
+    "metaProperties":{},
+    "userRoles":[{"key":"admin","value":["APPLICATION_MANAGER"]}]
+  },
+  {
+    "id":"2e48363c-1d7e-4bc3-9e42-5695af60ddaf",
+    "name":"Application 3",
+    "description":"This is the first test application.",
+    "creationDate":1448092204672,
+    "lastUpdateDate":1448092204672,
+    "tags":[],
+    "metaProperties":{},
+    "userRoles":[{"key":"admin","value":["APPLICATION_MANAGER"]}]
+  },
+  {
+    "id":"3e48363c-1d7e-4bc3-9e42-5695af60ddaf",
+    "name":"Application 4",
+    "description":"This is the first test application.",
+    "creationDate":1448092204672,
+    "lastUpdateDate":1448092204672,
+    "tags":[],
+    "metaProperties":{},
+    "userRoles":[{"key":"admin","value":["APPLICATION_MANAGER"]}]
+  },
+  {
+    "id":"4e48363c-1d7e-4bc3-9e42-5695af60ddaf",
+    "name":"Application 5",
+    "description":"This is the first test application.",
+    "creationDate":1448092204672,
+    "lastUpdateDate":1448092204672,
+    "tags":[],
+    "metaProperties":{},
+    "userRoles":[{"key":"admin","value":["APPLICATION_MANAGER"]}]
+  },
+  {
+    "id":"5e48363c-1d7e-4bc3-9e42-5695af60ddaf",
+    "name":"Application 6",
+    "description":"This is the first test application.",
+    "creationDate":1448092204672,
+    "lastUpdateDate":1448092204672,
+    "tags":[],
+    "metaProperties":{},
+    "userRoles":[{"key":"admin","value":["APPLICATION_MANAGER"]}]
+  },
+  {
+    "id":"6e48363c-1d7e-4bc3-9e42-5695af60ddaf",
+    "name":"Application 7",
+    "description":"This is the first test application.",
+    "creationDate":1448092204672,
+    "lastUpdateDate":1448092204672,
+    "tags":[],
+    "metaProperties":{},
+    "userRoles":[{"key":"admin","value":["APPLICATION_MANAGER"]}]
+  },
+  {
+    "id":"0e48364c-1d7e-4bc3-9e42-5695af60ddaf",
+    "name":"Application 8",
+    "description":"This is the first test application.",
+    "creationDate":1448092204672,
+    "lastUpdateDate":1448092204672,
+    "tags":[],
+    "metaProperties":{},
+    "userRoles":[{"key":"admin","value":["APPLICATION_MANAGER"]}]
+  },
+  {
+    "id":"1e48365c-1d7e-4bc3-9e42-5695af60ddaf",
+    "name":"Application 9",
+    "description":"This is the first test application.",
+    "creationDate":1448092204672,
+    "lastUpdateDate":1448092204672,
+    "tags":[],
+    "metaProperties":{},
+    "userRoles":[{"key":"admin","value":["APPLICATION_MANAGER"]}]
+  },
+  {
+    "id":"2e48366c-1d7e-4bc3-9e42-5695af60ddaf",
+    "name":"Application 10",
+    "description":"This is the first test application.",
+    "creationDate":1448092204672,
+    "lastUpdateDate":1448092204672,
+    "tags":[],
+    "metaProperties":{},
+    "userRoles":[{"key":"admin","value":["APPLICATION_MANAGER"]}]
+  },
+  {
+    "id":"3e48367c-1d7e-4bc3-9e42-5695af60ddaf",
+    "name":"Application 11",
+    "description":"This is the first test application.",
+    "creationDate":1448092204672,
+    "lastUpdateDate":1448092204672,
+    "tags":[],
+    "metaProperties":{},
+    "userRoles":[{"key":"admin","value":["APPLICATION_MANAGER"]}]
+  },
+  {
+    "id":"4e48368c-1d7e-4bc3-9e42-5695af60ddaf",
+    "name":"Application 12",
+    "description":"This is the first test application.",
+    "creationDate":1448092204672,
+    "lastUpdateDate":1448092204672,
+    "tags":[],
+    "metaProperties":{},
+    "userRoles":[{"key":"admin","value":["APPLICATION_MANAGER"]}]
+  },
+  {
+    "id":"5e48369c-1d7e-4bc3-9e42-5695af60ddaf",
+    "name":"Application 13",
+    "description":"This is the first test application.",
+    "creationDate":1448092204672,
+    "lastUpdateDate":1448092204672,
+    "tags":[],
+    "metaProperties":{},
+    "userRoles":[{"key":"admin","value":["APPLICATION_MANAGER"]}]
+  },
+  {
+    "id":"6e48363c-1c7e-4bc3-9e42-5695af60ddaf",
+    "name":"Application 14",
+    "description":"This is the first test application.",
+    "creationDate":1448092204672,
+    "lastUpdateDate":1448092204672,
+    "tags":[],
+    "metaProperties":{},
+    "userRoles":[{"key":"admin","value":["APPLICATION_MANAGER"]}]
   }
 ]

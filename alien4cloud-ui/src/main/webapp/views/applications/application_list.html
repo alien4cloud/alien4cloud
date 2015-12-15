@@ -10,7 +10,7 @@
   <div class="row" style="margin-top: 10px;">
   <!-- Search -->
     <div class="col-md-2 well" id="app-search">
-      <form role="search" ng-submit="search()">
+      <form role="search" ng-submit="searchService.search()">
         <div class="input-group">
           <input type="text" class="form-control" placeholder="..." ng-model="query">
           <span class="input-group-btn">
@@ -26,16 +26,16 @@
         </label>
       </div>
     </div>
-    
+
     <!-- List display -->
     <div class="col-md-10" id="apps-container">
       <div class="well">
         <empty-place-holder
           for="'applications'"
-          data="searchResult.data.data">
+          data="data.data">
         </empty-place-holder>
-      
-        <div ng-repeat="application in searchResult.data.data | filter:{ isDeployed: onlyShowDeployedApplications } | orderBy: '-countDeployedEnvironment'" class="alien-table-row" ng-init="isEnvironmentsCollapsed = true">
+
+        <div ng-repeat="application in data.data | filter:{ isDeployed: onlyShowDeployedApplications } | orderBy: '-countDeployedEnvironment'" class="alien-table-row" ng-init="isEnvironmentsCollapsed = true">
           <div style="margin-top: -4px; padding-top: 8px;" class="row clickable-media" ng-click="openApplication(application.id)">
             <div class="col-md-1" style="width: 36px;" ng-click="isEnvironmentsCollapsed = !isEnvironmentsCollapsed; $event.stopPropagation();">
               <i style="padding: 8px;" class="pull-left fa fa-caret-right" ng-class="{'fa-caret-down' : !isEnvironmentsCollapsed, 'fa-caret-right': isEnvironmentsCollapsed}"></i>
@@ -49,7 +49,7 @@
             </div>
           </div>
           <div class="row clickable-media" collapse="isEnvironmentsCollapsed"  ng-repeat="environment in applicationStatuses[application.name] | orderBy: '-indexToOrder'"  >
-            <div class="col-span-12" style="border-width: 1px 0px 0px; border-style: solid; border-color: #DDD; padding: 8px;" 
+            <div class="col-span-12" style="border-width: 1px 0px 0px; border-style: solid; border-color: #DDD; padding: 8px;"
                  ng-click="openDeploymentPage(application.id)" >
               <div class="row">
                 <div>
@@ -63,15 +63,15 @@
                       'fa-question-circle text-muted' : environment.label == 'UNKNOWN',
                       'fa-spinner fa-spin' : environment.label == 'DEPLOYMENT_IN_PROGRESS' || environment.label == 'UNDEPLOYMENT_IN_PROGRESS'
                     }"></i>
-                    <span style="vertical-align: -moz-middle-with-baseline; vertical-align: -webkit-baseline-middle;">{{environment.name}}</span>          
+                    <span style="vertical-align: -moz-middle-with-baseline; vertical-align: -webkit-baseline-middle;">{{environment.name}}</span>
                   </div>
                   <div class="col-md-6" class=""> </div>
                 </div>
               </div>
             </div>
-
           </div>
         </div>
+        <pagination-directive pagination-info="searchService.pagination"/>
       </div>
     </div>
   </div>
