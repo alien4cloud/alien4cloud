@@ -12,9 +12,6 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import alien4cloud.model.components.*;
-import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.ParsingResult;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +20,16 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import alien4cloud.git.RepositoryManager;
+import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.ConcatPropertyValue;
+import alien4cloud.model.components.Csar;
+import alien4cloud.model.components.FunctionPropertyValue;
+import alien4cloud.model.components.IValue;
+import alien4cloud.model.components.IndexedArtifactToscaElement;
+import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.components.Operation;
+import alien4cloud.model.components.OperationOutput;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
@@ -36,9 +43,10 @@ import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 import alien4cloud.security.model.Role;
 import alien4cloud.test.utils.SecurityTestUtils;
 import alien4cloud.tosca.ArchiveUploadService;
+import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.MapUtil;
-import alien4cloud.utils.YamlParserUtil;
+import alien4cloud.utils.services.ApplicationUtil;
 
 import com.google.common.collect.Maps;
 
@@ -51,6 +59,9 @@ public class FunctionEvaluatorTest {
 
     @Resource
     private TopologyTreeBuilderService treeBuilder;
+
+    @Resource
+    private ApplicationUtil applicationUtil;
 
     @Value("${directories.alien}/${directories.csar_repository}")
     private String alienRepoDir;
@@ -98,8 +109,7 @@ public class FunctionEvaluatorTest {
         FileUtil.zip(typesPath, typesZipPath);
         result = archiveUploadService.upload(typesZipPath);
 
-        Topology topology = YamlParserUtil.parseFromUTF8File(Paths.get("src/test/resources/alien/paas/function/topology/badFunctionsTomcatWar.yml"),
-                Topology.class);
+        Topology topology = applicationUtil.parseYamlTopology("src/test/resources/alien/paas/function/topology/badFunctionsTomcatWar");
         topology.setId(UUID.randomUUID().toString());
         builtPaaSNodeTemplates = treeBuilder.buildPaaSTopology(topology).getAllNodes();
     }
@@ -109,12 +119,12 @@ public class FunctionEvaluatorTest {
 
         Map<String, NodeTemplate> nodeTemplates = Maps.newHashMap();
         NodeTemplate nodeTemplate1 = new NodeTemplate();
-        nodeTemplate1.setProperties(
-                MapUtil.newHashMap(new String[] { "the_property_name_1" }, new AbstractPropertyValue[] { new ScalarPropertyValue("the_property_value_1") }));
+        nodeTemplate1.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_1" }, new AbstractPropertyValue[] { new ScalarPropertyValue(
+                "the_property_value_1") }));
         nodeTemplates.put("the_node_tempalte_1", nodeTemplate1);
         NodeTemplate nodeTemplate2 = new NodeTemplate();
-        nodeTemplate2.setProperties(
-                MapUtil.newHashMap(new String[] { "the_property_name_2" }, new AbstractPropertyValue[] { new ScalarPropertyValue("the_property_value_2") }));
+        nodeTemplate2.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_2" }, new AbstractPropertyValue[] { new ScalarPropertyValue(
+                "the_property_value_2") }));
         nodeTemplates.put("the_node_tempalte_2", nodeTemplate2);
         Topology topology = new Topology();
         topology.setNodeTemplates(nodeTemplates);
@@ -179,8 +189,8 @@ public class FunctionEvaluatorTest {
         PaaSNodeTemplate warPaaS_2 = builtPaaSNodeTemplates.get(warName_2);
         PaaSNodeTemplate tomcatPaaS = builtPaaSNodeTemplates.get(tomcatName);
         PaaSNodeTemplate computePaaS = builtPaaSNodeTemplates.get(computeName);
-        PaaSRelationshipTemplate hostedOnRelTemp = warPaaS.getRelationshipTemplate("hostedOnTomcat", "war_1");
-        PaaSRelationshipTemplate hostedOnRelTemp_2 = warPaaS_2.getRelationshipTemplate("hostedOnTomcat", "war_2");
+        PaaSRelationshipTemplate hostedOnRelTemp = warPaaS.getRelationshipTemplate("warHostedOnTomcatTomcat", "war_1");
+        PaaSRelationshipTemplate hostedOnRelTemp_2 = warPaaS_2.getRelationshipTemplate("warHostedOnTomcatTomcat", "war_2");
 
         Operation configOp = hostedOnRelTemp.getIndexedToscaElement().getInterfaces().get(ToscaRelationshipLifecycleConstants.CONFIGURE).getOperations()
                 .get(ToscaRelationshipLifecycleConstants.POST_CONFIGURE_SOURCE);
@@ -196,7 +206,7 @@ public class FunctionEvaluatorTest {
 
         // test TARGET keyword
         param = configOp.getInputParameters().get("tomcatVersion");
-        Assert.assertEquals(getPropertyValue(tomcatPaaS, "version"),
+        Assert.assertEquals(getPropertyValue(tomcatPaaS, "component_version"),
                 FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
         // get prop from the host of the source node
         param = configOp.getInputParameters().get("propFromTargetCompute");
@@ -273,8 +283,10 @@ public class FunctionEvaluatorTest {
         IndexedArtifactToscaElement tocaElement = computePaaS.getIndexedToscaElement();
         IValue oldHostNameAttr = tocaElement.getAttributes().get("old_hostname");
         IValue newHostNameAttr = tocaElement.getAttributes().get("new_hostname");
-        Operation createOp = tocaElement.getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations().get(ToscaNodeLifecycleConstants.CREATE);
-        Operation configOp = tocaElement.getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations().get(ToscaNodeLifecycleConstants.CONFIGURE);
+        Operation createOp = computePaaS.getNodeTemplate().getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations()
+                .get(ToscaNodeLifecycleConstants.CREATE);
+        Operation configOp = computePaaS.getNodeTemplate().getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations()
+                .get(ToscaNodeLifecycleConstants.CONFIGURE);
         Set<OperationOutput> createOutput = createOp.getOutputs();
         Set<OperationOutput> configureOutput = configOp.getOutputs();
 

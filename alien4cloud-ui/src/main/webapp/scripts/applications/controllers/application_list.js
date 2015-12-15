@@ -46,17 +46,6 @@ define(function (require) {
         $modalInstance.dismiss('cancel');
       };
 
-      // TopologyTemplate handeling
-      var searchTopologyTemplateResource = $resource('rest/templates/topology/search', {}, {
-        'search': {
-          method: 'POST',
-          isArray: false,
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8'
-          }
-        }
-      });
-
       var searchTopologyTemplateVersionResource = $resource('rest/templates/:topologyTemplateId/versions/search', {}, {
         'search': {
           method: 'POST',

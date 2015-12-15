@@ -255,10 +255,10 @@
             <configuration>
               <filesets>
                 <fileset>
-                  <directory>yo/app/bower_components</directory>
+                  <directory>src/main/webapp/bower_components</directory>
                 </fileset>
                 <fileset>
-                  <directory>yo/node_modules</directory>
+                  <directory>node_modules</directory>
                 </fileset>
               </filesets>
             </configuration>

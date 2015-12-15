@@ -13,8 +13,6 @@ import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionKey;
 import org.springframework.social.connect.ConnectionRepository;
 import org.springframework.social.connect.UsersConnectionRepository;
-import org.springframework.social.github.api.GitHub;
-import org.springframework.social.github.api.impl.GitHubTemplate;
 import org.springframework.util.MultiValueMap;
 
 import alien4cloud.security.model.User;

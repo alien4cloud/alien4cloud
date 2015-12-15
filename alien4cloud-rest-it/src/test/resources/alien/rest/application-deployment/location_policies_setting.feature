@@ -20,3 +20,16 @@ Feature: Set location policies.
 		Then I should receive a RestResponse with no error
 		And the deployment topology shoud have the following location policies
 			| _A4C_ALL |  Mount doom orchestrator | Thark location |
+			
+	Scenario: Setting a location policy for a group other than _A4C_ALL should fail
+		Given I add a role "DEPLOYER" to user "frodon" on the resource type "LOCATION" named "Thark location"
+		When I Set the following location policies with orchestrator "Mount doom orchestrator" for groups
+			| TEST_GROUP | Thark location |
+		Then I should receive a RestResponse with an error code 500
+		
+	Scenario: Setting location policy for more than one group should fail
+		Given I add a role "DEPLOYER" to user "frodon" on the resource type "LOCATION" named "Thark location"
+		When I Set the following location policies with orchestrator "Mount doom orchestrator" for groups
+			| HAHAHA | Thark location |
+			| HOHOHOH | Thark location |
+		Then I should receive a RestResponse with an error code 500

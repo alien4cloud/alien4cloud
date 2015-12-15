@@ -372,9 +372,13 @@ img.icon_32 {
 }
 
 .alien-table-row:last-child {
-  border-width: 1px 0px 0px;
+  border-width: 0px 0px 0px;
 }
 
 .alien-table-row:only-child {
   border-width: 0px 0px 0px;
+}
+
+.empty-place-holder {
+  font-weight: bold;
 }

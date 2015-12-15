@@ -29,7 +29,7 @@ describe('Topology templates details:', function() {
     topologyTemplates.create(topologyTemplateName, 'description');
     topologyTemplates.goToTopologyTemplateDetails(topologyTemplateNewName);
     xedit.sendKeys('template_' + topologyTemplateNewName + '_name', topologyTemplateName, false);
-    expect(element.all(by.repeater('toaster in toasters')).count()).toBeGreaterThan(0);
+    toaster.expectErrors();
     element(by.css('#template_' + topologyTemplateNewName + '_name input')).sendKeys('0');
     toaster.dismissIfPresent();
   });

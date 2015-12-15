@@ -7,23 +7,23 @@
     </div>
 
     <!-- Upload box -->
-	  <div id="upload-csar-topology" class="col-md-10" ng-if="isArchitect">
-	    <upload-directive
-	      target-url="'rest/csars'"
-	      drag-and-drop-message="'COMPONENTS.DRAG_DROP_UPLOAD'"
-	      button-message="'COMPONENTS.UPLOAD'"
-	      upload-success-callback="search()" />
-	  </div>
+    <div id="upload-csar-topology" class="col-md-10" ng-if="isArchitect">
+      <upload-directive
+        target-url="'rest/csars'"
+        drag-and-drop-message="'COMPONENTS.DRAG_DROP_UPLOAD'"
+        button-message="'COMPONENTS.UPLOAD'"
+        upload-success-callback="searchService.search()" />
+    </div>
   </div>
 
   <div class="row" style="margin-top: 10px;">
     <!-- Search -->
     <div class="col-md-2 well">
-      <form role="search" ng-submit="search()">
+      <form role="search" ng-submit="searchService.search()">
         <div class="input-group">
-          <input type="text" class="form-control" placeholder="..." ng-model="query">
+          <input id="seach-topology-template-input" type="text" class="form-control" placeholder="..." ng-model="query">
           <span class="input-group-btn">
-            <button type="submit" class="btn btn-default"
+            <button id="seach-topology-template-btn" type="submit" class="btn btn-default"
               data-loading-text="Loading...">
               <i class="fa fa-search"></i>
             </button>
@@ -37,9 +37,9 @@
       <div class="well">
         <empty-place-holder
           for="'TEMPLATE.BREADCRUMB.TEMPLATE_LIST'"
-          data="searchResult.data.data">
+          data="data.data">
         </empty-place-holder>
-        <div ng-repeat="topologyTemplate in searchResult.data.data" class="alien-table-row">
+        <div ng-repeat="topologyTemplate in data.data" class="alien-table-row">
           <div id="row_{{topologyTemplate.name}}" style="margin-top: -4px; padding-top: 8px;" class="row clickable-media" ng-click="openTopologyTemplate(topologyTemplate.id)">
             <div class="col-md-4"><i class="pull-left media-object fa fa-sitemap fa-2x"></i>{{topologyTemplate.name}}</div>
             <div class="col-md-6" class="">{{topologyTemplate.description}}</div>
@@ -49,6 +49,7 @@
             </div>
           </div>
         </div>
+        <pagination-directive pagination-info="searchService.pagination"/>
       </div>
     </div>
   </div>

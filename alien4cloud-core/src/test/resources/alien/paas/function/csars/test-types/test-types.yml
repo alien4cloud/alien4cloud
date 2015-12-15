@@ -124,7 +124,7 @@ relationship_types:
           inputs:
             contextPath: { get_property: [SOURCE, context_path] }
             propFromSourceCompute: { get_property: [SOURCE, customHostName] }
-            tomcatVersion: { get_property: [TARGET, version] }
+            tomcatVersion: { get_property: [TARGET, component_version] }
             propFromTargetCompute: { get_property: [TARGET, customHostName] }
             tomcatIp: { get_attribute: [TARGET, ip_address] }
             warNodeContext: { get_attribute: [SOURCE, warNodeContext] }
