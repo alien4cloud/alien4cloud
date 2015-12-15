@@ -3,9 +3,8 @@ define(function (require) {
 
   var modules = require('modules');
   var states = require('states');
-  var angular = require('angular');
   var _ = require('lodash');
-  
+
   require('scripts/deployment/services/deployment_services');
 
   states.state('admin.orchestrators.details.deployments', {
@@ -33,7 +32,7 @@ define(function (require) {
         processDeployments(result.data);
         $scope.deployments = result.data;
       });
-      
+
       function processDeployments(deployments){
         if (_.defined(deployments)){
           _.each(deployments, function(deploymentDTO){
@@ -42,24 +41,23 @@ define(function (require) {
             }
           });
         }
-      };
-      
+      }
+
       //Go to runtime view for a deployment
       $scope.goToRuntimeView = function(deployment){
-        console.log('here for', deployment.endDate)
         if(_.defined(deployment.endDate)){
           // do nothing as the deployment is ended already
           return;
         }
-        
+
         $state.go('applications.detail.runtime', {
           id:deployment.sourceId,
           selectedEnvironmentId: deployment.environmentId
         });
-        
-        
+
+
       };
-    
+
     }
   ]); // controller
 }); // define
