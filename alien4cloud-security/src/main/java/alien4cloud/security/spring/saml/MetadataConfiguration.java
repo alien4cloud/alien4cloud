@@ -12,6 +12,7 @@ import org.opensaml.saml2.metadata.provider.MetadataProvider;
 import org.opensaml.saml2.metadata.provider.MetadataProviderException;
 import org.opensaml.xml.parse.StaticBasicParserPool;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -27,6 +28,8 @@ import org.springframework.security.saml.metadata.ExtendedMetadataDelegate;
 @ConditionalOnProperty(value = "saml.enabled", havingValue = "true")
 @Configuration
 public class MetadataConfiguration {
+    @Value("${saml.metadata.idp.url:null}")
+    private String idpMetadataURL;
     @Inject
     private StaticBasicParserPool parserPool;
     @Inject
@@ -44,9 +47,8 @@ public class MetadataConfiguration {
     @Bean
     @Qualifier("default-idp")
     public ExtendedMetadataDelegate ssoCircleExtendedMetadataProvider() throws MetadataProviderException {
-        String idpSSOCircleMetadataURL = "https://idp.ssocircle.com/idp-meta.xml";
         Timer backgroundTaskTimer = new Timer(true);
-        HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(backgroundTaskTimer, httpClient, idpSSOCircleMetadataURL);
+        HTTPMetadataProvider httpMetadataProvider = new HTTPMetadataProvider(backgroundTaskTimer, httpClient, idpMetadataURL);
         httpMetadataProvider.setParserPool(parserPool);
         ExtendedMetadataDelegate extendedMetadataDelegate = new ExtendedMetadataDelegate(httpMetadataProvider, extendedMetadata());
         extendedMetadataDelegate.setMetadataTrustCheck(true);
