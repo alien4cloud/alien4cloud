@@ -8,7 +8,6 @@ var go = function() {
 };
 module.exports.go = go;
 
-// Expose create application functions
 var createApplication = function(newAppName, newAppDescription, topologyTemplateSelectNumber) {
   go();
   common.click(by.id('app-new-btn'));
@@ -28,3 +27,10 @@ var createApplication = function(newAppName, newAppDescription, topologyTemplate
   common.click(by.id('btn-create'));
 };
 module.exports.createApplication = createApplication;
+
+var searchApplication = function(appName) {
+  var searchInput = element(by.id('seach-applications-input'));
+  searchInput.sendKeys(appName);
+  common.click(by.id('seach-applications-btn'));
+};
+module.exports.searchApplication = searchApplication;

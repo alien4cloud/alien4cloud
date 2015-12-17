@@ -45,6 +45,10 @@ var mockPlugin10Path = path.resolve(__dirname, '../../../../../../alien4cloud-mo
 var mockPluginArchive = path.resolve(__dirname, '../../../../../../alien4cloud-mock-paas-provider-plugin/src/main/resources/openstack/mock-resources');
 var mockPluginOSArchive = path.resolve(__dirname, '../../../../../../alien4cloud-mock-paas-provider-plugin/src/main/resources/openstack/mock-openstack-resources');
 
+// user and group
+var users = require(__dirname + '/../_data/users.json');
+var groups = require(__dirname + '/../_data/groups.json');
+
 function index(indexName, typeName, data) {
   var defer = protractor.promise.defer();
   var promises = [];
@@ -90,6 +94,8 @@ function doSetup() {
   flow.execute(function(){return index('applicationenvironment', 'applicationenvironment', applicationenvironments);});
   flow.execute(function(){return index('applicationversion', 'applicationversion', applicationversions);});
 
+  flow.execute(function(){return index('user', 'user', users);});
+  flow.execute(function(){return index('group', 'group', groups);});
 }
 
 function doEnableOrchestrator() {

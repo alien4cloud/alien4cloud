@@ -253,7 +253,7 @@ define(function (require) {
 
       $scope.toogleShowDeployedApplications = function() {
         $scope.onlyShowDeployedApplications = ($scope.onlyShowDeployedApplications) ? undefined : true;
-        $scope.search();
+        $scope.searchService.search();
       };
 
       $scope.searchService = searchServiceFactory('rest/applications/search', false, $scope, 14);
@@ -282,7 +282,7 @@ define(function (require) {
           applicationId: applicationId
         }, function(response) {
           if (!response.error && response.data === true) {
-            $scope.search();
+            $scope.searchService.search();
           } else {
             toaster.pop('error', $translate('APPLICATIONS.ERRORS.DELETE_TITLE'), $translate('APPLICATIONS.ERRORS.DELETING_FAILED'), 4000, 'trustedHtml', null);
           }
