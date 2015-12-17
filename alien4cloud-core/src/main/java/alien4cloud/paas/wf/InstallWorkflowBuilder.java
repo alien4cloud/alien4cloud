@@ -18,7 +18,7 @@ public class InstallWorkflowBuilder extends StandardWorflowBuilder {
 
     public void addNode(Workflow wf, String nodeId, TopologyContext toscaTypeFinder, boolean isCompute) {
         // node are systematically added to std lifecycle WFs
-        if (WorkflowUtils.isNativeNode(nodeId, toscaTypeFinder)) {
+        if (WorkflowUtils.isNativeOrSubstitutionNode(nodeId, toscaTypeFinder)) {
             // for a native node, we just add a subworkflow step
             WorkflowUtils.addDelegateWorkflowStep(wf, nodeId);
         } else {
@@ -27,7 +27,7 @@ public class InstallWorkflowBuilder extends StandardWorflowBuilder {
             String parentId = WorkflowUtils.getParentId(wf, nodeId, toscaTypeFinder);
             if (parentId != null) {
                 // the node is hosted-on something
-                if (WorkflowUtils.isNativeNode(parentId, toscaTypeFinder)) {
+                if (WorkflowUtils.isNativeOrSubstitutionNode(parentId, toscaTypeFinder)) {
                     // the parent is a native node
                     lastStep = WorkflowUtils.getDelegateWorkflowStepByNode(wf, parentId);
                 } else {
@@ -63,13 +63,13 @@ public class InstallWorkflowBuilder extends StandardWorflowBuilder {
     public void addRelationship(Workflow wf, String nodeId, NodeTemplate nodeTemplate, RelationshipTemplate relationshipTemplate,
             TopologyContext toscaTypeFinder) {
 
-        if (WorkflowUtils.isNativeNode(nodeId, toscaTypeFinder)) {
+        if (WorkflowUtils.isNativeOrSubstitutionNode(nodeId, toscaTypeFinder)) {
             // for native types we don't care about relation ships in workflows
             return;
         }
         IndexedRelationshipType indexedRelationshipType = toscaTypeFinder.findElement(IndexedRelationshipType.class, relationshipTemplate.getType());
         String targetId = relationshipTemplate.getTarget();
-        boolean targetIsNative = WorkflowUtils.isNativeNode(targetId, toscaTypeFinder);
+        boolean targetIsNative = WorkflowUtils.isNativeOrSubstitutionNode(targetId, toscaTypeFinder);
         if (targetIsNative || WorkflowUtils.isOfType(indexedRelationshipType, NormativeRelationshipConstants.HOSTED_ON)) {
             // now the node has a parent, let's sequence the creation
             AbstractStep lastStep = null;

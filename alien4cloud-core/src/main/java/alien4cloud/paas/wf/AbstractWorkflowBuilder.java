@@ -155,7 +155,7 @@ public abstract class AbstractWorkflowBuilder {
      * @param activity
      */
     public void addActivity(Workflow wf, String relatedStepId, boolean before, AbstractActivity activity, TopologyContext topologyContext) {
-        if (WorkflowUtils.isNativeNode(activity.getNodeId(), topologyContext)) {
+        if (WorkflowUtils.isNativeOrSubstitutionNode(activity.getNodeId(), topologyContext)) {
             throw new BadWorkflowOperationException("Activity can not be added for abstract nodes");
         }
         if (relatedStepId != null) {

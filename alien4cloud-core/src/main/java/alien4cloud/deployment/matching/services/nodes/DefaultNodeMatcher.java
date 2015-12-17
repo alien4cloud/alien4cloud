@@ -10,7 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.deployment.matching.plugins.INodeMatcherPlugin;
-import alien4cloud.model.components.*;
+import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.FilterDefinition;
+import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.components.constraints.IMatchPropertyConstraint;
 import alien4cloud.model.deployment.matching.MatchingConfiguration;
 import alien4cloud.model.deployment.matching.MatchingFilterDefinition;
@@ -149,7 +154,8 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
             IndexedCapabilityType capabilityType = capabilityTypes.get(candidateCapability.getType());
             Capability templateCapability = nodeTemplate.getCapabilities().get(capabilityMatchingFilterEntry.getKey());
 
-            if (!isTemplatePropertiesMatchCandidateFilter(templateCapability.getProperties(), capabilityMatchingFilterEntry.getValue().getProperties(),
+            if (templateCapability != null
+                    && !isTemplatePropertiesMatchCandidateFilter(templateCapability.getProperties(), capabilityMatchingFilterEntry.getValue().getProperties(),
                     candidateCapability.getProperties(), capabilityType.getProperties())) {
                 return false;
             }

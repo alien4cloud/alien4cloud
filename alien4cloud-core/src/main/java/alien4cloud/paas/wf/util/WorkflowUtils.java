@@ -170,13 +170,13 @@ public class WorkflowUtils {
         }
     }
 
-    public static boolean isNativeNode(String nodeId, TopologyContext topologyContext) {
+    public static boolean isNativeOrSubstitutionNode(String nodeId, TopologyContext topologyContext) {
         NodeTemplate nodeTemplate = topologyContext.getTopology().getNodeTemplates().get(nodeId);
         if (nodeTemplate == null) {
             return false;
         }
         IndexedNodeType nodeType = (IndexedNodeType) topologyContext.findElement(IndexedNodeType.class, nodeTemplate.getType());
-        if (nodeType.isAbstract()) {
+        if (nodeType.isAbstract() || nodeType.getSubstitutionTopologyId() != null) {
             return true;
         }
         // TODO: the following should be removed after merge with orchestrator refactoring branch
