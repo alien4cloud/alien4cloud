@@ -14,7 +14,7 @@
     <properties>
         <sonar.language>java</sonar.language>
         <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
-        <jclouds.version>1.9.0</jclouds.version>
+        <jclouds.version>1.9.1</jclouds.version>
     </properties>
 
     <dependencies>
@@ -89,6 +89,16 @@
             <version>${jclouds.version}</version>
         </dependency>
         <!-- jclouds OpenStack dependencies -->
+        <dependency>
+            <groupId>org.apache.jclouds.provider</groupId>
+            <artifactId>aws-ec2</artifactId>
+            <version>1.9.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.jclouds.provider</groupId>
+            <artifactId>aws-s3</artifactId>
+            <version>1.9.1</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.jclouds.api</groupId>
             <artifactId>openstack-keystone</artifactId>

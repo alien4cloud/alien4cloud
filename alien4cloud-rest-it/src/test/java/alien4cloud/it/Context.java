@@ -30,6 +30,7 @@ import org.springframework.util.PropertyPlaceholderHelper;
 
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.it.exception.ITException;
+import alien4cloud.it.provider.util.AwsClient;
 import alien4cloud.it.provider.util.OpenStackClient;
 import alien4cloud.json.deserializer.AttributeDeserializer;
 import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
@@ -196,6 +197,8 @@ public class Context {
     private Map<String, Map<String, String>> environmentInfos;
 
     private OpenStackClient openStackClient;
+
+    private AwsClient awsClient;
 
     private String currentWorkflowName;
 
@@ -620,6 +623,13 @@ public class Context {
                     this.appProps.getProperty("openstack.tenant"), this.appProps.getProperty("openstack.url"), this.appProps.getProperty("openstack.region"));
         }
         return this.openStackClient;
+    }
+
+    public AwsClient getAwsClient() {
+        if (this.awsClient == null) {
+            this.awsClient = new AwsClient();
+        }
+        return this.awsClient;
     }
 
     private String getManagementServerPublicIp(String managerPropertyName) {
