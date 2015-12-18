@@ -15,14 +15,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 
 import alien4cloud.it.Context;
-import alien4cloud.it.utils.JsonTestUtil;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.topology.NodeTemplateRequest;
-import alien4cloud.topology.TopologyDTO;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.topology.TopologyDTO;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -82,7 +81,7 @@ public class NodeTemplateStepDefinitions {
     @Then("^I should not have the relationship \"([^\"]*)\" in \"([^\"]*)\" node template$")
     public void I_should_not_have_a_relationship_in_node_template(String relName, String nodeTempName) throws Throwable {
         String topologyJson = Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId());
-        RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyJson, TopologyDTO.class);
+        RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyJson, TopologyDTO.class, Context.getJsonMapper());
         NodeTemplate sourceNode = topologyResponse.getData().getTopology().getNodeTemplates().get(nodeTempName);
         Map<String, RelationshipTemplate> rels = sourceNode.getRelationships();
         if (rels != null) {

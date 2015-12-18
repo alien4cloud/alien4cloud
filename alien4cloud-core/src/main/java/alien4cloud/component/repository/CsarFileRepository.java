@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -73,7 +74,7 @@ public class CsarFileRepository implements ICsarRepositry {
     }
 
     @Override
-    public void storeCSAR(String name, String version, Path tmpPath) throws CSARVersionAlreadyExistsException {
+    public synchronized void storeCSAR(String name, String version, Path tmpPath) throws CSARVersionAlreadyExistsException {
         // check the tmpPath.
         if (!Files.isReadable(tmpPath)) {
             throw new CSARStorageFailureException("CSAR temp location <" + tmpPath.toString() + "> not found or not readable!");
@@ -97,7 +98,7 @@ public class CsarFileRepository implements ICsarRepositry {
                 Files.copy(tmpPath, csarTargetPath);
                 FileUtil.unzip(csarTargetPath, expandedPath);
             } else {
-                FileUtil.copy(tmpPath, expandedPath);
+                FileUtil.copy(tmpPath, expandedPath, StandardCopyOption.REPLACE_EXISTING);
             }
             DirectoryJSonWalker.directoryJson(expandedPath, csarDirectoryPath.resolve("content.json"));
         } catch (IOException e) {
@@ -107,11 +108,20 @@ public class CsarFileRepository implements ICsarRepositry {
 
     @Override
     public Path getCSAR(String name, String version) throws CSARVersionNotFoundException {
-        String realName = name.concat("-").concat(version).concat("." + CSAR_EXTENSION);
-
-        Path path = rootPath.resolve(name).resolve(version).resolve(realName);
-        if (Files.exists(path)) {
-            return path;
+        Path csarDir = rootPath.resolve(name).resolve(version);
+        Path expandedPath = csarDir.resolve("expanded");
+        Path zippedPath = csarDir.resolve(name.concat("-").concat(version).concat("." + CSAR_EXTENSION));
+        if (Files.exists(zippedPath)) {
+            return zippedPath;
+        } else if (Files.exists(expandedPath)) {
+            // the csar wasn't stored as a zip file. Zip the expanded dir then
+            try {
+                FileUtil.zip(expandedPath, zippedPath);
+                return zippedPath;
+            } catch (IOException e) {
+                log.error("Failed to zip directory " + expandedPath, e);
+                throw new CSARVersionNotFoundException("CSAR: " + name + ", Version: " + version + " not found in the repository.");
+            }
         }
 
         throw new CSARVersionNotFoundException("CSAR: " + name + ", Version: " + version + " not found in the repository.");

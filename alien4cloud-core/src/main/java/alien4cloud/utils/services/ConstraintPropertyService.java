@@ -79,7 +79,7 @@ public class ConstraintPropertyService {
                     throw new ConstraintViolationException(e.getMessage(), e, consInformation);
                 } catch (IntrospectionException e) {
                     // ConstraintValueDoNotMatchPropertyTypeException is not supposed to be raised here (only in constraint definition validation)
-                    log.error("Constraint introspection error for property <" + propertyName + "> value <" + stringValue + ">", e);
+                    log.info("Constraint introspection error for property <" + propertyName + "> value <" + stringValue + ">", e);
                     throw new ConstraintTechnicalException("Constraint introspection error for property <" + propertyName + "> value <" + stringValue + ">", e);
                 }
             }
@@ -88,7 +88,7 @@ public class ConstraintPropertyService {
             try {
                 checkBasicType(propertyName, propertyDefinition, stringValue);
             } catch (NumberFormatException | InvalidVersionException e) {
-                log.error("Basic type check failed", e);
+                log.info("Basic type check failed", e);
                 consInformation = new ConstraintInformation(propertyName, null, stringValue, propertyDefinition.getType());
                 throw new ConstraintValueDoNotMatchPropertyTypeException(e.getMessage(), e, consInformation);
             }

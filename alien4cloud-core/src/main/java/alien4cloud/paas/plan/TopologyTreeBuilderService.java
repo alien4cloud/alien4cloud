@@ -275,7 +275,7 @@ public class TopologyTreeBuilderService {
         return relationships;
     }
 
-    private <V extends IndexedInheritableToscaElement> V getToscaType(String type, TypeMap typeMap, Set<CSARDependency> dependencies, Class<V> clazz) {
+    public <V extends IndexedInheritableToscaElement> V getToscaType(String type, TypeMap typeMap, Set<CSARDependency> dependencies, Class<V> clazz) {
         V indexedToscaElement = typeMap.get(clazz, type);
         if (indexedToscaElement == null) {
             indexedToscaElement = csarSearchService.getElementInDependencies(clazz, type, dependencies);
@@ -334,7 +334,8 @@ public class TopologyTreeBuilderService {
      * @param paaSNodeTemplate
      * @param paaSNodeTemplates
      */
-    private void processAttributesForOperationOutputs(final IPaaSTemplate<? extends IndexedArtifactToscaElement> paaSNodeTemplate, final Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
+    private void processAttributesForOperationOutputs(final IPaaSTemplate<? extends IndexedArtifactToscaElement> paaSNodeTemplate,
+            final Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
         Map<String, IValue> attributes = paaSNodeTemplate.getIndexedToscaElement().getAttributes();
         if (MapUtils.isEmpty(attributes)) {
             return;
@@ -399,9 +400,8 @@ public class TopologyTreeBuilderService {
     private <V extends IndexedArtifactToscaElement> void registerOperationOutput(final List<? extends IPaaSTemplate> paaSTemplates, final String interfaceName,
             final String operationName, final String output, final String formatedAttributeName) {
         for (IPaaSTemplate<V> paaSTemplate : paaSTemplates) {
-            if (paaSTemplate.getIndexedToscaElement() instanceof IndexedArtifactToscaElement) {
-                IndexedArtifactToscaElement toscaElement = (IndexedArtifactToscaElement) paaSTemplate.getIndexedToscaElement();
-                Interface interfass = MapUtils.getObject(toscaElement.getInterfaces(), (interfaceName));
+            if (paaSTemplate.getTemplate().getInterfaces() != null) {
+                Interface interfass = MapUtils.getObject(paaSTemplate.getTemplate().getInterfaces(), (interfaceName));
                 if (interfass != null && interfass.getOperations().containsKey(operationName)) {
                     OperationOutput toAdd = new OperationOutput(output);
                     if (StringUtils.isNotBlank(formatedAttributeName)) {

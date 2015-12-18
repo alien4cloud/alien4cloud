@@ -1,6 +1,9 @@
 package alien4cloud.it.plugin;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,7 +21,6 @@ import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.model.common.Tag;
 import alien4cloud.plugin.model.PluginUsage;
-import alien4cloud.rest.model.BasicSearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 
@@ -117,9 +119,9 @@ public class PluginDefinitionsSteps {
     @Then("^the result should not be empty$")
     public void the_result_should_not_be_empty() throws Throwable {
         RestResponse<?> response = JsonUtil.read(Context.getInstance().takeRestResponse());
-//        List<PaaSProviderDTO> providersResponse = JsonUtil.toList(JsonUtil.toString(response.getData()), PaaSProviderDTO.class);
-//        assertNotNull(providersResponse);
-//        assertTrue(providersResponse.size() > 0);
+        // List<PaaSProviderDTO> providersResponse = JsonUtil.toList(JsonUtil.toString(response.getData()), PaaSProviderDTO.class);
+        // assertNotNull(providersResponse);
+        // assertTrue(providersResponse.size() > 0);
         Assert.fail("Fix test");
     }
 
@@ -145,8 +147,8 @@ public class PluginDefinitionsSteps {
         tags.add(new Tag("maturity", "none"));
         tags.add(new Tag("usefull", "no"));
         config.setTags(tags);
-        Context.getInstance()
-                .registerRestResponse(Context.getRestClientInstance().postJSon("/rest/plugins/" + PLUGIN_ID + "/config", JsonUtil.toString(config)));
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postJSon("/rest/plugins/" + PLUGIN_ID + "/config", JsonUtil.toString(config)));
     }
 
     @When("^I set the plugin configuration with an invalid configuration object$")
@@ -206,6 +208,13 @@ public class PluginDefinitionsSteps {
     public void I_upload_a_plugin_from(String pluginPathText) throws Throwable {
         Path pluginDirPath = Paths.get(pluginPathText);
         String pluginName = pluginDirPath.getFileName().toString();
+        Path pluginPath = pluginDirPath.resolve("target").resolve(pluginName + "-" + Context.VERSION + ".zip");
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart("/rest/plugins", "file", Files.newInputStream(pluginPath)));
+    }
+
+    @And("^I upload a plugin \"([^\"]*)\" from \"([^\"]*)\"$")
+    public void I_upload_a_plugin_from(String pluginName, String pluginPathText) throws Throwable {
+        Path pluginDirPath = Paths.get(pluginPathText);
         Path pluginPath = pluginDirPath.resolve("target").resolve(pluginName + "-" + Context.VERSION + ".zip");
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart("/rest/plugins", "file", Files.newInputStream(pluginPath)));
     }

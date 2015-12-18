@@ -70,6 +70,9 @@ public class CsarFinderService {
             Path relativePath = rootPath.relativize(path);
             Path zipPath = zipRootPath.resolve(relativePath).resolve("archive.zip");
             try {
+                if (Files.exists(zipPath)) {
+                    FileUtil.delete(zipPath);
+                }
                 FileUtil.zip(path, zipPath);
                 toscaArchives.add(zipPath);
             } catch (IOException e) {

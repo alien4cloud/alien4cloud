@@ -1,6 +1,11 @@
 package alien4cloud.component;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -45,20 +50,8 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
         return searchDAO.count(elementClass, boolQueryBuilder) > 0;
     }
 
-    @Override
-    public <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, String elementId, Collection<CSARDependency> dependencies) {
-        if (dependencies == null || dependencies.isEmpty()) {
-            return null;
-        }
-        // The query match element id of all defined dependencies' version from defined dependencies' archive name
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        for (CSARDependency dependency : dependencies) {
-            QueryBuilder idQueryBuilder = QueryBuilders.idsQuery().addIds(elementId + ":" + dependency.getVersion());
-            QueryBuilder matchArchiveNameQueryBuilder = QueryBuilders.termQuery("archiveName", dependency.getName());
-            boolQueryBuilder.should(QueryBuilders.boolQuery().must(idQueryBuilder).must(matchArchiveNameQueryBuilder));
-        }
-
-        List<T> elements = searchDAO.customFindAll(elementClass, boolQueryBuilder);
+    private <T extends IndexedToscaElement> T getLatestVersionOfElement(Class<T> elementClass, QueryBuilder queryBuilder) {
+        List<T> elements = searchDAO.customFindAll(elementClass, queryBuilder);
         if (elements != null && !elements.isEmpty()) {
             Collections.sort(elements, new Comparator<T>() {
                 @Override
@@ -73,12 +66,41 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
     }
 
     @Override
+    public <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, String elementId, Collection<CSARDependency> dependencies) {
+        if (dependencies == null || dependencies.isEmpty()) {
+            return null;
+        }
+        // The query match element id of all defined dependencies' version from defined dependencies' archive name
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        for (CSARDependency dependency : dependencies) {
+            QueryBuilder idQueryBuilder = QueryBuilders.idsQuery().addIds(elementId + ":" + dependency.getVersion());
+            QueryBuilder matchArchiveNameQueryBuilder = QueryBuilders.termQuery("archiveName", dependency.getName());
+            boolQueryBuilder.should(QueryBuilders.boolQuery().must(idQueryBuilder).must(matchArchiveNameQueryBuilder));
+        }
+        return getLatestVersionOfElement(elementClass, boolQueryBuilder);
+    }
+
+    public <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, QueryBuilder query, Collection<CSARDependency> dependencies) {
+        if (dependencies == null || dependencies.isEmpty()) {
+            return null;
+        }
+        // The query match element id of all defined dependencies' version from defined dependencies' archive name
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        for (CSARDependency dependency : dependencies) {
+            QueryBuilder matchArchiveNameQueryBuilder = QueryBuilders.termQuery("archiveName", dependency.getName());
+            QueryBuilder matchArchiveVersionQueryBuilder = QueryBuilders.termQuery("archiveVersion", dependency.getVersion());
+            boolQueryBuilder.should(QueryBuilders.boolQuery().must(query).must(matchArchiveNameQueryBuilder).must(matchArchiveVersionQueryBuilder));
+        }
+        return getLatestVersionOfElement(elementClass, boolQueryBuilder);
+    }
+
+    @Override
     public <T extends IndexedToscaElement> T getRequiredElementInDependencies(Class<T> elementClass, String elementId, Collection<CSARDependency> dependencies)
             throws NotFoundException {
         T element = getElementInDependencies(elementClass, elementId, dependencies);
         if (element == null) {
-            throw new NotFoundException("Element elementId: <" + elementId + "> of type <" + elementClass.getSimpleName()
-                    + "> cannot be found in dependencies " + dependencies);
+            throw new NotFoundException(
+                    "Element elementId: <" + elementId + "> of type <" + elementClass.getSimpleName() + "> cannot be found in dependencies " + dependencies);
         }
         return element;
     }

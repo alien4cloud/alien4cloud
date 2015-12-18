@@ -30,7 +30,9 @@ import org.springframework.util.PropertyPlaceholderHelper;
 
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.it.exception.ITException;
+import alien4cloud.it.provider.util.AwsClient;
 import alien4cloud.it.provider.util.OpenStackClient;
+import alien4cloud.json.deserializer.AttributeDeserializer;
 import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
 import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import alien4cloud.json.deserializer.TaskDeserializer;
@@ -38,6 +40,7 @@ import alien4cloud.json.deserializer.TaskIndexedInheritableToscaElementDeseriali
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.IValue;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.templates.TopologyTemplate;
@@ -126,6 +129,7 @@ public class Context {
             JSON_MAPPER = new RestMapper();
             SimpleModule module = new SimpleModule("PropDeser", new Version(1, 0, 0, null, null, null));
             module.addDeserializer(AbstractPropertyValue.class, new PropertyValueDeserializer());
+            module.addDeserializer(IValue.class, new AttributeDeserializer());
             try {
                 module.addDeserializer(PropertyConstraint.class, new PropertyConstraintDeserializer());
             } catch (ClassNotFoundException | IOException | IntrospectionException e) {
@@ -178,6 +182,8 @@ public class Context {
 
     private Map<String, String> preRegisteredOrchestratorProperties;
 
+    private Map<String, Object> orchestratorConfiguration;
+
     private Map<String, MetaPropConfiguration> configurationTags;
 
     private String topologyDeploymentId;
@@ -191,6 +197,10 @@ public class Context {
     private Map<String, Map<String, String>> environmentInfos;
 
     private OpenStackClient openStackClient;
+
+    private AwsClient awsClient;
+
+    private String currentWorkflowName;
 
     private Context() {
         ClasspathResourceLoader classpathResourceLoader = new ClasspathResourceLoader(Thread.currentThread().getContextClassLoader());
@@ -482,7 +492,7 @@ public class Context {
         return orchestratorIds.get(orchestratorName);
     }
 
-    public Collection<String> getCloudsIds() {
+    public Collection<String> getOrchestratorIds() {
         if (orchestratorIds != null) {
             return orchestratorIds.values();
         } else {
@@ -519,6 +529,14 @@ public class Context {
         Map<String, String> tmp = preRegisteredOrchestratorProperties;
         preRegisteredOrchestratorProperties = null;
         return tmp;
+    }
+
+    public Map<String, Object> getOrchestratorConfiguration() {
+        return orchestratorConfiguration;
+    }
+
+    public void setOrchestratorConfiguration(Map<String, Object> orchestratorConfiguration) {
+        this.orchestratorConfiguration = orchestratorConfiguration;
     }
 
     public void registerConfigurationTag(String configurationTagName, MetaPropConfiguration tagConfiguration) {
@@ -607,6 +625,13 @@ public class Context {
         return this.openStackClient;
     }
 
+    public AwsClient getAwsClient() {
+        if (this.awsClient == null) {
+            this.awsClient = new AwsClient();
+        }
+        return this.awsClient;
+    }
+
     private String getManagementServerPublicIp(String managerPropertyName) {
         String managementServerName = getAppProperty(managerPropertyName);
         Server managementServer = this.getOpenStackClient().findServerByName(managementServerName);
@@ -618,17 +643,7 @@ public class Context {
     }
 
     public String getCloudify3ManagerUrl() {
-        return "http://" + getManagementServerPublicIp("openstack.cfy3.manager_name") + ":8100";
-    }
-
-    public String getCloudify2ManagerUrl() {
-        return "https://" + getManagementServerPublicIp("openstack.cfy2.manager_name") + ":8100";
-    }
-
-    @Deprecated
-    public String getCloudId(String appEnvCloudName) {
-        // TODO Auto-generated method stub
-        return null;
+        return "http://" + getManagementServerPublicIp("openstack.cfy3.manager_name");
     }
 
     public void registerOrchestratorLocation(String orchestratorId, String locationId, String locationName) {
@@ -666,6 +681,14 @@ public class Context {
 
     public String getLocationResourceId(String orchestratorId, String locationId, String resourceName) {
         return orchestratorLocationResourceIds.get(orchestratorId).get(locationId).get(resourceName);
+    }
+
+    public void setCurrentWorkflowName(String workflowName) {
+        currentWorkflowName = workflowName;
+    }
+
+    public String getCurrentWorkflowName() {
+        return currentWorkflowName;
     }
 
 }

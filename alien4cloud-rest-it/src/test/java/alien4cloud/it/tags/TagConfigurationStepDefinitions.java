@@ -16,7 +16,7 @@ import cucumber.api.java.en.When;
 
 public class TagConfigurationStepDefinitions {
 
-    private static final String CONFIGURATION_TAGS = "./src/test/resources/data/tagconfigurations/configuration-tags.json";
+    private static final String CONFIGURATION_TAGS = "./src/test/resources/data/tagConfigurations/configuration-tags.json";
 
     @When("^I delete the tag configuration \"([^\"]*)\"$")
     public void I_delete_the_tag_configuration(String tagName) throws Throwable {

@@ -58,10 +58,10 @@ define(function (require) {
       var deferred = $.Deferred();
       var image = new Image();
       image.onerror = function() {
-          deferred.resolve(false);
+        deferred.resolve(false);
       };
       image.onload = function() {
-          deferred.resolve(true);
+        deferred.resolve(true);
       };
       image.src = src;
       return deferred;
@@ -79,8 +79,11 @@ define(function (require) {
       var result = string.slice(string.length - end);
       return omission + result;
     },
+    undefinedPath: function (object, path){
+      return this.undefined(_.get(object, path));
+    },
     definedPath: function (object, path){
-      return this.defined(_.get(object, path));
+      return !this.undefinedPath(object, path);
     }
   });
   return _;

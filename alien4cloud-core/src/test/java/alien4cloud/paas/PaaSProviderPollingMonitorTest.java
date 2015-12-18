@@ -61,7 +61,7 @@ public class PaaSProviderPollingMonitorTest {
         for (i = 0; i < 2; i++) {
 
             eventMessage = new PaaSMessageMonitorEvent();
-            eventMessage.setCloudId("CloudID");
+            eventMessage.setOrchestratorId("CloudID");
             eventMessage.setDate(addMinutesToDate(2, new Date()).getTime());
             eventMessage.setDeploymentId("ID-XXX+" + i);
             eventMessage.setMessage("EVENT MESSAGE : " + eventMessage.getDate());
@@ -77,7 +77,7 @@ public class PaaSProviderPollingMonitorTest {
         for (i = 0; i < 3; i++) {
 
             eventDeploymentStatus = new PaaSDeploymentStatusMonitorEvent();
-            eventDeploymentStatus.setCloudId("CloudID");
+            eventDeploymentStatus.setOrchestratorId("CloudID");
             eventDeploymentStatus.setDate(addMinutesToDate(2, new Date()).getTime());
             eventDeploymentStatus.setDeploymentId("DEP_ID-" + i);
             eventDeploymentStatus.setDeploymentStatus(DeploymentStatus.DEPLOYED);

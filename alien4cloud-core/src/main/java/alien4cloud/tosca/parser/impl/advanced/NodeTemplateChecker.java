@@ -68,7 +68,7 @@ public class NodeTemplateChecker implements IChecker<NodeTemplate> {
             public <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, String elementId, Collection<CSARDependency> dependencies) {
                 T result = null;
                 // fisrt off all seach in the current archive
-                if(elementClass == IndexedCapabilityType.class) {
+                if (elementClass == IndexedCapabilityType.class) {
                     result = (T) archiveRoot.getCapabilityTypes().get(elementId);
                 } else if (elementClass == IndexedArtifactType.class) {
                     result = (T) archiveRoot.getArtifactTypes().get(elementId);
@@ -93,6 +93,7 @@ public class NodeTemplateChecker implements IChecker<NodeTemplate> {
         instance.setProperties(tempObject.getProperties());
         instance.setRequirements(tempObject.getRequirements());
         instance.setArtifacts(tempObject.getArtifacts());
+        instance.setInterfaces(tempObject.getInterfaces());
     }
 
 }

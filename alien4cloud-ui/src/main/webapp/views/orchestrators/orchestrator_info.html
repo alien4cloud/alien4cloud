@@ -8,7 +8,7 @@
   </div>
 </div>
 <div class="row">
-  <div class="col-sm-9">
+  <div class="col-sm-9" id="orchestrator-state">
     <i class="fa fa-2x ng-scope" ng-class="{
       'fa-circle text-success' : orchestrator.state === 'CONNECTED',
       'fa-circle text-muted' : orchestrator.state === 'DISABLED',
@@ -45,15 +45,9 @@
     <meta-properties-display
       properties="orchestratorProperties"
       target="orchestrator"
-      
+
       collapsable="false">
     </meta-properties-display>
   </div>
 </div>
 <hr class="separator-h">
-<div class="row">
-  TODO list:
-  <ul>
-    <li>Display an icon of the orchestrator if the IOrchestrator plugin provides one.</li>
-  </ul>
-</div>

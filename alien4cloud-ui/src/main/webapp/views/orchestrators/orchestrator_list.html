@@ -1,7 +1,7 @@
 <div>
   <div class="row" style="margin-bottom: 10px;">
     <div class="col-md-9">
-      <button id="new-cloud-button" class="btn btn-success" ng-click="openNewModal()">
+      <button id="new-orchestrator" class="btn btn-success" ng-click="openNewModal()">
         <i class="fa fa-plus-circle"></i> {{'ORCHESTRATORS.NEW' | translate}}
       </button>
     </div>
@@ -23,22 +23,13 @@
         <table class="table table-hover">
           <thead>
             <tr>
-              <th></th>
               <th>{{ 'ORCHESTRATORS.STATE' | translate}}</th>
               <th>{{ 'ORCHESTRATORS.NAME' | translate}}</th>
               <th>{{ 'ORCHESTRATORS.PLUGIN' | translate}}</th>
-              <th></th>
             </tr>
           </thead>
           <tbody>
             <tr ng-repeat-start="orchestrator in orchestrators" id='orchestrator_{{orchestrator.id}}' class="clickable" ng-click="openOrchestrator(orchestrator.id)" ng-init="islocationCollapsed = true">
-                  <td></td>
-                  <!-- When locations table will be displayed -->
-<!--               <td style="width: 2%"  -->
-<!--                 id="show_locations_{{orchestrator.name}}" -->
-<!--                 ng-click="$event.stopPropagation(); islocationCollapsed = !islocationCollapsed;" > -->
-<!--                 <i class="fa fa-2x" ng-class="{'fa-chevron-down' : !islocationCollapsed, 'fa-chevron-right': islocationCollapsed}"></i> -->
-<!--               </td> -->
               <td>
                 <i class="fa fa-2x ng-scope" tooltip="{{'ORCHESTRATORS.STATES.' + orchestrator.state | translate}}" ng-class="{
                   'fa-circle text-success' : orchestrator.state == 'CONNECTED',
@@ -48,15 +39,9 @@
                 }"></i>
               </td>
               <td>{{orchestrator.name  || '---' }}</td>
-              <td>{{orchestrator.pluginName || '---' }}</td>
-              <td>
-                <a class="btn btn-success" id="clone_cloud_{{cloud.name}}" ng-click="$event.stopPropagation(); cloneCloud(cloud.id)">
-                  <i class="fa fa-copy" tooltip="{{'CLONE' | translate }}" ></i>
-                </a>
-              </td>
+              <td>{{orchestrator.pluginId || '---' }}</td>
             </tr>
             <tr ng-repeat-end ng-repeat="location in orchestrator.locations" id='location_{{orchestrator.id}}_{{location.id}}' ng-click="openLocation(orchestrator.id, location.id)" >
-              <td style="padding: 0px;"></td>
               <td colspan="3" style="padding: 0px;">
                 <div collapse="islocationCollapsed" style="padding: 8px;">
                   <i class="fa fa-circle fa-2x" ng-class="{'text-success': orchestrator.enabled,'text-danger': !orchestrator.enabled}"

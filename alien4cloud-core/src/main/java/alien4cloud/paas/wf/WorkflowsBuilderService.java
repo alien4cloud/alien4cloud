@@ -45,7 +45,7 @@ public class WorkflowsBuilderService {
     public TopologyContext initWorkflows(TopologyContext topologyContext) {
         Map<String, Workflow> wfs = topologyContext.getTopology().getWorkflows();
         if (wfs == null) {
-            wfs = Maps.newHashMap();
+            wfs = Maps.newLinkedHashMap();
             topologyContext.getTopology().setWorkflows(wfs);
         }
         if (!wfs.containsKey(Workflow.INSTALL_WF)) {
@@ -72,7 +72,7 @@ public class WorkflowsBuilderService {
         wf.setStandard(false);
         Map<String, Workflow> wfs = topology.getWorkflows();
         if (wfs == null) {
-            wfs = Maps.newHashMap();
+            wfs = Maps.newLinkedHashMap();
             topology.setWorkflows(wfs);
         }
         wfs.put(workflowName, wf);

@@ -1,7 +1,5 @@
 package alien4cloud.rest.topology;
 
-import io.swagger.annotations.ApiOperation;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -13,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 import javax.validation.Valid;
 
 import lombok.extern.slf4j.Slf4j;
@@ -73,13 +72,15 @@ import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInforma
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.InputArtifactUtil;
-import alien4cloud.utils.PropertyUtil;
-import alien4cloud.utils.services.ConstraintPropertyService;
+import alien4cloud.utils.RestConstraintValidator;
+import alien4cloud.utils.services.PropertyService;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.Closeables;
+
+import io.swagger.annotations.ApiOperation;
 
 @Slf4j
 @RestController
@@ -92,8 +93,8 @@ public class TopologyController {
     @Resource
     private CSARRepositorySearchService csarRepoSearch;
 
-    @Resource
-    private ConstraintPropertyService constraintPropertyService;
+    @Inject
+    private PropertyService propertyService;
 
     @Resource
     private TopologyService topologyService;
@@ -237,6 +238,7 @@ public class TopologyController {
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         isUniqueNodeTemplateName(topologyId, newNodeTemplateName, nodeTemplates);
 
+        nodeTemplate.setName(newNodeTemplateName);
         nodeTemplates.put(newNodeTemplateName, nodeTemplate);
         nodeTemplates.remove(nodeTemplateName);
         refreshNodeTempNameInRelationships(nodeTemplateName, newNodeTemplateName, nodeTemplates);
@@ -413,6 +415,8 @@ public class TopologyController {
         Map<String, AbstractPropertyValue> properties = Maps.newHashMap();
         TopologyServiceCore.fillProperties(properties, indexedRelationshipType.getProperties(), null);
         relationship.setProperties(properties);
+        relationship.setInterfaces(indexedRelationshipType.getInterfaces());
+        relationship.setAttributes(indexedRelationshipType.getAttributes());
         relationships.put(relationshipName, relationship);
         TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
         workflowBuilderService.addRelationship(topologyContext, nodeTemplateName, relationshipName);
@@ -523,36 +527,6 @@ public class TopologyController {
     }
 
     /**
-     * Build and return a RestResponse if we detected a property constraint violation
-     *
-     * @param propertyName property's name
-     * @param propertyValue property's value
-     * @param propertyDefinition property's definition
-     * @return response containing validation result
-     */
-    private RestResponse<ConstraintInformation> buildRestErrorIfPropertyConstraintViolation(final String propertyName, final Object propertyValue,
-            final PropertyDefinition propertyDefinition) {
-
-        if (propertyValue == null || !(propertyValue instanceof String)) {
-            // by convention updateproperty with null value => reset to default if exists
-            return null;
-        }
-        try {
-            constraintPropertyService.checkSimplePropertyConstraint(propertyName, (String) propertyValue, propertyDefinition);
-        } catch (ConstraintViolationException e) {
-            log.error("Constraint violation error for property <" + propertyName + "> with value <" + propertyValue + ">", e);
-            return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
-                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
-        } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
-            log.error("Constraint value violation error for property <" + e.getConstraintInformation().getName() + "> with value <"
-                    + e.getConstraintInformation().getValue() + "> and type <" + e.getConstraintInformation().getType() + ">", e);
-            return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
-                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
-        }
-        return null;
-    }
-
-    /**
      * Update one property for a given {@link NodeTemplate}
      *
      * @param topologyId The id of the topology that contains the node template for which to update a property.
@@ -581,15 +555,14 @@ public class TopologyController {
                     + ">");
         }
 
-        RestResponse<ConstraintInformation> response = buildRestErrorIfPropertyConstraintViolation(propertyName, propertyValue, propertyDefinition);
-        if (response != null) {
-            return response;
-        }
-
         log.debug("Updating property <{}> of the Node template <{}> from the topology <{}>: changing value from [{}] to [{}].", propertyName, nodeTemplateName,
                 topology.getId(), nodeTemp.getProperties().get(propertyName), propertyValue);
 
-        PropertyUtil.setPropertyValue(nodeTemp, propertyDefinition, propertyName, propertyValue);
+        try {
+            propertyService.setPropertyValue(nodeTemp, propertyDefinition, propertyName, propertyValue);
+        } catch (ConstraintValueDoNotMatchPropertyTypeException | ConstraintViolationException e) {
+            return RestConstraintValidator.fromException(e, propertyName, propertyValue);
+        }
         topologyServiceCore.save(topology);
         return RestResponseBuilder.<ConstraintInformation> builder().build();
     }
@@ -620,12 +593,6 @@ public class TopologyController {
             throw new NotFoundException("Property <" + propertyName + "> doesn't exists for node <" + nodeTemplateName + "> of type <" + relationshipType + ">");
         }
 
-        RestResponse<ConstraintInformation> response = buildRestErrorIfPropertyConstraintViolation(propertyName, propertyValue,
-                relationshipTypes.get(relationshipType).getProperties().get(propertyName));
-        if (response != null) {
-            return response;
-        }
-
         log.debug("Updating property <{}> of the relationship <{}> for the Node template <{}> from the topology <{}>: changing value from [{}] to [{}].",
                 propertyName, relationshipType, nodeTemplateName, topology.getId(), relationshipTypes.get(relationshipType).getProperties().get(propertyName),
                 propertyValue);
@@ -634,8 +601,12 @@ public class TopologyController {
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         Map<String, RelationshipTemplate> relationships = nodeTemplate.getRelationships();
 
-        PropertyUtil.setPropertyValue(relationships.get(relationshipName).getProperties(),
-                relationshipTypes.get(relationshipType).getProperties().get(propertyName), propertyName, propertyValue);
+        try {
+            propertyService.setPropertyValue(relationships.get(relationshipName).getProperties(),
+                    relationshipTypes.get(relationshipType).getProperties().get(propertyName), propertyName, propertyValue);
+        } catch (ConstraintValueDoNotMatchPropertyTypeException | ConstraintViolationException e) {
+            return RestConstraintValidator.fromException(e, propertyName, propertyValue);
+        }
 
         topologyServiceCore.save(topology);
         return RestResponseBuilder.<ConstraintInformation> builder().build();
@@ -668,12 +639,6 @@ public class TopologyController {
             throw new NotFoundException("Property <" + propertyName + "> doesn't exists for node <" + nodeTemplateName + "> of type <" + capabilityType + ">");
         }
 
-        RestResponse<ConstraintInformation> response = buildRestErrorIfPropertyConstraintViolation(propertyName, propertyValue,
-                capabilityTypes.get(capabilityType).getProperties().get(propertyName));
-        if (response != null) {
-            return response;
-        }
-
         log.debug("Updating property <{}> of the capability <{}> for the Node template <{}> from the topology <{}>: changing value from [{}] to [{}].",
                 propertyName, capabilityType, nodeTemplateName, topology.getId(), capabilityTypes.get(capabilityType).getProperties().get(propertyName),
                 propertyValue);
@@ -682,8 +647,12 @@ public class TopologyController {
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         Map<String, Capability> capabilities = nodeTemplate.getCapabilities();
 
-        PropertyUtil.setPropertyValue(capabilities.get(capabilityId).getProperties(), capabilityTypes.get(capabilityType).getProperties().get(propertyName),
-                propertyName, propertyValue);
+        try {
+            propertyService.setPropertyValue(capabilities.get(capabilityId).getProperties(),
+                    capabilityTypes.get(capabilityType).getProperties().get(propertyName), propertyName, propertyValue);
+        } catch (ConstraintValueDoNotMatchPropertyTypeException | ConstraintViolationException e) {
+            return RestConstraintValidator.fromException(e, propertyName, propertyValue);
+        }
 
         topologyServiceCore.save(topology);
         return RestResponseBuilder.<ConstraintInformation> builder().build();

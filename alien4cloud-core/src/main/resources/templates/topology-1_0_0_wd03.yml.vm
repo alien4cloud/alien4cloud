@@ -122,19 +122,6 @@ topology_template:
 #end## if capability properties not empty
 #end## of capabilityEntry iteration
 #end## if hasCapabilitiesContainingNotNullProperties
-#if($utils.mapIsNotEmptyAndContainsNotnullValues($nodeTemplateEntry.value.artifacts))
-      artifacts:
-#foreach($artifactEntry in ${nodeTemplateEntry.value.artifacts.entrySet()})
-        ${artifactEntry.key}:
-#if($artifactEntry.value.artifactRef)
-          implementation: ${artifactEntry.value.artifactRef}
-#end## if($artifactEntry.value.artifactRef)
-          type: ${artifactEntry.value.artifactType}
-#if($artifactEntry.value.artifactName)          
-          description: ${artifactEntry.value.artifactName}
-#end## if($artifactEntry.value.artifactName)
-#end## of artifactEntry iteration
-#end## if artifacts map not empty
 #end## of nodeTemplateEntry iteration
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.groups))
   groups:

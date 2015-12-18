@@ -3,6 +3,8 @@ package alien4cloud.component;
 import java.util.Collection;
 import java.util.Map;
 
+import org.elasticsearch.index.query.QueryBuilder;
+
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.CSARDependency;
@@ -32,6 +34,17 @@ public interface ICSARRepositorySearchService {
      * @return The requested element or null if the element is not found.
      */
     <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, String elementId, Collection<CSARDependency> dependencies);
+
+    /**
+     * Get an element matching specified query from given dependencies
+     * 
+     * @param elementClass The element class.
+     * @param query query to match element
+     * @param dependencies A list of CSAR in which the element may be defined.
+     * @param <T> type of the tosca element
+     * @return
+     */
+    <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, QueryBuilder query, Collection<CSARDependency> dependencies);
 
     /**
      * Get an element from defined dependencies.

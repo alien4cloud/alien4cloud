@@ -1,61 +1,48 @@
-/* global by, element */
+/* global by */
 'use strict';
 
-var navigation = require('../common/navigation');
+var common = require('../common/common');
 
-module.exports.checkComponentManager = function(isManager) {
-  var message = isManager ? 'A user that is component manager or admin should have access to the drop zone on the components list page.': 'A user that is not application manager or admin should not have access to the drop zone on the components list page.';
+var go = function() {
+  common.click(by.id('menu.components'));
+};
+module.exports.go = go;
 
-  browser.element(by.id('menu.components')).isPresent().then(function(present) {
-    expect(present).toBe(true, message);
-    if(present) {
-      navigation.go('main', 'components');
-      expect(browser.element(by.id('fileUpload')).isPresent()).toBe(isManager, message);
-    }
-  });
+module.exports.tags = {
+  goodTag: {
+    key: 'my_good_tag',
+    value: 'Whatever i want to add as value here...'
+  },
+  goodTag2: {
+    key: 'my_good_tag2',
+    value: 'Whatever i want to add as value here for ...'
+  },
+  badTag: {
+    key: 'my_good*tag',
+    value: 'This tag should not be added to tag list with *...'
+  }
 };
 
-function selectComponentVersion(componentId, newVersion) {
-  var versionsBtn = element(by.id(componentId + '_versions'));
-  versionsBtn.click();
-
-  browser.sleep(1000);
-
-  var versionLink = element(by.id(componentId + '_version_' + newVersion));
-  versionLink.click();
-}
-module.exports.selectComponentVersion = selectComponentVersion;
-
-module.exports.goToComponentDetailPage = function(componentId) {
-  navigation.go('main', 'components');
-
-  var componentName = componentId.substring(0, componentId.indexOf(':'));
-  var searchImput = element(by.model('searchedKeyword'));
-  searchImput.sendKeys(componentName);
-  var btnSearch = element(by.id('btn-search-component'));
-  btnSearch.click();
-
-  // From the component search page select a particular line
-  var componentElement = element(by.id('li_' + componentId));
-  componentElement.click();
-
-  browser.waitForAngular();
+var checkRecommanded = function(recommended, capabilityRow) {
+  expect(capabilityRow.element(by.css('.alert-success')).isPresent()).toBe(recommended);
+  expect(capabilityRow.element(by.css('a.btn-success')).isDisplayed()).toBe(!recommended);
+  expect(capabilityRow.element(by.css('a.btn-danger')).isDisplayed()).toBe(recommended);
 };
 
-module.exports.changeComponentVersionAndGo = function(componentId, newVersion) {
-  navigation.go('main', 'components');
+var findCapabilityRow = function(testedCapabilityId) {
+  return browser.element(by.id(testedCapabilityId));
+};
 
-  var componentName = componentId.substring(0, componentId.indexOf(':'));
-  var searchImput = element(by.model('searchedKeyword'));
-  searchImput.sendKeys(componentName);
-  var btnSearch = element(by.id('btn-search-component'));
-  btnSearch.click();
+var flagComponentAsRecommanded = function(component, testedCapability) {
+  components.goToComponentDetailPage(component.id);
+  expect(element.all(by.binding('component.elementId')).first().getText()).toContain(component.elementId);
+  expect(element(by.binding('component.archiveVersion')).getText()).toContain(component.archiveVersion);
 
-  selectComponentVersion(componentId, newVersion);
-
-  // From the component search page select a particular line
-  var componentElement = element(by.id('li_' + componentName+':'+newVersion));
-  componentElement.click();
-
-  browser.waitForAngular();
+  var firstCapaRow = findCapabilityRow(testedCapability);
+  expect(firstCapaRow.getText()).toContain(testedCapability);
+  expect(firstCapaRow.isElementPresent(by.css('a.btn-success'))).toBe(true);
+  checkRecommanded(false, firstCapaRow);
+  var recommendButton = firstCapaRow.element(by.css('a.btn-success'));
+  // recommend for this capability
+  recommendButton.click();
 };

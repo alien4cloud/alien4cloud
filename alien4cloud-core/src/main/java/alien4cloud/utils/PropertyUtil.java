@@ -75,59 +75,6 @@ public final class PropertyUtil {
         }
     }
 
-    public static void setPropertyValue(Map<String, AbstractPropertyValue> properties, PropertyDefinition propertyDefinition, String propertyName,
-            Object propertyValue) {
-        // take the default value
-        if (propertyValue == null) {
-            propertyValue = propertyDefinition.getDefault();
-        }
-
-        // if the default value is also empty, we set the property value to null
-        if (propertyValue == null) {
-            properties.put(propertyName, null);
-        } else {
-            if (propertyValue instanceof String) {
-                properties.put(propertyName, new ScalarPropertyValue((String) propertyValue));
-            } else if (propertyValue instanceof Map) {
-                properties.put(propertyName, new ComplexPropertyValue((Map<String, Object>) propertyValue));
-            } else if (propertyValue instanceof List) {
-                properties.put(propertyName, new ListPropertyValue((List<Object>) propertyValue));
-            } else {
-                throw new InvalidArgumentException("Property type " + propertyValue.getClass().getName() + " is invalid");
-            }
-        }
-    }
-
-    /**
-     * Set value for a property
-     *
-     * @param nodeTemplate the node template
-     * @param propertyDefinition the definition of the property to be set
-     * @param propertyName the name of the property to set
-     * @param propertyValue the value to be set
-     */
-    public static void setPropertyValue(NodeTemplate nodeTemplate, PropertyDefinition propertyDefinition, String propertyName, Object propertyValue) {
-        if (nodeTemplate.getProperties() == null) {
-            nodeTemplate.setProperties(Maps.<String, AbstractPropertyValue> newHashMap());
-        }
-        setPropertyValue(nodeTemplate.getProperties(), propertyDefinition, propertyName, propertyValue);
-    }
-
-    /**
-     * Set value for a capability property
-     *
-     * @param capability the capability
-     * @param propertyDefinition the definition of the property
-     * @param propertyName the name of the property
-     * @param propertyValue the value of the property
-     */
-    public static void setCapabilityPropertyValue(Capability capability, PropertyDefinition propertyDefinition, String propertyName, Object propertyValue) {
-        if (capability.getProperties() == null) {
-            capability.setProperties(Maps.<String, AbstractPropertyValue> newHashMap());
-        }
-        setPropertyValue(capability.getProperties(), propertyDefinition, propertyName, propertyValue);
-    }
-
     /**
      * Merge from map into 'into' map
      *

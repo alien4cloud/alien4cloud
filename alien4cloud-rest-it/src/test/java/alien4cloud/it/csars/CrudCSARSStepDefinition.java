@@ -5,7 +5,6 @@ import java.util.List;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
-import alien4cloud.it.utils.JsonTestUtil;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.deployment.Deployment;
@@ -83,16 +82,16 @@ public class CrudCSARSStepDefinition {
         Assert.assertTrue(csar.getCsar().getDependencies().contains(new CSARDependency(dependencyName, dependencyVersion)));
     }
 
-    @When("^I run the test for this snapshot CSAR on cloud \"([^\"]*)\"$")
-    public void I_run_the_test_for_this_snapshot_CSAR_on_cloud(String cloudName) throws Throwable {
-        String cloudId = Context.getInstance().getCloudId(cloudName);
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().get("/rest/csars/" + CURRENT_CSAR_NAME + "/version/" + CURRENT_CSAR_VERSION + "/cloudid/" + cloudId));
-        RestResponse<?> response = JsonTestUtil.read(Context.getInstance().getRestResponse());
-        if (response.getData() != null) {
-            Context.getInstance().registerTopologyDeploymentId(response.getData().toString());
-        }
-    }
+//    @When("^I run the test for this snapshot CSAR on cloud \"([^\"]*)\"$")
+//    public void I_run_the_test_for_this_snapshot_CSAR_on_cloud(String cloudName) throws Throwable {
+//        String cloudId = Context.getInstance().getCloudId(cloudName);
+//        Context.getInstance().registerRestResponse(
+//                Context.getRestClientInstance().get("/rest/csars/" + CURRENT_CSAR_NAME + "/version/" + CURRENT_CSAR_VERSION + "/cloudid/" + cloudId));
+//        RestResponse<?> response = JsonTestUtil.read(Context.getInstance().getRestResponse());
+//        if (response.getData() != null) {
+//            Context.getInstance().registerTopologyDeploymentId(response.getData().toString());
+//        }
+//    }
 
     @And("^I should not have active deployment for this CSAR$")
     public void I_should_not_have_active_deployment_for_this_CSAR() throws Throwable {

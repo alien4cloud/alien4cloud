@@ -1,32 +1,29 @@
 package alien4cloud.tosca;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
 
-import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.tosca.parser.impl.ErrorCode;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.component.repository.ICsarRepositry;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.templates.TopologyTemplate;
-import alien4cloud.model.templates.TopologyTemplateVersion;
-import alien4cloud.model.topology.Topology;
-import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.model.git.CsarDependenciesBean;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.model.CsarDependenciesBean;
 import alien4cloud.security.model.Role;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyTemplateVersionService;
 import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.*;
+import alien4cloud.tosca.parser.ParsingContext;
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.ParsingException;
+import alien4cloud.tosca.parser.ParsingResult;
+
+import com.google.common.collect.Maps;
 
 @Component
 public class ArchiveUploadService {
@@ -34,19 +31,11 @@ public class ArchiveUploadService {
     @Inject
     private ArchiveParser parser;
     @Inject
-    private ToscaCsarDependenciesParser dependenciesParser;
-    @Inject
     private ArchiveIndexer archiveIndexer;
-    @Inject
-    private ICsarRepositry archiveRepositry;
     @Inject
     TopologyServiceCore topologyServiceCore;
     @Inject
     TopologyTemplateVersionService topologyTemplateVersionService;
-    @Inject
-    private WorkflowsBuilderService workflowsBuilderService;
-    @Inject
-    private ICSARRepositorySearchService searchService;
 
     /**
      * Upload a TOSCA archive and index its components.
@@ -59,9 +48,6 @@ public class ArchiveUploadService {
     public ParsingResult<Csar> upload(Path path) throws ParsingException, CSARVersionAlreadyExistsException {
         // parse the archive.
         ParsingResult<ArchiveRoot> parsingResult = parser.parse(path);
-
-        String archiveName = parsingResult.getResult().getArchive().getName();
-        String archiveVersion = parsingResult.getResult().getArchive().getVersion();
 
         final ArchiveRoot archiveRoot = parsingResult.getResult();
         if (archiveRoot.hasToscaTopologyTemplate()) {
@@ -84,22 +70,17 @@ public class ArchiveUploadService {
         return toSimpleResult(parsingResult);
     }
 
-    public List<CsarDependenciesBean> preParsing(Set<Path> paths) throws ParsingException {
-        List<CsarDependenciesBean> listCsarDependenciesBean = new ArrayList<CsarDependenciesBean>();
+    public Map<CSARDependency, CsarDependenciesBean> preParsing(Set<Path> paths) throws ParsingException {
+        Map<CSARDependency, CsarDependenciesBean> csarDependenciesBeans = Maps.newHashMap();
         for (Path path : paths) {
             CsarDependenciesBean csarDepContainer = new CsarDependenciesBean();
             ParsingResult<ArchiveRoot> parsingResult = parser.parse(path);
-            csarDepContainer.setName(parsingResult.getResult().getArchive().getName());
-            csarDepContainer.setVersion(parsingResult.getResult().getArchive().getVersion());
             csarDepContainer.setPath(path);
-            if (parsingResult.getResult().getArchive().getDependencies() != null) {
-                if (!parsingResult.getResult().getArchive().getDependencies().isEmpty() || parsingResult.getResult().getArchive().getDependencies() != null) {
-                    csarDepContainer.setDependencies(parsingResult.getResult().getArchive().getDependencies());
-                }
-            }
-            listCsarDependenciesBean.add(csarDepContainer);
+            csarDepContainer.setSelf(new CSARDependency(parsingResult.getResult().getArchive().getName(), parsingResult.getResult().getArchive().getVersion()));
+            csarDepContainer.setDependencies(parsingResult.getResult().getArchive().getDependencies());
+            csarDependenciesBeans.put(csarDepContainer.getSelf(), csarDepContainer);
         }
-        return listCsarDependenciesBean;
+        return csarDependenciesBeans;
     }
 
     /**

@@ -1,7 +1,7 @@
 <div ng-if="tasks.length>0">
-  <h4 class="topology-node-expand clickable" ng-init="isToAddRelationsCollapsed = false"
+  <h4 class="clickable" ng-init="isToAddRelationsCollapsed = false"
        ng-click="isToAddRelationsCollapsed = !isToAddRelationsCollapsed">
-    <i class="fa" ng-class="{'fa-chevron-down' : !isToAddRelationsCollapsed , 'fa-chevron-right': isToAddRelationsCollapsed }"></i>
+    <i class="fa" ng-class="{'fa-caret-down' : !isToAddRelationsCollapsed , 'fa-caret-right': isToAddRelationsCollapsed }"></i>
     <span>{{'APPLICATIONS.TOPOLOGY.TASK.TOADD_RELATIONSHIP_LABEL' | translate}}</span>
   </h4>
 

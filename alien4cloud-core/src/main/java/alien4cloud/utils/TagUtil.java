@@ -52,4 +52,24 @@ public final class TagUtil {
         }
         return null;
     }
+
+    /**
+     * Utility method to get a {@link Tag} by its name from a tag list.
+     * 
+     * @param tags
+     *            The list of tags from which to get a tag.
+     * @param key
+     *            The key of the tag in the list.
+     * @return
+     */
+    public static Tag getTagByName(List<Tag> tags, String key) {
+        if (tags != null) {
+            for (Tag tag : tags) {
+                if (tag.getName().equals(key)) {
+                    return tag;
+                }
+            }
+        }
+        return null;
+    }
 }

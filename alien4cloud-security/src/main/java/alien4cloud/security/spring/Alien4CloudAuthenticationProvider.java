@@ -22,6 +22,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.saml.SAMLAuthenticationProvider;
+import org.springframework.security.saml.SAMLAuthenticationToken;
 
 @Slf4j
 public class Alien4CloudAuthenticationProvider implements AuthenticationProvider {
@@ -50,7 +52,12 @@ public class Alien4CloudAuthenticationProvider implements AuthenticationProvider
         String login = authentication.getName();
         String password = authentication.getCredentials().toString();
         // get user from internal store
-        User user = alienUserDao.find(login);
+        User user;
+        if (login == null || login.isEmpty()) {
+            user = null;
+        } else {
+            user = alienUserDao.find(login);
+        }
         if (user == null) {
             return authenticateNewUser(authentication, password);
         }
@@ -147,7 +154,11 @@ public class Alien4CloudAuthenticationProvider implements AuthenticationProvider
     }
 
     @Override
-    public boolean supports(Class<?> authentication) {
-        return authentication.equals(UsernamePasswordAuthenticationToken.class);
+    public boolean supports(Class<?> authenticationClass) {
+        if (wrappedProvider instanceof SAMLAuthenticationProvider) {
+            return SAMLAuthenticationToken.class.isAssignableFrom(authenticationClass)
+                    || UsernamePasswordAuthenticationToken.class.isAssignableFrom(authenticationClass);
+        }
+        return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authenticationClass);
     }
 }

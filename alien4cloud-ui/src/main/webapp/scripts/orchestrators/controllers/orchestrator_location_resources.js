@@ -95,6 +95,10 @@ define(function(require) {
             propertyValue: propertyValue
           })).$promise;
         };
+        
+        $scope.isPropertyEditable = function() {
+          return true;
+        };
       }
     ]);
 });

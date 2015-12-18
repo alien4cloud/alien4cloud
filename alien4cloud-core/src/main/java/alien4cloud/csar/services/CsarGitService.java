@@ -3,7 +3,10 @@ package alien4cloud.csar.services;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -22,11 +25,10 @@ import alien4cloud.exception.GitException;
 import alien4cloud.git.RepositoryManager;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
-import alien4cloud.security.model.CsarDependenciesBean;
-import alien4cloud.security.model.CsarGitCheckoutLocation;
-import alien4cloud.security.model.CsarGitRepository;
+import alien4cloud.model.git.CsarDependenciesBean;
+import alien4cloud.model.git.CsarGitCheckoutLocation;
+import alien4cloud.model.git.CsarGitRepository;
 import alien4cloud.tosca.ArchiveUploadService;
-import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
@@ -44,6 +46,8 @@ public class CsarGitService {
     private ArchiveUploadService uploadService;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
+    @Resource
+    private CsarService csarService;
     // TODO store archives that are not 'temp' in another location.
     private Path tempDirPath;
     private Path tempZipDirPath;
@@ -118,23 +122,15 @@ public class CsarGitService {
                 RepositoryManager.pull(git, csarGitRepository.getUsername(), csarGitRepository.getPassword());
             }
             String hash = RepositoryManager.getLastHash(git);
-            if (csarGitCheckoutLocation.getLastImportedHash() != null && csarGitCheckoutLocation.getLastImportedHash().equals(hash)) {
-                return null; // no commit since last import.
-            }
+
             // now that the repository is checked out and up to date process with the import
-            List<ParsingResult<Csar>> results = processImport(csarGitRepository, csarGitCheckoutLocation);
-            // let's save only is import was successful as we don't keep errors
-            // TODO best would be to provide with a better result to show that we didn't retried import
-            boolean updateHash = true;
-            for (ParsingResult<Csar> result : results) {
-                if (ArchiveUploadService.hasError(result, ParsingErrorLevel.ERROR)) {
-                    updateHash = false;
-                }
-            }
-            if (updateHash) {
+            List<ParsingResult<Csar>> results = processImport(csarGitRepository, csarGitCheckoutLocation, hash);
+
+            if (!Objects.equals(csarGitCheckoutLocation.getLastImportedHash(), hash)) {
                 csarGitCheckoutLocation.setLastImportedHash(hash);
                 alienDAO.save(csarGitRepository); // update the hash for this location.
             }
+            // TODO best would be to provide with a better result to show that we didn't retried import
             return results;
         } finally {
             if (git != null) {
@@ -143,25 +139,28 @@ public class CsarGitService {
         }
     }
 
-    private List<ParsingResult<Csar>> processImport(CsarGitRepository csarGitRepository, CsarGitCheckoutLocation csarGitCheckoutLocation) {
+    private List<ParsingResult<Csar>> processImport(CsarGitRepository csarGitRepository, CsarGitCheckoutLocation csarGitCheckoutLocation, String gitHash) {
         // find all the archives under the given hierarchy and zip them to create archives
         Path archiveZipRoot = tempZipDirPath.resolve(csarGitRepository.getId());
         Path archiveGitRoot = tempDirPath.resolve(csarGitRepository.getId());
         Set<Path> archivePaths = csarFinderService.prepare(archiveGitRoot, archiveZipRoot);
 
         // TODO code review has to be completed to further cleanup below processing.
-        List<ParsingResult<Csar>> parsingResult = new ArrayList<ParsingResult<Csar>>();
-        List<CsarDependenciesBean> csarDependenciesBeanList = null;
+        List<ParsingResult<Csar>> parsingResult = Lists.newArrayList();
         try {
-            csarDependenciesBeanList = uploadService.preParsing(archivePaths);
-            for (CsarDependenciesBean dep : csarDependenciesBeanList) {
-                if (dep.getDependencies() == null || dep.getDependencies().isEmpty()) {
-                    parsingResult.add(uploadService.upload(dep.getPath()));
-                    return parsingResult;
+            Map<CSARDependency, CsarDependenciesBean> csarDependenciesBeans = uploadService.preParsing(archivePaths);
+            List<CsarDependenciesBean> sorted = sort(csarDependenciesBeans);
+            for (CsarDependenciesBean csarBean : sorted) {
+                if (csarGitCheckoutLocation.getLastImportedHash() != null && csarGitCheckoutLocation.getLastImportedHash().equals(gitHash)) {
+                    if (csarService.getIfExists(csarBean.getSelf().getName(), csarBean.getSelf().getVersion()) != null) {
+                        // no commit since last import and the archive still exist in the repo, so do not import
+                        // TODO notify the user that the archive has already been imported
+                        continue;
+                    }
                 }
+                ParsingResult<Csar> result = uploadService.upload(csarBean.getPath());
+                parsingResult.add(result);
             }
-            this.updateDependenciesList(csarDependenciesBeanList);
-            parsingResult = this.handleImportLogic(csarDependenciesBeanList, parsingResult);
             return parsingResult;
         } catch (ParsingException e) {
             // TODO Actually add a parsing result with error.
@@ -171,106 +170,52 @@ public class CsarGitService {
         }
     }
 
-    /**
-     * Update the CsarDependenciesBean list based on the CSARDependency found (i.e : deleted or imported
-     *
-     * @param csarDependenciesBeanList List containing the CsarDependenciesBean
-     */
-    private void updateDependenciesList(List<CsarDependenciesBean> csarDependenciesBeanList) {
-        for (CsarDependenciesBean csarContainer : csarDependenciesBeanList) {
-            Iterator<?> it = csarContainer.getDependencies().iterator();
-            while (it.hasNext()) {
-                CSARDependency dependencie = (CSARDependency) it.next();
-                if (lookupForDependencie(dependencie, csarDependenciesBeanList) == null) {
-                    it.remove();
-                }
-            }
-        }
-    }
+    private List<CsarDependenciesBean> sort(Map<CSARDependency, CsarDependenciesBean> elements) {
+        List<CsarDependenciesBean> sortedCsars = Lists.newArrayList();
 
-    /**
-     * Process to a lookup in the CsarDependenciesBean list to check if a CSARDependency is in the list
-     *
-     * @param dependencie
-     * @param csarDependenciesBeanList
-     * @return the csarBean matching the dependency
-     */
-    private CsarDependenciesBean lookupForDependencie(CSARDependency dependencie, List<CsarDependenciesBean> csarDependenciesBeanList) {
-        for (CsarDependenciesBean csarBean : csarDependenciesBeanList) {
-            if ((dependencie.getName() + ":" + dependencie.getVersion()).equals(csarBean.getName() + ":" + csarBean.getVersion())) {
-                return csarBean;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Method to import a repository based on its inter-dependencies
-     *
-     * @param csarDependenciesBeanList List of the CsarGitRepository to import
-     * @param parsingResult Result of the pre-process parsing
-     * @return The result of the final import
-     * @throws CSARVersionAlreadyExistsException
-     * @throws ParsingException
-     */
-    private List<ParsingResult<Csar>> handleImportLogic(List<CsarDependenciesBean> csarDependenciesBeanList, List<ParsingResult<Csar>> parsingResult)
-            throws CSARVersionAlreadyExistsException, ParsingException {
-        ParsingResult<Csar> result = null;
-        for (CsarDependenciesBean csarBean : csarDependenciesBeanList) {
-            if (csarBean.getDependencies().isEmpty()) {
-                result = uploadService.upload(csarBean.getPath());
-                removeExistingDependencies(csarBean, csarDependenciesBeanList);
-                parsingResult.add(result);
+        List<CsarDependenciesBean> independents = Lists.newArrayList();
+        for (Map.Entry<CSARDependency, CsarDependenciesBean> entry : elements.entrySet()) {
+            CsarDependenciesBean csar = entry.getValue();
+            if (csar.getDependencies() == null) {
+                // the element has no dependencies
+                independents.add(csar);
             } else {
-                Iterator<?> it = csarBean.getDependencies().iterator();
-                while (it.hasNext()) {
-                    CSARDependency dep = (CSARDependency) it.next();
-                    CsarDependenciesBean bean = lookupForDependencie(dep, csarDependenciesBeanList);
-                    this.analyseCsarBean(result, bean, parsingResult, csarDependenciesBeanList);
+                // complete the list of dependent elements
+                List<CSARDependency> toClears = Lists.newArrayList();
+                for (CSARDependency dependent : csar.getDependencies()) {
+                    CsarDependenciesBean providedDependency = elements.get(dependent);
+                    if (providedDependency == null) {
+                        // remove the dependency as it may be in the alien repo
+                        toClears.add(dependent);
+                    } else {
+                        providedDependency.getDependents().add(entry.getValue());
+                    }
+                }
+                for (CSARDependency toClear : toClears) {
+                    csar.getDependencies().remove(toClear);
+                }
+                if (csar.getDependencies().isEmpty()) {
+                    independents.add(csar);
                 }
             }
         }
-        return parsingResult;
-    }
 
-    /**
-     * Analyse a CsarDependenciesBean to check if it is ready to import
-     *
-     * @param result Result of the pre-parsing process
-     * @param bean Bean containing the CsarGitRepository informations
-     * @param parsingResult Global result of the pre-parsing result
-     * @param csarDependenciesBeanList
-     * @throws CSARVersionAlreadyExistsException
-     * @throws ParsingException
-     */
-    private void analyseCsarBean(ParsingResult<Csar> result, CsarDependenciesBean bean, List<ParsingResult<Csar>> parsingResult,
-            List<CsarDependenciesBean> csarDependenciesBeanList) throws CSARVersionAlreadyExistsException, ParsingException {
-        if (bean != null) {
-            result = uploadService.upload(bean.getPath());
-            parsingResult.add(result);
-            removeExistingDependencies(bean, csarDependenciesBeanList);
-        }
-    }
-
-    /**
-     * Remove all the occurences of the dependencie when uploaded
-     *
-     * @param bean Bean representing the Csar to import with detailed data
-     * @param csarDependenciesBeanList The list containing the other CsarDependenciesBean
-     */
-    private void removeExistingDependencies(CsarDependenciesBean bean, List<CsarDependenciesBean> csarDependenciesBeanList) {
-        Set<?> tmpSet;
-        for (CsarDependenciesBean csarBean : csarDependenciesBeanList) {
-            // To avoid concurrentmodificationexception we clone the set before fetching
-            tmpSet = new HashSet(csarBean.getDependencies());
-            Iterator<?> it = tmpSet.iterator();
-            while (it.hasNext()) {
-                CSARDependency dep = (CSARDependency) it.next();
-                if ((dep.getName() + ":" + dep.getVersion()).equals(bean.getName() + ":" + bean.getVersion())) {
-                    it.remove();
+        while (independents.size() > 0) {
+            CsarDependenciesBean independent = independents.remove(0);
+            elements.remove(independent.getSelf()); // remove from the elements
+            sortedCsars.add(independent); // element has no more dependencies
+            for (CsarDependenciesBean dependent : independent.getDependents()) {
+                dependent.getDependencies().remove(independent.getSelf());
+                if (dependent.getDependencies().isEmpty()) {
+                    independents.add(dependent);
                 }
             }
-            csarBean.setDependencies(tmpSet);
         }
+
+        if (elements.size() > 0) {
+            // TODO there is looping dependencies throw exception or ignore ?
+        }
+
+        return sortedCsars;
     }
 }

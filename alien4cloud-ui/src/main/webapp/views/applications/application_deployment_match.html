@@ -3,9 +3,9 @@
     <!--  Required Implementation tasks  -->
     <div class="col-md-6" ng-if="(tasks = deploymentContext.deploymentTopologyDTO.validation.taskList['IMPLEMENT']).length>0">
       <div class="task-list-box">
-        <h4 class="topology-node-expand clickable" ng-init="isToImplementNodesCollapsed = false"
+        <h4 class="clickable" ng-init="isToImplementNodesCollapsed = false"
             ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed">
-          <i class="fa" ng-class="{'fa-chevron-down' : !isToImplementNodesCollapsed, 'fa-chevron-right': isToImplementNodesCollapsed}"></i>
+          <i class="fa" ng-class="{'fa-caret-down' : !isToImplementNodesCollapsed, 'fa-caret-right': isToImplementNodesCollapsed}"></i>
           <span>{{'APPLICATIONS.TOPOLOGY.TASK.IMPLEMENT_LABEL' | translate}}</span>
         </h4>
 
@@ -28,9 +28,9 @@
     <!--  Required Replacement tasks  -->
     <div class="col-md-6" ng-if="(repTasks = deploymentContext.deploymentTopologyDTO.validation.taskList['REPLACE']).length>0">
       <div class="task-list-box">
-        <h4 class="topology-node-expand clickable" ng-init="isToReplaceNodesCollapsed = false"
+        <h4 class="clickable" ng-init="isToReplaceNodesCollapsed = false"
             ng-click="isToReplaceNodesCollapsed = !isToReplaceNodesCollapsed">
-          <i class="fa" ng-class="{'fa-chevron-down' : !isToReplaceNodesCollapsed, 'fa-chevron-right': isToReplaceNodesCollapsed}"></i>
+          <i class="fa" ng-class="{'fa-caret-down' : !isToReplaceNodesCollapsed, 'fa-caret-right': isToReplaceNodesCollapsed}"></i>
           <span>{{'APPLICATIONS.TOPOLOGY.TASK.REPLACE_LABEL' | translate}}</span>
         </h4>
 
@@ -74,7 +74,7 @@
                 <i ng-if="!nodeIcon" class="fa fa-cogs"></i>
                 <img ng-if="nodeIcon" ng-src="img?id={{nodeIcon}}&quality=QUALITY_32">
                 {{nodeName}} <i class="fa"
-                                ng-class="{'fa-chevron-down': status.open && substitutedNode, 'fa-chevron-right': !status.open && substitutedNode, 'fa-exclamation-triangle text-danger': !substitutedNode}"></i>
+                                ng-class="{'fa-caret-down': status.open && substitutedNode, 'fa-caret-right': !status.open && substitutedNode, 'fa-exclamation-triangle text-danger': !substitutedNode}"></i>
               </div>
             </div>
           </accordion-heading>
@@ -103,10 +103,10 @@
                     </i>
                   </a>
                 </td>
-                <td class="col-md-1" ng-click="selectTemplate(nodeName, template)">
+                <td class="col-md-4" ng-click="selectTemplate(nodeName, template)">
                   {{template.name}}
                 </td>
-                <td class="col-md-10" ng-click="selectTemplate(nodeName, template)">
+                <td class="col-md-7" ng-click="selectTemplate(nodeName, template)">
                   {{template.template.type}}
                 </td>
               </tr>
@@ -119,7 +119,7 @@
       <div ng-if="selectedResourceTemplate" class="well">
         <orchestrator-location-resource-template
             is-editable="false"
-            is-property-editable="getSubstitutedTemplate(selectedNodeName).id === selectedResourceTemplate.id"
+            is-property-editable="isPropertyEditable(propertyPath)"
             resource-template="selectedResourceTemplate"
             resource-type="deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.nodeTypes[selectedResourceTemplate.template.type]"
             resource-capability-types="deploymentContext.deploymentTopologyDTO.availableSubstitutions.substitutionTypes.capabilityTypes"

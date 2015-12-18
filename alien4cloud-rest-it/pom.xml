@@ -4,7 +4,7 @@
     <parent>
         <groupId>alien4cloud</groupId>
         <artifactId>alien4cloud-parent</artifactId>
-        <version>1.1.0-SM7-SNAPSHOT</version>
+        <version>1.1.0-SM9-SNAPSHOT</version>
     </parent>
     <artifactId>alien4cloud-rest-it</artifactId>
     <packaging>war</packaging>
@@ -15,7 +15,7 @@
     <properties>
         <sonar.language>java</sonar.language>
         <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
-        <jclouds.version>1.9.0</jclouds.version>
+        <jclouds.version>1.9.1</jclouds.version>
     </properties>
 
     <dependencies>
@@ -23,6 +23,12 @@
             <groupId>alien4cloud</groupId>
             <artifactId>alien4cloud-rest-api</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk15</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
@@ -69,11 +75,6 @@
             <classifier>ALIEN4CLOUD</classifier>
         </dependency>
         <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
-            <version>1.52</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.sshd</groupId>
             <artifactId>sshd-core</artifactId>
             <version>0.11.0</version>
@@ -90,6 +91,16 @@
             <version>${jclouds.version}</version>
         </dependency>
         <!-- jclouds OpenStack dependencies -->
+        <dependency>
+            <groupId>org.apache.jclouds.provider</groupId>
+            <artifactId>aws-ec2</artifactId>
+            <version>${jclouds.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.jclouds.provider</groupId>
+            <artifactId>aws-s3</artifactId>
+            <version>${jclouds.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.jclouds.api</groupId>
             <artifactId>openstack-keystone</artifactId>

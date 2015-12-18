@@ -1,0 +1,57 @@
+// evolution of helveticaneue-thin that aims to take in account a bold version
+
+@font-face {
+  font-family: 'Alien-HelveticaNeue-Light';
+  src: local("HelveticaNeue-Thin"), local("HelveticaNeue-Light"), local("Helvetica Neue Light");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Alien-HelveticaNeue-Light';
+  src: local("HelveticaNeue-ThinItalic"), local("HelveticaNeue-Light"), local("Helvetica Neue Light");
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Alien-HelveticaNeue-Light';
+  src: local("HelveticaNeue-Light"), local("Helvetica Neue Light");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Alien-HelveticaNeue-Light';
+  src: local("HelveticaNeue-Light"), local("Helvetica Neue Light");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Alien-HelveticaNeue-Light';
+  src: local("HelveticaNeue"), local("HelveticaNeue-Light"), local("Helvetica Neue Light");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Alien-HelveticaNeue-Light';
+  src: local("HelveticaNeue-Italic"), local("HelveticaNeue-Light"), local("Helvetica Neue Light");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Alien-HelveticaNeue-Light';
+  src: local("HelveticaNeue-Light"), local("Helvetica Neue Light");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Alien-HelveticaNeue-Light';
+  src: local("HelveticaNeue-Light"), local("Helvetica Neue Light");
+  font-weight: 700;
+  font-style: italic;
+}

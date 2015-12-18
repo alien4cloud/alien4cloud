@@ -25,7 +25,6 @@ import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.security.AuthenticationStepDefinitions;
 import alien4cloud.it.topology.TopologyStepDefinitions;
 import alien4cloud.it.topology.TopologyTemplateStepDefinitions;
-import alien4cloud.it.utils.JsonTestUtil;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
@@ -178,14 +177,14 @@ public class ApplicationStepDefinitions {
 
         String topologyId = getTopologyIdFromApplication(CURRENT_APPLICATION.getName());
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/topologies/" + topologyId));
-        TopologyDTO createdTopology = JsonTestUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
+        TopologyDTO createdTopology = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class, Context.getJsonMapper()).getData();
 
         // base topology template
         authSteps.I_am_authenticated_with_role("ARCHITECT"); // quick win solution
         String templateVersionJson = Context.getRestClientInstance().get("/rest/templates/" + template.getId() + "/versions/");
         TopologyTemplateVersion ttv = JsonUtil.read(templateVersionJson, TopologyTemplateVersion.class).getData();
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/topologies/" + ttv.getTopologyId()));
-        TopologyDTO topologyTemplateBase = JsonTestUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
+        TopologyDTO topologyTemplateBase = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class, Context.getJsonMapper()).getData();
 
         Map<String, NodeTemplate> nodeTemplates = topologyTemplateBase.getTopology().getNodeTemplates();
 
@@ -607,12 +606,6 @@ public class ApplicationStepDefinitions {
             switch (attribute) {
             case "name":
                 appEnvRequest.setName(attributeValue);
-                break;
-            case "cloudName":
-                // for attribute cloudName get the ID en set it
-                String cloudId = Context.getInstance().getCloudId(attributeValue);
-                // appEnvRequest.setCloudId(cloudId);
-                Assert.fail("Fix test");
                 break;
             case "description":
                 appEnvRequest.setDescription(attributeValue);

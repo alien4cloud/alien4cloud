@@ -45,34 +45,40 @@ public class DeploymentTopology extends Topology {
     @TermFilter
     @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
     private String environmentId;
-    /**
-     * Id of the initial topology that this topology completes.
-     */
+    /** Id of the initial topology that this topology completes. */
     private String initialTopologyId;
 
+    // Location Matching data
+
+    /** Id of the orchestrator (single one) that will manage the deployment. */
+    private String orchestratorId;
+    /** Id of the locations on which the orchestrator should deploy. */
+    private Map<String, NodeGroup> locationGroups = Maps.newHashMap();
+    /** List of dependencies introduced by the locations - specific location types. */
+    private Set<CSARDependency> locationDependencies = Sets.newHashSet();
+
+    // Node matching data
+
     /**
-     * Save the last update date of the original topology or of the orchestrator
-     **/
+     * Date of the last matching update.
+     * Used to make sure that we update the matching if the portable topology is updated or if the location resources are updated.
+     */
     private Date lastDeploymentTopologyUpdateDate = new Date();
-
-    private Map<String, String> providerDeploymentProperties;
-
-    // TODO add also the input artifacts here. /-> Note that they should/could be repository based.
-    private Map<String, String> inputProperties;
 
     /**
      * The map that contains the user selected matching for nodes of the topology. key is the initial topology node id, value is the
      * (on-demand or service) location resource id.
      */
     private Map<String, String> substitutedNodes = Maps.newHashMap();
-
     private Map<String, NodeTemplate> originalNodes = Maps.newHashMap();
 
-    private String orchestratorId;
+    // Inputs data
 
-    private Map<String, NodeGroup> locationGroups = Maps.newHashMap();
-
-    private Set<CSARDependency> locationDependencies = Sets.newHashSet();
+    /** Configuration of the deployment properties specific to the orchestrator if any. */
+    private Map<String, String> providerDeploymentProperties;
+    /** Values of the input properties as configured by the user. */
+    private Map<String, String> inputProperties;
+    // TODO add also the input artifacts here. /-> Note that they should/could be repository based.
 
     /**
      * Utility method to generate an id for a deployment topology by concatenating version id and environment id

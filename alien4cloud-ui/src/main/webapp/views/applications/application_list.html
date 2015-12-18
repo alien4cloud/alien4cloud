@@ -7,14 +7,14 @@
     </div>
   </div>
 
-  <!-- Search -->
   <div class="row" style="margin-top: 10px;">
+  <!-- Search -->
     <div class="col-md-2 well" id="app-search">
-      <form role="search" ng-submit="search()">
+      <form role="search" ng-submit="searchService.search()">
         <div class="input-group">
-          <input type="text" class="form-control" placeholder="..." ng-model="query">
+          <input id="seach-applications-input" type="text" class="form-control" placeholder="..." ng-model="query">
           <span class="input-group-btn">
-            <button type="submit" class="btn btn-default" data-loading-text="Loading...">
+            <button id="seach-applications-btn" type="submit" class="btn btn-default" data-loading-text="Loading...">
               <i class="fa fa-search"></i>
             </button>
           </span>
@@ -26,45 +26,52 @@
         </label>
       </div>
     </div>
+
+    <!-- List display -->
     <div class="col-md-10" id="apps-container">
       <div class="well">
-          <div ng-repeat="application in searchResult.data.data | filter:{ isDeployed: onlyShowDeployedApplications } | orderBy: '-countDeployedEnvironment'" class="alien-table-row" ng-init="isEnvironmentsCollapsed = true">
-            <div style="margin-top: -4px; padding-top: 8px;" class="row clickable-media" ng-click="openApplication(application.id)">
-              <div class="col-md-1" style="width: 36px;" ng-click="isEnvironmentsCollapsed = !isEnvironmentsCollapsed; $event.stopPropagation();">
-                <i style="padding: 8px;" class="pull-left fa fa-chevron-right" ng-class="{'fa-chevron-down' : !isEnvironmentsCollapsed, 'fa-chevron-right': isEnvironmentsCollapsed}"></i>
-              </div>
-              <div class="col-md-4"><i class="pull-left media-object fa fa-desktop fa-2x" ng-show="!application.imageId"></i>{{application.name}}</div>
-              <div class="col-md-5" class="">{{application.description}}</div>
-              <div class="col-md-2" style="width: 130px;" ng-if="isManager" style="width: 115px;">
-                <delete-confirm class="pull-right" id='delete-app_{{application.name}}' func="removeApplication(application.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
-                </delete-confirm>
-                <span id="pieChart-{{application.name}}" class="pull-right" style="margin-top: -18px;"></span>
-              </div>
-            </div>
-            <div class="row clickable-media" collapse="isEnvironmentsCollapsed"  ng-repeat="environment in applicationStatuses[application.name] | orderBy: '-indexToOrder'"  >
-              <div class="col-span-12" style="border-width: 1px 0px 0px; border-style: solid; border-color: #DDD; padding: 8px;" 
-                   ng-click="openDeploymentPage(application.id)" >
-                <div class="row">
-                  <div>
-                    <div class="col-md-1"> </div>
-                    <div class="col-md-5">
-                      <i class="pull-left fa fa-2x vertical-center" tooltip="{{'APPLICATIONS.' + environment.label | translate }}" tooltip-append-to-body="true" ng-class="{
-                        'fa-circle text-success' : environment.label == 'DEPLOYED',
-                        'fa-circle text-muted' : environment.label == 'UNDEPLOYED',
-                        'fa-warning text-warning' : environment.label == 'WARNING',
-                        'fa-circle text-danger' : environment.label == 'FAILURE',
-                        'fa-question-circle text-muted' : environment.label == 'UNKNOWN',
-                        'fa-spinner fa-spin' : environment.label == 'DEPLOYMENT_IN_PROGRESS' || environment.label == 'UNDEPLOYMENT_IN_PROGRESS'
-                      }"></i>
-                      <span style="vertical-align: -moz-middle-with-baseline; vertical-align: -webkit-baseline-middle;">{{environment.name}}</span>          
-                    </div>
-                    <div class="col-md-6" class=""> </div>
-                  </div>
-                </div>
-              </div>
+        <empty-place-holder
+          for="'applications'"
+          data="data.data">
+        </empty-place-holder>
 
+        <div ng-repeat="application in data.data | filter:{ isDeployed: onlyShowDeployedApplications } | orderBy: '-countDeployedEnvironment'" class="alien-table-row" ng-init="isEnvironmentsCollapsed = true">
+          <div id="app_{{application.name}}" style="margin-top: -4px; padding-top: 8px;" class="row clickable-media" ng-click="openApplication(application.id)">
+            <div class="col-md-1" style="width: 36px;" ng-click="isEnvironmentsCollapsed = !isEnvironmentsCollapsed; $event.stopPropagation();">
+              <i style="padding: 8px;" class="pull-left fa fa-caret-right" ng-class="{'fa-caret-down' : !isEnvironmentsCollapsed, 'fa-caret-right': isEnvironmentsCollapsed}"></i>
+            </div>
+            <div class="col-md-4"><i class="pull-left media-object fa fa-desktop fa-2x" ng-show="!application.imageId"></i>{{application.name}}</div>
+            <div class="col-md-5" class="">{{application.description}}</div>
+            <div class="col-md-2" style="width: 130px;" ng-if="isManager" style="width: 115px;">
+              <delete-confirm class="pull-right" id='delete-app_{{application.name}}' func="removeApplication(application.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+              </delete-confirm>
+              <span id="pieChart-{{application.name}}" class="pull-right" style="margin-top: -18px;"></span>
             </div>
           </div>
+          <div class="row clickable-media" collapse="isEnvironmentsCollapsed"  ng-repeat="environment in applicationStatuses[application.name] | orderBy: '-indexToOrder'"  >
+            <div class="col-span-12" style="border-width: 1px 0px 0px; border-style: solid; border-color: #DDD; padding: 8px;"
+                 ng-click="openDeploymentPage(application.id)" >
+              <div class="row">
+                <div>
+                  <div class="col-md-1"> </div>
+                  <div class="col-md-5">
+                    <i class="pull-left fa fa-2x vertical-center" tooltip="{{'APPLICATIONS.' + environment.label | translate }}" tooltip-append-to-body="true" ng-class="{
+                      'fa-circle text-success' : environment.label == 'DEPLOYED',
+                      'fa-circle text-muted' : environment.label == 'UNDEPLOYED',
+                      'fa-warning text-warning' : environment.label == 'WARNING',
+                      'fa-circle text-danger' : environment.label == 'FAILURE',
+                      'fa-question-circle text-muted' : environment.label == 'UNKNOWN',
+                      'fa-spinner fa-spin' : environment.label == 'DEPLOYMENT_IN_PROGRESS' || environment.label == 'UNDEPLOYMENT_IN_PROGRESS'
+                    }"></i>
+                    <span style="vertical-align: -moz-middle-with-baseline; vertical-align: -webkit-baseline-middle;">{{environment.name}}</span>
+                  </div>
+                  <div class="col-md-6" class=""> </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <pagination-directive pagination-info="searchService.pagination"/>
       </div>
     </div>
   </div>

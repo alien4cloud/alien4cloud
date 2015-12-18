@@ -1,5 +1,6 @@
 package alien4cloud.it.topology;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
@@ -8,7 +9,7 @@ import org.apache.http.NameValuePair;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
-import alien4cloud.it.utils.JsonTestUtil;
+import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -36,8 +37,7 @@ public class OutputPropertiesStepDefinitions {
 
     @Then("^The topology should have the property \"([^\"]*)\" of the node \"([^\"]*)\" defined as output property$")
     public void The_topology_should_have_the_property_of_the_node_defined_as_output_property(String propertyName, String nodeName) throws Throwable {
-        TopologyDTO topologyDTO = JsonTestUtil.read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()),
-                TopologyDTO.class).getData();
+        TopologyDTO topologyDTO = getTopologyDTO();
         Map<String, Set<String>> outputProperties = topologyDTO.getTopology().getOutputProperties();
         Assert.assertNotNull(outputProperties);
         Set<String> outputPropertiesOfNode = outputProperties.get(nodeName);
@@ -48,8 +48,7 @@ public class OutputPropertiesStepDefinitions {
     @Then("^The topology should have the capability property \"([^\"]*)\" of the capability \"([^\"]*)\" for the node \"([^\"]*)\" defined as output property$")
     public void The_topology_should_have_the_capability_property_of_the_capability_for_the_node_defined_as_output_property(String propertyName,
             String capabilityId, String nodeName) throws Throwable {
-        TopologyDTO topologyDTO = JsonTestUtil.read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()),
-                TopologyDTO.class).getData();
+        TopologyDTO topologyDTO = getTopologyDTO();
         Map<String, Map<String, Set<String>>> outputCapabilityProperties = topologyDTO.getTopology().getOutputCapabilityProperties();
         Assert.assertNotNull(outputCapabilityProperties);
         Map<String, Set<String>> outputPropertiesOfNode = outputCapabilityProperties.get(nodeName);
@@ -62,8 +61,7 @@ public class OutputPropertiesStepDefinitions {
     @Then("^The topology should not have the capability property \"([^\"]*)\" of the capability \"([^\"]*)\" for the node \"([^\"]*)\" defined as output property$")
     public void The_topology_should_not_have_the_capability_property_of_the_capability_for_the_node_defined_as_output_property(String propertyName,
             String capabilityId, String nodeName) throws Throwable {
-        TopologyDTO topologyDTO = JsonTestUtil.read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()),
-                TopologyDTO.class).getData();
+        TopologyDTO topologyDTO = getTopologyDTO();
         Map<String, Map<String, Set<String>>> outputCapabilityProperties = topologyDTO.getTopology().getOutputCapabilityProperties();
         Assert.assertNotNull(outputCapabilityProperties);
         Map<String, Set<String>> outputPropertiesOfNode = outputCapabilityProperties.get(nodeName);
@@ -80,8 +78,7 @@ public class OutputPropertiesStepDefinitions {
 
     @Then("^The topology should not have the property \"([^\"]*)\" of the node \"([^\"]*)\" defined as output property$")
     public void The_topology_should_not_have_the_property_of_the_node_defined_as_output_property(String propertyName, String nodeName) throws Throwable {
-        TopologyDTO topologyDTO = JsonTestUtil.read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()),
-                TopologyDTO.class).getData();
+        TopologyDTO topologyDTO = getTopologyDTO();
         Map<String, Set<String>> outputProperties = topologyDTO.getTopology().getOutputProperties();
         if (outputProperties != null) {
             Set<String> outputPropertiesOfNode = outputProperties.get(nodeName);
@@ -99,8 +96,7 @@ public class OutputPropertiesStepDefinitions {
 
     @Then("^The topology should have the attribute \"([^\"]*)\" of the node \"([^\"]*)\" defined as output attribute$")
     public void The_topology_should_have_the_attribute_of_the_node_defined_as_output_attribute(String attributeName, String nodeName) throws Throwable {
-        TopologyDTO topologyDTO = JsonTestUtil.read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()),
-                TopologyDTO.class).getData();
+        TopologyDTO topologyDTO = getTopologyDTO();
         Map<String, Set<String>> outputAttributes = topologyDTO.getTopology().getOutputAttributes();
         Assert.assertNotNull(outputAttributes);
         Set<String> outputAttributesOfNode = outputAttributes.get(nodeName);
@@ -115,8 +111,7 @@ public class OutputPropertiesStepDefinitions {
 
     @Then("^The topology should not have the attribute \"([^\"]*)\" of the node \"([^\"]*)\" defined as output attribute$")
     public void The_topology_should_not_have_the_attribute_of_the_node_defined_as_output_attribute(String attributeName, String nodeName) throws Throwable {
-        TopologyDTO topologyDTO = JsonTestUtil.read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()),
-                TopologyDTO.class).getData();
+        TopologyDTO topologyDTO = getTopologyDTO();
         Map<String, Set<String>> outputAttributes = topologyDTO.getTopology().getOutputAttributes();
         if (outputAttributes != null) {
             Set<String> outputAttributesOfNode = outputAttributes.get(nodeName);
@@ -137,5 +132,11 @@ public class OutputPropertiesStepDefinitions {
     public void I_define_the_property_of_the_capability_of_the_node_as_non_output_property(String propertyName, String capabilityId, String nodeName)
             throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete(getCapabilityPropertyUrl(propertyName, capabilityId, nodeName)));
+    }
+
+    private TopologyDTO getTopologyDTO() throws IOException {
+        TopologyDTO topologyDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()),
+                TopologyDTO.class, Context.getJsonMapper()).getData();
+        return topologyDTO;
     }
 }

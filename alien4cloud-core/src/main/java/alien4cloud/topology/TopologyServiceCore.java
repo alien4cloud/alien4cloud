@@ -242,7 +242,6 @@ public class TopologyServiceCore {
         Map<String, Capability> capabilities = Maps.newLinkedHashMap();
         Map<String, Requirement> requirements = Maps.newLinkedHashMap();
         Map<String, AbstractPropertyValue> properties = Maps.newLinkedHashMap();
-        Map<String, String> attributes = Maps.newLinkedHashMap();
         Map<String, DeploymentArtifact> deploymentArtifacts = null;
         Map<String, DeploymentArtifact> deploymentArtifactsToMerge = templateToMerge != null ? templateToMerge.getArtifacts() : null;
         if (deploymentArtifactsToMerge != null) {
@@ -263,26 +262,16 @@ public class TopologyServiceCore {
         fillRequirementsMap(requirements, indexedNodeType.getRequirements(), dependencies, templateToMerge != null ? templateToMerge.getRequirements() : null,
                 toscaElementFinder);
         fillProperties(properties, indexedNodeType.getProperties(), templateToMerge != null ? templateToMerge.getProperties() : null);
-        fillAttributes(attributes, indexedNodeType.getAttributes());
-
         nodeTemplate.setCapabilities(capabilities);
         nodeTemplate.setRequirements(requirements);
         nodeTemplate.setProperties(properties);
-        nodeTemplate.setAttributes(attributes);
+        nodeTemplate.setAttributes(indexedNodeType.getAttributes());
+        nodeTemplate.setInterfaces(indexedNodeType.getInterfaces());
         nodeTemplate.setArtifacts(deploymentArtifacts);
         if (templateToMerge != null && templateToMerge.getRelationships() != null) {
             nodeTemplate.setRelationships(templateToMerge.getRelationships());
         }
         return nodeTemplate;
-    }
-
-    private static void fillAttributes(Map<String, String> attributes, Map<String, IValue> attributes2) {
-        if (attributes2 == null || attributes == null) {
-            return;
-        }
-        for (Entry<String, IValue> entry : attributes2.entrySet()) {
-            attributes.put(entry.getKey(), null);
-        }
     }
 
     public static void fillProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> propertiesDefinitions,
@@ -334,8 +323,8 @@ public class TopologyServiceCore {
             if (toAddRequirement == null) {
                 toAddRequirement = new Requirement();
                 toAddRequirement.setType(requirement.getType());
-                IndexedCapabilityType indexedReq = toscaElementFinder.getElementInDependencies(IndexedCapabilityType.class, requirement.getType(),
-                        dependencies);
+                IndexedCapabilityType indexedReq = toscaElementFinder
+                        .getElementInDependencies(IndexedCapabilityType.class, requirement.getType(), dependencies);
                 if (indexedReq != null && indexedReq.getProperties() != null) {
                     toAddRequirement.setProperties(PropertyUtil.getDefaultPropertyValuesFromPropertyDefinitions(indexedReq.getProperties()));
                 }
@@ -432,8 +421,8 @@ public class TopologyServiceCore {
         if (topology.getSubstitutionMapping() == null || topology.getSubstitutionMapping().getSubstitutionType() == null) {
             return;
         }
-        IndexedNodeType nodeType = csarRepoSearchService.getElementInDependencies(IndexedNodeType.class,
-                topology.getSubstitutionMapping().getSubstitutionType().getElementId(), topology.getDependencies());
+        IndexedNodeType nodeType = csarRepoSearchService.getElementInDependencies(IndexedNodeType.class, topology.getSubstitutionMapping()
+                .getSubstitutionType().getElementId(), topology.getDependencies());
 
         TopologyTemplate topologyTemplate = alienDAO.findById(TopologyTemplate.class, topology.getDelegateId());
         TopologyTemplateVersion topologyTemplateVersion = topologyTemplateVersionService.getByTopologyId(topology.getId());

@@ -1,0 +1,6 @@
+[
+  {"username":"user","roles":["COMPONENTS_BROWSER"],"internalDirectory":false,"accountNonExpired":true,"accountNonLocked":true,"credentialsNonExpired":true,"enabled":true},
+  {"username":"admin","roles":["ADMIN"],"internalDirectory":false,"accountNonExpired":true,"accountNonLocked":true,"credentialsNonExpired":true,"enabled":true},
+  {"username":"architect","roles":["ARCHITECT","COMPONENTS_BROWSER"],"internalDirectory":false,"accountNonExpired":true,"accountNonLocked":true,"credentialsNonExpired":true,"enabled":true},
+  {"username":"applicationManager","roles":["APPLICATIONS_MANAGER","COMPONENTS_BROWSER","COMPONENTS_MANAGER"],"internalDirectory":false,"accountNonExpired":true,"accountNonLocked":true,"credentialsNonExpired":true,"enabled":true}
+]

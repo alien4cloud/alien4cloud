@@ -1,7 +1,6 @@
 'use strict';
 
-//
-module.exports = function (grunt, options) {
+module.exports = function (grunt) {
   return {
     // Options :shared configuration with other target
     options: {
@@ -20,26 +19,25 @@ module.exports = function (grunt, options) {
         args: {
           capabilities: {
             'browserName': 'chrome'
+            // 'browserName': 'firefox'
           },
-          // baseUrl: 'http://localhost:8088',
-          baseUrl: 'http://127.0.0.1:9999',
+          baseUrl: 'http://localhost:8088',
+          // baseUrl: 'http://127.0.0.1:9999',
           specs: [
-             '<%= yeoman.test %>/e2e/setup-scenario/before-all.js',
-              // '<%= yeoman.test %>/e2e/scenarios/components/csar.js',
-               '<%= yeoman.test %>/e2e/scenarios/components/csargit.js'
-//               '<%= yeoman.test %>/e2e/scenarios/security/security_environments.js',
-//               '<%= yeoman.test %>/e2e/scenarios/application/application.js',
-//               '<%= yeoman.test %>/e2e/scenarios/topology_templates/topology_templates.js',
-//               '<%= yeoman.test %>/e2e/scenarios/application_topology/application_topology_runtime.js',
-//               '<%= yeoman.test %>/e2e/scenarios/admin/admin_groups_management.js',
-//               '<%= yeoman.test %>/e2e/scenarios/admin/admin_users_management.js',
-//               '<%= yeoman.test %>/e2e/scenarios/security/security_groups.js',
-//               '<%= yeoman.test %>/e2e/scenarios/security/security_users.js',
-//               '<%= yeoman.test %>/e2e/scenarios/authentication.js',
-//               '<%= yeoman.test %>/e2e/scenarios/homepage.js',
-//               '<%= yeoman.test %>/e2e/scenarios/language_test.js',
-//               '<%= yeoman.test %>/e2e/scenarios/plugins.js',
-//               '<%= yeoman.test %>/e2e/scenarios/*'
+            '<%= yeoman.test %>/e2e/setup-scenario/before-all.js',
+            '<%= yeoman.test %>/e2e/setup-scenario/setup.js',
+            // '<%= yeoman.test %>/e2e/scenarios/common/homepage.js',
+            // '<%= yeoman.test %>/e2e/scenarios/common/language.js',
+            // '<%= yeoman.test %>/e2e/scenarios/admin/users.js',
+            // '<%= yeoman.test %>/e2e/scenarios/admin/groups.js',
+            // '<%= yeoman.test %>/e2e/scenarios/admin/plugins.js',
+            // '<%= yeoman.test %>/e2e/scenarios/admin/orchestrators.js',
+            // '<%= yeoman.test %>/e2e/scenarios/admin/metaprops_configuration.js',
+             '<%= yeoman.test %>/e2e/scenarios/application/application_list.js'
+            // '<%= yeoman.test %>/e2e/scenarios/components/component_list.js',
+            // '<%= yeoman.test %>/e2e/scenarios/components/component_details.js'
+            // '<%= yeoman.test %>/e2e/scenarios/topology_templates/topology_template_details.js'
+            // '<%= yeoman.test %>/e2e/scenarios/topology_templates/topology_template_list.js'
           ]
         }
       }
@@ -139,5 +137,5 @@ module.exports = function (grunt, options) {
         }
       }
     }
-  }
+  };
 };

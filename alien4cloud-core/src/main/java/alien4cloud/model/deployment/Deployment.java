@@ -1,6 +1,7 @@
 package alien4cloud.model.deployment;
 
 import java.util.Date;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,6 +17,7 @@ import org.elasticsearch.mapping.IndexType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.google.common.collect.Maps;
 
 /**
  * Represents a deployment in ALIEN.
@@ -80,4 +82,9 @@ public class Deployment {
     /** End date of the deployment. */
     @TermFilter
     private Date endDate;
+
+    /**
+     * The last PaaS execution id per workflow.
+     */
+    private Map<String, String> workflowExecutions = Maps.newHashMap();
 }

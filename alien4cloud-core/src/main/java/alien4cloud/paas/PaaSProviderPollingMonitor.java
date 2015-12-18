@@ -5,15 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Resource;
-
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.deployment.DeploymentService;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.utils.MapUtil;
@@ -28,9 +25,7 @@ import com.google.common.collect.Sets;
 @SuppressWarnings("unchecked")
 @Slf4j
 public class PaaSProviderPollingMonitor implements Runnable {
-    @Resource(name = "deploymentService")
-    private DeploymentService deploymentService;
-    private static final int MAX_POLLED_EVENTS = 100;
+    private static final int MAX_POLLED_EVENTS = 500;
     private final IGenericSearchDAO dao;
     private final IGenericSearchDAO monitorDAO;
     private final IPaaSProvider paaSProvider;
@@ -38,7 +33,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
     @SuppressWarnings("rawtypes")
     private List<IPaasEventListener> listeners;
     private PaaSEventsCallback paaSEventsCallback;
-    private String cloudId;
+    private String orchestratorId;
     private boolean hasDeployments = false;
     private boolean getEventsInProgress = false;
 
@@ -49,8 +44,8 @@ public class PaaSProviderPollingMonitor implements Runnable {
      */
     @SuppressWarnings("rawtypes")
     public PaaSProviderPollingMonitor(IGenericSearchDAO dao, IGenericSearchDAO monitorDAO, IPaaSProvider paaSProvider, List<IPaasEventListener> listeners,
-            String cloudId) {
-        this.cloudId = cloudId;
+            String orchestratorId) {
+        this.orchestratorId = orchestratorId;
         this.dao = dao;
         this.monitorDAO = monitorDAO;
         this.paaSProvider = paaSProvider;
@@ -62,7 +57,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
             log.info("No event class derived from {} found", AbstractMonitorEvent.class.getName());
         }
         Map<String, String[]> filter = Maps.newHashMap();
-        filter.put("cloudId", new String[] { this.cloudId });
+        filter.put("orchestratorId", new String[] { this.orchestratorId });
         // sort by filed date DESC
         SearchQueryHelperBuilder searchQueryHelperBuilder = monitorDAO.getQueryHelper().buildSearchQuery("deploymentmonitorevents")
                 .types(eventClasses.toArray(new Class<?>[eventClasses.size()])).filters(filter).fieldSort("date", true);
@@ -90,7 +85,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
                     log.trace("Polled from date {}", lastPollingDate);
                 }
                 if (log.isDebugEnabled() && auditEvents != null && auditEvents.length > 0) {
-                    log.debug("Saving events for cloud {}", cloudId);
+                    log.debug("Saving events for orchestrator {}", orchestratorId);
                     for (AbstractMonitorEvent event : auditEvents) {
                         log.debug(event.toString());
                     }
@@ -98,7 +93,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
                 if (auditEvents != null && auditEvents.length > 0) {
                     for (AbstractMonitorEvent event : auditEvents) {
                         // Enrich event with cloud id before saving them
-                        event.setCloudId(cloudId);
+                        event.setOrchestratorId(orchestratorId);
                     }
                     for (IPaasEventListener listener : listeners) {
                         for (AbstractMonitorEvent event : auditEvents) {
@@ -132,7 +127,6 @@ public class PaaSProviderPollingMonitor implements Runnable {
     }
 
     @Override
-    @SuppressWarnings("rawtypes")
     public synchronized void run() {
         if (getEventsInProgress) {
             // Get events since is running
@@ -149,9 +143,8 @@ public class PaaSProviderPollingMonitor implements Runnable {
 
     private Deployment getActiveDeployment() {
         Deployment deployment = null;
-
         GetMultipleDataResult<Deployment> dataResult = dao.search(Deployment.class, null,
-                MapUtil.newHashMap(new String[] { "cloudId", "endDate" }, new String[][] { new String[] { cloudId }, new String[] { null } }), 1);
+                MapUtil.newHashMap(new String[] { "orchestratorId", "endDate" }, new String[][] { new String[] { orchestratorId }, new String[] { null } }), 1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             deployment = dataResult.getData()[0];
         }

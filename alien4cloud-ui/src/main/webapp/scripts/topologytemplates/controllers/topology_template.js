@@ -69,27 +69,13 @@ define(function (require) {
     url: '/versions',
     templateUrl: 'views/applications/application_versions.html',
     resolve: {
-      versionServices: ['topologyTemplateVersionServices', function(topologyTemplateVersionServices) { return topologyTemplateVersionServices }],
-      searchServiceUrl: ['topologyTemplate', function(topologyTemplate) { return 'rest/templates/' + topologyTemplate.data.id + '/versions/search' }],
-      delegateId: ['topologyTemplate', function(topologyTemplate) { return topologyTemplate.data.id }],
-      userCanModify: ['authService', function(authService) { return authService.hasRole('ARCHITECT') }]
+      versionServices: ['topologyTemplateVersionServices', function(topologyTemplateVersionServices) { return topologyTemplateVersionServices; }],
+      searchServiceUrl: ['topologyTemplate', function(topologyTemplate) { return 'rest/templates/' + topologyTemplate.data.id + '/versions/search'; }],
+      delegateId: ['topologyTemplate', function(topologyTemplate) { return topologyTemplate.data.id; }],
+      userCanModify: ['authService', function(authService) { return authService.hasRole('ARCHITECT'); }]
     },
     controller: 'ApplicationVersionsCtrl'
   });
-
-  var NewTopologyTemplateCtrl = ['$scope', '$modalInstance',
-    function($scope, $modalInstance) {
-      $scope.topologytemplate = {};
-      $scope.create = function(valid) {
-        if (valid) {
-          $modalInstance.close($scope.topologytemplate);
-        }
-      };
-      $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
-      };
-    }
-  ];
 
   modules.get('a4c-topology-templates', ['a4c-common', 'ui.bootstrap', 'pascalprecht.translate']).controller('TopologyTemplateCtrl',
     ['$scope', 'topologyTemplate', 'topologyTemplateService', '$translate',
@@ -114,13 +100,13 @@ define(function (require) {
       };
 
       $scope.menu = [{
-        id: 'am.applications.detail.topology',
+        id: 'am.topologytemplate.detail.topology',
         state: 'topologytemplates.detail.topology',
         key: 'NAVAPPLICATIONS.MENU_TOPOLOGY',
         icon: 'fa fa-sitemap',
         show: true
       }, {
-        id: 'am.applications.detail.versions',
+        id: 'am.topologytemplate.detail.versions',
         state: 'topologytemplates.detail.versions',
         key: 'NAVAPPLICATIONS.MENU_VERSIONS',
         icon: 'fa fa-tasks',

@@ -3,12 +3,14 @@ package alien4cloud.tosca.container;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,10 +33,10 @@ import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
 
+@Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:application-context-test.xml")
 public class ArchiveImageLoaderTest {
-
     private static final Path CSAR_OUTPUT_FOLDER = Paths.get("./target/csarTests");
     private static final String tmpArchiveName = "tosca-base-types-tags.csar";
     private static final String tmpArchiveNameWithError = "tosca-base-types-tags-error.csar";
@@ -65,9 +67,17 @@ public class ArchiveImageLoaderTest {
         // Zip the csarSourceFolder and write it to csarFileForTesting
         FileUtil.zip(PATH_TOSCA_BASE_TYPES, csarFileForTesting);
 
+        Path imagesPath =Paths.get("target/alien/images");
+        if (!Files.exists(imagesPath)) {
+            Files.createDirectories(imagesPath);
+        }
+
         // Parse the archive for definitions
         ParsingResult<ArchiveRoot> result = parser.parse(csarFileForTesting);
         imageLoader.importImages(csarFileForTesting, result.getResult(), result.getContext().getParsingErrors());
+
+        Assert.assertFalse(ArchiveUploadService.hasError(result, ParsingErrorLevel.ERROR));
+        Assert.assertFalse(ArchiveUploadService.hasError(result, ParsingErrorLevel.WARNING));
 
         checkImages(result.getResult().getNodeTypes());
     }
@@ -92,6 +102,7 @@ public class ArchiveImageLoaderTest {
         }
     }
 
+    @Test
     public void importToscaElementWithBadImageUri() throws IOException, ParsingException {
         Path csarFileForTesting = Paths.get(CSAR_OUTPUT_FOLDER.toString(), tmpArchiveNameWithError);
 
