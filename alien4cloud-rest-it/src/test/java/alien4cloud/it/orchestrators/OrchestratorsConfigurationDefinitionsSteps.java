@@ -25,13 +25,13 @@ public class OrchestratorsConfigurationDefinitionsSteps {
     public void I_update_cloudify_manager_s_url_to_the_OpenStack_s_jenkins_management_server_for_cloud_with_name(int cloudifyVersion, String cloudName)
             throws Throwable {
         switch (cloudifyVersion) {
-            case 3:
-                I_update_cloudify_manager_s_url_to_with_login_and_password_for_cloud_with_name(3, Context.getInstance().getCloudify3ManagerUrl(), Context
-                                .getInstance().getAppProperty("openstack.cfy3.manager_user"), Context.getInstance().getAppProperty("openstack.cfy3.manager_password"),
-                        cloudName);
-                break;
-            default:
-                throw new NotSupportedException("Version " + cloudifyVersion + " of provider cloudify is not supported");
+        case 3:
+            I_update_cloudify_manager_s_url_to_with_login_and_password_for_cloud_with_name(3, Context.getInstance().getCloudify3ManagerUrl(), Context
+                    .getInstance().getAppProperty("openstack.cfy3.manager_user"), Context.getInstance().getAppProperty("openstack.cfy3.manager_password"),
+                    cloudName);
+            break;
+        default:
+            throw new NotSupportedException("Version " + cloudifyVersion + " of provider cloudify is not supported");
         }
     }
 
@@ -47,15 +47,15 @@ public class OrchestratorsConfigurationDefinitionsSteps {
 
     @And("^I update cloudify (\\d+) manager's url to \"([^\"]*)\" with login \"([^\"]*)\" and password \"([^\"]*)\" for orchestrator with name \"([^\"]*)\"$")
     public void I_update_cloudify_manager_s_url_to_with_login_and_password_for_cloud_with_name(int cloudifyVersion, String cloudifyUrl, String login,
-                                                                                               String password, String orchestratorName) throws Throwable {
+            String password, String orchestratorName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         Map<String, Object> config = Context.getInstance().getOrchestratorConfiguration();
         switch (cloudifyVersion) {
-            case 3:
-                config.put("url", cloudifyUrl);
-                break;
-            default:
-                throw new IllegalArgumentException("Cloudify version not supported " + cloudifyVersion);
+        case 3:
+            config.put("url", cloudifyUrl);
+            break;
+        default:
+            throw new IllegalArgumentException("Cloudify version not supported " + cloudifyVersion);
         }
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().putJSon("/rest/orchestrators/" + orchestratorId + "/configuration", JsonUtil.toString(config)));
@@ -83,7 +83,8 @@ public class OrchestratorsConfigurationDefinitionsSteps {
     }
 
     @And("^I update cloudify (\\d+) manager's url to value defined in environment variable \"([^\"]*)\" for orchestrator with name \"([^\"]*)\"$")
-    public void iUpdateCloudifyManagerSUrlToValueDefinedInEnvironmentVariableForOrchestratorWithName(int cloudifyVersion, String envVar, String orchestratorName) throws Throwable {
+    public void iUpdateCloudifyManagerSUrlToValueDefinedInEnvironmentVariableForOrchestratorWithName(int cloudifyVersion, String envVar, String orchestratorName)
+            throws Throwable {
         String managerURL = System.getenv(envVar);
         Assert.assertTrue(envVar + " is not defined", StringUtils.isNotBlank(managerURL));
         I_update_cloudify_manager_s_url_to_with_login_and_password_for_cloud_with_name(cloudifyVersion, managerURL, "", "", orchestratorName);

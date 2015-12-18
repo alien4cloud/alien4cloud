@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>alien4cloud</groupId>
@@ -22,6 +23,12 @@
             <groupId>alien4cloud</groupId>
             <artifactId>alien4cloud-rest-api</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk15</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
@@ -68,11 +75,6 @@
             <classifier>ALIEN4CLOUD</classifier>
         </dependency>
         <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
-            <version>1.52</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.sshd</groupId>
             <artifactId>sshd-core</artifactId>
             <version>0.11.0</version>
@@ -92,12 +94,12 @@
         <dependency>
             <groupId>org.apache.jclouds.provider</groupId>
             <artifactId>aws-ec2</artifactId>
-            <version>1.9.1</version>
+            <version>${jclouds.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.jclouds.provider</groupId>
             <artifactId>aws-s3</artifactId>
-            <version>1.9.1</version>
+            <version>${jclouds.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.jclouds.api</groupId>
@@ -232,7 +234,7 @@
                                 <configuration>
                                     <tasks>
                                         <delete includeemptydirs="true" failonerror="false">
-                                            <fileset dir="${user.home}/.alien" includes="**/*" />
+                                            <fileset dir="${user.home}/.alien" includes="**/*"/>
                                         </delete>
                                     </tasks>
                                 </configuration>
