@@ -1,0 +1,53 @@
+{
+  "id": "applications.list-hopscotch",
+  "i18n": {
+    "nextBtn": "次へ",
+    "prevBtn": "戻る",
+    "doneBtn": "終了",
+    "closeTooltip": "ツアーの終わり"
+  },
+  "steps": [{
+    "title": "Applications list",
+    "content": "<p>あなたがアクセスできるアプリケーションはここに表示されます。</p><p>注意: アプリケーションが表示されない場合は、正しい権限を持っていないことが考えられます。</p>",
+    "target": "apps-container",
+    "placement": "left"
+  }, {
+    "title": "Application search",
+    "content": "複数のアプリケーションを持っていて検索したい場合は、キーワードを入れて検索してください。検索結果が表示されます。",
+    "target": "app-search",
+    "placement": "right"
+  }, {
+    "title": "Create new application",
+    "content": "新しいアプリケーションを作成する場合はここをクリック",
+    "target": "app-new-btn",
+    "placement": "right",
+    "multipage": true,
+    "nextOnTargetClick": true
+  }, {
+    "title": "Create new application",
+    "content": "<p>新しいアプリケーション名を入力してください。</p><p>注意: 名前は、Alien 4 Cloud 内で一意となる必要があります。</p>",
+    "target": "nameid",
+    "placement": "right"
+  }, {
+    "title": "Create new application",
+    "content": "<p>アプリケーションの説明を入力してください。 (あとから変えることができます)</p>",
+    "target": "descid",
+    "placement": "right"
+  }, {
+    "title": "Create new application",
+    "content": "<p>登録されているトポロジテンプレートを選択して初期トポロジを作成できます。トポロジはあとで変更可能です。</p><p>トポロジテンプレートは、'Architect' ロールで作成されます。</p>",
+    "target": "descid",
+    "placement": "right"
+  }, {
+    "title": "Create new application",
+    "content": "<p>アプリケーション作成を完了する場合は、ここをクリック</p>",
+    "target": "btn-create",
+    "placement": "right"
+  }, {
+    "title": "Create new application",
+    "content": "<p>作成をキャンセルする場合は、ここをクリック</p>",
+    "target": "btn-cancel",
+    "placement": "right",
+    "nextOnTargetClick": true
+  }]
+}
