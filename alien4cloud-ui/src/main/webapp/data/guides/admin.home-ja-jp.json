@@ -29,7 +29,7 @@
   }, {
     "title": "オーケストレータの設定",
     "content": "PaaSプロバイダプラグインと関連するオーケストレータの作成はここをクリック",
-    "target": "menu.orchestrators",
+    "target": "am.admin.orchestrators",
     "placement": "right"
   }, {
     "title": "オプション : メタプロパティ",

@@ -27,19 +27,14 @@
     "target": "homepage.am.admin.plugins",
     "placement": "bottom"
   }, {
-    "title": "Clouds configuration",
-    "content": "Click here to create a cloud associated to PaaS provider plugin added previously.",
-    "target": "am.admin.clouds",
-    "placement": "right"
-  }, {
-    "title": "Cloud images configuration",
-    "content": "Click here to configure images provided by your cloud in order to use it in application deployment step.",
-    "target": "homepage.am.admin.cloud-images.list",
+    "title": "Orchestrators configuration",
+    "content": "Click here to create a Orchestrator associated to PaaS provider plugin added previously.",
+    "target": "am.admin.orchestrators",
     "placement": "right"
   }, {
     "title": "Optional : meta-properties",
     "content": "Meta-properties are additional data required by administrator and targeting application or component. Those properties are used for administration purpose.",
-    "target": "homepage.am.admin.metaprops.list",
+    "target": "am.admin.metaprops",
     "placement": "right"
   }, {
     "title": "Monitoring : A4C metrics",
