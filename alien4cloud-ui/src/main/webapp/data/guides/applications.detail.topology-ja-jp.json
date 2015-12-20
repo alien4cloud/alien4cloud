@@ -1,0 +1,21 @@
+{
+  "id": "applications.detail.topology-hopscotch",
+  "i18n": {
+    "nextBtn": "次へ",
+    "prevBtn": "戻る",
+    "doneBtn": "終了",
+    "closeTooltip": "ツアーの終わり"
+  },
+  "steps": [{
+    "title": "Start application's topology creation",
+    "content": "アプリケーショントポロジを作成するためにコンポーネントの検索とフィルタをここで行います。",
+    "target": "comp-search-side-panel",
+    "placement": "left"
+  }, {
+    "title": "Choose application's components",
+    "content": "ここでは、Alien 4 Cloud で使用できるコンポーネントの一覧が表示されます。利用するコンポーネントをメインビューにドラック＆ドロップすることでトポロジを作成することができます。",
+    "target": "comp-search-result-panel",
+    "placement": "left",
+    "showCloseButton": true
+  }]
+}
