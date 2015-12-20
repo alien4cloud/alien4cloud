@@ -1,0 +1,70 @@
+{
+  "id": "applications.detail.info-hopscotch",
+  "i18n": {
+    "nextBtn": "次へ",
+    "prevBtn": "戻る",
+    "doneBtn": "終了",
+    "closeTooltip": "ツアーの終わり"
+  },
+  "steps": [{
+    "title": "Application's details",
+    "content": "このページでは、アプリケーションの詳細の確認と基本情報の更新を行うことができます。",
+    "target": "am.applications.info",
+    "placement": "right"
+  }, {
+    "title": "Create and update an application's topology",
+    "content": "ここでトポロジの確認と編集ができます。トポロジの追加、削除、コンポーネントの関連付けなど",
+    "target": "am.applications.detail.topology",
+    "placement": "right"
+  }, {
+    "title": "Configure and deploy your topology",
+    "content": "ここでは、実際のクラウドリソースへの設定やアプリケーションコンポーネントの関連付けを行うことができます。そして、アプリケーションをデプロイできます。",
+    "target": "am.applications.detail.deployment",
+    "placement": "right"
+  }, {
+    "title": "Visualize the deployment's status",
+    "content": "クラウドへのデプロイ結果をこのビューで確認します。イベントリストには、デプロイの詳細情報がリアルタイムに表示されます。",
+    "target": "am.applications.detail.runtime",
+    "placement": "right"
+  }, {
+    "title": "Manage the different versions of your application",
+    "content": "このページでは、アプリケーションのバージョンを管理します。",
+    "target": "am.applications.detail.versions",
+    "placement": "right"
+  }, {
+    "title": "Manage the different environments of your application",
+    "content": "This page allows you to manage all environments of your application.",
+    "target": "am.applications.detail.environment",
+    "placement": "right"
+  }, {
+    "title": "Manage application's rights",
+    "content": "アプリケーションに対して、ユーザとグループの権限管理を行います。",
+    "target": "am.applications.detail.users",
+    "placement": "right"
+  }, {
+    "title": "Add an image",
+    "content": "アプリケーションのイメージをこの点線内にドラック＆ドロップして表示します。",
+    "target": "am.applications.detail.drag-and-drop",
+    "placement": "right"
+  }, {
+    "title": "Change the application title",
+    "content": "アプリケーションのタイトルを変更できます。新しい名前は、既に存在しているものは使えません。",
+    "target": "app-name",
+    "placement": "right"
+  }, {
+    "title": "Describe the application",
+    "content": "ここにはアプリケーションの説明を入れられます。この内容は、アプリケーションリストに表示されます。",
+    "target": "app-desc",
+    "placement": "bottom"
+  }, {
+    "title": "Add tags",
+    "content": "ここにはアプリケーションのタグを複数入れられます。",
+    "target": "btn-add-tag",
+    "placement": "bottom"
+  }, {
+    "title": "Remove the application",
+    "content": "これでアプリケーションを削除できます。ただし、デプロイ中のアプリケーションは削除できません。",
+    "target": "btn-delete-app",
+    "placement": "left"
+  }]
+}
