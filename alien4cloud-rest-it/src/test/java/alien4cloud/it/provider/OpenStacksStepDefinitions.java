@@ -50,4 +50,13 @@ public class OpenStacksStepDefinitions {
     public void I_delete_the_volume_on_OpenStack_with_id_defined_in_property_of_the_node(String propertyName, String nodeName, String appName) throws Throwable {
         Assert.assertTrue(Context.getInstance().getOpenStackClient().deleteVolume(getVolumeId(propertyName, nodeName, appName)));
     }
+
+    @And("^I delete volumes on OpenStack with ids defined in property \"([^\"]*)\" of the node \"([^\"]*)\" for \"([^\"]*)\"$")
+    public void I_delete_volumes_on_OpenStack_with_ids_defined_in_property_of_the_node(String propertyName, String nodeName, String appName) throws Throwable {
+        String ids = getVolumeId(propertyName, nodeName, appName);
+        String[] idsArr = ids.split(",");
+        for (String id : idsArr) {
+            Assert.assertTrue(Context.getInstance().getOpenStackClient().deleteVolume(id));
+        }
+    }
 }
