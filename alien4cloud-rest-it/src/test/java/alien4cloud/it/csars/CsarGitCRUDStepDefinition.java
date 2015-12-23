@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -13,7 +14,6 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.model.git.CsarGitCheckoutLocation;
 import alien4cloud.model.git.CsarGitRepository;
-import alien4cloud.rest.csar.AddCsarGitLocation;
 import alien4cloud.rest.csar.CreateCsarGitRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
@@ -22,10 +22,6 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 public class CsarGitCRUDStepDefinition {
-    private CsarGitRepository CSAR_GIT_REPOSITORY;
-    private CreateCsarGitRequest request;
-    // private UpdateCsarGitRequest request_update;
-    private AddCsarGitLocation request_location;
 
     @When("^I add a GIT repository with url \"(.*?)\" usr \"(.*?)\" pwd \"(.*?)\" stored \"(.*?)\" and locations$")
     public void i_add_a_GIT_repository_with_url_usr_pwd_stored_and_locations(String url, String usr, String pwd, boolean stored,
@@ -81,10 +77,10 @@ public class CsarGitCRUDStepDefinition {
         Assert.assertEquals(pwd, csarGitRepository.getPassword());
         Assert.assertEquals(stored, csarGitRepository.isStoredLocally());
         Assert.assertEquals(locations.size(), csarGitRepository.getImportLocations().size());
-        csarGitRepository.getImportLocations().sort(comparator);
+        Collections.sort(csarGitRepository.getImportLocations(), comparator);
         // locations is unmodifiable
         List<CsarGitCheckoutLocation> expectedlocations = new ArrayList<CsarGitCheckoutLocation>(locations);
-        expectedlocations.sort(comparator);
+        Collections.sort(expectedlocations, comparator);
         for (int i = 0; i < expectedlocations.size(); i++) {
             CsarGitCheckoutLocation expected = expectedlocations.get(i);
             CsarGitCheckoutLocation actual = csarGitRepository.getImportLocations().get(i);
