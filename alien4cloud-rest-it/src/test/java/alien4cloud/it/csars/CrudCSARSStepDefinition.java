@@ -1,17 +1,25 @@
 package alien4cloud.it.csars;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.List;
 
 import org.junit.Assert;
 
+import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.deployment.Deployment;
+import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.csar.CreateCsarRequest;
 import alien4cloud.rest.csar.CsarInfoDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -21,6 +29,7 @@ public class CrudCSARSStepDefinition {
 
     private String CURRENT_CSAR_NAME;
     private String CURRENT_CSAR_VERSION;
+    private final ObjectMapper jsonMapper = new ObjectMapper();
 
     @Given("^I have CSAR name \"([^\"]*)\" and version \"([^\"]*)\"$")
     public void I_have_CSAR_name_and_version(String csarName, String csarVersion) throws Throwable {
@@ -118,5 +127,20 @@ public class CrudCSARSStepDefinition {
         Assert.assertNotNull(restResponse);
         List<Usage> resultData = JsonUtil.toList(JsonUtil.toString(restResponse.getData()), Usage.class);
         Assert.assertEquals(resultData.size(), Integer.parseInt(resourceCount));
+    }
+
+    @Given("^I can find (\\d+) CSAR$")
+    public void i_can_find_CSAR(int expectedSize) throws Throwable {
+        SearchRequest req = new SearchRequest(null, null, 0, 50, null);
+        req.setType(req.getType());
+
+        String jSon = jsonMapper.writeValueAsString(req);
+        String response = Context.getRestClientInstance().postJSon("/rest/csars/search", jSon);
+
+        RestResponse<FacetedSearchResult> restResponse = JsonUtil.read(response, FacetedSearchResult.class);
+        FacetedSearchResult searchResp = restResponse.getData();
+        assertNotNull(searchResp);
+        assertNotNull(searchResp.getData());
+        assertEquals(expectedSize, searchResp.getData().length);
     }
 }

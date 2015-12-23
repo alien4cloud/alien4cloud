@@ -6,8 +6,7 @@ define(function (require) {
   var angular = require('angular');
 
   require('scripts/components/services/csar_git');
-  require('scripts/components/controllers/csar_git_new');
-  require('scripts/components/controllers/csar_git_edit');
+  require('scripts/components/controllers/csar_git_crud');
   require('scripts/common/directives/pagination');
 
   states.state('components.git', {
@@ -140,9 +139,23 @@ define(function (require) {
 
     $scope.openNewCsarGitTemplate = function() {
       var modalInstance = $modal.open({
-        templateUrl: 'views/components/csar_git_new.html',
-        controller: 'NewCsarGitController',
-        scope: $scope
+        templateUrl: 'views/components/csar_git_crud.html',
+        controller: 'CsarGitCrudController',
+        scope: $scope,
+        resolve: {
+          csar: function () {
+            return {
+              'username': undefined,
+              'password': undefined,
+              'repositoryUrl': undefined,
+              'importLocations': [],
+              'storedLocally': false
+            };
+          },
+          editMode: function() {
+            return false;
+          }
+        }
       });
       modalInstance.result.then(function(csarGitTemplate) {
         csarGitService.create([], angular.toJson(csarGitTemplate), function(successResponse) {
@@ -159,18 +172,20 @@ define(function (require) {
 
     $scope.openCsarGit = function(csar) {
       var modalInstance = $modal.open({
-        templateUrl: 'views/components/csar_git_edit.html',
-        controller: 'EditCsarGitController',
+        templateUrl: 'views/components/csar_git_crud.html',
+        controller: 'CsarGitCrudController',
         scope: $scope,
-        resolve:{
+        resolve: {
           csar: function () {
             return csar;
+          },
+          editMode: function() {
+            return true;
           }
         }
       });
-      modalInstance.result.then(function(DTOObject) {
-        var JsonId = angular.toJson(DTOObject.id);
-        csarGitService.update({id: DTOObject.id },angular.toJson(DTOObject.dto), function(successResponse) {
+      modalInstance.result.then(function(gitRepo) {
+        csarGitService.update({id: gitRepo.id },angular.toJson(gitRepo), function(successResponse) {
           var errorMessage = successResponse;
           if (errorMessage.error != null) {
             var title = $translate('CSAR.ERRORS.' + errorMessage.error.code + '_TITLE');

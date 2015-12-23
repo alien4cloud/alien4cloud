@@ -7,7 +7,7 @@
       <label for="csargit_url" class="control-label">
         {{'CSAR.URL' | translate}}
       </label>
-      <input type="url" class="form-control"  id="csargit_url" ng-model="csarGit.url" name="url" required="" placeholder="{{'CSAR.URL' | translate}}">
+      <input type="url" class="form-control"  id="csargit_url" ng-model="csarGit.repositoryUrl" name="url" required="" placeholder="{{'CSAR.URL' | translate}}">
     </div>
     <div class="form-group">
       <label for="csargit_credentials" class="control-label" >
@@ -32,7 +32,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="location in importLocation track by $index">
+            <tr ng-repeat="location in csarGit.importLocations track by $index">
               <td>
                 <span>
                   <strong>{{location.branchId}}</strong>
@@ -44,7 +44,7 @@
                 </span>
               </td>
               <td>
-                <delete-confirm id="delete-csargit-location" func="removeCsarLocation(location.subPath);" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                <delete-confirm id="delete-csargit-location" func="removeCsarLocation($index);" position="left" bssize="btn-sm" fastyle="fa-trash-o">
                 </delete-confirm>
               </td>
             </tr>
@@ -56,7 +56,7 @@
                 <input type="text" class="form-control" id="archive_id" ng-model="location.subPath" name="subPath"  placeholder="{{'CSAR.ARCHIVE' | translate}}">
               </td>
               <td>
-                <button id="btn-createTextField" class="btn btn-info" ng bssize="btn-sm" ng-disabled="!csarGit.url || !location.branchId" ng-click="addLocation(location)">
+                <button id="btn-createTextField" class="btn btn-info" ng bssize="btn-sm" ng-disabled="!csarGit.repositoryUrl || !location.branchId" ng-click="addLocation(location)">
                   <i class="fa fa-plus-circle fa-lg"></i>
                 </button>
               </td>
@@ -66,12 +66,12 @@
       </div>
       <div class="checkbox">
         <label>
-          <input type="checkbox" ng-model="csarGit.isStoredLocally" ng-init="csarGit.isStoredLocally=false"/> {{'CSAR.SAVE_LOCALLY' | translate}}
+          <input type="checkbox" ng-model="csarGit.storedLocally" /> {{'CSAR.SAVE_LOCALLY' | translate}}
         </label>
       </div>
     </div>
     <div class="modal-footer">
-      <button id="btn-create" ng-disabled="!csarGit.url || !importLocation.length >0" ng-click="create(csarGit)" class="btn btn-primary">{{'CREATE' | translate}}</button>
+      <button id="btn-create" ng-disabled="!csarGit.repositoryUrl || !csarGit.importLocations.length >0" ng-click="create(csarGit)" class="btn btn-primary">{{'GENERIC_FORM.SAVE' | translate}}</button>
       <button id="btn-cancel" type="button" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
     </div>
   </div>

@@ -176,7 +176,7 @@
   },
   "CSAR": {
     "BUTTON_NEWCSAR": "Create a SNAPSHOT CSAR",
-    "NEW_GIT": "New Git Location",
+    "NEW_GIT": "Git Location",
     "BUTTON_DELETE": "Delete",
     "BUTTON_MODIFY": "Modify",
     "NAME": "Name",

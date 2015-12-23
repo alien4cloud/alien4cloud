@@ -6,6 +6,7 @@ import java.util.UUID;
 import javax.annotation.Resource;
 
 import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -15,7 +16,8 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.git.CsarGitCheckoutLocation;
 import alien4cloud.model.git.CsarGitRepository;
 import alien4cloud.utils.UrlUtil;
-import org.springframework.stereotype.Service;
+
+import com.google.common.base.Strings;
 
 /**
  * Manages operations on a CsarGitRepository
@@ -37,7 +39,7 @@ public class CsarGitRepositoryService {
      * @return The auto-generated id of the CsarGitRepository object
      */
     public String create(String repositoryUrl, String username, String password, List<CsarGitCheckoutLocation> importLocations, boolean isStoredLocally) {
-        validatesRepositoryUrl(repositoryUrl);
+        validatesRepositoryUrl(repositoryUrl, null);
         if (importLocations.isEmpty()) {
             throw new InvalidArgumentException("Import locations cannot be empty.");
         }
@@ -53,13 +55,16 @@ public class CsarGitRepositoryService {
         return csarGit.getId();
     }
 
-    private void validatesRepositoryUrl(String repositoryUrl) {
+    private void validatesRepositoryUrl(String repositoryUrl, String id) {
         // check if the repository url has a valid format
         if (!UrlUtil.isValid(repositoryUrl)) {
             throw new InvalidArgumentException("Repository url <" + repositoryUrl + "> is not a valid url.");
         }
         // and that the repository doesn't already exists
-        if (alienDAO.customFind(CsarGitRepository.class, QueryBuilders.termQuery(URL_FIELD, repositoryUrl)) != null) {
+        CsarGitRepository existingCsarGitRepository = alienDAO.customFind(CsarGitRepository.class, QueryBuilders.termQuery(URL_FIELD, repositoryUrl));
+        if (existingCsarGitRepository == null) {
+            return;
+        } else if (id == null || !id.equals(existingCsarGitRepository.getId())) {
             throw new AlreadyExistException("A repository with url <" + repositoryUrl + "> already exists in alien 4 cloud.");
         }
     }
@@ -125,18 +130,39 @@ public class CsarGitRepositoryService {
      * @param username The username associated to the CsarGitRepository
      * @param password The password associated to the CsarGitRepository
      */
-    public void update(String idOrUrl, String repositoryUrl, String username, String password) {
-        CsarGitRepository repositoryToUpdate = getOrFail(idOrUrl);
-        if (repositoryUrl != null) {
-            validatesRepositoryUrl(repositoryUrl);
-            repositoryToUpdate.setRepositoryUrl(repositoryUrl);
-        }
+    public void update(String id, String repositoryUrl, String username, String password, List<CsarGitCheckoutLocation> importLocations,
+            boolean isStoredLocally) {
+        validatesRepositoryUrl(repositoryUrl, id);
+        CsarGitRepository repositoryToUpdate = getOrFail(id);
+        repositoryToUpdate.setRepositoryUrl(repositoryUrl);
         if (username != null) {
             repositoryToUpdate.setUsername(username);
         }
         if (password != null) {
             repositoryToUpdate.setPassword(password);
         }
+        repositoryToUpdate.setStoredLocally(isStoredLocally);
+
+        // just merge the existing location hash into new list so that we don't loose this information
+        for (CsarGitCheckoutLocation location : importLocations) {
+            CsarGitCheckoutLocation existingLocation = findLocationIn(location, repositoryToUpdate.getImportLocations());
+            if (existingLocation != null) {
+                location.setLastImportedHash(existingLocation.getLastImportedHash());
+            }
+        }
+        repositoryToUpdate.setImportLocations(importLocations);
+
         alienDAO.save(repositoryToUpdate);
+    }
+
+    private CsarGitCheckoutLocation findLocationIn(CsarGitCheckoutLocation location, List<CsarGitCheckoutLocation> importLocations) {
+        for (CsarGitCheckoutLocation givenLocation : importLocations) {
+            if (givenLocation.getBranchId().equals(location.getBranchId())
+                    && ((Strings.isNullOrEmpty(givenLocation.getSubPath()) && Strings.isNullOrEmpty(location.getSubPath())) || (!Strings
+                            .isNullOrEmpty(givenLocation.getSubPath()) && givenLocation.getSubPath().equals(location.getSubPath())))) {
+                return givenLocation;
+            }
+        }
+        return null;
     }
 }

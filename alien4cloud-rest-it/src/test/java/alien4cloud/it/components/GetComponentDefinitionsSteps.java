@@ -14,12 +14,13 @@ import java.util.Map;
 
 import org.elasticsearch.client.Client;
 import org.elasticsearch.mapping.MappingBuilder;
+import org.junit.Assert;
 
-import alien4cloud.dao.ElasticSearchMapper;
-import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.dao.ElasticSearchDAO;
+import alien4cloud.dao.ElasticSearchMapper;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.it.Context;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.MapUtil;
@@ -57,7 +58,8 @@ public class GetComponentDefinitionsSteps {
 
     @When("^I try to get a component with id \"([^\"]*)\"$")
     public void I_try_to_get_a_component_with_id(String componentId) throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/components/" + componentId));
+        String restResponse = Context.getRestClientInstance().get("/rest/components/" + componentId);
+        Context.getInstance().registerRestResponse(restResponse);
     }
 
     @Then("^I should have a component with id \"([^\"]*)\"$")
@@ -68,6 +70,12 @@ public class GetComponentDefinitionsSteps {
         assertEquals(componentId, id);
     }
 
+    @Then("^I should not have any component$")
+    public void i_should_not_have_any_component() throws Throwable {
+        RestResponse<Map> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), Map.class);
+        Assert.assertNull(restResponse.getData());
+    }
+    
     private void saveDataToES(String componentId, boolean refresh) throws IOException, IndexingServiceException {
         String samplePathString = "src/test/resources/data/components/indexed_nodetypes.json";
         Path path = Paths.get(samplePathString);

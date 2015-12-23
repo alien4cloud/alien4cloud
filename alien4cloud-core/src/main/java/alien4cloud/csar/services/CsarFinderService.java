@@ -14,6 +14,7 @@ import alien4cloud.exception.GitException;
 import alien4cloud.tosca.ArchiveParser;
 import alien4cloud.utils.FileUtil;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 
 /**
@@ -28,10 +29,11 @@ public class CsarFinderService {
      * @param searchPath The path in which to search for archives.
      * @return a list of path that contains archives.
      */
-    public Set<Path> prepare(Path searchPath, Path zipPath) {
+    public Set<Path> prepare(Path searchPath, Path zipPath, String subpath) {
         ToscaFinderWalker toscaFinderWalker = new ToscaFinderWalker();
         toscaFinderWalker.zipRootPath = zipPath;
         toscaFinderWalker.rootPath = searchPath;
+        toscaFinderWalker.subpath = subpath;
         try {
             Files.walkFileTree(searchPath, toscaFinderWalker);
         } catch (IOException e) {
@@ -43,6 +45,7 @@ public class CsarFinderService {
     private static class ToscaFinderWalker extends SimpleFileVisitor<Path> {
         private Path rootPath;
         private Path zipRootPath;
+        private String subpath;
         private Set<Path> toscaArchives = Sets.newHashSet();
 
         @Override
@@ -67,6 +70,9 @@ public class CsarFinderService {
         }
 
         private void addToscaArchive(Path path) {
+            if (!(Strings.isNullOrEmpty(subpath) || path.endsWith(subpath))) {
+                return;
+            }
             Path relativePath = rootPath.relativize(path);
             Path zipPath = zipRootPath.resolve(relativePath).resolve("archive.zip");
             try {

@@ -143,7 +143,7 @@ public class CsarGitService {
         // find all the archives under the given hierarchy and zip them to create archives
         Path archiveZipRoot = tempZipDirPath.resolve(csarGitRepository.getId());
         Path archiveGitRoot = tempDirPath.resolve(csarGitRepository.getId());
-        Set<Path> archivePaths = csarFinderService.prepare(archiveGitRoot, archiveZipRoot);
+        Set<Path> archivePaths = csarFinderService.prepare(archiveGitRoot, archiveZipRoot, csarGitCheckoutLocation.getSubPath());
 
         // TODO code review has to be completed to further cleanup below processing.
         List<ParsingResult<Csar>> parsingResult = Lists.newArrayList();

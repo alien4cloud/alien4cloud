@@ -1,25 +1,36 @@
 package alien4cloud.rest.csar;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
+
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.csar.services.CsarGitRepositoryService;
 import alien4cloud.csar.services.CsarGitService;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.components.Csar;
-import alien4cloud.rest.model.*;
 import alien4cloud.model.git.CsarGitRepository;
+import alien4cloud.rest.model.RestError;
+import alien4cloud.rest.model.RestErrorBuilder;
+import alien4cloud.rest.model.RestErrorCode;
+import alien4cloud.rest.model.RestResponse;
+import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.tosca.ArchiveUploadService;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingResult;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import org.hibernate.validator.constraints.NotBlank;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
-import javax.inject.Inject;
-import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/rest/csarsgit")
@@ -60,21 +71,6 @@ public class CsarGitController {
     }
 
     /**
-     * Retrieve a CsarGit from the system by it's url.
-     *
-     * @param url The unique url of the CsarGit to retrieve.
-     * @return The CsarGit matching the requested id or url.
-     */
-    @ApiOperation(value = "Retrieve information on a registered TOSCA CSAR git repository using the csar url as id.")
-    @RequestMapping(method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
-    public RestResponse<CsarGitRepository> getByUrl(
-            @ApiParam(value = "Url of the csar git repository to get", required = true) @Valid @NotBlank @RequestBody String url) {
-        CsarGitRepository csargit = csarGitRepositoryService.getCsargitByUrl(url);
-        return RestResponseBuilder.<CsarGitRepository> builder().data(csargit).build();
-    }
-
-    /**
      * Search for tosca csar git repositories.
      * 
      * @param query The search query.
@@ -108,22 +104,6 @@ public class CsarGitController {
     }
 
     /**
-     * Delete a CsarGit from the system by it's url.
-     *
-     * @param url The unique url of the CsarGit to retrieve.
-     * @return The CsarGit matching the requested id or url.
-     */
-    @ApiOperation(value = "Delete a registered TOSCA CSAR git repository using the csar url as id.")
-    @RequestMapping(method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
-    @Audit
-    public RestResponse<Void> deleteByUrl(
-            @ApiParam(value = "Url of the csar git repository to delete", required = true) @Valid @NotBlank @RequestBody String url) {
-        csarGitService.delete(url);
-        return RestResponseBuilder.<Void> builder().build();
-    }
-
-    /**
      * Update an existing CsarGit by id
      *
      * @param request The CsarGit data to update
@@ -134,23 +114,9 @@ public class CsarGitController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
     @Audit
     public RestResponse<Void> update(@ApiParam(value = "Id of the csar git repository to delete", required = true) @PathVariable String id,
-            @RequestBody UpdateCsarGitRequest request) {
-        csarGitRepositoryService.update(id, request.getRepositoryUrl(), request.getUsername(), request.getPassword());
-        return RestResponseBuilder.<Void> builder().build();
-    }
-
-    /**
-     * Update an existing CsarGit by url
-     *
-     * @param request The CsarGit data to update
-     * @return an empty (void) rest {@link RestResponse}.
-     */
-    @ApiOperation(value = "Update a CSARGit by url.")
-    @RequestMapping(value = "/update/{url}", method = RequestMethod.POST)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
-    @Audit
-    public RestResponse<Void> updateByUrl(@Valid @RequestBody UpdateCsarGitWithUrlRequest request) {
-        csarGitRepositoryService.update(request.getRepositoryUrl(), request.getRepositoryUrl(), request.getUsername(), request.getPassword());
+            @RequestBody CreateCsarGitRequest request) {
+        csarGitRepositoryService.update(id, request.getRepositoryUrl(), request.getUsername(), request.getPassword(), request.getImportLocations(),
+                request.isStoredLocally());
         return RestResponseBuilder.<Void> builder().build();
     }
 
