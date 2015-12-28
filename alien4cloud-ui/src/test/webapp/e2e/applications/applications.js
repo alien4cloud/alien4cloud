@@ -28,6 +28,20 @@ var createApplication = function(newAppName, newAppDescription, topologyTemplate
 };
 module.exports.createApplication = createApplication;
 
+function goToApplicationDetailPage(applicationName, goOnTopology) {
+  common.go('main', 'applications');
+  // From the application search page select a particular line
+  var appElement = element(by.id('app_' + applicationName)); // .click();
+  appElement.click();
+
+  if (goOnTopology === true) {
+    common.go('applications', 'topology');
+  }
+
+  browser.waitForAngular();
+}
+module.exports.goToApplicationDetailPage = goToApplicationDetailPage;
+
 var searchApplication = function(appName) {
   var searchInput = element(by.id('seach-applications-input'));
   searchInput.sendKeys(appName);
