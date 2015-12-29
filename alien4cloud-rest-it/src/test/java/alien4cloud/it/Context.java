@@ -97,18 +97,35 @@ public class Context {
 
     private static ObjectMapper JSON_MAPPER;
 
+    private static String ES_HOST = "localhost";
+
+    private static String ES_CLUSTER = "escluster";
+
     static {
         YamlPropertiesFactoryBean propertiesFactoryBean = new YamlPropertiesFactoryBean();
         propertiesFactoryBean.setResources(new Resource[] { new ClassPathResource("version.yml") });
         Properties properties = propertiesFactoryBean.getObject();
         VERSION = properties.getProperty("version");
+
+        ClassPathResource esClasspathResource = new ClassPathResource("es.yml");
+        if (esClasspathResource.exists()) {
+            propertiesFactoryBean = new YamlPropertiesFactoryBean();
+            propertiesFactoryBean.setResources(new Resource[] { esClasspathResource });
+            properties = propertiesFactoryBean.getObject();
+            if (properties.containsKey("host")) {
+                ES_HOST = properties.getProperty("host");
+            }
+            if (properties.containsKey("cluster")) {
+                ES_CLUSTER = properties.getProperty("cluster");
+            }
+        }
     }
 
     public static Client getEsClientInstance() {
         if (ES_CLIENT_INSTANCE == null) {
             Settings settings = ImmutableSettings.settingsBuilder().put("discovery.zen.ping.multicast.enabled", false)
-                    .put("discovery.zen.ping.unicast.hosts", "localhost").put("discovery.zen.ping.unicast.enabled", true).build();
-            ES_CLIENT_INSTANCE = NodeBuilder.nodeBuilder().client(true).clusterName("escluster").local(false).settings(settings).node().client();
+                    .put("discovery.zen.ping.unicast.hosts", ES_HOST).put("discovery.zen.ping.unicast.enabled", true).build();
+            ES_CLIENT_INSTANCE = NodeBuilder.nodeBuilder().client(true).clusterName(ES_CLUSTER).local(false).settings(settings).node().client();
         }
         return ES_CLIENT_INSTANCE;
     }
