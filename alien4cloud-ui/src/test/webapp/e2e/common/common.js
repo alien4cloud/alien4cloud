@@ -31,14 +31,17 @@ module.exports.before = function() {
 function wElement(selector, fromElement) {
   var selectorStr = selector.toString();
   // wait for the element to be there for 3 sec
+  var timeoutMsg = 'Timed out when waiting for element using selector '+selectorStr ;
+  var elementToWait;
+  if (fromElement && fromElement !== null) {
+	  elementToWait = fromElement.element(selector);
+  } else {
+	  elementToWait = browser.element(selector);
+  }
+  
   browser.wait(function() {
     var deferred = protractor.promise.defer();
-    var isPresentPromise;
-    if(fromElement && fromElement !== null) {
-      isPresentPromise = fromElement.element(selector).isPresent();
-    } else {
-      isPresentPromise = browser.element(selector).isPresent();
-    }
+    var isPresentPromise = elementToWait.isPresent();
     isPresentPromise.then(function (isPresent) {
       if(!isPresent) {
         log('waiting for element using selector ' + selectorStr);
@@ -46,11 +49,9 @@ function wElement(selector, fromElement) {
       deferred.fulfill(isPresent);
     });
     return deferred.promise;
-  }, 3000);
-  if(fromElement && fromElement !== null) {
-    return fromElement.element(selector);
-  }
-  return browser.element(selector);
+  }, 3000, timeoutMsg);
+  
+  return elementToWait;
 }
 module.exports.element = wElement;
 

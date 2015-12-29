@@ -23,6 +23,12 @@ module.exports.tags = {
   }
 };
 
+var search = function(text){
+  common.sendKeys(by.id('component_query_input'), text);
+  common.click(by.id('btn-search-component'));
+}
+module.exports.search = search;
+
 var checkRecommanded = function(recommended, capabilityRow) {
   expect(capabilityRow.element(by.css('.alert-success')).isPresent()).toBe(recommended);
   expect(capabilityRow.element(by.css('a.btn-success')).isDisplayed()).toBe(!recommended);
