@@ -78,85 +78,127 @@ describe('Security management on applications', function() {
     authentication.reLogin('admin');
   };
 
-  var toggleUserRole = function(role) {
+  var toggleUserRole = function(role, hasRole) {
     applications.goToApplicationDetailPage(applicationName);
     common.go('applications', 'users');
+    common.selectBSDropdown(by.id('users_environment_switcher'), "Environment");
     rolesCommon.editUserRole(authentication.users.sauron.username, role);
+    common.go('applications', 'info');
+    common.go('applications', 'users');
+    common.selectBSDropdown(by.id('users_environment_switcher'), "Environment");
+    if (hasRole) {
+      rolesCommon.assertUserHasRoles(authentication.users.sauron.username, role);
+    } else {
+      rolesCommon.assertUserDoesNotHaveRoles(authentication.users.sauron.username, role);
+    }
   };
 
-  var toggleGroupRole = function(role) {
+  var toggleGroupRole = function(role, hasRole) {
     applications.goToApplicationDetailPage(applicationName);
     common.go('applications', 'users');
+    common.selectBSDropdown(by.id('users_environment_switcher'), "Environment");
     element(by.id('groups-tab')).element(by.tagName('a')).click();
     rolesCommon.editGroupRole(users.groups.mordor.name, role);
+    common.go('applications', 'info');
+    common.go('applications', 'users');
+    common.selectBSDropdown(by.id('users_environment_switcher'), "Environment");
+    element(by.id('groups-tab')).element(by.tagName('a')).click();
+    if (hasRole) {
+      rolesCommon.assertGroupHasRoles(users.groups.mordor.name, role);
+    } else {
+      rolesCommon.assertGroupDoesNotHaveRoles(users.groups.mordor.name, role);
+    }
   };
 
-  var toggleUserRoleForEnv = function(role) {
+  var toggleUserRoleForEnv = function(role, hasRole) {
     applications.goToApplicationDetailPage(applicationName);
     common.go('applications', 'users');
+    common.selectBSDropdown(by.id('users_environment_switcher'), "Environment");
     rolesCommon.editUserRoleForEnv(authentication.users.sauron.username, role);
+    common.go('applications', 'info');
+    common.go('applications', 'users');
+    common.selectBSDropdown(by.id('users_environment_switcher'), "Environment");
+    if (hasRole) {
+      rolesCommon.assertUserHasRolesForEnv(authentication.users.sauron.username, role);
+    } else {
+      rolesCommon.assertUserDoesNotHaveRolesForEnv(authentication.users.sauron.username, role);
+    }
+    common.selectBSDropdown(by.id('users_environment_switcher'), "SecondEnvironment");
+    rolesCommon.assertUserDoesNotHaveRolesForEnv(authentication.users.sauron.username, role);
   };
 
-  var toggleGroupRoleForEnv = function(role) {
+  var toggleGroupRoleForEnv = function(role, hasRole) {
     applications.goToApplicationDetailPage(applicationName);
     common.go('applications', 'users');
+    common.selectBSDropdown(by.id('users_environment_switcher'), "Environment");
     element(by.id('groups-tab')).element(by.tagName('a')).click();
     rolesCommon.editGroupRoleForEnv(users.groups.mordor.name, role);
+    common.go('applications', 'info');
+    common.go('applications', 'users');
+    common.selectBSDropdown(by.id('users_environment_switcher'), "Environment");
+    element(by.id('groups-tab')).element(by.tagName('a')).click();
+    if (hasRole) {
+      rolesCommon.assertGroupHasRolesForEnv(users.groups.mordor.name, role);
+    } else {
+      rolesCommon.assertGroupDoesNotHaveRolesForEnv(users.groups.mordor.name, role);
+    }
+    common.selectBSDropdown(by.id('users_environment_switcher'), "SecondEnvironment");
+    rolesCommon.assertGroupDoesNotHaveRolesForEnv(users.groups.mordor.name, role);
   };
 
   it('should be able to navigate as an application manager in the application if user has this right', function() {
     console.log('################# should be able to navigate as an application manager in the application if user has this right');
-    toggleUserRole(rolesCommon.appRoles.appManager);
+    toggleUserRole(rolesCommon.appRoles.appManager, true);
     checkApplicationManagerAccess();
-    toggleUserRole(rolesCommon.appRoles.appManager);
+    toggleUserRole(rolesCommon.appRoles.appManager, false);
   });
 
   it('should be able to navigate as an application manager in the application if user is in a group which has this right', function() {
     console.log('################# should be able to navigate as an application manager in the application if user is in a group which has this right');
-    toggleGroupRole(rolesCommon.appRoles.appManager);
+    toggleGroupRole(rolesCommon.appRoles.appManager, true);
     checkApplicationManagerAccess();
-    toggleGroupRole(rolesCommon.appRoles.appManager);
+    toggleGroupRole(rolesCommon.appRoles.appManager, false);
   });
 
   it('should be able to navigate as an application deployment manager in the application if user has this right', function() {
     console.log('################# should be able to navigate as an application deployment manager in the application if user has this right');
-    toggleUserRoleForEnv(rolesCommon.envRoles.deploymentManager);
+    toggleUserRoleForEnv(rolesCommon.envRoles.deploymentManager, true);
     checkApplicationDeploymentManagerAccess();
-    toggleUserRoleForEnv(rolesCommon.envRoles.deploymentManager);
+    toggleUserRoleForEnv(rolesCommon.envRoles.deploymentManager, false);
   });
 
   it('should be able to navigate as an application deployment manager in the application if user is in a group which has this right', function() {
     console.log('################# should be able to navigate as an application deployment manager in the application if user is in a group which has this right');
-    toggleGroupRoleForEnv(rolesCommon.envRoles.deploymentManager);
+    toggleGroupRoleForEnv(rolesCommon.envRoles.deploymentManager, true);
     checkApplicationDeploymentManagerAccess();
-    toggleGroupRoleForEnv(rolesCommon.envRoles.deploymentManager);
+    toggleGroupRoleForEnv(rolesCommon.envRoles.deploymentManager, false);
   });
 
   it('should be able to navigate as an application dev ops in the application if user has this right', function() {
     console.log('################# should be able to navigate as an application dev ops in the application if user has this right');
-    toggleUserRole(rolesCommon.appRoles.appDevops);
+    toggleUserRole(rolesCommon.appRoles.appDevops, true);
     checkApplicationDevOpsAccess();
-    toggleUserRole(rolesCommon.appRoles.appDevops);
+    toggleUserRole(rolesCommon.appRoles.appDevops, false);
   });
 
   it('should be able to navigate as an application dev ops in the application if user is in a group which has this right', function() {
     console.log('################# should be able to navigate as an application dev ops in the application if user is in a group which has this right');
-    toggleGroupRole(rolesCommon.appRoles.appDevops);
+    toggleGroupRole(rolesCommon.appRoles.appDevops, true);
     checkApplicationDevOpsAccess();
-    toggleGroupRole(rolesCommon.appRoles.appDevops);
+    toggleGroupRole(rolesCommon.appRoles.appDevops, false);
   });
 
   it('should be able to navigate as an application user in the application if user has this right', function() {
     console.log('################# should be able to navigate as an application user in the application if user has this right');
-    toggleUserRoleForEnv(rolesCommon.envRoles.envUser);
+    toggleUserRoleForEnv(rolesCommon.envRoles.envUser, true);
     checkApplicationUserAccess();
-    toggleUserRoleForEnv(rolesCommon.envRoles.envUser);
+    toggleUserRoleForEnv(rolesCommon.envRoles.envUser, false);
   });
 
   it('should be able to navigate as an application user in the application if user is in a group which has this right', function() {
     console.log('################# should be able to navigate as an application user in the application if user is in a group which has this right');
-    toggleGroupRoleForEnv(rolesCommon.envRoles.envUser);
+    toggleGroupRoleForEnv(rolesCommon.envRoles.envUser, true);
     checkApplicationUserAccess();
-    toggleGroupRoleForEnv(rolesCommon.envRoles.envUser);
+    toggleGroupRoleForEnv(rolesCommon.envRoles.envUser, false);
   });
 });
