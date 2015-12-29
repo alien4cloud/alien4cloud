@@ -147,6 +147,36 @@ module.exports.select = function(selector, value) {
   });
 };
 
+module.exports.selectBSDropdown = function(selector, value) {
+  var selectElement = wElement(selector);
+  var selectElementButton = selectElement.element(by.tagName('button'));
+  selectElementButton.getText().then(function doesOptionMatch(text) {
+    if (text.trim() !== value) {
+      selectElementButton.click();
+      var selectElementList = selectElement.element(by.tagName('ul'));
+      selectElementList.all(by.tagName('li')).then(function() {
+        var desiredOption;
+        selectElementList.all(by.tagName('li'))
+          .then(function findMatchingOption(options) {
+            options.some(function(option) {
+              option.getText().then(function doesOptionMatch(text) {
+                if (text.trim() === value) {
+                  desiredOption = option;
+                  return true;
+                }
+              });
+            });
+          })
+          .then(function clickOption() {
+            if (desiredOption) {
+              desiredOption.element(by.tagName('a')).click();
+            }
+          });
+      });
+    }
+  });
+};
+
 var confirmAction = function(confirm) {
   // get popover div and grab the Yes / No buttons
   var divPopover = wElement(by.css('.popover'));
