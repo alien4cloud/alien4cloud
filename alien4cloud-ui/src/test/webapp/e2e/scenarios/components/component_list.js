@@ -83,7 +83,25 @@ describe('Component List :', function() {
     expect(oldVersionButton.getText()).toBe('1.0.0.wd03-SNAPSHOT');
   });
 
-  xit('should be able to use search to find components', function() {});
+  it('should be able to use search to find components', function() {
+    components.go();
+    components.search('tosca.nodes.Compute');
+    var results = element.all(by.repeater('component in searchResult.data'));
+    expect(results.count()).toBeGreaterThan(0);
+    expect(common.element(by.id('li_tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT'))).toBeTruthy();
+    
+    components.search('tosca.nodes.BlockStorage');
+    results = element.all(by.repeater('component in searchResult.data'));
+    expect(results.count()).toBeGreaterThan(0);
+    expect(common.element(by.id('li_tosca.nodes.BlockStorage:1.0.0.wd06-SNAPSHOT'))).toBeTruthy();
+    
+    //case nothing 
+    components.search('dragonBallZ');
+    results = element.all(by.repeater('component in searchResult.data'));
+    expect(common.element(by.tagName('empty-place-holder'))).toBeTruthy();
+    expect(results.count()).toEqual(0);
+    
+  });
   
   it('afterAll', function() { authentication.logout(); });
 });

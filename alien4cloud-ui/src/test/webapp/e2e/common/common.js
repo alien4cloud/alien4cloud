@@ -120,6 +120,7 @@ module.exports.click = click;
 
 module.exports.sendKeys = function(selector, keys, fromElement) {
   var target = wElement(selector, fromElement);
+  target.clear();
   target.sendKeys(keys);
 };
 
