@@ -28,27 +28,3 @@ var search = function(text){
   common.click(by.id('btn-search-component'));
 }
 module.exports.search = search;
-
-var checkRecommanded = function(recommended, capabilityRow) {
-  expect(capabilityRow.element(by.css('.alert-success')).isPresent()).toBe(recommended);
-  expect(capabilityRow.element(by.css('a.btn-success')).isDisplayed()).toBe(!recommended);
-  expect(capabilityRow.element(by.css('a.btn-danger')).isDisplayed()).toBe(recommended);
-};
-
-var findCapabilityRow = function(testedCapabilityId) {
-  return browser.element(by.id(testedCapabilityId));
-};
-
-var flagComponentAsRecommanded = function(component, testedCapability) {
-  components.goToComponentDetailPage(component.id);
-  expect(element.all(by.binding('component.elementId')).first().getText()).toContain(component.elementId);
-  expect(element(by.binding('component.archiveVersion')).getText()).toContain(component.archiveVersion);
-
-  var firstCapaRow = findCapabilityRow(testedCapability);
-  expect(firstCapaRow.getText()).toContain(testedCapability);
-  expect(firstCapaRow.isElementPresent(by.css('a.btn-success'))).toBe(true);
-  checkRecommanded(false, firstCapaRow);
-  var recommendButton = firstCapaRow.element(by.css('a.btn-success'));
-  // recommend for this capability
-  recommendButton.click();
-};
