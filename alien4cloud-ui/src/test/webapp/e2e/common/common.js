@@ -12,15 +12,68 @@ module.exports.frLanguage = frLanguage;
 module.exports.usLanguage = usLanguage;
 
 function log(message) {
-  browser.sleep(0).then(function(){ console.log(message); });
+  browser.sleep(0).then(function() {
+    console.log(message);
+  });
 }
 module.exports.log = log;
 
-function home() {
+var navigationIds = {
+  main: {
+    applications: 'menu.applications',
+    topologyTemplates: 'menu.topologytemplates',
+    components: 'menu.components',
+    admin: 'menu.admin'
+  },
+  admin: {
+    users: 'am.admin.users',
+    plugins: 'am.admin.plugins',
+    meta: 'am.admin.metaprops',
+    clouds: 'am.admin.clouds',
+    'cloud-images': 'am.admin.cloud-images.list'
+  },
+  applications: {
+    info: 'am.applications.info',
+    topology: 'am.applications.detail.topology',
+    plan: 'am.applications.detail.plans',
+    deployment: 'am.applications.detail.deployment',
+    runtime: 'am.applications.detail.runtime',
+    users: 'am.applications.detail.users',
+    versions: 'am.applications.detail.versions',
+    environments: 'am.applications.detail.environments'
+  },
+  components: {
+    components: 'cm.components',
+    csars: 'cm.components.csars.list'
+  }
+};
+
+module.exports.home = function() {
   browser.get('#/');
   browser.waitForAngular();
-}
-module.exports.home = home;
+};
+
+module.exports.go = function(menu, menuItem) {
+  browser.element(by.id(navigationIds[menu][menuItem])).click();
+  browser.waitForAngular();
+};
+
+module.exports.isPresentButDisabled = function(menu, menuItem) {
+  var menuItem = element(by.id(navigationIds[menu][menuItem]));
+  expect(menuItem.isDisplayed()).toBe(true);
+  expect(menuItem.getAttribute('class')).toContain('disabled');
+};
+
+module.exports.isNavigable = function(menu, menuItem) {
+  var menuItem = element(by.id(navigationIds[menu][menuItem]));
+  expect(menuItem.isDisplayed()).toBe(true);
+  expect(menuItem.getAttribute('class')).not.toContain('disabled');
+};
+
+module.exports.isNotNavigable = function(menu, menuItem) {
+  var menuItem = element(by.id(navigationIds[menu][menuItem]));
+  expect(menuItem.isPresent()).toBe(false);
+};
 
 module.exports.before = function() {
   // cleanup ElasticSearch and alien folders.
@@ -42,8 +95,8 @@ function wElement(selector, fromElement) {
   browser.wait(function() {
     var deferred = protractor.promise.defer();
     var isPresentPromise = elementToWait.isPresent();
-    isPresentPromise.then(function (isPresent) {
-      if(!isPresent) {
+    isPresentPromise.then(function(isPresent) {
+      if (!isPresent) {
         log('waiting for element using selector ' + selectorStr);
       }
       deferred.fulfill(isPresent);
@@ -58,7 +111,7 @@ module.exports.element = wElement;
 function click(selector, fromElement, skipWaitAngular) {
   var target = wElement(selector, fromElement);
   browser.actions().click(target).perform();
-  if(!skipWaitAngular) {
+  if (!skipWaitAngular) {
     browser.waitForAngular();
   }
   return target;

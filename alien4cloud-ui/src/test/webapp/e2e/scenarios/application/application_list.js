@@ -6,10 +6,13 @@ var toaster = require('../../common/toaster');
 var authentication = require('../../authentication/authentication');
 var common = require('../../common/common');
 var applications = require('../../applications/applications');
+var applicationsData = require(__dirname + '/applications_application_list.json');
 
 describe('Applications management list:', function() {
+
   it('beforeAll', function() {
     setup.setup();
+    setup.index("application", "application", applicationsData);
     common.home();
   });
 
@@ -92,5 +95,7 @@ describe('Applications management list:', function() {
   //   // go to topology and check is not empty
   // });
 
-  it('afterAll', function() { authentication.logout(); });
+  it('afterAll', function() {
+    authentication.logout();
+  });
 });
