@@ -44,6 +44,7 @@ module.exports.goToApplicationDetailPage = goToApplicationDetailPage;
 
 var searchApplication = function(appName) {
   var searchInput = element(by.id('seach-applications-input'));
+  searchInput.clear();
   searchInput.sendKeys(appName);
   common.click(by.id('seach-applications-btn'));
 };

@@ -7,13 +7,15 @@ var toaster = require('../../common/toaster');
 var users = require('../../admin/users');
 var rolesCommon = require('../../common/roles_common');
 var applications = require('../../applications/applications');
-var applicationEnvironmentsData = require(__dirname + '/applicationenvironments_application_roles.json');
-
+var applicationsData = require(__dirname + '/_data/application_roles/applications.json');
+var applicationEnvironmentsData = require(__dirname + '/_data/application_roles/applicationenvironments.json');
+var applicationVersionsData = require(__dirname + '/_data/application_roles/applicationversions.json');
+var topologiesData = require(__dirname + '/_data/application_roles/topologies.json');
 describe('Security management on applications', function() {
 
   var applicationName = 'AlienUITest';
 
-  var otherApplicationName = 'ApplicationTestUIDelete';
+  var otherApplicationName = 'ApplicationRolesTestOtherApp';
 
   var checkAccess = function(menu) {
     common.isNavigable('applications', menu);
@@ -174,7 +176,10 @@ describe('Security management on applications', function() {
 
   it('beforeAll', function() {
     setup.setup();
+    setup.index("application", "application", applicationsData);
     setup.index("applicationenvironment", "applicationenvironment", applicationEnvironmentsData);
+    setup.index("applicationversion", "applicationversion", applicationVersionsData);
+    setup.index("topology", "topology", topologiesData);
     common.home();
   });
 

@@ -6,9 +6,9 @@ var toaster = require('../../common/toaster');
 var authentication = require('../../authentication/authentication');
 var common = require('../../common/common');
 var applications = require('../../applications/applications');
-var applicationsData = require(__dirname + '_data/application_list/applications.json');
-var applicationEnvironmentsData = require(__dirname + '_data/application_list/applicationenvironments.json');
-var applicationVersionsData = require(__dirname + '_data/application_list/applicationversions.json');
+var applicationsData = require(__dirname + '/_data/application_list/applications.json');
+var applicationEnvironmentsData = require(__dirname + '/_data/application_list/applicationenvironments.json');
+var applicationVersionsData = require(__dirname + '/_data/application_list/applicationversions.json');
 
 describe('Applications management list:', function() {
 
@@ -83,12 +83,14 @@ describe('Applications management list:', function() {
 
   it('Application manager be able to remove an application he own', function() {
     var currentAppName = 'ApplicationListTestManagerCreate';
+    applications.searchApplication(currentAppName);
     common.deleteWithConfirm('delete-app_' + currentAppName, true);
     toaster.expectNoErrors();
   });
 
   it('Application manager should not be able to remove an application he is user for', function() {
     var currentAppName = 'ApplicationListTestDeleteFailed';
+    applications.searchApplication(currentAppName);
     common.deleteWithConfirm('delete-app_' + currentAppName, true);
     toaster.expectErrors();
   });
