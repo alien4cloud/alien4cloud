@@ -90,6 +90,17 @@ describe('Security management on applications', function() {
     authentication.reLogin('applicationManager');
   };
 
+  var checkNoAccessToApp = function(specifiedApp) {
+    authentication.reLogin(authentication.users.sauron.username);
+    if (!specifiedApp) {
+      specifiedApp = applicationName;
+    }
+    applications.go();
+    applications.searchApplication(specifiedApp);
+    expect(element(by.id('app_' + specifiedApp)).isPresent()).toBe(false);
+    authentication.reLogin('applicationManager');
+  };
+
   var toggleUserRole = function(role, hasRole, specifiedApp) {
     if (specifiedApp) {
       applications.goToApplicationDetailPage(specifiedApp);
@@ -181,10 +192,10 @@ describe('Security management on applications', function() {
     setup.index("applicationversion", "applicationversion", applicationVersionsData);
     setup.index("topology", "topology", topologiesData);
     common.home();
+    authentication.login('admin');
   });
 
   it('should be able to add role to others user on the application if user is admin, and application_manager must be per application basis', function() {
-    authentication.login('admin');
     toggleUserRole(rolesCommon.appRoles.appManager, true);
     checkApplicationManagerAccess();
     toggleUserRoleForEnv(rolesCommon.envRoles.envUser, true, otherApplicationName);
@@ -198,6 +209,7 @@ describe('Security management on applications', function() {
     toggleUserRole(rolesCommon.appRoles.appManager, true);
     checkApplicationManagerAccess();
     toggleUserRole(rolesCommon.appRoles.appManager, false);
+    checkNoAccessToApp();
   });
 
   it('should be able to navigate as an application manager in the application if user is in a group which has this right', function() {
