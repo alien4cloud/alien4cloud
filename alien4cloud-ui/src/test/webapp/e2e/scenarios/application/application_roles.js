@@ -178,7 +178,7 @@ describe('Security management on applications', function() {
     common.home();
   });
 
-  it('should be able to add role to others user on the application if user is admin', function() {
+  it('should be able to add role to others user on the application if user is admin, and application_manager must be per application basis', function() {
     authentication.login('admin');
     toggleUserRole(rolesCommon.appRoles.appManager, true);
     checkApplicationManagerAccess();

@@ -6,13 +6,17 @@ var toaster = require('../../common/toaster');
 var authentication = require('../../authentication/authentication');
 var common = require('../../common/common');
 var applications = require('../../applications/applications');
-var applicationsData = require(__dirname + '/applications_application_list.json');
+var applicationsData = require(__dirname + '_data/application_list/applications.json');
+var applicationEnvironmentsData = require(__dirname + '_data/application_list/applicationenvironments.json');
+var applicationVersionsData = require(__dirname + '_data/application_list/applicationversions.json');
 
 describe('Applications management list:', function() {
 
   it('beforeAll', function() {
     setup.setup();
     setup.index("application", "application", applicationsData);
+    setup.index("applicationenvironment", "applicationenvironment", applicationEnvironmentsData);
+    setup.index("applicationversion", "applicationversion", applicationVersionsData);
     common.home();
   });
 
@@ -25,14 +29,14 @@ describe('Applications management list:', function() {
   });
 
   it('Admin should be able to remove an application on which he has no roles', function() {
-    var currentAppName = 'ApplicationTestUIDelete';
+    var currentAppName = 'ApplicationListTestDelete';
     applications.searchApplication(currentAppName);
     common.deleteWithConfirm('delete-app_' + currentAppName, true);
     toaster.expectNoErrors();
   });
 
   it('Architect should be able to see it\'s own application and not the create button', function() {
-    var currentAppName = 'AlienUITestArchitect';
+    var currentAppName = 'ApplicationListTestArchitect';
     authentication.logout();
     authentication.login('architect');
     applications.go();
@@ -42,7 +46,7 @@ describe('Applications management list:', function() {
   });
 
   it('User should be able to see it\'s own application and not the create button', function() {
-    var currentAppName = 'AlienUITestUser';
+    var currentAppName = 'ApplicationListTestUser';
     authentication.logout();
     authentication.login('user');
     applications.go();
@@ -52,7 +56,7 @@ describe('Applications management list:', function() {
   });
 
   it('Application manager should be able to see it\'s own application and the create button', function() {
-    var currentAppName = 'AlienUITestManager';
+    var currentAppName = 'ApplicationListTestManager';
     authentication.logout();
     authentication.login('applicationManager');
     applications.go();
@@ -62,7 +66,7 @@ describe('Applications management list:', function() {
   });
 
   it('Application manager should be able to add a new application with unique name', function() {
-    var currentAppName = 'AlienUITestManagerCreate';
+    var currentAppName = 'ApplicationListTestManagerCreate';
     applications.createApplication(currentAppName, 'Great Application');
     toaster.expectNoErrors();
     applications.go();
@@ -71,29 +75,23 @@ describe('Applications management list:', function() {
   });
 
   it('Application manager should not be able to add a new topology template with existing name', function() {
-    var currentAppName = 'AlienUITestManagerCreate';
+    var currentAppName = 'ApplicationListTestManagerCreate';
     applications.createApplication(currentAppName, 'Great Application');
     toaster.expectErrors();
     toaster.dismissIfPresent();
   });
 
   it('Application manager be able to remove an application he own', function() {
-    var currentAppName = 'AlienUITestManagerCreate';
+    var currentAppName = 'ApplicationListTestManagerCreate';
     common.deleteWithConfirm('delete-app_' + currentAppName, true);
     toaster.expectNoErrors();
   });
 
   it('Application manager should not be able to remove an application he is user for', function() {
-    var currentAppName = 'AlienUITestManagerDeleteFailed';
+    var currentAppName = 'ApplicationListTestDeleteFailed';
     common.deleteWithConfirm('delete-app_' + currentAppName, true);
     toaster.expectErrors();
   });
-
-  // it('Application manager should be able to create a new application from an existing topology and check that the topology tab has a not empty topology.', function() {
-  //   var currentAppName = ' AlienUITestManagerCreateTopology';
-  //   applications.createApplication(currentAppName, 'Great Application', 2);
-  //   // go to topology and check is not empty
-  // });
 
   it('afterAll', function() {
     authentication.logout();
