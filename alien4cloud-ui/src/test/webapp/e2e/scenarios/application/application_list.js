@@ -95,6 +95,13 @@ describe('Applications management list:', function() {
     toaster.expectErrors();
   });
 
+  it('Application manager should be able to create an application from a topology template', function() {
+    var currentAppName = 'ApplicationListTestManagerCreateWithTopologyTemplate';
+    applications.createApplication(currentAppName, 'Great Application with a topology template', 'wordpress-template');
+    common.go('applications', 'topology');
+    expect(element.all(by.css('#topologySvgContainer g.node-template')).count()).toEqual(6);
+  });
+
   it('afterAll', function() {
     authentication.logout();
   });
