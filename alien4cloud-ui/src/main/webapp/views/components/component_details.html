@@ -88,30 +88,30 @@
             <div class="table-responsive">
               <table class="table table-condensed">
 
-                <tr ng-repeat="tag in component.tags" ng-if="!isInternalTag(tag.name)">
+                <tr ng-repeat="tag in component.tags" ng-if="!isInternalTag(tag.name)" id="tag_{{tag.name}}">
                   <td>
                     <span>
                       <strong>{{tag.name}}</strong>
                     </span>
                   </td>
                   <td>
-                    <span editable-text="component.tags[$index].value" ng-show="isManager" buttons="no" e-required onaftersave="updateTag(tag.name,$data)" blur="submit">
+                    <span editable-text="component.tags[$index].value" ng-if="isManager" buttons="no" e-required onaftersave="updateTag(tag.name,$data)" blur="submit">
                       {{tag.value}}
                       <i class="fa fa-pencil-square-o"></i>
                     </span>
-                    <span ng-hide="isManager">
+                    <span ng-if="!isManager">
                        {{tag.value}}
                     </span>
                   </td>
                   <td>
-                    <a ng-click="deleteTag(tag)" ng-show="isManager">
-                      <i class="fa fa-trash-o"></i>
+                    <a id='delete_tag_{{tag.name}}' ng-click="deleteTag(tag)" ng-if="isManager">
+                      <i class="fa fa-trash-o text-danger"></i>
                     </a>
                   </td>
                 </tr>
                 <tr>
-                  <td colspan="3" ng-show="isManager">
-                    <form name="formAddTag" class="form-inline" ng-submit="addTag()">
+                  <td colspan="3" ng-if="isManager">
+                    <form name="formAddTag" class="form-inline" ng-submit="addTag(newTag)">
                       <div ng-class="{'form-group':true, 'has-error': formAddTag.tagkey.$invalid}">
                         <label class="sr-only" for="tagkey">Tag key</label>
                         <input type="text" class="form-control" id="input-key" name="tagkey" ng-model="newTag.key" ng-pattern="tagKeyPattern" typeahead="item for item in tagSuggestion.get($viewValue)" typeahead-min-length="tagSuggestion.minLength" />
