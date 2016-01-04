@@ -5,35 +5,7 @@ var applications = require('../applications/applications');
 var components = require('../components/components');
 var authentication = require('../authentication/authentication');
 var common = require('../common/common');
-var cloudsCommon = require('../admin/clouds_common');
-var navigation = require('../common/navigation');
-var cloudImageCommon = require('../admin/cloud_image');
-
-var relationshipTypesByIds = {
-  'hostedOn10': 'tosca.relationships.HostedOn:1.0',
-  'dependsOn10': 'tosca.relationships.DependsOn:1.0'
-};
-module.exports.relationshipTypesByIds = relationshipTypesByIds;
-
-var topologyTemplates = {
-  'template1': {
-    'tName': 'WarTemplate',
-    'tDescription': 'Simple architecture with one JAVA, one COMPUTE and a WAR'
-  },
-  'template2': {
-    'tName': 'SoftwareFactory',
-    'tDescription': 'Continous integration platform'
-  },
-  'template3': {
-    'tName': 'SoftwareFactory-Release',
-    'tDescription': 'Continous integration platform with Jenkins, Sonar, git en version RELEASE..'
-  },
-  'template4': {
-    'tName': 'JavaTomcatWar',
-    'tDescription': 'Simple server with one compoue, java installed and tomcat running'
-  }
-};
-module.exports.topologyTemplates = topologyTemplates;
+var toaster = require('../common/toaster');
 
 var nodeDetailsBlockList = [
   'node-details-properties',
@@ -55,34 +27,6 @@ var nodeDetailsBlocsIds = {
   sca: 'node-details-scaling'
 };
 module.exports.nodeDetailsBlocsIds = nodeDetailsBlocsIds;
-
-// Action to be executed before each topology test
-var beforeTopologyTest = function() {
-  common.before();
-  authentication.login('admin');
-  cloudImageCommon.addNewCloudImage('Windows', 'windows', 'x86_64', 'Windows', '14.04', '1', '1', '1');
-  cloudImageCommon.addNewCloudImage('Ubuntu', 'linux', 'x86_64', 'Ubuntu', '14.04', '1', '1', '1');
-  cloudsCommon.goToCloudList();
-  cloudsCommon.createNewCloud('testcloud');
-  cloudsCommon.goToCloudDetail('testcloud');
-  cloudsCommon.enableCloud();
-  cloudsCommon.addNewFlavor('medium', '12', '480', '4096');
-  cloudsCommon.assignPaaSResourceToFlavor('medium', 'passIdFlavor1');
-  cloudsCommon.selectAllImageOfCloud();
-  cloudsCommon.assignPaaSResourceToImage('Windows', 'passIdImage1');
-  cloudsCommon.assignPaaSResourceToImage('Ubuntu', 'passIdImage2');
-  cloudsCommon.goToCloudDetail('testcloud');
-  cloudsCommon.disableCloud();
-  cloudsCommon.enableCloud();
-  authentication.logout();
-
-  authentication.login('applicationManager');
-  applications.createApplication('Alien', 'Great Application');
-  // Go to the app details page
-  browser.actions().click(element(by.binding('application.name'))).perform();
-  navigation.go('applications', 'topology');
-};
-module.exports.beforeTopologyTest = beforeTopologyTest;
 
 // Show tabs in the topology page
 function showTopologyTab(panel, btn) {
@@ -121,50 +65,44 @@ function closeInputsTab() {
 module.exports.closeInputsTab = closeInputsTab;
 
 // Add a node template
-var addNodeTemplate = function(ntype, expectedId, archiveVersion, selectedVersion) {
-  showComponentsTab();
-
-  // search element before selection
-  var searchImput = element(by.model('searchedKeyword'));
-  // TODO : should search by any word in the nodetype BUT the type is not
-  // analyzed
-  // var nodeNameToSearch = expectedId.split('_');
-  // searchImput.sendKeys(nodeNameToSearch[1]); // e.g. Java or JavaRPM...
-  searchImput.sendKeys(ntype); // e.g. tosca.nodes.Network
-  var btnSearch = element(by.id('btn-search-component'));
-  browser.actions().click(btnSearch).perform();
-  common.removeAllFacetFilters();
-
+var addNodeTemplate = function(nodeType, expectedId, archiveVersion, selectedVersion) {
+  searchComponents(nodeType);
   // select and dnd the element
   var version = archiveVersion ? archiveVersion : '1.0';
-  var nodeTypeElement = element(by.id('li_' + ntype + ':' + version));
+  var nodeTypeElement = element(by.id('li_' + nodeType + ':' + version));
   if (selectedVersion) {
-    components.selectComponentVersion(ntype + ':' + version, selectedVersion);
-    nodeTypeElement = element(by.id('li_' + ntype + ':' + selectedVersion));
+    components.selectComponentVersion(nodeType + ':' + version, selectedVersion);
+    nodeTypeElement = element(by.id('li_' + nodeType + ':' + selectedVersion));
   }
-  var topologyVisuElement = element(by.id('topologySvgContainer'));
+  var topologyVisualElement = element(by.id('topologySvgContainer'));
   // drag and drop is not supported by selenium so we hack a bit there...
   browser.driver
     .executeScript(
-    '\
-var typeScope = angular.element(arguments[0]).scope();\
-var mainScope = angular.element(arguments[1]).scope();\
-mainScope.nodes.add(typeScope.component);',
-    nodeTypeElement.getWebElement(), topologyVisuElement.getWebElement()).then(function() {
-      browser.waitForAngular();
-    });
+      '\
+  var typeScope = angular.element(arguments[0]).scope();\
+  var mainScope = angular.element(arguments[1]).scope();\
+  mainScope.nodes.add(typeScope.component);',
+      nodeTypeElement.getWebElement(), topologyVisualElement.getWebElement()).then(function() {
+    browser.waitForAngular();
+  });
   browser.waitForAngular();
 
   var createdNode = element(by.id(expectedId));
   expect(createdNode.isDisplayed()).toBe(true);
-
-  // clean search before next addNodeTemplate
-  searchImput.clear(); // e.g. Java or JavaRPM...
-  browser.actions().click(btnSearch).perform();
-
   return createdNode;
 };
+
 module.exports.addNodeTemplate = addNodeTemplate;
+
+var searchComponents = function(nodeType) {
+  showComponentsTab();
+  // search element before selection
+  common.sendKeys(by.css('#comp-search-side-panel input'), nodeType);
+  var btnSearch = element(by.id('btn-search-component'));
+  browser.actions().click(btnSearch).perform();
+};
+
+module.exports.searchComponents = searchComponents;
 
 var centerAndZoomOut = function() {
   var centerButton = element(by.id('btn-topology-reset'));
@@ -173,15 +111,15 @@ var centerAndZoomOut = function() {
 module.exports.centerAndZoomOut = centerAndZoomOut;
 
 var checkTodoList = function(enabled) {
-  navigation.go('applications', 'deployment');
+  common.go('applications', 'deployment');
   expect(element(by.binding('APPLICATIONS.TOPOLOGY.TASK.LABEL')).isPresent()).toBe(enabled);
-  navigation.go('applications', 'topology');
+  common.go('applications', 'topology');
   browser.waitForAngular();
 };
 module.exports.checkTodoList = checkTodoList;
 
 var checkWarningList = function(enabled) {
-  navigation.go('applications', 'deployment');
+  common.go('applications', 'deployment');
   expect(element(by.binding('APPLICATIONS.TOPOLOGY.WARNING.LABEL')).isPresent()).toBe(enabled);
 };
 module.exports.checkWarningList = checkWarningList;
@@ -219,23 +157,25 @@ module.exports.btnRelationshipNameBaseId = btnRelationshipNameBaseId;
 function addRelationshipSelectRelationship(relationshipTypeId, relationName, newVersion, newId) {
   // select a relationshipType
   var relationOnSelection = browser.element(by.id('li_' + relationshipTypeId));
-  if (newVersion) {
-    common.chooseSelectOption(relationOnSelection, newVersion);
-    relationOnSelection = browser.element(by.id('li_' + newId));
-  }
-  relationOnSelection.click();
-
-  if (relationName) {
-    // change the name
-    var relationshipNameInput = browser.element(by.model('relationshipModalData.name'));
-    relationshipNameInput.clear();
-    relationshipNameInput.sendKeys(relationName);
-  }
-
-  // If there is no "Finish" button click on cancel
-  var btnFinish = browser.element(by.id('btn-modal-finish'));
-  browser.actions().click(btnFinish).perform();
-  browser.waitForAngular();
+  relationOnSelection.isPresent().then(function(isPresent) {
+    if (isPresent) {
+      if (newVersion) {
+        common.chooseSelectOption(relationOnSelection, newVersion);
+        relationOnSelection = browser.element(by.id('li_' + newId));
+      }
+      relationOnSelection.click();
+    }
+    if (relationName) {
+      // change the name
+      var relationshipNameInput = browser.element(by.model('relationshipModalData.name'));
+      relationshipNameInput.clear();
+      relationshipNameInput.sendKeys(relationName);
+    }
+    // If there is no "Finish" button click on cancel
+    var btnFinish = browser.element(by.id('btn-modal-finish'));
+    browser.actions().click(btnFinish).perform();
+    browser.waitForAngular();
+  });
 }
 
 function addRelationshipCancel() {
@@ -379,20 +319,16 @@ var editNodeProperty = function(nodeTemplateName, propertyName, propertyValue, c
   componentType = (componentType === undefined || componentType === null) ? 'pro' : componentType;
   showComponentsTab();
   selectNodeAndGoToDetailBloc(nodeTemplateName, nodeDetailsBlocsIds[componentType]);
-  var propertyElement = common.waitElement(by.id(nodeDetailsBlocsIds[componentType] + '-panel'));
-  propertyElement = common.waitElement(by.id('p_' + propertyName), propertyElement);
+  var propertyElement = common.element(by.id(nodeDetailsBlocsIds[componentType] + '-panel'));
+  propertyElement = common.element(by.id('p_' + propertyName), propertyElement);
   var editForm;
   if (unit) {
-    var spanPropertyValue = common.waitElement(by.tagName('span'), propertyElement);
-    common.click(by.tagName('div'), spanPropertyValue);
+    common.click(by.css('div button'), propertyElement);
     common.click(by.id('p_' + propertyName + '_unit_' + unit), propertyElement);
-    common.click(by.tagName('span'), spanPropertyValue);
-    editForm = common.waitElement(by.tagName('form'), spanPropertyValue);
-  } else {
-    common.click(by.tagName('span'), propertyElement);
-    editForm = common.waitElement(by.tagName('form'), propertyElement);
   }
-  var inputValue = common.waitElement(by.tagName('input'), editForm);
+  common.click(by.css('span[editable-text]'), propertyElement);
+  editForm = common.element(by.tagName('form'), propertyElement);
+  var inputValue = common.element(by.tagName('input'), editForm);
 
   inputValue.clear();
   inputValue.sendKeys(propertyValue);
@@ -406,19 +342,19 @@ var checkPropertyEditionError = function(nodeTemplateName, propertyName, contain
   var formElement = propertyElement.element(by.tagName('form'));
 
   // getting error div under the input
-  var divError = formElement.element(by.tagName('div'));
+  var divError = formElement.element(by.css('div.editable-error'));
   expect(divError.isDisplayed()).toBe(true);
   expect(divError.getText()).not.toEqual('');
   expect(divError.getText()).toContain(containedInErrorText);
   var input = propertyElement.element(by.tagName('input'));
   input.sendKeys(protractor.Key.ESCAPE);
-  common.dismissAlertIfPresent();
+  toaster.dismissIfPresent();
 };
 module.exports.checkPropertyEditionError = checkPropertyEditionError;
 
 var toggleIOProperty = function(nodeTemplateName, propertyName, ioType, componentType) {
   selectNodeAndGoToDetailBloc(nodeTemplateName, nodeDetailsBlocsIds[componentType]);
-  var ioButton = common.waitElement(by.id('p_' + ioType + '_' + componentType + '_' + propertyName));
+  var ioButton = common.element(by.id('p_' + ioType + '_' + componentType + '_' + propertyName));
   browser.actions().click(ioButton).perform();
 };
 
@@ -519,7 +455,7 @@ var expectDeploymentWork = function(goToAppDetail, work) {
   if (goToAppDetail) {
     authentication.reLogin('applicationManager');
     applications.goToApplicationDetailPage('Alien', false);
-    navigation.go('applications', 'deployment');
+    common.go('applications', 'deployment');
   }
   var deployButton = browser.element(by.binding('APPLICATIONS.DEPLOY'));
   browser.waitForAngular();
@@ -537,7 +473,7 @@ var expectShowTodoList = function(goToAppDetail, isDisplay) {
   if (goToAppDetail) {
     authentication.reLogin('applicationManager');
     applications.goToApplicationDetailPage('Alien', false);
-    navigation.go('applications', 'deployment');
+    common.go('applications', 'deployment');
   }
   if (isDisplay) {
     expect(element(by.id('deploymentTodoList')).isPresent()).toBe(true);
@@ -553,8 +489,7 @@ var nodeDetailsCollapse = function(blocId, opened) {
   return myBlock.isPresent().then(function(blockPresent) {
     if (blockPresent) {
       var myBlockIcon = myBlock.element(by.tagName('i'));
-      var ngClass = myBlockIcon.getAttribute('class');
-      return ngClass;
+      return myBlockIcon.getAttribute('class');
     }
   }).then(function(classes) {
     // test if the bloc is opened and then close it
@@ -570,7 +505,6 @@ var nodeDetailsCollapse = function(blocId, opened) {
 var doCollapseNodeDetailBlock = function(blocId, nextBlocIndex) {
   if (nextBlocIndex >= nodeDetailsBlockList.length) {
     // End of the node details block list
-    return;
   } else if (blocId === nodeDetailsBlockList[nextBlocIndex]) {
     // Required bloc found do not loop anymore
     return nodeDetailsCollapse(blocId, true);
