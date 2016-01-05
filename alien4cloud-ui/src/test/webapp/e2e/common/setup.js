@@ -92,9 +92,6 @@ function doSetup() {
   flow.execute(function() {
     return index('toscaelement', 'indexedrelationshiptype', indexedrelationshiptypes);
   });
-  flow.execute(function() {
-    return index('imagedata', 'imagedata', imagedatas);
-  });
 
   flow.execute(function() {
     return index('topologytemplate', 'topologytemplate', topologytemplates);
@@ -138,6 +135,11 @@ function doSetup() {
   flow.execute(function() {
     return index('group', 'group', groups);
   });
+  
+  flow.execute(function() {
+    return index('imagedata', 'imagedata', imagedatas);
+  });
+
 }
 
 function doEnableOrchestrator() {

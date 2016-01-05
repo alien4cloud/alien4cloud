@@ -31,3 +31,10 @@ module.exports.dismissIfPresent = function() { // toast-close-button
     return true;
   });
 };
+
+// check if the toaster body message contains 'text"
+module.exports.expectMessageToContain = function(text) {
+  element(by.css('.toast-message')).getText().then(function(fullErrorMessage) {
+    expect(fullErrorMessage).toContain(text);
+  });
+};

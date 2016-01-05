@@ -4,9 +4,13 @@
     <div class="col-md-2 well">
       <form role="search" ng-submit="search()">
         <div class="input-group">
-          <input type="text" class="form-control" placeholder="..."
+          <input 
+          	id = "csar-query-input"
+          	type="text" class="form-control" placeholder="..."
             ng-model="query"> <span class="input-group-btn">
-            <button type="submit" class="btn btn-default"
+            <button
+              id="btn-search-csar" 
+              type="submit" class="btn btn-default"
               data-loading-text="Loading...">
               <i class="fa fa-search"></i>
             </button>
