@@ -28,10 +28,6 @@ var git = {
     }
 }
 
-var csarDetail = function(name, version){
-  csars.search(name);
-  common.click(by.id('csar_'+name+':'+version));
-}
 var checkCsarExists = function(name, version, exists){
   if( typeof exists === 'undefined' || exists ===null){
     exists = true;
@@ -77,11 +73,9 @@ describe('CSAR deletion', function() {
 
   it('should not be able to delete fom csar detail page, a CSAR referenced by an application / csars /  topologytemplate', function() {
     
-    csarDetail(tomcatWar.name, tomcatWar.version);
+    csars.open(tomcatWar.name, tomcatWar.version);
       
     // check the "linked resources list"
-    expect(common.element(by.id('csar-name')).getText()).toEqual(tomcatWar.name);
-    expect(common.element(by.id('csar-version')).getText()).toEqual(tomcatWar.version);
     var results = element.all(by.repeater('resource in csar.relatedResources'));
     expect(results.count()).toBeGreaterThan(0);
     
@@ -106,7 +100,7 @@ describe('CSAR deletion', function() {
   });
 
   it('should be able to delete a non referenced CSAR', function() {
-    csarDetail(git.name, git.version);
+    csars.open(git.name, git.version);
     // try to delete the tosca-base-types csars and check errors
     common.deleteWithConfirm('delete-csar_'+git.id(), true);
     

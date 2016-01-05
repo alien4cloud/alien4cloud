@@ -15,3 +15,8 @@ var search = function(text){
   common.click(by.id('btn-search-csar'));
 }
 module.exports.search = search;
+
+module.exports.open = function(name, version){
+  search(name);
+  common.click(by.id('csar_'+name+':'+version));
+}
