@@ -40,7 +40,7 @@ var checkCsarExists = function(name, version, exists){
   expect(element(by.id('csar_'+name+':'+version)).isPresent()).toBe(exists);
 }
 
-describe('CSAR section', function() {
+describe('CSAR deletion', function() {
 
   /* Before each spec in the tests suite */
   it('beforeAll', function() {
