@@ -3,9 +3,7 @@ package alien4cloud.orchestrators.services;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -16,7 +14,6 @@ import org.elasticsearch.mapping.QueryHelper;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
-import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.deployment.DeploymentService;
@@ -37,6 +34,11 @@ import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 
 /**
  * Service to manage state of an orchestrator
@@ -63,41 +65,56 @@ public class OrchestratorStateService {
 
     /**
      * Initialize all orchestrator that have a non-disabled state.
+     */
+    public ListenableFuture<?> initialize() {
+        return initialize(null);
+    }
+
+    /**
+     * Initialize all orchestrator that have a non-disabled state.
      * Note: Each orchestrator initialization is down in it's own thread so it doesn't impact application startup or other orchestrator connection.
      *
-     * @return a list of futures for those who want to wait for task to be done.
+     * @param callback the callback to be executed when initialize finish
      */
-    public List<Future<?>> initialize() {
-        ExecutorService executorService = Executors.newCachedThreadPool();
-        List<Future<?>> futures = new ArrayList<Future<?>>();
-        // get all the orchestrators that are not disabled
-        List<Orchestrator> enabledOrchestrators = orchestratorService.getAllEnabledOrchestrators();
+    public ListenableFuture<?> initialize(FutureCallback callback) {
+        ListeningExecutorService executorService = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
+        try {
+            List<ListenableFuture<?>> futures = new ArrayList<>();
+            // get all the orchestrator that are not disabled
+            List<Orchestrator> enabledOrchestratorList = orchestratorService.getAllEnabledOrchestrators();
 
-        if (enabledOrchestrators == null) {
-            return futures;
-        }
+            if (enabledOrchestratorList == null || enabledOrchestratorList.isEmpty()) {
+                return Futures.immediateFuture(null);
+            }
 
-        for (final Orchestrator orchestrator : enabledOrchestrators) {
-            // error in initialization and timeouts should not impact startup time of Alien 4 cloud and other PaaS Providers.
-            Future<?> future = executorService.submit(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        load(orchestrator);
-                    } catch (AlreadyExistException e) {
-                        log.info("Orchestrator was already loaded at initialization for {}.", orchestrator.getId());
-                    } catch (Throwable t) {
-                        // we have to catch everything as we don't know what a plugin can do here and cannot interrupt startup.
-                        // Any orchestrator that failed to load will be considered as DISABLED as the registration didn't occurred
-                        log.error("Unexpected error in plugin", t);
-                        orchestrator.setState(OrchestratorState.DISABLED);
-                        alienDAO.save(orchestrator);
+            for (final Orchestrator orchestrator : enabledOrchestratorList) {
+                // error in initialization and timeouts should not impact startup time of Alien 4 cloud and other PaaS Providers.
+                ListenableFuture<?> future = executorService.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            load(orchestrator);
+                        } catch (AlreadyExistException e) {
+                            log.info("Orchestrator was already loaded at initialization for {}.", orchestrator.getId());
+                        } catch (Throwable t) {
+                            // we have to catch everything as we don't know what a plugin can do here and cannot interrupt startup.
+                            // Any orchestrator that failed to load will be considered as DISABLED as the registration didn't occurred
+                            log.error("Unexpected error in plugin", t);
+                            orchestrator.setState(OrchestratorState.DISABLED);
+                            alienDAO.save(orchestrator);
+                        }
                     }
-                }
-            });
-            futures.add(future);
+                });
+                futures.add(future);
+            }
+            ListenableFuture<?> combinedFuture = Futures.allAsList(futures);
+            if (callback != null) {
+                Futures.addCallback(combinedFuture, callback);
+            }
+            return combinedFuture;
+        } finally {
+            executorService.shutdown();
         }
-        return futures;
     }
 
     /**
@@ -175,10 +192,12 @@ public class OrchestratorStateService {
      */
     public synchronized boolean disable(Orchestrator orchestrator, boolean force) {
         if (!force) {
-            QueryHelper.SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper.buildSearchQuery(alienDAO.getIndexForType(Deployment.class))
-                    .types(Deployment.class).filters(MapUtil.newHashMap(new String[] { "orchestratorId", "endDate" },
-                            new String[][] { new String[] { orchestrator.getId() }, new String[] { null } }))
-                    .fieldSort("_timestamp", true);
+            QueryHelper.SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper
+                    .buildSearchQuery(alienDAO.getIndexForType(Deployment.class))
+                    .types(Deployment.class)
+                    .filters(
+                            MapUtil.newHashMap(new String[] { "orchestratorId", "endDate" }, new String[][] { new String[] { orchestrator.getId() },
+                                    new String[] { null } })).fieldSort("_timestamp", true);
             // If there is at least one active deployment.
             GetMultipleDataResult<Object> result = alienDAO.search(searchQueryHelperBuilder, 0, 1);
 
