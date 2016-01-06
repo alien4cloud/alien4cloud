@@ -48,15 +48,12 @@ define(function (require) {
 
     $scope.triggerImport = function(id, url) {
       $scope.importing[id] = true;
-      $scope.isImporting = true;
       csarGitService.fetch({
         id: id
       }, angular.toJson(id),
       function(result) {
         handleResult(result, url);
-        $scope.importing[id] = false;
-        $scope.isImporting = false;
-        $scope.isImportingAll = false;
+        delete $scope.importing[id];
       }, function(error) {
         $scope.importInfos.push({
           'name': url,
@@ -66,11 +63,27 @@ define(function (require) {
             'message': 'An Error has occurred on the server.'
           }
         });
-        $scope.importing[id] = false;
-        $scope.isImporting = false;
-        $scope.isImportingAll = false;
+        delete $scope.importing[id];
       });
     };
+
+    $scope.triggerImportAllCsarGit = function() {
+      var csarGits = $scope.csarGits;
+      if (_.defined(csarGits) && csarGits.length > 0) {
+        for (var i=0; i<csarGits.length; i++) {
+          $scope.triggerImport(csarGits[i].id, csarGits[i].repositoryUrl);
+        }
+      }
+      else{
+        var titleError = $translate('CSAR.ERRORS.NO_DATA.HEADER');
+        var bodyError=$translate('CSAR.ERRORS.NO_DATA.BODY')
+        toaster.pop('note', titleError, bodyError, 4000, 'trustedHtml',null);
+      }
+    };
+
+    $scope.isImporting = function(){
+      return !_.isEmpty($scope.importing);
+    }
 
     function processImportData(data, importResult) {
       if (_.defined(data.data) && data.data.length > 0) {
@@ -113,19 +126,6 @@ define(function (require) {
 
     $scope.closeUploadInfos = function(index) {
       $scope.importInfos.splice(index, 1);
-    };
-
-    $scope.triggerImportAllCsarGit = function() {
-      if (_.defined($scope.csarGits) && $scope.csarGits.length > 0) {
-        for (var i=0; i<$scope.csarGits.length; i++) {
-          $scope.triggerImport($scope.csarGits[i].id, $scope.csarGits[i].repositoryUrl);
-        }
-      }
-      else{
-        var titleError = $translate('CSAR.ERRORS.NO_DATA.HEADER');
-        var bodyError=$translate('CSAR.ERRORS.NO_DATA.BODY')
-        toaster.pop('note', titleError, bodyError, 4000, 'trustedHtml',null);
-      }
     };
 
     $scope.removeCsarGit = function(id) {

@@ -13,7 +13,8 @@ define(function (require) {
         func: '&',
         fastyle: '@',
         bssize: '@',
-        text: '@'
+        text: '@',
+        disable: '='
       }
     };
   });

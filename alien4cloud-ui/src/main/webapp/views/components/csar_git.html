@@ -47,15 +47,19 @@
     </div>
   </div>
 
-  <!-- search form -->
   <div class="row" style="margin-top: 10px;">
-    <div class="col-md-2 well">
-      <form role="search" ng-submit="searchCsarsGit()">
+    <!-- search form -->
+    <div class="col-md-2 well" id="search_container">
+      <form role="search" ng-submit="search()">
         <div class="input-group">
-          <input type="text" class="form-control" placeholder="..."
-          ng-model="queryCsarGit">
+          <input
+            id="search_query"
+            type="text" class="form-control" placeholder="..."
+            ng-model="query">
           <span class="input-group-btn">
-            <button type="submit" class="btn btn-default"
+            <button
+              id="search_submit_btn"
+              type="submit" class="btn btn-default"
               data-loading-text="Loading...">
               <i class="fa fa-search"></i>
             </button>
@@ -63,17 +67,17 @@
         </div>
       </form>
       <div class="btn-group-vertical btn-block" style="margin-top: 5px" role="group" aria-label="...">
-        <button class="btn btn-success" ng-disabled="isImporting" id="MODAL_NEWCSAR" ng-click="openNewCsarGitTemplate()">
+        <button class="btn btn-success" id="MODAL_NEWCSAR" ng-click="openNewCsarGitTemplate()">
           <i class="fa fa fa-plus-circle"></i>  {{ 'CSAR.NEW_GIT' | translate}}
         </button>
-        <button class="btn btn-default ng-binding"  id="IMPORTALL_CSARGIT"  ng-disabled="isImporting" ng-click="triggerImportAllCsarGit()">
+        <button class="btn btn-default ng-binding"  id="IMPORTALL_CSARGIT"  ng-disabled="isImporting()" ng-click="triggerImportAllCsarGit()">
           <i class="fa fa-download fa-lg"> </i>  {{'CSAR.IMPORT_ALL' | translate}}
         </button>
       </div>
     </div>
 
     <!-- CSAR Git search result display -->
-    <div class="col-md-10">
+    <div class="col-md-10" id="results_container">
       <div class="table-responsive large-data-container" id="users-table">
         <table class="table table-hover">
           <thead>
@@ -97,10 +101,10 @@
                 <button class=" btn-sm btn btn-default ng-binding" ng-disabled="importing[csar.id]" tooltip="{{ 'CSAR.IMPORTTOOLTIP' | translate}}" ng bssize="btn-sm" position="left" id="IMPORT_CSARGIT" ng-click="triggerImport(csar.id, csar.repositoryUrl)">
                   <i class="fa fa-download fa-lg" ng-class="{'fa-download fa-lg': !importing[csar.id], 'fa-spinner fa-spin': importing[csar.id]}"></i>
                 </button>
-                <button class=" btn-sm btn btn-default ng-binding"  ng-disabled="isImporting" ng bssize="btn-sm" tooltip="{{ 'CSAR.EDITTOOLTIP' | translate}}" position="left" id="UPDATE_CSARGIT" ng-click="openCsarGit(csar)">
+                <button class=" btn-sm btn btn-default ng-binding"  ng-disabled="importing[csar.id]" ng bssize="btn-sm" tooltip="{{ 'CSAR.EDITTOOLTIP' | translate}}" position="left" id="UPDATE_CSARGIT" ng-click="openCsarGit(csar)">
                   <i class="fa fa-pencil-square-o fa-lg" ></i>
                 </button>
-                <delete-confirm id="delete-csargit" ng-disabled="isImporting" func="removeCsarGit(csar.id);" position="left" bssize="btn-sm" fastyle="fa-trash-o"></delete-confirm>
+                <delete-confirm id="delete-csargit" disable="importing[csar.id]" func="removeCsarGit(csar.id);" position="left" bssize="btn-sm" fastyle="fa-trash-o"></delete-confirm>
               </td>
             </tr>
           </tbody>
