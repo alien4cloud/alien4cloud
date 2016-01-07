@@ -110,16 +110,21 @@ public class ApplicationsDeploymentStepDefinitions {
 
     private void assertStatus(String applicationName, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout,
             String applicationEnvironmentName) throws Throwable {
-        checkStatus(applicationName, null, expectedStatus, pendingStatus, timeout, applicationEnvironmentName);
+        checkStatus(applicationName, null, expectedStatus, pendingStatus, timeout, applicationEnvironmentName, false);
+    }
+
+    private void assertStatus(String applicationName, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout,
+            String applicationEnvironmentName, boolean failover) throws Throwable {
+        checkStatus(applicationName, null, expectedStatus, pendingStatus, timeout, applicationEnvironmentName, failover);
     }
 
     private void assertDeploymentStatus(String deploymentId, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout) throws Throwable {
-        checkStatus(null, deploymentId, expectedStatus, pendingStatus, timeout, null);
+        checkStatus(null, deploymentId, expectedStatus, pendingStatus, timeout, null, false);
     }
 
     @SuppressWarnings("rawtypes")
     private void checkStatus(String applicationName, String deploymentId, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout,
-            String applicationEnvironmentName) throws Throwable {
+            String applicationEnvironmentName, boolean failover) throws Throwable {
         String statusRequest = null;
         String applicationEnvironmentId = null;
         String applicationId = applicationName != null ? Context.getInstance().getApplicationId(applicationName) : null;
@@ -135,7 +140,12 @@ public class ApplicationsDeploymentStepDefinitions {
         long now = System.currentTimeMillis();
         while (true) {
             if (System.currentTimeMillis() - now > timeout) {
-                throw new ITException("Expected deployment to be [" + expectedStatus + "] but Test has timeouted");
+                if (failover) {
+                    log.warn("Expected deployment to be [" + expectedStatus + "] but Test has timeouted");
+                    return;
+                } else {
+                    throw new ITException("Expected deployment to be [" + expectedStatus + "] but Test has timeouted");
+                }
             }
             // get the current status
             String restResponseText = Context.getRestClientInstance().get(statusRequest);
@@ -155,9 +165,20 @@ public class ApplicationsDeploymentStepDefinitions {
                 Thread.sleep(1000L);
             } else {
                 if (applicationId != null) {
-                    throw new ITException("Expected deployment of [" + applicationId + "] to be [" + expectedStatus + "] but was [" + deploymentStatus + "]");
+                    if (failover) {
+                        log.warn("Expected deployment of app [" + applicationId + "] to be [" + expectedStatus + "] but was [" + deploymentStatus + "]");
+                        return;
+                    } else {
+                        throw new ITException("Expected deployment of app [" + applicationId + "] to be [" + expectedStatus + "] but was [" + deploymentStatus
+                                + "]");
+                    }
                 } else {
-                    throw new ITException("Expected deployment of [" + deploymentId + "] to be [" + expectedStatus + "] but was [" + deploymentStatus + "]");
+                    if (failover) {
+                        log.warn("Expected deployment [" + deploymentId + "] to be [" + expectedStatus + "] but was [" + deploymentStatus + "]");
+                        return;
+                    } else {
+                        throw new ITException("Expected deployment [" + deploymentId + "] to be [" + expectedStatus + "] but was [" + deploymentStatus + "]");
+                    }
                 }
             }
         }
@@ -505,7 +526,14 @@ public class ApplicationsDeploymentStepDefinitions {
     public void The_application_s_deployment_must_succeed_after_minutes(long numberOfMinutes) throws Throwable {
         // null value for environmentName => use default environment
         assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), DeploymentStatus.DEPLOYED, DeploymentStatus.DEPLOYMENT_IN_PROGRESS,
-                numberOfMinutes * 60L * 1000L, null);
+                numberOfMinutes * 60L * 1000L, null, false);
+    }
+
+    @And("^The application's deployment should succeed after (\\d+) minutes$")
+    public void The_application_s_deployment_should_succeed_after_minutes(long numberOfMinutes) throws Throwable {
+        // null value for environmentName => use default environment
+        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), DeploymentStatus.DEPLOYED, DeploymentStatus.DEPLOYMENT_IN_PROGRESS,
+                numberOfMinutes * 60L * 1000L, null, true);
     }
 
     @Then("^all nodes instances must be in \"([^\"]*)\" state after (\\d+) minutes$")
