@@ -20,3 +20,18 @@ module.exports.open = function(name, version){
   search(name);
   common.click(by.id('csar_'+name+':'+version));
 }
+
+
+//GIT PART
+var git = {
+    go: function(){
+      components.go();
+      common.click(by.id('cm.components.git'));
+    },
+    search: function(text){
+      common.sendKeys(by.id('search-query'), text);
+      common.click(by.id('search-submit-btn'));
+    }
+}
+
+module.exports.git = git;

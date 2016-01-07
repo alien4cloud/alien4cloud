@@ -39,7 +39,7 @@ define(function (require) {
     $scope.query = '';
     // onSearchCompleted is used as a callaback for the searchServiceFactory and triggered when the search operation is completed.
     $scope.onSearchCompleted = function(searchResult) {
-      $scope.csarGits = searchResult.data.data;
+      $scope.searchResult = searchResult.data;
     };
     // we have to insert the search service in the scope so it is available for the pagination directive.
     $scope.searchService = searchServiceFactory('rest/csarsgit', true, $scope, 20);
@@ -68,10 +68,10 @@ define(function (require) {
     };
 
     $scope.triggerImportAllCsarGit = function() {
-      var csarGits = $scope.csarGits;
-      if (_.defined(csarGits) && csarGits.length > 0) {
-        for (var i=0; i<csarGits.length; i++) {
-          $scope.triggerImport(csarGits[i].id, csarGits[i].repositoryUrl);
+      var gitRepositories = $scope.searchResult.data;
+      if (_.defined(gitRepositories) && gitRepositories.length > 0) {
+        for (var i=0; i<gitRepositories.length; i++) {
+          $scope.triggerImport(gitRepositories[i].id, gitRepositories[i].repositoryUrl);
         }
       }
       else{

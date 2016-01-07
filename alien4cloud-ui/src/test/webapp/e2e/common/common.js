@@ -44,7 +44,8 @@ var navigationIds = {
   },
   components: {
     components: 'cm.components',
-    csars: 'cm.components.csars.list'
+    csars: 'cm.components.csars.list',
+    git: 'cm.components.git'
   }
 };
 
