@@ -56,7 +56,8 @@ public class ExportESIndex {
         // Topologies
         export("curl -X POST \"http://localhost:9200/topology/_search?pretty=true\" -d '{\"from\" : 0, \"size\" : 100,\"sort\": { \"_uid\": { \"order\": \"asc\" }},\"query\" : {\"match_all\" : {}}}' | grep _source",
                 Paths.get(pathToData + "/topologies.json"));
-
+        export("curl -X POST \"http://localhost:9200/deploymenttopology/_search?pretty=true\" -d '{\"from\" : 0, \"size\" : 100,\"sort\": { \"_uid\": { \"order\": \"asc\" }},\"query\" : {\"match_all\" : {}}}' | grep _source",
+                Paths.get(pathToData + "/deploymenttopologies.json"));
         // Users and groups
         export("curl -X POST \"http://localhost:9200/user/_search?pretty=true\" -d '{\"from\" : 0, \"size\" : 100,\"sort\": { \"_uid\": { \"order\": \"asc\" }},\"query\" : {\"match_all\" : {}}}' | grep _source",
                 Paths.get(pathToData + "/users.json"));

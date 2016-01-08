@@ -2,7 +2,13 @@ package alien4cloud.plugin;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +36,11 @@ import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.plugin.exception.MissingPlugingDescriptorFileException;
 import alien4cloud.plugin.exception.PluginLoadingException;
-import alien4cloud.plugin.model.*;
+import alien4cloud.plugin.model.ManagedPlugin;
+import alien4cloud.plugin.model.PluginComponentDescriptor;
+import alien4cloud.plugin.model.PluginConfiguration;
+import alien4cloud.plugin.model.PluginDescriptor;
+import alien4cloud.plugin.model.PluginUsage;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
@@ -67,6 +77,16 @@ public class PluginManager {
     @Getter
     private List<PluginLinker> linkers = null;
 
+    public void unloadAllPlugins() {
+        log.info("Unloading plugins");
+        GetMultipleDataResult<Plugin> results = alienDAO.find(Plugin.class, MapUtil.newHashMap(new String[] { "enabled" }, new String[][] { { "true" } }),
+                Integer.MAX_VALUE);
+        for (Plugin plugin : results.getData()) {
+            unloadPlugin(plugin.getId(), false, false);
+        }
+        log.info("{} Plugins unloaded", results.getData().length);
+    }
+
     /**
      * Initialize the plugins for alien.
      *
@@ -94,7 +114,7 @@ public class PluginManager {
         GetMultipleDataResult<Plugin> results = alienDAO.find(Plugin.class, MapUtil.newHashMap(new String[] { "enabled" }, new String[][] { { "true" } }),
                 Integer.MAX_VALUE);
         loadPlugins(results.getData());
-        log.info("Plugins initialized, looking for new plugins to load.");
+        log.info("{} Plugins initialized.", results.getData().length);
 
         // TODO look for plugins on disk and load them
         // Files.walkFileTree()
@@ -205,6 +225,51 @@ public class PluginManager {
         }
     }
 
+    private void unloadPlugin(String pluginId, boolean disable, boolean remove) {
+        ManagedPlugin managedPlugin = pluginContexts.get(pluginId);
+        Path pluginPath;
+        Path pluginUiPath;
+        if (managedPlugin != null) {
+            // send events to plugin loading callbacks
+            Map<String, IPluginLoadingCallback> beans = alienContext.getBeansOfType(IPluginLoadingCallback.class);
+            for (IPluginLoadingCallback callback : beans.values()) {
+                callback.onPluginClosed(managedPlugin);
+            }
+
+            // destroy the plugin context
+            managedPlugin.getPluginContext().destroy();
+            pluginPath = managedPlugin.getPluginPath();
+            pluginUiPath = managedPlugin.getPluginUiPath();
+        } else {
+            Plugin plugin = alienDAO.findById(Plugin.class, pluginId);
+            pluginPath = getPluginPath(plugin.getPluginPathId());
+            pluginUiPath = getPluginUiPath(plugin.getPluginPathId());
+        }
+
+        // unlink the plugin
+        for (PluginLinker linker : linkers) {
+            linker.linker.unlink(pluginId);
+        }
+
+        // eventually remove it from elastic search and disk.
+        if (remove) {
+            alienDAO.delete(Plugin.class, pluginId);
+            // remove also the configuration
+            alienDAO.delete(PluginConfiguration.class, pluginId);
+            // try to delete the plugin dir in the repo
+            try {
+                FileUtil.delete(pluginPath);
+                FileUtil.delete(getPluginZipFilePath(pluginId));
+                FileUtil.delete(pluginUiPath);
+            } catch (IOException e) {
+                log.error("Failed to delete the plugin <" + pluginId + "> in the repository. You'll have to do it manually", e);
+            }
+        } else if (disable) {
+            disablePlugin(pluginId);
+        }
+        pluginContexts.remove(pluginId);
+    }
+
     /**
      * Disable a plugin.
      *
@@ -222,47 +287,7 @@ public class PluginManager {
         }
 
         if (usages.isEmpty()) {
-            Path pluginPath;
-            Path pluginUiPath;
-            if (managedPlugin != null) {
-                // send events to plugin loading callbacks
-                Map<String, IPluginLoadingCallback> beans = alienContext.getBeansOfType(IPluginLoadingCallback.class);
-                for (IPluginLoadingCallback callback : beans.values()) {
-                    callback.onPluginClosed(managedPlugin);
-                }
-
-                // destroy the plugin context
-                managedPlugin.getPluginContext().destroy();
-                pluginPath = managedPlugin.getPluginPath();
-                pluginUiPath = managedPlugin.getPluginUiPath();
-            } else {
-                Plugin plugin = alienDAO.findById(Plugin.class, pluginId);
-                pluginPath = getPluginPath(plugin.getPluginPathId());
-                pluginUiPath = getPluginUiPath(plugin.getPluginPathId());
-            }
-
-            // unlink the plugin
-            for (PluginLinker linker : linkers) {
-                linker.linker.unlink(pluginId);
-            }
-
-            // eventually remove it from elastic search and disk.
-            if (remove) {
-                alienDAO.delete(Plugin.class, pluginId);
-                // remove also the configuration
-                alienDAO.delete(PluginConfiguration.class, pluginId);
-                // try to delete the plugin dir in the repo
-                try {
-                    FileUtil.delete(pluginPath);
-                    FileUtil.delete(getPluginZipFilePath(pluginId));
-                    FileUtil.delete(pluginUiPath);
-                } catch (IOException e) {
-                    log.error("Failed to delete the plugin <" + pluginId + "> in the repository. You'll have to do it manually", e);
-                }
-            } else {
-                disablePlugin(pluginId);
-            }
-            pluginContexts.remove(pluginId);
+            unloadPlugin(pluginId, true, remove);
         }
         return usages;
     }

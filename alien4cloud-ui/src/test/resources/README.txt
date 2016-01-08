@@ -217,7 +217,7 @@ curl -X POST "http://localhost:9200/topologytemplate/_search?pretty=true" -d '{"
 curl -X POST "http://localhost:9200/topologytemplateversion/_search?pretty=true" -d '{"from" : 0, "size" : 100,"query" : {"match_all" : {}}}'
 
 ## Topology
-curl -X POST "http://localhost:9200/topology/_search?pretty=true" -d '{"from" : 0, "size" : 100,"query" : {"match_all" : {}}}'
+curl -X POST "http://localhost:9200/topology/_search?pretty=true" -d '{"from" : 0, "size" : 100,"query" : {"match_all" : {}}}' | grep "ComputeMKV"
 
 ## Events
 
@@ -242,5 +242,19 @@ curl -X POST "http://localhost:9200/pluginconfiguration/_search?pretty=true" -d 
     "query" : {
         "match_all" : {}
     }
+}
+'
+
+curl -X POST "http://localhost:9200/application/_search?pretty=true" -d '
+{
+        "query" : {
+              "bool" : {
+                "must" : [ {
+                  "term" : {
+                    "cloudId" : "433d9597-3891-4291-8007-c8bb477b04bb"
+                  }
+                }]
+              }
+            }
 }
 '

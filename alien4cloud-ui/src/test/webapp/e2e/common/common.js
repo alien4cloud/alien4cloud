@@ -76,11 +76,6 @@ module.exports.isNotNavigable = function(menu, menuItem) {
   expect(menuItem.isPresent()).toBe(false);
 };
 
-module.exports.before = function() {
-  // cleanup ElasticSearch and alien folders.
-  cleanup.cleanup();
-};
-
 // Common utilities to work with protractor
 function wElement(selector, fromElement) {
   var selectorStr = selector.toString();

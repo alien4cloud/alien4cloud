@@ -74,6 +74,10 @@ function cleanTopology() {
   return es.delete('topology');
 }
 
+function cleanDeploymentTopology() {
+  return es.delete('deploymenttopology');
+}
+
 function cleanDeployment() {
   return es.delete('deployment');
 }
@@ -98,7 +102,11 @@ function cleanPlugin() {
   return es.delete('plugin');
 }
 
-function cleanup() {
+module.exports.fullCleanup = function() {
+  flow.execute(cleanToscaElement);
+  flow.execute(cleanCsar);
+  flow.execute(cleanCsarGit);
+  flow.execute(cleanImagedata);
   flow.execute(cleanUser);
   flow.execute(cleanGroups);
   flow.execute(cleanPluginConfiguration);
@@ -109,22 +117,16 @@ function cleanup() {
   flow.execute(cleanApplicationVersion);
   flow.execute(cleanTopology);
   flow.execute(cleanDeployment);
+  flow.execute(cleanDeploymentTopology);
+  repositories.rmArtifacts();
+  repositories.rmArchives();
+  repositories.rmImages();
   flow.execute(cleanOrchestrator);
   flow.execute(cleanOrchestratorConfiguration);
   flow.execute(cleanLocation);
   flow.execute(cleanLocationResourceTemplate);
-  repositories.rmArtifacts();
-}
-module.exports.cleanup = cleanup;
-
-module.exports.fullCleanup = function() {
-  flow.execute(cleanToscaElement);
-  flow.execute(cleanCsar);
-  flow.execute(cleanCsarGit);
-  flow.execute(cleanImagedata);
-  flow.execute(cleanPlugin);
-  cleanup();
-  repositories.rmArchives();
-  repositories.rmPlugins();
-  repositories.rmImages();
+  // Plugin is complicated as Alien maintains states for those (classes loaded, context created ...)
+  // Best choices are to not clean plugin, tests that add plugin should clean up by them-self
+  //flow.execute(cleanPlugin);
+  //repositories.rmPlugins();
 };

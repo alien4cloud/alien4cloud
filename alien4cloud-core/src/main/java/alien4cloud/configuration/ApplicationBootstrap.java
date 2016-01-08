@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 import alien4cloud.orchestrators.services.OrchestratorStateService;
 import alien4cloud.plugin.PluginManager;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 @Slf4j
 @Component
 public class ApplicationBootstrap implements ApplicationListener<ContextRefreshedEvent> {
@@ -25,12 +27,10 @@ public class ApplicationBootstrap implements ApplicationListener<ContextRefreshe
 
     private boolean initialized = false;
 
-    @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
-        if (initialized) {
-            return;
-        }
-        initialized = true;
+    /**
+     * This operation initialize the JVM of Alien with configured plugins and context
+     */
+    public ListenableFuture<?> bootstrap() {
         try {
             // initialize existing plugins
             pluginManager.initialize();
@@ -40,6 +40,23 @@ public class ApplicationBootstrap implements ApplicationListener<ContextRefreshe
         } catch (IOException e) {
             log.error("Error while loading plugins.", e);
         }
-        orchestratorStateService.initialize();
+        return orchestratorStateService.initialize();
+    }
+
+    /**
+     * This operation unloads all plugin and orchestrator
+     */
+    public void teardown() {
+        orchestratorStateService.unloadAllOrchestrators();
+        pluginManager.unloadAllPlugins();
+    }
+
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        if (initialized) {
+            return;
+        }
+        initialized = true;
+        bootstrap();
     }
 }
