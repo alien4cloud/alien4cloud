@@ -4,29 +4,36 @@ define(function (require) {
   var modules = require('modules');
   var _ = require('lodash');
 
-  modules.get('a4c-components', ['ui.bootstrap']).controller('CsarGitCrudController', ['$scope', '$modalInstance', 'csar',
-    function($scope, $modalInstance, csar) {
-      $scope.csarGit = csar;
-      $scope.create = function(csarGit) {
-        $modalInstance.close($scope.csarGit);
+  modules.get('a4c-components', ['ui.bootstrap']).controller('CsarGitCrudController', ['$scope', '$modalInstance', 'gitRepository',
+    function($scope, $modalInstance, gitRepository) {
+      $scope.gitRepository = _.cloneDeep(gitRepository);
+
+      $scope.create = function(gitRepo) {
+        $modalInstance.close(gitRepo);
       };
 
       $scope.cancel = function() {
         $modalInstance.dismiss('cancel');
         $scope.id = 0;
-        $scope.csarGit = undefined;
+        $scope.gitRepository = undefined;
       };
 
       $scope.removeCsarLocation = function(index){
-        $scope.csarGit.importLocations.splice(index, 1);
-      }
-      var removeIfLocationExists=function(location){
-        for (var i=0;i<$scope.csarGit.importLocations.length;i++) {
-          var loc = $scope.csarGit.importLocations[i];
-          if (loc.subPath === location.subPath && loc.branchId === location.branchId) {
-            $scope.csarGit.importLocations.splice(i, 1);
-            return;
-          }
+        $scope.gitRepository.importLocations.splice(index, 1);
+      };
+
+      $scope.validLocation = function(location) {
+        if (_.undefined(location) || _.isEmpty(location.branchId)){
+          return false;
+        }
+
+        //check it doesn't already exist
+        if(_.definedPath($scope, 'gitRepository.importLocations')){
+            return _.undefined(_.find($scope.gitRepository.importLocations, function(loc){
+                      return loc.branchId === location.branchId && (loc.subPath||'') === (location.subPath||'')
+                    }));
+        }else{
+          return true;
         }
       };
 
@@ -36,9 +43,8 @@ define(function (require) {
       };
 
       $scope.addLocation=function(location){
-        $scope.csarGit.importLocations = $scope.csarGit.importLocations || [];
-        removeIfLocationExists(location);
-        $scope.csarGit.importLocations.push({
+        $scope.gitRepository.importLocations = $scope.gitRepository.importLocations || [];
+        $scope.gitRepository.importLocations.push({
           subPath: location.subPath,
           branchId: location.branchId
         });

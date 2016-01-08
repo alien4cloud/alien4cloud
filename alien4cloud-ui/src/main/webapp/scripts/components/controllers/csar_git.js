@@ -143,7 +143,7 @@ define(function (require) {
         controller: 'CsarGitCrudController',
         scope: $scope,
         resolve: {
-          csar: function () {
+          gitRepository: function () {
             return {
               'username': undefined,
               'password': undefined,
@@ -151,9 +151,6 @@ define(function (require) {
               'importLocations': [],
               'storedLocally': false
             };
-          },
-          editMode: function() {
-            return false;
           }
         }
       });
@@ -176,11 +173,8 @@ define(function (require) {
         controller: 'CsarGitCrudController',
         scope: $scope,
         resolve: {
-          csar: function () {
+          gitRepository: function () {
             return csar;
-          },
-          editMode: function() {
-            return true;
           }
         }
       });
@@ -190,8 +184,11 @@ define(function (require) {
           if (errorMessage.error != null) {
             var title = $translate('CSAR.ERRORS.' + errorMessage.error.code + '_TITLE');
             toaster.pop('error', title, errorMessage.message, 4000, 'trustedHtml', null);
+          }else{
+            //Do this instead of $scope.search(), to avoid useless REST call
+            var index = _.indexOf($scope.searchResult.data, csar);
+            $scope.searchResult.data.splice(index, 1, gitRepo);
           }
-          $scope.search();
         });
       });
     };

@@ -67,10 +67,10 @@
         </div>
       </form>
       <div class="btn-group-vertical btn-block" style="margin-top: 5px" role="group" aria-label="...">
-        <button class="btn btn-success" id="MODAL_NEWCSAR" ng-click="openNewCsarGitTemplate()">
+        <button class="btn btn-success" id="btn-new-gitRepository" ng-click="openNewCsarGitTemplate()">
           <i class="fa fa fa-plus-circle"></i>  {{ 'CSAR.NEW_GIT' | translate}}
         </button>
-        <button class="btn btn-default ng-binding"  id="IMPORTALL_CSARGIT"  ng-disabled="isImporting()" ng-click="triggerImportAllCsarGit()">
+        <button class="btn btn-default ng-binding"  id="btn-import-all"  ng-disabled="isImporting()" ng-click="triggerImportAllCsarGit()">
           <i class="fa fa-download fa-lg"> </i>  {{'CSAR.IMPORT_ALL' | translate}}
         </button>
       </div>
@@ -98,10 +98,10 @@
                 <span style="display:block;"ng-repeat="location in gitRepository.importLocations"> {{location.branchId || '*'}}</span>
               </td>
               <td>
-                <button class=" btn-sm btn btn-default ng-binding" ng-disabled="importing[gitRepository.id]" tooltip="{{ 'CSAR.IMPORTTOOLTIP' | translate}}" ng bssize="btn-sm" position="left" id="IMPORT_CSARGIT" ng-click="triggerImport(gitRepository.id, gitRepository.repositoryUrl)">
+                <button class=" btn-sm btn btn-default ng-binding" ng-disabled="importing[gitRepository.id]" tooltip="{{ 'CSAR.IMPORTTOOLTIP' | translate}}" ng bssize="btn-sm" position="left" id="import_{{gitRepository.id}}" ng-click="triggerImport(gitRepository.id, gitRepository.repositoryUrl)">
                   <i class="fa fa-download fa-lg" ng-class="{'fa-download fa-lg': !importing[gitRepository.id], 'fa-spinner fa-spin': importing[gitRepository.id]}"></i>
                 </button>
-                <button class=" btn-sm btn btn-default ng-binding"  ng-disabled="importing[gitRepository.id]" ng bssize="btn-sm" tooltip="{{ 'CSAR.EDITTOOLTIP' | translate}}" position="left" id="UPDATE_CSARGIT" ng-click="openCsarGit(gitRepository)">
+                <button class=" btn-sm btn btn-default ng-binding"  ng-disabled="importing[gitRepository.id]" ng bssize="btn-sm" tooltip="{{ 'CSAR.EDITTOOLTIP' | translate}}" position="left" id="edit_{{gitRepository.id}}" ng-click="openCsarGit(gitRepository)">
                   <i class="fa fa-pencil-square-o fa-lg" ></i>
                 </button>
                 <delete-confirm id="delete-{{gitRepository.id}}" disable="importing[gitRepository.id]" func="removeCsarGit(gitRepository.id);" position="left" bssize="btn-sm" fastyle="fa-trash-o"></delete-confirm>
