@@ -92,7 +92,7 @@ function wElement(selector, fromElement) {
   } else {
 	  elementToWait = browser.element(selector);
   }
-  
+
   browser.wait(function() {
     var deferred = protractor.promise.defer();
     var isPresentPromise = elementToWait.isPresent();
@@ -104,7 +104,7 @@ function wElement(selector, fromElement) {
     });
     return deferred.promise;
   }, 3000, timeoutMsg);
-  
+
   return elementToWait;
 }
 module.exports.element = wElement;
@@ -118,6 +118,11 @@ function click(selector, fromElement, skipWaitAngular) {
   return target;
 }
 module.exports.click = click;
+
+module.exports.clear = function(selector, fromElement){
+  var target = wElement(selector, fromElement);
+  target.clear();
+}
 
 module.exports.sendKeys = function(selector, keys, fromElement) {
   var target = wElement(selector, fromElement);
