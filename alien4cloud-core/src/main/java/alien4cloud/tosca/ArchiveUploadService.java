@@ -6,6 +6,8 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import lombok.extern.log4j.Log4j;
+
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
@@ -26,6 +28,7 @@ import alien4cloud.tosca.parser.ParsingResult;
 import com.google.common.collect.Maps;
 
 @Component
+@Log4j
 public class ArchiveUploadService {
 
     @Inject
@@ -73,12 +76,18 @@ public class ArchiveUploadService {
     public Map<CSARDependency, CsarDependenciesBean> preParsing(Set<Path> paths) throws ParsingException {
         Map<CSARDependency, CsarDependenciesBean> csarDependenciesBeans = Maps.newHashMap();
         for (Path path : paths) {
-            CsarDependenciesBean csarDepContainer = new CsarDependenciesBean();
-            ParsingResult<ArchiveRoot> parsingResult = parser.parse(path);
-            csarDepContainer.setPath(path);
-            csarDepContainer.setSelf(new CSARDependency(parsingResult.getResult().getArchive().getName(), parsingResult.getResult().getArchive().getVersion()));
-            csarDepContainer.setDependencies(parsingResult.getResult().getArchive().getDependencies());
-            csarDependenciesBeans.put(csarDepContainer.getSelf(), csarDepContainer);
+            try {
+                ParsingResult<ArchiveRoot> parsingResult = parser.parse(path);
+                CsarDependenciesBean csarDepContainer = new CsarDependenciesBean();
+                csarDepContainer.setPath(path);
+                csarDepContainer.setSelf(new CSARDependency(parsingResult.getResult().getArchive().getName(), parsingResult.getResult().getArchive()
+                        .getVersion()));
+                csarDepContainer.setDependencies(parsingResult.getResult().getArchive().getDependencies());
+                csarDependenciesBeans.put(csarDepContainer.getSelf(), csarDepContainer);
+            } catch (Exception e) {
+                // TODO: error should be returned in a way or another
+                log.debug("Not able to parse archive, ignoring it", e);
+            }
         }
         return csarDependenciesBeans;
     }

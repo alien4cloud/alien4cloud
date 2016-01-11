@@ -8,23 +8,52 @@ var go = function() {
 };
 module.exports.go = go;
 
-// Expose create application functions
-var createApplication = function(newAppName, newAppDescription, topologyTemplateSelectNumber) {
+var createApplication = function(newAppName, newAppDescription, templateName, templateVersion) {
   go();
   common.click(by.id('app-new-btn'));
   element(by.model('app.name')).sendKeys(newAppName);
   element(by.model('app.description')).sendKeys(newAppDescription);
 
   // Template to select
-  if (typeof topologyTemplateSelectNumber !== 'undefined') {
-    // topologyTemplateSelectNumber should start at 2 since the one at 1 is (no template) first ins the list
-    var select = element(by.id('templateid')).element(by.css('select option:nth-child(' + topologyTemplateSelectNumber + ')'));
-    select.click();
+  if (typeof templateName !== 'undefined') {
 
-    // take the first version
-    select = element(by.id('templateVersionId')).element(by.css('select option:nth-child(2)'));
-    select.click();
+    if (templateName !== '*') {
+      common.select(by.id('templateid'), templateName);
+    } else {
+      // take the first template
+      element(by.id('templateid')).element(by.css('select option:nth-child(2)')).click();
+    }
+
+    if (typeof templateVersion !== 'undefined') {
+      common.select(by.id('templateVersionId'), templateVersion);
+    } else {
+      // take the first version
+      element(by.id('templateVersionId')).element(by.css('select option:nth-child(2)')).click();
+    }
+
   }
   common.click(by.id('btn-create'));
 };
 module.exports.createApplication = createApplication;
+
+function goToApplicationDetailPage(applicationName, goOnTopology) {
+  common.go('main', 'applications');
+  // From the application search page select a particular line
+  var appElement = element(by.id('app_' + applicationName)); // .click();
+  appElement.click();
+
+  if (goOnTopology === true) {
+    common.go('applications', 'topology');
+  }
+
+  browser.waitForAngular();
+}
+module.exports.goToApplicationDetailPage = goToApplicationDetailPage;
+
+var searchApplication = function(appName) {
+  var searchInput = element(by.id('seach-applications-input'));
+  searchInput.clear();
+  searchInput.sendKeys(appName);
+  common.click(by.id('seach-applications-btn'));
+};
+module.exports.searchApplication = searchApplication;

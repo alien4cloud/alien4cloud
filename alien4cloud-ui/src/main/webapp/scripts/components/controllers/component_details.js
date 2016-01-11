@@ -236,7 +236,8 @@ define(function (require) {
       };
 
       /* Add new tags */
-      $scope.addTag = function() {
+      $scope.addTag = function(newTag) {
+        $scope.newTag = newTag;
         $scope.updateTag($scope.newTag.key, $scope.newTag.val);
         removeTagIfExists($scope.newTag.key);
         $scope.component.tags.push({

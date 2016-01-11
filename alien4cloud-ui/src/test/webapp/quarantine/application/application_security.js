@@ -138,7 +138,7 @@ describe('Security management on applications', function() {
 
     // give application_user role to 'user' user
     rolesCommon.editUserRoleForAnEnv('sauron', rolesCommon.envRoles.envUser);
-    rolesCommon.assertUserHasRolesForAnEnv('sauron', rolesCommon.envRoles.envUser);
+    rolesCommon.assertUserHasRolesForEnv('sauron', rolesCommon.envRoles.envUser);
 
     // give application_devops role to applicationManager user
     rolesCommon.editUserRole('sauron', rolesCommon.appRoles.appDevops);
@@ -160,11 +160,11 @@ describe('Security management on applications', function() {
 
     // give application_user role to 'user' user
     rolesCommon.editGroupRoleForAnEnv('mordor', rolesCommon.envRoles.envUser);
-    rolesCommon.assertGroupHasRoles('env', 'mordor', rolesCommon.envRoles.envUser);
+    rolesCommon.assertGroupHasRolesForEnv('mordor', rolesCommon.envRoles.envUser);
 
     // give application_devops role to applicationManager user
     rolesCommon.editGroupRole('mordor', rolesCommon.appRoles.appDevops);
-    rolesCommon.assertGroupHasRoles('app', 'mordor', rolesCommon.appRoles.appDevops);
+    rolesCommon.assertGroupHasRoles('mordor', rolesCommon.appRoles.appDevops);
   });
 
   it('Authenticated users even without any roles should see applications with ALL_USERS group rights on it', function() {
@@ -183,7 +183,7 @@ describe('Security management on applications', function() {
 
     // give appUser role to group ALL_USERS
     rolesCommon.editGroupRoleForAnEnv('ALL_USERS', rolesCommon.envRoles.envUser);
-    rolesCommon.assertGroupHasRoles('env', 'ALL_USERS', rolesCommon.envRoles.envUser);
+    rolesCommon.assertGroupHasRolesForEnv('ALL_USERS', rolesCommon.envRoles.envUser);
 
     // Log as sauron who has no roles on application Alien_2
     authentication.reLogin('sauron');
@@ -201,7 +201,7 @@ describe('Security management on applications', function() {
 
     // give appDevops role to group ALL_USERS
     rolesCommon.editGroupRole('ALL_USERS', rolesCommon.appRoles.appManager);
-    rolesCommon.assertGroupHasRoles('app', 'ALL_USERS', rolesCommon.appRoles.appManager);
+    rolesCommon.assertGroupHasRoles('ALL_USERS', rolesCommon.appRoles.appManager);
 
     // now any user as sauron should have at least 2 applications in the list
     authentication.reLogin('sauron');

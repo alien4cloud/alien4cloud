@@ -47,3 +47,4 @@ alien4cloud-security/.gitignore
 alien4cloud-ui/data/
 alien4cloud-security/bin/
 alien4cloud-doc-generator/
+.gitattributes

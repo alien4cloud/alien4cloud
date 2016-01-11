@@ -18,7 +18,7 @@ public class UninstallWorkflowBuilder extends StandardWorflowBuilder {
 
     @Override
     public void addNode(Workflow wf, String nodeId, TopologyContext toscaTypeFinder, boolean isCompute) {
-        if (WorkflowUtils.isNativeNode(nodeId, toscaTypeFinder)) {
+        if (WorkflowUtils.isNativeOrSubstitutionNode(nodeId, toscaTypeFinder)) {
             // for a native node, we just add a subworkflow step
             WorkflowUtils.addDelegateWorkflowStep(wf, nodeId);
         } else {
@@ -38,7 +38,7 @@ public class UninstallWorkflowBuilder extends StandardWorflowBuilder {
             TopologyContext toscaTypeFinder) {
         IndexedRelationshipType indexedRelationshipType = toscaTypeFinder.findElement(IndexedRelationshipType.class, relationshipTemplate.getType());
         String targetId = relationshipTemplate.getTarget();
-        boolean targetIsNative = WorkflowUtils.isNativeNode(targetId, toscaTypeFinder);
+        boolean targetIsNative = WorkflowUtils.isNativeOrSubstitutionNode(targetId, toscaTypeFinder);
         if (targetIsNative || WorkflowUtils.isOfType(indexedRelationshipType, NormativeRelationshipConstants.HOSTED_ON)) {
             // now the node has a parent, let's sequence the deletion (children before parent)
             String parentId = WorkflowUtils.getParentId(wf, nodeId, toscaTypeFinder);

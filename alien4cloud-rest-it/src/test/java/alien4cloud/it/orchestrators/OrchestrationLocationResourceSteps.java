@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
@@ -16,6 +17,7 @@ import alien4cloud.rest.utils.JsonUtil;
 
 import com.google.common.collect.Lists;
 
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
@@ -120,5 +122,13 @@ public class OrchestrationLocationResourceSteps {
             }
         }
 
+    }
+
+    @And("^I update the property \"([^\"]*)\" to the environment variable \"([^\"]*)\" for the resource named \"([^\"]*)\" related to the location \"([^\"]*)\"/\"([^\"]*)\"$")
+    public void iUpdateThePropertyToTheEnvironmentVariableForTheResourceNamedRelatedToTheLocation(String propertyName, String envVar, String resourceName,
+            String orchestratorName, String locationName) throws Throwable {
+        String keyName = System.getenv(envVar);
+        Assert.assertTrue(keyName + " must be defined as environment variable", StringUtils.isNotBlank(keyName));
+        I_update_the_property_to_for_the_resource_named_related_to_the_location_(propertyName, keyName, resourceName, orchestratorName, locationName);
     }
 }

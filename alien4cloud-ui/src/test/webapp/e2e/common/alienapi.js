@@ -12,8 +12,8 @@ function getOptions(method, path, cookies) {
       'Content-Type': 'application/json; charset=UTF-8'
     }
   };
-  if(cookies && cookies !== null) {
-    options.headers['Cookie'] = cookies.join( "; " );
+  if (cookies && cookies !== null) {
+    options.headers['Cookie'] = cookies.join("; ");
   }
   return options;
 }
@@ -32,5 +32,15 @@ module.exports.enablePlugin = function(pluginId, cookies) {
 
 module.exports.enableOrchestrator = function(orchestratorId, cookies) {
   var options = getOptions('POST', '/rest/orchestrators/' + orchestratorId + '/instance', cookies);
+  return http.call(options, null);
+};
+
+module.exports.initPlatform = function(cookies) {
+  var options = getOptions('POST', '/rest/maintenance/init-platform', cookies);
+  return http.call(options, null);
+};
+
+module.exports.teardownPlatform = function(cookies) {
+  var options = getOptions('POST', '/rest/maintenance/teardown-platform', cookies);
   return http.call(options, null);
 };

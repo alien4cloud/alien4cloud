@@ -19,6 +19,7 @@ import alien4cloud.exception.CyclicReferenceException;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
@@ -91,6 +92,17 @@ public class TopologyCompositionService {
                 if (pValue instanceof FunctionPropertyValue && ((FunctionPropertyValue)pValue).getFunction().equals(ToscaFunctionConstants.GET_INPUT)) {
                     String inputName = ((FunctionPropertyValue)pValue).getTemplateName();
                     propertyEntry.setValue(proxyNodeTemplate.getProperties().get(inputName));
+                }
+            }
+            for (Entry<String, Capability> capabilityEntry : childNodeTemplate.getCapabilities().entrySet()) {
+                if (capabilityEntry.getValue().getProperties() != null) {
+                    for (Entry<String, AbstractPropertyValue> propertyEntry : capabilityEntry.getValue().getProperties().entrySet()) {
+                        AbstractPropertyValue pValue = propertyEntry.getValue();
+                        if (pValue instanceof FunctionPropertyValue && ((FunctionPropertyValue) pValue).getFunction().equals(ToscaFunctionConstants.GET_INPUT)) {
+                            String inputName = ((FunctionPropertyValue) pValue).getTemplateName();
+                            propertyEntry.setValue(proxyNodeTemplate.getProperties().get(inputName));
+                        }
+                    }
                 }
             }
         }

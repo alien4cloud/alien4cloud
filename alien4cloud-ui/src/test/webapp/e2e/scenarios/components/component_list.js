@@ -28,22 +28,21 @@ describe('Component List :', function() {
   });
 
   it('Component manager should be able to see the upload box and element list', function(){
-    authentication.logout();
-    authentication.login('componentManager');
+    authentication.reLogin('componentManager');
     components.go();
     expect(element(by.id('upload-csar')).isPresent()).toBe(true);
     expectElementList();
   });
 
   it('Component browser should not be able to see the upload box and element list', function(){
-    authentication.logout();
-    authentication.login('componentBrowser');
+    authentication.reLogin('componentBrowser');
     components.go();
     expect(element(by.id('upload-csar')).isPresent()).toBe(false);
     expectElementList();
   });
 
   it('Component browser should be able to list components and check pagination', function() {
+    authentication.reLogin('componentBrowser');
     components.go();
 
     expect(element(by.id('comp-search-side-panel')).isPresent()).toBe(true);
@@ -83,7 +82,25 @@ describe('Component List :', function() {
     expect(oldVersionButton.getText()).toBe('1.0.0.wd03-SNAPSHOT');
   });
 
-  xit('should be able to use search to find components', function() {});
+  it('should be able to use search to find components', function() {
+    components.go();
+    components.search('tosca.nodes.Compute');
+    var results = element.all(by.repeater('component in searchResult.data'));
+    expect(results.count()).toBeGreaterThan(0);
+    expect(common.element(by.id('li_tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT'))).toBeTruthy();
+    
+    components.search('tosca.nodes.BlockStorage');
+    results = element.all(by.repeater('component in searchResult.data'));
+    expect(results.count()).toBeGreaterThan(0);
+    expect(common.element(by.id('li_tosca.nodes.BlockStorage:1.0.0.wd06-SNAPSHOT'))).toBeTruthy();
+    
+    //case nothing 
+    components.search('dragonBallZ');
+    results = element.all(by.repeater('component in searchResult.data'));
+    expect(common.element(by.tagName('empty-place-holder'))).toBeTruthy();
+    expect(results.count()).toEqual(0);
+    
+  });
   
   it('afterAll', function() { authentication.logout(); });
 });

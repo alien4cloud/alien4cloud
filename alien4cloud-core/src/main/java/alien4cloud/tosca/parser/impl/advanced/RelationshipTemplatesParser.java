@@ -18,7 +18,6 @@ import org.yaml.snakeyaml.nodes.ScalarNode;
 import org.yaml.snakeyaml.nodes.SequenceNode;
 
 import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.csar.services.CsarService;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
@@ -46,16 +45,10 @@ import com.google.common.collect.Maps;
 public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<String, RelationshipTemplate>> {
 
     @Resource
-    private CsarService csarService;
-
-    @Resource
     private ScalarParser scalarParser;
 
     @Resource
     private ICSARRepositorySearchService searchService;
-
-    @Resource
-    private TopologyServiceCore topologyServiceCore;
 
     @Override
     public Map<String, RelationshipTemplate> parse(Node node, ParsingContextExecution context) {

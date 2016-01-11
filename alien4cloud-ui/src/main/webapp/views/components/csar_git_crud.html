@@ -1,0 +1,78 @@
+<form name="newGitRepository" class="form" role="form" novalidate>
+  <div class="modal-header">
+    <h3>{{'CSAR.NEW_GIT' | translate}}</h3>
+  </div>
+  <div class="modal-body" >
+    <div class="form-group" >
+      <label for="url" class="control-label">
+        {{'CSAR.URL' | translate}}
+      </label>
+      <input type="url" class="form-control"  id="url" ng-model="gitRepository.repositoryUrl" name="url" required="" placeholder="{{'CSAR.URL' | translate}}">
+    </div>
+    <div class="form-group">
+      <label for="credentials" class="control-label" >
+        {{'CSAR.CREDENTIALS' | translate}}
+      </label>
+      <div class="input-group">
+        <span class="input-group-addon">{{'CSAR.USERNAME' | translate}}</span>
+        <input type="text" class="form-control" id="username" ng-model="gitRepository.username" name="username" placeholder="{{'OPTIONAL' | translate}}" ></input>
+        <span class="input-group-addon" style="border-left: 0; border-right: 0;">{{'CSAR.PASSWORD' | translate}}</span>
+        <input type="password" class="form-control" id="password" ng-model="gitRepository.password" name="password"  placeholder="{{'OPTIONAL' | translate}}" ></input>
+      </div>
+      <span class="help-block">
+        <i class="fa fa-question-circle"></i><i>  {{'CSAR.CREDENTIALSINFO' | translate}}</i>
+      </span>
+      <div class="form-group">
+        <table class="table table-condensed" style="width: auto;" align="center">
+          <thead>
+            <tr>
+              <th data-field="branchName">{{'CSAR.BRANCHE_TO_IMPORT' | translate}}</th>
+              <th data-field="archiveName" >{{'CSAR.ARCHIVE_TO_IMPORT' | translate}}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="location in gitRepository.importLocations track by $index">
+              <td>
+                <span>
+                  <strong>{{location.branchId}}</strong>
+                </span>
+              </td>
+              <td>
+                <span>
+                  <strong>{{location.subPath || '*'}}</strong>
+                </span>
+              </td>
+              <td>
+                <delete-confirm id="delete-location-{{$index}}" func="removeCsarLocation($index);" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                </delete-confirm>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input type="text"class="form-control" id="branchId" ng-model="location.branchId" name="branchId" placeholder="{{'CSAR.BRANCH' | translate}}"></input>
+              </td>
+              <td>
+                <input type="text" class="form-control" id="subPath" ng-model="location.subPath" name="subPath"  placeholder="{{'CSAR.ARCHIVE' | translate}}">
+              </td>
+              <td>
+                <button id="btn-add-location" class="btn btn-info" ng bssize="btn-sm" ng-disabled="!gitRepository.repositoryUrl || !validLocation(location)" ng-click="addLocation(location)">
+                  <i class="fa fa-plus-circle fa-lg"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" ng-model="gitRepository.storedLocally" /> {{'CSAR.SAVE_LOCALLY' | translate}}
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="btn-save" ng-disabled="!gitRepository.repositoryUrl || !gitRepository.importLocations.length >0" ng-click="create(gitRepository)" class="btn btn-primary">{{'GENERIC_FORM.SAVE' | translate}}</button>
+      <button id="btn-cancel" type="button" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
+    </div>
+  </div>
+</form>

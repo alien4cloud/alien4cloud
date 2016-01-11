@@ -1,12 +1,16 @@
 <div>
   <!-- CSAR search form -->
   <div class="row" style="margin-top: 10px;">
-    <div class="col-md-2 well">
+    <div class="col-md-2 well" id="search-container">
       <form role="search" ng-submit="search()">
         <div class="input-group">
-          <input type="text" class="form-control" placeholder="..."
+          <input
+          	id = "csar-query-input"
+          	type="text" class="form-control" placeholder="..."
             ng-model="query"> <span class="input-group-btn">
-            <button type="submit" class="btn btn-default"
+            <button
+              id="btn-search-csar"
+              type="submit" class="btn btn-default"
               data-loading-text="Loading...">
               <i class="fa fa-search"></i>
             </button>
@@ -16,8 +20,8 @@
     </div>
 
     <!-- CSAR search result display -->
-    <div class="col-md-10">
-      <div class="table-responsive large-data-container" id="users-table">
+    <div class="col-md-10" id = "result-container">
+      <div class="table-responsive large-data-container" id="csars-table">
         <table class="table table-hover">
           <thead>
             <tr>
@@ -29,7 +33,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="csar in csarSearchResult.data.data" ng-click="openCsar(csar.id)" id="csar_{{csar.id}}" name="csar_{{csar.id}}" class="clickable">
+            <tr ng-repeat="csar in searchResult.data" ng-click="openCsar(csar.id)" id="csar_{{csar.id}}" name="csar_{{csar.id}}" class="clickable">
               <td>
                 <i class="pull-left media-object fa fa-archive fa-2x"></i>
               </td>
@@ -45,6 +49,12 @@
             </tr>
           </tbody>
         </table>
+
+        <empty-place-holder
+          for="'COMPONENTS.ARCHIVE'"
+          data="searchResult.data">
+        </empty-place-holder>
+        
         <pagination-directive pagination-info="searchService.pagination"/>
       </div>
     </div>

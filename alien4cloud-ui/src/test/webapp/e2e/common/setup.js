@@ -45,15 +45,21 @@ var mockPlugin10Path = path.resolve(__dirname, '../../../../../../alien4cloud-mo
 var mockPluginArchive = path.resolve(__dirname, '../../../../../../alien4cloud-mock-paas-provider-plugin/src/main/resources/openstack/mock-resources');
 var mockPluginOSArchive = path.resolve(__dirname, '../../../../../../alien4cloud-mock-paas-provider-plugin/src/main/resources/openstack/mock-openstack-resources');
 
+// user and group
+var users = require(__dirname + '/../_data/users.json');
+var groups = require(__dirname + '/../_data/groups.json');
+
 function index(indexName, typeName, data) {
   var defer = protractor.promise.defer();
   var promises = [];
-  for(var i=0; i < data.length ;i++) {
+  for (var i = 0; i < data.length; i++) {
     var indexPromise = es.index(indexName, typeName, JSON.stringify(data[i]));
     promises.push(indexPromise);
   }
-  protractor.promise.all(promises).then(function () {
+  protractor.promise.all(promises).then(function() {
+    es.refresh(indexName).then(function() {
       defer.fulfill('done');
+    });
   });
   return defer.promise;
 }
@@ -67,50 +73,100 @@ function doSetup() {
   repositories.copyImages(imagesPath);
 
   // Update ElasticSearch
-  flow.execute(function(){return index('csargitrepository', 'csargitrepository', csargitrepositories);});
-  flow.execute(function(){return index('csar', 'csar', csars);});
-  flow.execute(function(){return index('toscaelement', 'indexedartifacttype', indexedartifacttypes);});
-  flow.execute(function(){return index('toscaelement', 'indexedcapabilitytype', indexedcapabilitytypes);});
-  flow.execute(function(){return index('toscaelement', 'indexeddatatype', indexeddatatypes);});
-  flow.execute(function(){return index('toscaelement', 'indexednodetype', indexednodetypes);});
-  flow.execute(function(){return index('toscaelement', 'indexedrelationshiptype', indexedrelationshiptypes);});
-  flow.execute(function(){return index('imagedata', 'imagedata', imagedatas);});
+  flow.execute(function() {
+    return index('csargitrepository', 'csargitrepository', csargitrepositories);
+  });
+  flow.execute(function() {
+    return index('csar', 'csar', csars);
+  });
+  flow.execute(function() {
+    return index('toscaelement', 'indexedartifacttype', indexedartifacttypes);
+  });
+  flow.execute(function() {
+    return index('toscaelement', 'indexedcapabilitytype', indexedcapabilitytypes);
+  });
+  flow.execute(function() {
+    return index('toscaelement', 'indexeddatatype', indexeddatatypes);
+  });
+  flow.execute(function() {
+    return index('toscaelement', 'indexednodetype', indexednodetypes);
+  });
+  flow.execute(function() {
+    return index('toscaelement', 'indexedrelationshiptype', indexedrelationshiptypes);
+  });
 
-  flow.execute(function(){return index('topologytemplate', 'topologytemplate', topologytemplates);});
-  flow.execute(function(){return index('topologytemplateversion', 'topologytemplateversion', topologytemplateversions);});
-  flow.execute(function(){return index('topology', 'topology', topologies);});
+  flow.execute(function() {
+    return index('topologytemplate', 'topologytemplate', topologytemplates);
+  });
+  flow.execute(function() {
+    return index('topologytemplateversion', 'topologytemplateversion', topologytemplateversions);
+  });
+  flow.execute(function() {
+    return index('topology', 'topology', topologies);
+  });
 
-  flow.execute(function(){return index('plugin', 'plugin', plugins);});
-  flow.execute(function(){return index('orchestrator', 'orchestrator', orchestrators);});
-  flow.execute(function(){return index('orchestratorconfiguration', 'orchestratorconfiguration', orchestratorsconf);});
-  flow.execute(function(){return index('location', 'location', locations);});
-  flow.execute(function(){return index('locationresourcetemplate', 'locationresourcetemplate', locationresourcetemplates);});
+  flow.execute(function() {
+    return index('plugin', 'plugin', plugins);
+  });
+  flow.execute(function() {
+    return index('orchestrator', 'orchestrator', orchestrators);
+  });
+  flow.execute(function() {
+    return index('orchestratorconfiguration', 'orchestratorconfiguration', orchestratorsconf);
+  });
+  flow.execute(function() {
+    return index('location', 'location', locations);
+  });
+  flow.execute(function() {
+    return index('locationresourcetemplate', 'locationresourcetemplate', locationresourcetemplates);
+  });
 
-  flow.execute(function(){return index('application', 'application', applications);});
-  flow.execute(function(){return index('applicationenvironment', 'applicationenvironment', applicationenvironments);});
-  flow.execute(function(){return index('applicationversion', 'applicationversion', applicationversions);});
+  flow.execute(function() {
+    return index('application', 'application', applications);
+  });
+  flow.execute(function() {
+    return index('applicationenvironment', 'applicationenvironment', applicationenvironments);
+  });
+  flow.execute(function() {
+    return index('applicationversion', 'applicationversion', applicationversions);
+  });
+
+  flow.execute(function() {
+    return index('user', 'user', users);
+  });
+  flow.execute(function() {
+    return index('group', 'group', groups);
+  });
+
+  flow.execute(function() {
+    return index('imagedata', 'imagedata', imagedatas);
+  });
 
 }
 
-function doEnableOrchestrator() {
+function doInitializePlatform() {
   var defer = protractor.promise.defer();
-  alien.login('admin', 'admin').then(function(response){
+  alien.login('admin', 'admin').then(function(response) {
     var cookies = response.headers['set-cookie'];
     // Enable the plugins - this has to be done through alien API as it has to load classes.
-    alien.enablePlugin('alien4cloud-mock-paas-provider:1.0', cookies).then(function(){
-      // Enable the orchestrators - this has to be done through alien API as it has to register the orchestrator monitor.
-      alien.enableOrchestrator('f3657e4d-4250-45b4-a862-2e91699ef7a1', cookies).then(function(){
-        alien.enableOrchestrator('91c78b3e-e9fa-4cda-80ba-b44551e4a475', cookies).then(function(){
-          defer.fulfill('done');
-        });
+    alien.teardownPlatform(cookies).then(function() {
+      alien.initPlatform(cookies).then(function() {
+        defer.fulfill('done');
       });
-    });
+    })
   });
   return defer.promise;
 }
 
 module.exports.setup = function() {
+  // This setup test data
   cleanup.fullCleanup();
   doSetup();
-  flow.execute(doEnableOrchestrator);
+  flow.execute(doInitializePlatform);
+};
+
+module.exports.index = function(indexName, typeName, data) {
+  flow.execute(function() {
+    return index(indexName, typeName, data);
+  });
 };

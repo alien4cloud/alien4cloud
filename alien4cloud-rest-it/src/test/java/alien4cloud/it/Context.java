@@ -30,6 +30,7 @@ import org.springframework.util.PropertyPlaceholderHelper;
 
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.it.exception.ITException;
+import alien4cloud.it.provider.util.AwsClient;
 import alien4cloud.it.provider.util.OpenStackClient;
 import alien4cloud.json.deserializer.AttributeDeserializer;
 import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
@@ -168,8 +169,6 @@ public class Context {
 
     private Map<String, String> applicationInfos;
 
-    private Map<String, String> csarGitInfos;
-
     private Map<String, String> orchestratorIds;
 
     private Map<String, Map<String, String>> orchestratorLocationIds;
@@ -197,7 +196,11 @@ public class Context {
 
     private OpenStackClient openStackClient;
 
+    private AwsClient awsClient;
+
     private String currentWorkflowName;
+
+    private String csarGitRepositoryId;
 
     private Context() {
         ClasspathResourceLoader classpathResourceLoader = new ClasspathResourceLoader(Thread.currentThread().getContextClassLoader());
@@ -268,10 +271,6 @@ public class Context {
 
     public String getCloudImageId(String cloudImageName) {
         return cloudImageNameToCloudImageIdMapping.get(cloudImageName);
-    }
-
-    public Map<String, String> getCsarGitInfos() {
-        return csarGitInfos;
     }
 
     public void registerApplicationVersionId(String applicationVersionName, String applicationVersionId) {
@@ -501,15 +500,6 @@ public class Context {
         topologyCloudInfos = cloudId;
     }
 
-    public void saveCsarGitInfos(String id, String url) {
-        if (this.csarGitInfos != null) {
-            this.csarGitInfos.put(id, url);
-            return;
-        }
-        this.csarGitInfos = MapUtil.newHashMap(new String[] { id }, new String[] { url });
-        csarGitInfos.put(id, url);
-    }
-
     public String getCloudForTopology() {
         return topologyCloudInfos;
     }
@@ -622,6 +612,13 @@ public class Context {
         return this.openStackClient;
     }
 
+    public AwsClient getAwsClient() {
+        if (this.awsClient == null) {
+            this.awsClient = new AwsClient();
+        }
+        return this.awsClient;
+    }
+
     private String getManagementServerPublicIp(String managerPropertyName) {
         String managementServerName = getAppProperty(managerPropertyName);
         Server managementServer = this.getOpenStackClient().findServerByName(managementServerName);
@@ -679,6 +676,14 @@ public class Context {
 
     public String getCurrentWorkflowName() {
         return currentWorkflowName;
+    }
+
+    public void setCsarGitRepositoryId(String id) {
+        this.csarGitRepositoryId = id;
+    }
+
+    public String getCsarGitRepositoryId() {
+        return this.csarGitRepositoryId;
     }
 
 }

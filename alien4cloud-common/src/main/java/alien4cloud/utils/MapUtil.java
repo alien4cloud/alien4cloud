@@ -32,10 +32,13 @@ public final class MapUtil {
         if (StringUtils.isBlank(path)) {
             return object;
         }
-        String[] tokens = path.split("\\.");
+        String[] tokens = path.split("[\\.\\]\\[]");
 
         Object value = object;
         for (String token : tokens) {
+            if (StringUtils.isEmpty(token)) {
+                continue;
+            }
             if (value instanceof List) {
                 List<Object> nested = (List<Object>) value;
                 try {

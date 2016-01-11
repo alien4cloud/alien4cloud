@@ -6,7 +6,7 @@ var http = require('./simplehttp');
 
 function getOptions(method, indexName, typeName, content) {
   var path = '/' + indexName;
-  if(typeName && typeName!==null) {
+  if (typeName && typeName !== null) {
     path = path + '/' + typeName;
   }
   var options = {
@@ -18,7 +18,7 @@ function getOptions(method, indexName, typeName, content) {
       'Content-Type': 'application/json; charset=UTF-8'
     }
   };
-  if(content && content !== null) {
+  if (content && content !== null) {
     options.headers['Content-Length'] = content.length;
   }
   return options;
@@ -45,4 +45,10 @@ module.exports.delete = function(indexName, query) {
 module.exports.index = function(indexName, typeName, content) {
   var options = getOptions('POST', indexName, typeName);
   return http.call(options, content, true, true);
+};
+
+module.exports.refresh = function(indexName) {
+  var refreshOptions = getOptions('POST', indexName, null, null);
+  refreshOptions.path = refreshOptions.path + '/_refresh';
+  return http.call(refreshOptions, null, true, true);
 };
