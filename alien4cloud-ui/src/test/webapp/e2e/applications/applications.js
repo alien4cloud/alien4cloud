@@ -36,19 +36,31 @@ var createApplication = function(newAppName, newAppDescription, templateName, te
 };
 module.exports.createApplication = createApplication;
 
-function goToApplicationDetailPage(applicationName, goOnTopology) {
+function goToApplicationDetailPage(applicationName) {
   common.go('main', 'applications');
   // From the application search page select a particular line
-  var appElement = element(by.id('app_' + applicationName)); // .click();
-  appElement.click();
-
-  if (goOnTopology === true) {
-    common.go('applications', 'topology');
+  if(applicationName) {
+    var appElement = element(by.id('app_' + applicationName)); // .click();
+    appElement.click();
+  } else {
+    browser.element(by.binding('application.name')).click();
   }
-
   browser.waitForAngular();
 }
+
 module.exports.goToApplicationDetailPage = goToApplicationDetailPage;
+
+function goToApplicationTopologyPage(applicationName) {
+  goToApplicationDetailPage(applicationName);
+  common.go('applications', 'topology');
+}
+module.exports.goToApplicationTopologyPage = goToApplicationTopologyPage;
+
+function goToApplicationDeploymentPage(applicationName) {
+  goToApplicationDetailPage(applicationName);
+  common.go('applications', 'deployment');
+}
+module.exports.goToApplicationDeploymentPage = goToApplicationDeploymentPage;
 
 var searchApplication = function(appName) {
   var searchInput = element(by.id('seach-applications-input'));

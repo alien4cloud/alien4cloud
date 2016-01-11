@@ -47,6 +47,12 @@
         "value": [
           "DEPLOYER"
         ]
+      },
+      {
+        "key": "applicationManager",
+        "value": [
+          "DEPLOYER"
+        ]
       }
     ],
     "lastUpdateDate": 1448095589970
