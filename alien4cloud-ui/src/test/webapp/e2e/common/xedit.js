@@ -5,8 +5,12 @@
 var common = require('./common');
 
 var sendKeys = function(id, value, withAutoCompletion, type) {
+  sendKeysWithSelector(by.id(id), value, withAutoCompletion, type);
+};
+
+var sendKeysWithSelector = function(selector, value, withAutoCompletion, type) {
   // Find the container of x-editable
-  var container = common.element(by.id(id));
+  var container = common.element(selector);
   var span = common.element(by.css('.editable-click'), container);
   // click on the span of x-editable to trigger input
   common.click(by.tagName('i'), span);
@@ -39,12 +43,18 @@ var sendKeys = function(id, value, withAutoCompletion, type) {
   }
 };
 module.exports.sendKeys = sendKeys;
+module.exports.sendKeysWithSelector = sendKeysWithSelector;
 
 var xeditExpect = function(id, value) {
-  var container = common.element(by.id(id));
+  xeditExpectWithSelector(by.id(id), value);
+};
+
+var xeditExpectWithSelector = function(selector, value) {
+  var container = common.element(selector);
   var span = common.element(by.tagName('span'), container);
   span.getText().then(function(spanText) {
     expect(spanText.toLowerCase()).toContain(value.toString().toLowerCase());
   });
 };
 module.exports.expect = xeditExpect;
+module.exports.expectWithSelector = xeditExpectWithSelector;

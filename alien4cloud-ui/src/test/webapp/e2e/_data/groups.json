@@ -1,7 +1,3 @@
 [
-  {"id":"0b00deff-221e-46c6-84a4-864f5b66e01e","name":"ALL_USERS","description":"A internal group representing all alien users.","roles":["COMPONENTS_BROWSER"]},
-  {"id":"16d44c66-171f-4983-81ac-0c57c5d034f2","name":"ALL_USERS","description":"A internal group representing all alien users.","roles":["COMPONENTS_BROWSER"]},
-  {"id":"2f430fc4-d7a6-44d0-8510-8024cf7fefdf","name":"mordor","email":"mordor@middleearth.nz","users":["sauron"]},
-  {"id":"488f5000-8c93-421a-8b3f-68f7ae85cd78","name":"ALL_USERS","description":"A internal group representing all alien users.","roles":["COMPONENTS_BROWSER"]},
-  {"id":"829992cc-7e35-4644-b900-ca3ecc8248a6","name":"ALL_USERS","description":"A internal group representing all alien users.","roles":["COMPONENTS_BROWSER"]}
+  {"id":"2f430fc4-d7a6-44d0-8510-8024cf7fefdf","name":"mordor","email":"mordor@middleearth.nz","users":["sauron"]}
 ]

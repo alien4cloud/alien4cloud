@@ -28,22 +28,21 @@ describe('Component List :', function() {
   });
 
   it('Component manager should be able to see the upload box and element list', function(){
-    authentication.logout();
-    authentication.login('componentManager');
+    authentication.reLogin('componentManager');
     components.go();
     expect(element(by.id('upload-csar')).isPresent()).toBe(true);
     expectElementList();
   });
 
   it('Component browser should not be able to see the upload box and element list', function(){
-    authentication.logout();
-    authentication.login('componentBrowser');
+    authentication.reLogin('componentBrowser');
     components.go();
     expect(element(by.id('upload-csar')).isPresent()).toBe(false);
     expectElementList();
   });
 
   it('Component browser should be able to list components and check pagination', function() {
+    authentication.reLogin('componentBrowser');
     components.go();
 
     expect(element(by.id('comp-search-side-panel')).isPresent()).toBe(true);

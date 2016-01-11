@@ -31,33 +31,31 @@ describe('Topology input/output properties', function() {
 
   it('should be able to define properties as input or output and see their values in application details view', function() {
     console.log('################# should be able to define properties as input or output and see their values in application details view');
-    cloudsCommon.giveRightsOnCloudToUser('testcloud', 'applicationManager', rolesCommon.cloudRoles.cloudDeployer);
-    navigation.go('main', 'applications');
+    common.go('main', 'applications');
     browser.element(by.binding('application.name')).click();
-    navigation.go('applications', 'topology');
+    common.go('applications', 'topology');
     topologyEditorCommon.addNodeTemplatesCenterAndZoom({
       compute: componentData.toscaBaseTypes.compute()
     });
-    topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
-    topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
-    topologyEditorCommon.editNodeProperty('Compute', 'containee_types', 'test', 'cap');
-    topologyEditorCommon.editNodeProperty('Compute', 'disk_size', '1024', 'pro', 'MIB');
-    topologyEditorCommon.editNodeProperty('Compute', 'ip_address', '192.168.1.1');
+    topologyEditorCommon.editNodeProperty('Compute', 'architecture', 'x86_64', 'cap');
+    topologyEditorCommon.editNodeProperty('Compute', 'distribution', 'Ubuntu', 'cap');
+    topologyEditorCommon.editNodeProperty('Java', 'component_version', '1.8');
+    topologyEditorCommon.editNodeProperty('Java', 'java_home', '/root/java');
 
     topologyEditorCommon.addScalingPolicy('Compute', 1, 2, 3);
 
-    topologyEditorCommon.togglePropertyInput('Compute', 'ip_address');
-    topologyEditorCommon.togglePropertyOutput('Compute', 'disk_size');
+    topologyEditorCommon.togglePropertyInput('Compute', 'architecture');
+    topologyEditorCommon.togglePropertyOutput('Compute', 'distribution');
     topologyEditorCommon.toggleAttributeOutput('Compute', 'ip_address');
     checkPropertyState();
 
     // check again after reloading the page
-    navigation.go('main', 'applications');
+    common.go('main', 'applications');
     browser.element(by.binding('application.name')).click();
-    navigation.go('applications', 'topology');
+    common.go('applications', 'topology');
     checkPropertyState();
 
-    navigation.go('applications', 'deployment');
+    common.go('applications', 'deployment');
     var selected = cloudsCommon.selectApplicationCloud('testcloud');
     expect(selected).toBe(true); // testcloud is in the select
     browser.sleep(2000);

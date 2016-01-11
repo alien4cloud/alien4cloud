@@ -1,8 +1,5 @@
 package alien4cloud.rest.csar;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
 import java.util.List;
 
 import javax.inject.Inject;
@@ -31,6 +28,8 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.tosca.ArchiveUploadService;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingResult;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/rest/csarsgit")
@@ -60,7 +59,7 @@ public class CsarGitController {
      * Retrieve information on a repository from the system
      *
      * @param id The unique id of the CsarGit to retrieve.
-     * @return The CsarGit matching the requested id or url.
+     * @return The CsarGit matching the requested id.
      */
     @ApiOperation(value = "Retrieve information on a registered TOSCA CSAR git repository.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
@@ -92,7 +91,7 @@ public class CsarGitController {
      * Delete information on a repository from the system
      *
      * @param id The unique id of the CsarGit to retrieve.
-     * @return The CsarGit matching the requested id or url.
+     * @return The CsarGit matching the requested id.
      */
     @ApiOperation(value = "Delete a registered TOSCA CSAR git repository.")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)

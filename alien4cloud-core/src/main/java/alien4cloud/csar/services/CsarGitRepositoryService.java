@@ -8,6 +8,8 @@ import javax.annotation.Resource;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
+import com.google.common.base.Strings;
+
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
@@ -16,8 +18,6 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.git.CsarGitCheckoutLocation;
 import alien4cloud.model.git.CsarGitRepository;
 import alien4cloud.utils.UrlUtil;
-
-import com.google.common.base.Strings;
 
 /**
  * Manages operations on a CsarGitRepository
@@ -72,42 +72,15 @@ public class CsarGitRepositoryService {
     /**
      * Get the csar git repository matching the given id or throw a NotFoundException
      *
-     * @param id If of the csar git repository that we want to get.
+     * @param id Id of the csar git repository that we want to get.
      * @return An instance of the csar git repository.
      */
-    public CsarGitRepository getOrFailById(String id) {
+    public CsarGitRepository getOrFail(String id) {
         CsarGitRepository csarGitRepository = alienDAO.findById(CsarGitRepository.class, id);
         if (csarGitRepository == null) {
             throw new NotFoundException("CSAR Git repository [" + id + "] doesn't exists.");
         }
         return csarGitRepository;
-    }
-
-    /**
-     * Get a csar git repository matching the given repository url or throw a NotFoundException if none can be found for the given url.
-     *
-     * @param url The URL of the repository
-     * @return An instance of the csar git repository
-     */
-    public CsarGitRepository getCsargitByUrl(String url) {
-        CsarGitRepository csarGitRepository = alienDAO.customFind(CsarGitRepository.class, QueryBuilders.termQuery(URL_FIELD, url));
-        if (csarGitRepository == null) {
-            throw new NotFoundException("CSAR Git repository [" + url + "] doesn't exists.");
-        }
-        return csarGitRepository;
-    }
-
-    /**
-     * Get the csar git repository matching the given id or throw a NotFoundException.
-     *
-     * @param idOrUrl The id or url to access the git repository.
-     * @return An instance of the csar git repository matching the given id or url.
-     */
-    public CsarGitRepository getOrFail(String idOrUrl) {
-        if (UrlUtil.isValid(idOrUrl)) {
-            return getCsargitByUrl(idOrUrl);
-        }
-        return getOrFailById(idOrUrl);
     }
 
     /**
@@ -125,10 +98,12 @@ public class CsarGitRepositoryService {
     /**
      * Update informations for a given CsarGitRepository.
      *
-     * @param idOrUrl The id or url of the CsarGitRepository to update.
+     * @param id The id of the CsarGitRepository to update.
      * @param repositoryUrl The new url of the CsarGitRepository
      * @param username The username associated to the CsarGitRepository
      * @param password The password associated to the CsarGitRepository
+     * @param importLocations
+     * @param isStoredLocally
      */
     public void update(String id, String repositoryUrl, String username, String password, List<CsarGitCheckoutLocation> importLocations,
             boolean isStoredLocally) {

@@ -21,6 +21,7 @@ public class OpenStacksStepDefinitions {
         RestResponse<DeploymentTopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, DeploymentTopologyDTO.class, Context.getJsonMapper());
         String volumeId = FunctionEvaluator.getScalarValue(topologyResponse.getData().getTopology().getNodeTemplates().get(nodeName).getProperties()
                 .get(propertyName));
+        Assert.assertNotNull(volumeId);
         int indexOfEndRegion = volumeId.indexOf('/');
         if (indexOfEndRegion > 0) {
             volumeId = volumeId.substring(indexOfEndRegion + 1);

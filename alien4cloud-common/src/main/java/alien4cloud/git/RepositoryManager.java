@@ -5,8 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.FetchCommand;
@@ -23,6 +21,7 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import alien4cloud.exception.GitException;
 import alien4cloud.utils.FileUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility to manage git repositories.
@@ -78,15 +77,17 @@ public class RepositoryManager {
     private static void checkoutRepository(Git repository, String branch, String username, String password) {
         try {
             CheckoutCommand checkoutCommand = repository.checkout();
-            checkoutCommand.setName(branch);
+            // had to add "origin/" to fix an error when trying to checkout a branch
+            checkoutCommand.setName("origin/"+branch);
             Ref ref = checkoutCommand.call();
             if (ref == null || branch.equals(ref.getName())) {
                 // failed to checkout the branch, let's fetch it
+                //TODO: this part seems useless. check it out 
                 FetchCommand fetchCommand = repository.fetch();
                 setCredentials(fetchCommand, username, password);
                 fetchCommand.call();
                 checkoutCommand = repository.checkout();
-                checkoutCommand.setName(branch);
+                checkoutCommand.setName("origin/"+branch);
                 checkoutCommand.call();
             }
         } catch (GitAPIException e) {

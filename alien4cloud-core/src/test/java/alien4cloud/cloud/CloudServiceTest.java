@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -96,10 +95,7 @@ public class CloudServiceTest {
     }
 
     private void initializeAndWait() throws ExecutionException, InterruptedException {
-        List<Future<?>> futures = orchestratorStateService.initialize();
-        for (Future<?> future : futures) {
-            future.get();
-        }
+        orchestratorStateService.initialize().get();
     }
 
     @SuppressWarnings("unchecked")
@@ -121,8 +117,8 @@ public class CloudServiceTest {
         Mockito.when(orchestratorPluginFactory.newInstance()).thenReturn(orchestratorPlugin);
         Mockito.when(orchestratorPluginFactory.getConfigurationType()).thenReturn(String.class);
         Mockito.when(orchestratorPluginFactory.getDefaultConfiguration()).thenReturn(DEFAULT_CLOUD_CONFIGURATION);
-        Mockito.when(orchestratorConfigurationService.configurationAsValidObject(cloud.getId(), configuration.getConfiguration()))
-                .thenReturn(DEFAULT_CLOUD_CONFIGURATION);
+        Mockito.when(orchestratorConfigurationService.configurationAsValidObject(cloud.getId(), configuration.getConfiguration())).thenReturn(
+                DEFAULT_CLOUD_CONFIGURATION);
         Mockito.when(orchestratorConfigurationService.getConfigurationOrFail(cloud.getId())).thenReturn(configuration);
         initializeAndWait();
 
@@ -132,8 +128,8 @@ public class CloudServiceTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testInitializeConfigurableCloudInvalidConfig() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException,
-            PluginConfigurationException, ExecutionException, InterruptedException, IOException {
+    public void testInitializeConfigurableCloudInvalidConfig() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException,
+            SecurityException, PluginConfigurationException, ExecutionException, InterruptedException, IOException {
         initializeMockedCloudService();
 
         IOrchestratorPluginFactory orchestratorPluginFactory = Mockito.mock(IOrchestratorPluginFactory.class);
@@ -150,8 +146,8 @@ public class CloudServiceTest {
         Mockito.when(orchestratorPluginFactory.getConfigurationType()).thenReturn(String.class);
         Mockito.when(orchestratorPluginFactory.getDefaultConfiguration()).thenReturn(DEFAULT_CLOUD_CONFIGURATION);
         Mockito.when(orchestratorConfigurationService.getConfigurationOrFail(cloud.getId())).thenReturn(configuration);
-        Mockito.when(orchestratorConfigurationService.configurationAsValidObject(cloud.getId(), configuration.getConfiguration()))
-                .thenReturn(DEFAULT_CLOUD_CONFIGURATION);
+        Mockito.when(orchestratorConfigurationService.configurationAsValidObject(cloud.getId(), configuration.getConfiguration())).thenReturn(
+                DEFAULT_CLOUD_CONFIGURATION);
 
         Mockito.doThrow(PluginConfigurationException.class).when(orchestratorPlugin).setConfiguration((String) configuration.getConfiguration());
 
