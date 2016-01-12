@@ -60,7 +60,7 @@
         </ul>
       </li>
     </ul>
-    <div ng-if="!status.currentStatus.data.isLogged && (status.currentStatus.data.authSystem==='alien' || internalLogin)" class="nav navbar-nav navbar-right">
+    <div ng-if="!status.currentStatus.data.isLogged && (!status.currentStatus.data.authSystem || status.currentStatus.data.authSystem==='alien' || internalLogin)" class="nav navbar-nav navbar-right">
       <form name="loginForm" class="navbar-form" role="login" ng-submit="signIn()">
         <div class="form-group">
           <input name="userName" placeholder="{{ 'USERS.USERNAME' | translate }}" type="text" class="form-control" ng-model="login.username" required />

@@ -42,6 +42,12 @@ var navigationIds = {
     versions: 'am.applications.detail.versions',
     environments: 'am.applications.detail.environments'
   },
+  applicationDeployment: {
+    location: 'am.applications.detail.deployment.locations',
+    substitution: 'am.applications.detail.deployment.match',
+    input: 'am.applications.detail.deployment.input',
+    deploy: 'am.applications.detail.deployment.deploy'
+  },
   components: {
     components: 'cm.components',
     csars: 'cm.components.csars.list',
@@ -77,15 +83,19 @@ module.exports.isNotNavigable = function(menu, menuItem) {
 };
 
 // Common utilities to work with protractor
-function wElement(selector, fromElement) {
+function wElement(selector, fromElement, timeout) {
   var selectorStr = selector.toString();
   // wait for the element to be there for 3 sec
-  var timeoutMsg = 'Timed out when waiting for element using selector '+selectorStr ;
+  var timeoutMsg = 'Timed out when waiting for element using selector ' + selectorStr;
   var elementToWait;
   if (fromElement && fromElement !== null) {
-	  elementToWait = fromElement.element(selector);
+    elementToWait = fromElement.element(selector);
   } else {
-	  elementToWait = browser.element(selector);
+    elementToWait = browser.element(selector);
+  }
+
+  if (!timeout) {
+    timeout = 3000;
   }
 
   browser.wait(function() {
@@ -98,7 +108,7 @@ function wElement(selector, fromElement) {
       deferred.fulfill(isPresent);
     });
     return deferred.promise;
-  }, 3000, timeoutMsg);
+  }, timeout, timeoutMsg);
 
   return elementToWait;
 }
@@ -114,10 +124,10 @@ function click(selector, fromElement, skipWaitAngular) {
 }
 module.exports.click = click;
 
-module.exports.clear = function(selector, fromElement){
+module.exports.clear = function(selector, fromElement) {
   var target = wElement(selector, fromElement);
   target.clear();
-}
+};
 
 module.exports.sendKeys = function(selector, keys, fromElement) {
   var target = wElement(selector, fromElement);
