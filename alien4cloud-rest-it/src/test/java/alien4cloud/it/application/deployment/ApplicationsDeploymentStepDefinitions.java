@@ -65,19 +65,34 @@ public class ApplicationsDeploymentStepDefinitions {
         pendingStatuses.put("undeployment", DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS);
     }
 
+    @When("I failsafe undeploy it")
+    public void I_failsafe_undeploy_it() throws Throwable {
+        I_undeploy_it(true);
+    }
+
     @When("I undeploy it")
     public void I_undeploy_it() throws Throwable {
+        I_undeploy_it(false);
+    }
+
+    private void I_undeploy_it(boolean failsafe) throws Throwable {
         Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
         String envId = Context.getInstance().getDefaultApplicationEnvironmentId(application.getName());
         String statusRequest = "/rest/applications/" + application.getId() + "/environments/" + envId + "/status";
         RestResponse<String> statusResponse = JsonUtil.read(Context.getRestClientInstance().get(statusRequest), String.class);
-        assertNull(statusResponse.getError());
+        if (failsafe) {
+            if (statusResponse.getError() != null) {
+                log.warn("Error was supposed to be null but was : ", statusResponse.getError());
+            }
+        } else {
+            assertNull(statusResponse.getError());
+        }
         DeploymentStatus deploymentStatus = DeploymentStatus.valueOf(statusResponse.getData());
         if (!DeploymentStatus.UNDEPLOYED.equals(deploymentStatus) || !DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS.equals(deploymentStatus)) {
             Context.getInstance().registerRestResponse(
                     Context.getRestClientInstance().delete("/rest/applications/" + application.getId() + "/environments/" + envId + "/deployment"));
         }
-        assertStatus(application.getName(), DeploymentStatus.UNDEPLOYED, DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS, 10 * 60L * 1000L, null);
+        assertStatus(application.getName(), DeploymentStatus.UNDEPLOYED, DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS, 10 * 60L * 1000L, null, failsafe);
     }
 
     @When("^I deploy it$")
