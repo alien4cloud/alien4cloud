@@ -1,6 +1,6 @@
 package alien4cloud.deployment.matching.services.location;
 
-import alien4cloud.model.deployment.matching.LocationMatch;
+import alien4cloud.model.deployment.matching.ILocationMatch;
 
 /**
  * Elector for a locationMatch object
@@ -13,5 +13,5 @@ public interface ILocationMatchElector {
      * @param locationMatch
      * @return true if the conditions are passed, false is not
      */
-    boolean isEligible(LocationMatch locationMatch);
+    boolean isEligible(ILocationMatch locationMatch);
 }

@@ -6,11 +6,12 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.collections4.CollectionUtils;
 
+import com.google.common.collect.Lists;
+
 import alien4cloud.deployment.matching.plugins.ILocationMatcher;
+import alien4cloud.model.deployment.matching.ILocationMatch;
 import alien4cloud.model.deployment.matching.LocationMatch;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
@@ -20,8 +21,7 @@ import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.exception.LocationMatchingException;
 import alien4cloud.plugin.model.ManagedPlugin;
 import alien4cloud.utils.AlienUtils;
-
-import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 // @Component("mock-location-matcher")
@@ -37,9 +37,9 @@ public class MockLocationMatcher implements ILocationMatcher {
     private OrchestratorService orchestratorService;
 
     @Override
-    public List<LocationMatch> match(Topology topology) throws LocationMatchingException {
+    public List<ILocationMatch> match(Topology topology) throws LocationMatchingException {
         log.info("Mock location matcher <" + this.getClass().getName() + "> called!");
-        List<LocationMatch> matched = Lists.newArrayList();
+        List<ILocationMatch> matched = Lists.newArrayList();
         // get all enabled orchestrators
         try {
             List<Orchestrator> enabledOrchestrators = orchestratorService.getAllEnabledOrchestrators();
