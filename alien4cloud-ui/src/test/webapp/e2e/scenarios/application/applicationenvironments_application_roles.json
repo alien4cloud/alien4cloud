@@ -1,4 +1,0 @@
-[
-  {"id":"df77b927-f99a-48b2-aa3a-f8e99d565a53","name":"SecondEnvironment","applicationId":"f6831d4d-1bef-4093-a963-81d82c79a9e9","environmentType":"PRODUCTION","currentVersionId":"3a602010-7c44-465a-9b75-296bd09873b5","userRoles":[{"key":"applicationManager","value":["DEPLOYMENT_MANAGER"]}]},
-  {"id":"015a1dbf-0674-4490-b48f-38a509fbf2a6","name":"SecondEnvironment","applicationId":"009ac481-c317-4ab7-b934-dcec22f26fbc","environmentType":"USER_ACCEPTANCE_TESTS","currentVersionId":"11d711da-6738-4782-8b29-a2bcdf706738","userRoles":[{"key":"applicationManager","value":["DEPLOYMENT_MANAGER"]}]}
-]

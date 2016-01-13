@@ -1,4 +1,4 @@
-/* global by, element */
+/* global by, element, browser */
 'use strict';
 
 var common = require('../common/common');
@@ -37,8 +37,7 @@ var createApplication = function(newAppName, newAppDescription, templateName, te
 module.exports.createApplication = createApplication;
 
 function goToApplicationDetailPage(applicationName) {
-  common.go('main', 'applications');
-  // From the application search page select a particular line
+  go();
   if(applicationName) {
     var appElement = element(by.id('app_' + applicationName)); // .click();
     appElement.click();

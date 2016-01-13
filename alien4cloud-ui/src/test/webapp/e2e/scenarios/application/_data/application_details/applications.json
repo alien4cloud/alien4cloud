@@ -1,0 +1,7 @@
+[
+  {"id":"00f980ef-938e-4c4e-98e9-71a69322d38e","name":"ApplicationTestDescription","creationDate":1452617537177,"lastUpdateDate":1452617537177,"tags":[],"metaProperties":{},"userRoles":[{"key":"applicationManager","value":["APPLICATION_MANAGER"]}]},
+  {"id":"08d96a46-fdc3-4bba-8751-b3f18251cf1e","name":"ApplicationTestTags","creationDate":1452617571097,"lastUpdateDate":1452617571097,"tags":[],"metaProperties":{},"userRoles":[{"key":"applicationManager","value":["APPLICATION_MANAGER"]}]},
+  {"id":"b40def21-0dfc-40bf-b09c-0b741338f62d","name":"ApplicationTestDelete","creationDate":1452617489087,"lastUpdateDate":1452617489087,"tags":[],"metaProperties":{},"userRoles":[{"key":"applicationManager","value":["APPLICATION_MANAGER"]}]},
+  {"id":"7aff0627-885b-4cbf-a904-a8ae05666364","name":"ApplicationTestRename","creationDate":1452619041436,"lastUpdateDate":1452619041436,"tags":[],"metaProperties":{},"userRoles":[{"key":"applicationManager","value":["APPLICATION_MANAGER"]}]},
+  {"id":"9759bd55-8c63-4a30-8707-3441073f3341","name":"ApplicationTestRenameFailed","creationDate":1452619060398,"lastUpdateDate":1452619060398,"tags":[],"metaProperties":{},"userRoles":[{"key":"applicationManager","value":["APPLICATION_MANAGER"]}]}
+]
