@@ -127,14 +127,21 @@ Scenario: Import a csargit with a wrong url
   When I import the GIT repository  
   Then I should receive a RestResponse with an error code 615
  
-# FIXME: import from gitlab don't work at all (302 exception) Cf. ALIEN-1345   
-#Scenario: Import a private csargit with wrong credentials
-# Given I add a GIT repository with url "https://fastconnect.org/gitlab/alien-tosca-recipes/recipes" usr "toto" pwd "toto" stored "false" and locations
-#      | branchId | subPath |
-#      | master   | mongoDB |  
-#   And I get the GIT repo with url "https://fastconnect.org/gitlab/alien-tosca-recipes/recipes"
-#  When I import the GIT repository  
-#  Then I should receive a RestResponse with an error code 616
+Scenario: Import a private csargit with wrong credentials
+ Given I add a GIT repository with url "https://fastconnect.org/gitlab/alien-tosca-recipes/recipes" usr "toto" pwd "toto" stored "false" and locations
+      | branchId | subPath |
+      | master   | mongoDB |
+   And I get the GIT repo with url "https://fastconnect.org/gitlab/alien-tosca-recipes/recipes"
+  When I import the GIT repository
+  Then I should receive a RestResponse with an error code 615
+
+Scenario: Import a CSAR from Gitlab
+  Given I add a GIT repository with url "https://fastconnect.org/gitlab/benoitph/alien-samples.git" usr "" pwd "" stored "false" and locations
+    | branchId | subPath |
+    | master   |         |
+  And I get the GIT repo with url "https://fastconnect.org/gitlab/benoitph/alien-samples.git"
+  When I import the GIT repository
+  Then I should receive a RestResponse with no error
   
 Scenario: Add GIT repository and import it, then add an archive and reimport it
  Given I add a GIT repository with url "https://github.com/alien4cloud/tosca-normative-types.git" usr "" pwd "" stored "false" and locations

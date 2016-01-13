@@ -42,6 +42,12 @@ var navigationIds = {
     versions: 'am.applications.detail.versions',
     environments: 'am.applications.detail.environments'
   },
+  applicationDeployment: {
+    location: 'am.applications.detail.deployment.locations',
+    substitution: 'am.applications.detail.deployment.match',
+    input: 'am.applications.detail.deployment.input',
+    deploy: 'am.applications.detail.deployment.deploy'
+  },
   components: {
     components: 'cm.components',
     csars: 'cm.components.csars.list',
@@ -77,15 +83,19 @@ module.exports.isNotNavigable = function(menu, menuItem) {
 };
 
 // Common utilities to work with protractor
-function wElement(selector, fromElement) {
+function wElement(selector, fromElement, timeout) {
   var selectorStr = selector.toString();
   // wait for the element to be there for 3 sec
-  var timeoutMsg = 'Timed out when waiting for element using selector '+selectorStr ;
+  var timeoutMsg = 'Timed out when waiting for element using selector ' + selectorStr;
   var elementToWait;
   if (fromElement && fromElement !== null) {
-	  elementToWait = fromElement.element(selector);
+    elementToWait = fromElement.element(selector);
   } else {
-	  elementToWait = browser.element(selector);
+    elementToWait = browser.element(selector);
+  }
+
+  if (!timeout) {
+    timeout = 3000;
   }
 
   browser.wait(function() {
@@ -98,7 +108,7 @@ function wElement(selector, fromElement) {
       deferred.fulfill(isPresent);
     });
     return deferred.promise;
-  }, 3000, timeoutMsg);
+  }, timeout, timeoutMsg);
 
   return elementToWait;
 }
@@ -114,10 +124,10 @@ function click(selector, fromElement, skipWaitAngular) {
 }
 module.exports.click = click;
 
-module.exports.clear = function(selector, fromElement){
+module.exports.clear = function(selector, fromElement) {
   var target = wElement(selector, fromElement);
   target.clear();
-}
+};
 
 module.exports.sendKeys = function(selector, keys, fromElement) {
   var target = wElement(selector, fromElement);
@@ -209,3 +219,50 @@ module.exports.uploadFile = function(path) {
   });
   browser.waitForAngular();
 };
+
+// For a SELECT element : select by value
+// WARNING : no error is the item is not found
+var selectDropdownByText = function selectOption(selectElement, item) {
+  var desiredOption = null;
+  var deferred = protractor.promise.defer();
+  selectElement.all(by.tagName('option'))
+    .then(function findMatchingOption(options) {
+      options.some(function(option) {
+        option.getText().then(function doesOptionMatch(text) {
+          if (text.indexOf(item) !== -1) {
+            desiredOption = option;
+            return true;
+          }
+        });
+      });
+    })
+    .then(function clickOption() {
+      var itemFoundInSelect = false;
+      if (desiredOption) {
+        desiredOption.click();
+        itemFoundInSelect = true;
+      } else {
+        console.error('Desired item {', item, '} not found in the select');
+      }
+      deferred.fulfill(itemFoundInSelect);
+    });
+
+  // waiting time after selection
+  var milliseconds = 100;
+  if (typeof milliseconds !== 'undefined') {
+    browser.sleep(milliseconds);
+  }
+  return deferred.promise;
+};
+module.exports.selectDropdownByText = selectDropdownByText;
+
+// For a SELECT element : return select count
+var selectCount = function selectCount(selectId) {
+  var deferred = protractor.promise.defer();
+  var selectOptions = element.all(by.css('select[id="' + selectId + '"] option'));
+  selectOptions.count().then(function(count) {
+    deferred.fulfill(count);
+  });
+  return deferred.promise;
+};
+module.exports.selectCount = selectCount;
