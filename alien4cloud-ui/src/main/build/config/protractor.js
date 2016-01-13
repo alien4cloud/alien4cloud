@@ -36,6 +36,7 @@ module.exports = function (grunt) {
             // '<%= yeoman.test %>/e2e/scenarios/application/application_list.js',
             // '<%= yeoman.test %>/e2e/scenarios/application/application_roles.js',
             // '<%= yeoman.test %>/e2e/scenarios/application/application_details.js',
+            '<%= yeoman.test %>/e2e/scenarios/application/application_versions.js',
             // '<%= yeoman.test %>/e2e/scenarios/application/application_environments.js',
             // '<%= yeoman.test %>/e2e/scenarios/components/component_list.js',
             // '<%= yeoman.test %>/e2e/scenarios/components/component_details.js',

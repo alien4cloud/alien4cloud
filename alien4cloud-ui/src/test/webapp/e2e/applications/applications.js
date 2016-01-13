@@ -68,3 +68,21 @@ var searchApplication = function(appName) {
   common.click(by.id('seach-applications-btn'));
 };
 module.exports.searchApplication = searchApplication;
+
+var createApplicationVersion = function(version, description, selectTopology) {
+  common.go('applications', 'versions');
+  common.click(by.id('app-version-new-btn'));
+
+  element(by.model('versionId')).sendKeys(version);
+  element(by.model('descId')).sendKeys(description);
+
+  if (typeof selectTopology !== 'undefined') {
+    var selectCloud = element(by.id('topologyId'));
+    common.selectDropdownByText(selectCloud, selectTopology);
+  } else {
+    console.error('Create an application version with an empty topology');
+  }
+
+  common.click(by.id('btn-create'));
+};
+module.exports.createApplicationVersion = createApplicationVersion;

@@ -64,4 +64,7 @@ describe('Application environments', function() {
     toaster.dismissIfPresent();
   });
 
+  it('afterAll', function() {
+    authentication.logout();
+  });
 });
