@@ -219,3 +219,50 @@ module.exports.uploadFile = function(path) {
   });
   browser.waitForAngular();
 };
+
+// For a SELECT element : select by value
+// WARNING : no error is the item is not found
+var selectDropdownByText = function selectOption(selectElement, item) {
+  var desiredOption = null;
+  var deferred = protractor.promise.defer();
+  selectElement.all(by.tagName('option'))
+    .then(function findMatchingOption(options) {
+      options.some(function(option) {
+        option.getText().then(function doesOptionMatch(text) {
+          if (text.indexOf(item) !== -1) {
+            desiredOption = option;
+            return true;
+          }
+        });
+      });
+    })
+    .then(function clickOption() {
+      var itemFoundInSelect = false;
+      if (desiredOption) {
+        desiredOption.click();
+        itemFoundInSelect = true;
+      } else {
+        console.error('Desired item {', item, '} not found in the select');
+      }
+      deferred.fulfill(itemFoundInSelect);
+    });
+
+  // waiting time after selection
+  var milliseconds = 100;
+  if (typeof milliseconds !== 'undefined') {
+    browser.sleep(milliseconds);
+  }
+  return deferred.promise;
+};
+module.exports.selectDropdownByText = selectDropdownByText;
+
+// For a SELECT element : return select count
+var selectCount = function selectCount(selectId) {
+  var deferred = protractor.promise.defer();
+  var selectOptions = element.all(by.css('select[id="' + selectId + '"] option'));
+  selectOptions.count().then(function(count) {
+    deferred.fulfill(count);
+  });
+  return deferred.promise;
+};
+module.exports.selectCount = selectCount;
