@@ -40,19 +40,21 @@ public class LocationPolicyValidationService {
     public List<LocationPolicyTask> validateLocationPolicies(DeploymentTopology deploymentTopology) {
         List<LocationPolicyTask> tasks = Lists.newArrayList();
         Location location = null;
+        Orchestrator orchestrator = null;
         try {
             Map<String, String> locationIds = TopologyLocationUtils.getLocationIdsOrFail(deploymentTopology);
 
-            // if a location already exists, then check the rigths on it
             String locationId = locationIds.get(AlienConstants.GROUP_ALL);
             location = locationService.getOrFail(locationId);
+            orchestrator = orchestratorService.getOrFail(location.getOrchestratorId());
+
+            // if a location already exists, then check the rigths on it
             AuthorizationUtil.checkAuthorizationForLocation(location, DeployerRole.values());
-            
-            //check the orchestrator is still enabled
-            Orchestrator orchestrator = orchestratorService.getOrFail(location.getOrchestratorId());
-            
+
+            // check the orchestrator is still enabled
+
             if (!Objects.equals(orchestrator.getState(), OrchestratorState.CONNECTED)) {
-                UnavailableLocationTask task = new UnavailableLocationTask(location.getId(), location.getOrchestratorId(), "DISABLED");
+                UnavailableLocationTask task = new UnavailableLocationTask(location.getName(), orchestrator.getName());
                 task.setCode(TaskCode.LOCATION_DISABLED);
                 tasks.add(task);
             }
@@ -63,11 +65,10 @@ public class LocationPolicyValidationService {
             task.setCode(TaskCode.LOCATION_POLICY);
             tasks.add(task);
         } catch (AccessDeniedException e) {
-            UnavailableLocationTask task = new UnavailableLocationTask(location.getId(), location.getOrchestratorId(), "UNAUTHORIZED");
+            UnavailableLocationTask task = new UnavailableLocationTask(location.getName(), orchestrator.getName());
             task.setCode(TaskCode.LOCATION_UNAUTHORIZED);
             tasks.add(task);
         }
-        
 
         return tasks.isEmpty() ? null : tasks;
     }

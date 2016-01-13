@@ -28,7 +28,7 @@ define(function(require) {
       step: {
         nextStepId: 'am.applications.detail.deployment.match',
         // task code in validation DTO bound to this step
-        taskCodes: ['LOCATION_POLICY']
+        taskCodes: ['LOCATION_POLICY', 'LOCATION_DISABLED', 'LOCATION_UNAUTHORIZED']
       }
     }
   });
@@ -93,22 +93,6 @@ define(function(require) {
         // checks if a location is the selected one for this deployment
         $scope.isLocationSelected = function(location) {
           return _.has($scope, 'deploymentContext.selectedLocation') && $scope.deploymentContext.selectedLocation.id === location.id;
-        };
-
-        // check if the current locationMatches are selected, if not, check if the we have an oldSelectedLocationId from previous configuration
-        $scope.hasAnOldLocationLinkedToDisabledOrchestrator = function() {
-          if ($scope.deploymentContext.locationMatches) {
-            var currentLocationIsPresent = false;
-            _.each($scope.deploymentContext.locationMatches, function(matche){
-                if ($scope.isLocationSelected(matche.location)) {
-                  currentLocationIsPresent = true;
-                }
-            });
-            if (!currentLocationIsPresent && $scope.oldSelectedLocationId) {
-              return true;
-            }
-            return false;
-          }
         };
 
       }

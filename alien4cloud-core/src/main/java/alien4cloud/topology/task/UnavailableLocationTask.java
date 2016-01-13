@@ -16,8 +16,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class UnavailableLocationTask extends LocationPolicyTask {
-    // Name of the node template that needs to be fixed.
-    private String locationId;
-    private String orchestratorId;
-    private String reason;
+    private String locationName;
+    private String orchestratorName;
 }
