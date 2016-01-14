@@ -134,21 +134,21 @@
            class="btn btn-default"
            ng-class="{'active': input.value === true}"
            ng-click="toggleBooleanValue(true)">
-          {{'GENERIC_FORM.TRUE' | translate}}
+          {{'COMMON.YES' | translate}}
         </a>
         <a id="{{idPrefix + 'false'}}"
            class="btn btn-default"
            ng-class="{'active': input.value === false}"
            ng-click="toggleBooleanValue(false)">
-          {{'GENERIC_FORM.FALSE' | translate}}
+          {{'COMMON.NO' | translate}}
         </a>
       </div>
       <div ng-if="propertyType._isReadOnly || configuration.isReadOnly">
         <span ng-if="input.value === true">
-            {{'GENERIC_FORM.TRUE' | translate}}
+            {{'COMMON.YES' | translate}}
         </span>
         <span ng-if="input.value === false">
-            {{'GENERIC_FORM.FALSE' | translate}}
+            {{'COMMON.NO' | translate}}
         </span>
         <span ng-if="input.value === undefined || input.value === null">
             {{'GENERIC_FORM.UNDEFINED_READ_ONLY' | translate}}

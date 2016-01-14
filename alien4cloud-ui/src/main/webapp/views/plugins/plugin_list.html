@@ -24,10 +24,10 @@
           <thead>
             <tr>
               <th></th>
-              <th>{{ 'PLUGINS.ID' | translate}}</th>
-              <th>{{ 'PLUGINS.VERSION' | translate}}</th>
-              <th>{{ 'PLUGINS.NAME' | translate}}</th>
-              <th>{{ 'PLUGINS.DESCRIPTION' | translate}}</th>
+              <th>{{ 'COMMON.ID' | translate}}</th>
+              <th>{{ 'COMMON.VERSION' | translate}}</th>
+              <th>{{ 'COMMON.NAME' | translate}}</th>
+              <th>{{ 'COMMON.DESCRIPTION' | translate}}</th>
               <th>{{ 'PLUGINS.BEANS' | translate}}</th>
               <th></th>
             </tr>
@@ -35,7 +35,7 @@
           <tbody>
             <tr ng-repeat="plugin in data.data" id='plugin_{{plugin.id}}'>
               <td><i class="fa fa-circle fa-2x" ng-class="{'text-success': plugin.enabled,'text-danger': !plugin.enabled}"
-                  tooltip="{{'PLUGINS.ENABLED_' + plugin.enabled | translate }}"></i></td>
+                  tooltip="{{'COMMON.ENABLED_' + plugin.enabled | translate }}"></i></td>
               <td>{{plugin.descriptor.id}}</td>
               <td>{{plugin.descriptor.version}}</td>
               <td>{{plugin.descriptor.name}}</td>

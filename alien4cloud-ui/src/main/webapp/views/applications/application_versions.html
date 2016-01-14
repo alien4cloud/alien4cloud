@@ -29,7 +29,7 @@
           <thead>
             <tr>
               <th>{{'APPLICATIONS.VERSION.VERSION' | translate}}</th>
-              <th>{{'APPLICATIONS.VERSION.DESCRIPTION' | translate}}</th>
+              <th>{{'COMMON.DESCRIPTION' | translate}}</th>
               <th></th>
             </tr>
           </thead>
@@ -58,20 +58,20 @@
         <div class="form-group" ng-class="{'has-error': newApplicationVersion.name.$invalid}">
           <label for="nameid" class="col-lg-3 control-label">{{'APPLICATIONS.VERSION.VERSION' | translate}}</label>
           <div class="col-lg-9">
-            <input type="text" class="form-control" id="versionId" ng-model="versionId" name="versionId" required="" ng-pattern="versionPattern" placeholder="{{'APPLICATIONS.NAME' | translate}}">
+            <input type="text" class="form-control" id="versionId" ng-model="versionId" name="versionId" required="" ng-pattern="versionPattern" placeholder="{{'COMMON.NAME' | translate}}">
             <span id="span-alert-pattern" ng-show="newApplicationVersion.versionId.$error.pattern">{{'APPLICATIONS.VERSION.MODAL.PATTERN' | translate}}</span>
           </div>
         </div>
         <div class="form-group">
-          <label for="descid" class="col-lg-3 control-label">{{'APPLICATIONS.DESC' | translate}}</label>
+          <label for="descid" class="col-lg-3 control-label">{{'COMMON.DESCRIPTION' | translate}}</label>
           <div class="col-lg-9">
-            <textarea class="form-control" id="descId" rows="3" ng-model="descId" placeholder="{{'APPLICATIONS.VERSION.DESCRIPTION' | translate}}"></textarea>
+            <textarea class="form-control" id="descId" rows="3" ng-model="descId" placeholder="{{'COMMON.DESCRIPTION' | translate}}"></textarea>
           </div>
         </div>
         <div class="form-group">
           <label for="versionid" class="col-lg-3 control-label">{{'APPLICATIONS.VERSION.MODAL.SELECT-TITLE' | translate}}</label>
           <div class="col-lg-9">
-            <select class="form-control" id="topologyId" ng-model="t.topologyId" ng-options="t.version for t in appVersions" placeholder="{{'APPLICATIONS.DESC' | translate}}">
+            <select class="form-control" id="topologyId" ng-model="t.topologyId" ng-options="t.version for t in appVersions" placeholder="{{'COMMON.DESCRIPTION' | translate}}">
               <option value="">{{'APPLICATIONS.VERSION.MODAL.DESC' | translate}}</option>
             </select>
           </div>

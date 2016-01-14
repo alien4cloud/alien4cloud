@@ -5,10 +5,10 @@
   <div class="modal-body">
     <div class="form-group" ng-class="{'has-error': newUser.username.$invalid}">
       <label for="username_id" class="col-lg-3 control-label">
-        {{'USERS.USERNAME' | translate}}
+        {{'COMMON.USERNAME' | translate}}
       </label>
       <div class="col-lg-9">
-        <input type="text" class="form-control" id="username_id" ng-model="user.username" name="username" required="" placeholder="{{'USERS.USERNAME' | translate}}">
+        <input type="text" class="form-control" id="username_id" ng-model="user.username" name="username" required="" placeholder="{{'COMMON.USERNAME' | translate}}">
       </div>
     </div>
     <div class="form-group" ng-class="{'has-error': newUser.password.$invalid || newUser.confirmPwd.$invalid}">
@@ -44,11 +44,11 @@
     </div>
     <div class="form-group" ng-class="{'has-error': newUser.email.$invalid}">
       <label for="email_id" class="col-lg-3 control-label">
-        {{'USERS.EMAIL' | translate}}
+        {{'COMMON.EMAIL' | translate}}
       </label>
       <div class="col-lg-9">
-        <input type="email" class="form-control" id="email_id" ng-model="user.email" name="email" placeholder="{{'USERS.EMAIL' | translate}}">
-        <span ng-if="newUser.email.$error.email" class="text-danger">{{'USERS.EMAIL_INVALID' | translate }}</span>
+        <input type="email" class="form-control" id="email_id" ng-model="user.email" name="email" placeholder="{{'COMMON.EMAIL' | translate}}">
+        <span ng-if="newUser.email.$error.email" class="text-danger">{{'COMMON.EMAIL_INVALID' | translate }}</span>
       </div>
     </div>
     <div class="form-group" >

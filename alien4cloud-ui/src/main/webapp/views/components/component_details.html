@@ -70,7 +70,7 @@
           <fieldset class="detail-bloc">
             <legend>
               <h4>
-                <i class="fa fa-book"></i> {{'COMPONENTS.COMPONENT.DOC_TITLE' | translate}}
+                <i class="fa fa-book"></i> {{'COMMON.DESCRIPTION' | translate}}
               </h4>
             </legend>
             <div>{{component.description}}</div>
@@ -144,7 +144,7 @@
           <fieldset class="detail-bloc">
             <legend>
               <h4>
-                <i class="fa fa-bell"></i> {{ 'COMPONENTS.CAPABILITIES.TYPE'| translate }}
+                <i class="fa fa-bell"></i> {{ 'COMMON.CAPABILITIES'| translate }}
               </h4>
             </legend>
             <div class="table-responsive">
@@ -164,11 +164,11 @@
                   </td>
                   <td>
                     <a class=" btn btn-success btn-xs  pull-right"
-                    	id = "{{capability.id}}_flagRecommended" 
+                    	id = "{{capability.id}}_flagRecommended"
                     	tooltip="{{'COMPONENTS.COMPONENT.RECOMMEND_MESSAGE' | translate}}" tooltip-placement="bottom" ng-click="recommendForThisCapability(capability.type)" ng-if="!isDefaultCapability && isManager">
                         &nbsp;&nbsp;<i class="fa fa-star" ></i>&nbsp;&nbsp;
                     </a>
-                    <a class=" btn btn-danger btn-xs  pull-right" 
+                    <a class=" btn btn-danger btn-xs  pull-right"
                     	id = "{{capability.id}}_unflagRecommended"
                     	tooltip="{{'COMPONENTS.COMPONENT.UNRECOMMEND_MESSAGE' | translate}}" tooltip-placement="bottom" ng-click="unflagAsDefaultForThisCapability(capability.type)" ng-if="isDefaultCapability && isManager">
                         &nbsp;&nbsp;<i class="fa fa-star-o"></i>&nbsp;&nbsp;
@@ -183,7 +183,7 @@
           <fieldset class="detail-bloc">
             <legend>
               <h4>
-                <i class="fa fa-list"></i> {{'COMPONENTS.COMPONENT.PROPERTIES' | translate}}
+                <i class="fa fa-list"></i> {{'COMMON.PROPERTIES' | translate}}
               </h4>
             </legend>
             <div class="table-responsive">
@@ -233,7 +233,7 @@
           <fieldset class="detail-bloc">
             <legend>
               <h4>
-                <i class="fa fa-list"></i> {{'COMPONENTS.COMPONENT.ATTRIBUTES' | translate}}
+                <i class="fa fa-list"></i> {{'COMMON.ATTRIBUTES' | translate}}
               </h4>
             </legend>
             <div class="table-responsive">

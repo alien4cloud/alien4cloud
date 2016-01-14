@@ -63,7 +63,7 @@
     <div ng-if="!status.currentStatus.data.isLogged && (status.currentStatus.data.authSystem==='alien' || internalLogin)" class="nav navbar-nav navbar-right">
       <form name="loginForm" class="navbar-form" role="login" ng-submit="signIn()">
         <div class="form-group">
-          <input name="userName" placeholder="{{ 'USERS.USERNAME' | translate }}" type="text" class="form-control" ng-model="login.username" required />
+          <input name="userName" placeholder="{{ 'COMMON.USERNAME' | translate }}" type="text" class="form-control" ng-model="login.username" required />
         </div>
         <div class="form-group">
           <input name="userPassword" placeholder="{{ 'USERS.PASSWORD' | translate }}" type="password" class="form-control" ng-model="login.password" required />

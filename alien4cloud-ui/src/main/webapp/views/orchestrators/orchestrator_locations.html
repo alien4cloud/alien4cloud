@@ -1,18 +1,18 @@
 <div class="alert alert-danger" ng-if="orchestrator.state !== 'CONNECTED'">
-  Orchestrator must be connected so you can configure locations.
+  {{'ORCHESTRATORS.LOCATIONS.CONFIG_REQUIRES_CONNEXION' | translate}}
 </div>
 <div ng-if="orchestrator.state === 'CONNECTED'">
   <div ng-if="multipleLocations || (locationsDTOs && locationsDTOs.length === 0)" class="row">
     <div class="col-md-3">
       <button id="new-location-button" class="btn btn-success" ng-click="openNewModal()">
-        <i class="fa fa-plus-circle"></i> New Location
+        <i class="fa fa-plus-circle"></i> {{'ORCHESTRATORS.LOCATIONS.NEW' | translate}}
       </button>
     </div>
     <div class="col-md-6">
       <select ng-if="locationsDTOs" class="form-control" ng-model="locationDTO" ng-change="selectLocation(locationDTO)" ng-options="loc.location.name for loc in locationsDTOs"></select>
     </div>
     <div class="col-md-3">
-      <delete-confirm class = " pull-right" id="delete-location-button" text="Delete Location" func="deleteLocation(locationDTO)" position="left" fastyle="fa-trash-o">
+      <delete-confirm class="pull-right" id="delete-location-button" text="{{'ORCHESTRATORS.LOCATIONS.DELETE' | translate}}" func="deleteLocation(locationDTO)" position="left" fastyle="fa-trash-o">
       </delete-confirm>
 <!--       <button ng-if="location" id="delete-location-button" class="btn btn-danger pull-right" ng-click="deleteLocation(location)"> -->
 <!--         <i class="fa fa-trash-o"></i> Delete Location -->
@@ -23,16 +23,16 @@
   <div ng-if="locationDTO">
     <div class="row">
       <div class="col-md-4">
-        <b>name:</b>
+        <b>{{'COMMON.NAME' | translate}}:</b>
         <span editable-text="locationDTO.location.name" buttons="no" e-required e-class="input-lg" onbeforesave="updateLocation({name: $data})" blur="submit">
           {{locationDTO.location.name}} <i class="fa fa-edit"></i>
         </span>
       </div>
       <div class="col-md-4">
-        <b>infrastructure type: </b> {{locationDTO.location.infrastructureType}}
+        <b>{{'ORCHESTRATORS.LOCATIONS.INFRASTRUCTURE_TYPE' | translate}}:</b> {{locationDTO.location.infrastructureType}}
       </div>
       <div class="col-md-4">
-        <b>environment type:</b>
+        <b>{{'ORCHESTRATORS.LOCATIONS.ENVIRONMENT_TYPE' | translate}}:</b>
         <select ng-model="locationDTO.location.environmentType" ng-change="updateLocation({'environmentType': locationDTO.location.environmentType})" ng-options="'CLOUDS.ENVIRONMENT.'+env | translate for env in envTypes"></select> <i class="fa" assass="{'fa-spinner fa-spin': saving, 'text-success fa-check': savedSuccess, 'text-danger fa-times': savedError}"></i>
       </div>
     </div>

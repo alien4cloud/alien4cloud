@@ -1,13 +1,13 @@
 <div ng-controller="OrchestratorLocationResourcesTemplateCtrl">
   <div class="row" style="margin-top: 10px">
     <div class="col-md-12">
-      <span>Resources types: </span>
+      <span>{{'ORCHESTRATORS.LOCATIONS.RESOURCES.TYPE' | translate}} </span>
       <select ng-model="selectedConfigurationResourceType"
               ng-options="type.elementId for type in resourcesTypes">
       </select>
-      <button ng-class="{'active': applyFilter}" ng-click="applyFilter = !applyFilter" class="btn btn-default btn-sm"><i class="fa fa-filter"></i> Filter
+      <button ng-class="{'active': applyFilter}" ng-click="applyFilter = !applyFilter" class="btn btn-default btn-sm"><i class="fa fa-filter"></i> {{'COMMON.FILTER' | translate}}
       </button>
-      <button class="btn btn-primary btn-sm" ng-click="addResourceTemplate()"><i class="fa fa-plus"></i> Add</button>
+      <button class="btn btn-primary btn-sm" ng-click="addResourceTemplate()"><i class="fa fa-plus"></i> {{'COMMON.ADD' | translate}}</button>
     </div>
   </div>
   <div class="row" style="margin-top: 10px">
@@ -16,8 +16,8 @@
         <thead>
           <tr>
             <th></th>
-            <th>Name</th>
-            <th>Type</th>
+            <th>{{'COMMON.NAME' | translate}}</th>
+            <th>{{'COMMON.TYPE' | translate}}</th>
           </tr>
         </thead>
         <tbody>

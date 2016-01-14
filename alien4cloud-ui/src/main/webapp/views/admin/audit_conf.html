@@ -12,17 +12,15 @@
     </div>
   </div>
   <div class="row" style="margin-top: 20px;">
-    <label class="control-label col-md-2">{{ 'AUDIT.CONFIGURATION.ENABLED.LABEL' | translate }}</label>
+    <label class="control-label col-md-2">{{ 'COMMON.ENABLED_true' | translate }}</label>
 
     <div class="col-md-10">
       <div class="btn-group" data-toggle="buttons">
         <label class="btn btn-default btn-xs" ng-class="{'active' : configuration.enabled}" ng-click="toggleAudit(true)">
-          <input type="radio" name="enabledOptions" id="enabledOption" autocomplete="off">{{ 'AUDIT.CONFIGURATION.ENABLED.ON' |
-          translate }}
+          <input type="radio" name="enabledOptions" id="enabledOption" autocomplete="off">{{ 'COMMON.YES' | translate }}
         </label>
         <label class="btn btn-default btn-xs" ng-class="{'active' : !configuration.enabled}" ng-click="toggleAudit(false)">
-          <input type="radio" name="enabledOptions" id="disabledOption" autocomplete="off">{{ 'AUDIT.CONFIGURATION.ENABLED.OFF' |
-          translate }}
+          <input type="radio" name="enabledOptions" id="disabledOption" autocomplete="off">{{ 'COMMON.NO' | translate }}
         </label>
       </div>
     </div>
@@ -44,7 +42,7 @@
           <table class="table table-hover">
             <thead>
               <tr>
-                <th>{{ 'AUDIT.CONFIGURATION.ENABLED.LABEL' | translate }}</th>
+                <th>{{ 'COMMON.ENABLED_true' | translate }}</th>
                 <th>{{ 'AUDIT.CONFIGURATION.ACTION_NAME' | translate }}</th>
               </tr>
             </thead>

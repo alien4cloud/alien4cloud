@@ -167,7 +167,7 @@ define(function (require) {
             event.message = {
               template: 'APPLICATIONS.RUNTIME.EVENTS.DEPLOYMENT_STATUS_MESSAGE',
               data: {
-                status: 'APPLICATIONS.' + event.deploymentStatus
+                status: 'DEPLOYMENT.STATUS.' + event.deploymentStatus
               }
             };
             break;
