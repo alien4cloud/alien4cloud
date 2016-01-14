@@ -107,19 +107,6 @@ public abstract class ESGenericIdDAO extends ESIndexMapper implements IGenericId
         getClient().prepareDelete(indexName, typeName, id).setRefresh(true).execute().actionGet();
     }
 
-    @Override
-    public void delete(Class<?> clazz, QueryBuilder query) {
-        String indexName = getIndexForType(clazz);
-        Class<?>[] clazzes = getRequestedTypes(clazz);
-        String[] classes = getTypesStrings(clazzes);
-
-        DeleteByQueryRequestBuilder deleteRequestBuilder = getClient().prepareDeleteByQuery(indexName).setTypes(classes);
-        if (query != null) {
-            deleteRequestBuilder.setQuery(query);
-        }
-        deleteRequestBuilder.execute().actionGet();
-    }
-
     private void assertIdNotNullFor(String id, String operation) {
         if (id == null || id.trim().isEmpty()) {
             ESIndexMapper.getLog().error("Null or empty Id is not allowed for operation <" + operation + ">.");

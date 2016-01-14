@@ -416,6 +416,19 @@
   },
   "CONFIRM" : "Confirm",
   "CONFIRM_MESSAGE" : "Do you really want to perform this action ?",
+  "CONSTRAINT": {
+    "EQUAL": "Equal",
+    "GREATER_OR_EQUAL": "Greater or equal",
+    "LESS_OR_EQUAL": "Less or equal",
+    "GREATER_THAN": "Greater than",
+    "LESS_THAN": "Less than",
+    "IN_RANGE": "In range",
+    "LENGTH": "Length equal",
+    "MIN_LENGTH": "Length minimum",
+    "MAX_LENGTH": "Length maximum",
+    "PATTERN": "Pattern",
+    "VALID_VALUES": "Valid values"
+  },
   "CREATE" : "Create",
   "CREATION_DATE" : "Creation date",
   "CSAR" : {

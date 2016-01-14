@@ -49,12 +49,4 @@ public interface IGenericIdDAO {
      * @param id The id of the object to delete.
      */
     void delete(Class<?> clazz, String id);
-
-    /**
-     * Delete a data by query
-     * 
-     * @param clazz
-     * @param query
-     */
-    public void delete(Class<?> clazz, QueryBuilder query);
 }
