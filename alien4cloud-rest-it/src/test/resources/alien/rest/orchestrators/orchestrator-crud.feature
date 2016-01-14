@@ -42,3 +42,30 @@ Scenario: Delete an enabled orchestrator should fail
     Then I should receive a RestResponse with no error
   When I delete an orchestrator with name "Mount doom orchestrator"
     Then I should receive a RestResponse with an error code 505
+    
+Scenario: Delete an orchestrator when there is another one disabled should not fail
+  When I upload the archive "tosca-normative-types-wd06"
+  When I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
+  Then I should receive a RestResponse with no error
+  When I create an orchestrator named "Mount doom orchestrator 2" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
+  Then I should receive a RestResponse with no error
+  When I enable the orchestrator "Mount doom orchestrator"
+  Then I should receive a RestResponse with no error
+  When I enable the orchestrator "Mount doom orchestrator 2"
+  Then I should receive a RestResponse with no error
+  When I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
+  Then I should receive a RestResponse with no error
+  When I create a location named "Thark location 2" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator 2"
+  Then I should receive a RestResponse with no error
+  When I disable "Mount doom orchestrator"
+  Then I should receive a RestResponse with no error
+  When I disable "Mount doom orchestrator 2"
+  Then I should receive a RestResponse with no error
+  When I delete an orchestrator with name "Mount doom orchestrator"
+  Then I should receive a RestResponse with no error  
+  When I list orchestrators
+  Then I should receive a RestResponse with no error
+  And Response should contains 1 orchestrator
+  And Response should contains an orchestrator with name "Mount doom orchestrator 2"
+
+  

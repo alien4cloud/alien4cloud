@@ -55,7 +55,7 @@
                 <div>
                   <div class="col-md-1"> </div>
                   <div class="col-md-5">
-                    <i class="pull-left fa fa-2x vertical-center" tooltip="{{'APPLICATIONS.' + environment.label | translate }}" tooltip-append-to-body="true" ng-class="{
+                    <i class="pull-left fa fa-2x vertical-center" tooltip="{{'DEPLOYMENT.STATUS.' + environment.label | translate }}" tooltip-append-to-body="true" ng-class="{
                       'fa-circle text-success' : environment.label == 'DEPLOYED',
                       'fa-circle text-muted' : environment.label == 'UNDEPLOYED',
                       'fa-warning text-warning' : environment.label == 'WARNING',
@@ -83,15 +83,15 @@
       </div>
       <div class="modal-body">
         <div class="form-group" ng-class="{'has-error': newApplication.name.$invalid}">
-          <label for="nameid" class="col-lg-3 control-label">{{'APPLICATIONS.NAME' | translate}}</label>
+          <label for="nameid" class="col-lg-3 control-label">{{'COMMON.NAME' | translate}}</label>
           <div class="col-lg-9">
-            <input type="text" class="form-control" id="nameid" ng-model="app.name" name="name" required="" placeholder="{{'APPLICATIONS.NAME' | translate}}">
+            <input type="text" class="form-control" id="nameid" ng-model="app.name" name="name" required="" placeholder="{{'COMMON.NAME' | translate}}">
           </div>
         </div>
         <div class="form-group">
-          <label for="descid" class="col-lg-3 control-label">{{'APPLICATIONS.DESC' | translate}}</label>
+          <label for="descid" class="col-lg-3 control-label">{{'COMMON.DESCRIPTION' | translate}}</label>
           <div class="col-lg-9">
-            <textarea class="form-control" id="descid" rows="3" ng-model="app.description" placeholder="{{'APPLICATIONS.DESC' | translate}}"></textarea>
+            <textarea class="form-control" id="descid" rows="3" ng-model="app.description" placeholder="{{'COMMON.DESCRIPTION' | translate}}"></textarea>
           </div>
         </div>
         <div class="form-group" ng-show="templates">
@@ -110,7 +110,7 @@
         <div class="form-group" ng-show="templateVersions">
           <label for="templateVersionId" class="col-lg-3 control-label">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_BASE' | translate}}</label>
           <div class="col-lg-9">
-            <select class="form-control" id="templateVersionId" ng-model="selectedTopologyTemplateVersion" ng-options="tv.version for tv in templateVersions" placeholder="{{'APPLICATIONS.DESC' | translate}}">
+            <select class="form-control" id="templateVersionId" ng-model="selectedTopologyTemplateVersion" ng-options="tv.version for tv in templateVersions" placeholder="{{'COMMON.DESCRIPTION' | translate}}">
               <option value="">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT_VERSION' | translate}}</option>
             </select>
           </div>

@@ -5,14 +5,14 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Lists;
+
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.matching.plugins.ILocationMatcher;
+import alien4cloud.model.deployment.matching.ILocationMatch;
 import alien4cloud.model.deployment.matching.LocationMatch;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
@@ -21,8 +21,8 @@ import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.exception.LocationMatchingException;
 import alien4cloud.utils.AlienUtils;
-
-import com.google.common.collect.Lists;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Default location matcher for topologies
@@ -46,12 +46,12 @@ public class DefaultLocationMatcher implements ILocationMatcher {
     private LocationMatchNodeFilter locationMatchNodeFilter;
 
     @Override
-    public List<LocationMatch> match(Topology topology) throws LocationMatchingException {
-        List<LocationMatch> matched = Lists.newArrayList();
+    public List<ILocationMatch> match(Topology topology) throws LocationMatchingException {
+        List<ILocationMatch> matched = Lists.newArrayList();
 
         try {
             // get all enabled orchestrators
-            List<Orchestrator> enabledOrchestrators = orchestratorService.getAllEnabledOrchestrators();
+            List<Orchestrator> enabledOrchestrators = orchestratorService.getAll();
             if (CollectionUtils.isEmpty(enabledOrchestrators)) {
                 return matched;
             }

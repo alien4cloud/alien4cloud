@@ -5,25 +5,25 @@
   <div class="modal-body">
     <div class="form-group" ng-class="{'has-error': newGroup.name.$invalid}">
       <label for="name_id" class="col-lg-3 control-label">
-        {{'GROUPS.NAME' | translate}}
+        {{'COMMON.NAME' | translate}}
       </label>
       <div class="col-lg-9">
-        <input type="text" class="form-control" id="name_id" ng-model="group.name" name="name" required="" placeholder="{{'GROUPS.NAME' | translate}}">
+        <input type="text" class="form-control" id="name_id" ng-model="group.name" name="name" required="" placeholder="{{'COMMON.NAME' | translate}}">
       </div>
     </div>
     <div class="form-group" ng-class="{'has-error': newGroup.email.$invalid}">
       <label for="email_id" class="col-lg-3 control-label">
-        {{'GROUPS.EMAIL' | translate}}
+        {{'COMMON.EMAIL' | translate}}
       </label>
       <div class="col-lg-9">
-        <input type="email" class="form-control" id="email_id" ng-model="group.email" name="email" placeholder="{{'GROUPS.EMAIL' | translate}}">
-        <span ng-if="newGroup.email.$error.email" class="text-danger">{{'GROUPS.EMAIL_INVALID' | translate }}</span>
+        <input type="email" class="form-control" id="email_id" ng-model="group.email" name="email" placeholder="{{'COMMON.EMAIL' | translate}}">
+        <span ng-if="newGroup.email.$error.email" class="text-danger">{{'COMMON.EMAIL_INVALID' | translate }}</span>
       </div>
     </div>
     <div class="form-group">
-      <label for="desc_id" class="col-lg-3 control-label">{{'GROUPS.DESC' | translate}}</label>
+      <label for="desc_id" class="col-lg-3 control-label">{{'COMMON.DESCRIPTION' | translate}}</label>
       <div class="col-lg-9">
-        <textarea class="form-control" id="desc_id" rows="3" ng-model="group.description" placeholder="{{'GROUPS.DESC' | translate}}"></textarea>
+        <textarea class="form-control" id="desc_id" rows="3" ng-model="group.description" placeholder="{{'COMMON.DESCRIPTION' | translate}}"></textarea>
       </div>
     </div>
     <div class="form-group" >

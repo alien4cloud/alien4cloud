@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.deployment.matching.services.location.LocationMatchingService;
-import alien4cloud.model.deployment.matching.LocationMatch;
+import alien4cloud.model.deployment.matching.ILocationMatch;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import io.swagger.annotations.Api;
@@ -35,11 +35,11 @@ public class TopologyLocationMatchingController {
     @ApiOperation(value = "Retrieve the list of locations on which the current user can deploy the topology.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
-    public RestResponse<List<LocationMatch>> match(@PathVariable String topologyId) {
+    public RestResponse<List<ILocationMatch>> match(@PathVariable String topologyId) {
         // TODO check deployer authorizations
-        RestResponseBuilder<List<LocationMatch>> responseBuilder = RestResponseBuilder.builder();
+        RestResponseBuilder<List<ILocationMatch>> responseBuilder = RestResponseBuilder.builder();
 
-        List<LocationMatch> matchedLocation = locationMatchingService.match(topologyId);
+        List<ILocationMatch> matchedLocation = locationMatchingService.match(topologyId);
 
         return responseBuilder.data(matchedLocation).build();
     }

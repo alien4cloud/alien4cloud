@@ -1,15 +1,22 @@
 <div>
-  <div ng-if="hasAnOldLocationLinkedToDisabledOrchestrator()"> <i class="fa fa-exclamation-triangle ng-scope text-danger"></i> Your location {{oldSelectedLocationId}} from orchestrator  {{oldSelectedOrchestratorId}} is not enabled.</div><br>
-    <div class=row>
-      <div ng-repeat="locationMatch in deploymentContext.locationMatches" class="col-xs-6 col-md-3" >
-        <span ng-if="(isSelected=isLocationSelected(locationMatch.location))" class="thumbnail alert-success">
-          <b>{{locationMatch.location.name}}</b>  <br>
-          <i>From orchestrator </i>: <b>{{locationMatch.orchestrator.name}}</b>
-        </span>
-        <a ng-if="!isSelected" ng-click="selectLocation(locationMatch)" class="thumbnail clickable-media">
-          <b>{{locationMatch.location.name}}</b>  <br>
-          <i>From orchestrator </i>: <b>{{locationMatch.orchestrator.name}}</b>
-        </a>
-      </div>
+  <div class="row" style="margin-top: 10px">
+    <!--  Unauthorized location-->
+    <div class="col-md-6" ng-if="deploymentContext.deploymentTopologyDTO.validation.taskList['LOCATION_UNAUTHORIZED'].length>0">
+      <div class="alert alert-danger">{{'APPLICATIONS.TOPOLOGY.LOCATION_UNAUTHORIZED_MESSAGE' | translate: deploymentContext.deploymentTopologyDTO.validation.taskList['LOCATION_UNAUTHORIZED'][0] }} </div>
     </div>
+    <!-- End disabled location -->
+  </div>
+
+  <div class=row>
+    <div ng-repeat="locationMatch in deploymentContext.locationMatches" class="col-xs-6 col-md-3" >
+      <span ng-if="(isSelected=isLocationSelected(locationMatch.location))" class="location-match" ng-class="{'location-match-selected': locationMatch.ready, 'location-match-danger': !locationMatch.ready}">
+        <b>{{locationMatch.location.name}}</b>  <br>
+        <i>From orchestrator </i>: <b>{{locationMatch.orchestrator.name}}</b>
+      </span>
+      <span ng-if="!isSelected" ng-click="locationMatch.ready && selectLocation(locationMatch)" class="location-match" ng-class="{'item-disabled': !locationMatch.ready, 'clickable-media': locationMatch.ready}">
+        <b>{{locationMatch.location.name}}</b>  <br>
+        <i>From orchestrator </i>: <b>{{locationMatch.orchestrator.name}}</b>
+      </span>
+    </div>
+  </div>
 </div>

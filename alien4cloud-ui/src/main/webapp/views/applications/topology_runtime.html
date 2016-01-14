@@ -37,7 +37,7 @@
                 <table class="table">
                   <thead>
                     <tr>
-                      <th>{{'NAME' | translate}}</th>
+                      <th>{{'COMMON.NAME' | translate}}</th>
                       <th>{{'VALUE' | translate}}</th>
                       <th></th>
                     </tr>
@@ -138,7 +138,7 @@
                       <tr>
                         <th></th>
                         <th>{{ 'APPLICATIONS.RUNTIME.INSTANCE' | translate }}</th>
-                        <th>{{ 'APPLICATIONS.RUNTIME.STATE' | translate }}</th>
+                        <th>{{ 'COMMON.STATE' | translate }}</th>
                         <th>{{ 'APPLICATIONS.RUNTIME.STATUS' | translate }}</th>
                         <th></th>
                       </tr>
@@ -201,7 +201,7 @@
             <div id="node-instance-properties-command" class="clickable" ng-click="isNodeInstancePropertiesCollapsed = !isNodeInstancePropertiesCollapsed">
               <h4>
                 <i class="pull-left fa" ng-class="{'fa-caret-down' : !isNodeInstancePropertiesCollapsed, 'fa-caret-right': isNodeInstancePropertiesCollapsed}"></i>
-                {{'APPLICATIONS.RUNTIME.PROPERTIES' | translate}}
+                {{'COMMON.PROPERTIES' | translate}}
               </h4>
             </div>
             <div class="row" collapse="isNodeInstancePropertiesCollapsed">
@@ -226,7 +226,7 @@
             <div id="node-instance-attributes-command" class="clickable" ng-click="isNodeInstanceAttributesCollapsed = !isNodeInstanceAttributesCollapsed">
               <h4>
                 <i class="pull-left fa" ng-class="{'fa-caret-down' : !isNodeInstanceAttributesCollapsed, 'fa-caret-right': isNodeInstanceAttributesCollapsed}"></i>
-                {{'APPLICATIONS.RUNTIME.ATTRIBUTES' | translate}}
+                {{'COMMON.ATTRIBUTES' | translate}}
               </h4>
             </div>
             <div class="row" collapse="isNodeInstanceAttributesCollapsed">
@@ -336,7 +336,7 @@
             <div class="row form-horizontal">
               <div class="col-md-12">
                 <div class="form-group">
-                  <label class="col-md-2 control-label">{{'APPLICATIONS.RUNTIME.EVENTS.TYPE' | translate}}</label>
+                  <label class="col-md-2 control-label">{{'COMMON.TYPE' | translate}}</label>
 
                   <div class="col-md-10">
                     <div class="btn-group">
@@ -361,7 +361,7 @@
                     <thead>
                       <tr>
                         <th>{{ 'APPLICATIONS.RUNTIME.EVENTS.DATE' | translate}}</th>
-                        <th>{{ 'APPLICATIONS.RUNTIME.EVENTS.TYPE' | translate}}</th>
+                        <th>{{ 'COMMON.TYPE' | translate}}</th>
                         <th>{{ 'APPLICATIONS.RUNTIME.EVENTS.MESSAGE' | translate}}</th>
                       </tr>
                     </thead>

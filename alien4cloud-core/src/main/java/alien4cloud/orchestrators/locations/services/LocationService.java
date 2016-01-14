@@ -11,14 +11,16 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
+
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
@@ -44,10 +46,7 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.DeployerRole;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.utils.MapUtil;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Manages a locations.
@@ -245,7 +244,7 @@ public class LocationService {
         Map<Csar, List<Usage>> usages = locationArchiveIndexer.deleteArchives(location);
         if (MapUtils.isNotEmpty(usages)) {
             // TODO what to do when some archives were not deleted?
-            log.warn("Some archives for location were not deletec! \n" + usages);
+            log.warn("Some archives for location were not deleted! \n" + usages);
         }
         // delete all location resources for the given location
         alienDAO.delete(LocationResourceTemplate.class, QueryBuilders.termQuery("locationId", id));

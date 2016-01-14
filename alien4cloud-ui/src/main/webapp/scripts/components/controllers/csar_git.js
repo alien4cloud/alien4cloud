@@ -16,7 +16,7 @@ define(function (require) {
     menu: {
       id: 'cm.components.git',
       state: 'components.git',
-      key: 'NAVBAR.MENU_CSARS',
+      key: 'NAVBAR.MENU_CSARS_GIT',
       icon: 'fa fa-git',
       priority: 30,
       roles: ['COMPONENTS_MANAGER']

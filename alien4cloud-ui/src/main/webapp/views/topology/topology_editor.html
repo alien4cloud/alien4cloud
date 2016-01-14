@@ -115,7 +115,7 @@
             <div class="col-md-12">
               <div class="input-group">
                 <span class="input-group-addon">
-                  <span><i>{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</i></span>
+                  <span><i>{{'COMMON.TYPE' | translate}}</i></span>
                 </span>
                 <span class="form-control">
                   <a href="/#/components/details/{{selectedNodeTemplate.type}}:{{topology.nodeTypes[selectedNodeTemplate.type].archiveVersion}}" target="_blank">
@@ -151,7 +151,7 @@
               ng-click="isGroupsCollapsed = !isGroupsCollapsed">
               <h4>
                 <i class=" fa" ng-class="{'fa-caret-down' : !isGroupsCollapsed, 'fa-caret-right': isGroupsCollapsed}"></i>
-                {{'APPLICATIONS.TOPOLOGY.GROUPS.TITLE' | translate}}
+                {{'COMMON.GROUPS' | translate}}
               </h4>
             </div>
             <span class="clearfix"></span>
@@ -175,7 +175,7 @@
                  ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
               <h4>
                 <i class="fa" ng-class="{'fa-caret-down' : !isPropertiesCollapsed, 'fa-caret-right': isPropertiesCollapsed}"></i>
-                {{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}
+                {{'COMMON.PROPERTIES' | translate}}
               </h4>
             </div>
             <div id="node-details-properties-panel" collapse="isPropertiesCollapsed" class="topology-level">
@@ -237,7 +237,7 @@
                  ng-click="isCapabilitiesCollapsed = !isCapabilitiesCollapsed">
               <h4>
                 <i class=" fa" ng-class="{'fa-caret-down' : !isCapabilitiesCollapsed, 'fa-caret-right': isCapabilitiesCollapsed}"></i>
-                {{'APPLICATIONS.TOPOLOGY.CAPABILITIES' | translate}}
+                {{'COMMON.CAPABILITIES' | translate}}
               </h4>
             </div>
             <div id="node-details-capabilities-panel" collapse="isCapabilitiesCollapsed" class="topology-level">
@@ -337,7 +337,7 @@
                  ng-click="isAttributesCollapsed = !isAttributesCollapsed">
               <h4>
                 <i class=" fa" ng-class="{'fa-caret-down' : !isAttributesCollapsed, 'fa-caret-right': isAttributesCollapsed}"></i>
-                {{'APPLICATIONS.TOPOLOGY.ATTRIBUTES' | translate}}
+                {{'COMMON.ATTRIBUTES' | translate}}
               </h4>
             </div>
             <div id="node-details-attributes-panel" collapse="isAttributesCollapsed" class="topology-level">
@@ -470,7 +470,7 @@
                 </div>
                 <div class="topology-level" collapse="isRelationshipCollapsed">
                   <div class="row">
-                    <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</div>
+                    <div class="col-md-3">{{'COMMON.TYPE' | translate}}</div>
                     <div class="col-md-9" tooltip="{{relationshipEntry.value.type}}" tooltip-append-to-body="true">{{relationshipEntry.value.type | splitAndGet:'.':'last'}}</div>
                   </div>
                   <div class="row">
@@ -478,7 +478,7 @@
                     <div class="col-md-9">{{relationshipEntry.value.target | split}}</div>
                   </div>
                   <div class="row" ng-if="topology.relationshipTypes[relationshipEntry.value.type].properties">
-                    <div class="col-md-12">{{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}} :</div>
+                    <div class="col-md-12">{{'COMMON.PROPERTIES' | translate}} :</div>
                   </div>
                   <div class="row">
                     <div class="col-md-12">
@@ -582,7 +582,7 @@
                 </div>
                 <div class="topology-level" collapse="isArtifactCollapsed">
                   <div class="row">
-                    <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</div>
+                    <div class="col-md-3">{{'COMMON.TYPE' | translate}}</div>
                     <div class="col-md-9">{{artifact.artifactType}}</div>
                   </div>
                   <div class="row">
@@ -658,8 +658,8 @@
           <table class="table table-hover">
           <thead>
             <tr>
-              <th>{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCY_NAME' | translate}}</th>
-              <th>{{ 'APPLICATIONS.TOPOLOGY.DEPENDENCY_VERSION' | translate}}</th>
+              <th>{{ 'COMMON.NAME' | translate}}</th>
+              <th>{{ 'COMMON.VERSION' | translate}}</th>
             </tr>
           </thead>
           <tbody>
@@ -692,8 +692,8 @@
           <table class="table table-hover">
             <thead>
               <tr>
-                <th>{{'APPLICATIONS.TOPOLOGY.INPUTS.NAME' | translate }}</th>
-                <th>{{'APPLICATIONS.TOPOLOGY.INPUTS.TYPE' | translate }}</th>
+                <th>{{'COMMON.NAME' | translate }}</th>
+                <th>{{'COMMON.TYPE' | translate }}</th>
                 <th>{{'APPLICATIONS.TOPOLOGY.INPUTS.CONSTRAINT' | translate }}</th>
                 <th></th>
               </tr>
@@ -728,7 +728,7 @@
         <div class="topology-column-content">
           <div class="topology-column-content-head">
             <span>
-              <i class="fa fa-list-alt"></i> {{'APPLICATIONS.TOPOLOGY.GROUPS.TITLE' | translate}}
+              <i class="fa fa-list-alt"></i> {{'COMMON.GROUPS' | translate}}
             </span>
             <span id='closeGroups' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.toggle('groups')">
               <i class="fa fa-remove close-panel"></i>
@@ -804,8 +804,8 @@
           <table class="table table-hover">
             <thead>
               <tr>
-                <th>{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.ID' | translate }}</th>
-                <th>{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.TYPE' | translate }}</th>
+                <th>{{'COMMON.ID' | translate }}</th>
+                <th>{{'COMMON.TYPE' | translate }}</th>
                 <th></th>
               </tr>
             </thead>
@@ -844,7 +844,7 @@
               <i class="fa fa-remove close-panel"></i>
             </span>
           </div>
-          <h4>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.TYPE' | translate}}</h4>
+          <h4>{{'COMMON.TYPE' | translate}}</h4>
           <div class="row">
             <div class="col-md-11">
               <input type="text" class="form-control" id="substitution-type" ng-model="substitutionType" typeahead="item for item in substitution.getTypeSuggestions.get($viewValue)" typeahead-min-length="substitution.getTypeSuggestions.minLength" typeahead-on-select="substitution.selectType($item)" />
@@ -855,7 +855,7 @@
           </div>
           </delete-confirm>
           <div ng-if="topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType">
-            <h4>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.VERSION' | translate}}</h4>
+            <h4>{{'COMMON.VERSION' | translate}}</h4>
             {{ topology.topology.substitutionMapping.substitutionType.archiveName }}
             <div class="btn-group btn-group-sm"  >
               <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="substitution_versions">
@@ -869,12 +869,12 @@
               </ul>
             </div>
             <br>
-            <h4>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.CAPABILITIES' | translate}}</h4>
+            <h4>{{'COMMON.CAPABILITIES' | translate}}</h4>
             <table class="table table-hover">
               <thead>
                 <tr>
-                  <th>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.NOM' | translate }}</th>
-                  <th>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.TARGET_NODE' | translate }}</th>
+                  <th>{{'COMMON.NAME' | translate }}</th>
+                  <th>{{'COMMON.TARGET' | translate }}</th>
                   <th>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.CAPABILITY' | translate }}</th>
                   <th></th>
                 </tr>
@@ -900,8 +900,8 @@
             <table class="table table-hover">
               <thead>
                 <tr>
-                  <th>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.NOM' | translate }}</th>
-                  <th>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.SOURCE_NODE' | translate }}</th>
+                  <th>{{'COMMON.NAME' | translate }}</th>
+                  <th>{{'COMMON.SOURCE' | translate }}</th>
                   <th>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.REQUIREMENT' | translate }}</th>
                   <th></th>
                 </tr>
@@ -1035,7 +1035,7 @@
     					 <img ng-src="img?id={{workflows.getStepNodeIcon(previewWorkflowStep)}}&quality=QUALITY_64" />
              </div>
 			 		   <div class="col-md-9">
-				 		   {{'APPLICATIONS.WF.nodeName' | translate}}: <b>{{previewWorkflowStep.nodeId}}</b><br>
+				 		   {{'COMMON.NODE' | translate}}: <b>{{previewWorkflowStep.nodeId}}</b><br>
 						   {{'APPLICATIONS.WF.host' | translate}}: <b>{{previewWorkflowStep.hostId}}</b><br>
 						   {{'APPLICATIONS.WF.activity' | translate}}: <b>{{ 'APPLICATIONS.WF.' + workflows.getStepActivityType(previewWorkflowStep) | translate}}</b><br>
 					   </div>
@@ -1223,7 +1223,7 @@
         </li>
         <li ng-show="view === 'RENDERED' && !displays.groups.active" ng-click="display.toggle('groups')">
           <span id="topology-groups" >
-            <i class="fa fa-list-alt"></i> {{'APPLICATIONS.TOPOLOGY.GROUPS.TITLE' | translate}}
+            <i class="fa fa-list-alt"></i> {{'COMMON.GROUPS' | translate}}
           </span>
         </li>
         <li ng-show="view === 'RENDERED' && !displays.artifacts.active" ng-click="display.toggle('artifacts')">
