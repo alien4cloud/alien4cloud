@@ -161,7 +161,7 @@ function assertGroupDoesNotHaveRoles(appOrEnv, groupName, roles) {
 }
 
 module.exports.assertGroupDoesNotHaveRoles = function(groupName, roles) {
-  return assertGroupDoesNotHaveRoles("app", groupName, roles);
+  return assertGroupDoesNotHaveRoles('app', groupName, roles);
 };
 
 module.exports.assertGroupDoesNotHaveRolesForEnv = function(groupName, roles) {
