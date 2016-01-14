@@ -8,16 +8,22 @@ import java.util.concurrent.Executors;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.elasticsearch.mapping.QueryHelper;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.model.common.Usage;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorConfiguration;
@@ -32,13 +38,7 @@ import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.tosca.ArchiveIndexer;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.utils.MapUtil;
-
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service to manage state of an orchestrator
@@ -182,7 +182,7 @@ public class OrchestratorStateService {
         // index the archive in alien catalog
         try {
             for (PluginArchive pluginArchive : orchestratorInstance.pluginArchives()) {
-                archiveIndexer.importArchive(pluginArchive.getArchive(), pluginArchive.getArchiveFilePath(), Lists.<ParsingError>newArrayList());
+                archiveIndexer.importArchive(pluginArchive.getArchive(), pluginArchive.getArchiveFilePath(), Lists.<ParsingError> newArrayList());
             }
         } catch (CSARVersionAlreadyExistsException e) {
             log.info("Skipping location archive import as the released version already exists in the repository.");
@@ -214,27 +214,26 @@ public class OrchestratorStateService {
      * Disable an orchestrator.
      *
      * @param orchestrator The orchestrator to disable.
-     * @param force        If true the orchestrator is disabled even if some deployments are currently running.
+     * @param force If true the orchestrator is disabled even if some deployments are currently running.
      */
-    public synchronized boolean disable(Orchestrator orchestrator, boolean force) {
+    public synchronized List<Usage> disable(Orchestrator orchestrator, boolean force) {
         if (!force) {
-            QueryHelper.SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper
-                    .buildSearchQuery(alienDAO.getIndexForType(Deployment.class))
-                    .types(Deployment.class)
-                    .filters(
-                            MapUtil.newHashMap(new String[]{"orchestratorId", "endDate"}, new String[][]{new String[]{orchestrator.getId()},
-                                    new String[]{null}})).fieldSort("_timestamp", true);
+            QueryHelper.SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper.buildSearchQuery(alienDAO.getIndexForType(Deployment.class))
+                    .types(Deployment.class).filters(MapUtil.newHashMap(new String[] { "orchestratorId", "endDate" },
+                            new String[][] { new String[] { orchestrator.getId() }, new String[] { null } }))
+                    .fieldSort("_timestamp", true);
             // If there is at least one active deployment.
             GetMultipleDataResult<Object> result = alienDAO.search(searchQueryHelperBuilder, 0, 1);
 
-            // TODO place a lock to avoid deployments during disablement of the orchestrator.
+            // TODO place a lock to avoid deployments during the disabling of the orchestrator.
             if (result.getData().length > 0) {
-                return false;
+                List<Usage> usages = generateDeploymentUsages(result.getData());
+                return usages;
             }
         }
 
         try {
-            // un-register the orchestrator.
+            // unregister the orchestrator.
             IOrchestratorPlugin orchestratorInstance = orchestratorPluginService.unregister(orchestrator.getId());
             if (orchestratorInstance != null) {
                 IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestrator);
@@ -248,6 +247,15 @@ public class OrchestratorStateService {
             alienDAO.save(orchestrator);
         }
 
-        return true;
+        return null;
+    }
+
+    private List<Usage> generateDeploymentUsages(Object[] data) {
+        List<Usage> usages = Lists.newArrayList();
+        for (Object object : data) {
+            Deployment deployment = (Deployment) object;
+            usages.add(new Usage(deployment.getSourceName(), deployment.getSourceType().getSourceType().getSimpleName(), deployment.getSourceId()));
+        }
+        return usages;
     }
 }

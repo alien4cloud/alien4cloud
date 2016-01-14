@@ -6,6 +6,8 @@ define(function (require) {
   var angular = require('angular');
   var _ = require('lodash');
 
+  require('scripts/common/services/global_rest_error_handler');
+
   require('scripts/orchestrators/services/orchestrator_service');
   require('scripts/orchestrators/services/orchestrator_properties_service');
   require('scripts/orchestrators/services/orchestrator_instance_service');
@@ -49,8 +51,8 @@ define(function (require) {
   states.forward('admin.orchestrators.details', 'admin.orchestrators.details.info');
 
   modules.get('a4c-orchestrators').controller('OrchestratorDetailsCtrl',
-    ['$scope', '$modal', '$state', '$translate', 'orchestratorService', 'orchestratorInstanceService', 'orchestrator', 'metapropConfServices', 'toaster',
-    function($scope, $modal, $state, $translate, orchestratorService, orchestratorInstanceService, orchestrator, metapropConfServices, toaster) {
+    ['$scope', '$modal', '$state', '$translate', 'orchestratorService', 'orchestratorInstanceService', 'orchestrator', 'metapropConfServices', 'globalRestErrorHandler',
+    function($scope, $modal, $state, $translate, orchestratorService, orchestratorInstanceService, orchestrator, metapropConfServices, globalRestErrorHandler) {
       $scope.orchestrator = orchestrator;
       $scope.showForceDisable = false;
 
@@ -88,8 +90,8 @@ define(function (require) {
       $scope.disable = function(force) {
         orchestrator.state = 'DISABLING';
         orchestratorInstanceService.remove({orchestratorId: orchestrator.id, force: force})
-          .$promise.then(function(result){ 
-            //do something here, and manage errors
+          .$promise.then(function(result){
+            globalRestErrorHandler.handle(result);
           })
           ['finally'](function() {
             $state.reload(); // do something with web-sockets to get notifications on the orchestrator state.
