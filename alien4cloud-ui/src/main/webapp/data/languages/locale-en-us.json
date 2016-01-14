@@ -4,9 +4,9 @@
     "APPLICATION_ROLES" : "Application roles",
     "DEPLOY" : "Deploy",
     "DEPLOYMENT" : {
-      "DEPLOY": "Deploy",
-      "MATCHING": "Substitution",
-      "INPUT": "Input",
+      "DEPLOY" : "Deploy",
+      "INPUT" : "Input",
+      "MATCHING" : "Substitution",
       "PROPERTIES" : {
         "REQUIRED" : "Required",
         "WARNING" : "Warning",
@@ -305,26 +305,26 @@
   "CODE" : "en-us",
   "COMMON" : {
     "ADD" : "Add",
+    "ATTRIBUTES" : "Attributes",
+    "CAPABILITIES" : "Capabilities",
+    "DESCRIPTION" : "Description",
+    "EMAIL" : "Email",
+    "ENABLED_false" : "Disabled",
+    "ENABLED_true" : "Enabled",
     "FILTER" : "Filter",
+    "GROUPS" : "Groups",
+    "ID" : "Id",
     "NAME" : "Name",
+    "NO" : "No",
+    "NODE" : "Node",
+    "PROPERTIES" : "Properties",
+    "SOURCE" : "Source",
+    "STATE" : "State",
+    "TARGET" : "Target",
     "TYPE" : "Type",
-    "ENABLED_true": "Enabled",
-    "ENABLED_false": "Disabled",
-    "EMAIL": "Email",
-    "VERSION": "Version",
-    "STATE": "State",
-    "USERNAME":"Username",
-    "ID": "Id",
-    "TARGET":"Target",
-    "NO": "No",
-    "YES": "Yes",
-    "NODE": "Node",
-    "GROUPS": "Groups",
-    "PROPERTIES": "Properties",
-    "CAPABILITIES": "Capabilities",
-    "DESCRIPTION": "Description",
-    "ATTRIBUTES":"Attributes",
-    "SOURCE": "Source"
+    "USERNAME" : "Username",
+    "VERSION" : "Version",
+    "YES" : "Yes"
   },
   "COMPONENTS" : {
     "ABSTRACT" : "Abstract component",
@@ -333,8 +333,8 @@
     "ARCHIVE_NAME" : "Archive name",
     "ARCHIVE_VERSION" : "Archive version",
     "CAPABILITIES" : {
-      "TYPE": "Capabilities",
-      "CARDINALITIES_TOOLTIP" : "upperBound"
+      "CARDINALITIES_TOOLTIP" : "upperBound",
+      "TYPE" : "Capabilities"
     },
     "CARDINALITIES_TOOLTIP" : "lowerBound..upperBound",
     "COMPONENT" : {
@@ -350,7 +350,7 @@
     },
     "DEFAULTCAPABILITIES" : "Default Capabilities",
     "DERIVEDFROM" : "Derived from",
-    "DRAG_DROP_UPLOAD": "Drop archive files to upload here",
+    "DRAG_DROP_UPLOAD" : "Drop archive files to upload here",
     "FORM_ERRORS" : {
       "TAG_KEY" : "Tag name can only contain characters a to Z, -, _ without spaces"
     },
@@ -509,7 +509,7 @@
     "372" : "Error in naming policy of deployment.",
     "373" : "Unexpected error happened while switching on / off maintenance mode ",
     "374" : "One of your meta-property is empty and does not have a default value.",
-    "375" : "Error occurs on provider when trying to scale.",
+    "375" : "Error occurred on provider when trying to scale.",
     "390" : "It's forbidden to remove the last admin user.",
     "391" : "It's forbidden to remove the ADMIN role of the last admin user.",
     "400" : "Unexpected error happened while accessing to CSAR repository",
@@ -657,7 +657,7 @@
       "MANAGED" : "Managed Artifacts"
     },
     "CONFIGURATION" : {
-      "LOCK_LOCATION_ROLE" : "This role is manage in the global orchestrator security",
+      "LOCK_LOCATION_ROLE" : "This role is managed in the global orchestrator security",
       "UNLOCK-BTN-CONTENT" : "You can unlock to edit the orchestrator configuration but this will affect the connected driver.",
       "UNLOCK-BTN-TITLE" : "Unlock"
     },
@@ -667,7 +667,6 @@
       "CONFIG_REQUIRES_CONNEXION" : "Orchestrator must be connected so you can configure locations.",
       "DELETE" : "Delete Location",
       "ENVIRONMENT_TYPE" : "environment type",
-      "INFRASTRUCTURE_TYPE" : "infrastructure type",
       "INFRA_TYPE" : "Infrastructure type",
       "INFRA_TYPE_SELECT" : "-- Select an infrastructure type --",
       "NEW" : "New Location",
@@ -684,7 +683,7 @@
       "AUTHORIZATIONS" : "Authorizations",
       "CONFIGURATION" : "Configuration",
       "DEPLOYMENTS" : "Deployments",
-      "INFO" : "Informations",
+      "INFO" : "Information",
       "LOCATIONS" : "Location(s)"
     },
     "NEW" : "New orchestrator",
