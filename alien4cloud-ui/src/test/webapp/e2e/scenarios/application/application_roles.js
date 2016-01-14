@@ -15,8 +15,7 @@ var applicationVersionsData = require(__dirname + '/_data/application_roles/appl
 var topologiesData = require(__dirname + '/_data/application_roles/topologies.json');
 
 describe('Security management on applications', function() {
-
-  var applicationName = 'AlienUITest';
+  var defaultApplicationName = 'AlienUITest';
   var otherApplicationName = 'ApplicationRolesTestOtherApp';
 
   var checkAccess = function(menu) {
@@ -29,13 +28,9 @@ describe('Security management on applications', function() {
     common.isPresentButDisabled('applications', menu);
   };
 
-  var checkApplicationManagerAccess = function(specifiedApp) {
+  var checkApplicationManagerAccess = function(appName) {
     authentication.reLogin(authentication.users.sauron.username);
-    if (specifiedApp) {
-      applications.goToApplicationDetailPage(specifiedApp);
-    } else {
-      applications.goToApplicationDetailPage(applicationName);
-    }
+    applications.goToApplicationDetailPage(appName);
     checkAccess('topology');
     checkAccess('deployment');
     checkDisplayedButDisabled('runtime');
@@ -44,14 +39,9 @@ describe('Security management on applications', function() {
     authentication.reLogin('applicationManager');
   };
 
-  var checkApplicationDeploymentManagerAccess = function(specifiedApp) {
+  var checkApplicationDeploymentManagerAccess = function(appName) {
     authentication.reLogin(authentication.users.sauron.username);
-    if (specifiedApp) {
-      applications.goToApplicationDetailPage(specifiedApp);
-    } else {
-      applications.goToApplicationDetailPage(applicationName);
-    }
-    // It must has access to every tab of the application
+    applications.goToApplicationDetailPage(appName);
     checkAccess('info');
     checkAccess('deployment');
     checkDisplayedButDisabled('runtime');
@@ -60,14 +50,9 @@ describe('Security management on applications', function() {
     authentication.reLogin('applicationManager');
   };
 
-  var checkApplicationDevOpsAccess = function(specifiedApp) {
+  var checkApplicationDevOpsAccess = function(appName) {
     authentication.reLogin(authentication.users.sauron.username);
-    if (specifiedApp) {
-      applications.goToApplicationDetailPage(specifiedApp);
-    } else {
-      applications.goToApplicationDetailPage(applicationName);
-    }
-    // It must has access to every tab of the application
+    applications.goToApplicationDetailPage(appName);
     checkAccess('topology');
     common.isNotNavigable('applications', 'deployment');
     common.isNotNavigable('applications', 'runtime');
@@ -76,14 +61,9 @@ describe('Security management on applications', function() {
     authentication.reLogin('applicationManager');
   };
 
-  var checkApplicationUserAccess = function(specifiedApp) {
+  var checkApplicationUserAccess = function(appName) {
     authentication.reLogin(authentication.users.sauron.username);
-    if (specifiedApp) {
-      applications.goToApplicationDetailPage(specifiedApp);
-    } else {
-      applications.goToApplicationDetailPage(applicationName);
-    }
-    // It must has access to every tab of the application
+    applications.goToApplicationDetailPage(appName);
     common.isNotNavigable('applications', 'topology');
     common.isNotNavigable('applications', 'deployment');
     common.isNotNavigable('applications', 'runtime');
@@ -92,26 +72,17 @@ describe('Security management on applications', function() {
     authentication.reLogin('applicationManager');
   };
 
-  var checkNoAccessToApp = function(specifiedApp) {
+  var checkNoAccessToApp = function(appName) {
     authentication.reLogin(authentication.users.sauron.username);
-    if (!specifiedApp) {
-      specifiedApp = applicationName;
-    }
     applications.go();
-    applications.searchApplication(specifiedApp);
-    expect(element(by.id('app_' + specifiedApp)).isPresent()).toBe(false);
+    applications.searchApplication(appName);
+    expect(element(by.id('app_' + appName)).isPresent()).toBe(false);
     authentication.reLogin('applicationManager');
   };
 
-  var toggleUserRole = function(role, hasRole, specifiedApp) {
+  var toggleUserRole = function(role, hasRole, appName) {
     applications.go();
-    if (specifiedApp) {
-      applications.searchApplication(specifiedApp);
-      applications.goToApplicationDetailPage(specifiedApp);
-    } else {
-      applications.searchApplication(applicationName);
-      applications.goToApplicationDetailPage(applicationName);
-    }
+    applications.goToApplicationDetailPage(appName);
     common.go('applications', 'users');
     common.selectBSDropdown(by.id('users_environment_switcher'), 'Environment');
     rolesCommon.editUserRole(authentication.users.sauron.username, role);
@@ -125,12 +96,8 @@ describe('Security management on applications', function() {
     }
   };
 
-  var toggleGroupRole = function(role, hasRole, specifiedApp) {
-    if (specifiedApp) {
-      applications.goToApplicationDetailPage(specifiedApp);
-    } else {
-      applications.goToApplicationDetailPage(applicationName);
-    }
+  var toggleGroupRole = function(role, hasRole, appName) {
+    applications.goToApplicationDetailPage(appName);
     common.go('applications', 'users');
     common.selectBSDropdown(by.id('users_environment_switcher'), 'Environment');
     element(by.id('groups-tab')).element(by.tagName('a')).click();
@@ -146,12 +113,8 @@ describe('Security management on applications', function() {
     }
   };
 
-  var toggleUserRoleForEnv = function(role, hasRole, specifiedApp) {
-    if (specifiedApp) {
-      applications.goToApplicationDetailPage(specifiedApp);
-    } else {
-      applications.goToApplicationDetailPage(applicationName);
-    }
+  var toggleUserRoleForEnv = function(role, hasRole, appName) {
+    applications.goToApplicationDetailPage(appName);
     common.go('applications', 'users');
     common.selectBSDropdown(by.id('users_environment_switcher'), 'Environment');
     rolesCommon.editUserRoleForEnv(authentication.users.sauron.username, role);
@@ -167,12 +130,8 @@ describe('Security management on applications', function() {
     rolesCommon.assertUserDoesNotHaveRolesForEnv(authentication.users.sauron.username, role);
   };
 
-  var toggleGroupRoleForEnv = function(role, hasRole, specifiedApp) {
-    if (specifiedApp) {
-      applications.goToApplicationDetailPage(specifiedApp);
-    } else {
-      applications.goToApplicationDetailPage(applicationName);
-    }
+  var toggleGroupRoleForEnv = function(role, hasRole, appName) {
+    applications.goToApplicationDetailPage(appName);
     common.go('applications', 'users');
     common.selectBSDropdown(by.id('users_environment_switcher'), 'Environment');
     element(by.id('groups-tab')).element(by.tagName('a')).click();
@@ -201,69 +160,61 @@ describe('Security management on applications', function() {
   });
 
   it('should be able to add role to others user on the application if user is admin, and application_manager must be per application basis', function() {
-    toggleUserRole(rolesCommon.appRoles.appManager, true);
-    checkApplicationManagerAccess();
+    toggleUserRole(rolesCommon.appRoles.appManager, true, defaultApplicationName);
+    checkApplicationManagerAccess(defaultApplicationName);
     toggleUserRoleForEnv(rolesCommon.envRoles.envUser, true, otherApplicationName);
     checkApplicationUserAccess(otherApplicationName);
     toggleUserRoleForEnv(rolesCommon.envRoles.envUser, false, otherApplicationName);
-    toggleUserRole(rolesCommon.appRoles.appManager, false);
+    toggleUserRole(rolesCommon.appRoles.appManager, false, defaultApplicationName);
   });
 
   it('should be able to navigate as an application manager in the application if user has this right', function() {
-    console.log('################# should be able to navigate as an application manager in the application if user has this right');
-    toggleUserRole(rolesCommon.appRoles.appManager, true);
-    checkApplicationManagerAccess();
-    toggleUserRole(rolesCommon.appRoles.appManager, false);
-    checkNoAccessToApp();
+    toggleUserRole(rolesCommon.appRoles.appManager, true, defaultApplicationName);
+    checkApplicationManagerAccess(defaultApplicationName);
+    toggleUserRole(rolesCommon.appRoles.appManager, false, defaultApplicationName);
+    checkNoAccessToApp(defaultApplicationName);
   });
 
   it('should be able to navigate as an application manager in the application if user is in a group which has this right', function() {
-    console.log('################# should be able to navigate as an application manager in the application if user is in a group which has this right');
-    toggleGroupRole(rolesCommon.appRoles.appManager, true);
-    checkApplicationManagerAccess();
-    toggleGroupRole(rolesCommon.appRoles.appManager, false);
+    toggleGroupRole(rolesCommon.appRoles.appManager, true, defaultApplicationName);
+    checkApplicationManagerAccess(defaultApplicationName);
+    toggleGroupRole(rolesCommon.appRoles.appManager, false, defaultApplicationName);
   });
 
   it('should be able to navigate as an application deployment manager in the application if user has this right', function() {
-    console.log('################# should be able to navigate as an application deployment manager in the application if user has this right');
-    toggleUserRoleForEnv(rolesCommon.envRoles.deploymentManager, true);
-    checkApplicationDeploymentManagerAccess();
-    toggleUserRoleForEnv(rolesCommon.envRoles.deploymentManager, false);
+    toggleUserRoleForEnv(rolesCommon.envRoles.deploymentManager, true, defaultApplicationName);
+    checkApplicationDeploymentManagerAccess(defaultApplicationName);
+    toggleUserRoleForEnv(rolesCommon.envRoles.deploymentManager, false, defaultApplicationName);
   });
 
   it('should be able to navigate as an application deployment manager in the application if user is in a group which has this right', function() {
-    console.log('################# should be able to navigate as an application deployment manager in the application if user is in a group which has this right');
-    toggleGroupRoleForEnv(rolesCommon.envRoles.deploymentManager, true);
-    checkApplicationDeploymentManagerAccess();
-    toggleGroupRoleForEnv(rolesCommon.envRoles.deploymentManager, false);
+    toggleGroupRoleForEnv(rolesCommon.envRoles.deploymentManager, true, defaultApplicationName);
+    checkApplicationDeploymentManagerAccess(defaultApplicationName);
+    toggleGroupRoleForEnv(rolesCommon.envRoles.deploymentManager, false, defaultApplicationName);
   });
 
   it('should be able to navigate as an application dev ops in the application if user has this right', function() {
-    console.log('################# should be able to navigate as an application dev ops in the application if user has this right');
-    toggleUserRole(rolesCommon.appRoles.appDevops, true);
-    checkApplicationDevOpsAccess();
-    toggleUserRole(rolesCommon.appRoles.appDevops, false);
+    toggleUserRole(rolesCommon.appRoles.appDevops, true, defaultApplicationName);
+    checkApplicationDevOpsAccess(defaultApplicationName);
+    toggleUserRole(rolesCommon.appRoles.appDevops, false, defaultApplicationName);
   });
 
   it('should be able to navigate as an application dev ops in the application if user is in a group which has this right', function() {
-    console.log('################# should be able to navigate as an application dev ops in the application if user is in a group which has this right');
-    toggleGroupRole(rolesCommon.appRoles.appDevops, true);
-    checkApplicationDevOpsAccess();
-    toggleGroupRole(rolesCommon.appRoles.appDevops, false);
+    toggleGroupRole(rolesCommon.appRoles.appDevops, true, defaultApplicationName);
+    checkApplicationDevOpsAccess(defaultApplicationName);
+    toggleGroupRole(rolesCommon.appRoles.appDevops, false, defaultApplicationName);
   });
 
   it('should be able to navigate as an application user in the application if user has this right', function() {
-    console.log('################# should be able to navigate as an application user in the application if user has this right');
-    toggleUserRoleForEnv(rolesCommon.envRoles.envUser, true);
-    checkApplicationUserAccess();
-    toggleUserRoleForEnv(rolesCommon.envRoles.envUser, false);
+    toggleUserRoleForEnv(rolesCommon.envRoles.envUser, true, defaultApplicationName);
+    checkApplicationUserAccess(defaultApplicationName);
+    toggleUserRoleForEnv(rolesCommon.envRoles.envUser, false, defaultApplicationName);
   });
 
   it('should be able to navigate as an application user in the application if user is in a group which has this right', function() {
-    console.log('################# should be able to navigate as an application user in the application if user is in a group which has this right');
-    toggleGroupRoleForEnv(rolesCommon.envRoles.envUser, true);
-    checkApplicationUserAccess();
-    toggleGroupRoleForEnv(rolesCommon.envRoles.envUser, false);
+    toggleGroupRoleForEnv(rolesCommon.envRoles.envUser, true, defaultApplicationName);
+    checkApplicationUserAccess(defaultApplicationName);
+    toggleGroupRoleForEnv(rolesCommon.envRoles.envUser, false, defaultApplicationName);
   });
 
   it('afterAll', function() {
