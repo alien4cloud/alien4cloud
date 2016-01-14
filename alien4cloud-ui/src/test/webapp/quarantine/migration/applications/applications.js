@@ -84,7 +84,7 @@ var createApplication = function(newAppName, newAppDescription, topologyTemplate
     // topologyTemplateSelectNumber should start at 2 since the one at 1 is (no template) first ins the list
     var select = element(by.id('templateid')).element(by.css('select option:nth-child(' + topologyTemplateSelectNumber + ')'))
     select.click();
-    
+
     // take the first version
     var select = element(by.id('templateVersionId')).element(by.css('select option:nth-child(2)'))
     select.click();
@@ -254,29 +254,7 @@ function goToApplicationVersionPageForApp(applicationName) {
 }
 module.exports.goToApplicationVersionPageForApp = goToApplicationVersionPageForApp;
 
-var createApplicationVersion = function(version, description, selectTopology) {
-  navigation.go('applications', 'versions');
 
-  var btnNewApplicationVersion = browser.element(by.id('app-version-new-btn'));
-  browser.actions().click(btnNewApplicationVersion).perform();
-
-  element(by.model('versionId')).sendKeys(version);
-  element(by.model('descId')).sendKeys(description);
-
-  if (typeof selectTopology !== 'undefined') {
-    var selectCloud = element(by.id('topologyId'));
-    common.selectDropdownByText(selectCloud, selectTopology, 100);
-  } else {
-    console.error('Create an application version with an empty topology');
-  }
-
-  // Create an App env
-  var btnCreate = browser.element(by.id('btn-create'));
-  browser.actions().click(btnCreate).perform();
-  browser.waitForAngular();
-
-};
-module.exports.createApplicationVersion = createApplicationVersion;
 
 // select the environment
 var selectApplicationEnvironment = function(envName) {

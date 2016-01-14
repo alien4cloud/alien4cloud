@@ -1,3 +1,4 @@
+/* global describe, it, by, element, expect */
 'use strict';
 
 var setup = require('../../common/setup');
@@ -7,14 +8,15 @@ var toaster = require('../../common/toaster');
 var users = require('../../admin/users');
 var rolesCommon = require('../../common/roles_common');
 var applications = require('../../applications/applications');
+
 var applicationsData = require(__dirname + '/_data/application_roles/applications.json');
 var applicationEnvironmentsData = require(__dirname + '/_data/application_roles/applicationenvironments.json');
 var applicationVersionsData = require(__dirname + '/_data/application_roles/applicationversions.json');
 var topologiesData = require(__dirname + '/_data/application_roles/topologies.json');
+
 describe('Security management on applications', function() {
 
   var applicationName = 'AlienUITest';
-
   var otherApplicationName = 'ApplicationRolesTestOtherApp';
 
   var checkAccess = function(menu) {
@@ -102,17 +104,20 @@ describe('Security management on applications', function() {
   };
 
   var toggleUserRole = function(role, hasRole, specifiedApp) {
+    applications.go();
     if (specifiedApp) {
+      applications.searchApplication(specifiedApp);
       applications.goToApplicationDetailPage(specifiedApp);
     } else {
+      applications.searchApplication(applicationName);
       applications.goToApplicationDetailPage(applicationName);
     }
     common.go('applications', 'users');
-    common.selectBSDropdown(by.id('users_environment_switcher'), "Environment");
+    common.selectBSDropdown(by.id('users_environment_switcher'), 'Environment');
     rolesCommon.editUserRole(authentication.users.sauron.username, role);
     common.go('applications', 'info');
     common.go('applications', 'users');
-    common.selectBSDropdown(by.id('users_environment_switcher'), "Environment");
+    common.selectBSDropdown(by.id('users_environment_switcher'), 'Environment');
     if (hasRole) {
       rolesCommon.assertUserHasRoles(authentication.users.sauron.username, role);
     } else {
@@ -127,12 +132,12 @@ describe('Security management on applications', function() {
       applications.goToApplicationDetailPage(applicationName);
     }
     common.go('applications', 'users');
-    common.selectBSDropdown(by.id('users_environment_switcher'), "Environment");
+    common.selectBSDropdown(by.id('users_environment_switcher'), 'Environment');
     element(by.id('groups-tab')).element(by.tagName('a')).click();
     rolesCommon.editGroupRole(users.groups.mordor.name, role);
     common.go('applications', 'info');
     common.go('applications', 'users');
-    common.selectBSDropdown(by.id('users_environment_switcher'), "Environment");
+    common.selectBSDropdown(by.id('users_environment_switcher'), 'Environment');
     element(by.id('groups-tab')).element(by.tagName('a')).click();
     if (hasRole) {
       rolesCommon.assertGroupHasRoles(users.groups.mordor.name, role);
@@ -148,17 +153,17 @@ describe('Security management on applications', function() {
       applications.goToApplicationDetailPage(applicationName);
     }
     common.go('applications', 'users');
-    common.selectBSDropdown(by.id('users_environment_switcher'), "Environment");
+    common.selectBSDropdown(by.id('users_environment_switcher'), 'Environment');
     rolesCommon.editUserRoleForEnv(authentication.users.sauron.username, role);
     common.go('applications', 'info');
     common.go('applications', 'users');
-    common.selectBSDropdown(by.id('users_environment_switcher'), "Environment");
+    common.selectBSDropdown(by.id('users_environment_switcher'), 'Environment');
     if (hasRole) {
       rolesCommon.assertUserHasRolesForEnv(authentication.users.sauron.username, role);
     } else {
       rolesCommon.assertUserDoesNotHaveRolesForEnv(authentication.users.sauron.username, role);
     }
-    common.selectBSDropdown(by.id('users_environment_switcher'), "SecondEnvironment");
+    common.selectBSDropdown(by.id('users_environment_switcher'), 'SecondEnvironment');
     rolesCommon.assertUserDoesNotHaveRolesForEnv(authentication.users.sauron.username, role);
   };
 
@@ -169,28 +174,28 @@ describe('Security management on applications', function() {
       applications.goToApplicationDetailPage(applicationName);
     }
     common.go('applications', 'users');
-    common.selectBSDropdown(by.id('users_environment_switcher'), "Environment");
+    common.selectBSDropdown(by.id('users_environment_switcher'), 'Environment');
     element(by.id('groups-tab')).element(by.tagName('a')).click();
     rolesCommon.editGroupRoleForEnv(users.groups.mordor.name, role);
     common.go('applications', 'info');
     common.go('applications', 'users');
-    common.selectBSDropdown(by.id('users_environment_switcher'), "Environment");
+    common.selectBSDropdown(by.id('users_environment_switcher'), 'Environment');
     element(by.id('groups-tab')).element(by.tagName('a')).click();
     if (hasRole) {
       rolesCommon.assertGroupHasRolesForEnv(users.groups.mordor.name, role);
     } else {
       rolesCommon.assertGroupDoesNotHaveRolesForEnv(users.groups.mordor.name, role);
     }
-    common.selectBSDropdown(by.id('users_environment_switcher'), "SecondEnvironment");
+    common.selectBSDropdown(by.id('users_environment_switcher'), 'SecondEnvironment');
     rolesCommon.assertGroupDoesNotHaveRolesForEnv(users.groups.mordor.name, role);
   };
 
   it('beforeAll', function() {
     setup.setup();
-    setup.index("application", "application", applicationsData);
-    setup.index("applicationenvironment", "applicationenvironment", applicationEnvironmentsData);
-    setup.index("applicationversion", "applicationversion", applicationVersionsData);
-    setup.index("topology", "topology", topologiesData);
+    setup.index('application', 'application', applicationsData);
+    setup.index('applicationenvironment', 'applicationenvironment', applicationEnvironmentsData);
+    setup.index('applicationversion', 'applicationversion', applicationVersionsData);
+    setup.index('topology', 'topology', topologiesData);
     common.home();
     authentication.login('admin');
   });
@@ -259,5 +264,9 @@ describe('Security management on applications', function() {
     toggleGroupRoleForEnv(rolesCommon.envRoles.envUser, true);
     checkApplicationUserAccess();
     toggleGroupRoleForEnv(rolesCommon.envRoles.envUser, false);
+  });
+
+  it('afterAll', function() {
+    authentication.logout();
   });
 });

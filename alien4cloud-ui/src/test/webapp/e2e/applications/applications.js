@@ -1,4 +1,4 @@
-/* global by, element */
+/* global by, element, browser */
 'use strict';
 
 var common = require('../common/common');
@@ -36,19 +36,30 @@ var createApplication = function(newAppName, newAppDescription, templateName, te
 };
 module.exports.createApplication = createApplication;
 
-function goToApplicationDetailPage(applicationName, goOnTopology) {
-  common.go('main', 'applications');
-  // From the application search page select a particular line
-  var appElement = element(by.id('app_' + applicationName)); // .click();
-  appElement.click();
-
-  if (goOnTopology === true) {
-    common.go('applications', 'topology');
+function goToApplicationDetailPage(applicationName) {
+  go();
+  if(applicationName) {
+    var appElement = element(by.id('app_' + applicationName)); // .click();
+    appElement.click();
+  } else {
+    browser.element(by.binding('application.name')).click();
   }
-
   browser.waitForAngular();
 }
+
 module.exports.goToApplicationDetailPage = goToApplicationDetailPage;
+
+function goToApplicationTopologyPage(applicationName) {
+  goToApplicationDetailPage(applicationName);
+  common.go('applications', 'topology');
+}
+module.exports.goToApplicationTopologyPage = goToApplicationTopologyPage;
+
+function goToApplicationDeploymentPage(applicationName) {
+  goToApplicationDetailPage(applicationName);
+  common.go('applications', 'deployment');
+}
+module.exports.goToApplicationDeploymentPage = goToApplicationDeploymentPage;
 
 var searchApplication = function(appName) {
   var searchInput = element(by.id('seach-applications-input'));
@@ -57,3 +68,21 @@ var searchApplication = function(appName) {
   common.click(by.id('seach-applications-btn'));
 };
 module.exports.searchApplication = searchApplication;
+
+var createApplicationVersion = function(version, description, selectTopology) {
+  common.go('applications', 'versions');
+  common.click(by.id('app-version-new-btn'));
+
+  element(by.model('versionId')).sendKeys(version);
+  element(by.model('descId')).sendKeys(description);
+
+  if (typeof selectTopology !== 'undefined') {
+    var selectCloud = element(by.id('topologyId'));
+    common.selectDropdownByText(selectCloud, selectTopology);
+  } else {
+    console.error('Create an application version with an empty topology');
+  }
+
+  common.click(by.id('btn-create'));
+};
+module.exports.createApplicationVersion = createApplicationVersion;

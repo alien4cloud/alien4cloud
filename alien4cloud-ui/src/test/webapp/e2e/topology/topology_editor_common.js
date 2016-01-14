@@ -414,14 +414,14 @@ var toggleAttributeOutput = function(nodeTemplateName, attributeName) {
 
 module.exports.toggleAttributeOutput = toggleAttributeOutput;
 
-var expectPropertyInputState = function(nodeTemplateName, propertyName, checked) {
-  expectIOPropertyState(nodeTemplateName, propertyName, 'input', checked);
+var expectPropertyInputState = function(nodeTemplateName, propertyName, checked, componentType) {
+  expectIOPropertyState(nodeTemplateName, propertyName, 'input', checked, componentType);
 };
 
 module.exports.expectPropertyInputState = expectPropertyInputState;
 
-var expectPropertyOutputState = function(nodeTemplateName, propertyName, checked) {
-  expectIOPropertyState(nodeTemplateName, propertyName, 'output', checked);
+var expectPropertyOutputState = function(nodeTemplateName, propertyName, checked, componentType) {
+  expectIOPropertyState(nodeTemplateName, propertyName, 'output', checked, componentType);
 };
 
 module.exports.expectPropertyOutputState = expectPropertyOutputState;
@@ -454,7 +454,7 @@ module.exports.checkNumberOfRelationshipForANode = checkNumberOfRelationshipForA
 var expectDeploymentWork = function(goToAppDetail, work) {
   if (goToAppDetail) {
     authentication.reLogin('applicationManager');
-    applications.goToApplicationDetailPage('Alien', false);
+    applications.goToApplicationDetailPage('Alien');
     common.go('applications', 'deployment');
   }
   var deployButton = browser.element(by.binding('APPLICATIONS.DEPLOY'));
@@ -472,7 +472,7 @@ module.exports.expectDeploymentWork = expectDeploymentWork;
 var expectShowTodoList = function(goToAppDetail, isDisplay) {
   if (goToAppDetail) {
     authentication.reLogin('applicationManager');
-    applications.goToApplicationDetailPage('Alien', false);
+    applications.goToApplicationDetailPage('Alien');
     common.go('applications', 'deployment');
   }
   if (isDisplay) {

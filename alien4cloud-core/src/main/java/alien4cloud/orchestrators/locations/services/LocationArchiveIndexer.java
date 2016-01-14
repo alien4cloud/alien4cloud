@@ -9,12 +9,14 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.csar.services.CsarService;
@@ -36,10 +38,7 @@ import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.tosca.ArchiveIndexer;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Manage the indexing of TOSCA archives.
@@ -133,15 +132,7 @@ public class LocationArchiveIndexer {
      * @return Map of usages per archives if found (that means the deletion wasn't performed successfully), null if everything went well.
      */
     public Map<Csar, List<Usage>> deleteArchives(Location location) {
-        ILocationConfiguratorPlugin configuratorPlugin;
-        try {
-            IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(location.getOrchestratorId());
-            configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
-        } catch (OrchestratorDisabledException e) {
-            IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestratorService.getOrFail(location.getOrchestratorId()));
-            IOrchestratorPlugin orchestratorInstance = orchestratorFactory.newInstance();
-            configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
-        }
+        ILocationConfiguratorPlugin configuratorPlugin = getConfiguratorPlugin(location);
         List<PluginArchive> pluginArchives = configuratorPlugin.pluginArchives();
         // abort if no archive is exposed by this location
         if (CollectionUtils.isEmpty(pluginArchives)) {
@@ -162,6 +153,20 @@ public class LocationArchiveIndexer {
         return usages.isEmpty() ? null : usages;
     }
 
+    private ILocationConfiguratorPlugin getConfiguratorPlugin(Location location) {
+        ILocationConfiguratorPlugin configuratorPlugin;
+        try {
+            IOrchestratorPlugin<Object> orchestratorInstance = orchestratorPluginService.getOrFail(location.getOrchestratorId());
+            configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
+        } catch (OrchestratorDisabledException e) {
+            IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestratorService.getOrFail(location.getOrchestratorId()));
+            IOrchestratorPlugin<Object> orchestratorInstance = orchestratorFactory.newInstance();
+            configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
+            orchestratorFactory.destroy(orchestratorInstance);
+        }
+        return configuratorPlugin;
+    }
+
     private Set<String> getAllExposedArchivesIdsExluding(Location excludedLocation) {
         // exclude a location from the search
         QueryBuilder query = QueryBuilders.boolQuery()
@@ -170,8 +175,7 @@ public class LocationArchiveIndexer {
         Set<String> archiveIds = Sets.newHashSet();
         if (locations != null) {
             for (Location location : locations) {
-                IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(location.getOrchestratorId());
-                ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
+                ILocationConfiguratorPlugin configuratorPlugin = getConfiguratorPlugin(location);
                 List<PluginArchive> pluginArchives = configuratorPlugin.pluginArchives();
                 for (PluginArchive pluginArchive : pluginArchives) {
                     archiveIds.add(pluginArchive.getArchive().getArchive().getId());
