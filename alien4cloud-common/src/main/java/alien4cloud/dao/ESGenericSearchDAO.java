@@ -1,19 +1,15 @@
 package alien4cloud.dao;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
+import alien4cloud.dao.model.FacetedSearchFacet;
+import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.utils.ElasticSearchUtil;
+import alien4cloud.utils.MapUtil;
+import com.google.common.collect.Lists;
 import lombok.SneakyThrows;
-
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.count.CountRequestBuilder;
-import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -31,14 +27,13 @@ import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 
-import alien4cloud.dao.model.FacetedSearchFacet;
-import alien4cloud.dao.model.FacetedSearchResult;
-import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.utils.ElasticSearchUtil;
-import alien4cloud.utils.MapUtil;
-
-import com.google.common.collect.Lists;
+import javax.annotation.Resource;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Elastic search dao that manages search operations.
@@ -78,9 +73,10 @@ public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearch
 
         // get all elements and then use a bulk delete to remove data.
         SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(indexName).setTypes(getTypesFromClass(clazz)).setQuery(query).setNoFields().setFetchSource(false);
+        searchRequestBuilder.setFrom(0).setSize(1000);
         SearchResponse response = searchRequestBuilder.execute().actionGet();
 
-        if (somethingFound(response)) {
+        while (somethingFound(response)) {
             BulkRequestBuilder bulkRequestBuilder = getClient().prepareBulk().setRefresh(true);
 
             for (int i = 0; i < response.getHits().hits().length; i++) {
@@ -89,6 +85,12 @@ public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearch
             }
 
             bulkRequestBuilder.execute().actionGet();
+
+            if (response.getHits().totalHits() == response.getHits().hits().length) {
+                response = null;
+            } else {
+                response = searchRequestBuilder.execute().actionGet();
+            }
         }
     }
 
