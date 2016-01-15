@@ -34,6 +34,7 @@ module.exports = function (grunt) {
             // '<%= yeoman.test %>/e2e/scenarios/admin/orchestrators.js',
             // '<%= yeoman.test %>/e2e/scenarios/admin/metaprops_configuration.js',
             // '<%= yeoman.test %>/e2e/scenarios/application/application_list.js',
+            '<%= yeoman.test %>/e2e/scenarios/application/application_metaprops.js',
             // '<%= yeoman.test %>/e2e/scenarios/application/application_roles.js',
             // '<%= yeoman.test %>/e2e/scenarios/application/application_details.js',
             '<%= yeoman.test %>/e2e/scenarios/application/application_versions.js',

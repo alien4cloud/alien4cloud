@@ -178,11 +178,6 @@ var tagMinLengthConstraint = [{
 }];
 module.exports.tagMinLengthConstraint = tagMinLengthConstraint;
 
-function selectConstraint(selectNumberId, constraintType) {
-  var selectElement = common.element(by.id('abstractTypeFormLabelconstraints' + selectNumberId + 'selectImplementation'));
-  common.click(by.id(constraintType), selectElement);
-}
-
 // Action to be executed before each topology test
 var addTagConfiguration = function(tagConfigObject, tagConstraints) {
   common.click(by.id('menu.admin'));
@@ -210,7 +205,6 @@ var addTagConfiguration = function(tagConfigObject, tagConstraints) {
 
   // CONSTRAINTS HANDLE
   if (tagConstraints !== null && tagConstraints.length > 0) {
-
     // click 'Constraints' button
     common.click(by.id('arrayTypeFormLabelconstraintseditbutton'));
 
@@ -221,13 +215,10 @@ var addTagConfiguration = function(tagConfigObject, tagConstraints) {
 
       // click + add constraint
       common.click(by.id('arrayTypeFormconstraintsaddelementbutton'));
-
       var editField;
       switch (constraintType) {
-
         case constraintsMap.validValues: // VALID VALUES
-          // select the good type for the current constraint select
-          selectConstraint(i, constraintType);
+          element(by.id('abstractTypeFormLabelconstraints' + i + 'selectImplementation')).element(by.id(constraintType)).click();
           // first > for validValues constraint
           common.click(by.id('abstractTypeFormLabelconstraints' + i + 'editbutton'));
           // second > for validValues constraint
@@ -243,7 +234,7 @@ var addTagConfiguration = function(tagConfigObject, tagConstraints) {
           break;
         case constraintsMap.minLength: // min string LENGTH
           // select the good type for the current constraint select
-          selectConstraint(i, constraintType);
+          element(by.id('abstractTypeFormLabelconstraints' + i + 'selectImplementation')).element(by.id(constraintType)).click();
           // click > to add the value
           common.click(by.id('abstractTypeFormLabelconstraints' + i + 'editbutton'));
           // enter the value
@@ -252,7 +243,7 @@ var addTagConfiguration = function(tagConfigObject, tagConstraints) {
           break;
         case constraintsMap.maxLength: // max string LENGTH
           // select the good type for the current constraint select
-          selectConstraint(i, constraintType);
+          element(by.id('abstractTypeFormLabelconstraints' + i + 'selectImplementation')).element(by.id(constraintType)).click();
           // click > to add the value
           common.click(by.id('abstractTypeFormLabelconstraints' + i + 'editbutton'));
           // enter the value
@@ -289,21 +280,6 @@ var clickFirstElementInTagList = function(expectedName) {
   return firstTag;
 };
 module.exports.clickFirstElementInTagList = clickFirstElementInTagList;
-
-var editTagConfiguration = function(propertyName, propertyValue) {
-  var propertyElement = common.element(by.id('p_' + propertyName));
-  expect(propertyElement.isPresent()).toBe(true);
-  common.click(by.tagName('span'), propertyElement);
-
-  var editForm = common.element(by.tagName('form'), propertyElement);
-  var inputValue = common.element(by.tagName('input'), editForm);
-
-  inputValue.clear();
-  inputValue.sendKeys(propertyValue);
-  editForm.submit();
-  browser.waitForAngular();
-};
-module.exports.editTagConfiguration = editTagConfiguration;
 
 // check if a text is present in the error message while editing a property
 var checkTagEditionError = function(propertyName, containedInErrorText) {

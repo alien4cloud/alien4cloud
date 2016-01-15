@@ -248,7 +248,7 @@ var selectDropdownByText = function selectOption(selectElement, item) {
     });
 
   // waiting time after selection
-  var milliseconds = 100;
+  var milliseconds = 300;
   if (typeof milliseconds !== 'undefined') {
     browser.sleep(milliseconds);
   }

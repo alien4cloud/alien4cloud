@@ -11,7 +11,7 @@
   <div ng-class="{'col-md-5': deletable, 'col-md-8': !deletable, 'form-editable': !condensed}"
     ng-init="isStringDisplayType = (definitionObject.uiName === 'scalar-unit' || definitionObject.uiName === 'string');">
     <!-- Property Value -->
-    <div ng-if="isStringDisplayType" ng-class="{'property-required' : definition.required}">
+    <div id="div_{{propertyName}}"  ng-if="isStringDisplayType" ng-class="{'property-required' : definition.required}">
       <!-- Case : string -->
       <span id="p_{{propertyName}}" ng-if="!definitionObject.uiPassword && !definitionObject.units && editable">
         <span ng-if="!isLongText" editable-text="definitionObject.uiValue" buttons="no"
