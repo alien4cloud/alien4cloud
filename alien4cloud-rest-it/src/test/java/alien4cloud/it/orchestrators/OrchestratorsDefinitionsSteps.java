@@ -1,11 +1,14 @@
 package alien4cloud.it.orchestrators;
 
 import java.io.IOException;
+import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.junit.Assert;
 
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
+import alien4cloud.model.common.Usage;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.rest.model.RestResponse;
@@ -104,6 +107,14 @@ public class OrchestratorsDefinitionsSteps {
         Assert.assertNotNull(orchestratorResponse.getData());
         Assert.assertEquals(orchestratorName, orchestratorResponse.getData().getName());
         Assert.assertEquals(Boolean.valueOf(isStateEnabled), orchestratorResponse.getData().getState() == OrchestratorState.CONNECTED);
+    }
+
+    @Then("^I should receive a RestResponse with a non-empty list of usages$")
+    public void I_should_receive_a_RestResponse_with_a_non_empty_list_of_usages() throws Throwable {
+        RestResponse<?> response = JsonUtil.read(Context.getInstance().getRestResponse(), Context.getJsonMapper());
+        Assert.assertNotNull(response.getData());
+        List<Usage> usages = JsonUtil.toList(JsonUtil.toString(response.getData()), Usage.class, Context.getJsonMapper());
+        Assert.assertTrue(CollectionUtils.isNotEmpty(usages));
     }
 
 }

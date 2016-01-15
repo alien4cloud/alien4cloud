@@ -533,6 +533,10 @@
     "503" : "L'upload de l'image a rencontré une erreur inattendue",
     "504" : "Cet objet n'existe pas sur le serveur",
     "507" : "La suppression de cet objet n'est pas autorisée parce qu'il est encore utilisé par d'autres objets",
+    "508" : {
+      "MESSAGE": "Impossible d'effectuer cette action car la resource est utilisée par d'autres objets",
+      "TITLE" : "Resource utilisée"
+    },
     "601" : "Le déploiement de l'application a échoué",
     "602" : "L'Arrêt de l'application a échoué",
     "604" : "Une application doit nécéssairement avoir au moins un environnement",
