@@ -146,6 +146,11 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
             return false;
         }
 
+        if(matchingConfiguration.getCapabilities() == null) {
+            // no constraints on capabilities.
+            return true;
+        }
+
         // check that the properties defined on the capabilities matches the filters configured for the capabilities
         for (Map.Entry<String, MatchingFilterDefinition> capabilityMatchingFilterEntry : matchingConfiguration.getCapabilities().entrySet()) {
             FilterDefinition filterDefinition = new FilterDefinition();
