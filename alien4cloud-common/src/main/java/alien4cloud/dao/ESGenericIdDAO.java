@@ -1,23 +1,19 @@
 package alien4cloud.dao;
 
+import alien4cloud.exception.IndexingServiceException;
+import lombok.SneakyThrows;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.get.MultiGetItemResponse;
+import org.elasticsearch.action.get.MultiGetResponse;
+import org.elasticsearch.common.collect.Lists;
+import org.elasticsearch.mapping.MappingBuilder;
+
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import lombok.SneakyThrows;
-
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.get.MultiGetItemResponse;
-import org.elasticsearch.action.get.MultiGetResponse;
-import org.elasticsearch.common.collect.Lists;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.mapping.MappingBuilder;
-
-import alien4cloud.exception.IndexingServiceException;
 
 /**
  * ElasticSearch DAO to manage id based operations.
