@@ -80,7 +80,7 @@ describe('Orchestrators management', function() {
 
   it('should be able to configure a disabled orchestrator', function() {
     // ensure that we have the orc orchestrator and it is disabled
-
+    //TODO
     //
   });
 
@@ -98,18 +98,23 @@ describe('Orchestrators management', function() {
   });
 
   it('should be able to configure an orchestrator deployment naming policy', function() {
+    //TODO
   });
 
   it('should be able to delete an orchestrator with no deployments', function() {
+    //TODO
   });
 
   it('should fail to delete an orchestrator with deployments', function() {
+    //TODO
   });
 
   it('should be able to disable an orchestrator with no deployments', function() {
+    //TODO
   });
 
   it('should not be able to disable an orchestrator with deployments', function() {
+    //TODO
   });
 
   it('afterAll', function() { authentication.logout(); });
