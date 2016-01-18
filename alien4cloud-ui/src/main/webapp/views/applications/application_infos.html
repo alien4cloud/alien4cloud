@@ -26,7 +26,7 @@
     <div class="col-md-12" style="margin-top: 20px;">
       <div class="row" style="margin-top: 10px;">
         <div class="col-md-4">
-          <strong>{{'APPLICATIONS.DESC' | translate }}</strong>
+          <strong>{{'COMMON.DESCRIPTION' | translate }}</strong>
         </div>
         <div class="col-md-8" id="app-desc" ng-switch="isManager">
           <span ng-switch-when="true" editable-textarea="application.description" buttons="no" e-required onbeforesave="updateApplication('description',$data)" blur="submit">
@@ -146,7 +146,7 @@
           <!-- events -->
           <tab ng-repeat="e in envs" id="tab-env-{{e.name}}" select="selectTab(application.id,e.id)">
             <tab-heading>
-              <i class="pull-left fa fa-x" tooltip="{{'APPLICATIONS.' + e.status | translate }}" tooltip-append-to-body="true" ng-class="{
+              <i class="pull-left fa fa-x" tooltip="{{'DEPLOYMENT.STATUS.' + e.status | translate }}" tooltip-append-to-body="true" ng-class="{
                 'fa-circle text-success' : e.status == 'DEPLOYED',
                 'fa-circle text-muted' : e.status == 'UNDEPLOYED',
                 'fa-warning text-warning' : e.status == 'WARNING',

@@ -11,9 +11,9 @@
   <div ng-class="{'col-md-5': deletable, 'col-md-8': !deletable, 'form-editable': !condensed}"
     ng-init="isStringDisplayType = (definitionObject.uiName === 'scalar-unit' || definitionObject.uiName === 'string');">
     <!-- Property Value -->
-    <div ng-if="isStringDisplayType" ng-class="{'property-required' : definition.required}">
+    <div id="div_{{propertyName}}"  ng-if="isStringDisplayType" ng-class="{'property-required' : definition.required}">
       <!-- Case : string -->
-      <span ng-if="!definitionObject.uiPassword && !definitionObject.units && editable" id="p_{{propertyName}}">
+      <span id="p_{{propertyName}}" ng-if="!definitionObject.uiPassword && !definitionObject.units && editable">
         <span ng-if="!isLongText" editable-text="definitionObject.uiValue" buttons="no"
               onbeforesave="propertySave($data)" blur="submit">
           {{definitionObject.uiValue | truncate:30}}
@@ -26,7 +26,7 @@
         </span>
         <span class="fa fa-text-height clickable" ng-click="switchToLongText($event)"></span>
       </span>
-      <span ng-if="!definitionObject.uiPassword && definitionObject.units && editable">
+      <span id="p_{{propertyName}}" ng-if="!definitionObject.uiPassword && definitionObject.units && editable">
         <!-- Property with unit -->
         <span editable-text="definitionObject.uiValue" buttons="no" onbeforesave="propertySave($data)" blur="submit" e-form="scalarForm"
               ng-click="scalarForm.$show()" class="editable editable-click">
@@ -48,7 +48,7 @@
       <em ng-if="!definitionObject.uiPassword && !editable">{{definitionObject.uiValue || '...'}}</em>
 
       <!-- Case : password -->
-      <span ng-if="definitionObject.uiPassword && editable" editable-text="definitionObject.uiValue" e-type="password" buttons="no" e-required
+      <span id="p_{{propertyName}}" ng-if="definitionObject.uiPassword && editable" editable-text="definitionObject.uiValue" e-type="password" buttons="no" e-required
             onbeforesave="propertySave($data)" blur="submit">
         {{ definitionObject.uiValue | password:'*' }} <i class="fa fa-pencil-square-o"></i>
       </span>
@@ -69,6 +69,7 @@
         </select>
         <em ng-if="!editable">{{definitionObject.uiValue}}</em>
       </span>
+
 
       <span ng-switch-when="checkbox">
         <!-- Case : boolean -->

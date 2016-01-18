@@ -8,6 +8,8 @@ import javax.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -37,37 +39,24 @@ public class DeploymentService {
     private DeploymentTopologyService deploymentTopologyService;
 
     /**
-     * Get all deployments for a given cloud
+     * Get all deployments for a given orchestrator an application
      *
      * @param orchestratorId Id of the cloud for which to get deployments (can be null to get deployments for all clouds).
      * @param sourceId Id of the application for which to get deployments (can be null to get deployments for all applications).
-     * @param from The start index of the query.
-     * @param size The maximum number of elements to return.
      * @return A {@link GetMultipleDataResult} that contains deployments.
      */
-    public GetMultipleDataResult<Deployment> getDeployments(String orchestratorId, String sourceId, int from, int size) {
-        List<String> filterKeys = Lists.newArrayList();
-        List<String[]> filterValues = Lists.newArrayList();
+    public List<Deployment> getDeployments(String orchestratorId, String sourceId) {
+        QueryBuilder query = QueryBuilders.boolQuery();
         if (orchestratorId != null) {
-            filterKeys.add("orchestratorId");
-            filterValues.add(new String[] { orchestratorId });
+            query = QueryBuilders.boolQuery().must(QueryBuilders.termsQuery("orchestratorId", orchestratorId));
         }
-        // if (locationId != null) {
-        // filterKeys.add("locationId");
-        // filterValues.add(new String[] { locationId });
-        // }
         if (sourceId != null) {
-            filterKeys.add("sourceId");
-            filterValues.add(new String[] { sourceId });
+            query = QueryBuilders.boolQuery().must(query).must(QueryBuilders.termsQuery("sourceId", sourceId));
         }
-        // if (topologyId != null) {
-        // filterKeys.add("topologyId");
-        // filterValues.add(new String[] { topologyId });
-        // }
-        Map<String, String[]> filters = MapUtil.newHashMap(filterKeys.toArray(new String[filterKeys.size()]),
-                filterValues.toArray(new String[filterValues.size()][]));
-
-        return alienDao.search(Deployment.class, null, filters, from, size);
+        if (orchestratorId == null && sourceId == null) {
+            query = QueryBuilders.matchAllQuery();
+        }
+        return alienDao.customFindAll(Deployment.class, query);
     }
 
     /**

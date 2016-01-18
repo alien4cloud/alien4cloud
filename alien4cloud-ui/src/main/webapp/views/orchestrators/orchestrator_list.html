@@ -23,8 +23,8 @@
         <table class="table table-hover">
           <thead>
             <tr>
-              <th>{{ 'ORCHESTRATORS.STATE' | translate}}</th>
-              <th>{{ 'ORCHESTRATORS.NAME' | translate}}</th>
+              <th>{{ 'COMMON.STATE' | translate}}</th>
+              <th>{{ 'COMMON.NAME' | translate}}</th>
               <th>{{ 'ORCHESTRATORS.PLUGIN' | translate}}</th>
             </tr>
           </thead>
@@ -45,7 +45,7 @@
               <td colspan="3" style="padding: 0px;">
                 <div collapse="islocationCollapsed" style="padding: 8px;">
                   <i class="fa fa-circle fa-2x" ng-class="{'text-success': orchestrator.enabled,'text-danger': !orchestrator.enabled}"
-                    tooltip="{{'CLOUDS.ENABLED_' + orchestrator.enabled | translate }}"></i>
+                    tooltip="{{'COMMON.ENABLED_' + orchestrator.enabled | translate }}"></i>
                   <i ng-if="!orchestrator.iaaSType" class="fa fa-cloud fa-2x"></i>
                   <img ng-if="orchestrator.iaaSType" ng-src="images/cloud-{{orchestrator.iaaSType | lowercase}}-small.png" />
                     {{location.name}}

@@ -2,9 +2,9 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
-  require('button-confirm');
+  require('scripts/common/directives/confirm_popup');
 
-  modules.get('a4c-common', ['angular-utils-ui']).directive('deleteConfirm', function() {
+  modules.get('a4c-common').directive('deleteConfirm', function() {
     return {
       restrict: 'E',
       templateUrl: 'views/common/confirm_button.html',
@@ -13,7 +13,8 @@ define(function (require) {
         func: '&',
         fastyle: '@',
         bssize: '@',
-        text: '@'
+        text: '@',
+        disable: '='
       }
     };
   });

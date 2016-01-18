@@ -85,6 +85,22 @@ ldap:
   userActiveValue: active
 ### End  Ldap Configuration
 
+saml:
+  enabled: false
+#  proxy:
+#    host: 193.56.47.20
+#    port: 8080
+  ssl:
+    keystore: samlKeystore.jks
+    defaultKey: apollo
+    keystorepassword: nalle123
+  metadata:
+    sp:
+      entityId: "org:alien4cloud:sp"
+      # entityBaseURL: defaults to localhost:8088
+      # requestSigned:
+      # wantAssertionSigned:
+
 # configuration for the upload module.
 upload:
   max_archive_size: 52428800
@@ -104,6 +120,6 @@ openstack:
   url: http://129.185.67.11:5000/v2.0
   region: RegionOne
   cfy3:
-    manager_name: mkv33rc1-manager-server
+    manager_name: alien33rc1-manager-server
     manager_user:
     manager_password:

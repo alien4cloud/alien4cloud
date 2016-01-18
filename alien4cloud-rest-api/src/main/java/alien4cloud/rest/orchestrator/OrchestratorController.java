@@ -1,10 +1,11 @@
 package alien4cloud.rest.orchestrator;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.http.HttpStatus;
@@ -20,12 +21,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.model.common.Usage;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.model.orchestrators.locations.LocationSupport;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.orchestrators.services.OrchestratorStateService;
 import alien4cloud.paas.exception.PluginConfigurationException;
+import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -33,11 +36,11 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.orchestrator.model.CreateOrchestratorRequest;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.utils.ReflectionUtil;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Controller to manage orchestrators.
@@ -131,14 +134,21 @@ public class OrchestratorController {
     @ApiOperation(value = "Disable an orchestrator. Destroys the instance of the orchestrator connector.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}/instance", method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public RestResponse<Void> disable(@ApiParam(value = "Id of the orchestrator to enable", required = true) @PathVariable String id,
+    public RestResponse<List<Usage>> disable(@ApiParam(value = "Id of the orchestrator to enable", required = true) @PathVariable String id,
             @ApiParam(value = "This parameter is useful only when trying to disable the orchestrator, if deployments are performed using this orchestrator disable "
                     + "operation will fail unnless the force flag is true", required = false) @RequestParam(required = false, defaultValue = "false") boolean force,
             @ApiParam(value = "In case an orchestrator with deployment is forced to be disabled, the user may decide to mark all deployments managed "
                     + "by this orchestrator as ended.", required = false) @RequestParam(required = false, defaultValue = "false") boolean clearDeployments) {
+        RestResponseBuilder<List<Usage>> responseBuilder = RestResponseBuilder.<List<Usage>> builder();
         Orchestrator orchestrator = orchestratorService.getOrFail(id);
-        orchestratorStateService.disable(orchestrator, force);
-        return RestResponseBuilder.<Void> builder().build();
+        List<Usage> usages = orchestratorStateService.disable(orchestrator, force);
+        if (CollectionUtils.isEmpty(usages)) {
+            return responseBuilder.build();
+        }
+
+        return responseBuilder.data(usages)
+                .error(new RestError(RestErrorCode.RESOURCE_USED_ERROR.getCode(), "There are actives deployment with the orchestrator. It cannot be disabled."))
+                .build();
     }
 
     @ApiOperation(value = "Get information on the locations that an orchestrator can support.", authorizations = { @Authorization("ADMIN") })

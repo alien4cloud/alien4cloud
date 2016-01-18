@@ -22,6 +22,10 @@ var indexednodetypes = require(__dirname + '/../_data/indexednodetypes.json');
 var indexedrelationshiptypes = require(__dirname + '/../_data/indexedrelationshiptypes.json');
 var imagedatas = require(__dirname + '/../_data/imagedatas.json');
 
+var topologytemplates = require(__dirname + '/../_data/topologytemplates.json');
+var topologytemplateversions = require(__dirname + '/../_data/topologytemplateversions.json');
+var topologies = require(__dirname + '/../_data/topologies.json');
+
 var plugins = require(__dirname + '/../_data/plugins.json');
 var orchestrators = require(__dirname + '/../_data/orchestrators.json');
 var orchestratorsconf = require(__dirname + '/../_data/orchestratorconfiguration.json');
@@ -29,6 +33,9 @@ var locations = require(__dirname + '/../_data/locations.json');
 var locationresourcetemplates = require(__dirname + '/../_data/locationresourcetemplates.json');
 
 var applications = require(__dirname + '/../_data/applications.json');
+var applicationenvironments = require(__dirname + '/../_data/applicationenvironments.json');
+var applicationversions = require(__dirname + '/../_data/applicationversions.json');
+
 // archives folders to copy
 var toscaNormativeTypes = path.resolve(__dirname, '../../../../../../alien4cloud-rest-it/target/git/tosca-normative-types-wd06');
 var imagesPath = path.resolve(__dirname + '/../_data/images');
@@ -38,10 +45,23 @@ var mockPlugin10Path = path.resolve(__dirname, '../../../../../../alien4cloud-mo
 var mockPluginArchive = path.resolve(__dirname, '../../../../../../alien4cloud-mock-paas-provider-plugin/src/main/resources/openstack/mock-resources');
 var mockPluginOSArchive = path.resolve(__dirname, '../../../../../../alien4cloud-mock-paas-provider-plugin/src/main/resources/openstack/mock-openstack-resources');
 
+// user and group
+var users = require(__dirname + '/../_data/users.json');
+var groups = require(__dirname + '/../_data/groups.json');
+
 function index(indexName, typeName, data) {
-  for(var i=0; i < data.length ;i++) {
-    es.index(indexName, typeName, JSON.stringify(data[i]));
+  var defer = protractor.promise.defer();
+  var promises = [];
+  for (var i = 0; i < data.length; i++) {
+    var indexPromise = es.index(indexName, typeName, JSON.stringify(data[i]));
+    promises.push(indexPromise);
   }
+  protractor.promise.all(promises).then(function() {
+    es.refresh(indexName).then(function() {
+      defer.fulfill('done');
+    });
+  });
+  return defer.promise;
 }
 
 function doSetup() {
@@ -53,35 +73,100 @@ function doSetup() {
   repositories.copyImages(imagesPath);
 
   // Update ElasticSearch
-  index('csargitrepository', 'csargitrepository', csargitrepositories);
-  index('csar', 'csar', csars);
-  index('toscaelement', 'indexedartifacttype', indexedartifacttypes);
-  index('toscaelement', 'indexedcapabilitytype', indexedcapabilitytypes);
-  index('toscaelement', 'indexeddatatype', indexeddatatypes);
-  index('toscaelement', 'indexednodetype', indexednodetypes);
-  index('toscaelement', 'indexedrelationshiptype', indexedrelationshiptypes);
-  index('imagedata', 'imagedata', imagedatas);
+  flow.execute(function() {
+    return index('csargitrepository', 'csargitrepository', csargitrepositories);
+  });
+  flow.execute(function() {
+    return index('csar', 'csar', csars);
+  });
+  flow.execute(function() {
+    return index('toscaelement', 'indexedartifacttype', indexedartifacttypes);
+  });
+  flow.execute(function() {
+    return index('toscaelement', 'indexedcapabilitytype', indexedcapabilitytypes);
+  });
+  flow.execute(function() {
+    return index('toscaelement', 'indexeddatatype', indexeddatatypes);
+  });
+  flow.execute(function() {
+    return index('toscaelement', 'indexednodetype', indexednodetypes);
+  });
+  flow.execute(function() {
+    return index('toscaelement', 'indexedrelationshiptype', indexedrelationshiptypes);
+  });
 
-  index('plugin', 'plugin', plugins);
-  index('orchestrator', 'orchestrator', orchestrators);
-  index('orchestratorconfiguration', 'orchestratorconfiguration', orchestratorsconf);
-  index('location', 'location', locations);
-  index('locationresourcetemplate', 'locationresourcetemplate', locationresourcetemplates);
+  flow.execute(function() {
+    return index('topologytemplate', 'topologytemplate', topologytemplates);
+  });
+  flow.execute(function() {
+    return index('topologytemplateversion', 'topologytemplateversion', topologytemplateversions);
+  });
+  flow.execute(function() {
+    return index('topology', 'topology', topologies);
+  });
 
-  index('application', 'application', applications);
+  flow.execute(function() {
+    return index('plugin', 'plugin', plugins);
+  });
+  flow.execute(function() {
+    return index('orchestrator', 'orchestrator', orchestrators);
+  });
+  flow.execute(function() {
+    return index('orchestratorconfiguration', 'orchestratorconfiguration', orchestratorsconf);
+  });
+  flow.execute(function() {
+    return index('location', 'location', locations);
+  });
+  flow.execute(function() {
+    return index('locationresourcetemplate', 'locationresourcetemplate', locationresourcetemplates);
+  });
 
-  // 'Cookie': 'JSESSIONID = ',
-  alien.login('admin', 'admin').then(function(response){
+  flow.execute(function() {
+    return index('application', 'application', applications);
+  });
+  flow.execute(function() {
+    return index('applicationenvironment', 'applicationenvironment', applicationenvironments);
+  });
+  flow.execute(function() {
+    return index('applicationversion', 'applicationversion', applicationversions);
+  });
+
+  flow.execute(function() {
+    return index('user', 'user', users);
+  });
+  flow.execute(function() {
+    return index('group', 'group', groups);
+  });
+
+  flow.execute(function() {
+    return index('imagedata', 'imagedata', imagedatas);
+  });
+
+}
+
+function doInitializePlatform() {
+  var defer = protractor.promise.defer();
+  alien.login('admin', 'admin').then(function(response) {
     var cookies = response.headers['set-cookie'];
     // Enable the plugins - this has to be done through alien API as it has to load classes.
-    alien.enablePlugin('alien4cloud-mock-paas-provider:1.0', cookies);
-    // Enable the orchestrators - this has to be done through alien API as it has to register the orchestrator monitor.
-    alien.enableOrchestrator('f3657e4d-4250-45b4-a862-2e91699ef7a1', cookies);
-    alien.enableOrchestrator('91c78b3e-e9fa-4cda-80ba-b44551e4a475', cookies);
+    alien.teardownPlatform(cookies).then(function() {
+      alien.initPlatform(cookies).then(function() {
+        defer.fulfill('done');
+      });
+    })
   });
+  return defer.promise;
 }
 
 module.exports.setup = function() {
+  // This setup test data
   cleanup.fullCleanup();
-  flow.execute(doSetup);
+  doSetup();
+  flow.execute(doInitializePlatform);
+};
+
+module.exports.index = function(indexName, typeName, data) {
+  flow.execute(function() {
+    return index(indexName, typeName, data);
+  });
 };

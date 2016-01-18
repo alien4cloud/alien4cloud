@@ -11,13 +11,13 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.eclipse.jgit.api.Git;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
+
+import com.google.common.collect.Lists;
 
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.dao.IGenericSearchDAO;
@@ -32,8 +32,7 @@ import alien4cloud.tosca.ArchiveUploadService;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
-
-import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -60,12 +59,12 @@ public class CsarGitService {
     }
 
     /**
-     * Delete an CsarGitRepository based on its id or url.
+     * Delete an CsarGitRepository based on its id.
      *
-     * @param idOrUrl The id or url of the CsarGitRepository to update.
+     * @param id The id of the CsarGitRepository to delete.
      */
-    public void delete(String idOrUrl) {
-        CsarGitRepository csarGit = csarGitRepositoryService.getOrFail(idOrUrl);
+    public void delete(String id) {
+        CsarGitRepository csarGit = csarGitRepositoryService.getOrFail(id);
         if (csarGit.isStoredLocally()) {
             Path repositoryPath = tempDirPath.resolve(csarGit.getId());
             if (Files.isDirectory(repositoryPath)) {
@@ -78,11 +77,11 @@ public class CsarGitService {
     /**
      * Import Cloud Service ARchives from a git repository.
      *
-     * @param idOrUrl The id or url to access the git repository.
+     * @param id The id to access the git repository.
      * @return The result of the import (that may contains errors etc.)
      */
-    public List<ParsingResult<Csar>> importFromGitRepository(String idOrUrl) {
-        CsarGitRepository csarGitRepository = csarGitRepositoryService.getOrFail(idOrUrl);
+    public List<ParsingResult<Csar>> importFromGitRepository(String id) {
+        CsarGitRepository csarGitRepository = csarGitRepositoryService.getOrFail(id);
 
         List<ParsingResult<Csar>> results = Lists.newArrayList();
         try {
@@ -143,7 +142,7 @@ public class CsarGitService {
         // find all the archives under the given hierarchy and zip them to create archives
         Path archiveZipRoot = tempZipDirPath.resolve(csarGitRepository.getId());
         Path archiveGitRoot = tempDirPath.resolve(csarGitRepository.getId());
-        Set<Path> archivePaths = csarFinderService.prepare(archiveGitRoot, archiveZipRoot);
+        Set<Path> archivePaths = csarFinderService.prepare(archiveGitRoot, archiveZipRoot, csarGitCheckoutLocation.getSubPath());
 
         // TODO code review has to be completed to further cleanup below processing.
         List<ParsingResult<Csar>> parsingResult = Lists.newArrayList();
@@ -154,6 +153,7 @@ public class CsarGitService {
                 if (csarGitCheckoutLocation.getLastImportedHash() != null && csarGitCheckoutLocation.getLastImportedHash().equals(gitHash)) {
                     if (csarService.getIfExists(csarBean.getSelf().getName(), csarBean.getSelf().getVersion()) != null) {
                         // no commit since last import and the archive still exist in the repo, so do not import
+                        // TODO notify the user that the archive has already been imported
                         continue;
                     }
                 }

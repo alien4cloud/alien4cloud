@@ -60,12 +60,12 @@ function assertUserHasRoles(appOrEnv, username, roles) {
   });
 }
 // This method test specific roles assigned to user without taken into account roles given to user's group
-function assertUserDoesNotHaveRoles(username, roles) {
+function assertUserDoesNotHaveRoles(appOrEnv, username, roles) {
   if (!Array.isArray(roles)) {
     roles = [roles];
   }
   roles.forEach(function(role) {
-    assertRoleChecked('app', 'user', username, role, false);
+    assertRoleChecked(appOrEnv, 'user', username, role, false);
   });
 }
 
@@ -108,14 +108,21 @@ module.exports.removeUserFromGroup = function(username, groupName) {
   toggleUserGroup('app', username, groupName);
 };
 
-module.exports.assertUserHasRoles = function(username, groups) {
-  assertUserHasRoles('app', username, groups);
-};
-module.exports.assertUserHasRolesForAnEnv = function(username, groups) {
-  assertUserHasRoles('env', username, groups);
+module.exports.assertUserHasRoles = function(username, role) {
+  assertUserHasRoles('app', username, role);
 };
 
-module.exports.assertUserDoesNotHaveRoles = assertUserDoesNotHaveRoles;
+module.exports.assertUserDoesNotHaveRoles = function(username, role) {
+  assertUserDoesNotHaveRoles('app', username, role);
+};
+
+module.exports.assertUserHasRolesForEnv = function(username, roles) {
+  assertUserHasRoles('env', username, roles);
+};
+
+module.exports.assertUserDoesNotHaveRolesForEnv = function(username, roles) {
+  assertUserDoesNotHaveRoles('env', username, roles);
+};
 
 module.exports.assertUserHasGroups = function(appOrEnv, username, groups) {
   if (!Array.isArray(groups)) {
@@ -127,20 +134,36 @@ module.exports.assertUserHasGroups = function(appOrEnv, username, groups) {
   });
 };
 
-module.exports.assertGroupHasRoles = function(appOrEnv, groupName, roles) {
+function assertGroupHasRoles(appOrEnv, groupName, roles) {
   if (!Array.isArray(roles)) {
     roles = [roles];
   }
   for (var i = 0; i < roles.length; i++) {
     assertRoleChecked(appOrEnv, 'group', groupName, roles[i], true);
   }
+}
+
+module.exports.assertGroupHasRoles = function(groupName, roles) {
+  assertGroupHasRoles('app', groupName, roles);
 };
 
-module.exports.assertGroupDoesNotHaveRoles = function(appOrEnv, groupName, roles) {
+module.exports.assertGroupHasRolesForEnv = function(groupName, roles) {
+  assertGroupHasRoles('env', groupName, roles);
+};
+
+function assertGroupDoesNotHaveRoles(appOrEnv, groupName, roles) {
   if (!Array.isArray(roles)) {
     roles = [roles];
   }
   roles.forEach(function(role) {
     assertRoleChecked(appOrEnv, 'group', groupName, role, false);
   });
+}
+
+module.exports.assertGroupDoesNotHaveRoles = function(groupName, roles) {
+  return assertGroupDoesNotHaveRoles('app', groupName, roles);
+};
+
+module.exports.assertGroupDoesNotHaveRolesForEnv = function(groupName, roles) {
+  assertGroupDoesNotHaveRoles('env', groupName, roles);
 };

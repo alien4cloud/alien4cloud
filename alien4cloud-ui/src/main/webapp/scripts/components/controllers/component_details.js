@@ -19,8 +19,8 @@ define(function (require) {
   require('scripts/components/controllers/csar_explorer');
 
   modules.get('a4c-components', ['ngResource', 'ui.bootstrap', 'ui.router', 'a4c-auth']).controller('ComponentDetailsCtrl',
-    ['authService', '$scope', '$resource', '$stateParams', 'componentTagService', '$modal', 'suggestionServices', 'toscaService',
-    function(authService, $scope, $resource, $stateParams, componentTagService, $modal, suggestionServices, toscaService) {
+    ['authService', '$scope', '$resource', '$state', '$stateParams', 'componentTagService', '$modal', 'suggestionServices', 'toscaService',
+    function(authService, $scope, $resource, $state, $stateParams, componentTagService, $modal, suggestionServices, toscaService) {
       var alienInternalTags = ['icon'];
       // users with role COMPONENTS_MANAGER are allowed to add archives.
       $scope.isManager = authService.hasRole('COMPONENTS_MANAGER');
@@ -236,7 +236,8 @@ define(function (require) {
       };
 
       /* Add new tags */
-      $scope.addTag = function() {
+      $scope.addTag = function(newTag) {
+        $scope.newTag = newTag;
         $scope.updateTag($scope.newTag.key, $scope.newTag.val);
         removeTagIfExists($scope.newTag.key);
         $scope.component.tags.push({
@@ -296,11 +297,13 @@ define(function (require) {
           topologyId: topologyId
         }, {}, function(result) {
           if (!result.error) {
-            window.open('/#/topologytemplates/detail/' + result.data.topologyTemplateId + '/topology/' + result.data.version);
+            $state.go('topologytemplates.detail.topology', {
+              id: result.data.topologyTemplateId,
+              version: result.data.version
+            });
           }
         });
       };
-
     }
   ]); // controller
 });// define

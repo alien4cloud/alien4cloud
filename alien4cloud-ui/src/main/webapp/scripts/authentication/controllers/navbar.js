@@ -52,6 +52,10 @@ define(function (require) {
       };
 
       $scope.status = authService;
+      $scope.internalLogin = false;
+      $scope.displayInternalLogin = function() {
+        $scope.internalLogin=true;
+      };
 
       $scope.startTour = function() {
         hopscotchService.startTour();

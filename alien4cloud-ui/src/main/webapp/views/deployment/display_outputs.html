@@ -19,7 +19,7 @@
           <ul>
             <!-- Output properties list -->
             <li ng-if="outputPropertiesSize > 0 && outputPropertiesValue[nodeId]">
-              <strong>{{ 'properties' | translate }}</strong>
+              <strong>{{ 'COMMON.PROPERTIES' | translate }}</strong>
               <ul>
                 <li ng-repeat="(outputPropertyKey, outputPropertyValue) in outputPropertiesValue[nodeId]">
                   {{outputPropertyKey}} :
@@ -30,11 +30,11 @@
 
             <!-- Properties output properties list -->
             <li ng-repeat="(capabilityId, outputCapabilityPropertyValue) in outputCapabilityPropertiesValue[nodeId]">
-              <strong>{{ 'capabilities' | translate }} :</strong>
+              <strong>{{ 'COMMON.CAPABILITIES' | translate }} :</strong>
               <ul>
                 <li><strong>{{capabilityId}} :</strong>
                   <ul>
-                    <li><strong>{{ 'properties' | translate }} :</strong>
+                    <li><strong>{{ 'COMMON.PROPERTIES' | translate }} :</strong>
                       <ul>
                         <li ng-repeat="(propertyId, propertyValue) in outputCapabilityPropertiesValue[nodeId][capabilityId]">
                           {{propertyId}} :
@@ -49,7 +49,7 @@
 
             <!-- Output attributes list -->
             <li ng-if="outputAttributesSize > 0 && outputAttributesValue[nodeId]">
-              <strong>{{ 'attributes' | translate }}</strong>
+              <strong>{{ 'COMMON.ATTRIBUTES' | translate }}</strong>
               <ul>
                 <li ng-repeat="(instanceId, instanceAttributes) in outputAttributesValue[nodeId]">
                   {{'INSTANCE' | translate}} {{instanceId}}

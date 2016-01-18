@@ -7,7 +7,7 @@
       <div style="margin-bottom: 10px;">
         <form role="search" ng-submit="doSearch()">
           <div class="input-group">
-            <input type="text" class="form-control" placeholder="..."
+            <input id = "component_query_input" type="text" class="form-control" placeholder="..."
               ng-model="query"> <span class="input-group-btn">
               <button type="submit" class="btn btn-default"
                 data-loading-text="Loading..." id="btn-search-component">
@@ -81,7 +81,7 @@
       <!-- Body -->
       <div class="input-group">
         <span class="input-group-addon">
-          <span translate><i>COMPONENTS.CAPABILITIES.TYPE</i></span>
+          <span translate><i>COMMON.CAPABILITIES</i></span>
         </span>
         <span class="form-control-noheightlimit">
           <span ng-repeat="capability in detailComponent.capabilities">

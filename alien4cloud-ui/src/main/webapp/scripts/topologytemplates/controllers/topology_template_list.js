@@ -43,8 +43,8 @@ define(function (require) {
   ];
 
   modules.get('a4c-topology-templates', ['ui.router', 'ui.bootstrap', 'a4c-auth', 'a4c-common']).controller('TopologyTemplateListCtrl',
-    ['$scope', '$modal', '$resource', '$state', 'authService',
-    function($scope, $modal, $resource, $state, authService) {
+    ['$scope', '$modal', '$resource', '$state', 'authService', 'searchServiceFactory',
+    function($scope, $modal, $resource, $state, authService, searchServiceFactory) {
 
       // API REST Definition
       var createTopologyTemplateResource = $resource('rest/templates/topology', {}, {
@@ -69,16 +69,6 @@ define(function (require) {
         }
       });
 
-      var searchTopologyTemplateResource = $resource('rest/templates/topology/search', {}, {
-        'search': {
-          method: 'POST',
-          isArray: false,
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8'
-          }
-        }
-      });
-
       $scope.openNewTopologyTemplate = function() {
         var modalInstance = $modal.open({
           templateUrl: 'views/topologytemplates/topology_template_new.html',
@@ -97,16 +87,12 @@ define(function (require) {
         });
       };
 
-      $scope.search = function() {
-        var searchRequestObject = {
-          'query': $scope.query,
-          'from': 0,
-          'size': 50
-        };
-        $scope.searchResult = searchTopologyTemplateResource.search([], angular.toJson(searchRequestObject));
+      $scope.onSearchCompleted = function(searchResult) {
+        $scope.data = searchResult.data;
       };
 
-      $scope.search();
+      $scope.searchService = searchServiceFactory('rest/templates/topology/search', false, $scope, 12);
+      $scope.searchService.search();
 
       $scope.openTopologyTemplate = function(topologyTemplateId) {
         $state.go('topologytemplates.detail.topology', {
@@ -120,12 +106,12 @@ define(function (require) {
         }, function(response) {
           // Response contains topology template id
           if (response.data !== '') {
-            $scope.search();
+            $scope.searchService.search();
           }
         });
       };
 
-      var isArchitectPromise = authService.hasRole('ARCHITECT')
+      var isArchitectPromise = authService.hasRole('ARCHITECT');
       if(_.isBoolean(isArchitectPromise)) {
         $scope.isArchitect = isArchitectPromise;
       } else {

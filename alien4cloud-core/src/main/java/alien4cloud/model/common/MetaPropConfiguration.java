@@ -40,7 +40,7 @@ public class MetaPropConfiguration extends PropertyDefinition {
     @TermFilter
     @StringField(includeInAll = true, indexType = IndexType.not_analyzed)
     @NotNull
-    @FormLabel("TAG_CONFIG.NAME")
+    @FormLabel("COMMON.NAME")
     private String name;
 
     /**
@@ -50,6 +50,6 @@ public class MetaPropConfiguration extends PropertyDefinition {
     @FormValidValues({ "application", "component", "location" })
     @NotNull
     @TermsFacet
-    @FormLabel("TAG_CONFIG.TARGET")
+    @FormLabel("COMMON.TARGET")
     private String target;
 }

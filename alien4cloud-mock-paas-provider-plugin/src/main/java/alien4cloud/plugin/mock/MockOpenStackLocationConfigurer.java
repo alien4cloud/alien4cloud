@@ -85,7 +85,7 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
 
     @Override
     public List<String> getResourcesTypes() {
-        return Lists.newArrayList("alien.nodes.mock.openstack.Image", "alien.nodes.mock.openstack.Flavor", "alien.nodes.mock.Compute");
+        return Lists.newArrayList("alien.nodes.mock.openstack.Image", "alien.nodes.mock.openstack.Flavor", "alien.nodes.mock.Compute", "alien.nodes.mock.BlockStorage", "alien.nodes.mock.Network");
     }
 
     @Override

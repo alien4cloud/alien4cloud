@@ -6,9 +6,9 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.DeploymentArtifact;
+import alien4cloud.model.components.IValue;
 import alien4cloud.model.components.Interface;
 import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;
@@ -31,14 +31,6 @@ public class NodeTemplate extends AbstractTemplate {
      * Id in the map is name.replaceAll(" ", "").toLowerCase();
      */
     private String name;
-
-    /**
-     * Attributes of the node template
-     */
-    @ConditionalOnAttribute(ConditionalAttributes.REST)
-    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
-    @JsonSerialize(using = JSonMapEntryArraySerializer.class)
-    private Map<String, String> attributes;
 
     /**
      * The requirement that this node template defines
@@ -64,26 +56,21 @@ public class NodeTemplate extends AbstractTemplate {
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, Capability> capabilities;
 
-    @ConditionalOnAttribute(ConditionalAttributes.REST)
-    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
-    @JsonSerialize(using = JSonMapEntryArraySerializer.class)
-    private Map<String, Interface> interfaces;
-    
     /**
      * The {@link NodeGroup}s this template is member of.
      */
     private Set<String> groups;
 
-    public NodeTemplate(String type, Map<String, AbstractPropertyValue> properties, Map<String, String> attributes,
+    public NodeTemplate(String type, Map<String, AbstractPropertyValue> properties, Map<String, IValue> attributes,
             Map<String, RelationshipTemplate> relationships, Map<String, Requirement> requirements, Map<String, Capability> capabilities,
             Map<String, Interface> interfaces, Map<String, DeploymentArtifact> artifacts) {
         this.setType(type);
         this.setProperties(properties);
         this.setArtifacts(artifacts);
-        this.attributes = attributes;
+        this.setAttributes(attributes);
         this.relationships = relationships;
         this.requirements = requirements;
         this.capabilities = capabilities;
-        this.interfaces = interfaces;
+        this.setInterfaces(interfaces);
     }
 }

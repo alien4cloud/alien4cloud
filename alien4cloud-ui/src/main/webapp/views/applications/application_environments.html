@@ -29,17 +29,17 @@
           <thead>
             <tr>
               <th>{{'APPLICATIONS.ENVIRONMENT.STATUS' | translate}}</th>
-              <th>{{'APPLICATIONS.ENVIRONMENT.NAME' | translate}}</th>
-              <th>{{'APPLICATIONS.ENVIRONMENT.VERSION' | translate}}</th>
-              <th>{{'APPLICATIONS.ENVIRONMENT.TYPE' | translate}}</th>
-              <th>{{'APPLICATIONS.ENVIRONMENT.DESCRIPTION' | translate}}</th>
+              <th>{{'COMMON.NAME' | translate}}</th>
+              <th>{{'COMMON.VERSION' | translate}}</th>
+              <th>{{'COMMON.TYPE' | translate}}</th>
+              <th>{{'COMMON.DESCRIPTION' | translate}}</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             <tr ng-repeat="environment in searchAppEnvResult" id="{{environment.id}}">
               <td>
-                <i class="pull-left fa fa-2x vertical-center" tooltip="{{'APPLICATIONS.' + environment.status | translate }}" tooltip-append-to-body="true" ng-class="{
+                <i class="pull-left fa fa-2x vertical-center" tooltip="{{'DEPLOYMENT.STATUS.' + environment.status | translate }}" tooltip-append-to-body="true" ng-class="{
                   'fa-circle text-success' : environment.status == 'DEPLOYED',
                   'fa-circle text-muted' : environment.status == 'UNDEPLOYED',
                   'fa-warning text-warning' : environment.status == 'WARNING',
@@ -64,7 +64,7 @@
               <td><span editable-text="environment.description" onbeforesave="updateApplicationEnvironment('description',$data, environment.id)" buttons="no" style="font-style:inherit;" blur="submit">{{environment.description}} <i class="fa fa-edit"></i></span></td>
               <td ng-if="isManager">
                 <!-- Remove an environment -->
-                <delete-confirm class="pull-right" id='delete-env_{{environment.name}}' func="delete(environment.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                <delete-confirm class="pull-right" id="delete-env_{{environment.name}}" func="delete(environment.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
                 </delete-confirm>
               </td>
             </tr>
@@ -82,15 +82,15 @@
       </div>
       <div class="modal-body">
         <div class="form-group" ng-class="{'has-error': newApplicationEnvironment.name.$invalid}">
-          <label for="nameid" class="col-lg-3 control-label">{{'APPLICATIONS.ENVIRONMENT.FORM.NAME' | translate}}</label>
+          <label for="nameid" class="col-lg-3 control-label">{{'COMMON.NAME' | translate}}</label>
           <div class="col-lg-9">
-            <input type="text" class="form-control" id="nameid" ng-model="environment.name" name="name" required="" placeholder="{{'APPLICATIONS.ENVIRONMENT.FORM.NAME' | translate}}">
+            <input type="text" class="form-control" id="nameid" ng-model="environment.name" name="name" required="" placeholder="{{'COMMON.NAME' | translate}}">
           </div>
         </div>
         <div class="form-group">
-          <label for="descid" class="col-lg-3 control-label">{{'APPLICATIONS.ENVIRONMENT.FORM.DESCRIPTION' | translate}}</label>
+          <label for="descid" class="col-lg-3 control-label">{{'COMMON.DESCRIPTION' | translate}}</label>
           <div class="col-lg-9">
-            <textarea class="form-control" id="descid" rows="3" ng-model="environment.description" placeholder="{{'APPLICATIONS.ENVIRONMENT.FORM.DESCRIPTION' | translate}}"></textarea>
+            <textarea class="form-control" id="descid" rows="3" ng-model="environment.description" placeholder="{{'COMMON.DESCRIPTION' | translate}}"></textarea>
           </div>
         </div>
         <div class="form-group" ng-class="{'has-error': newApplicationEnvironment.envtypes.$invalid}">

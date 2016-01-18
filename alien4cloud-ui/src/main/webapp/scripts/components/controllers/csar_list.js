@@ -4,6 +4,7 @@ define(function (require) {
   var modules = require('modules');
   var states = require('states');
   var angular = require('angular');
+  var _ = require('lodash');
 
   require('scripts/components/services/csar');
   require('scripts/components/controllers/csar_details');
@@ -30,15 +31,22 @@ define(function (require) {
   states.forward('components.csars', 'components.csars.list');
 
   /* Main CSAR search controller */
-  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('CsarListCtrl', ['$scope', '$modal', '$state', 'csarService', '$translate', 'toaster',
-   function($scope, $modal, $state, csarService, $translate, toaster) {
+  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('CsarListCtrl', ['$scope', '$modal', '$state', 'csarService', '$translate', 'toaster', 'searchServiceFactory',
+   function($scope, $modal, $state, csarService, $translate, toaster, searchServiceFactory) {
+    
+      $scope.searchService = searchServiceFactory('rest/csars/search', false, $scope, 20, 10);
+    
       $scope.search = function() {
-        var searchRequestObject = {
-          'query': $scope.query,
-          'from': 0,
-          'size': 50
-        };
-        $scope.csarSearchResult = csarService.searchCsar.search([], angular.toJson(searchRequestObject));
+        $scope.searchService.search();
+      };
+      
+      //on search completed
+      $scope.onSearchCompleted = function(searchResult) {
+        if(_.undefined(searchResult.error)) {
+          $scope.searchResult = searchResult.data;
+        } else {
+          console.log('error when searching...', searchResult.error);
+        }
       };
 
       $scope.openCsar = function(csarId) {

@@ -10,11 +10,11 @@
   <div class="row" style="margin-top: 10px;">
   <!-- Search -->
     <div class="col-md-2 well" id="app-search">
-      <form role="search" ng-submit="search()">
+      <form role="search" ng-submit="searchService.search()">
         <div class="input-group">
-          <input type="text" class="form-control" placeholder="..." ng-model="query">
+          <input id="seach-applications-input" type="text" class="form-control" placeholder="..." ng-model="query">
           <span class="input-group-btn">
-            <button type="submit" class="btn btn-default" data-loading-text="Loading...">
+            <button id="seach-applications-btn" type="submit" class="btn btn-default" data-loading-text="Loading...">
               <i class="fa fa-search"></i>
             </button>
           </span>
@@ -26,17 +26,17 @@
         </label>
       </div>
     </div>
-    
+
     <!-- List display -->
     <div class="col-md-10" id="apps-container">
       <div class="well">
         <empty-place-holder
           for="'applications'"
-          data="searchResult.data.data">
+          data="data.data">
         </empty-place-holder>
-      
-        <div ng-repeat="application in searchResult.data.data | filter:{ isDeployed: onlyShowDeployedApplications } | orderBy: '-countDeployedEnvironment'" class="alien-table-row" ng-init="isEnvironmentsCollapsed = true">
-          <div style="margin-top: -4px; padding-top: 8px;" class="row clickable-media" ng-click="openApplication(application.id)">
+
+        <div ng-repeat="application in data.data | filter:{ isDeployed: onlyShowDeployedApplications } | orderBy: '-countDeployedEnvironment'" class="alien-table-row" ng-init="isEnvironmentsCollapsed = true">
+          <div id="app_{{application.name}}" style="margin-top: -4px; padding-top: 8px;" class="row clickable-media" ng-click="openApplication(application.id)">
             <div class="col-md-1" style="width: 36px;" ng-click="isEnvironmentsCollapsed = !isEnvironmentsCollapsed; $event.stopPropagation();">
               <i style="padding: 8px;" class="pull-left fa fa-caret-right" ng-class="{'fa-caret-down' : !isEnvironmentsCollapsed, 'fa-caret-right': isEnvironmentsCollapsed}"></i>
             </div>
@@ -49,13 +49,13 @@
             </div>
           </div>
           <div class="row clickable-media" collapse="isEnvironmentsCollapsed"  ng-repeat="environment in applicationStatuses[application.name] | orderBy: '-indexToOrder'"  >
-            <div class="col-span-12" style="border-width: 1px 0px 0px; border-style: solid; border-color: #DDD; padding: 8px;" 
+            <div class="col-span-12" style="border-width: 1px 0px 0px; border-style: solid; border-color: #DDD; padding: 8px;"
                  ng-click="openDeploymentPage(application.id)" >
               <div class="row">
                 <div>
                   <div class="col-md-1"> </div>
                   <div class="col-md-5">
-                    <i class="pull-left fa fa-2x vertical-center" tooltip="{{'APPLICATIONS.' + environment.label | translate }}" tooltip-append-to-body="true" ng-class="{
+                    <i class="pull-left fa fa-2x vertical-center" tooltip="{{'DEPLOYMENT.STATUS.' + environment.label | translate }}" tooltip-append-to-body="true" ng-class="{
                       'fa-circle text-success' : environment.label == 'DEPLOYED',
                       'fa-circle text-muted' : environment.label == 'UNDEPLOYED',
                       'fa-warning text-warning' : environment.label == 'WARNING',
@@ -63,15 +63,15 @@
                       'fa-question-circle text-muted' : environment.label == 'UNKNOWN',
                       'fa-spinner fa-spin' : environment.label == 'DEPLOYMENT_IN_PROGRESS' || environment.label == 'UNDEPLOYMENT_IN_PROGRESS'
                     }"></i>
-                    <span style="vertical-align: -moz-middle-with-baseline; vertical-align: -webkit-baseline-middle;">{{environment.name}}</span>          
+                    <span style="vertical-align: -moz-middle-with-baseline; vertical-align: -webkit-baseline-middle;">{{environment.name}}</span>
                   </div>
                   <div class="col-md-6" class=""> </div>
                 </div>
               </div>
             </div>
-
           </div>
         </div>
+        <pagination-directive pagination-info="searchService.pagination"/>
       </div>
     </div>
   </div>
@@ -83,15 +83,15 @@
       </div>
       <div class="modal-body">
         <div class="form-group" ng-class="{'has-error': newApplication.name.$invalid}">
-          <label for="nameid" class="col-lg-3 control-label">{{'APPLICATIONS.NAME' | translate}}</label>
+          <label for="nameid" class="col-lg-3 control-label">{{'COMMON.NAME' | translate}}</label>
           <div class="col-lg-9">
-            <input type="text" class="form-control" id="nameid" ng-model="app.name" name="name" required="" placeholder="{{'APPLICATIONS.NAME' | translate}}">
+            <input type="text" class="form-control" id="nameid" ng-model="app.name" name="name" required="" placeholder="{{'COMMON.NAME' | translate}}">
           </div>
         </div>
         <div class="form-group">
-          <label for="descid" class="col-lg-3 control-label">{{'APPLICATIONS.DESC' | translate}}</label>
+          <label for="descid" class="col-lg-3 control-label">{{'COMMON.DESCRIPTION' | translate}}</label>
           <div class="col-lg-9">
-            <textarea class="form-control" id="descid" rows="3" ng-model="app.description" placeholder="{{'APPLICATIONS.DESC' | translate}}"></textarea>
+            <textarea class="form-control" id="descid" rows="3" ng-model="app.description" placeholder="{{'COMMON.DESCRIPTION' | translate}}"></textarea>
           </div>
         </div>
         <div class="form-group" ng-show="templates">
@@ -110,7 +110,7 @@
         <div class="form-group" ng-show="templateVersions">
           <label for="templateVersionId" class="col-lg-3 control-label">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_BASE' | translate}}</label>
           <div class="col-lg-9">
-            <select class="form-control" id="templateVersionId" ng-model="selectedTopologyTemplateVersion" ng-options="tv.version for tv in templateVersions" placeholder="{{'APPLICATIONS.DESC' | translate}}">
+            <select class="form-control" id="templateVersionId" ng-model="selectedTopologyTemplateVersion" ng-options="tv.version for tv in templateVersions" placeholder="{{'COMMON.DESCRIPTION' | translate}}">
               <option value="">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT_VERSION' | translate}}</option>
             </select>
           </div>

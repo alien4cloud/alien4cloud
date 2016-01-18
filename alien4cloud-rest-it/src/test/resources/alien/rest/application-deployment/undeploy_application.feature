@@ -42,15 +42,15 @@ Feature: Un-Deploy an application
 	And the response should contains 1 deployments DTO and applications with an end date set
 	  | The great eye |
 
-#  Scenario: Create 1 application, deploy it, undeploy it, disable the associate orchestrator and check the deployment topology
-#    Given I am authenticated with "ADMIN" role
-#    And I have applications with names and descriptions and a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT"
-#	  | The great eye | This application should be in DEPLOYED status... |
-#	When I deploy all applications on the location "Mount doom orchestrator"/"Thark location"
-#	And The application's deployment must succeed
-#	When I undeploy all environments for applications
-#	Then I should receive a RestResponse with no error
-#    And I disable "Mount doom orchestrator"
-#    Then I should receive a RestResponse with no error
-#    When I ask for the deployment topology of the application "The great eye"
-#	Then I should receive a RestResponse with no error
+  Scenario: Create 1 application, deploy it, undeploy it, disable the associate orchestrator and check the deployment topology
+    Given I am authenticated with "ADMIN" role
+    And I have applications with names and descriptions and a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT"
+	  | The great eye | This application should be in DEPLOYED status... |
+	When I deploy all applications on the location "Mount doom orchestrator"/"Thark location"
+	And The application's deployment must succeed
+	When I undeploy all environments for applications
+	Then I should receive a RestResponse with no error
+    And I disable "Mount doom orchestrator"
+    Then I should receive a RestResponse with no error
+    When I ask for the deployment topology of the application "The great eye"
+	Then I should receive a RestResponse with no error

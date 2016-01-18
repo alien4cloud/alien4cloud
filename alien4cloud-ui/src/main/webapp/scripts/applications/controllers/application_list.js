@@ -68,13 +68,11 @@ define(function (require) {
       });
 
       $scope.loadTopologyTemplates = function() {
-
         var searchRequestObject = {
           'query': $scope.query,
           'from': 0,
           'size': 50
         };
-
         searchTopologyTemplateResource.search([], angular.toJson(searchRequestObject), function(successResult) {
           $scope.templates = successResult.data.data;
         });
@@ -94,8 +92,7 @@ define(function (require) {
       $scope.templateSelected = function(selectedTemplateId) {
         $scope.templateVersions = undefined;
         $scope.selectedTopologyTemplateVersion = undefined;
-
-        if (selectedTemplateId == "") {
+        if (selectedTemplateId === '') {
           $scope.selectedTopologyTemplate = undefined;
         } else {
           _.each($scope.templates, function(t) {
@@ -115,8 +112,8 @@ define(function (require) {
   ];
 
   modules.get('a4c-applications').controller('ApplicationListCtrl',
-    ['$scope', '$modal', '$state', 'authService', 'applicationServices', '$translate', 'toaster',
-    function($scope, $modal, $state, authService, applicationServices, $translate, toaster) {
+    ['$scope', '$modal', '$state', 'authService', 'applicationServices', '$translate', 'toaster', 'searchServiceFactory',
+    function($scope, $modal, $state, authService, applicationServices, $translate, toaster, searchServiceFactory) {
       $scope.isManager = authService.hasRole('APPLICATIONS_MANAGER');
       $scope.applicationStatuses = [];
       $scope.onlyShowDeployedApplications = undefined;
@@ -212,9 +209,9 @@ define(function (require) {
 
       var updateApplicationStatuses = function(applicationSearchResult) {
         if (!angular.isUndefined(applicationSearchResult)) {
-          var statuses = getApplicationStatuses(applicationSearchResult.data.data);
-          Object.keys(applicationSearchResult.data.data).forEach(function(key) {
-            var app = applicationSearchResult.data.data[key];
+          var statuses = getApplicationStatuses(applicationSearchResult.data);
+          Object.keys(applicationSearchResult.data).forEach(function(key) {
+            var app = applicationSearchResult.data[key];
             statuses.$promise.then(function(statuses) {
               var data = [];
               var tmpArray = statuses.data[app.id];
@@ -229,7 +226,7 @@ define(function (require) {
                 // Initial the counter of number deployed environment by applications to sort
                 if (!_.isNumber(app.countDeployedEnvironment)) {
                   app.countDeployedEnvironment = 0;
-                  applicationSearchResult.data.data[key] = app;
+                  applicationSearchResult.data[key] = app;
                 }
 
                 if (segment.label === 'DEPLOYED') {
@@ -244,7 +241,7 @@ define(function (require) {
                   data.push(segment);
                 }
 
-                applicationSearchResult.data.data[key] = app;
+                applicationSearchResult.data[key] = app;
               }
               $scope.applicationStatuses[app.name] = data;
               drawPieChart(app.name, data);
@@ -256,24 +253,16 @@ define(function (require) {
 
       $scope.toogleShowDeployedApplications = function() {
         $scope.onlyShowDeployedApplications = ($scope.onlyShowDeployedApplications) ? undefined : true;
-        $scope.search();
+        $scope.searchService.search();
       };
 
-      $scope.search = function() {
-        var searchRequestObject = {
-          'query': $scope.query,
-          'from': 0,
-          'size': 50
-        };
-        var searchResult = applicationServices.search([], angular.toJson(searchRequestObject));
+      $scope.searchService = searchServiceFactory('rest/applications/search', false, $scope, 14);
+      $scope.searchService.search();
 
-        // when apps search result is ready, update apps statuses
-        searchResult.$promise.then(function(applisationListResult) {
-          updateApplicationStatuses(applisationListResult);
-        });
-        $scope.searchResult = searchResult;
+      $scope.onSearchCompleted = function(searchResult) {
+        $scope.data = searchResult.data;
+        updateApplicationStatuses(searchResult.data);
       };
-      $scope.search();
 
       $scope.openApplication = function(applicationId) {
         $state.go('applications.detail.info', {
@@ -293,9 +282,8 @@ define(function (require) {
           applicationId: applicationId
         }, function(response) {
           if (!response.error && response.data === true) {
-            $scope.search();
+            $scope.searchService.search();
           } else {
-            // toaster message
             toaster.pop('error', $translate('APPLICATIONS.ERRORS.DELETE_TITLE'), $translate('APPLICATIONS.ERRORS.DELETING_FAILED'), 4000, 'trustedHtml', null);
           }
         });

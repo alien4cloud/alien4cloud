@@ -30,7 +30,6 @@ module.exports = function (grunt) {
               'toaster',
               'hopscotch',
               'angular-file-upload',
-              'button-confirm',
               'angular-ui-ace',
               'ace',
               'sockjs',

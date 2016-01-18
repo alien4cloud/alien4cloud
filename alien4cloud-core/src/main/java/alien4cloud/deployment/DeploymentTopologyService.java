@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -431,12 +432,11 @@ public class DeploymentTopologyService {
             return;
         }
 
-        // TODO For now, we only support one location policy for all nodes. So we have a group _ALL that represents all compute nodes in the topology
+        // TODO For now, we only support one location policy for all nodes. So we have a group _A4C_ALL that represents all compute nodes in the topology
         // To improve later on for multiple groups support
         // throw an exception if multiple location policies provided: not yet supported
-        if (groupsLocationsMapping.size() > 1) {
-            throw new UnsupportedOperationException("Multiple Location policies not yet supported");
-        }
+        // throw an exception if group name is not _A4C_ALL
+        checkGroups(groupsLocationsMapping);
 
         for (Entry<String, String> matchEntry : groupsLocationsMapping.entrySet()) {
             String locationId = matchEntry.getValue();
@@ -445,14 +445,23 @@ public class DeploymentTopologyService {
             deploymentTopology.getLocationDependencies().addAll(location.getDependencies());
             LocationPlacementPolicy locationPolicy = new LocationPlacementPolicy(locationId);
             locationPolicy.setName("Location policy");
-            // put matchEntry.getKey() instead for multi location support
-            String groupName = AlienConstants.GROUP_ALL;
             Map<String, NodeGroup> groups = deploymentTopology.getLocationGroups();
             NodeGroup group = new NodeGroup();
-            group.setName(groupName);
+            group.setName(matchEntry.getKey());
             group.setPolicies(Lists.<AbstractPolicy> newArrayList());
             group.getPolicies().add(locationPolicy);
-            groups.put(groupName, group);
+            groups.put(matchEntry.getKey(), group);
+        }
+    }
+
+    private void checkGroups(Map<String, String> groupsLocationsMapping) {
+        if (groupsLocationsMapping.size() > 1) {
+            throw new UnsupportedOperationException("Multiple Location policies not yet supported");
+        }
+
+        String groupName = groupsLocationsMapping.entrySet().iterator().next().getKey();
+        if (!Objects.equals(groupName, AlienConstants.GROUP_ALL)) {
+            throw new IllegalArgumentException("Group name should be <" + AlienConstants.GROUP_ALL + ">, as we do not yet support multiple Location policies.");
         }
     }
 

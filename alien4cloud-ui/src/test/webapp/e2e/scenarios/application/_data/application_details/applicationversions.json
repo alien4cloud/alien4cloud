@@ -1,0 +1,7 @@
+[
+  {"id":"9b0d675d-f7d2-495d-8e0c-4824f193f542","version":"0.1.0-SNAPSHOT","topologyId":"25084a78-fb0f-4b77-a7de-b970cd469aae","released":false,"latest":true,"applicationId":"00f980ef-938e-4c4e-98e9-71a69322d38e","snapshot":true},
+  {"id":"9c693d38-fe3b-4972-863d-552da255d1ae","version":"0.1.0-SNAPSHOT","topologyId":"b38a9b5b-229f-4268-a2e2-7da1c29a08d5","released":false,"latest":true,"applicationId":"08d96a46-fdc3-4bba-8751-b3f18251cf1e","snapshot":true},
+  {"id":"006ab60d-a076-4d72-b3a5-ae1beb5ed53a","version":"0.1.0-SNAPSHOT","topologyId":"5d90265f-87b5-4733-b00d-bc59fe4ea5f9","released":false,"latest":true,"applicationId":"b40def21-0dfc-40bf-b09c-0b741338f62d","snapshot":true},
+  {"id":"6cb6cc66-c369-4e8b-8195-587cee654173","version":"0.1.0-SNAPSHOT","topologyId":"8783051c-fcfe-4684-8196-3ef5d1c174be","released":false,"latest":true,"applicationId":"7aff0627-885b-4cbf-a904-a8ae05666364","snapshot":true},
+  {"id":"da2b913c-293c-41ea-b7bc-0da90d3820d0","version":"0.1.0-SNAPSHOT","topologyId":"d7ba06aa-fe39-4cd9-a92e-198ba792e210","released":false,"latest":true,"applicationId":"9759bd55-8c63-4a30-8707-3441073f3341","snapshot":true}
+]

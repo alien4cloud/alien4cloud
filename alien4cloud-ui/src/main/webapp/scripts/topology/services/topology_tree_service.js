@@ -21,7 +21,7 @@ define(function (require) {
         * Create an enriched node that we will use to render the topology.
         */
         prepareNode: function(nodeTemplate, topology) {
-          var nodeType = topology.nodeTypes[nodeTemplate.type]
+          var nodeType = topology.nodeTypes[nodeTemplate.type];
           var node = {
             template: nodeTemplate,
             type: nodeType,
@@ -225,7 +225,7 @@ define(function (require) {
           }
 
           return this.getCommonParentInfo(tree, parent1, parent2);
-        },
+        }
       };
     }
   ]); // factory

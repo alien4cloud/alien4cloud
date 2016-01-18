@@ -5,13 +5,13 @@ import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
-import alien4cloud.utils.TagUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.application.ApplicationService;
+import alien4cloud.application.TopologyCompositionService;
 import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.common.TagService;
 import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
@@ -29,6 +29,7 @@ import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
+import alien4cloud.utils.TagUtil;
 
 import com.google.common.collect.Maps;
 
@@ -52,6 +53,8 @@ public class InputsPreProcessorService {
     private TagService tagService;
     @Resource
     private MetaPropertiesService metaPropertiesService;
+    @Resource
+    private TopologyCompositionService topologyCompositionService;
 
     /**
      * Process the get inputs functions of a topology to inject actual input provided by the deployer user (from deployment setup) or from the location
@@ -62,6 +65,7 @@ public class InputsPreProcessorService {
      * @param topology
      */
     public void processGetInput(DeploymentTopology deploymentTopology, ApplicationEnvironment environment, Topology topology) {
+        topologyCompositionService.processTopologyComposition(topology);
         Map<String, String> inputs = getInputs(deploymentTopology, environment);
         if (deploymentTopology.getNodeTemplates() != null) {
             for (Entry<String, NodeTemplate> entry : deploymentTopology.getNodeTemplates().entrySet()) {

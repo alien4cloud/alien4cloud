@@ -1,12 +1,3 @@
 [
-  {
-    "id":"0e48363c-1d7e-4bc3-9e42-5695af60ddaf",
-    "name":"Application 1",
-    "description":"This is the first test application.",
-    "creationDate":1448092204672,
-    "lastUpdateDate":1448092204672,
-    "tags":[],
-    "metaProperties":{},
-    "userRoles":[{"key":"admin","value":["APPLICATION_MANAGER"]}]
-  }
+  {"id":"0f77dcc6-e73f-40d8-80eb-391075882f81","name":"AlienUITest","description":"Greatest application that is created for the only purpose of testing. All tests that need only one application should use this one.","creationDate":1451472110825,"lastUpdateDate":1451472110825,"tags":[],"metaProperties":{},"userRoles":[{"key":"applicationManager","value":["APPLICATION_MANAGER"]}]}
 ]

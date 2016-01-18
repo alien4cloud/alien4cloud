@@ -1,50 +1,44 @@
 package alien4cloud.tosca;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
 
-import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.model.components.CSARDependency;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import lombok.extern.log4j.Log4j;
+
 import org.springframework.stereotype.Component;
 
-import alien4cloud.component.repository.ICsarRepositry;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
+import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
-import alien4cloud.paas.wf.WorkflowsBuilderService;
-import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.model.git.CsarDependenciesBean;
+import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.Role;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyTemplateVersionService;
 import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.*;
+import alien4cloud.tosca.parser.ParsingContext;
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.ParsingException;
+import alien4cloud.tosca.parser.ParsingResult;
+
+import com.google.common.collect.Maps;
 
 @Component
+@Log4j
 public class ArchiveUploadService {
 
     @Inject
     private ArchiveParser parser;
     @Inject
-    private ToscaCsarDependenciesParser dependenciesParser;
-    @Inject
     private ArchiveIndexer archiveIndexer;
-    @Inject
-    private ICsarRepositry archiveRepositry;
     @Inject
     TopologyServiceCore topologyServiceCore;
     @Inject
     TopologyTemplateVersionService topologyTemplateVersionService;
-    @Inject
-    private WorkflowsBuilderService workflowsBuilderService;
-    @Inject
-    private ICSARRepositorySearchService searchService;
 
     /**
      * Upload a TOSCA archive and index its components.
@@ -57,9 +51,6 @@ public class ArchiveUploadService {
     public ParsingResult<Csar> upload(Path path) throws ParsingException, CSARVersionAlreadyExistsException {
         // parse the archive.
         ParsingResult<ArchiveRoot> parsingResult = parser.parse(path);
-
-        String archiveName = parsingResult.getResult().getArchive().getName();
-        String archiveVersion = parsingResult.getResult().getArchive().getVersion();
 
         final ArchiveRoot archiveRoot = parsingResult.getResult();
         if (archiveRoot.hasToscaTopologyTemplate()) {
@@ -85,12 +76,18 @@ public class ArchiveUploadService {
     public Map<CSARDependency, CsarDependenciesBean> preParsing(Set<Path> paths) throws ParsingException {
         Map<CSARDependency, CsarDependenciesBean> csarDependenciesBeans = Maps.newHashMap();
         for (Path path : paths) {
-            CsarDependenciesBean csarDepContainer = new CsarDependenciesBean();
-            ParsingResult<ArchiveRoot> parsingResult = parser.parse(path);
-            csarDepContainer.setPath(path);
-            csarDepContainer.setSelf(new CSARDependency(parsingResult.getResult().getArchive().getName(), parsingResult.getResult().getArchive().getVersion()));
-            csarDepContainer.setDependencies(parsingResult.getResult().getArchive().getDependencies());
-            csarDependenciesBeans.put(csarDepContainer.getSelf(), csarDepContainer);
+            try {
+                ParsingResult<ArchiveRoot> parsingResult = parser.parse(path);
+                CsarDependenciesBean csarDepContainer = new CsarDependenciesBean();
+                csarDepContainer.setPath(path);
+                csarDepContainer.setSelf(new CSARDependency(parsingResult.getResult().getArchive().getName(), parsingResult.getResult().getArchive()
+                        .getVersion()));
+                csarDepContainer.setDependencies(parsingResult.getResult().getArchive().getDependencies());
+                csarDependenciesBeans.put(csarDepContainer.getSelf(), csarDepContainer);
+            } catch (Exception e) {
+                // TODO: error should be returned in a way or another
+                log.debug("Not able to parse archive, ignoring it", e);
+            }
         }
         return csarDependenciesBeans;
     }

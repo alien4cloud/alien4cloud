@@ -36,7 +36,6 @@ module.exports = function(config) {
       'app/bower_components/js-yaml/js-yaml.js',
       'app/bower_components/angular-animate/angular-animate.min.js',
       'app/bower_components/angularjs-toaster/toaster.js',
-      'app/bower_components/fc-angular-utils/button-confirm/button-confirm.js',
       'app/bower_components/sockjs/sockjs.js',
       'app/bower_components/stomp-websocket/lib/stomp.js',
 

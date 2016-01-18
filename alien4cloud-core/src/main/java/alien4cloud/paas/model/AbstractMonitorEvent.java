@@ -22,7 +22,7 @@ public abstract class AbstractMonitorEvent {
     private String deploymentId;
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
-    private String cloudId;
+    private String orchestratorId;
     @TermFilter
     @DateField
     @TimeStamp(format = "", index = IndexType.not_analyzed)

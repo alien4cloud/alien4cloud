@@ -11,7 +11,6 @@ import org.junit.Assert;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
-import alien4cloud.it.utils.JsonTestUtil;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.rest.application.model.ApplicationVersionRequest;
 import alien4cloud.rest.component.SearchRequest;
@@ -92,7 +91,7 @@ public class TopologyTemplateVersionDefinitions {
         String topologyTemplateId = Context.getInstance().getTopologyTemplate().getId();
         String versionId = Context.getInstance().getTopologyTemplateVersionId();
         String restResponse = Context.getRestClientInstance().get("/rest/templates/" + topologyTemplateId + "/versions/" + versionId);
-        TopologyTemplateVersion result = JsonTestUtil.read(restResponse, TopologyTemplateVersion.class).getData();
+        TopologyTemplateVersion result = JsonUtil.read(restResponse, TopologyTemplateVersion.class, Context.getJsonMapper()).getData();
         assertNotNull(result);
         Context.getInstance().registerTopologyId(result.getTopologyId());
     }

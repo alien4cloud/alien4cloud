@@ -2,11 +2,10 @@ package alien4cloud.deployment.matching.services.location;
 
 import java.util.Set;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
+
+import com.google.common.collect.Sets;
 
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.model.components.CSARDependency;
@@ -14,15 +13,15 @@ import alien4cloud.model.components.IndexedArtifactToscaElement;
 import alien4cloud.model.components.IndexedArtifactType;
 import alien4cloud.model.components.Interface;
 import alien4cloud.model.components.Operation;
-import alien4cloud.model.deployment.matching.LocationMatch;
+import alien4cloud.model.deployment.matching.ILocationMatch;
 import alien4cloud.model.topology.AbstractTemplate;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.tosca.ToscaUtils;
-
-import com.google.common.collect.Sets;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * LocationMatch Elector based on supported artifacts. Checks if the artifacts of a given {@link NodeTemplate} are supported by the location's orchestrator.
@@ -47,7 +46,7 @@ public class LocationMatchNodesArtifactsElector implements ILocationMatchElector
     private OrchestratorService orchestratorService;
 
     @Override
-    public boolean isEligible(LocationMatch locationMatch) {
+    public boolean isEligible(ILocationMatch locationMatch) {
         boolean isEligible = true;
         if (template == null) {
             return isEligible;
@@ -62,7 +61,7 @@ public class LocationMatchNodesArtifactsElector implements ILocationMatchElector
         return isEligible;
     }
 
-    private boolean isEligible(AbstractTemplate template, LocationMatch locationMatch) {
+    private boolean isEligible(AbstractTemplate template, ILocationMatch locationMatch) {
         if (template == null) {
             return true;
         }
@@ -107,7 +106,7 @@ public class LocationMatchNodesArtifactsElector implements ILocationMatchElector
         return false;
     }
 
-    private boolean areRelationshipsArtifactSupported(LocationMatch locationMatch, NodeTemplate nodeTemplate) {
+    private boolean areRelationshipsArtifactSupported(ILocationMatch locationMatch, NodeTemplate nodeTemplate) {
         if (MapUtils.isNotEmpty(nodeTemplate.getRelationships())) {
             for (RelationshipTemplate relTemplate : nodeTemplate.getRelationships().values()) {
                 if (!isEligible(relTemplate, locationMatch)) {

@@ -5,7 +5,7 @@
     <div class="col-md-12 well">
       <div class="row">
         <div class="col-md-12">
-          <h1>{{csar.csar.name}}</h1>
+          <h1 id="csar-name">{{csar.csar.name}}</h1>
           <div class="pull-right">
             <delete-confirm ng-if="!csar.substitutionTopologyId" id="delete-csar_{{csar.csar.id}}" func="remove(csarId)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
             </delete-confirm>
@@ -17,7 +17,7 @@
         <div class="col-md-12">
           <fieldset>
             <legend>
-              <h4><i class="fa fa-book"></i> {{'CSAR.DESCRIPTION' | translate }} </h4>
+              <h4><i class="fa fa-book"></i> {{'COMMON.DESCRIPTION' | translate }} </h4>
             </legend>
 
             <div class="row">
@@ -26,9 +26,9 @@
 
             <div class="row" style="margin-top: 10px;">
               <div class="col-md-3">
-                <strong>{{'CSAR.VERSION' | translate }}</strong>
+                <strong>{{'COMMON.VERSION' | translate }}</strong>
               </div>
-              <div class="col-md-3">{{csar.csar.version}}</div>
+              <div class="col-md-3" id="csar-version">{{csar.csar.version}}</div>
               <div class="col-md-2">
                 <strong>{{'CSAR.AUTHOR' | translate }}</strong>
               </div>
@@ -41,7 +41,7 @@
               </div>
               <div class="col-md-8">
 
-                <i class="fa fa-2x vertical-center" tooltip="{{'APPLICATIONS.' + deploymentStatus | translate }}" tooltip-append-to-body="true" ng-class="{
+                <i class="fa fa-2x vertical-center" tooltip="{{'DEPLOYMENT.STATUS.' + deploymentStatus | translate }}" tooltip-append-to-body="true" ng-class="{
                     'fa-circle text-success' : deploymentStatus == 'DEPLOYED',
                     'fa-circle text-muted' : deploymentStatus == 'UNDEPLOYED',
                     'fa-warning text-warning' : deploymentStatus == 'WARNING',
@@ -77,18 +77,18 @@
                 <div ng-if="csar.relatedResources.length==0">
                   {{'CSAR.DETAILS.NO_RESOURCES' | translate}}
                 </div>
-                <div class="table-responsive" ng-if="csar.relatedResources.length>0">
+                <div class="table-responsive" ng-if="csar.relatedResources.length>0" id="linked-resources">
                   <table class="table">
                     <thead>
                       <tr>
-                        <th>{{'CSAR.DETAILS.RESOURCE.NAME' | translate}}</th>
-                        <th>{{'CSAR.DETAILS.RESOURCE.TYPE' | translate}}</th>
-                        <th>{{'CSAR.DETAILS.RESOURCE.VERSION' | translate}}</th>
+                        <th>{{'COMMON.NAME' | translate}}</th>
+                        <th>{{'COMMON.TYPE' | translate}}</th>
+                        <th>{{'COMMON.VERSION' | translate}}</th>
                         <th></th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr ng-repeat="resource in csar.relatedResources" name="res_{{resource.resourceId}}">
+                      <tr ng-repeat="resource in csar.relatedResources" id="res_{{resource.resourceId}}">
                         <td>
                           {{resource.resourceName}}
                         </td>

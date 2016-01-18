@@ -372,9 +372,41 @@ img.icon_32 {
 }
 
 .alien-table-row:last-child {
-  border-width: 1px 0px 0px;
+  border-width: 0px 0px 0px;
 }
 
 .alien-table-row:only-child {
   border-width: 0px 0px 0px;
+}
+
+.empty-place-holder {
+  font-weight: bold;
+}
+
+.location-match {
+  color: #2a6496;
+  display: block;
+  padding: 4px;
+  margin-bottom: 20px;
+  line-height: 1.428571429;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: all 0.2s ease-in-out;
+}
+
+.location-match-selected {
+  background-color: #dff0d8;
+  border-color: #d6e9c6;
+}
+.location-match-danger {
+  background-color: #f2dede;
+  border-color: #ebccd1;
+  color: #b94a48;
+}
+
+.item-disabled {
+    color: #999999;
+    text-decoration: none;
+    background-color: transparent;
+    cursor: not-allowed;
 }

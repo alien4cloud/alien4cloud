@@ -18,7 +18,6 @@ import org.yaml.snakeyaml.nodes.ScalarNode;
 import org.yaml.snakeyaml.nodes.SequenceNode;
 
 import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.csar.services.CsarService;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
@@ -46,16 +45,10 @@ import com.google.common.collect.Maps;
 public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<String, RelationshipTemplate>> {
 
     @Resource
-    private CsarService csarService;
-
-    @Resource
     private ScalarParser scalarParser;
 
     @Resource
     private ICSARRepositorySearchService searchService;
-
-    @Resource
-    private TopologyServiceCore topologyServiceCore;
 
     @Override
     public Map<String, RelationshipTemplate> parse(Node node, ParsingContextExecution context) {
@@ -204,10 +197,10 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
         // IndexedNodeType indexedTargetNodeType = ToscaParsingUtil.getNodeTypeFromArchiveOrDependencies(targetNodeTemplate.getType(), archiveRoot,
         // searchService);
         // if (!indexedTargetNodeType.getDerivedFrom().contains(rd.getType())) {
-            // an error ?
-            // context.getParsingErrors().add(
-            // new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.VALIDATION_ERROR, "node_template requirements parsing", node.getStartMark(),
-            // "The relation target doesn't seem to be compibatble with the requirement", node.getEndMark(), targetNodeTemplate.getType()));
+        // an error ?
+        // context.getParsingErrors().add(
+        // new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.VALIDATION_ERROR, "node_template requirements parsing", node.getStartMark(),
+        // "The relation target doesn't seem to be compibatble with the requirement", node.getEndMark(), targetNodeTemplate.getType()));
         // }
 
         Capability capability = null;
@@ -248,6 +241,8 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
         Map<String, AbstractPropertyValue> properties = Maps.newHashMap();
         TopologyServiceCore.fillProperties(properties, indexedRelationshipType.getProperties(), relationshipProperties);
         relationshipTemplate.setProperties(properties);
+        relationshipTemplate.setAttributes(indexedRelationshipType.getAttributes());
+        relationshipTemplate.setInterfaces(indexedRelationshipType.getInterfaces());
         return relationshipTemplate;
     }
 

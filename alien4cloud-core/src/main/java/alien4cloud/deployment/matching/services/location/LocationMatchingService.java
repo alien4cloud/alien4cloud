@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.deployment.matching.plugins.ILocationMatcher;
-import alien4cloud.model.deployment.matching.LocationMatch;
+import alien4cloud.model.deployment.matching.ILocationMatch;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.topology.TopologyServiceCore;
 
@@ -30,8 +30,8 @@ public class LocationMatchingService {
      * @param topology The topology to match against the location matcher.
      * @return A list of candidates Location Matches.
      */
-    public List<LocationMatch> match(Topology topology) {
-        List<LocationMatch> matches;
+    public List<ILocationMatch> match(Topology topology) {
+        List<ILocationMatch> matches;
         // If no registered matcher found later on, then match with the default matcher
         ILocationMatcher matcher = defaultLocationMatcher;
 
@@ -58,7 +58,7 @@ public class LocationMatchingService {
      * @param topologyId
      * @return
      */
-    public List<LocationMatch> match(String topologyId) {
+    public List<ILocationMatch> match(String topologyId) {
         Topology topology = topoServiceCore.getOrFail(topologyId);
         return match(topology);
     }

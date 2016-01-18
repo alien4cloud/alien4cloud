@@ -63,7 +63,7 @@ function assertGroupHasRoles(groupname, roles) {
   roles.forEach(function(role) {
     expect(element(by.id('group_' + groupname)).element(by.name('roles')).getText()).toContain(role);
   });
-  rolesCommon.assertGroupHasRoles('app', groupname, roles);
+  rolesCommon.assertGroupHasRoles(groupname, roles);
 }
 
 function assertGroupDoesNotHaveRoles(groupname, roles) {
@@ -73,7 +73,7 @@ function assertGroupDoesNotHaveRoles(groupname, roles) {
   roles.forEach(function(role) {
     expect(element(by.id('group_' + groupname)).element(by.name('roles')).getText()).not.toContain(role);
   });
-  rolesCommon.assertGroupDoesNotHaveRoles('app', groupname, roles);
+  rolesCommon.assertGroupDoesNotHaveRoles(groupname, roles);
 }
 
 function jumpToTab(tabName) {

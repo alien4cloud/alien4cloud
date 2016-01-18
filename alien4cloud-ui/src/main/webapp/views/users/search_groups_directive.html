@@ -24,9 +24,9 @@
           <thead>
             <tr>
               <th></th>
-              <th>{{ 'GROUPS.NAME' | translate}}</th>
-              <th ng-if="displayAll || displayEmail">{{ 'GROUPS.EMAIL' | translate}}</th>
-              <th>{{ 'GROUPS.DESC' | translate}}</th>
+              <th>{{ 'COMMON.NAME' | translate}}</th>
+              <th ng-if="displayAll || displayEmail">{{ 'COMMON.EMAIL' | translate}}</th>
+              <th>{{ 'COMMON.DESCRIPTION' | translate}}</th>
               <th ng-if="displayAll || displayRoles">{{ 'GROUPS.ROLES' | translate}}</th>
               <th class="text-center"> <i ng-if="managedEnvRoleList" class="fa fa-desktop" tooltip="{{'APPLICATIONS.APPLICATION' | translate }}" tooltip-placement="top" tooltip-append-to-body="true"></i></th>
               <th class="text-center" ng-if="managedEnvRoleList"><i class="fa fa-share-alt" tooltip="{{'APPLICATIONS.ENVIRONMENT.ENV' | translate }}" tooltip-placement="top" tooltip-append-to-body="true"></i></th>

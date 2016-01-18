@@ -9,7 +9,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.CSARRepositorySearchService;
-import alien4cloud.model.deployment.matching.LocationMatch;
+import alien4cloud.model.deployment.matching.ILocationMatch;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.orchestrators.services.OrchestratorService;
@@ -29,7 +29,7 @@ public class LocationMatchNodeFilter extends AbstractLocationMatchFilterWithElec
     }
 
     @Override
-    public void filter(List<LocationMatch> toFilter, Topology topology) {
+    public void filter(List<ILocationMatch> toFilter, Topology topology) {
         artifactsElector.setDependencies(topology.getDependencies());
         for (Entry<String, NodeTemplate> entry : topology.getNodeTemplates().entrySet()) {
             artifactsElector.setTemplate(entry.getValue());

@@ -93,7 +93,7 @@ define(function (require) {
         $scope.selectedVersion = $scope.appVersions[0];
         $scope.topologyId = $scope.selectedVersion.topologyId;
         if (_.defined(preselectedVersion)) {
-          $scope.version.setName(preselectedVersion);
+          $scope.versions.setSelectedVersionByName(preselectedVersion);
         }
       } else {
         // TODO : remove this part when apVersion will be given in state 'topologytemplates.detail.topology'

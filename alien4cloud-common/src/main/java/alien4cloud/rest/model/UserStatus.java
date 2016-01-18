@@ -15,5 +15,6 @@ public class UserStatus {
     private String githubUsername;
     private Collection<String> roles = new ArrayList<String>();
     private Set<String> groups;
-
+    // Authentication system to be used - Alien, GitHub or SAML are the 3 available systems for now.
+    private String authSystem;
 }

@@ -10,9 +10,10 @@ import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
-import alien4cloud.it.utils.JsonTestUtil;
+import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
@@ -21,6 +22,7 @@ import alien4cloud.topology.TopologyDTO;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
@@ -61,10 +63,27 @@ public class InputPropertiesStepDefinitions {
             }
         }
         if (propDef == null) {
-            throw new NullPointerException(
-                    "The property definition is required for node " + nodeName + " and property " + propertyName + ", please check your cucumber scenario.");
+            throw new NullPointerException("The property definition is required for node " + nodeName + " and property " + propertyName
+                    + ", please check your cucumber scenario.");
         }
         return propDef;
+    }
+
+    @Given("^I define the capability \"(.*?)\" property \"(.*?)\" of the node \"(.*?)\" as input property$")
+    public void i_define_the_capability_property_of_the_node_of_typeId_as_input_property(String capabilityName, String propertyName, String nodeName)
+            throws Throwable {
+        String url = String.format("/rest/topologies/%s", Context.getInstance().getTopologyId());
+        String response = Context.getRestClientInstance().get(url);
+        TopologyDTO topologyDTO = JsonUtil.read(response, TopologyDTO.class, Context.getJsonMapper()).getData();
+        NodeTemplate template = MapUtils.getObject(topologyDTO.getTopology().getNodeTemplates(), nodeName);
+        Capability capability = template.getCapabilities().get(capabilityName);
+        
+        IndexedCapabilityType capabilityType = topologyDTO.getCapabilityTypes().get(capability.getType());
+        PropertyDefinition propertyDefinition = capabilityType.getProperties().get(propertyName);
+
+        String fullUrl = String.format("/rest/topologies/%s/inputs/%s", Context.getInstance().getTopologyId(), propertyName);
+        String json = JsonUtil.toString(propertyDefinition);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(fullUrl, json));
     }
 
     @When("^I define the property \"([^\"]*)\" of the node \"([^\"]*)\" of typeId \"([^\"]*)\" as input property$")
@@ -121,8 +140,8 @@ public class InputPropertiesStepDefinitions {
 
     @Then("^The topology should not have the property \"([^\"]*)\" defined as input property$")
     public void The_topology_should_not_have_the_property_defined_as_input_property(String inputId) throws Throwable {
-        TopologyDTO topologyDTO = JsonTestUtil
-                .read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()), TopologyDTO.class).getData();
+        TopologyDTO topologyDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()),
+                TopologyDTO.class, Context.getJsonMapper()).getData();
         Map<String, PropertyDefinition> inputProperties = topologyDTO.getTopology().getInputs();
         Assert.assertFalse(inputProperties.containsKey(inputId));
     }
@@ -137,8 +156,8 @@ public class InputPropertiesStepDefinitions {
     }
 
     @Then("^I set the property \"([^\"]*)\" of a relationship \"([^\"]*)\" for the node template \"([^\"]*)\" to the input \"([^\"]*)\"$")
-    public void I_set_the_property_of_a_relationship_for_the_node_template_to_the_input(String property, String relationshipTemplateId, String nodeTemplateName,
-            String inputId) throws Throwable {
+    public void I_set_the_property_of_a_relationship_for_the_node_template_to_the_input(String property, String relationshipTemplateId,
+            String nodeTemplateName, String inputId) throws Throwable {
         String fullUrl = String.format("/rest/topologies/%s/nodetemplates/%s/relationship/%s/property/%s/input", Context.getInstance().getTopologyId(),
                 nodeTemplateName, relationshipTemplateId, property);
         List<NameValuePair> nvps = new ArrayList<NameValuePair>();
@@ -190,7 +209,8 @@ public class InputPropertiesStepDefinitions {
                 nodeTemplateId, capabilityId, propertyId);
         List<NameValuePair> nvps = new ArrayList<NameValuePair>();
         nvps.add(new BasicNameValuePair("inputId", inputId));
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postUrlEncoded(url, nvps));
+        String response = Context.getRestClientInstance().postUrlEncoded(url, nvps);
+        Context.getInstance().registerRestResponse(response);
     }
 
     @When("^I unset the property \"([^\"]*)\" of capability \"([^\"]*)\" the node \"([^\"]*)\" as input property$")

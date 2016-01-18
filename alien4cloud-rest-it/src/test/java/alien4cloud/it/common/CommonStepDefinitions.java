@@ -25,6 +25,7 @@ import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
+import alien4cloud.model.git.CsarGitRepository;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.templates.TopologyTemplate;
@@ -64,6 +65,7 @@ public class CommonStepDefinitions {
         indicesToClean.add(Group.class.getSimpleName().toLowerCase());
         indicesToClean.add(User.class.getSimpleName().toLowerCase());
         indicesToClean.add(MetaPropConfiguration.class.getSimpleName().toLowerCase());
+        indicesToClean.add(CsarGitRepository.class.getSimpleName().toLowerCase());
         indicesToClean.add(AuditESDAO.ALIEN_AUDIT_INDEX);
     }
 
@@ -208,7 +210,7 @@ public class CommonStepDefinitions {
 
     @When("^I register the rest response data as SPEL context of type2 \"([^\"]*)\"$")
     public void I_register_the_rest_response_data_as_SPEL_context2(String type) throws Throwable {
-        RestResponse<?> response = alien4cloud.it.utils.JsonTestUtil.read(Context.getInstance().getRestResponse(), Class.forName(type));
+        RestResponse<?> response = JsonUtil.read(Context.getInstance().getRestResponse(), Class.forName(type), Context.getJsonMapper());
         Context.getInstance().buildEvaluationContext(response.getData());
     }
 

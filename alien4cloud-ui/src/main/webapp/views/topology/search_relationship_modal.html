@@ -15,13 +15,13 @@
   <div class="well">
     <div class="row">
       <div class="col-md-1">
-        <strong>{{'COMPONENTS.RELATIONSHIPS.SOURCE' | translate}}</strong>
+        <strong>{{'COMMON.SOURCE' | translate}}</strong>
       </div>
       <div class="col-md-5 text-info">
         {{sourceElementName}}.{{requirementName}}
       </div>
       <div class="col-md-1">
-        <strong>{{'COMPONENTS.RELATIONSHIPS.TARGET' | translate}}</strong>
+        <strong>{{'COMMON.TARGET' | translate}}</strong>
       </div>
       <div class="col-md-5 text-info">
         {{relationshipModalData.target}}.{{relationshipModalData.targetedCapabilityName}}
@@ -29,7 +29,7 @@
     </div>
     <div class="row">
       <div class="col-md-1">
-        <strong>{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</strong>
+        <strong>{{'COMMON.TYPE' | translate}}</strong>
       </div>
       <div class="col-md-11 text-info">
         {{relationshipModalData.relationship.elementId}}
@@ -71,7 +71,7 @@
     <!-- Step = 3 selectName -->
     <div ng-switch-when="3" class="row">
       <div class="form-group" style="margin: 10px;">
-        <label for="nameid" class="col-md-2 control-label">{{'APPLICATIONS.TOPOLOGY.SEARCH_RELATIONSHIP_MODAL.NAME' | translate}}</label>
+        <label for="nameid" class="col-md-2 control-label">{{'COMMON.NAME' | translate}}</label>
         <div class="col-md-10">
           <input type="text" class="form-control" id="nameid"
             ng-model="relationshipModalData.name" name="name">

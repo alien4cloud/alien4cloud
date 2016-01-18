@@ -104,7 +104,7 @@ public final class FunctionEvaluator {
             String runtimeAttributeValue = extractRuntimeInformationAttribute(runtimeInformations, currentInstance, Lists.newArrayList(basePaaSTemplate),
                     attributeId);
             if (runtimeAttributeValue != null) {
-                if (!runtimeAttributeValue.contains("=Error!]") && !runtimeAttributeValue.equals("") && !runtimeAttributeValue.equals(null)) {
+                if (!runtimeAttributeValue.contains("=Error!]") && !runtimeAttributeValue.equals("")) {
                     return runtimeAttributeValue;
                 }
             }
@@ -142,8 +142,10 @@ public final class FunctionEvaluator {
                         String defaultValue = "<" + functionPropertyValue.getElementNameToFetch() + ">";
                         evaluatedAttribute.append(extractRuntimeInformationOperationOutput(runtimeInformations, currentInstance, paasTemplates,
                                 functionPropertyValue, defaultValue));
+                        break;
                     default:
                         log.warn("Function [{}] is not yet handled in concat operation.", functionPropertyValue.getFunction());
+                        break;
                     }
 
                 }
