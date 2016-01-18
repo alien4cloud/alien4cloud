@@ -5,6 +5,7 @@ define(function (require) {
   var modules = require('modules');
   var states = require('states');
   var angular = require('angular');
+  var _ = require('lodash');
 
   require('scripts/topologytemplates/services/topology_template_service');
   require('scripts/topologytemplates/services/topology_template_version_services');
@@ -24,35 +25,22 @@ define(function (require) {
         }
       ],
       appVersions: ['$http', 'topologyTemplate', 'topologyTemplateVersionServices',
-                    function($http, topologyTemplate, topologyTemplateVersionServices) {
-                      var searchAppVersionRequestObject = {
-                        'from': 0,
-                        'size': 400
-                      };
-                      return topologyTemplateVersionServices.searchVersion({
-                        delegateId: topologyTemplate.data.id
-                      }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function(result) {
-                          return result.data;
-                        });
-                    }
+        function($http, topologyTemplate, topologyTemplateVersionServices) {
+          var searchAppVersionRequestObject = {
+            'from': 0,
+            'size': 400
+          };
+          return topologyTemplateVersionServices.searchVersion({
+            delegateId: topologyTemplate.data.id
+          }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function(result) {
+              return result.data;
+            });
+        }
       ]
     },
     controller: 'TopologyTemplateCtrl'
   });
   states.state('topologytemplates.detail.topology', {
-    url: '/topology',
-    templateUrl: 'views/topology/topology_editor.html',
-    resolve: {
-      topologyId: ['topologyTemplate',
-        function(topologyTemplate) {
-          return topologyTemplate.data.topologyId;
-        }
-      ],
-      preselectedVersion: function() { return undefined; }
-    },
-    controller: 'TopologyCtrl'
-  });
-  states.state('topologytemplates.detail.topologyVersion', {
     url: '/topology/:version',
     templateUrl: 'views/topology/topology_editor.html',
     resolve: {
@@ -61,7 +49,12 @@ define(function (require) {
           return topologyTemplate.data.topologyId;
         }
       ],
-      preselectedVersion: ['$stateParams', function($stateParams) { return $stateParams.version; } ]
+      preselectedVersion: ['$stateParams', function($stateParams) {
+        if(_.isEmpty($stateParams.version)) {
+          return undefined;
+        }
+        return $stateParams.version;
+      }]
     },
     controller: 'TopologyCtrl'
   });

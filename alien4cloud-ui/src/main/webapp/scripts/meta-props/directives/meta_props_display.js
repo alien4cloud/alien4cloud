@@ -15,7 +15,7 @@ define(function (require) {
         'resturl': '=',
         'params': '=',
         'collapsable': '=',
-        'collapse': '=',
+        'collapse': '='
       },
       link: {}
     };

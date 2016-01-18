@@ -3,14 +3,14 @@ define(function (require) {
 
   var modules = require('modules');
 
-  modules.get('a4c-components', ['ngResource']).factory('csarGitService', ['$resource', '$translate', function($resource, $translate) {
+  modules.get('a4c-components', ['ngResource']).factory('csarGitService', ['$resource', function($resource) {
 
     var remove = $resource('rest/csarsgit/:id',{},{},{
         'remove':{
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json; charset=UTF-8'
-        },
+        }
       }
     });
 
