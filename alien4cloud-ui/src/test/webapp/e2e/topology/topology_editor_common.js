@@ -28,6 +28,13 @@ var nodeDetailsBlocsIds = {
 };
 module.exports.nodeDetailsBlocsIds = nodeDetailsBlocsIds;
 
+
+var go = function() {
+  common.go('applications', 'topology');
+};
+module.exports.go = go;
+
+
 // Show tabs in the topology page
 function showTopologyTab(panel, btn) {
   element(by.id(panel)).isDisplayed().then(function(isDisplay) {

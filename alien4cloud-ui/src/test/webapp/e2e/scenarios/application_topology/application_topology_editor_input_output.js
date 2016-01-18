@@ -1,4 +1,4 @@
-/* global by */
+/* global describe, it, by, expect, browser */
 
 'use strict';
 
@@ -32,8 +32,8 @@ describe('Topology input/output properties', function() {
 
   it('beforeAll', function() {
     setup.setup();
-    setup.index("topology", "topology", topologiesData);
-    setup.index("deploymenttopology", "deploymenttopology", deploymentTopologiesData);
+    setup.index('topology', 'topology', topologiesData);
+    setup.index('deploymenttopology', 'deploymenttopology', deploymentTopologiesData);
     common.home();
     authentication.login('applicationManager');
   });
