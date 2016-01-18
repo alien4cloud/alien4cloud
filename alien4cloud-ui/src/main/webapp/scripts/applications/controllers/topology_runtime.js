@@ -61,7 +61,7 @@ define(function (require) {
             appEnvironments.selectedEnvironment = $scope.selectedEnvironment;
           }
         }
-      }
+      };
 
       //update the selectedEnvironment
       updateSelectedEnvionment();
