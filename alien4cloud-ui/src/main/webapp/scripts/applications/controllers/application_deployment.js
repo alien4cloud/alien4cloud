@@ -166,7 +166,6 @@ define(function(require) {
 
         $scope.goToNextInvalidStep(); // immediately go to the next invalid tab
 
-
         $scope.showTodoList = function() {
           return !$scope.validTopologyDTO.valid && $scope.isManager;
         };
@@ -175,12 +174,12 @@ define(function(require) {
           return angular.isObject($scope.validTopologyDTO.warningList) && Object.keys($scope.validTopologyDTO.warningList).length > 0;
         };
 
-        $scope.showConfgurationsErrors = function(){
+        $scope.showConfgurationsErrors = function() {
           var show = false;
           if( _.definedPath($scope.deploymentContext, 'deploymentTopologyDTO.validation.taskList')){
             _.each(globalConfTaskCodes, function(taskCode){
               if (_.defined($scope.deploymentContext.deploymentTopologyDTO.validation.taskList[taskCode])){
-                show=true;
+                show= true;
                 return;
               }
             });

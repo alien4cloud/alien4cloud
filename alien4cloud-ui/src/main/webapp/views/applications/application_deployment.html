@@ -8,12 +8,12 @@
     <div class="col-md-2">
       <i class="fa fa-2x vertical-center" tooltip="{{'DEPLOYMENT.STATUS.' + deploymentContext.selectedEnvironment.status | translate }}"
          tooltip-append-to-body="true" ng-class="{
-            'fa-circle text-success' : deploymentContext.selectedEnvironment.status == 'DEPLOYED',
-            'fa-circle text-muted' : deploymentContext.selectedEnvironment.status == 'UNDEPLOYED',
-            'fa-warning text-warning' : deploymentContext.selectedEnvironment.status == 'WARNING',
-            'fa-circle text-danger' : deploymentContext.selectedEnvironment.status == 'FAILURE',
-            'fa-question-circle text-muted' : deploymentContext.selectedEnvironment.status == 'UNKNOWN',
-            'fa-spinner fa-spin' : deploymentContext.selectedEnvironment.status == 'DEPLOYMENT_IN_PROGRESS' || deploymentContext.selectedEnvironment.status == 'UNDEPLOYMENT_IN_PROGRESS'
+            'fa-circle text-success' : deploymentContext.selectedEnvironment.status === 'DEPLOYED',
+            'fa-circle text-muted' : deploymentContext.selectedEnvironment.status === 'UNDEPLOYED',
+            'fa-warning text-warning' : deploymentContext.selectedEnvironment.status === 'WARNING',
+            'fa-circle text-danger' : deploymentContext.selectedEnvironment.status === 'FAILURE',
+            'fa-question-circle text-muted' : deploymentContext.selectedEnvironment.status === 'UNKNOWN',
+            'fa-spinner fa-spin' : deploymentContext.selectedEnvironment.status === 'DEPLOYMENT_IN_PROGRESS' || deploymentContext.selectedEnvironment.status == 'UNDEPLOYMENT_IN_PROGRESS'
           }">
       </i>
 
@@ -169,7 +169,7 @@
   <hr class="separator-h">
 
   <!-- DEPLOYMENT CONFIGURATION -->
-  <div ng-if="deploymentContext.selectedEnvironment &&  validTopologyDTO.valid">
+  <div ng-if="deploymentContext.selectedEnvironment &&  (validTopologyDTO.valid || deploymentContext.selectedEnvironment.status !== 'UNDEPLOYED')">
     <div class="row" style="margin-top: 10px">
       <div class="col-md-12">
         <ul class="nav nav-tabs">
