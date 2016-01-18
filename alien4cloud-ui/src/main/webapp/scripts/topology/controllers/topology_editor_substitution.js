@@ -7,8 +7,8 @@ define(function (require) {
   var angular = require('angular');
   var modules = require('modules');
 
-  modules.get('a4c-topology-editor').factory('topoEditSubstitution', [ 'topologyServices', 'suggestionServices',
-    function(topologyServices, suggestionServices) {
+  modules.get('a4c-topology-editor').factory('topoEditSubstitution', [ 'topologyServices', 'suggestionServices', '$state',
+    function(topologyServices, suggestionServices, $state) {
       var TopologyEditorMixin = function(scope) {
         this.scope = scope;
       };
@@ -174,7 +174,10 @@ define(function (require) {
             topologyId: topologyId
           }, {}, function(result) {
             if (!result.error) {
-              window.open('/#/topologytemplates/detail/' + result.data.topologyTemplateId + '/topology/' + result.data.version);
+              $state.go('topologytemplates.detail.topology', {
+                id: result.data.topologyTemplateId,
+                version: result.data.version
+              });
             }
           });
         }
