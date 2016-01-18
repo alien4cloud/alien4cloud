@@ -1,5 +1,4 @@
-/* global element, by */
-
+/* global describe, it, element, by, browser, expect */
 'use strict';
 
 var path = require('path');
@@ -19,19 +18,15 @@ describe('Topology node template edition :', function() {
     authentication.login('applicationManager');
     common.go('main', 'applications');
     browser.element(by.binding('application.name')).click();
-    common.go('applications', 'topology');
+    topologyEditorCommon.go();
   });
 
   it('should be able to see topology details', function() {
-    console.log('################# should be able to see topology details');
-
     expect(element(by.id('topology')).isPresent()).toBe(true);
     expect(element(by.id('nodetemplate-details')).isPresent()).toBe(true);
   });
 
   it('should be able to add a node templates to a topology and see the node details', function() {
-    console.log('################# should be able to add a node templates to a topology and see the node details');
-
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(componentData.simpleTopology.nodes);
     topologyEditorCommon.addNodeTemplatesCenterAndZoom({
       tomcat: componentData.alienTypes.tomcat(),
@@ -51,7 +46,6 @@ describe('Topology node template edition :', function() {
   });
 
   it('should be able to edit a node template name', function() {
-    console.log('################# should be able to edit a node template name');
     element(by.id('rect_Compute-2')).click();
     // success update
     xEdit.sendKeys('nodetemplate-titles', 'Compute-new-NAME');
@@ -64,7 +58,6 @@ describe('Topology node template edition :', function() {
   });
 
   it('should be able to edit a scalar-unit.size and time', function() {
-    console.log('################# should be able to edit a scalar-unit.size and time');
     var diskSizeName = 'disk_size';
     var diskSizeElement = element(by.id('p_' + diskSizeName));
     topologyEditorCommon.editNodeProperty('Compute', diskSizeName, '-1', 'cap', 'MB');
@@ -83,7 +76,6 @@ describe('Topology node template edition :', function() {
   });
 
   it('should be able to edit a Compute node template properties version with constraint', function() {
-    console.log('################# should be able to edit a JAVA node template properties version with constraint');
     var propertyName = 'component_version';
     var versionElement = element(by.id('p_' + propertyName));
     topologyEditorCommon.editNodeProperty('Java', propertyName, 'ABC');
@@ -94,7 +86,6 @@ describe('Topology node template edition :', function() {
   });
 
   it('should be able to edit deployment artifact', function() {
-    console.log('################# should be able to edit deployment artifact');
     topologyEditorCommon.selectNodeAndGoToDetailBloc('War', topologyEditorCommon.nodeDetailsBlocsIds['art']);
     element.all(by.repeater('(artifactId, artifact) in selectedNodeTemplate.artifacts')).then(function(artifacts) {
       expect(artifacts.length).toEqual(1);
@@ -112,7 +103,6 @@ describe('Topology node template edition :', function() {
   });
 
   it('should have the a todo list if topology is not valid', function() {
-    console.log('################# should have the a todo list if topology is not valid');
     topologyEditorCommon.checkTodoList(true);
     topologyEditorCommon.removeNodeTemplate('Compute-new-NAME');
     topologyEditorCommon.removeNodeTemplate('War');

@@ -1,4 +1,4 @@
-/* global it, by, expect, element */
+/* global describe, it, by, expect, element */
 'use strict';
 
 var setup = require('../../common/setup');

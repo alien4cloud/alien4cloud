@@ -7,11 +7,14 @@ var toaster = require('../../common/toaster');
 var authentication = require('../../authentication/authentication');
 var topologyTemplates = require('../../topology_templates/topology_templates');
 
+var topologyTemplatesListData = require(__dirname + '/_data/topology_template_list.json');
+
 var topologyTemplateName = 'MyTopologyTemplate';
 
 describe('Topology templates list:', function() {
   it('beforeAll', function() {
     setup.setup();
+    setup.index('topologytemplate', 'topologytemplate', topologyTemplatesListData);
     common.home();
     authentication.login('architect');
   });
