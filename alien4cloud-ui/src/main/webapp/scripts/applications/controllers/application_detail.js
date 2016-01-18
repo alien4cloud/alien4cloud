@@ -54,7 +54,7 @@ define(function (require) {
       ]
     },
     templateUrl: 'views/applications/vertical_menu_layout.html',
-    controller: 'ApplicationCtrl',
+    controller: 'ApplicationCtrl'
   });
 
   modules.get('a4c-applications').controller('ApplicationCtrl',

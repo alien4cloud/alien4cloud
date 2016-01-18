@@ -115,10 +115,10 @@ public class OrchestratorStateService {
                             load(orchestrator);
                         } catch (AlreadyExistException e) {
                             log.info("Orchestrator was already loaded at initialization for {}.", orchestrator.getId());
-                        } catch (Throwable t) {
+                        } catch (Exception e) {
                             // we have to catch everything as we don't know what a plugin can do here and cannot interrupt startup.
                             // Any orchestrator that failed to load will be considered as DISABLED as the registration didn't occurred
-                            log.error("Unexpected error in plugin", t);
+                            log.error("Unexpected error in plugin", e);
                             orchestrator.setState(OrchestratorState.DISABLED);
                             alienDAO.save(orchestrator);
                         }
@@ -182,7 +182,7 @@ public class OrchestratorStateService {
         // index the archive in alien catalog
         try {
             for (PluginArchive pluginArchive : orchestratorInstance.pluginArchives()) {
-                archiveIndexer.importArchive(pluginArchive.getArchive(), pluginArchive.getArchiveFilePath(), Lists.<ParsingError> newArrayList());
+                archiveIndexer.importArchive(pluginArchive.getArchive(), pluginArchive.getArchiveFilePath(), Lists.<ParsingError>newArrayList());
             }
         } catch (CSARVersionAlreadyExistsException e) {
             log.info("Skipping location archive import as the released version already exists in the repository.");
@@ -214,13 +214,13 @@ public class OrchestratorStateService {
      * Disable an orchestrator.
      *
      * @param orchestrator The orchestrator to disable.
-     * @param force If true the orchestrator is disabled even if some deployments are currently running.
+     * @param force        If true the orchestrator is disabled even if some deployments are currently running.
      */
     public synchronized List<Usage> disable(Orchestrator orchestrator, boolean force) {
         if (!force) {
             QueryHelper.SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper.buildSearchQuery(alienDAO.getIndexForType(Deployment.class))
-                    .types(Deployment.class).filters(MapUtil.newHashMap(new String[] { "orchestratorId", "endDate" },
-                            new String[][] { new String[] { orchestrator.getId() }, new String[] { null } }))
+                    .types(Deployment.class).filters(MapUtil.newHashMap(new String[]{"orchestratorId", "endDate"},
+                            new String[][]{new String[]{orchestrator.getId()}, new String[]{null}}))
                     .fieldSort("_timestamp", true);
             // If there is at least one active deployment.
             GetMultipleDataResult<Object> result = alienDAO.search(searchQueryHelperBuilder, 0, 1);

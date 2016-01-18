@@ -11,7 +11,7 @@ define(function (require) {
       scope: {
         'for': '=',
         'data': '=',
-        'additionalMessage': '=',
+        'additionalMessage': '='
       },
       link: function(scope) {
         scope._ = _;
