@@ -38,7 +38,8 @@ public class OrchestratorsConfigurationDefinitionsSteps {
     @When("^I get configuration for orchestrator \"([^\"]*)\"$")
     public void I_get_configuration_for_orchestrator(String orchestratorName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/orchestrators/" + orchestratorId + "/configuration"));
+        String restResponse = Context.getRestClientInstance().get("/rest/orchestrators/" + orchestratorId + "/configuration");
+        Context.getInstance().registerRestResponse(restResponse);
         RestResponse<OrchestratorConfiguration> orchestratorConfigurationResponse = JsonUtil.read(Context.getInstance().getRestResponse(),
                 OrchestratorConfiguration.class);
         Map<String, Object> configuration = (Map<String, Object>) orchestratorConfigurationResponse.getData().getConfiguration();
@@ -62,8 +63,8 @@ public class OrchestratorsConfigurationDefinitionsSteps {
 
     }
 
-    @Given("^I update openstack location import param for orchestrator with name \"(.*?)\" using \"(.*?)\"$")
-    public void i_update_import_param_for_orchestrator_with_name_using(String orchestratorName, String importsCsv) throws Throwable {
+    @Given("^I update \"(.*?)\" location import param for orchestrator with name \"(.*?)\" using \"(.*?)\"$")
+    public void i_update_import_param_for_orchestrator_with_name_using(String infraType, String orchestratorName, String importsCsv) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         Map<String, Object> config = Context.getInstance().getOrchestratorConfiguration();
         Map<String, Object> locations = (Map<String, Object>) config.get("locations");
@@ -71,11 +72,11 @@ public class OrchestratorsConfigurationDefinitionsSteps {
             locations = Maps.newHashMap();
         }
         config.put("locations", locations);
-        Map<String, Object> openstack = (Map<String, Object>) locations.get("openstack");
+        Map<String, Object> openstack = (Map<String, Object>) locations.get(infraType);
         if (openstack == null) {
             openstack = Maps.newHashMap();
         }
-        locations.put("openstack", openstack);
+        locations.put(infraType, openstack);
         List<String> imports = Lists.newArrayList(importsCsv.split(","));
         openstack.put("imports", imports);
         Context.getInstance().registerRestResponse(
