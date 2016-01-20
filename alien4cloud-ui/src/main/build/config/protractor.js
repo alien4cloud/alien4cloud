@@ -40,11 +40,12 @@ module.exports = function (grunt) {
             // '<%= yeoman.test %>/e2e/scenarios/application/application_versions.js',
             // '<%= yeoman.test %>/e2e/scenarios/application/application_environments.js',
             // '<%= yeoman.test %>/e2e/scenarios/application_topology/application_topology_editor_nodetemplate.js',
-             '<%= yeoman.test %>/e2e/scenarios/application_topology/application_topology_editor_reset.js',
+            // '<%= yeoman.test %>/e2e/scenarios/application_topology/application_topology_editor_reset.js',
             // '<%= yeoman.test %>/e2e/scenarios/components/component_list.js',
             // '<%= yeoman.test %>/e2e/scenarios/components/component_details.js',
             // '<%= yeoman.test %>/e2e/scenarios/topology_templates/topology_template_details.js',
-            // '<%= yeoman.test %>/e2e/scenarios/topology_templates/topology_template_list.js'
+            // '<%= yeoman.test %>/e2e/scenarios/topology_templates/topology_template_list.js',
+            '<%= yeoman.test %>/e2e/scenarios/**/*.js'
           ]
         }
       }
