@@ -252,7 +252,7 @@ var checkCreatedRelationship = function(relationshipsNameStart, relationshipsCou
   var relationshipList = relationships.map(function(elem, index) {
     return {
       relationshipIndex: index,
-      relationshipName: elem.element(by.tagName('span')).getText()
+      relationshipName: elem.element(by.css('span[editable-text]')).getText()
     };
   });
   browser.waitForAngular();
