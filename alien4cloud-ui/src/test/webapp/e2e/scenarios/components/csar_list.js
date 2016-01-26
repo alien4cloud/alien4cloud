@@ -12,14 +12,14 @@ var tomcatWar = {
     id: function(){
       return this.name +':'+ this.version;
     }
-}
+};
 var git = {
     name:'git-type',
     version: '2.0.0-SNAPSHOT',
     id: function(){
       return this.name +':'+ this.version;
     }
-}
+};
 
 describe('CSAR list', function() {
 

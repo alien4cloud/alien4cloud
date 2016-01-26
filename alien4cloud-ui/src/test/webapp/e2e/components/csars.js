@@ -26,6 +26,7 @@ var git = {
   go: function() {
     components.go();
     common.click(by.id('cm.components.git'));
+    browser.actions().mouseMove(element(by.id('btn-new-gitRepository'))).perform();
   },
   search: function(text) {
     common.sendKeys(by.id('search-query'), text);
