@@ -5,7 +5,7 @@ import java.util.*;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.component.repository.exception.CSARStorageFailureException;
+import alien4cloud.exception.MissingCSARDependencies;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -120,9 +120,9 @@ public class LocationService {
         // We call the LocationRessourceService to check the dependencies
         try {
             locationResourceService.getLocationResourcesFromOrchestrator(location);
-        } catch (Exception e) {
+        } catch (NotFoundException e) {
             delete(location.getId());
-            throw new CSARStorageFailureException(e.getMessage());
+            throw new MissingCSARDependencies(e.getMessage());
         }
     }
 
