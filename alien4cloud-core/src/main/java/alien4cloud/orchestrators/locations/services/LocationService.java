@@ -1,15 +1,12 @@
 package alien4cloud.orchestrators.locations.services;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
+
+import alien4cloud.component.repository.exception.CSARStorageFailureException;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -17,10 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
@@ -46,7 +39,10 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.DeployerRole;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.utils.MapUtil;
-import lombok.extern.slf4j.Slf4j;
+
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Manages a locations.
@@ -119,8 +115,15 @@ public class LocationService {
 
         // save the new location
         alienDAO.save(location);
-
         autoConfigure(orchestrator, location);
+
+        // We call the LocationRessourceService to check the dependencies
+        try {
+            locationResourceService.getLocationResourcesFromOrchestrator(location);
+        } catch (Exception e) {
+            delete(location.getId());
+            throw new CSARStorageFailureException(e.getMessage());
+        }
     }
 
     /**
@@ -240,16 +243,16 @@ public class LocationService {
         }
         Location location = getOrFail(id);
 
+        // delete all location resources for the given location
+        alienDAO.delete(LocationResourceTemplate.class, QueryBuilders.termQuery("locationId", id));
+        // delete the location
+        alienDAO.delete(Location.class, id);
         // delete all archives associated with this location only, if possible of course
         Map<Csar, List<Usage>> usages = locationArchiveIndexer.deleteArchives(location);
         if (MapUtils.isNotEmpty(usages)) {
             // TODO what to do when some archives were not deleted?
             log.warn("Some archives for location were not deleted! \n" + usages);
         }
-        // delete all location resources for the given location
-        alienDAO.delete(LocationResourceTemplate.class, QueryBuilders.termQuery("locationId", id));
-        // delete the location
-        alienDAO.delete(Location.class, id);
 
         return true;
     }
