@@ -12,6 +12,12 @@ var applicationsData = require(__dirname + '/_data/application_topology_editor_g
 
 describe('Topology node groups', function() {
 
+  var expectMemberName = function(member, memberName1, memberName2) {
+    member.element(by.tagName('span')).getText().then(function(memberName) {
+      expect(memberName === memberName1 || memberName === memberName2).toBe(true);
+    });
+  };
+
   it('beforeAll', function() {
     setup.setup();
     setup.index('application', 'application', applicationsData);
@@ -49,6 +55,7 @@ describe('Topology node groups', function() {
       if (!isVisible) {
         expect(element(by.id('group-members-Compute-header')).isDisplayed()).toBeTruthy();
         element(by.id('group-members-Compute-header')).click();
+        browser.sleep(2000);
       }
       // expect to have 1 member in this group
       expect(element(by.id('group-members-Compute-content')).all(by.repeater('member in group.members')).count()).toEqual(1);
@@ -91,12 +98,14 @@ describe('Topology node groups', function() {
       if (!isVisible) {
         expect(element(by.id('node-details-groups')).isDisplayed()).toBeTruthy();
         element(by.id('node-details-groups')).click();
+        browser.sleep(2000);
       }
       // expect to have 2 groups now
       expect(element.all(by.repeater('groupId in selectedNodeTemplate.groups')).count()).toEqual(2);
       element.all(by.repeater('groupId in selectedNodeTemplate.groups')).then(function(members) {
-        expect(members[0].element(by.tagName('span')).getText()).toEqual('MyGroup');
-        expect(members[1].element(by.tagName('span')).getText()).toEqual('Compute');
+        // It's a test one of as order is not respected
+        expectMemberName(members[0], 'MyGroup', 'Compute');
+        expectMemberName(members[1], 'MyGroup', 'Compute');
       });
       // close the node details box
       expect(element(by.id('closeNodeTemplateDetails')).isDisplayed()).toBeTruthy();
@@ -121,8 +130,9 @@ describe('Topology node groups', function() {
       // expect to have 2 members in this group
       expect(element(by.id('group-members-MyGroup-content')).all(by.repeater('member in group.members')).count()).toEqual(2);
       element(by.id('group-members-MyGroup-content')).all(by.repeater('member in group.members')).then(function(members) {
-        expect(members[0].element(by.tagName('span')).getText()).toEqual('Compute-2');
-        expect(members[1].element(by.tagName('span')).getText()).toEqual('Compute');
+        // It's a test one of as order is not respected
+        expectMemberName(members[0], 'Compute-2', 'Compute');
+        expectMemberName(members[1], 'Compute-2', 'Compute');
         // delete the member 'Compute'
         expect(members[1].element(by.tagName('a')).isDisplayed()).toBeTruthy();
         members[1].element(by.tagName('a')).click();
@@ -141,6 +151,7 @@ describe('Topology node groups', function() {
     element(by.id('node-details-groups-panel')).isDisplayed().then(function(isVisible) {
       if (!isVisible) {
         element(by.id('node-details-groups')).click();
+        browser.sleep(2000);
       }
       // expect to have 1 groups now
       expect(element.all(by.repeater('groupId in selectedNodeTemplate.groups')).count()).toEqual(1);
@@ -200,6 +211,7 @@ describe('Topology node groups', function() {
       if (!isVisible) {
         expect(element(by.id('group-members-Compute-header')).isDisplayed()).toBeTruthy();
         element(by.id('group-members-Compute-header')).click();
+        browser.sleep(2000);
       }
       // expect to have 0 members in this group
       expect(element(by.id('group-members-Compute-content')).all(by.repeater('member in group.members')).count()).toEqual(0);
