@@ -13,7 +13,6 @@ import alien4cloud.model.deployment.DeploymentTopology;
 
 @Getter
 @Setter
-@ESObject
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor

@@ -15,9 +15,7 @@ import alien4cloud.model.orchestrators.locations.Location;
  */
 @Getter
 @Setter
-@ESObject
 @ToString(callSuper = true)
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class PaaSTopologyDeploymentContext extends PaaSDeploymentContext {
 
     /**
