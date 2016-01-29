@@ -642,12 +642,11 @@ public class Context {
         if (managementServer == null) {
             throw new NotFoundException("Management server is not found for cloudify 3 with name " + managementServerName);
         }
-        String publicIp = this.getOpenStackClient().getServerFloatingIP(managementServer).getFloatingIpAddress();
-        return publicIp;
+        return this.getOpenStackClient().getServerFloatingIP(managementServer).getFloatingIpAddress();
     }
 
     public String getCloudify3ManagerUrl() {
-        return "http://" + getManagementServerPublicIp("openstack.cfy3.manager_name");
+        return "https://" + getManagementServerPublicIp("openstack.cfy3.manager_name");
     }
 
     public void registerOrchestratorLocation(String orchestratorId, String locationId, String locationName) {
