@@ -12,14 +12,14 @@ var tomcatWar = {
     id: function(){
       return this.name +':'+ this.version;
     }
-}
+};
 var git = {
     name:'git-type',
     version: '2.0.0-SNAPSHOT',
     id: function(){
       return this.name +':'+ this.version;
     }
-}
+};
 
 describe('CSAR list', function() {
 
@@ -46,7 +46,7 @@ describe('CSAR list', function() {
     common.isNavigable('components', 'csars');
   });
   
-  it('Component browser should be able to list arhives and check pagination', function() {
+  it('Component browser should be able to list archives and check pagination', function() {
     csars.go();
     expect(element(by.id('search-container')).isPresent()).toBe(true);
     expect(element(by.id('result-container')).isPresent()).toBe(true);
@@ -61,7 +61,7 @@ describe('CSAR list', function() {
     var secondPageElement = pagination.get(3);
     common.click(by.tagName('a'), secondPageElement);
     results = element.all(by.repeater('csar in searchResult.data'));
-    expect(results.count()).toEqual(1);
+    expect(results.count()).toEqual(3);
   });
 
   it('should be able to use search to find archives', function() {

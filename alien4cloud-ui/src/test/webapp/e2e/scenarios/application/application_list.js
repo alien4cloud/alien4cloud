@@ -94,6 +94,7 @@ describe('Applications management list:', function() {
     applications.searchApplication(currentAppName);
     common.deleteWithConfirm('delete-app_' + currentAppName, true);
     toaster.expectErrors();
+    toaster.dismissIfPresent();
   });
 
   it('Application manager should be able to create an application from a topology template', function() {

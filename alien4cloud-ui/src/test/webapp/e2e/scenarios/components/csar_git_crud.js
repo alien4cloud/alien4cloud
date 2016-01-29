@@ -5,44 +5,39 @@ var setup = require('../../common/setup');
 var common = require('../../common/common');
 var toaster = require('../../common/toaster');
 var authentication = require('../../authentication/authentication');
-var csars= require('../../components/csars');
+var csars = require('../../components/csars');
 var git = csars.git;
 
-
-var sampleRepo = {
-    url: 'https://github.com/alien4cloud/samples.git',
-    id: '83616b99-1292-4e07-b5b1-3bf642face8d',
-}
 var testRepo = {
-    url: 'http://github.com/created',
-    branchId: 'fakeBranch',
-    subPath: 'fakeSubPath',
-    subPath2: 'fakeSubPath2',
-    newUrl: 'http://github.com/newCreated'
+  url: 'http://github.com/created',
+  branchId: 'fakeBranch',
+  subPath: 'fakeSubPath',
+  subPath2: 'fakeSubPath2',
+  newUrl: 'http://github.com/newCreated'
 };
 
 var testRepo2 = {
-    url: 'http://github.com/created2',
-    branchId: 'fakeBranch',
-    subPath: 'fakeSubPath',
+  url: 'http://github.com/created2',
+  branchId: 'fakeBranch',
+  subPath: 'fakeSubPath',
 };
 
-var checkSaveButton=function(enabled){
+var checkSaveButton = function(enabled) {
   expect(common.element(by.id('btn-save')).isEnabled()).toBe(enabled);
-}
+};
 
-var checkAddLocationButton = function(enabled){
+var checkAddLocationButton = function(enabled) {
   expect(common.element(by.id('btn-add-location')).isEnabled()).toBe(enabled);
-}
+};
 
-var checkGitRepoInstances = function(url, numberOfInstance){
+var checkGitRepoInstances = function(url, numberOfInstance) {
   git.search(url);
   var results = element.all(by.repeater('gitRepository in searchResult.data'));
   expect(results.count()).toEqual(numberOfInstance);
-  if(numberOfInstance ===0){
+  if (numberOfInstance === 0) {
     expect(common.element(by.tagName('empty-place-holder'))).toBeTruthy();
   }
-}
+};
 
 describe('CSARS management via git', function() {
 
@@ -54,7 +49,7 @@ describe('CSARS management via git', function() {
   });
 
   it('should be able to add a new csar git repository ', function() {
-    common.click(by.id('btn-new-gitRepository'));
+    element(by.id('btn-new-gitRepository')).click();
 
     //first check the save button is disabled
     checkSaveButton(false);
@@ -107,14 +102,14 @@ describe('CSARS management via git', function() {
     expect(repoRows.get(1).getText()).toContain("*");
     expect(repoRows.get(1).getText()).toContain(testRepo.subPath);
     //branch
-    expect(repoRows.get(2).getText()).toEqual(testRepo.branchId+'\n'+testRepo.branchId);
+    expect(repoRows.get(2).getText()).toEqual(testRepo.branchId + '\n' + testRepo.branchId);
 
     git.go();
     checkGitRepoInstances(testRepo.url, 1);
 
   });
 
-  it('Should be able to cancel the creation of csar git repository', function(){
+  it('Should be able to cancel the creation of csar git repository', function() {
     git.go();
     common.click(by.id('btn-new-gitRepository'));
     common.sendKeys(by.id('url'), testRepo2.url);
@@ -127,7 +122,7 @@ describe('CSARS management via git', function() {
     checkGitRepoInstances(testRepo2.url, 0);
   });
 
-  it('Should not be able to add a csar git repository with an url already existing', function(){
+  it('Should not be able to add a csar git repository with an url already existing', function() {
     git.go();
     common.click(by.id('btn-new-gitRepository'));
     common.sendKeys(by.id('url'), testRepo.url);
@@ -138,6 +133,7 @@ describe('CSARS management via git', function() {
     //check errors
     toaster.expectErrors();
     toaster.expectMessageToContain('Object already exists');
+    toaster.dismissIfPresent();
 
     //check the repo not added
     checkGitRepoInstances(testRepo.url, 1);
@@ -145,7 +141,7 @@ describe('CSARS management via git', function() {
     checkGitRepoInstances(testRepo.url, 1);
   });
 
-  it('Should be able to edit a csar git repository', function(){
+  it('Should be able to edit a csar git repository', function() {
     git.go();
     checkGitRepoInstances(testRepo.url, 1);
     var repoLine = element.all(by.repeater('gitRepository in searchResult.data')).first();
@@ -172,10 +168,12 @@ describe('CSARS management via git', function() {
     expect(repoRows.get(1).getText()).toContain(testRepo.subPath);
     expect(repoRows.get(1).getText()).toContain(testRepo.subPath2);
     //branch
-    expect(repoRows.get(2).getText()).toEqual(testRepo.branchId+'\n'+testRepo.branchId+'\n'+testRepo.branchId);
+    expect(repoRows.get(2).getText()).toEqual(testRepo.branchId + '\n' + testRepo.branchId + '\n' + testRepo.branchId);
 
   });
 
-  it('afterAll', function() { authentication.logout(); });
+  it('afterAll', function() {
+    authentication.logout();
+  });
 
 });

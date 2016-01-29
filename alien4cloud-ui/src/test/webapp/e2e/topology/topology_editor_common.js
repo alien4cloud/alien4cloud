@@ -252,7 +252,7 @@ var checkCreatedRelationship = function(relationshipsNameStart, relationshipsCou
   var relationshipList = relationships.map(function(elem, index) {
     return {
       relationshipIndex: index,
-      relationshipName: elem.element(by.tagName('span')).getText()
+      relationshipName: elem.element(by.css('span[editable-text]')).getText()
     };
   });
   browser.waitForAngular();
@@ -285,7 +285,7 @@ var removeRelationship = function(relationshipName) {
 module.exports.removeRelationship = removeRelationship;
 
 var replaceNodeTemplates = function(nodeName, replacementElementId) {
-  var node = element(by.id('rect_' + nodeName));
+  var node = element(by.id('title_' + nodeName));
   browser.actions().click(node).perform();
   browser.executeScript('window.scrollTo(0,0);').then(function() {
     browser.actions().click(element(by.css('.btn[ng-click^="nodesswap.getPossibleReplacements"]'))).perform();
@@ -315,7 +315,7 @@ var removeScalingPolicy = function(computeId) {
 module.exports.removeScalingPolicy = removeScalingPolicy;
 
 var selectNodeAndGoToDetailBloc = function(nodeTemplateName, blocId) {
-  common.click(by.id('rect_' + nodeTemplateName));
+  common.click(by.id('title_' + nodeTemplateName));
   if (blocId) {
     return collapseNodeDetailsBloc(blocId);
   }
