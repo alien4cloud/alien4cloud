@@ -54,6 +54,9 @@ public class OrchestratorsConfigurationDefinitionsSteps {
         switch (cloudifyVersion) {
         case 3:
             config.put("url", cloudifyUrl);
+            config.put("userName", login);
+            config.put("password", password);
+            config.put("disableVerification", true);
             break;
         default:
             throw new IllegalArgumentException("Cloudify version not supported " + cloudifyVersion);
