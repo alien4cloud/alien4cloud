@@ -5,7 +5,7 @@ import java.util.*;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.exception.MissingCSARDependencies;
+import alien4cloud.exception.MissingCSARDependenciesException;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -122,7 +122,7 @@ public class LocationService {
             locationResourceService.getLocationResourcesFromOrchestrator(location);
         } catch (NotFoundException e) {
             delete(location.getId());
-            throw new MissingCSARDependencies(e.getMessage());
+            throw new MissingCSARDependenciesException(e.getMessage());
         }
     }
 

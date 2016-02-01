@@ -378,10 +378,10 @@ public class RestTechnicalExceptionHandler {
                 .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_DEFINITION_MATCH_ERROR).message(e.getMessage()).build()).build();
     }
 
-    @ExceptionHandler(value = MissingCSARDependencies.class)
+    @ExceptionHandler(value = MissingCSARDependenciesException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public RestResponse<Void> MissingCSARDependenciesExceptionHandler(MissingCSARDependencies e) {
+    public RestResponse<Void> MissingCSARDependenciesExceptionHandler(MissingCSARDependenciesException e) {
         log.error("The CSAR of the location doesn't have all dependencies : " + e.getMessage());
         return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).message(e.getMessage()).build()).build();

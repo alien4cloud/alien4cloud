@@ -4,12 +4,12 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.deployment.matching.services.nodes.MatchingConfigurations;
@@ -22,6 +22,7 @@ import alien4cloud.orchestrators.locations.services.LocationResourceGeneratorSer
 import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import alien4cloud.orchestrators.plugin.model.PluginArchive;
+import alien4cloud.paas.exception.PluginParseException;
 import alien4cloud.plugin.PluginManager;
 import alien4cloud.plugin.model.ManagedPlugin;
 import alien4cloud.tosca.ArchiveParser;
@@ -37,6 +38,7 @@ import com.google.common.collect.Maps;
  */
 @Slf4j
 @Component
+@Scope("prototype")
 public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlugin {
     @Inject
     private ArchiveParser archiveParser;
@@ -54,38 +56,38 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
     private static final String IMAGE_ID_PROP = "imageId";
     private static final String FLAVOR_ID_PROP = "flavorId";
 
-    @PostConstruct
-    private void postConstruct() {
-        archives = parseArchives();
-    }
-
     @Override
-    public List<PluginArchive> pluginArchives() {
+    public List<PluginArchive> pluginArchives() throws PluginParseException {
+        if (archives == null) {
+            try {
+                archives = parseArchives();
+            } catch (ParsingException e) {
+                log.error(e.getMessage());
+                throw  new PluginParseException(e.getMessage());
+            }
+        }
         return archives;
     }
 
-    private List<PluginArchive> parseArchives() {
+    private List<PluginArchive> parseArchives() throws ParsingException {
         List<PluginArchive> archives = Lists.newArrayList();
         addToAchive(archives, "openstack/mock-openstack-resources");
         addToAchive(archives, "openstack/mock-resources");
         return archives;
     }
 
-    private void addToAchive(List<PluginArchive> archives, String path) {
+    private void addToAchive(List<PluginArchive> archives, String path) throws ParsingException {
         Path archivePath = selfContext.getPluginPath().resolve(path);
         // Parse the archives
-        try {
-            ParsingResult<ArchiveRoot> result = archiveParser.parseDir(archivePath);
-            PluginArchive pluginArchive = new PluginArchive(result.getResult(), archivePath);
-            archives.add(pluginArchive);
-        } catch(ParsingException e) {
-            log.error("Failed to parse archive, plugin won't work as expected", e);
-        }
+        ParsingResult<ArchiveRoot> result = archiveParser.parseDir(archivePath);
+        PluginArchive pluginArchive = new PluginArchive(result.getResult(), archivePath);
+        archives.add(pluginArchive);
     }
 
     @Override
     public List<String> getResourcesTypes() {
-        return Lists.newArrayList("alien.nodes.mock.openstack.Image", "alien.nodes.mock.openstack.Flavor", "alien.nodes.mock.Compute", "alien.nodes.mock.BlockStorage", "alien.nodes.mock.Network");
+        return Lists.newArrayList("alien.nodes.mock.openstack.Image", "alien.nodes.mock.openstack.Flavor", "alien.nodes.mock.Compute",
+                "alien.nodes.mock.BlockStorage", "alien.nodes.mock.Network");
     }
 
     @Override
@@ -94,7 +96,7 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
         MatchingConfigurations matchingConfigurations = null;
         try {
             matchingConfigurations = matchingConfigurationsParser.parseFile(matchingConfigPath).getResult();
-        } catch(ParsingException e) {
+        } catch (ParsingException e) {
             return Maps.newHashMap();
         }
         return matchingConfigurations.getMatchingConfigurations();
@@ -105,15 +107,15 @@ public class MockOpenStackLocationConfigurer implements ILocationConfiguratorPlu
         ImageFlavorContext imageContext = resourceGeneratorService.buildContext("alien.nodes.mock.openstack.Image", "id", resourceAccessor);
         ImageFlavorContext flavorContext = resourceGeneratorService.buildContext("alien.nodes.mock.openstack.Flavor", "id", resourceAccessor);
         boolean canProceed = true;
-        if(CollectionUtils.isEmpty(imageContext.getTemplates())) {
+        if (CollectionUtils.isEmpty(imageContext.getTemplates())) {
             log.warn("At least one configured image resource is required for the auto-configuration");
             canProceed = false;
         }
-        if(CollectionUtils.isEmpty(flavorContext.getTemplates())) {
+        if (CollectionUtils.isEmpty(flavorContext.getTemplates())) {
             log.warn("At least one configured flavor resource is required for the auto-configuration");
             canProceed = false;
         }
-        if(!canProceed) {
+        if (!canProceed) {
             log.warn("Skipping auto configuration");
             return null;
         }
