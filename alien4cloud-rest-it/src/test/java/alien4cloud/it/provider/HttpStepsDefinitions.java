@@ -1,25 +1,20 @@
 package alien4cloud.it.provider;
 
-import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.junit.Assert;
-
 import alien4cloud.it.provider.util.AttributeUtil;
 import alien4cloud.it.provider.util.HttpUtil;
-
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-
 import cucumber.api.java.en.And;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 
 @Slf4j
 public class HttpStepsDefinitions {
@@ -27,6 +22,20 @@ public class HttpStepsDefinitions {
     @And("^The URL which is defined in attribute \"([^\"]*)\" of the node \"([^\"]*)\" should work$")
     public void The_URL_which_is_defined_in_attribute_of_the_node_should_work(String attributeName, String nodeName) throws Throwable {
         The_URL_which_is_defined_in_attribute_of_the_node_should_work_and_the_html_should_contain(attributeName, nodeName, null);
+    }
+
+    @And("^The URL which is defined in attribute \"([^\"]*)\" of the node \"([^\"]*)\" suffixed by \"([^\"]*)\" should work$")
+    public void The_URL_which_is_defined_in_attribute_of_the_node_should_work(String attributeName, String nodeName, String suffix) throws Throwable {
+        String baseUrl = AttributeUtil.getAttribute(nodeName, attributeName);
+        String toCheck = null;
+        if (baseUrl != null) {
+            if (baseUrl.endsWith("/")) {
+                toCheck = baseUrl.concat(suffix);
+            } else {
+                toCheck = baseUrl.concat("/").concat(suffix);
+            }
+        }
+        HttpUtil.checkUrl(toCheck, null, 2 * 60 * 1000L);
     }
 
     @And("^The URL which is defined in attribute \"([^\"]*)\" of the node \"([^\"]*)\" should work and the html should contain \"([^\"]*)\"$")
