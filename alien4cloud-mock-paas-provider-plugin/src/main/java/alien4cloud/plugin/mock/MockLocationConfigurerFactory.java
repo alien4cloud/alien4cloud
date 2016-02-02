@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import alien4cloud.model.deployment.matching.MatchingConfiguration;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
@@ -23,6 +24,7 @@ import alien4cloud.tosca.ArchiveParser;
  * Component that creates location configurer for a mock openstack cloud.
  */
 @Component
+@Scope("prototype")
 public class MockLocationConfigurerFactory {
     @Inject
     private ArchiveParser archiveParser;

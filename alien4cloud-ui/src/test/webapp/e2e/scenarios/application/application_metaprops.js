@@ -18,15 +18,15 @@ describe('Application meta properties edition check', function() {
     applications.goToApplicationDetailPage('AlienUITest');
   });
 
-  it('should display the required class with a specifi class', function() {
+  it('should display the required class with a specific class', function() {
     var tagValidValuesName = element(by.id('p_name__ALIEN_RELEASE_VALID_VALUES'));
     expect(tagValidValuesName.getAttribute('class')).toContain('property-required');
   });
 
   it('should set configuration tags', function() {
     // update _ALIEN_RELEASE_VALID_VALUES
-    var metaProperties = element(by.id('meta_properties'));
-    var selectItem = metaProperties.element(by.tagName('select'));
+    var metaProperties = element(by.id('meta_properties__ALIEN_RELEASE_VALID_VALUES'));
+    var selectItem = common.element(by.tagName('select'), metaProperties);
     var selected = common.selectDropdownByText(selectItem, 'Q1');
     expect(selected).toBe(true); // Q1 is in the select
 

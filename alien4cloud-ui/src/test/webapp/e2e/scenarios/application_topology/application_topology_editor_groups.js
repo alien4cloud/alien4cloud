@@ -3,38 +3,36 @@
 'use strict';
 
 var common = require('../../common/common');
+var setup = require('../../common/setup');
 var authentication = require('../../authentication/authentication');
-var navigation = require('../../common/navigation');
 var topologyEditorCommon = require('../../topology/topology_editor_common');
-var cloudsCommon = require('../../admin/clouds_common');
-var rolesCommon = require('../../common/roles_common');
 var componentData = require('../../topology/component_data');
+var applications = require('../../applications/applications');
+var applicationsData = require(__dirname + '/_data/application_topology_editor_groups/applications.json');
 
 describe('Topology node groups', function() {
 
-  beforeEach(function() {
-    topologyEditorCommon.beforeTopologyTest();
-  });
+  var expectMemberName = function(member, memberName1, memberName2) {
+    member.element(by.tagName('span')).getText().then(function(memberName) {
+      expect(memberName === memberName1 || memberName === memberName2).toBe(true);
+    });
+  };
 
-  afterEach(function() {
-    authentication.logout();
+  it('beforeAll', function() {
+    setup.setup();
+    setup.index('application', 'application', applicationsData);
+    common.home();
+    authentication.login(authentication.users.sauron.username);
   });
 
   it('should be able to create a node group from a node template', function() {
     console.log('################# should be able to create a node group from a node template');
-    cloudsCommon.giveRightsOnCloudToUser('testcloud', 'applicationManager', rolesCommon.cloudRoles.cloudDeployer);
-    navigation.go('main', 'applications');
-    browser.element(by.binding('application.name')).click();
-    navigation.go('applications', 'topology');
-    topologyEditorCommon.addNodeTemplatesCenterAndZoom({
-      compute: componentData.toscaBaseTypes.compute()
-    });
-
+    applications.goToApplicationTopologyPage();
     console.log('## add a group from the node Compute and ensure the group appear in the list');
     // add a new group
     topologyEditorCommon.addNodeTemplateToNodeGroup('Compute');
     // ensure the groups details is expanded
-    element(by.id('node-details-groups-panel')).isDisplayed().then(function (isVisible) {
+    element(by.id('node-details-groups-panel')).isDisplayed().then(function(isVisible) {
       if (!isVisible) {
         element(by.id('node-details-groups')).click();
       }
@@ -53,10 +51,11 @@ describe('Topology node groups', function() {
     // we should have 1 group at all
     expect(element(by.id('groups-box')).all(by.repeater('group in orderedNodeGroups')).count()).toEqual(1);
     // expand the members for the group 'Compute'
-    element(by.id('group-members-Compute-content')).isDisplayed().then(function (isVisible) {
+    element(by.id('group-members-Compute-content')).isDisplayed().then(function(isVisible) {
       if (!isVisible) {
         expect(element(by.id('group-members-Compute-header')).isDisplayed()).toBeTruthy();
         element(by.id('group-members-Compute-header')).click();
+        browser.sleep(2000);
       }
       // expect to have 1 member in this group
       expect(element(by.id('group-members-Compute-content')).all(by.repeater('member in group.members')).count()).toEqual(1);
@@ -95,16 +94,18 @@ describe('Topology node groups', function() {
     // associate the new group to the node 'Compute'
     topologyEditorCommon.addNodeTemplateToNodeGroup('Compute', 'MyGroup');
     // ensure the groups details is expanded
-    element(by.id('node-details-groups-panel')).isDisplayed().then(function (isVisible) {
+    element(by.id('node-details-groups-panel')).isDisplayed().then(function(isVisible) {
       if (!isVisible) {
         expect(element(by.id('node-details-groups')).isDisplayed()).toBeTruthy();
         element(by.id('node-details-groups')).click();
+        browser.sleep(2000);
       }
       // expect to have 2 groups now
       expect(element.all(by.repeater('groupId in selectedNodeTemplate.groups')).count()).toEqual(2);
       element.all(by.repeater('groupId in selectedNodeTemplate.groups')).then(function(members) {
-        expect(members[0].element(by.tagName('span')).getText()).toEqual('MyGroup');
-        expect(members[1].element(by.tagName('span')).getText()).toEqual('Compute');
+        // It's a test one of as order is not respected
+        expectMemberName(members[0], 'MyGroup', 'Compute');
+        expectMemberName(members[1], 'MyGroup', 'Compute');
       });
       // close the node details box
       expect(element(by.id('closeNodeTemplateDetails')).isDisplayed()).toBeTruthy();
@@ -120,16 +121,18 @@ describe('Topology node groups', function() {
 
     console.log('## remove a member from a group');
     // ensure the members for the group 'Compute' are displayed
-    element(by.id('group-members-MyGroup-content')).isDisplayed().then(function (isVisible) {
+    element(by.id('group-members-MyGroup-content')).isDisplayed().then(function(isVisible) {
       if (!isVisible) {
         expect(element(by.id('group-members-MyGroup-header')).isDisplayed()).toBeTruthy();
         element(by.id('group-members-MyGroup-header')).click();
+        browser.sleep(2000);
       }
       // expect to have 2 members in this group
       expect(element(by.id('group-members-MyGroup-content')).all(by.repeater('member in group.members')).count()).toEqual(2);
       element(by.id('group-members-MyGroup-content')).all(by.repeater('member in group.members')).then(function(members) {
-        expect(members[0].element(by.tagName('span')).getText()).toEqual('Compute-2');
-        expect(members[1].element(by.tagName('span')).getText()).toEqual('Compute');
+        // It's a test one of as order is not respected
+        expectMemberName(members[0], 'Compute-2', 'Compute');
+        expectMemberName(members[1], 'Compute-2', 'Compute');
         // delete the member 'Compute'
         expect(members[1].element(by.tagName('a')).isDisplayed()).toBeTruthy();
         members[1].element(by.tagName('a')).click();
@@ -145,9 +148,10 @@ describe('Topology node groups', function() {
     expect(element(by.id('rect_Compute')).isDisplayed()).toBeTruthy();
     element(by.id('rect_Compute')).click();
     // ensure the groups details is expanded
-    element(by.id('node-details-groups-panel')).isDisplayed().then(function (isVisible) {
+    element(by.id('node-details-groups-panel')).isDisplayed().then(function(isVisible) {
       if (!isVisible) {
         element(by.id('node-details-groups')).click();
+        browser.sleep(2000);
       }
       // expect to have 1 groups now
       expect(element.all(by.repeater('groupId in selectedNodeTemplate.groups')).count()).toEqual(1);
@@ -182,9 +186,10 @@ describe('Topology node groups', function() {
     // click on the node 'Compute'
     element(by.id('rect_Compute')).click();
     // ensure the groups details is expanded
-    element(by.id('node-details-groups-panel')).isDisplayed().then(function (isVisible) {
+    element(by.id('node-details-groups-panel')).isDisplayed().then(function(isVisible) {
       if (!isVisible) {
         element(by.id('node-details-groups')).click();
+        browser.sleep(2000);
       }
       element.all(by.repeater('groupId in selectedNodeTemplate.groups')).then(function(members) {
         expect(members[0].element(by.tagName('span')).getText()).toEqual('Compute');
@@ -202,10 +207,11 @@ describe('Topology node groups', function() {
     // we should have 1 group at all
     expect(element(by.id('groups-box')).all(by.repeater('group in orderedNodeGroups')).count()).toEqual(1);
     // ensure no more members for the group 'Compute'
-    element(by.id('group-members-Compute-content')).isDisplayed().then(function (isVisible) {
+    element(by.id('group-members-Compute-content')).isDisplayed().then(function(isVisible) {
       if (!isVisible) {
         expect(element(by.id('group-members-Compute-header')).isDisplayed()).toBeTruthy();
         element(by.id('group-members-Compute-header')).click();
+        browser.sleep(2000);
       }
       // expect to have 0 members in this group
       expect(element(by.id('group-members-Compute-content')).all(by.repeater('member in group.members')).count()).toEqual(0);
@@ -217,10 +223,14 @@ describe('Topology node groups', function() {
 
     // finally ensure that no group button is available for a non compute node
     topologyEditorCommon.addNodeTemplatesCenterAndZoom({
-      war: componentData.fcTypes.war()
+      war: componentData.alienTypes.war()
     });
     // click on the node 'War'
     element(by.id('rect_War')).click();
     expect(element(by.id('node_groups_War')).isPresent()).toBe(false);
+  });
+
+  it('afterAll', function() {
+    authentication.logout();
   });
 });
