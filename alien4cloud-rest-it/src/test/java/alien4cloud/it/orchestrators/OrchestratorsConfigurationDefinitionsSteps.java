@@ -56,7 +56,7 @@ public class OrchestratorsConfigurationDefinitionsSteps {
             config.put("url", cloudifyUrl);
             config.put("userName", login);
             config.put("password", password);
-            config.put("disableVerification", true);
+            config.put("disableSSLVerification", true);
             break;
         default:
             throw new IllegalArgumentException("Cloudify version not supported " + cloudifyVersion);
@@ -91,6 +91,6 @@ public class OrchestratorsConfigurationDefinitionsSteps {
             throws Throwable {
         String managerURL = System.getenv(envVar);
         Assert.assertTrue(envVar + " is not defined", StringUtils.isNotBlank(managerURL));
-        I_update_cloudify_manager_s_url_to_with_login_and_password_for_cloud_with_name(cloudifyVersion, managerURL, "", "", orchestratorName);
+        I_update_cloudify_manager_s_url_to_with_login_and_password_for_cloud_with_name(cloudifyVersion, managerURL, "admin", "admin", orchestratorName);
     }
 }
