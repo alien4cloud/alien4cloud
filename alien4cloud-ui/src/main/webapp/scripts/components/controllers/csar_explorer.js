@@ -22,6 +22,7 @@ define(function (require) {
       properties: 'properties',
       bat: 'batchfile',
       cmd: 'batchfile',
+      py: 'python',
       default_mode: 'yaml'
     };
 
