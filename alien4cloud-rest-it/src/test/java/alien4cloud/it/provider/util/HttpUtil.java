@@ -64,4 +64,35 @@ public class HttpUtil {
             }
         }
     }
+
+    public static String fetchUrl(String url, long timeout) {
+        log.info("Fetching url {}", url);
+        long before = System.currentTimeMillis();
+        CloseableHttpClient httpClient = HttpClients.custom().build();
+        while (true) {
+            try {
+                HttpGet httpGet = new HttpGet(url);
+                CloseableHttpResponse response = httpClient.execute(httpGet);
+                try {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Status code " + response.getStatusLine().getStatusCode());
+                    }
+                    if (response.getStatusLine().getStatusCode() < 200 || response.getStatusLine().getStatusCode() >= 300) {
+                        log.info("Received error status code " + response.getStatusLine().getStatusCode());
+                        sleepWhenErrorHappen(before, timeout);
+                        continue;
+                    }
+                    String responseText = EntityUtils.toString(response.getEntity());
+                    if (log.isDebugEnabled()) {
+                        log.debug(responseText);
+                    }
+                    return responseText;
+                } finally {
+                    response.close();
+                }
+            } catch (IOException e) {
+                sleepWhenErrorHappen(before, timeout);
+            }
+        }
+    }
 }

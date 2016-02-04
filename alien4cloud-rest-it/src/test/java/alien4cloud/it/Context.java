@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +19,6 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.NodeBuilder;
-import org.jclouds.openstack.nova.v2_0.domain.Server;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.io.ClassPathResource;
@@ -28,7 +28,6 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.PropertyPlaceholderHelper;
 
-import alien4cloud.exception.NotFoundException;
 import alien4cloud.it.exception.ITException;
 import alien4cloud.it.provider.util.AwsClient;
 import alien4cloud.it.provider.util.OpenStackClient;
@@ -218,6 +217,8 @@ public class Context {
     private String currentWorkflowName;
 
     private String csarGitRepositoryId;
+
+    private Map<String, String> stringContent = new HashMap<String, String>();
 
     private Context() {
         ClasspathResourceLoader classpathResourceLoader = new ClasspathResourceLoader(Thread.currentThread().getContextClassLoader());
@@ -636,19 +637,6 @@ public class Context {
         return this.awsClient;
     }
 
-    private String getManagementServerPublicIp(String managerPropertyName) {
-        String managementServerName = getAppProperty(managerPropertyName);
-        Server managementServer = this.getOpenStackClient().findServerByName(managementServerName);
-        if (managementServer == null) {
-            throw new NotFoundException("Management server is not found for cloudify 3 with name " + managementServerName);
-        }
-        return this.getOpenStackClient().getServerFloatingIP(managementServer).getFloatingIpAddress();
-    }
-
-    public String getCloudify3ManagerUrl() {
-        return "https://" + getManagementServerPublicIp("openstack.cfy3.manager_name");
-    }
-
     public void registerOrchestratorLocation(String orchestratorId, String locationId, String locationName) {
         if (orchestratorLocationIds == null) {
             orchestratorLocationIds = Maps.newHashMap();
@@ -700,6 +688,14 @@ public class Context {
 
     public String getCsarGitRepositoryId() {
         return this.csarGitRepositoryId;
+    }
+
+    public void registerStringContent(String key, String value) {
+        this.stringContent.put(key, value);
+    }
+
+    public String getRegisteredStringContent(String key) {
+        return this.stringContent.get(key);
     }
 
 }

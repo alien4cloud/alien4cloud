@@ -1,20 +1,27 @@
 package alien4cloud.it.provider;
 
-import alien4cloud.it.provider.util.AttributeUtil;
-import alien4cloud.it.provider.util.HttpUtil;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
-import cucumber.api.java.en.And;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
+
+import alien4cloud.it.Context;
+import alien4cloud.it.provider.util.AttributeUtil;
+import alien4cloud.it.provider.util.HttpUtil;
+
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+
+import cucumber.api.java.en.And;
+import cucumber.api.java.en.Then;
 
 @Slf4j
 public class HttpStepsDefinitions {
@@ -42,6 +49,25 @@ public class HttpStepsDefinitions {
     public void The_URL_which_is_defined_in_attribute_of_the_node_should_work_and_the_html_should_contain(String attributeName, String nodeName,
             String expectedContent) throws Throwable {
         HttpUtil.checkUrl(AttributeUtil.getAttribute(nodeName, attributeName), expectedContent, 2 * 60 * 1000L);
+    }
+
+    @Then("^I store the attribute \"(.*?)\" of the node \"(.*?)\" as registered string \"(.*?)\"$")
+    public void i_store_the_attribute_of_the_node_as_registered_string(String attributeName, String nodeName, String key) throws Throwable {
+        String attributeValue = AttributeUtil.getAttribute(nodeName, attributeName);
+        Context.getInstance().registerStringContent(key, attributeValue);
+    }
+
+    @And("^I call the URL which is defined in registered string \"([^\"]*)\" with path \"([^\"]*)\" and fetch the response and store it in the context as \"([^\"]*)\"$")
+    public void fetchUrlContentFromRegisteredString(String urlKey, String path, String key) throws Throwable {
+        String url = Context.getInstance().getRegisteredStringContent(urlKey);
+        String response = HttpUtil.fetchUrl(url + path, 2 * 60 * 1000L);
+        Context.getInstance().registerStringContent(key, response);
+    }
+
+    @And("^I call the URL which is defined in attribute \"([^\"]*)\" of the node \"([^\"]*)\" with path \"([^\"]*)\" and fetch the response and store it in the context as \"([^\"]*)\"$")
+    public void fetchUrlContent(String attributeName, String nodeName, String path, String key) throws Throwable {
+        String response = HttpUtil.fetchUrl(AttributeUtil.getAttribute(nodeName, attributeName) + path, 2 * 60 * 1000L);
+        Context.getInstance().registerStringContent(key, response);
     }
 
     @And("^The URL\\(s\\) which are defined in attribute \"([^\"]*)\" of the (\\d+) instance\\(s\\) of the node \"([^\"]*)\" should work and the html should contain \"([^\"]*)\"$")

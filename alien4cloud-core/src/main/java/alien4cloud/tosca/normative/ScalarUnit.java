@@ -36,7 +36,7 @@ public abstract class ScalarUnit<T extends Unit> implements Comparable<ScalarUni
      */
     public double convert(String requestedUnitStr) {
         T requestedUnit = getUnit(requestedUnitStr);
-        return (value * requestedUnit.getMultiplier() / unit.getMultiplier());
+        return (value * unit.getMultiplier() / requestedUnit.getMultiplier());
     }
 
     protected abstract T getUnit(String unit);
