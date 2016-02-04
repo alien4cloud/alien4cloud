@@ -11,8 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.application.ApplicationEnvironmentService;
-import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.DeploymentTopologyService;
@@ -47,10 +45,6 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
     private TopologyServiceCore topoServiceCore;
     @Resource
     private DeploymentService deploymentService;
-    @Resource
-    private ApplicationVersionService applicationVersionService;
-    @Resource
-    private ApplicationEnvironmentService applicationEnvironmentService;
     @Resource
     private DeploymentTopologyService deploymentTopologyService;
 
@@ -116,8 +110,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
             log.debug("Value to add: <{}>. New value is <{}>", persistentResourceEvent.getPropertyValue(), propertyValue);
             nodeTemplate.getProperties().put(persistentResourceEvent.getPropertyName(), getPropertyValue(propertyValue));
         }
-        alienDAO.save(deploymentTopology);
-
+        deploymentTopologyService.updateDeploymentTopology(deploymentTopology);
     }
 
     private void updateRuntimeTopology(DeploymentTopology runtimeTopo, PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent, Object propertyValue) {

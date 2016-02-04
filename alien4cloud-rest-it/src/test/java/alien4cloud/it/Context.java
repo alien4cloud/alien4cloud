@@ -19,7 +19,6 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.NodeBuilder;
-import org.jclouds.openstack.nova.v2_0.domain.Server;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.io.ClassPathResource;
@@ -29,7 +28,6 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.PropertyPlaceholderHelper;
 
-import alien4cloud.exception.NotFoundException;
 import alien4cloud.it.exception.ITException;
 import alien4cloud.it.provider.util.AwsClient;
 import alien4cloud.it.provider.util.OpenStackClient;
@@ -637,19 +635,6 @@ public class Context {
             this.awsClient = new AwsClient();
         }
         return this.awsClient;
-    }
-
-    private String getManagementServerPublicIp(String managerPropertyName) {
-        String managementServerName = getAppProperty(managerPropertyName);
-        Server managementServer = this.getOpenStackClient().findServerByName(managementServerName);
-        if (managementServer == null) {
-            throw new NotFoundException("Management server is not found for cloudify 3 with name " + managementServerName);
-        }
-        return this.getOpenStackClient().getServerFloatingIP(managementServer).getFloatingIpAddress();
-    }
-
-    public String getCloudify3ManagerUrl() {
-        return "https://" + getManagementServerPublicIp("openstack.cfy3.manager_name");
     }
 
     public void registerOrchestratorLocation(String orchestratorId, String locationId, String locationName) {
