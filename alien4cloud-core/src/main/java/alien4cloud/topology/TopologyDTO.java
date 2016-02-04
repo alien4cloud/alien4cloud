@@ -15,8 +15,8 @@ import alien4cloud.model.topology.Topology;
 public class TopologyDTO extends AbstractTopologyDTO<Topology> {
 
     public TopologyDTO(Topology topology, Map<String, IndexedNodeType> nodeTypes, Map<String, IndexedRelationshipType> relationshipTypes,
-            Map<String, IndexedCapabilityType> capabilityTypes, Map<String, Map<String, Set<String>>> outputCapabilityProperties, String yaml) {
-        super(topology, nodeTypes, relationshipTypes, capabilityTypes, outputCapabilityProperties, yaml);
+            Map<String, IndexedCapabilityType> capabilityTypes, Map<String, Map<String, Set<String>>> outputCapabilityProperties) {
+        super(topology, nodeTypes, relationshipTypes, capabilityTypes, outputCapabilityProperties);
     }
 
     public TopologyDTO() {
