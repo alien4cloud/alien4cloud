@@ -67,20 +67,21 @@ describe('Nodetemplate properties and artifact reset to default value', function
       var myScript = artifacts[0];
       expect(myScript.element(by.binding('artifactId')).getText()).toEqual('war_file');
       expect(myScript.element(by.binding('artifact.artifactType')).getText()).toEqual('alien.artifacts.WarFile');
-      expect(element(by.id('span-artifactName_warFiles/helloWorld.war')).isPresent()).toBe(true);
+      expect(element(by.id('war_file-artifactName')).getText()).toContain('warFiles');
+      //expect(element(by.id('span-artifactName_warFiles/helloWorld.war')).isPresent()).toBe(true);
 
       // update the war
       var myScriptUpdateButton = browser.element(by.css('input[type="file"]'));
       myScriptUpdateButton.sendKeys(path.resolve(__dirname,
         '../../../../../../../alien4cloud-rest-it/src/test/resources/data/artifacts/myWar.war'));
       browser.waitForAngular();
-      expect(element(by.id('span-artifactName_myWar.war')).isPresent()).toBe(true);
+      expect(element(by.id('war_file-artifactName')).getText()).toContain('myWar');
 
       // reset check the artifact name is back
       common.click(by.id('reset-artifact-war_file'));
       expect(myScript.element(by.binding('artifactId')).getText()).toEqual('war_file');
       expect(myScript.element(by.binding('artifact.artifactType')).getText()).toEqual('alien.artifacts.WarFile');
-      expect(element(by.id('span-artifactName_warFiles/helloWorld.war')).isPresent()).toBe(true);
+      expect(element(by.id('war_file-artifactName')).getText()).toContain('warFiles');
     });
   });
 

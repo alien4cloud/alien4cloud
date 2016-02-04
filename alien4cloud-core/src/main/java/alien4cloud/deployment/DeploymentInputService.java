@@ -1,14 +1,6 @@
 package alien4cloud.deployment;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-
-import org.elasticsearch.common.collect.Lists;
-import org.springframework.stereotype.Service;
-
+import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.deployment.DeploymentTopology;
@@ -18,8 +10,13 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMa
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.InputArtifactUtil;
 import alien4cloud.utils.services.ConstraintPropertyService;
-
 import com.google.common.collect.Maps;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import javax.inject.Inject;
+import org.elasticsearch.common.collect.Lists;
+import org.springframework.stereotype.Service;
 
 @Service
 public class DeploymentInputService {
@@ -103,6 +100,7 @@ public class DeploymentInputService {
                     for (DeploymentArtifact nodeArtifact : nodeArtifacts) {
                         nodeArtifact.setArtifactRef(e.getValue().getArtifactRef());
                         nodeArtifact.setArtifactName(e.getValue().getArtifactName());
+                        nodeArtifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY);
                     }
                 }
             }
