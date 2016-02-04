@@ -70,7 +70,8 @@ public class OrchestratorsDefinitionsSteps {
     @Given("^I enable the orchestrator \"([^\"]*)\"$")
     public void I_enable_the_orchestrator(String orchestratorName) throws IOException {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/orchestrators/" + orchestratorId + "/instance", "{}"));
+        String restResponse = Context.getRestClientInstance().postJSon("/rest/orchestrators/" + orchestratorId + "/instance", "{}");
+        Context.getInstance().registerRestResponse(restResponse);
     }
 
     @When("^I disable \"([^\"]*)\"$")
