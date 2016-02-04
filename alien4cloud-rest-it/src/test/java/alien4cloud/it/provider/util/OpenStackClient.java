@@ -4,10 +4,8 @@ import alien4cloud.exception.InvalidArgumentException;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.inject.Module;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
@@ -20,7 +18,6 @@ import org.jclouds.openstack.cinder.v1.features.VolumeApi;
 import org.jclouds.openstack.keystone.v2_0.config.CredentialTypes;
 import org.jclouds.openstack.keystone.v2_0.config.KeystoneProperties;
 import org.jclouds.openstack.neutron.v2.NeutronApi;
-import org.jclouds.openstack.neutron.v2.domain.FloatingIP;
 import org.jclouds.openstack.neutron.v2.domain.Network;
 import org.jclouds.openstack.neutron.v2.extensions.FloatingIPApi;
 import org.jclouds.openstack.neutron.v2.features.NetworkApi;
@@ -84,15 +81,17 @@ public class OpenStackClient {
         return this.volumeApi.delete(id);
     }
 
-    public List<Server> listServers() {
+    private List<Server> listServers() {
         List<Server> servers = Lists.newArrayList(this.serverApi.listInDetail().concat());
         return servers;
     }
 
-    public Server findServerByName(String name) {
-        for (Server server : this.serverApi.listInDetail().concat()) {
-            if (server.getName().equals(name)) {
-                return server;
+    public Server findServerByIp(String ip) {
+        for (Server server : listServers()) {
+            for (Address address : server.getAddresses().values()) {
+                if (Objects.equals(address.getAddr(), ip)) {
+                    return server;
+                }
             }
         }
         return null;
@@ -100,25 +99,6 @@ public class OpenStackClient {
 
     public Server getServer(String serverId) {
         return serverApi.get(serverId);
-    }
-
-    public List<FloatingIP> listFloatingIPs() {
-        List<FloatingIP> ips = Lists.newArrayList(this.floatingIPApi.list().concat());
-        return ips;
-    }
-
-    public FloatingIP getServerFloatingIP(Server server) {
-        List<FloatingIP> ips = listFloatingIPs();
-        Map<String, FloatingIP> floatingIPs = Maps.newHashMap();
-        for (FloatingIP ip : ips) {
-            floatingIPs.put(ip.getFloatingIpAddress(), ip);
-        }
-        for (Address address : server.getAddresses().values()) {
-            if (floatingIPs.containsKey(address.getAddr())) {
-                return floatingIPs.get(address.getAddr());
-            }
-        }
-        return null;
     }
 
     public boolean deleteCompute(String computeId) {
@@ -129,8 +109,7 @@ public class OpenStackClient {
         return serverApi.create(name, imageRef, flavorRef, options);
     }
 
-    public Set<String> getServerNetworksNames(String name) {
-        Server server = findServerByName(name);
+    public Set<String> getServerNetworksNames(Server server) {
         if (server != null) {
             if (server.getAddresses() != null) {
                 return server.getAddresses().keySet();

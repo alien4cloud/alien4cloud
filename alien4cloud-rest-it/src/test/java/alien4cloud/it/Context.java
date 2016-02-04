@@ -1,34 +1,5 @@
 package alien4cloud.it;
 
-import java.beans.IntrospectionException;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.node.NodeBuilder;
-import org.jclouds.openstack.nova.v2_0.domain.Server;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.util.PropertyPlaceholderHelper;
-
-import alien4cloud.exception.NotFoundException;
 import alien4cloud.it.exception.ITException;
 import alien4cloud.it.provider.util.AwsClient;
 import alien4cloud.it.provider.util.OpenStackClient;
@@ -48,14 +19,36 @@ import alien4cloud.rest.utils.RestClient;
 import alien4cloud.rest.utils.RestMapper;
 import alien4cloud.topology.task.AbstractTask;
 import alien4cloud.utils.MapUtil;
-
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
 import cucumber.runtime.io.ClasspathResourceLoader;
+import java.beans.IntrospectionException;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.node.NodeBuilder;
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.PropertyPlaceholderHelper;
 
 /**
  * In order to communicate between different step definitions
@@ -634,19 +627,6 @@ public class Context {
             this.awsClient = new AwsClient();
         }
         return this.awsClient;
-    }
-
-    private String getManagementServerPublicIp(String managerPropertyName) {
-        String managementServerName = getAppProperty(managerPropertyName);
-        Server managementServer = this.getOpenStackClient().findServerByName(managementServerName);
-        if (managementServer == null) {
-            throw new NotFoundException("Management server is not found for cloudify 3 with name " + managementServerName);
-        }
-        return this.getOpenStackClient().getServerFloatingIP(managementServer).getFloatingIpAddress();
-    }
-
-    public String getCloudify3ManagerUrl() {
-        return "https://" + getManagementServerPublicIp("openstack.cfy3.manager_name");
     }
 
     public void registerOrchestratorLocation(String orchestratorId, String locationId, String locationName) {
