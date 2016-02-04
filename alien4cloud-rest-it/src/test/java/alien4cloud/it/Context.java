@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -218,6 +219,8 @@ public class Context {
     private String currentWorkflowName;
 
     private String csarGitRepositoryId;
+
+    private Map<String, String> stringContent = new HashMap<String, String>();
 
     private Context() {
         ClasspathResourceLoader classpathResourceLoader = new ClasspathResourceLoader(Thread.currentThread().getContextClassLoader());
@@ -700,6 +703,14 @@ public class Context {
 
     public String getCsarGitRepositoryId() {
         return this.csarGitRepositoryId;
+    }
+
+    public void registerStringContent(String key, String value) {
+        this.stringContent.put(key, value);
+    }
+
+    public String getRegisteredStringContent(String key) {
+        return this.stringContent.get(key);
     }
 
 }

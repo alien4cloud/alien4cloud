@@ -61,8 +61,8 @@ public class OrchestratorsConfigurationDefinitionsSteps {
         default:
             throw new IllegalArgumentException("Cloudify version not supported " + cloudifyVersion);
         }
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().putJSon("/rest/orchestrators/" + orchestratorId + "/configuration", JsonUtil.toString(config)));
+        String restResponse = Context.getRestClientInstance().putJSon("/rest/orchestrators/" + orchestratorId + "/configuration", JsonUtil.toString(config));
+        Context.getInstance().registerRestResponse(restResponse);
 
     }
 

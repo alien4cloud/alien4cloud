@@ -1,3 +1,5 @@
+
+
 # Configuration of Alien 4 Cloud's CSAR repository, temporary folder and upload settings.
 directories:
   # alien main directory (other directories are relative path to this one)
@@ -82,6 +84,24 @@ ldap:
   userActiveValue: active
 ### End  Ldap Configuration
 
+saml:
+  enabled: false
+#  proxy:
+#    host: 193.56.47.20
+#    port: 8080
+  ssl:
+    keystore: samlKeystore.jks
+    defaultKey: apollo
+    keystorepassword: nalle123
+  metadata:
+    idp:
+      url: "https://idp.ssocircle.com/idp-meta.xml"
+    sp:
+      entityId: "org:alien4cloud:sp"
+      # entityBaseURL: defaults to localhost:8088
+      # requestSigned:
+      # wantAssertionSigned:
+      
 # configuration for the upload module.
 upload:
   max_archive_size: 52428800

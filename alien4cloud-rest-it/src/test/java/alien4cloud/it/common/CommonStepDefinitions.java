@@ -38,7 +38,6 @@ import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.security.model.Group;
 import alien4cloud.security.model.User;
 import alien4cloud.utils.FileUtil;
-import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
@@ -69,7 +68,7 @@ public class CommonStepDefinitions {
         indicesToClean.add(AuditESDAO.ALIEN_AUDIT_INDEX);
     }
 
-    @Before
+    // @Before
     public void beforeScenario() throws Throwable {
         if (log.isDebugEnabled()) {
             log.debug("Before scenario, clean up elastic search and alien repositories from {}", Context.getInstance().getAlienPath());
