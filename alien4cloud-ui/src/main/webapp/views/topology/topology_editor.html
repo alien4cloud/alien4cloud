@@ -589,13 +589,13 @@
                     <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.REFERENCE' | translate}}</div>
                     <div class="col-md-9">
                       <div ng-if="!uploads[artifactId].isUploading">
-                        <span id="span-artifactName_{{artifact.artifactName}}" tooltip="{{artifact.artifactName}}" tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[artifact.artifactName.length > 20]}}">{{artifact.artifactName | truncate:20}}</span>
+                        <span id="{{artifactId}}-artifactName" tooltip="{{artifact.artifactName}}" tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[artifact.artifactName.length > 20]}}">{{artifact.artifactName | truncate:20}}</span>
 
-                        <div class="fileUploadImg btn" tooltip="{{'APPLICATIONS.TOPOLOGY.UPDATE_ARTIFACT' | translate}}">
-                        <span>
-                          <i class="fa fa-upload text-primary"></i>
-                        </span>
-                          <input type="file" class="upload" ng-file-select="artifacts.onSelected($files, artifactId)">
+                        <div ng-if="!inputs.isInputArtifact(artifactId)" class="fileUploadImg btn" tooltip="{{'APPLICATIONS.TOPOLOGY.UPDATE_ARTIFACT' | translate}}">
+                          <span>
+                            <i class="fa fa-upload text-primary"></i>
+                          </span>
+                            <input type="file" class="upload" ng-file-select="artifacts.onSelected($files, artifactId)">
                         </div>
 
 
