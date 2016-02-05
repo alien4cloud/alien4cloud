@@ -12,7 +12,7 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import cucumber.api.java.en.And;
 
-public class OpenStacksStepDefinitions {
+public class IAASStepDefinitions {
 
     private String getVolumeId(String propertyName, String nodeName, String appName) throws IOException {
         String topologyResponseText = Context.getRestClientInstance().get(
@@ -32,8 +32,12 @@ public class OpenStacksStepDefinitions {
     @And("^I should have a volume on OpenStack with id defined in property \"([^\"]*)\" of the node \"([^\"]*)\" for \"([^\"]*)\"$")
     public void I_should_have_a_volume_on_OpenStack_with_id_defined_in_property_of_the_node(String propertyName, String nodeName, String appName)
             throws Throwable {
-        Volume volume = Context.getInstance().getOpenStackClient().getVolume(getVolumeId(propertyName, nodeName, appName));
-        Assert.assertNotNull(volume);
+        Assert.assertNotNull(Context.getInstance().getOpenStackClient().getVolume(getVolumeId(propertyName, nodeName, appName)));
+    }
+
+    @And("^I should have a volume on AWS with id defined in property \"([^\"]*)\" of the node \"([^\"]*)\" for \"([^\"]*)\"$")
+    public void I_should_have_a_volume_on_AWS_with_id_defined_in_property_of_the_node(String propertyName, String nodeName, String appName) throws Throwable {
+        Assert.assertNotNull(Context.getInstance().getAwsClient().getVolume(getVolumeId(propertyName, nodeName, appName)));
     }
 
     @And("^I should have volumes on OpenStack with ids defined in property \"([^\"]*)\" of the node \"([^\"]*)\" for \"([^\"]*)\"$")
@@ -50,6 +54,11 @@ public class OpenStacksStepDefinitions {
     @And("^I delete the volume on OpenStack with id defined in property \"([^\"]*)\" of the node \"([^\"]*)\" for \"([^\"]*)\"$")
     public void I_delete_the_volume_on_OpenStack_with_id_defined_in_property_of_the_node(String propertyName, String nodeName, String appName) throws Throwable {
         Assert.assertTrue(Context.getInstance().getOpenStackClient().deleteVolume(getVolumeId(propertyName, nodeName, appName)));
+    }
+
+    @And("^I delete the volume on AWS with id defined in property \"([^\"]*)\" of the node \"([^\"]*)\" for \"([^\"]*)\"$")
+    public void I_delete_the_volume_on_AWS_with_id_defined_in_property_of_the_node(String propertyName, String nodeName, String appName) throws Throwable {
+        Context.getInstance().getAwsClient().deleteVolume(getVolumeId(propertyName, nodeName, appName));
     }
 
     @And("^I delete volumes on OpenStack with ids defined in property \"([^\"]*)\" of the node \"([^\"]*)\" for \"([^\"]*)\"$")
