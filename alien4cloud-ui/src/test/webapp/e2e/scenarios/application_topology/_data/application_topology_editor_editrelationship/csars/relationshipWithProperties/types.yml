@@ -8,24 +8,20 @@ imports:
   - "tosca-normative-types:1.0.0.wd06-SNAPSHOT"
 
 node_types:
-
   alien.nodes.NeedHelp:
     derived_from: tosca.nodes.SoftwareComponent
     requirements:
       - help: alien.capabilities.Help
-
   alien.nodes.HasHelp:
     derived_from: tosca.nodes.SoftwareComponent
     capabilities:
       help: alien.capabilities.Help
 
 capability_types:
-
   alien.capabilities.Help:
     derived_from: tosca.capabilities.Root
 
 relationship_types:
-
   alien.relationships.HelpedByTheOneWhoCanHelp:
     derived_from: tosca.relationships.DependsOn
     valid_sources: [ alien.nodes.NeedHelp ]

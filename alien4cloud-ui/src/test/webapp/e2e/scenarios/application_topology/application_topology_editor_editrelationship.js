@@ -1,5 +1,4 @@
-/* global element, by */
-
+/* global element, by, it, describe  */
 'use strict';
 
 var common = require('../../common/common');
