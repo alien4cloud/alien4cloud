@@ -289,7 +289,6 @@ define(function (require) {
 
             fillNodeSelectionVars(newSelected);
             $scope.display.set('component', true);
-            $scope.$apply();
           });
         }
       };

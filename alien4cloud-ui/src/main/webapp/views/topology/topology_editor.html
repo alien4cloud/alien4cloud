@@ -19,6 +19,7 @@
         </div>
         <div ng-if="view === 'YAML'" ng-model="yaml.content" ui-ace="{onLoad: aceLoaded, mode: 'yaml'}" style="height: {{visualDimensions.height}}px;"></div>
         <topology-rendering ng-if="view === 'RENDERED' && topology" dimensions="visualDimensions" topology="topology"
+                            selected-node-template="selectedNodeTemplate"
                             select-callback="editorCallback.selectNodeTemplate(newSelectedName, oldSelectedName)"
                             add-relationship-callback="editorCallback.addRelationship(sourceId, requirementName, requirementType, targetId, capabilityName, relationship)"
                             runtime="false"></topology-rendering>
