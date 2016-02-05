@@ -29,6 +29,7 @@ var take = function(imgName) {
     var dirExists = fs.existsSync(screenShotBaseDir);
     // create only one time the ${screenShotBaseDir} folder
     if (!dirExists) {
+      fs.mkdirSync('../target');
       fs.mkdirSync(screenShotBaseDir);
     }
     browser.takeScreenshot().then(function(png) {
