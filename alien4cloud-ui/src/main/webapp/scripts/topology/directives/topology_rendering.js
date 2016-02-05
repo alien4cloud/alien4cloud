@@ -17,7 +17,7 @@ define(function (require) {
         scope: {
           selectCallback: '&',
           addRelationshipCallback: '&',
-          selectedNodeTemplate: '=', // better add a change callback actually - using select callback ?
+          triggerRefresh: '=', // better add a change callback actually - using select callback ?
           topology: '=',
           dimensions: '=',
           runtime: '='
@@ -36,8 +36,7 @@ define(function (require) {
             topologySvg.reset(topology);
           });
 
-          scope.$watch('selectedNodeTemplate', function() {
-            console.log('reset topology');
+          scope.$watch('triggerRefresh', function() {
             topologySvg.reset(scope.topology);
           });
 
