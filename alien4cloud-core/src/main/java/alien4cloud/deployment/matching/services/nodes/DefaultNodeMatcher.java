@@ -3,19 +3,12 @@ package alien4cloud.deployment.matching.services.nodes;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
 
 import alien4cloud.deployment.matching.plugins.INodeMatcherPlugin;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.FilterDefinition;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.components.*;
 import alien4cloud.model.components.constraints.IMatchPropertyConstraint;
 import alien4cloud.model.deployment.matching.MatchingConfiguration;
 import alien4cloud.model.deployment.matching.MatchingFilterDefinition;
@@ -23,7 +16,6 @@ import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.orchestrators.locations.LocationResources;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.topology.validation.NodeFilterValidationService;
 import alien4cloud.tosca.normative.IPropertyType;
 import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
@@ -37,10 +29,7 @@ import com.google.common.collect.Lists;
 @Slf4j
 @Component
 public class DefaultNodeMatcher implements INodeMatcherPlugin {
-    @Inject
-    private NodeFilterValidationService nodeFilterValidationService;
     // TODO initialize default matching configuration based on parsing a yaml file within a4c for nodes like Compute etc.
-
     /**
      * Match a node against a location.
      *

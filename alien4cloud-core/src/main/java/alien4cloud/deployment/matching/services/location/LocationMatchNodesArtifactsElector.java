@@ -2,6 +2,7 @@ package alien4cloud.deployment.matching.services.location;
 
 import java.util.Set;
 
+import alien4cloud.model.orchestrators.ArtifactSupport;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -22,68 +23,59 @@ import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.tosca.ToscaUtils;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.stereotype.Component;
 
 /**
  * LocationMatch Elector based on supported artifacts. Checks if the artifacts of a given {@link NodeTemplate} are supported by the location's orchestrator.
  *
  */
-@Getter
-@Setter
-public class LocationMatchNodesArtifactsElector implements ILocationMatchElector {
-
-    // TypeMap cache = new TypeMap();
+@Component
+public class LocationMatchNodesArtifactsElector {
 
     /**
-     * Template to check artifacts
+     * Perform matching of the given match context to ensure that a given node template's implementation artifact types are indeed suported by the ones of the
+     * context location match.
+     * 
+     * @param matchContext
+     * @return
      */
-    private NodeTemplate template;
-
-    /**
-     * dependencies in which to look for related {@link IndexedArtifactToscaElement}
-     */
-    private Set<CSARDependency> dependencies = Sets.newHashSet();
-    private CSARRepositorySearchService csarSearchService;
-    private OrchestratorService orchestratorService;
-
-    @Override
-    public boolean isEligible(ILocationMatch locationMatch) {
+    public boolean isEligible(LocationMatchNodeFilter.NodeMatchContext matchContext) {
         boolean isEligible = true;
-        if (template == null) {
+        if (matchContext.getTemplate() == null) {
             return isEligible;
         }
         // first check the node interfaces operations artifacts are supported
-        isEligible = isEligible(template, locationMatch);
+        isEligible = isEligible(matchContext.getTemplate(), matchContext);
         if (isEligible) {
             // then check relationships interfaces
-            isEligible = areRelationshipsArtifactSupported(locationMatch, template);
+            isEligible = areRelationshipsArtifactSupported(matchContext);
         }
 
         return isEligible;
     }
 
-    private boolean isEligible(AbstractTemplate template, ILocationMatch locationMatch) {
+    private boolean isEligible(AbstractTemplate template, LocationMatchNodeFilter.NodeMatchContext matchContext) {
         if (template == null) {
             return true;
         }
 
-        IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(locationMatch.getOrchestrator());
+        ArtifactSupport artifactSupport = matchContext.getArtifactSupport();
 
         // if no supported artifact defined, then return true
-        if (orchestratorFactory.getArtifactSupport() == null || ArrayUtils.isEmpty(orchestratorFactory.getArtifactSupport().getTypes())) {
+        if (artifactSupport == null || ArrayUtils.isEmpty(artifactSupport.getTypes())) {
             return true;
         }
-        String[] supportedArtifacts = orchestratorFactory.getArtifactSupport().getTypes();
+        String[] supportedArtifacts = artifactSupport.getTypes();
 
-        IndexedArtifactToscaElement indexedArtifactToscaElement = csarSearchService.getRequiredElementInDependencies(IndexedArtifactToscaElement.class,
-                template.getType(), dependencies);
+        IndexedArtifactToscaElement indexedArtifactToscaElement = matchContext.getElement(IndexedArtifactToscaElement.class, template.getType());
 
         if (MapUtils.isNotEmpty(indexedArtifactToscaElement.getInterfaces())) {
             for (Interface interfaz : indexedArtifactToscaElement.getInterfaces().values()) {
                 for (Operation operation : interfaz.getOperations().values()) {
                     if (operation.getImplementationArtifact() != null) {
                         String artifactTypeString = operation.getImplementationArtifact().getArtifactType();
-                        IndexedArtifactType artifactType = csarSearchService.getRequiredElementInDependencies(IndexedArtifactType.class, artifactTypeString,
-                                dependencies);
+
+                        IndexedArtifactType artifactType = matchContext.getElement(IndexedArtifactType.class, artifactTypeString);
 
                         // stop the checking once one artifactType is not supported
                         if (!isFromOneOfTypes(supportedArtifacts, artifactType)) {
@@ -106,20 +98,15 @@ public class LocationMatchNodesArtifactsElector implements ILocationMatchElector
         return false;
     }
 
-    private boolean areRelationshipsArtifactSupported(ILocationMatch locationMatch, NodeTemplate nodeTemplate) {
-        if (MapUtils.isNotEmpty(nodeTemplate.getRelationships())) {
-            for (RelationshipTemplate relTemplate : nodeTemplate.getRelationships().values()) {
-                if (!isEligible(relTemplate, locationMatch)) {
+    private boolean areRelationshipsArtifactSupported(LocationMatchNodeFilter.NodeMatchContext matchContext) {
+        if (MapUtils.isNotEmpty(matchContext.getTemplate().getRelationships())) {
+            for (RelationshipTemplate relTemplate : matchContext.getTemplate().getRelationships().values()) {
+                if (!isEligible(relTemplate, matchContext)) {
                     return false;
                 }
             }
         }
 
         return true;
-    }
-
-    public LocationMatchNodesArtifactsElector(CSARRepositorySearchService csarSearchService, OrchestratorService orchestratorService) {
-        this.csarSearchService = csarSearchService;
-        this.orchestratorService = orchestratorService;
     }
 }
