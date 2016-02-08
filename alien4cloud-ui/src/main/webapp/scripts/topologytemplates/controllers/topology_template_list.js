@@ -82,7 +82,6 @@ define(function (require) {
             if (response.data !== '') {
               $scope.openTopologyTemplate(response.data);
             }
-            $scope.search();
           });
         });
       };
