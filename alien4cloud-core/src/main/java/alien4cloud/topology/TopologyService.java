@@ -43,7 +43,6 @@ import alien4cloud.model.topology.AbstractTopologyVersion;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.Role;
@@ -202,11 +201,11 @@ public class TopologyService {
 
     }
 
-    private IndexedNodeType[] getIndexedNodeTypesFromSearchResponse(final GetMultipleDataResult searchResult, final IndexedNodeType toExcludeIndexedNodeType)
-            throws IOException {
+    private IndexedNodeType[] getIndexedNodeTypesFromSearchResponse(final GetMultipleDataResult<IndexedNodeType> searchResult,
+            final IndexedNodeType toExcludeIndexedNodeType) throws IOException {
         IndexedNodeType[] toReturnArray = null;
         for (int j = 0; j < searchResult.getData().length; j++) {
-            IndexedNodeType nodeType = JsonUtil.readObject(JsonUtil.toString(searchResult.getData()[j]), IndexedNodeType.class);
+            IndexedNodeType nodeType = searchResult.getData()[j];
             if (toExcludeIndexedNodeType == null || !nodeType.getId().equals(toExcludeIndexedNodeType.getId())) {
                 toReturnArray = ArrayUtils.add(toReturnArray, nodeType);
             }
@@ -237,7 +236,7 @@ public class TopologyService {
                 // retrieve only non abstract components
                 formattedFilters.put("abstract", ArrayUtils.toArray("false"));
 
-                GetMultipleDataResult searchResult = alienDAO.search(IndexedNodeType.class, null, formattedFilters, filterValueStrategy, 20);
+                GetMultipleDataResult<IndexedNodeType> searchResult = alienDAO.search(IndexedNodeType.class, null, formattedFilters, filterValueStrategy, 20);
                 data = getIndexedNodeTypesFromSearchResponse(searchResult, toExcludeIndexedNodeTypes.get(nodeTemplatesToFiltersEntry.getKey()));
             }
             TaskCode taskCode = data == null || data.length < 1 ? TaskCode.IMPLEMENT : TaskCode.REPLACE;
@@ -311,9 +310,8 @@ public class TopologyService {
         Map<String, IndexedNodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false);
         Map<String, IndexedRelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology);
         Map<String, IndexedCapabilityType> capabilityTypes = getIndexedCapabilityTypes(nodeTypes.values(), topology.getDependencies());
-        String yaml = getYaml(topology);
         Map<String, Map<String, Set<String>>> outputCapabilityProperties = topology.getOutputCapabilityProperties();
-        return new TopologyDTO(topology, nodeTypes, relationshipTypes, capabilityTypes, outputCapabilityProperties, yaml);
+        return new TopologyDTO(topology, nodeTypes, relationshipTypes, capabilityTypes, outputCapabilityProperties);
     }
 
     /**

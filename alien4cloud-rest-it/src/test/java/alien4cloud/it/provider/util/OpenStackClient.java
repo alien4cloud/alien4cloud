@@ -1,9 +1,14 @@
 package alien4cloud.it.provider.util;
 
+import alien4cloud.exception.InvalidArgumentException;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.inject.Module;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
-
+import java.util.Set;
 import org.jclouds.Constants;
 import org.jclouds.ContextBuilder;
 import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
@@ -13,19 +18,15 @@ import org.jclouds.openstack.cinder.v1.features.VolumeApi;
 import org.jclouds.openstack.keystone.v2_0.config.CredentialTypes;
 import org.jclouds.openstack.keystone.v2_0.config.KeystoneProperties;
 import org.jclouds.openstack.neutron.v2.NeutronApi;
-import org.jclouds.openstack.neutron.v2.domain.FloatingIP;
+import org.jclouds.openstack.neutron.v2.domain.Network;
 import org.jclouds.openstack.neutron.v2.extensions.FloatingIPApi;
+import org.jclouds.openstack.neutron.v2.features.NetworkApi;
 import org.jclouds.openstack.nova.v2_0.NovaApi;
 import org.jclouds.openstack.nova.v2_0.domain.Address;
 import org.jclouds.openstack.nova.v2_0.domain.Server;
+import org.jclouds.openstack.nova.v2_0.domain.ServerCreated;
 import org.jclouds.openstack.nova.v2_0.features.ServerApi;
-
-import alien4cloud.exception.InvalidArgumentException;
-
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.inject.Module;
+import org.jclouds.openstack.nova.v2_0.options.CreateServerOptions;
 
 public class OpenStackClient {
 
@@ -41,9 +42,12 @@ public class OpenStackClient {
 
     private FloatingIPApi floatingIPApi;
 
+    private org.jclouds.openstack.nova.v2_0.extensions.FloatingIPApi novaFloatingIPApi;
+
+    private NetworkApi networkApi;
+
     public OpenStackClient(String user, String password, String tenant, String url, String region) {
         Iterable<Module> modules = ImmutableSet.<Module> of(new SLF4JLoggingModule());
-
         Properties overrides = new Properties();
         overrides.setProperty(KeystoneProperties.CREDENTIAL_TYPE, CredentialTypes.PASSWORD_CREDENTIALS);
         overrides.setProperty(Constants.PROPERTY_API_VERSION, "2");
@@ -65,6 +69,8 @@ public class OpenStackClient {
             throw new InvalidArgumentException("Region " + region + " do not exist, available regions are " + neutronApi.getConfiguredRegions());
         }
         this.floatingIPApi = this.neutronApi.getFloatingIPApi(region).get();
+        this.novaFloatingIPApi = this.novaApi.getFloatingIPApi(region).get();
+        this.networkApi = this.neutronApi.getNetworkApi(region);
     }
 
     public Volume getVolume(String id) {
@@ -75,40 +81,60 @@ public class OpenStackClient {
         return this.volumeApi.delete(id);
     }
 
-    public List<Server> listServers() {
+    private List<Server> listServers() {
         List<Server> servers = Lists.newArrayList(this.serverApi.listInDetail().concat());
         return servers;
     }
 
-    public Server findServerByName(String name) {
-        for (Server server : this.serverApi.listInDetail().concat()) {
-            if (server.getName().equals(name)) {
-                return server;
+    public Server findServerByIp(String ip) {
+        for (Server server : listServers()) {
+            for (Address address : server.getAddresses().values()) {
+                if (Objects.equals(address.getAddr(), ip)) {
+                    return server;
+                }
             }
         }
         return null;
     }
 
-    public List<FloatingIP> listFloatingIPs() {
-        List<FloatingIP> ips = Lists.newArrayList(this.floatingIPApi.list().concat());
-        return ips;
-    }
-
-    public FloatingIP getServerFloatingIP(Server server) {
-        List<FloatingIP> ips = listFloatingIPs();
-        Map<String, FloatingIP> floatingIPs = Maps.newHashMap();
-        for (FloatingIP ip : ips) {
-            floatingIPs.put(ip.getFloatingIpAddress(), ip);
-        }
-        for (Address address : server.getAddresses().values()) {
-            if (floatingIPs.containsKey(address.getAddr())) {
-                return floatingIPs.get(address.getAddr());
-            }
-        }
-        return null;
+    public Server getServer(String serverId) {
+        return serverApi.get(serverId);
     }
 
     public boolean deleteCompute(String computeId) {
         return serverApi.delete(computeId);
+    }
+
+    public ServerCreated create(String name, String imageRef, String flavorRef, CreateServerOptions... options) {
+        return serverApi.create(name, imageRef, flavorRef, options);
+    }
+
+    public Set<String> getServerNetworksNames(Server server) {
+        if (server != null) {
+            if (server.getAddresses() != null) {
+                return server.getAddresses().keySet();
+            }
+        }
+        return null;
+    }
+
+    public Network findNetworkByName(String name) {
+        FluentIterable<Network> networks = networkApi.list().concat();
+        for (Network network : networks) {
+            if (Objects.equals(network.getName(), name)) {
+                return network;
+            }
+        }
+        return null;
+    }
+
+    public org.jclouds.openstack.nova.v2_0.domain.FloatingIP associateFloationgIpToServer(String serverId, String poolName) {
+        org.jclouds.openstack.nova.v2_0.domain.FloatingIP floatingIp = novaFloatingIPApi.allocateFromPool(poolName);
+        novaFloatingIPApi.addToServer(floatingIp.getIp(), serverId);
+        return floatingIp;
+    }
+
+    public void deleteFloatingIp(String id) {
+        floatingIPApi.delete(id);
     }
 }

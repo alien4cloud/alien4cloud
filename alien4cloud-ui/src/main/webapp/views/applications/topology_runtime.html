@@ -9,7 +9,9 @@
           </div>
         </div>
         <topology-rendering ng-if="view === 'RENDERED' && topology" topology="topology" dimensions="dimensions"
-          select-callback="selectNodeTemplate(newSelectedName, oldSelectedName)" runtime="true"></topology-rendering>
+          trigger-refresh="triggerTopologyRefresh"
+          select-callback="selectNodeTemplate(newSelectedName, oldSelectedName)" runtime="true">
+        </topology-rendering>
         <topology-plan ng-if="view === 'PLAN' && topology" id="plan-graph-container"></topology-plan>
       </div>
     </div>

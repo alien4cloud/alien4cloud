@@ -38,6 +38,10 @@ public class ImageServlet extends HttpServlet {
 
     @Override
     protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+        resp.setHeader("Cache-Control", "public");
+        resp.setHeader("Pragma", null);
+        resp.setHeader("Expires", null);
+
         final String imageId = req.getParameter("id");
         final String quality = req.getParameter("quality");
         final ImageQuality imageQuality;

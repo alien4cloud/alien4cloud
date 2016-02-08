@@ -17,6 +17,7 @@ define(function (require) {
         scope: {
           selectCallback: '&',
           addRelationshipCallback: '&',
+          triggerRefresh: '=', // better add a change callback actually - using select callback ?
           topology: '=',
           dimensions: '=',
           runtime: '='
@@ -33,7 +34,11 @@ define(function (require) {
 
           scope.$watch('topology', function(topology) {
             topologySvg.reset(topology);
-          }, true);
+          });
+
+          scope.$watch('triggerRefresh', function() {
+            topologySvg.reset(scope.topology);
+          });
 
           scope.$watch('dimensions', function(dimensions) {
             topologySvg.onResize(dimensions);

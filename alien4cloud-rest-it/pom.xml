@@ -3,7 +3,7 @@
     <parent>
         <groupId>alien4cloud</groupId>
         <artifactId>alien4cloud-parent</artifactId>
-        <version>1.1.0-RC1</version>
+        <version>1.1.0</version>
     </parent>
     <artifactId>alien4cloud-rest-it</artifactId>
     <packaging>war</packaging>
@@ -187,15 +187,6 @@
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <webappDirectory>${project.build.directory}/alien4cloud-rest-war</webappDirectory>
-                    <webResources>
-                        <!-- Add default types archives folder to the war file -->
-                        <resource>
-                            <directory>${project.parent.basedir}/alien4cloud-core/src/main/default-normative-types
-                            </directory>
-                            <!-- override the destination directory for this resource -->
-                            <targetPath>WEB-INF/classes/default-normative-types</targetPath>
-                        </resource>
-                    </webResources>
                 </configuration>
             </plugin>
             <plugin>

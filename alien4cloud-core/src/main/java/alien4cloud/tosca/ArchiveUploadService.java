@@ -6,7 +6,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
 
@@ -28,7 +28,7 @@ import alien4cloud.tosca.parser.ParsingResult;
 import com.google.common.collect.Maps;
 
 @Component
-@Log4j
+@Slf4j
 public class ArchiveUploadService {
 
     @Inject

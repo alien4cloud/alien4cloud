@@ -238,8 +238,10 @@ define(function (require) {
        // may be from different archives..
       $scope.getComponent = function(nodeTemplate, type) {
         var nodeType = $scope.topology.nodeTypes[nodeTemplate.type];
+        if(_.defined($scope.topology) && _.defined($scope.topology.capabilityTypes) && _.defined($scope.topology.capabilityTypes[type])) {
+          return $scope.topology.capabilityTypes[type];
+        }
         var componentId = type + ':' + nodeType.archiveVersion;
-
         return componentService.get({
           componentId: componentId
         }, function(successResult) {
@@ -287,7 +289,6 @@ define(function (require) {
 
             fillNodeSelectionVars(newSelected);
             $scope.display.set('component', true);
-            $scope.$apply();
           });
         }
       };

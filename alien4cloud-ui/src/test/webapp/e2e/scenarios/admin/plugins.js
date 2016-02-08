@@ -60,7 +60,7 @@ describe('Upload and handle paas plugins', function() {
       // Generic form do not manage enumeration for the moment
       // 'scope' : 'runtime',
       'default': 4,
-      'description': 'Property which define the number of cpu core'
+      'description': 'Number of cpu'
     };
 
     var cpuPropertyElementType = {

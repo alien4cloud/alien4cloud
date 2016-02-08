@@ -58,11 +58,12 @@ describe('Component List :', function() {
     var secondPageElement = pagination.get(3);
     common.click(by.tagName('a'), secondPageElement);
     results = element.all(by.repeater('component in searchResult.data'));
-    expect(results.count()).toEqual(10);
+    expect(results.count()).toEqual(15);
   });
 
   it('should be able to have components grouped by version when there are multiple versions of the same component', function() {
     components.go();
+    components.search('tosca.nodes.Compute');
     var computeLine = common.element(by.id('li_tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT'));
 
     // version should be the latest
@@ -99,7 +100,7 @@ describe('Component List :', function() {
     results = element.all(by.repeater('component in searchResult.data'));
     expect(common.element(by.tagName('empty-place-holder'))).toBeTruthy();
     expect(results.count()).toEqual(0);
-    
+
   });
   
   it('afterAll', function() { authentication.logout(); });

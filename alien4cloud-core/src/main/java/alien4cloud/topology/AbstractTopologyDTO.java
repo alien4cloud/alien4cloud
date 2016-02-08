@@ -23,9 +23,4 @@ public class AbstractTopologyDTO<T extends Topology> {
     private Map<String, IndexedRelationshipType> relationshipTypes;
     private Map<String, IndexedCapabilityType> capabilityTypes;
     private Map<String, Map<String, Set<String>>> outputCapabilityProperties;
-
-    /**
-     * The TOSCA as a YAML content.
-     */
-    private String yaml;
 }

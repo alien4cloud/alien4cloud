@@ -10,7 +10,8 @@
       <table class="table table-condensed" id="tabProperties">
         <tr ng-repeat="metaProperty in properties">
           <td ng-init="propertyDefinition = metaProperty">
-            <property-display ng-init="condensed = true"
+            <property-display id="meta_properties_{{metaProperty.name}}"
+                              ng-init="condensed = true"
                               class="metaPropDirective"
                               definition="metaProperty"
                               property-name="metaProperty.name"

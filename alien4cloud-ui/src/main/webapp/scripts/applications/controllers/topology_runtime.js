@@ -37,6 +37,7 @@ define(function (require) {
       var applicationId = $state.params.id;
       var selectedEnvironmentId = $state.params.selectedEnvironmentId;
       $scope.selectedEnvironment = null;
+      $scope.triggerTopologyRefresh = null;
 
       console.log($state);
 
@@ -226,9 +227,9 @@ define(function (require) {
       var refreshNodeInstanceInMaintenanceMode = function() {
         var hasNOdeInstanceInMaintenanceMode = false;
         if (_.defined($scope.topology.instances)) {
-          angular.forEach($scope.topology.instances, function(v, k) {
+          angular.forEach($scope.topology.instances, function(v) {
             if (_.defined(v)) {
-              angular.forEach(v, function(vv, kk) {
+              angular.forEach(v, function(vv) {
                 if (_.defined(vv) && vv.instanceStatus === 'MAINTENANCE') {
                   hasNOdeInstanceInMaintenanceMode = true;
                 }
@@ -250,6 +251,7 @@ define(function (require) {
             $scope.topology.instances = successResult.data;
             refreshSelectedNodeInstancesCount();
             refreshNodeInstanceInMaintenanceMode();
+            $scope.triggerTopologyRefresh = {};
           }
         });
       }
@@ -283,7 +285,7 @@ define(function (require) {
             refreshInstancesStatuses();
           }, 1000, 1);
           refreshNodeInstanceInMaintenanceMode();
-          $scope.$apply();
+          $scope.$digest();
         }
       };
 
@@ -370,6 +372,7 @@ define(function (require) {
         newSelected.selected = true;
 
         $scope.selectedNodeTemplate = newSelected;
+        $scope.triggerTopologyRefresh = {};
         $scope.selectedNodeTemplate.name = newSelectedName;
         if ($scope.isComputeType($scope.selectedNodeTemplate)) {
           $scope.selectedNodeTemplate.scalingPolicy = toscaService.getScalingPolicy($scope.selectedNodeTemplate);

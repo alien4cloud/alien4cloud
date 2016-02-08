@@ -111,7 +111,7 @@ define(function(require) {
             nodeGroup.append('image').attr('x', 44).attr('y', 26).attr('width', 16).attr('height', 16).attr('xlink:href', 'images/abstract_ico.png');
           }
 
-          nodeGroup.append('text').attr('text-anchor', 'start').attr('class', 'title').attr('x', 44).attr('y', 20);
+          nodeGroup.append('text').attr('id', 'title_' + node.id).attr('text-anchor', 'start').attr('class', 'title').attr('x', 44).attr('y', 20);
           nodeGroup.append('text').attr('text-anchor', 'end').attr('class', 'version').attr('x', node.bbox.width() - 10).attr('y', 40);
 
           // if the node has some children we should add the collapse bar.

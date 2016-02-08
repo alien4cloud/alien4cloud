@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import alien4cloud.model.orchestrators.locations.Location;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.FilterBuilder;
@@ -100,6 +101,18 @@ public class CsarService implements ICsarDependencyLoader {
                 FilterBuilders.boolFilter().must(FilterBuilders.termFilter("dependencies.name", name))
                         .must(FilterBuilders.termFilter("dependencies.version", version)));
         GetMultipleDataResult<Topology> result = csarDAO.search(Topology.class, null, null, filter, null, 0, Integer.MAX_VALUE);
+        return result.getData();
+    }
+
+    /**
+     * @return an array of CSARs that depend on this name:version.
+     */
+    public Location[] getDependantLocations(String name, String version) {
+        FilterBuilder filter = FilterBuilders.nestedFilter(
+                "dependencies",
+                FilterBuilders.boolFilter().must(FilterBuilders.termFilter("dependencies.name", name))
+                        .must(FilterBuilders.termFilter("dependencies.version", version)));
+        GetMultipleDataResult<Location> result = csarDAO.search(Location.class, null, null, filter, null, 0, Integer.MAX_VALUE);
         return result.getData();
     }
 
@@ -252,6 +265,12 @@ public class CsarService implements ICsarDependencyLoader {
             relatedResourceList.addAll(generateTopologiesInfo(topologies));
         }
 
+        // a csar that is a dependency of location can not be deleted
+        Location[] relatedLocations = getDependantLocations(csar.getName(), csar.getVersion());
+        if (relatedLocations != null && relatedLocations.length > 0) {
+            relatedResourceList.addAll(generateLocationsInfo(relatedLocations));
+        }
+
         return relatedResourceList;
     }
 
@@ -307,6 +326,25 @@ public class CsarService implements ICsarDependencyLoader {
             } else {
                 typeHandled = true;
             }
+        }
+        return resourceList;
+    }
+
+    /**
+     * Generate resources related to a locations list
+     *
+     * @param locations
+     * @return
+     */
+    private List<Usage> generateLocationsInfo(Location[] locations) {
+        String resourceName = null;
+        String resourceId = null;
+        List<Usage> resourceList = Lists.newArrayList();
+        for (Location location : locations) {
+            resourceName = location.getName();
+            resourceId = location.getId();
+            Usage temp = new Usage(resourceName, Location.class.getSimpleName().toLowerCase(), resourceId);
+            resourceList.add(temp);
         }
         return resourceList;
     }

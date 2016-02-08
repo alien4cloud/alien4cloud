@@ -62,7 +62,7 @@ define(function(require) {
                     var oldDrawEdges = render.createEdgePaths();
                     render.createEdgePaths(function(selection, g, arrows) {
                         var edges = oldDrawEdges(selection, g, arrows);
-                        edges.on('click', function (edge) { 
+                        edges.on('click', function (edge) {
                           // select the link in order to allow actions on it (ie. remove)
                           if (edge.v !== 'start' && edge.w !== 'end') {
                             // edge connected to start or end are no editable
@@ -71,7 +71,7 @@ define(function(require) {
                         });
                         return edges;
                     });
-                    
+
                     // Add our custom shapes
                     render.shapes().start = function(parent, bbox, node) {
                       var r = bbox.height / 2;
@@ -104,7 +104,7 @@ define(function(require) {
                       var w = bbox.width;
                       var y = (bbox.height / 2) * -1;
                       var h = bbox.height;
-                      
+
                       var shortActivityType = scope.workflows.getStepActivityType(step);
                       var simpleView = (scope.wfViewMode === 'simple' && shortActivityType === 'SetStateActivity');
                       var shapeSvg = parent.insert('rect').attr('x', x).attr('y', y).attr('width', w).attr('height', h).attr('rx', 5).attr('ry', 5).style("fill", "white");
@@ -176,15 +176,15 @@ define(function(require) {
                       };
                       //
                       shapeSvg.on("mouseover", onMouseOver);
-                      shapeSvg.on("mouseout", onMouseOut);                      
+                      shapeSvg.on("mouseout", onMouseOut);
                       shapeSvg.on("click", onClick);
                       // in simple view mode, we want to be able to click on icons
                       icon.on("mouseover", onMouseOver);
-                      icon.on("mouseout", onMouseOut);                        
+                      icon.on("mouseout", onMouseOut);
                       icon.on("click", onClick);
                       return shapeSvg;
                     };
-                    
+
                     // Set up an SVG group so that we can translate the final
                     // graph.
                     var svg = d3.select('#plan-svg'), svgGroup = svg
@@ -232,16 +232,16 @@ define(function(require) {
                         g.setNode(stepName, {label: step.name});
                       }
                     }
-                    
+
                     function appendEdge(g, from, to) {
                       var stokeWidth = '1.5px';
                       if (scope.workflows.isEdgePinned(from, to)) {
                         stokeWidth = '5px';
                       }
                       var style = {
-                          lineInterpolate: 'basis', 
-                          arrowhead: 'vee', 
-                          style: "stroke: black; stroke-width: " + stokeWidth + ";", 
+                          lineInterpolate: 'basis',
+                          arrowhead: 'vee',
+                          style: "stroke: black; stroke-width: " + stokeWidth + ";",
                           arrowheadStyle: "fill: black; stroke: black"};
                       if (errorRenderingData.cycles[from] && _.contains(errorRenderingData.cycles[from], to)) {
                         // the edge is in a cycle, make it red
@@ -267,7 +267,7 @@ define(function(require) {
                         return;
                       }
                       errorRenderingData = scope.workflows.getErrorRenderingData();
-                      
+
                       hosts = scope.topology.topology.workflows[scope.currentWorkflowName].hosts;
                       steps = scope.topology.topology.workflows[scope.currentWorkflowName].steps;
 
@@ -350,7 +350,7 @@ define(function(require) {
 
                     scope.$watch('topology', function() {
                       scope.workflows.topologyChanged();
-                    }, true);
+                    });
 
                     function onResize(width, height) {
                       svgGraph.onResize(width, height);
@@ -501,7 +501,7 @@ define(function(require) {
                         if (followingSteps[i] !== to) {
                           setPreviewEdge(g, to, followingSteps[i]);
                         }
-                      }                      
+                      }
                     }
                     // swap steps : connections between both is inversed and each other connections are swapped
                     scope.$on('WfSwapPreview', function (event, from, to) {

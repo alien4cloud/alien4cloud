@@ -79,6 +79,13 @@ module.exports.simpleTopology = {
       requirement: 'host',
       target: 'Compute',
       type: 'tosca.relationships.HostedOn:' + normativeTypesVersion
+    },
+    dependsOnCompute2: {
+      name: 'dependsOnCompute2',
+      source: 'Compute',
+      requirement: 'dependency',
+      target: 'Compute-2',
+      type: 'tosca.relationships.DependsOn:' + normativeTypesVersion
     }
   }
 };

@@ -9,6 +9,7 @@ var xedit = require('../../common/xedit');
 var applications = require('../../applications/applications');
 
 var applicationsData = require(__dirname + '/_data/application_details/applications.json');
+var topologiesData = require(__dirname + '/_data/application_details/topologies.json');
 var applicationEnvironmentsData = require(__dirname + '/_data/application_details/applicationenvironments.json');
 var applicationVersionsData = require(__dirname + '/_data/application_details/applicationversions.json');
 
@@ -28,6 +29,7 @@ describe('Topology templates details:', function() {
     setup.index('application', 'application', applicationsData);
     setup.index('applicationenvironment', 'applicationenvironment', applicationEnvironmentsData);
     setup.index('applicationversion', 'applicationversion', applicationVersionsData);
+    setup.index('topology', 'topology', topologiesData);
     common.home();
     authentication.login('applicationManager');
   });

@@ -1,5 +1,6 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import org.yaml.snakeyaml.nodes.SequenceNode;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.RequirementDefinition;
@@ -171,7 +173,7 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
             // the node type is null if not found in archive or dep, the error is already raised
             return null;
         }
-        RequirementDefinition rd = getRequirementDefinitionByName(indexedNodeType, toscaRequirementName);
+        RequirementDefinition rd = getRequirementDefinitionByNameInHierarchy(indexedNodeType, toscaRequirementName, archiveRoot);
         if (rd == null) {
             context.getParsingErrors().add(
                     new ParsingError(ErrorCode.REQUIREMENT_NOT_FOUND, null, node.getStartMark(), null, node.getEndMark(), toscaRequirementName));
@@ -250,6 +252,31 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
         for (Entry<String, Capability> capabilityEntry : nodeTemplate.getCapabilities().entrySet()) {
             if (capabilityEntry.getValue().getType().equals(type)) {
                 return capabilityEntry;
+            }
+        }
+        return null;
+    }
+
+    private RequirementDefinition getRequirementDefinitionByNameInHierarchy(IndexedNodeType indexedNodeType, String name, ArchiveRoot archiveRoot) {
+        RequirementDefinition rd = getRequirementDefinitionByName(indexedNodeType, name);
+        if (rd != null) {
+            return rd;
+        }
+        List<String> derivedFrom = indexedNodeType.getDerivedFrom();
+        if (derivedFrom == null) {
+            return null;
+        }
+        Map<String, IndexedNodeType> hierarchy = Maps.newHashMap();
+        for (String parentId : derivedFrom) {
+            IndexedNodeType parentType = ToscaParsingUtil.getNodeTypeFromArchiveOrDependencies(parentId, archiveRoot, searchService);
+            hierarchy.put(parentType.getId(), parentType);
+        }
+        List<IndexedNodeType> hierarchyList = IndexedModelUtils.orderByDerivedFromHierarchy(hierarchy);
+        Collections.reverse(hierarchyList);
+        for (IndexedNodeType parentType : hierarchyList) {
+            rd = getRequirementDefinitionByName(parentType, name);
+            if (rd != null) {
+                return rd;
             }
         }
         return null;

@@ -4,11 +4,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.Maps;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class TestDataRegistry {
@@ -38,6 +38,7 @@ public class TestDataRegistry {
         }
         BASE_DIR = Paths.get(basedir).normalize().toAbsolutePath();
     }
+
     /**
      * The parent project, it's where all artifacts are stored
      */
@@ -124,6 +125,8 @@ public class TestDataRegistry {
         addConditionFolder("samples php", GIT_ARTIFACTS_PATH + "samples/php");
         addConditionFolder("samples topology wordpress", GIT_ARTIFACTS_PATH + "samples/topology-wordpress");
         addConditionFolder("samples topology tomcat-war", GIT_ARTIFACTS_PATH + "samples/topology-tomcatWar");
+        addConditionFolder("samples apache-load-balancer", GIT_ARTIFACTS_PATH + "samples/apache-load-balancer");
+        addConditionFolder("samples topology load-balancer-tomcat", GIT_ARTIFACTS_PATH + "samples/topology-load-balancer-tomcat");
 
         // We put all artifacts to a4c root project dir
         // test uploading an unzipped file (do not zip it)

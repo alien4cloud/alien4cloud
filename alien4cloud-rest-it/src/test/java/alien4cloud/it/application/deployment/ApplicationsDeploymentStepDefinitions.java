@@ -5,29 +5,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.http.Header;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import org.elasticsearch.common.collect.Lists;
-import org.elasticsearch.common.collect.Maps;
-import org.elasticsearch.common.collect.Sets;
-import org.junit.Assert;
-
 import alien4cloud.it.Context;
 import alien4cloud.it.application.ApplicationStepDefinitions;
 import alien4cloud.it.common.CommonStepDefinitions;
@@ -52,6 +29,26 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.http.Header;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.elasticsearch.common.collect.Lists;
+import org.elasticsearch.common.collect.Maps;
+import org.elasticsearch.common.collect.Sets;
+import org.junit.Assert;
 
 @Slf4j
 public class ApplicationsDeploymentStepDefinitions {
@@ -65,19 +62,33 @@ public class ApplicationsDeploymentStepDefinitions {
         pendingStatuses.put("undeployment", DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS);
     }
 
+    @When("I failsafe undeploy it")
+    public void I_failsafe_undeploy_it() throws Throwable {
+        I_undeploy_it(ApplicationStepDefinitions.CURRENT_APPLICATION, true);
+    }
+
     @When("I undeploy it")
     public void I_undeploy_it() throws Throwable {
-        Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
+        I_undeploy_it(ApplicationStepDefinitions.CURRENT_APPLICATION, false);
+    }
+
+    public void I_undeploy_it(Application application, boolean failsafe) throws Throwable {
         String envId = Context.getInstance().getDefaultApplicationEnvironmentId(application.getName());
         String statusRequest = "/rest/applications/" + application.getId() + "/environments/" + envId + "/status";
         RestResponse<String> statusResponse = JsonUtil.read(Context.getRestClientInstance().get(statusRequest), String.class);
-        assertNull(statusResponse.getError());
+        if (failsafe) {
+            if (statusResponse.getError() != null) {
+                log.warn("Error was supposed to be null but was : ", statusResponse.getError());
+            }
+        } else {
+            assertNull(statusResponse.getError());
+        }
         DeploymentStatus deploymentStatus = DeploymentStatus.valueOf(statusResponse.getData());
         if (!DeploymentStatus.UNDEPLOYED.equals(deploymentStatus) || !DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS.equals(deploymentStatus)) {
             Context.getInstance().registerRestResponse(
                     Context.getRestClientInstance().delete("/rest/applications/" + application.getId() + "/environments/" + envId + "/deployment"));
         }
-        assertStatus(application.getName(), DeploymentStatus.UNDEPLOYED, DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS, 10 * 60L * 1000L, null);
+        assertStatus(application.getName(), DeploymentStatus.UNDEPLOYED, DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS, 10 * 60L * 1000L, null, failsafe);
     }
 
     @When("^I deploy it$")
@@ -101,8 +112,8 @@ public class ApplicationsDeploymentStepDefinitions {
         // set application id and environment id for the request
         String applicationId = (applicationName == null) ? application.getId() : Context.getInstance().getApplicationId(applicationName);
         deployApplicationRequest.setApplicationId(applicationId);
-        String environmentId = (environmentName == null) ? Context.getInstance().getDefaultApplicationEnvironmentId(applicationName) : Context.getInstance()
-                .getApplicationEnvironmentId(applicationName, environmentName);
+        String environmentId = (environmentName == null) ? Context.getInstance().getDefaultApplicationEnvironmentId(applicationName)
+                : Context.getInstance().getApplicationEnvironmentId(applicationName, environmentName);
         deployApplicationRequest.setApplicationEnvironmentId(environmentId);
 
         return deployApplicationRequest;
@@ -110,24 +121,30 @@ public class ApplicationsDeploymentStepDefinitions {
 
     private void assertStatus(String applicationName, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout,
             String applicationEnvironmentName) throws Throwable {
-        checkStatus(applicationName, null, expectedStatus, pendingStatus, timeout, applicationEnvironmentName);
+        checkStatus(applicationName, null, expectedStatus, pendingStatus, timeout, applicationEnvironmentName, false);
+    }
+
+    private void assertStatus(String applicationName, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout,
+            String applicationEnvironmentName, boolean failover) throws Throwable {
+        checkStatus(applicationName, null, expectedStatus, pendingStatus, timeout, applicationEnvironmentName, failover);
     }
 
     private void assertDeploymentStatus(String deploymentId, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout) throws Throwable {
-        checkStatus(null, deploymentId, expectedStatus, pendingStatus, timeout, null);
+        checkStatus(null, deploymentId, expectedStatus, pendingStatus, timeout, null, false);
     }
 
     @SuppressWarnings("rawtypes")
     private void checkStatus(String applicationName, String deploymentId, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout,
-            String applicationEnvironmentName) throws Throwable {
+            String applicationEnvironmentName, boolean failover) throws Throwable {
         String statusRequest = null;
         String applicationEnvironmentId = null;
         String applicationId = applicationName != null ? Context.getInstance().getApplicationId(applicationName) : null;
         if (deploymentId != null) {
             statusRequest = "/rest/deployments/" + deploymentId + "/status";
         } else if (applicationId != null) {
-            applicationEnvironmentId = applicationEnvironmentName != null ? Context.getInstance().getApplicationEnvironmentId(applicationName,
-                    applicationEnvironmentName) : Context.getInstance().getDefaultApplicationEnvironmentId(applicationName);
+            applicationEnvironmentId = applicationEnvironmentName != null
+                    ? Context.getInstance().getApplicationEnvironmentId(applicationName, applicationEnvironmentName)
+                    : Context.getInstance().getDefaultApplicationEnvironmentId(applicationName);
             statusRequest = "/rest/applications/" + applicationId + "/environments/" + applicationEnvironmentId + "/status";
         } else {
             throw new ITException("Expected at least application ID OR deployment ID to check the status.");
@@ -135,7 +152,12 @@ public class ApplicationsDeploymentStepDefinitions {
         long now = System.currentTimeMillis();
         while (true) {
             if (System.currentTimeMillis() - now > timeout) {
-                throw new ITException("Expected deployment to be [" + expectedStatus + "] but Test has timeouted");
+                if (failover) {
+                    log.warn("Expected deployment to be [" + expectedStatus + "] but Test has timeouted");
+                    return;
+                } else {
+                    throw new ITException("Expected deployment to be [" + expectedStatus + "] but Test has timeouted");
+                }
             }
             // get the current status
             String restResponseText = Context.getRestClientInstance().get(statusRequest);
@@ -145,8 +167,8 @@ public class ApplicationsDeploymentStepDefinitions {
 
             if (deploymentStatus.equals(expectedStatus)) {
                 if (applicationId != null) {
-                    String restInfoResponseText = Context.getRestClientInstance().get(
-                            "/rest/applications/" + applicationId + "/environments/" + applicationEnvironmentId + "/deployment/informations");
+                    String restInfoResponseText = Context.getRestClientInstance()
+                            .get("/rest/applications/" + applicationId + "/environments/" + applicationEnvironmentId + "/deployment/informations");
                     RestResponse<?> infoResponse = JsonUtil.read(restInfoResponseText);
                     assertNull(infoResponse.getError());
                 }
@@ -155,9 +177,20 @@ public class ApplicationsDeploymentStepDefinitions {
                 Thread.sleep(1000L);
             } else {
                 if (applicationId != null) {
-                    throw new ITException("Expected deployment of [" + applicationId + "] to be [" + expectedStatus + "] but was [" + deploymentStatus + "]");
+                    if (failover) {
+                        log.warn("Expected deployment of app [" + applicationId + "] to be [" + expectedStatus + "] but was [" + deploymentStatus + "]");
+                        return;
+                    } else {
+                        throw new ITException(
+                                "Expected deployment of app [" + applicationId + "] to be [" + expectedStatus + "] but was [" + deploymentStatus + "]");
+                    }
                 } else {
-                    throw new ITException("Expected deployment of [" + deploymentId + "] to be [" + expectedStatus + "] but was [" + deploymentStatus + "]");
+                    if (failover) {
+                        log.warn("Expected deployment [" + deploymentId + "] to be [" + expectedStatus + "] but was [" + deploymentStatus + "]");
+                        return;
+                    } else {
+                        throw new ITException("Expected deployment [" + deploymentId + "] to be [" + expectedStatus + "] but was [" + deploymentStatus + "]");
+                    }
                 }
             }
         }
@@ -175,7 +208,8 @@ public class ApplicationsDeploymentStepDefinitions {
     @Then("^The application's deployment must succeed$")
     public void The_application_s_deployment_must_succeed() throws Throwable {
         // null value for environmentName => use default environment
-        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), DeploymentStatus.DEPLOYED, DeploymentStatus.DEPLOYMENT_IN_PROGRESS, 15000L, null);
+        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), DeploymentStatus.DEPLOYED, DeploymentStatus.DEPLOYMENT_IN_PROGRESS, 15000L,
+                null);
     }
 
     @Then("^The application's deployment must fail$")
@@ -383,10 +417,11 @@ public class ApplicationsDeploymentStepDefinitions {
     private Map<String, IStompDataFuture> stompDataFutures = Maps.newHashMap();
 
     private String getActiveDeploymentId(String applicationName) throws IOException {
-        Deployment deployment = JsonUtil.read(
-                Context.getRestClientInstance().get(
-                        "/rest/applications/" + Context.getInstance().getApplicationId(applicationName) + "/environments/"
-                                + Context.getInstance().getDefaultApplicationEnvironmentId(applicationName) + "/active-deployment"), Deployment.class)
+        Deployment deployment = JsonUtil
+                .read(Context.getRestClientInstance()
+                        .get("/rest/applications/" + Context.getInstance().getApplicationId(applicationName) + "/environments/"
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(applicationName) + "/active-deployment"),
+                        Deployment.class)
                 .getData();
         return deployment.getId();
     }
@@ -435,8 +470,8 @@ public class ApplicationsDeploymentStepDefinitions {
                 }
                 break;
             case "instance-state":
-                StompData<PaaSInstanceStateMonitorEvent>[] instanceStateEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(),
-                        WAIT_TIME, TimeUnit.SECONDS);
+                StompData<PaaSInstanceStateMonitorEvent>[] instanceStateEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), WAIT_TIME,
+                        TimeUnit.SECONDS);
                 for (StompData<PaaSInstanceStateMonitorEvent> data : instanceStateEvents) {
                     actualEvents.add(data.getData().getInstanceState());
                 }
@@ -505,7 +540,14 @@ public class ApplicationsDeploymentStepDefinitions {
     public void The_application_s_deployment_must_succeed_after_minutes(long numberOfMinutes) throws Throwable {
         // null value for environmentName => use default environment
         assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), DeploymentStatus.DEPLOYED, DeploymentStatus.DEPLOYMENT_IN_PROGRESS,
-                numberOfMinutes * 60L * 1000L, null);
+                numberOfMinutes * 60L * 1000L, null, false);
+    }
+
+    @And("^The application's deployment should succeed after (\\d+) minutes$")
+    public void The_application_s_deployment_should_succeed_after_minutes(long numberOfMinutes) throws Throwable {
+        // null value for environmentName => use default environment
+        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), DeploymentStatus.DEPLOYED, DeploymentStatus.DEPLOYMENT_IN_PROGRESS,
+                numberOfMinutes * 60L * 1000L, null, true);
     }
 
     @Then("^all nodes instances must be in \"([^\"]*)\" state after (\\d+) minutes$")
@@ -519,8 +561,8 @@ public class ApplicationsDeploymentStepDefinitions {
                 throw new ITException("Expected All instances to be in state [" + expectedState + "] but Test has timeouted");
             }
 
-            String restInfoResponseText = Context.getRestClientInstance().get(
-                    "/rest/applications/" + applicationId + "/environments/" + applicationEnvironmentId + "/deployment/informations");
+            String restInfoResponseText = Context.getRestClientInstance()
+                    .get("/rest/applications/" + applicationId + "/environments/" + applicationEnvironmentId + "/deployment/informations");
             RestResponse<?> infoResponse = JsonUtil.read(restInfoResponseText);
             assertNull(infoResponse.getError());
             Assert.assertNotNull(infoResponse.getData());
@@ -556,8 +598,8 @@ public class ApplicationsDeploymentStepDefinitions {
 
     @And("^The node \"([^\"]*)\" should contain (\\d+) instance\\(s\\) not started$")
     public void The_node_should_contain_instances_not_started(String nodeName, int expectedNumberOfInstancesNotStarted) throws Throwable {
-        RestResponse<?> response = JsonUtil.read(Context.getRestClientInstance().get(
-                "/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
+        RestResponse<?> response = JsonUtil.read(Context.getRestClientInstance()
+                .get("/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
                         + Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName())
                         + "/deployment/informations"));
         Assert.assertNotNull(response.getData());
@@ -571,15 +613,14 @@ public class ApplicationsDeploymentStepDefinitions {
                 countNotStarted++;
             }
         }
-        assertEquals(
-                "should have " + expectedNumberOfInstancesNotStarted + " instances not started, but got theses instances: "
-                        + JsonUtil.toString(nodeInformation), expectedNumberOfInstancesNotStarted, countNotStarted);
+        assertEquals("should have " + expectedNumberOfInstancesNotStarted + " instances not started, but got theses instances: "
+                + JsonUtil.toString(nodeInformation), expectedNumberOfInstancesNotStarted, countNotStarted);
     }
 
     @And("^The node \"([^\"]*)\" should contain (\\d+) instance\\(s\\)$")
     public void The_node_should_contain_instance_s(String nodeName, int numberOfInstances) throws Throwable {
-        RestResponse<?> response = JsonUtil.read(Context.getRestClientInstance().get(
-                "/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
+        RestResponse<?> response = JsonUtil.read(Context.getRestClientInstance()
+                .get("/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
                         + Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName())
                         + "/deployment/informations"));
         Assert.assertNotNull(response.getData());
