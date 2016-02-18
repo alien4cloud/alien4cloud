@@ -198,7 +198,7 @@ define(function(require) {
             if (_.defined(scalingPolicy)) {
               var formatScalingValue = function(scalingValue) {
                 if (scalingValue.hasOwnProperty('function')) {
-                  return "...";
+                  return '...';
                 } else {
                   return scalingValue;
                 }

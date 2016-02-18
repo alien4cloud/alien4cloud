@@ -58,7 +58,7 @@ define(function (require) {
       function onResize(width, height) {
         $scope.heightInfo = { height: height };
         $scope.widthInfo = { width: width };
-        $scope.$apply();
+        $scope.$digest();
       }
 
       // register for resize events

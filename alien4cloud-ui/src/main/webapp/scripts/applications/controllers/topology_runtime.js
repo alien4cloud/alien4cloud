@@ -8,7 +8,7 @@ define(function (require) {
 
   require('d3');
   require('scripts/topology/controllers/topology_editor_workflows');
-  require('scripts/topology/directives/plan_rendering');
+  require('scripts/topology/directives/workflow_rendering');
 
   states.state('applications.detail.runtime', {
     url: '/runtime',

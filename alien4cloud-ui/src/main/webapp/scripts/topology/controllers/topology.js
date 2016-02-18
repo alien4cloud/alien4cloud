@@ -36,7 +36,7 @@ define(function (require) {
   require('scripts/topology/controllers/search_relationship');
   require('scripts/topology/services/topology_json_processor');
   require('scripts/topology/services/topology_services');
-  require('scripts/topology/directives/plan_rendering');
+  require('scripts/topology/directives/workflow_rendering');
   require('scripts/topology/directives/topology_rendering');
   require('scripts/topology/controllers/workflow_operation_selector');
   require('scripts/topology/controllers/workflow_state_selector');
