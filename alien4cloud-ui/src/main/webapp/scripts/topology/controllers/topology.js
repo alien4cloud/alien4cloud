@@ -273,10 +273,8 @@ define(function (require) {
           }
         },
         selectNodeTemplate: function(newSelectedName, oldSelectedName) {
-          // select the "Properties" <TAB> to see selected node details
-          document.getElementById('nodetemplate-details').click();
-
-          $timeout(function() {
+          $scope.display.set('component', true);
+          // $timeout(function() {
             if (oldSelectedName) {
               var oldSelected = $scope.topology.topology.nodeTemplates[oldSelectedName];
               if (oldSelected) {
@@ -288,8 +286,8 @@ define(function (require) {
             newSelected.selected = true;
 
             fillNodeSelectionVars(newSelected);
-            $scope.display.set('component', true);
-          });
+          // });
+          $scope.$digest();
         }
       };
     }

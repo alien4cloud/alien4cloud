@@ -23,6 +23,9 @@ define(function(require) {
           // Default parent svg markup to render the workflow
           var containerElement = d3.select('#plan-graph-container');
           var svgGraph = svgServiceFactory.create(containerElement,'plan-svg', 'plan-svg');
+          var svgGroup = svgGraph.svgGroup;
+          // add markers for arrows
+          workflowShapes.initMarkers(svgGraph.svg);
 
           scope.$watch('triggerRefresh', function() {
             scope.workflows.topologyChanged();
@@ -36,28 +39,19 @@ define(function(require) {
           }
 
           function centerGraph() {
-            // Center the graph
-            // svgGraph.controls.coordinateUtils.bbox = bboxFactory.create(x, y, width, height);
-            // svgGraph.controls.coordinateUtils.reset();
-            // svgGraph.controls.updateViewBox();
+            svgGraph.controls.reset();
           }
 
           // Create the input graph
           var g = planRender.createGraph();
 
+          function render(layout) {
+            planRender.render(svgGroup, g, layout);
+            svgGraph.controls.updateBBox(planRender.bbox);
+          }
+
           // Add our custom shapes
           workflowShapes.scope = scope;
-
-          // Set up an SVG group so that we can translate the final graph.
-          var svg = d3.select('#plan-svg'),
-            svgGroup = svg.append('g');
-          // Set up zoom support
-          var zoom = d3.behavior.zoom().on('zoom',
-              function() {
-                svgGroup.attr('transform', 'translate(' + d3.event.translate + ')' + 'scale(' + d3.event.scale + ')');
-              });
-          svg.call(zoom);
-          zoom.scale(1).event(svg); // initial scale
 
           // the hosts (graph clusters)
           var hosts = [];
@@ -100,7 +94,7 @@ define(function(require) {
                 arrowhead: 'vee',
                 style: 'stroke: black; stroke-width: 1.5px;',
                 pinnedStyle: 'stroke: black; stroke-width: 5px;',
-                arrowheadStyle: 'fill: black; stroke: black'};
+                marker: 'arrow-standard'};
             if (errorRenderingData.cycles[from] && _.contains(errorRenderingData.cycles[from], to)) {
               // the edge is in a cycle, make it red
               style = {
@@ -108,7 +102,7 @@ define(function(require) {
                 arrowhead: 'vee',
                 style: 'stroke: #f66; stroke-width: 1.5px;',
                 pinnedStyle: 'stroke: black; stroke-width: 5px;',
-                arrowheadStyle: 'fill: #f66; stroke: #f66'
+                marker: 'arrow-error'
               };
             }
             g.setEdge(from, to, style);
@@ -179,11 +173,11 @@ define(function(require) {
             }
 
             // Rendering
-            planRender.render(svgGroup, g, true);
+            render(true);
 
             // tooltip
             var tip = d3Tip().attr('class', 'd3-tip wf-tip').offset([-10, 0]).html(function(d) { return styleTooltip(d.id); });
-            svg.call(tip);
+            svgGroup.call(tip);
             d3.selectAll('g.node').on('mouseover', tip.show).on('mouseout', tip.hide);
           }
 
@@ -215,7 +209,7 @@ define(function(require) {
             if(args.layout){
               refresh();
             } else {
-              planRender.render(svgGroup, g, false);
+              render(false);
             }
             if(args.center) {
               centerGraph();
@@ -227,7 +221,7 @@ define(function(require) {
             g.setEdge(from, to, {
               lineInterpolate: 'basis',
               style: 'stroke: blue; stroke-width: 3px; stroke-dasharray: 5, 5;',
-              arrowheadStyle: 'fill: blue; stroke: blue'
+              marker: 'arrow-preview'
             });
           }
           function setPreviewNode(g) {
@@ -246,7 +240,7 @@ define(function(require) {
             if (steps[to].precedingSteps.length === 1) {
               setPreviewEdge(g, 'start', to);
             }
-            planRender.render(svgGroup, g, true);
+            render(true);
           });
           scope.$on('WfResetPreview', function (event) {
             console.debug('WfResetPreview event received : ' + event);
@@ -261,7 +255,7 @@ define(function(require) {
                 setPreviewEdge(g, from[i], to[j]);
               }
             }
-            planRender.render(svgGroup, g, true);
+            render(true);
           });
           scope.$on('WfAddStepPreview', function () {
             setPreviewNode(g);
@@ -270,7 +264,7 @@ define(function(require) {
             if (_.size(steps) === 0) {
               g.removeEdge('start', 'end');
             }
-            planRender.render(svgGroup, g, true);
+            render(true);
           });
           scope.$on('WfInsertStepPreview', function (event, stepId) {
             console.log('WfInsertStepPreview event received : ' + event + ', stepId:' + stepId);
@@ -286,7 +280,7 @@ define(function(require) {
               setPreviewEdge(g, precedingStep, 'a4cPreviewNewStep');
             }
             setPreviewEdge(g, 'a4cPreviewNewStep', stepId);
-            planRender.render(svgGroup, g, true);
+            render(true);
           });
           scope.$on('WfAppendStepPreview', function (event, stepId) {
             console.debug('WfAppendStepPreview event received : ' + event + ', stepId:' + stepId);
@@ -302,7 +296,7 @@ define(function(require) {
               setPreviewEdge(g, 'a4cPreviewNewStep', followingStep);
             }
             setPreviewEdge(g, stepId, 'a4cPreviewNewStep');
-            planRender.render(svgGroup, g, true);
+            render(true);
           });
           scope.$on('WfRemoveStepPreview', function (event, stepId) {
             console.debug('WfRemoveStepPreview event received : ' + event + ', stepId:' + stepId);
@@ -327,7 +321,7 @@ define(function(require) {
                 setPreviewEdge(g, precedingSteps[i], followingSteps[j]);
               }
             }
-            planRender.render(svgGroup, g, true);
+            render(true);
           });
           function swapLinks(from, to) {
             // from's preceding become preceding of to
@@ -364,7 +358,7 @@ define(function(require) {
             swapLinks(from, to);
             swapLinks(to, from);
             setPreviewEdge(g, to, from);
-            planRender.render(svgGroup, g, true);
+            render(true);
           });
         }
       };

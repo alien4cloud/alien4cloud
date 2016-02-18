@@ -7,7 +7,7 @@ define(function (require) {
   modules.get('a4c-topology-editor').factory('planLayout', [ function() {
       // This service performs layout on a simple directed graph.
       return {
-        simplified: {},
+        spacing: 20,
         /**
         * Replace a set of nodes that are linked only together (single successor) by a single node
         */
@@ -42,11 +42,11 @@ define(function (require) {
               // the successor node is already a merge node
               node.mergeId = simpleNodeId;
               simpleNode.merged.push(node);
-              simpleNode.width += 20 + node.width;
+              simpleNode.width += this.spacing + node.width;
               simpleNode.height = Math.max(simpleNode.height, node.height);
             } else {
               // we have to update the successor with the merge node
-              var width = successor.width + 20 + node.width;
+              var width = successor.width + this.spacing + node.width;
               var height = Math.max(successor.height, node.height);
               node.mergeId = successors[0];
               simpleGraph.setNode(successors[0], {
@@ -115,7 +115,7 @@ define(function (require) {
             _.each(node.merged, function(mergedNode) {
               // update coordinates of mergedNode
               mergedNode.x = x - mergedNode.width/2;
-              x = x - mergedNode.width - 20;
+              x = x - mergedNode.width - instance.spacing;
               mergedNode.y = node.y;
               graph.setNode(mergedNode.id, mergedNode);
               graph.setParent(mergedNode.id, mergedNode.parent);

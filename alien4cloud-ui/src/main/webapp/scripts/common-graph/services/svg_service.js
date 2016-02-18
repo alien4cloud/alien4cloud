@@ -6,8 +6,8 @@ define(function (require) {
   require('scripts/common/services/browser_service');
   require('scripts/common-graph/services/svg_controls_service');
 
-  modules.get('a4c-common-graph', ['a4c-common']).factory('svgServiceFactory', ['svgControlsFactory', 'browserService',
-    function(svgControlsFactory, browserService) {
+  modules.get('a4c-common-graph', ['a4c-common']).factory('svgServiceFactory', ['svgControlsFactory',
+    function(svgControlsFactory) {
 
       function SvgGraph (containerElement, svgId, svgClass) {
         // create a controls instance for this svg (to move it and center it.).
@@ -16,6 +16,7 @@ define(function (require) {
         this.controls = svgControlsFactory.create(this.svg, toolbarElement);
         this.svg.attr('id', svgId);
         this.svg.attr('class', svgClass);
+        this.svgGroup = this.controls.svgGroup;
       }
 
       SvgGraph.prototype = {
@@ -28,16 +29,9 @@ define(function (require) {
         * @param height The new height of the element.
         */
         onResize: function(width, height) {
-          var isFirefox = browserService.isBrowser('Firefox');
-          if (isFirefox) {
-            this.svg.attr('height', '100%');
-          } else { // chrome, Safari...
-            this.svg.attr('height', height);
-          }
-          this.svg.attr('width', '100%');
-          this.controls.coordinateUtils.canvasWidth = width;
-          this.controls.coordinateUtils.canvasHeight = height;
-          this.controls.updateViewBox();
+          this.svg.attr('width', width);
+          this.svg.attr('height', height);
+          this.controls.resize(width, height);
         }
       };
 

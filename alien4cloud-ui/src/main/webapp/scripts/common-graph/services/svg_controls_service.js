@@ -2,25 +2,17 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
+  var d3 = require('d3');
   var _ = require('lodash');
 
-  var d3 = require('d3');
-  require('scripts/common-graph/services/coordinates_util_service');
-
-  modules.get('a4c-common-graph').factory('svgControlsFactory', ['coordinateUtilsFactory',
-    function(coordinateUtilsFactory) {
-
+  modules.get('a4c-common-graph').factory('svgControlsFactory', [function() {
       /**
       * Svg controll appends a tooltip element with buttons as well as .
       *
       * @param containerElement Container element is the element that must contains the svg element.
       */
       function SvgControls (svgElement, toolbarElement) {
-        this.svgElement = svgElement;
-        this.coordinateUtils = coordinateUtilsFactory.create(svgElement.node().clientWidth, svgElement.node().clientHeight);
         this.moveStep = 50; // px shift on move
-        this.lastX = null;
-        this.lastY = null;
 
         var instance = this;
 
@@ -81,101 +73,93 @@ define(function (require) {
         btnReset.attr('id', 'btn-topology-reset');
         btnReset.append('i').attr('class', 'fa fa-crosshairs');
         btnReset.on('click', function() {
-          instance.center();
+          instance.reset();
         });
 
-        svgElement.on('mouseup', function() {
-          svgElement.on('mousemove', null);
-        });
+        // defines a d3 behavior to manage viewport translations and zoom
+        var self = this;
 
-        svgElement.on('mousedown', function() {
-          instance.down(d3.event.clientX, d3.event.clientY);
-        });
-
-        svgElement.on('mouseout', function() {
-          svgElement.on('mousemove', null);
-        });
+        this.zoomRect = svgElement.append('rect').attr('fill', 'white');
+        this.svgGroup = svgElement.append('g');
+        this.zoom = d3.behavior.zoom().on('zoom',
+            function() {
+              self.svgGroup.attr('transform', 'translate(' + d3.event.translate + ')' + 'scale(' + d3.event.scale + ')');
+            });
+        svgElement.call(this.zoom);
       }
 
       SvgControls.prototype = {
         constructor: SvgControls,
         bbox: null,
 
-        /**
-        * Update the view box of the svg element to match the current coordinates.
-        */
-        updateViewBox: function(ifNotFitting) {
-          var update = true;
-          if(_.defined(ifNotFitting) && _.defined(this.bbox)) {
-            // we should update only if the new bbox doesn't fit in previous
-            update = !this.bbox.containsBBox(this.coordinateUtils.bbox);
+        resize: function(width, height) {
+          this.canvasWidth = width;
+          this.canvasHeight = height;
+          this.zoomRect.attr('width', width).attr('height', height);
+          // TODO center
+          this.reset();
+        },
+
+        reset: function() {
+          // center and find optimal scale
+          var x=0, y=0, scale = 1;
+          if (_.defined(this.bbox)) {
+            // center the drawing and set the scale if the drawing doesn't fit
+            // compute ideal scale to display everything
+            var widthScale = this.canvasWidth / this.bbox.width();
+            var heightScale = this.canvasHeight / this.bbox.height();
+            scale = widthScale < heightScale ? widthScale : heightScale;
+            var margingLeft = (this.canvasWidth - this.bbox.width() * scale) / 2;
+            var marginTop =  (this.canvasHeight - this.bbox.height() * scale) / 2;
+            x = -(this.bbox.minX) * scale + margingLeft;
+            y = -(this.bbox.minY) * scale + marginTop;
           }
-          if(update) {
-            this.svgElement.attr('viewBox',
-              this.coordinateUtils.x + ' ' + this.coordinateUtils.y + ' ' + this.coordinateUtils.width() + ' ' + this.coordinateUtils.height());
-            this.bbox = this.coordinateUtils.bbox;
-            var version = navigator.userAgent.match(/Version\/(.*?)\s/) || navigator.userAgent.match(/Chrome\/(\d+)/);
-            if ((navigator.vendor === 'Apple Computer, Inc.') ||
-              (navigator.vendor === 'Google Inc.' && version && version[1] < 8)) {
-              var rect = this.svgElement.append('rect');
-              setTimeout(function() {
-                rect.remove();
-              });
-            }
-          }
+          this.zoom.scale(scale);
+          this.zoom.translate([x, y]);
+          this.zoom.event(this.svgGroup);
+        },
+
+        updateBBox(bbox) {
+          // set the BoundingBox of the drawing
+          this.bbox = bbox;
         },
 
         translateLeft: function() {
-          this.coordinateUtils.translate(-this.moveStep, 0);
-          this.updateViewBox();
+          var translate = this.zoom.translate();
+          translate[0] -= this.moveStep;
+          this.zoom.translate(translate);
+          this.zoom.event(this.svgGroup);
         },
 
         translateRight: function() {
-          this.coordinateUtils.translate(this.moveStep, 0);
-          this.updateViewBox();
+          var translate = this.zoom.translate();
+          translate[0] += this.moveStep;
+          this.zoom.translate(translate);
+          this.zoom.event(this.svgGroup);
         },
 
         translateUp: function() {
-          this.coordinateUtils.translate(0, -this.moveStep);
-          this.updateViewBox();
+          var translate = this.zoom.translate();
+          translate[1] += this.moveStep;
+          this.zoom.translate(translate);
+          this.zoom.event(this.svgGroup);
         },
 
         translateDown: function() {
-          this.coordinateUtils.translate(0, this.moveStep);
-          this.updateViewBox();
+          var translate = this.zoom.translate();
+          translate[1] -= this.moveStep;
+          this.zoom.translate(translate);
+          this.zoom.event(this.svgGroup);
         },
 
         zoomOut: function() {
-          this.coordinateUtils.zoomOut();
-          this.updateViewBox();
+          this.zoom.scale(this.zoom.scale() * (1 - 0.15));
+          this.zoom.event(this.svgGroup);
         },
 
         zoomIn: function() {
-          this.coordinateUtils.zoomIn();
-          this.updateViewBox();
-        },
-
-        center: function() {
-          this.coordinateUtils.reset();
-          this.updateViewBox();
-        },
-
-        move: function(x, y) {
-          var tx = x - this.lastX;
-          var ty = y - this.lastY;
-          this.lastX = x;
-          this.lastY = y;
-          this.coordinateUtils.translate(tx, ty);
-          this.updateViewBox();
-        },
-
-        down: function(x, y) {
-          this.lastX = x;
-          this.lastY = y;
-          var instance = this;
-          this.svgElement.on('mousemove', function() {
-            instance.move(d3.event.clientX, d3.event.clientY);
-          });
+          this.zoom.scale(this.zoom.scale() * (1 + 0.15));
+          this.zoom.event(this.svgGroup);
         }
       };
 

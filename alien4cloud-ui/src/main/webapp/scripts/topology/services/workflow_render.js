@@ -7,8 +7,8 @@ define(function (require) {
 
   require('scripts/topology/services/workflow_layout');
 
-  modules.get('a4c-topology-editor').factory('planRender', ['d3Service', 'workflowShapes', 'planLayout',
-    function(d3Service, workflowShapes, planLayout) {
+  modules.get('a4c-topology-editor').factory('planRender', ['d3Service', 'workflowShapes', 'planLayout', 'bboxFactory',
+    function(d3Service, workflowShapes, planLayout, bboxFactory) {
       // This service render a graph using d3 js.
       return {
         // Create the renderer
@@ -32,8 +32,7 @@ define(function (require) {
         */
         render: function(svg, graph, layout) {
           var renderedGraph = graph;
-          if(layout) {
-            // Performs layout and draw the graph
+          if(layout) { // Performs layout and draw the graph
             // we simplifies the graph so dagre process the layout faster
             var simpleGraph = this.createGraph();
             planLayout.simplify(graph, simpleGraph, 'end');
@@ -48,14 +47,18 @@ define(function (require) {
             planLayout.unwrap(simpleGraph, 'end');
             planLayout.unwrapEdges(simpleGraph, graph);
             renderedGraph = simpleGraph;
+            var bbox = bboxFactory.create();
             // cleanup layout data from graph
-            _.each(graph.nodes(), function(nodeKey){
+            _.each(graph.nodes(), function(nodeKey) {
               var node = graph.node(nodeKey);
               delete node.simplified;
               delete node.merged;
               delete node.unwraped;
               delete node.mergeId;
+              bbox.addPoint(node.x, node.y);
+              bbox.addPoint(node.x + node.width, node.y + node.height);
             });
+            this.bbox = bbox;
           }
 
           // prepare groups to draw clusters, edges and nodes.

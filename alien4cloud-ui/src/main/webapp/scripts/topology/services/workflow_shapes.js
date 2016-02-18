@@ -151,10 +151,18 @@ define(function (require) {
           path.attr('style', function(e) {
             if (e.pinnedStyle && self.scope.wfPinnedEdge) {
               if (self.scope.wfPinnedEdge.from === e.source.id && self.scope.wfPinnedEdge.to === e.target.id) {
-              return e.pinnedStyle;
+                return e.pinnedStyle;
               }
             }
             return e.style;
+          });
+          path.attr('marker-end', function(e) {
+            if (e.pinnedStyle && self.scope.wfPinnedEdge) {
+              if (self.scope.wfPinnedEdge.from === e.source.id && self.scope.wfPinnedEdge.to === e.target.id) {
+                return 'url(#'+e.marker+'-pinned)';
+              }
+            }
+            return 'url(#'+e.marker+')';
           });
         },
 
@@ -172,6 +180,34 @@ define(function (require) {
           }
 
           return line(points);
+        },
+
+        initMarkers(svg) {
+          var defs = svg.append('defs');
+          function addMarker(name, color, large) {
+            var marker = defs.append('marker')
+              .attr('id', name)
+              .attr('markerUnits', 'userSpaceOnUse').attr('orient', 'auto');
+            var path = marker.append('path').attr('style', function() {return 'fill: '+color+'; stroke: '+color; });
+            if(large) {
+              marker.attr('markerWidth', '10')
+                .attr('markerHeight', '20')
+                .attr('refX', '10')
+                .attr('refY', '10');
+              path.attr('d', 'M0,0 L0,20 L12,10 z');
+            } else {
+              marker.attr('markerWidth', '5')
+                .attr('markerHeight', '10')
+                .attr('refX', '5')
+                .attr('refY', '5');
+              path.attr('d', 'M0,0 L0,10 L6,5 z');
+            }
+          }
+          addMarker('arrow-standard', 'black', false);
+          addMarker('arrow-standard-pinned', 'black', true);
+          addMarker('arrow-error', '#f66', false);
+          addMarker('arrow-error-pinned', '#f66', true);
+          addMarker('arrow-preview', 'blue', false);
         }
       };
     } // function
