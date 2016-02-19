@@ -43,8 +43,6 @@ define(function (require) {
       }
     });
 
-    var csarActiveDeploymentDAO = $resource('rest/csars/:csarId/active-deployment');
-
     // Prepare result html for toaster message
     var builtResultList = function builtResultList(resultObject) {
       var resourtceList;
@@ -63,7 +61,6 @@ define(function (require) {
 
     return {
       'getAndDeleteCsar': resultGetAndDelete,
-      'getActiveDeployment': csarActiveDeploymentDAO,
       'searchCsar': searchCsar,
       'createNodeType': nodeTypeCreateDAO,
       'nodeTypeCRUDDAO': nodeTypeCRUDDAO,

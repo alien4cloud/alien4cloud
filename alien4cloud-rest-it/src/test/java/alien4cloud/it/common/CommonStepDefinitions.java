@@ -119,6 +119,7 @@ public class CommonStepDefinitions {
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
         if (restResponse.getError() != null) {
             log.error("Rest response was <" + Context.getInstance().getRestResponse() + ">");
+            log.error("data are: " + restResponse.getData());
         }
         Assert.assertNull(restResponse.getError());
     }
