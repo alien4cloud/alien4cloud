@@ -79,7 +79,7 @@
                               </a>
                             </span>
                             <span ng-switch-when="topologytemplate">
-                              <a href="#/topologytemplates/details/{{resource.resourceId}}/topology" class="btn btn-primary btn-xs" tooltip="{{ 'CSAR.DETAILS.RESOURCE.TOPOLOGY_TEXT' | translate}}" tooltip-append-to-body="true"> <i class="fa fa-eye"></i>
+                              <a ng-click="goToRuntimeView(resource.resourceId)" class="btn btn-primary btn-xs" tooltip="{{ 'CSAR.DETAILS.RESOURCE.TOPOLOGY_TEXT' | translate}}" tooltip-append-to-body="true"> <i class="fa fa-eye"></i>
                               </a>
                             </span>
                             <span ng-switch-default>---</span>
