@@ -24,14 +24,6 @@ define(function (require) {
     ['$scope', '$modal', '$state', 'deploymentServices', 'orchestrator',
     function($scope, $modal, $state, deploymentServices, orchestrator) {
       $scope.orchestrator = orchestrator;
-      //get all deployments for this cloud
-      deploymentServices.get({
-        orchestratorId: $scope.orchestrator.id,
-        includeSourceSummary: true
-      }, function(result) {
-        processDeployments(result.data);
-        $scope.deployments = result.data;
-      });
 
       function processDeployments(deployments){
         if (_.defined(deployments)){
@@ -43,19 +35,25 @@ define(function (require) {
         }
       }
 
+      //get all deployments for this cloud
+      deploymentServices.get({
+        orchestratorId: $scope.orchestrator.id,
+        includeSourceSummary: true
+      }, function(result) {
+        processDeployments(result.data);
+        $scope.deployments = result.data;
+      });
+
       //Go to runtime view for a deployment
       $scope.goToRuntimeView = function(deployment){
         if(_.defined(deployment.endDate)){
           // do nothing as the deployment is ended already
           return;
         }
-
         $state.go('applications.detail.runtime', {
           id:deployment.sourceId,
           selectedEnvironmentId: deployment.environmentId
         });
-
-
       };
 
     }
