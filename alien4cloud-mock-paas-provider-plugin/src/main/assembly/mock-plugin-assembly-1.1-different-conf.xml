@@ -15,7 +15,8 @@
 			<excludes>
 				<exclude>alien4cloud/plugin/mock/ProviderConfig.class</exclude>
 				<exclude>META-INF/**</exclude>
-				<exclude>META-INF/**</exclude>
+				<exclude>openstack/mock-resources/mock-resources.yaml</exclude>
+				<exclude>openstack/mock-openstack-resources/openstack-resources.yaml</exclude>
 			</excludes>
 		</fileSet>
 		<fileSet>
