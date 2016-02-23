@@ -27,12 +27,12 @@ Feature: CSAR delete
 
   Scenario: Try do delete a CSAR that is a location dependency
     Given I am authenticated with "ADMIN" role
-      And I upload the archive "tosca-normative-types-wd06"
+      And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
       And I upload a plugin
       And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
       And I enable the orchestrator "Mount doom orchestrator"
       And I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
-    When I delete a CSAR with id "mock-plugin-openstack-types:1.1.0-SM6-SNAPSHOT"
+    When I delete a CSAR with id "mock-plugin-openstack-types:1.0"
       Then I should receive a RestResponse with an error code 507
       And I should have a delete csar response with "1" related resources
 

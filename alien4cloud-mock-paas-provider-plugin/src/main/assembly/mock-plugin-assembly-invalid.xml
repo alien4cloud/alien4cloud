@@ -17,6 +17,20 @@
 			</excludes>
 		</fileSet>
 	</fileSets>
+	<files>
+		<file>
+			<source>${basedir}/src/main/resources/openstack/mock-resources/mock-resources.yaml</source>
+      		<filtered>true</filtered>
+      		<outputDirectory>openstack/mock-resources</outputDirectory>
+      		<destName>mock-resources.yaml</destName>
+		</file>		
+		<file>
+			<source>${basedir}/src/main/resources/openstack/mock-openstack-resources/openstack-resources.yaml</source>
+      		<filtered>true</filtered>
+      		<outputDirectory>openstack/mock-openstack-resources</outputDirectory>
+      		<destName>openstack-resources.yaml</destName>
+		</file>	
+	</files>
 	<dependencySets>
 		<dependencySet>
 			<useProjectArtifact>false</useProjectArtifact>

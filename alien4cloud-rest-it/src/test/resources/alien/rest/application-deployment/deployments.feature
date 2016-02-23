@@ -2,7 +2,7 @@ Feature: get deployments
 
   Background:
    	Given I am authenticated with "ADMIN" role
-    And I upload the archive "tosca-normative-types-wd06"
+    And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
     And I upload a plugin
     And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
     And I enable the orchestrator "Mount doom orchestrator"
@@ -33,13 +33,13 @@ Feature: get deployments
 			| numberBackup  | 1                       |
 			| managerEmail  | admin@alien.fr          |
 			
-		And I have an application "The great eye" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT"
+		And I have an application "The great eye" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0-SNAPSHOT"
 		And I Set a unique location policy to "Mount doom orchestrator 2"/"Thark location" for all nodes
     And I deploy it 
 
 
   Scenario: Ask for detailed deployment object of one cloud
-		Given I have applications with names and descriptions and a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT" 
+		Given I have applications with names and descriptions and a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0-SNAPSHOT" 
       | ALIEN_1 | ALIEN 1 |
       | ALIEN_2 | ALIEN 2 |
 		And I deploy all applications on the location "Mount doom orchestrator"/"Thark location"
@@ -54,7 +54,7 @@ Feature: get deployments
       | ALIEN_2 |
 
   Scenario: Ask for detailed deployment object of all cloud
-		Given I have applications with names and descriptions and a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT" 
+		Given I have applications with names and descriptions and a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0-SNAPSHOT" 
       | ALIEN_1 | ALIEN 1 |
       | ALIEN_2 | ALIEN 2 |
 		And I deploy all applications on the location "Mount doom orchestrator"/"Thark location"
@@ -66,7 +66,7 @@ Feature: get deployments
       | ALIEN_2       |
       
   Scenario: ask for detailed deployment object for an application
-   When I have applications with names and descriptions and a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT" 
+   When I have applications with names and descriptions and a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0-SNAPSHOT" 
       | ALIEN_1 | ALIEN 1 |
    Then I should not get a deployment if I ask one for application "ALIEN_1" on orchestrator "Mount doom orchestrator"
    

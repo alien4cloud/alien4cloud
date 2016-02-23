@@ -2,7 +2,7 @@ Feature: trigger custom commands
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I upload the archive "tosca-normative-types-wd06"
+    And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
     And I upload a plugin
     And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
     And I enable the orchestrator "Mount doom orchestrator"
@@ -29,8 +29,8 @@ Feature: trigger custom commands
 
     Given I have an application "ALIEN" with a topology containing a nodeTemplate "customInterface" related to "alien4cloud.tests.nodes.CustomInterface:1.1.0-SNAPSHOT"
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
-    And I have added a node template "Compute" related to the "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT" node type
-    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd06-SNAPSHOT" with source "customInterface" and target "Compute" for requirement "host" of type "tosca.capabilities.Container" and target capability "compute"
+    And I have added a node template "Compute" related to the "tosca.nodes.Compute:1.0.0-SNAPSHOT" node type
+    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "customInterface" and target "Compute" for requirement "host" of type "tosca.capabilities.Container" and target capability "compute"
 
     When I deploy it
 
