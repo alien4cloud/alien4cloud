@@ -5,8 +5,6 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
-  var $ = require('jquery');
-  var _ = require('lodash');
 
   require('scripts/tosca/services/tosca_service');
 

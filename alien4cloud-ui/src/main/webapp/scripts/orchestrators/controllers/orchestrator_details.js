@@ -4,7 +4,6 @@ define(function (require) {
   var modules = require('modules');
   var states = require('states');
   var angular = require('angular');
-  var _ = require('lodash');
 
   require('scripts/common/services/global_rest_error_handler');
 
@@ -60,11 +59,10 @@ define(function (require) {
         if (name !== orchestrator.name) {
           var request = {name:name};
           return orchestratorService.update({orchestratorId: orchestrator.id}, angular.toJson(request)).$promise.then(
-            function() { // Success
-            },
+            function() {}, // Success
             function(errorResponse) {
               return $translate('ERRORS.' + errorResponse.data.error.code);
-        });
+            });
         }
       };
 
@@ -78,9 +76,8 @@ define(function (require) {
 
       $scope.enable = function() {
         orchestrator.state = 'CONNECTING';
-        // .then(function(result){ console.log('enable orchestrator', result); })
-        orchestratorInstanceService.create({orchestratorId: orchestrator.id}, {},function(result){
-            //do somthing here
+        orchestratorInstanceService.create({orchestratorId: orchestrator.id}, {},function(){
+            //do something here
           })
           .$promise['finally'](function() {
             $state.reload(); // do something with web-sockets to get notifications on the orchestrator state.

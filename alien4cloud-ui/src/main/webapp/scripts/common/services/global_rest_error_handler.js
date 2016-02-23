@@ -27,13 +27,13 @@ define(function (require) {
           usageList += '</li>';
         });
         return usageList;
-      };
+      }
 
       var handleResouceUsage = function(response){
         var toasterHtml = buildResourceUsageList(response);
         // toaster message
         toaster.pop('error', $translate('ERRORS.' + response.error.code + '.TITLE'), toasterHtml, 4000, 'trustedHtml', null);
-      }
+      };
       //register
       handlers[508] = handleResouceUsage;
 
@@ -48,7 +48,7 @@ define(function (require) {
             handlers[response.error.code](response);
           }
         }
-      };
+      }
 
       return {
         handle: handle

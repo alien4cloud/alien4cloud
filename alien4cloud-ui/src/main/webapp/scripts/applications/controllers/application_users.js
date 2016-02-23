@@ -98,9 +98,9 @@ define(function (require) {
         }
         // get group ids from environment group roles
         if ($scope.selectedEnvironment.groupRoles) {
-          for (groupId in $scope.selectedEnvironment.groupRoles) {
-            if ($scope.selectedEnvironment.groupRoles.hasOwnProperty(groupId)) {
-              groupIds.push(groupId);
+          for (var envGroupId in $scope.selectedEnvironment.groupRoles) {
+            if ($scope.selectedEnvironment.groupRoles.hasOwnProperty(envGroupId)) {
+              groupIds.push(envGroupId);
             }
           }
         }

@@ -298,7 +298,7 @@ define(function (require) {
       var injectPropertyDefinitionToInterfaces = function(interfaces) {
 
         if (_.defined(interfaces)) {
-          angular.forEach(interfaces, function(interfaceObj, interfaceName) {
+          angular.forEach(interfaces, function(interfaceObj) {
             Object.keys(interfaceObj.operations).forEach(function(operation) {
               if (_.defined(interfaceObj.operations[operation].inputParameters)) {
                 Object.keys(interfaceObj.operations[operation].inputParameters).forEach(function(paramName) {
@@ -502,8 +502,7 @@ define(function (require) {
             toaster.pop('error', title, message, 0, 'trustedHtml', null);
 
           } else if (!_.undefined(successResult.data)) {
-
-            title = $translate('APPLICATIONS.RUNTIME.OPERATION_EXECUTION.RESULT_TITLE', {
+            var successTitle = $translate('APPLICATIONS.RUNTIME.OPERATION_EXECUTION.RESULT_TITLE', {
               'operation': operationName
             });
             // Toaster HTML result preview for all instances
@@ -520,7 +519,7 @@ define(function (require) {
             });
             resultHtml.push('</ul>');
             // timeout at 0 == keep displayed until close
-            toaster.pop('success', title, resultHtml.join(''), 0, 'trustedHtml', null);
+            toaster.pop('success', successTitle, resultHtml.join(''), 0, 'trustedHtml', null);
           }
 
         }, function(errorResult) {

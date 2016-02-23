@@ -1,3 +1,5 @@
+/* global SockJS, Stomp */
+
 // Angular service to ease stomp web-socket communication.
 define(function (require) {
   'use strict';

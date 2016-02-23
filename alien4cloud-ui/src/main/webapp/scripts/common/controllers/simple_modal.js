@@ -2,8 +2,6 @@ define(function(require) {
   'use strict';
 
   var modules = require('modules');
-  var _ = require('lodash');
-
   require('scripts/common/services/properties_services');
 
   modules.get('a4c-common').controller('SimpleModalCtrl', ['$scope', '$translate', '$modal',

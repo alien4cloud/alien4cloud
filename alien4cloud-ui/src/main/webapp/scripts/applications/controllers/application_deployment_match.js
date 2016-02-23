@@ -133,7 +133,7 @@ define(function(require) {
             return true;
           }
           return false;
-        };
+        }
 
         function isCapabilityPropertyEditable(capabilityName, propertyName){
           var originalNode =  $scope.deploymentContext.deploymentTopologyDTO.topology.originalNodes[$scope.selectedNodeName] || {};
@@ -147,7 +147,7 @@ define(function(require) {
             return true;
           }
           return false;
-        };
+        }
       }
     ]); //controller
 }); //Define

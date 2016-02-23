@@ -1,7 +1,7 @@
 // define the rest api elements to work with topology edition.
 define(function (require) {
   'use strict';
-
+  
   var modules = require('modules');
 
   modules.get('a4c-topology-editor', ['ngResource']).factory('topologyServices', ['$resource',
@@ -461,11 +461,11 @@ define(function (require) {
           method: 'POST',
           params: {
             newRequirementId: '@newRequirementId'
-          }        
+          }
         }
       });
 
-      var topologyVersionResource = $resource('rest/topologies/:topologyId/version');      
+      var topologyVersionResource = $resource('rest/topologies/:topologyId/version');
 
       return {
         'dao': topologyDAO,

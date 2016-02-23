@@ -3,6 +3,7 @@ define(function (require) {
 
   var modules = require('modules');
   var states = require('states');
+  var _ = require('lodash');
 
   require('scripts/components/services/csar');
   require('scripts/common/services/websocket_services');

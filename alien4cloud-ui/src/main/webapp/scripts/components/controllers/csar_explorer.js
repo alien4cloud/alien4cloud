@@ -77,7 +77,7 @@ define(function (require) {
       if (tokens.length > 0) {
         fileName = tokens[tokens.length - 1];
       }
-      var fileExt = fileName.substr((fileName.lastIndexOf(".") -1 >>> 0) + 2).toLowerCase();
+      var fileExt = fileName.substr((fileName.lastIndexOf('.') -1 >>> 0) + 2).toLowerCase();
       $scope.mode = _.defined(extToMode[fileExt]) ? extToMode[fileExt] :extToMode['default_mode'];
     };
 

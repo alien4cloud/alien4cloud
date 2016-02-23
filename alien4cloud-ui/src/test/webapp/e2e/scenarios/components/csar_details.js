@@ -5,6 +5,7 @@ var setup = require('../../common/setup');
 var common = require('../../common/common');
 var authentication = require('../../authentication/authentication');
 var csars = require('../../components/csars');
+var _ = require('lodash');
 
 var tomcatWar = {
     name:'tomcat-war-types',
@@ -25,7 +26,7 @@ describe('Csar details', function() {
   it('should be able to see an archive details.', function() {
     csars.go();
     csars.open(tomcatWar.name, tomcatWar.version);
-    
+
     //check we are indeed on the detail page
     expect(common.element(by.id('csar-name')).getText()).toEqual(tomcatWar.name);
     expect(common.element(by.id('csar-version')).getText()).toEqual(tomcatWar.version);
@@ -43,13 +44,13 @@ describe('Csar details', function() {
           return this.name+':'+this.version;
         }
     }
-    
+
     var resourceLine = common.element(by.id('res_'+tomcatWarResource.id()));
     var rows = resourceLine.all(by.tagName('td'));
     //the last row is a link to the resource detail
     //TODO: find a way to test for application and topologyTemplate cases
     common.click(by.tagName('a'), rows.last());
-    
+
     //check we are indeed on the detail page
     expect(common.element(by.id('csar-name')).getText()).toEqual(tomcatWarResource.name);
     expect(common.element(by.id('csar-version')).getText()).toEqual(tomcatWarResource.version);

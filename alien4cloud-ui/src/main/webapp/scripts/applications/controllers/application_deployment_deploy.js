@@ -3,11 +3,10 @@ define(function(require) {
 
   var modules = require('modules');
   var states = require('states');
-  var _ = require('lodash');
   var angular = require('angular');
 
   require('scripts/applications/services/application_services');
-  
+
   states.state('applications.detail.deployment.deploy', {
     url: '/trigger',
     templateUrl: 'views/applications/application_deployment_deploy.html',
@@ -22,7 +21,7 @@ define(function(require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentTriggerCtrl',
-    ['$scope', 'applicationServices', 
+    ['$scope', 'applicationServices',
       function($scope, applicationServices) {
         // Deployment handler
         $scope.deploy = function() {

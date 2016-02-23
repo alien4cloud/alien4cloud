@@ -2,7 +2,6 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
-  var states = require('states');
 
   modules.get('a4c-components', ['ngResource']).factory('componentTagService', ['$resource', function($resource) {
     // API REST Definition

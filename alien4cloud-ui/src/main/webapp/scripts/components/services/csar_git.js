@@ -6,10 +6,10 @@ define(function (require) {
   modules.get('a4c-components', ['ngResource']).factory('csarGitService', ['$resource', function($resource) {
 
     var remove = $resource('rest/csarsgit/:id',{},{},{
-        'remove':{
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8'
+      'remove':{
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
         }
       }
     });

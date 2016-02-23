@@ -3,7 +3,7 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
-  var _ = require('lodash');
+  var angular = require('angular');
 
   var excludedInputs = ['location_meta_', 'cloud_meta_', 'app_meta_', 'app_tags_', 'env_meta_', 'env_tags_'];
 

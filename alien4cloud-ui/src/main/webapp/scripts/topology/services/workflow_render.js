@@ -102,6 +102,9 @@ define(function (require) {
               } else {
                 console.error('unknown node', node.shape);
               }
+              group.on('mouseover', function(e) {
+
+              });
             },
             update: function(group, node) {
               // update position of the node
