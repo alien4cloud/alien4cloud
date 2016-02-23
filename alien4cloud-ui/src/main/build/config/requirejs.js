@@ -36,7 +36,9 @@ module.exports = function (grunt) {
               'stomp',
               'd3',
               'd3-tip',
-              'd3-pie'
+              'd3-pie',
+              'dagre',
+              'graphlib'
             ]//,
 //            excludeShallow: [
 //              'scripts/admin/admin'
