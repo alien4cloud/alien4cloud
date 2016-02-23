@@ -40,7 +40,7 @@ import io.swagger.annotations.ApiOperation;
  */
 @Component
 @RestController
-@RequestMapping("/rest/users")
+@RequestMapping({"/rest/users", "/rest/v1/users"})
 public class UserController {
     @Resource
     private IAlienUserDao alienUserDao;

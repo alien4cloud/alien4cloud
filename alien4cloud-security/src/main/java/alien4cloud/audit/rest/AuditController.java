@@ -31,7 +31,7 @@ import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping("/rest/audit")
+@RequestMapping({"/rest/audit", "/rest/v1/audit"})
 @Slf4j
 public class AuditController {
 

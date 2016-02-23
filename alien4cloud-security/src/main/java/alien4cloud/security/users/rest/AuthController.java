@@ -33,7 +33,7 @@ import io.swagger.annotations.ApiOperation;
  * @author luc boutier
  */
 @RestController
-@RequestMapping("/rest/auth")
+@RequestMapping({"/rest/auth", "/rest/v1/auth"})
 public class AuthController {
     @Resource
     private IAlienGroupDao alienGroupDao;
