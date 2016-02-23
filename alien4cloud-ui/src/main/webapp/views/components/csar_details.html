@@ -7,7 +7,7 @@
         <div class="col-md-12">
           <h1 id="csar-name">{{csar.csar.name}}</h1>
           <div class="pull-right">
-            <delete-confirm ng-if="!csar.substitutionTopologyId" id="delete-csar_{{csar.csar.id}}" func="remove(csarId)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+            <delete-confirm ng-if="!csar.substitutionTopologyId" id="delete-csar_{{csar.csar.id}}" func="remove(csar.csar.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
             </delete-confirm>
           </div>
         </div>
@@ -35,36 +35,6 @@
               <div class="col-md-4">{{csar.csar.templateAuthor}}</div>
             </div>
 
-            <div class="row" style="margin-top: 10px;">
-              <div class="col-md-3">
-                <strong>{{'CSAR.TEST_TOPOLOGY' | translate }}</strong>
-              </div>
-              <div class="col-md-8">
-
-                <i class="fa fa-2x vertical-center" tooltip="{{'DEPLOYMENT.STATUS.' + deploymentStatus | translate }}" tooltip-append-to-body="true" ng-class="{
-                    'fa-circle text-success' : deploymentStatus == 'DEPLOYED',
-                    'fa-circle text-muted' : deploymentStatus == 'UNDEPLOYED',
-                    'fa-warning text-warning' : deploymentStatus == 'WARNING',
-                    'fa-circle text-danger' : deploymentStatus == 'FAILURE',
-                    'fa-question-circle text-muted' : deploymentStatus == 'UNKNOWN',
-                    'fa-spinner fa-spin' : deploymentStatus == 'DEPLOYMENT_IN_PROGRESS' || deploymentStatus == 'UNDEPLOYMENT_IN_PROGRESS'
-                    }">
-                </i>
-
-                <!-- Undeploy button if it's a topology with test -->
-                <div class="row" style="margin-top: 10px;" ng-show="
-                      deploymentStatus == 'DEPLOYED' ||
-                      deploymentStatus == 'WARNING' ||
-                      deploymentStatus == 'DEPLOYMENT_IN_PROGRESS' ||
-                      deploymentStatus == 'FAILURE'">
-                  <div class="col-md-12">
-                    <button type="button" class="btn btn-danger application-deploy-button" ng-click="undeploy()">
-                      <i class="fa" ng-class="{'fa-stop': !isUnDeploying, 'fa-spinner fa-spin': isUnDeploying}"></i> {{'APPLICATIONS.UNDEPLOY' | translate}}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
           </fieldset>
 
           <fieldset>
@@ -109,7 +79,7 @@
                               </a>
                             </span>
                             <span ng-switch-when="topologytemplate">
-                              <a href="#/topologytemplates/details/{{resource.resourceId}}/topology" class="btn btn-primary btn-xs" tooltip="{{ 'CSAR.DETAILS.RESOURCE.TOPOLOGY_TEXT' | translate}}" tooltip-append-to-body="true"> <i class="fa fa-eye"></i>
+                              <a ng-click="goToRuntimeView(resource.resourceId)" class="btn btn-primary btn-xs" tooltip="{{ 'CSAR.DETAILS.RESOURCE.TOPOLOGY_TEXT' | translate}}" tooltip-append-to-body="true"> <i class="fa fa-eye"></i>
                               </a>
                             </span>
                             <span ng-switch-default>---</span>

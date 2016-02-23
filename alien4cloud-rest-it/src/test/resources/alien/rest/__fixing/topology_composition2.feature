@@ -4,7 +4,7 @@ Feature: Topology composition
   Background:
     Given I am authenticated with "ADMIN" role
       And I upload the archive "tosca-normative-types"
-      And I upload the archive "tosca-normative-types-wd06"
+      And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
       And I upload a plugin
       And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
       And I enable the orchestrator "Mount doom orchestrator"
@@ -21,7 +21,7 @@ Feature: Topology composition
     Given I create a new topology template with name "net.sample.LAMP" and description "A Linux Apache Mysql PHP stack as a embedable topology template"
       And The RestResponse should contain a topology template id
       And I can get and register the topology for the last version of the registered topology template
-    Given I add a node template "MyCompute" related to the "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT" node type
+    Given I add a node template "MyCompute" related to the "tosca.nodes.Compute:1.0.0-SNAPSHOT" node type
       And I define the capability "os" property "architecture" of the node "MyCompute" as input property
       And I rename the input "architecture" to "os_arch"
       And I set the property "architecture" of capability "os" the node "MyCompute" as input property name "os_arch"
@@ -138,7 +138,7 @@ Scenario: Recursive composition
     And I should receive a RestResponse with no error
     And The RestResponse should contain a topology template id
     And I can get and register the topology for the last version of the registered topology template
-    And I add a node template "MyCompute" related to the "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT" node type
+    And I add a node template "MyCompute" related to the "tosca.nodes.Compute:1.0.0-SNAPSHOT" node type
     And I define the capability "os" property "architecture" of the node "MyCompute" as input property
     And I rename the input "architecture" to "db_arch"
     And I set the property "architecture" of capability "os" the node "MyCompute" as input property name "db_arch"
@@ -154,7 +154,7 @@ Scenario: Recursive composition
     And I should receive a RestResponse with no error
     And The RestResponse should contain a topology template id
     And I can get and register the topology for the last version of the registered topology template
-    And I add a node template "MyCompute" related to the "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT" node type
+    And I add a node template "MyCompute" related to the "tosca.nodes.Compute:1.0.0-SNAPSHOT" node type
     And I define the capability "os" property "architecture" of the node "MyCompute" as input property
     And I rename the input "architecture" to "www_arch"
     And I set the property "architecture" of capability "os" the node "MyCompute" as input property name "www_arch"
@@ -237,7 +237,7 @@ Scenario: Topology composition with interaction
     And I should receive a RestResponse with no error
     And The RestResponse should contain a topology template id
     And I can get and register the topology for the last version of the registered topology template
-    And I add a node template "MyCompute" related to the "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT" node type
+    And I add a node template "MyCompute" related to the "tosca.nodes.Compute:1.0.0-SNAPSHOT" node type
     And I define the capability "os" property "architecture" of the node "MyCompute" as input property
     And I rename the input "architecture" to "www_arch"
     And I set the property "architecture" of capability "os" the node "MyCompute" as input property name "www_arch"

@@ -34,7 +34,7 @@ Feature: CRUD operations on application version
 
   Scenario: Delete an application version with failure when application is deployed
     Given I am authenticated with "ADMIN" role
-    And I upload the archive "tosca-normative-types-wd06"
+    And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
     And I upload a plugin
     And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
     And I enable the orchestrator "Mount doom orchestrator"
@@ -48,7 +48,7 @@ Feature: CRUD operations on application version
       | managementUrl | http://cloudifyurl:8099 |
       | numberBackup  | 1                       |
       | managerEmail  | admin@alien.fr          |
-    Given I have an application "ALIEN" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT"
+    Given I have an application "ALIEN" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0-SNAPSHOT"
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     When I deploy it
     And I delete an application version with name "0.1.0-SNAPSHOT"

@@ -2,7 +2,7 @@ Feature: Listen to events of an deployed application.
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I upload the archive "tosca-normative-types-wd06"
+    And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
     And I upload a plugin
     And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
     And I enable the orchestrator "Mount doom orchestrator"
@@ -27,7 +27,7 @@ Feature: Listen to events of an deployed application.
 
 
   Scenario: Deploy an application and listen to events
-   	Given I have an application "ALIEN" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT"
+   	Given I have an application "ALIEN" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0-SNAPSHOT"
     And I deploy the application "ALIEN" on the location "Mount doom orchestrator"/"Thark location" without waiting for the end of deployment
     When I start listening to "instance-state" event
     And I start listening to "deployment-status" event
@@ -44,7 +44,7 @@ Feature: Listen to events of an deployed application.
       | started     |
 
 #  Scenario: Deploy an application with blockstorage and listen to events
-#    Given I have an application "BLOCKSTORAGE-APPLICATION" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT"
+#    Given I have an application "BLOCKSTORAGE-APPLICATION" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0-SNAPSHOT"
 #    And I deploy the application "BLOCKSTORAGE-APPLICATION" on the location "Mount doom orchestrator"/"Thark location" without waiting for the end of deployment
 #    When I start listening to "instance-state" event
 #    And I start listening to "persistent" event

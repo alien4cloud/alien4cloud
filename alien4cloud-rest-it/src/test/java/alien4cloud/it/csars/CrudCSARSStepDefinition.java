@@ -91,36 +91,6 @@ public class CrudCSARSStepDefinition {
         Assert.assertTrue(csar.getCsar().getDependencies().contains(new CSARDependency(dependencyName, dependencyVersion)));
     }
 
-//    @When("^I run the test for this snapshot CSAR on cloud \"([^\"]*)\"$")
-//    public void I_run_the_test_for_this_snapshot_CSAR_on_cloud(String cloudName) throws Throwable {
-//        String cloudId = Context.getInstance().getCloudId(cloudName);
-//        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().get("/rest/csars/" + CURRENT_CSAR_NAME + "/version/" + CURRENT_CSAR_VERSION + "/cloudid/" + cloudId));
-//        RestResponse<?> response = JsonTestUtil.read(Context.getInstance().getRestResponse());
-//        if (response.getData() != null) {
-//            Context.getInstance().registerTopologyDeploymentId(response.getData().toString());
-//        }
-//    }
-
-    @And("^I should not have active deployment for this CSAR$")
-    public void I_should_not_have_active_deployment_for_this_CSAR() throws Throwable {
-        RestResponse<Deployment> dep = JsonUtil.read(
-                Context.getRestClientInstance().get("/rest/csars/" + CURRENT_CSAR_NAME + ":" + CURRENT_CSAR_VERSION + "/active-deployment"), Deployment.class);
-        Assert.assertNull(dep.getData());
-    }
-
-    @And("^I should have active deployment for this CSAR$")
-    public void I_should_have_active_deployment_for_this_CSAR() throws Throwable {
-        RestResponse<Deployment> dep = JsonUtil.read(
-                Context.getRestClientInstance().get("/rest/csars/" + CURRENT_CSAR_NAME + ":" + CURRENT_CSAR_VERSION + "/active-deployment"), Deployment.class);
-        Assert.assertNotNull(dep.getData());
-        Assert.assertNotNull(dep.getData().getId());
-//        Assert.assertNotNull(dep.getData().getCloudId());
-        Assert.fail("Fix test");
-        Assert.assertEquals(CURRENT_CSAR_NAME + ":" + CURRENT_CSAR_VERSION, dep.getData().getSourceId());
-        Assert.assertEquals(CURRENT_CSAR_NAME, dep.getData().getSourceName());
-    }
-
     @Then("^I should have a delete csar response with \"([^\"]*)\" related resources$")
     public void I_should_have_a_delete_csar_response_with_related_resources(String resourceCount) throws Throwable {
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());

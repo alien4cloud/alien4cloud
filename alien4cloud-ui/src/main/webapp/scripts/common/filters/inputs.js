@@ -5,7 +5,7 @@ define(function (require) {
   var modules = require('modules');
   var angular = require('angular');
 
-  var excludedInputs = ['location_meta_', 'cloud_meta_', 'app_meta_', 'app_tags_', 'env_meta_', 'env_tags_'];
+  var excludedInputs = ['loc_meta_', 'cloud_meta_', 'app_meta_', 'app_tags_', 'env_meta_', 'env_tags_'];
 
   modules.get('a4c-common').filter('allowedInputs', function() {
     return function(items) {

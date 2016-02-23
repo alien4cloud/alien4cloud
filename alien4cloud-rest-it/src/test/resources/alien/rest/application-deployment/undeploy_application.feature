@@ -2,7 +2,7 @@ Feature: Un-Deploy an application
 
   Background:
 	Given I am authenticated with "ADMIN" role
-	And I upload the archive "tosca-normative-types-wd06"
+	And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
 	And I upload a plugin
 	And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
 	And I enable the orchestrator "Mount doom orchestrator"
@@ -25,7 +25,7 @@ Feature: Un-Deploy an application
 	  | managerEmail  | admin@alien.fr          |
 
   Scenario: Create 1 application, deploy it, check statuses, undeploy it and check statuses
-	Given I have applications with names and descriptions and a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT"
+	Given I have applications with names and descriptions and a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0-SNAPSHOT"
 	  | The great eye | This application should be in DEPLOYED status... |
 	And I can get applications statuses
 	When I deploy all applications on the location "Mount doom orchestrator"/"Thark location"
@@ -44,7 +44,7 @@ Feature: Un-Deploy an application
 
   Scenario: Create 1 application, deploy it, undeploy it, disable the associate orchestrator and check the deployment topology
     Given I am authenticated with "ADMIN" role
-    And I have applications with names and descriptions and a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT"
+    And I have applications with names and descriptions and a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0-SNAPSHOT"
 	  | The great eye | This application should be in DEPLOYED status... |
 	When I deploy all applications on the location "Mount doom orchestrator"/"Thark location"
 	And The application's deployment must succeed

@@ -67,7 +67,7 @@ public class Context {
 
     public static final String GIT_URL_SUFFIX = ".git";
 
-    public static final Path GIT_ARTIFACT_TARGET_PATH = Paths.get("target/gits");
+    public static final Path GIT_ARTIFACT_TARGET_PATH = Paths.get("target/git");
 
     public static final Path CSAR_TARGET_PATH = Paths.get("target/csars");
 

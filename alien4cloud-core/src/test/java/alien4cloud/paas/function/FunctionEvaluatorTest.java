@@ -94,8 +94,8 @@ public class FunctionEvaluatorTest {
         FileUtil.zip(typesPath, typesZipPath);
         ParsingResult<Csar> result = archiveUploadService.upload(typesZipPath);
 
-        typesPath = artifactsDirectory.resolve(extendedLocalName).resolve("alien-base-types-1.0-SNAPSHOT");
-        typesZipPath = artifactsDirectory.resolve("alien-base-types-1.0-SNAPSHOT.zip");
+        typesPath = artifactsDirectory.resolve(extendedLocalName).resolve("alien-base-types");
+        typesZipPath = artifactsDirectory.resolve("alien-base-types.zip");
         FileUtil.zip(typesPath, typesZipPath);
         result = archiveUploadService.upload(typesZipPath);
 
