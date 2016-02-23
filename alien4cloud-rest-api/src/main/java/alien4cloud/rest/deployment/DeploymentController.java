@@ -49,7 +49,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 
 @RestController
-@RequestMapping("/rest/deployments")
+@RequestMapping({"/rest/deployments", "/rest/v1/deployments"})
 public class DeploymentController {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;

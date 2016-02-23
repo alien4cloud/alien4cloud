@@ -22,7 +22,7 @@ import io.swagger.annotations.Api;
  */
 @ApiIgnore
 @RestController
-@RequestMapping("/rest/topologies/{topologyId}/layout")
+@RequestMapping({"/rest/topologies/{topologyId}/layout", "/rest/v1/topologies/{topologyId}/layout"})
 @Api(value = "", description = "Operations to manage topology layout")
 public class TopologyLayoutController {
     @Resource(name = "alien-es-dao")

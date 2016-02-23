@@ -27,7 +27,7 @@ import springfox.documentation.annotations.ApiIgnore;
  */
 @ApiIgnore
 @RestController
-@RequestMapping("/rest/modules")
+@RequestMapping({"/rest/modules", "/rest/v1/modules"})
 public class UiController {
     @Resource
     private PluginManager pluginManager;

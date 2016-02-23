@@ -23,7 +23,7 @@ import alien4cloud.security.model.Role;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping("/rest/orchestrators/{orchestratorId}/locations/{locationId}/roles/")
+@RequestMapping({"/rest/orchestrators/{orchestratorId}/locations/{locationId}/roles/", "/rest/v1/orchestrators/{orchestratorId}/locations/{locationId}/roles/"})
 public class LocationRolesController {
     @Resource
     private LocationService locationsService;

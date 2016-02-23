@@ -24,7 +24,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @ApiIgnore
 @Component
 @RestController
-@RequestMapping("/rest/formdescriptor")
+@RequestMapping({"/rest/formdescriptor", "/rest/v1/formdescriptor"})
 public class FormDescriptorController {
     @Resource
     private PojoFormDescriptorGenerator pojoFormDescriptorGenerator;

@@ -60,7 +60,7 @@ import io.swagger.annotations.ApiOperation;
  */
 @Slf4j
 @RestController
-@RequestMapping("/rest/applications")
+@RequestMapping({"/rest/applications", "/rest/v1/applications"})
 @Api(value = "", description = "Operations on Applications")
 public class ApplicationController {
     @Resource

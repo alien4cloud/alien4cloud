@@ -28,7 +28,7 @@ import alien4cloud.utils.services.ConstraintPropertyService;
 @Slf4j
 @ApiIgnore
 @RestController
-@RequestMapping("/rest/properties")
+@RequestMapping({"/rest/properties", "/rest/v1/properties"})
 public class PropertiesController {
     @Resource
     private ConstraintPropertyService constraintPropertyService;

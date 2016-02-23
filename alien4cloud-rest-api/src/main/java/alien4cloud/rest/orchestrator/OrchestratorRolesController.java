@@ -19,7 +19,7 @@ import alien4cloud.security.model.Role;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping("/rest/orchestrators/{orchestratorId}/roles/")
+@RequestMapping({"/rest/orchestrators/{orchestratorId}/roles/", "/rest/v1/orchestrators/{orchestratorId}/roles/"})
 public class OrchestratorRolesController {
     @Resource
     private OrchestratorSecurityService orchestratorSecurityService;

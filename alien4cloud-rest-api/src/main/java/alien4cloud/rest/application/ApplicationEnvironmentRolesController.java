@@ -26,7 +26,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping("/rest/applications/{applicationId:.+}/environments/{applicationEnvironmentId:.+}/roles")
+@RequestMapping({"/rest/applications/{applicationId:.+}/environments/{applicationEnvironmentId:.+}/roles", "/rest/v1/applications/{applicationId:.+}/environments/{applicationEnvironmentId:.+}/roles"})
 @Api(value = "", description = "Manages application's environments")
 public class ApplicationEnvironmentRolesController {
     @Resource

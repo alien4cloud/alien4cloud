@@ -64,7 +64,7 @@ import io.swagger.annotations.Authorization;
 
 @Slf4j
 @RestController
-@RequestMapping("/rest/applications")
+@RequestMapping({"/rest/applications", "/rest/v1/applications"})
 @Api(value = "", description = "Manage opertions on deployed application.")
 public class ApplicationDeploymentController {
     @Resource

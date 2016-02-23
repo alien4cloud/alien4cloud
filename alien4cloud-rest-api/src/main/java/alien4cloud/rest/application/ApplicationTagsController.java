@@ -23,7 +23,7 @@ import alien4cloud.security.AuthorizationUtil;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping("/rest/applications/{applicationId:.+}/tags")
+@RequestMapping({"/rest/applications/{applicationId:.+}/tags", "/rest/v1/applications/{applicationId:.+}/tags"})
 public class ApplicationTagsController {
     @Resource
     private ApplicationService applicationService;

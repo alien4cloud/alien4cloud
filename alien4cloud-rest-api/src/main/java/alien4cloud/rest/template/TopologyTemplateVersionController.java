@@ -41,7 +41,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping("/rest/templates/{topologyTemplateId:.+}/versions")
+@RequestMapping({"/rest/templates/{topologyTemplateId:.+}/versions", "/rest/v1/templates/{topologyTemplateId:.+}/versions"})
 @Api(value = "", description = "Manages templates's versions")
 public class TopologyTemplateVersionController {
 

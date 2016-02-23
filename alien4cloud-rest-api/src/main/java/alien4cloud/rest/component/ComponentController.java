@@ -42,7 +42,7 @@ import io.swagger.annotations.ApiOperation;
  */
 @Slf4j
 @RestController
-@RequestMapping("/rest/components")
+@RequestMapping({"/rest/components", "/rest/v1/components"})
 public class ComponentController {
 
     @Resource(name = "alien-es-dao")

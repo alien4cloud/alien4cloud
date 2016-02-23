@@ -35,7 +35,7 @@ import io.swagger.annotations.ApiOperation;
  * @author 'Igor Ngouagna'
  */
 @RestController
-@RequestMapping("/rest/quicksearch")
+@RequestMapping({"/rest/quicksearch", "/rest/v1/quicksearch"})
 public class QuickSearchController {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;

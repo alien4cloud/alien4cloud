@@ -51,7 +51,7 @@ import io.swagger.annotations.Authorization;
  */
 @Slf4j
 @RestController
-@RequestMapping("/rest/templates")
+@RequestMapping({"/rest/templates", "/rest/v1/templates"})
 public class TopologyTemplateController {
 
     @Resource(name = "alien-es-dao")

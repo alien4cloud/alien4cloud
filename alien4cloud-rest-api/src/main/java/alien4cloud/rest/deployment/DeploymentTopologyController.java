@@ -52,7 +52,7 @@ import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.RestConstraintValidator;
 
 @RestController
-@RequestMapping("/rest/applications/{appId}/environments/{environmentId}/deployment-topology")
+@RequestMapping({"/rest/applications/{appId}/environments/{environmentId}/deployment-topology", "/rest/v1/applications/{appId}/environments/{environmentId}/deployment-topology"})
 @Api(value = "", description = "Prepare a topology to be deployed on a specific environment (location matching, node matching and inputs configuration).")
 public class DeploymentTopologyController {
     @Inject

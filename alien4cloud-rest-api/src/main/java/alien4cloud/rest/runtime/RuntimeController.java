@@ -73,7 +73,7 @@ import io.swagger.annotations.Authorization;
 
 @RestController
 @Slf4j
-@RequestMapping("/rest/runtime")
+@RequestMapping({"/rest/runtime", "/rest/v1/runtime"})
 public class RuntimeController {
     @Resource
     private DeploymentService deploymentService;
