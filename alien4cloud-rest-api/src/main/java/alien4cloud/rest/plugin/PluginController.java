@@ -54,7 +54,7 @@ import io.swagger.annotations.ApiOperation;
  * Controller for plugins.
  */
 @RestController
-@RequestMapping(value = "/rest/plugins", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/rest/plugins", "/rest/v1/plugins"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 @Api(value = "Plugins", description = "Manages plugins.", authorizations = { @Authorization("ADMIN") })
 public class PluginController {

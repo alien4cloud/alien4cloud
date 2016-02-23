@@ -47,7 +47,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @RestController
-@RequestMapping(value = "/rest/orchestrators", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/rest/orchestrators", "/rest/v1/orchestrators"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @Api(value = "Orchestrators", description = "Manages orchestrators.", authorizations = { @Authorization("ADMIN") }, position = 4300)
 public class OrchestratorController {
     @Inject

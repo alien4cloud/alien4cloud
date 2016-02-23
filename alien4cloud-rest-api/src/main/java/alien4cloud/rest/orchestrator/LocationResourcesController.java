@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Slf4j
 @RestController
-@RequestMapping(value = "/rest/orchestrators/{orchestratorId}/locations/{locationId}/resources", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/rest/orchestrators/{orchestratorId}/locations/{locationId}/resources", "/rest/v1/orchestrators/{orchestratorId}/locations/{locationId}/resources"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @Api(value = "Orchestrator Location Resources", description = "Manages locations for a given orchestrator.", authorizations = {
         @Authorization("ADMIN") }, position = 4400)
 public class LocationResourcesController {

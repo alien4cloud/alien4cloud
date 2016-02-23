@@ -40,7 +40,7 @@ import io.swagger.annotations.Authorization;
 @Slf4j
 @ApiIgnore
 @RestController
-@RequestMapping(value = "/rest/orchestrators/{orchestratorId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/rest/orchestrators/{orchestratorId}", "/rest/v1/orchestrators/{orchestratorId}"}, produces = MediaType.APPLICATION_JSON_VALUE)
 public class OrchestratorDeploymentPropertiesController {
     @Inject
     private OrchestratorDeploymentService orchestratorDeploymentService;
