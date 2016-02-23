@@ -27,7 +27,7 @@ define(function (require) {
       if(_.defined(this.plugins[pluginName])) {
         return this.plugins[pluginName].base;
       }
-      return null;
+      return ''; // the plugin has no defined base
     }
   };
 });
