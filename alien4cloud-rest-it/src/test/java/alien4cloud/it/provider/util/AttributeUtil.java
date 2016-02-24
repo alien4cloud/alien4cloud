@@ -19,7 +19,7 @@ public class AttributeUtil {
     public static Map<String, String> getAttributes(String nodeName, String attributeName) throws IOException {
         Map<String, String> nodeAttributes = Maps.newHashMap();
         RestResponse<?> response = JsonUtil.read(Context.getRestClientInstance().get(
-                "/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
+                "/rest/v1/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
                         + Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName())
                         + "/deployment/informations"));
         Map<String, Object> instancesInformation = (Map<String, Object>) response.getData();

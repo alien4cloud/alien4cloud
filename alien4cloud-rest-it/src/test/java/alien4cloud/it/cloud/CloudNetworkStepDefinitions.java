@@ -34,13 +34,13 @@
 //        network.setGatewayIp(gateWay);
 //        network.setIsExternal(false);
 //        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/networks", JsonUtil.toString(network)));
+//                Context.getRestClientInstance().postJSon("/rest/v1/clouds/" + cloudId + "/networks", JsonUtil.toString(network)));
 //    }
 //
 //    @And("^The cloud with name \"([^\"]*)\" should have (\\d+) networks as resources:$")
 //    public void The_cloud_with_name_should_have_networks_as_resources(String cloudName, int numberOfNetworks, DataTable expectedNetworksTable) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
-//        CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/clouds/" + cloudId), CloudDTO.class).getData();
+//        CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/v1/clouds/" + cloudId), CloudDTO.class).getData();
 //        assertNetworks(numberOfNetworks, cloudDTO.getCloud().getNetworks(), expectedNetworksTable);
 //    }
 //
@@ -68,13 +68,13 @@
 //    @When("^I remove the network with name \"([^\"]*)\" from the cloud \"([^\"]*)\"$")
 //    public void I_remove_the_network_with_name_from_the_cloud(String networkName, String cloudName) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
-//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/clouds/" + cloudId + "/networks/" + networkName));
+//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/v1/clouds/" + cloudId + "/networks/" + networkName));
 //    }
 //
 //    @Then("^The cloud with name \"([^\"]*)\" should not have any network as resources$")
 //    public void The_cloud_with_name_should_not_have_any_network_as_resources(String cloudName) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
-//        CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/clouds/" + cloudId), CloudDTO.class).getData();
+//        CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/v1/clouds/" + cloudId), CloudDTO.class).getData();
 //        Assert.assertTrue(cloudDTO.getNetworks() == null || cloudDTO.getNetworks().isEmpty());
 //    }
 //
@@ -82,7 +82,7 @@
 //    public void I_match_the_network_with_name_of_the_cloud_to_the_PaaS_resource(String networkName, String cloudName, String paaSResourceId) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
 //        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/networks/" + networkName + "/resource",
+//                Context.getRestClientInstance().postUrlEncoded("/rest/v1/clouds/" + cloudId + "/networks/" + networkName + "/resource",
 //                        Lists.<NameValuePair> newArrayList(new BasicNameValuePair("pasSResourceId", paaSResourceId))));
 //    }
 //
@@ -116,7 +116,7 @@
 //    public void I_delete_the_mapping_for_the_network_of_the_cloud(String networkName, String cloudName) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
 //        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/networks/" + networkName + "/resource",
+//                Context.getRestClientInstance().postUrlEncoded("/rest/v1/clouds/" + cloudId + "/networks/" + networkName + "/resource",
 //                        Lists.<NameValuePair> newArrayList()));
 //    }
 //
@@ -136,7 +136,7 @@
 //        network.setIpVersion(4);
 //        network.setIsExternal(true);
 //        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/networks", JsonUtil.toString(network)));
+//                Context.getRestClientInstance().postJSon("/rest/v1/clouds/" + cloudId + "/networks", JsonUtil.toString(network)));
 //        I_match_the_network_with_name_of_the_cloud_to_the_PaaS_resource(name, cloudName, paaSResourceId);
 //    }
 //}

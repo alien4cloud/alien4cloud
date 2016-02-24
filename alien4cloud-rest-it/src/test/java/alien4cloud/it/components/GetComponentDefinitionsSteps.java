@@ -43,7 +43,7 @@ public class GetComponentDefinitionsSteps {
 
     @When("^I get the component with uuid \"([^\"]*)\"$")
     public void I_get_the_component_with_uuid(String componentId) throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/components/" + componentId));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/components/" + componentId));
     }
 
     @Then("^I should retrieve a component detail with list of it's properties and interfaces.$")
@@ -58,7 +58,7 @@ public class GetComponentDefinitionsSteps {
 
     @When("^I try to get a component with id \"([^\"]*)\"$")
     public void I_try_to_get_a_component_with_id(String componentId) throws Throwable {
-        String restResponse = Context.getRestClientInstance().get("/rest/components/" + componentId);
+        String restResponse = Context.getRestClientInstance().get("/rest/v1/components/" + componentId);
         Context.getInstance().registerRestResponse(restResponse);
     }
 

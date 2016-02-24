@@ -36,7 +36,7 @@ public class WorkflowStepDefinitions {
     public void i_remove_the_workflow_step_named(String stepName) throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         String workflowName = Context.getInstance().getCurrentWorkflowName();
-        String path = String.format("/rest/topologies/%s/workflows/%s/steps/%s", topologyId, workflowName, stepName);
+        String path = String.format("/rest/v1/topologies/%s/workflows/%s/steps/%s", topologyId, workflowName, stepName);
         String restResponse = Context.getRestClientInstance().delete(path);
         Context.getInstance().registerRestResponse(restResponse);
     }
@@ -45,7 +45,7 @@ public class WorkflowStepDefinitions {
     public void i_rename_the_workflow_step_named_to(String stepName, String newStepName) throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         String workflowName = Context.getInstance().getCurrentWorkflowName();
-        String path = String.format("/rest/topologies/%s/workflows/%s/steps/%s", topologyId, workflowName, stepName);
+        String path = String.format("/rest/v1/topologies/%s/workflows/%s/steps/%s", topologyId, workflowName, stepName);
         List<NameValuePair> npvs = Lists.newArrayList();
         npvs.add(new BasicNameValuePair("newStepName", newStepName));
         String restResponse = Context.getRestClientInstance().postUrlEncoded(path, npvs);
@@ -76,7 +76,7 @@ public class WorkflowStepDefinitions {
         req.setActivity(activity);
         req.setRelatedStepId(relatedStepId);
         req.setBefore(before);
-        String path = String.format("/rest/topologies/%s/workflows/%s/activities", topologyId, workflowName);
+        String path = String.format("/rest/v1/topologies/%s/workflows/%s/activities", topologyId, workflowName);
         String restResponse = Context.getRestClientInstance().postJSon(path, JsonUtil.toString(req));
         Context.getInstance().registerRestResponse(restResponse);
     }
@@ -166,7 +166,7 @@ public class WorkflowStepDefinitions {
     public void i_swap_the_workflow_step_with(String stepId, String targetId) throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         String workflowName = Context.getInstance().getCurrentWorkflowName();
-        String path = String.format("/rest/topologies/%s/workflows/%s/steps/%s/swap", topologyId, workflowName, stepId);
+        String path = String.format("/rest/v1/topologies/%s/workflows/%s/steps/%s/swap", topologyId, workflowName, stepId);
         List<NameValuePair> npvs = Lists.newArrayList();
         npvs.add(new BasicNameValuePair("targetId", targetId));
         String restResponse = Context.getRestClientInstance().postUrlEncoded(path, npvs);
@@ -177,7 +177,7 @@ public class WorkflowStepDefinitions {
     public void i_connect_the_workflow_step_to(String stepId, List<String> targetIds) throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         String workflowName = Context.getInstance().getCurrentWorkflowName();
-        String path = String.format("/rest/topologies/%s/workflows/%s/steps/%s/connectTo", topologyId, workflowName, stepId);
+        String path = String.format("/rest/v1/topologies/%s/workflows/%s/steps/%s/connectTo", topologyId, workflowName, stepId);
         connect_the_workflow_steps(path, targetIds);
     }
 
@@ -197,7 +197,7 @@ public class WorkflowStepDefinitions {
     public void i_connect_the_workflow_step_from(String stepId, List<String> targetIds) throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         String workflowName = Context.getInstance().getCurrentWorkflowName();
-        String path = String.format("/rest/topologies/%s/workflows/%s/steps/%s/connectFrom", topologyId, workflowName, stepId);
+        String path = String.format("/rest/v1/topologies/%s/workflows/%s/steps/%s/connectFrom", topologyId, workflowName, stepId);
         connect_the_workflow_steps(path, targetIds);
     }
 
@@ -205,7 +205,7 @@ public class WorkflowStepDefinitions {
     public void i_disconnect_the_workflow_step_from(String from, String to) throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         String workflowName = Context.getInstance().getCurrentWorkflowName();
-        String path = String.format("/rest/topologies/%s/workflows/%s/edges/%s/%s", topologyId, workflowName, from, to);
+        String path = String.format("/rest/v1/topologies/%s/workflows/%s/edges/%s/%s", topologyId, workflowName, from, to);
         String restResponse = Context.getRestClientInstance().delete(path);
         Context.getInstance().registerRestResponse(restResponse);
     }
@@ -214,7 +214,7 @@ public class WorkflowStepDefinitions {
     public void i_reset_the_workflow() throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         String workflowName = Context.getInstance().getCurrentWorkflowName();
-        String path = String.format("/rest/topologies/%s/workflows/%s/init", topologyId, workflowName);
+        String path = String.format("/rest/v1/topologies/%s/workflows/%s/init", topologyId, workflowName);
         String restResponse = Context.getRestClientInstance().postJSon(path, "");
         Context.getInstance().registerRestResponse(restResponse);
     }
@@ -223,7 +223,7 @@ public class WorkflowStepDefinitions {
     public void i_rename_the_workflow_to(String newName) throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         String workflowName = Context.getInstance().getCurrentWorkflowName();
-        String path = String.format("/rest/topologies/%s/workflows/%s", topologyId, workflowName);
+        String path = String.format("/rest/v1/topologies/%s/workflows/%s", topologyId, workflowName);
         List<NameValuePair> npvs = Lists.newArrayList();
         npvs.add(new BasicNameValuePair("newName", newName));
         String restResponse = Context.getRestClientInstance().postUrlEncoded(path, npvs);
@@ -234,7 +234,7 @@ public class WorkflowStepDefinitions {
     public void i_remove_the_workflow() throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         String workflowName = Context.getInstance().getCurrentWorkflowName();
-        String path = String.format("/rest/topologies/%s/workflows/%s", topologyId, workflowName);
+        String path = String.format("/rest/v1/topologies/%s/workflows/%s", topologyId, workflowName);
         String restResponse = Context.getRestClientInstance().delete(path);
         Context.getInstance().registerRestResponse(restResponse);
     }
@@ -242,7 +242,7 @@ public class WorkflowStepDefinitions {
     @When("^I create a new custom workflow$")
     public void i_create_a_new_custom_workflow() throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
-        String path = String.format("/rest/topologies/%s/workflows", topologyId);
+        String path = String.format("/rest/v1/topologies/%s/workflows", topologyId);
         String restResponse = Context.getRestClientInstance().postJSon(path, "");
         Context.getInstance().registerRestResponse(restResponse);
     }
@@ -252,7 +252,7 @@ public class WorkflowStepDefinitions {
         String topologyId = Context.getInstance().getTopologyId();
         RestResponse<Workflow> workflowResponse = JsonUtil.read(Context.getInstance().takeRestResponse(), Workflow.class, Context.getJsonMapper());
         String workflowName = workflowResponse.getData().getName();
-        String topologyRestResponse = Context.getRestClientInstance().get("/rest/topologies/" + topologyId);
+        String topologyRestResponse = Context.getRestClientInstance().get("/rest/v1/topologies/" + topologyId);
         RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyRestResponse, TopologyDTO.class, Context.getJsonMapper());
         assertTrue(topologyResponse.getData().getTopology().getWorkflows().containsKey(workflowName));
         Context.getInstance().setCurrentWorkflowName(workflowName);

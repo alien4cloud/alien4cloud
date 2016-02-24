@@ -18,7 +18,7 @@ public class RuntimePropertiesUtil {
     public static Map<String, String> getProperties(String nodeName, String propertyName) throws IOException {
         Map<String, String> nodeRuntimeProperties = Maps.newHashMap();
         RestResponse<?> response = JsonUtil.read(Context.getRestClientInstance().get(
-                "/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
+                "/rest/v1/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
                         + Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName())
                         + "/deployment/informations"));
         Map<String, Object> instancesInformation = (Map<String, Object>) response.getData();

@@ -30,7 +30,7 @@ public class AuditLogStepsDefinitions {
     public void I_should_have_no_audit_trace_in_Alien() throws Throwable {
         SearchRequest req = new SearchRequest(null, "", 0, 1, null);
         String jSon = JsonUtil.toString(req);
-        String restResponse = Context.getRestClientInstance().postJSon("/rest/audit/search", jSon);
+        String restResponse = Context.getRestClientInstance().postJSon("/rest/v1/audit/search", jSon);
         FacetedSearchResult searchResult = JsonUtil.read(restResponse, FacetedSearchResult.class).getData();
         Assert.assertEquals(0, searchResult.getTotalResults());
     }
@@ -39,7 +39,7 @@ public class AuditLogStepsDefinitions {
     public void I_should_have_audit_traces_in_Alien(int numberOfResult, DataTable rawExpectedAuditTraces) throws Throwable {
         SearchRequest req = new SearchRequest(null, "", 0, numberOfResult, null);
         String jSon = JsonUtil.toString(req);
-        String restResponse = Context.getRestClientInstance().postJSon("/rest/audit/search", jSon);
+        String restResponse = Context.getRestClientInstance().postJSon("/rest/v1/audit/search", jSon);
         FacetedSearchResult searchResult = JsonUtil.read(restResponse, FacetedSearchResult.class).getData();
         Assert.assertTrue(searchResult.getTotalResults() == numberOfResult);
         Object[] searchData = searchResult.getData();
@@ -69,7 +69,7 @@ public class AuditLogStepsDefinitions {
 
     @When("^I get audit log configuration$")
     public void I_get_audit_log_configuration() throws Throwable {
-        String restResponse = Context.getRestClientInstance().get("/rest/audit/configuration");
+        String restResponse = Context.getRestClientInstance().get("/rest/v1/audit/configuration");
         AuditConfigurationDTO configuration = JsonUtil.read(restResponse, AuditConfigurationDTO.class).getData();
         Assert.assertNotNull(configuration);
         currentAuditConfiguration = configuration;
@@ -120,7 +120,7 @@ public class AuditLogStepsDefinitions {
     }
 
     private void enableAuditGlobally(Boolean enable) throws IOException {
-        Context.getRestClientInstance().postUrlEncoded("/rest/audit/configuration/enabled",
+        Context.getRestClientInstance().postUrlEncoded("/rest/v1/audit/configuration/enabled",
                 Lists.<NameValuePair> newArrayList(new BasicNameValuePair("enabled", enable.toString())));
     }
 
@@ -144,7 +144,7 @@ public class AuditLogStepsDefinitions {
             Assert.assertNotNull(method);
             methodsToEnableDisable.add(method);
         }
-        Context.getRestClientInstance().postJSon("/rest/audit/configuration/audited-methods", JsonUtil.toString(methodsToEnableDisable));
+        Context.getRestClientInstance().postJSon("/rest/v1/audit/configuration/audited-methods", JsonUtil.toString(methodsToEnableDisable));
     }
 
     @When("^I disable audit log for following methods:$")
@@ -159,7 +159,7 @@ public class AuditLogStepsDefinitions {
 
     @And("^I reset audit log configuration$")
     public void I_reset_audit_log_configuration() throws Throwable {
-        String restResponse = Context.getRestClientInstance().postJSon("/rest/audit/configuration/reset", "");
+        String restResponse = Context.getRestClientInstance().postJSon("/rest/v1/audit/configuration/reset", "");
         AuditConfigurationDTO configuration = JsonUtil.read(restResponse, AuditConfigurationDTO.class).getData();
         Assert.assertNotNull(configuration);
         currentAuditConfiguration = configuration;

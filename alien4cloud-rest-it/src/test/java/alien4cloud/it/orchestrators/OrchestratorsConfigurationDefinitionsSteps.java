@@ -19,7 +19,7 @@ public class OrchestratorsConfigurationDefinitionsSteps {
     @When("^I get configuration for orchestrator \"([^\"]*)\"$")
     public void I_get_configuration_for_orchestrator(String orchestratorName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
-        String restResponse = Context.getRestClientInstance().get("/rest/orchestrators/" + orchestratorId + "/configuration");
+        String restResponse = Context.getRestClientInstance().get("/rest/v1/orchestrators/" + orchestratorId + "/configuration");
         Context.getInstance().registerRestResponse(restResponse);
         RestResponse<OrchestratorConfiguration> orchestratorConfigurationResponse = JsonUtil.read(Context.getInstance().getRestResponse(),
                 OrchestratorConfiguration.class);
@@ -42,7 +42,7 @@ public class OrchestratorsConfigurationDefinitionsSteps {
         default:
             throw new IllegalArgumentException("Cloudify version not supported " + cloudifyVersion);
         }
-        String restResponse = Context.getRestClientInstance().putJSon("/rest/orchestrators/" + orchestratorId + "/configuration", JsonUtil.toString(config));
+        String restResponse = Context.getRestClientInstance().putJSon("/rest/v1/orchestrators/" + orchestratorId + "/configuration", JsonUtil.toString(config));
         Context.getInstance().registerRestResponse(restResponse);
 
     }
@@ -64,7 +64,7 @@ public class OrchestratorsConfigurationDefinitionsSteps {
         List<String> imports = Lists.newArrayList(importsCsv.split(","));
         openstack.put("imports", imports);
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().putJSon("/rest/orchestrators/" + orchestratorId + "/configuration", JsonUtil.toString(config)));
+                Context.getRestClientInstance().putJSon("/rest/v1/orchestrators/" + orchestratorId + "/configuration", JsonUtil.toString(config)));
     }
 
     @And("^I update cloudify (\\d+) manager's url to value defined in environment variable \"([^\"]*)\" for orchestrator with name \"([^\"]*)\"$")
