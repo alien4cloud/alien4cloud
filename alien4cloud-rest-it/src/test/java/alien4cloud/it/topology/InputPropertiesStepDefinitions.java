@@ -1,14 +1,5 @@
 package alien4cloud.it.topology;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.collections4.MapUtils;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import org.junit.Assert;
-
 import alien4cloud.it.Context;
 import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedNodeType;
@@ -18,13 +9,18 @@ import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
-
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.junit.Assert;
 
 public class InputPropertiesStepDefinitions {
 
@@ -63,8 +59,8 @@ public class InputPropertiesStepDefinitions {
             }
         }
         if (propDef == null) {
-            throw new NullPointerException("The property definition is required for node " + nodeName + " and property " + propertyName
-                    + ", please check your cucumber scenario.");
+            throw new NullPointerException(
+                    "The property definition is required for node " + nodeName + " and property " + propertyName + ", please check your cucumber scenario.");
         }
         return propDef;
     }
@@ -77,7 +73,7 @@ public class InputPropertiesStepDefinitions {
         TopologyDTO topologyDTO = JsonUtil.read(response, TopologyDTO.class, Context.getJsonMapper()).getData();
         NodeTemplate template = MapUtils.getObject(topologyDTO.getTopology().getNodeTemplates(), nodeName);
         Capability capability = template.getCapabilities().get(capabilityName);
-        
+
         IndexedCapabilityType capabilityType = topologyDTO.getCapabilityTypes().get(capability.getType());
         PropertyDefinition propertyDefinition = capabilityType.getProperties().get(propertyName);
 
@@ -156,8 +152,8 @@ public class InputPropertiesStepDefinitions {
     }
 
     @Then("^I set the property \"([^\"]*)\" of a relationship \"([^\"]*)\" for the node template \"([^\"]*)\" to the input \"([^\"]*)\"$")
-    public void I_set_the_property_of_a_relationship_for_the_node_template_to_the_input(String property, String relationshipTemplateId,
-            String nodeTemplateName, String inputId) throws Throwable {
+    public void I_set_the_property_of_a_relationship_for_the_node_template_to_the_input(String property, String relationshipTemplateId, String nodeTemplateName,
+            String inputId) throws Throwable {
         String fullUrl = String.format("/rest/topologies/%s/nodetemplates/%s/relationship/%s/property/%s/input", Context.getInstance().getTopologyId(),
                 nodeTemplateName, relationshipTemplateId, property);
         List<NameValuePair> nvps = new ArrayList<NameValuePair>();
