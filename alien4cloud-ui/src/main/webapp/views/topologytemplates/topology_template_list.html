@@ -9,7 +9,7 @@
     <!-- Upload box -->
     <div id="upload-csar-topology" class="col-md-10" ng-if="isArchitect">
       <upload-directive
-        target-url="'rest/csars'"
+        target-url="'rest/v1/csars'"
         drag-and-drop-message="'COMPONENTS.DRAG_DROP_UPLOAD'"
         button-message="'COMPONENTS.UPLOAD'"
         upload-success-callback="searchService.search()" />
