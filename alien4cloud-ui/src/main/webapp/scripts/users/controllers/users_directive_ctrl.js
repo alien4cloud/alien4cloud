@@ -42,7 +42,7 @@ define(function (require) {
           userServices.initRolesToDisplay(user);
         }
       };
-      $scope.searchService = searchServiceFactory('rest/users/search', false, $scope, 20);
+      $scope.searchService = searchServiceFactory('rest/v1/users/search', false, $scope, 20);
       $scope.searchService.search();
 
       /** handle Modal form for user creation */

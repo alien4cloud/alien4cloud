@@ -24,7 +24,7 @@ define(function (require) {
           };
           var instance = this;
           $upload.upload({
-            url: 'rest/topologies/' + instance.scope.topology.topology.id + '/nodetemplates/' + uploadNodeTemplate.name + '/artifacts/' + artifactId,
+            url: 'rest/v1/topologies/' + instance.scope.topology.topology.id + '/nodetemplates/' + uploadNodeTemplate.name + '/artifacts/' + artifactId,
             file: file
           }).progress(function(evt) {
             instance.scope.uploads[artifactId].uploadProgress = parseInt(100.0 * evt.loaded / evt.total);

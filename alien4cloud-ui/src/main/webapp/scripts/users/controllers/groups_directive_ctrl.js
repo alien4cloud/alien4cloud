@@ -46,7 +46,7 @@ define(function (require) {
       $scope.onSearchCompleted = function(searchResult) {
         $scope.groupsData = searchResult.data;
       };
-      $scope.searchService = searchServiceFactory('rest/groups/search', false, $scope, 20);
+      $scope.searchService = searchServiceFactory('rest/v1/groups/search', false, $scope, 20);
       $scope.searchService.search();
 
       /** handle Modal form for group creation */

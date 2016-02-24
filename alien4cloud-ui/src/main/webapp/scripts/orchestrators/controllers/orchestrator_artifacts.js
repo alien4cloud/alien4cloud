@@ -23,7 +23,7 @@ define(function (require) {
     ['$scope' , '$state', '$resource', 'orchestrator', 
     function($scope, $state, $resource, orchestrator) {
       $scope.artifactTypes = [];
-      $resource('rest/orchestrators/'+orchestrator.id+'/artifacts-support').get(
+      $resource('rest/v1/orchestrators/'+orchestrator.id+'/artifacts-support').get(
         {}, 
         function(result){
           if(!_.isEmpty(result.data)){

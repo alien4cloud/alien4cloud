@@ -5,7 +5,7 @@ define(function (require) {
 
   modules.get('a4c-deployment').factory('deploymentServices', ['$resource',
     function($resource) {
-      var deploymentEventResource = $resource('rest/deployments/:applicationEnvironmentId/events', {}, {
+      var deploymentEventResource = $resource('rest/v1/deployments/:applicationEnvironmentId/events', {}, {
         'get': {
           method: 'GET',
           params: {
@@ -17,7 +17,7 @@ define(function (require) {
         }
       });
 
-      var deploymentsResource = $resource('rest/deployments', {}, {
+      var deploymentsResource = $resource('rest/v1/deployments', {}, {
         'get': {
           method: 'GET',
           params: {
@@ -31,12 +31,12 @@ define(function (require) {
         }
       });
 
-      var deploymentStatusResource = $resource('rest/deployments/:deploymentId/status');
+      var deploymentStatusResource = $resource('rest/v1/deployments/:deploymentId/status');
 
-      var undeploymentResource = $resource('rest/deployments/:deploymentId/undeploy');
+      var undeploymentResource = $resource('rest/v1/deployments/:deploymentId/undeploy');
 
       /*runtime controller*/
-      var runtimeTopologyResource = $resource('rest/runtime/:applicationId/environment/:applicationEnvironmentId/topology', {}, {
+      var runtimeTopologyResource = $resource('rest/v1/runtime/:applicationId/environment/:applicationEnvironmentId/topology', {}, {
         'get': {
           method: 'GET',
           params: {
@@ -47,7 +47,7 @@ define(function (require) {
         }
       });
 
-      var runtimeResource = $resource('rest/runtime/:applicationId/operations', {}, {
+      var runtimeResource = $resource('rest/v1/runtime/:applicationId/operations', {}, {
         'executeOperation': {
           method: 'POST',
           headers: {
@@ -56,9 +56,9 @@ define(function (require) {
         }
       });
 
-      var nodeInstanceMaintenanceResource = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/deployment/:nodeTemplateId/:instanceId/maintenance');
+      var nodeInstanceMaintenanceResource = $resource('rest/v1/applications/:applicationId/environments/:applicationEnvironmentId/deployment/:nodeTemplateId/:instanceId/maintenance');
 
-      var deploymentMaintenanceResource = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/deployment/maintenance');
+      var deploymentMaintenanceResource = $resource('rest/v1/applications/:applicationId/environments/:applicationEnvironmentId/deployment/maintenance');
 
       return {
         'get': deploymentsResource.get,

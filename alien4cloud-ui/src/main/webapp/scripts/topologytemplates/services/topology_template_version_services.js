@@ -6,7 +6,7 @@ define(function (require) {
 
   modules.get('a4c-topology-templates', ['ngResource']).factory('topologyTemplateVersionServices', ['$resource',
     function($resource) {
-      var searchVersionResource = $resource('rest/templates/:delegateId/versions/search', {}, {
+      var searchVersionResource = $resource('rest/v1/templates/:delegateId/versions/search', {}, {
         'search': {
           method: 'POST',
           isArray: false,
@@ -16,7 +16,7 @@ define(function (require) {
         }
       });
 
-      var versionResource = $resource('rest/templates/:delegateId/versions', {}, {
+      var versionResource = $resource('rest/v1/templates/:delegateId/versions', {}, {
         'create': {
           method: 'POST',
           isArray: false,
@@ -29,7 +29,7 @@ define(function (require) {
         }
       });
 
-      var versionMiscResource = $resource('rest/templates/:delegateId/versions/:versionId', {}, {
+      var versionMiscResource = $resource('rest/v1/templates/:delegateId/versions/:versionId', {}, {
         'get': {
           method: 'GET'
         },

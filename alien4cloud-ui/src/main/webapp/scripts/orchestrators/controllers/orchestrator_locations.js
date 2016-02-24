@@ -38,7 +38,7 @@ define(function(require) {
         var locationSupport;
         // query to get the location support informations for the orchestrator.
 
-        $http.get('rest/orchestrators/' + orchestrator.id + '/locationsupport').success(function(response) {
+        $http.get('rest/v1/orchestrators/' + orchestrator.id + '/locationsupport').success(function(response) {
           if (_.defined(response.data)) {
             locationSupport = response.data;
             $scope.multipleLocations = locationSupport.multipleLocations;

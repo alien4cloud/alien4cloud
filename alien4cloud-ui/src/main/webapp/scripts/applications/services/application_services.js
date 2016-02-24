@@ -6,9 +6,9 @@ define(function (require) {
   modules.get('a4c-applications', ['ngResource']).factory('applicationServices', ['$resource',
     function($resource) {
       // Application deployment api
-      var applicationRuntimeDAO = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/deployment/informations', {}, {});
+      var applicationRuntimeDAO = $resource('rest/v1/applications/:applicationId/environments/:applicationEnvironmentId/deployment/informations', {}, {});
 
-      var applicationDeploymentSetupDAO = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/deployment-setup', {}, {
+      var applicationDeploymentSetupDAO = $resource('rest/v1/applications/:applicationId/environments/:applicationEnvironmentId/deployment-setup', {}, {
         'get': {
           method: 'GET'
         },
@@ -17,39 +17,39 @@ define(function (require) {
         }
       });
 
-      var applicationActiveDeploymentDAO = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/active-deployment');
+      var applicationActiveDeploymentDAO = $resource('rest/v1/applications/:applicationId/environments/:applicationEnvironmentId/active-deployment');
 
-      var applicationDeploymentDAO = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/deployment', {}, {
+      var applicationDeploymentDAO = $resource('rest/v1/applications/:applicationId/environments/:applicationEnvironmentId/deployment', {}, {
         'undeploy': {
           method: 'DELETE'
         }
       });
 
-      var applicationDeployment = $resource('rest/applications/deployment', {}, {
+      var applicationDeployment = $resource('rest/v1/applications/deployment', {}, {
         'deploy': {
           method: 'POST'
         }
       });
 
-      var applicationStatus = $resource('rest/applications/statuses', {}, {
+      var applicationStatus = $resource('rest/v1/applications/statuses', {}, {
         'statuses': {
           method: 'POST'
         }
       });
 
-      var ApplicationScalingDAO = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/scale/:nodeTemplateId', {}, {
+      var ApplicationScalingDAO = $resource('rest/v1/applications/:applicationId/environments/:applicationEnvironmentId/scale/:nodeTemplateId', {}, {
         'scale': {
           method: 'POST'
         }
       });
       
-      var applicationWorkflowResource = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/workflows/:workflowName', {}, {
+      var applicationWorkflowResource = $resource('rest/v1/applications/:applicationId/environments/:applicationEnvironmentId/workflows/:workflowName', {}, {
         'launch': {
           method: 'POST'
         }
       });      
 
-      var deploymentProperty = $resource('rest/orchestrators/:orchestratorId/deployment-prop-check', {}, {
+      var deploymentProperty = $resource('rest/v1/orchestrators/:orchestratorId/deployment-prop-check', {}, {
         'check': {
           method: 'POST'
         }
@@ -58,7 +58,7 @@ define(function (require) {
       //
       // APPLICATION API
       //
-      var applicationCreate = $resource('rest/applications', {}, {
+      var applicationCreate = $resource('rest/v1/applications', {}, {
         'create': {
           method: 'POST',
           isArray: false,
@@ -68,7 +68,7 @@ define(function (require) {
         }
       });
 
-      var applicationSearch = $resource('rest/applications/search', {}, {
+      var applicationSearch = $resource('rest/v1/applications/search', {}, {
         'search': {
           method: 'POST',
           isArray: false,
@@ -78,7 +78,7 @@ define(function (require) {
         }
       });
 
-      var applicationDAO = $resource('rest/applications/:applicationId', {}, {
+      var applicationDAO = $resource('rest/v1/applications/:applicationId', {}, {
         'get': {
           method: 'GET'
         },
@@ -90,7 +90,7 @@ define(function (require) {
         }
       });
 
-      var applicationTags = $resource('rest/applications/:applicationId/tags/:tagKey', {}, {
+      var applicationTags = $resource('rest/v1/applications/:applicationId/tags/:tagKey', {}, {
         'upsert': {
           method: 'POST',
           isArray: false,
@@ -107,7 +107,7 @@ define(function (require) {
       });
 
       // Handle roles on application
-      var manageAppUserRoles = $resource('rest/applications/:applicationId/roles/users/:username/:role', {}, {
+      var manageAppUserRoles = $resource('rest/v1/applications/:applicationId/roles/users/:username/:role', {}, {
         'addUserRole': {
           method: 'PUT',
           headers: {
@@ -132,7 +132,7 @@ define(function (require) {
         }
       });
 
-      var manageAppGroupRoles = $resource('rest/applications/:applicationId/roles/groups/:groupId/:role', {}, {
+      var manageAppGroupRoles = $resource('rest/v1/applications/:applicationId/roles/groups/:groupId/:role', {}, {
         'addGroupRole': {
           method: 'PUT',
           headers: {

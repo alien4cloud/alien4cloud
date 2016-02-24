@@ -5,7 +5,7 @@ define(function (require) {
   var admin = modules.get('alien4cloud-admin');
 
   admin.factory('metricsService', ['$resource', function ($resource) {
-    return $resource('rest/admin/metrics/metrics', {}, {
+    return $resource('rest/v1/admin/metrics/metrics', {}, {
       'get': { method: 'GET'}
     });
   }]);
@@ -13,7 +13,7 @@ define(function (require) {
   admin.factory('threadDumpService', ['$http', function ($http) {
     return {
       dump: function() {
-        var promise = $http.get('rest/admin/dump').then(function(response){
+        var promise = $http.get('rest/v1/admin/dump').then(function(response){
           return response.data;
         });
         return promise;
@@ -24,7 +24,7 @@ define(function (require) {
   admin.factory('healthCheckService', ['$http', function ($http) {
     return {
       check: function() {
-        var promise = $http.get('rest/admin/health').then(function(response){
+        var promise = $http.get('rest/v1/admin/health').then(function(response){
           return response.data;
         });
         return promise;

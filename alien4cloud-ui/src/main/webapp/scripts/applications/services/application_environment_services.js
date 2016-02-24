@@ -7,7 +7,7 @@ define(function (require) {
   modules.get('a4c-applications', ['ngResource']).factory('applicationEnvironmentServices', ['$resource',
     function($resource) {
       // Search for application environments
-      var searchEnvironmentResource = $resource('rest/applications/:applicationId/environments/search', {}, {
+      var searchEnvironmentResource = $resource('rest/v1/applications/:applicationId/environments/search', {}, {
         'search': {
           method: 'POST',
           isArray: false,
@@ -30,7 +30,7 @@ define(function (require) {
         }).$promise;
       };
 
-      var applicationEnvironmentResource = $resource('rest/applications/:applicationId/environments', {}, {
+      var applicationEnvironmentResource = $resource('rest/v1/applications/:applicationId/environments', {}, {
         'create': {
           method: 'POST',
           isArray: false,
@@ -40,7 +40,7 @@ define(function (require) {
         }
       });
 
-      var applicationEnvironmentMiscResource = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId', {}, {
+      var applicationEnvironmentMiscResource = $resource('rest/v1/applications/:applicationId/environments/:applicationEnvironmentId', {}, {
         'get': {
           method: 'GET'
         },
@@ -52,13 +52,13 @@ define(function (require) {
         }
       });
 
-      var applicationEnvironmentTopology = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/topology', {}, {
+      var applicationEnvironmentTopology = $resource('rest/v1/applications/:applicationId/environments/:applicationEnvironmentId/topology', {}, {
         'get': {
           method: 'GET'
         }
       });
 
-      var envEnumTypes = $resource('rest/enums/environmenttype', {}, {
+      var envEnumTypes = $resource('rest/v1/enums/environmenttype', {}, {
         'get': {
           method: 'GET',
           cache: true
@@ -66,7 +66,7 @@ define(function (require) {
       });
 
       /*Users roles on an environment*/
-      var manageEnvUserRoles = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/roles/users/:username/:role', {}, {
+      var manageEnvUserRoles = $resource('rest/v1/applications/:applicationId/environments/:applicationEnvironmentId/roles/users/:username/:role', {}, {
         'addUserRole': {
           method: 'PUT',
           headers: {
@@ -93,7 +93,7 @@ define(function (require) {
         }
       });
 
-      var manageEnvGroupRoles = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/roles/groups/:groupId/:role', {}, {
+      var manageEnvGroupRoles = $resource('rest/v1/applications/:applicationId/environments/:applicationEnvironmentId/roles/groups/:groupId/:role', {}, {
         'addGroupRole': {
           method: 'PUT',
           headers: {

@@ -7,9 +7,9 @@ define(function (require) {
   modules.get('a4c-topology-editor', ['ngResource']).factory('topologyServices', ['$resource',
     function($resource) {
       // Service that gives access to create topology
-      var topologyScalingPoliciesDAO = $resource('rest/topologies/:topologyId/scalingPolicies/:nodeTemplateName', {}, {});
+      var topologyScalingPoliciesDAO = $resource('rest/v1/topologies/:topologyId/scalingPolicies/:nodeTemplateName', {}, {});
 
-      var topologyDAO = $resource('rest/topologies/:topologyId', {}, {
+      var topologyDAO = $resource('rest/v1/topologies/:topologyId', {}, {
         'create': {
           method: 'POST'
         },
@@ -18,7 +18,7 @@ define(function (require) {
         }
       });
 
-      var addNodeTemplate = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName', {}, {
+      var addNodeTemplate = $resource('rest/v1/topologies/:topologyId/nodetemplates/:nodeTemplateName', {}, {
         'add': {
           method: 'POST',
           isArray: false,
@@ -35,7 +35,7 @@ define(function (require) {
         }
       });
 
-      var setInputToProperty = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/property/:propertyId/input', {}, {
+      var setInputToProperty = $resource('rest/v1/topologies/:topologyId/nodetemplates/:nodeTemplateName/property/:propertyId/input', {}, {
         'set': {
           method: 'POST',
           params: {
@@ -62,7 +62,7 @@ define(function (require) {
         }
       });
 
-      var setInputToRelationshipProperty = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/relationship/:relationshipId/property/:propertyId/input', {}, {
+      var setInputToRelationshipProperty = $resource('rest/v1/topologies/:topologyId/nodetemplates/:nodeTemplateName/relationship/:relationshipId/property/:propertyId/input', {}, {
         'set': {
           method: 'POST',
           params: {
@@ -91,7 +91,7 @@ define(function (require) {
         }
       });
 
-      var setInputToCapabilityProperty = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/capability/:capabilityId/property/:propertyId/input', {}, {
+      var setInputToCapabilityProperty = $resource('rest/v1/topologies/:topologyId/nodetemplates/:nodeTemplateName/capability/:capabilityId/property/:propertyId/input', {}, {
         'set': {
           method: 'POST',
           params: {
@@ -120,7 +120,7 @@ define(function (require) {
         }
       });
 
-      var getPropertyInputCandidates = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/property/:propertyId/inputcandidats', {}, {
+      var getPropertyInputCandidates = $resource('rest/v1/topologies/:topologyId/nodetemplates/:nodeTemplateName/property/:propertyId/inputcandidats', {}, {
         'getCandidates': {
           method: 'GET',
           params: {
@@ -134,9 +134,9 @@ define(function (require) {
         }
       });
 
-      var artifactInputCandidates = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/artifacts/:artifactId/inputcandidates');
+      var artifactInputCandidates = $resource('rest/v1/topologies/:topologyId/nodetemplates/:nodeTemplateName/artifacts/:artifactId/inputcandidates');
 
-      var getRelationshipPropertyInputCandidates = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/relationship/:relationshipId/property/:propertyId/inputcandidats', {}, {
+      var getRelationshipPropertyInputCandidates = $resource('rest/v1/topologies/:topologyId/nodetemplates/:nodeTemplateName/relationship/:relationshipId/property/:propertyId/inputcandidats', {}, {
         'getCandidates': {
           method: 'GET',
           params: {
@@ -151,7 +151,7 @@ define(function (require) {
         }
       });
 
-      var getCapabilityPropertyInputCandidates = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/capability/:capabilityId/property/:propertyId/inputcandidats', {}, {
+      var getCapabilityPropertyInputCandidates = $resource('rest/v1/topologies/:topologyId/nodetemplates/:nodeTemplateName/capability/:capabilityId/property/:propertyId/inputcandidats', {}, {
         'getCandidates': {
           method: 'GET',
           params: {
@@ -166,7 +166,7 @@ define(function (require) {
         }
       });
 
-      var updateInput = $resource('rest/topologies/:topologyId/inputs/:inputId', {}, {
+      var updateInput = $resource('rest/v1/topologies/:topologyId/inputs/:inputId', {}, {
         'add': {
           method: 'POST',
           params: {
@@ -200,7 +200,7 @@ define(function (require) {
         }
       });
 
-      var updateOutputProperty = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/property/:propertyName/isOutput', {}, {
+      var updateOutputProperty = $resource('rest/v1/topologies/:topologyId/nodetemplates/:nodeTemplateName/property/:propertyName/isOutput', {}, {
         'add': {
           method: 'POST',
           params: {
@@ -220,7 +220,7 @@ define(function (require) {
         }
       });
 
-      var artifacts = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/artifacts/:artifactId/reset', {}, {
+      var artifacts = $resource('rest/v1/topologies/:topologyId/nodetemplates/:nodeTemplateName/artifacts/:artifactId/reset', {}, {
         'resetArtifact': {
           method: 'PUT',
           params: {
@@ -234,9 +234,9 @@ define(function (require) {
         }
       });
 
-      var inputArtifact = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/artifacts/:artifactId/:inputArtifactId');
+      var inputArtifact = $resource('rest/v1/topologies/:topologyId/nodetemplates/:nodeTemplateName/artifacts/:artifactId/:inputArtifactId');
 
-      var inputArtifacts = $resource('rest/topologies/:topologyId/inputArtifacts/:inputArtifactId', {}, {
+      var inputArtifacts = $resource('rest/v1/topologies/:topologyId/inputArtifacts/:inputArtifactId', {}, {
         'rename': {
           method: 'POST',
           params: {
@@ -251,7 +251,7 @@ define(function (require) {
         }
       });
 
-      var updateNodeTemplateName = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/updateName/:newName', {}, {
+      var updateNodeTemplateName = $resource('rest/v1/topologies/:topologyId/nodetemplates/:nodeTemplateName/updateName/:newName', {}, {
         'updateName': {
           method: 'PUT',
           params: {
@@ -262,7 +262,7 @@ define(function (require) {
         }
       });
 
-      var updateNodeProperty = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/properties', {}, {
+      var updateNodeProperty = $resource('rest/v1/topologies/:topologyId/nodetemplates/:nodeTemplateName/properties', {}, {
         'update': {
           method: 'POST',
           isArray: false,
@@ -272,7 +272,7 @@ define(function (require) {
         }
       });
 
-      var relationshipDAO = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/relationships/:relationshipName', {}, {
+      var relationshipDAO = $resource('rest/v1/topologies/:topologyId/nodetemplates/:nodeTemplateName/relationships/:relationshipName', {}, {
         'add': {
           method: 'POST',
           isArray: false,
@@ -285,7 +285,7 @@ define(function (require) {
         }
       });
 
-      var updateRelationshipName = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/relationships/:relationshipName/updateName', {}, {
+      var updateRelationshipName = $resource('rest/v1/topologies/:topologyId/nodetemplates/:nodeTemplateName/relationships/:relationshipName/updateName', {}, {
         'updateName': {
           method: 'PUT',
           params: {
@@ -297,7 +297,7 @@ define(function (require) {
         }
       });
 
-      var updateRelationshipProperty = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/relationships/:relationshipName/updateProperty', {}, {
+      var updateRelationshipProperty = $resource('rest/v1/topologies/:topologyId/nodetemplates/:nodeTemplateName/relationships/:relationshipName/updateProperty', {}, {
         'updateProperty': {
           method: 'POST',
           params: {
@@ -309,7 +309,7 @@ define(function (require) {
         }
       });
 
-      var updateCapabilityProperty = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/capability/:capabilityId/updateProperty', {}, {
+      var updateCapabilityProperty = $resource('rest/v1/topologies/:topologyId/nodetemplates/:nodeTemplateName/capability/:capabilityId/updateProperty', {}, {
         'updateProperty': {
           method: 'POST',
           params: {
@@ -321,7 +321,7 @@ define(function (require) {
         }
       });
 
-      var updateCapabilityOutputProperty = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/capability/:capabilityId/property/:propertyId/isOutput', {}, {
+      var updateCapabilityOutputProperty = $resource('rest/v1/topologies/:topologyId/nodetemplates/:nodeTemplateName/capability/:capabilityId/property/:propertyId/isOutput', {}, {
         'add': {
           method: 'POST',
           params: {
@@ -348,15 +348,15 @@ define(function (require) {
         }
       });
 
-      var isValid = $resource('rest/topologies/:topologyId/isvalid', {}, {
+      var isValid = $resource('rest/v1/topologies/:topologyId/isvalid', {}, {
         method: 'GET'
       });
 
-      var yaml = $resource('rest/topologies/:topologyId/yaml', {}, {
+      var yaml = $resource('rest/v1/topologies/:topologyId/yaml', {}, {
         method: 'GET'
       });
 
-      var replacements = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/replace', {}, {
+      var replacements = $resource('rest/v1/topologies/:topologyId/nodetemplates/:nodeTemplateName/replace', {}, {
         'get': {
           method: 'GET'
         },
@@ -372,7 +372,7 @@ define(function (require) {
         }
       });
 
-      var cloudResource = $resource('rest/applications/:applicationId/cloud', {}, {
+      var cloudResource = $resource('rest/v1/applications/:applicationId/cloud', {}, {
         'set': {
           method: 'PUT',
           headers: {
@@ -381,7 +381,7 @@ define(function (require) {
         }
       });
 
-      var updateOutputAttribute = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/attributes/:attributeName/output', {}, {
+      var updateOutputAttribute = $resource('rest/v1/topologies/:topologyId/nodetemplates/:nodeTemplateName/attributes/:attributeName/output', {}, {
         'add': {
           method: 'POST',
           params: {
@@ -401,7 +401,7 @@ define(function (require) {
         }
       });
 
-      var nodeGroupsResource = $resource('rest/topologies/:topologyId/nodeGroups/:groupId', {}, {
+      var nodeGroupsResource = $resource('rest/v1/topologies/:topologyId/nodeGroups/:groupId', {}, {
         'rename': {
           method: 'PUT',
           params: {
@@ -413,9 +413,9 @@ define(function (require) {
         }
       });
 
-      var nodeGroupMembersResource = $resource('rest/topologies/:topologyId/nodeGroups/:groupId/members/:nodeTemplateName');
+      var nodeGroupMembersResource = $resource('rest/v1/topologies/:topologyId/nodeGroups/:groupId/members/:nodeTemplateName');
 
-      var substitutionTypeResource = $resource('rest/topologies/:topologyId/substitutions/type', {}, {
+      var substitutionTypeResource = $resource('rest/v1/topologies/:topologyId/substitutions/type', {}, {
         'set': {
           method: 'PUT',
           params: {
@@ -427,7 +427,7 @@ define(function (require) {
         }
       });
 
-      var capabilitySubstitutionResource = $resource('rest/topologies/:topologyId/substitutions/capabilities/:substitutionCapabilityId', {}, {
+      var capabilitySubstitutionResource = $resource('rest/v1/topologies/:topologyId/substitutions/capabilities/:substitutionCapabilityId', {}, {
         'add': {
           method: 'PUT',
           params: {
@@ -446,7 +446,7 @@ define(function (require) {
         }
       });
 
-      var requirementSubstitutionResource = $resource('rest/topologies/:topologyId/substitutions/requirements/:substitutionRequirementId', {}, {
+      var requirementSubstitutionResource = $resource('rest/v1/topologies/:topologyId/substitutions/requirements/:substitutionRequirementId', {}, {
         'add': {
           method: 'PUT',
           params: {
@@ -465,7 +465,7 @@ define(function (require) {
         }
       });
 
-      var topologyVersionResource = $resource('rest/topologies/:topologyId/version');      
+      var topologyVersionResource = $resource('rest/v1/topologies/:topologyId/version');      
 
       return {
         'dao': topologyDAO,

@@ -7,7 +7,7 @@ define(function (require) {
   function($resource) {
 
     //search user
-    var searchUsers = $resource('rest/users/search', {}, {
+    var searchUsers = $resource('rest/v1/users/search', {}, {
       'search': {
         method: 'POST',
         isArray: false,
@@ -18,7 +18,7 @@ define(function (require) {
     });
 
     //CRUD user
-    var crudUsers = $resource('rest/users/:username', {}, {
+    var crudUsers = $resource('rest/v1/users/:username', {}, {
       'create': {
         method: 'POST',
         isArray: false,
@@ -49,7 +49,7 @@ define(function (require) {
       }
     });
 
-    var getUsers = $resource('rest/users/getUsers', {}, {
+    var getUsers = $resource('rest/v1/users/getUsers', {}, {
       'get': {
         method: 'POST',
         isArray: false,
@@ -59,12 +59,12 @@ define(function (require) {
       }
     });
 
-    var alienRolesResource = $resource('rest/auth/roles', {}, {
+    var alienRolesResource = $resource('rest/v1/auth/roles', {}, {
       method: 'GET'
     });
 
     //add / remove roles
-    var manageRoles = $resource('rest/users/:username/roles/:role', {}, {
+    var manageRoles = $resource('rest/v1/users/:username/roles/:role', {}, {
       'add': {
         method: 'PUT',
         params: {
@@ -82,7 +82,7 @@ define(function (require) {
     });
 
     //add / remove roles
-    var groupResource = $resource('rest/users/:username/groups/:group', {}, {
+    var groupResource = $resource('rest/v1/users/:username/groups/:group', {}, {
       'add': {
         method: 'PUT',
         params: {

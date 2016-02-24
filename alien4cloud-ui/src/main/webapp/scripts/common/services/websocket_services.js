@@ -18,7 +18,7 @@ define(function (require) {
 
       var initSockets = function(onSuccess) {
         socket = {};
-        socket.client = new SockJS($window.location.pathname + 'rest/alienEndPoint');
+        socket.client = new SockJS($window.location.pathname + 'rest/v1/alienEndPoint');
         socket.stomp = Stomp.over(socket.client);
         socket.stomp.debug = function(text) {
           if (debugStompEnabled) {

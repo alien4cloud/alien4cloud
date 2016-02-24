@@ -28,7 +28,7 @@ define(function (require) {
       $scope.orchestrator = orchestrator;
 
       // // get all orchestrator assignable roles
-      $resource('rest/auth/roles/deployer', {}, {
+      $resource('rest/v1/auth/roles/deployer', {}, {
         method: 'GET'
       }).get().$promise.then(function(roleResult) {
         $scope.orchestratorRoles = roleResult.data;

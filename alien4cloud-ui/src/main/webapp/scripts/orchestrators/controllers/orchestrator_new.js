@@ -8,7 +8,7 @@ define(function (require) {
     function($scope, $modalInstance, $http) {
       $scope.newOrchestrator = {};
       // get the list of orchestrator plugins
-      $http.get('rest/plugincomponents?type=IOrchestratorPluginFactory').success(function(response) {
+      $http.get('rest/v1/plugincomponents?type=IOrchestratorPluginFactory').success(function(response) {
         if(_.defined(response.data)) {
           $scope.plugins = response.data;
           for (var i = 0; i < $scope.plugins.length; i++) {

@@ -7,7 +7,7 @@ define(function (require) {
     function($location, $resource) {
 
       //add / remove roles
-      var manageConfigs = $resource('rest/plugins/:pluginId/config', {}, {
+      var manageConfigs = $resource('rest/v1/plugins/:pluginId/config', {}, {
         'get': {
           method: 'GET'
         },
@@ -19,7 +19,7 @@ define(function (require) {
         }
       });
 
-      var pluginResource = $resource('rest/plugins/:pluginId', {}, {
+      var pluginResource = $resource('rest/v1/plugins/:pluginId', {}, {
         'get': {
           method: 'GET'
         },

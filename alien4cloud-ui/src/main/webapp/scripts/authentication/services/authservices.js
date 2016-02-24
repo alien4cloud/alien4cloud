@@ -7,14 +7,14 @@ define(function(require) {
 
   modules.get('a4c-auth', ['ngResource']).factory('authService', ['$resource', '$state', '$http',
     function($resource, $state, $http) {
-      var userStatusResource = $resource('rest/auth/status', {}, {
+      var userStatusResource = $resource('rest/v1/auth/status', {}, {
         'query': {
           method: 'GET',
           isArray: false
         }
       });
       // get default 'all-users' group
-      var defaultAllUsersGroup = $resource('rest/auth/groups/allusers', {}, {
+      var defaultAllUsersGroup = $resource('rest/v1/auth/groups/allusers', {}, {
         'query': {
           method: 'GET',
           isArray: false

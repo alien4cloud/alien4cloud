@@ -5,7 +5,7 @@ define(function (require) {
 
   modules.get('a4c-applications', ['ngResource']).factory('applicationVersionServices', ['$resource',
     function($resource) {
-      var searchVersionResource = $resource('rest/applications/:delegateId/versions/search', {}, {
+      var searchVersionResource = $resource('rest/v1/applications/:delegateId/versions/search', {}, {
         'search': {
           method: 'POST',
           isArray: false,
@@ -15,7 +15,7 @@ define(function (require) {
         }
       });
 
-      var applicationVersionResource = $resource('rest/applications/:delegateId/versions', {}, {
+      var applicationVersionResource = $resource('rest/v1/applications/:delegateId/versions', {}, {
         'create': {
           method: 'POST',
           isArray: false,
@@ -28,7 +28,7 @@ define(function (require) {
         }
       });
 
-      var applicationVersionMiscResource = $resource('rest/applications/:delegateId/versions/:versionId', {}, {
+      var applicationVersionMiscResource = $resource('rest/v1/applications/:delegateId/versions/:versionId', {}, {
         'get': {
           method: 'GET'
         },
