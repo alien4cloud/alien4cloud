@@ -43,7 +43,7 @@ describe('CSAR deletion', function() {
   it('beforeAll', function() {
     setup.setup();
     setup.index("application", "application", applicationsData);
-    setup.index("applicationEnvironment", "applicationEnvironment", applicationEnvironmentsData);
+    setup.index("applicationEnvironment", "applicationenvironment", applicationEnvironmentsData);
     setup.index("applicationversion", "applicationversion", applicationVersionsData);
     setup.index("topology", "topology", topologiesData);
     setup.index("topologytemplate", "topologytemplate", topologyTemplatesData);

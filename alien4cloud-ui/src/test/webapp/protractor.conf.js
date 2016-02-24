@@ -1,3 +1,5 @@
+'use strict';
+
 // A reference configuration file.
 exports.config = {
   // ----- How to setup Selenium -----
@@ -101,8 +103,16 @@ exports.config = {
   onPrepare: function() {
     // At this point, global 'protractor' object will be set up, and jasmine
     // will be available. For example, you can add a Jasmine reporter with:
-    require('jasmine-reporters');
-    jasmine.getEnv().addReporter(new jasmine.JUnitXmlReporter('outputdir/', true, true));
+    var jasmineReporters = require('jasmine-reporters');
+    jasmine.getEnv().addReporter(new jasmineReporters.JUnitXmlReporter({
+        consolidateAll: true,
+        savePath: 'target/reports/ui/',
+        filePrefix: 'protractor'
+    }));
+
+    var SpecReporter = require('jasmine-spec-reporter');
+    // add jasmine spec reporter
+    jasmine.getEnv().addReporter(new SpecReporter({displayStacktrace: 'all'}));
   },
 
   // ----- The test framework -----
@@ -123,7 +133,8 @@ exports.config = {
     // If true, include stack traces in failures.
     includeStackTrace: true,
     // Default time to wait in ms before a test fails.
-    defaultTimeoutInterval: 220000
+    defaultTimeoutInterval: 220000,
+    print: function() {}
   },
 
   // ----- The cleanup step -----

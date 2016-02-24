@@ -1,4 +1,4 @@
-/* global element, by */
+/* global element, by, describe, it, expect */
 'use strict';
 
 var setup = require('../../common/setup');
@@ -16,28 +16,28 @@ describe('CSARS management via git: list and search', function() {
 
   it('beforeAll', function() {
     setup.setup();
-    setup.index("csargitrepository", "csargitrepository", csarGitRepositoriesData);
+    setup.index('csargitrepository', 'csargitrepository', csarGitRepositoriesData);
     common.home();
     authentication.login('componentManager');
     git.go();
   });
-  
+
   it('component browser should not be able to browse csar git repositories', function(){
     authentication.reLogin('componentBrowser');
     common.click(by.id('menu.components'));
     common.isNotNavigable('components', 'git');
   });
-  
+
   it('admin and component manager should be able to browse csar git repositories ', function(){
     authentication.reLogin('admin');
     common.click(by.id('menu.components'));
     common.isNavigable('components', 'git');
-    
+
     authentication.reLogin('componentManager');
     common.click(by.id('menu.components'));
     common.isNavigable('components', 'git');
   });
-  
+
   it('Component manager should be able to list git repositories and check pagination', function() {
     git.go();
     expect(element(by.id('search-container')).isPresent()).toBe(true);
@@ -55,34 +55,34 @@ describe('CSARS management via git: list and search', function() {
     results = element.all(by.repeater('gitRepository in searchResult.data'));
     expect(results.count()).toEqual(1);
   });
-  
+
   it('should be able to use search to find csr git repositories', function() {
     git.go();
     git.search('repo');
     var results = element.all(by.repeater('gitRepository in searchResult.data'));
     expect(results.count()).toBeGreaterThan(0);
-    
+
     git.search('repo-3');
     results = element.all(by.repeater('gitRepository in searchResult.data'));
     expect(results.count()).toEqual(1);
     expect(common.element(by.id('gitRepository_'+testRepo3Id))).toBeTruthy();
-    
-    //case nothing 
+
+    //case nothing
     git.search('dragonBallZ');
     results = element.all(by.repeater('gitRepository in searchResult.data'));
     expect(common.element(by.tagName('empty-place-holder'))).toBeTruthy();
     expect(results.count()).toEqual(0);
-    
+
   });
 
   it('component manager should be able to delete a gitRepository', function() {
     git.go();
     // try to delete the tosca-base-types csars and check errors
     common.deleteWithConfirm('delete-'+testRepo3Id, true);
-    
+
     //check no errors
     toaster.expectNoErrors();
-    
+
     //check the csar still exist
     git.search('repo-3');
     expect(element(by.id('gitRepository_'+testRepo3Id)).isPresent()).toBe(false);
@@ -91,7 +91,7 @@ describe('CSARS management via git: list and search', function() {
     git.search('repo-3');
     expect(element(by.id('gitRepository_'+testRepo3Id)).isPresent()).toBe(false);
   });
-  
+
   it('afterAll', function() { authentication.logout(); });
-  
+
 });

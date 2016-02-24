@@ -2,7 +2,6 @@
 
 'use strict';
 
-var cleanup = require('./cleanup');
 var screenshot = require('./screenshot');
 
 // Load languages strings for locale related tests

@@ -73,7 +73,6 @@ describe('Editing Relationship name', function() {
 
 
   it('should be able to edit a relationship name', function() {
-    console.log('################# should be able to edit a relationship name');
     applications.goToApplicationTopologyPage();
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(testRelationshipTopology.nodes);
     topologyEditorCommon.addRelationship(testRelationshipTopology.relationships.needHelpHostedOnCompute);
@@ -101,7 +100,6 @@ describe('Editing Relationship name', function() {
   });
 
   it('should be able to update a property of a relationship', function() {
-    console.log('################# should be able to update a property of a relationship.');
     xEdit.sendKeys('p_task_name', 'Do my job');
     applications.goToApplicationTopologyPage();
     topologyEditorCommon.selectNodeAndGoToDetailBloc('NeedHelp', topologyEditorCommon.nodeDetailsBlocsIds.rel);

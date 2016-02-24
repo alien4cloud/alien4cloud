@@ -315,7 +315,7 @@ var removeScalingPolicy = function(computeId) {
 module.exports.removeScalingPolicy = removeScalingPolicy;
 
 var selectNodeAndGoToDetailBloc = function(nodeTemplateName, blocId) {
-  common.click(by.id('title_' + nodeTemplateName));
+  common.click(by.id('rect_' + nodeTemplateName));
   if (blocId) {
     return collapseNodeDetailsBloc(blocId);
   }

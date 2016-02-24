@@ -18,11 +18,11 @@ module.exports = function(grunt) {
       options: {
         args: {
           capabilities: {
-            'browserName': 'chrome'
-            // 'browserName': 'firefox'
+            // 'browserName': 'chrome'
+            'browserName': 'firefox'
           },
-          baseUrl: 'http://localhost:8088',
-          // baseUrl: 'http://127.0.0.1:9999',
+          // baseUrl: 'http://localhost:8088',
+          baseUrl: 'http://127.0.0.1:9999',
           specs: [
             '<%= yeoman.test %>/e2e/setup-scenario/before-all.js',
             //'<%= yeoman.test %>/e2e/setup-scenario/setup.js',
@@ -56,10 +56,10 @@ module.exports = function(grunt) {
             //'<%= yeoman.test %>/e2e/scenarios/components/csar_deletion.js',
             // '<%= yeoman.test %>/e2e/scenarios/components/csar_details.js',
             // '<%= yeoman.test %>/e2e/scenarios/components/csar_git_crud.js',
-            // '<%= yeoman.test %>/e2e/scenarios/components/csar_git_list.js',
+            '<%= yeoman.test %>/e2e/scenarios/components/csar_git_list.js',
             // '<%= yeoman.test %>/e2e/scenarios/topology_templates/topology_template_details.js',
             // '<%= yeoman.test %>/e2e/scenarios/topology_templates/topology_template_list.js',
-            '<%= yeoman.test %>/e2e/scenarios/**/*.js'
+            // '<%= yeoman.test %>/e2e/scenarios/**/*.js'
           ]
         }
       }

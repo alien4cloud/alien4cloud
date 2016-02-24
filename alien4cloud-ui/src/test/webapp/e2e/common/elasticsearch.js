@@ -44,11 +44,11 @@ module.exports.delete = function(indexName, query) {
 
 module.exports.index = function(indexName, typeName, content) {
   var options = getOptions('POST', indexName, typeName);
-  return http.call(options, content, true, true);
+  return http.call(options, content, true, false);
 };
 
 module.exports.refresh = function(indexName) {
   var refreshOptions = getOptions('POST', indexName, null, null);
   refreshOptions.path = refreshOptions.path + '/_refresh';
-  return http.call(refreshOptions, null, true, true);
+  return http.call(refreshOptions, null, true, false);
 };

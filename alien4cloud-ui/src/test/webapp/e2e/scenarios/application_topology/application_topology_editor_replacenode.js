@@ -26,7 +26,6 @@ describe('Replacing a node template', function() {
   };
 
   it('should be able to replace a node template being a source / target of a relationship', function() {
-    console.log('################# should be able to replace a node template being a source / target of a relationship');
     applications.goToApplicationTopologyPage();
 
     topologyEditorCommon.selectNodeAndGoToDetailBloc('WebApplication', topologyEditorCommon.nodeDetailsBlocsIds.rel);
