@@ -396,15 +396,14 @@ public final class AuthorizationUtil {
 
         httpSecurity.authorizeRequests().antMatchers("/*").permitAll();
         httpSecurity.authorizeRequests().antMatchers("/static/tosca/**").hasAnyAuthority("ADMIN", "COMPONENTS_MANAGER", "COMPONENTS_BROWSER");
+        httpSecurity.authorizeRequests().antMatchers("/rest/admin/**").hasAuthority("ADMIN");
 
         // previous api version support
         httpSecurity.authorizeRequests().antMatchers("/rest/alienEndPoint/**").authenticated();
-        httpSecurity.authorizeRequests().antMatchers("/rest/admin/**").hasAuthority("ADMIN");
         httpSecurity.authorizeRequests().antMatchers("/rest/audit/**").hasAuthority("ADMIN");
 
         // current api version support
         httpSecurity.authorizeRequests().antMatchers("/rest/v1/alienEndPoint/**").authenticated();
-        httpSecurity.authorizeRequests().antMatchers("/rest/v1/admin/**").hasAuthority("ADMIN");
         httpSecurity.authorizeRequests().antMatchers("/rest/v1/audit/**").hasAuthority("ADMIN");
 
         // login
