@@ -67,18 +67,17 @@ define(function (require) {
       };
 
       $scope.removeOrchestrator = function() {
-        orchestratorService.remove({orchestratorId: orchestrator.id}).$promise.then(function(result) {
-          if (!result.error) {
-            $state.go('admin.orchestrators.list');
-          }
-         });
+        orchestratorService.remove({orchestratorId: orchestrator.id}).$promise.then(
+          function(result) {
+            if (!result.error) {
+              $state.go('admin.orchestrators.list');
+            }
+          });
       };
 
       $scope.enable = function() {
         orchestrator.state = 'CONNECTING';
-        orchestratorInstanceService.create({orchestratorId: orchestrator.id}, {},function(){
-            //do something here
-          })
+        orchestratorInstanceService.create({orchestratorId: orchestrator.id}, {},function(){})//do something here
           .$promise['finally'](function() {
             $state.reload(); // do something with web-sockets to get notifications on the orchestrator state.
           });

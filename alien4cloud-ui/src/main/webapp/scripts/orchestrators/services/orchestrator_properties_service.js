@@ -18,5 +18,6 @@ define(function (require) {
       return {
         'upsertProperty': orchestratorProperties.upsert
       };
-  }]);
+    }]
+  );
 });

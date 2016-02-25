@@ -29,9 +29,7 @@ define(function (require) {
             $scope.artifactTypes = result.data;
           }
         },
-        function(){
-          // error handler
-        });
+        function(){}); // error handler
     }
   ]); // controller
 

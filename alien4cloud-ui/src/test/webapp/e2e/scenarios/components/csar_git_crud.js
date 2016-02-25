@@ -1,4 +1,4 @@
-/* global element, by */
+/* global element, by, expect, describe, it */
 'use strict';
 
 var setup = require('../../common/setup');
@@ -99,7 +99,7 @@ describe('CSARS management via git', function() {
     //url
     expect(repoRows.first().getText()).toEqual(testRepo.url);
     //archive's folders
-    expect(repoRows.get(1).getText()).toContain("*");
+    expect(repoRows.get(1).getText()).toContain('*');
     expect(repoRows.get(1).getText()).toContain(testRepo.subPath);
     //branch
     expect(repoRows.get(2).getText()).toEqual(testRepo.branchId + '\n' + testRepo.branchId);
@@ -164,7 +164,7 @@ describe('CSARS management via git', function() {
     var repoRows = repoLine.all(by.tagName('td'));
     //check
     //archive's folders
-    expect(repoRows.get(1).getText()).toContain("*");
+    expect(repoRows.get(1).getText()).toContain('*');
     expect(repoRows.get(1).getText()).toContain(testRepo.subPath);
     expect(repoRows.get(1).getText()).toContain(testRepo.subPath2);
     //branch

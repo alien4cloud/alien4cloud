@@ -60,5 +60,6 @@ define(function (require) {
         'userRoles': manageOrchestratorUserRoles,
         'groupRoles': manageOrchestratorGroupRoles
       };
-  }]);
+    }]
+  );
 });

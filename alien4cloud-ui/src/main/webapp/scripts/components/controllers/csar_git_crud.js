@@ -29,10 +29,10 @@ define(function (require) {
 
         //check it doesn't already exist
         if(_.definedPath($scope, 'gitRepository.importLocations')){
-            return _.undefined(_.find($scope.gitRepository.importLocations,
-              function(loc){
-                return loc.branchId === location.branchId && (loc.subPath||'') === (location.subPath||'');
-              }));
+          return _.undefined(_.find($scope.gitRepository.importLocations,
+            function(loc){
+              return loc.branchId === location.branchId && (loc.subPath||'') === (location.subPath||'');
+            }));
         }else{
           return true;
         }

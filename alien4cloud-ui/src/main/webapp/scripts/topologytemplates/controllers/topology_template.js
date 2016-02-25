@@ -83,10 +83,8 @@ define(function (require) {
         return topologyTemplateService.put({
           topologyTemplateId: $scope.topologyTemplateId
         }, angular.toJson(topologyTemplateUpdateRequest), undefined).$promise.then(
-          function() {
-            // Success
-          }, function(errorResponse) {
-            // Error
+          function() {}, // Success
+          function(errorResponse) { // Error
             return $translate('ERRORS.' + errorResponse.data.error.code);
           }
         );

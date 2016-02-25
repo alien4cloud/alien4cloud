@@ -90,11 +90,12 @@ define(function(require) {
 
           function appendEdge(g, from, to) {
             var style = {
-                lineInterpolate: 'basis',
-                arrowhead: 'vee',
-                style: 'stroke: black; stroke-width: 1.5px;',
-                pinnedStyle: 'stroke: black; stroke-width: 5px;',
-                marker: 'arrow-standard'};
+              lineInterpolate: 'basis',
+              arrowhead: 'vee',
+              style: 'stroke: black; stroke-width: 1.5px;',
+              pinnedStyle: 'stroke: black; stroke-width: 5px;',
+              marker: 'arrow-standard'
+            };
             if (errorRenderingData.cycles[from] && _.contains(errorRenderingData.cycles[from], to)) {
               // the edge is in a cycle, make it red
               style = {
@@ -362,5 +363,6 @@ define(function(require) {
           });
         }
       };
-    } ]); // factory
-  }); // define
+    }
+  ]); // factory
+}); // define

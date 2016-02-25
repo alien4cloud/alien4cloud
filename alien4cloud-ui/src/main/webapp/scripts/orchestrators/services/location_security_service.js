@@ -64,5 +64,5 @@ define(function (require) {
         'userRoles': manageLocationUserRoles,
         'groupRoles': manageLocationGroupRoles
       };
-  }]);
+    }]);
 });

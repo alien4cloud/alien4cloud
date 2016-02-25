@@ -274,19 +274,17 @@ define(function (require) {
         },
         selectNodeTemplate: function(newSelectedName, oldSelectedName) {
           $scope.display.set('component', true);
-          // $timeout(function() {
-            if (oldSelectedName) {
-              var oldSelected = $scope.topology.topology.nodeTemplates[oldSelectedName];
-              if (oldSelected) {
-                oldSelected.selected = false;
-              }
+          if (oldSelectedName) {
+            var oldSelected = $scope.topology.topology.nodeTemplates[oldSelectedName];
+            if (oldSelected) {
+              oldSelected.selected = false;
             }
+          }
 
-            var newSelected = $scope.topology.topology.nodeTemplates[newSelectedName];
-            newSelected.selected = true;
+          var newSelected = $scope.topology.topology.nodeTemplates[newSelectedName];
+          newSelected.selected = true;
 
-            fillNodeSelectionVars(newSelected);
-          // });
+          fillNodeSelectionVars(newSelected);
           $scope.$digest();
         }
       };

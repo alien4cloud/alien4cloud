@@ -168,7 +168,8 @@ define(function (require) {
             return node.data.name;
           });
 
-          var pie = new d3pie('pieChart-' + appName, {
+          // Ignored: A constructor name should start with an uppercase letter.
+          var pie = new d3pie('pieChart-' + appName, { // jshint ignore:line
             'size': {
               'canvasWidth': 60,
               'canvasHeight': 60

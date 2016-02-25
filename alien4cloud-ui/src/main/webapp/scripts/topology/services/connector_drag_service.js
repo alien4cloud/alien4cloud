@@ -56,11 +56,11 @@ define(function (require) {
               mouseCoordinate.x += d3.event.dx;
               mouseCoordinate.y += d3.event.dy;
               data = [{
-                  source: {
-                      x: element.coordinate.x,
-                      y: element.coordinate.y
-                  },
-                  target: mouseCoordinate
+                source: {
+                  x: element.coordinate.x,
+                  y: element.coordinate.y
+                },
+                target: mouseCoordinate
               }];
               var link = topologySvg.svg.selectAll('.connectorlink').data(data);
               link.enter().append('path')

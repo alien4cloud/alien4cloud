@@ -269,23 +269,22 @@ define(function (require) {
         reinitWorkflow: function() {
           var scope = this.scope;
           var instance = this;
-          workflowServices.workflows.init(
-              {
-                topologyId: scope.topology.topology.id,
-                workflowName: scope.currentWorkflowName
-              }, {},
-              function(successResult) {
-                if (!successResult.error) {
-                  scope.topology.topology.workflows[scope.currentWorkflowName] = successResult.data;
-                  instance.refreshGraph(true, true);
-                } else {
-                  console.debug(successResult.error);
-                }
-              },
-              function(errorResult) {
-                console.debug(errorResult);
+          workflowServices.workflows.init({
+              topologyId: scope.topology.topology.id,
+              workflowName: scope.currentWorkflowName
+            }, {},
+            function(successResult) {
+              if (!successResult.error) {
+                scope.topology.topology.workflows[scope.currentWorkflowName] = successResult.data;
+                instance.refreshGraph(true, true);
+              } else {
+                console.debug(successResult.error);
               }
-            );
+            },
+            function(errorResult) {
+              console.debug(errorResult);
+            }
+          );
         },
         // === actions on steps
         renameStep: function(stepId, newStepName) {
@@ -480,14 +479,14 @@ define(function (require) {
           });
           modalInstance.result.then(function(trilogy) {
             var activityRequest = {
-                relatedStepId: stepId,
-                before: before,
-                activity: {
-                  type: 'alien4cloud.paas.wf.OperationCallActivity',
-                  nodeId: trilogy.node,
-                  interfaceName: trilogy.interface,
-                  operationName: trilogy.operation
-                }
+              relatedStepId: stepId,
+              before: before,
+              activity: {
+                type: 'alien4cloud.paas.wf.OperationCallActivity',
+                nodeId: trilogy.node,
+                interfaceName: trilogy.interface,
+                operationName: trilogy.operation
+              }
             };
             instance.addActivity(activityRequest);
           });
@@ -540,13 +539,13 @@ define(function (require) {
           });
           modalInstance.result.then(function(trilogy) {
             var activityRequest = {
-                relatedStepId: stepId,
-                before: before,
-                activity: {
-                  type: 'alien4cloud.paas.wf.SetStateActivity',
-                  nodeId: trilogy.node,
-                  stateName: trilogy.state
-                }
+              relatedStepId: stepId,
+              before: before,
+              activity: {
+                type: 'alien4cloud.paas.wf.SetStateActivity',
+                nodeId: trilogy.node,
+                stateName: trilogy.state
+              }
             };
             instance.addActivity(activityRequest);
           });
