@@ -1,11 +1,10 @@
 package alien4cloud.security.spring;
 
+import alien4cloud.security.AuthorizationUtil;
+import com.google.common.collect.Lists;
 import java.util.List;
-
 import javax.annotation.Resource;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -15,21 +14,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.social.security.SpringSocialConfigurer;
-
-import com.google.common.collect.Lists;
 
 @Slf4j
 @Configuration
@@ -57,10 +52,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public DaoAuthenticationProvider demoAuthenticationProvider() {
         log.warn("ALIEN 4 CLOUD is Running in DEMO mode. This includes demo users and MUST NOT BE USED in PRODUCTION");
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        List<UserDetails> users = getUsers(new String[] { "user", "componentManager", "componentBrowser", "applicationManager", "appManager", "admin",
-                "architect" }, new String[] { "COMPONENTS_BROWSER", "COMPONENTS_BROWSER, COMPONENTS_MANAGER", "COMPONENTS_BROWSER",
-                "APPLICATIONS_MANAGER, COMPONENTS_BROWSER, COMPONENTS_MANAGER", "APPLICATIONS_MANAGER, COMPONENTS_BROWSER, COMPONENTS_MANAGER", "ADMIN",
-                "ARCHITECT, COMPONENTS_BROWSER" });
+        List<UserDetails> users = getUsers(
+                new String[] { "user", "componentManager", "componentBrowser", "applicationManager", "appManager", "admin", "architect" },
+                new String[] { "COMPONENTS_BROWSER", "COMPONENTS_BROWSER, COMPONENTS_MANAGER", "COMPONENTS_BROWSER",
+                        "APPLICATIONS_MANAGER, COMPONENTS_BROWSER, COMPONENTS_MANAGER", "APPLICATIONS_MANAGER, COMPONENTS_BROWSER, COMPONENTS_MANAGER", "ADMIN",
+                        "ARCHITECT, COMPONENTS_BROWSER" });
         InMemoryUserDetailsManager detailsManager = new InMemoryUserDetailsManager(users);
         provider.setUserDetailsService(detailsManager);
         return provider;
@@ -85,22 +81,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.exceptionHandling().accessDeniedHandler(accessDeniedHandler);
 
-        http.authorizeRequests().antMatchers("/*").permitAll();
-        http.authorizeRequests().antMatchers("/static/tosca/**").hasAnyAuthority("ADMIN", "COMPONENTS_MANAGER", "COMPONENTS_BROWSER");
-        http.authorizeRequests().antMatchers("/rest/alienEndPoint/**").authenticated();
-        http.authorizeRequests().antMatchers("/rest/admin/**").hasAuthority("ADMIN");
-        http.authorizeRequests().antMatchers("/rest/audit/**").hasAuthority("ADMIN");
+        // configure the HttpSecurity
+        AuthorizationUtil.configure(http);
 
-        http.formLogin().defaultSuccessUrl("/rest/auth/status").failureUrl("/rest/auth/authenticationfailed").loginProcessingUrl("/login")
-                .usernameParameter("username").passwordParameter("password").permitAll().and().logout().logoutSuccessUrl("/").deleteCookies("JSESSIONID");
-        http.csrf().disable();
-
-        // handle non authenticated request
-        http.exceptionHandling().authenticationEntryPoint(new FailureAuthenticationEntryPoint());
-
-        if(env.acceptsProfiles("github-auth")){
+        if (env.acceptsProfiles("github-auth")) {
             log.info("GitHub profile is active - enabling Spring Social features");
             http.apply(new SpringSocialConfigurer().postLoginUrl("/").alwaysUsePostLoginUrl(true));
         }
@@ -109,6 +94,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         log.debug("Configure ignore path");
-        web.ignoring().antMatchers("/api-doc/**", "/api-docs/**", "/data/**", "/bower_components/**", "/images/**", "/js-lib/**", "/scripts/**", "/styles/**", "/views/**");
+        web.ignoring().antMatchers("/api-doc/**", "/api-docs/**", "/data/**", "/bower_components/**", "/images/**", "/js-lib/**", "/scripts/**", "/styles/**",
+                "/views/**");
     }
 }
