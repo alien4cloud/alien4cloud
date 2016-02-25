@@ -63,7 +63,7 @@ import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
-@RequestMapping({"/rest/csars", "/rest/v1/csars"})
+@RequestMapping({"/rest/csars", "/rest/v1/csars", "/rest/latest/csars"})
 @Slf4j
 public class CloudServiceArchiveController {
 

@@ -32,7 +32,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 @RestController
-@RequestMapping(value = {"/rest/csarsgit", "/rest/v1/csarsgit"})
+@RequestMapping(value = {"/rest/csarsgit", "/rest/v1/csarsgit", "/rest/latest/csarsgit"})
 public class CsarGitController {
     @Inject
     private CsarGitService csarGitService;

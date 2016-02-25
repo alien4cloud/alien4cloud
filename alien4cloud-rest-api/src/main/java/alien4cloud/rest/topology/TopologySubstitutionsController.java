@@ -47,7 +47,7 @@ import io.swagger.annotations.ApiParam;
 
 @Slf4j
 @RestController
-@RequestMapping({"/rest/topologies", "/rest/v1/topologies"})
+@RequestMapping({"/rest/topologies", "/rest/v1/topologies", "/rest/latest/topologies"})
 public class TopologySubstitutionsController {
 
     @Resource(name = "alien-es-dao")

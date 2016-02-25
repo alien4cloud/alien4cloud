@@ -22,7 +22,7 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
-@RequestMapping({"/rest/suggestions", "/rest/v1/suggestions"})
+@RequestMapping({"/rest/suggestions", "/rest/v1/suggestions", "/rest/latest/suggestions"})
 public class GenericSuggestionController {
 
     @Resource(name = "alien-es-dao")

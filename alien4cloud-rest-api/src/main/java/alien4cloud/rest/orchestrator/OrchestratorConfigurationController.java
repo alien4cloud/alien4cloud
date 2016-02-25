@@ -30,7 +30,7 @@ import io.swagger.annotations.Authorization;
 
 @Slf4j
 @RestController
-@RequestMapping(value = {"/rest/orchestrators/{id}/configuration", "/rest/v1/orchestrators/{id}/configuration"}, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/rest/orchestrators/{id}/configuration", "/rest/v1/orchestrators/{id}/configuration", "/rest/latest/orchestrators/{id}/configuration"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @Api(value = "Orchestrator Configuration", description = "Get and update orchestrator configuration.", authorizations = {
         @Authorization("ADMIN") }, position = 4310)
 public class OrchestratorConfigurationController {

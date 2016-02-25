@@ -41,7 +41,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping({"/rest/applications/{applicationId:.+}/versions", "/rest/v1/applications/{applicationId:.+}/versions"})
+@RequestMapping({"/rest/applications/{applicationId:.+}/versions", "/rest/v1/applications/{applicationId:.+}/versions", "/rest/latest/applications/{applicationId:.+}/versions"})
 @Api(value = "", description = "Manages application's versions")
 public class ApplicationVersionController {
 

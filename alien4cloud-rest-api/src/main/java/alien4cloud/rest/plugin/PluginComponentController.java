@@ -30,7 +30,7 @@ import io.swagger.annotations.Authorization;
  * Created by lucboutier on 12/08/15.
  */
 @RestController
-@RequestMapping(value = {"/rest/plugincomponents", "/rest/v1/plugincomponents"}, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/rest/plugincomponents", "/rest/v1/plugincomponents", "/rest/latest/plugincomponents"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @Api(value = "Plugin Components", description = "Allow to query for enabled plugin components.", authorizations = { @Authorization("ADMIN") })
 public class PluginComponentController {
     @Resource

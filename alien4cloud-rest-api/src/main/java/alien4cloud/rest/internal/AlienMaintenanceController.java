@@ -31,7 +31,7 @@ import io.swagger.annotations.ApiOperation;
 @Slf4j
 @ApiIgnore
 @RestController
-@RequestMapping({"/rest/maintenance", "/rest/v1/maintenance"})
+@RequestMapping({"/rest/maintenance", "/rest/v1/maintenance", "/rest/latest/maintenance"})
 public class AlienMaintenanceController {
 
     @Resource

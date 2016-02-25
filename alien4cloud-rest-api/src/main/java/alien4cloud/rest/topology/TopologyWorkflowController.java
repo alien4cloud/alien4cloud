@@ -29,7 +29,7 @@ import alien4cloud.topology.TopologyServiceCore;
  */
 @Slf4j
 @RestController
-@RequestMapping({"/rest/topologies", "/rest/v1/topologies"})
+@RequestMapping({"/rest/topologies", "/rest/v1/topologies", "/rest/latest/topologies"})
 public class TopologyWorkflowController {
 
     @Resource

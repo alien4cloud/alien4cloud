@@ -28,7 +28,7 @@ import io.swagger.annotations.Api;
 
 @Slf4j
 @RestController
-@RequestMapping({"/rest/applications/{applicationId:.+}/properties", "/rest/v1/applications/{applicationId:.+}/properties"})
+@RequestMapping({"/rest/applications/{applicationId:.+}/properties", "/rest/v1/applications/{applicationId:.+}/properties", "/rest/latest/applications/{applicationId:.+}/properties"})
 @Api(value = "", description = "Operations on Application's meta-properties")
 public class ApplicationMetaPropertyController {
     @Resource(name = "alien-es-dao")

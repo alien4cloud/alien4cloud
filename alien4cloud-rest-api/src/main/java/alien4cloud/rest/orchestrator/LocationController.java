@@ -39,7 +39,7 @@ import io.swagger.annotations.Authorization;
  * Controller that manages locations for orchestrators.
  */
 @RestController
-@RequestMapping(value = {"/rest/orchestrators/{orchestratorId}/locations", "/rest/v1/orchestrators/{orchestratorId}/locations"}, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/rest/orchestrators/{orchestratorId}/locations", "/rest/v1/orchestrators/{orchestratorId}/locations", "/rest/latest/orchestrators/{orchestratorId}/locations", "/rest/latest/orchestrators/{orchestratorId}/locations", "/rest/latest/orchestrators/{orchestratorId}/locations"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @Api(value = "Orchestrators Locations", description = "Manages locations for a given orchestrator.", authorizations = { @Authorization("ADMIN") }, position = 4400)
 public class LocationController {
     @Inject
