@@ -119,7 +119,10 @@ define(function (require) {
           var clusters = graph.nodes().filter(function(v) { return !!graph.children(v).length; });
           var clusterNodes = [];
           _.each(clusters, function(nodeKey) {
-            clusterNodes.push(graph.node(nodeKey));
+            var cluster = graph.node(nodeKey);
+            if(_.defined(cluster)) {
+              clusterNodes.push();
+            }
           });
           d3Service.select(selection, clusterNodes, 'g.cluster', {
             enter: function(enterSelection) {
