@@ -19,7 +19,7 @@ define(function (require) {
         }
       };
 
-      return $alresource('rest/v1/orchestrators/:orchestratorId/instance', operations);
+      return $alresource('rest/latest/orchestrators/:orchestratorId/instance', operations);
     }
   ]);
 });

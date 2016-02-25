@@ -5,7 +5,7 @@ define(function (require) {
 
   modules.get('a4c-applications', ['ngResource']).factory('locationsMatchingServices', ['$resource',
     function($resource) {
-      var locationsMatcher = $resource('rest/v1/topologies/:topologyId/locations', {}, {
+      var locationsMatcher = $resource('rest/latest/topologies/:topologyId/locations', {}, {
         'getLocationsMatches': {
           method: 'GET'
         }

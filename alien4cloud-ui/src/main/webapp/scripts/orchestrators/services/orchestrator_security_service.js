@@ -6,7 +6,7 @@ define(function (require) {
   modules.get('a4c-orchestrators').factory('orchestratorSecurityService', ['$resource',
     function($resource) {
       /* Users/groups roles on an clouds */
-      var manageOrchestratorUserRoles = $resource('rest/v1/orchestrators/:id/roles/users/:username/:role', {}, {
+      var manageOrchestratorUserRoles = $resource('rest/latest/orchestrators/:id/roles/users/:username/:role', {}, {
         'addUserRole': {
           method: 'PUT',
           headers: {
@@ -31,7 +31,7 @@ define(function (require) {
         }
       });
 
-      var manageOrchestratorGroupRoles = $resource('rest/v1/orchestrators/:id/roles/groups/:groupId/:role', {}, {
+      var manageOrchestratorGroupRoles = $resource('rest/latest/orchestrators/:id/roles/groups/:groupId/:role', {}, {
         'addGroupRole': {
           method: 'PUT',
           headers: {

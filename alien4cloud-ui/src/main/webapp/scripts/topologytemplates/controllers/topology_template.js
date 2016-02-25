@@ -63,7 +63,7 @@ define(function (require) {
     templateUrl: 'views/applications/application_versions.html',
     resolve: {
       versionServices: ['topologyTemplateVersionServices', function(topologyTemplateVersionServices) { return topologyTemplateVersionServices; }],
-      searchServiceUrl: ['topologyTemplate', function(topologyTemplate) { return 'rest/v1/templates/' + topologyTemplate.data.id + '/versions/search'; }],
+      searchServiceUrl: ['topologyTemplate', function(topologyTemplate) { return 'rest/latest/templates/' + topologyTemplate.data.id + '/versions/search'; }],
       delegateId: ['topologyTemplate', function(topologyTemplate) { return topologyTemplate.data.id; }],
       userCanModify: ['authService', function(authService) { return authService.hasRole('ARCHITECT'); }]
     },

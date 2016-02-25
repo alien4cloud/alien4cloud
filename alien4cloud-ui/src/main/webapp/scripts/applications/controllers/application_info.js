@@ -85,7 +85,7 @@ define(function (require) {
       // Upload handler
       $scope.doUpload = function(file) {
         $upload.upload({
-          url: 'rest/v1/applications/' + $scope.applicationId + '/image',
+          url: 'rest/latest/applications/' + $scope.applicationId + '/image',
           file: file
         }).success(function(result) {
           $scope.application.imageId = result.data;

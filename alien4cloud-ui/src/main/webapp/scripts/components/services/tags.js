@@ -6,7 +6,7 @@ define(function (require) {
 
   modules.get('a4c-components', ['ngResource']).factory('componentTagService', ['$resource', function($resource) {
     // API REST Definition
-    var updateRes = $resource('rest/v1/components/:componentId/tags', {}, {
+    var updateRes = $resource('rest/latest/components/:componentId/tags', {}, {
       'upsert': {
         method: 'POST',
         isArray: false,
@@ -15,7 +15,7 @@ define(function (require) {
         }
       }
     });
-    var removeRes = $resource('rest/v1/components/:componentId/tags/:tagKey', {}, {
+    var removeRes = $resource('rest/latest/components/:componentId/tags/:tagKey', {}, {
       'remove': {
         method: 'DELETE',
         headers: {

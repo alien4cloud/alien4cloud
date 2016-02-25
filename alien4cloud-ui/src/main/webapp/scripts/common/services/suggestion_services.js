@@ -4,19 +4,19 @@ define(function (require) {
   var modules = require('modules');
 
   modules.get('a4c-common').factory('suggestionServices', ['$resource', function($resource) {
-    var tagSuggestionResource = $resource('rest/v1/suggest/tag/:path/:searchText', {}, {
+    var tagSuggestionResource = $resource('rest/latest/suggest/tag/:path/:searchText', {}, {
       'get' : {
         method : 'GET'
       }
     });
 
-    var genericSuggestionDAO = $resource('rest/v1/suggestions/:index/:type/:path', {
+    var genericSuggestionDAO = $resource('rest/latest/suggestions/:index/:type/:path', {
       index : '@index',
       type : '@type',
       path : '@path'
     });
 
-    var nodetypeSuggestionResource = $resource('rest/v1/suggest/nodetypes');
+    var nodetypeSuggestionResource = $resource('rest/latest/suggest/nodetypes');
 
     var getSuggestions = function(index, type, path, text) {
       return genericSuggestionDAO.get({

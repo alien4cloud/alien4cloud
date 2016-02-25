@@ -37,7 +37,7 @@ define(function (require) {
         $scope.orchestrators = searchResult.data.data;
       };
       // we have to insert the search service in the scope so it is available for the pagination directive.
-      $scope.searchService = searchServiceFactory('rest/v1/orchestrators', true, $scope, 20);
+      $scope.searchService = searchServiceFactory('rest/latest/orchestrators', true, $scope, 20);
       $scope.search = function() {$scope.searchService.search();};
       $scope.search(); // initialize
 

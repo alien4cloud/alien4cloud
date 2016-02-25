@@ -6,15 +6,15 @@ define(function(require) {
   modules.get('a4c-common', ['ngResource']).factory('formDescriptorServices', ['$resource',
     function($resource) {
 
-      var nodeTypeFormDescriptorDAO = $resource('rest/v1/formdescriptor/nodetype', {}, {
+      var nodeTypeFormDescriptorDAO = $resource('rest/latest/formdescriptor/nodetype', {}, {
         'get': {
           method: 'GET'
         }
       });
 
-      var tagConfigurationFormDescriptorDAO = $resource('rest/v1/formdescriptor/tagconfiguration', {}, {});
+      var tagConfigurationFormDescriptorDAO = $resource('rest/latest/formdescriptor/tagconfiguration', {}, {});
 
-      var pluginConfigFormDescriptorDAO = $resource('rest/v1/formdescriptor/pluginConfig/:pluginId', {}, {
+      var pluginConfigFormDescriptorDAO = $resource('rest/latest/formdescriptor/pluginConfig/:pluginId', {}, {
         'get': {
           method: 'GET'
         }
@@ -26,7 +26,7 @@ define(function(require) {
         });
       };
 
-      var getToscaComplexTypeDescriptor = $resource('rest/v1/formdescriptor/complex-tosca-type');
+      var getToscaComplexTypeDescriptor = $resource('rest/latest/formdescriptor/complex-tosca-type');
 
       return {
         getNodeTypeFormDescriptor: getNodeTypeFormDescriptor,

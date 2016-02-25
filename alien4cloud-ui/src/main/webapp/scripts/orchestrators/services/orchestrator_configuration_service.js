@@ -5,7 +5,7 @@ define(function (require) {
 
   modules.get('a4c-orchestrators', ['a4c-common']).factory('orchestratorConfigurationService', ['$alresource',
     function($alresource) {
-      return $alresource('rest/v1/orchestrators/:orchestratorId/configuration');
+      return $alresource('rest/latest/orchestrators/:orchestratorId/configuration');
     }
   ]);
 });

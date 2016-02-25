@@ -5,7 +5,7 @@ define(function(require) {
 
   modules.get('a4c-applications', ['ngResource']).factory('deploymentTopologyServices', ['$resource', '$alresource',
     function($resource, $alresource) {
-      var location = $resource('rest/v1/applications/:appId/environments/:envId/deployment-topology/location-policies', {}, {
+      var location = $resource('rest/latest/applications/:appId/environments/:envId/deployment-topology/location-policies', {}, {
         setLocationPolicies: {
           method: 'POST',
           isArray: false,
@@ -15,13 +15,13 @@ define(function(require) {
         }
       });
 
-      var deploymentTopology = $alresource('rest/v1/applications/:appId/environments/:envId/deployment-topology');
+      var deploymentTopology = $alresource('rest/latest/applications/:appId/environments/:envId/deployment-topology');
 
-      var nodeSubstitution = $resource('rest/v1/applications/:appId/environments/:envId/deployment-topology/substitutions/:nodeId');
+      var nodeSubstitution = $resource('rest/latest/applications/:appId/environments/:envId/deployment-topology/substitutions/:nodeId');
 
-      var nodeSubstitutionProperty = $resource('rest/v1/applications/:appId/environments/:envId/deployment-topology/substitutions/:nodeId/properties');
+      var nodeSubstitutionProperty = $resource('rest/latest/applications/:appId/environments/:envId/deployment-topology/substitutions/:nodeId/properties');
 
-      var nodeSubstitutionCapabilityProperty = $resource('rest/v1/applications/:appId/environments/:envId/deployment-topology/substitutions/:nodeId/capabilities/:capabilityName/properties');
+      var nodeSubstitutionCapabilityProperty = $resource('rest/latest/applications/:appId/environments/:envId/deployment-topology/substitutions/:nodeId/capabilities/:capabilityName/properties');
 
       return {
         'setLocationPolicies': location.setLocationPolicies,
