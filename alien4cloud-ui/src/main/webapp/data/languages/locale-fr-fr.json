@@ -247,7 +247,10 @@
       "USEREMAIL" : "Email",
       "USERFIRSTNAME" : "Prénom",
       "USERLASTNAME" : "Nom",
-      "USERNAME" : "Identifiant"
+      "USERNAME" : "Identifiant",
+      "VERSION" : "API Version",
+      "USERAGENT" : "User-Agent",
+      "ALIEN4CLOUDUI": "Alien4Cloud UI"
     },
     "CONFIGURATION" : {
       "ACTION_NAME" : "Nom de l'action",

@@ -78,6 +78,15 @@ define(function (require) {
       }, {
         field: 'sourceIp',
         visible: false
+      }, {
+        field: 'version',
+        visible: true
+      }, {
+        field: 'userAgent',
+        visible: false
+      }, {
+        field: 'alien4CloudUI',
+        visible: false
       }];
 
       var searchRequestObject = {

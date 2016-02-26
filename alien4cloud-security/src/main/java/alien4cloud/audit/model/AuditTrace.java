@@ -76,4 +76,26 @@ public class AuditTrace {
     @StringField(indexType = IndexType.not_analyzed)
     private String sourceIp;
 
+    /**
+     * The API version.
+     */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed)
+    @TermsFacet
+    private String version;
+
+    /**
+     * The client user agent.
+     */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed)
+    private String userAgent;
+
+    /**
+     * Indicates if the request has been initiated by A4C UI.
+     */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed)
+    @TermsFacet
+    private Boolean alien4CloudUI;
 }

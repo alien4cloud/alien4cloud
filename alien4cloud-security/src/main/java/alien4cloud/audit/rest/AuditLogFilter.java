@@ -1,6 +1,10 @@
 package alien4cloud.audit.rest;
 
+import io.swagger.annotations.ApiOperation;
+
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 import javax.servlet.FilterChain;
@@ -26,13 +30,17 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.User;
 
 import com.google.common.base.Charsets;
-import io.swagger.annotations.ApiOperation;
+import com.google.common.base.Strings;
 
 /**
  * This filter is used to intercept all rest call that need to be audited
  */
 @Component
 public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
+
+    private static final Pattern VERSION_DETECTION_PATTERN = Pattern.compile("/rest/(latest|[v|V]\\d+)/.+");
+
+    private static final String A4C_UI_HEADER = "A4C-Agent";
 
     @Resource
     private AuditService auditService;
@@ -90,6 +98,9 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
         auditTrace.setUserEmail(user.getEmail());
         // request details
         auditTrace.setPath(request.getRequestURI());
+        auditTrace.setVersion(getApiVersion(request.getRequestURI()));
+        auditTrace.setUserAgent(request.getHeader(HttpHeaders.USER_AGENT));
+        auditTrace.setAlien4CloudUI(!Strings.isNullOrEmpty(request.getHeader(A4C_UI_HEADER)));
         auditTrace.setMethod(request.getMethod());
         auditTrace.setRequestParameters(request.getParameterMap());
         auditTrace.setSourceIp(request.getRemoteAddr());
@@ -100,6 +111,15 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
         // response details
         auditTrace.setResponseStatus(response.getStatus());
         return auditTrace;
+    }
+
+    private String getApiVersion(String uri) {
+        Matcher matcher = VERSION_DETECTION_PATTERN.matcher(uri);
+        String version = null;
+        if (matcher.matches()) {
+            version = matcher.group(1);
+        }
+        return version;
     }
 
     @Override

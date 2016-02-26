@@ -15,8 +15,6 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class Method {
 
-    private String path;
-
     private String method;
 
     private String category;
