@@ -53,7 +53,6 @@ public class AuditController {
         if (auditConfiguration == null) {
             log.info("Generate default configuration for audit");
             auditConfiguration = new AuditConfiguration();
-            auditConfiguration.setId(AuditConfiguration.ID);
         } else {
             log.info("Try to merge with existing audit configuration");
             Map<Method, Boolean> existingMethodsMap = auditConfiguration.getAuditedMethodsMap();
