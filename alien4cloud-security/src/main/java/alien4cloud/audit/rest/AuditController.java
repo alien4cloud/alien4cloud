@@ -53,7 +53,6 @@ public class AuditController {
         if (auditConfiguration == null) {
             log.info("Generate default configuration for audit");
             auditConfiguration = new AuditConfiguration();
-            auditConfiguration.setId(AuditConfiguration.ID);
         } else {
             log.info("Try to merge with existing audit configuration");
             Map<Method, Boolean> existingMethodsMap = auditConfiguration.getAuditedMethodsMap();
@@ -154,7 +153,7 @@ public class AuditController {
         if (method.getMethod() == null) {
             throw new InvalidArgumentException("Method's path or http method is null");
         }
-        Method auditedMethodKey = new Method(method.getMethod(), method.getCategory(), method.getAction());
+        Method auditedMethodKey = new Method(method.getSignature(), method.getMethod(), method.getCategory(), method.getAction());
         if (!auditedMethodsMap.containsKey(auditedMethodKey)) {
             throw new NotFoundException("Method " + method + " does not exist ");
         }

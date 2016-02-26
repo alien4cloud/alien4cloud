@@ -103,7 +103,8 @@ public class AuditService {
             return null;
         }
         Audit audit = getAuditAnnotation(controllerMethod);
-        return new Method(httpMethod, getAuditCategoryName(controllerMethod, audit), getAuditActionName(controllerMethod, audit));
+        return new Method(controllerMethod.getMethod().toGenericString(), httpMethod, getAuditCategoryName(controllerMethod, audit), getAuditActionName(
+                controllerMethod, audit));
     }
 
     public boolean isMethodAudited(AuditConfiguration auditConfiguration, HandlerMethod controllerMethod) {

@@ -40,7 +40,7 @@ public class AuditConfiguration {
             return methodsMap;
         }
         for (AuditedMethod auditedMethod : auditedMethods) {
-            methodsMap.put(new Method(auditedMethod.getMethod(), auditedMethod.getCategory(), auditedMethod.getAction()),
+            methodsMap.put(new Method(auditedMethod.getSignature(), auditedMethod.getMethod(), auditedMethod.getCategory(), auditedMethod.getAction()),
                     auditedMethod.isEnabled());
         }
         return methodsMap;
@@ -53,9 +53,8 @@ public class AuditConfiguration {
             return;
         }
         for (Map.Entry<Method, Boolean> auditedMethodsMapEntry : auditedMethodsMap.entrySet()) {
-            auditedMethods.add(new AuditedMethod(auditedMethodsMapEntry.getKey().getMethod(),
-                    auditedMethodsMapEntry
-                    .getKey().getCategory(), auditedMethodsMapEntry.getKey().getAction(), auditedMethodsMapEntry.getValue()));
+            auditedMethods.add(new AuditedMethod(auditedMethodsMapEntry.getKey().getSignature(), auditedMethodsMapEntry.getKey().getMethod(),
+                    auditedMethodsMapEntry.getKey().getCategory(), auditedMethodsMapEntry.getKey().getAction(), auditedMethodsMapEntry.getValue()));
         }
     }
 }
