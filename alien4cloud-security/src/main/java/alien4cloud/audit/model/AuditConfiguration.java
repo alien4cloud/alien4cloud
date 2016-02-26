@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.elasticsearch.annotation.ESObject;
+import org.elasticsearch.annotation.Id;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Maps;
@@ -16,6 +17,11 @@ import com.google.common.collect.Sets;
 @Getter
 @Setter
 public class AuditConfiguration {
+
+    public static final String ID = "singleton";
+
+    @Id
+    private String id = ID;
 
     /**
      * Global flag to enable/disable audit
@@ -34,7 +40,7 @@ public class AuditConfiguration {
             return methodsMap;
         }
         for (AuditedMethod auditedMethod : auditedMethods) {
-            methodsMap.put(new Method(auditedMethod.getPath(), auditedMethod.getMethod(), auditedMethod.getCategory(), auditedMethod.getAction()),
+            methodsMap.put(new Method(auditedMethod.getMethod(), auditedMethod.getCategory(), auditedMethod.getAction()),
                     auditedMethod.isEnabled());
         }
         return methodsMap;
@@ -47,7 +53,8 @@ public class AuditConfiguration {
             return;
         }
         for (Map.Entry<Method, Boolean> auditedMethodsMapEntry : auditedMethodsMap.entrySet()) {
-            auditedMethods.add(new AuditedMethod(auditedMethodsMapEntry.getKey().getPath(), auditedMethodsMapEntry.getKey().getMethod(), auditedMethodsMapEntry
+            auditedMethods.add(new AuditedMethod(auditedMethodsMapEntry.getKey().getMethod(),
+                    auditedMethodsMapEntry
                     .getKey().getCategory(), auditedMethodsMapEntry.getKey().getAction(), auditedMethodsMapEntry.getValue()));
         }
     }
