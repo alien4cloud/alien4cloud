@@ -32,7 +32,7 @@ define(function (require) {
 
       $scope.autoConfigureResources = function(){
         $scope.autoConfiguring = true;
-        $resource('rest/orchestrators/'+$scope.context.orchestrator.id+'/locations/'+$scope.context.location.id+'/resources/auto-configure').get({},
+        $resource('rest/latest/orchestrators/'+$scope.context.orchestrator.id+'/locations/'+$scope.context.location.id+'/resources/auto-configure').get({},
           function(result){
             if(_.undefined($scope.context.locationResources.nodeTemplates)){
               $scope.context.locationResources.nodeTemplates = [];

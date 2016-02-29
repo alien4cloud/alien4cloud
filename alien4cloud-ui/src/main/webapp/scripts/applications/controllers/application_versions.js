@@ -13,7 +13,7 @@ define(function (require) {
     controller: 'ApplicationVersionsCtrl',
     resolve: {
       versionServices: ['applicationVersionServices', function(applicationVersionServices) { return applicationVersionServices; }],
-      searchServiceUrl: ['application', function(application) { return 'rest/applications/' + application.data.id + '/versions/search'; }],
+      searchServiceUrl: ['application', function(application) { return 'rest/latest/applications/' + application.data.id + '/versions/search'; }],
       delegateId: ['application', function(application) { return application.data.id; }],
       userCanModify: ['authService', function(authService) { return authService.hasRole('APPLICATIONS_MANAGER'); }]
     },

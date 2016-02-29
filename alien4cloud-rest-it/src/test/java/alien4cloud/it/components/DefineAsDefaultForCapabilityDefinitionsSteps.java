@@ -39,12 +39,12 @@ public class DefineAsDefaultForCapabilityDefinitionsSteps {
     public void I_flag_the_node_type_as_default_for_the_capability(String componentId, String capability) throws Throwable {
         RecommendationRequest recRequest = new RecommendationRequest(componentId, capability);
         String jSon = jsonMapper.writeValueAsString(recRequest);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/components/recommendation", jSon));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/components/recommendation", jSon));
     }
 
     @When("^I search for the default node type for capability \"([^\"]*)\"$")
     public void I_search_for_the_default_node_type_for_capability(String capability) throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/components/recommendation/" + capability));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/components/recommendation/" + capability));
     }
 
     @Then("^the node type id should be \"([^\"]*)\"$")
@@ -57,7 +57,7 @@ public class DefineAsDefaultForCapabilityDefinitionsSteps {
     public void I_unflag_the_node_type_as_default_for_the_capability(String componentId, String capability) throws Throwable {
         RecommendationRequest recRequest = new RecommendationRequest(componentId, capability);
         String jSon = jsonMapper.writeValueAsString(recRequest);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/components/unflag", jSon));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/components/unflag", jSon));
     }
 
     private void createOneIndexNodeType(String elementId, String archiveVersion, List<CapabilityDefinition> capabilities, boolean refresh) throws IOException,

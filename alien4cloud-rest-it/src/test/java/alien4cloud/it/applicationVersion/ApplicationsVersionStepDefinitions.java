@@ -22,7 +22,7 @@ public class ApplicationsVersionStepDefinitions {
         Application app = Context.getInstance().getApplication();
         ApplicationVersionRequest request = new ApplicationVersionRequest();
         request.setVersion(version);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/applications/" + app.getId() + "/versions" , JsonUtil.toString(request)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/applications/" + app.getId() + "/versions" , JsonUtil.toString(request)));
         String currentApplicationVersionId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData();
         Context.getInstance().registerApplicationVersionId(version, currentApplicationVersionId);
     }
@@ -35,7 +35,7 @@ public class ApplicationsVersionStepDefinitions {
             currentApplicationVersionId = UUID.randomUUID().toString();
         }
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().delete("/rest/applications/" + app.getId() + "/versions/" + currentApplicationVersionId));
+                Context.getRestClientInstance().delete("/rest/v1/applications/" + app.getId() + "/versions/" + currentApplicationVersionId));
     }
 
     @When("^I search for application versions$")
@@ -45,7 +45,7 @@ public class ApplicationsVersionStepDefinitions {
         request.setFrom(0);
         request.setSize(10);
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/applications/" + app.getId() + "/versions/search", JsonUtil.toString(request)));
+                Context.getRestClientInstance().postJSon("/rest/v1/applications/" + app.getId() + "/versions/search", JsonUtil.toString(request)));
     }
 
     @Then("^I should receive (\\d+) application versions in the search result$")
@@ -63,7 +63,7 @@ public class ApplicationsVersionStepDefinitions {
         ApplicationVersionRequest request = new ApplicationVersionRequest();
         request.setVersion(newNameVersion);
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().putJSon("/rest/applications/" + app.getId() + "/versions/" + currentApplicationVersionId,
+                Context.getRestClientInstance().putJSon("/rest/v1/applications/" + app.getId() + "/versions/" + currentApplicationVersionId,
                         JsonUtil.toString(request)));
     }
 }

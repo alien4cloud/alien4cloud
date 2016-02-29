@@ -25,7 +25,7 @@ import io.swagger.annotations.Authorization;
  */
 
 @RestController
-@RequestMapping(value = "/rest/topologies/{topologyId}/locations", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/rest/topologies/{topologyId}/locations", "/rest/v1/topologies/{topologyId}/locations", "/rest/latest/topologies/{topologyId}/locations"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @Api(value = "Location matching", description = "Get matching options for a given topology.", authorizations = { @Authorization("ADMIN") }, position = 4310)
 public class TopologyLocationMatchingController {
 

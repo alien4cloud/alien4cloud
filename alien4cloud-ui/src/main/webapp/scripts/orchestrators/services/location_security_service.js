@@ -6,7 +6,7 @@ define(function (require) {
   modules.get('a4c-orchestrators').factory('locationSecurityService', ['$resource',
     function($resource) {
       /* Users/groups roles on an clouds */
-      var manageLocationUserRoles = $resource('rest/orchestrators/:orchestratorId/locations/:locationId/roles/users/:username/:role', {}, {
+      var manageLocationUserRoles = $resource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/roles/users/:username/:role', {}, {
         'addUserRole': {
           method: 'PUT',
           headers: {
@@ -33,7 +33,7 @@ define(function (require) {
         }
       });
 
-      var manageLocationGroupRoles = $resource('rest/orchestrators/:orchestratorId/locations/:locationId/roles/groups/:groupId/:role', {}, {
+      var manageLocationGroupRoles = $resource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/roles/groups/:groupId/:role', {}, {
         'addGroupRole': {
           method: 'PUT',
           headers: {

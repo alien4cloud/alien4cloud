@@ -38,7 +38,7 @@ public class NodeTemplateStepDefinitions {
     public void I_ask_for_replacements_for_the_node(String nodeTemplateName) throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().get("/rest/topologies/" + topologyId + "/nodetemplates/" + nodeTemplateName + "/replace"));
+                Context.getRestClientInstance().get("/rest/v1/topologies/" + topologyId + "/nodetemplates/" + nodeTemplateName + "/replace"));
     }
 
     @Then("^the possible replacements nodes types should be$")
@@ -68,19 +68,19 @@ public class NodeTemplateStepDefinitions {
         String jSon = jsoMapper.writeValueAsString(req);
         String topologyId = Context.getInstance().getTopologyId();
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().putJSon("/rest/topologies/" + topologyId + "/nodetemplates/" + oldNodetemplateName + "/replace", jSon));
+                Context.getRestClientInstance().putJSon("/rest/v1/topologies/" + topologyId + "/nodetemplates/" + oldNodetemplateName + "/replace", jSon));
     }
 
     @When("^I delete the relationship \"([^\"]*)\" from the node template \"([^\"]*)\"$")
     public void I_delete_the_relationship_from_the_node_template(String relName, String nodeTempName) throws Throwable {
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().delete(
-                        "/rest/topologies/" + Context.getInstance().getTopologyId() + "/nodetemplates/" + nodeTempName + "/relationships/" + relName));
+                        "/rest/v1/topologies/" + Context.getInstance().getTopologyId() + "/nodetemplates/" + nodeTempName + "/relationships/" + relName));
     }
 
     @Then("^I should not have the relationship \"([^\"]*)\" in \"([^\"]*)\" node template$")
     public void I_should_not_have_a_relationship_in_node_template(String relName, String nodeTempName) throws Throwable {
-        String topologyJson = Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId());
+        String topologyJson = Context.getRestClientInstance().get("/rest/v1/topologies/" + Context.getInstance().getTopologyId());
         RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyJson, TopologyDTO.class, Context.getJsonMapper());
         NodeTemplate sourceNode = topologyResponse.getData().getTopology().getNodeTemplates().get(nodeTempName);
         Map<String, RelationshipTemplate> rels = sourceNode.getRelationships();

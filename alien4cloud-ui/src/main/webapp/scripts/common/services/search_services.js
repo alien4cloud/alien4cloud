@@ -7,7 +7,7 @@ define(function (require) {
 
   searchModule.factory('facetedSearch', ['$resource', function($resource) {
     // API REST Definition
-    var resultsFacetedSearch = $resource('rest/components/search',
+    var resultsFacetedSearch = $resource('rest/latest/components/search',
       {},
       {
         'search':

@@ -12,14 +12,14 @@ define(function (require) {
     resolve: {
       applicationRoles: ['$resource',
         function($resource) {
-          return $resource('rest/auth/roles/application', {}, {
+          return $resource('rest/latest/auth/roles/application', {}, {
             method: 'GET'
           }).get().$promise;
         }
       ],
       environmentRoles: ['$resource',
         function($resource) {
-          return $resource('rest/auth/roles/environment', {}, {
+          return $resource('rest/latest/auth/roles/environment', {}, {
             method: 'GET'
           }).get().$promise;
         }

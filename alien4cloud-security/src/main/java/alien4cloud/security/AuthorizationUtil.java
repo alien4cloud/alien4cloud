@@ -1,21 +1,5 @@
 package alien4cloud.security;
 
-import java.util.Map;
-import java.util.Set;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
 import alien4cloud.Constants;
 import alien4cloud.security.groups.IAlienGroupDao;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
@@ -24,8 +8,23 @@ import alien4cloud.security.model.CloudRole;
 import alien4cloud.security.model.Group;
 import alien4cloud.security.model.Role;
 import alien4cloud.security.model.User;
-
+import alien4cloud.security.spring.Alien4CloudAccessDeniedHandler;
+import alien4cloud.security.spring.FailureAuthenticationEntryPoint;
 import com.google.common.collect.Sets;
+import java.util.Map;
+import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 /**
  * Applications and topologies concerns
@@ -35,10 +34,16 @@ import com.google.common.collect.Sets;
 public final class AuthorizationUtil {
 
     private static IAlienGroupDao alienGroupDao;
+    private static Alien4CloudAccessDeniedHandler accessDeniedHandler;
 
     @Autowired
     public void setAlienGroupDao(IAlienGroupDao alienGroupDao) {
         AuthorizationUtil.alienGroupDao = alienGroupDao;
+    }
+
+    @Autowired
+    public void setAccessDeniedHandler(Alien4CloudAccessDeniedHandler accessDeniedHandler) {
+        AuthorizationUtil.accessDeniedHandler = accessDeniedHandler;
     }
 
     private AuthorizationUtil() {
@@ -383,5 +388,33 @@ public final class AuthorizationUtil {
         Map<String, Set<String>> allResourceUserRoles = resource.getUserRoles();
         Set<String> userRoles = allResourceUserRoles.get(user.getUsername());
         return userRoles.size() == 1 && userRoles.contains(role.toString());
+    }
+
+    public static void configure(HttpSecurity httpSecurity) throws Exception {
+
+        // authorizations
+
+        httpSecurity.authorizeRequests().antMatchers("/*").permitAll();
+        httpSecurity.authorizeRequests().antMatchers("/static/tosca/**").hasAnyAuthority("ADMIN", "COMPONENTS_MANAGER", "COMPONENTS_BROWSER");
+        httpSecurity.authorizeRequests().antMatchers("/rest/admin/**").hasAuthority("ADMIN");
+
+        // previous api version support
+        httpSecurity.authorizeRequests().antMatchers("/rest/alienEndPoint/**").authenticated();
+        httpSecurity.authorizeRequests().antMatchers("/rest/audit/**").hasAuthority("ADMIN");
+
+        // current api version support
+        httpSecurity.authorizeRequests().antMatchers("/rest/v1/alienEndPoint/**").authenticated();
+        httpSecurity.authorizeRequests().antMatchers("/rest/v1/audit/**").hasAuthority("ADMIN");
+
+        // login
+        httpSecurity.formLogin().defaultSuccessUrl("/rest/auth/status").failureUrl("/rest/auth/authenticationfailed").loginProcessingUrl("/login")
+                .usernameParameter("username").passwordParameter("password").permitAll().and().logout().logoutSuccessUrl("/").deleteCookies("JSESSIONID");
+        httpSecurity.logout().logoutSuccessUrl("/");
+
+        // handle non authenticated request
+        httpSecurity.exceptionHandling().accessDeniedHandler(accessDeniedHandler);
+        httpSecurity.exceptionHandling().authenticationEntryPoint(new FailureAuthenticationEntryPoint());
+
+        httpSecurity.csrf().disable();
     }
 }

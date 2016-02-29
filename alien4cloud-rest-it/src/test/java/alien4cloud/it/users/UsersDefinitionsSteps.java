@@ -31,7 +31,7 @@ public class UsersDefinitionsSteps {
     public void I_search_in_users_for_from_with_result_size_of(String searchedText, int from, int size) throws Throwable {
         UserSearchRequest req = new UserSearchRequest(searchedText, null, from, size);
         String jSon = Context.getInstance().getJsonMapper().writeValueAsString(req);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/users/search", jSon));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/users/search", jSon));
     }
 
     @Then("^there should be (\\d+) users in the response$")
@@ -47,7 +47,7 @@ public class UsersDefinitionsSteps {
 
     @When("^I add a role \"([^\"]*)\" to user \"([^\"]*)\"$")
     public void I_add_a_role_to_user(String role, String username) throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().put("/rest/users/" + username + "/roles/" + role));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().put("/rest/v1/users/" + username + "/roles/" + role));
     }
 
     @Then("^The response should contain a user \"([^\"]*)\" having \"([^\"]*)\" role$")
@@ -62,7 +62,7 @@ public class UsersDefinitionsSteps {
     @Given("^there is a user \"([^\"]*)\" with the \"([^\"]*)\" role$")
     public void there_is_a_user_with_the_role(String username, String expectedRole) throws Throwable {
         authSteps.There_is_a_user_in_the_system(username);
-        String response = Context.getRestClientInstance().get("/rest/users/" + username);
+        String response = Context.getRestClientInstance().get("/rest/v1/users/" + username);
         User user = JsonUtil.read(response, User.class).getData();
         if (!ArrayUtils.contains(user.getRoles(), expectedRole)) {
             I_add_a_role_to_user(expectedRole, username);
@@ -71,7 +71,7 @@ public class UsersDefinitionsSteps {
 
     @When("^I remove a role \"([^\"]*)\" to user \"([^\"]*)\"$")
     public void I_remove_a_role_to_user(String role, String username) throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/users/" + username + "/roles/" + role));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/v1/users/" + username + "/roles/" + role));
     }
 
     @Then("^The response should contain a user \"([^\"]*)\" not having \"([^\"]*)\" role$")
@@ -84,7 +84,7 @@ public class UsersDefinitionsSteps {
 
     @When("^I delete the user \"([^\"]*)\"$")
     public void I_delete_the_user(String username) throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/users/" + username));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/v1/users/" + username));
     }
 
 }

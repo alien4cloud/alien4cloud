@@ -83,7 +83,7 @@ public class Context {
 
     public static final String CONTEXT_PATH = "";
 
-    public static final String WEB_SOCKET_END_POINT = "/rest/alienEndPoint";
+    public static final String WEB_SOCKET_END_POINT = "/rest/v1/alienEndPoint";
 
     /** Alien's current version. */
     public static final String VERSION;

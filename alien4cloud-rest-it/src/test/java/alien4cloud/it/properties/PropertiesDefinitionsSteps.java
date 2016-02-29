@@ -12,6 +12,6 @@ public class PropertiesDefinitionsSteps {
     public void I_fill_the_value_for_tag(String value, String configurationTagName) throws Throwable {
         MetaPropConfiguration tag = Context.getInstance().getConfigurationTag(configurationTagName);
         PropertyValidationRequest propertyCheckRequest = new PropertyValidationRequest(value, configurationTagName, tag);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/properties/check", JsonUtil.toString(propertyCheckRequest)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/properties/check", JsonUtil.toString(propertyCheckRequest)));
     }
 }

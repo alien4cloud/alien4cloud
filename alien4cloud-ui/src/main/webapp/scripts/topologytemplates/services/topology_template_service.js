@@ -6,7 +6,7 @@ define(function (require) {
 
   modules.get('a4c-topology-templates', ['ngResource']).factory('topologyTemplateService', ['$resource',
     function($resource) {
-      return $resource('rest/templates/topology/:topologyTemplateId', {}, {
+      return $resource('rest/latest/templates/topology/:topologyTemplateId', {}, {
         'get': {
           method: 'GET',
           headers: {

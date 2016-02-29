@@ -19,7 +19,7 @@ import springfox.documentation.annotations.ApiIgnore;
  *
  */
 @RestController
-@RequestMapping("/rest/enums")
+@RequestMapping({"/rest/enums", "/rest/v1/enums", "/rest/latest/enums"})
 public class MiscEnumResourcesController {
     @ApiIgnore
     @RequestMapping(value = "/environmenttype", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

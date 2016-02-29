@@ -28,7 +28,7 @@ public class AuthenticationStepDefinitions {
 
     @When("^I retrieve the ALIEN's roles list$")
     public void I_retrieve_the_ALIEN_s_roles_list() throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/auth/roles"));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/auth/roles"));
     }
 
     @Given("^I am logged out$")
@@ -53,7 +53,7 @@ public class AuthenticationStepDefinitions {
         CreateUserRequest request = new CreateUserRequest();
         request.setUsername(username);
         request.setPassword(password);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/users/", JsonUtil.toString(request)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/users/", JsonUtil.toString(request)));
     }
 
     @When("^I authenticate with \"([^\"]*)\" role$")
@@ -93,7 +93,7 @@ public class AuthenticationStepDefinitions {
 
     @Given("^There is a \"([^\"]*)\" user in the system$")
     public void There_is_a_user_in_the_system(String username) throws Throwable {
-        String response = Context.getRestClientInstance().get("/rest/users/" + username);
+        String response = Context.getRestClientInstance().get("/rest/v1/users/" + username);
         RestResponse<User> userResponse = JsonUtil.read(response, User.class);
         if (userResponse.getData() == null) {
             I_create_a_new_user_with_name_and_password_in_the_system(username, username);
@@ -109,7 +109,7 @@ public class AuthenticationStepDefinitions {
 
     @Given("^There is no \"([^\"]*)\" user in the system$")
     public void There_is_no_user_in_the_system(String username) throws Throwable {
-        String response = Context.getRestClientInstance().get("/rest/users/" + username);
+        String response = Context.getRestClientInstance().get("/rest/v1/users/" + username);
         RestResponse<User> userResponse = JsonUtil.read(response, User.class);
         if (userResponse.getData() != null) {
             I_remove_user(username);
@@ -118,18 +118,18 @@ public class AuthenticationStepDefinitions {
 
     @When("^I get the \"([^\"]*)\" user$")
     public void I_get_the_user(String username) throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/users/" + username));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/users/" + username));
     }
 
     @When("^I remove user \"([^\"]*)\"$")
     public void I_remove_user(String username) throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/users/" + username));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/v1/users/" + username));
     }
 
     @When("^I find users with usernames$")
     public void I_find_users_with_usersnames(List<String> usernames) throws Throwable {
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/users/getUsers", Context.getInstance().getJsonMapper().writeValueAsString(usernames)));
+                Context.getRestClientInstance().postJSon("/rest/v1/users/getUsers", Context.getInstance().getJsonMapper().writeValueAsString(usernames)));
     }
 
     @When("^I find users with an empty usernames list$")
@@ -162,7 +162,7 @@ public class AuthenticationStepDefinitions {
         for (Entry field : fields) {
             fieldsMap.put(field.getName(), field.getValue());
         }
-        String resp = Context.getRestClientInstance().putJSon("/rest/users/" + username, JsonUtil.toString(fieldsMap));
+        String resp = Context.getRestClientInstance().putJSon("/rest/v1/users/" + username, JsonUtil.toString(fieldsMap));
         System.out.println(resp);
         Context.getInstance().registerRestResponse(resp);
 
@@ -170,7 +170,7 @@ public class AuthenticationStepDefinitions {
 
     @Then("^There should be a user \"([^\"]*)\" with firstname \"([^\"]*)\" in the system$")
     public void There_should_be_a_user_with_firstname_in_the_system(String username, String expectedFirstName) throws Throwable {
-        User user = JsonUtil.read(Context.getRestClientInstance().get("/rest/users/" + username), User.class).getData();
+        User user = JsonUtil.read(Context.getRestClientInstance().get("/rest/v1/users/" + username), User.class).getData();
         assertNotNull(user);
         assertEquals(expectedFirstName, user.getFirstName());
     }

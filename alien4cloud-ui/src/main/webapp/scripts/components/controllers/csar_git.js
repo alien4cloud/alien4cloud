@@ -43,7 +43,7 @@ define(function (require) {
       $scope.searchResult = searchResult.data;
     };
     // we have to insert the search service in the scope so it is available for the pagination directive.
-    $scope.searchService = searchServiceFactory('rest/csarsgit', true, $scope, 20);
+    $scope.searchService = searchServiceFactory('rest/latest/csarsgit', true, $scope, 20);
     $scope.search = function() { $scope.searchService.search(); };
     $scope.search(); // initialize
 

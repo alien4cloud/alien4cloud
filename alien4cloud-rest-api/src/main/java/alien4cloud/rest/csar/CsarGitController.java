@@ -32,7 +32,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 @RestController
-@RequestMapping(value = "/rest/csarsgit")
+@RequestMapping(value = {"/rest/csarsgit", "/rest/v1/csarsgit", "/rest/latest/csarsgit"})
 public class CsarGitController {
     @Inject
     private CsarGitService csarGitService;
@@ -71,7 +71,7 @@ public class CsarGitController {
 
     /**
      * Search for tosca csar git repositories.
-     * 
+     *
      * @param query The search query.
      * @param from The index from which to get data.
      * @param size The size of the query.

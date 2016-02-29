@@ -4,7 +4,7 @@ define(function (require) {
   var modules = require('modules');
 
   modules.get('a4c-components', ['ngResource']).factory('csarGitService', ['$resource', function($resource) {
-    var remove = $resource('rest/csarsgit/:id',{},{},{
+    var remove = $resource('rest/latest/csarsgit/:id',{},{},{
       'remove':{
         method: 'DELETE',
         headers: {
@@ -13,7 +13,7 @@ define(function (require) {
       }
     });
 
-    var create = $resource('rest/csarsgit',{},{
+    var create = $resource('rest/latest/csarsgit',{},{
       'create':{
         method: 'POST',
         isArray: false,
@@ -23,7 +23,7 @@ define(function (require) {
       }
     });
 
-    var update = $resource('rest/csarsgit/:id',{},{
+    var update = $resource('rest/latest/csarsgit/:id',{},{
       'update':{
         method: 'PUT',
         isArray: false,
@@ -33,7 +33,7 @@ define(function (require) {
       }
     });
 
-    var fetch = $resource('rest/csarsgit/:id',{}, {
+    var fetch = $resource('rest/latest/csarsgit/:id',{}, {
       'import':{
         method: 'POST',
         isArray: false,

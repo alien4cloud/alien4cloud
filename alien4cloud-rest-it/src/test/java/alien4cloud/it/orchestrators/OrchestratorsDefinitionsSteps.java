@@ -27,7 +27,7 @@ public class OrchestratorsDefinitionsSteps {
         orchestrator.setName(name);
         orchestrator.setPluginId(pluginId);
         orchestrator.setPluginBean(pluginBean);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/orchestrators", JsonUtil.toString(orchestrator)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/orchestrators", JsonUtil.toString(orchestrator)));
         RestResponse<String> idResponse = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
         Context.getInstance().registerOrchestrator(idResponse.getData(), name);
     }
@@ -39,7 +39,7 @@ public class OrchestratorsDefinitionsSteps {
 
     @When("^I list orchestrators$")
     public void I_list_orchestrators() throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/orchestrators"));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/orchestrators"));
     }
 
     @Then("^Response should contains (\\d+) orchestrator$")
@@ -64,26 +64,26 @@ public class OrchestratorsDefinitionsSteps {
     @When("^I delete an orchestrator with name \"([^\"]*)\"$")
     public void I_delete_an_orchestrator_with_name(String orchestratorName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/orchestrators/" + orchestratorId));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/v1/orchestrators/" + orchestratorId));
     }
 
     @Given("^I enable the orchestrator \"([^\"]*)\"$")
     public void I_enable_the_orchestrator(String orchestratorName) throws IOException {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
-        String restResponse = Context.getRestClientInstance().postJSon("/rest/orchestrators/" + orchestratorId + "/instance", "{}");
+        String restResponse = Context.getRestClientInstance().postJSon("/rest/v1/orchestrators/" + orchestratorId + "/instance", "{}");
         Context.getInstance().registerRestResponse(restResponse);
     }
 
     @When("^I disable \"([^\"]*)\"$")
     public void I_disable(String orchestratorName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/orchestrators/" + orchestratorId + "/instance"));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/v1/orchestrators/" + orchestratorId + "/instance"));
     }
 
     @When("^I disable all orchestrators$")
     public void I_disable_all_orchestrators() throws Throwable {
         for (String orchestratorId : Context.getInstance().getOrchestratorIds()) {
-            Context.getRestClientInstance().delete("/rest/orchestrators/" + orchestratorId + "/instance");
+            Context.getRestClientInstance().delete("/rest/v1/orchestrators/" + orchestratorId + "/instance");
         }
     }
 
@@ -93,13 +93,13 @@ public class OrchestratorsDefinitionsSteps {
         UpdateOrchestratorRequest updateOrchestratorRequest = new UpdateOrchestratorRequest();
         updateOrchestratorRequest.setName(newName);
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().putJSon("/rest/orchestrators/" + orchestratorId, JsonUtil.toString(updateOrchestratorRequest)));
+                Context.getRestClientInstance().putJSon("/rest/v1/orchestrators/" + orchestratorId, JsonUtil.toString(updateOrchestratorRequest)));
     }
 
     @When("^I get the orchestrator named \"([^\"]*)\"$")
     public void I_get_the_orchestrator_named(String orchestratorName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/orchestrators/" + orchestratorId));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/orchestrators/" + orchestratorId));
     }
 
     @Then("^Response should contains the orchestrator with name \"([^\"]*)\" and state enabled \"([^\"]*)\"$")

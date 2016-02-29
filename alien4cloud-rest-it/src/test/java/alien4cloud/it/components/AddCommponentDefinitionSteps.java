@@ -39,6 +39,6 @@ public class AddCommponentDefinitionSteps {
         nodeType.setArchiveVersion("1.0");
         // and send it to rest API through the REST mapper
         componentJson = Context.getInstance().getJsonMapper().writeValueAsString(nodeType);
-        return Context.getRestClientInstance().postJSon("/rest/csars/" + csarId + "/nodetypes", componentJson);
+        return Context.getRestClientInstance().postJSon("/rest/v1/csars/" + csarId + "/nodetypes", componentJson);
     }
 }

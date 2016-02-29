@@ -1,5 +1,7 @@
 package alien4cloud.audit.rest;
 
+import io.swagger.annotations.ApiOperation;
+
 import java.util.List;
 import java.util.Map;
 
@@ -9,7 +11,11 @@ import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -28,10 +34,9 @@ import alien4cloud.rest.model.RestResponseBuilder;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping("/rest/audit")
+@RequestMapping({"/rest/audit", "/rest/v1/audit", "/rest/latest/audit"})
 @Slf4j
 public class AuditController {
 
@@ -145,10 +150,10 @@ public class AuditController {
     }
 
     private void enableMethodAudit(Map<Method, Boolean> auditedMethodsMap, AuditedMethod method) {
-        if (method.getMethod() == null || method.getPath() == null) {
+        if (method.getMethod() == null) {
             throw new InvalidArgumentException("Method's path or http method is null");
         }
-        Method auditedMethodKey = new Method(method.getPath(), method.getMethod(), method.getCategory(), method.getAction());
+        Method auditedMethodKey = new Method(method.getSignature(), method.getMethod(), method.getCategory(), method.getAction());
         if (!auditedMethodsMap.containsKey(auditedMethodKey)) {
             throw new NotFoundException("Method " + method + " does not exist ");
         }

@@ -54,16 +54,16 @@ public class SecuredResourceStepDefinition {
         String request = null;
         switch (RESOURCE_TYPE.valueOf(resourceTypeId)) {
         case APPLICATION:
-            request = "/rest/applications/" + Context.getInstance().getApplicationId(resourceName);
+            request = "/rest/v1/applications/" + Context.getInstance().getApplicationId(resourceName);
             break;
         case ENVIRONMENT:
             Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
-            request = "/rest/applications/" + Context.getInstance().getApplicationId(resourceName) + "/environments/"
+            request = "/rest/v1/applications/" + Context.getInstance().getApplicationId(resourceName) + "/environments/"
                     + Context.getInstance().getApplicationEnvironmentId(application.getName(), resourceName);
             break;
         case LOCATION:
             String orchestratorName = LocationsDefinitionsSteps.DEFAULT_ORCHESTRATOR_NAME;
-            request = "/rest/orchestrators/" + Context.getInstance().getOrchestratorId(orchestratorName) + "/locations/"
+            request = "/rest/v1/orchestrators/" + Context.getInstance().getOrchestratorId(orchestratorName) + "/locations/"
                     + LocationsDefinitionsSteps.getLocationIdFromName(orchestratorName, resourceName);
             break;
         default:

@@ -17,16 +17,16 @@ import cucumber.api.java.en.When;
 public class OutputPropertiesStepDefinitions {
 
     private String getPropertyUrl(String propertyName, String nodeName, String propertyType) {
-        return "/rest/topologies/" + Context.getInstance().getTopologyId() + "/nodetemplates/" + nodeName + "/property/" + propertyName + "/" + propertyType;
+        return "/rest/v1/topologies/" + Context.getInstance().getTopologyId() + "/nodetemplates/" + nodeName + "/property/" + propertyName + "/" + propertyType;
     }
 
     private String getCapabilityPropertyUrl(String propertyName, String capabilityId, String nodeName) {
-        return "/rest/topologies/" + Context.getInstance().getTopologyId() + "/nodetemplates/" + nodeName + "/capability/" + capabilityId + "/property/"
+        return "/rest/v1/topologies/" + Context.getInstance().getTopologyId() + "/nodetemplates/" + nodeName + "/capability/" + capabilityId + "/property/"
                 + propertyName + "/isOutput";
     }
 
     private String getAttributesUrl(String attributeName, String nodeName) {
-        return "/rest/topologies/" + Context.getInstance().getTopologyId() + "/nodetemplates/" + nodeName + "/attributes/" + attributeName + "/output";
+        return "/rest/v1/topologies/" + Context.getInstance().getTopologyId() + "/nodetemplates/" + nodeName + "/attributes/" + attributeName + "/output";
     }
 
     @When("^I define the property \"([^\"]*)\" of the node \"([^\"]*)\" as output property$")
@@ -135,7 +135,7 @@ public class OutputPropertiesStepDefinitions {
     }
 
     private TopologyDTO getTopologyDTO() throws IOException {
-        TopologyDTO topologyDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()),
+        TopologyDTO topologyDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/v1/topologies/" + Context.getInstance().getTopologyId()),
                 TopologyDTO.class, Context.getJsonMapper()).getData();
         return topologyDTO;
     }

@@ -33,7 +33,7 @@ define(function (require) {
   modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('CsarListCtrl', ['$scope', '$modal', '$state', 'csarService', '$translate', 'toaster', 'searchServiceFactory',
    function($scope, $modal, $state, csarService, $translate, toaster, searchServiceFactory) {
 
-      $scope.searchService = searchServiceFactory('rest/csars/search', false, $scope, 20, 10);
+      $scope.searchService = searchServiceFactory('rest/latest/csars/search', false, $scope, 20, 10);
 
       $scope.search = function() {
         $scope.searchService.search();

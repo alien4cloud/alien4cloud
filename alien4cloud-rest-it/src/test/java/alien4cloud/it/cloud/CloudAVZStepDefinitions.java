@@ -31,7 +31,7 @@
 //    public void I_add_the_availability_zone_with_id_and_description_to_the_cloud(String avzId, String avzDesc, String cloudName) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
 //        AvailabilityZone avz = new AvailabilityZone(avzId, avzDesc);
-//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/zones", JsonUtil.toString(avz)));
+//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/clouds/" + cloudId + "/zones", JsonUtil.toString(avz)));
 //    }
 //
 //    @And("^I match the availability zone with name \"([^\"]*)\" of the cloud \"([^\"]*)\" to the PaaS resource \"([^\"]*)\"$")
@@ -39,7 +39,7 @@
 //            throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
 //        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/zones/" + avzId + "/resource",
+//                Context.getRestClientInstance().postUrlEncoded("/rest/v1/clouds/" + cloudId + "/zones/" + avzId + "/resource",
 //                        Lists.<NameValuePair> newArrayList(new BasicNameValuePair("pasSResourceId", paaSResourceId))));
 //    }
 //
@@ -57,7 +57,7 @@
 //    @Then("^I remove the availability zone with name \"([^\"]*)\" from the cloud \"([^\"]*)\"$")
 //    public void I_remove_the_availability_zone_with_name_from_the_cloud(String avzId, String cloudName) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
-//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/clouds/" + cloudId + "/zones/" + avzId));
+//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/v1/clouds/" + cloudId + "/zones/" + avzId));
 //    }
 //
 //    @And("^The topology should have no warnings$")

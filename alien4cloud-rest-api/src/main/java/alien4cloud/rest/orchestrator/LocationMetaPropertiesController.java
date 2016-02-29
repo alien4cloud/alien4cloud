@@ -36,7 +36,7 @@ import io.swagger.annotations.Authorization;
  */
 @Slf4j
 @RestController
-@RequestMapping(value = "/rest/orchestrators/{orchestratorId}/locations/{locationId}/properties", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/rest/orchestrators/{orchestratorId}/locations/{locationId}/properties", "/rest/v1/orchestrators/{orchestratorId}/locations/{locationId}/properties", "/rest/latest/orchestrators/{orchestratorId}/locations/{locationId}/properties", "/rest/latest/orchestrators/{orchestratorId}/locations/{locationId}/properties", "/rest/latest/orchestrators/{orchestratorId}/locations/{locationId}/properties"}, produces = MediaType.APPLICATION_JSON_VALUE)
 @Api(value = "Location meta properties", description = "Update values for meta-properties associated with locations.", authorizations = {
         @Authorization("ADMIN") })
 public class LocationMetaPropertiesController {
@@ -47,7 +47,7 @@ public class LocationMetaPropertiesController {
 
     /**
      * Update or create a property for an orchestrator
-     * 
+     *
      * @param orchestratorId id of the orchestrator the location belongs to.
      * @param locationId id of the location to update
      * @param propertyRequest property request

@@ -26,7 +26,7 @@ public class TopologyTemplateVersionDefinitions {
         request.setVersion(version);
         String topologyTemplateId = Context.getInstance().getTopologyTemplate().getId();
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/templates/" + topologyTemplateId + "/versions", JsonUtil.toString(request)));
+                Context.getRestClientInstance().postJSon("/rest/v1/templates/" + topologyTemplateId + "/versions", JsonUtil.toString(request)));
         String versionId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData();
         Context.getInstance().registerTopologyTemplateVersionId(versionId);
     }
@@ -38,7 +38,7 @@ public class TopologyTemplateVersionDefinitions {
         request.setTopologyId(Context.getInstance().getTopologyId());
         String topologyTemplateId = Context.getInstance().getTopologyTemplate().getId();
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/templates/" + topologyTemplateId + "/versions", JsonUtil.toString(request)));
+                Context.getRestClientInstance().postJSon("/rest/v1/templates/" + topologyTemplateId + "/versions", JsonUtil.toString(request)));
         String versionId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData();
         Context.getInstance().registerTopologyTemplateVersionId(versionId);
         registerTopologyTemplateVersionTopology();
@@ -50,7 +50,7 @@ public class TopologyTemplateVersionDefinitions {
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.setFrom(0);
         searchRequest.setSize(Integer.MAX_VALUE);
-        String restResponse = Context.getRestClientInstance().postJSon("/rest/templates/" + topologyTemplateId + "/versions/search",
+        String restResponse = Context.getRestClientInstance().postJSon("/rest/v1/templates/" + topologyTemplateId + "/versions/search",
                 JsonUtil.toString(searchRequest));
         GetMultipleDataResult<?> mdr = JsonUtil.read(restResponse, GetMultipleDataResult.class).getData();
         Assert.assertNotNull(mdr);
@@ -62,7 +62,7 @@ public class TopologyTemplateVersionDefinitions {
         searchRequest.setQuery(templateName);
         searchRequest.setFrom(0);
         searchRequest.setSize(Integer.MAX_VALUE);
-        String restResponse = Context.getRestClientInstance().postJSon("/rest/templates/topology/search", JsonUtil.toString(searchRequest));
+        String restResponse = Context.getRestClientInstance().postJSon("/rest/v1/templates/topology/search", JsonUtil.toString(searchRequest));
         FacetedSearchResult result = JsonUtil.read(restResponse, FacetedSearchResult.class).getData();
         Assert.assertNotNull(result);
         assertEquals(1, result.getTotalResults());
@@ -76,7 +76,7 @@ public class TopologyTemplateVersionDefinitions {
         searchRequest.setQuery(version);
         searchRequest.setFrom(0);
         searchRequest.setSize(Integer.MAX_VALUE);
-        String templateVersionJson = Context.getRestClientInstance().postJSon("/rest/templates/" + topologyTemplateId + "/versions/search",
+        String templateVersionJson = Context.getRestClientInstance().postJSon("/rest/v1/templates/" + topologyTemplateId + "/versions/search",
                 JsonUtil.toString(searchRequest));
         GetMultipleDataResult<?> result = JsonUtil.read(templateVersionJson, GetMultipleDataResult.class).getData();
         assertNotNull(result);
@@ -90,7 +90,7 @@ public class TopologyTemplateVersionDefinitions {
     private void registerTopologyTemplateVersionTopology() throws Throwable {
         String topologyTemplateId = Context.getInstance().getTopologyTemplate().getId();
         String versionId = Context.getInstance().getTopologyTemplateVersionId();
-        String restResponse = Context.getRestClientInstance().get("/rest/templates/" + topologyTemplateId + "/versions/" + versionId);
+        String restResponse = Context.getRestClientInstance().get("/rest/v1/templates/" + topologyTemplateId + "/versions/" + versionId);
         TopologyTemplateVersion result = JsonUtil.read(restResponse, TopologyTemplateVersion.class, Context.getJsonMapper()).getData();
         assertNotNull(result);
         Context.getInstance().registerTopologyId(result.getTopologyId());
@@ -100,14 +100,14 @@ public class TopologyTemplateVersionDefinitions {
     public void I_delete_the_topology_template_named_version(String templateName, String version) throws Throwable {
         String topologyTemplateId = getTopologyTemplateIdByName(templateName);
         String versionId = getTopologyTemplateVersionId(topologyTemplateId, version);
-        String restResponse = Context.getRestClientInstance().delete("/rest/templates/" + topologyTemplateId + "/versions/" + versionId);
+        String restResponse = Context.getRestClientInstance().delete("/rest/v1/templates/" + topologyTemplateId + "/versions/" + versionId);
         Context.getInstance().registerRestResponse(restResponse);
     }
 
     @When("^I delete the topology template named \"([^\"]*)\"$")
     public void I_delete_the_topology_template_named(String templateName) throws Throwable {
         String topologyTemplateId = getTopologyTemplateIdByName(templateName);
-        String restResponse = Context.getRestClientInstance().delete("/rest/templates/topology/" + topologyTemplateId);
+        String restResponse = Context.getRestClientInstance().delete("/rest/v1/templates/topology/" + topologyTemplateId);
         Context.getInstance().registerRestResponse(restResponse);
     }
 
