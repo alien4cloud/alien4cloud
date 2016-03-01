@@ -157,7 +157,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <mainClass>alien4cloud.it.setup.alien4cloud.it.setup.compatibility.PrepareTestData</mainClass>
+                            <mainClass>alien4cloud.it.setup.PrepareTestData</mainClass>
                             <classpathScope>test</classpathScope>
                             <arguments>
                                 <argument>${project.basedir}</argument>

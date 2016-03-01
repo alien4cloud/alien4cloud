@@ -7,7 +7,6 @@
         <version>1.2.0-SM1-SNAPSHOT</version>
     </parent>
     <artifactId>alien4cloud-rest-it-compatibility</artifactId>
-    <!-- <packaging>war</packaging> -->
 
     <name>Alien 4 Cloud REST Integration Test</name>
     <description>Integration tests for previous Alien's REST API.</description>
@@ -16,7 +15,6 @@
         <sonar.language>java</sonar.language>
         <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
         <jclouds.version>1.9.1</jclouds.version>
-        <!-- <previousAlien.version>1.1.0</peviousAlien.version> -->
     </properties>
 
     <dependencies>
@@ -107,28 +105,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.4.1</version>
-                <configuration>
-                    <appendAssemblyId>false</appendAssemblyId>
-                    <attach>false</attach>
-                    <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
-                    <descriptors>
-                        <descriptor>src/main/assembly/assembly.xml</descriptor>
-                    </descriptors>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>-->
         </plugins>
     </build>
 
