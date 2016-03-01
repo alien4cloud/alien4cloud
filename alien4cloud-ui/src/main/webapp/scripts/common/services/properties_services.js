@@ -6,7 +6,7 @@ define(function (require) {
   modules.get('a4c-common').factory('propertiesServices', ['$resource',
     function($resource) {
       // check property
-      var checkProperty = $resource('rest/properties/check', {}, {
+      var checkProperty = $resource('rest/latest/properties/check', {}, {
         'check': {
           method: 'POST',
           isArray: false,

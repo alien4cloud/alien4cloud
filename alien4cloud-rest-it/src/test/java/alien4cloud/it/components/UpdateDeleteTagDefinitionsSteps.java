@@ -35,7 +35,7 @@ public class UpdateDeleteTagDefinitionsSteps {
 
     @Given("^I have a component with id \"([^\"]*)\"$")
     public void I_have_a_component_with_id(String componentId) throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/components/" + componentId));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/components/" + componentId));
         IndexedNodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), IndexedNodeType.class).getData();
         assertNotNull(idnt);
         Context.getInstance().registerComponentId(idnt.getId());
@@ -62,20 +62,20 @@ public class UpdateDeleteTagDefinitionsSteps {
         updateTagRequest.setTagKey(tagKey);
         updateTagRequest.setTagValue(tagValue);
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/components/" + Context.getInstance().getComponentId(0) + "/tags",
+                Context.getRestClientInstance().postJSon("/rest/v1/components/" + Context.getInstance().getComponentId(0) + "/tags",
                         jsonMapper.writeValueAsString(updateTagRequest)));
     }
 
     @Given("^I have a tag \"([^\"]*)\"$")
     public void I_have_a_tag(String tag) throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/components/" + Context.getInstance().getComponentId(0)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/components/" + Context.getInstance().getComponentId(0)));
         IndexedNodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), IndexedNodeType.class).getData();
         assertTrue(idnt.getTags().contains(new Tag(tag, null)));
     }
 
     @Then("^I should have tag \"([^\"]*)\" with value \"([^\"]*)\"$")
     public void I_should_have_tag_with_value(String tagKey, String tagValue) throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/components/" + Context.getInstance().getComponentId(0)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/components/" + Context.getInstance().getComponentId(0)));
         IndexedNodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), IndexedNodeType.class).getData();
         assertNotNull(idnt);
         int index = idnt.getTags().indexOf(new Tag(tagKey, null));
@@ -85,7 +85,7 @@ public class UpdateDeleteTagDefinitionsSteps {
     @When("^I delete a tag with key \"([^\"]*)\"$")
     public void I_delete_a_tag_with_key(String tagId) throws Throwable {
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().delete("/rest/components/" + Context.getInstance().getComponentId(0) + "/tags/" + tagId));
+                Context.getRestClientInstance().delete("/rest/v1/components/" + Context.getInstance().getComponentId(0) + "/tags/" + tagId));
     }
 
     /**

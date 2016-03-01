@@ -43,15 +43,15 @@ public class TopologyTemplateStepDefinitions {
         ttRequest.setDescription(topologyTemplateDesc);
         ttRequest.setName(topologyTemplateName);
 
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/templates/topology", JsonUtil.toString(ttRequest)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/templates/topology", JsonUtil.toString(ttRequest)));
         String topologyTemplateId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData();
         // assertNotNull(topologyTemplateId);
 
         // get the last version of this topology template
-        // String templateVersionJson = Context.getRestClientInstance().get("/rest/templates/" + topologyTemplateId + "/versions/");
+        // String templateVersionJson = Context.getRestClientInstance().get("/rest/v1/templates/" + topologyTemplateId + "/versions/");
         // TopologyTemplateVersion ttv = JsonUtil.read(templateVersionJson, TopologyTemplateVersion.class).getData();
         // recover the created template to register it
-        String templateTopologyJson = Context.getRestClientInstance().get("/rest/templates/topology/" + topologyTemplateId);
+        String templateTopologyJson = Context.getRestClientInstance().get("/rest/v1/templates/topology/" + topologyTemplateId);
         TopologyTemplate template = JsonUtil.read(templateTopologyJson, TopologyTemplate.class).getData();
         // assertNotNull(template);
 
@@ -62,7 +62,7 @@ public class TopologyTemplateStepDefinitions {
     }
 
     public static TopologyTemplateVersion getLatestTopologyTemplateVersion(String topologyTemplateId) throws IOException {
-        String templateVersionJson = Context.getRestClientInstance().get("/rest/templates/" + topologyTemplateId + "/versions/");
+        String templateVersionJson = Context.getRestClientInstance().get("/rest/v1/templates/" + topologyTemplateId + "/versions/");
         TopologyTemplateVersion ttv = JsonUtil.read(templateVersionJson, TopologyTemplateVersion.class).getData();
         return ttv;
     }
@@ -90,11 +90,11 @@ public class TopologyTemplateStepDefinitions {
             String nodeTypeJson = Context.getInstance().getJsonMapper().writeValueAsString(req);
             String topologyId = Context.getInstance().getTopologyId();
             Context.getInstance().registerRestResponse(
-                    Context.getRestClientInstance().postJSon("/rest/topologies/" + topologyId + "/nodetemplates", nodeTypeJson));
+                    Context.getRestClientInstance().postJSon("/rest/v1/topologies/" + topologyId + "/nodetemplates", nodeTypeJson));
         }
 
         // Created topology should have a node template count == count(nodeTemplates)
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/topologies/" + Context.getInstance().getTopologyId()));
         TopologyDTO topologyTemplateBase = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class, Context.getJsonMapper()).getData();
 
         assertEquals(topologyTemplateBase.getTopology().getNodeTemplates().size(), nodeTemplates.raw().size());
@@ -124,14 +124,14 @@ public class TopologyTemplateStepDefinitions {
 
         TopologyTemplate topologyTemplate = Context.getInstance().getTopologyTemplate();
         assertNotNull(topologyTemplate);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/templates/topology/" + topologyTemplate.getId()));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/v1/templates/topology/" + topologyTemplate.getId()));
     }
 
     @When("^I delete the topology template with name \"([^\"]*)\"$")
     public void I_delete_topology_template(String topologyTemplateName) throws Throwable {
         String topologyTemplateId = getTopologyTemplateIdFromName(topologyTemplateName);
         assertNotNull(topologyTemplateId);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/templates/topology/" + topologyTemplateId));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/v1/templates/topology/" + topologyTemplateId));
     }
 
     public static String getTopologyTemplateIdFromName(String topologyTemplateName) throws Throwable {
@@ -141,7 +141,7 @@ public class TopologyTemplateStepDefinitions {
         templateWithNameSearchRequest.setFilters(filters);
         templateWithNameSearchRequest.setFrom(0);
         templateWithNameSearchRequest.setSize(1);
-        String response = Context.getRestClientInstance().postJSon("/rest/templates/topology/search", JsonUtil.toString(templateWithNameSearchRequest));
+        String response = Context.getRestClientInstance().postJSon("/rest/v1/templates/topology/search", JsonUtil.toString(templateWithNameSearchRequest));
         RestResponse<FacetedSearchResult> restResponse = JsonUtil.read(response, FacetedSearchResult.class);
         Assert.assertEquals(1, restResponse.getData().getData().length);
         Map<String, Object> singleResult = (Map<String, Object>) restResponse.getData().getData()[0];
@@ -151,7 +151,7 @@ public class TopologyTemplateStepDefinitions {
 
     @Then("^The related topology shouldn't exist anymore$")
     public void The_related_topology_shouldn_t_exist_anymore() throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/topologies/" + Context.getInstance().getTopologyId()));
         commonSteps.I_should_receive_a_RestResponse_with_an_error_code(504);
     }
 
@@ -164,13 +164,13 @@ public class TopologyTemplateStepDefinitions {
         TopologyTemplate topologyTemplate = Context.getInstance().getTopologyTemplate();
         assertNotNull(topologyTemplate);
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().putJSon("/rest/templates/topology/" + topologyTemplate.getId(), JsonUtil.toString(fieldsMap)));
+                Context.getRestClientInstance().putJSon("/rest/v1/templates/topology/" + topologyTemplate.getId(), JsonUtil.toString(fieldsMap)));
     }
 
     @And("^The topology template should have its \"([^\"]*)\" set to \"([^\"]*)\"$")
     public void The_topology_template_should_have_its_set_to(String fieldName, String fieldValue) throws Throwable {
         TopologyTemplate topologyTemplate = Context.getInstance().getTopologyTemplate();
-        String response = Context.getRestClientInstance().get("/rest/templates/topology/" + topologyTemplate.getId());
+        String response = Context.getRestClientInstance().get("/rest/v1/templates/topology/" + topologyTemplate.getId());
         TopologyTemplate topologyTemplateUpdated = JsonUtil.read(response, TopologyTemplate.class).getData();
         assertNotNull(topologyTemplateUpdated);
         assertEquals(fieldValue, ReflectionUtil.getPropertyValue(topologyTemplateUpdated, fieldName).toString());
@@ -183,7 +183,7 @@ public class TopologyTemplateStepDefinitions {
         List<NameValuePair> nvps = new ArrayList<NameValuePair>();
         nvps.add(new BasicNameValuePair("elementId", type));
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().putUrlEncoded("/rest/topologies/" + topologyId + "/substitutions/type", nvps));
+                Context.getRestClientInstance().putUrlEncoded("/rest/v1/topologies/" + topologyId + "/substitutions/type", nvps));
     }
 
     @Given("^I expose the capability \"([^\"]*)\" for the node \"([^\"]*)\"$")
@@ -194,7 +194,7 @@ public class TopologyTemplateStepDefinitions {
         nvps.add(new BasicNameValuePair("nodeTemplateName", nodeName));
         nvps.add(new BasicNameValuePair("capabilityId", capabilityName));
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().putUrlEncoded("/rest/topologies/" + topologyId + "/substitutions/capabilities/" + capabilityName, nvps));
+                Context.getRestClientInstance().putUrlEncoded("/rest/v1/topologies/" + topologyId + "/substitutions/capabilities/" + capabilityName, nvps));
     }
 
     @Given("^I rename the exposed capability \"([^\"]*)\" to \"([^\"]*)\"$")
@@ -204,7 +204,7 @@ public class TopologyTemplateStepDefinitions {
         List<NameValuePair> nvps = new ArrayList<NameValuePair>();
         nvps.add(new BasicNameValuePair("newCapabilityId", newName));
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postUrlEncoded("/rest/topologies/" + topologyId + "/substitutions/capabilities/" + capabilityName, nvps));
+                Context.getRestClientInstance().postUrlEncoded("/rest/v1/topologies/" + topologyId + "/substitutions/capabilities/" + capabilityName, nvps));
     }
 
     @Given("^I expose the requirement \"([^\"]*)\" for the node \"([^\"]*)\"$")
@@ -215,7 +215,7 @@ public class TopologyTemplateStepDefinitions {
         nvps.add(new BasicNameValuePair("nodeTemplateName", nodeName));
         nvps.add(new BasicNameValuePair("requirementId", requirementName));
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().putUrlEncoded("/rest/topologies/" + topologyId + "/substitutions/requirements/" + requirementName, nvps));
+                Context.getRestClientInstance().putUrlEncoded("/rest/v1/topologies/" + topologyId + "/substitutions/requirements/" + requirementName, nvps));
     }
 
     @Given("^I rename the exposed requirement \"([^\"]*)\" to \"([^\"]*)\"$")
@@ -225,7 +225,7 @@ public class TopologyTemplateStepDefinitions {
         List<NameValuePair> nvps = new ArrayList<NameValuePair>();
         nvps.add(new BasicNameValuePair("newRequirementId", newName));
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postUrlEncoded("/rest/topologies/" + topologyId + "/substitutions/requirements/" + requirementName, nvps));
+                Context.getRestClientInstance().postUrlEncoded("/rest/v1/topologies/" + topologyId + "/substitutions/requirements/" + requirementName, nvps));
     }
 
 }

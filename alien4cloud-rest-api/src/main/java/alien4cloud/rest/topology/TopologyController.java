@@ -79,7 +79,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RestController
-@RequestMapping("/rest/topologies")
+@RequestMapping({"/rest/topologies", "/rest/v1/topologies", "/rest/latest/topologies"})
 public class TopologyController {
 
     @Resource(name = "alien-es-dao")

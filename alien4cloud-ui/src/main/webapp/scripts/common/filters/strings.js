@@ -95,7 +95,7 @@ define(function (require) {
       }
     };
   }); // filter
-  
+
   /**
    * Filter which will truncate long text until defined length, append by default
    * '...' at the end of the text
@@ -104,7 +104,7 @@ define(function (require) {
     return function(text, length) {
       return _.startTrunc(text, length);
     };
-  }); // filter  
+  }); // filter
 
   /**
    * Filter which will split a text by chunks of a given size to display it
@@ -124,7 +124,7 @@ define(function (require) {
           return text;
         } else {
           text = _.splitString(text, length);
-        return text.join('\n');
+          return text.join('\n');
         }
       } else {
         return '';
@@ -143,7 +143,7 @@ define(function (require) {
         separator = separator || '.'; // by defult . if not defined
         if (text.indexOf(separator) < 0) {
           return text;
-        }        
+        }
         var res = text.split(separator);
         if(indexToReturn === 'last') {
           indexToReturn = res.length - 1;

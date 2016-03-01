@@ -26,7 +26,7 @@ public class SetupStepDefinitions {
     public void uploadArchive(Path source) throws Throwable {
         Path csarTargetPath = Context.CSAR_TARGET_PATH.resolve(source.getFileName() + ".csar");
         FileUtil.zip(source, csarTargetPath);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart("/rest/csars", "file", Files.newInputStream(csarTargetPath)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart("/rest/v1/csars", "file", Files.newInputStream(csarTargetPath)));
         COMMON_STEP_DEFINITIONS.I_should_receive_a_RestResponse_with_no_error();
     }
 

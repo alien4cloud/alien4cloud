@@ -156,7 +156,7 @@ define(function (require) {
           var realFieldValue = fieldValue;
           if (fieldName === 'currentVersionId') {
             realFieldValue = getVersionIdByName(fieldValue);
-          } 
+          }
           updateApplicationEnvironmentRequest[fieldName] = realFieldValue;
 
           return applicationEnvironmentServices.update({

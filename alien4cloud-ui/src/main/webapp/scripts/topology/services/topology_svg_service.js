@@ -31,7 +31,7 @@ define(function (require) {
         this.selectedNodeId = null;
         // create svg element
         this.svgGraph = svgServiceFactory.create(containerElement, 'topologySvgContainer', 'topology-svg');
-        this.svg = this.svgGraph.svg;
+        this.svg = this.svgGraph.svgGroup;
         d3.selectAll('.d3-tip').remove();
         var self = this;
         this.tip = d3Tip().attr('class', 'd3-tip').html(function(element) {
@@ -48,8 +48,6 @@ define(function (require) {
 
         onResize: function(dimensions) {
           this.svgGraph.onResize(dimensions.width, dimensions.height);
-          this.svgGraph.controls.coordinateUtils.reset();
-          this.svgGraph.controls.updateViewBox();
         },
 
         checkBrowser: function(browserName) {
@@ -93,10 +91,9 @@ define(function (require) {
           var requiresViewBoxUpdate = this.draw(this.layout);
           this.displayGrid();
 
-          this.svgGraph.controls.coordinateUtils.bbox = this.layout.bbox.cloneWithPadding(50);
-          this.svgGraph.controls.coordinateUtils.reset();
+          this.svgGraph.controls.updateBBox(this.layout.bbox.cloneWithPadding(50));
           if(requiresViewBoxUpdate) {
-            this.svgGraph.controls.updateViewBox(true);
+            this.svgGraph.controls.reset(); // reset position and scale ?
           }
         },
 

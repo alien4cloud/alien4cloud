@@ -52,7 +52,7 @@ import io.swagger.annotations.Api;
 
 @Slf4j
 @RestController
-@RequestMapping("/rest/applications/{applicationId:.+}/environments")
+@RequestMapping({"/rest/applications/{applicationId:.+}/environments", "/rest/v1/applications/{applicationId:.+}/environments", "/rest/latest/applications/{applicationId:.+}/environments"})
 @Api(value = "", description = "Manages application's environments")
 public class ApplicationEnvironmentController {
 

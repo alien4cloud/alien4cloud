@@ -8,14 +8,12 @@ describe('Language change', function() {
   it('beforeAll', function() { setup.setup(); });
 
   it('Can select french language', function() {
-    console.log('################# Can select french language');
     common.home();
     common.click(by.id('navbar-rightdrop'));
     common.click(by.name('link-language-fr'));
   });
 
   it('should be able to switch between french and english on the home page.', function() {
-    console.log('################# should be able to switch between french and english on the home page.');
     common.home();
 
     // Select french

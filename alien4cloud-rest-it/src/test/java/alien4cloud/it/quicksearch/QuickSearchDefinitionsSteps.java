@@ -62,7 +62,7 @@ public class QuickSearchDefinitionsSteps {
         BasicSearchRequest req = new BasicSearchRequest(searchText, from, expectedSize);
 
         String jSon = jsonMapper.writeValueAsString(req);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/quicksearch", jSon));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/quicksearch", jSon));
     }
 
     @Given("^There is (\\d+) \"([^\"]*)\" indexed in ALIEN with (\\d+) of them having \"([^\"]*)\" in the \"([^\"]*)\"$")

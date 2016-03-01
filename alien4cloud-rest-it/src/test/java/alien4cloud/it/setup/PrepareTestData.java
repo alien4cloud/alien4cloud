@@ -1,12 +1,11 @@
 package alien4cloud.it.setup;
 
+import alien4cloud.git.RepositoryManager;
+import alien4cloud.utils.FileUtil;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
-import alien4cloud.git.RepositoryManager;
-import alien4cloud.utils.FileUtil;
 
 /**
  * Simple class that package the test archives as zip.
@@ -33,12 +32,17 @@ public class PrepareTestData {
         repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/tosca-normative-types.git", "1.0.0.wd06.alien",
                 "tosca-normative-types-wd06");
 
+        repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/tosca-normative-types.git", "master",
+                "tosca-normative-types-1.0.0-SNAPSHOT");
+
         // TODO: Tests stills runs on wd03 data based on 1.1.0-SM4 tag
         repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/tosca-normative-types.git", "1.1.0-SM4",
                 "tosca-normative-types");
-        repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/alien4cloud-extended-types.git", "1.1.0-SM4",
-                "alien4cloud-extended-types");
-        repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/samples.git", "1.1.0-SM4", "samples");
+
+        repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/alien4cloud-extended-types.git", "master",
+                "alien4cloud-extended-types-V2");
+        repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, "https://github.com/alien4cloud/samples.git", "master", "samples");
+
         for (Map.Entry<Path, Path> entry : TestDataRegistry.SOURCE_TO_TARGET_ARTIFACT_MAPPING.entrySet()) {
             try {
                 Path from = entry.getKey();

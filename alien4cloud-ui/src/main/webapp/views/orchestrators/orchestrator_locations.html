@@ -11,12 +11,9 @@
     <div class="col-md-6">
       <select ng-if="locationsDTOs" class="form-control" ng-model="locationDTO" ng-change="selectLocation(locationDTO)" ng-options="loc.location.name for loc in locationsDTOs"></select>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-3" ng-if="locationDTO">
       <delete-confirm class="pull-right" id="delete-location-button" text="{{'ORCHESTRATORS.LOCATIONS.DELETE' | translate}}" func="deleteLocation(locationDTO)" position="left" fastyle="fa-trash-o">
       </delete-confirm>
-<!--       <button ng-if="location" id="delete-location-button" class="btn btn-danger pull-right" ng-click="deleteLocation(location)"> -->
-<!--         <i class="fa fa-trash-o"></i> Delete Location -->
-<!--       </button> -->
     </div>
   </div>
   <hr class="separator-h">

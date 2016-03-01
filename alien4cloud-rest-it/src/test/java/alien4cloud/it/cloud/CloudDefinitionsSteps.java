@@ -40,7 +40,7 @@
 //        cloud.setName(cloudName);
 //        cloud.setPaasPluginId(pluginId);
 //        cloud.setPaasPluginBean(pluginBeanName);
-//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/clouds", JsonUtil.toString(cloud)));
+//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/clouds", JsonUtil.toString(cloud)));
 //        RestResponse<String> cloudIdResponse = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
 //        Context.getInstance().registerCloud(cloudIdResponse.getData(), cloudName);
 //    }
@@ -48,12 +48,12 @@
 //    @Given("^I enable the cloud \"([^\"]*)\"$")
 //    public void I_enable_the_cloud(String cloudName) throws IOException {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
-//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/clouds/" + cloudId + "/enable"));
+//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/clouds/" + cloudId + "/enable"));
 //    }
 //
 //    @When("^I list clouds$")
 //    public void I_list_clouds() throws IOException {
-//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/clouds/search"));
+//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/clouds/search"));
 //    }
 //
 //    @Then("^Response should contains (\\d+) cloud$")
@@ -158,32 +158,32 @@
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
 //        updatedCloud.setId(cloudId);
 //        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().putJSon("/rest/clouds", Context.getInstance().getJsonMapper().writeValueAsString(updatedCloud)));
+//                Context.getRestClientInstance().putJSon("/rest/v1/clouds", Context.getInstance().getJsonMapper().writeValueAsString(updatedCloud)));
 //    }
 //
 //    @When("^I delete a cloud with name \"([^\"]*)\"$")
 //    public void I_delete_a_cloud_with_name(String cloudName) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
-//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/clouds/" + cloudId));
+//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/v1/clouds/" + cloudId));
 //    }
 //
 //    @When("^I disable cloud \"([^\"]*)\"$")
 //    public void I_disable_cloud(String cloudName) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
-//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/clouds/" + cloudId + "/disable"));
+//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/clouds/" + cloudId + "/disable"));
 //    }
 //
 //    @When("^I disable all clouds$")
 //    public void I_disable_all_clouds() throws Throwable {
 //        for (String cloudId : Context.getInstance().getOrchestratorIds()) {
-//            Context.getRestClientInstance().get("/rest/clouds/" + cloudId + "/disable");
+//            Context.getRestClientInstance().get("/rest/v1/clouds/" + cloudId + "/disable");
 //        }
 //    }
 //
 //    @When("^I enable \"([^\"]*)\"$")
 //    public void I_enable(String cloudName) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
-//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/clouds/" + cloudId + "/enable"));
+//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/clouds/" + cloudId + "/enable"));
 //    }
 //
 //    @Then("^Response should contains a cloud with state enabled \"([^\"]*)\"$")
@@ -203,7 +203,7 @@
 //    @When("^I get configuration for cloud \"([^\"]*)\"$")
 //    public void I_get_configuration_for_cloud(String cloudName) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
-//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/clouds/" + cloudId + "/configuration"));
+//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/clouds/" + cloudId + "/configuration"));
 //    }
 //
 //    @When("^I update configuration for cloud \"([^\"]*)\"$")
@@ -215,14 +215,14 @@
 //        config.setSecondArgument("secondArgument");
 //
 //        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().putJSon("/rest/clouds/" + cloudId + "/configuration", JsonUtil.toString(config)));
+//                Context.getRestClientInstance().putJSon("/rest/v1/clouds/" + cloudId + "/configuration", JsonUtil.toString(config)));
 //    }
 //
 //    @When("^I update configuration for cloud \"([^\"]*)\" with wrong configuration$")
 //    public void I_update_configuration_for_cloud_with_wrong_configuration(String cloudName) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
 //        Context.getInstance()
-//                .registerRestResponse(Context.getRestClientInstance().putJSon("/rest/clouds/" + cloudId + "/configuration", JsonUtil.toString("")));
+//                .registerRestResponse(Context.getRestClientInstance().putJSon("/rest/v1/clouds/" + cloudId + "/configuration", JsonUtil.toString("")));
 //    }
 //
 //    @Then("^The cloud configuration should be null$")
@@ -240,7 +240,7 @@
 //    @When("^I get the cloud by name \"([^\"]*)\"$")
 //    public void I_get_the_cloud_by_name(String name) throws Throwable {
 //        NameValuePair nvp = new BasicNameValuePair("cloudName", name);
-//        String restResponse = Context.getRestClientInstance().getUrlEncoded("/rest/clouds/getByName", Lists.newArrayList(nvp));
+//        String restResponse = Context.getRestClientInstance().getUrlEncoded("/rest/v1/clouds/getByName", Lists.newArrayList(nvp));
 //        Context.getInstance().registerRestResponse(restResponse);
 //        RestResponse<Cloud> response = JsonUtil.read(Context.getInstance().getRestResponse(), Cloud.class);
 //        if (response != null && response.getData() != null) {
@@ -255,7 +255,7 @@
 //    public void I_get_the_cloud_by_id(String name) throws Throwable {
 //        // get the cloud by its ID
 //        String cloudId = Context.getInstance().getCloudId(name);
-//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/clouds/" + cloudId));
+//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/clouds/" + cloudId));
 //    }
 //
 //    @Then("^I should receive a cloud with name \"([^\"]*)\"$")
@@ -280,7 +280,7 @@
 //    @When("^I get deployment properties for cloud \"([^\"]*)\"$")
 //    public void I_get_deployment_properties_for_cloud(String cloudName) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
-//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/clouds/" + cloudId + "/deploymentpropertydefinitions"));
+//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/clouds/" + cloudId + "/deploymentpropertydefinitions"));
 //    }
 //
 //    @Then("^The RestResponse should contain the following properties and values$")
@@ -302,7 +302,7 @@
 //    @When("^I clone the cloud with name \"([^\"]*)\"$")
 //    public void I_clone_the_cloud_with_name(String cloudName) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
-//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/clone", "{}"));
+//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/clouds/" + cloudId + "/clone", "{}"));
 //    }
 //
 //    @And("^I create a cloud with name \"([^\"]*)\" from cloudify (\\d+) PaaS provider$")
@@ -353,7 +353,7 @@
 //                throw new IllegalArgumentException("Cloudify version not supported " + cloudifyVersion);
 //        }
 //        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().putJSon("/rest/clouds/" + cloudId + "/configuration", JsonUtil.toString(config)));
+//                Context.getRestClientInstance().putJSon("/rest/v1/clouds/" + cloudId + "/configuration", JsonUtil.toString(config)));
 //    }
 //
 //    @And("^I update cloudify (\\d+) manager's url to the OpenStack's jenkins management server for cloud with name \"([^\"]*)\"$")

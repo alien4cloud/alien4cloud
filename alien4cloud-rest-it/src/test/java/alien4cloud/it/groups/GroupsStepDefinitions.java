@@ -41,7 +41,7 @@ public class GroupsStepDefinitions {
     public void I_create_a_new_group_with_name_in_the_system(String name) throws Throwable {
         CreateGroupRequest request = new CreateGroupRequest();
         request.setName(name);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/groups/", JsonUtil.toString(request)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/groups/", JsonUtil.toString(request)));
     }
 
     @Given("^There is a \"([^\"]*)\" group in the system$")
@@ -59,7 +59,7 @@ public class GroupsStepDefinitions {
 
     @When("^I get the \"([^\"]*)\" group$")
     public void I_get_the_group(String name) throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/groups/" + Context.getInstance().getGroupId(name)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/groups/" + Context.getInstance().getGroupId(name)));
     }
 
     @Then("^The RestResponse should contain a group with name \"([^\"]*)\"$")
@@ -73,7 +73,7 @@ public class GroupsStepDefinitions {
     @When("^I delete the \"([^\"]*)\" group$")
     public void I_delete_the_group(String name) throws Throwable {
         String groupId = Context.getInstance().getGroupId(name);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/groups/" + groupId));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/v1/groups/" + groupId));
     }
 
     @Then("^There should not be a group \"([^\"]*)\" in the system$")
@@ -93,7 +93,7 @@ public class GroupsStepDefinitions {
     @When("^I search in groups for \"([^\"]*)\" from (\\d+) with result size of (\\d+)$")
     public void I_search_in_groups_for_from_with_result_size_of(String query, int from, int size) throws Throwable {
         FilteredSearchRequest request = new FilteredSearchRequest(query, from, size, null);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/groups/search", JsonUtil.toString(request)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/groups/search", JsonUtil.toString(request)));
     }
 
     @Then("^there should be (\\d+) groups in the response$")
@@ -110,7 +110,7 @@ public class GroupsStepDefinitions {
     @When("^I add the role \"([^\"]*)\" to the group \"([^\"]*)\"$")
     public void I_add_the_role_to_the_group(String role, String groupName) throws Throwable {
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().put("/rest/groups/" + Context.getInstance().getGroupId(groupName) + "/roles/" + role));
+                Context.getRestClientInstance().put("/rest/v1/groups/" + Context.getInstance().getGroupId(groupName) + "/roles/" + role));
     }
 
     @Then("^the group \"([^\"]*)\" should have the following roles$")
@@ -134,13 +134,13 @@ public class GroupsStepDefinitions {
     @When("^I remove the role \"([^\"]*)\" from the group \"([^\"]*)\"$")
     public void I_remove_the_role_from_the_group(String role, String groupName) throws Throwable {
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().delete("/rest/groups/" + Context.getInstance().getGroupId(groupName) + "/roles/" + role));
+                Context.getRestClientInstance().delete("/rest/v1/groups/" + Context.getInstance().getGroupId(groupName) + "/roles/" + role));
     }
 
     @When("^I add the user \"([^\"]*)\" to the group \"([^\"]*)\"$")
     public void I_add_the_user_to_the_group(String username, String groupName) throws Throwable {
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().put("/rest/groups/" + Context.getInstance().getGroupId(groupName) + "/users/" + username));
+                Context.getRestClientInstance().put("/rest/v1/groups/" + Context.getInstance().getGroupId(groupName) + "/users/" + username));
     }
 
     @Then("^the group \"([^\"]*)\" should have the following users$")
@@ -164,12 +164,12 @@ public class GroupsStepDefinitions {
     @When("^I remove the user \"([^\"]*)\" from the group \"([^\"]*)\"$")
     public void I_remove_the_user_from_the_group(String username, String groupName) throws Throwable {
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().delete("/rest/groups/" + Context.getInstance().getGroupId(groupName) + "/users/" + username));
+                Context.getRestClientInstance().delete("/rest/v1/groups/" + Context.getInstance().getGroupId(groupName) + "/users/" + username));
     }
 
     @Then("^the user \"([^\"]*)\" should have the following group roles$")
     public void the_user_should_have_the_following_group_roles(String username, List<String> expectedGroupRoles) throws Throwable {
-        String response = Context.getRestClientInstance().get("/rest/users/" + username);
+        String response = Context.getRestClientInstance().get("/rest/v1/users/" + username);
         User user = JsonUtil.read(response, User.class).getData();
         assertNotNull(user);
         assertNotNull(user.getGroupRoles());
@@ -179,7 +179,7 @@ public class GroupsStepDefinitions {
 
     @Then("^the user \"([^\"]*)\" should have the following group$")
     public void the_user_should_have_the_following_group(String username, List<String> expectedGroups) throws Throwable {
-        String response = Context.getRestClientInstance().get("/rest/users/" + username);
+        String response = Context.getRestClientInstance().get("/rest/v1/users/" + username);
         User user = JsonUtil.read(response, User.class).getData();
         assertNotNull(user);
         assertNotNull(user.getGroups());
@@ -204,7 +204,7 @@ public class GroupsStepDefinitions {
 
     @Then("^the user \"([^\"]*)\" should not have any group roles$")
     public void the_user_should_not_have_any_group_roles(String username) throws Throwable {
-        String response = Context.getRestClientInstance().get("/rest/users/" + username);
+        String response = Context.getRestClientInstance().get("/rest/v1/users/" + username);
         User user = JsonUtil.read(response, User.class).getData();
         assertNotNull(user);
         assertTrue(CollectionUtils.isEmpty(user.getGroupRoles()));
@@ -212,7 +212,7 @@ public class GroupsStepDefinitions {
 
     @Then("^the user \"([^\"]*)\" should not have any group$")
     public void the_user_should_not_have_any_group(String username) throws Throwable {
-        String response = Context.getRestClientInstance().get("/rest/users/" + username);
+        String response = Context.getRestClientInstance().get("/rest/v1/users/" + username);
         User user = JsonUtil.read(response, User.class).getData();
         assertNotNull(user);
         assertTrue(CollectionUtils.isEmpty(user.getGroups()));
@@ -224,7 +224,7 @@ public class GroupsStepDefinitions {
         for (String name : names) {
             ids.add(Context.getInstance().getGroupId(name));
         }
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/groups/getGroups", JsonUtil.toString(ids)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/groups/getGroups", JsonUtil.toString(ids)));
     }
 
     @Then("^The RestResponse should contain the groups named$")
@@ -258,7 +258,7 @@ public class GroupsStepDefinitions {
             fieldsMap.put(field.getName(), field.getValue());
         }
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().putJSon("/rest/groups/" + Context.getInstance().getGroupId(name), JsonUtil.toString(fieldsMap)));
+                Context.getRestClientInstance().putJSon("/rest/v1/groups/" + Context.getInstance().getGroupId(name), JsonUtil.toString(fieldsMap)));
     }
 
     @Then("^There should be a group \"([^\"]*)\" in the system$")
@@ -276,7 +276,7 @@ public class GroupsStepDefinitions {
         request.setName(name);
         request.setRoles(Sets.newHashSet(role));
         request.setUsers(Sets.newHashSet(username));
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/groups/", JsonUtil.toString(request)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/groups/", JsonUtil.toString(request)));
         String groupId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData();
         if (groupId != null) {
             Context.getInstance().registerGroupId(name, groupId);

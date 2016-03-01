@@ -19,7 +19,7 @@ public class SuggestionDefinitionsSteps {
 
     @When("^I ask suggestions for tag \"([^\"]*)\" with \"([^\"]*)\"$")
     public void I_ask_suggestions_for_tag_with(String path, String searchText) throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/suggest/tag/" + path + "/" + searchText));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/suggest/tag/" + path + "/" + searchText));
     }
 
     @Then("^The suggestion response should contains (\\d+) elements$")
@@ -47,7 +47,7 @@ public class SuggestionDefinitionsSteps {
 
     @When("^I search for suggestion on index \"([^\"]*)\", type \"([^\"]*)\", path \"([^\"]*)\" with text \"([^\"]*)\"$")
     public void I_search_for_suggestion_on_index_type_path_with_text(String index, String type, String path, String text) throws Throwable {
-        String suggestionsText = Context.getRestClientInstance().get("/rest/suggestions/" + index + "/" + type + "/" + path + "?text=" + text);
+        String suggestionsText = Context.getRestClientInstance().get("/rest/v1/suggestions/" + index + "/" + type + "/" + path + "?text=" + text);
         Context.getInstance().registerRestResponse(suggestionsText);
     }
 

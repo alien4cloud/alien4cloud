@@ -44,7 +44,7 @@ define(function (require) {
                 template: connector,
                 type: capabilityTypes[connector.type],
                 node: node
-                };
+              };
               array.push(connector);
               map[connector.id] = connector;
             }

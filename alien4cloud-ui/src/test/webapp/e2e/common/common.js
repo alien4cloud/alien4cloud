@@ -2,7 +2,6 @@
 
 'use strict';
 
-var cleanup = require('./cleanup');
 var screenshot = require('./screenshot');
 
 // Load languages strings for locale related tests
@@ -114,8 +113,19 @@ function wElement(selector, fromElement, timeout) {
 }
 module.exports.element = wElement;
 
-function click(selector, fromElement, skipWaitAngular) {
+function click(selector, fromElement, skipWaitAngular, scrollTo) {
   var target = wElement(selector, fromElement);
+  if(scrollTo) {
+    // first let's scroll to the element position taking the navbar into account
+    browser.wait(function() {
+      var deferred = protractor.promise.defer();
+      var location = target.getLocation();
+      browser.executeScript('window.scrollTo(' + location.x + ',' + location.y + ');').then(function () {
+          deferred.fulfill(true);
+      });
+      return deferred.promise;
+    }, 3000, 'Timed out while scrolling to element for click');
+  }
   browser.actions().click(target).perform();
   if (!skipWaitAngular) {
     browser.waitForAngular();

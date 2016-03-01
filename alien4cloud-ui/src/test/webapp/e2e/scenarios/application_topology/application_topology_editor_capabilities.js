@@ -1,4 +1,4 @@
-/* global element, by */
+/* global element, by, it, describe */
 
 'use strict';
 
@@ -18,7 +18,6 @@ describe('NodeTemplate relationships/capability edition', function() {
   });
 
   it('should be able display the capability properties', function() {
-    console.log('################# should be able display the capability properties');
     var nodeToEdit = element(by.id('rect_Compute'));
     nodeToEdit.click();
     topologyEditorCommon.checkNumberOfPropertiesForACapability('scalable', 3);

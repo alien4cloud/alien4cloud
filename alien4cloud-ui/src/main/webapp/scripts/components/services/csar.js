@@ -4,7 +4,7 @@ define(function (require) {
   var modules = require('modules');
 
   modules.get('a4c-components', ['ngResource']).factory('csarService', ['$resource', '$translate', function($resource, $translate) {
-    var nodeTypeCreateDAO = $resource('rest/csars/:csarId/nodetypes/', {}, {
+    var nodeTypeCreateDAO = $resource('rest/latest/csars/:csarId/nodetypes/', {}, {
       'upload': {
         method: 'POST',
         isArray: false,
@@ -14,9 +14,9 @@ define(function (require) {
       }
     });
 
-    var nodeTypeCRUDDAO = $resource('rest/csars/:csarId/nodetypes/:nodeTypeId', {}, {});
+    var nodeTypeCRUDDAO = $resource('rest/latest/csars/:csarId/nodetypes/:nodeTypeId', {}, {});
 
-    var resultGetAndDelete = $resource('rest/csars/:csarId', {
+    var resultGetAndDelete = $resource('rest/latest/csars/:csarId', {
       csarId: '@csarId'
     }, {
       'remove': {
@@ -33,7 +33,7 @@ define(function (require) {
       }
     });
 
-    var searchCsar = $resource('rest/csars/search', {}, {
+    var searchCsar = $resource('rest/latest/csars/search', {}, {
       'search': {
         method: 'POST',
         isArray: false,
@@ -42,8 +42,6 @@ define(function (require) {
         }
       }
     });
-
-    var csarActiveDeploymentDAO = $resource('rest/csars/:csarId/active-deployment');
 
     // Prepare result html for toaster message
     var builtResultList = function builtResultList(resultObject) {
@@ -63,7 +61,6 @@ define(function (require) {
 
     return {
       'getAndDeleteCsar': resultGetAndDelete,
-      'getActiveDeployment': csarActiveDeploymentDAO,
       'searchCsar': searchCsar,
       'createNodeType': nodeTypeCreateDAO,
       'nodeTypeCRUDDAO': nodeTypeCRUDDAO,

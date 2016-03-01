@@ -3,7 +3,7 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0-SM1</version>
   </parent>
   <artifactId>alien4cloud-ui</artifactId>
   <packaging>war</packaging>
@@ -15,8 +15,7 @@
   <properties>
     <sonar.language>js</sonar.language>
     <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-    <sonar.javascript.jstestdriver.reportsPath>${project.basedir}/target/tests/
-    </sonar.javascript.jstestdriver.reportsPath>
+    <sonar.javascript.jstestdriver.reportsPath>${project.basedir}/target/reports/ui/protractor.xml</sonar.javascript.jstestdriver.reportsPath>
     <sonar.javascript.lcov.reportPath>${project.basedir}/target/coverage/coverage.lcov</sonar.javascript.lcov.reportPath>
     <sonar.sources>src/main/webapp/scripts,pom.xml</sonar.sources>
   </properties>

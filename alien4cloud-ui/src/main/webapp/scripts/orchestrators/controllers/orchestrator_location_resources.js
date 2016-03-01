@@ -2,7 +2,6 @@ define(function(require) {
   'use strict';
 
   var modules = require('modules');
-  var states = require('states');
   var angular = require('angular');
   var _ = require('lodash');
 
@@ -14,17 +13,17 @@ define(function(require) {
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorLocationResourcesTemplateCtrl',
     ['$scope', 'locationResourcesService', 'locationResourcesPropertyService', 'locationResourcesCapabilityPropertyService', 'locationResourcesProcessor', 'nodeTemplateService',
       function($scope, locationResourcesService, locationResourcesPropertyService, locationResourcesCapabilityPropertyService, locationResourcesProcessor, nodeTemplateService) {
-        
+
         var init = function(){
           if (_.isNotEmpty($scope.resourcesTypes)) {
             $scope.selectedConfigurationResourceType = $scope.resourcesTypes[0];
           }
         };
-        
+
         $scope.$watch('resourcesTypes', function(){
           init();
         });
-        
+
         $scope.addResourceTemplate = function() {
           locationResourcesService.save({
             orchestratorId: $scope.context.orchestrator.id,
@@ -33,7 +32,7 @@ define(function(require) {
             'resourceType': $scope.selectedConfigurationResourceType.elementId,
             'resourceName': 'New Resource'
           }), function(response) {
-            locationResourcesProcessor.processLocationResourceTemplate(response.data)
+            locationResourcesProcessor.processLocationResourceTemplate(response.data);
             $scope.resourcesTemplates.push(response.data);
             $scope.selectTemplate(response.data);
           });
@@ -95,7 +94,7 @@ define(function(require) {
             propertyValue: propertyValue
           })).$promise;
         };
-        
+
         $scope.isPropertyEditable = function() {
           return true;
         };

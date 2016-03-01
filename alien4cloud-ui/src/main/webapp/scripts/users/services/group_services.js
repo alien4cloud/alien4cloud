@@ -8,7 +8,7 @@ define(function (require) {
   modules.get('a4c-security', ['ngResource']).factory('groupServices', ['$resource', function($resource) {
 
     //search group
-    var searchGroups = $resource('rest/groups/search', {}, {
+    var searchGroups = $resource('rest/latest/groups/search', {}, {
       'search': {
         method: 'POST',
         isArray: false,
@@ -19,7 +19,7 @@ define(function (require) {
     });
 
     //CRUD group
-    var crudGroups = $resource('rest/groups/:groupId', {}, {
+    var crudGroups = $resource('rest/latest/groups/:groupId', {}, {
       'create': {
         method: 'POST',
         isArray: false,
@@ -50,7 +50,7 @@ define(function (require) {
       }
     });
 
-    var getGroups = $resource('rest/groups/getGroups', {}, {
+    var getGroups = $resource('rest/latest/groups/getGroups', {}, {
       'get': {
         method: 'POST',
         isArray: false,
@@ -61,7 +61,7 @@ define(function (require) {
     });
 
     //add / remove roles
-    var manageRoles = $resource('rest/groups/:groupId/roles/:role', {}, {
+    var manageRoles = $resource('rest/latest/groups/:groupId/roles/:role', {}, {
       'add': {
         method: 'PUT',
         params: {
@@ -79,7 +79,7 @@ define(function (require) {
     });
 
     //add / remove users
-    var manageUsers = $resource('rest/groups/:groupId/users/:username', {}, {
+    var manageUsers = $resource('rest/latest/groups/:groupId/users/:username', {}, {
       'add': {
         method: 'PUT',
         params: {

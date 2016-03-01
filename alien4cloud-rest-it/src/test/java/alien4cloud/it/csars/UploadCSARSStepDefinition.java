@@ -25,7 +25,7 @@ public class UploadCSARSStepDefinition {
     @Given("^I upload the archive \"([^\"]*)\"$")
     public void uploadArchive(String key) throws Throwable {
         Path archive = TestDataRegistry.TEST_ARTIFACTS.get(key);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart("/rest/csars", "file", Files.newInputStream(archive)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart("/rest/v1/csars", "file", Files.newInputStream(archive)));
     }
 
     @Then("^I should receive a RestResponse with an error code (\\d+) and (\\d+) compilation errors in (\\d+) file\\(s\\)$")

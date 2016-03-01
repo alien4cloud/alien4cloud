@@ -10,8 +10,6 @@ describe('Homepage', function() {
   it('beforeAll', function() { setup.setup(); });
 
   it('should have `ALIEN 4 Cloud` as page title', function() {
-    console.log('################# should have `ALIEN 4 Cloud` as page title');
-
     screenshot.take('main-homepage');
     common.home();
     expect(browser.getTitle()).toEqual('ALIEN 4 Cloud');

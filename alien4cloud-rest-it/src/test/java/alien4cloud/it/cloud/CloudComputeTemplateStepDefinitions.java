@@ -33,7 +33,7 @@
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
 //        String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
 //        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/images", JsonUtil.toString(new String[] { cloudImageId })));
+//                Context.getRestClientInstance().postJSon("/rest/v1/clouds/" + cloudId + "/images", JsonUtil.toString(new String[] { cloudImageId })));
 //    }
 //
 //    @Then("^I should receive a RestResponse with (\\d+) compute templates:$")
@@ -56,7 +56,7 @@
 //    public void The_cloud_with_name_should_have_compute_templates_as_resources(String cloudName, int numberOfTemplate, DataTable expectedTemplatesTable)
 //            throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
-//        CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/clouds/" + cloudId), CloudDTO.class).getData();
+//        CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/v1/clouds/" + cloudId), CloudDTO.class).getData();
 //        assertComputeTemplates(numberOfTemplate, Sets.newHashSet(cloudDTO.getCloud().getComputeTemplates()), expectedTemplatesTable);
 //    }
 //
@@ -93,7 +93,7 @@
 //        cloudImageFlavor.setMemSize(memSize);
 //        cloudImageFlavor.setNumCPUs(nbCPUs);
 //        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/flavors", JsonUtil.toString(cloudImageFlavor)));
+//                Context.getRestClientInstance().postJSon("/rest/v1/clouds/" + cloudId + "/flavors", JsonUtil.toString(cloudImageFlavor)));
 //    }
 //
 //    public static void assertFlavors(int numberOfFlavors, Set<CloudImageFlavor> flavors, DataTable expectedFlavorsTable) {
@@ -148,7 +148,7 @@
 //        }
 //
 //        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/templates/" + activableComputeId + "/status",
+//                Context.getRestClientInstance().postUrlEncoded("/rest/v1/clouds/" + cloudId + "/templates/" + activableComputeId + "/status",
 //                        Lists.<NameValuePair> newArrayList(new BasicNameValuePair("enabled", String.valueOf(status)))));
 //    }
 //
@@ -156,13 +156,13 @@
 //    public void I_remove_the_cloud_image_from_the_cloud(String cloudImageName, String cloudName) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
 //        String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
-//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/clouds/" + cloudId + "/images/" + cloudImageId));
+//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/v1/clouds/" + cloudId + "/images/" + cloudImageId));
 //    }
 //
 //    @When("^I remove the flavor \"([^\"]*)\" from the cloud \"([^\"]*)\"$")
 //    public void I_remove_the_flavor_from_the_cloud(String flavorId, String cloudName) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
-//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/clouds/" + cloudId + "/flavors/" + flavorId));
+//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/v1/clouds/" + cloudId + "/flavors/" + flavorId));
 //    }
 //
 //    @When("^I match the image \"([^\"]*)\" of the cloud \"([^\"]*)\" to the PaaS resource \"([^\"]*)\"$")
@@ -170,7 +170,7 @@
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
 //        String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
 //        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/images/" + cloudImageId + "/resource",
+//                Context.getRestClientInstance().postUrlEncoded("/rest/v1/clouds/" + cloudId + "/images/" + cloudImageId + "/resource",
 //                        Lists.<NameValuePair> newArrayList(new BasicNameValuePair("pasSResourceId", paaSResourceId))));
 //    }
 //
@@ -178,7 +178,7 @@
 //    public void I_match_the_flavor_of_the_cloud_to_the_PaaS_resource(String flavorId, String cloudName, String paaSResourceId) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
 //        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/flavors/" + flavorId + "/resource",
+//                Context.getRestClientInstance().postUrlEncoded("/rest/v1/clouds/" + cloudId + "/flavors/" + flavorId + "/resource",
 //                        Lists.<NameValuePair> newArrayList(new BasicNameValuePair("pasSResourceId", paaSResourceId))));
 //    }
 //
@@ -216,7 +216,7 @@
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
 //        String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
 //        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/templates/" + cloudImageId + "/" + flavorId + "/resource",
+//                Context.getRestClientInstance().postUrlEncoded("/rest/v1/clouds/" + cloudId + "/templates/" + cloudImageId + "/" + flavorId + "/resource",
 //                        Lists.<NameValuePair> newArrayList()));
 //    }
 //
@@ -225,7 +225,7 @@
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
 //        String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
 //        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/images/" + cloudImageId + "/resource",
+//                Context.getRestClientInstance().postUrlEncoded("/rest/v1/clouds/" + cloudId + "/images/" + cloudImageId + "/resource",
 //                        Lists.<NameValuePair> newArrayList()));
 //    }
 //
@@ -240,7 +240,7 @@
 //    public void I_delete_the_mapping_for_the_flavor_of_the_cloud(String flavorId, String cloudName) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
 //        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/flavors/" + flavorId + "/resource",
+//                Context.getRestClientInstance().postUrlEncoded("/rest/v1/clouds/" + cloudId + "/flavors/" + flavorId + "/resource",
 //                        Lists.<NameValuePair> newArrayList()));
 //    }
 //

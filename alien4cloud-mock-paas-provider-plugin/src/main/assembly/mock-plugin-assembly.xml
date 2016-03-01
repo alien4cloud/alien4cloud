@@ -14,14 +14,28 @@
 			</includes>
 			<excludes>
 				<exclude>META-INF/**</exclude>
+				<exclude>openstack/mock-resources/mock-resources.yaml</exclude>
+				<exclude>openstack/mock-openstack-resources/openstack-resources.yaml</exclude>				
 			</excludes>
 		</fileSet>
 	</fileSets>
 	<files>
 		<file>
+			<source>${basedir}/src/main/resources/openstack/mock-resources/mock-resources.yaml</source>
+      		<destName>mock-resources.yaml</destName>
+      		<filtered>true</filtered>
+      		<outputDirectory>openstack/mock-resources</outputDirectory>
+		</file>		
+		<file>
+			<source>${basedir}/src/main/resources/openstack/mock-openstack-resources/openstack-resources.yaml</source>
+      		<destName>openstack-resources.yaml</destName>
+      		<filtered>true</filtered>
+      		<outputDirectory>openstack/mock-openstack-resources</outputDirectory>
+		</file>		
+		<file>
 			<source>${basedir}/src/main/resources/META-INF/plugin.yml</source>
 			<destName>plugin.yml</destName>
-      <filtered>true</filtered>
+     	 	<filtered>true</filtered>
 			<outputDirectory>META-INF</outputDirectory>
 		</file>
 	</files>

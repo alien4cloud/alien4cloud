@@ -144,7 +144,7 @@ define(function(require) {
 
   FORMS.initGenericForm = function(scope, toaster, $filter, element) {
     if (_.undefined(scope.rootObject)) {
-      if (scope.type._type == 'array') {
+      if (scope.type._type === 'array') {
         scope.rootObject = [];
       } else {
         scope.rootObject = {};

@@ -64,13 +64,14 @@
                'well': configuration.formStyle === 'tree' && showTree
                }">
             <!-- The root form -->
-            <div class="genericformpropertiescontainer"
-                ng-class="{
-                                'form-container-no-tree-window form-container-vertical-scroll': configuration.formStyle === 'window',
-                                '{{formClass}}': configuration.formStyle === 'window' && formClass,
-                                'row': configuration.formStyle === 'tree'
-                                }"
-                ng-show="isActivePath">
+            <div class="container-fluid" ng-show="isActivePath">
+              <div class="genericformpropertiescontainer"
+                  ng-class="{
+                                  'form-container-no-tree-window form-container-vertical-scroll': configuration.formStyle === 'window',
+                                  '{{formClass}}': configuration.formStyle === 'window' && formClass,
+                                  'row': configuration.formStyle === 'tree'
+                                  }">
+              </div>
             </div>
             <!-- Other nested complex object will be added dynamically after the root form -->
           </div>

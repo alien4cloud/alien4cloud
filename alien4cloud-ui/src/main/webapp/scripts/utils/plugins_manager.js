@@ -9,7 +9,7 @@ define(function (require) {
     init: function() {
       var self = this;
       var deferred = $.Deferred();
-      $.ajax({ url: '/rest/modules' }).then(function(data) {
+      $.ajax({ url: '/rest/latest/modules' }).then(function(data) {
         self.plugins = data;
         // init returns the list of entry points for the plugins.
         var entryPoints = [];
@@ -27,7 +27,7 @@ define(function (require) {
       if(_.defined(this.plugins[pluginName])) {
         return this.plugins[pluginName].base;
       }
-      return null;
+      return ''; // the plugin has no defined base
     }
   };
 });

@@ -9,7 +9,7 @@ define(function (require) {
 
   modules.get('a4c-auth', ['a4c-search']).factory('quickSearchServices', ['$state','$resource',
     function($state, $resource ) {
-      var quickSearchResource = $resource('rest/quicksearch', {}, {
+      var quickSearchResource = $resource('rest/latest/quicksearch', {}, {
         'search': {
           method : 'POST',
           isArray : false,

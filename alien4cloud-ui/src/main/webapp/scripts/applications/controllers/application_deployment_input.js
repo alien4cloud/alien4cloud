@@ -65,7 +65,7 @@ define(function(require) {
             'type': 'info'
           };
           $upload.upload({
-            url: 'rest/topologies/' + $scope.topologyDTO.topology.id + '/inputArtifacts/' + artifactName + '/upload',
+            url: 'rest/latest/topologies/' + $scope.topologyDTO.topology.id + '/inputArtifacts/' + artifactName + '/upload',
             file: file
           }).progress(function(evt) {
             $scope.uploads[artifactName].uploadProgress = parseInt(100.0 * evt.loaded / evt.total);
@@ -88,7 +88,7 @@ define(function(require) {
         };
 
         $scope.refreshOrchestratorDeploymentPropertyDefinitions = function() {
-          return $http.get('rest/orchestrators/' + $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId + '/deployment-property-definitions').success(function(result) {
+          return $http.get('rest/latest/orchestrators/' + $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId + '/deployment-property-definitions').success(function(result) {
             if (result.data) {
               $scope.deploymentContext.orchestratorDeploymentPropertyDefinitions = result.data;
             }
@@ -112,15 +112,16 @@ define(function(require) {
               $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyName] = propertyValue;
               // Update deployment setup when properties change
               deploymentTopologyServices.updateInputProperties({
-                appId: $scope.application.id,
-                envId: $scope.deploymentContext.selectedEnvironment.id
-              }, angular.toJson({
-                providerDeploymentProperties: $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties
-              }), function(result){
-                  if(!result.error) {
-                    $scope.updateScopeDeploymentTopologyDTO(result.data);
+                  appId: $scope.application.id,
+                  envId: $scope.deploymentContext.selectedEnvironment.id
+                }, angular.toJson({
+                  providerDeploymentProperties: $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties
+                }), function(result){
+                    if(!result.error) {
+                      $scope.updateScopeDeploymentTopologyDTO(result.data);
+                    }
                   }
-              });
+                );
             }
           }).$promise;
         };

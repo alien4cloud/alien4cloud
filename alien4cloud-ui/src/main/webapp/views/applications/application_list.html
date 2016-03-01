@@ -108,7 +108,7 @@
           <p class="col-lg-9">{{selectedTopologyTemplate.description}}</p>
         </div>
         <div class="form-group" ng-show="templateVersions">
-          <label for="templateVersionId" class="col-lg-3 control-label">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_BASE' | translate}}</label>
+          <label for="templateVersionId" class="col-lg-3 control-label">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT_VERSION' | translate}}</label>
           <div class="col-lg-9">
             <select class="form-control" id="templateVersionId" ng-model="selectedTopologyTemplateVersion" ng-options="tv.version for tv in templateVersions" placeholder="{{'COMMON.DESCRIPTION' | translate}}">
               <option value="">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT_VERSION' | translate}}</option>

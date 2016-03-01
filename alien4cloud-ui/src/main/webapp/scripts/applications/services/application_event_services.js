@@ -2,6 +2,7 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
+  var _ = require('lodash');
 
   require('scripts/applications/services/application_services');
   require('scripts/applications/services/deployment_event_services');

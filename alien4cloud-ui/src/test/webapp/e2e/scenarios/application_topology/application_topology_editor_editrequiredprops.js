@@ -1,4 +1,4 @@
-/* global element, by */
+/* global element, by, it, describe, expect */
 
 'use strict';
 
@@ -21,7 +21,6 @@ describe('Editing required properties and checking for topology validation', fun
   });
 
   it('should be able to see required properties, edit them and make the topology valid', function() {
-    console.log('################# should be able to see required properties, edit them and make the topology valid');
     applications.goToApplicationTopologyPage();
     // Property context_path of the node war is not present
     topologyEditorCommon.checkTodoList(true);

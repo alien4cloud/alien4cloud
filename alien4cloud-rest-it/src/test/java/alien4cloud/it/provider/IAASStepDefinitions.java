@@ -16,7 +16,7 @@ public class IAASStepDefinitions {
 
     private String getVolumeId(String propertyName, String nodeName, String appName) throws IOException {
         String topologyResponseText = Context.getRestClientInstance().get(
-                "/rest/applications/" + Context.getInstance().getApplicationId(appName) + "/environments/"
+                "/rest/v1/applications/" + Context.getInstance().getApplicationId(appName) + "/environments/"
                         + Context.getInstance().getDefaultApplicationEnvironmentId(appName) + "/deployment-topology");
         RestResponse<DeploymentTopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, DeploymentTopologyDTO.class, Context.getJsonMapper());
         String volumeId = FunctionEvaluator.getScalarValue(topologyResponse.getData().getTopology().getNodeTemplates().get(nodeName).getProperties()

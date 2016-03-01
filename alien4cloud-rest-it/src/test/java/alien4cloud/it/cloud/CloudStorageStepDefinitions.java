@@ -35,13 +35,13 @@
 //        }
 //        storage.setSize(size);
 //        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/storages", JsonUtil.toString(storage)));
+//                Context.getRestClientInstance().postJSon("/rest/v1/clouds/" + cloudId + "/storages", JsonUtil.toString(storage)));
 //    }
 //
 //    @And("^The cloud with name \"([^\"]*)\" should have (\\d+) storages as resources:$")
 //    public void The_cloud_with_name_should_have_storage_as_resources(String cloudName, int numberOfStorage, DataTable expectedStorageTable) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
-//        CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/clouds/" + cloudId), CloudDTO.class).getData();
+//        CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/v1/clouds/" + cloudId), CloudDTO.class).getData();
 //        assertStorages(numberOfStorage, cloudDTO.getCloud().getStorages(), expectedStorageTable);
 //    }
 //
@@ -66,13 +66,13 @@
 //    @When("^I remove the storage with name \"([^\"]*)\" from the cloud \"([^\"]*)\"$")
 //    public void I_remove_the_storage_with_name_from_the_cloud(String storageName, String cloudName) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
-//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/clouds/" + cloudId + "/storages/" + storageName));
+//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/v1/clouds/" + cloudId + "/storages/" + storageName));
 //    }
 //
 //    @Then("^The cloud with name \"([^\"]*)\" should not have any storage as resources$")
 //    public void The_cloud_with_name_should_not_have_any_storage_as_resources(String cloudName) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
-//        CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/clouds/" + cloudId), CloudDTO.class).getData();
+//        CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/v1/clouds/" + cloudId), CloudDTO.class).getData();
 //        Assert.assertTrue(cloudDTO.getStorages() == null || cloudDTO.getStorages().isEmpty());
 //    }
 //
@@ -80,7 +80,7 @@
 //    public void I_match_the_storage_with_name_of_the_cloud_to_the_PaaS_resource(String storageName, String cloudName, String paaSResourceId) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
 //        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/storages/" + storageName + "/resource",
+//                Context.getRestClientInstance().postUrlEncoded("/rest/v1/clouds/" + cloudId + "/storages/" + storageName + "/resource",
 //                        Lists.<NameValuePair> newArrayList(new BasicNameValuePair("pasSResourceId", paaSResourceId))));
 //    }
 //
@@ -111,7 +111,7 @@
 //    public void I_delete_the_mapping_for_the_storage_of_the_cloud(String storageName, String cloudName) throws Throwable {
 //        String cloudId = Context.getInstance().getCloudId(cloudName);
 //        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/storages/" + storageName + "/resource",
+//                Context.getRestClientInstance().postUrlEncoded("/rest/v1/clouds/" + cloudId + "/storages/" + storageName + "/resource",
 //                        Lists.<NameValuePair> newArrayList()));
 //    }
 //

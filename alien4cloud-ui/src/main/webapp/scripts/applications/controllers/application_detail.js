@@ -384,7 +384,7 @@ define(function (require) {
             }
           }
         }
-        $scope.$apply();
+        $scope.$digest();
       };
 
       var doSubscribe = function doSubscribe(appRuntimeInformation, stateId) {

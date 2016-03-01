@@ -5,6 +5,7 @@ define(function (require) {
   var modules = require('modules');
   var states = require('states');
   var angular = require('angular');
+  var _ = require('lodash');
 
   require('scripts/topologytemplates/controllers/topology_template');
 
@@ -47,7 +48,7 @@ define(function (require) {
     function($scope, $modal, $resource, $state, authService, searchServiceFactory) {
 
       // API REST Definition
-      var createTopologyTemplateResource = $resource('rest/templates/topology', {}, {
+      var createTopologyTemplateResource = $resource('rest/latest/templates/topology', {}, {
         'create': {
           method: 'POST',
           isArray: false,
@@ -57,7 +58,7 @@ define(function (require) {
         }
       });
 
-      var topologyTemplateResource = $resource('rest/templates/topology/:topologyTemplateId', {}, {
+      var topologyTemplateResource = $resource('rest/latest/templates/topology/:topologyTemplateId', {}, {
         'get': {
           method: 'GET',
           headers: {
@@ -90,7 +91,7 @@ define(function (require) {
         $scope.data = searchResult.data;
       };
 
-      $scope.searchService = searchServiceFactory('rest/templates/topology/search', false, $scope, 12);
+      $scope.searchService = searchServiceFactory('rest/latest/templates/topology/search', false, $scope, 12);
       $scope.searchService.search();
 
       $scope.openTopologyTemplate = function(topologyTemplateId) {

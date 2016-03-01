@@ -133,18 +133,18 @@ define(function (require) {
           }).$promise;
         },
 
-       remove: function(relationshipName, selectedNodeTemplate) {
-         var scope = this.scope;
-         topologyServices.relationshipDAO.remove({
-           topologyId: scope.topology.topology.id,
-           nodeTemplateName: selectedNodeTemplate.name,
-           relationshipName: relationshipName
-         }, function(result) {
-           if (result.error === null) {
-             scope.refreshTopology(result.data, selectedNodeTemplate.name);
-           }
-         });
-       }
+        remove: function(relationshipName, selectedNodeTemplate) {
+          var scope = this.scope;
+          topologyServices.relationshipDAO.remove({
+              topologyId: scope.topology.topology.id,
+              nodeTemplateName: selectedNodeTemplate.name,
+              relationshipName: relationshipName
+            }, function(result) {
+              if (result.error === null) {
+                scope.refreshTopology(result.data, selectedNodeTemplate.name);
+              }
+            });
+        }
       };
 
       return function(scope) {

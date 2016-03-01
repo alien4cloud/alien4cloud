@@ -2,6 +2,7 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
+  var $ = require('jquery');
 
   var a4cCommonModule = modules.get('a4c-common', ['ui.bootstrap']);
 

@@ -60,14 +60,14 @@
 //        request.setOsType(type);
 //        request.setOsDistribution(distribution);
 //        request.setOsVersion(version);
-//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/cloud-images", JsonUtil.toString(request)));
+//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/cloud-images", JsonUtil.toString(request)));
 //        currentCloudImageId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData();
 //    }
 //
 //    @And("^The recently created cloud image should be in available in Alien with name \"([^\"]*)\", architecture \"([^\"]*)\", type \"([^\"]*)\", distribution \"([^\"]*)\" and version \"([^\"]*)\"$")
 //    public void The_recently_created_cloud_image_should_be_in_available_in_Alien_with_name_architecture_type_distribution_and_version(String name,
 //                                                                                                                                      String architecture, String type, String distribution, String version) throws Throwable {
-//        CloudImage cloudImage = JsonUtil.read(Context.getRestClientInstance().get("/rest/cloud-images/" + currentCloudImageId), CloudImage.class).getData();
+//        CloudImage cloudImage = JsonUtil.read(Context.getRestClientInstance().get("/rest/v1/cloud-images/" + currentCloudImageId), CloudImage.class).getData();
 //        Assert.assertEquals(name, cloudImage.getName());
 //        Assert.assertEquals(architecture, cloudImage.getOsArch());
 //        Assert.assertEquals(type, cloudImage.getOsType());
@@ -87,14 +87,14 @@
 //        request.setDiskSize(minDisk);
 //        request.setMemSize(minMemory);
 //        request.setNumCPUs(minCPUs);
-//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/cloud-images", JsonUtil.toString(request)));
+//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/cloud-images", JsonUtil.toString(request)));
 //        currentCloudImageId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData();
 //    }
 //
 //    @And("^The recently created cloud image should be in available in Alien with name \"([^\"]*)\", architecture \"([^\"]*)\", type \"([^\"]*)\", distribution \"([^\"]*)\", version \"([^\"]*)\", min CPUs (\\d+), min memory (\\d+), min disk (\\d+)$")
 //    public void The_recently_created_cloud_image_should_be_in_available_in_Alien_with_name_architecture_type_distribution_and_version_min_CPUs_min_memory_min_disk(
 //            String name, String architecture, String type, String distribution, String version, int minCPUs, long minMemory, long minDisk) throws Throwable {
-//        CloudImage cloudImage = JsonUtil.read(Context.getRestClientInstance().get("/rest/cloud-images/" + currentCloudImageId), CloudImage.class).getData();
+//        CloudImage cloudImage = JsonUtil.read(Context.getRestClientInstance().get("/rest/v1/cloud-images/" + currentCloudImageId), CloudImage.class).getData();
 //        Assert.assertEquals(name, cloudImage.getName());
 //        Assert.assertEquals(architecture, cloudImage.getOsArch());
 //        Assert.assertEquals(type, cloudImage.getOsType());
@@ -111,17 +111,17 @@
 //        BeanWrapper wrapper = new BeanWrapperImpl(updateRequest);
 //        wrapper.setPropertyValue(fieldName, fieldValue);
 //        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().putJSon("/rest/cloud-images/" + currentCloudImageId, JsonUtil.toString(updateRequest)));
+//                Context.getRestClientInstance().putJSon("/rest/v1/cloud-images/" + currentCloudImageId, JsonUtil.toString(updateRequest)));
 //    }
 //
 //    @And("^I delete the recently created cloud image$")
 //    public void I_delete_the_recently_created_cloud_image() throws Throwable {
-//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/cloud-images/" + currentCloudImageId));
+//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/v1/cloud-images/" + currentCloudImageId));
 //    }
 //
 //    @And("^The recently created cloud image must not exist any more in Alien$")
 //    public void The_recently_created_cloud_image_must_not_exist_any_more_in_Alien() throws Throwable {
-//        Assert.assertEquals(504, JsonUtil.read(Context.getRestClientInstance().get("/rest/cloud-images/" + currentCloudImageId)).getError().getCode());
+//        Assert.assertEquals(504, JsonUtil.read(Context.getRestClientInstance().get("/rest/v1/cloud-images/" + currentCloudImageId)).getError().getCode());
 //    }
 //
 //    public static void assertCloudImages(int numberOfImages, Set<CloudImage> images, DataTable expectedImagesTable) {
@@ -152,7 +152,7 @@
 //        request.setFrom(0);
 //        request.setSize(Integer.MAX_VALUE);
 //        request.setExclude(excluded);
-//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/cloud-images/search", JsonUtil.toString(request)));
+//        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/cloud-images/search", JsonUtil.toString(request)));
 //    }
 //
 //    @When("^I search for cloud images without excluding any image$")

@@ -45,7 +45,7 @@ public class RuntimeStepDefinitions {
         NameValuePair nvp = new BasicNameValuePair("locationId", Context.getInstance().getLocationId(orchestratorId, locationName));
         String applicationId = Context.getInstance().getApplication().getId();
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().getUrlEncoded(
-                "/rest/runtime/" + applicationId + "/environment/" + Context.getInstance().getDefaultApplicationEnvironmentId(applicationName) + "/topology",
+                "/rest/v1/runtime/" + applicationId + "/environment/" + Context.getInstance().getDefaultApplicationEnvironmentId(applicationName) + "/topology",
                 Lists.newArrayList(nvp)));
 
     }
@@ -75,13 +75,13 @@ public class RuntimeStepDefinitions {
         }
         String jSon = JsonUtil.toString(commandRequest);
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/runtime/" + Context.getInstance().getApplication().getId() + "/operations/", jSon));
+                Context.getRestClientInstance().postJSon("/rest/v1/runtime/" + Context.getInstance().getApplication().getId() + "/operations/", jSon));
 
     }
 
     private String scale(String nodeName, int instancesToScale) throws IOException {
         return Context.getRestClientInstance().postUrlEncoded(
-                "/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
+                "/rest/v1/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
                         + Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName()) + "/scale/"
                         + nodeName, Lists.<NameValuePair> newArrayList(new BasicNameValuePair("instances", String.valueOf(instancesToScale))));
     }

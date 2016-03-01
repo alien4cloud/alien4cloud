@@ -63,7 +63,7 @@ define(function (require) {
     templateUrl: 'views/applications/application_versions.html',
     resolve: {
       versionServices: ['topologyTemplateVersionServices', function(topologyTemplateVersionServices) { return topologyTemplateVersionServices; }],
-      searchServiceUrl: ['topologyTemplate', function(topologyTemplate) { return 'rest/templates/' + topologyTemplate.data.id + '/versions/search'; }],
+      searchServiceUrl: ['topologyTemplate', function(topologyTemplate) { return 'rest/latest/templates/' + topologyTemplate.data.id + '/versions/search'; }],
       delegateId: ['topologyTemplate', function(topologyTemplate) { return topologyTemplate.data.id; }],
       userCanModify: ['authService', function(authService) { return authService.hasRole('ARCHITECT'); }]
     },
@@ -83,10 +83,8 @@ define(function (require) {
         return topologyTemplateService.put({
           topologyTemplateId: $scope.topologyTemplateId
         }, angular.toJson(topologyTemplateUpdateRequest), undefined).$promise.then(
-          function() {
-            // Success
-          }, function(errorResponse) {
-            // Error
+          function() {}, // Success
+          function(errorResponse) { // Error
             return $translate('ERRORS.' + errorResponse.data.error.code);
           }
         );

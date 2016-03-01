@@ -39,7 +39,6 @@ describe('Topology input/output properties', function() {
   });
 
   it('should be able to define properties as input or output and see their values in application details view', function() {
-    console.log('################# should be able to define properties as input or output and see their values in application details view');
     applications.goToApplicationTopologyPage();
     topologyEditorCommon.togglePropertyInput('Compute', 'architecture', 'cap');
     topologyEditorCommon.togglePropertyOutput('Compute', 'distribution', 'cap');

@@ -35,7 +35,7 @@ import io.swagger.annotations.ApiOperation;
  */
 @RestController
 @Slf4j
-@RequestMapping("/rest/groups")
+@RequestMapping({"/rest/groups", "/rest/v1/groups", "/rest/latest/groups"})
 public class GroupController {
     @Resource
     private IAlienGroupDao alienGroupDao;

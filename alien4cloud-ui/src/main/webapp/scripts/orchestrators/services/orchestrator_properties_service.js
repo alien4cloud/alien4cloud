@@ -5,7 +5,7 @@ define(function (require) {
 
   modules.get('a4c-metas').factory('orchestratorPropertiesServices', ['$resource',
     function($resource) {
-      var orchestratorProperties = $resource('rest/orchestrators/:id/properties', {}, {
+      var orchestratorProperties = $resource('rest/latest/orchestrators/:id/properties', {}, {
         'upsert': {
           method: 'POST',
           isArray: false,
@@ -18,5 +18,6 @@ define(function (require) {
       return {
         'upsertProperty': orchestratorProperties.upsert
       };
-  }]);
+    }]
+  );
 });

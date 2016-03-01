@@ -30,7 +30,7 @@ var git = {
   },
   search: function(text) {
     common.sendKeys(by.id('search-query'), text);
-    common.click(by.id('search-submit-btn'));
+    common.click(by.id('search-submit-btn'), undefined, undefined, true);
   }
 };
 

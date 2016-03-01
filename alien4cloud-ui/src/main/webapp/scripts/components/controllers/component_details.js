@@ -28,7 +28,7 @@ define(function (require) {
       /* Tag name with all letters a-Z and  - and _ and no space*/
       $scope.tagKeyPattern = /^[\-\w\d_]*$/;
 
-      var ComponentResource = $resource('rest/components/:componentId', {}, {
+      var ComponentResource = $resource('rest/latest/components/:componentId', {}, {
         method: 'GET',
         isArray: false,
         headers: {
@@ -36,7 +36,7 @@ define(function (require) {
         }
       });
 
-      var RecommendationResource = $resource('rest/components/recommendation/:capability', {}, {
+      var RecommendationResource = $resource('rest/latest/components/recommendation/:capability', {}, {
         'getRecommended': {
           method: 'GET',
           isArray: false,
@@ -54,7 +54,7 @@ define(function (require) {
 
       });
 
-      var UnflagResource = $resource('rest/components/unflag', {}, {
+      var UnflagResource = $resource('rest/latest/components/unflag', {}, {
         'unflag': {
           method: 'POST',
           isArray: false,
@@ -64,7 +64,7 @@ define(function (require) {
         }
       });
 
-      var topologyVersionResource = $resource('rest/topologies/:topologyId/version');
+      var topologyVersionResource = $resource('rest/latest/topologies/:topologyId/version');
 
       ComponentResource.get({
         componentId: $stateParams.id

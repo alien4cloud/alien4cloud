@@ -4,6 +4,7 @@ define(function (require) {
   var modules = require('modules');
   var states = require('states');
   var angular = require('angular');
+  var _ = require('lodash');
 
   require('scripts/components/services/csar_git');
   require('scripts/components/controllers/csar_git_crud');
@@ -42,7 +43,7 @@ define(function (require) {
       $scope.searchResult = searchResult.data;
     };
     // we have to insert the search service in the scope so it is available for the pagination directive.
-    $scope.searchService = searchServiceFactory('rest/csarsgit', true, $scope, 20);
+    $scope.searchService = searchServiceFactory('rest/latest/csarsgit', true, $scope, 20);
     $scope.search = function() { $scope.searchService.search(); };
     $scope.search(); // initialize
 
@@ -54,7 +55,7 @@ define(function (require) {
       function(result) {
         handleResult(result, url);
         delete $scope.importing[id];
-      }, function(error) {
+      }, function() {
         $scope.importInfos.push({
           'name': url,
           'infoType': statesToClasses.error,
@@ -76,14 +77,14 @@ define(function (require) {
       }
       else{
         var titleError = $translate('CSAR.ERRORS.NO_DATA.HEADER');
-        var bodyError=$translate('CSAR.ERRORS.NO_DATA.BODY')
+        var bodyError=$translate('CSAR.ERRORS.NO_DATA.BODY');
         toaster.pop('note', titleError, bodyError, 4000, 'trustedHtml',null);
       }
     };
 
     $scope.isImporting = function(){
       return !_.isEmpty($scope.importing);
-    }
+    };
 
     function processImportData(data, importResult) {
       if (_.defined(data.data) && data.data.length > 0) {
@@ -97,7 +98,7 @@ define(function (require) {
           // }
         });
       }
-    };
+    }
 
     function handleResult(data, url) {
       var importResult = {
@@ -109,7 +110,7 @@ define(function (require) {
       if (data.error === null) {
         importResult.infoType = statesToClasses.success;
         // there might be warnings. display them
-        processImportData(data, importResult)
+        processImportData(data, importResult);
       } else {
         importResult.infoType = statesToClasses.error;
         if (_.undefined(data.data)) {
@@ -117,12 +118,12 @@ define(function (require) {
           importResult.otherError.code = data.error.code;
           importResult.otherError.message = data.error.message;
         } else {
-          processImportData(data, importResult)
+          processImportData(data, importResult);
         }
       }
       $scope.importInfos.push(importResult);
       $scope.search();
-    };
+    }
 
     $scope.closeUploadInfos = function(index) {
       $scope.importInfos.splice(index, 1);
@@ -157,7 +158,7 @@ define(function (require) {
       modalInstance.result.then(function(csarGitTemplate) {
         csarGitService.create([], angular.toJson(csarGitTemplate), function(successResponse) {
           var errorMessage = successResponse;
-          if (errorMessage.error != null) {
+          if (errorMessage.error !== null) {
             var title = $translate('CSAR.ERRORS.' + errorMessage.error.code + '_TITLE');
             toaster.pop('error', title, errorMessage.message, 4000, 'trustedHtml', null);
           }
@@ -181,7 +182,7 @@ define(function (require) {
       modalInstance.result.then(function(gitRepo) {
         csarGitService.update({id: gitRepo.id },angular.toJson(gitRepo), function(successResponse) {
           var errorMessage = successResponse;
-          if (errorMessage.error != null) {
+          if (errorMessage.error !== null) {
             var title = $translate('CSAR.ERRORS.' + errorMessage.error.code + '_TITLE');
             toaster.pop('error', title, errorMessage.message, 4000, 'trustedHtml', null);
           }else{

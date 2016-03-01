@@ -22,8 +22,8 @@ define(function (require) {
   });
 
   modules.get('a4c-orchestrators').controller('OrchestratorConfigurationCtrl',
-    ['$scope', '$http', 'orchestrator', 'orchestratorConfigurationService', 'orchestratorService',
-    function($scope, $http, orchestrator, orchestratorConfigurationService, orchestratorService) {
+    ['$scope', '$http', '$translate', '$q', 'orchestrator', 'orchestratorConfigurationService', 'orchestratorService',
+    function($scope, $http, $translate, $q, orchestrator, orchestratorConfigurationService, orchestratorService) {
       $scope.orchestrator = orchestrator;
       $scope.lock = true;
 
@@ -40,7 +40,7 @@ define(function (require) {
       );
 
       // get the configuration for the orchestrator.
-      $http.get('rest/formdescriptor/orchestratorConfig/' + orchestrator.id).success(function(result) {
+      $http.get('rest/latest/formdescriptor/orchestratorConfig/' + orchestrator.id).success(function(result) {
         $scope.configurationDefinition = result.data;
       });
 
@@ -58,16 +58,15 @@ define(function (require) {
           }
         }).$promise;
       };
-      
+
       $scope.updateDeploymentNamePattern = function(newPattern) {
         if (newPattern !== orchestrator.deploymentNamePattern) {
           var request = {deploymentNamePattern:newPattern};
           return orchestratorService.update({orchestratorId: orchestrator.id}, angular.toJson(request)).$promise.then(
-            function() { // Success
-            },
+            function() {}, // Success
             function(errorResponse) {
               return $translate('ERRORS.' + errorResponse.data.error.code);
-        });
+            });
         }
       };
 

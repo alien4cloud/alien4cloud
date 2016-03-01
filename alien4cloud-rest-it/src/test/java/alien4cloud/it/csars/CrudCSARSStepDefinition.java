@@ -40,26 +40,26 @@ public class CrudCSARSStepDefinition {
     @When("^I create a CSAR with name \"([^\"]*)\" and version \"([^\"]*)\"$")
     public void I_create_a_CSAR_with_name_and_version(String csarName, String csarVersion) throws Throwable {
         CreateCsarRequest request = new CreateCsarRequest(csarName, csarVersion, null);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/csars/", JsonUtil.toString(request)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/csars/", JsonUtil.toString(request)));
         Context.getInstance().registerCsarId(JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData());
     }
 
     @When("^I create a CSAR$")
     public void I_create_a_CSAR() throws Throwable {
         CreateCsarRequest request = new CreateCsarRequest(CURRENT_CSAR_NAME, CURRENT_CSAR_VERSION, null);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/csars/", JsonUtil.toString(request)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/csars/", JsonUtil.toString(request)));
     }
 
     @When("^I delete a CSAR with id \"([^\"]*)\"$")
     public void I_delete_a_CSAR_with_id(String csarId) throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/csars/" + csarId));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/v1/csars/" + csarId));
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
         Assert.assertNotNull(restResponse);
     }
 
     @Then("^I have CSAR created with id \"([^\"]*)\"$")
     public boolean I_have_CSAR_created_with_id(String csarId) throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/csars/" + csarId));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/csars/" + csarId));
         CsarInfoDTO csarInfoDTO = JsonUtil.read(Context.getInstance().takeRestResponse(), CsarInfoDTO.class).getData();
         if (csarInfoDTO == null || csarInfoDTO.getCsar() == null) {
             return false;
@@ -79,46 +79,16 @@ public class CrudCSARSStepDefinition {
             String csarVersion) throws Throwable {
         CSARDependency dependency = new CSARDependency(dependencyName, dependencyVersion);
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/csars/" + csarName + ":" + csarVersion + "-SNAPSHOT" + "/dependencies",
+                Context.getRestClientInstance().postJSon("/rest/v1/csars/" + csarName + ":" + csarVersion + "-SNAPSHOT" + "/dependencies",
                         JsonUtil.toString(dependency)));
     }
 
     @Then("^I have the CSAR \"([^\"]*)\" version \"([^\"]*)\" to contain a dependency to \"([^\"]*)\" version \"([^\"]*)\"$")
     public void I_have_the_CSAR_version_to_contain_a_dependency_to_version(String csarName, String csarVersion, String dependencyName, String dependencyVersion)
             throws Throwable {
-        String response = Context.getRestClientInstance().get("/rest/csars/" + csarName + ":" + csarVersion + "-SNAPSHOT");
+        String response = Context.getRestClientInstance().get("/rest/v1/csars/" + csarName + ":" + csarVersion + "-SNAPSHOT");
         CsarInfoDTO csar = JsonUtil.read(response, CsarInfoDTO.class).getData();
         Assert.assertTrue(csar.getCsar().getDependencies().contains(new CSARDependency(dependencyName, dependencyVersion)));
-    }
-
-//    @When("^I run the test for this snapshot CSAR on cloud \"([^\"]*)\"$")
-//    public void I_run_the_test_for_this_snapshot_CSAR_on_cloud(String cloudName) throws Throwable {
-//        String cloudId = Context.getInstance().getCloudId(cloudName);
-//        Context.getInstance().registerRestResponse(
-//                Context.getRestClientInstance().get("/rest/csars/" + CURRENT_CSAR_NAME + "/version/" + CURRENT_CSAR_VERSION + "/cloudid/" + cloudId));
-//        RestResponse<?> response = JsonTestUtil.read(Context.getInstance().getRestResponse());
-//        if (response.getData() != null) {
-//            Context.getInstance().registerTopologyDeploymentId(response.getData().toString());
-//        }
-//    }
-
-    @And("^I should not have active deployment for this CSAR$")
-    public void I_should_not_have_active_deployment_for_this_CSAR() throws Throwable {
-        RestResponse<Deployment> dep = JsonUtil.read(
-                Context.getRestClientInstance().get("/rest/csars/" + CURRENT_CSAR_NAME + ":" + CURRENT_CSAR_VERSION + "/active-deployment"), Deployment.class);
-        Assert.assertNull(dep.getData());
-    }
-
-    @And("^I should have active deployment for this CSAR$")
-    public void I_should_have_active_deployment_for_this_CSAR() throws Throwable {
-        RestResponse<Deployment> dep = JsonUtil.read(
-                Context.getRestClientInstance().get("/rest/csars/" + CURRENT_CSAR_NAME + ":" + CURRENT_CSAR_VERSION + "/active-deployment"), Deployment.class);
-        Assert.assertNotNull(dep.getData());
-        Assert.assertNotNull(dep.getData().getId());
-//        Assert.assertNotNull(dep.getData().getCloudId());
-        Assert.fail("Fix test");
-        Assert.assertEquals(CURRENT_CSAR_NAME + ":" + CURRENT_CSAR_VERSION, dep.getData().getSourceId());
-        Assert.assertEquals(CURRENT_CSAR_NAME, dep.getData().getSourceName());
     }
 
     @Then("^I should have a delete csar response with \"([^\"]*)\" related resources$")
@@ -135,7 +105,7 @@ public class CrudCSARSStepDefinition {
         req.setType(req.getType());
 
         String jSon = jsonMapper.writeValueAsString(req);
-        String response = Context.getRestClientInstance().postJSon("/rest/csars/search", jSon);
+        String response = Context.getRestClientInstance().postJSon("/rest/v1/csars/search", jSon);
 
         RestResponse<FacetedSearchResult> restResponse = JsonUtil.read(response, FacetedSearchResult.class);
         FacetedSearchResult searchResp = restResponse.getData();

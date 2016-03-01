@@ -7,15 +7,15 @@ define(function (require) {
   modules.get('a4c-topology-editor', ['ngResource']).factory('workflowServices', ['$resource',
     function($resource) {
 
-      var workflowsResource = $resource('rest/topologies/:topologyId/workflows');
-      var workflowResource = $resource('rest/topologies/:topologyId/workflows/:workflowName');
-      var workflowInitResource = $resource('rest/topologies/:topologyId/workflows/:workflowName/init');
-      var activitiesResource = $resource('rest/topologies/:topologyId/workflows/:workflowName/activities');
-      var edgeResource = $resource('rest/topologies/:topologyId/workflows/:workflowName/edges/:from/:to');
-      var stepResource = $resource('rest/topologies/:topologyId/workflows/:workflowName/steps/:stepId');
-      var fromResource = $resource('rest/topologies/:topologyId/workflows/:workflowName/steps/:stepId/connectFrom');
-      var toResource = $resource('rest/topologies/:topologyId/workflows/:workflowName/steps/:stepId/connectTo');
-      var swapResource = $resource('rest/topologies/:topologyId/workflows/:workflowName/steps/:stepId/swap');
+      var workflowsResource = $resource('rest/latest/topologies/:topologyId/workflows');
+      var workflowResource = $resource('rest/latest/topologies/:topologyId/workflows/:workflowName');
+      var workflowInitResource = $resource('rest/latest/topologies/:topologyId/workflows/:workflowName/init');
+      var activitiesResource = $resource('rest/latest/topologies/:topologyId/workflows/:workflowName/activities');
+      var edgeResource = $resource('rest/latest/topologies/:topologyId/workflows/:workflowName/edges/:from/:to');
+      var stepResource = $resource('rest/latest/topologies/:topologyId/workflows/:workflowName/steps/:stepId');
+      var fromResource = $resource('rest/latest/topologies/:topologyId/workflows/:workflowName/steps/:stepId/connectFrom');
+      var toResource = $resource('rest/latest/topologies/:topologyId/workflows/:workflowName/steps/:stepId/connectTo');
+      var swapResource = $resource('rest/latest/topologies/:topologyId/workflows/:workflowName/steps/:stepId/swap');
       
       return {
         'workflows': {

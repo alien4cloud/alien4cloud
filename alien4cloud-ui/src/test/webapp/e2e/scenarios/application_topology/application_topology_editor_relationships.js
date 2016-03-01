@@ -20,7 +20,6 @@ describe('NodeTemplate relationships edition', function() {
   });
 
   it('should be able to add an hostedOn and dependsOn relationship between a JAVA and COMPUTE nodetemplate', function() {
-    console.log('################# should be able to add an hostedOn and dependsOn relationship between a JAVA and COMPUTE nodetemplate');
     applications.goToApplicationTopologyPage();
     topologyEditorCommon.addNodeTemplatesCenterAndZoom({
       compute2: componentData.simpleTopology.nodes.compute2,
@@ -43,14 +42,11 @@ describe('NodeTemplate relationships edition', function() {
 
 
   it('should be able to remove a relationship', function() {
-    console.log('################# should be able to remove a relationship');
     topologyEditorCommon.removeRelationship('hostedOnCompute');
     topologyEditorCommon.checkCreatedRelationship('hostedOnCompute', 0);
   });
 
   it('should not be able to add a relationship since no other node matches to the requirement', function() {
-    console.log('################# should not be able to add a relationship since no other node matches to the requirement');
-
     topologyEditorCommon.addNodeTemplatesCenterAndZoom({war: componentData.alienTypes.war()});
 
     // i try to create a relationship with no target available in topology
@@ -72,7 +68,6 @@ describe('NodeTemplate relationships edition', function() {
 
 
   it('should not be able to add a relationship when upperBounds are reached in source or target', function() {
-    console.log('################# should not be able to add a relationship when upperBounds are reached in source or target');
     expect(element(by.id(topologyEditorCommon.btnRelationshipNameBaseId + 'host')).isEnabled()).toBe(false);
   });
 

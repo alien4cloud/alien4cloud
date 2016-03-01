@@ -5,10 +5,10 @@ template_version: 0.1.0-SNAPSHOT
 template_author: admin
 
 imports:
-    - tosca-normative-types:1.0.0.wd06-SNAPSHOT
+    - tosca-normative-types:1.0.0-SNAPSHOT
     - test-types:1.0-SNAPSHOT
     - tomcat-war-types:2.0.0-SNAPSHOT
-    - alien-base-types:1.0-SNAPSHOT
+    - alien-base-types:1.1.0-SNAPSHOT
 
 topology_template:
   node_templates:

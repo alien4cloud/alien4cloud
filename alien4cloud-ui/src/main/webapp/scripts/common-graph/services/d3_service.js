@@ -4,6 +4,8 @@ define(function (require) {
 
   var modules = require('modules');
   var _ = require('lodash');
+  var $ = require('jquery');
+  var d3 = require('d3');
 
   modules.get('a4c-common-graph').factory('d3Service', function() {
     return {
@@ -12,7 +14,7 @@ define(function (require) {
       // Performs a d3 selection from the given element
       select: function(from, collection, selector, processor, collectionIdentifier) {
         if(_.undefined(collectionIdentifier)) { // default identifier is id based.
-          collectionIdentifier = function(element) { return element.id };
+          collectionIdentifier = function(element) { return element.id; };
         }
         var selection = from.selectAll(selector).data(collection, collectionIdentifier);
         // update existing nodes
@@ -34,7 +36,7 @@ define(function (require) {
       },
 
       circle: function(d3AppendGroup, cx, cy, r) {
-        return d3AppendGroup.append("circle").attr("cx", cx).attr("cy", cy).attr("r", r);
+        return d3AppendGroup.append('circle').attr('cx', cx).attr('cy', cy).attr('r', r);
       },
 
       rect: function(d3AppendGroup, x, y, width, height, rx, ry) {

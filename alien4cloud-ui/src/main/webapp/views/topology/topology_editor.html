@@ -1,7 +1,7 @@
 <div id="topology-editor" class="topology-editor" style="height: {{dimensions.height}}px; width: {{dimensions.width}}px;">
   <div class="topology-row" style="height: {{dimensions.height}}px;">
     <!-- TOPOLOGY display -->
-    <div id="topology" class="topology-column" ng-show="displays.topology.active">
+    <div id="topology" class="topology-column">
       <div class="topology topology-column-box" alien-droppable drag-data="" drag-on-drop="nodes.onDragged(data)" ng-init="visual = true;">
         <div class="btn-toolbar">
           <div class="btn-group">
@@ -28,7 +28,7 @@
     </div>
 
     <!-- NodeTemplate details -->
-    <div id="nodetemplate-details" ng-show="view === 'RENDERED' && selectedNodeTemplate && displays.component.active" class="topology-column" style="width: {{displays.catalog.size}}px;">
+    <div id="nodetemplate-details" ng-show="view === 'RENDERED' && selectedNodeTemplate && displays.component.active" class="topology-column" style="width: {{displays.component.size}}px;">
       <div class="topology-column-box">
         <div class="topology-column-menu">
           <i id="nodetemplate-details-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>

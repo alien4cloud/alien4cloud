@@ -5,9 +5,9 @@ template_version: 0.1.0-SNAPSHOT
 template_author: admin
 
 imports:
-  - tosca-normative-types:1.0.0.wd03-SNAPSHOT
+  - tosca-normative-types:1.0.0-SNAPSHOT
   - tomcat-war-types:1.0-SNAPSHOT
-  - alien-base-types:1.0-SNAPSHOT
+  - alien-base-types:1.1.0-SNAPSHOT
 
 topology_template:
   input_artifacts:
@@ -32,7 +32,7 @@ topology_template:
         scripts:
           implementation: warScripts
           type: tosca.artifacts.File
-          description: 
+          description:
         war_file:
           type: alien.artifacts.WarFile
           implementation: { get_input_artifact: my_war_file }

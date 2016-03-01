@@ -3,7 +3,6 @@ define(function (require) {
 
   var modules = require('modules');
   var states = require('states');
-  var _ = require('lodash');
   var angular = require('angular');
 
   require('scripts/common/directives/pagination');
@@ -13,10 +12,10 @@ define(function (require) {
     templateUrl: 'views/applications/application_versions.html',
     controller: 'ApplicationVersionsCtrl',
     resolve: {
-      versionServices: ['applicationVersionServices', function(applicationVersionServices) { return applicationVersionServices }],
-      searchServiceUrl: ['application', function(application) { return 'rest/applications/' + application.data.id + '/versions/search' }],
-      delegateId: ['application', function(application) { return application.data.id }],
-      userCanModify: ['authService', function(authService) { return authService.hasRole('APPLICATIONS_MANAGER') }]
+      versionServices: ['applicationVersionServices', function(applicationVersionServices) { return applicationVersionServices; }],
+      searchServiceUrl: ['application', function(application) { return 'rest/latest/applications/' + application.data.id + '/versions/search'; }],
+      delegateId: ['application', function(application) { return application.data.id; }],
+      userCanModify: ['authService', function(authService) { return authService.hasRole('APPLICATIONS_MANAGER'); }]
     },
     menu: {
       id: 'am.applications.detail.versions',
@@ -83,7 +82,7 @@ define(function (require) {
         modalInstance.result.then(function(appVersion) {
           versionServices.create({
             delegateId: delegateId
-          }, angular.toJson(appVersion), function(successResponse) {
+          }, angular.toJson(appVersion), function() {
             $scope.searchService.search();
             refreshAllAppVersions();
           });

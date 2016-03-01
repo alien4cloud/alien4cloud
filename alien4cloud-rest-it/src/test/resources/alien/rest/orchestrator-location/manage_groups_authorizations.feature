@@ -8,7 +8,7 @@ Feature: Manage group's authorizations on location
     And There is a "hobbits" group in the system
     And I add the user "frodon" to the group "lordOfRing"
     And I add the user "frodon" to the group "hobbits"
-    And I upload the archive "tosca-normative-types-wd06"
+    And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
     And I upload a plugin
     And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
     And I enable the orchestrator "Mount doom orchestrator"

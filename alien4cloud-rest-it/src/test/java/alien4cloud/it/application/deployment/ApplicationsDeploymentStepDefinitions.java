@@ -74,7 +74,7 @@ public class ApplicationsDeploymentStepDefinitions {
 
     public void I_undeploy_it(Application application, boolean failsafe) throws Throwable {
         String envId = Context.getInstance().getDefaultApplicationEnvironmentId(application.getName());
-        String statusRequest = "/rest/applications/" + application.getId() + "/environments/" + envId + "/status";
+        String statusRequest = "/rest/v1/applications/" + application.getId() + "/environments/" + envId + "/status";
         RestResponse<String> statusResponse = JsonUtil.read(Context.getRestClientInstance().get(statusRequest), String.class);
         if (failsafe) {
             if (statusResponse.getError() != null) {
@@ -86,7 +86,7 @@ public class ApplicationsDeploymentStepDefinitions {
         DeploymentStatus deploymentStatus = DeploymentStatus.valueOf(statusResponse.getData());
         if (!DeploymentStatus.UNDEPLOYED.equals(deploymentStatus) || !DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS.equals(deploymentStatus)) {
             Context.getInstance().registerRestResponse(
-                    Context.getRestClientInstance().delete("/rest/applications/" + application.getId() + "/environments/" + envId + "/deployment"));
+                    Context.getRestClientInstance().delete("/rest/v1/applications/" + application.getId() + "/environments/" + envId + "/deployment"));
         }
         assertStatus(application.getName(), DeploymentStatus.UNDEPLOYED, DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS, 10 * 60L * 1000L, null, failsafe);
     }
@@ -140,12 +140,12 @@ public class ApplicationsDeploymentStepDefinitions {
         String applicationEnvironmentId = null;
         String applicationId = applicationName != null ? Context.getInstance().getApplicationId(applicationName) : null;
         if (deploymentId != null) {
-            statusRequest = "/rest/deployments/" + deploymentId + "/status";
+            statusRequest = "/rest/v1/deployments/" + deploymentId + "/status";
         } else if (applicationId != null) {
             applicationEnvironmentId = applicationEnvironmentName != null
                     ? Context.getInstance().getApplicationEnvironmentId(applicationName, applicationEnvironmentName)
                     : Context.getInstance().getDefaultApplicationEnvironmentId(applicationName);
-            statusRequest = "/rest/applications/" + applicationId + "/environments/" + applicationEnvironmentId + "/status";
+            statusRequest = "/rest/v1/applications/" + applicationId + "/environments/" + applicationEnvironmentId + "/status";
         } else {
             throw new ITException("Expected at least application ID OR deployment ID to check the status.");
         }
@@ -168,7 +168,7 @@ public class ApplicationsDeploymentStepDefinitions {
             if (deploymentStatus.equals(expectedStatus)) {
                 if (applicationId != null) {
                     String restInfoResponseText = Context.getRestClientInstance()
-                            .get("/rest/applications/" + applicationId + "/environments/" + applicationEnvironmentId + "/deployment/informations");
+                            .get("/rest/v1/applications/" + applicationId + "/environments/" + applicationEnvironmentId + "/deployment/informations");
                     RestResponse<?> infoResponse = JsonUtil.read(restInfoResponseText);
                     assertNull(infoResponse.getError());
                 }
@@ -242,7 +242,7 @@ public class ApplicationsDeploymentStepDefinitions {
             applicationIds.add(ApplicationStepDefinitions.CURRENT_APPLICATIONS.get(appNames.next()).getId());
         }
 
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/applications/statuses", JsonUtil.toString(applicationIds)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/applications/statuses", JsonUtil.toString(applicationIds)));
         RestResponse<?> reponse = JsonUtil.read(Context.getInstance().getRestResponse());
         Map<String, Object> applicationStatuses = JsonUtil.toMap(JsonUtil.toString(reponse.getData()));
         assertEquals(ApplicationStepDefinitions.CURRENT_APPLICATIONS.size(), applicationStatuses.size());
@@ -270,7 +270,7 @@ public class ApplicationsDeploymentStepDefinitions {
 
     private String deploy(DeployApplicationRequest deployApplicationRequest) throws Throwable {
         setOrchestratorProperties();
-        return Context.getRestClientInstance().postJSon("/rest/applications/deployment", JsonUtil.toString(deployApplicationRequest));
+        return Context.getRestClientInstance().postJSon("/rest/v1/applications/deployment", JsonUtil.toString(deployApplicationRequest));
     }
 
     @When("^I have expected applications statuses for \"([^\"]*)\" operation$")
@@ -305,7 +305,7 @@ public class ApplicationsDeploymentStepDefinitions {
             for (Map.Entry<String, String> env : environments.entrySet()) {
                 log.info(env.getKey() + "/" + env.getValue());
                 log.info("ENVIRONMENT to undeploy : {} - {}", env.getKey(), env.getValue());
-                Context.getRestClientInstance().delete("/rest/applications/" + application.getId() + "/environments/" + env.getValue() + "/deployment");
+                Context.getRestClientInstance().delete("/rest/v1/applications/" + application.getId() + "/environments/" + env.getValue() + "/deployment");
                 assertStatus(application.getName(), DeploymentStatus.UNDEPLOYED, DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS, 10 * 60L * 1000L, null);
             }
         }
@@ -318,7 +318,7 @@ public class ApplicationsDeploymentStepDefinitions {
         Application app = ApplicationStepDefinitions.CURRENT_APPLICATIONS.get(applicationName);
         NameValuePair nvp = new BasicNameValuePair("sourceId", app.getId());
         NameValuePair nvp1 = new BasicNameValuePair("orchestratorId", orchestratorId);
-        String responseString = Context.getRestClientInstance().getUrlEncoded("/rest/deployments", Lists.newArrayList(nvp, nvp1));
+        String responseString = Context.getRestClientInstance().getUrlEncoded("/rest/v1/deployments", Lists.newArrayList(nvp, nvp1));
         RestResponse<?> response = JsonUtil.read(responseString);
         assertNull(response.getError());
         List<DeploymentDTO> deployments = JsonUtil.toList(JsonUtil.toString(response.getData()), DeploymentDTO.class, Application.class,
@@ -336,7 +336,7 @@ public class ApplicationsDeploymentStepDefinitions {
             NameValuePair nvp1 = new BasicNameValuePair("orchestratorId", orchestratorId);
             nvps.add(nvp1);
         }
-        String response = Context.getRestClientInstance().getUrlEncoded("/rest/deployments", nvps);
+        String response = Context.getRestClientInstance().getUrlEncoded("/rest/v1/deployments", nvps);
         Context.getInstance().registerRestResponse(response);
     }
 
@@ -344,7 +344,7 @@ public class ApplicationsDeploymentStepDefinitions {
     public void I_ask_for_the_deployment_topology_of_the_application(String applicationName) throws Throwable {
         String appId = Context.getInstance().getApplicationId(applicationName);
         String environmentId = Context.getInstance().getApplicationEnvironmentId(applicationName, "Environment");
-        String restUrl = String.format("/rest/applications/%s/environments/%s/deployment-topology", appId, environmentId);
+        String restUrl = String.format("/rest/v1/applications/%s/environments/%s/deployment-topology", appId, environmentId);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get(restUrl));
     }
 
@@ -409,7 +409,7 @@ public class ApplicationsDeploymentStepDefinitions {
         if (deploymentId.equals("null")) {// take the registered deployment id
             deploymentId = Context.getInstance().getTopologyDeploymentId();
         }
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/deployments/" + deploymentId + "/undeploy"));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/deployments/" + deploymentId + "/undeploy"));
     }
 
     private StompConnection stompConnection = null;
@@ -419,7 +419,7 @@ public class ApplicationsDeploymentStepDefinitions {
     private String getActiveDeploymentId(String applicationName) throws IOException {
         Deployment deployment = JsonUtil
                 .read(Context.getRestClientInstance()
-                        .get("/rest/applications/" + Context.getInstance().getApplicationId(applicationName) + "/environments/"
+                        .get("/rest/v1/applications/" + Context.getInstance().getApplicationId(applicationName) + "/environments/"
                                 + Context.getInstance().getDefaultApplicationEnvironmentId(applicationName) + "/active-deployment"),
                         Deployment.class)
                 .getData();
@@ -516,7 +516,7 @@ public class ApplicationsDeploymentStepDefinitions {
         Assert.fail("Fix test");
         // DeploymentSetupMatchInfo deploymentSetupMatchInfo = JsonUtil.read(
         // Context.getRestClientInstance().get(
-        // "/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
+        // "/rest/v1/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
         // + Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName())
         // + "/deployment-setup"), DeploymentSetupMatchInfo.class).getData();
         // Assert.assertNotNull(deploymentSetupMatchInfo.getProviderDeploymentProperties());
@@ -562,7 +562,7 @@ public class ApplicationsDeploymentStepDefinitions {
             }
 
             String restInfoResponseText = Context.getRestClientInstance()
-                    .get("/rest/applications/" + applicationId + "/environments/" + applicationEnvironmentId + "/deployment/informations");
+                    .get("/rest/v1/applications/" + applicationId + "/environments/" + applicationEnvironmentId + "/deployment/informations");
             RestResponse<?> infoResponse = JsonUtil.read(restInfoResponseText);
             assertNull(infoResponse.getError());
             Assert.assertNotNull(infoResponse.getData());
@@ -599,7 +599,7 @@ public class ApplicationsDeploymentStepDefinitions {
     @And("^The node \"([^\"]*)\" should contain (\\d+) instance\\(s\\) not started$")
     public void The_node_should_contain_instances_not_started(String nodeName, int expectedNumberOfInstancesNotStarted) throws Throwable {
         RestResponse<?> response = JsonUtil.read(Context.getRestClientInstance()
-                .get("/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
+                .get("/rest/v1/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
                         + Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName())
                         + "/deployment/informations"));
         Assert.assertNotNull(response.getData());
@@ -620,7 +620,7 @@ public class ApplicationsDeploymentStepDefinitions {
     @And("^The node \"([^\"]*)\" should contain (\\d+) instance\\(s\\)$")
     public void The_node_should_contain_instance_s(String nodeName, int numberOfInstances) throws Throwable {
         RestResponse<?> response = JsonUtil.read(Context.getRestClientInstance()
-                .get("/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
+                .get("/rest/v1/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
                         + Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName())
                         + "/deployment/informations"));
         Assert.assertNotNull(response.getData());

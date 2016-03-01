@@ -1,3 +1,5 @@
+/* global SockJS, Stomp */
+
 // Angular service to ease stomp web-socket communication.
 define(function (require) {
   'use strict';
@@ -18,7 +20,7 @@ define(function (require) {
 
       var initSockets = function(onSuccess) {
         socket = {};
-        socket.client = new SockJS($window.location.pathname + 'rest/alienEndPoint');
+        socket.client = new SockJS($window.location.pathname + 'rest/latest/alienEndPoint');
         socket.stomp = Stomp.over(socket.client);
         socket.stomp.debug = function(text) {
           if (debugStompEnabled) {

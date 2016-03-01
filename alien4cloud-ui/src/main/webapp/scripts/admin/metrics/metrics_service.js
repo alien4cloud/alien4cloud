@@ -1,6 +1,6 @@
 define(function (require) {
   'use strict';
-  
+
   var modules = require('modules');
   var admin = modules.get('alien4cloud-admin');
 

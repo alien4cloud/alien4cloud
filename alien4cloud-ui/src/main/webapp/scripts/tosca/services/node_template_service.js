@@ -2,6 +2,7 @@ define(function(require) {
   'use strict';
 
   var modules = require('modules');
+  var _ = require('lodash');
   require('scripts/tosca/services/tosca_service');
 
   modules.get('a4c-tosca').factory('nodeTemplateService', ['toscaService',

@@ -3,6 +3,7 @@ define(function (require) {
 
   var modules = require('modules');
   var _ = require('lodash');
+  var angular = require('angular');
 
   modules.get('a4c-metas').controller('MetaPropertiesCtrl', ['$scope', 'propertiesServices', '$translate', 'metapropConfServices', '$resource',
     function($scope, propertiesServices, $translate, metapropConfServices, $resource) {
@@ -23,7 +24,7 @@ define(function (require) {
         metapropConfServices.search([], angular.toJson(request), function(result) {
           $scope.properties = result.data.data;
         });
-      };
+      }
       loadMetaProperties();
 
       var upsertService = $resource($scope.resturl, {}, {

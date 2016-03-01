@@ -47,7 +47,7 @@ define(function (require) {
       };
 
       // TopologyTemplate handeling
-      var searchTopologyTemplateResource = $resource('rest/templates/topology/search', {}, {
+      var searchTopologyTemplateResource = $resource('rest/latest/templates/topology/search', {}, {
         'search': {
           method: 'POST',
           isArray: false,
@@ -57,7 +57,7 @@ define(function (require) {
         }
       });
 
-      var searchTopologyTemplateVersionResource = $resource('rest/templates/:topologyTemplateId/versions/search', {}, {
+      var searchTopologyTemplateVersionResource = $resource('rest/latest/templates/:topologyTemplateId/versions/search', {}, {
         'search': {
           method: 'POST',
           isArray: false,
@@ -168,7 +168,8 @@ define(function (require) {
             return node.data.name;
           });
 
-          var pie = new d3pie('pieChart-' + appName, {
+          // Ignored: A constructor name should start with an uppercase letter.
+          var pie = new d3pie('pieChart-' + appName, { // jshint ignore:line
             'size': {
               'canvasWidth': 60,
               'canvasHeight': 60
@@ -256,7 +257,7 @@ define(function (require) {
         $scope.searchService.search();
       };
 
-      $scope.searchService = searchServiceFactory('rest/applications/search', false, $scope, 14);
+      $scope.searchService = searchServiceFactory('rest/latest/applications/search', false, $scope, 14);
       $scope.searchService.search();
 
       $scope.onSearchCompleted = function(searchResult) {

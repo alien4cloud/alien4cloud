@@ -35,7 +35,7 @@ define(function (require) {
         };
 
         if(_.defined(operations)) {
-            _.merge(targetOperations, operations);
+          _.merge(targetOperations, operations);
         }
         return $resource(url, {}, targetOperations);
       };

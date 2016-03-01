@@ -78,6 +78,15 @@ define(function (require) {
       }, {
         field: 'sourceIp',
         visible: false
+      }, {
+        field: 'version',
+        visible: true
+      }, {
+        field: 'userAgent',
+        visible: false
+      }, {
+        field: 'alien4CloudUI',
+        visible: false
       }];
 
       var searchRequestObject = {
@@ -87,7 +96,8 @@ define(function (require) {
         'size': DEFAULT_AUDIT_PAGE_SIZE
       };
 
-      $scope.auditTableParam = new ngTableParams({
+      // Ignored: A constructor name should start with an uppercase letter.
+      $scope.auditTableParam = new ngTableParams({ // jshint ignore:line
         page: 1, // show first page
         count: DEFAULT_AUDIT_PAGE_SIZE // count per page
       }, {

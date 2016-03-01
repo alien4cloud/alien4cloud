@@ -2,6 +2,7 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
+  var $ = require('jquery');
 
   modules.get('a4c-common').factory('resizeServices', ['$timeout', function($timeout) {
     // the default min width and height for the application

@@ -19,7 +19,6 @@ describe('Topology input/output properties', function() {
   });
 
   it('should be able to define properties as input', function() {
-    console.log('################# should be able to define properties as input');
     applications.goToApplicationTopologyPage();
     topologyEditorCommon.checkCountInputs(0);
     topologyEditorCommon.togglePropertyInput('Compute', 'architecture', 'cap');
@@ -29,13 +28,11 @@ describe('Topology input/output properties', function() {
   });
 
   it('should be able to remove an input', function() {
-    console.log('################# should be able to remove an input.');
     topologyEditorCommon.removeInput('architecture');
     topologyEditorCommon.checkCountInputs(1);
   });
 
   it('should be able associate a property to an already existing input', function() {
-    console.log('################# should be able associate a property to an already existing input.');
     topologyEditorCommon.associatePropertyToInput('Compute-2', 'distribution', 'distribution', 'cap');
     topologyEditorCommon.checkCountInputs(1);
   });

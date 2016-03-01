@@ -1,10 +1,7 @@
 define(function(require) {
   'use strict';
 
-  var modules = require('modules');
   var states = require('states');
-  var angular = require('angular');
-  var _ = require('lodash');
 
   require('scripts/orchestrators/controllers/orchestrator_location_resources');
   require('scripts/orchestrators/directives/orchestrator_location_resources');

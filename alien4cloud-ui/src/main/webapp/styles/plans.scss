@@ -28,3 +28,10 @@
   stroke: #999;
   stroke-width: 1.5px;
 }
+
+.node .selector {
+  fill: none;
+  stroke-width: 1px;
+  stroke-opacity: 0;
+  pointer-events: all;
+}

@@ -2,8 +2,8 @@ define(function(require) {
   'use strict';
 
   var modules = require('modules');
-  
-  var appModule = modules.get('a4c-applications')
+
+  var appModule = modules.get('a4c-applications');
 
   appModule.directive('propertiesErrorsDisplay', function() {
     return {
@@ -12,11 +12,11 @@ define(function(require) {
       scope: {
         'tasks': '='
       },
-      link: function (scope){
+      link: function (){
       }
     };
   });
-  
+
   appModule.directive('scalabilityErrorsDisplay', function() {
     return {
       templateUrl: 'views/applications/directives/scalability_errors_display.html',
@@ -24,7 +24,7 @@ define(function(require) {
       scope: {
         'tasks': '='
       },
-      link: function (scope){
+      link: function (){
       }
     };
   });
@@ -35,7 +35,7 @@ define(function(require) {
       scope: {
         'tasks': '='
       },
-      link: function (scope){
+      link: function (){
       }
     };
   });
@@ -46,7 +46,7 @@ define(function(require) {
       scope: {
         'tasks': '='
       },
-      link: function (scope){
+      link: function (){
       }
     };
   });

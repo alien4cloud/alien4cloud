@@ -27,7 +27,7 @@ public class LocationsDefinitionsSteps {
 
     public static final String getLocationIdFromName(final String orchestratorName, final String locationName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
-        String resp = Context.getRestClientInstance().get(String.format("/rest/orchestrators/%s/locations", orchestratorId));
+        String resp = Context.getRestClientInstance().get(String.format("/rest/v1/orchestrators/%s/locations", orchestratorId));
         RestResponse<List> response = JsonUtil.read(resp, List.class);
         String locationId = null;
         for (Object listItem : response.getData()) {
@@ -48,7 +48,7 @@ public class LocationsDefinitionsSteps {
         CreateLocationRequest request = new CreateLocationRequest();
         request.setName(locationName);
         request.setInfrastructureType(infrastructureType);
-        String resp = Context.getRestClientInstance().postJSon(String.format("/rest/orchestrators/%s/locations", orchestratorId), JsonUtil.toString(request));
+        String resp = Context.getRestClientInstance().postJSon(String.format("/rest/v1/orchestrators/%s/locations", orchestratorId), JsonUtil.toString(request));
         Context.getInstance().registerRestResponse(resp);
 
         RestResponse<String> idResponse = JsonUtil.read(resp, String.class);
@@ -58,7 +58,7 @@ public class LocationsDefinitionsSteps {
     @When("^I list locations of the orchestrator \"([^\"]*)\"$")
     public void I_list_locations_of_the_orchestrator(String orchestratorName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
-        String resp = Context.getRestClientInstance().get(String.format("/rest/orchestrators/%s/locations", orchestratorId));
+        String resp = Context.getRestClientInstance().get(String.format("/rest/v1/orchestrators/%s/locations", orchestratorId));
         Context.getInstance().registerRestResponse(resp);
     }
 
@@ -86,7 +86,7 @@ public class LocationsDefinitionsSteps {
     public void I_delete_a_location_with_name_to_the_orchestrator(String locationName, String orchestratorName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         String locationId = getLocationIdFromName(orchestratorName, locationName);
-        String restUrl = String.format("/rest/orchestrators/%s/locations/%s", orchestratorId, locationId);
+        String restUrl = String.format("/rest/v1/orchestrators/%s/locations/%s", orchestratorId, locationId);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete(restUrl));
     }
 
@@ -96,7 +96,7 @@ public class LocationsDefinitionsSteps {
         String locationId = getLocationIdFromName(orchestratorName, locationName);
         UpdateLocationRequest request = new UpdateLocationRequest();
         request.setName(newName);
-        String restUrl = String.format("/rest/orchestrators/%s/locations/%s", orchestratorId, locationId);
+        String restUrl = String.format("/rest/v1/orchestrators/%s/locations/%s", orchestratorId, locationId);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().putJSon(restUrl, JsonUtil.toString(request)));
     }
 
@@ -106,7 +106,7 @@ public class LocationsDefinitionsSteps {
         String locationId = getLocationIdFromName(orchestratorName, locationName);
         UpdateLocationRequest request = new UpdateLocationRequest();
         request.setEnvironmentType(newEnvType);
-        String restUrl = String.format("/rest/orchestrators/%s/locations/%s", orchestratorId, locationId);
+        String restUrl = String.format("/rest/v1/orchestrators/%s/locations/%s", orchestratorId, locationId);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().putJSon(restUrl, JsonUtil.toString(request)));
     }
 
@@ -116,7 +116,7 @@ public class LocationsDefinitionsSteps {
         PropertyValidationRequest propertyCheckRequest = new PropertyValidationRequest(value, propertyDefinition.getId(), propertyDefinition);
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         String locationId = getLocationIdFromName(orchestratorName, locationName);
-        String restUrl = String.format("/rest/orchestrators/%s/locations/%s/properties", orchestratorId, locationId);
+        String restUrl = String.format("/rest/v1/orchestrators/%s/locations/%s/properties", orchestratorId, locationId);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(restUrl, JsonUtil.toString(propertyCheckRequest)));
     }
 
@@ -138,7 +138,7 @@ public class LocationsDefinitionsSteps {
     @Then("^Response should contains a meta-property with value \"([^\"]*)\" for \"([^\"]*)\"$")
     public void Response_should_contains_a_meta_property_with_value_for(String metaPropertyValue, String metaPropertyName) throws Throwable {
         for (String tagId : currentMetaProperties.keySet()) {
-            String resp = Context.getRestClientInstance().get(String.format("/rest/metaproperties/%s", tagId));
+            String resp = Context.getRestClientInstance().get(String.format("/rest/v1/metaproperties/%s", tagId));
             RestResponse<MetaPropConfiguration> response = JsonUtil.read(resp, MetaPropConfiguration.class);
             if (metaPropertyName.equals(response.getData().getName())) {
                 Assert.assertEquals(metaPropertyValue, currentMetaProperties.get(tagId));

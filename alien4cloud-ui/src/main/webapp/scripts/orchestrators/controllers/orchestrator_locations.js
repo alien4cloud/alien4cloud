@@ -38,7 +38,7 @@ define(function(require) {
         var locationSupport;
         // query to get the location support informations for the orchestrator.
 
-        $http.get('rest/orchestrators/' + orchestrator.id + '/locationsupport').success(function(response) {
+        $http.get('rest/latest/orchestrators/' + orchestrator.id + '/locationsupport').success(function(response) {
           if (_.defined(response.data)) {
             locationSupport = response.data;
             $scope.multipleLocations = locationSupport.multipleLocations;
@@ -70,24 +70,23 @@ define(function(require) {
           $scope.context.configurationTypes = _.values(location.resources.configurationTypes);
           $scope.context.nodeTypes = _.values(location.resources.nodeTypes);
         };
-        
+
         $scope.deleteLocation = function(location){
           locationService.delete({orchestratorId: orchestrator.id, locationId: location.location.id}, null, function(result){
-            if(result.data == true){
+            if(result.data === true){
               delete $scope.locationDTO;
               updateLocations();
             }
           });
-        }
-        
+        };
+
         $scope.updateLocation = function(request) {
           if (request.name !== $scope.locationDTO.location.name || request.environmentType !== $scope.locationDTO.location.environmentType ) {
-            return locationService.update({orchestratorId: orchestrator.id, locationId: $scope.locationDTO.location.id}, angular.toJson(request)).$promise.then( 
-              function() { // Success
-              },
+            return locationService.update({orchestratorId: orchestrator.id, locationId: $scope.locationDTO.location.id}, angular.toJson(request)).$promise.then(
+              function() {}, // Success
               function(errorResponse) {
                 return $translate('ERRORS.' + errorResponse.data.error.code);
-            });
+              });
           }
         };
 

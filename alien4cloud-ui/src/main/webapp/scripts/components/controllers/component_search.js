@@ -10,7 +10,7 @@ define(function (require) {
   modules.get('a4c-components', ['a4c-tosca']).controller('alienSearchComponentCtrl', ['$scope', '$filter', 'searchContext', '$resource', 'toscaService', 'searchServiceFactory', function($scope, $filter, searchContext, $resource, toscaService, searchServiceFactory) {
     var alienInternalTags = ['icon'];
 
-    $scope.searchService = searchServiceFactory('rest/components/search', false, $scope, 20, 10);
+    $scope.searchService = searchServiceFactory('rest/latest/components/search', false, $scope, 20, 10);
     $scope.searchService.filtered(true);
 
     /** Used to display the correct text in UI */
@@ -203,7 +203,7 @@ define(function (require) {
     //get the icon
     $scope.getIcon = toscaService.getIcon;
 
-    var componentResource = $resource('rest/components/:componentId', {}, {
+    var componentResource = $resource('rest/latest/components/:componentId', {}, {
       method: 'GET',
       isArray: false,
       headers: {

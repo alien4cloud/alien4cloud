@@ -22,9 +22,8 @@ function writeScreenShot(data, filename) {
 
 var take = function(imgName) {
   if (SCREENSHOT === true) {
-    var specDescription = jasmine.getEnv().currentSpec.description;
     if (debugEnabled) {
-      console.log('Screenshot [' + imgName + '] in : ' + specDescription);
+      console.log('Screenshot [' + imgName + ']');
     }
     var dirExists = fs.existsSync(screenShotBaseDir);
     // create only one time the ${screenShotBaseDir} folder

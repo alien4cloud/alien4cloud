@@ -71,7 +71,7 @@ public class SearchDefinitionSteps {
         req.setType(req.getType());
 
         String jSon = jsonMapper.writeValueAsString(req);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/components/search", jSon));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/components/search", jSon));
     }
 
     @When("^I search for \"([^\"]*)\" from (\\d+) with result size of (\\d+)$")
@@ -80,7 +80,7 @@ public class SearchDefinitionSteps {
         req.setType(req.getType());
 
         String jSon = jsonMapper.writeValueAsString(req);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/components/search", jSon));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/components/search", jSon));
     }
 
     @When("^I make a basic \"([^\"]*)\" search for \"([^\"]*)\" from (\\d+) with result size of (\\d+)$")
@@ -88,7 +88,7 @@ public class SearchDefinitionSteps {
         // BasicSearchRequest req = new BasicSearchRequest(query, from, size);
         SearchRequest req = new SearchRequest(QUERY_TYPES.get(searchedComponentType), query, from, size, null);
         String jSon = jsonMapper.writeValueAsString(req);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/components/search", jSon));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/components/search", jSon));
     }
 
     @Then("^The response should contains (\\d+) elements from various types.$")
@@ -142,7 +142,7 @@ public class SearchDefinitionSteps {
         req.setType(req.getType());
 
         String jSon = jsonMapper.writeValueAsString(req);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/components/search", jSon));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/components/search", jSon));
     }
 
     @Then("^The \"([^\"]*)\" in the response should all have the \"([^\"]*)\" \"([^\"]*)\"$")

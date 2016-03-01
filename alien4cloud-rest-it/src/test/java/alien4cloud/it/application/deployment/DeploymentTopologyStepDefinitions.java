@@ -54,7 +54,7 @@ public class DeploymentTopologyStepDefinitions {
 
         Application application = Context.getInstance().getApplication();
         String environmentId = Context.getInstance().getDefaultApplicationEnvironmentId(application.getName());
-        String restUrl = String.format("/rest/applications/%s/environments/%s/deployment-topology/location-policies", application.getId(), environmentId);
+        String restUrl = String.format("/rest/v1/applications/%s/environments/%s/deployment-topology/location-policies", application.getId(), environmentId);
         String response = Context.getRestClientInstance().postJSon(restUrl, JsonUtil.toString(request));
         Context.getInstance().registerRestResponse(response);
     }
@@ -84,7 +84,7 @@ public class DeploymentTopologyStepDefinitions {
     public void I_get_the_deployment_toology_for_the_current_application() throws Throwable {
         Application application = Context.getInstance().getApplication();
         String environmentId = Context.getInstance().getDefaultApplicationEnvironmentId(application.getName());
-        String restUrl = String.format("/rest/applications/%s/environments/%s/deployment-topology/", application.getId(), environmentId);
+        String restUrl = String.format("/rest/v1/applications/%s/environments/%s/deployment-topology/", application.getId(), environmentId);
         String response = Context.getRestClientInstance().get(restUrl);
         Context.getInstance().registerRestResponse(response);
     }
@@ -99,7 +99,7 @@ public class DeploymentTopologyStepDefinitions {
         String locationId = context.getLocationId(orchestratorId, locationName);
         String resourceId = context.getLocationResourceId(orchestratorId, locationId, resourceName);
 
-        String restUrl = String.format("/rest/applications/%s/environments/%s/deployment-topology/substitutions/%s", application.getId(), envId, nodeName);
+        String restUrl = String.format("/rest/v1/applications/%s/environments/%s/deployment-topology/substitutions/%s", application.getId(), envId, nodeName);
         NameValuePair resourceParam = new BasicNameValuePair("locationResourceTemplateId", resourceId);
         String response = Context.getRestClientInstance().postUrlEncoded(restUrl, Lists.newArrayList(resourceParam));
         context.registerRestResponse(response);
@@ -134,7 +134,7 @@ public class DeploymentTopologyStepDefinitions {
         Application application = context.getApplication();
         String envId = context.getDefaultApplicationEnvironmentId(application.getName());
         UpdatePropertyRequest request = new UpdatePropertyRequest(propertyName, propertyValue);
-        String restUrl = String.format("/rest/applications/%s/environments/%s/deployment-topology/substitutions/%s/properties", application.getId(), envId,
+        String restUrl = String.format("/rest/v1/applications/%s/environments/%s/deployment-topology/substitutions/%s/properties", application.getId(), envId,
                 nodeName);
         String response = Context.getRestClientInstance().postJSon(restUrl, JsonUtil.toString(request));
         context.registerRestResponse(response);
@@ -156,7 +156,7 @@ public class DeploymentTopologyStepDefinitions {
         Application application = context.getApplication();
         String envId = context.getDefaultApplicationEnvironmentId(application.getName());
         UpdatePropertyRequest request = new UpdatePropertyRequest(propertyName, propertyValue);
-        String restUrl = String.format("/rest/applications/%s/environments/%s/deployment-topology/substitutions/%s/capabilities/%s/properties",
+        String restUrl = String.format("/rest/v1/applications/%s/environments/%s/deployment-topology/substitutions/%s/capabilities/%s/properties",
                 application.getId(), envId, nodeName, capabilityName);
         String response = Context.getRestClientInstance().postJSon(restUrl, JsonUtil.toString(request));
         context.registerRestResponse(response);
@@ -209,7 +209,7 @@ public class DeploymentTopologyStepDefinitions {
     private void executeUpdateDeploymentTopologyCall(UpdateDeploymentTopologyRequest request) throws IOException, JsonProcessingException {
         Application application = Context.getInstance().getApplication();
         String envId = Context.getInstance().getDefaultApplicationEnvironmentId(application.getName());
-        String restUrl = String.format("/rest/applications/%s/environments/%s/deployment-topology", application.getId(), envId);
+        String restUrl = String.format("/rest/v1/applications/%s/environments/%s/deployment-topology", application.getId(), envId);
         String response = Context.getRestClientInstance().putJSon(restUrl, JsonUtil.toString(request));
         Context.getInstance().registerRestResponse(response);
     }

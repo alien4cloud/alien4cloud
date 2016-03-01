@@ -23,7 +23,7 @@ define(function (require) {
       bat: 'batchfile',
       cmd: 'batchfile',
       py: 'python',
-      default_mode: 'yaml'
+      default_mode: 'yaml' // jshint ignore:line
     };
 
     $scope.treedata = {
@@ -37,7 +37,7 @@ define(function (require) {
       $scope.selected = selected;
     }
 
-    $scope.mode = extToMode['default_mode'];
+    $scope.mode = extToMode['default_mode']; // jshint ignore:line
 
     $scope.expandedNodes = [];
 
@@ -77,8 +77,8 @@ define(function (require) {
       if (tokens.length > 0) {
         fileName = tokens[tokens.length - 1];
       }
-      var fileExt = fileName.substr((fileName.lastIndexOf(".") -1 >>> 0) + 2).toLowerCase();
-      $scope.mode = _.defined(extToMode[fileExt]) ? extToMode[fileExt] :extToMode['default_mode'];
+      var fileExt = fileName.substr((fileName.lastIndexOf('.') -1 >>> 0) + 2).toLowerCase();
+      $scope.mode = _.defined(extToMode[fileExt]) ? extToMode[fileExt] :extToMode['default_mode']; // jshint ignore:line
     };
 
     $scope.showSelected = function(node) {

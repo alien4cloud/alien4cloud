@@ -27,7 +27,7 @@ define(function (require) {
       $scope.orchestrator = orchestrator;
 
       // get all location assignable roles
-      $resource('rest/auth/roles/deployer', {}, {
+      $resource('rest/latest/auth/roles/deployer', {}, {
         method: 'GET'
       }).get().$promise.then(function(roleResult) {
         $scope.locationRoles = roleResult.data;
@@ -51,7 +51,7 @@ define(function (require) {
             });
           }
         }
-        
+
         $scope.relatedGroups = {};
         if ($scope.context.location.groupRoles) {
           var groupIds = [];
@@ -69,11 +69,11 @@ define(function (require) {
             });
           }
         }
-      }
-      
-      //first run 
+      };
+
+      //first run
       refresh();
-      
+
       // Watch over selected location id to refresh
       $scope.$watch('context.location.id', function() {
         refresh();

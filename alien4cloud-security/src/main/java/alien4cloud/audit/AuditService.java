@@ -44,7 +44,7 @@ public class AuditService {
      */
     public synchronized AuditConfiguration getAuditConfiguration() {
         if (this.auditConfiguration == null) {
-            this.auditConfiguration = alienDAO.customFind(AuditConfiguration.class, null);
+            this.auditConfiguration = alienDAO.findById(AuditConfiguration.class, AuditConfiguration.ID);
         }
         return this.auditConfiguration;
     }
@@ -71,18 +71,6 @@ public class AuditService {
         return alienDAO.facetedSearch(AuditTrace.class, query, filters, authorizationFilter, null, from, size, "timestamp", true);
     }
 
-    private String getRequestMappingPath(RequestMapping requestMapping) {
-        String[] paths = requestMapping.value();
-        if (paths.length == 0) {
-            return null;
-        }
-        if (paths.length > 1) {
-            log.error("Audit does not support mapping http path more than once to the same Spring Controller method");
-            return null;
-        }
-        return paths[0];
-    }
-
     private String getRequestMappingMethod(RequestMapping requestMapping) {
         RequestMethod[] methods = requestMapping.method();
         if (methods.length == 0) {
@@ -98,34 +86,25 @@ public class AuditService {
     public Method getAuditedMethod(HandlerMethod controllerMethod) {
         RequestMapping methodMapping = AnnotationUtils.findAnnotation(controllerMethod.getMethod(), RequestMapping.class);
         RequestMapping controllerMapping = AnnotationUtils.findAnnotation(controllerMethod.getMethod().getDeclaringClass(), RequestMapping.class);
-        String contextPath = null;
         String httpMethod = null;
         if (controllerMapping != null) {
-            contextPath = getRequestMappingPath(controllerMapping);
             httpMethod = getRequestMappingMethod(controllerMapping);
             if (methodMapping != null) {
-                String methodContextPath = getRequestMappingPath(methodMapping);
                 String methodHttpMethod = getRequestMappingMethod(methodMapping);
-                if (contextPath == null) {
-                    contextPath = methodContextPath;
-                } else if (methodContextPath != null) {
-                    // Concatenate controller context path to the method context path
-                    contextPath += methodContextPath;
-                }
                 if (httpMethod == null) {
                     // Controller http method override method http method
                     httpMethod = methodHttpMethod;
                 }
             }
         } else if (methodMapping != null) {
-            contextPath = getRequestMappingPath(methodMapping);
             httpMethod = getRequestMappingMethod(methodMapping);
         }
-        if (contextPath == null || httpMethod == null) {
+        if (httpMethod == null) {
             return null;
         }
         Audit audit = getAuditAnnotation(controllerMethod);
-        return new Method(contextPath, httpMethod, getAuditCategoryName(controllerMethod, audit), getAuditActionName(controllerMethod, audit));
+        return new Method(controllerMethod.getMethod().toGenericString(), httpMethod, getAuditCategoryName(controllerMethod, audit), getAuditActionName(
+                controllerMethod, audit));
     }
 
     public boolean isMethodAudited(AuditConfiguration auditConfiguration, HandlerMethod controllerMethod) {

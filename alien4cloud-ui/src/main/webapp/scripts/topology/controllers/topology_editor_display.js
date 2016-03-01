@@ -9,8 +9,6 @@ define(function (require) {
 
   modules.get('a4c-topology-editor').factory('topoEditDisplay', [ 'resizeServices',
     function(resizeServices) {
-      var resizableSelectors = ['#nodetemplate-details', '#catalog-box', '#dependencies-box', '#inputs-box'];
-
       var TopologyEditorMixin = function(scope) {
         this.scope = scope;
       };
@@ -20,20 +18,7 @@ define(function (require) {
         /** Init method is called when the controller is ready. */
         init: function() {
           this.scope.view = 'RENDERED';
-          this.scope.dimensions = {
-            height: 50,
-            width: 50
-          };
-          this.scope.displays = {
-            topology: { active: true },
-            catalog: { active: true, size: 500 },
-            dependencies: { active: false, size: 400 },
-            inputs: { active: false, size: 400 },
-            artifacts: { active: false, size: 400 },
-            groups: { active: false, size: 400 },
-            substitutions: { active: false, size: 400 },
-            component: { active: false, size: 400 }
-          };
+
           this.scope.isNodeTemplateCollapsed = false;
           this.scope.isPropertiesCollapsed = false;
           this.scope.isRelationshipsCollapsed = false;
@@ -42,17 +27,38 @@ define(function (require) {
           this.scope.isArtifactCollapsed = false;
           this.scope.isRequirementsCollapsed = false;
           this.scope.isCapabilitiesCollapsed = false;
+
+          // default values that are going to be refreshed automatically
+          this.scope.dimensions = { width: 800, height: 600 };
+
+          this.scope.displays = {
+            catalog: { active: true, size: 500, selector: '#catalog-box' },
+            dependencies: { active: false, size: 400, selector: '#dependencies-box' },
+            inputs: { active: false, size: 400, selector: '#inputs-box' },
+            artifacts: { active: false, size: 400 },
+            groups: { active: false, size: 400 },
+            substitutions: { active: false, size: 400 },
+            component: { active: false, size: 500, selector: '#nodetemplate-details' }
+          };
+
+          var self = this;
           // Size management
-          for (var i = 0; i < resizableSelectors.length; i++) {
-            var handlerSelector = resizableSelectors[i] + '-handler';
-            $(resizableSelectors[i]).resizable({
-              handles: {
-                w: $(handlerSelector)
-              }
-            });
-          }
-          var instance = this;
-          resizeServices.registerContainer(function(width, height) { instance.onResize(width, height); }, '#topology-editor');
+          _.each(this.scope.displays, function(display) {
+            if(_.defined(display.selector)) {
+              var handlerSelector = display.selector + '-handler';
+              $(display.selector).resizable({
+                handles: {
+                  w: $(handlerSelector)
+                },
+                resize: function( event, ui ) {
+                  display.size = ui.size.width;
+                  self.updateVisualDimensions();
+                  self.scope.$digest();
+                }
+              });
+            }
+          });
+          resizeServices.registerContainer(function(width, height) { self.onResize(width, height); }, '#topology-editor');
           this.updateVisualDimensions();
         },
         onResize: function(width, height) {
@@ -60,18 +66,25 @@ define(function (require) {
             width: width,
             height: height
           };
-          this.updateVisualDimensions();
           var maxWidth = (width - 100) / 2;
-          for (var i = 0; i < resizableSelectors.length; i++) {
-            $(resizableSelectors[i]).resizable('option', 'maxWidth', maxWidth);
-          }
-          this.scope.$apply();
+          _.each(this.scope.displays, function(display) {
+            if(_.defined(display.selector)) {
+              $(display.selector).resizable('option', 'maxWidth', maxWidth);
+            }
+          });
+          this.updateVisualDimensions();
+          this.scope.$digest();
         },
         updateVisualDimensions: function() {
-          var instance = this;
+          var instance = this, width = this.scope.dimensions.width - 20; // vertical menu
+          _.each(this.scope.displays, function(display) {
+            if(display.active) {
+              width = width - display.size;
+            }
+          });
           this.scope.visualDimensions = {
             height: instance.scope.dimensions.height - 22,
-            width: instance.scope.dimensions.width
+            width: width
           };
         },
         displayOnly: function(displays) {
@@ -134,6 +147,7 @@ define(function (require) {
                 break;
             }
           }
+          this.updateVisualDimensions();
         }
       };
 

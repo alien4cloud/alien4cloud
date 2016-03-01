@@ -71,6 +71,7 @@ define(function(require) {
     alien4cloud.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
       function($stateProvider, $urlRouterProvider, $httpProvider) {
         $httpProvider.interceptors.push('restTechnicalErrorInterceptor');
+        $httpProvider.defaults.headers.common['A4C-Agent'] = 'AngularJS_UI';
         $urlRouterProvider.otherwise('/');
         states.config($stateProvider);
       }

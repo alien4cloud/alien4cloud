@@ -34,13 +34,13 @@ public class CsarGitCRUDStepDefinition {
         request.setStoredLocally(stored);
         request.setImportLocations(locations);
 
-        String response = Context.getRestClientInstance().postJSon("/rest/csarsgit/", JsonUtil.toString(request));
+        String response = Context.getRestClientInstance().postJSon("/rest/v1/csarsgit/", JsonUtil.toString(request));
         Context.getInstance().registerRestResponse(response);
     }
 
     @When("^I list all the git repositories$")
     public void i_list_all_the_git_repositories() throws Throwable {
-        String response = Context.getRestClientInstance().get("/rest/csarsgit/");
+        String response = Context.getRestClientInstance().get("/rest/v1/csarsgit/");
         Context.getInstance().registerRestResponse(response);
     }
 
@@ -122,7 +122,7 @@ public class CsarGitCRUDStepDefinition {
         request.setStoredLocally(stored);
         request.setImportLocations(locations);
 
-        String restUrl = String.format("/rest/csarsgit/%s", Context.getInstance().getCsarGitRepositoryId());
+        String restUrl = String.format("/rest/v1/csarsgit/%s", Context.getInstance().getCsarGitRepositoryId());
         String response = Context.getRestClientInstance().putJSon(restUrl, JsonUtil.toString(request));
         Context.getInstance().registerRestResponse(response);
     }
@@ -134,21 +134,21 @@ public class CsarGitCRUDStepDefinition {
 
     @When("^I import the GIT repository$")
     public void i_import_the_GIT_repository() throws Throwable {
-        String restUrl = String.format("/rest/csarsgit/%s", Context.getInstance().getCsarGitRepositoryId());
+        String restUrl = String.format("/rest/v1/csarsgit/%s", Context.getInstance().getCsarGitRepositoryId());
         String response = Context.getRestClientInstance().postJSon(restUrl, "");
         Context.getInstance().registerRestResponse(response);
     }
 
     @Given("^I get the GIT repository with id \"(.*?)\"$")
     public void i_get_the_GIT_repository_with_id(String id) throws Throwable {
-        String restUrl = String.format("/rest/csarsgit/%s", id);
+        String restUrl = String.format("/rest/v1/csarsgit/%s", id);
         String response = Context.getRestClientInstance().get(restUrl);
         Context.getInstance().registerRestResponse(response);
     }
 
     @Given("^I delete the GIT repository with id \"(.*?)\"$")
     public void i_delete_the_GIT_repository_with_id(String id) throws Throwable {
-        String restUrl = String.format("/rest/csarsgit/%s", id);
+        String restUrl = String.format("/rest/v1/csarsgit/%s", id);
         String response = Context.getRestClientInstance().delete(restUrl);
         Context.getInstance().registerRestResponse(response);
     }

@@ -17,64 +17,13 @@ define(function (require) {
   modules.get('a4c-components', ['ui.router', 'ui.bootstrap', 'a4c-deployment']).controller(
     'CsarDetailsCtrl', ['$scope', '$stateParams', '$state', 'csarService', 'deploymentServices', 'webSocketServices', '$translate', 'toaster',
     function($scope, $stateParams, $state, csarService, deploymentServices, webSocketServices, $translate, toaster) {
+
       /* Retrieve CSAR to display */
-      $scope.csarId = $stateParams.csarId;
-      $scope.refreshDetails = function() {
-        csarService.getAndDeleteCsar.get({
-          csarId: $scope.csarId
-        }, function(successResult) {
-          $scope.csar = successResult.data;
-          refreshDeploymentStatus();
-        });
-      };
-
-      var onStatusChange = function(event) {
-        $scope.deploymentStatus = JSON.parse(event.body).deploymentStatus;
-        $scope.$apply();
-      };
-
-      $scope.$on('$destroy', function() {
-        // Unsubscribe
-        unsubscribeFromDeploymentStatusTopic();
+      csarService.getAndDeleteCsar.get({
+        csarId: $stateParams.csarId
+      }, function(successResult) {
+        $scope.csar = successResult.data;
       });
-
-      var subscribeToDeploymentStatusTopic = function() {
-        if (!webSocketServices.isTopicSubscribed($scope.deploymentEventsTopic)) {
-          webSocketServices.subscribe($scope.deploymentEventsTopic, onStatusChange);
-        }
-      };
-
-      var unsubscribeFromDeploymentStatusTopic = function() {
-        if (_.defined($scope.deploymentEventsTopic) && webSocketServices.isTopicSubscribed($scope.deploymentEventsTopic)) {
-          webSocketServices.unSubscribe($scope.deploymentEventsTopic);
-        }
-      };
-
-      var refreshDeploymentStatus = function() {
-        csarService.getActiveDeployment.get({
-          csarId: $scope.csarId
-        }, undefined, function(success) {
-          if (_.defined(success.data)) {
-            var deployment = success.data;
-            $scope.deploymentId = deployment.id;
-            $scope.deploymentEventsTopic = '/topic/deployment-events/' + $scope.deploymentId + '/paasdeploymentstatusmonitorevent';
-            // Subscribe to listen to event on status change from server side
-            unsubscribeFromDeploymentStatusTopic();
-            subscribeToDeploymentStatusTopic();
-            refreshStatus();
-          } else {
-            $scope.deploymentStatus = 'UNDEPLOYED';
-          }
-        });
-      };
-
-      var refreshStatus = function() {
-        deploymentServices.getStatus({
-          deploymentId: $scope.deploymentId
-        }, function(successResult) {
-          $scope.deploymentStatus = successResult.data;
-        });
-      };
 
       $scope.remove = function(csarId) {
         csarService.getAndDeleteCsar.remove({
@@ -90,18 +39,13 @@ define(function (require) {
         });
       };
 
-      $scope.undeploy = function() {
-        $scope.isUnDeploying = true;
-        deploymentServices.undeploy({
-          deploymentId: $scope.deploymentId
-        }, function() {
-          $scope.deploymentStatus = 'UNDEPLOYMENT_IN_PROGRESS';
-          $scope.isUnDeploying = false;
+      //Go to runtime view for a deployment
+      $scope.goToRuntimeView = function(id){
+        $state.go('topologytemplates.detail.topology', {
+          id:id
         });
       };
 
-      // init details page
-      $scope.refreshDetails();
     }
   ]); // controller
 });// define
