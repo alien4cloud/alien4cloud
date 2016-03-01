@@ -183,6 +183,9 @@
 
                             <deployables>
                                 <deployable>
+                                    <groupId>alien4cloud</groupId>
+                                    <artifactId>alien4cloud-rest-it</artifactId>
+                                    <type>war</type>
                                     <pingURL>http://localhost:8088/rest/auth/status</pingURL>
                                     <pingTimeout>60000</pingTimeout>
                                     <!-- 5 min, time to deploy -->
