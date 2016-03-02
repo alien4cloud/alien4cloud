@@ -14,6 +14,7 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.common.MetaPropConfiguration;
+import alien4cloud.model.common.SuggestionEntry;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.components.IndexedArtifactToscaElement;
 import alien4cloud.model.components.IndexedArtifactType;
@@ -24,6 +25,7 @@ import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
+import alien4cloud.model.git.CsarGitRepository;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorConfiguration;
 import alien4cloud.model.orchestrators.locations.Location;
@@ -33,7 +35,6 @@ import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.model.PluginConfiguration;
-import alien4cloud.model.git.CsarGitRepository;
 
 /**
  * Elastic Search DAO for alien 4 cloud application.
@@ -85,6 +86,8 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         initIndice(CsarGitRepository.class);
 
         initIndice(DeploymentTopology.class);
+
+        initIndice(SuggestionEntry.class);
 
         initCompleted();
     }

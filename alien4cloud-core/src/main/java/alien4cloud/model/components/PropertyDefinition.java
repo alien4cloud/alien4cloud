@@ -58,6 +58,8 @@ public class PropertyDefinition implements IValue {
 
     private String description;
 
+    private String suggestionId;
+
     @Valid
     @ToscaPropertyConstraintDuplicate
     @JsonDeserialize(contentUsing = PropertyConstraintDeserializer.class)

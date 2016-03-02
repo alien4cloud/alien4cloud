@@ -34,7 +34,7 @@ public class PropertyDefinitionConverter {
             return null;
         }
         PropertyDefinition propertyDefinition = new PropertyDefinition();
-        propertyDefinition.setType(definitionAnnotation.type().toString());
+        propertyDefinition.setType(definitionAnnotation.type());
         propertyDefinition.setDefault(definitionAnnotation.defaultValue());
         propertyDefinition.setDescription(definitionAnnotation.description());
         propertyDefinition.setPassword(definitionAnnotation.isPassword());

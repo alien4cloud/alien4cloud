@@ -133,8 +133,8 @@ public class PojoFormDescriptorGenerator {
         Map<String, Object> propertyTypes = Maps.newHashMap();
         descriptors.put(PROPERTY_TYPE_KEY, propertyTypes);
         PropertyDescriptor[] properties = ReflectionUtil.getPropertyDescriptors(clazz);
-        String[] orderedPropertiesNames = null;
-        Set<String> propertiesNames = null;
+        String[] orderedPropertiesNames;
+        Set<String> propertiesNames;
         FormProperties formPropAnnotation = clazz.getAnnotation(FormProperties.class);
         if (formPropAnnotation != null && formPropAnnotation.value() != null) {
             orderedPropertiesNames = formPropAnnotation.value();
@@ -152,8 +152,7 @@ public class PojoFormDescriptorGenerator {
             }
         }
         for (PropertyDescriptor property : properties) {
-            if ((propertiesNames != null && !propertiesNames.contains(property.getName())) || property.getReadMethod() == null
-                    || property.getWriteMethod() == null) {
+            if ((!propertiesNames.contains(property.getName())) || property.getReadMethod() == null || property.getWriteMethod() == null) {
                 continue;
             }
             Class<?> propClazz = property.getPropertyType();
@@ -235,9 +234,7 @@ public class PojoFormDescriptorGenerator {
             propertyTypes.put(property.getName(), type);
         }
         descriptors.put(TYPE_KEY, COMPLEX_TYPE);
-        if (orderedPropertiesNames != null) {
-            descriptors.put(ORDER_KEY, orderedPropertiesNames);
-        }
+        descriptors.put(ORDER_KEY, orderedPropertiesNames);
     }
 
     private PropertyDefinition getPropertyDefinition(Class<?> clazz, PropertyDescriptor property) {
