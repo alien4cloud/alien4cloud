@@ -91,7 +91,7 @@
                                     <version>${alien.previous.version}</version>
                                     <classifier>tests</classifier>
                                     <includes>**/*</includes>
-                                    <excludes>alien/, data/, README.txt</excludes>
+                                    <excludes>alien/, data/, README.txt, META-INF/, alien4cloud-config.yml, elasticsearch.yml</excludes>
                                     <outputDirectory>src/test/java</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
@@ -100,7 +100,7 @@
                                     <version>${alien.previous.version}</version>
                                     <classifier>tests</classifier>
                                     <includes>**/*</includes>
-                                    <excludes>alien4cloud/**/*</excludes>
+                                    <excludes>alien4cloud, META-INF</excludes>
                                     <outputDirectory>src/test/resources</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
@@ -113,6 +113,19 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.3.2</version>
                 <executions>
+                    <execution>
+                        <id>cleanup-test-sources</id>
+                        <phase>clean</phase>
+                        <goals><goal>exec</goal></goals>
+                        <configuration>
+                            <executable>${project.basedir}/scripts/prepare-compatibility-test.sh</executable>
+                            <arguments>
+                                <argument>${project.basedir}</argument>
+                                <argument>${project.version}</argument>
+                                <argument>${alien.previous.version}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>prepare-test-data</id>
                         <phase>pre-integration-test</phase>
