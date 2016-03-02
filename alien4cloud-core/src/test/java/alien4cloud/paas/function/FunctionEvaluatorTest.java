@@ -315,4 +315,21 @@ public class FunctionEvaluatorTest {
         Assert.assertFalse(fullOutput3.getRelatedAttributes().contains("comp_getOpOutput:OUTPUT_FROM_CREATE"));
 
     }
+
+    @Test
+    public void parseComplexProperty() {
+        String complexPropName = "complex_prop";
+        PaaSNodeTemplate complexPropNode = builtPaaSNodeTemplates.get(complexPropName);
+        Operation configOp = complexPropNode.getIndexedToscaElement().getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations()
+                .get(ToscaNodeLifecycleConstants.CREATE);
+        Assert.assertEquals("{\n" + "  \"nested_map\" : {\n" + "    \"tutu\" : \"tata\",\n" + "    \"toctoc\" : \"tactac\"\n" + "  },\n"
+                + "  \"nested\" : \"toto\",\n" + "  \"nested_array\" : [ \"titi\", \"tuctuc\" ]\n" + "}", FunctionEvaluator.evaluateGetPropertyFunction(
+                (FunctionPropertyValue) configOp.getInputParameters().get("COMPLEX"), complexPropNode, builtPaaSNodeTemplates));
+        Assert.assertEquals("toto", FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) configOp.getInputParameters().get("NESTED"),
+                complexPropNode, builtPaaSNodeTemplates));
+        Assert.assertEquals("titi", FunctionEvaluator.evaluateGetPropertyFunction(
+                (FunctionPropertyValue) configOp.getInputParameters().get("NESTED_ARRAY_ELEMENT"), complexPropNode, builtPaaSNodeTemplates));
+        Assert.assertEquals("tata", FunctionEvaluator.evaluateGetPropertyFunction(
+                (FunctionPropertyValue) configOp.getInputParameters().get("NESTED_MAP_ELEMENT"), complexPropNode, builtPaaSNodeTemplates));
+    }
 }

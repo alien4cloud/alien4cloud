@@ -9,7 +9,38 @@ imports:
   - alien-base-types:1.1.0-SNAPSHOT
   #- tomcat-war-types:2.0.0-SNAPSHOT
 
+
+data_types:
+
+  alien.nodes.test.ComplexDataType:
+    properties:
+      nested:
+        type: string
+      nested_array:
+        type: list
+        entry_schema:
+          type: string
+      nested_map:
+        type: map
+        entry_schema:
+          type: string
+
 node_types:
+
+  alien.nodes.test.ComplexProp:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      complex_prop:
+        type: alien.nodes.test.ComplexDataType
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            COMPLEX: { get_property: [ SELF, "complex_prop" ] }
+            NESTED: { get_property: [ SELF, "complex_prop.nested" ] }
+            NESTED_ARRAY_ELEMENT: { get_property: [ SELF, "complex_prop.nested_array[0]" ] }
+            NESTED_MAP_ELEMENT: { get_property: [ SELF, "complex_prop.nested_map.tutu" ] }
+
   alien.test.TestCompute:
     derived_from: tosca.nodes.Compute
     properties:

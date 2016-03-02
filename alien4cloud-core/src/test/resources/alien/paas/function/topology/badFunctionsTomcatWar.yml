@@ -11,6 +11,7 @@ imports:
     - alien-base-types:1.1.0-SNAPSHOT
 
 topology_template:
+
   node_templates:
     comp_tomcat_war:
       type: alien.test.BadTestCompute
@@ -19,7 +20,6 @@ topology_template:
         os_distribution: ubuntu
         os_version: ubuntu
         customHostName: testHostname
-          
     comp_getOpOutput:
       type: alien.test.TestComputeWithGetOperationOutput
       properties:
@@ -37,7 +37,6 @@ topology_template:
             node: comp_tomcat_war
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
-          
     tomcat:
       type: alien.nodes.Tomcat
       properties:
@@ -82,4 +81,15 @@ topology_template:
             capability: alien.capabilities.WarHosting
             relationship: alien.test.functions.relationships.WarHostedOnTomcat
             properties:
-              relName: war_2_hostedOnTomcat_relname                 
+              relName: war_2_hostedOnTomcat_relname
+    complex_prop:
+      type: alien.nodes.test.ComplexProp
+      properties:
+        complex_prop:
+          nested: toto
+          nested_array: [ titi, tuctuc ]
+          nested_map:
+            toctoc: tactac
+            tutu: tata
+      requirements:
+        - host: comp_tomcat_war
