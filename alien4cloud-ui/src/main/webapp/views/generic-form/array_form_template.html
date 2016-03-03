@@ -1,5 +1,6 @@
-<div class="container-fluid" ng-show="isActivePath">
-  <div ng-class="{'form-container-no-tree-window form-container-vertical-scroll': configuration.formStyle === 'window', 'row': configuration.formStyle === 'tree'}">
+  <div ng-class="{
+    'form-container-no-tree-window form-container-vertical-scroll': configuration.formStyle === 'window'}"
+    ng-show="isActivePath">
     <div class="form-group">
       <label class="col-md-4 control-label"
              tooltip="{{labelName | translate}}"
@@ -26,4 +27,3 @@
       </div>
     </div>
   </div>
-</div>
