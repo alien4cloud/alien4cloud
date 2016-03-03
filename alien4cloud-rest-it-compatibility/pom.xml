@@ -91,7 +91,7 @@
                                     <version>${alien.previous.version}</version>
                                     <classifier>tests</classifier>
                                     <includes>**/*</includes>
-                                    <excludes>alien/, data/, README.txt, META-INF/, alien4cloud-config.yml, elasticsearch.yml</excludes>
+                                    <excludes>alien/, data/, README.txt, META-INF/, alien4cloud-config.yml, elasticsearch.yml, alien4cloud/it/RunAuditIT.class, **/audit</excludes>
                                     <outputDirectory>src/test/java</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
@@ -121,7 +121,6 @@
                             <executable>${project.basedir}/scripts/prepare-compatibility-test.sh</executable>
                             <arguments>
                                 <argument>${project.basedir}</argument>
-                                <argument>${project.version}</argument>
                                 <argument>${alien.previous.version}</argument>
                             </arguments>
                         </configuration>
