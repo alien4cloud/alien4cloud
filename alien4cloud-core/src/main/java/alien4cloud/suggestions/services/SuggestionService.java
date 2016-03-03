@@ -1,16 +1,20 @@
 package alien4cloud.suggestions.services;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Inject;
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
+import com.google.common.io.Closeables;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.dao.ElasticSearchDAO;
+import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
@@ -18,6 +22,7 @@ import alien4cloud.model.common.SuggestionEntry;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.tosca.normative.ToscaType;
+import alien4cloud.utils.YamlParserUtil;
 
 import com.google.common.collect.Maps;
 
@@ -25,8 +30,18 @@ import com.google.common.collect.Maps;
 @Component
 public class SuggestionService {
 
-    @Inject
-    private ElasticSearchDAO elasticSearchDAO;
+    @Resource(name = "alien-es-dao")
+    private IGenericSearchDAO elasticSearchDAO;
+
+    @PostConstruct
+    public void loadDefaultSuggestions() throws IOException {
+        InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("suggestion-configuration.yml");
+        SuggestionEntry[] suggestions = YamlParserUtil.parse(input, SuggestionEntry[].class);
+        Closeables.close(input, true);
+        for (SuggestionEntry suggestionEntry : suggestions) {
+            elasticSearchDAO.save(suggestionEntry);
+        }
+    }
 
     public Set<String> getSuggestions(String suggestionId) {
         SuggestionEntry suggestionEntry = elasticSearchDAO.findById(SuggestionEntry.class, suggestionId);
