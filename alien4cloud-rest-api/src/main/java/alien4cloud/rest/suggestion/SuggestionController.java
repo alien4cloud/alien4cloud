@@ -40,7 +40,7 @@ import springfox.documentation.annotations.ApiIgnore;
  * @author 'Igor Ngouagna'
  */
 @RestController
-@RequestMapping({"/rest/suggest", "/rest/v1/suggest", "/rest/latest/suggest"})
+@RequestMapping({"/rest/v1/suggest", "/rest/latest/suggest"})
 public class SuggestionController {
     private static final int SUGGESTION_COUNT = 10;
     private static final String TAG_FIELD = "tags";
