@@ -269,7 +269,7 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
         Map<String, IndexedNodeType> hierarchy = Maps.newHashMap();
         for (String parentId : derivedFrom) {
             IndexedNodeType parentType = ToscaParsingUtil.getNodeTypeFromArchiveOrDependencies(parentId, archiveRoot, searchService);
-            hierarchy.put(parentType.getId(), parentType);
+            hierarchy.put(parentType.getElementId(), parentType);
         }
         List<IndexedNodeType> hierarchyList = IndexedModelUtils.orderByDerivedFromHierarchy(hierarchy);
         Collections.reverse(hierarchyList);

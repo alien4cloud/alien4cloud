@@ -252,7 +252,7 @@ public class TopologyChecker implements IChecker<Topology> {
         Map<String, T> hierarchy = Maps.newHashMap();
         for (String parentId : derivedFrom) {
             T parentElement = (T) ToscaParsingUtil.getElementFromArchiveOrDependencies(indexedElement.getClass(), parentId, archiveRoot, searchService);
-            hierarchy.put(parentElement.getId(), parentElement);
+            hierarchy.put(parentElement.getElementId(), parentElement);
         }
         List<T> hierarchyList = IndexedModelUtils.orderByDerivedFromHierarchy(hierarchy);
         hierarchyList.add(indexedElement);
