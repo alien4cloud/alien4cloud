@@ -139,20 +139,6 @@
                             </arguments>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>merge-reports</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                        <configuration>
-                            <mainClass>alien4cloud.cucumber.report.ReportMerger</mainClass>
-                            <classpathScope>test</classpathScope>
-                            <arguments>
-                                <argument>${project.basedir}/target/cucumber</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
         </plugins>
