@@ -8,7 +8,6 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import com.google.common.io.Closeables;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.mapping.MappingBuilder;
@@ -25,6 +24,7 @@ import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.utils.YamlParserUtil;
 
 import com.google.common.collect.Maps;
+import com.google.common.io.Closeables;
 
 @Slf4j
 @Component
@@ -33,13 +33,13 @@ public class SuggestionService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO elasticSearchDAO;
 
-    @PostConstruct
     public void loadDefaultSuggestions() throws IOException {
         InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("suggestion-configuration.yml");
         SuggestionEntry[] suggestions = YamlParserUtil.parse(input, SuggestionEntry[].class);
         Closeables.close(input, true);
         for (SuggestionEntry suggestionEntry : suggestions) {
-            elasticSearchDAO.save(suggestionEntry);
+            // TODO: Check if exist
+            createSuggestionEntry(suggestionEntry);
         }
     }
 
@@ -52,25 +52,19 @@ public class SuggestionService {
         }
     }
 
-    public void createSuggestionEntry(Class<? extends IndexedInheritableToscaElement> targetClass, String targetId, String targetProperty,
-            Set<String> initialValues) {
-        String esIndex = elasticSearchDAO.getIndexForType(targetClass);
+    public void createSuggestionEntry(SuggestionEntry suggestionEntry) {
         Map<String, String[]> filters = Maps.newHashMap();
-        filters.put("elementId", new String[] { targetId });
-
+        filters.put("elementId", new String[] { suggestionEntry.getTargetElementId() });
+        Class<? extends IndexedInheritableToscaElement> targetClass = (Class<? extends IndexedInheritableToscaElement>) elasticSearchDAO.getTypesToClasses()
+                .get(suggestionEntry.getEsType());
         GetMultipleDataResult<? extends IndexedInheritableToscaElement> result = elasticSearchDAO.find(targetClass, filters, Integer.MAX_VALUE);
         if (result.getData() != null && result.getData().length > 0) {
             for (IndexedInheritableToscaElement targetElement : result.getData()) {
-                PropertyDefinition propertyDefinition = targetElement.getProperties().get(targetProperty);
+                PropertyDefinition propertyDefinition = targetElement.getProperties().get(suggestionEntry.getTargetProperty());
                 if (propertyDefinition == null) {
-                    throw new NotFoundException("Property [" + targetProperty + "] not found for element [" + targetId + "]");
+                    throw new NotFoundException("Property [" + suggestionEntry.getTargetProperty() + "] not found for element ["
+                            + suggestionEntry.getTargetElementId() + "]");
                 } else {
-                    SuggestionEntry suggestionEntry = new SuggestionEntry();
-                    suggestionEntry.setEsIndex(esIndex);
-                    suggestionEntry.setEsType(MappingBuilder.indexTypeFromClass(targetElement.getClass()));
-                    suggestionEntry.setTargetElementId(targetId);
-                    suggestionEntry.setTargetProperty(targetProperty);
-                    suggestionEntry.setSuggestions(initialValues);
                     switch (propertyDefinition.getType()) {
                     case ToscaType.STRING:
                         propertyDefinition.setSuggestionId(suggestionEntry.getId());
@@ -95,7 +89,20 @@ public class SuggestionService {
                 }
             }
         } else {
-            throw new NotFoundException("Not any target element found for suggestion from [" + targetClass.getName() + "] and id [" + targetId + "]");
+            throw new NotFoundException("Not any target element found for suggestion from [" + targetClass.getName() + "] and id ["
+                    + suggestionEntry.getTargetProperty() + "]");
         }
+    }
+
+    public void createSuggestionEntry(Class<? extends IndexedInheritableToscaElement> targetClass, String targetId, String targetProperty,
+            Set<String> initialValues) {
+        String esIndex = elasticSearchDAO.getIndexForType(targetClass);
+        SuggestionEntry suggestionEntry = new SuggestionEntry();
+        suggestionEntry.setEsIndex(esIndex);
+        suggestionEntry.setEsType(MappingBuilder.indexTypeFromClass(targetClass));
+        suggestionEntry.setTargetElementId(targetId);
+        suggestionEntry.setTargetProperty(targetProperty);
+        suggestionEntry.setSuggestions(initialValues);
+        createSuggestionEntry(suggestionEntry);
     }
 }
