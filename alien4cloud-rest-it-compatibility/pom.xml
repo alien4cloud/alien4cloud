@@ -4,7 +4,7 @@
     <parent>
         <groupId>alien4cloud</groupId>
         <artifactId>alien4cloud-parent</artifactId>
-        <version>1.2.0-SM1-SNAPSHOT</version>
+        <version>1.2.0-SM2-SNAPSHOT</version>
     </parent>
     <artifactId>alien4cloud-rest-it-compatibility</artifactId>
 
@@ -258,47 +258,6 @@
                                 <goals>
                                     <goal>integration-test</goal>
                                     <goal>verify</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>coverage</id>
-            <activation>
-                <property>
-                    <name>coverage</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <!-- redo configuration from parent - use itReportPath -->
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.6.4.201312101107</version>
-                        <configuration>
-                            <propertyName>jacocoargline</propertyName>
-                            <includes>
-                                <include>alien4cloud.*</include>
-                            </includes>
-                            <destFile>${sonar.jacoco.itReportPath}</destFile>
-                            <dataFile>${sonar.jacoco.itReportPath}</dataFile>
-                            <append>true</append>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>pre-test</id>
-                                <goals>
-                                    <goal>prepare-agent</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>post-test</id>
-                                <goals>
-                                    <goal>report</goal>
                                 </goals>
                             </execution>
                         </executions>
