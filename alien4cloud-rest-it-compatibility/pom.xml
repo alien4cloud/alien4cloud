@@ -103,6 +103,14 @@
                                     <excludes>alien4cloud, META-INF, alien4cloud/it/RunAuditIT.class</excludes>
                                     <outputDirectory>src/test/resources</outputDirectory>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>alien4cloud</groupId>
+                                    <artifactId>alien4cloud-rest-it</artifactId>
+                                    <version>${alien.previous.version}</version>
+                                    <classifier>tests</classifier>
+                                    <excludes>**/*</excludes>
+                                    <outputDirectory>src/main/resources</outputDirectory>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -136,6 +144,20 @@
                             <classpathScope>test</classpathScope>
                             <arguments>
                                 <argument>${project.basedir}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>merge-reports</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>alien4cloud.cucumber.report.ReportMerger</mainClass>
+                            <classpathScope>test</classpathScope>
+                            <arguments>
+                                <argument>${project.basedir}/target/cucumber</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -244,6 +266,47 @@
                                 <goals>
                                     <goal>integration-test</goal>
                                     <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>coverage</id>
+            <activation>
+                <property>
+                    <name>coverage</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <!-- redo configuration from parent - use itReportPath -->
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>0.6.4.201312101107</version>
+                        <configuration>
+                            <propertyName>jacocoargline</propertyName>
+                            <includes>
+                                <include>alien4cloud.*</include>
+                            </includes>
+                            <destFile>${sonar.jacoco.itReportPath}</destFile>
+                            <dataFile>${sonar.jacoco.itReportPath}</dataFile>
+                            <append>true</append>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>pre-test</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>post-test</id>
+                                <goals>
+                                    <goal>report</goal>
                                 </goals>
                             </execution>
                         </executions>
