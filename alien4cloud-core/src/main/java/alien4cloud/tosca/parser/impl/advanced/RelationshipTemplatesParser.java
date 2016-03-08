@@ -23,6 +23,7 @@ import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.Interface;
 import alien4cloud.model.components.RequirementDefinition;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
@@ -85,7 +86,8 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
                 // the value node is a scalar, this is the short notation for requirements : Short notation (node only)
                 // ex: host: compute
                 String toscaRequirementTargetNodeTemplateName = ((ScalarNode) valueNode).getValue();
-                buildAndAddRelationhip(valueNode, nodeTemplate, toscaRequirementName, toscaRequirementTargetNodeTemplateName, null, null, context, result, null);
+                buildAndAddRelationhip(valueNode, nodeTemplate, toscaRequirementName, toscaRequirementTargetNodeTemplateName, null, null, context, result,
+                        null, null);
             } else if (valueNode instanceof MappingNode) {
                 // the value is not a scalar, Short notation (with relationship or capability) or Extended notation
                 // we only parser the Short notation (with relationship or capability)
@@ -94,17 +96,22 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
 
                 // let's search for requirement's properties
                 Map<String, AbstractPropertyValue> relationshipProperties = null;
+                Map<String, Interface> interfaces = null;
                 for (NodeTuple mappingValueNodeChilds : mappingValueNode.getValue()) {
                     if (mappingValueNodeChilds.getKeyNode() instanceof ScalarNode
-                            && ((ScalarNode) mappingValueNodeChilds.getKeyNode()).getValue().equals("properties")
                             && (mappingValueNodeChilds.getValueNode() instanceof MappingNode)) {
-                        INodeParser<AbstractPropertyValue> propertyValueParser = context.getRegistry().get("node_template_property");
-                        MapParser<AbstractPropertyValue> mapParser = new MapParser<AbstractPropertyValue>(propertyValueParser, "node_template_property");
-                        relationshipProperties = mapParser.parse(mappingValueNodeChilds.getValueNode(), context);
+                        if (((ScalarNode) mappingValueNodeChilds.getKeyNode()).getValue().equals("properties")) {
+                            INodeParser<AbstractPropertyValue> propertyValueParser = context.getRegistry().get("node_template_property");
+                            MapParser<AbstractPropertyValue> mapParser = new MapParser<AbstractPropertyValue>(propertyValueParser, "node_template_property");
+                            relationshipProperties = mapParser.parse(mappingValueNodeChilds.getValueNode(), context);
+                        } else if (((ScalarNode) mappingValueNodeChilds.getKeyNode()).getValue().equals("interfaces")) {
+                            INodeParser<Map<String, Interface>> interfacesParser = context.getRegistry().get("interfaces");
+                            interfaces = interfacesParser.parse(mappingValueNodeChilds.getValueNode(), context);
+                        }
                     }
                 }
 
-                Map<String, String> map = ParserUtils.parseStringMap(mappingValueNode, context, "properties");
+                Map<String, String> map = ParserUtils.parseStringMap(mappingValueNode, context, "properties", "interfaces");
                 // for the node (node_type_or_template_name), we only accpet the "template_name"
                 String toscaRequirementTargetNodeTemplateName = map.get("node");
                 if (toscaRequirementTargetNodeTemplateName == null) {
@@ -119,7 +126,7 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
                 // this is a Relationship Type
                 String tosca_relationship = map.get("relationship");
                 buildAndAddRelationhip(valueNode, nodeTemplate, toscaRequirementName, toscaRequirementTargetNodeTemplateName, tosca_capability,
-                        tosca_relationship, context, result, relationshipProperties);
+                        tosca_relationship, context, result, relationshipProperties, interfaces);
             }
 
         }
@@ -128,9 +135,9 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
 
     private void buildAndAddRelationhip(Node node, NodeTemplate nodeTemplate, String toscaRequirementName, String toscaRequirementTargetNodeTemplateName,
             String capabilityType, String relationshipType, ParsingContextExecution context, Map<String, RelationshipTemplate> relationships,
-            Map<String, AbstractPropertyValue> relationshipProperties) {
+            Map<String, AbstractPropertyValue> relationshipProperties, Map<String, Interface> interfaces) {
         RelationshipTemplate relationshipTemplate = buildRelationshipTemplate(node, nodeTemplate, toscaRequirementName, toscaRequirementTargetNodeTemplateName,
-                capabilityType, relationshipType, context, relationshipProperties);
+                capabilityType, relationshipType, context, relationshipProperties, interfaces);
         if (relationshipTemplate == null) {
             context.getParsingErrors().add(
                     new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.RELATIONSHIP_NOT_BUILT, null, node.getStartMark(), null, node.getEndMark(),
@@ -165,8 +172,9 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
 
     private RelationshipTemplate buildRelationshipTemplate(Node node, NodeTemplate nodeTemplate, String toscaRequirementName,
             String toscaRequirementTargetNodeTemplateName, String capabilityType, String relationshipType, ParsingContextExecution context,
-            Map<String, AbstractPropertyValue> relationshipProperties) {
+            Map<String, AbstractPropertyValue> relationshipProperties, Map<String, Interface> interfaces) {
         RelationshipTemplate relationshipTemplate = new RelationshipTemplate();
+        relationshipTemplate.setInterfaces(interfaces);
         ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
         IndexedNodeType indexedNodeType = ToscaParsingUtil.getNodeTypeFromArchiveOrDependencies(nodeTemplate.getType(), archiveRoot, searchService);
         if (indexedNodeType == null) {
@@ -244,7 +252,6 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
         TopologyServiceCore.fillProperties(properties, indexedRelationshipType.getProperties(), relationshipProperties);
         relationshipTemplate.setProperties(properties);
         relationshipTemplate.setAttributes(indexedRelationshipType.getAttributes());
-        relationshipTemplate.setInterfaces(indexedRelationshipType.getInterfaces());
         return relationshipTemplate;
     }
 

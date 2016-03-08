@@ -283,9 +283,9 @@ public class FunctionEvaluatorTest {
         IndexedArtifactToscaElement tocaElement = computePaaS.getIndexedToscaElement();
         IValue oldHostNameAttr = tocaElement.getAttributes().get("old_hostname");
         IValue newHostNameAttr = tocaElement.getAttributes().get("new_hostname");
-        Operation createOp = computePaaS.getNodeTemplate().getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations()
+        Operation createOp = computePaaS.getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations()
                 .get(ToscaNodeLifecycleConstants.CREATE);
-        Operation configOp = computePaaS.getNodeTemplate().getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations()
+        Operation configOp = computePaaS.getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations()
                 .get(ToscaNodeLifecycleConstants.CONFIGURE);
         Set<OperationOutput> createOutput = createOp.getOutputs();
         Set<OperationOutput> configureOutput = configOp.getOutputs();

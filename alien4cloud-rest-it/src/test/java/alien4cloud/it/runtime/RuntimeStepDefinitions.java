@@ -74,8 +74,9 @@ public class RuntimeStepDefinitions {
             commandRequest.setParameters(parameters);
         }
         String jSon = JsonUtil.toString(commandRequest);
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/v1/runtime/" + Context.getInstance().getApplication().getId() + "/operations/", jSon));
+        String restResponse = Context.getRestClientInstance().postJSon("/rest/v1/runtime/" + Context.getInstance().getApplication().getId() + "/operations/",
+                jSon);
+        Context.getInstance().registerRestResponse(restResponse);
 
     }
 

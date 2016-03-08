@@ -1,5 +1,9 @@
 package alien4cloud.rest.runtime;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
+
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,18 +34,17 @@ import alien4cloud.deployment.DeploymentRuntimeService;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.DeploymentTopologyService;
-import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.components.IValue;
+import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.Interface;
 import alien4cloud.model.components.Operation;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
-import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.orchestrators.locations.services.LocationService;
@@ -67,9 +70,6 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationExc
 import alien4cloud.utils.services.ConstraintPropertyService;
 
 import com.google.common.collect.Lists;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.Authorization;
 
 @RestController
 @Slf4j
@@ -195,7 +195,8 @@ public class RuntimeController {
                 topologyServiceCore.getNodeTemplates(topology));
         IndexedNodeType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
                 topology.getDependencies());
-        Map<String, Interface> interfaces = indexedNodeType.getInterfaces();
+
+        Map<String, Interface> interfaces = IndexedModelUtils.mergeInterfaces(indexedNodeType.getInterfaces(), nodeTemplate.getInterfaces());
 
         if (interfaces == null || interfaces.get(operationRequest.getInterfaceName()) == null) {
             throw new NotFoundException("Interface [" + operationRequest.getInterfaceName() + "] not found in the node template ["

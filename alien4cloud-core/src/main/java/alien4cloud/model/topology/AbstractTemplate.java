@@ -62,8 +62,9 @@ public abstract class AbstractTemplate {
      */
     private Map<String, DeploymentArtifact> artifacts;
 
+    /**
+     * The interfaces that are defined at the template level (overriding type's one).
+     */
     @ConditionalOnAttribute(ConditionalAttributes.REST)
-    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
-    @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, Interface> interfaces;
 }

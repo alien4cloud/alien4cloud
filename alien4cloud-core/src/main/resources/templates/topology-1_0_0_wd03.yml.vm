@@ -109,7 +109,27 @@ topology_template:
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($relationship.properties))
             properties:
 #serializeAbtractPropertyValues($relationship.properties "              ")          
-#end## if        
+#end## if
+#if($utils.doesInterfacesContaineImplementedOperation($relationship.interfaces))
+            interfaces:
+#foreach($interfaceEntry in ${relationship.interfaces.entrySet()})
+#if($utils.doesInterfaceContaineImplementedOperation($interfaceEntry.value))
+              ${interfaceEntry.key}:
+#foreach($operationEntry in ${interfaceEntry.value.operations.entrySet()})
+#if($utils.isOperationImplemented($operationEntry.value))
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($operationEntry.value.inputParameters))
+                ${operationEntry.key}:
+                  inputs:
+#serializeAbtractPropertyValues($operationEntry.value.inputParameters "                    ")
+                  implementation: $operationEntry.value.implementationArtifact.artifactRef
+#else
+                ${operationEntry.key}: $operationEntry.value.implementationArtifact.artifactRef
+#end## if inputParameters not empty
+#end## if isOperationImplemented
+#end## of operations iteration
+#end## if doesInterfaceContaineImplementedOperation
+#end## of interfaces iteration
+#end## if doesInterfacesContaineImplementedOperation
 #end## of relationship iteration    
 #end## if
 #if($utils.hasCapabilitiesContainingNotNullProperties($nodeTemplateEntry.value))
@@ -122,6 +142,26 @@ topology_template:
 #end## if capability properties not empty
 #end## of capabilityEntry iteration
 #end## if hasCapabilitiesContainingNotNullProperties
+#if($utils.doesInterfacesContaineImplementedOperation($nodeTemplateEntry.value.interfaces))
+      interfaces:
+#foreach($interfaceEntry in ${nodeTemplateEntry.value.interfaces.entrySet()})
+#if($utils.doesInterfaceContaineImplementedOperation($interfaceEntry.value))
+        ${interfaceEntry.key}:
+#foreach($operationEntry in ${interfaceEntry.value.operations.entrySet()})
+#if($utils.isOperationImplemented($operationEntry.value))
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($operationEntry.value.inputParameters))
+          ${operationEntry.key}:
+            input:
+#serializeAbtractPropertyValues($operationEntry.value.inputParameters "              ")
+            implementation: $operationEntry.value.implementationArtifact.artifactRef
+#else
+          ${operationEntry.key}: $operationEntry.value.implementationArtifact.artifactRef
+#end## if inputParameters not empty
+#end## if isOperationImplemented
+#end## of operations iteration
+#end## if doesInterfaceContaineImplementedOperation
+#end## of interfaces iteration
+#end## if doesInterfacesContaineImplementedOperation
 #end## of nodeTemplateEntry iteration
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.groups))
   groups:

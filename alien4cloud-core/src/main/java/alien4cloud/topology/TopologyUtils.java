@@ -56,7 +56,7 @@ public class TopologyUtils {
     }
 
     /**
-     * Extract interfaces that have implemented operations only
+     * Extract interfaces that have implemented operations only.
      *
      * @param allInterfaces all interfaces
      * @return interfaces that have implemented operations
