@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
-import alien4cloud.suggestions.services.SuggestionService;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.context.ApplicationListener;
@@ -25,8 +24,6 @@ public class ApplicationBootstrap implements ApplicationListener<ContextRefreshe
     private OrchestratorStateService orchestratorStateService;
     @Inject
     private InitialLoader initialLoader;
-    @Inject
-    private SuggestionService suggestionService;
 
     private boolean initialized = false;
 
@@ -40,9 +37,6 @@ public class ApplicationBootstrap implements ApplicationListener<ContextRefreshe
 
             // try to load plugins from init folder.
             initialLoader.loadPlugins();
-
-            // try to init the suggestion indexes
-            suggestionService.loadDefaultSuggestions();
         } catch (IOException e) {
             log.error("Error while loading plugins.", e);
         }

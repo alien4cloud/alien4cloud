@@ -9,12 +9,19 @@ import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.elasticsearch.annotation.query.FetchContext;
+
+import static alien4cloud.dao.model.FetchContext.SUMMARY;
 
 @ESObject
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SuggestionEntry {
+
+    @Id
+    @FetchContext(contexts = { SUMMARY }, include = { true })
+    private String id;
 
     /**
      * elasticsearch index of suggestion, for example toscaelement
@@ -41,8 +48,7 @@ public class SuggestionEntry {
      */
     private Set<String> suggestions;
 
-    @Id
-    public String getId() {
-        return esIndex + ":" + esType + ":" + targetElementId + ":" + targetProperty;
+    public void generateId() {
+        this.id = esIndex + ":" + esType + ":" + targetElementId + ":" + targetProperty;
     }
 }

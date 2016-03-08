@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import alien4cloud.suggestions.services.SuggestionService;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
@@ -39,6 +40,8 @@ public class ArchiveUploadService {
     TopologyServiceCore topologyServiceCore;
     @Inject
     TopologyTemplateVersionService topologyTemplateVersionService;
+    @Inject
+    private SuggestionService suggestionService;
 
     /**
      * Upload a TOSCA archive and index its components.
@@ -69,6 +72,7 @@ public class ArchiveUploadService {
         }
 
         archiveIndexer.importArchive(archiveRoot, path, parsingResult.getContext().getParsingErrors());
+        suggestionService.setAllSuggestionIDOnPropertyDefinition();
 
         return toSimpleResult(parsingResult);
     }

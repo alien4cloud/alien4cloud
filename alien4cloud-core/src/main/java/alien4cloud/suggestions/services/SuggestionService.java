@@ -2,6 +2,7 @@ package alien4cloud.suggestions.services;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,7 +11,6 @@ import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -31,33 +31,45 @@ import com.google.common.io.Closeables;
 public class SuggestionService {
 
     @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO elasticSearchDAO;
+    private IGenericSearchDAO alienDAO;
 
+    /**
+     * This method load the defaults suggestions to ES.
+     * @throws IOException
+     */
+    @PostConstruct
     public void loadDefaultSuggestions() throws IOException {
         InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("suggestion-configuration.yml");
         SuggestionEntry[] suggestions = YamlParserUtil.parse(input, SuggestionEntry[].class);
         Closeables.close(input, true);
         for (SuggestionEntry suggestionEntry : suggestions) {
-            // TODO: Check if exist
-            createSuggestionEntry(suggestionEntry);
+            suggestionEntry.generateId();
+            if (!isSuggestionExist(suggestionEntry)) {
+                alienDAO.save(suggestionEntry);
+            }
         }
     }
 
-    public Set<String> getSuggestions(String suggestionId) {
-        SuggestionEntry suggestionEntry = elasticSearchDAO.findById(SuggestionEntry.class, suggestionId);
-        if (suggestionEntry == null) {
-            throw new NotFoundException("Suggestion entry [" + suggestionId + "] cannot be found");
-        } else {
-            return suggestionEntry.getSuggestions();
+    /**
+     * Iterate on default suggestions to update all assosiate property definition
+     */
+    public void setAllSuggestionIDOnPropertyDefinition() {
+        List<SuggestionEntry> suggestionEntries = getAllSuggestionEntries();
+        for (SuggestionEntry suggestionEntry : suggestionEntries) {
+            setSuggestionIdOnPropertyDefinition(suggestionEntry);
         }
     }
 
-    public void createSuggestionEntry(SuggestionEntry suggestionEntry) {
+    /**
+     * Add the suggestion ID of the new suggestionEntry to the appropriate propertyDefinition.
+     * @param suggestionEntry
+     */
+    public void setSuggestionIdOnPropertyDefinition(SuggestionEntry suggestionEntry) {
         Map<String, String[]> filters = Maps.newHashMap();
-        filters.put("elementId", new String[] { suggestionEntry.getTargetElementId() });
-        Class<? extends IndexedInheritableToscaElement> targetClass = (Class<? extends IndexedInheritableToscaElement>) elasticSearchDAO.getTypesToClasses()
+        filters.put("elementId", new String[]{suggestionEntry.getTargetElementId()});
+        Class<? extends IndexedInheritableToscaElement> targetClass = (Class<? extends IndexedInheritableToscaElement>) alienDAO.getTypesToClasses()
                 .get(suggestionEntry.getEsType());
-        GetMultipleDataResult<? extends IndexedInheritableToscaElement> result = elasticSearchDAO.find(targetClass, filters, Integer.MAX_VALUE);
+        GetMultipleDataResult<? extends IndexedInheritableToscaElement> result = alienDAO.find(targetClass, filters, Integer.MAX_VALUE);
         if (result.getData() != null && result.getData().length > 0) {
             for (IndexedInheritableToscaElement targetElement : result.getData()) {
                 PropertyDefinition propertyDefinition = targetElement.getProperties().get(suggestionEntry.getTargetProperty());
@@ -68,16 +80,14 @@ public class SuggestionService {
                     switch (propertyDefinition.getType()) {
                     case ToscaType.STRING:
                         propertyDefinition.setSuggestionId(suggestionEntry.getId());
-                        elasticSearchDAO.save(suggestionEntry);
-                        elasticSearchDAO.save(targetElement);
+                        alienDAO.save(targetElement);
                         break;
                     case ToscaType.LIST:
                     case ToscaType.MAP:
                         PropertyDefinition entrySchema = propertyDefinition.getEntrySchema();
                         if (entrySchema != null) {
                             entrySchema.setSuggestionId(suggestionEntry.getId());
-                            elasticSearchDAO.save(suggestionEntry);
-                            elasticSearchDAO.save(targetElement);
+                            alienDAO.save(targetElement);
                         } else {
                             throw new InvalidArgumentException("Cannot suggest a list / map type with no entry schema definition");
                         }
@@ -88,21 +98,41 @@ public class SuggestionService {
                     }
                 }
             }
-        } else {
-            throw new NotFoundException("Not any target element found for suggestion from [" + targetClass.getName() + "] and id ["
-                    + suggestionEntry.getTargetProperty() + "]");
         }
     }
 
-    public void createSuggestionEntry(Class<? extends IndexedInheritableToscaElement> targetClass, String targetId, String targetProperty,
-            Set<String> initialValues) {
-        String esIndex = elasticSearchDAO.getIndexForType(targetClass);
-        SuggestionEntry suggestionEntry = new SuggestionEntry();
-        suggestionEntry.setEsIndex(esIndex);
-        suggestionEntry.setEsType(MappingBuilder.indexTypeFromClass(targetClass));
-        suggestionEntry.setTargetElementId(targetId);
-        suggestionEntry.setTargetProperty(targetProperty);
-        suggestionEntry.setSuggestions(initialValues);
-        createSuggestionEntry(suggestionEntry);
+    /**
+     * Get the suggestions by suggestion ID
+     * @param suggestionId
+     * @return suggestions
+     */
+    public Set<String> getSuggestions(String suggestionId) {
+        SuggestionEntry suggestionEntry = alienDAO.findById(SuggestionEntry.class, suggestionId);
+        if (suggestionEntry == null) {
+            throw new NotFoundException("Suggestion entry [" + suggestionId + "] cannot be found");
+        }
+        return suggestionEntry.getSuggestions();
+    }
+
+    /**
+     * Check if a suggestionEntry already exist
+     *
+     * @param suggestionEntry
+     * @return a boolean indicating if the suggestionEntry exists.
+     */
+    public boolean isSuggestionExist(SuggestionEntry suggestionEntry) {
+        SuggestionEntry suggestion = alienDAO.findById(SuggestionEntry.class, suggestionEntry.getId());
+        if (suggestion != null) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Get all suggestionEntry
+     * @return all suggestion entries
+     */
+    public List<SuggestionEntry> getAllSuggestionEntries() {
+        return alienDAO.customFindAll(SuggestionEntry.class, null);
     }
 }

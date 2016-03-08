@@ -58,13 +58,11 @@ public class ArchiveIndexer {
     public void importArchive(final ArchiveRoot archiveRoot, Path archivePath, List<ParsingError> parsingErrors) throws CSARVersionAlreadyExistsException {
         String archiveName = archiveRoot.getArchive().getName();
         String archiveVersion = archiveRoot.getArchive().getVersion();
-
         Csar archive = csarService.getIfExists(archiveName, archiveVersion);
-        if (archive != null) {
-            if (!VersionUtil.isSnapshot(archive.getVersion())) {
-                // Cannot override RELEASED CSAR .
-                throw new CSARVersionAlreadyExistsException("CSAR: " + archiveName + ", Version: " + archiveVersion + " already exists in the repository.");
-            }
+
+        // Cannot override RELEASED CSAR .
+        if (archive != null && !VersionUtil.isSnapshot(archive.getVersion())) {
+            throw new CSARVersionAlreadyExistsException("CSAR: " + archiveName + ", Version: " + archiveVersion + " already exists in the repository.");
         }
 
         // save the archive (before we index and save other data so we can cleanup if anything goes wrong).
