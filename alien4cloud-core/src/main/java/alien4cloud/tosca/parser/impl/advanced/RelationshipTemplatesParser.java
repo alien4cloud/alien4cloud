@@ -249,8 +249,11 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
     }
 
     private Entry<String, Capability> getCapabilityByType(NodeTemplate nodeTemplate, String type) {
+        if(nodeTemplate.getCapabilities() == null) { // add a check in case the node doesn't have capabilities
+            return null;
+        }
         for (Entry<String, Capability> capabilityEntry : nodeTemplate.getCapabilities().entrySet()) {
-            if (capabilityEntry.getValue().getType().equals(type)) {
+            if (type.equals(capabilityEntry.getValue().getType())) {
                 return capabilityEntry;
             }
         }
