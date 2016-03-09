@@ -41,7 +41,7 @@ define(function(require) {
           propertyName: propertyName,
           propertyValue: propertyValue
         });
-        return updatePromise.then(updatePromise, function(response) {
+        return updatePromise.then(function(response) {
           if (_.undefined(response.error)) {
             $scope.resourceTemplate.template.capabilitiesMap[capabilityName].value.propertiesMap[propertyName].value = {
               value: propertyValue,
