@@ -29,7 +29,7 @@ public class GenericSuggestionController {
      * @return All suggestions of an {@link alien4cloud.model.common.SuggestionEntry}.
      */
     @ApiOperation(value = "Get matched suggestions", notes = "Returns the matched suggestions.")
-    @RequestMapping(value = "/{suggestionId}/matched/{value}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{suggestionId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<String[]> get(@PathVariable String suggestionId) {
         Set<String> suggestions = suggestionService.getSuggestions(suggestionId);
@@ -44,7 +44,7 @@ public class GenericSuggestionController {
      * @return The suggestion who match the value capture by the user.
      */
     @ApiOperation(value = "Get matched suggestions", notes = "Returns the matched suggestions.")
-    @RequestMapping(value = "/{suggestionId}/matched/{value}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{suggestionId:.+}/matched/{value}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<String[]> getMatchedSuggestions(@PathVariable String suggestionId, @PathVariable String value) {
         Set<String> suggestions = suggestionService.getMatchedSuggestions(suggestionId, value);
