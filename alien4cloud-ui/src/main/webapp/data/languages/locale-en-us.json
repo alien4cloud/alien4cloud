@@ -732,6 +732,14 @@
     "UPLOAD" : "Upload plugin"
   },
   "PROPERTY_RESET" : "Set to default value or reset",
+  "PROPERTY_SUGGESTION" : {
+    "MODAL" :  {
+      "TITLE" : "Choose the correct value for your property",
+      "DESCRIPTION" : "Your property is not in the suggested values, did you want to add this new value into suggestion or use an existing value ?",
+      "USE": "Use ",
+      "USE_YOUR_VALUE" : " and add it to the suggestion values"
+    }
+  },
   "REQUIRED" : "Required",
   "ROLE_TABS" : {
     "USERS" : "Users"

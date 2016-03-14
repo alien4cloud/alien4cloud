@@ -1,6 +1,5 @@
 package alien4cloud.rest.suggestion;
 
-import java.io.IOException;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -12,7 +11,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.rest.model.RestResponse;
 
 @RestController
@@ -49,6 +47,21 @@ public class GenericSuggestionController {
     public RestResponse<String[]> getMatchedSuggestions(@PathVariable String suggestionId, @PathVariable String value) {
         Set<String> suggestions = suggestionService.getMatchedSuggestions(suggestionId, value);
         return RestResponseBuilder.<String[]> builder().data(suggestions.toArray(new String[0])).build();
+    }
+
+    /**
+     * Add new suggestion value
+     *
+     * @param suggestionId the suggestionEntry id.
+     * @param value the new suggetion value.
+     * @return
+     */
+    @ApiOperation(value = "Add new suggestion value")
+    @RequestMapping(value = "/{suggestionId:.+}/add/{value}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<Boolean> addSuggestionValue(@PathVariable String suggestionId, @PathVariable String value) {
+        suggestionService.addSuggestionValueToSuggestionEntry(suggestionId, value);
+        return RestResponseBuilder.<Boolean> builder().data(true).build();
     }
 
 }

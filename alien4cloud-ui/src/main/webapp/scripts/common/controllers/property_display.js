@@ -36,8 +36,23 @@ define(function(require) {
     }
   ];
 
-  modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$modal', '$timeout',
-    function($scope, propertiesServices, $translate, $modal, $timeout) {
+  var PropertySuggestionModalCtrl = ['$scope', '$modalInstance',
+    function($scope, $modalInstance) {
+      $scope.result = '';
+
+      $scope.create = function(result) {
+        $modalInstance.close(result);
+      };
+
+      $scope.cancel = function() {
+        $modalInstance.dismiss('cancel');
+      };
+    }
+  ];
+
+
+  modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$modal', '$timeout', 'propertySuggestionServices',
+    function($scope, propertiesServices, $translate, $modal, $timeout, propertySuggestionServices) {
       if (_.undefined($scope.translate)) {
         $scope.translate = false;
       }
@@ -48,6 +63,39 @@ define(function(require) {
           angular.element($event.target).prev().trigger('click');
         });
       };
+
+      $scope.openPropertySuggestionModal = function() {
+        var modalInstance = $modal.open({
+          templateUrl: 'propertySuggestionModal.html',
+          controller: PropertySuggestionModalCtrl,
+          scope: $scope
+        });
+        modalInstance.result.then(function(result) {
+          $scope.updatePropertyWithSuggestions(result);
+        });
+      };
+
+      /* method private to factorise all call to the serve and trigge errors */
+      var callSaveService = function(propertyRequest) {
+        var saveResult = $scope.onSave(propertyRequest);
+
+        // If the callback return a promise
+        if (_.defined(saveResult) && _.defined(saveResult.then)) {
+          return saveResult.then(function(saveResult) {
+            if (_.defined(saveResult.error)) {
+              // Constraint error display + translation
+              var constraintInfo = saveResult.data;
+              // Error message handled by x-editable
+              if (saveResult.error.code === 800) {
+                return $translate('ERRORS.' + saveResult.error.code + '.' + constraintInfo.name, constraintInfo);
+              } else {
+                return $translate('ERRORS.' + saveResult.error.code, constraintInfo);
+              }
+            }
+          });
+        }
+      };
+
       $scope.propertySave = function(data, unit) {
         delete $scope.unitError;
         if (_.isBoolean(data)) {
@@ -68,21 +116,37 @@ define(function(require) {
           propertyDefinition: $scope.definition,
           propertyValue: data
         };
-        var saveResult = $scope.onSave(propertyRequest);
-        // If the callback return a promise
-        if (_.defined(saveResult) && _.defined(saveResult.then)) {
-          return saveResult.then(function(saveResult) {
-            if (_.defined(saveResult.error)) {
-              // Constraint error display + translation
-              var constraintInfo = saveResult.data;
-              // Error message handled by x-editable
-              if (saveResult.error.code === 800) {
-                return $translate('ERRORS.' + saveResult.error.code + '.' + constraintInfo.name, constraintInfo);
-              } else {
-                return $translate('ERRORS.' + saveResult.error.code, constraintInfo);
-              }
+
+        if (_.defined($scope.definition.suggestionId)) {
+          propertySuggestionServices.matchedSuggestions($scope.definition.suggestionId, data).then(function(result) {
+            $scope.propertySuggestionData = {
+              propertyRequest : propertyRequest,
+              suggestions: result,
+              propertyInformation: propertyRequest
+            };
+            if ($scope.propertySuggestionData.suggestions.length > 0 && $scope.propertySuggestionData.suggestions.indexOf(data) === -1) {
+              $scope.openPropertySuggestionModal();
+            } else {
+              $scope.updatePropertyWithSuggestions(data);
             }
           });
+        } else {
+          callSaveService(propertyRequest);
+        }
+
+      };
+
+      $scope.updatePropertyWithSuggestions = function(value) {
+        if ($scope.propertySuggestionData.suggestions.indexOf(value) === -1) { // Add a new suggestion and use it
+          propertySuggestionServices.add([], {
+            suggestionId: $scope.definition.suggestionId,
+            value: value
+          }, null);
+          callSaveService($scope.propertySuggestionData.propertyRequest);
+        } else { // Use the suggestion value
+          var propertyRequest = $scope.propertySuggestionData.propertyRequest;
+          propertyRequest.propertyValue = value;
+          callSaveService(propertyRequest);
         }
       };
 
@@ -260,7 +324,6 @@ define(function(require) {
       };
 
       $scope.openComplexPropertyModal = function() {
-
         $modal.open({
           templateUrl: 'views/common/property_display_complex_modal.html',
           controller: ComplexPropertyModalCtrl,

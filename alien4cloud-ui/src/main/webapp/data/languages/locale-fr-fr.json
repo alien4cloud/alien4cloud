@@ -732,6 +732,14 @@
     "UPLOAD" : "Uploader un plugin"
   },
   "PROPERTY_RESET" : "Réinitialiser à la valeur par défaut",
+  "PROPERTY_SUGGESTION" : {
+    "MODAL" :  {
+      "TITLE" : "Choisissez la valeur correcte pour votre propriété",
+      "DESCRIPTION" : "Votre propriété n'est pas dans les valeurs suggérées, voulez-vous ajouter cette nouvelle valeur dans les suggestions ou utiliser une valeur existante ?",
+      "USE": "Utiliser ",
+      "USE_YOUR_VALUE" : " et l'ajouter aux valeur de suggestion"
+    }
+  },
   "REQUIRED" : "Obligatoire",
   "ROLE_TABS" : {
     "USERS" : "Utilisateurs"

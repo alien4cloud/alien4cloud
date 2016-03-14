@@ -15,11 +15,13 @@
   target_element_id: tosca.capabilities.OperatingSystem
   target_property: distribution
   suggestions:
+    - linux
     - debian
     - fedora
     - rhel
     - ubuntu
     - centos
+    - gentoo
     - windows server 2003
     - windows server 2008
     - windows server 2012

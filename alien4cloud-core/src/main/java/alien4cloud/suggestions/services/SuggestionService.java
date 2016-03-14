@@ -106,6 +106,16 @@ public class SuggestionService {
         }
     }
 
+    public void addSuggestionValueToSuggestionEntry(String suggestionId, String newValue) {
+        SuggestionEntry suggestion = alienDAO.findById(SuggestionEntry.class, suggestionId);
+        if (suggestion == null) {
+            throw new NotFoundException("Suggestion entry [" + suggestionId + "] cannot be found");
+        }
+        // TODO: should check the format of new value
+        suggestion.getSuggestions().add(newValue);
+        alienDAO.save(suggestion);
+    }
+
     /**
      * Get the suggestion with less difference between value and suggestions.
      *
@@ -116,8 +126,9 @@ public class SuggestionService {
     public Set<String> getMatchedSuggestions(String suggestionId, String value) {
         Set<String> suggestions = getSuggestions(suggestionId);
         Set<String> matchedSuggestions = Sets.newHashSet();
+        String formatedValue = value.toLowerCase().replace(" ", "");
         for (String suggestion : suggestions) {
-            if (StringUtils.getLevenshteinDistance(suggestion, value) < MAX_LEVENSHTEIN) {
+            if (StringUtils.getLevenshteinDistance(suggestion.toLowerCase().replace(" ", ""), formatedValue) <= MAX_LEVENSHTEIN) {
                 matchedSuggestions.add(suggestion);
             }
         }
