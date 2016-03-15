@@ -1,5 +1,7 @@
 package alien4cloud.model.common;
 
+import static alien4cloud.dao.model.FetchContext.SUMMARY;
+
 import java.util.Set;
 
 import lombok.Getter;
@@ -7,11 +9,9 @@ import lombok.Setter;
 
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
 import org.elasticsearch.annotation.query.FetchContext;
 
-import static alien4cloud.dao.model.FetchContext.SUMMARY;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @ESObject
 @Getter
@@ -48,7 +48,11 @@ public class SuggestionEntry {
      */
     private Set<String> suggestions;
 
+    public static String generateId(String esIndex, String esType, String targetElementId, String targetProperty) {
+        return esIndex + ":" + esType + ":" + targetElementId + ":" + targetProperty;
+    }
+
     public void generateId() {
-        this.id = esIndex + ":" + esType + ":" + targetElementId + ":" + targetProperty;
+        this.id = generateId(esIndex, esType, targetElementId, targetProperty);
     }
 }

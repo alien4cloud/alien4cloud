@@ -137,8 +137,21 @@ curl -X DELETE "http://localhost:9200/deployment/_query?pretty=true" -d '
 }
 '
 
+curl -X DELETE "http://localhost:9200/suggestionentry/_query?pretty=true" -d '
+{
+    "query" : {
+        "match_all" : {}
+    }
+}
+'
 
-
+curl -X POST "http://localhost:9200/suggestionentry/_search?pretty=true" -d '
+{
+    "query" : {
+        "match_all" : {}
+    }
+}
+'
 
 # ElasticSearch get queries
 ## Images
