@@ -56,13 +56,8 @@ define(function(require) {
       if (_.undefined($scope.translate)) {
         $scope.translate = false;
       }
-      $scope.isLongText = false;
-      $scope.switchToLongText = function($event) {
-        $scope.isLongText = true;
-        $timeout(function() {
-          angular.element($event.target).prev().trigger('click');
-        });
-      };
+
+      $scope.longTextSize = 15;
 
       $scope.openPropertySuggestionModal = function() {
         var modalInstance = $modal.open({
