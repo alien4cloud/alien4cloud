@@ -44,13 +44,13 @@ public class SuggestionService {
      */
     @PostConstruct
     public void loadDefaultSuggestions() throws IOException {
-        InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("suggestion-configuration.yml");
-        SuggestionEntry[] suggestions = YamlParserUtil.parse(input, SuggestionEntry[].class);
-        Closeables.close(input, true);
-        for (SuggestionEntry suggestionEntry : suggestions) {
-            suggestionEntry.generateId();
-            if (!isSuggestionExist(suggestionEntry)) {
-                alienDAO.save(suggestionEntry);
+        try (InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("suggestion-configuration.yml")) {
+            SuggestionEntry[] suggestions = YamlParserUtil.parse(input, SuggestionEntry[].class);
+            for (SuggestionEntry suggestionEntry : suggestions) {
+                suggestionEntry.generateId();
+                if (!isSuggestionExist(suggestionEntry)) {
+                    alienDAO.save(suggestionEntry);
+                }
             }
         }
     }

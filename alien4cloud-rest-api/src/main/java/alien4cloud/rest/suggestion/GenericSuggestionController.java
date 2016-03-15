@@ -31,7 +31,7 @@ public class GenericSuggestionController {
     @PreAuthorize("isAuthenticated()")
     public RestResponse<String[]> get(@PathVariable String suggestionId) {
         Set<String> suggestions = suggestionService.getSuggestions(suggestionId);
-        return RestResponseBuilder.<String[]> builder().data(suggestions.toArray(new String[0])).build();
+        return RestResponseBuilder.<String[]> builder().data(suggestions.toArray(new String[suggestions.size()])).build();
     }
 
     /**
