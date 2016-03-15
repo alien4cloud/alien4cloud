@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.http.NameValuePair;
@@ -78,7 +77,7 @@ public class SuggestionDefinitionsSteps {
     public void iGetSuggestionsForTextForPropertyOf(String input, String property, String type, String elementId) throws Throwable {
         String suggestionId = SuggestionEntry.generateId("toscaelement", "indexed" + type + "type", elementId, property);
         String suggestionsText = Context.getRestClientInstance().getUrlEncoded("/rest/v1/suggestions/" + suggestionId,
-                Collections.<NameValuePair>singletonList(new BasicNameValuePair("input", input)));
+                Arrays.<NameValuePair>asList(new BasicNameValuePair("input", input), new BasicNameValuePair("limit", "2")));
         Context.getInstance().registerRestResponse(suggestionsText);
     }
 
@@ -91,5 +90,13 @@ public class SuggestionDefinitionsSteps {
     @And("^I initialize default suggestions entry$")
     public void iInitializeDefaultSuggestionsEntry() throws Throwable {
         Context.getRestClientInstance().postUrlEncoded("/rest/v1/suggestions/init", new ArrayList<NameValuePair>());
+    }
+
+    @And("^The RestResponse should contain (\\d+) element\\(s\\) in this order:$")
+    public void theRestResponseShouldContainElementSInThisOrder(int numberOfElements, List<String> expectedSuggestions) throws Throwable {
+        String[] suggestions = JsonUtil.read(Context.getInstance().getRestResponse(), String[].class).getData();
+        Assert.assertEquals(numberOfElements, suggestions.length);
+        String[] expectedSuggestionsArray = expectedSuggestions.toArray(new String[expectedSuggestions.size()]);
+        Assert.assertArrayEquals(expectedSuggestionsArray, suggestions);
     }
 }

@@ -38,7 +38,7 @@ public class SuggestionService {
     private IGenericSearchDAO alienDAO;
 
     /* The Levenshtein distance is a string metric for measuring the difference between two sequences. */
-    private static final int MAX_LEVENSHTEIN = 2;
+    private static final double MIN_JAROWINKLER = 0.0;
 
     /**
      * This method load the defaults suggestions to ES.
@@ -143,35 +143,11 @@ public class SuggestionService {
     private MatchedSuggestion getMatch(String suggestion, String normalizedValue) {
         // Compute the match score between the suggestion and the normalized value
         String normalizedSuggestion = normalizeTextForMatching(suggestion);
-        int distanceBetweenValueAndSuggestion = StringUtils.getLevenshteinDistance(normalizedSuggestion, normalizedValue);
-        Double levenshteinScore = null;
-        if (distanceBetweenValueAndSuggestion <= MAX_LEVENSHTEIN) {
-            levenshteinScore = ((double) (normalizedSuggestion.length() - distanceBetweenValueAndSuggestion)) / (double) normalizedSuggestion.length();
-        }
-        Double indexOfScore = null;
-        int indexOfSearchedText = normalizedSuggestion.indexOf(normalizedValue);
-        if (indexOfSearchedText == 0) {
-            // Start with the searched value has more priorities than contains the value
-            indexOfScore = ((double) normalizedValue.length()) / (double) normalizedSuggestion.length();
-        } else if (indexOfSearchedText > 0) {
-            // Contains the value
-            indexOfScore = ((double) (normalizedValue.length() - 1)) / (double) normalizedSuggestion.length();
-        }
-        Double score;
-        if (indexOfScore == null) {
-            // Returns null if not considered as a match
-            score = levenshteinScore;
+        double distance = StringUtils.getJaroWinklerDistance(normalizedValue, normalizedSuggestion);
+        if (distance > MIN_JAROWINKLER) {
+            return new MatchedSuggestion(distance, suggestion);
         } else {
-            if (levenshteinScore == null) {
-                score = indexOfScore;
-            } else {
-                score = Math.max(indexOfScore, levenshteinScore);
-            }
-        }
-        if (score == null) {
             return null;
-        } else {
-            return new MatchedSuggestion(score, suggestion);
         }
     }
 
@@ -216,9 +192,8 @@ public class SuggestionService {
             limit = matchedSuggestions.size();
         }
         String[] results = new String[limit];
-        Iterator<MatchedSuggestion> matchedSuggestionIterator = matchedSuggestions.iterator();
         for (int i = 0; i < limit; i++) {
-            results[i] = matchedSuggestionIterator.next().value;
+            results[i] = matchedSuggestions.poll().value;
         }
         return results;
     }

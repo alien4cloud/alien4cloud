@@ -34,21 +34,24 @@ Feature: suggestion on a value backed by a property definition
       | windows server 2016 |
 
   Scenario: Get suggestions which match
-    When I get suggestions for text "32" for property "architecture" of "capability" "tosca.capabilities.OperatingSystem"
+    When I get suggestions for text "x86_32" for property "architecture" of "capability" "tosca.capabilities.OperatingSystem"
     Then I should receive a RestResponse with no error
-    And The RestResponse should contain 1 element(s):
+    And The RestResponse should contain 2 element(s) in this order:
       | x86_32 |
-    When I get suggestions for text "64" for property "architecture" of "capability" "tosca.capabilities.OperatingSystem"
-    Then I should receive a RestResponse with no error
-    And The RestResponse should contain 1 element(s):
       | x86_64 |
+    When I get suggestions for text "x86_64" for property "architecture" of "capability" "tosca.capabilities.OperatingSystem"
+    Then I should receive a RestResponse with no error
+    And The RestResponse should contain 2 element(s) in this order:
+      | x86_64 |
+      | x86_32 |
     When I get suggestions for text "Kubuntu" for property "distribution" of "capability" "tosca.capabilities.OperatingSystem"
     Then I should receive a RestResponse with no error
-    And The RestResponse should contain 1 element(s):
+    And The RestResponse should contain 2 element(s) in this order:
       | ubuntu |
+      | gentoo |
     When I get suggestions for text "w" for property "type" of "capability" "tosca.capabilities.OperatingSystem"
     Then I should receive a RestResponse with no error
-    And The RestResponse should contain 1 element(s):
+    And The RestResponse should contain 1 element(s) in this order:
       | windows |
 
   Scenario: Add suggestion
@@ -56,6 +59,6 @@ Feature: suggestion on a value backed by a property definition
     Then I should receive a RestResponse with no error
     When I get suggestions for text "Kubuntu" for property "distribution" of "capability" "tosca.capabilities.OperatingSystem"
     Then I should receive a RestResponse with no error
-    And The RestResponse should contain 2 element(s):
-      | ubuntu  |
+    And The RestResponse should contain 2 element(s) in this order:
       | kubuntu |
+      | ubuntu  |
