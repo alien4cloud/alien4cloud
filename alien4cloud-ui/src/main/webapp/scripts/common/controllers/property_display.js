@@ -126,7 +126,7 @@ define(function(require) {
             }
           });
         } else {
-          callSaveService(propertyRequest);
+          return callSaveService(propertyRequest);
         }
 
       };
@@ -137,11 +137,11 @@ define(function(require) {
             suggestionId: $scope.definition.suggestionId,
             value: value
           }, null);
-          callSaveService($scope.propertySuggestionData.propertyRequest);
+          return callSaveService($scope.propertySuggestionData.propertyRequest);
         } else { // Use the suggestion value
           var propertyRequest = $scope.propertySuggestionData.propertyRequest;
           propertyRequest.propertyValue = value;
-          callSaveService(propertyRequest);
+          return callSaveService(propertyRequest);
         }
       };
 
