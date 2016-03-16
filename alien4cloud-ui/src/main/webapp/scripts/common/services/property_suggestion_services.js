@@ -5,25 +5,18 @@ define(function (require) {
 
   modules.get('a4c-common').factory('propertySuggestionServices', ['$resource', function($resource) {
 
-    var propertySuggestionResource = $resource('rest/latest/suggestions/:suggestionId');
-    var propertySuggestionMachedValueResource = $resource('rest/latest/suggestions/:suggestionId/matched/:value');
-
-    var getAllSuggestions = function(suggestionId) {
-      return propertySuggestionResource.get({
-        suggestionId : suggestionId
-      }).$promise.then(function(result) {
-        return result.data;
-      });
-    };
-
-    var getMatchedSuggestions = function(suggestionId, value) {
-      return propertySuggestionMachedValueResource.get({
-        suggestionId : suggestionId,
-        value : value
-      }).$promise.then(function(result) {
-        return result.data;
-      });
-    };
+    var propertySuggestionResource = $resource('rest/latest/suggestions/:suggestionId', {}, {
+      'get': {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        },
+        params: {
+          input: '@input',
+          limit: '@limit'
+        }
+      },
+    });
 
     var propertySuggestionPutValueResource = $resource('rest/latest/suggestions/:suggestionId/add/:value', {}, {
       'update': {
@@ -40,8 +33,7 @@ define(function (require) {
 
 
     return {
-      matchedSuggestions : getMatchedSuggestions,
-      getAll : getAllSuggestions,
+      get : propertySuggestionResource.get,
       add : propertySuggestionPutValueResource.update
     };
 

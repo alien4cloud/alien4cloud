@@ -17,12 +17,13 @@
         <span ng-if="definitionObject.uiValue.length < longTextSize" editable-text="definitionObject.uiValue" buttons="no"
               onbeforesave="propertySave($data)" blur="submit">
           {{definitionObject.uiValue | truncate:30}}
+          <span class="fa fa-pencil-square-o clickable"></span>
         </span>
         <span ng-if="definitionObject.uiValue.length >= longTextSize" editable-textarea="definitionObject.uiValue" buttons="no"
                       onbeforesave="propertySave($data)" blur="submit">
           {{definitionObject.uiValue | truncate:30}}
+          <span class="fa fa-pencil-square-o clickable"></span>
         </span>
-        <span class="fa fa-pencil-square-o clickable"></span>
       </span>
       <span id="p_{{propertyName}}" ng-if="!definitionObject.uiPassword && definitionObject.units && editable">
         <!-- Property with unit -->

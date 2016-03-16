@@ -112,11 +112,11 @@ define(function(require) {
           propertyValue: data
         };
 
-        if (_.defined($scope.definition.suggestionId)) {
-          propertySuggestionServices.matchedSuggestions($scope.definition.suggestionId, data).then(function(result) {
+        if (_.defined($scope.definition.suggestionId) && data !== null) {
+          propertySuggestionServices.get({suggestionId: $scope.definition.suggestionId, input: data, limit: 5}, function(result) {
             $scope.propertySuggestionData = {
               propertyRequest : propertyRequest,
-              suggestions: result,
+              suggestions: result.data,
               propertyInformation: propertyRequest
             };
             if ($scope.propertySuggestionData.suggestions.length > 0 && $scope.propertySuggestionData.suggestions.indexOf(data) === -1) {
