@@ -51,8 +51,8 @@ define(function(require) {
   ];
 
 
-  modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$modal', '$timeout', 'propertySuggestionServices',
-    function($scope, propertiesServices, $translate, $modal, $timeout, propertySuggestionServices) {
+  modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$modal', '$timeout', 'propertySuggestionServices', 'quickSearchServices',
+    function($scope, propertiesServices, $translate, $modal, $timeout, propertySuggestionServices, quickSearchServices) {
       if (_.undefined($scope.translate)) {
         $scope.translate = false;
       }
@@ -69,6 +69,30 @@ define(function(require) {
           $scope.updatePropertyWithSuggestions(result);
         });
       };
+
+      $scope.quickSearchHandler = {
+        'doQuickSearch': propertySuggestionServices.get,
+        // 'onItemSelected': quickSearchServices.onItemSelected,
+        'waitBeforeRequest': 500,
+        'minLength': 2
+      };
+
+      // $scope.getSuggestions = function() {
+      //   if (_.defined($scope.definition.suggestionId)) {
+      //     if (_.defined($scope.definition.suggestionId)) {
+      //       propertySuggestionServices.get({suggestionId: $scope.definition.suggestionId, input: $scope.definitionObject.uiValue, limit: 5}, function(result) {
+      //         return result.data;
+      //       });
+      //     } else {
+      //       propertySuggestionServices.get({suggestionId: $scope.definition.suggestionId}, function(result) {
+      //         return result.data;
+      //       });
+      //     }
+      //   }
+      //   // else {
+      //   //   return null;
+      //   // }
+      // };
 
       /* method private to factorise all call to the serve and trigge errors */
       var callSaveService = function(propertyRequest) {

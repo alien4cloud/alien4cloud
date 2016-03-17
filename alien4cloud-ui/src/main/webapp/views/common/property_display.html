@@ -14,8 +14,10 @@
     <div id="div_{{propertyName}}"  ng-if="isStringDisplayType" ng-class="{'property-required' : definition.required}">
       <!-- Case : string -->
       <span id="p_{{propertyName}}" ng-if="!definitionObject.uiPassword && !definitionObject.units && editable">
-        <span ng-if="definitionObject.uiValue.length < longTextSize" editable-text="definitionObject.uiValue" buttons="no"
-              onbeforesave="propertySave($data)" blur="submit">
+        <span ng-if="definitionObject.uiValue.length < longTextSize ||  !_.defined(definitionObject.uiValue)" editable-text="definitionObject.uiValue" buttons="no"
+              onbeforesave="propertySave($data)" blur="submit"
+              ng-model="definitionObject.uiValue" class="typeahead"  typeahead="suggestion for suggestion in quickSearchHandler.doQuickSearch($viewValue)"
+              typeahead-min-length="quickSearchHandler.minLength" typeahead-wait-ms="quickSearchHandler.waitBeforeRequest" typeahead-loading="searching">
           {{definitionObject.uiValue | truncate:30}}
           <span class="fa fa-pencil-square-o clickable"></span>
         </span>
