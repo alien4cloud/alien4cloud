@@ -37,6 +37,7 @@ import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.RequirementDefinition;
 import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.components.constraints.EqualConstraint;
+import alien4cloud.model.components.constraints.ValidValuesConstraint;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
@@ -214,6 +215,13 @@ public class SuggestionService {
                     EqualConstraint equalConstraint = (EqualConstraint) propertyConstraint;
                     String valueToCheck = equalConstraint.getEqual();
                     checkProperty(prefix, propertyName, valueToCheck, type, elementId, context);
+                } else if (propertyConstraint instanceof ValidValuesConstraint) {
+                    ValidValuesConstraint validValuesConstraint = (ValidValuesConstraint) propertyConstraint;
+                    if (validValuesConstraint.getValidValues() != null && !validValuesConstraint.getValidValues().isEmpty()) {
+                        for (String valueToCheck : validValuesConstraint.getValidValues()) {
+                            checkProperty(prefix, propertyName, valueToCheck, type, elementId, context);
+                        }
+                    }
                 }
             }
         }
