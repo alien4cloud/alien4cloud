@@ -15,17 +15,39 @@ import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.common.SuggestionEntry;
+import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.FilterDefinition;
+import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.NodeFilter;
+import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.RequirementDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.components.constraints.EqualConstraint;
+import alien4cloud.model.topology.Capability;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.Topology;
+import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.normative.ToscaType;
+import alien4cloud.tosca.parser.ParsingContext;
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.ParsingResult;
+import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.YamlParserUtil;
 
 import com.google.common.collect.Maps;
@@ -61,11 +83,138 @@ public class SuggestionService {
     /**
      * Iterate on default suggestions to update all assosiate property definition.
      */
-    public void setAllSuggestionIDOnPropertyDefinition() {
+    public void setAllSuggestionIdOnPropertyDefinition() {
         List<SuggestionEntry> suggestionEntries = getAllSuggestionEntries();
         if (suggestionEntries != null && !suggestionEntries.isEmpty()) {
             for (SuggestionEntry suggestionEntry : suggestionEntries) {
                 setSuggestionIdOnPropertyDefinition(suggestionEntry);
+            }
+        }
+    }
+
+    private void checkProperty(String nodePrefix, String propertyName, String propertyTextValue, Class<? extends IndexedInheritableToscaElement> type,
+            String elementId, ParsingContext context) {
+        SuggestionEntry suggestionEntry = getSuggestionEntry(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, type.getSimpleName().toLowerCase(), elementId, propertyName);
+        if (suggestionEntry != null) {
+            PriorityQueue<SuggestionService.MatchedSuggestion> similarValues = getJarowinklerMatchedSuggestions(suggestionEntry.getSuggestions(),
+                    propertyTextValue, 0.8);
+            if (!similarValues.isEmpty()) {
+                // Has some similar values in the system already
+                SuggestionService.MatchedSuggestion mostMatched = similarValues.poll();
+                if (!mostMatched.getValue().equals(propertyTextValue)) {
+                    // If user has entered a property value not the same as the most matched in the system
+                    ParsingErrorLevel level;
+                    if (mostMatched.getPriority() == 1.0) {
+                        // It's really identical if we take out all white spaces and lower / upper case
+                        level = ParsingErrorLevel.WARNING;
+                    } else {
+                        // It's pretty similar
+                        level = ParsingErrorLevel.INFO;
+                        // Add suggestion anyway
+                        addSuggestionValueToSuggestionEntry(suggestionEntry.getId(), propertyTextValue);
+                    }
+                    context.getParsingErrors().add(
+                            new ParsingError(level, ErrorCode.POTENTIAL_BAD_PROPERTY_VALUE, null, null, null, null, "At path [" + nodePrefix + "."
+                                    + propertyName + "] existing value [" + mostMatched.getValue() + "] is very similar to [" + propertyTextValue + "]"));
+                }
+            } else {
+                // Not similar add suggestion
+                addSuggestionValueToSuggestionEntry(suggestionEntry.getId(), propertyTextValue);
+            }
+        }
+    }
+
+    private void checkProperties(String nodePrefix, Map<String, AbstractPropertyValue> propertyValueMap, Class<? extends IndexedInheritableToscaElement> type,
+            String elementId, ParsingContext context) {
+        if (MapUtils.isNotEmpty(propertyValueMap)) {
+            for (Map.Entry<String, AbstractPropertyValue> propertyValueEntry : propertyValueMap.entrySet()) {
+                String propertyName = propertyValueEntry.getKey();
+                AbstractPropertyValue propertyValue = propertyValueEntry.getValue();
+                if (propertyValue instanceof ScalarPropertyValue) {
+                    String propertyTextValue = ((ScalarPropertyValue) propertyValue).getValue();
+                    checkProperty(nodePrefix, propertyName, propertyTextValue, type, elementId, context);
+                }
+            }
+        }
+    }
+
+    public void postProcessSuggestionFromArchive(ParsingResult<ArchiveRoot> parsingResult) {
+        ArchiveRoot archiveRoot = parsingResult.getResult();
+        ParsingContext context = parsingResult.getContext();
+        if (archiveRoot.hasToscaTopologyTemplate()) {
+            Topology topology = archiveRoot.getTopology();
+            Map<String, NodeTemplate> nodeTemplateMap = topology.getNodeTemplates();
+            if (MapUtils.isEmpty(nodeTemplateMap)) {
+                return;
+            }
+            for (Map.Entry<String, NodeTemplate> nodeTemplateEntry : nodeTemplateMap.entrySet()) {
+                NodeTemplate nodeTemplate = nodeTemplateEntry.getValue();
+                String nodeName = nodeTemplateEntry.getKey();
+                if (MapUtils.isNotEmpty(nodeTemplate.getProperties())) {
+                    checkProperties(nodeName, nodeTemplate.getProperties(), IndexedNodeType.class, nodeTemplate.getType(), context);
+                }
+                Map<String, Capability> capabilityMap = nodeTemplate.getCapabilities();
+                if (MapUtils.isNotEmpty(capabilityMap)) {
+                    for (Map.Entry<String, Capability> capabilityEntry : capabilityMap.entrySet()) {
+                        String capabilityName = capabilityEntry.getKey();
+                        Capability capability = capabilityEntry.getValue();
+                        if (MapUtils.isNotEmpty(capability.getProperties())) {
+                            checkProperties(nodeName + ".capabilities." + capabilityName, capability.getProperties(), IndexedCapabilityType.class,
+                                    capability.getType(), context);
+                        }
+                    }
+                }
+                Map<String, RelationshipTemplate> relationshipTemplateMap = nodeTemplate.getRelationships();
+                if (MapUtils.isNotEmpty(relationshipTemplateMap)) {
+                    for (Map.Entry<String, RelationshipTemplate> relationshipEntry : relationshipTemplateMap.entrySet()) {
+                        String relationshipName = relationshipEntry.getKey();
+                        RelationshipTemplate relationship = relationshipEntry.getValue();
+                        if (MapUtils.isNotEmpty(relationship.getProperties())) {
+                            checkProperties(nodeName + ".relationships." + relationshipName, relationship.getProperties(), IndexedRelationshipType.class,
+                                    relationship.getType(), context);
+                        }
+                    }
+                }
+            }
+        }
+        if (archiveRoot.hasToscaTypes()) {
+            Map<String, IndexedNodeType> allNodeTypes = archiveRoot.getNodeTypes();
+            if (MapUtils.isNotEmpty(allNodeTypes)) {
+                for (Map.Entry<String, IndexedNodeType> nodeTypeEntry : allNodeTypes.entrySet()) {
+                    IndexedNodeType nodeType = nodeTypeEntry.getValue();
+                    if (nodeType.getRequirements() != null && !nodeType.getRequirements().isEmpty()) {
+                        for (RequirementDefinition requirementDefinition : nodeType.getRequirements()) {
+                            NodeFilter nodeFilter = requirementDefinition.getNodeFilter();
+                            if (nodeFilter != null) {
+                                Map<String, FilterDefinition> capabilitiesFilters = nodeFilter.getCapabilities();
+                                if (MapUtils.isNotEmpty(capabilitiesFilters)) {
+                                    for (Map.Entry<String, FilterDefinition> capabilityFilterEntry : capabilitiesFilters.entrySet()) {
+                                        FilterDefinition filterDefinition = capabilityFilterEntry.getValue();
+                                        for (Map.Entry<String, List<PropertyConstraint>> constraintEntry : filterDefinition.getProperties().entrySet()) {
+                                            List<PropertyConstraint> constraints = constraintEntry.getValue();
+                                            checkPropertyConstraints("node_filter.capabilities", IndexedCapabilityType.class, capabilityFilterEntry.getKey(),
+                                                    constraintEntry.getKey(), constraints, context);
+                                        }
+                                    }
+                                }
+                                // FIXME check also the value properties filter of a node filter
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void checkPropertyConstraints(String prefix, Class<? extends IndexedInheritableToscaElement> type, String elementId, String propertyName,
+            List<PropertyConstraint> constraints, ParsingContext context) {
+        if (constraints != null && !constraints.isEmpty()) {
+            for (PropertyConstraint propertyConstraint : constraints) {
+                if (propertyConstraint instanceof EqualConstraint) {
+                    EqualConstraint equalConstraint = (EqualConstraint) propertyConstraint;
+                    String valueToCheck = equalConstraint.getEqual();
+                    checkProperty(prefix, propertyName, valueToCheck, type, elementId, context);
+                }
             }
         }
     }
@@ -130,7 +279,7 @@ public class SuggestionService {
         return noWhiteSpace.toLowerCase();
     }
 
-    private static class MatchedSuggestion {
+    public static class MatchedSuggestion {
         Double priority;
         String value;
 
@@ -138,42 +287,29 @@ public class SuggestionService {
             this.priority = priority;
             this.value = value;
         }
+
+        public Double getPriority() {
+            return priority;
+        }
+
+        public String getValue() {
+            return value;
+        }
     }
 
-    private MatchedSuggestion getMatch(String suggestion, String normalizedValue) {
+    private MatchedSuggestion getMatch(String suggestion, String normalizedValue, double minJarowinkler) {
         // Compute the match score between the suggestion and the normalized value
         String normalizedSuggestion = normalizeTextForMatching(suggestion);
         double distance = StringUtils.getJaroWinklerDistance(normalizedValue, normalizedSuggestion);
-        if (distance > MIN_JAROWINKLER) {
+        if (distance > minJarowinkler) {
             return new MatchedSuggestion(distance, suggestion);
         } else {
             return null;
         }
     }
 
-    /**
-     * Get the suggestion with less difference between value and suggestions.
-     *
-     * @param value value to match for suggestion
-     * @param suggestionId id of the suggestion
-     * @param limit the number of match to consider
-     * @return the suggestion with less difference between value and suggestions.
-     */
-    public String[] getMatchedSuggestions(String suggestionId, String value, int limit) {
-        Set<String> allSuggestions = getSuggestions(suggestionId);
-        String normalizedValue = normalizeTextForMatching(value);
-        if (limit > allSuggestions.size()) {
-            limit = allSuggestions.size();
-        }
-        if (StringUtils.isEmpty(normalizedValue)) {
-            // Finish prematurely the algorithm as the searched value is empty
-            String[] matches = new String[limit];
-            Iterator<String> allSuggestionsIterator = allSuggestions.iterator();
-            for (int i = 0; i < limit; i++) {
-                matches[i] = allSuggestionsIterator.next();
-            }
-            return matches;
-        }
+    public PriorityQueue<MatchedSuggestion> getJarowinklerMatchedSuggestions(Set<String> allSuggestions, String input, double minJarowinkler) {
+        String normalizedInput = normalizeTextForMatching(input);
         // The priority queue is here is to see what is the value that matches the suggestion the most
         PriorityQueue<MatchedSuggestion> matchedSuggestions = new PriorityQueue<>(10, Collections.reverseOrder(new Comparator<MatchedSuggestion>() {
             @Override
@@ -183,11 +319,37 @@ public class SuggestionService {
         }));
         // Process matched text with its score
         for (String suggestion : allSuggestions) {
-            MatchedSuggestion matchedSuggestion = getMatch(suggestion, normalizedValue);
+            MatchedSuggestion matchedSuggestion = getMatch(suggestion, normalizedInput, minJarowinkler);
             if (matchedSuggestion != null) {
                 matchedSuggestions.add(matchedSuggestion);
             }
         }
+        return matchedSuggestions;
+    }
+
+    /**
+     * Get the suggestions that might match the input value.
+     *
+     * @param input value to match for suggestion
+     * @param suggestionId id of the suggestion
+     * @param limit the number of match to consider
+     * @return the suggestions ordered by the most match.
+     */
+    public String[] getJarowinklerMatchedSuggestions(String suggestionId, String input, int limit) {
+        Set<String> allSuggestions = getSuggestions(suggestionId);
+        if (limit > allSuggestions.size()) {
+            limit = allSuggestions.size();
+        }
+        if (StringUtils.isBlank(input)) {
+            // Finish prematurely the algorithm as the searched value is empty
+            String[] matches = new String[limit];
+            Iterator<String> allSuggestionsIterator = allSuggestions.iterator();
+            for (int i = 0; i < limit; i++) {
+                matches[i] = allSuggestionsIterator.next();
+            }
+            return matches;
+        }
+        PriorityQueue<MatchedSuggestion> matchedSuggestions = getJarowinklerMatchedSuggestions(allSuggestions, input, MIN_JAROWINKLER);
         if (limit > matchedSuggestions.size()) {
             limit = matchedSuggestions.size();
         }
@@ -221,6 +383,10 @@ public class SuggestionService {
     public boolean isSuggestionExist(SuggestionEntry suggestionEntry) {
         SuggestionEntry suggestion = alienDAO.findById(SuggestionEntry.class, suggestionEntry.getId());
         return suggestion != null;
+    }
+
+    public SuggestionEntry getSuggestionEntry(String index, String type, String elementId, String property) {
+        return alienDAO.findById(SuggestionEntry.class, SuggestionEntry.generateId(index, type, elementId, property));
     }
 
     /**

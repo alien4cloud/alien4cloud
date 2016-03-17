@@ -6,7 +6,6 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import alien4cloud.suggestions.services.SuggestionService;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
@@ -17,6 +16,7 @@ import alien4cloud.model.components.Csar;
 import alien4cloud.model.git.CsarDependenciesBean;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.Role;
+import alien4cloud.suggestions.services.SuggestionService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyTemplateVersionService;
 import alien4cloud.tosca.model.ArchiveRoot;
@@ -70,10 +70,9 @@ public class ArchiveUploadService {
                 return toSimpleResult(parsingResult);
             }
         }
-
         archiveIndexer.importArchive(archiveRoot, path, parsingResult.getContext().getParsingErrors());
-        suggestionService.setAllSuggestionIDOnPropertyDefinition();
-
+        suggestionService.postProcessSuggestionFromArchive(parsingResult);
+        suggestionService.setAllSuggestionIdOnPropertyDefinition();
         return toSimpleResult(parsingResult);
     }
 

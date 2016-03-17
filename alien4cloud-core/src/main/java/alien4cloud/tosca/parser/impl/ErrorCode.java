@@ -44,6 +44,8 @@ public enum ErrorCode {
     MISSING_DEPENDENCY,
     /** Scalar unit declaration not well managed. */
     INVALID_SCALAR_UNIT,
+    /** Detect a potential bad property value based on precedent inserted values **/
+    POTENTIAL_BAD_PROPERTY_VALUE,
     /** Implementation artifact is unknown. */
     UNKNOWN_IMPLEMENTATION_ARTIFACT,
     /** A topology has been detected. */

@@ -42,6 +42,11 @@ public final class ToscaParsingUtil {
         return getElementFromArchiveOrDependencies(IndexedNodeType.class, nodeTypeName, archiveRoot, searchService);
     }
 
+    public static IndexedCapabilityType getCapabilityTypeFromArchiveOrDependencies(String nodeTypeName, ArchiveRoot archiveRoot,
+            ICSARRepositorySearchService searchService) {
+        return getElementFromArchiveOrDependencies(IndexedCapabilityType.class, nodeTypeName, archiveRoot, searchService);
+    }
+
     public static IndexedRelationshipType getRelationshipTypeFromArchiveOrDependencies(String nodeTypeName, ArchiveRoot archiveRoot,
             ICSARRepositorySearchService searchService) {
         return getElementFromArchiveOrDependencies(IndexedRelationshipType.class, nodeTypeName, archiveRoot, searchService);

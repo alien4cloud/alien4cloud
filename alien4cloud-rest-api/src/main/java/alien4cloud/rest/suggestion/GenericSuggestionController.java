@@ -51,7 +51,7 @@ public class GenericSuggestionController {
         if (limit == null || limit <= 0) {
             limit = Integer.MAX_VALUE;
         }
-        String[] suggestions = suggestionService.getMatchedSuggestions(suggestionId, input, limit);
+        String[] suggestions = suggestionService.getJarowinklerMatchedSuggestions(suggestionId, input, limit);
         return RestResponseBuilder.<String[]> builder().data(suggestions).build();
     }
 
