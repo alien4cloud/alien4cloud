@@ -14,18 +14,31 @@
     <div id="div_{{propertyName}}"  ng-if="isStringDisplayType" ng-class="{'property-required' : definition.required}">
       <!-- Case : string -->
       <span id="p_{{propertyName}}" ng-if="!definitionObject.uiPassword && !definitionObject.units && editable">
-        <span ng-if="definitionObject.uiValue.length < longTextSize ||  !_.defined(definitionObject.uiValue)" editable-text="definitionObject.uiValue" buttons="no"
+        <span ng-if="!isLongText"
+              ng-click="switchLongTextChoice(true)"
+              editable-text="definitionObject.uiValue" buttons="no"
               onbeforesave="propertySave($data)" blur="submit"
-              ng-model="definitionObject.uiValue" class="typeahead"  typeahead="suggestion for suggestion in quickSearchHandler.doQuickSearch($viewValue)"
-              typeahead-min-length="quickSearchHandler.minLength" typeahead-wait-ms="quickSearchHandler.waitBeforeRequest" typeahead-loading="searching">
+              onhide="switchLongTextChoice(false)"
+              e-typeahead="suggestion for suggestion in suggestion.get($viewValue)" class="typeahead"
+              e-typeahead-min-length="suggestion.minLength"
+              e-typeahead-wait-ms="suggestion.waitBeforeRequest"
+              e-typeahead-loading="searching">
           {{definitionObject.uiValue | truncate:30}}
-          <span class="fa fa-pencil-square-o clickable"></span>
+          <span class="fa fa-pencil-square-o clickable" ng-click="switchLongTextChoice(true)"></span>
         </span>
-        <span ng-if="definitionObject.uiValue.length >= longTextSize" editable-textarea="definitionObject.uiValue" buttons="no"
-                      onbeforesave="propertySave($data)" blur="submit">
+        <span ng-if="isLongText"
+              ng-click="switchLongTextChoice(true)"
+              editable-textarea="definitionObject.uiValue" buttons="no"
+              onbeforesave="propertySave($data)" blur="submit"
+              onhide="switchLongTextChoice(false)"
+              e-typeahead="suggestion for suggestion in suggestion.get($viewValue)" class="typeahead"
+              e-typeahead-min-length="suggestion.minLength"
+              e-typeahead-wait-ms="suggestion.waitBeforeRequest"
+              e-typeahead-loading="searching">
           {{definitionObject.uiValue | truncate:30}}
-          <span class="fa fa-pencil-square-o clickable"></span>
+          <span class="fa fa-pencil-square-o clickable" ng-click="switchLongTextChoice(true)"></span>
         </span>
+        <span class="fa clickable" ng-class="{'fa-expand': !isLongText, 'fa-compress': isLongText}" ng-if="showLongTextChoice" ng-click="switchToLongText($event)"></span>
       </span>
       <span id="p_{{propertyName}}" ng-if="!definitionObject.uiPassword && definitionObject.units && editable">
         <!-- Property with unit -->
@@ -125,7 +138,7 @@
   </div>
 
   <script type="text/ng-template" id="propertySuggestionModal.html">
-    <form name="updateSuggestionProperty" class="form-horizontal" role="form" ng-init="result.data = propertySuggestionData.propertyInformation.propertyValue" novalidate>
+    <form name="updateSuggestionProperty" class="form-horizontal" role="form" ng-init="result.data = propertySuggestionData.propertyValue" novalidate>
       <div class="modal-header">
         <h3>{{'PROPERTY_SUGGESTION.MODAL.TITLE' | translate}}</h3>
       </div>
@@ -135,10 +148,14 @@
           <div class="container">
             <div class="row">
                 <div class="col-md-4">
+                  <div class="radio">
+                    <label><input type="radio" name="newSuggestionValue" ng-model="result.data" ng-value="propertySuggestionData.propertyValue"> {{'PROPERTY_SUGGESTION.MODAL.USE' | translate}} <b>'{{propertySuggestionData.propertyValue}}'</b> {{'PROPERTY_SUGGESTION.MODAL.USE_YOUR_VALUE' | translate}}</label>
+                  </div>
                   <span ng-repeat="suggestion in propertySuggestionData.suggestions">
-                    <input type="radio" name="newSuggestionValue" ng-model="result.data" ng-value="suggestion">{{'PROPERTY_SUGGESTION.MODAL.USE' | translate}} <b>{{suggestion}}.</b><br>
+                    <div class="radio">
+                      <label><input type="radio" name="newSuggestionValue" ng-model="result.data" ng-value="suggestion">{{'PROPERTY_SUGGESTION.MODAL.USE' | translate}} <b>'{{suggestion}}'</b></label>
+                    </div>
                   </span>
-                  <input type="radio" name="newSuggestionValue" ng-model="result.data" ng-value="propertySuggestionData.propertyInformation.propertyValue"> {{'PROPERTY_SUGGESTION.MODAL.USE' | translate}} <b>{{propertySuggestionData.propertyInformation.propertyValue}}</b> {{'PROPERTY_SUGGESTION.MODAL.USE_YOUR_VALUE' | translate}}.</b><br>
                 </div>
             </div>
           </div>

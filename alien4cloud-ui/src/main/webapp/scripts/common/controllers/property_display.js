@@ -51,48 +51,46 @@ define(function(require) {
   ];
 
 
-  modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$modal', '$timeout', 'propertySuggestionServices', 'quickSearchServices',
-    function($scope, propertiesServices, $translate, $modal, $timeout, propertySuggestionServices, quickSearchServices) {
+  modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$modal', '$timeout', 'propertySuggestionServices',
+    function($scope, propertiesServices, $translate, $modal, $timeout, propertySuggestionServices) {
       if (_.undefined($scope.translate)) {
         $scope.translate = false;
       }
 
-      $scope.longTextSize = 15;
+      $scope.showLongTextChoice = false;
 
-      $scope.openPropertySuggestionModal = function() {
-        var modalInstance = $modal.open({
-          templateUrl: 'propertySuggestionModal.html',
-          controller: PropertySuggestionModalCtrl,
-          scope: $scope
-        });
-        modalInstance.result.then(function(result) {
-          $scope.updatePropertyWithSuggestions(result);
+      $scope.switchLongTextChoice = function(on) {
+        $scope.showLongTextChoice = on;
+      };
+
+      $scope.switchToLongText = function($event) {
+        $scope.isLongText = !$scope.isLongText;
+        $timeout(function() {
+          angular.element($event.target).prev().trigger('click');
         });
       };
 
-      $scope.quickSearchHandler = {
-        'doQuickSearch': propertySuggestionServices.get,
-        // 'onItemSelected': quickSearchServices.onItemSelected,
-        'waitBeforeRequest': 500,
-        'minLength': 2
+      $scope.suggestion = {
+        get: function(text) {
+          if (_.defined($scope.definition.suggestionId)) {
+            return propertySuggestionServices.get({
+              input: text,
+              limit: 5,
+              suggestionId: $scope.definition.suggestionId
+            }).$promise.then(function(result) {
+              if (_.defined(result.data)) {
+                return result.data;
+              } else {
+                return [];
+              }
+            });
+          } else {
+            return [];
+          }
+        },
+        waitBeforeRequest: 0,
+        minLength: 1
       };
-
-      // $scope.getSuggestions = function() {
-      //   if (_.defined($scope.definition.suggestionId)) {
-      //     if (_.defined($scope.definition.suggestionId)) {
-      //       propertySuggestionServices.get({suggestionId: $scope.definition.suggestionId, input: $scope.definitionObject.uiValue, limit: 5}, function(result) {
-      //         return result.data;
-      //       });
-      //     } else {
-      //       propertySuggestionServices.get({suggestionId: $scope.definition.suggestionId}, function(result) {
-      //         return result.data;
-      //       });
-      //     }
-      //   }
-      //   // else {
-      //   //   return null;
-      //   // }
-      // };
 
       /* method private to factorise all call to the serve and trigge errors */
       var callSaveService = function(propertyRequest) {
@@ -136,35 +134,41 @@ define(function(require) {
           propertyValue: data
         };
 
-        if (_.defined($scope.definition.suggestionId) && data !== null) {
-          propertySuggestionServices.get({suggestionId: $scope.definition.suggestionId, input: data, limit: 5}, function(result) {
+        if (_.defined($scope.definition.suggestionId) && _.defined(data) && data !== null) {
+          return propertySuggestionServices.get({
+            input: data,
+            limit: 5,
+            suggestionId: $scope.definition.suggestionId
+          }).$promise.then(function(suggestionResult) {
+            var promise;
             $scope.propertySuggestionData = {
-              propertyRequest : propertyRequest,
-              suggestions: result.data,
-              propertyInformation: propertyRequest
+              suggestions: suggestionResult.data,
+              propertyValue: data
             };
-            if ($scope.propertySuggestionData.suggestions.length > 0 && $scope.propertySuggestionData.suggestions.indexOf(data) === -1) {
-              $scope.openPropertySuggestionModal();
+            if (suggestionResult.data.indexOf(data) < 0) {
+              var modalInstance = $modal.open({
+                templateUrl: 'propertySuggestionModal.html',
+                controller: PropertySuggestionModalCtrl,
+                scope: $scope
+              });
+              promise = modalInstance.result.then(function(modalResult) {
+                if (suggestionResult.data.indexOf(modalResult) < 0) {
+                  propertySuggestionServices.add([], {
+                    suggestionId: $scope.definition.suggestionId,
+                    value: modalResult
+                  }, null);
+                  propertyRequest.propertyValue = modalResult;
+                }
+                return callSaveService(propertyRequest);
+              }, function() {
+                return "Cancelled";
+              });
             } else {
-              $scope.updatePropertyWithSuggestions(data);
+              promise = callSaveService(propertyRequest);
             }
+            return promise;
           });
         } else {
-          return callSaveService(propertyRequest);
-        }
-
-      };
-
-      $scope.updatePropertyWithSuggestions = function(value) {
-        if ($scope.propertySuggestionData.suggestions.indexOf(value) === -1) { // Add a new suggestion and use it
-          propertySuggestionServices.add([], {
-            suggestionId: $scope.definition.suggestionId,
-            value: value
-          }, null);
-          return callSaveService($scope.propertySuggestionData.propertyRequest);
-        } else { // Use the suggestion value
-          var propertyRequest = $scope.propertySuggestionData.propertyRequest;
-          propertyRequest.propertyValue = value;
           return callSaveService(propertyRequest);
         }
       };
@@ -249,7 +253,7 @@ define(function(require) {
           }
         }
 
-        // handeling default value
+        // handling default value
         shownValue = shownValue || $scope.definition.default;
         $scope.definitionObject.hasDefaultValue = _.defined($scope.definition.default);
 
@@ -335,7 +339,7 @@ define(function(require) {
             $scope.definitionObject.uiValue = shownValue;
             break;
         }
-
+        $scope.isLongText = _.defined(shownValue) && shownValue.indexOf('\n') > -1;
         // Phase one valid or not ?
         if (!_.isEmpty($scope.definitionObject)) {
           return $scope.definitionObject;

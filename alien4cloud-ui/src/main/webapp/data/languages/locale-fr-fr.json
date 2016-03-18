@@ -735,8 +735,8 @@
   "PROPERTY_RESET" : "Réinitialiser à la valeur par défaut",
   "PROPERTY_SUGGESTION" : {
     "MODAL" :  {
-      "TITLE" : "Choisissez la valeur correcte pour votre propriété",
-      "DESCRIPTION" : "Votre propriété n'est pas dans les valeurs suggérées, voulez-vous ajouter cette nouvelle valeur dans les suggestions ou utiliser une valeur existante ?",
+      "TITLE" : "Nouvelle valeur détectée",
+      "DESCRIPTION" : "La valeur que vous avez saisie n'est pas enregistrée dans le système.",
       "USE": "Utiliser ",
       "USE_YOUR_VALUE" : " et l'ajouter aux valeur de suggestion"
     }

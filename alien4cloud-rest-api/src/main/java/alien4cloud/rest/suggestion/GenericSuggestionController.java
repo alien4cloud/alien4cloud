@@ -44,7 +44,7 @@ public class GenericSuggestionController {
      * @return The suggestion who match the input entered by the user.
      */
     @ApiOperation(value = "Get matched suggestions", notes = "Returns the matched suggestions.")
-    @RequestMapping(value = "/{suggestionId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{suggestionId:.+}/values", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<String[]> getMatchedSuggestions(@PathVariable String suggestionId, @RequestParam(required = false) String input,
             @RequestParam(required = false) Integer limit) {
@@ -63,7 +63,7 @@ public class GenericSuggestionController {
      * @return a rest response if the operation has succeeded
      */
     @ApiOperation(value = "Add new suggestion value")
-    @RequestMapping(value = "/{suggestionId:.+}/{value}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{suggestionId:.+}/values/{value}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<Void> addSuggestionValue(@PathVariable String suggestionId, @PathVariable String value) {
         suggestionService.addSuggestionValueToSuggestionEntry(suggestionId, value);
