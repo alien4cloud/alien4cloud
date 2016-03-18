@@ -15,7 +15,6 @@
   target_element_id: tosca.capabilities.OperatingSystem
   target_property: distribution
   suggestions:
-    - linux
     - debian
     - fedora
     - rhel

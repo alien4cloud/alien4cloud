@@ -20,8 +20,7 @@ Feature: suggestion on a value backed by a property definition
       | windows |
     When I get all suggestions for property "distribution" of "capability" "tosca.capabilities.OperatingSystem"
     Then I should receive a RestResponse with no error
-    And The RestResponse should contain 11 element(s):
-      | linux               |
+    And The RestResponse should contain 10 element(s):
       | debian              |
       | fedora              |
       | rhel                |
@@ -63,12 +62,55 @@ Feature: suggestion on a value backed by a property definition
       | kubuntu |
       | ubuntu  |
 
-  Scenario: I upload an archive with a non-suggested capability default value
+  Scenario: I upload an archive with a wrong capability property value
     When I upload the archive "tosca-normative-types"
-    And I upload the archive "ubuntu types with wrong default capabilities property value"
-      Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos
+    And I upload the archive "topology with wrong os distribution value"
+    Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos
+    When I get suggestions for text "ubuntu" for property "distribution" of "capability" "tosca.capabilities.OperatingSystem"
+    Then I should receive a RestResponse with no error
+    And The RestResponse should contain 2 element(s) in this order:
+      | ubuntu |
+      | gentoo |
 
-  Scenario: I upload an archive with a non-suggested capability default value with info case
+  Scenario: I upload an archive with a similar capability property value
     When I upload the archive "tosca-normative-types"
-    And I upload the archive "ubuntu types with info default capabilities property value"
+    And I upload the archive "topology with similar os distribution value"
     Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 0 warnings and 2 infos
+    When I get suggestions for text "kubuntu" for property "distribution" of "capability" "tosca.capabilities.OperatingSystem"
+    Then I should receive a RestResponse with no error
+    And The RestResponse should contain 2 element(s) in this order:
+      | Kubuntu |
+      | ubuntu  |
+
+  Scenario: I upload an archive with a wrong property value
+    Given I create suggestion for property "device" of "node" "tosca.nodes.BlockStorage" with initial values "/dev/vdb"
+    When I upload the archive "tosca-normative-types"
+    And I upload the archive "topology with wrong device value"
+    Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos
+    When I get suggestions for text "/dev" for property "device" of "node" "tosca.nodes.BlockStorage"
+    Then I should receive a RestResponse with no error
+    And The RestResponse should contain 1 element(s) in this order:
+      | /dev/vdb |
+
+  Scenario: I upload an archive with a similar property value
+    Given I create suggestion for property "device" of "node" "tosca.nodes.BlockStorage" with initial values "/dev/vdb"
+    When I upload the archive "tosca-normative-types"
+    And I upload the archive "topology with similar device value"
+    Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 0 warnings and 2 infos
+    When I get suggestions for text "/dev/vdb" for property "device" of "node" "tosca.nodes.BlockStorage"
+    Then I should receive a RestResponse with no error
+    And The RestResponse should contain 2 element(s) in this order:
+      | /dev/vdb |
+      | /dev/vdc |
+#
+#  Scenario: I upload an archive with a similar relationship property value
+#    And I upload the archive "containing relationship types for suggestion tests"
+#    Given I create suggestion for property "install_dir" of "relationship" "alien.test.SoftwareHostedOnCompute" with initial values "/opt/software1"
+#    When I upload the archive "tosca-normative-types"
+#    And I upload the archive "topology with similar relationship property value"
+#    Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 0 warnings and 2 infos
+#    When I get suggestions for text "/opt/software1" for property "install_dir" of "relationship" "alien.test.SoftwareHostedOnCompute"
+#    Then I should receive a RestResponse with no error
+#    And The RestResponse should contain 2 element(s) in this order:
+#      | /opt/software1 |
+#      | /opt/software2 |

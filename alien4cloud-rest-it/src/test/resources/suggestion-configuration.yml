@@ -15,7 +15,6 @@
   target_element_id: tosca.capabilities.OperatingSystem
   target_property: distribution
   suggestions:
-    - linux
     - debian
     - fedora
     - rhel
@@ -26,9 +25,3 @@
     - windows server 2008
     - windows server 2012
     - windows server 2016
-
-- es_index: toscaelement
-  es_type: indexeddatatype
-  target_element_id: tosca.datatypes.Credential
-  target_property: user
-  suggestions: [test_credential]

@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,6 +36,15 @@ public class GenericSuggestionController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
+    @ApiOperation(value = "Create a suggestion entry")
+    @RequestMapping(value = "/", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public RestResponse<Void> createSuggestion(@RequestBody CreateSuggestionEntryRequest request) {
+        suggestionService.createSuggestionEntry(request.getEsIndex(), request.getEsType(), request.getSuggestions(), request.getTargetElementId(),
+                request.getTargetProperty());
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
     /**
      * Get matched suggestions
      *
@@ -51,7 +61,7 @@ public class GenericSuggestionController {
         if (limit == null || limit <= 0) {
             limit = Integer.MAX_VALUE;
         }
-        String[] suggestions = suggestionService.getJarowinklerMatchedSuggestions(suggestionId, input, limit);
+        String[] suggestions = suggestionService.getJaroWinklerMatchedSuggestions(suggestionId, input, limit);
         return RestResponseBuilder.<String[]> builder().data(suggestions).build();
     }
 

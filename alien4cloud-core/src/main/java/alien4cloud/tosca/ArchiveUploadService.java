@@ -71,8 +71,12 @@ public class ArchiveUploadService {
             }
         }
         archiveIndexer.importArchive(archiveRoot, path, parsingResult.getContext().getParsingErrors());
-        suggestionService.postProcessSuggestionFromArchive(parsingResult);
-        suggestionService.setAllSuggestionIdOnPropertyDefinition();
+        try {
+            suggestionService.postProcessSuggestionFromArchive(parsingResult);
+            suggestionService.setAllSuggestionIdOnPropertyDefinition();
+        } catch (Exception e) {
+            log.error("Could not post process suggestion for the archive");
+        }
         return toSimpleResult(parsingResult);
     }
 

@@ -82,8 +82,12 @@ public class TestDataRegistry {
         addConditionFolder("valid-csar-with-update2", "src/test/resources/data/csars/snapshot-test/snapshot-test-update2");
         addConditionFolder("valid-csar-with-update3", "src/test/resources/data/csars/snapshot-test/snapshot-test-update3");
         addConditionFolder("csar-test-no-topology", "src/test/resources/data/csars/snapshot-test/missing-topology-yaml");
-        addConditionFolder("ubuntu types with wrong default capabilities property value", "src/test/resources/data/csars/suggestion-test/ubuntu-wrong-capabilities-property");
-        addConditionFolder("ubuntu types with info default capabilities property value", "src/test/resources/data/csars/suggestion-test/ubuntu-info-capabilities-property");
+        addConditionFolder("topology with wrong os distribution value", "src/test/resources/data/csars/suggestion-test/ubuntu-wrong-capabilities-property");
+        addConditionFolder("topology with similar os distribution value", "src/test/resources/data/csars/suggestion-test/ubuntu-info-capabilities-property");
+        addConditionFolder("topology with wrong device value", "src/test/resources/data/csars/suggestion-test/blockstorage-wrong-property");
+        addConditionFolder("topology with similar device value", "src/test/resources/data/csars/suggestion-test/blockstorage-info-property");
+        addConditionFolder("containing relationship types for suggestion tests", "src/test/resources/data/csars/suggestion-test/relationship-type");
+        addConditionFolder("topology with similar relationship property value", "src/test/resources/data/csars/suggestion-test/relationship-info-property");
 
         // Topology parsing data
         addConditionFolder("topology-singlecompute", "src/test/resources/data/csars/topology_template/topology-singlecompute");

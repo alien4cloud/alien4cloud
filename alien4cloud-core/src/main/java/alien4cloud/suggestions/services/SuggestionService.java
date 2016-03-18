@@ -2,6 +2,8 @@ package alien4cloud.suggestions.services;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
@@ -31,6 +34,7 @@ import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.NodeFilter;
 import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.components.PropertyDefinition;
@@ -52,6 +56,7 @@ import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.YamlParserUtil;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 @Slf4j
 @Component
@@ -73,7 +78,6 @@ public class SuggestionService {
         try (InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream("suggestion-configuration.yml")) {
             SuggestionEntry[] suggestions = YamlParserUtil.parse(input, SuggestionEntry[].class);
             for (SuggestionEntry suggestionEntry : suggestions) {
-                suggestionEntry.generateId();
                 if (!isSuggestionExist(suggestionEntry)) {
                     alienDAO.save(suggestionEntry);
                 }
@@ -82,7 +86,7 @@ public class SuggestionService {
     }
 
     /**
-     * Iterate on default suggestions to update all assosiate property definition.
+     * Iterate on default suggestions to update all associate property definition.
      */
     public void setAllSuggestionIdOnPropertyDefinition() {
         List<SuggestionEntry> suggestionEntries = getAllSuggestionEntries();
@@ -93,11 +97,11 @@ public class SuggestionService {
         }
     }
 
-    private void checkProperty(String nodePrefix, String propertyName, String propertyTextValue, Class<? extends IndexedInheritableToscaElement> type,
-            String elementId, ParsingContext context) {
+    private SuggestionEntry checkProperty(String nodePrefix, String propertyName, String propertyTextValue,
+            Class<? extends IndexedInheritableToscaElement> type, String elementId, ParsingContext context) {
         SuggestionEntry suggestionEntry = getSuggestionEntry(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, type.getSimpleName().toLowerCase(), elementId, propertyName);
         if (suggestionEntry != null) {
-            PriorityQueue<SuggestionService.MatchedSuggestion> similarValues = getJarowinklerMatchedSuggestions(suggestionEntry.getSuggestions(),
+            PriorityQueue<SuggestionService.MatchedSuggestion> similarValues = getJaroWinklerMatchedSuggestions(suggestionEntry.getSuggestions(),
                     propertyTextValue, 0.8);
             if (!similarValues.isEmpty()) {
                 // Has some similar values in the system already
@@ -123,6 +127,7 @@ public class SuggestionService {
                 addSuggestionValueToSuggestionEntry(suggestionEntry.getId(), propertyTextValue);
             }
         }
+        return suggestionEntry;
     }
 
     private void checkProperties(String nodePrefix, Map<String, AbstractPropertyValue> propertyValueMap, Class<? extends IndexedInheritableToscaElement> type,
@@ -207,6 +212,37 @@ public class SuggestionService {
         }
     }
 
+    /**
+     * Create a new suggestion entry
+     * 
+     * @param type the targeted type
+     * @param initialValues the initial values
+     * @param elementId element id
+     * @param propertyName property's name
+     */
+    public void createSuggestionEntry(String index, Class<? extends IndexedToscaElement> type, Set<String> initialValues, String elementId, String propertyName) {
+        createSuggestionEntry(index, type.getSimpleName().toLowerCase(), initialValues, elementId, propertyName);
+    }
+
+    /**
+     * Create a new suggestion entry
+     *
+     * @param type the targeted type
+     * @param initialValues the initial values
+     * @param elementId element id
+     * @param propertyName property's name
+     */
+    public void createSuggestionEntry(String index, String type, Set<String> initialValues, String elementId, String propertyName) {
+        SuggestionEntry suggestionEntry = new SuggestionEntry();
+        suggestionEntry.setEsIndex(index);
+        suggestionEntry.setEsType(type);
+        suggestionEntry.setSuggestions(initialValues);
+        suggestionEntry.setTargetElementId(elementId);
+        suggestionEntry.setTargetProperty(propertyName);
+        alienDAO.save(suggestionEntry);
+        setSuggestionIdOnPropertyDefinition(suggestionEntry);
+    }
+
     private void checkPropertyConstraints(String prefix, Class<? extends IndexedInheritableToscaElement> type, String elementId, String propertyName,
             List<PropertyConstraint> constraints, ParsingContext context) {
         if (constraints != null && !constraints.isEmpty()) {
@@ -214,12 +250,24 @@ public class SuggestionService {
                 if (propertyConstraint instanceof EqualConstraint) {
                     EqualConstraint equalConstraint = (EqualConstraint) propertyConstraint;
                     String valueToCheck = equalConstraint.getEqual();
-                    checkProperty(prefix, propertyName, valueToCheck, type, elementId, context);
+                    if (checkProperty(prefix, propertyName, valueToCheck, type, elementId, context) == null) {
+                        createSuggestionEntry(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, IndexedCapabilityType.class, Sets.newHashSet(valueToCheck), elementId,
+                                propertyName);
+                    }
                 } else if (propertyConstraint instanceof ValidValuesConstraint) {
                     ValidValuesConstraint validValuesConstraint = (ValidValuesConstraint) propertyConstraint;
                     if (validValuesConstraint.getValidValues() != null && !validValuesConstraint.getValidValues().isEmpty()) {
+                        SuggestionEntry foundSuggestion = null;
                         for (String valueToCheck : validValuesConstraint.getValidValues()) {
-                            checkProperty(prefix, propertyName, valueToCheck, type, elementId, context);
+                            foundSuggestion = checkProperty(prefix, propertyName, valueToCheck, type, elementId, context);
+                            if (foundSuggestion == null) {
+                                // No suggestion exists don't need to check any more for other values
+                                break;
+                            }
+                        }
+                        if (foundSuggestion == null) {
+                            createSuggestionEntry(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, IndexedCapabilityType.class,
+                                    Sets.newHashSet(validValuesConstraint.getValidValues()), elementId, propertyName);
                         }
                     }
                 }
@@ -316,7 +364,7 @@ public class SuggestionService {
         }
     }
 
-    public PriorityQueue<MatchedSuggestion> getJarowinklerMatchedSuggestions(Set<String> allSuggestions, String input, double minJarowinkler) {
+    public PriorityQueue<MatchedSuggestion> getJaroWinklerMatchedSuggestions(Set<String> allSuggestions, String input, double minJaroWinkler) {
         String normalizedInput = normalizeTextForMatching(input);
         // The priority queue is here is to see what is the value that matches the suggestion the most
         PriorityQueue<MatchedSuggestion> matchedSuggestions = new PriorityQueue<>(10, Collections.reverseOrder(new Comparator<MatchedSuggestion>() {
@@ -327,7 +375,7 @@ public class SuggestionService {
         }));
         // Process matched text with its score
         for (String suggestion : allSuggestions) {
-            MatchedSuggestion matchedSuggestion = getMatch(suggestion, normalizedInput, minJarowinkler);
+            MatchedSuggestion matchedSuggestion = getMatch(suggestion, normalizedInput, minJaroWinkler);
             if (matchedSuggestion != null) {
                 matchedSuggestions.add(matchedSuggestion);
             }
@@ -343,7 +391,7 @@ public class SuggestionService {
      * @param limit the number of match to consider
      * @return the suggestions ordered by the most match.
      */
-    public String[] getJarowinklerMatchedSuggestions(String suggestionId, String input, int limit) {
+    public String[] getJaroWinklerMatchedSuggestions(String suggestionId, String input, int limit) {
         Set<String> allSuggestions = getSuggestions(suggestionId);
         if (limit > allSuggestions.size()) {
             limit = allSuggestions.size();
@@ -357,7 +405,7 @@ public class SuggestionService {
             }
             return matches;
         }
-        PriorityQueue<MatchedSuggestion> matchedSuggestions = getJarowinklerMatchedSuggestions(allSuggestions, input, MIN_JAROWINKLER);
+        PriorityQueue<MatchedSuggestion> matchedSuggestions = getJaroWinklerMatchedSuggestions(allSuggestions, input, MIN_JAROWINKLER);
         if (limit > matchedSuggestions.size()) {
             limit = matchedSuggestions.size();
         }
@@ -398,12 +446,17 @@ public class SuggestionService {
     }
 
     /**
-     * Get all suggestionEntry
+     * Get all suggestionEntries, attention this method do not return suggested values
      * 
-     * @return all suggestion entries
+     * @return all suggestion entries without their values
      */
-    public List<SuggestionEntry> getAllSuggestionEntries() {
-        return alienDAO.customFindAll(SuggestionEntry.class, null);
+    private List<SuggestionEntry> getAllSuggestionEntries() {
+        GetMultipleDataResult<SuggestionEntry> result = alienDAO.search(SuggestionEntry.class, null, null, FetchContext.SUMMARY, 0, Integer.MAX_VALUE);
+        if (result.getData() != null && result.getData().length > 0) {
+            return Arrays.asList(result.getData());
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     public void setAlienDAO(IGenericSearchDAO alienDAO) {
