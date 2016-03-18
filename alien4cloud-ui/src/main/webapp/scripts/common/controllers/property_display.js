@@ -161,7 +161,7 @@ define(function(require) {
                 }
                 return callSaveService(propertyRequest);
               }, function() {
-                return "Cancelled";
+                return $translate("CANCELLED");
               });
             } else {
               promise = callSaveService(propertyRequest);

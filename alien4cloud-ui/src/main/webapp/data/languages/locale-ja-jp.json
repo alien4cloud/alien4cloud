@@ -585,6 +585,7 @@
   "GENERIC_FORM" : {
     "ADD" : "追加",
     "CANCEL" : "キャンセル",
+    "CANCELLED" : "Cancelled",
     "DELETE" : "削除",
     "EDIT" : "編集",
     "FORM_INVALID_MESSAGE" : "注意!フォームは無効となり、すべての問題が解決されるまで保存されません:",

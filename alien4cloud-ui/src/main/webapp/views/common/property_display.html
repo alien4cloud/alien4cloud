@@ -163,7 +163,7 @@
       </div>
       <div class="modal-footer">
         <button id="btn-create" class="btn btn-primary" ng-click="create(result.data)">{{'OK' | translate}}</button>
-        <button id="btn-cancel" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
+        <button id="btn-cancel" class="btn btn-default" ng-click="cancel();$event.stopPropagation();">{{'CANCEL' | translate}}</button>
       </div>
     </form>
   </script>
