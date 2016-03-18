@@ -157,8 +157,8 @@ define(function(require) {
                     suggestionId: $scope.definition.suggestionId,
                     value: modalResult
                   }, null);
-                  propertyRequest.propertyValue = modalResult;
                 }
+                propertyRequest.propertyValue = modalResult;
                 return callSaveService(propertyRequest);
               }, function() {
                 return $translate("CANCELLED");
