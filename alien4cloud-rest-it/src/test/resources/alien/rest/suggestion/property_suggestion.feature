@@ -62,3 +62,13 @@ Feature: suggestion on a value backed by a property definition
     And The RestResponse should contain 2 element(s) in this order:
       | kubuntu |
       | ubuntu  |
+
+  Scenario: I upload an archive with a non-suggested capability default value
+    When I upload the archive "tosca-normative-types"
+    And I upload the archive "ubuntu types with wrong default capabilities property value"
+      Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos
+
+  Scenario: I upload an archive with a non-suggested capability default value with info case
+    When I upload the archive "tosca-normative-types"
+    And I upload the archive "ubuntu types with info default capabilities property value"
+    Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 0 warnings and 2 infos
