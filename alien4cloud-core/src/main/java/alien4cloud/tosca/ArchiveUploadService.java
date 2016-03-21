@@ -75,7 +75,7 @@ public class ArchiveUploadService {
             suggestionService.postProcessSuggestionFromArchive(parsingResult);
             suggestionService.setAllSuggestionIdOnPropertyDefinition();
         } catch (Exception e) {
-            log.error("Could not post process suggestion for the archive");
+            log.error("Could not post process suggestion for the archive", e);
         }
         return toSimpleResult(parsingResult);
     }

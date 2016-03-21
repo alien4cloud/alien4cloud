@@ -12,7 +12,6 @@ import org.junit.Assert;
 
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.it.Context;
-import alien4cloud.it.components.AddCommponentDefinitionSteps;
 import alien4cloud.model.common.SuggestionEntry;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.suggestion.CreateSuggestionEntryRequest;
@@ -50,17 +49,6 @@ public class SuggestionDefinitionsSteps {
         assertTrue(Arrays.asList(suggestionResp).contains(expectedValue));
     }
 
-    @Given("^I already had a component \"([^\"]*)\" uploaded$")
-    public void I_already_had_a_component_uploaded(String componentName) throws Throwable {
-        new AddCommponentDefinitionSteps().uploadComponent(componentName);
-    }
-
-    @When("^I search for suggestion on index \"([^\"]*)\", type \"([^\"]*)\", path \"([^\"]*)\" with text \"([^\"]*)\"$")
-    public void I_search_for_suggestion_on_index_type_path_with_text(String index, String type, String path, String text) throws Throwable {
-        String suggestionsText = Context.getRestClientInstance().get("/rest/v1/suggestions/" + index + "/" + type + "/" + path + "?text=" + text);
-        Context.getInstance().registerRestResponse(suggestionsText);
-    }
-
     @Then("^The RestResponse should contain (\\d+) element\\(s\\):$")
     public void The_RestResponse_should_contain_element_s_(int numberOfElements, List<String> expectedSuggestions) throws Throwable {
         String[] suggestions = JsonUtil.read(Context.getInstance().getRestResponse(), String[].class).getData();
@@ -82,7 +70,7 @@ public class SuggestionDefinitionsSteps {
     public void iGetSuggestionsForTextForPropertyOf(String input, String property, String type, String elementId) throws Throwable {
         String suggestionId = SuggestionEntry.generateId("toscaelement", "indexed" + type + "type", elementId, property);
         String suggestionsText = Context.getRestClientInstance().getUrlEncoded("/rest/v1/suggestions/" + suggestionId + "/values",
-                Arrays.<NameValuePair>asList(new BasicNameValuePair("input", input), new BasicNameValuePair("limit", "2")));
+                Arrays.<NameValuePair> asList(new BasicNameValuePair("input", input), new BasicNameValuePair("limit", "2")));
         Context.getInstance().registerRestResponse(suggestionsText);
     }
 

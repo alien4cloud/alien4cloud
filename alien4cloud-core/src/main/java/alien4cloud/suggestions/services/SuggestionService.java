@@ -294,6 +294,7 @@ public class SuggestionService {
                             + suggestionEntry.getTargetElementId() + "]");
                 } else {
                     switch (propertyDefinition.getType()) {
+                    case ToscaType.VERSION:
                     case ToscaType.STRING:
                         propertyDefinition.setSuggestionId(suggestionEntry.getId());
                         alienDAO.save(targetElement);
