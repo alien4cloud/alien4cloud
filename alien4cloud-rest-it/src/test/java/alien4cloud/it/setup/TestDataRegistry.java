@@ -88,6 +88,11 @@ public class TestDataRegistry {
         addConditionFolder("topology with similar device value", "src/test/resources/data/csars/suggestion-test/blockstorage-info-property");
         addConditionFolder("containing relationship types for suggestion tests", "src/test/resources/data/csars/suggestion-test/relationship-type");
         addConditionFolder("topology with similar relationship property value", "src/test/resources/data/csars/suggestion-test/relationship-info-property");
+        addConditionFolder("topology with wrong relationship property value", "src/test/resources/data/csars/suggestion-test/relationship-wrong-property");
+        addConditionFolder("node type with similar node filter constraint value", "src/test/resources/data/csars/suggestion-test/node-type-info-node-filter");
+        addConditionFolder("node type with wrong node filter constraint value", "src/test/resources/data/csars/suggestion-test/node-type-wrong-node-filter");
+        addConditionFolder("node type with new suggestion for equal constraint of node filter", "src/test/resources/data/csars/suggestion-test/node-type-new-suggestion-eq");
+        addConditionFolder("node type with new suggestion for valid values constraint of node filter", "src/test/resources/data/csars/suggestion-test/node-type-new-suggestion-vv");
 
         // Topology parsing data
         addConditionFolder("topology-singlecompute", "src/test/resources/data/csars/topology_template/topology-singlecompute");

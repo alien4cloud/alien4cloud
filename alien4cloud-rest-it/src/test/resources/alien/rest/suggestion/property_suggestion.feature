@@ -102,15 +102,74 @@ Feature: suggestion on a value backed by a property definition
     And The RestResponse should contain 2 element(s) in this order:
       | /dev/vdb |
       | /dev/vdc |
-#
-#  Scenario: I upload an archive with a similar relationship property value
-#    And I upload the archive "containing relationship types for suggestion tests"
-#    Given I create suggestion for property "install_dir" of "relationship" "alien.test.SoftwareHostedOnCompute" with initial values "/opt/software1"
-#    When I upload the archive "tosca-normative-types"
-#    And I upload the archive "topology with similar relationship property value"
-#    Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 0 warnings and 2 infos
-#    When I get suggestions for text "/opt/software1" for property "install_dir" of "relationship" "alien.test.SoftwareHostedOnCompute"
-#    Then I should receive a RestResponse with no error
-#    And The RestResponse should contain 2 element(s) in this order:
-#      | /opt/software1 |
-#      | /opt/software2 |
+
+  Scenario: I upload an archive with a wrong relationship property value
+    And I upload the archive "containing relationship types for suggestion tests"
+    Given I create suggestion for property "install_dir" of "relationship" "alien.test.SoftwareHostedOnCompute" with initial values "/opt/software1"
+    When I upload the archive "tosca-normative-types"
+    And I upload the archive "topology with wrong relationship property value"
+    Then I should receive a RestResponse with 3 alerts in 1 files : 0 errors 2 warnings and 1 infos
+    When I get suggestions for text "/opt/software1" for property "install_dir" of "relationship" "alien.test.SoftwareHostedOnCompute"
+    Then I should receive a RestResponse with no error
+    And The RestResponse should contain 1 element(s) in this order:
+      | /opt/software1 |
+
+  Scenario: I upload an archive with a similar relationship property value
+    And I upload the archive "containing relationship types for suggestion tests"
+    Given I create suggestion for property "install_dir" of "relationship" "alien.test.SoftwareHostedOnCompute" with initial values "/opt/software1"
+    When I upload the archive "tosca-normative-types"
+    And I upload the archive "topology with similar relationship property value"
+    Then I should receive a RestResponse with 3 alerts in 1 files : 0 errors 1 warnings and 2 infos
+    When I get suggestions for text "/opt/software1" for property "install_dir" of "relationship" "alien.test.SoftwareHostedOnCompute"
+    Then I should receive a RestResponse with no error
+    And The RestResponse should contain 2 element(s) in this order:
+      | /opt/software1 |
+      | /opt/software2 |
+
+
+  Scenario: I upload an archive with a wrong node filter constraint value
+    When I upload the archive "tosca-normative-types"
+    And I upload the archive "node type with wrong node filter constraint value"
+    Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 2 warnings and 0 infos
+    When I get suggestions for text "linux" for property "type" of "capability" "tosca.capabilities.OperatingSystem"
+    Then I should receive a RestResponse with no error
+    And The RestResponse should contain 2 element(s) in this order:
+      | linux   |
+      | windows |
+    When I get suggestions for text "x86_32" for property "architecture" of "capability" "tosca.capabilities.OperatingSystem"
+    Then I should receive a RestResponse with no error
+    And The RestResponse should contain 2 element(s) in this order:
+      | x86_32 |
+      | x86_64 |
+
+  Scenario: I upload an archive with a similar node filter constraint value
+    When I upload the archive "tosca-normative-types"
+    And I upload the archive "node type with similar node filter constraint value"
+    Then I should receive a RestResponse with 3 alerts in 1 files : 0 errors 0 warnings and 3 infos
+    When I get suggestions for text "linux" for property "type" of "capability" "tosca.capabilities.OperatingSystem"
+    Then I should receive a RestResponse with no error
+    And The RestResponse should contain 2 element(s) in this order:
+      | linux  |
+      | linuxx |
+    When I get suggestions for text "x86_32" for property "architecture" of "capability" "tosca.capabilities.OperatingSystem"
+    Then I should receive a RestResponse with no error
+    And The RestResponse should contain 2 element(s) in this order:
+      | x86_32  |
+      | x86_322 |
+
+  Scenario: I upload an archive with a new node filter constraint value for equal constraint, that will trigger the creation of new suggestion
+    When I upload the archive "tosca-normative-types"
+    And I upload the archive "node type with new suggestion for equal constraint of node filter"
+    When I get suggestions for text "14" for property "version" of "capability" "tosca.capabilities.OperatingSystem"
+    Then I should receive a RestResponse with no error
+    And The RestResponse should contain 1 element(s) in this order:
+      | 14.04 |
+
+  Scenario: I upload an archive with a new node filter constraint value for valid values constraint, that will trigger the creation of new suggestion
+    When I upload the archive "tosca-normative-types"
+    And I upload the archive "node type with new suggestion for valid values constraint of node filter"
+    When I get suggestions for text "14.04" for property "version" of "capability" "tosca.capabilities.OperatingSystem"
+    Then I should receive a RestResponse with no error
+    And The RestResponse should contain 2 element(s) in this order:
+      | 14.04  |
+      | 14.042 |

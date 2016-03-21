@@ -1,12 +1,11 @@
 tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
 description: Alien4Cloud generated service template
-template_name: Relationship
+template_name: Node-type
 template_version: 0.1.0-SNAPSHOT
 template_author: admin
 
 imports:
   - tosca-normative-types:1.0.0-SNAPSHOT
-  - Relationship-type:0.1.0-SNAPSHOT
 
 node_types:
 
@@ -14,21 +13,12 @@ node_types:
     derived_from: tosca.nodes.SoftwareComponent
     requirements:
       - host: tosca.capabilities.Container
-        relationship_type: alien.test.SoftwareHostedOnCompute
+        relationship_type: tosca.relationships.HostedOn
         lower_bound: 1
         upper_bound: 1
-
-topology_template:
-
-  node_templates:
-
-    Compute:
-      type: tosca.nodes.Compute
-
-    Software:
-      type: alien.test.Software
-      requirements:
-        - host:
-            node: Compute
-            properties:
-              install_dir: /opt/software2
+        node_filter:
+          capabilities:
+            - tosca.capabilities.OperatingSystem:
+                properties:
+                  - type: { equal: linuxx }
+                  - architecture: { valid_values: [x86_322, x86_644] }

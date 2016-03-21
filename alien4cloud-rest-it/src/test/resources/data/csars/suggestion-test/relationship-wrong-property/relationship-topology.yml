@@ -31,4 +31,4 @@ topology_template:
         - host:
             node: Compute
             properties:
-              install_dir: /opt/software2
+              install_dir: /OPT/SOFTWARE1
