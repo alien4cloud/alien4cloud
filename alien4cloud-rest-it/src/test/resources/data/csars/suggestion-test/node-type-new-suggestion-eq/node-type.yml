@@ -1,0 +1,25 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: Alien4Cloud generated service template
+template_name: Node-type
+template_version: 0.1.0-SNAPSHOT
+template_author: admin
+
+imports:
+  - tosca-normative-types:1.0.0-SNAPSHOT
+
+node_types:
+
+  alien.test.Software:
+    derived_from: tosca.nodes.SoftwareComponent
+    requirements:
+      - host: tosca.capabilities.Container
+        relationship_type: tosca.relationships.HostedOn
+        lower_bound: 1
+        upper_bound: 1
+        node_filter:
+          capabilities:
+            - tosca.capabilities.OperatingSystem:
+                properties:
+                  - type: { equal: linux }
+                  - distribution: { equal: ubuntu }
+                  - version: { equal: 14.04 }

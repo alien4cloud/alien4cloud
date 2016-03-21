@@ -14,6 +14,7 @@ define(function (require) {
   require('scripts/authentication/services/authservices');
   require('scripts/common/filters/strings');
   require('scripts/common/services/suggestion_services');
+  require('scripts/common/services/property_suggestion_services');
   require('scripts/common/directives/simple_modal');
   require('scripts/components/services/tags');
   require('scripts/components/controllers/csar_explorer');

@@ -36,18 +36,83 @@ define(function(require) {
     }
   ];
 
-  modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$modal', '$timeout',
-    function($scope, propertiesServices, $translate, $modal, $timeout) {
+  var PropertySuggestionModalCtrl = ['$scope', '$modalInstance',
+    function($scope, $modalInstance) {
+      $scope.result = '';
+
+      $scope.create = function(result) {
+        $modalInstance.close(result);
+      };
+
+      $scope.cancel = function() {
+        $modalInstance.dismiss('cancel');
+      };
+    }
+  ];
+
+
+  modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$modal', '$timeout', 'propertySuggestionServices',
+    function($scope, propertiesServices, $translate, $modal, $timeout, propertySuggestionServices) {
       if (_.undefined($scope.translate)) {
         $scope.translate = false;
       }
-      $scope.isLongText = false;
+
+      $scope.showLongTextChoice = false;
+
+      $scope.switchLongTextChoice = function(on) {
+        $scope.showLongTextChoice = on;
+      };
+
       $scope.switchToLongText = function($event) {
-        $scope.isLongText = true;
+        $scope.isLongText = !$scope.isLongText;
         $timeout(function() {
           angular.element($event.target).prev().trigger('click');
         });
       };
+
+      $scope.suggestion = {
+        get: function(text) {
+          if (_.defined($scope.definition.suggestionId)) {
+            return propertySuggestionServices.get({
+              input: text,
+              limit: 5,
+              suggestionId: $scope.definition.suggestionId
+            }).$promise.then(function(result) {
+              if (_.defined(result.data)) {
+                return result.data;
+              } else {
+                return [];
+              }
+            });
+          } else {
+            return [];
+          }
+        },
+        waitBeforeRequest: 0,
+        minLength: 1
+      };
+
+      /* method private to factorise all call to the serve and trigge errors */
+      var callSaveService = function(propertyRequest) {
+        var saveResult = $scope.onSave(propertyRequest);
+
+        // If the callback return a promise
+        if (_.defined(saveResult) && _.defined(saveResult.then)) {
+          return saveResult.then(function(saveResult) {
+            if (_.defined(saveResult.error)) {
+              // Constraint error display + translation
+              var constraintInfo = saveResult.data;
+              // Error message handled by x-editable
+              if (saveResult.error.code === 800) {
+                return $translate('ERRORS.' + saveResult.error.code + '.' + constraintInfo.name, constraintInfo);
+              } else {
+                return $translate('ERRORS.' + saveResult.error.code, constraintInfo);
+              }
+            }
+          });
+        }
+      };
+
       $scope.propertySave = function(data, unit) {
         delete $scope.unitError;
         if (_.isBoolean(data)) {
@@ -68,21 +133,43 @@ define(function(require) {
           propertyDefinition: $scope.definition,
           propertyValue: data
         };
-        var saveResult = $scope.onSave(propertyRequest);
-        // If the callback return a promise
-        if (_.defined(saveResult) && _.defined(saveResult.then)) {
-          return saveResult.then(function(saveResult) {
-            if (_.defined(saveResult.error)) {
-              // Constraint error display + translation
-              var constraintInfo = saveResult.data;
-              // Error message handled by x-editable
-              if (saveResult.error.code === 800) {
-                return $translate('ERRORS.' + saveResult.error.code + '.' + constraintInfo.name, constraintInfo);
-              } else {
-                return $translate('ERRORS.' + saveResult.error.code, constraintInfo);
-              }
+
+        if (_.defined($scope.definition.suggestionId) && _.defined(data) && data !== null) {
+          return propertySuggestionServices.get({
+            input: data,
+            limit: 5,
+            suggestionId: $scope.definition.suggestionId
+          }).$promise.then(function(suggestionResult) {
+            var promise;
+            $scope.propertySuggestionData = {
+              suggestions: suggestionResult.data,
+              propertyValue: data
+            };
+            if (suggestionResult.data.indexOf(data) < 0) {
+              var modalInstance = $modal.open({
+                templateUrl: 'propertySuggestionModal.html',
+                controller: PropertySuggestionModalCtrl,
+                scope: $scope
+              });
+              promise = modalInstance.result.then(function(modalResult) {
+                if (suggestionResult.data.indexOf(modalResult) < 0) {
+                  propertySuggestionServices.add([], {
+                    suggestionId: $scope.definition.suggestionId,
+                    value: modalResult
+                  }, null);
+                }
+                propertyRequest.propertyValue = modalResult;
+                return callSaveService(propertyRequest);
+              }, function() {
+                return $translate("CANCELLED");
+              });
+            } else {
+              promise = callSaveService(propertyRequest);
             }
+            return promise;
           });
+        } else {
+          return callSaveService(propertyRequest);
         }
       };
 
@@ -166,7 +253,7 @@ define(function(require) {
           }
         }
 
-        // handeling default value
+        // handling default value
         shownValue = shownValue || $scope.definition.default;
         $scope.definitionObject.hasDefaultValue = _.defined($scope.definition.default);
 
@@ -252,7 +339,7 @@ define(function(require) {
             $scope.definitionObject.uiValue = shownValue;
             break;
         }
-
+        $scope.isLongText = _.defined(shownValue) && shownValue.indexOf('\n') > -1;
         // Phase one valid or not ?
         if (!_.isEmpty($scope.definitionObject)) {
           return $scope.definitionObject;
@@ -260,7 +347,6 @@ define(function(require) {
       };
 
       $scope.openComplexPropertyModal = function() {
-
         $modal.open({
           templateUrl: 'views/common/property_display_complex_modal.html',
           controller: ComplexPropertyModalCtrl,

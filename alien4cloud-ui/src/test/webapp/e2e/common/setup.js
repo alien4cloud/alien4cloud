@@ -20,6 +20,7 @@ var indexedcapabilitytypes = require(__dirname + '/../_data/indexedcapabilitytyp
 var indexeddatatypes = require(__dirname + '/../_data/indexeddatatypes.json');
 var indexednodetypes = require(__dirname + '/../_data/indexednodetypes.json');
 var indexedrelationshiptypes = require(__dirname + '/../_data/indexedrelationshiptypes.json');
+var suggestionentry = require(__dirname + '/../_data/suggestionentry.json');
 var imagedatas = require(__dirname + '/../_data/imagedatas.json');
 
 var topologytemplates = require(__dirname + '/../_data/topologytemplates.json');
@@ -93,6 +94,9 @@ function doSetup() {
   });
   flow.execute(function() {
     return index('toscaelement', 'indexedrelationshiptype', indexedrelationshiptypes);
+  });
+  flow.execute(function() {
+    return index('suggestionentry', 'suggestionentry', suggestionentry);
   });
 
   flow.execute(function() {

@@ -16,6 +16,7 @@ import alien4cloud.model.components.Csar;
 import alien4cloud.model.git.CsarDependenciesBean;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.Role;
+import alien4cloud.suggestions.services.SuggestionService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyTemplateVersionService;
 import alien4cloud.tosca.model.ArchiveRoot;
@@ -39,6 +40,8 @@ public class ArchiveUploadService {
     TopologyServiceCore topologyServiceCore;
     @Inject
     TopologyTemplateVersionService topologyTemplateVersionService;
+    @Inject
+    private SuggestionService suggestionService;
 
     /**
      * Upload a TOSCA archive and index its components.
@@ -67,9 +70,13 @@ public class ArchiveUploadService {
                 return toSimpleResult(parsingResult);
             }
         }
-
         archiveIndexer.importArchive(archiveRoot, path, parsingResult.getContext().getParsingErrors());
-
+        try {
+            suggestionService.postProcessSuggestionFromArchive(parsingResult);
+            suggestionService.setAllSuggestionIdOnPropertyDefinition();
+        } catch (Exception e) {
+            log.error("Could not post process suggestion for the archive");
+        }
         return toSimpleResult(parsingResult);
     }
 

@@ -266,6 +266,7 @@
   },
   "BOUNDS" : "Bounds",
   "CANCEL" : "Cancel",
+  "CANCELLED" : "Cancelled",
   "CLOSE" : "Close",
   "CLOUDS" : {
     "ADMINISTRATION" : {
@@ -412,6 +413,7 @@
       "UNRECOGNIZED_PROPERTY" : "Property [ {{note}} ] is unknown and has been ignored.",
       "VALIDATION_ERROR" : "Declared type is not valid: {{context | translate:note}}",
       "WORKFLOW_HAS_ERRORS" : "Workflow [{{note}}] is not valid",
+      "POTENTIAL_BAD_PROPERTY_VALUE" : "There might be typographical errors: {{note}}.",
       "YAML_MAPPING_NODE_EXPECTED" : "A mapping node is expected.",
       "YAML_SCALAR_NODE_EXPECTED" : "A YAML node of type scalar is expected here.",
       "YAML_SEQUENCE_EXPECTED" : "A YAML sequence is expected."
@@ -732,6 +734,14 @@
     "UPLOAD" : "Upload plugin"
   },
   "PROPERTY_RESET" : "Set to default value or reset",
+  "PROPERTY_SUGGESTION" : {
+    "MODAL" :  {
+      "TITLE" : "New value detected",
+      "DESCRIPTION" : "The value that you entered has never been registered before in the system.",
+      "USE": "Use ",
+      "USE_YOUR_VALUE" : " and add it to the suggestion values"
+    }
+  },
   "REQUIRED" : "Required",
   "ROLE_TABS" : {
     "USERS" : "Users"

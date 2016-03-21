@@ -58,11 +58,16 @@ public class ExportESIndex {
                 Paths.get(pathToData + "/topologies.json"));
         export("curl -X POST \"http://localhost:9200/deploymenttopology/_search?pretty=true\" -d '{\"from\" : 0, \"size\" : 100,\"sort\": { \"_uid\": { \"order\": \"asc\" }},\"query\" : {\"match_all\" : {}}}' | grep _source",
                 Paths.get(pathToData + "/deploymenttopologies.json"));
+
         // Users and groups
         export("curl -X POST \"http://localhost:9200/user/_search?pretty=true\" -d '{\"from\" : 0, \"size\" : 100,\"sort\": { \"_uid\": { \"order\": \"asc\" }},\"query\" : {\"match_all\" : {}}}' | grep _source",
                 Paths.get(pathToData + "/users.json"));
         export("curl -X POST \"http://localhost:9200/group/_search?pretty=true\" -d '{\"from\" : 0, \"size\" : 100,\"sort\": { \"_uid\": { \"order\": \"asc\" }},\"query\" : {\"bool\" : {\"must_not\":{\"term\": { \"name\": \"ALL_USERS\"}}}}}' | grep _source",
                 Paths.get(pathToData + "/groups.json"));
+
+        // Suggestion entry
+        export("curl -X POST \"http://localhost:9200/suggestionentry/_search?pretty=true\" -d '{\"from\" : 0, \"size\" : 1000,\"sort\": { \"_uid\": { \"order\": \"asc\" }},\"query\" : {\"match_all\" : {}}}' | grep _source",
+                Paths.get(pathToData + "/suggestionentry.json"));
     }
 
     private static void export(String command, Path targetFile) throws IOException {
