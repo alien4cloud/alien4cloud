@@ -100,7 +100,7 @@
                                     <version>${alien.previous.version}</version>
                                     <classifier>tests</classifier>
                                     <includes>**/*</includes>
-                                    <excludes>alien4cloud, META-INF, alien4cloud/it/RunAuditIT.class</excludes>
+                                    <excludes>alien4cloud, META-INF, alien4cloud/it/RunAuditIT.class, alien/rest/suggestion/suggestion.feature</excludes>
                                     <outputDirectory>src/test/resources</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
