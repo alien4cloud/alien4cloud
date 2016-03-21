@@ -28,6 +28,7 @@
 		alien4cloud.paas,
 		alien4cloud.paas.plan,
 		alien4cloud.tosca,
+		alien4cloud.suggestions,
 		alien4cloud.cloud,
 		alien4cloud.plugin,
 		alien4cloud.utils.services">

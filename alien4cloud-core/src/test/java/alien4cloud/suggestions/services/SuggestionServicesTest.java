@@ -1,4 +1,4 @@
-package alien4cloud.suggestion.services;
+package alien4cloud.suggestions.services;
 
 import java.util.Arrays;
 import java.util.HashSet;
