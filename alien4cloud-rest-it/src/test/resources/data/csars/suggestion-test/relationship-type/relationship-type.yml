@@ -1,0 +1,16 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: Alien4Cloud generated service template
+template_name: Relationship-type
+template_version: 0.1.0-SNAPSHOT
+template_author: admin
+
+imports:
+  - tosca-normative-types:1.0.0-SNAPSHOT
+
+relationship_types:
+
+  alien.test.SoftwareHostedOnCompute:
+    derived_from: tosca.relationships.HostedOn
+    properties:
+      install_dir:
+        type: string

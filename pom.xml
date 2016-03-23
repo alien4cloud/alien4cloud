@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>alien4cloud</groupId>
   <artifactId>alien4cloud-parent</artifactId>
-  <version>1.2.0-SM1</version>
+  <version>1.2.0-SM2</version>
   <packaging>pom</packaging>
   <name>Application LIfecycle ENabler parent project.</name>
   <description>Application LIfecycle ENabler is an application that allows you to manage your application's lifecycle on a cloud environment.</description>
@@ -13,6 +13,7 @@
     <module>alien4cloud-mock-paas-provider-plugin</module>
     <module>alien4cloud-rest-api</module>
     <module>alien4cloud-rest-it</module>
+    <module>alien4cloud-rest-it-compatibility</module>
     <module>alien4cloud-ui</module>
   </modules>
 
@@ -552,7 +553,7 @@
       <plugin>
         <groupId>external.atlassian.jgitflow</groupId>
         <artifactId>jgitflow-maven-plugin</artifactId>
-        <version>1.0-m4.3</version>
+        <version>1.0-m5.1-alien</version>
       </plugin>
 
       <plugin>

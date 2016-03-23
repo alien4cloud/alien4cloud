@@ -266,6 +266,7 @@
   },
   "BOUNDS" : "Bornes",
   "CANCEL" : "Annuler",
+  "CANCELLED" : "Annulé",
   "CLOSE" : "Fermer",
   "CLOUDS" : {
     "ADMINISTRATION" : {
@@ -412,6 +413,7 @@
       "UNRECOGNIZED_PROPERTY" : "La propriété [ {{note}} ] est inconnue et a été ignorée.",
       "VALIDATION_ERROR" : "Le type déclaré n'est pas valide: {{context | translate:note}}",
       "WORKFLOW_HAS_ERRORS" : "Le workflow [{{note}}] n'est pas valide",
+      "POTENTIAL_BAD_PROPERTY_VALUE" : "Possibilité d'erreur typographique: {{note}}.",
       "YAML_MAPPING_NODE_EXPECTED" : "Un noeud de type mapping est attendu.",
       "YAML_SCALAR_NODE_EXPECTED" : "Un noeud YAML de type scalar est attendu ici.",
       "YAML_SEQUENCE_EXPECTED" : "Une séquence YAML est attendu."
@@ -732,6 +734,14 @@
     "UPLOAD" : "Uploader un plugin"
   },
   "PROPERTY_RESET" : "Réinitialiser à la valeur par défaut",
+  "PROPERTY_SUGGESTION" : {
+    "MODAL" :  {
+      "TITLE" : "Nouvelle valeur détectée",
+      "DESCRIPTION" : "La valeur que vous avez saisie n'est pas enregistrée dans le système.",
+      "USE": "Utiliser ",
+      "USE_YOUR_VALUE" : " et l'ajouter aux valeur de suggestion"
+    }
+  },
   "REQUIRED" : "Obligatoire",
   "ROLE_TABS" : {
     "USERS" : "Utilisateurs"

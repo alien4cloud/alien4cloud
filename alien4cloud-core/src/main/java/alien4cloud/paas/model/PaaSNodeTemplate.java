@@ -7,25 +7,16 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.topology.AbstractTemplate;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.ScalingPolicy;
-import alien4cloud.paas.IPaaSTemplate;
 
 import com.google.common.collect.Lists;
 
 @Getter
 @Setter
 @SuppressWarnings("PMD.UnusedPrivateField")
-public class PaaSNodeTemplate implements IPaaSTemplate<IndexedNodeType> {
-    /** The unique id for the node template within the topology. */
-    private String id;
-    /** The node template that contains user's settings. */
-    private NodeTemplate nodeTemplate;
-    /** Node type for the wrapped node template. */
-    private IndexedNodeType indexedToscaElement;
-    /** Derived from types **/
-    private List<IndexedNodeType> derivedFroms;
+public class PaaSNodeTemplate extends AbstractPaaSTemplate<IndexedNodeType, NodeTemplate> {
+
     /** The path to the archive that contains the node type. **/
     private Path csarPath;
     /** The node tempalte that actually is the parent from the current node. */
@@ -56,8 +47,7 @@ public class PaaSNodeTemplate implements IPaaSTemplate<IndexedNodeType> {
      *            The node template wrapped by this {@link PaaSNodeTemplate}.
      */
     public PaaSNodeTemplate(String id, NodeTemplate wrapped) {
-        this.id = id;
-        this.nodeTemplate = wrapped;
+        super(id, wrapped);
     }
 
     /**
@@ -75,8 +65,11 @@ public class PaaSNodeTemplate implements IPaaSTemplate<IndexedNodeType> {
         return null;
     }
 
-    @Override
-    public AbstractTemplate getTemplate() {
-        return nodeTemplate;
+    /**
+     * @deprecated use {@link #getTemplate()} instead.
+     */
+    public NodeTemplate getNodeTemplate() {
+        return getTemplate();
     }
+
 }

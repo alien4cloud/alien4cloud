@@ -2,15 +2,24 @@ package alien4cloud.it.suggestion;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
 
+import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.it.Context;
-import alien4cloud.it.components.AddCommponentDefinitionSteps;
+import alien4cloud.model.common.SuggestionEntry;
 import alien4cloud.rest.model.RestResponse;
+import alien4cloud.rest.suggestion.CreateSuggestionEntryRequest;
 import alien4cloud.rest.utils.JsonUtil;
+
+import com.google.common.collect.Sets;
+
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -40,17 +49,6 @@ public class SuggestionDefinitionsSteps {
         assertTrue(Arrays.asList(suggestionResp).contains(expectedValue));
     }
 
-    @Given("^I already had a component \"([^\"]*)\" uploaded$")
-    public void I_already_had_a_component_uploaded(String componentName) throws Throwable {
-        new AddCommponentDefinitionSteps().uploadComponent(componentName);
-    }
-
-    @When("^I search for suggestion on index \"([^\"]*)\", type \"([^\"]*)\", path \"([^\"]*)\" with text \"([^\"]*)\"$")
-    public void I_search_for_suggestion_on_index_type_path_with_text(String index, String type, String path, String text) throws Throwable {
-        String suggestionsText = Context.getRestClientInstance().get("/rest/v1/suggestions/" + index + "/" + type + "/" + path + "?text=" + text);
-        Context.getInstance().registerRestResponse(suggestionsText);
-    }
-
     @Then("^The RestResponse should contain (\\d+) element\\(s\\):$")
     public void The_RestResponse_should_contain_element_s_(int numberOfElements, List<String> expectedSuggestions) throws Throwable {
         String[] suggestions = JsonUtil.read(Context.getInstance().getRestResponse(), String[].class).getData();
@@ -59,5 +57,49 @@ public class SuggestionDefinitionsSteps {
         String[] expectedSuggestionsArray = expectedSuggestions.toArray(new String[expectedSuggestions.size()]);
         Arrays.sort(expectedSuggestionsArray, 0, expectedSuggestionsArray.length);
         Assert.assertArrayEquals(expectedSuggestionsArray, suggestions);
+    }
+
+    @When("^I get all suggestions for property \"([^\"]*)\" of \"([^\"]*)\" \"([^\"]*)\"$")
+    public void iGetAllSuggestionsForPropertyOf(String property, String type, String elementId) throws Throwable {
+        String suggestionId = SuggestionEntry.generateId("toscaelement", "indexed" + type + "type", elementId, property);
+        String suggestionsText = Context.getRestClientInstance().get("/rest/v1/suggestions/" + suggestionId + "/values");
+        Context.getInstance().registerRestResponse(suggestionsText);
+    }
+
+    @When("^I get suggestions for text \"([^\"]*)\" for property \"([^\"]*)\" of \"([^\"]*)\" \"([^\"]*)\"$")
+    public void iGetSuggestionsForTextForPropertyOf(String input, String property, String type, String elementId) throws Throwable {
+        String suggestionId = SuggestionEntry.generateId("toscaelement", "indexed" + type + "type", elementId, property);
+        String suggestionsText = Context.getRestClientInstance().getUrlEncoded("/rest/v1/suggestions/" + suggestionId + "/values",
+                Arrays.<NameValuePair> asList(new BasicNameValuePair("input", input), new BasicNameValuePair("limit", "2")));
+        Context.getInstance().registerRestResponse(suggestionsText);
+    }
+
+    @When("^I add suggestion \"([^\"]*)\" for property \"([^\"]*)\" of \"([^\"]*)\" \"([^\"]*)\"$")
+    public void iAddSuggestionForPropertyOf(String value, String property, String type, String elementId) throws Throwable {
+        String suggestionId = SuggestionEntry.generateId("toscaelement", "indexed" + type + "type", elementId, property);
+        Context.getRestClientInstance().put("/rest/v1/suggestions/" + suggestionId + "/values/" + value);
+    }
+
+    @And("^I initialize default suggestions entry$")
+    public void iInitializeDefaultSuggestionsEntry() throws Throwable {
+        String response = Context.getRestClientInstance().postUrlEncoded("/rest/v1/suggestions/init", new ArrayList<NameValuePair>());
+        Assert.assertNull(JsonUtil.read(response).getError());
+    }
+
+    @And("^The RestResponse should contain (\\d+) element\\(s\\) in this order:$")
+    public void theRestResponseShouldContainElementSInThisOrder(int numberOfElements, List<String> expectedSuggestions) throws Throwable {
+        String[] suggestions = JsonUtil.read(Context.getInstance().getRestResponse(), String[].class).getData();
+        Assert.assertEquals(numberOfElements, suggestions.length);
+        String[] expectedSuggestionsArray = expectedSuggestions.toArray(new String[expectedSuggestions.size()]);
+        Assert.assertArrayEquals(expectedSuggestionsArray, suggestions);
+    }
+
+    @Given("^I create suggestion for property \"([^\"]*)\" of \"([^\"]*)\" \"([^\"]*)\" with initial values \"([^\"]*)\"$")
+    public void iCreateSuggestionForPropertyOfWithInitialValues(String property, String type, String elementId, String initialValues) throws Throwable {
+        String response = Context.getRestClientInstance().postJSon(
+                "/rest/v1/suggestions/",
+                JsonUtil.toString(new CreateSuggestionEntryRequest(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, "indexed" + type + "type", elementId, property, Sets
+                        .newHashSet(initialValues.split(",")))));
+        Assert.assertNull(JsonUtil.read(response).getError());
     }
 }

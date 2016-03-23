@@ -25,8 +25,10 @@ import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IValue;
 import alien4cloud.model.components.IndexedArtifactToscaElement;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
+import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.Interface;
 import alien4cloud.model.components.Operation;
 import alien4cloud.model.components.OperationOutput;
@@ -40,6 +42,7 @@ import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSTemplate;
 import alien4cloud.paas.exception.InvalidTopologyException;
 import alien4cloud.paas.function.FunctionEvaluator;
+import alien4cloud.paas.model.AbstractPaaSTemplate;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.model.PaaSTopology;
@@ -94,6 +97,7 @@ public class TopologyTreeBuilderService {
                 PaaSNodeTemplate paaSNodeTemplate = new PaaSNodeTemplate(templateEntry.getKey(), template);
 
                 fillType(cache, topology, template, paaSNodeTemplate, IndexedNodeType.class);
+                mergeInterfaces(paaSNodeTemplate, template);
 
                 if (template.getRelationships() != null) {
                     for (Map.Entry<String, RelationshipTemplate> relationshipEntry : template.getRelationships().entrySet()) {
@@ -101,6 +105,7 @@ public class TopologyTreeBuilderService {
                         PaaSRelationshipTemplate paaSRelationshipTemplate = new PaaSRelationshipTemplate(relationshipEntry.getKey(), relationshipTemplate,
                                 paaSNodeTemplate.getId());
                         fillType(cache, topology, relationshipTemplate, paaSRelationshipTemplate, IndexedRelationshipType.class);
+                        mergeInterfaces(paaSRelationshipTemplate, relationshipTemplate);
                         paaSNodeTemplate.getRelationshipTemplates().add(paaSRelationshipTemplate);
                     }
                 }
@@ -127,6 +132,17 @@ public class TopologyTreeBuilderService {
         return nodeTemplates;
     }
 
+    private void mergeInterfaces(AbstractPaaSTemplate pasSTemplate, AbstractTemplate abstractTemplate) {
+        IndexedToscaElement type = pasSTemplate.getIndexedToscaElement();
+        Map<String, Interface> typeInterfaces = null;
+        if (type instanceof IndexedArtifactToscaElement) {
+            typeInterfaces = ((IndexedArtifactToscaElement) type).getInterfaces();
+        }
+        Map<String, Interface> templateInterfaces = abstractTemplate.getInterfaces();
+        // Here merge interfaces: the interface defined in the template should override those from type.
+        pasSTemplate.setInterfaces(IndexedModelUtils.mergeInterfaces(typeInterfaces, templateInterfaces));
+    }
+    
     /**
      * Build the topology for deployment on the PaaS.
      *
@@ -291,7 +307,7 @@ public class TopologyTreeBuilderService {
     private <V extends IndexedInheritableToscaElement> void fillType(TypeMap typeMap, Topology topology, AbstractTemplate template,
             IPaaSTemplate<V> paaSTemplate, Class<V> clazz) {
         V indexedToscaElement = getToscaType(template.getType(), typeMap, topology.getDependencies(), clazz);
-        paaSTemplate.setIndexedToscaElement((V) indexedToscaElement);
+        paaSTemplate.setIndexedToscaElement(indexedToscaElement);
         List<String> derivedFroms = indexedToscaElement.getDerivedFrom();
         List<V> derivedFromTypes = Lists.newArrayList();
         if (derivedFroms != null) {
@@ -400,8 +416,8 @@ public class TopologyTreeBuilderService {
     private <V extends IndexedArtifactToscaElement> void registerOperationOutput(final List<? extends IPaaSTemplate> paaSTemplates, final String interfaceName,
             final String operationName, final String output, final String formatedAttributeName) {
         for (IPaaSTemplate<V> paaSTemplate : paaSTemplates) {
-            if (paaSTemplate.getTemplate().getInterfaces() != null) {
-                Interface interfass = MapUtils.getObject(paaSTemplate.getTemplate().getInterfaces(), (interfaceName));
+            if (paaSTemplate.getInterfaces() != null) {
+                Interface interfass = MapUtils.getObject(paaSTemplate.getInterfaces(), (interfaceName));
                 if (interfass != null && interfass.getOperations().containsKey(operationName)) {
                     OperationOutput toAdd = new OperationOutput(output);
                     if (StringUtils.isNotBlank(formatedAttributeName)) {

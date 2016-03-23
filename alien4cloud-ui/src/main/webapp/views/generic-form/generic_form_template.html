@@ -58,20 +58,18 @@
             ng-class="{'col-md-12' : configuration.formStyle === 'window' || (configuration.formStyle === 'tree' && !showTree), 'col-md-8' : (configuration.formStyle === 'tree' && showTree)}">
           <div class="genericformtypescontainer"
                ng-class="{
-               'form-container-no-tree form-container-horizontal-scroll': configuration.formStyle === 'window',
-               'well form-container-with-tree form-container-scroll': configuration.formStyle === 'tree',
-               '{{formClass}}': configuration.formStyle === 'tree' && formClass,
-               'well': configuration.formStyle === 'tree' && showTree
+                 'form-container-no-tree form-container-horizontal-scroll': configuration.formStyle === 'window',
+                 'well form-container-with-tree form-container-scroll': configuration.formStyle === 'tree',
+                 '{{formClass}}': configuration.formStyle === 'tree' && formClass,
+                 'well': configuration.formStyle === 'tree' && showTree
                }">
             <!-- The root form -->
-            <div class="container-fluid" ng-show="isActivePath">
-              <div class="genericformpropertiescontainer"
-                  ng-class="{
-                                  'form-container-no-tree-window form-container-vertical-scroll': configuration.formStyle === 'window',
-                                  '{{formClass}}': configuration.formStyle === 'window' && formClass,
-                                  'row': configuration.formStyle === 'tree'
-                                  }">
-              </div>
+            <div class="genericformpropertiescontainer"
+                ng-class="{
+                  'form-container-no-tree-window form-container-vertical-scroll': configuration.formStyle === 'window',
+                  '{{formClass}}': configuration.formStyle === 'window' && formClass
+                }"
+                ng-show="isActivePath">
             </div>
             <!-- Other nested complex object will be added dynamically after the root form -->
           </div>

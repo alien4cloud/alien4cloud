@@ -10,24 +10,7 @@ define(function (require) {
       }
     });
 
-    var genericSuggestionDAO = $resource('rest/latest/suggestions/:index/:type/:path', {
-      index : '@index',
-      type : '@type',
-      path : '@path'
-    });
-
     var nodetypeSuggestionResource = $resource('rest/latest/suggest/nodetypes');
-
-    var getSuggestions = function(index, type, path, text) {
-      return genericSuggestionDAO.get({
-        index : index,
-        type : type,
-        path : path,
-        text : text
-      }).$promise.then(function(result) {
-        return result.data;
-      });
-    };
 
     var getTagNameSuggestions = function(keyword) {
       return tagSuggestionResource.get({
@@ -50,7 +33,6 @@ define(function (require) {
 
     return {
       tagNameSuggestions : getTagNameSuggestions,
-      getSuggestions : getSuggestions,
       nodetypeSuggestions : getNodetypeSuggestions
     };
 

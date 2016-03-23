@@ -116,6 +116,9 @@
     reference: void
     deferred: true
     type: nodetemplate_capabilities_type
+  interfaces:
+    reference: interfaces
+    type: interfaces    
   artifacts:
     map: artifacts
     type: template_deployment_artifact

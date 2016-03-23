@@ -142,7 +142,9 @@ public final class IndexedModelUtils {
     }
 
     /**
-     * Merge interface & operations.
+     * Merge interface & operations: all 'from' interfaces will be merged into 'to' interfaces.
+     * <p>
+     * 'from' entries are added to 'to' entries if not exist (so entries in 'to' are preserved).
      */
     public static Map<String, Interface> mergeInterfaces(Map<String, Interface> from, Map<String, Interface> to) {
         Map<String, Interface> target = to;

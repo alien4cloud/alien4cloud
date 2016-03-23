@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import springfox.documentation.annotations.ApiIgnore;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FetchContext;
@@ -32,7 +33,6 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 
 import com.google.common.collect.Sets;
-import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * Handle Suggestion requests.
@@ -40,7 +40,7 @@ import springfox.documentation.annotations.ApiIgnore;
  * @author 'Igor Ngouagna'
  */
 @RestController
-@RequestMapping({"/rest/suggest", "/rest/v1/suggest", "/rest/latest/suggest"})
+@RequestMapping({ "/rest/suggest", "/rest/v1/suggest", "/rest/latest/suggest" })
 public class SuggestionController {
     private static final int SUGGESTION_COUNT = 10;
     private static final String TAG_FIELD = "tags";
@@ -107,8 +107,7 @@ public class SuggestionController {
         QueryBuilder queryOnHighest = QueryBuilders.termQuery("highestVersion", true);
         QueryBuilder query = QueryBuilders.boolQuery().must(queryOnText).must(queryOnHighest);
         return RestResponseBuilder.<String[]> builder()
-                .data(dao.selectPath("toscaelement", new String[] { "indexednodetype" }, query, SortOrder.ASC, "elementId", 0, 10))
-                .build();
+                .data(dao.selectPath("toscaelement", new String[] { "indexednodetype" }, query, SortOrder.ASC, "elementId", 0, 10)).build();
     }
 
 }

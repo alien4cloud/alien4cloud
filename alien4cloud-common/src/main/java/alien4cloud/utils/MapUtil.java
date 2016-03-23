@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.rest.utils.JsonUtil;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,7 +31,7 @@ public final class MapUtil {
      */
     public static Object get(Object object, String path) {
         if (StringUtils.isBlank(path)) {
-            return object;
+            throw new InvalidArgumentException("Path is empty, cannot evaluate property for object " + object);
         }
         String[] tokens = path.split("[\\.\\]\\[]");
 

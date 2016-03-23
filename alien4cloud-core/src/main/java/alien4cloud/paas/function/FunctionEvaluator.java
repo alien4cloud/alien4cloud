@@ -16,6 +16,7 @@ import alien4cloud.model.components.IValue;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.PropertyValue;
 import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
@@ -313,12 +314,18 @@ public final class FunctionEvaluator {
                 }
             } else {
                 // Complex
-                PropertyDefinition propertyDefinition = propertyDefinitions.get(propertyAccessPath);
-                if (ToscaType.isSimple(propertyDefinition.getType())) {
+                PropertyDefinition propertyDefinition = propertyDefinitions.get(propertyName);
+                if (propertyDefinition == null) {
+                    return null;
+                } else if (ToscaType.isSimple(propertyDefinition.getType())) {
                     // It's a complex path (with '.') but the type in definition is finally simple
                     return null;
                 } else if (properties != null) {
-                    Object value = MapUtil.get(properties.get(propertyName), propertyAccessPath.substring(propertyName.length()));
+                    AbstractPropertyValue rawValue = properties.get(propertyName);
+                    if (!(rawValue instanceof PropertyValue)) {
+                        throw new NotSupportedException("Only support static value in a get_property");
+                    }
+                    Object value = MapUtil.get(((PropertyValue) rawValue).getValue(), propertyAccessPath.substring(propertyName.length() + 1));
                     if (value instanceof String) {
                         return (String) value;
                     } else {
@@ -333,7 +340,18 @@ public final class FunctionEvaluator {
                 }
             }
         } else {
-            return getScalarValue(properties.get(propertyAccessPath));
+            AbstractPropertyValue abstractPropertyValue = properties.get(propertyAccessPath);
+            if (!(abstractPropertyValue instanceof PropertyValue)) {
+                throw new NotSupportedException("Not a property value");
+            } else if (abstractPropertyValue instanceof ScalarPropertyValue) {
+                return getScalarValue(properties.get(propertyAccessPath));
+            } else {
+                try {
+                    return JsonUtil.toString(((PropertyValue) abstractPropertyValue).getValue());
+                } catch (JsonProcessingException e) {
+                    return null;
+                }
+            }
         }
     }
 

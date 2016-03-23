@@ -266,10 +266,14 @@ public class TopologyServiceCore {
         nodeTemplate.setRequirements(requirements);
         nodeTemplate.setProperties(properties);
         nodeTemplate.setAttributes(indexedNodeType.getAttributes());
-        nodeTemplate.setInterfaces(indexedNodeType.getInterfaces());
         nodeTemplate.setArtifacts(deploymentArtifacts);
-        if (templateToMerge != null && templateToMerge.getRelationships() != null) {
-            nodeTemplate.setRelationships(templateToMerge.getRelationships());
+        if (templateToMerge != null) {
+            if (templateToMerge.getInterfaces() != null) {
+                nodeTemplate.setInterfaces(templateToMerge.getInterfaces());
+            }
+            if (templateToMerge.getRelationships() != null) {
+                nodeTemplate.setRelationships(templateToMerge.getRelationships());
+            }
         }
         return nodeTemplate;
     }

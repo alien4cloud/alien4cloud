@@ -22,6 +22,7 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.common.MetaPropConfiguration;
+import alien4cloud.model.common.SuggestionEntry;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
@@ -67,6 +68,7 @@ public class CommonStepDefinitions {
         indicesToClean.add(MetaPropConfiguration.class.getSimpleName().toLowerCase());
         indicesToClean.add(CsarGitRepository.class.getSimpleName().toLowerCase());
         indicesToClean.add(AuditESDAO.ALIEN_AUDIT_INDEX);
+        indicesToClean.add(SuggestionEntry.class.getSimpleName().toLowerCase());
     }
 
     @Before

@@ -2,8 +2,10 @@ package alien4cloud.paas;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.components.Interface;
 import alien4cloud.model.topology.AbstractTemplate;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
@@ -71,4 +73,6 @@ public interface IPaaSTemplate<V extends IndexedToscaElement> {
      * @return The Path
      */
     Path getCsarPath();
+
+    Map<String, Interface> getInterfaces();
 }

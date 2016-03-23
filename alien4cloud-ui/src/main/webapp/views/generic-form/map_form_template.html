@@ -1,34 +1,33 @@
-<div class="container-fluid" ng-show="isActivePath">
-  <div ng-class="{'form-container-no-tree-window form-container-vertical-scroll': configuration.formStyle === 'window', 'row form-container-with-tree': configuration.formStyle === 'tree'}">
-    <div class="form-group">
-      <label class="col-md-4 control-label"
-             tooltip="{{labelName | translate}}"
-             tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > configuration.labelSize]}}">
-        {{labelName | translate | truncate:configuration.labelSize}}
-      </label>
-
-      <div class="col-md-5">
-        <input type="text" class="form-control" id="{{idPrefix + 'keyinput'}}"
-               placeholder="{{ 'GENERIC_FORM.MAP_KEY_PLACEHOLDER' | translate }}" ng-model="key"
-               ng-keypress="handleEnter($event)">
-      </div>
-      <div class="col-md-3">
-        <div tooltip="{{ 'GENERIC_FORM.ADD' | translate }}" style="display: inline-block;" tooltip-placement="top">
-          <button id="{{idPrefix + 'addelementbutton'}}" type="button" class="btn btn-default btn-sm"
-                  ng-click="addElementToMap()" ng-disabled="key == '' || configuration.isReadOnly">
-            <i class="fa fa-plus"></i>
-          </button>
-        </div>
-        <button type="button" tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}" class="btn btn-danger btn-sm"
-                ng-click="deleteForm()" ng-if="isDeletable">
-          <i class="fa fa-trash-o"></i>
+<div ng-class="{
+    'form-container-no-tree-window form-container-vertical-scroll': configuration.formStyle === 'window'
+  }" ng-show="isActivePath">
+  <div class="form-group">
+    <label class="col-md-4 control-label"
+           tooltip="{{labelName | translate}}"
+           tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > configuration.labelSize]}}">
+      {{labelName | translate | truncate:configuration.labelSize}}
+    </label>
+    <div class="col-md-5">
+      <input type="text" class="form-control" id="{{idPrefix + 'keyinput'}}"
+             placeholder="{{ 'GENERIC_FORM.MAP_KEY_PLACEHOLDER' | translate }}" ng-model="key"
+             ng-keypress="handleEnter($event)">
+    </div>
+    <div class="col-md-3">
+      <div tooltip="{{ 'GENERIC_FORM.ADD' | translate }}" style="display: inline-block;" tooltip-placement="top">
+        <button id="{{idPrefix + 'addelementbutton'}}" type="button" class="btn btn-default btn-sm"
+                ng-click="addElementToMap()" ng-disabled="key == '' || configuration.isReadOnly">
+          <i class="fa fa-plus"></i>
         </button>
       </div>
+      <button type="button" tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}" class="btn btn-danger btn-sm"
+              ng-click="deleteForm()" ng-if="isDeletable">
+        <i class="fa fa-trash-o"></i>
+      </button>
     </div>
-    <div class="form-group" ng-show="hasEntries()">
-      <div class="col-md-12">
-        <div class="{{complexContainerElementId}}"></div>
-      </div>
+  </div>
+  <div class="form-group" ng-show="hasEntries()">
+    <div class="col-md-12">
+      <div class="{{complexContainerElementId}}"></div>
     </div>
   </div>
 </div>

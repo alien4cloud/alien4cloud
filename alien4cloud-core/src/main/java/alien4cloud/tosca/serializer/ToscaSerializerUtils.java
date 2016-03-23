@@ -11,6 +11,8 @@ import java.util.regex.Pattern;
 
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
+import alien4cloud.model.components.Interface;
+import alien4cloud.model.components.Operation;
 import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.components.constraints.AbstractPropertyConstraint;
 import alien4cloud.model.components.constraints.EqualConstraint;
@@ -186,6 +188,53 @@ public class ToscaSerializerUtils {
             if (mapIsNotEmptyAndContainsNotnullValues(capability.getProperties())) {
                 return true;
             }
+        }
+        return false;
+    }
+
+    public boolean doesInterfacesContaineImplementedOperation(Map<String, Interface> interfaces) {
+        if (interfaces == null || interfaces.isEmpty()) {
+            return false;
+        }
+        for (Interface interfaze : interfaces.values()) {
+            if (interfaze == null) {
+                continue;
+            }
+            Map<String, Operation> operations = interfaze.getOperations();
+            if (operations == null || operations.isEmpty()) {
+                continue;
+            }
+            for (Operation operation : operations.values()) {
+                if (operation.getImplementationArtifact() != null) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean doesInterfaceContaineImplementedOperation(Interface interfaze) {
+        if (interfaze == null) {
+            return false;
+        }
+        Map<String, Operation> operations = interfaze.getOperations();
+        if (operations == null || operations.isEmpty()) {
+            return false;
+        }
+        for (Operation operation : operations.values()) {
+            if (isOperationImplemented(operation)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isOperationImplemented(Operation operation) {
+        if (operation == null) {
+            return false;
+        }
+        if (operation.getImplementationArtifact() != null) {
+            return true;
         }
         return false;
     }

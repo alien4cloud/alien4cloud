@@ -11,6 +11,9 @@ import alien4cloud.model.components.IndexedArtifactToscaElement;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.Interface;
 import alien4cloud.model.components.Operation;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingResult;
@@ -51,6 +54,28 @@ public class ArchivePostProcessor {
         postProcessIndexedArtifactToscaElement(parsedArchive.getResult(), parsedArchive.getResult().getRelationshipTypes());
         postProcessElements(archiveName, archiveVersion, parsedArchive, parsedArchive.getResult().getCapabilityTypes(), globalElementsMap);
         postProcessElements(archiveName, archiveVersion, parsedArchive, parsedArchive.getResult().getArtifactTypes(), globalElementsMap);
+        postProcessTopology(archiveName, archiveVersion, parsedArchive, parsedArchive.getResult().getTopology(), globalElementsMap);
+    }
+
+    private void postProcessTopology(String archiveName, String archiveVersion, ParsingResult<ArchiveRoot> parsedArchive, Topology topology,
+            Map<String, String> globalElementsMap) {
+        if (topology == null) {
+            return;
+        }
+        for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
+            postProcessNodeTemplate(archiveName, archiveVersion, parsedArchive, nodeTemplate, globalElementsMap);
+        }
+
+    }
+
+    private void postProcessNodeTemplate(String archiveName, String archiveVersion, ParsingResult<ArchiveRoot> parsedArchive, NodeTemplate nodeTemplate,
+            Map<String, String> globalElementsMap) {
+        postProcessInterfaces(parsedArchive.getResult(), nodeTemplate.getInterfaces());
+        if (nodeTemplate.getRelationships() != null) {
+            for (RelationshipTemplate relationship : nodeTemplate.getRelationships().values()) {
+                postProcessInterfaces(parsedArchive.getResult(), relationship.getInterfaces());
+            }
+        }
     }
 
     private final void postProcessElements(String archiveName, String archiveVersion, ParsingResult<ArchiveRoot> parsedArchive,
@@ -79,7 +104,7 @@ public class ArchivePostProcessor {
         }
         for (IndexedArtifactToscaElement element : elements.values()) {
             postProcessDeploymentArtifacts(archive, element);
-            postProcessInterfaces(archive, element);
+            postProcessInterfaces(archive, element.getInterfaces());
         }
     }
 
@@ -93,12 +118,12 @@ public class ArchivePostProcessor {
         }
     }
 
-    private void postProcessInterfaces(ArchiveRoot archive, IndexedArtifactToscaElement element) {
-        if (element.getInterfaces() == null) {
+    private void postProcessInterfaces(ArchiveRoot archive, Map<String, Interface> interfaces) {
+        if (interfaces == null) {
             return;
         }
 
-        for (Interface interfaz : element.getInterfaces().values()) {
+        for (Interface interfaz : interfaces.values()) {
             for (Operation operation : interfaz.getOperations().values()) {
                 postProcessImplementationArtifact(archive, operation.getImplementationArtifact());
             }
