@@ -13,6 +13,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.model.AbstractMonitorEvent;
+import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.TypeScanner;
 
@@ -53,6 +54,8 @@ public class PaaSProviderPollingMonitor implements Runnable {
         Set<Class<?>> eventClasses = Sets.newHashSet();
         try {
             eventClasses = TypeScanner.scanTypes("alien4cloud.paas.model", AbstractMonitorEvent.class);
+            // The PaaSDeploymentStatusMonitorEvent is an internal generated event and so do not take into account
+            eventClasses.remove(PaaSDeploymentStatusMonitorEvent.class);
         } catch (ClassNotFoundException e) {
             log.info("No event class derived from {} found", AbstractMonitorEvent.class.getName());
         }
