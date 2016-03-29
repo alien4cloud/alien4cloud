@@ -1,0 +1,5 @@
+[
+  {"esIndex":"toscaelement","esType":"indexedcapabilitytype","targetElementId":"tosca.capabilities.OperatingSystem","targetProperty":"architecture","suggestions":["x86_64","x86_32"],"id":"toscaelement:indexedcapabilitytype:tosca.capabilities.OperatingSystem:architecture"},
+  {"esIndex":"toscaelement","esType":"indexedcapabilitytype","targetElementId":"tosca.capabilities.OperatingSystem","targetProperty":"distribution","suggestions":["windows server 2012","gentoo","fedora","ubuntu","debian","rhel","windows server 2008","windows server 2016","centos","windows server 2003"],"id":"toscaelement:indexedcapabilitytype:tosca.capabilities.OperatingSystem:distribution"},
+  {"esIndex":"toscaelement","esType":"indexedcapabilitytype","targetElementId":"tosca.capabilities.OperatingSystem","targetProperty":"type","suggestions":["aix","linux","windows","mac"],"id":"toscaelement:indexedcapabilitytype:tosca.capabilities.OperatingSystem:type"}
+]
