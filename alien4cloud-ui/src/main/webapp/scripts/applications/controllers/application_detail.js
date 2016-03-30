@@ -19,6 +19,7 @@ define(function (require) {
   require('scripts/applications/controllers/application_versions');
   require('scripts/applications/controllers/application_users');
   require('scripts/applications/controllers/topology_runtime');
+  require('scripts/applications/controllers/application_runtime');
 
   states.state('applications.detail', {
     url: '/details/:id',

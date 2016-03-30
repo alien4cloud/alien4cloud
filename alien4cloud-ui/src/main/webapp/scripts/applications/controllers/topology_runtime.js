@@ -10,19 +10,20 @@ define(function (require) {
   require('scripts/topology/controllers/topology_editor_workflows');
   require('scripts/topology/directives/workflow_rendering');
 
-  states.state('applications.detail.runtime', {
-    url: '/runtime',
+  states.state('applications.detail.runtime.topology', {
+    url: '/runtime/topology',
     templateUrl: 'views/applications/topology_runtime.html',
     controller: 'TopologyRuntimeCtrl',
     menu: {
-      id: 'am.applications.detail.runtime',
-      state: 'applications.detail.runtime',
+      id: 'am.applications.detail.runtime.topology',
+      state: 'applications.detail.runtime.topology',
       key: 'NAVAPPLICATIONS.MENU_RUNTIME',
       icon: 'fa fa-cogs',
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'], // is deployer
       priority: 400
     }
   });
+  states.forward('applications.detail.runtime', 'applications.detail.runtime.topology');
 
   modules.get('a4c-applications').controller('TopologyRuntimeCtrl',
     ['$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'orchestratorService', 'appEnvironments', '$interval', 'toscaService', 'topologyJsonProcessor', 'topoEditWf',
