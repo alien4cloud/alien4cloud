@@ -2,7 +2,7 @@
   <div class="row" style="margin-top: 10px;">
     <div class="col-md-3">
       <select ng-if="envs" class="form-control" ng-model="deploymentContext.selectedEnvironment" ng-options="env.name for env in envs"
-              ng-change="goToNextInvalidStep()"></select>
+              ng-change="onEnvironmentChange()"></select>
     </div>
     <!--  Environment status -->
     <div class="col-md-2">

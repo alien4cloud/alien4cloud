@@ -143,8 +143,7 @@
       </legend>
       <div class="row col-md-12">
         <tabset>
-          <!-- events -->
-          <tab ng-repeat="e in envs" id="tab-env-{{e.name}}" select="selectTab(application.id,e.id)">
+          <tab ng-repeat="e in appEnvironments.environments" id="tab-env-{{e.name}}" select="setEnvironment(e.id)" active="e.active">
             <tab-heading>
               <i class="pull-left fa fa-x" tooltip="{{'DEPLOYMENT.STATUS.' + e.status | translate }}" tooltip-append-to-body="true" ng-class="{
                 'fa-circle text-success' : e.status == 'DEPLOYED',

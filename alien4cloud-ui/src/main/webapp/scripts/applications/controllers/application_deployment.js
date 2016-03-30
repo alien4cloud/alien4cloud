@@ -84,7 +84,7 @@ define(function(require) {
           //build the menu tree
           buildMenuTree(menu);
           var deploymentContextResult = {
-            selectedEnvironment: appEnvironments.environments[0]
+            selectedEnvironment: appEnvironments.selected
           };
           return refreshDeploymentContext(deploymentContextResult, application.data, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menu);
         }
@@ -153,7 +153,7 @@ define(function(require) {
           $state.go(stepToGo.state);
         }
 
-        $scope.goToNextInvalidStep = function() {
+        function goToNextInvalidStep() {
           //refresh initial topo validation first
           $scope.setTopologyId($scope.application.id, $scope.deploymentContext.selectedEnvironment.id, checkTopology).$promise.then(function() {
             //then refresh deployment context
@@ -162,9 +162,14 @@ define(function(require) {
               doGoToNextInvalidStep();
             });
           });
+        }
+
+        $scope.onEnvironmentChange = function() {
+          // update the global environment
+          appEnvironments.select($scope.deploymentContext.selectedEnvironment.id, goToNextInvalidStep);
         };
 
-        $scope.goToNextInvalidStep(); // immediately go to the next invalid tab
+        goToNextInvalidStep(); // immediately go to the next invalid tab
 
         $scope.showTodoList = function() {
           return !$scope.validTopologyDTO.valid && $scope.isManager;

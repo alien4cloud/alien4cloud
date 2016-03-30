@@ -33,8 +33,19 @@ define(function (require) {
       appEnvironments: ['application', 'applicationEnvironmentServices',
         function(application, applicationEnvironmentServices) {
           return applicationEnvironmentServices.getAllEnvironments(application.data.id).then(function(result) {
+            var environments = result.data.data;
+            var selected;
+            if(environments) {
+              if(environments.length > 0) {
+                selected = environments[0];
+                selected.active = true;
+              }
+            } else {
+              environments = [];
+            }
             return {
-              environments: result.data.data
+              environments: environments,
+              selected: selected
             };
           });
         }
@@ -57,6 +68,7 @@ define(function (require) {
     controller: 'ApplicationCtrl'
   });
 
+  // definition of the parent controller and scope for application management.
   modules.get('a4c-applications').controller('ApplicationCtrl',
     ['$rootScope', '$scope', 'menu', 'authService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory', 'topologyServices', 'applicationServices', 'applicationEventServicesFactory', 'topologyJsonProcessor', 'toscaService',
     function($rootScope, $scope, menu, authService, applicationResult, $state, applicationEnvironmentServices, appEnvironments,
@@ -65,6 +77,7 @@ define(function (require) {
       var application = applicationResult.data;
       $scope.application = application;
 
+      /** ROLES MANAGEMENT */
       var runtimeMenuItem;
       var deploymentMenuItem;
       _.each(menu, function(menuItem) {
@@ -76,7 +89,7 @@ define(function (require) {
         }
         if(_.has(menuItem, 'roles')) {
           menuItem.show = authService.hasResourceRoleIn(application, menuItem.roles);
-        } else { // if there is no rôles requirement then the menu is visible
+        } else { // if there is no roles requirement then the menu is visible
           menuItem.show = true;
         }
       });
@@ -87,6 +100,7 @@ define(function (require) {
       // Application environment rights. Manager has right anyway, for other users we check all environments (see below)
       var isDeployer = isManager;
 
+      /** RUNTIME UPDATES MANAGEMENT */
       function updateRuntimeDisabled() {
         // get newest environments statuses
         var disabled = true;
@@ -107,6 +121,7 @@ define(function (require) {
         $scope.$digest();
       };
 
+      /** ENVIRONMENTS MANAGEMENT */
       function registerEnvironment(environment) {
         var registration = environmentEventServicesFactory(application.id, environment, callback);
         appEnvironments.eventRegistrations.push(registration);
@@ -167,6 +182,22 @@ define(function (require) {
         }
         if (envIndex !== null) {
           appEnvironments.deployEnvironments.splice(envIndex, 1, environment);
+        }
+      };
+      //
+      appEnvironments.select = function(environmentId, envChangedCallback) {
+        if(appEnvironments.selected.id === environmentId) {
+          return; // the environement is already selected.
+        }
+        appEnvironments.selected.active = false;
+        for (i = 0; i < appEnvironments.environments.length; i++) {
+          if (appEnvironments.environments[i].id === environmentId) {
+            appEnvironments.selected = appEnvironments.environments[i];
+            appEnvironments.selected.active = true;
+            if(_.defined(envChangedCallback)) {
+              envChangedCallback();
+            }
+          }
         }
       };
 
