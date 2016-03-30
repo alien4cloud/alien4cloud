@@ -1,5 +1,8 @@
 package alien4cloud.rest.topology;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,7 +11,6 @@ import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,8 +53,6 @@ import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 
 import com.google.common.collect.Maps;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 
 @Slf4j
 @RestController

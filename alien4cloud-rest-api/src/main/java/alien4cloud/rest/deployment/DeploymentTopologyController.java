@@ -5,8 +5,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 
-import java.util.Map;
-
 import javax.inject.Inject;
 
 import org.springframework.http.MediaType;
@@ -21,16 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.deployment.DeploymentNodeSubstitutionService;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.deployment.DeploymentTopologyValidationService;
-import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
 import alien4cloud.deployment.model.DeploymentConfiguration;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.deployment.DeploymentTopology;
-import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import alien4cloud.orchestrators.locations.services.LocationResourceService;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.rest.application.model.SetLocationPoliciesRequest;
 import alien4cloud.rest.application.model.UpdateDeploymentTopologyRequest;
@@ -42,8 +36,6 @@ import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.topology.TopologyDTO;
-import alien4cloud.topology.TopologyService;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
@@ -62,13 +54,9 @@ public class DeploymentTopologyController {
     @Inject
     private ApplicationEnvironmentService appEnvironmentService;
     @Inject
-    private DeploymentNodeSubstitutionService deploymentNodeSubstitutionService;
-    @Inject
-    private LocationResourceService locationResourceService;
-    @Inject
-    private TopologyService topologyService;
-    @Inject
     private DeploymentTopologyValidationService deploymentTopologyValidationService;
+    @Inject
+    public IDeploymentTopologyHelper deploymentTopologyHelper;
 
     /**
      * Get the deployment topology of an application given an environment
@@ -83,7 +71,7 @@ public class DeploymentTopologyController {
     public RestResponse<DeploymentTopologyDTO> getDeploymentTopology(@PathVariable String appId, @PathVariable String environmentId) {
         checkAuthorizations(appId, environmentId);
         DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
-        DeploymentTopologyDTO dto = buildDeploymentTopologyDTO(deploymentConfiguration);
+        DeploymentTopologyDTO dto = deploymentTopologyHelper.buildDeploymentTopologyDTO(deploymentConfiguration);
         return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(dto).build();
     }
 
@@ -102,7 +90,7 @@ public class DeploymentTopologyController {
             @RequestParam String locationResourceTemplateId) {
         checkAuthorizations(appId, environmentId);
         DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.updateSubstitution(environmentId, nodeId, locationResourceTemplateId);
-        return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
+        return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(deploymentTopologyHelper.buildDeploymentTopologyDTO(deploymentConfiguration)).build();
     }
 
     @ApiOperation(value = "Update substitution's property.", authorizations = { @Authorization("ADMIN") })
@@ -115,7 +103,7 @@ public class DeploymentTopologyController {
         try {
             deploymentTopologyService.updateProperty(environmentId, nodeId, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
             return RestResponseBuilder.<DeploymentTopologyDTO> builder()
-                    .data(buildDeploymentTopologyDTO(deploymentTopologyService.getDeploymentConfiguration(environmentId))).build();
+                    .data(deploymentTopologyHelper.buildDeploymentTopologyDTO(deploymentTopologyService.getDeploymentConfiguration(environmentId))).build();
         } catch (ConstraintFunctionalException e) {
             return RestConstraintValidator.fromException(e, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
         }
@@ -132,7 +120,7 @@ public class DeploymentTopologyController {
             deploymentTopologyService.updateCapabilityProperty(environmentId, nodeId, capabilityName, updateRequest.getPropertyName(),
                     updateRequest.getPropertyValue());
             return RestResponseBuilder.<DeploymentTopologyDTO> builder()
-                    .data(buildDeploymentTopologyDTO(deploymentTopologyService.getDeploymentConfiguration(environmentId))).build();
+                    .data(deploymentTopologyHelper.buildDeploymentTopologyDTO(deploymentTopologyService.getDeploymentConfiguration(environmentId))).build();
         } catch (ConstraintFunctionalException e) {
             return RestConstraintValidator.fromException(e, updateRequest.getPropertyName(), updateRequest.getPropertyValue());
         }
@@ -156,7 +144,7 @@ public class DeploymentTopologyController {
         checkAuthorizations(appId, environmentId);
         DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.setLocationPolicies(environmentId, request.getOrchestratorId(),
                 request.getGroupsToLocations());
-        return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
+        return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(deploymentTopologyHelper.buildDeploymentTopologyDTO(deploymentConfiguration)).build();
     }
 
     /**
@@ -194,7 +182,7 @@ public class DeploymentTopologyController {
                     .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
         }
         deploymentTopologyService.updateDeploymentTopologyInputsAndSave(deploymentTopology);
-        return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(buildDeploymentTopologyDTO(deploymentConfiguration)).build();
+        return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(deploymentTopologyHelper.buildDeploymentTopologyDTO(deploymentConfiguration)).build();
     }
 
     /**
@@ -212,19 +200,4 @@ public class DeploymentTopologyController {
         }
     }
 
-    private DeploymentTopologyDTO buildDeploymentTopologyDTO(DeploymentConfiguration deploymentConfiguration) {
-        DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
-        TopologyDTO topologyDTO = topologyService.buildTopologyDTO(deploymentTopology);
-        DeploymentTopologyDTO deploymentTopologyDTO = new DeploymentTopologyDTO();
-        ReflectionUtil.mergeObject(topologyDTO, deploymentTopologyDTO);
-        Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deploymentTopology);
-        for (Map.Entry<String, String> locationIdsEntry : locationIds.entrySet()) {
-            deploymentTopologyDTO.getLocationPolicies().put(locationIdsEntry.getKey(), locationIdsEntry.getValue());
-        }
-        deploymentTopologyDTO.setAvailableSubstitutions(deploymentConfiguration.getAvailableSubstitutions());
-        deploymentTopologyDTO.setValidation(deploymentTopologyValidationService.validateDeploymentTopology(deploymentTopology));
-        Map<String, LocationResourceTemplate> templates = locationResourceService.getMultiple(deploymentTopology.getSubstitutedNodes().values());
-        deploymentTopologyDTO.setLocationResourceTemplates(templates);
-        return deploymentTopologyDTO;
-    }
 }

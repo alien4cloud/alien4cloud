@@ -357,6 +357,25 @@
     "FORM_ERRORS" : {
       "TAG_KEY" : "Tag name can only contain characters a to Z, -, _ without spaces"
     },
+    "PORTABILITY": {
+      "TITLE": "Portability",    
+      "IAASS": {
+        "LABEL": "IaaSs",
+        "VALUE": "Portability: IaaSs"
+      },
+      "ORCHESTRATORS": {
+        "LABEL": "Orchestrators",
+        "VALUE": "Portability: Orchestrators"
+      },
+      "RUNTIME_PACKAGES": {
+        "LABEL": "Runtime packages",
+        "VALUE": "Portability: Runtime packages"
+      },
+      "SUPPORTED_ARTIFACTS": {
+        "LABEL": "Supported artifacts",
+        "VALUE": "Portability: Supported artifacts"
+      }
+    },
     "REQUIREMENTS" : {
       "TYPE" : "Prerequisites"
     },

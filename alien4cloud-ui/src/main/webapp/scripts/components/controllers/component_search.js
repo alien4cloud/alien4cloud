@@ -13,22 +13,34 @@ define(function (require) {
     $scope.searchService = searchServiceFactory('rest/latest/components/search', false, $scope, 20, 10);
     $scope.searchService.filtered(true);
 
+    var orchestratorTermId = 'portability.ORCHESTRATORS.value';
+    var iaasSTermId = 'portability.IAASS.value';
+
     /** Used to display the correct text in UI */
     $scope.getFormatedFacetValue = function(term, value) {
       // Add other boolean term facet in the condition
-      if (term === 'abstract') {
-        if (value === 'F' || value[0] === false) {
-          return $filter('translate')('FALSE');
+      if(_.isArray(value) ){
+        //process each value of the array
+        return _.transform(value, function(result, n){
+          result.push($scope.getFormatedFacetValue(term, n));
+        }, []);
+      } else {      
+        if (term === 'abstract') {
+          if (value === 'F' || value === false) {
+            return $filter('translate')('FALSE');
+          } else {
+            return $filter('translate')('TRUE');
+          }
+        } else if ( _.undefined(value)) {
+          return $filter('translate')('N/A');
         } else {
-          return $filter('translate')('TRUE');
+          return value;
         }
-      } else {
-        return value;
       }
     };
 
     /** Used to send the correct request to ES */
-    function getFormatedFacetId(term, facetId) {
+    function getFormatedFacetIdForES(term, facetId) {
       // Add other boolean term facet in the condition
       if (term === 'abstract') {
         if (facetId === 'F') {
@@ -41,6 +53,17 @@ define(function (require) {
       }
     }
 
+    function addFacetFilter(termId, facetId) {
+      // Test if the filter exists : [term:facet] and add it if not
+      if (_.undefined(_.find($scope.facetFilters, {term: termId, facet:[facetId]}))) {
+        var facetSearchObject = {};
+        facetSearchObject.term = termId;
+        facetSearchObject.facet = [];
+        facetSearchObject.facet.push(getFormatedFacetIdForES(termId, facetId));
+        $scope.facetFilters.push(facetSearchObject);
+      }
+    }
+    
     $scope.setComponent = function(component) {
       $scope.detailComponent = component;
     };
@@ -56,6 +79,10 @@ define(function (require) {
       $scope.query = '';
       $scope.facetFilters = [];
     }
+
+    // add orchestrator and iaass filter
+    addFacetFilter(orchestratorTermId, null);
+    addFacetFilter(iaasSTermId, null);
 
     /*update a search*/
     function updateSearch(filters) {
@@ -123,21 +150,8 @@ define(function (require) {
     /* Add a facet Filters*/
     $scope.addFilter = function(termId, facetId) {
 
-      // Test if the filter exists : [term:facet]
-      var termIndex = -1;
-      for (var i = 0, len = $scope.facetFilters.length; i < len; i++) {
-        if ($scope.facetFilters[i].term === termId && $scope.facetFilters[i].facet === facetId) {
-          termIndex = i;
-        }
-      }
-
-      if (termIndex < 0) {
-        var facetSearchObject = {};
-        facetSearchObject.term = termId;
-        facetSearchObject.facet = [];
-        facetSearchObject.facet.push(getFormatedFacetId(termId, facetId));
-        $scope.facetFilters.push(facetSearchObject);
-      }
+      // Test if the filter exists : [term:facet] and add it if not
+      addFacetFilter(termId, facetId);
 
       // Search update with new filters list
       $scope.doSearch();
@@ -147,10 +161,7 @@ define(function (require) {
     $scope.removeFilter = function(filterToRemove) {
 
       // Remove the selected filter
-      var index = $scope.facetFilters.indexOf(filterToRemove);
-      if (index >= 0) {
-        $scope.facetFilters.splice(index, 1);
-      }
+      _.remove($scope.facetFilters, filterToRemove);
 
       // Search update with new filters list
       $scope.doSearch();

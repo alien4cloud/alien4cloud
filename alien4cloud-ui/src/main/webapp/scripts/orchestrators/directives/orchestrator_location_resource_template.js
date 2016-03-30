@@ -18,7 +18,8 @@ define(function(require) {
         'onDelete': '&',
         'onUpdate': '&',
         'onPropertyUpdate': '&',
-        'onCapabilityPropertyUpdate': '&'
+        'onCapabilityPropertyUpdate': '&',
+        'onPortabilityPropertyUpdate': '&'
       },
       link: {}
     };

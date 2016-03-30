@@ -26,4 +26,11 @@ define(function(require) {
       return $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/resources/:id/template/capabilities/:capabilityName/properties');
     }
   ]);
+  
+  modules.get('a4c-orchestrators', [ 'a4c-common' ]).factory('locationResourcesPortabilityService', ['$alresource',
+    function($alresource) {
+      return $alresource('rest/latest/orchestrators/:orchestratorId/locations/:locationId/resources/:id/template/portability');
+    }
+  ]);
+  
 });

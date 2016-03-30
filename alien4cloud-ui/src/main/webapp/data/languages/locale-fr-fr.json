@@ -357,6 +357,25 @@
     "FORM_ERRORS" : {
       "TAG_KEY" : "Le nom d'un tag doit contenir des lettres de a-Z, -, _ sans espace"
     },
+    "PORTABILITY": {
+      "TITLE": "Portabilité",
+      "IAASS": {
+        "LABEL": "IaaSs",
+        "VALUE": "Portabilité: IaaSs"
+      },
+      "ORCHESTRATORS": {
+        "LABEL": "Orchestrateurs",
+        "VALUE": "Portabilité: Orchestrateurs"
+      },
+      "RUNTIME_PACKAGES": {
+        "LABEL": "Packages installés",
+        "VALUE": "Portabilité: Packages installés"
+      },
+      "SUPPORTED_ARTIFACTS": {
+        "LABEL": "Artefacts supportés",
+        "VALUE": "Portabilité: Artefacts supportés"
+      }
+    },
     "REQUIREMENTS" : {
       "TYPE" : "Prérequis"
     },

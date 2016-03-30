@@ -27,13 +27,11 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
-import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.deployment.DeploymentRuntimeService;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.deployment.DeploymentService;
-import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -47,7 +45,6 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
@@ -93,12 +90,6 @@ public class RuntimeController {
     private DeploymentRuntimeStateService deploymentRuntimeStateService;
     @Inject
     private DeploymentRuntimeService deploymentRuntimeService;
-    @Inject
-    private ApplicationVersionService applicationVersionService;
-    @Inject
-    private DeploymentTopologyService deploymentTopologyService;
-    @Inject
-    private LocationService locationService;
 
     @ApiOperation(value = "Trigger a custom command on a specific node template of a topology .", authorizations = {
             @Authorization("APPLICATION_MANAGER") }, notes = "Returns a response with no errors and the command response as data in success case. Application role required [ APPLICATION_MANAGER ]")
