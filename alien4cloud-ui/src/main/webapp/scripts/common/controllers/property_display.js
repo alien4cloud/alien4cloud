@@ -333,13 +333,13 @@ define(function(require) {
             $scope.definitionObject.uiName = 'string';
             $scope.definitionObject.uiValue = shownValue;
             $scope.definitionObject.uiPassword = $scope.definition.password;
+            $scope.isLongText = _.defined(shownValue) && typeof shownValue === 'string' && shownValue.indexOf('\n') > -1;
             break;
           default :
             $scope.definitionObject.uiName = 'complex';
             $scope.definitionObject.uiValue = shownValue;
             break;
         }
-        $scope.isLongText = _.defined(shownValue) && shownValue.indexOf('\n') > -1;
         // Phase one valid or not ?
         if (!_.isEmpty($scope.definitionObject)) {
           return $scope.definitionObject;

@@ -3,6 +3,7 @@ Feature: Manage relationships template between node topology
 Background:
   Given I am authenticated with "ADMIN" role
   And I upload the archive "tosca base types 1.0"
+  And I upload the archive "tosca-normative-types-wd06"
   And I should receive a RestResponse with no error
   And I upload the archive "sample java types 1.0"
   And I should receive a RestResponse with no error
@@ -72,3 +73,10 @@ Scenario: update a relationship
   When I update the "password" property of the relationship "hostedOnCompute" into "mypassword" from the node template "Java"
   Then I should receive a RestResponse with no error
     And I should have a relationship "hostedOnCompute" with type "tosca.relationships.HostedOn" from "Java" to "Compute" in ALIEN
+
+Scenario: update a complexe property of relationship
+  Given I have added a node template "Compute" related to the "tosca.nodes.Compute:1.0.0.wd06-SNAPSHOT" node type
+  And I have added a node template "LoadBalancer" related to the "tosca.nodes.LoadBalancer:1.0.0.wd06-SNAPSHOT" node type
+  And I have added a relationship "routesToCompute" of type "tosca.relationships.RoutesTo" defined in archive "tosca-normative-types" version "1.0.0.wd06-SNAPSHOT" with source "LoadBalancer" and target "Compute" for requirement "application" of type "tosca.capabilities.Endpoint" and target capability "endpoint"
+  When I update the "credential" complex property of the relationship "routesToCompute" into """{"user": "sauron"}""" from the node template "LoadBalancer"
+  Then I should receive a RestResponse with no error

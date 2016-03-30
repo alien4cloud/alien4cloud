@@ -1,10 +1,9 @@
-/* global describe, it, element, by, browser, expect */
+/* global describe, it, element, by, expect */
 'use strict';
 
 var common = require('../../common/common');
 var setup = require('../../common/setup');
 var authentication = require('../../authentication/authentication');
-var path = require('path');
 var topologyEditorCommon = require('../../topology/topology_editor_common');
 var xedit = require('../../common/xedit');
 var applications = require('../../applications/applications');
