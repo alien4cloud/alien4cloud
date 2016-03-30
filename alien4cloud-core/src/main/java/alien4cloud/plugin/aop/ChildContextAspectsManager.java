@@ -187,8 +187,8 @@ public class ChildContextAspectsManager implements ApplicationListener<Applicati
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             lock.lock();
+            Object target = obj;
             try {
-                Object target = obj;
                 ProxyRegistry proxyRegistry = overridableCandidates.get(obj);
                 if (proxyRegistry != null) {
                     if (log.isDebugEnabled()) {
@@ -204,11 +204,11 @@ public class ChildContextAspectsManager implements ApplicationListener<Applicati
                         log.debug("Invoking method <{}> on native bean (no proxy registry found)", method);
                     }
                 }
-                Object result = ReflectionUtils.invokeMethod(method, target, args);
-                return result;
             } finally {
                 lock.unlock();
             }
+            Object result = ReflectionUtils.invokeMethod(method, target, args);
+            return result;
         }
     }
 
