@@ -127,8 +127,12 @@ define(function (require) {
 
         function reselectNodeTemplate(name) {
           $scope.selectedNodeTemplate = $scope.topology.topology.nodeTemplates[name];
-          $scope.selectedNodeTemplate.selected = true;
-          fillNodeSelectionVars($scope.selectedNodeTemplate);
+          if(_.defined($scope.selectedNodeTemplate)) {
+            $scope.selectedNodeTemplate.selected = true;
+            fillNodeSelectionVars($scope.selectedNodeTemplate);
+          } else {
+            $scope.selectedNodeTemplate = null;
+          }
         }
 
         if(_.defined(selectedNodeTemplate)) {
