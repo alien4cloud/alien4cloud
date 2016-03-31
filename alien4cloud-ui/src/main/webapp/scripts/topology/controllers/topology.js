@@ -285,6 +285,7 @@ define(function (require) {
           newSelected.selected = true;
 
           fillNodeSelectionVars(newSelected);
+          $scope.triggerTopologyRefresh = {};
           $scope.$digest();
         }
       };
