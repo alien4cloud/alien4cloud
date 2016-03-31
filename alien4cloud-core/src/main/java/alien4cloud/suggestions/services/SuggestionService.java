@@ -80,6 +80,7 @@ public class SuggestionService {
             for (SuggestionEntry suggestionEntry : suggestions) {
                 if (!isSuggestionExist(suggestionEntry)) {
                     alienDAO.save(suggestionEntry);
+                    setSuggestionIdOnPropertyDefinition(suggestionEntry);
                 }
             }
         }
