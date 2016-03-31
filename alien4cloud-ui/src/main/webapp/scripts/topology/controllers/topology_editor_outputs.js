@@ -68,7 +68,7 @@ define(function (require) {
               params,
               function(successResult) {
                 if (!successResult.error) {
-                  scope.refreshTopology(successResult.data, scope.selectedNodeTemplate ? scope.selectedNodeTemplate.name : undefined);
+                  scope.refreshTopology(successResult.data);
                 } else {
                   console.debug(successResult.error);
                 }
@@ -83,7 +83,7 @@ define(function (require) {
               params,
               function(successResult) {
                 if (!successResult.error) {
-                  scope.refreshTopology(successResult.data, scope.selectedNodeTemplate ? scope.selectedNodeTemplate.name : undefined);
+                  scope.refreshTopology(successResult.data);
                 } else {
                   console.debug(successResult.error);
                 }
@@ -120,7 +120,7 @@ define(function (require) {
               params,
               function(successResult) {
                 if (!successResult.error) {
-                  scope.refreshTopology(successResult.data, scope.selectedNodeTemplate ? scope.selectedNodeTemplate.name : undefined);
+                  scope.refreshTopology(successResult.data);
                 } else {
                   console.debug(successResult.error);
                 }
@@ -135,7 +135,7 @@ define(function (require) {
               params,
               function(successResult) {
                 if (!successResult.error) {
-                  scope.refreshTopology(successResult.data, scope.selectedNodeTemplate ? scope.selectedNodeTemplate.name : undefined);
+                  scope.refreshTopology(successResult.data);
                 } else {
                   console.debug(successResult.error);
                 }

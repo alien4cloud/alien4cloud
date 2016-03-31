@@ -102,7 +102,7 @@ define(function (require) {
               newName: newName
             }, function(resultData) {
               if (resultData.error === null) {
-                scope.refreshTopology(resultData.data, scope.selectedNodeTemplate ? scope.selectedNodeTemplate.name : undefined);
+                scope.refreshTopology(resultData.data);
                 delete scope.relNameObj[oldName];
               }
             }, function() {

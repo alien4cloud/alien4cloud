@@ -125,8 +125,16 @@ define(function (require) {
         }
         $scope.yaml.update($scope.topology.yaml);
 
-        if (_.defined(selectedNodeTemplate)) {
-          fillNodeSelectionVars($scope.topology.topology.nodeTemplates[selectedNodeTemplate]);
+        function reselectNodeTemplate(name) {
+          $scope.selectedNodeTemplate = $scope.topology.topology.nodeTemplates[name];
+          $scope.selectedNodeTemplate.selected = true;
+          fillNodeSelectionVars($scope.selectedNodeTemplate);
+        }
+
+        if(_.defined(selectedNodeTemplate)) {
+          reselectNodeTemplate(selectedNodeTemplate);
+        } else if(_.defined($scope.selectedNodeTemplate)) {
+          reselectNodeTemplate($scope.selectedNodeTemplate.name);
         } else {
           $scope.selectedNodeTemplate = null;
         }
@@ -183,7 +191,7 @@ define(function (require) {
             artifactInput,
             function(successResult) {
               if (!successResult.error) {
-                $scope.refreshTopology(successResult.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+                $scope.refreshTopology(successResult.data);
               }
             },
             function(errorResult) {
@@ -196,7 +204,7 @@ define(function (require) {
             artifactInput,
             function(successResult) {
               if (!successResult.error) {
-                $scope.refreshTopology(successResult.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+                $scope.refreshTopology(successResult.data);
               } else {
                 console.debug(successResult.error);
               }
@@ -272,10 +280,10 @@ define(function (require) {
             $scope.relationships.openSearchRelationshipModal(sourceId, requirementName, targetId, capabilityName);
           }
         },
-        selectNodeTemplate: function(newSelectedName, oldSelectedName) {
+        selectNodeTemplate: function(newSelectedName) {
           $scope.display.set('component', true);
-          if (oldSelectedName) {
-            var oldSelected = $scope.topology.topology.nodeTemplates[oldSelectedName];
+          if (_.defined($scope.selectedNodeTemplate)) {
+            var oldSelected = $scope.topology.topology.nodeTemplates[$scope.selectedNodeTemplate.name];
             if (oldSelected) {
               oldSelected.selected = false;
             }
