@@ -8,8 +8,7 @@ define(function(require) {
 
   states.state('applications.detail.runtime', {
     url: '/runtime',
-    templateUrl: 'views/applications/application_runtime_layout.html',
-    controller: 'LayoutCtrl',
+    template: '<ui-view></ui-view>',
     menu: {
       id: 'am.applications.detail.runtime',
       state: 'applications.detail.runtime',
