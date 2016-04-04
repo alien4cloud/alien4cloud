@@ -53,8 +53,8 @@ define(function(require) {
 
   modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$modal', '$timeout', 'propertySuggestionServices',
     function($scope, propertiesServices, $translate, $modal, $timeout, propertySuggestionServices) {
-      if (_.undefined($scope.translate)) {
-        $scope.translate = false;
+      if (_.undefined($scope.translated)) {
+        $scope.translated = false;
       }
 
       $scope.showLongTextChoice = false;

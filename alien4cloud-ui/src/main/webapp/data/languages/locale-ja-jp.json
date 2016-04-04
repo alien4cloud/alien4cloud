@@ -357,6 +357,25 @@
     "FORM_ERRORS" : {
       "TAG_KEY" : "タグ名に使用できるのは、 a to Z, -, _ spaceは除く"
     },
+    "PORTABILITY": {
+      "TITLE": "Portability",    
+      "IAASS": {
+        "LABEL": "IaaSs",
+        "VALUE": "portability: IaaSs"
+      },
+      "ORCHESTRATORS": {
+        "LABEL": "Orchestrators",
+        "VALUE": "Portability: Orchestrators"
+      },
+      "RUNTIME_PACKAGES": {
+        "LABEL": "Runtime packages",
+        "VALUE": "Portability: Runtime packages"
+      },
+      "SUPPORTED_ARTIFACTS": {
+        "LABEL": "Supported artifacts",
+        "VALUE": "Portability: Supported artifacts"
+      }
+    },       
     "REQUIREMENTS" : {
       "TYPE" : "必須コンポーネント"
     },

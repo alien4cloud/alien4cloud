@@ -1,10 +1,10 @@
 <div ng-class="{'row':condensed, 'form-group': !condensed}" ng-controller="PropertiesCtrl">
   <!-- Property Name -->
-  <label ng-if="translate" id="p_name_{{propertyName}}" class="col-md-4 property-display-label-ellipsed control-label" ng-class="{'property-required': definition.required }"
+  <label ng-if="translated" id="p_name_{{propertyName}}" class="col-md-4 property-display-label-ellipsed control-label" ng-class="{'property-required': definition.required }"
          tooltip="{{propertyName | translate}}" tooltip-append-to-body="true">
     {{propertyName | translate}}
   </label>
-  <label ng-if="!translate" id="p_name_{{propertyName}}" class="col-md-4 property-display-label-ellipsed control-label" ng-class="{'property-required': definition.required }" tooltip="{{propertyName}}" tooltip-append-to-body="true">
+  <label ng-if="!translated" id="p_name_{{propertyName}}" class="col-md-4 property-display-label-ellipsed control-label" ng-class="{'property-required': definition.required }" tooltip="{{propertyName}}" tooltip-append-to-body="true">
     {{propertyName}}
   </label>
 
@@ -130,7 +130,7 @@
       </span> -->
     </div>
   </div>
-  <div class="col-md-3" ng-if="deletable">
+  <div class="col-md-3" ng-if="deletable && editable">
     <button type="button" tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}" class="btn btn-danger btn-sm"
             ng-click="onDelete()">
       <i class="fa fa-trash-o"></i>

@@ -63,4 +63,12 @@ public interface IOrchestratorPluginFactory<T extends IOrchestratorPlugin<V>, V>
      * @return A map containing property definitions
      */
     Map<String, PropertyDefinition> getDeploymentPropertyDefinitions();
+
+    /**
+     * Get the type of orchestrator this factory provides. ex: cloudify3
+     * 
+     * @return
+     */
+    String getType();
+
 }

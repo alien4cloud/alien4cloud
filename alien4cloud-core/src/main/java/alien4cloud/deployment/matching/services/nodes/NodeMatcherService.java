@@ -6,19 +6,20 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import alien4cloud.model.deployment.matching.MatchingConfiguration;
-import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.orchestrators.locations.services.LocationMatchingConfigurationService;
-import alien4cloud.orchestrators.locations.services.LocationService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.deployment.matching.plugins.INodeMatcherPlugin;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.deployment.matching.MatchingConfiguration;
+import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.orchestrators.locations.LocationResources;
 import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.orchestrators.locations.services.LocationResourceService;
+import alien4cloud.orchestrators.locations.services.ILocationResourceService;
+import alien4cloud.orchestrators.locations.services.LocationMatchingConfigurationService;
+import alien4cloud.orchestrators.locations.services.LocationService;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -35,7 +36,8 @@ public class NodeMatcherService {
     @Inject
     private LocationService locationService;
     @Inject
-    private LocationResourceService locationResourceService;
+    @Lazy(true)
+    private ILocationResourceService locationResourceService;
     @Inject
     private LocationMatchingConfigurationService locationMatchingConfigurationService;
 

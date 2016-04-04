@@ -5,6 +5,8 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -21,7 +23,6 @@ import alien4cloud.paas.model.OperationExecRequest;
 import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Manages operations performed on a running deployment.

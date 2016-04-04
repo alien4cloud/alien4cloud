@@ -20,7 +20,6 @@ import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.utils.MapUtil;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**

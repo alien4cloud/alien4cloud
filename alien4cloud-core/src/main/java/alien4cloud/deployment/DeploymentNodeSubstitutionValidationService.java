@@ -31,7 +31,7 @@ public class DeploymentNodeSubstitutionValidationService {
     @Inject
     private WorkflowsBuilderService workflowsBuilderService;
     @Inject
-    private DeploymentNodeSubstitutionService deploymentNodeSubstitutionService;
+    private IDeploymentNodeSubstitutionService deploymentNodeSubstitutionService;
 
     /**
      * Perform validation of a deployment topology against substitutions.

@@ -53,8 +53,8 @@ import com.google.common.collect.Sets;
 /**
  * Location Resource Service provides utilities to query LocationResourceTemplate.
  */
-@Component
-public class LocationResourceService {
+@Component("location-resource-service")
+public class LocationResourceService implements ILocationResourceService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject
@@ -70,12 +70,10 @@ public class LocationResourceService {
     @Resource
     private PropertyService propertyService;
 
-    /**
-     * Get the list of resources definitions for a given orchestrator.
-     *
-     * @param location the location.
-     * @return A list of resource definitions for the given location.
+    /* (non-Javadoc)
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#getLocationResources(alien4cloud.model.orchestrators.locations.Location)
      */
+    @Override
     public LocationResources getLocationResources(Location location) {
         Orchestrator orchestrator = orchestratorService.get(location.getOrchestratorId());
         if (orchestrator != null && orchestratorPluginService.get(orchestrator.getId()) != null) {
@@ -88,12 +86,10 @@ public class LocationResourceService {
         return locationResources;
     }
 
-    /**
-     * Get the list of resources definitions for a given orchestrator.
-     *
-     * @param location the location.
-     * @return A list of resource definitions for the given location.
+    /* (non-Javadoc)
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#getLocationResourcesFromOrchestrator(alien4cloud.model.orchestrators.locations.Location)
      */
+    @Override
     public LocationResources getLocationResourcesFromOrchestrator(Location location) {
         LocationResources locationResources = new LocationResources();
         Orchestrator orchestrator = orchestratorService.getOrFail(location.getOrchestratorId());
@@ -107,6 +103,10 @@ public class LocationResourceService {
         return locationResources;
     }
 
+    /* (non-Javadoc)
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#getLocationResourceTypes(java.util.Collection)
+     */
+    @Override
     public LocationResourceTypes getLocationResourceTypes(Collection<LocationResourceTemplate> resourceTemplates) {
         Map<String, Set<String>> resourceTypesByLocationId = Maps.newHashMap();
         for (LocationResourceTemplate resourceTemplate : resourceTemplates) {
@@ -167,12 +167,10 @@ public class LocationResourceService {
         }
     }
 
-    /**
-     * Create an instance of an ILocationResourceAccessor that will perform queries on LocationResourceTemplate for a given location.
-     *
-     * @param locationId Id of the location for which to get the accessor.
-     * @return An instance of the ILocationResourceAccessor.
+    /* (non-Javadoc)
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#accessor(java.lang.String)
      */
+    @Override
     public ILocationResourceAccessor accessor(final String locationId) {
         return new ILocationResourceAccessor() {
             private Location location = locationService.getOrFail(locationId);
@@ -217,10 +215,18 @@ public class LocationResourceService {
         return Lists.newArrayList(result.getData());
     }
 
+    /* (non-Javadoc)
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#getResourcesTemplates(java.lang.String)
+     */
+    @Override
     public List<LocationResourceTemplate> getResourcesTemplates(String locationId) {
         return getResourcesTemplates(getLocationIdFilter(locationId));
     }
 
+    /* (non-Javadoc)
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#getMultiple(java.util.Collection)
+     */
+    @Override
     public Map<String, LocationResourceTemplate> getMultiple(Collection<String> ids) {
         Map<String, LocationResourceTemplate> result = Maps.newHashMap();
         if (CollectionUtils.isNotEmpty(ids)) {
@@ -232,6 +238,10 @@ public class LocationResourceService {
         return result;
     }
 
+    /* (non-Javadoc)
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#addResourceTemplate(java.lang.String, java.lang.String, java.lang.String)
+     */
+    @Override
     public LocationResourceTemplate addResourceTemplate(String locationId, String resourceName, String resourceTypeName) {
         Location location = locationService.getOrFail(locationId);
         IndexedNodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, resourceTypeName,
@@ -253,6 +263,10 @@ public class LocationResourceService {
         return locationResourceTemplate;
     }
 
+    /* (non-Javadoc)
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#deleteResourceTemplate(java.lang.String)
+     */
+    @Override
     public void deleteResourceTemplate(String resourceId) {
         LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
@@ -261,6 +275,10 @@ public class LocationResourceService {
         alienDAO.save(location);
     }
 
+    /* (non-Javadoc)
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#getOrFail(java.lang.String)
+     */
+    @Override
     public LocationResourceTemplate getOrFail(String resourceId) {
         LocationResourceTemplate locationResourceTemplate = alienDAO.findById(LocationResourceTemplate.class, resourceId);
         if (locationResourceTemplate == null) {
@@ -269,12 +287,20 @@ public class LocationResourceService {
         return locationResourceTemplate;
     }
 
+    /* (non-Javadoc)
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#merge(java.lang.Object, java.lang.String)
+     */
+    @Override
     public void merge(Object mergeRequest, String resourceId) {
         LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
         ReflectionUtil.mergeObject(mergeRequest, resourceTemplate);
         saveResource(resourceTemplate);
     }
 
+    /* (non-Javadoc)
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#setTemplateProperty(java.lang.String, java.lang.String, java.lang.Object)
+     */
+    @Override
     public void setTemplateProperty(String resourceId, String propertyName, Object propertyValue) throws ConstraintValueDoNotMatchPropertyTypeException,
             ConstraintViolationException {
         LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
@@ -288,6 +314,10 @@ public class LocationResourceService {
         saveResource(resourceTemplate);
     }
 
+    /* (non-Javadoc)
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#setTemplateCapabilityProperty(alien4cloud.model.orchestrators.locations.LocationResourceTemplate, java.lang.String, java.lang.String, java.lang.Object)
+     */
+    @Override
     public void setTemplateCapabilityProperty(LocationResourceTemplate resourceTemplate, String capabilityName, String propertyName, Object propertyValue)
             throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
@@ -325,6 +355,10 @@ public class LocationResourceService {
         throw new NotFoundException("Capability <" + capabilityName + "> not found in type <" + resourceType.getElementId() + ">");
     }
 
+    /* (non-Javadoc)
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#setTemplateCapabilityProperty(java.lang.String, java.lang.String, java.lang.String, java.lang.Object)
+     */
+    @Override
     public void setTemplateCapabilityProperty(String resourceId, String capabilityName, String propertyName, Object propertyValue)
             throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
@@ -332,20 +366,18 @@ public class LocationResourceService {
         saveResource(resourceTemplate);
     }
 
-    /**
-     * Auto configure resources for the given location.
-     *
-     * @param locationId Id of the location.
+    /* (non-Javadoc)
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#autoConfigureResources(java.lang.String)
      */
+    @Override
     public List<LocationResourceTemplate> autoConfigureResources(String locationId) {
         return locationService.autoConfigure(locationId);
     }
 
-    /**
-     * Delete all generated {@link LocationResourceTemplate} for a given location
-     *
-     * @param locationId
+    /* (non-Javadoc)
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#deleteGeneratedResources(java.lang.String)
      */
+    @Override
     public void deleteGeneratedResources(String locationId) {
         QueryBuilder locationIdQuery = QueryBuilders.termQuery("locationId", locationId);
         QueryBuilder generatedFieldQuery = QueryBuilders.termQuery("generated", true);
@@ -357,12 +389,20 @@ public class LocationResourceService {
         alienDAO.save(location);
     }
 
+    /* (non-Javadoc)
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#saveResource(alien4cloud.model.orchestrators.locations.Location, alien4cloud.model.orchestrators.locations.LocationResourceTemplate)
+     */
+    @Override
     public void saveResource(Location location, LocationResourceTemplate resourceTemplate) {
         location.setLastUpdateDate(new Date());
         alienDAO.save(location);
         alienDAO.save(resourceTemplate);
     }
 
+    /* (non-Javadoc)
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#saveResource(alien4cloud.model.orchestrators.locations.LocationResourceTemplate)
+     */
+    @Override
     public void saveResource(LocationResourceTemplate resourceTemplate) {
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
         saveResource(location, resourceTemplate);

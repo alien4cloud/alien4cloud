@@ -1,20 +1,24 @@
 package alien4cloud.tosca.parser.mapping.generator;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.AbstractMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.error.Mark;
-import org.yaml.snakeyaml.nodes.*;
+import org.yaml.snakeyaml.nodes.MappingNode;
+import org.yaml.snakeyaml.nodes.Node;
+import org.yaml.snakeyaml.nodes.NodeTuple;
+import org.yaml.snakeyaml.nodes.ScalarNode;
+import org.yaml.snakeyaml.nodes.SequenceNode;
+import org.yaml.snakeyaml.nodes.Tag;
 
 import alien4cloud.tosca.parser.IChecker;
 import alien4cloud.tosca.parser.INodeParser;
@@ -64,8 +68,17 @@ public class MappingGenerator extends DefaultParser<Map<String, INodeParser>> {
         }
     }
 
+    public Map<String, INodeParser> process(Path resourceLocation) throws ParsingException {
+        org.springframework.core.io.Resource resource = new FileSystemResource(resourceLocation.toFile());
+        return process(resource);
+    }
+
     public Map<String, INodeParser> process(String resourceLocation) throws ParsingException {
         org.springframework.core.io.Resource resource = applicationContext.getResource(resourceLocation);
+        return process(resource);
+    }
+
+    private Map<String, INodeParser> process(org.springframework.core.io.Resource resource) throws ParsingException {
         YamlSimpleParser<Map<String, INodeParser>> nodeParser = new YamlSimpleParser<>(this);
         try {
             ParsingResult<Map<String, INodeParser>> result = nodeParser.parseFile(resource.getURI().toString(), resource.getFilename(),
@@ -77,7 +90,7 @@ public class MappingGenerator extends DefaultParser<Map<String, INodeParser>> {
         } catch (IOException e) {
             log.error("Failed to open stream", e);
             throw new ParsingException(resource.getFilename(), new ParsingError(ErrorCode.MISSING_FILE, "Unable to load file.", null, e.getMessage(), null,
-                    resourceLocation));
+                    resource.getFilename()));
         }
     }
 

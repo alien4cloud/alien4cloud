@@ -1,11 +1,16 @@
 package alien4cloud.orchestrators.locations.services;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.exception.MissingCSARDependenciesException;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -13,12 +18,14 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.MissingCSARDependenciesException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.common.Usage;
@@ -58,9 +65,10 @@ public class LocationService {
     @Inject
     private OrchestratorService orchestratorService;
     @Inject
-    private LocationArchiveIndexer locationArchiveIndexer;
+    private PluginArchiveIndexer locationArchiveIndexer;
     @Inject
-    private LocationResourceService locationResourceService;
+    @Lazy(true)
+    private ILocationResourceService locationResourceService;
     @Resource
     private ICSARRepositorySearchService csarRepoSearchService;
 
@@ -111,7 +119,7 @@ public class LocationService {
 
         // TODO add User and Group managed by the Orchestrator security
 
-        Set<CSARDependency> dependencies = locationArchiveIndexer.indexArchives(orchestrator, location);
+        Set<CSARDependency> dependencies = locationArchiveIndexer.indexLocationArchives(orchestrator, location);
         location.setDependencies(dependencies);
 
         //initialize meta properties

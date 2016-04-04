@@ -26,8 +26,14 @@ public class ToscaUtils {
      * @return <code>true</code> if the {@link IndexedInheritableToscaElement} is from the given type.
      */
     public static boolean isFromType(String type, IndexedInheritableToscaElement indexedInheritableToscaElement) {
-        return type.equals(indexedInheritableToscaElement.getElementId())
-                || (indexedInheritableToscaElement.getDerivedFrom() != null && indexedInheritableToscaElement.getDerivedFrom().contains(type));
+        return isFromType(type, indexedInheritableToscaElement.getElementId(), indexedInheritableToscaElement.getDerivedFrom());
+    }
+
+    /**
+     * Verify that the given <code>type</code> is or inherits the given <code>expectedType</code>.
+     */
+    public static boolean isFromType(String expectedType, String type, List<String> typeHierarchy) {
+        return expectedType.equals(type) || (typeHierarchy != null && typeHierarchy.contains(expectedType));
     }
 
     /**

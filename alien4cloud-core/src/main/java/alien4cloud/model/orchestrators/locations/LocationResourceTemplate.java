@@ -1,6 +1,7 @@
 package alien4cloud.model.orchestrators.locations;
 
 import java.util.List;
+import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +13,10 @@ import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 import org.hibernate.validator.constraints.NotBlank;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
+import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.topology.NodeTemplate;
 
 /**
@@ -44,4 +49,9 @@ public class LocationResourceTemplate {
     private List<String> types;
     /** Node template that describe the location resource (it's type must be a type derived from one of the orchestrator LocationResourceDefinition types). */
     private NodeTemplate template;
+
+    /** For this template, the possible {@link PropertyDefinition}s that can be used in portability edition. */
+    @JsonInclude(Include.NON_NULL)
+    private Map<String, PropertyDefinition> portabilityDefinitions;
+
 }
