@@ -52,8 +52,7 @@ public final class PropertyUtil {
 
     public static String getDefaultValueFromPropertyDefinitions(String propertyName, Map<String, PropertyDefinition> propertyDefinitions) {
         if (MapUtils.isNotEmpty(propertyDefinitions) && propertyDefinitions.containsKey(propertyName)) {
-            String defaultValue = propertyDefinitions.get(propertyName).getDefault();
-            return defaultValue;
+            return propertyDefinitions.get(propertyName).getDefault();
         } else {
             return null;
         }
