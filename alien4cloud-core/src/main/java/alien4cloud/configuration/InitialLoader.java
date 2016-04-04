@@ -91,6 +91,7 @@ public class InitialLoader {
         // archives must be in zip format and placed in the actual folder
         try {
             List<Path> archives = FileUtil.listFiles(rootDirectory, ".+\\.(zip|csar)");
+            Collections.sort(archives);
             for (Path archive : archives) {
                 try {
                     log.debug("Initial load of archives from <{}>.", archive.toString());
