@@ -79,6 +79,9 @@ define(function(require) {
               suggestionId: $scope.definition.suggestionId
             }).$promise.then(function(result) {
               if (_.defined(result.data)) {
+                if (result.data.indexOf(text) < 0) {
+                  result.data.push(text);
+                }
                 return result.data;
               } else {
                 return [];
