@@ -13,7 +13,9 @@ import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
+import alien4cloud.model.common.AbstractSuggestionEntry;
 import alien4cloud.model.common.MetaPropConfiguration;
+import alien4cloud.model.common.SimpleSuggestionEntry;
 import alien4cloud.model.common.SuggestionEntry;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.components.IndexedArtifactToscaElement;
@@ -46,6 +48,8 @@ import alien4cloud.plugin.model.PluginConfiguration;
 public class ElasticSearchDAO extends ESGenericSearchDAO {
 
     public static final String TOSCA_ELEMENT_INDEX = "toscaelement";
+
+    public static final String SUGGESTION_INDEX = "suggestion";
 
     /**
      * Initialize the dao after being loaded by spring (Create the indexes).
@@ -87,7 +91,7 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
 
         initIndice(DeploymentTopology.class);
 
-        initIndice(SuggestionEntry.class);
+        initIndices(SUGGESTION_INDEX, null, AbstractSuggestionEntry.class, SuggestionEntry.class, SimpleSuggestionEntry.class);
 
         initCompleted();
     }

@@ -14,12 +14,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.portability.PortabilityPropertyEnum;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.events.PortabilityInsightValueAdded;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.AbstractPropertyValue;
@@ -62,6 +64,8 @@ public class PluginArchiveIndexer {
     private ArchiveIndexer archiveIndexer;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
+    @Inject
+    private ApplicationContext applicationContext;
 
     /**
      * Ensure that location archives are indexed, note that by default the archives visibility is not public.
@@ -169,6 +173,10 @@ public class PluginArchiveIndexer {
         propertyValue.getValue().add(infoToAdd);
         alien4cloud.utils.CollectionUtils.ensureUnitictyOfValues(propertyValue.getValue());
         portabilityMap.put(portabilityKey, propertyValue);
+        PortabilityInsightValueAdded event = new PortabilityInsightValueAdded(this);
+        event.setPortabilityKey(portabilityKey);
+        event.setPortabilityValue(infoToAdd);
+        applicationContext.publishEvent(event);
     }
 
     private void injectWorkSpace(Collection<? extends IndexedToscaElement> elements, Orchestrator orchestrator, Location location) {

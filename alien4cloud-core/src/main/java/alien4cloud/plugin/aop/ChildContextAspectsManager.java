@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -15,6 +16,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ApplicationContextEvent;
 import org.springframework.context.event.ContextStartedEvent;
@@ -24,6 +26,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 import org.springframework.util.ReflectionUtils.MethodFilter;
+
+import alien4cloud.events.AlienEvent;
 
 import com.google.common.collect.Maps;
 
@@ -47,13 +51,16 @@ import com.google.common.collect.Maps;
  */
 @Component
 @Slf4j
-public class ChildContextAspectsManager implements ApplicationListener<ApplicationContextEvent>, BeanPostProcessor {
+public class ChildContextAspectsManager implements ApplicationListener<ApplicationEvent>, BeanPostProcessor {
 
     /** All the candidates to be overriden by plugin child contexts. */
     private Map<Object, ProxyRegistry> overridableCandidates = Maps.newHashMap();
 
     /** All the referenced plugin child contexts. */
     private Map<String, ApplicationContext> childContexts = Maps.newLinkedHashMap();
+
+    /** We store all the names of beans that implements {@link ApplicationListener} per child context. */
+    private Map<String, String[]> childApplicationListeners = Maps.newHashMap();
 
     private Lock lock = new ReentrantLock();
 
@@ -110,37 +117,82 @@ public class ChildContextAspectsManager implements ApplicationListener<Applicati
         return bean;
     }
 
-    @Override
-    public void onApplicationEvent(ApplicationContextEvent e) {
+    private void onContextStarted(ApplicationContext ctx) {
         lock.lock();
         try {
-            ApplicationContext ctx = e.getApplicationContext();
-            if (e instanceof ContextStartedEvent) {
-                childContexts.put(ctx.toString(), ctx);
-                if (log.isDebugEnabled()) {
-                    log.debug("context started with id: {}", ctx.getId());
+            childContexts.put(ctx.toString(), ctx);
+            if (log.isDebugEnabled()) {
+                log.debug("context started with id: {}", ctx.getId());
+            }
+            decorateProxyCandidate(ctx);
+            detectApplicationListeners(ctx);
+        } finally {
+            lock.unlock();
+        }
+    }
+    
+    private void detectApplicationListeners(ApplicationContext ctx) {
+        String[] applicationListenerBeanNames = ctx.getBeanNamesForType(ApplicationListener.class);
+        if (applicationListenerBeanNames != null && applicationListenerBeanNames.length > 0) {
+            if (log.isDebugEnabled()) {
+                log.debug("The child context <{}> contains the following listeners: {}", ctx.getDisplayName(), applicationListenerBeanNames);
+            }
+            childApplicationListeners.put(ctx.toString(), applicationListenerBeanNames);
+        }
+    }
+
+    private void onContextStopped(ApplicationContext ctx) {
+        lock.lock();
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug("context stopped with id: {}", ctx.getId());
+            }
+            ApplicationContext removed = childContexts.remove(ctx.toString());
+            childApplicationListeners.remove(ctx.toString());
+            if (removed == null) {
+                log.warn("The stopped context {} can not be found in registered contexts", ctx);
+            } else {
+                // reset all proxy candidates (he target become the origin bean)
+                for (ProxyRegistry candidateProxyRegistryEntry : overridableCandidates.values()) {
+                    candidateProxyRegistryEntry.reset();
                 }
-                decorateProxyCandidate(ctx);
-            } else if (e instanceof ContextStoppedEvent) {
-                if (log.isDebugEnabled()) {
-                    log.debug("context stopped with id: {}", ctx.getId());
-                }
-                ApplicationContext removed = childContexts.remove(ctx.toString());
-                if (removed == null) {
-                    log.warn("The stopped context {} can not be found in registered contexts", ctx);
-                } else {
-                    // reset all proxy candidates (he target become the origin bean)
-                    for (ProxyRegistry candidateProxyRegistryEntry : overridableCandidates.values()) {
-                        candidateProxyRegistryEntry.reset();
-                    }
-                    // rebuild proxies with the remaining child contexts
-                    for (ApplicationContext childContext : childContexts.values()) {
-                        decorateProxyCandidate(childContext);
-                    }
+                // rebuild proxies with the remaining child contexts
+                for (ApplicationContext childContext : childContexts.values()) {
+                    decorateProxyCandidate(childContext);
                 }
             }
         } finally {
             lock.unlock();
+        }
+    }
+
+    private void onApplicationContextEvent(ApplicationContextEvent e) {
+        if (e instanceof ContextStartedEvent) {
+            onContextStarted(e.getApplicationContext());
+        } else if (e instanceof ContextStoppedEvent) {
+            onContextStopped(e.getApplicationContext());
+        }
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Override
+    public void onApplicationEvent(ApplicationEvent e) {
+        if (e instanceof ApplicationContextEvent) {
+            onApplicationContextEvent((ApplicationContextEvent) e);
+        } else if (e instanceof AlienEvent) {
+            // Alien events are published to child contexts
+            // we can't publish directly into child context because it will re-publish to it's parent causing a stack overflow !
+            for (Entry<String, String[]> childListenersEntry : childApplicationListeners.entrySet()) {
+                ApplicationContext ctx = childContexts.get(childListenersEntry.getKey());
+                if (ctx != null) {
+                    for (String childListenerName : childListenersEntry.getValue()) {
+                        Object bean = ctx.getBean(childListenerName);
+                        if (bean instanceof ApplicationListener<?>) {
+                            ((ApplicationListener) bean).onApplicationEvent(e);
+                        }
+                    }
+                }
+            }
         }
     }
 

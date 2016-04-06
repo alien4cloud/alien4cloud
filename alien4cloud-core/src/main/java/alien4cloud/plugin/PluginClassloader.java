@@ -35,7 +35,9 @@ public class PluginClassloader extends URLClassLoader {
         try {
             return findClass(name);
         } catch (ClassNotFoundException e) {
-            log.debug("Class {} is not found in the plugin - delegating to parent", name);
+            if (log.isTraceEnabled()) {
+                log.trace("Class {} is not found in the plugin - delegating to parent", name);
+            }
         }
 
         return super.loadClass(name);
