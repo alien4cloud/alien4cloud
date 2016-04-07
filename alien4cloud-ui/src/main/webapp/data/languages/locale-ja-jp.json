@@ -859,5 +859,11 @@
     "refresh.button" : "Refresh",
     "title" : "Alien 4 Cloud's Metrics"
   },
-  "operations" : "Operations"
+  "operations" : "Operations",
+  "PATCH": {
+    "TITLE": "Patch",
+    "NO_PATCH_FOUND": "No patch found for deployment",
+    "ACK": "Executed",
+    "NACK": "Not executed"
+  }
 }

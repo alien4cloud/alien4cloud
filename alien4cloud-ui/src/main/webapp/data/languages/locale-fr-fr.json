@@ -871,5 +871,11 @@
     "refresh.button" : "Rafraichir",
     "title" : "Métriques d'Alien 4 Cloud"
   },
-  "operations" : "Opérations"
+  "operations" : "Opérations",
+  "PATCH": {
+    "TITLE": "Patch",
+    "NO_PATCH_FOUND": "Aucun patch exist pour le deployment",
+    "ACK": "Exécuté",
+    "NACK": "Non exécuté"
+  }
 }
