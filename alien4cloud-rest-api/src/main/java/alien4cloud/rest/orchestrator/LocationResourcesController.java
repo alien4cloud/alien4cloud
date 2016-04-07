@@ -116,7 +116,6 @@ public class LocationResourcesController {
     @ApiOperation(value = "Auto configure the resources, if the location configurator plugin provides a way for.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/auto-configure", method = RequestMethod.GET)
     @PreAuthorize("hasAuthority('ADMIN')")
-    @Audit
     public RestResponse<List<LocationResourceTemplate>> autoConfigureResources(
             @ApiParam(value = "Id of the orchestrator for which to Auto configure the resources.", required = true) @PathVariable String orchestratorId,
             @ApiParam(value = "Id of the location of the orchestrator to Auto configure the resources.", required = true) @PathVariable String locationId) {
