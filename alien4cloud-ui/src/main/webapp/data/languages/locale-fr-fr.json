@@ -752,6 +752,15 @@
     },
     "UPLOAD" : "Uploader un plugin"
   },
+  "POST_DEPLOYMENT" : {
+    "OPERATION": {
+      "DRAG_DROP_UPLOAD": "Déposer l'opération à uploader ici",
+      "INFOS": "Completer les informations de l'opération",
+      "NEW": "Nouvelle opération",
+      "TITLE": "Opération"
+    },
+    "SELECT_NODE" : "-- Selectionez un noeud --"
+  },
   "PROPERTY_RESET" : "Réinitialiser à la valeur par défaut",
   "PROPERTY_SUGGESTION" : {
     "MODAL" :  {
@@ -879,6 +888,6 @@
     "NACK": "Non exécuté",
     "DRAG_DROP_UPLOAD": "Déposer les patches à uploader ici",
     "NEW": "Créer patch",
-    "INFOS": "Completer les information pour créer nouveau patch"
+    "INFOS": "Completer les informations pour créer nouveau patch"
   }
 }
