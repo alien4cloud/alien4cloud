@@ -359,7 +359,7 @@
       "TAG_KEY" : "Tag name can only contain characters a to Z, -, _ without spaces"
     },
     "PORTABILITY": {
-      "TITLE": "Portability",    
+      "TITLE": "Portability",
       "IAASS": {
         "LABEL": "IaaSs",
         "VALUE": "Portability: IaaSs"
@@ -876,6 +876,9 @@
     "TITLE": "Patch",
     "NO_PATCH_FOUND": "No patch found for deployment",
     "ACK": "Executed",
-    "NACK": "Not executed"
+    "NACK": "Not executed",
+    "DRAG_DROP_UPLOAD": "Drop patch to upload here",
+    "NEW": "Create patch",
+    "INFOS": "Complete information to create new patch"
   }
 }

@@ -864,6 +864,9 @@
     "TITLE": "Patch",
     "NO_PATCH_FOUND": "No patch found for deployment",
     "ACK": "Executed",
-    "NACK": "Not executed"
+    "NACK": "Not executed",
+    "DRAG_DROP_UPLOAD": "Drop patch to upload here",
+    "NEW": "Create patch",
+    "INFOS": "Complete information to create new patch"
   }
 }
