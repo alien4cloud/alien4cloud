@@ -12,7 +12,7 @@ define(function (require) {
       templateUrl: 'views/common/property_display.html',
       restrict: 'E',
       scope: {
-        'translate': '=',
+        'translated': '=',
         'definition': '=',
         'propertyName': '=',
         'propertyValue': '=',

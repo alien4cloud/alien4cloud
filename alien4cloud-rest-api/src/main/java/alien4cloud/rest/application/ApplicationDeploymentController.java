@@ -1,5 +1,10 @@
 package alien4cloud.rest.application;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
+
 import java.util.List;
 import java.util.Map;
 
@@ -57,10 +62,6 @@ import alien4cloud.security.model.DeployerRole;
 import alien4cloud.topology.TopologyValidationResult;
 
 import com.google.common.collect.Maps;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.Authorization;
 
 @Slf4j
 @RestController

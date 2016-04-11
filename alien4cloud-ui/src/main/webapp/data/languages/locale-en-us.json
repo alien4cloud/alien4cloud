@@ -358,6 +358,25 @@
     "FORM_ERRORS" : {
       "TAG_KEY" : "Tag name can only contain characters a to Z, -, _ without spaces"
     },
+    "PORTABILITY": {
+      "TITLE": "Portability",
+      "IAASS": {
+        "LABEL": "IaaSs",
+        "VALUE": "Portability: IaaSs"
+      },
+      "ORCHESTRATORS": {
+        "LABEL": "Orchestrators",
+        "VALUE": "Portability: Orchestrators"
+      },
+      "RUNTIME_PACKAGES": {
+        "LABEL": "Runtime packages",
+        "VALUE": "Portability: Runtime packages"
+      },
+      "SUPPORTED_ARTIFACTS": {
+        "LABEL": "Supported artifacts",
+        "VALUE": "Portability: Supported artifacts"
+      }
+    },
     "REQUIREMENTS" : {
       "TYPE" : "Prerequisites"
     },
@@ -733,6 +752,15 @@
     },
     "UPLOAD" : "Upload plugin"
   },
+  "POST_DEPLOYMENT" : {
+    "OPERATION": {
+      "DRAG_DROP_UPLOAD": "Drop operation to upload here",
+      "INFOS": "Complete informations to create new operation",
+      "NEW": "Create operation",
+      "TITLE": "Operation"
+    },
+    "SELECT_NODE" : "-- Select a node --"
+  },
   "PROPERTY_RESET" : "Set to default value or reset",
   "PROPERTY_SUGGESTION" : {
     "MODAL" :  {
@@ -852,5 +880,14 @@
     "refresh.button" : "Refresh",
     "title" : "Alien 4 Cloud's Metrics"
   },
-  "operations" : "Operations"
+  "operations" : "Operations",
+  "PATCH": {
+    "TITLE": "Patch",
+    "NO_PATCH_FOUND": "No patch found for deployment",
+    "ACK": "Executed",
+    "NACK": "Not executed",
+    "DRAG_DROP_UPLOAD": "Drop patch to upload here",
+    "NEW": "Create patch",
+    "INFOS": "Complete informations to create new patch"
+  }
 }

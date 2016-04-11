@@ -1,5 +1,6 @@
 package alien4cloud.topology;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -10,6 +11,10 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import alien4cloud.model.components.*;
+import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.tosca.normative.AlienCustomTypes;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Sets;
@@ -22,20 +27,6 @@ import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.Csar;
-import alien4cloud.model.components.DeploymentArtifact;
-import alien4cloud.model.components.IValue;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedModelUtils;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.RequirementDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.Capability;
@@ -66,6 +57,9 @@ public class TopologyServiceCore {
 
     @Resource
     private ICSARRepositoryIndexerService indexerService;
+
+    private static ObjectMapper mapper = new ObjectMapper();
+
 
     /**
      * The default tosca element finder will search into repo.
@@ -151,7 +145,7 @@ public class TopologyServiceCore {
     }
 
     public Map<String, IndexedNodeType> getIndexedNodeTypesFromDependencies(Map<String, NodeTemplate> nodeTemplates, Set<CSARDependency> dependencies,
-            boolean abstractOnly, boolean useTemplateNameAsKey) {
+                                                                            boolean abstractOnly, boolean useTemplateNameAsKey) {
         Map<String, IndexedNodeType> nodeTypes = Maps.newHashMap();
         if (nodeTemplates == null) {
             return nodeTypes;
@@ -236,7 +230,7 @@ public class TopologyServiceCore {
      * @return new constructed node template
      */
     public static NodeTemplate buildNodeTemplate(Set<CSARDependency> dependencies, IndexedNodeType indexedNodeType, NodeTemplate templateToMerge,
-            IToscaElementFinder toscaElementFinder) {
+                                                 IToscaElementFinder toscaElementFinder) {
         NodeTemplate nodeTemplate = new NodeTemplate();
         nodeTemplate.setType(indexedNodeType.getElementId());
         Map<String, Capability> capabilities = Maps.newLinkedHashMap();
@@ -267,6 +261,7 @@ public class TopologyServiceCore {
         nodeTemplate.setProperties(properties);
         nodeTemplate.setAttributes(indexedNodeType.getAttributes());
         nodeTemplate.setArtifacts(deploymentArtifacts);
+        nodeTemplate.setPortability(indexedNodeType.getPortability());
         if (templateToMerge != null) {
             if (templateToMerge.getInterfaces() != null) {
                 nodeTemplate.setInterfaces(templateToMerge.getInterfaces());
@@ -279,7 +274,7 @@ public class TopologyServiceCore {
     }
 
     public static void fillProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> propertiesDefinitions,
-            Map<String, AbstractPropertyValue> map) {
+                                      Map<String, AbstractPropertyValue> map) {
         if (propertiesDefinitions == null || properties == null) {
             return;
         }
@@ -288,7 +283,21 @@ public class TopologyServiceCore {
             if (existingValue == null) {
                 String defaultValue = entry.getValue().getDefault();
                 if (defaultValue != null && !defaultValue.trim().isEmpty()) {
-                    properties.put(entry.getKey(), new ScalarPropertyValue(defaultValue));
+                    defaultValue = defaultValue.trim();
+                    PropertyValue<?> pv = null;
+                    try {
+                        if (AlienCustomTypes.checkDefaultIsComplex(defaultValue)) {
+                            pv = new ComplexPropertyValue(JsonUtil.toMap(defaultValue));
+                        } else if(AlienCustomTypes.checkDefaultIsList(defaultValue)){
+                            pv = new ListPropertyValue(JsonUtil.toList(defaultValue, Object.class));
+
+                        } else {
+                            pv =  new ScalarPropertyValue(defaultValue);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    properties.put(entry.getKey(), pv);
                 } else {
                     properties.put(entry.getKey(), null);
                 }
@@ -299,7 +308,7 @@ public class TopologyServiceCore {
     }
 
     private static void fillCapabilitiesMap(Map<String, Capability> map, List<CapabilityDefinition> elements, Collection<CSARDependency> dependencies,
-            Map<String, Capability> mapToMerge, IToscaElementFinder toscaElementFinder) {
+                                            Map<String, Capability> mapToMerge, IToscaElementFinder toscaElementFinder) {
         if (elements == null) {
             return;
         }
@@ -318,7 +327,7 @@ public class TopologyServiceCore {
     }
 
     private static void fillRequirementsMap(Map<String, Requirement> map, List<RequirementDefinition> elements, Collection<CSARDependency> dependencies,
-            Map<String, Requirement> mapToMerge, IToscaElementFinder toscaElementFinder) {
+                                            Map<String, Requirement> mapToMerge, IToscaElementFinder toscaElementFinder) {
         if (elements == null) {
             return;
         }
@@ -402,7 +411,7 @@ public class TopologyServiceCore {
 
     /**
      * Assign an id to the topology, save it and return the generated id.
-     * 
+     *
      * @param topology
      * @return
      */

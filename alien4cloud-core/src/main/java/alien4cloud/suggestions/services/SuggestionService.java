@@ -27,6 +27,8 @@ import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.common.AbstractSuggestionEntry;
+import alien4cloud.model.common.SimpleSuggestionEntry;
 import alien4cloud.model.common.SuggestionEntry;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FilterDefinition;
@@ -90,17 +92,20 @@ public class SuggestionService {
      * Iterate on default suggestions to update all associate property definition.
      */
     public void setAllSuggestionIdOnPropertyDefinition() {
-        List<SuggestionEntry> suggestionEntries = getAllSuggestionEntries();
+        List<AbstractSuggestionEntry> suggestionEntries = getAllSuggestionEntries();
         if (suggestionEntries != null && !suggestionEntries.isEmpty()) {
-            for (SuggestionEntry suggestionEntry : suggestionEntries) {
-                setSuggestionIdOnPropertyDefinition(suggestionEntry);
+            for (AbstractSuggestionEntry suggestionEntry : suggestionEntries) {
+                if (suggestionEntry instanceof SuggestionEntry) {
+                    setSuggestionIdOnPropertyDefinition((SuggestionEntry) suggestionEntry);
+                }
             }
         }
     }
 
-    private SuggestionEntry checkProperty(String nodePrefix, String propertyName, String propertyTextValue,
+    private AbstractSuggestionEntry checkProperty(String nodePrefix, String propertyName, String propertyTextValue,
             Class<? extends IndexedInheritableToscaElement> type, String elementId, ParsingContext context) {
-        SuggestionEntry suggestionEntry = getSuggestionEntry(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, type.getSimpleName().toLowerCase(), elementId, propertyName);
+        AbstractSuggestionEntry suggestionEntry = getSuggestionEntry(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, type.getSimpleName().toLowerCase(), elementId,
+                propertyName);
         if (suggestionEntry != null) {
             PriorityQueue<SuggestionService.MatchedSuggestion> similarValues = getJaroWinklerMatchedSuggestions(suggestionEntry.getSuggestions(),
                     propertyTextValue, 0.8);
@@ -244,6 +249,13 @@ public class SuggestionService {
         setSuggestionIdOnPropertyDefinition(suggestionEntry);
     }
 
+    /**
+     * Create a new simple suggestion entry.
+     */
+    public void createSimpleSuggestionEntry(SimpleSuggestionEntry suggestionEntry) {
+        alienDAO.save(suggestionEntry);
+    }
+
     private void checkPropertyConstraints(String prefix, Class<? extends IndexedInheritableToscaElement> type, String elementId, String propertyName,
             List<PropertyConstraint> constraints, ParsingContext context) {
         if (constraints != null && !constraints.isEmpty()) {
@@ -258,7 +270,7 @@ public class SuggestionService {
                 } else if (propertyConstraint instanceof ValidValuesConstraint) {
                     ValidValuesConstraint validValuesConstraint = (ValidValuesConstraint) propertyConstraint;
                     if (validValuesConstraint.getValidValues() != null && !validValuesConstraint.getValidValues().isEmpty()) {
-                        SuggestionEntry foundSuggestion = null;
+                        AbstractSuggestionEntry foundSuggestion = null;
                         for (String valueToCheck : validValuesConstraint.getValidValues()) {
                             foundSuggestion = checkProperty(prefix, propertyName, valueToCheck, type, elementId, context);
                             if (foundSuggestion == null) {
@@ -320,11 +332,14 @@ public class SuggestionService {
     }
 
     public void addSuggestionValueToSuggestionEntry(String suggestionId, String newValue) {
-        SuggestionEntry suggestion = alienDAO.findById(SuggestionEntry.class, suggestionId);
+        AbstractSuggestionEntry suggestion = alienDAO.findById(AbstractSuggestionEntry.class, suggestionId);
         if (suggestion == null) {
             throw new NotFoundException("Suggestion entry [" + suggestionId + "] cannot be found");
         }
         // TODO: should check the format of new value
+        if (suggestion.getSuggestions().contains(newValue)) {
+            return;
+        }
         suggestion.getSuggestions().add(newValue);
         alienDAO.save(suggestion);
     }
@@ -425,7 +440,7 @@ public class SuggestionService {
      * @return all suggestions of the {@link SuggestionEntry}.
      */
     public Set<String> getSuggestions(String suggestionId) {
-        SuggestionEntry suggestionEntry = alienDAO.findById(SuggestionEntry.class, suggestionId);
+        AbstractSuggestionEntry suggestionEntry = alienDAO.findById(AbstractSuggestionEntry.class, suggestionId);
         if (suggestionEntry == null) {
             throw new NotFoundException("Suggestion entry [" + suggestionId + "] cannot be found");
         }
@@ -438,13 +453,13 @@ public class SuggestionService {
      * @param suggestionEntry entry of suggestion
      * @return a boolean indicating if the suggestionEntry exists.
      */
-    public boolean isSuggestionExist(SuggestionEntry suggestionEntry) {
-        SuggestionEntry suggestion = alienDAO.findById(SuggestionEntry.class, suggestionEntry.getId());
+    public boolean isSuggestionExist(AbstractSuggestionEntry suggestionEntry) {
+        AbstractSuggestionEntry suggestion = alienDAO.findById(AbstractSuggestionEntry.class, suggestionEntry.getId());
         return suggestion != null;
     }
 
-    public SuggestionEntry getSuggestionEntry(String index, String type, String elementId, String property) {
-        return alienDAO.findById(SuggestionEntry.class, SuggestionEntry.generateId(index, type, elementId, property));
+    public AbstractSuggestionEntry getSuggestionEntry(String index, String type, String elementId, String property) {
+        return alienDAO.findById(AbstractSuggestionEntry.class, SuggestionEntry.generateId(index, type, elementId, property));
     }
 
     /**
@@ -452,8 +467,9 @@ public class SuggestionService {
      * 
      * @return all suggestion entries without their values
      */
-    private List<SuggestionEntry> getAllSuggestionEntries() {
-        GetMultipleDataResult<SuggestionEntry> result = alienDAO.search(SuggestionEntry.class, null, null, FetchContext.SUMMARY, 0, Integer.MAX_VALUE);
+    private List<AbstractSuggestionEntry> getAllSuggestionEntries() {
+        GetMultipleDataResult<AbstractSuggestionEntry> result = alienDAO.search(AbstractSuggestionEntry.class, null, null, FetchContext.SUMMARY, 0,
+                Integer.MAX_VALUE);
         if (result.getData() != null && result.getData().length > 0) {
             return Arrays.asList(result.getData());
         } else {

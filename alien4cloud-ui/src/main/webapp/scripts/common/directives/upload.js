@@ -1,8 +1,9 @@
 define(function (require) {
   'use strict';
-  
+
   var modules = require('modules');
   var _ = require('lodash');
+  var angular = require('angular');
   require('angular-file-upload');
 
   modules.get('a4c-common').directive('uploadDirective', function() {
@@ -10,15 +11,17 @@ define(function (require) {
       templateUrl : 'views/common/upload_template.html',
       restrict : 'E',
       scope : {
-        'targetUrl' : '=',
+        'targetUrl' : '&',
+        'requestData': '&',
         'dragAndDropMessage' : '=',
         'buttonMessage' : '=',
+        'beforeUploadCallback': '&', // should take two param named 'scope' and 'files'
         'uploadSuccessCallback': '&'
       }
     };
   });
 
-  modules.get('a4c-common', ['angularFileUpload']).controller('UploadCtrl', [ '$scope', '$upload', function($scope, $upload) {
+  modules.get('a4c-common', ['angularFileUpload']).controller('UploadCtrl', [ '$scope', '$upload', '$q', function($scope, $upload, $q) {
     // states classes
     var statesToClasses = {
       'error': 'danger',
@@ -41,7 +44,27 @@ define(function (require) {
       }
     }
 
+
+//build the upload directive data
+    function buildUploadData(file){
+      var data = {file: file};
+
+      //these can be simple values or functions
+      var url = angular.isFunction($scope.targetUrl()) ? $scope.targetUrl()() : $scope.targetUrl();
+      var requestData = angular.isFunction($scope.requestData()) ? $scope.requestData()() : $scope.requestData();
+
+      if(_.defined(url)){
+        data.url=url;
+      }
+      if(_.defined(requestData)){
+        data.data = requestData;
+      }
+      return data;
+    }
+
     $scope.doUpload = function(file) {
+
+      var uploadData =  buildUploadData(file);
       var index = $scope.uploadInfos.length;
       $scope.uploadInfos.push({
         'name': file.name,
@@ -50,10 +73,8 @@ define(function (require) {
         'isErrorBlocCollapsed': true
       });
 
-      $scope.upload[index] = $upload.upload({
-        url: $scope.targetUrl,
-        file: file
-      }).progress(function(evt) {
+
+      $scope.upload[index] = $upload.upload(uploadData).progress(function(evt) {
         $scope.uploadInfos[index].progress = parseInt(100.0 * evt.loaded / evt.total);
       }).success(function(data) {
         // file is uploaded successfully and the server respond without error
@@ -80,10 +101,21 @@ define(function (require) {
       });
     };
 
-    $scope.uploadCtrl.onFileSelect = function($files) {
+    function uploadFiles($files){
       for (var i = 0; i < $files.length; i++) {
         var file = $files[i];
         $scope.doUpload(file);
+      }
+    }
+
+    $scope.uploadCtrl.onFileSelect = function($files) {
+      // if there is a callback for before uploding, then call it first
+      if($scope.beforeUploadCallback()){
+        $q.when($scope.beforeUploadCallback()($scope, $files), function(){
+          uploadFiles($files);
+        });
+      }else{
+        uploadFiles($files);
       }
     };
 

@@ -6,11 +6,7 @@ define(function (require) {
   var angular = require('angular');
   var _ = require('lodash');
 
-  var d3Tip = require('d3-tip');
-  var d3 = require('d3');
-  window.d3 = d3;
-  var d3pie = require('d3-pie');
-
+  require('scripts/common/services/pie_chart_service.js');
   require('scripts/applications/services/application_services');
   require('scripts/applications/controllers/application_detail');
 
@@ -112,8 +108,8 @@ define(function (require) {
   ];
 
   modules.get('a4c-applications').controller('ApplicationListCtrl',
-    ['$scope', '$modal', '$state', 'authService', 'applicationServices', '$translate', 'toaster', 'searchServiceFactory',
-    function($scope, $modal, $state, authService, applicationServices, $translate, toaster, searchServiceFactory) {
+    ['$scope', '$modal', '$state', 'authService', 'applicationServices', '$translate', 'toaster', 'searchServiceFactory', 'pieChartService',
+    function($scope, $modal, $state, authService, applicationServices, $translate, toaster, searchServiceFactory, pieChartService) {
       $scope.isManager = authService.hasRole('APPLICATIONS_MANAGER');
       $scope.applicationStatuses = [];
       $scope.onlyShowDeployedApplications = undefined;
@@ -161,53 +157,6 @@ define(function (require) {
         'UNDEPLOYMENT_IN_PROGRESS': '2'
       };
 
-      var drawPieChart = function(appName, data) {
-
-        if (data.length > 0) {
-          var tip = d3Tip().attr('class', 'd3-tip').html(function(node) {
-            return node.data.name;
-          });
-
-          // Ignored: A constructor name should start with an uppercase letter.
-          var pie = new d3pie('pieChart-' + appName, { // jshint ignore:line
-            'size': {
-              'canvasWidth': 60,
-              'canvasHeight': 60
-            },
-            'data': {
-              'sortOrder': 'label-asc',
-              'content': data
-            },
-            'labels': {
-              'outer': {
-                'format': 'none'
-              },
-              'inner': {
-                'format': 'none'
-              }
-            },
-            'effects': {
-              'load': {
-                'effect': 'none'
-              },
-              'pullOutSegmentOnClick': {
-                'effect': tip.hide
-              },
-              'highlightSegmentOnMouseover': true,
-              'highlightLuminosity': 0.10
-            },
-            'callbacks': {
-              'onMouseoverSegment': function(data) {
-                tip.show(data);
-              },
-              'onMouseoutSegment': tip.hide
-            }
-          });
-
-          pie.svg.call(tip);
-        }
-      };
-
       var updateApplicationStatuses = function(applicationSearchResult) {
         if (!angular.isUndefined(applicationSearchResult)) {
           var statuses = getApplicationStatuses(applicationSearchResult.data);
@@ -245,7 +194,7 @@ define(function (require) {
                 applicationSearchResult.data[key] = app;
               }
               $scope.applicationStatuses[app.name] = data;
-              drawPieChart(app.name, data);
+              pieChartService.render(app.name, data);
             });
           });
         }

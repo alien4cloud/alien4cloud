@@ -24,6 +24,7 @@
 - artifact_ref_parser: alien4cloud.tosca.parser.impl.advanced.ArtifactReferenceParser
 - sustitution_mapping_parser: alien4cloud.tosca.parser.impl.advanced.SustitutionMappingParser
 - constraint: alien4cloud.tosca.parser.impl.advanced.ConstraintParser
+- abstract_property_value: alien4cloud.tosca.parser.impl.advanced.AbstractPropertyValueParser
 
 # declare standard mapping based parsers
 - definition: alien4cloud.tosca.model.ArchiveRoot
@@ -244,8 +245,7 @@
     get_input: tosca_function
     get_property: tosca_function
     get_attribute: tosca_function
-    __: complex_property_value
-  default: scalar_property_value
+  default: abstract_property_value
 
 - input: __discriminator
   keys:
@@ -305,6 +305,10 @@
   artifacts:
     sequence_to_map: artifacts
     type: deployment_artifact
+  portability:
+    map: portability
+    type: node_template_property
+    
 
 - data_type: alien4cloud.model.components.IndexedDataType|toscaElementChecker
   description: description

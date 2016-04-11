@@ -53,8 +53,8 @@ define(function(require) {
 
   modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$modal', '$timeout', 'propertySuggestionServices',
     function($scope, propertiesServices, $translate, $modal, $timeout, propertySuggestionServices) {
-      if (_.undefined($scope.translate)) {
-        $scope.translate = false;
+      if (_.undefined($scope.translated)) {
+        $scope.translated = false;
       }
 
       $scope.showLongTextChoice = false;
@@ -79,6 +79,9 @@ define(function(require) {
               suggestionId: $scope.definition.suggestionId
             }).$promise.then(function(result) {
               if (_.defined(result.data)) {
+                if (result.data.indexOf(text) < 0) {
+                  result.data.push(text);
+                }
                 return result.data;
               } else {
                 return [];
