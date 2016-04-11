@@ -39,7 +39,8 @@ public class ArchiveRoot {
      * Indicates if this archive contains tosca types (node types, relationships, capabilities, artifacts).
      */
     public boolean hasToscaTypes() {
-        return !nodeTypes.isEmpty() || !relationshipTypes.isEmpty() || !capabilityTypes.isEmpty() || !artifactTypes.isEmpty();
+        return !(nodeTypes == null || nodeTypes.isEmpty() || relationshipTypes == null || relationshipTypes.isEmpty() || capabilityTypes == null
+                || capabilityTypes.isEmpty() || artifactTypes == null || artifactTypes.isEmpty());
     }
 
     /**
