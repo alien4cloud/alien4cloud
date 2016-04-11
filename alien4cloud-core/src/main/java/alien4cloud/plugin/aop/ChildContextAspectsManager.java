@@ -1,16 +1,17 @@
 package alien4cloud.plugin.aop;
 
+import alien4cloud.events.AlienEvent;
+import com.google.common.collect.Maps;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -26,10 +27,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 import org.springframework.util.ReflectionUtils.MethodFilter;
-
-import alien4cloud.events.AlienEvent;
-
-import com.google.common.collect.Maps;
 
 /**
  * Manage inter context proxies : thanks to it, we can define aspects upon main context beans in child contexts.
@@ -130,7 +127,7 @@ public class ChildContextAspectsManager implements ApplicationListener<Applicati
             lock.unlock();
         }
     }
-    
+
     private void detectApplicationListeners(ApplicationContext ctx) {
         String[] applicationListenerBeanNames = ctx.getBeanNamesForType(ApplicationListener.class);
         if (applicationListenerBeanNames != null && applicationListenerBeanNames.length > 0) {
@@ -259,7 +256,16 @@ public class ChildContextAspectsManager implements ApplicationListener<Applicati
             } finally {
                 lock.unlock();
             }
-            Object result = ReflectionUtils.invokeMethod(method, target, args);
+            Object result = null;
+            try {
+                result = ReflectionUtils.invokeMethod(method, target, args);
+            } catch (Exception e) {
+                try {
+                    ReflectionUtils.handleReflectionException(e);
+                } catch (UndeclaredThrowableException ute) {
+                    throw ute.getUndeclaredThrowable();
+                }
+            }
             return result;
         }
     }
