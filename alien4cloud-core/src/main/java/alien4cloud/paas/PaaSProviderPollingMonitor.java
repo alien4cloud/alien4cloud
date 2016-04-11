@@ -54,6 +54,8 @@ public class PaaSProviderPollingMonitor implements Runnable {
         Set<Class<?>> eventClasses = Sets.newHashSet();
         try {
             eventClasses = TypeScanner.scanTypes("alien4cloud.paas.model", AbstractMonitorEvent.class);
+            /** FIXME below is true for our own cloudify 3 provider implementation but this is not documented and orchestrators may not implement it that way.
+                We should do that in a different fashion in cloudify 3 provider probably and not impact alien that way **/
             // The PaaSDeploymentStatusMonitorEvent is an internal generated event and so do not take into account
             eventClasses.remove(PaaSDeploymentStatusMonitorEvent.class);
         } catch (ClassNotFoundException e) {
