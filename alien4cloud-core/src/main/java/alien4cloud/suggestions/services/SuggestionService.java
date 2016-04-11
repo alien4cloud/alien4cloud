@@ -82,7 +82,11 @@ public class SuggestionService {
             for (SuggestionEntry suggestionEntry : suggestions) {
                 if (!isSuggestionExist(suggestionEntry)) {
                     alienDAO.save(suggestionEntry);
-                    setSuggestionIdOnPropertyDefinition(suggestionEntry);
+                    try {
+                        setSuggestionIdOnPropertyDefinition(suggestionEntry);
+                    } catch (Exception e) {
+                        log.warn(e.getClass().getName() + " : " + e.getMessage());
+                    }
                 }
             }
         }
@@ -124,8 +128,8 @@ public class SuggestionService {
                         // Add suggestion anyway
                         addSuggestionValueToSuggestionEntry(suggestionEntry.getId(), propertyTextValue);
                     }
-                    context.getParsingErrors().add(
-                            new ParsingError(level, ErrorCode.POTENTIAL_BAD_PROPERTY_VALUE, null, null, null, null, "At path [" + nodePrefix + "."
+                    context.getParsingErrors()
+                            .add(new ParsingError(level, ErrorCode.POTENTIAL_BAD_PROPERTY_VALUE, null, null, null, null, "At path [" + nodePrefix + "."
                                     + propertyName + "] existing value [" + mostMatched.getValue() + "] is very similar to [" + propertyTextValue + "]"));
                 }
             } else {
@@ -226,7 +230,8 @@ public class SuggestionService {
      * @param elementId element id
      * @param propertyName property's name
      */
-    public void createSuggestionEntry(String index, Class<? extends IndexedToscaElement> type, Set<String> initialValues, String elementId, String propertyName) {
+    public void createSuggestionEntry(String index, Class<? extends IndexedToscaElement> type, Set<String> initialValues, String elementId,
+            String propertyName) {
         createSuggestionEntry(index, type.getSimpleName().toLowerCase(), initialValues, elementId, propertyName);
     }
 
@@ -296,15 +301,15 @@ public class SuggestionService {
     public void setSuggestionIdOnPropertyDefinition(SuggestionEntry suggestionEntry) {
         Map<String, String[]> filters = Maps.newHashMap();
         filters.put("elementId", new String[] { suggestionEntry.getTargetElementId() });
-        Class<? extends IndexedInheritableToscaElement> targetClass = (Class<? extends IndexedInheritableToscaElement>) alienDAO.getTypesToClasses().get(
-                suggestionEntry.getEsType());
+        Class<? extends IndexedInheritableToscaElement> targetClass = (Class<? extends IndexedInheritableToscaElement>) alienDAO.getTypesToClasses()
+                .get(suggestionEntry.getEsType());
         GetMultipleDataResult<? extends IndexedInheritableToscaElement> result = alienDAO.find(targetClass, filters, Integer.MAX_VALUE);
         if (result.getData() != null && result.getData().length > 0) {
             for (IndexedInheritableToscaElement targetElement : result.getData()) {
                 PropertyDefinition propertyDefinition = targetElement.getProperties().get(suggestionEntry.getTargetProperty());
                 if (propertyDefinition == null) {
-                    throw new NotFoundException("Property [" + suggestionEntry.getTargetProperty() + "] not found for element ["
-                            + suggestionEntry.getTargetElementId() + "]");
+                    throw new NotFoundException(
+                            "Property [" + suggestionEntry.getTargetProperty() + "] not found for element [" + suggestionEntry.getTargetElementId() + "]");
                 } else {
                     switch (propertyDefinition.getType()) {
                     case ToscaType.VERSION:
@@ -323,8 +328,8 @@ public class SuggestionService {
                         }
                         break;
                     default:
-                        throw new InvalidArgumentException(propertyDefinition.getType()
-                                + " cannot be suggested, only property of type string list or map can be suggested");
+                        throw new InvalidArgumentException(
+                                propertyDefinition.getType() + " cannot be suggested, only property of type string list or map can be suggested");
                     }
                 }
             }
