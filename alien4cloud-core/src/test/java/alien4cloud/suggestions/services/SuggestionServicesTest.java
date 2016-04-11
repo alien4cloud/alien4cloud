@@ -3,6 +3,7 @@ package alien4cloud.suggestions.services;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import alien4cloud.model.common.AbstractSuggestionEntry;
 import lombok.extern.slf4j.Slf4j;
 
 import org.junit.Assert;
@@ -23,7 +24,7 @@ public class SuggestionServicesTest {
         suggestionService.setAlienDAO(alienDAO);
         SuggestionEntry suggestionEntry = new SuggestionEntry();
         suggestionEntry.setSuggestions(new HashSet<>(Arrays.asList("ubuntu", "windows xp", "kubuntu", "windows 2000", "gentoo", "mint", "debian")));
-        Mockito.when(alienDAO.findById(SuggestionEntry.class, "")).thenReturn(suggestionEntry);
+        Mockito.when(alienDAO.findById(AbstractSuggestionEntry.class, "")).thenReturn(suggestionEntry);
 
         String[] matches = suggestionService.getJaroWinklerMatchedSuggestions("", "u", Integer.MAX_VALUE);
         Assert.assertEquals(1, matches.length);
@@ -58,14 +59,4 @@ public class SuggestionServicesTest {
         log.info("Matches for blank: {}", Arrays.asList(matches));
         Assert.assertEquals(5, matches.length);
     }
-    //
-    // private void printDistance(String left, String right) {
-    // StringUtils.getJaroWinklerDistance(left, right);
-    // System.out.println("Distance between '" + left + "' and right '" + right + "' is " + StringUtils.getJaroWinklerDistance(left, right));
-    // }
-    //
-    // @Test
-    // public void testJarowinkler() {
-    // printDistance("x86_32", "x86_3");
-    // }
 }
