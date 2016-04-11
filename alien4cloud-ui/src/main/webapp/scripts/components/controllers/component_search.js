@@ -24,7 +24,7 @@ define(function (require) {
         return _.transform(value, function(result, n){
           result.push($scope.getFormatedFacetValue(term, n));
         }, []);
-      } else {      
+      } else {
         if (term === 'abstract') {
           if (value === 'F' || value === false) {
             return $filter('translate')('FALSE');
@@ -63,7 +63,7 @@ define(function (require) {
         $scope.facetFilters.push(facetSearchObject);
       }
     }
-    
+
     $scope.setComponent = function(component) {
       $scope.detailComponent = component;
     };

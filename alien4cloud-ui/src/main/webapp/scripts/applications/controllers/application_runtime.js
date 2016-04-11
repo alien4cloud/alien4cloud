@@ -1,10 +1,7 @@
 define(function(require) {
   'use strict';
 
-  var modules = require('modules');
   var states = require('states');
-  var _ = require('lodash');
-  var angular = require('angular');
 
   states.state('applications.detail.runtime', {
     url: '/runtime',
