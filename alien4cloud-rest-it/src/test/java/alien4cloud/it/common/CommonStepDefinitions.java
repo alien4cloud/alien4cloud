@@ -68,7 +68,7 @@ public class CommonStepDefinitions {
         indicesToClean.add(MetaPropConfiguration.class.getSimpleName().toLowerCase());
         indicesToClean.add(CsarGitRepository.class.getSimpleName().toLowerCase());
         indicesToClean.add(AuditESDAO.ALIEN_AUDIT_INDEX);
-        indicesToClean.add(SuggestionEntry.class.getSimpleName().toLowerCase());
+        indicesToClean.add(ElasticSearchDAO.SUGGESTION_INDEX);
     }
 
     @Before
