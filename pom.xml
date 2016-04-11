@@ -38,7 +38,7 @@
     <httpclient.version>4.3.2</httpclient.version>
     <commons-cli.version>1.2</commons-cli.version>
     <commons-lang.version>3.3.2</commons-lang.version>
-    <commons-collections.version>4.0</commons-collections.version>
+    <commons-collections.version>4.1</commons-collections.version>
     <commons-compress.version>1.9</commons-compress.version>
 
     <!-- JSON and YAML Parsing -->
