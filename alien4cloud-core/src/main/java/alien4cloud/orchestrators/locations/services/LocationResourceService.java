@@ -14,11 +14,13 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.events.LocationTemplateCreated;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.CapabilityDefinition;
@@ -69,6 +71,8 @@ public class LocationResourceService implements ILocationResourceService {
     private OrchestratorPluginService orchestratorPluginService;
     @Resource
     private PropertyService propertyService;
+    @Inject
+    private ApplicationContext applicationContext;
 
     /* (non-Javadoc)
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#getLocationResources(alien4cloud.model.orchestrators.locations.Location)
@@ -259,6 +263,13 @@ public class LocationResourceService implements ILocationResourceService {
         locationResourceTemplate.setTypes(Lists.<String> newArrayList(resourceType.getElementId()));
         locationResourceTemplate.getTypes().addAll(resourceType.getDerivedFrom());
         locationResourceTemplate.setTemplate(nodeTemplate);
+
+        LocationTemplateCreated event = new LocationTemplateCreated(this);
+        event.setTemplate(locationResourceTemplate);
+        event.setLocation(location);
+        event.setNodeType(resourceType);
+        applicationContext.publishEvent(event);
+
         saveResource(location, locationResourceTemplate);
         return locationResourceTemplate;
     }

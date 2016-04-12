@@ -17,19 +17,18 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.component.portability.PortabilityPropertyEnum;
+import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.events.PortabilityInsightValueAdded;
+import alien4cloud.events.LocationArchiveDeleteRequested;
+import alien4cloud.events.LocationTypeToBeIndexed;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.common.Usage;
-import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.ListPropertyValue;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
@@ -66,6 +65,8 @@ public class PluginArchiveIndexer {
     private IGenericSearchDAO alienDAO;
     @Inject
     private ApplicationContext applicationContext;
+    @Inject
+    private ICSARRepositoryIndexerService csarRepositoryIndexerService;
 
     /**
      * Ensure that location archives are indexed, note that by default the archives visibility is not public.
@@ -98,6 +99,10 @@ public class PluginArchiveIndexer {
                 // TODO Link csar and archive elements to the location
                 log.debug("Archive {}:{} from plugin {}:{} location {} already exists in the repository and won't be updated.", archive.getArchive().getName(),
                         archive.getArchive().getVersion(), orchestrator.getPluginId(), orchestrator.getPluginBean(), location.getInfrastructureType());
+                Collection<IndexedNodeType> indexedNodeTypes = csarRepositoryIndexerService.getArchiveElements(archive.getArchive().getName(),
+                        archive.getArchive().getVersion(), IndexedNodeType.class).values();
+                // inject portability informations
+                injectPortabilityInfos(indexedNodeTypes, orchestrator, location);
             }
             if (archive.getArchive().getDependencies() != null) {
                 dependencies.addAll(archive.getArchive().getDependencies());
@@ -149,6 +154,10 @@ public class PluginArchiveIndexer {
     }
 
     private void injectPortabilityInfos(Collection<IndexedNodeType> collection, IOrchestratorPluginFactory orchestratorFactory, Location location) {
+        // TODO: publish event OnLocationArchiveIndexed
+        // Collection<IndexedNodeType> collection
+        // IOrchestratorPluginFactory orchestratorFactory
+        // Location location
         if (CollectionUtils.isNotEmpty(collection)) {
             for (IndexedNodeType nodeType : collection) {
                 addOchestratorAndLocationInfo(nodeType, orchestratorFactory, location);
@@ -157,25 +166,10 @@ public class PluginArchiveIndexer {
     }
 
     private void addOchestratorAndLocationInfo(IndexedNodeType nodeType, IOrchestratorPluginFactory orchestratorFactory, Location location) {
-        if (nodeType.getPortability() == null) {
-            nodeType.setPortability(Maps.<String, AbstractPropertyValue> newHashMap());
-        }
-        addInPortabilityProperty(nodeType.getPortability(), PortabilityPropertyEnum.ORCHESTRATORS_KEY, orchestratorFactory.getType());
-
-        if (location != null) {
-            addInPortabilityProperty(nodeType.getPortability(), PortabilityPropertyEnum.IAASS_KEY, location.getInfrastructureType());
-        }
-    }
-
-    private void addInPortabilityProperty(Map<String, AbstractPropertyValue> portabilityMap, String portabilityKey, Object infoToAdd) {
-        ListPropertyValue propertyValue = portabilityMap.get(portabilityKey) != null ? (ListPropertyValue) portabilityMap.get(portabilityKey)
-                : new ListPropertyValue(Lists.newArrayList());
-        propertyValue.getValue().add(infoToAdd);
-        alien4cloud.utils.CollectionUtils.ensureUnitictyOfValues(propertyValue.getValue());
-        portabilityMap.put(portabilityKey, propertyValue);
-        PortabilityInsightValueAdded event = new PortabilityInsightValueAdded(this);
-        event.setPortabilityKey(portabilityKey);
-        event.setPortabilityValue(infoToAdd);
+        LocationTypeToBeIndexed event = new LocationTypeToBeIndexed(this);
+        event.setNodeType(nodeType);
+        event.setLocation(location);
+        event.setOrchestratorFactory(orchestratorFactory);
         applicationContext.publishEvent(event);
     }
 
@@ -195,24 +189,35 @@ public class PluginArchiveIndexer {
      * @param location
      * @return Map of usages per archives if found (that means the deletion wasn't performed successfully), null if everything went well.
      */
-    public Map<Csar, List<Usage>> deleteArchives(Location location) {
+    public Map<Csar, List<Usage>> deleteArchives(Orchestrator orchestrator, Location location) {
         ILocationConfiguratorPlugin configuratorPlugin = getConfiguratorPlugin(location);
+        IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestrator);
         List<PluginArchive> pluginArchives = configuratorPlugin.pluginArchives();
         // abort if no archive is exposed by this location
         if (CollectionUtils.isEmpty(pluginArchives)) {
             return null;
         }
-        Set<String> allExposedArchivesIds = getAllExposedArchivesIdsExluding(location);
+        Map<String, List<Location>> allExposedArchivesIds = getAllExposedArchivesIdsExluding(location);
         Map<Csar, List<Usage>> usages = Maps.newHashMap();
         for (PluginArchive pluginArchive : pluginArchives) {
             Csar csar = pluginArchive.getArchive().getArchive();
+            List<Location> locationsExposingArchive = allExposedArchivesIds.get(csar.getId());
+            LocationArchiveDeleteRequested e = new LocationArchiveDeleteRequested(this);
+            e.setCsar(csar);
+            e.setLocation(location);
+            e.setOrchestratorFactory(orchestratorFactory);
+            e.setLocationsExposingArchive(locationsExposingArchive);
             // only delete if no other location exposed this archive
-            if (!allExposedArchivesIds.contains(csar.getId())) {
+            if (locationsExposingArchive == null) {
                 List<Usage> csarUsage = csarService.deleteCsarWithElements(csar);
                 if (CollectionUtils.isNotEmpty(csarUsage)) {
                     usages.put(csar, csarUsage);
                 }
+                e.setDeleted(true);
+            } else {
+                e.setDeleted(false);
             }
+            applicationContext.publishEvent(e);
         }
         return usages.isEmpty() ? null : usages;
     }
@@ -231,18 +236,27 @@ public class PluginArchiveIndexer {
         return configuratorPlugin;
     }
 
-    private Set<String> getAllExposedArchivesIdsExluding(Location excludedLocation) {
+    /**
+     * @return each exposed archives ids with associated {@link Location}s.
+     */
+    private Map<String, List<Location>> getAllExposedArchivesIdsExluding(Location excludedLocation) {
         // exclude a location from the search
         QueryBuilder query = QueryBuilders.boolQuery()
                 .mustNot(QueryBuilders.idsQuery(Location.class.getSimpleName().toLowerCase()).ids(excludedLocation.getId()));
         List<Location> locations = alienDAO.customFindAll(Location.class, query);
-        Set<String> archiveIds = Sets.newHashSet();
+        Map<String, List<Location>> archiveIds = Maps.newHashMap();
         if (locations != null) {
             for (Location location : locations) {
                 ILocationConfiguratorPlugin configuratorPlugin = getConfiguratorPlugin(location);
                 List<PluginArchive> pluginArchives = configuratorPlugin.pluginArchives();
                 for (PluginArchive pluginArchive : pluginArchives) {
-                    archiveIds.add(pluginArchive.getArchive().getArchive().getId());
+                    String archiveId = pluginArchive.getArchive().getArchive().getId();
+                    List<Location> locationsPerArchive = archiveIds.get(archiveId);
+                    if (locationsPerArchive == null) {
+                        locationsPerArchive = Lists.newArrayList();
+                        archiveIds.put(archiveId, locationsPerArchive);
+                    }
+                    locationsPerArchive.add(location);
                 }
             }
         }
