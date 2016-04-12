@@ -341,7 +341,9 @@ public final class FunctionEvaluator {
             }
         } else {
             AbstractPropertyValue abstractPropertyValue = properties.get(propertyAccessPath);
-            if (!(abstractPropertyValue instanceof PropertyValue)) {
+            if (abstractPropertyValue == null) {
+                return null;
+            } else if (!(abstractPropertyValue instanceof PropertyValue)) {
                 throw new NotSupportedException("Not a property value " + abstractPropertyValue);
             } else if (abstractPropertyValue instanceof ScalarPropertyValue) {
                 return getScalarValue(properties.get(propertyAccessPath));
