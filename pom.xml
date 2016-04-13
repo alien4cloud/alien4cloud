@@ -13,7 +13,7 @@
     <module>alien4cloud-mock-paas-provider-plugin</module>
     <module>alien4cloud-rest-api</module>
     <module>alien4cloud-rest-it</module>
-    <module>alien4cloud-rest-it-compatibility</module>
+    <!-- <module>alien4cloud-rest-it-compatibility</module> -->
     <module>alien4cloud-ui</module>
   </modules>
 
