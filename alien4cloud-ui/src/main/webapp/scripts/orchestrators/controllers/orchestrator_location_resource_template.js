@@ -15,6 +15,18 @@ define(function(require) {
         return _.defined(map) && Object.keys(map).length > 0;
       };
 
+      $scope.isObjectEmpty = function(obj) {
+        if (_.undefined(obj)) {
+          return true;
+        }
+        for (var i in obj) {
+          if (obj.hasOwnProperty(i)) {
+            return false;
+          }
+        }
+        return true;
+      };
+
       $scope.updateLocationResource = function(propertyName, propertyValue) {
         $scope.onUpdate({
           propertyName: propertyName,
@@ -51,7 +63,7 @@ define(function(require) {
           return response;
         });
       };
-      
+
       $scope.canEditProperty = function(propertyName){
         return $scope.isPropertyEditable({
           propertyPath: {
@@ -65,6 +77,19 @@ define(function(require) {
             capabilityName: capabilityName,
             propertyName: propertyName
           }
+        });
+      };
+
+      $scope.updatePortabilityProperty = function(propertyName, propertyValue) {
+        var updatePromise = $scope.onPortabilityPropertyUpdate({
+          propertyName: propertyName,
+          propertyValue: propertyValue
+        });
+        return updatePromise.then(function(response) {
+          if (_.undefined(response.error)) { // update was performed on server side - impact js data.
+            $scope.resourceTemplate.template.portability[propertyName] = propertyValue;
+          }
+          return response; // dispatch response to property display
         });
       };
     }]);

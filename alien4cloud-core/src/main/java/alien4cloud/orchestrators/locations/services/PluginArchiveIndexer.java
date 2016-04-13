@@ -9,22 +9,25 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
+import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.events.LocationArchiveDeleteRequested;
+import alien4cloud.events.LocationTypeIndexed;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
@@ -38,14 +41,18 @@ import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.tosca.ArchiveIndexer;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
-import lombok.extern.slf4j.Slf4j;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Manage the indexing of TOSCA archives.
  */
 @Slf4j
 @Component
-public class LocationArchiveIndexer {
+@SuppressWarnings("rawtypes")
+public class PluginArchiveIndexer {
     @Inject
     private OrchestratorService orchestratorService;
     @Inject
@@ -56,14 +63,18 @@ public class LocationArchiveIndexer {
     private ArchiveIndexer archiveIndexer;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
+    @Inject
+    private ApplicationContext applicationContext;
+    @Inject
+    private ICSARRepositoryIndexerService csarRepositoryIndexerService;
 
     /**
-     * Ensure that plugin archives are indexed, note that by default the archives visibility is not public.
+     * Ensure that location archives are indexed, note that by default the archives visibility is not public.
      *
      * @param orchestrator the orchestrator for which to index archives.
      * @param location The location of the orchestrator for which to index archives.
      */
-    public Set<CSARDependency> indexArchives(Orchestrator orchestrator, Location location) {
+    public Set<CSARDependency> indexLocationArchives(Orchestrator orchestrator, Location location) {
         IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(orchestrator.getId());
         ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
 
@@ -79,6 +90,8 @@ public class LocationArchiveIndexer {
         for (PluginArchive pluginArchive : pluginArchives) {
             ArchiveRoot archive = pluginArchive.getArchive();
             Csar csar = csarService.getIfExists(archive.getArchive().getName(), archive.getArchive().getVersion());
+
+            // TODO Do we really want to check this? as we might not be able to override location snapshot archives!
             if (csar == null) {
                 // index the required archive
                 indexArchive(pluginArchive, orchestrator, location);
@@ -86,6 +99,10 @@ public class LocationArchiveIndexer {
                 // TODO Link csar and archive elements to the location
                 log.debug("Archive {}:{} from plugin {}:{} location {} already exists in the repository and won't be updated.", archive.getArchive().getName(),
                         archive.getArchive().getVersion(), orchestrator.getPluginId(), orchestrator.getPluginBean(), location.getInfrastructureType());
+                Collection<IndexedNodeType> indexedNodeTypes = csarRepositoryIndexerService.getArchiveElements(archive.getArchive().getName(),
+                        archive.getArchive().getVersion(), IndexedNodeType.class).values();
+                // inject portability informations
+                injectPortabilityInfos(indexedNodeTypes, orchestrator, location);
             }
             if (archive.getArchive().getDependencies() != null) {
                 dependencies.addAll(archive.getArchive().getDependencies());
@@ -94,6 +111,19 @@ public class LocationArchiveIndexer {
         }
 
         return dependencies;
+    }
+
+    public void indexOrchestratorArchives(IOrchestratorPluginFactory<IOrchestratorPlugin<?>, ?> orchestratorFactory) {
+        try {
+            IOrchestratorPlugin<?> orchestratorInstance = orchestratorFactory.newInstance();
+            for (PluginArchive pluginArchive : orchestratorInstance.pluginArchives()) {
+                injectPortabilityInfos(pluginArchive.getArchive().getNodeTypes().values(), orchestratorFactory, null);
+                List<ParsingError> parsingErrors = Lists.newArrayList();
+                archiveIndexer.importArchive(pluginArchive.getArchive(), pluginArchive.getArchiveFilePath(), parsingErrors);
+            }
+        } catch (CSARVersionAlreadyExistsException e) {
+            log.info("Skipping orchestrator archive import as the released version already exists in the repository.");
+        }
     }
 
     private void indexArchive(PluginArchive pluginArchive, Orchestrator orchestrator, Location location) {
@@ -105,13 +135,33 @@ public class LocationArchiveIndexer {
         injectWorkSpace(archive.getCapabilityTypes().values(), orchestrator, location);
         injectWorkSpace(archive.getRelationshipTypes().values(), orchestrator, location);
 
-        List<ParsingError> parsingErrors = Lists.newArrayList();
 
+        List<ParsingError> parsingErrors = Lists.newArrayList();
         // index the archive in alien catalog
         try {
             archiveIndexer.importArchive(archive, pluginArchive.getArchiveFilePath(), parsingErrors);
         } catch (CSARVersionAlreadyExistsException e) {
             log.info("Skipping location archive import as the released version already exists in the repository.");
+        }
+
+        // inject portability informations
+        injectPortabilityInfos(archive.getNodeTypes().values(), orchestrator, location);
+    }
+
+    private void injectPortabilityInfos(Collection<IndexedNodeType> collection, Orchestrator orchestrator, Location location) {
+        IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestrator);
+        injectPortabilityInfos(collection, orchestratorFactory, location);
+    }
+
+    private void injectPortabilityInfos(Collection<IndexedNodeType> collection, IOrchestratorPluginFactory orchestratorFactory, Location location) {
+        if (CollectionUtils.isNotEmpty(collection)) {
+            for (IndexedNodeType nodeType : collection) {
+                LocationTypeIndexed event = new LocationTypeIndexed(this);
+                event.setNodeType(nodeType);
+                event.setLocation(location);
+                event.setOrchestratorFactory(orchestratorFactory);
+                applicationContext.publishEvent(event);
+            }
         }
     }
 
@@ -131,24 +181,35 @@ public class LocationArchiveIndexer {
      * @param location
      * @return Map of usages per archives if found (that means the deletion wasn't performed successfully), null if everything went well.
      */
-    public Map<Csar, List<Usage>> deleteArchives(Location location) {
+    public Map<Csar, List<Usage>> deleteArchives(Orchestrator orchestrator, Location location) {
         ILocationConfiguratorPlugin configuratorPlugin = getConfiguratorPlugin(location);
+        IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestrator);
         List<PluginArchive> pluginArchives = configuratorPlugin.pluginArchives();
         // abort if no archive is exposed by this location
         if (CollectionUtils.isEmpty(pluginArchives)) {
             return null;
         }
-        Set<String> allExposedArchivesIds = getAllExposedArchivesIdsExluding(location);
+        Map<String, List<Location>> allExposedArchivesIds = getAllExposedArchivesIdsExluding(location);
         Map<Csar, List<Usage>> usages = Maps.newHashMap();
         for (PluginArchive pluginArchive : pluginArchives) {
             Csar csar = pluginArchive.getArchive().getArchive();
+            List<Location> locationsExposingArchive = allExposedArchivesIds.get(csar.getId());
+            LocationArchiveDeleteRequested e = new LocationArchiveDeleteRequested(this);
+            e.setCsar(csar);
+            e.setLocation(location);
+            e.setOrchestratorFactory(orchestratorFactory);
+            e.setLocationsExposingArchive(locationsExposingArchive);
             // only delete if no other location exposed this archive
-            if (!allExposedArchivesIds.contains(csar.getId())) {
+            if (locationsExposingArchive == null) {
                 List<Usage> csarUsage = csarService.deleteCsarWithElements(csar);
                 if (CollectionUtils.isNotEmpty(csarUsage)) {
                     usages.put(csar, csarUsage);
                 }
+                e.setDeleted(true);
+            } else {
+                e.setDeleted(false);
             }
+            applicationContext.publishEvent(e);
         }
         return usages.isEmpty() ? null : usages;
     }
@@ -167,18 +228,27 @@ public class LocationArchiveIndexer {
         return configuratorPlugin;
     }
 
-    private Set<String> getAllExposedArchivesIdsExluding(Location excludedLocation) {
+    /**
+     * @return each exposed archives ids with associated {@link Location}s.
+     */
+    private Map<String, List<Location>> getAllExposedArchivesIdsExluding(Location excludedLocation) {
         // exclude a location from the search
         QueryBuilder query = QueryBuilders.boolQuery()
                 .mustNot(QueryBuilders.idsQuery(Location.class.getSimpleName().toLowerCase()).ids(excludedLocation.getId()));
         List<Location> locations = alienDAO.customFindAll(Location.class, query);
-        Set<String> archiveIds = Sets.newHashSet();
+        Map<String, List<Location>> archiveIds = Maps.newHashMap();
         if (locations != null) {
             for (Location location : locations) {
                 ILocationConfiguratorPlugin configuratorPlugin = getConfiguratorPlugin(location);
                 List<PluginArchive> pluginArchives = configuratorPlugin.pluginArchives();
                 for (PluginArchive pluginArchive : pluginArchives) {
-                    archiveIds.add(pluginArchive.getArchive().getArchive().getId());
+                    String archiveId = pluginArchive.getArchive().getArchive().getId();
+                    List<Location> locationsPerArchive = archiveIds.get(archiveId);
+                    if (locationsPerArchive == null) {
+                        locationsPerArchive = Lists.newArrayList();
+                        archiveIds.put(archiveId, locationsPerArchive);
+                    }
+                    locationsPerArchive.add(location);
                 }
             }
         }

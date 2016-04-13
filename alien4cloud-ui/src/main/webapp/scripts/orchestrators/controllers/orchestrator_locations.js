@@ -65,7 +65,7 @@ define(function(require) {
         $scope.selectLocation = function(location) {
           locationResourcesProcessor.processLocationResources(location.resources);
           $scope.locationDTO = location;
-          $scope.context.location = $scope.locationDTO.location;
+          $scope.context.location = location.location;
           $scope.context.locationResources = location.resources;
           $scope.context.configurationTypes = _.values(location.resources.configurationTypes);
           $scope.context.nodeTypes = _.values(location.resources.nodeTypes);

@@ -84,4 +84,17 @@ public final class CollectionUtils {
 
         return merged;
     }
+
+    /**
+     * Ensure that the values within the list are unique
+     * 
+     * @param value
+     * @return a new List
+     */
+    public static void ensureUnitictyOfValues(List<Object> value) {
+        Set<Object> set = Sets.newHashSet(value);
+        value.clear();
+        value.addAll(set);
+    }
+
 }

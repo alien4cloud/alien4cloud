@@ -22,7 +22,7 @@ public class ManagedPlugin {
     private Map<String, Object> exposedBeans;
 
     // For testing purpose
-    private ManagedPlugin(String pluginPath) {
+    public ManagedPlugin(String pluginPath) {
         this.pluginPath = Paths.get(pluginPath);
     }
 

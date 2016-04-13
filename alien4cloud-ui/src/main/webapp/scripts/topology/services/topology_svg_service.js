@@ -174,11 +174,8 @@ define(function (require) {
             click: function() {
               // un-select last node and select the new one on click
               self.clickCallback({
-                'newSelectedName': node.id,
-                'oldSelectedName': self.selectedNodeId
+                'newSelectedName': node.id
               });
-
-              self.selectedNodeId = node.id;
             },
             mouseover: this.tip.show,
             mouseout: this.tip.hide,

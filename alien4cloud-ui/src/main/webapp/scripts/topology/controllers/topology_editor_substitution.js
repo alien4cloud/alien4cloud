@@ -37,7 +37,7 @@ define(function (require) {
               elementId: substitutionType
             }, {}, function(result) {
               if (!result.error) {
-                instance.scope.refreshTopology(result.data, instance.scope.selectedNodeTemplate ? instance.scope.selectedNodeTemplate.name : undefined);
+                instance.scope.refreshTopology(result.data);
               }
             });
           }
@@ -49,7 +49,7 @@ define(function (require) {
             topologyId: instance.scope.topology.topology.id
           }, {}, function(result) {
             if (!result.error) {
-              instance.scope.refreshTopology(result.data, instance.scope.selectedNodeTemplate ? instance.scope.selectedNodeTemplate.name : undefined);
+              instance.scope.refreshTopology(result.data);
             }
           });
         },
@@ -75,7 +75,7 @@ define(function (require) {
             capabilityId: capabilityId
           }, {}, function(result) {
             if (!result.error) {
-              instance.scope.refreshTopology(result.data, instance.scope.selectedNodeTemplate.name);
+              instance.scope.refreshTopology(result.data);
             }
           });
         },
@@ -99,7 +99,7 @@ define(function (require) {
             newCapabilityId: newKey
           }, {}, function(result) {
             if (!result.error) {
-              instance.scope.refreshTopology(result.data, instance.scope.selectedNodeTemplate ? instance.scope.selectedNodeTemplate.name : undefined);
+              instance.scope.refreshTopology(result.data);
             }
           });
         },
@@ -111,7 +111,7 @@ define(function (require) {
             substitutionCapabilityId: key
           }, {}, function(result) {
             if (!result.error) {
-              instance.scope.refreshTopology(result.data, instance.scope.selectedNodeTemplate ? instance.scope.selectedNodeTemplate.name : undefined);
+              instance.scope.refreshTopology(result.data);
             }
           });
         },
@@ -128,7 +128,7 @@ define(function (require) {
             requirementId: requirementId
           }, {}, function(result) {
             if (!result.error) {
-              instance.scope.refreshTopology(result.data, instance.scope.selectedNodeTemplate.name);
+              instance.scope.refreshTopology(result.data);
             }
           });
         },
@@ -152,7 +152,7 @@ define(function (require) {
             newRequirementId: newKey
           }, {}, function(result) {
             if (!result.error) {
-              instance.scope.refreshTopology(result.data, instance.scope.selectedNodeTemplate ? instance.scope.selectedNodeTemplate.name : undefined);
+              instance.scope.refreshTopology(result.data);
             }
           });
         },
@@ -164,7 +164,7 @@ define(function (require) {
             substitutionRequirementId: key
           }, {}, function(result) {
             if (!result.error) {
-              instance.scope.refreshTopology(result.data, instance.scope.selectedNodeTemplate ? instance.scope.selectedNodeTemplate.name : undefined);
+              instance.scope.refreshTopology(result.data);
             }
           });
         },

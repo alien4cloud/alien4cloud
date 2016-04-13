@@ -91,6 +91,12 @@ define(function(require) {
               value: propertyValue,
               definition: false
             };
+
+            if(capabilityType === 'tosca.capabilities.Scalable') {
+              // scalable informations are displayed on topology editor
+              scope.triggerTopologyRefresh = {};
+            }
+
             scope.yaml.refresh();
           }).$promise;
         }

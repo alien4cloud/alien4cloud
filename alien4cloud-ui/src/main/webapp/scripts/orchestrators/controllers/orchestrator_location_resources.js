@@ -11,8 +11,8 @@ define(function(require) {
   require('scripts/tosca/services/node_template_service');
 
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap', 'a4c-common']).controller('OrchestratorLocationResourcesTemplateCtrl',
-    ['$scope', 'locationResourcesService', 'locationResourcesPropertyService', 'locationResourcesCapabilityPropertyService', 'locationResourcesProcessor', 'nodeTemplateService',
-      function($scope, locationResourcesService, locationResourcesPropertyService, locationResourcesCapabilityPropertyService, locationResourcesProcessor, nodeTemplateService) {
+    ['$scope', 'locationResourcesService', 'locationResourcesPropertyService', 'locationResourcesCapabilityPropertyService', 'locationResourcesProcessor', 'nodeTemplateService', 'locationResourcesPortabilityService',
+      function($scope, locationResourcesService, locationResourcesPropertyService, locationResourcesCapabilityPropertyService, locationResourcesProcessor, nodeTemplateService, locationResourcesPortabilityService) {
 
         var init = function(){
           if (_.isNotEmpty($scope.resourcesTypes)) {
@@ -95,6 +95,17 @@ define(function(require) {
           })).$promise;
         };
 
+        $scope.updatePortabilityProperty = function(propertyName, propertyValue) {
+          return locationResourcesPortabilityService.save({
+            orchestratorId: $scope.context.orchestrator.id,
+            locationId: $scope.context.location.id,
+            id: $scope.selectedResourceTemplate.id
+          }, angular.toJson({
+            propertyName: propertyName,
+            propertyValue: propertyValue
+          })).$promise;
+        };
+        
         $scope.isPropertyEditable = function() {
           return true;
         };

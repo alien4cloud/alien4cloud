@@ -6,6 +6,7 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.IValue;
@@ -15,6 +16,8 @@ import alien4cloud.utils.jackson.ConditionalOnAttribute;
 import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
 import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -60,6 +63,14 @@ public class NodeTemplate extends AbstractTemplate {
      * The {@link NodeGroup}s this template is member of.
      */
     private Set<String> groups;
+
+    /**
+     * Template portability indicators.
+     */
+    @ConditionalOnAttribute(ConditionalAttributes.REST)
+    @JsonDeserialize(contentUsing = PropertyValueDeserializer.class)
+    @JsonInclude(Include.NON_NULL)
+    private Map<String, AbstractPropertyValue> portability;
 
     public NodeTemplate(String type, Map<String, AbstractPropertyValue> properties, Map<String, IValue> attributes,
             Map<String, RelationshipTemplate> relationships, Map<String, Requirement> requirements, Map<String, Capability> capabilities,

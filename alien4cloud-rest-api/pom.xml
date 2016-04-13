@@ -3,7 +3,7 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>1.2.0-SM2</version>
+    <version>1.2.0-SM3</version>
   </parent>
   <artifactId>alien4cloud-rest-api</artifactId>
   <name>Alien 4 Cloud rest API</name>
@@ -65,6 +65,10 @@
           <groupId>org.apache.tomcat.embed</groupId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-aop</artifactId>
     </dependency>
 
     <dependency>

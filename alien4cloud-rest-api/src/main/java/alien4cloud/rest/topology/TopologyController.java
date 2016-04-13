@@ -584,7 +584,7 @@ public class TopologyController {
         topologyService.throwsErrorIfReleased(topology);
 
         String propertyName = updatePropertyRequest.getPropertyName();
-        String propertyValue = updatePropertyRequest.getPropertyValue();
+        Object propertyValue = updatePropertyRequest.getPropertyValue();
         String relationshipType = updatePropertyRequest.getType();
         Map<String, IndexedRelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology);
 
@@ -631,7 +631,7 @@ public class TopologyController {
         topologyService.throwsErrorIfReleased(topology);
 
         String propertyName = updatePropertyRequest.getPropertyName();
-        String propertyValue = updatePropertyRequest.getPropertyValue();
+        Object propertyValue = updatePropertyRequest.getPropertyValue();
         String capabilityType = updatePropertyRequest.getType();
         Map<String, IndexedCapabilityType> capabilityTypes = topologyServiceCore.getIndexedCapabilityTypesFromTopology(topology);
 

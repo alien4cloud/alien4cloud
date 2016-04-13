@@ -1,13 +1,16 @@
 package alien4cloud.dao;
 
-import alien4cloud.dao.model.FacetedSearchFacet;
-import alien4cloud.dao.model.FacetedSearchResult;
-import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.utils.ElasticSearchUtil;
-import alien4cloud.utils.MapUtil;
-import com.google.common.collect.Lists;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
 import lombok.SneakyThrows;
+
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -18,8 +21,13 @@ import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
-import org.elasticsearch.mapping.*;
+import org.elasticsearch.mapping.ElasticSearchClient;
+import org.elasticsearch.mapping.FilterValuesStrategy;
+import org.elasticsearch.mapping.MappingBuilder;
+import org.elasticsearch.mapping.QueryBuilderAdapter;
+import org.elasticsearch.mapping.QueryHelper;
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
+import org.elasticsearch.mapping.SourceFetchContext;
 import org.elasticsearch.search.facet.Facet;
 import org.elasticsearch.search.facet.Facets;
 import org.elasticsearch.search.facet.terms.TermsFacet;
@@ -27,13 +35,14 @@ import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 
-import javax.annotation.Resource;
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import alien4cloud.dao.model.FacetedSearchFacet;
+import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.utils.ElasticSearchUtil;
+import alien4cloud.utils.MapUtil;
+
+import com.google.common.collect.Lists;
 
 /**
  * Elastic search dao that manages search operations.
@@ -368,20 +377,25 @@ public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearch
         }
 
         Map<String, FacetedSearchFacet[]> toReturnMap = new HashMap<>();
-        FacetedSearchFacet[] fsf = null;
+        List<FacetedSearchFacet> fsf = null;
 
         for (Facet facet : facets) {
             fsf = null;
             if (facet instanceof TermsFacet) {
                 TermsFacet termFacet = (TermsFacet) facet;
-                TermsFacet.Entry entry;
-                fsf = new FacetedSearchFacet[termFacet.getEntries().size()];
-                for (int i = 0; i < fsf.length; i++) {
-                    entry = termFacet.getEntries().get(i);
-                    fsf[i] = new FacetedSearchFacet(entry.getTerm().string(), entry.getCount());
+                fsf = Lists.newArrayList();
+                for (TermsFacet.Entry entry : termFacet.getEntries()) {
+                    fsf.add(new FacetedSearchFacet(entry.getTerm().string(), entry.getCount()));
+                }
+
+                // add the missing count as a facet with null value.
+                // This will help filtering on null values of a facet
+                // TODO: wrap the Map<String, FacetedSearchFacet[]> with an object adding a missingCout field
+                if (termFacet.getMissingCount() > 0) {
+                    fsf.add(new FacetedSearchFacet(null, termFacet.getMissingCount()));
                 }
             }
-            toReturnMap.put(facet.getName(), fsf);
+            toReturnMap.put(facet.getName(), fsf.toArray(new FacetedSearchFacet[fsf.size()]));
         }
 
         return toReturnMap;

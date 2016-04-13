@@ -10,63 +10,49 @@ define(function (require) {
   require('scripts/topology/controllers/topology_editor_workflows');
   require('scripts/topology/directives/workflow_rendering');
 
-  states.state('applications.detail.runtime', {
-    url: '/runtime',
+  states.state('applications.detail.runtime.topology', {
+    url: '/runtime/topology',
     templateUrl: 'views/applications/topology_runtime.html',
     controller: 'TopologyRuntimeCtrl',
     menu: {
-      id: 'am.applications.detail.runtime',
-      state: 'applications.detail.runtime',
+      id: 'am.applications.detail.runtime.topology',
+      state: 'applications.detail.runtime.topology',
       key: 'NAVAPPLICATIONS.MENU_RUNTIME',
       icon: 'fa fa-cogs',
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'], // is deployer
       priority: 400
-    },
-    params:{
-      selectedEnvironmentId:null
     }
   });
+  states.forward('applications.detail.runtime', 'applications.detail.runtime.topology');
 
   modules.get('a4c-applications').controller('TopologyRuntimeCtrl',
     ['$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'orchestratorService', 'appEnvironments', '$interval', 'toscaService', 'topologyJsonProcessor', 'topoEditWf',
     function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServicesFactory, $state, propertiesServices, toaster, orchestratorService, appEnvironments, $interval, toscaService, topologyJsonProcessor, topoEditWf) {
-
       topoEditWf($scope);
 
       var pageStateId = $state.current.name;
       var applicationId = $state.params.id;
-      var selectedEnvironmentId = $state.params.selectedEnvironmentId;
       $scope.selectedEnvironment = null;
       $scope.triggerTopologyRefresh = null;
-
-      console.log($state);
 
       var updateSelectedEnvionment = function() {
         $scope.runtimeEnvironments = appEnvironments.deployEnvironments;
         // select current environment
-        if (_.defined(appEnvironments.selectedEnvironment) && appEnvironments.selectedEnvironment.status !== 'UNDEPLOYED') {
-          $scope.selectedEnvironment = appEnvironments.selectedEnvironment;
-        } else if(_.defined(selectedEnvironmentId)){
-          //or maybe the state request was made to open the view on a specific environment
-          var environmentsById = _.indexBy(appEnvironments.deployEnvironments, 'id');
-          if(_.defined( environmentsById[selectedEnvironmentId]) &&  environmentsById[selectedEnvironmentId].status!=='UNDEPLOYED'){
-            $scope.selectedEnvironment = environmentsById[selectedEnvironmentId];
-            appEnvironments.selectedEnvironment = $scope.selectedEnvironment;
-          }
-        }else {
+        if (_.defined(appEnvironments.selected) && appEnvironments.selected.status !== 'UNDEPLOYED') {
+          $scope.selectedEnvironment = appEnvironments.selected;
+        } else {
           //otherwise, just select the first deployed envionment
           for (var i = 0; i < appEnvironments.deployEnvironments.length && _.undefined($scope.selectedEnvironment); i++) {
             if (appEnvironments.deployEnvironments[i].status !== 'UNDEPLOYED') {
               $scope.selectedEnvironment = appEnvironments.deployEnvironments[i];
             }
-            appEnvironments.selectedEnvironment = $scope.selectedEnvironment;
+            appEnvironments.select($scope.selectedEnvironment);
           }
         }
       };
 
       //update the selectedEnvironment
       updateSelectedEnvionment();
-
 
       // get the related cloud to display informations.
       var refreshOrchestratorInfo = function() {
@@ -578,9 +564,12 @@ define(function (require) {
         }
       };
 
-      $scope.changeEnvironment = function(){
-        $scope.loadTopologyRuntime();
-        $scope.clearNodeSelection();
+      $scope.changeEnvironment = function() {
+        appEnvironments.select($scope.selectedEnvironment.id, function() {
+          // update the environment
+          $scope.loadTopologyRuntime();
+          $scope.clearNodeSelection();
+        });
       };
 
       // first topology load

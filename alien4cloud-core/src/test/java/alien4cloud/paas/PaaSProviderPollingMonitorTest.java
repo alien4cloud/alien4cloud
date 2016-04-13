@@ -87,8 +87,8 @@ public class PaaSProviderPollingMonitorTest {
                     .setRefresh(true).execute().actionGet();
         }
 
-        // save the last inserted date
-        latestEventDate = new Date(eventDeploymentStatus.getDate());
+        // save the last inserted date (PaaSDeploymentStatusMonitorEvent should be generated from alien only and never from the orchestrator).
+        latestEventDate = new Date(eventMessage.getDate());
     }
 
     @Test

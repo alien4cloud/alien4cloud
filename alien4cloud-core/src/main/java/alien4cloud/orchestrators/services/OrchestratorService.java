@@ -9,6 +9,8 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -27,7 +29,6 @@ import alien4cloud.model.orchestrators.locations.LocationSupport;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import alien4cloud.utils.MapUtil;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Manages orchestrators
@@ -109,7 +110,7 @@ public class OrchestratorService {
         Location[] locations = locationService.getOrchestratorLocations(id);
         if (locations != null) {
             for (Location location : locations) {
-                locationService.delete(location.getId());
+                locationService.delete(id, location.getId());
             }
         }
         // delete the orchestrator configuration

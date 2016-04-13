@@ -100,4 +100,10 @@ public class MockOrchestratorFactory implements IOrchestratorPluginFactory<MockO
 
         return deploymentProperties;
     }
+
+    @Override
+    public String getType() {
+        return "Mock Orchestrator";
+    }
+
 }

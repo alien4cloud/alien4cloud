@@ -45,7 +45,7 @@ define(function (require) {
       $scope.environmentRoles = environmentRolesResult.data;
 
       // set default selected environment
-      $scope.selectedEnvironment = appEnvironments.environments[0];
+      $scope.selectedEnvironment = appEnvironments.selected;
 
       $scope.isManager = authService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
       $scope.isDeployer = authService.hasResourceRole($scope.application, 'DEPLOYMENT_MANAGER');
@@ -54,11 +54,9 @@ define(function (require) {
 
       // switch environment
       $scope.changeUserEnvironment = function(switchToEnvironment) {
-        var currentEnvironment = $scope.selectedEnvironment;
-        var newEnvironment = switchToEnvironment;
-        if (currentEnvironment.id !== newEnvironment.id) {
-          $scope.selectedEnvironment = switchToEnvironment;
-        }
+        appEnvironments.select(switchToEnvironment.id, function(){
+          $scope.selectedEnvironment = appEnvironments.selected;
+        });
       };
 
       // get users related to the application

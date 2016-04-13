@@ -340,6 +340,13 @@ var editNodeProperty = function(nodeTemplateName, propertyName, propertyValue, c
   inputValue.clear();
   inputValue.sendKeys(propertyValue);
   editForm.submit();
+
+  // close modal of suggestion if present
+  element(by.className('modal-dialog')).isPresent().then(function (isVisible) {
+    if (isVisible) {
+      common.click(by.id('btn-create'));
+    }
+  });
 };
 module.exports.editNodeProperty = editNodeProperty;
 

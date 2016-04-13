@@ -1,19 +1,5 @@
 package alien4cloud.it.common;
 
-import java.nio.file.Files;
-import java.util.List;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.collect.Lists;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.junit.Assert;
-import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-
 import alien4cloud.audit.AuditESDAO;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -22,7 +8,6 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.common.MetaPropConfiguration;
-import alien4cloud.model.common.SuggestionEntry;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
@@ -42,6 +27,17 @@ import alien4cloud.utils.FileUtil;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import java.nio.file.Files;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.common.collect.Lists;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.junit.Assert;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 @Slf4j
 public class CommonStepDefinitions {
@@ -68,7 +64,7 @@ public class CommonStepDefinitions {
         indicesToClean.add(MetaPropConfiguration.class.getSimpleName().toLowerCase());
         indicesToClean.add(CsarGitRepository.class.getSimpleName().toLowerCase());
         indicesToClean.add(AuditESDAO.ALIEN_AUDIT_INDEX);
-        indicesToClean.add(SuggestionEntry.class.getSimpleName().toLowerCase());
+        indicesToClean.add(ElasticSearchDAO.SUGGESTION_INDEX);
     }
 
     @Before

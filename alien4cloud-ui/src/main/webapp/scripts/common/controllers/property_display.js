@@ -53,8 +53,8 @@ define(function(require) {
 
   modules.get('a4c-common', ['pascalprecht.translate']).controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$modal', '$timeout', 'propertySuggestionServices',
     function($scope, propertiesServices, $translate, $modal, $timeout, propertySuggestionServices) {
-      if (_.undefined($scope.translate)) {
-        $scope.translate = false;
+      if (_.undefined($scope.translated)) {
+        $scope.translated = false;
       }
 
       $scope.showLongTextChoice = false;
@@ -79,6 +79,9 @@ define(function(require) {
               suggestionId: $scope.definition.suggestionId
             }).$promise.then(function(result) {
               if (_.defined(result.data)) {
+                if (result.data.indexOf(text) < 0) {
+                  result.data.push(text);
+                }
                 return result.data;
               } else {
                 return [];
@@ -161,7 +164,7 @@ define(function(require) {
                 propertyRequest.propertyValue = modalResult;
                 return callSaveService(propertyRequest);
               }, function() {
-                return $translate("CANCELLED");
+                return $translate('CANCELLED');
               });
             } else {
               promise = callSaveService(propertyRequest);
@@ -333,13 +336,13 @@ define(function(require) {
             $scope.definitionObject.uiName = 'string';
             $scope.definitionObject.uiValue = shownValue;
             $scope.definitionObject.uiPassword = $scope.definition.password;
+            $scope.isLongText = _.defined(shownValue) && typeof shownValue === 'string' && shownValue.indexOf('\n') > -1;
             break;
           default :
             $scope.definitionObject.uiName = 'complex';
             $scope.definitionObject.uiValue = shownValue;
             break;
         }
-        $scope.isLongText = _.defined(shownValue) && shownValue.indexOf('\n') > -1;
         // Phase one valid or not ?
         if (!_.isEmpty($scope.definitionObject)) {
           return $scope.definitionObject;

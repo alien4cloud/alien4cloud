@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Resource;
-import javax.inject.Inject;
 
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Assert;
@@ -18,7 +17,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.orchestrators.locations.services.LocationResourceService;
+import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 
 import com.google.common.collect.Lists;
@@ -29,8 +28,8 @@ public class LocationResourceServiceTest {
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
-    @Inject
-    private LocationResourceService locationResourceService;
+    @Resource(name = "location-resource-service")
+    private ILocationResourceService locationResourceService;
 
     private static final String LOCATION_ID = "location";
     private static final String UNCONFIGURED_LOCATION_ID = "unconfigured-location";

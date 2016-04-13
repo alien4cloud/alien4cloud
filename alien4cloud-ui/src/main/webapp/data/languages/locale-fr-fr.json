@@ -358,6 +358,25 @@
     "FORM_ERRORS" : {
       "TAG_KEY" : "Le nom d'un tag doit contenir des lettres de a-Z, -, _ sans espace"
     },
+    "PORTABILITY": {
+      "TITLE": "Portabilité",
+      "IAASS": {
+        "LABEL": "IaaSs",
+        "VALUE": "Portabilité: IaaSs"
+      },
+      "ORCHESTRATORS": {
+        "LABEL": "Orchestrateurs",
+        "VALUE": "Portabilité: Orchestrateurs"
+      },
+      "RUNTIME_PACKAGES": {
+        "LABEL": "Packages installés",
+        "VALUE": "Portabilité: Packages installés"
+      },
+      "SUPPORTED_ARTIFACTS": {
+        "LABEL": "Artefacts supportés",
+        "VALUE": "Portabilité: Artefacts supportés"
+      }
+    },
     "REQUIREMENTS" : {
       "TYPE" : "Prérequis"
     },
@@ -733,6 +752,15 @@
     },
     "UPLOAD" : "Uploader un plugin"
   },
+  "POST_DEPLOYMENT" : {
+    "OPERATION": {
+      "DRAG_DROP_UPLOAD": "Déposer l'opération à uploader ici",
+      "INFOS": "Completer les informations de l'opération",
+      "NEW": "Nouvelle opération",
+      "TITLE": "Opération"
+    },
+    "SELECT_NODE" : "-- Selectionez un noeud --"
+  },
   "PROPERTY_RESET" : "Réinitialiser à la valeur par défaut",
   "PROPERTY_SUGGESTION" : {
     "MODAL" :  {
@@ -852,5 +880,14 @@
     "refresh.button" : "Rafraichir",
     "title" : "Métriques d'Alien 4 Cloud"
   },
-  "operations" : "Opérations"
+  "operations" : "Opérations",
+  "PATCH": {
+    "TITLE": "Patch",
+    "NO_PATCH_FOUND": "Aucun patch exist pour le deployment",
+    "ACK": "Exécuté",
+    "NACK": "Non exécuté",
+    "DRAG_DROP_UPLOAD": "Déposer les patches à uploader ici",
+    "NEW": "Créer patch",
+    "INFOS": "Completer les informations pour créer nouveau patch"
+  }
 }

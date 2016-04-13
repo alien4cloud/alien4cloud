@@ -35,7 +35,7 @@ define(function (require) {
             inputId: inputId
           }, angular.toJson(propertyDefinition), function(success) {
             if (!success.error) {
-              instance.scope.refreshTopology(success.data, instance.scope.selectedNodeTemplate ? instance.scope.selectedNodeTemplate.name : undefined);
+              instance.scope.refreshTopology(success.data);
               callback();
             }
           });
@@ -83,7 +83,7 @@ define(function (require) {
             inputArtifactId: artifactId
           }, {}, function(result) {
             if (!result.error) {
-              instance.scope.refreshTopology(result.data, instance.scope.selectedNodeTemplate ? instance.scope.selectedNodeTemplate.name : undefined);
+              instance.scope.refreshTopology(result.data);
             }
           });
         },
@@ -148,7 +148,7 @@ define(function (require) {
               propertyId: propertyName
             }, function(success) {
               if (!success.error) {
-                scope.refreshTopology(success.data, scope.selectedNodeTemplate ? scope.selectedNodeTemplate.name : undefined);
+                scope.refreshTopology(success.data);
               }
             });
           } else {
@@ -158,7 +158,7 @@ define(function (require) {
               propertyId: propertyName
             }, function(success) {
               if (!success.error) {
-                scope.refreshTopology(success.data, scope.selectedNodeTemplate ? scope.selectedNodeTemplate.name : undefined);
+                scope.refreshTopology(success.data);
               }
             });
           }
@@ -174,7 +174,7 @@ define(function (require) {
               inputArtifactId: inputArtifactId
             }, {}, function(result) {
               if (!result.error) {
-                scope.refreshTopology(result.data, scope.selectedNodeTemplate ? scope.selectedNodeTemplate.name : undefined);
+                scope.refreshTopology(result.data);
               }
             });
           } else {
@@ -185,7 +185,7 @@ define(function (require) {
               inputArtifactId: inputArtifactId
             }, {}, function(result) {
               if (!result.error) {
-                scope.refreshTopology(result.data, scope.selectedNodeTemplate ? scope.selectedNodeTemplate.name : undefined);
+                scope.refreshTopology(result.data);
               }
             });
           }
@@ -201,7 +201,7 @@ define(function (require) {
             inputArtifactId: inputArtifactId
           }, {newId: newId}, function(result) {
             if (!result.error) {
-              scope.refreshTopology(result.data, scope.selectedNodeTemplate ? scope.selectedNodeTemplate.name : undefined);
+              scope.refreshTopology(result.data);
             }
           });
         },
@@ -213,7 +213,7 @@ define(function (require) {
             inputArtifactId: inputArtifactId
           }, {}, function(result) {
             if (!result.error) {
-              scope.refreshTopology(result.data, scope.selectedNodeTemplate ? scope.selectedNodeTemplate.name : undefined);
+              scope.refreshTopology(result.data);
             }
           });
         },
@@ -229,7 +229,7 @@ define(function (require) {
               relationshipId: relationshipName
             }, function(success) {
               if (!success.error) {
-                scope.refreshTopology(success.data, scope.selectedNodeTemplate ? scope.selectedNodeTemplate.name : undefined);
+                scope.refreshTopology(success.data);
               }
             });
           } else {
@@ -240,7 +240,7 @@ define(function (require) {
               relationshipId: relationshipName
             }, function(success) {
               if (!success.error) {
-                scope.refreshTopology(success.data, scope.selectedNodeTemplate ? scope.selectedNodeTemplate.name : undefined);
+                scope.refreshTopology(success.data);
               }
             });
           }
@@ -257,7 +257,7 @@ define(function (require) {
               capabilityId: capabilityName
             }, function(success) {
               if (!success.error) {
-                scope.refreshTopology(success.data, scope.selectedNodeTemplate ? scope.selectedNodeTemplate.name : undefined);
+                scope.refreshTopology(success.data);
               }
             });
           } else {
@@ -268,7 +268,7 @@ define(function (require) {
               capabilityId: capabilityName
             }, function(success) {
               if (!success.error) {
-                scope.refreshTopology(success.data, scope.selectedNodeTemplate ? scope.selectedNodeTemplate.name : undefined);
+                scope.refreshTopology(success.data);
               }
             });
           }
@@ -324,7 +324,7 @@ define(function (require) {
             inputId: inputId
           }, function(success) {
             if (!success.error) {
-              scope.refreshTopology(success.data, scope.selectedNodeTemplate ? scope.selectedNodeTemplate.name : undefined);
+              scope.refreshTopology(success.data);
             }
           });
         },
@@ -340,7 +340,7 @@ define(function (require) {
             newInputId: newInput
           }, function(success) {
             if (!success.error) {
-              scope.refreshTopology(success.data, scope.selectedNodeTemplate ? scope.selectedNodeTemplate.name : undefined);
+              scope.refreshTopology(success.data);
             } else {
               inputDefinition.inputId = oldInput;
               var msg = $translate('ERRORS.' + success.error.code);

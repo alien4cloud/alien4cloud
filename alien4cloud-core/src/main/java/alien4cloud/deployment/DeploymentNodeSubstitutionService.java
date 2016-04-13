@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import org.apache.commons.collections4.MapUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.common.AlienConstants;
@@ -22,7 +23,7 @@ import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.LocationPlacementPolicy;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.orchestrators.locations.services.LocationResourceService;
+import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.PropertyUtil;
 
@@ -31,13 +32,14 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 @Service
-public class DeploymentNodeSubstitutionService {
+public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstitutionService {
     @Inject
     private TopologyServiceCore topologyServiceCore;
     @Inject
     private NodeMatcherService nodeMatcherService;
     @Inject
-    private LocationResourceService locationResourceService;
+    @Lazy(true)
+    private ILocationResourceService locationResourceService;
 
     /**
      * Get all available substitutions (LocationResourceTemplate) for the given node templates with given dependencies and location groups
@@ -74,12 +76,10 @@ public class DeploymentNodeSubstitutionService {
         return availableSubstitutions;
     }
 
-    /**
-     * Get all available substitutions for a processed deployment topology
-     *
-     * @param deploymentTopology
-     * @return
+    /* (non-Javadoc)
+     * @see alien4cloud.deployment.IDeploymentNodeSubstitutionService#getAvailableSubstitutions(alien4cloud.model.deployment.DeploymentTopology)
      */
+    @Override
     public Map<String, List<LocationResourceTemplate>> getAvailableSubstitutions(DeploymentTopology deploymentTopology) {
         return getAvailableSubstitutions(deploymentTopology.getOriginalNodes(), deploymentTopology.getDependencies(), deploymentTopology.getLocationGroups());
     }
@@ -90,13 +90,10 @@ public class DeploymentNodeSubstitutionService {
      * @param deploymentTopology the deployment topology to process substitution
      */
 
-    /**
-     * This method updates the node substitution choices and default selections for a given deployment topology.
-     *
-     * @param deploymentTopology The deployment topology in which to save substitutions / deploymentTopology.getNodeTemplates() are the nodes from the original
-     *            topology.
-     * @param nodesToMergeProperties The node that where substituted previously with specific configurations from deployment user.
+    /* (non-Javadoc)
+     * @see alien4cloud.deployment.IDeploymentNodeSubstitutionService#processNodesSubstitution(alien4cloud.model.deployment.DeploymentTopology, java.util.Map)
      */
+    @Override
     public void processNodesSubstitution(DeploymentTopology deploymentTopology, Map<String, NodeTemplate> nodesToMergeProperties) {
         if (MapUtils.isEmpty(deploymentTopology.getLocationGroups())) {
             // No location group is defined do nothing

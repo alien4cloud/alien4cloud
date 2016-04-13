@@ -1,9 +1,6 @@
 package alien4cloud.model.common;
 
 import static alien4cloud.dao.model.FetchContext.SUMMARY;
-
-import java.util.Set;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,13 +9,15 @@ import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.query.FetchContext;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.google.common.collect.Sets;
 
+/**
+ * A suggestion linked to a indexed element's property.
+ */
 @ESObject
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SuggestionEntry {
+public class SuggestionEntry extends AbstractSuggestionEntry {
 
     /**
      * elasticsearch index of suggestion, for example toscaelement
@@ -43,12 +42,6 @@ public class SuggestionEntry {
      */
     @FetchContext(contexts = { SUMMARY }, include = { true })
     private String targetProperty;
-
-    /**
-     * List of values that can be suggested for the property ( for example Windows, Linux, Mac OS etc ...)
-     */
-    @FetchContext(contexts = { SUMMARY }, include = { false })
-    private Set<String> suggestions = Sets.newHashSet();
 
     public static String generateId(String esIndex, String esType, String targetElementId, String targetProperty) {
         return esIndex + ":" + esType + ":" + targetElementId + ":" + targetProperty;

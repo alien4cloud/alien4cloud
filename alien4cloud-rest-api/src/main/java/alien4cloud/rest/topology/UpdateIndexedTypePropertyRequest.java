@@ -22,7 +22,7 @@ public class UpdateIndexedTypePropertyRequest {
     @ApiModelProperty(required = true)
     private String propertyName;
     @ApiModelProperty(required = true)
-    private String propertyValue;
+    private Object propertyValue;
     @ApiModelProperty(required = true)
     private String type;
 }

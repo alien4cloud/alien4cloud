@@ -19,7 +19,7 @@ define(function (require) {
             groupId: groupId
           }, {}, function(result) {
             if (!result.error) {
-              instance.scope.refreshTopology(result.data, instance.scope.selectedNodeTemplate ? instance.scope.selectedNodeTemplate.name : undefined);
+              instance.scope.refreshTopology(result.data);
             }
           });
         },
@@ -30,7 +30,7 @@ define(function (require) {
             groupId: groupId
           }, { newName: name }, function(result) {
             if (!result.error) {
-              instance.scope.refreshTopology(result.data, instance.scope.selectedNodeTemplate ? instance.scope.selectedNodeTemplate.name : undefined);
+              instance.scope.refreshTopology(result.data);
               if (instance.scope.groupCollapsed[groupId]) {
                 instance.scope.groupCollapsed[name] = instance.scope.groupCollapsed[groupId];
                 delete instance.scope.groupCollapsed[groupId];
@@ -48,7 +48,7 @@ define(function (require) {
             nodeTemplateName: member
           }, {}, function(result) {
             if (!result.error) {
-              instance.scope.refreshTopology(result.data, instance.scope.selectedNodeTemplate ? instance.scope.selectedNodeTemplate.name : undefined);
+              instance.scope.refreshTopology(result.data);
             }
           });
         },
@@ -67,7 +67,7 @@ define(function (require) {
             nodeTemplateName: nodeName
           }, {}, function(result) {
             if (!result.error) {
-              instance.scope.refreshTopology(result.data, instance.scope.selectedNodeTemplate ? instance.scope.selectedNodeTemplate.name : undefined);
+              instance.scope.refreshTopology(result.data);
               instance.scope.groupCollapsed[nodeName] = { main: false, members: true, policies: true };
             }
           });
@@ -83,7 +83,7 @@ define(function (require) {
               nodeTemplateName: nodeName
             }, {}, function(result) {
               if (!result.error) {
-                instance.scope.refreshTopology(result.data, instance.scope.selectedNodeTemplate ? instance.scope.selectedNodeTemplate.name : undefined);
+                instance.scope.refreshTopology(result.data);
               }
             });
           }

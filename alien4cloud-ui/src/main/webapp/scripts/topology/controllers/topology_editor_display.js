@@ -100,6 +100,7 @@ define(function (require) {
           }
         },
         toggle: function(displayName) {
+          var beforeComponentActive = this.scope.displays.component.active;
           this.scope.displays[displayName].active = !this.scope.displays[displayName].active;
           // Specific rules for displays which are logically linked
           if (this.scope.displays[displayName].active) {
@@ -147,6 +148,14 @@ define(function (require) {
                 break;
             }
           }
+
+          if(beforeComponentActive && !this.scope.displays.component.active &&
+            _.defined(this.scope.selectedNodeTemplate)) {
+            this.scope.selectedNodeTemplate.selected = false;
+            this.scope.selectedNodeTemplate = null;
+            this.scope.triggerTopologyRefresh = {};
+          }
+
           this.updateVisualDimensions();
         }
       };

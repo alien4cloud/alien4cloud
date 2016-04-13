@@ -294,7 +294,7 @@ public class TopologyStepDefinitions {
 
     @When("^I update the node template \"([^\"]*)\"'s capability \"([^\"]*)\" of type \"([^\"]*)\"'s property \"([^\"]*)\" to \"([^\"]*)\"$")
     public void I_update_the_node_template_s_capability_of_type_s_property_to(String nodeTempName, String capabilityName, String capabilityType,
-            String propertyName, String propertyValue) throws Throwable {
+            String propertyName, Object propertyValue) throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         UpdateIndexedTypePropertyRequest req = new UpdateIndexedTypePropertyRequest(propertyName, propertyValue, capabilityType);
         String json = jsonMapper.writeValueAsString(req);
@@ -699,20 +699,32 @@ public class TopologyStepDefinitions {
                         Lists.newArrayList(nvp)));
     }
 
-    @When("^I update the \"([^\"]*)\" property of the relationship \"([^\"]*)\" into \"([^\"]*)\" from the node template \"([^\"]*)\"$")
-    public void I_update_the_property_of_the_relationship_into_from_the_node_template(String propertyName, String relationshipName, String newValue,
-            String nodeTemplateName) throws Throwable {
+    private void updateRelationshipProperty(UpdateIndexedTypePropertyRequest updatePropertyRequest, String propertyName, String relationshipName, String nodeTemplateName) throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
-
-        UpdateIndexedTypePropertyRequest updatePropertyRequest = new UpdateIndexedTypePropertyRequest();
         updatePropertyRequest.setPropertyName(propertyName);
-        updatePropertyRequest.setPropertyValue(newValue);
-        updatePropertyRequest.setType("tosca.relationships.HostedOn");
         String json = jsonMapper.writeValueAsString(updatePropertyRequest);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postJSon(
                         "/rest/v1/topologies/" + topologyId + "/nodetemplates/" + nodeTemplateName + "/relationships/" + relationshipName + "/updateProperty",
                         json));
+    }
+
+    @When("^I update the \"([^\"]*)\" property of the relationship \"([^\"]*)\" into \"([^\"]*)\" from the node template \"([^\"]*)\"$")
+    public void I_update_the_property_of_the_relationship_into_from_the_node_template(String propertyName, String relationshipName, String newValue,
+            String nodeTemplateName) throws Throwable {
+        UpdateIndexedTypePropertyRequest updatePropertyRequest = new UpdateIndexedTypePropertyRequest();
+        updatePropertyRequest.setPropertyValue(newValue);
+        updatePropertyRequest.setType("tosca.relationships.HostedOn");
+        updateRelationshipProperty(updatePropertyRequest, propertyName, relationshipName, nodeTemplateName);
+    }
+
+    @When("^I update the \"([^\"]*)\" complex property of the relationship \"([^\"]*)\" into \\\"\\\"\\\"(.*?)\\\"\\\"\\\" from the node template \"([^\"]*)\"$")
+    public void I_update_the_complex_property_of_the_relationship_into_from_the_node_template(String propertyName, String relationshipName, String newValue,
+                                                                                      String nodeTemplateName) throws Throwable {
+        UpdateIndexedTypePropertyRequest updatePropertyRequest = new UpdateIndexedTypePropertyRequest();
+        updatePropertyRequest.setPropertyValue(JsonUtil.toMap(newValue));
+        updatePropertyRequest.setType("tosca.relationships.RoutesTo");
+        updateRelationshipProperty(updatePropertyRequest, propertyName, relationshipName, nodeTemplateName);
     }
 
     @And("^The topology should have as dependencies$")

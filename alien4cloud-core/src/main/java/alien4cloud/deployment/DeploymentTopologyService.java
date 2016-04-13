@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.application.ApplicationEnvironmentService;
@@ -43,7 +44,7 @@ import alien4cloud.model.topology.LocationPlacementPolicy;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.orchestrators.locations.services.LocationResourceService;
+import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.DeployerRole;
@@ -74,7 +75,8 @@ public class DeploymentTopologyService {
     @Inject
     private LocationService locationService;
     @Inject
-    private LocationResourceService locationResourceService;
+    @Lazy(true)
+    private ILocationResourceService locationResourceService;
     @Inject
     private ApplicationVersionService applicationVersionService;
     @Inject
@@ -88,7 +90,7 @@ public class DeploymentTopologyService {
     @Inject
     private TopologyServiceCore topologyServiceCore;
     @Inject
-    private DeploymentNodeSubstitutionService deploymentNodeSubstitutionService;
+    private IDeploymentNodeSubstitutionService deploymentNodeSubstitutionService;
     @Inject
     private PropertyService propertyService;
 

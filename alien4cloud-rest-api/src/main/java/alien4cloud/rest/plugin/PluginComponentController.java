@@ -1,5 +1,10 @@
 package alien4cloud.rest.plugin;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
+
 import java.util.List;
 import java.util.Map;
 
@@ -20,11 +25,6 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 
 import com.google.common.collect.Lists;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.Authorization;
 
 /**
  * Created by lucboutier on 12/08/15.
@@ -48,9 +48,11 @@ public class PluginComponentController {
 
         for (ManagedPlugin plugin : managedPluginMap.values()) {
             PluginDescriptor descriptor = plugin.getPlugin().getDescriptor();
-            for (PluginComponentDescriptor componentDescriptor : descriptor.getComponentDescriptors()) {
-                if (componentDescriptor.getType().equals(type)) {
-                    result.add(new PluginComponentDTO(plugin.getPlugin().getId(), descriptor.getName(), descriptor.getVersion(), componentDescriptor));
+            if (descriptor.getComponentDescriptors() != null) {
+                for (PluginComponentDescriptor componentDescriptor : descriptor.getComponentDescriptors()) {
+                    if (componentDescriptor.getType().equals(type)) {
+                        result.add(new PluginComponentDTO(plugin.getPlugin().getId(), descriptor.getName(), descriptor.getVersion(), componentDescriptor));
+                    }
                 }
             }
         }
