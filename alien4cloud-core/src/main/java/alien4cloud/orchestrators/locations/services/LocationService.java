@@ -18,12 +18,14 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.events.LocationTemplateCreated;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.MissingCSARDependenciesException;
 import alien4cloud.exception.NotFoundException;
@@ -41,6 +43,7 @@ import alien4cloud.orchestrators.plugin.ILocationAutoConfigurer;
 import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
+import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.security.AuthorizationUtil;
@@ -71,6 +74,8 @@ public class LocationService {
     private ILocationResourceService locationResourceService;
     @Resource
     private ICSARRepositorySearchService csarRepoSearchService;
+    @Inject
+    private ApplicationContext applicationContext;
 
     /**
      * Auto-configure locations using the given location auto-configurer.
@@ -142,7 +147,8 @@ public class LocationService {
         try {
             locationResourceService.getLocationResourcesFromOrchestrator(location);
         } catch (NotFoundException e) {
-            delete(location.getId());
+            // WARN: FIXME we load orch twice !!!!!!!!!!!!!!!!!!!!!!!!!
+            delete(orchestrator.getId(), location.getId());
             throw new MissingCSARDependenciesException(e.getMessage());
         }
     }
@@ -177,6 +183,7 @@ public class LocationService {
         // get the orchestrator plugin instance
         IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(orchestrator.getId());
         ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
+        IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestrator);
 
         ILocationResourceAccessor accessor = locationResourceService.accessor(location.getId());
 
@@ -197,6 +204,12 @@ public class LocationService {
                 template.setTypes(nodeType.getDerivedFrom());
                 // FIXME Workaround to remove default scalable properties from compute
                 TopologyUtils.setNullScalingPolicy(template.getTemplate(), nodeType);
+
+                LocationTemplateCreated event = new LocationTemplateCreated(this);
+                event.setTemplate(template);
+                event.setLocation(location);
+                event.setNodeType(nodeType);
+                applicationContext.publishEvent(event);
             }
             alienDAO.save(templates.toArray(new LocationResourceTemplate[templates.size()]));
             location.setLastUpdateDate(new Date());
@@ -254,7 +267,13 @@ public class LocationService {
      * @param id id of the locations to delete.
      * @return true if the location was successfully , false if not.
      */
-    public boolean delete(String id) {
+    public boolean delete(String orchestratorId, String id) {
+        Orchestrator orchestrator = orchestratorService.getOrFail(orchestratorId);
+        if (!OrchestratorState.CONNECTED.equals(orchestrator.getState())) {
+            // we cannot configure locations for orchestrator that are not connected.
+            // TODO throw exception
+        }
+
         Map<String, String[]> filters = Maps.newHashMap();
         addFilter(filters, "locationIds", id);
         addFilter(filters, "endDate", "null");
@@ -269,7 +288,7 @@ public class LocationService {
         // delete the location
         alienDAO.delete(Location.class, id);
         // delete all archives associated with this location only, if possible of course
-        Map<Csar, List<Usage>> usages = locationArchiveIndexer.deleteArchives(location);
+        Map<Csar, List<Usage>> usages = locationArchiveIndexer.deleteArchives(orchestrator, location);
         if (MapUtils.isNotEmpty(usages)) {
             // TODO what to do when some archives were not deleted?
             log.warn("Some archives for location were not deleted! \n" + usages);

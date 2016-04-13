@@ -11,10 +11,6 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import alien4cloud.model.components.*;
-import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.normative.AlienCustomTypes;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Sets;
@@ -27,6 +23,23 @@ import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.ComplexPropertyValue;
+import alien4cloud.model.components.Csar;
+import alien4cloud.model.components.DeploymentArtifact;
+import alien4cloud.model.components.IValue;
+import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedModelUtils;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.components.ListPropertyValue;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.PropertyValue;
+import alien4cloud.model.components.RequirementDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.Capability;
@@ -35,9 +48,12 @@ import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Requirement;
 import alien4cloud.model.topology.SubstitutionTarget;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.tosca.normative.AlienCustomTypes;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 
 @Service
@@ -261,7 +277,6 @@ public class TopologyServiceCore {
         nodeTemplate.setProperties(properties);
         nodeTemplate.setAttributes(indexedNodeType.getAttributes());
         nodeTemplate.setArtifacts(deploymentArtifacts);
-        nodeTemplate.setPortability(indexedNodeType.getPortability());
         if (templateToMerge != null) {
             if (templateToMerge.getInterfaces() != null) {
                 nodeTemplate.setInterfaces(templateToMerge.getInterfaces());

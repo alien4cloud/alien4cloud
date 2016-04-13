@@ -19,9 +19,13 @@ define(function(require) {
         if (_.undefined(obj)) {
           return true;
         }
-        for (var i in obj) if (obj.hasOwnProperty(i)) return false;
-        return true;        
-      }
+        for (var i in obj) {
+          if (obj.hasOwnProperty(i)) {
+            return false;
+          }
+        }
+        return true;
+      };
 
       $scope.updateLocationResource = function(propertyName, propertyValue) {
         $scope.onUpdate({
@@ -59,7 +63,7 @@ define(function(require) {
           return response;
         });
       };
-      
+
       $scope.canEditProperty = function(propertyName){
         return $scope.isPropertyEditable({
           propertyPath: {
@@ -75,7 +79,7 @@ define(function(require) {
           }
         });
       };
-      
+
       $scope.updatePortabilityProperty = function(propertyName, propertyValue) {
         var updatePromise = $scope.onPortabilityPropertyUpdate({
           propertyName: propertyName,
@@ -87,6 +91,6 @@ define(function(require) {
           }
           return response; // dispatch response to property display
         });
-      };       
+      };
     }]);
 });

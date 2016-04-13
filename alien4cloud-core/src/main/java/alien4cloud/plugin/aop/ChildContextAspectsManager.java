@@ -1,16 +1,17 @@
 package alien4cloud.plugin.aop;
 
+import alien4cloud.events.AlienEvent;
+import com.google.common.collect.Maps;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -21,18 +22,16 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ApplicationContextEvent;
 import org.springframework.context.event.ContextStartedEvent;
 import org.springframework.context.event.ContextStoppedEvent;
+import org.springframework.context.event.GenericApplicationListenerAdapter;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 import org.springframework.util.ReflectionUtils.MethodFilter;
 
-import alien4cloud.events.AlienEvent;
-
-import com.google.common.collect.Maps;
-
 /**
- * Manage inter context proxies : thanks to it, we can define aspects upon main context beans in child contexts.
+ * Manage inter context proxies : thanks to it, we can define aspects upon main context beans in child contexts. Also broadcast {@link AlienEvent}s to child
+ * contexts.
  * <p>
  * This {@link BeanPostProcessor} will search for {@link Overridable} annotation in any bean of the context (at type level, or method level). Each bean
  * containing this annotation is a candidate to be proxied and is in fact proxied by an internal {@link InvocationHandler}.
@@ -60,7 +59,7 @@ public class ChildContextAspectsManager implements ApplicationListener<Applicati
     private Map<String, ApplicationContext> childContexts = Maps.newLinkedHashMap();
 
     /** We store all the names of beans that implements {@link ApplicationListener} per child context. */
-    private Map<String, String[]> childApplicationListeners = Maps.newHashMap();
+    private Map<String, GenericApplicationListenerAdapter[]> childApplicationListeners = Maps.newHashMap();
 
     private Lock lock = new ReentrantLock();
 
@@ -130,14 +129,19 @@ public class ChildContextAspectsManager implements ApplicationListener<Applicati
             lock.unlock();
         }
     }
-    
+
     private void detectApplicationListeners(ApplicationContext ctx) {
         String[] applicationListenerBeanNames = ctx.getBeanNamesForType(ApplicationListener.class);
         if (applicationListenerBeanNames != null && applicationListenerBeanNames.length > 0) {
             if (log.isDebugEnabled()) {
                 log.debug("The child context <{}> contains the following listeners: {}", ctx.getDisplayName(), applicationListenerBeanNames);
             }
-            childApplicationListeners.put(ctx.toString(), applicationListenerBeanNames);
+            GenericApplicationListenerAdapter[] adapters = new GenericApplicationListenerAdapter[applicationListenerBeanNames.length];
+            int i = 0;
+            for (String applicationListenerBeanName : applicationListenerBeanNames) {
+                adapters[i++] = new GenericApplicationListenerAdapter((ApplicationListener<?>) ctx.getBean(applicationListenerBeanName));
+            }
+            childApplicationListeners.put(ctx.toString(), adapters);
         }
     }
 
@@ -174,22 +178,27 @@ public class ChildContextAspectsManager implements ApplicationListener<Applicati
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void onApplicationEvent(ApplicationEvent e) {
         if (e instanceof ApplicationContextEvent) {
             onApplicationContextEvent((ApplicationContextEvent) e);
         } else if (e instanceof AlienEvent) {
-            // Alien events are published to child contexts
-            // we can't publish directly into child context because it will re-publish to it's parent causing a stack overflow !
-            for (Entry<String, String[]> childListenersEntry : childApplicationListeners.entrySet()) {
-                ApplicationContext ctx = childContexts.get(childListenersEntry.getKey());
-                if (ctx != null) {
-                    for (String childListenerName : childListenersEntry.getValue()) {
-                        Object bean = ctx.getBean(childListenerName);
-                        if (bean instanceof ApplicationListener<?>) {
-                            ((ApplicationListener) bean).onApplicationEvent(e);
-                        }
+            onAlienEvent((AlienEvent) e);
+        }
+    }
+
+    /**
+     * Broadcast {@link AlienEvent}s to child context {@link ApplicationListener} beans.
+     */
+    private void onAlienEvent(AlienEvent e) {
+        // Alien events are published to child contexts
+        // we can't publish directly into child context because it will re-publish to it's parent causing a stack overflow !
+        for (Entry<String, GenericApplicationListenerAdapter[]> childListenersEntry : childApplicationListeners.entrySet()) {
+            ApplicationContext ctx = childContexts.get(childListenersEntry.getKey());
+            if (ctx != null) {
+                for (GenericApplicationListenerAdapter childListener : childListenersEntry.getValue()) {
+                    if (childListener.supportsEventType(e.getClass())) {
+                        childListener.onApplicationEvent(e);
                     }
                 }
             }
@@ -259,7 +268,16 @@ public class ChildContextAspectsManager implements ApplicationListener<Applicati
             } finally {
                 lock.unlock();
             }
-            Object result = ReflectionUtils.invokeMethod(method, target, args);
+            Object result = null;
+            try {
+                result = ReflectionUtils.invokeMethod(method, target, args);
+            } catch (Exception e) {
+                try {
+                    ReflectionUtils.handleReflectionException(e);
+                } catch (UndeclaredThrowableException ute) {
+                    throw ute.getUndeclaredThrowable();
+                }
+            }
             return result;
         }
     }

@@ -164,7 +164,7 @@ define(function(require) {
                 propertyRequest.propertyValue = modalResult;
                 return callSaveService(propertyRequest);
               }, function() {
-                return $translate("CANCELLED");
+                return $translate('CANCELLED');
               });
             } else {
               promise = callSaveService(propertyRequest);

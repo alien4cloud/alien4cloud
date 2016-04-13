@@ -58,6 +58,6 @@ define(function (require) {
           pie.svg.call(tip);
         }
       }
-    }
+    };
   });
 });

@@ -218,6 +218,8 @@ public class Context {
 
     private String csarGitRepositoryId;
 
+    private String currentExternalId;
+
     private Map<String, String> stringContent = new HashMap<String, String>();
 
     private Context() {
@@ -698,4 +700,12 @@ public class Context {
         return this.stringContent.get(key);
     }
 
+
+    public String getCurrentExternalId() {
+        return currentExternalId;
+    }
+
+    public void setCurrentExternalId(String currentExternalId) {
+        this.currentExternalId = currentExternalId;
+    }
 }

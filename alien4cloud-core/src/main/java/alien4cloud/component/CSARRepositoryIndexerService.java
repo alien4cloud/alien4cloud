@@ -52,22 +52,27 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
 
     @Override
     public Map<String, IndexedToscaElement> getArchiveElements(String archiveName, String archiveVersion) {
-        GetMultipleDataResult<IndexedToscaElement> elements = alienDAO.find(
-                IndexedToscaElement.class,
+        return getArchiveElements(archiveName, archiveVersion, IndexedToscaElement.class);
+    }
+
+    @Override
+    public <T extends IndexedToscaElement> Map<String, T> getArchiveElements(String archiveName, String archiveVersion, Class<T> type) {
+        GetMultipleDataResult<T> elements = alienDAO.find(
+                type,
                 MapUtil.newHashMap(new String[] { "archiveName", "archiveVersion" }, new String[][] { new String[] { archiveName },
                         new String[] { archiveVersion } }), Integer.MAX_VALUE);
 
-        Map<String, IndexedToscaElement> elementsByIds = Maps.newHashMap();
+        Map<String, T> elementsByIds = Maps.newHashMap();
         if (elements == null) {
             return elementsByIds;
         }
 
-        for (IndexedToscaElement element : elements.getData()) {
+        for (T element : elements.getData()) {
             elementsByIds.put(element.getId(), element);
         }
         return elementsByIds;
     }
-
+    
     @Override
     public void deleteElements(String archiveName, String archiveVersion) {
 

@@ -66,7 +66,7 @@ public class LocationController {
     @Audit
     public RestResponse<Boolean> delete(@ApiParam(value = "Id of the orchestrator for which the location is defined.") @PathVariable String orchestratorId,
             @ApiParam(value = "Id of the location to delete.", required = true) @PathVariable String id) {
-        return RestResponseBuilder.<Boolean> builder().data(locationService.delete(id)).build();
+        return RestResponseBuilder.<Boolean> builder().data(locationService.delete(orchestratorId, id)).build();
     }
 
     @ApiOperation(value = "Get all locations for a given orchestrator.")
