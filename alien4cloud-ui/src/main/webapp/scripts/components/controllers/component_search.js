@@ -9,12 +9,8 @@ define(function (require) {
 
   modules.get('a4c-components', ['a4c-tosca']).controller('alienSearchComponentCtrl', ['$scope', '$filter', 'searchContext', '$resource', 'toscaService', 'searchServiceFactory', function($scope, $filter, searchContext, $resource, toscaService, searchServiceFactory) {
     var alienInternalTags = ['icon'];
-
     $scope.searchService = searchServiceFactory('rest/latest/components/search', false, $scope, 20, 10);
     $scope.searchService.filtered(true);
-
-    var orchestratorTermId = 'portability.ORCHESTRATORS.value';
-    var iaasSTermId = 'portability.IAASS.value';
 
     /** Used to display the correct text in UI */
     $scope.getFormatedFacetValue = function(term, value) {
@@ -24,7 +20,7 @@ define(function (require) {
         return _.transform(value, function(result, n){
           result.push($scope.getFormatedFacetValue(term, n));
         }, []);
-      } else {      
+      } else {
         if (term === 'abstract') {
           if (value === 'F' || value === false) {
             return $filter('translate')('FALSE');
@@ -63,7 +59,7 @@ define(function (require) {
         $scope.facetFilters.push(facetSearchObject);
       }
     }
-    
+
     $scope.setComponent = function(component) {
       $scope.detailComponent = component;
     };
@@ -80,9 +76,11 @@ define(function (require) {
       $scope.facetFilters = [];
     }
 
-    // add orchestrator and iaass filter
-    addFacetFilter(orchestratorTermId, null);
-    addFacetFilter(iaasSTermId, null);
+    if($scope.defaultFilters) {
+      _.each($scope.defaultFilters, function(value, key) {
+        addFacetFilter(key, value);
+      });
+    }
 
     /*update a search*/
     function updateSearch(filters) {

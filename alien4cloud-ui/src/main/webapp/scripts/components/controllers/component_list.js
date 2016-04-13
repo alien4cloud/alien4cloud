@@ -33,6 +33,9 @@ define(function (require) {
     url: '/list',
     templateUrl: 'views/components/component_list.html',
     controller: 'SearchComponentCtrl',
+    resolve: {
+      defaultFilters: [function(){return {};}]
+    },
     menu: {
       id: 'cm.components.list',
       state: 'components.list',
@@ -43,9 +46,10 @@ define(function (require) {
   });
   states.forward('components', 'components.list');
 
-  modules.get('a4c-components', ['ui.router', 'a4c-auth', 'a4c-common']).controller('SearchComponentCtrl', ['authService', '$scope', '$state', 'resizeServices',
-    function(authService, $scope, $state, resizeServices) {
+  modules.get('a4c-components', ['ui.router', 'a4c-auth', 'a4c-common']).controller('SearchComponentCtrl', ['authService', '$scope', '$state', 'resizeServices', 'defaultFilters',
+    function(authService, $scope, $state, resizeServices, defaultFilters) {
       $scope.isComponentManager = authService.hasRole('COMPONENTS_MANAGER');
+      $scope.defaultFilters = defaultFilters;
 
       $scope.uploadSuccessCallback = function(data) {
         $scope.refresh = data;
