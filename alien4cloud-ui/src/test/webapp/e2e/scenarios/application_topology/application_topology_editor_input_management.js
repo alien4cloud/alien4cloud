@@ -33,7 +33,7 @@ describe('Topology input/output properties', function() {
   });
 
   it('should be able associate a property to an already existing input', function() {
-    topologyEditorCommon.associatePropertyToInput('Compute-2', 'distribution', 'distribution', 'cap');
+    topologyEditorCommon.associatePropertyToInput('Compute_2', 'distribution', 'distribution', 'cap');
     topologyEditorCommon.checkCountInputs(1);
   });
 

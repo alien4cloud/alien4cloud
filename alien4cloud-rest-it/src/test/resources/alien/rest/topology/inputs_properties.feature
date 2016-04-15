@@ -8,9 +8,9 @@ Feature: Topology inputs controller
     And I create a new application with name "ioMan" and description "Yeo man!"
     And I add a node template "Compute" related to the "tosca.nodes.Compute:1.0" node type
     And I add a node template "BlockStorage" related to the "tosca.nodes.BlockStorage:1.0" node type
-    And I add a node template "BlockStorage-2" related to the "tosca.nodes.BlockStorage:1.0" node type
+    And I add a node template "BlockStorage_2" related to the "tosca.nodes.BlockStorage:1.0" node type
     And I add a relationship of type "tosca.relationships.HostedOn" defined in archive " tosca-base-types" version "1.0" with source "BlockStorage" and target "Compute" for requirement "attach" of type "tosca.capabilities.Container" and target capability "compute"
-    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive " tosca-base-types" version "1.0" with source "BlockStorage-2" and target "Compute" for requirement "attach" of type "tosca.capabilities.Container" and target capability "compute"
+    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive " tosca-base-types" version "1.0" with source "BlockStorage_2" and target "Compute" for requirement "attach" of type "tosca.capabilities.Container" and target capability "compute"
 
   Scenario: Define a property as input
     When I define the property "os_arch" of the node "Compute" as input property
@@ -91,12 +91,12 @@ Feature: Topology inputs controller
 ###
   Scenario: Set the property of a relationship template to an input of the topology
     Given I define the property "fake_password" of the node "BlockStorage" as input property
-    And I set the property "fake_password" of a relationship "HostedOn_Compute" for the node template "BlockStorage-2" to the input "fake_password"
+    And I set the property "fake_password" of a relationship "HostedOn_Compute" for the node template "BlockStorage_2" to the input "fake_password"
     Then I should receive a RestResponse with no error
 
   Scenario: Set the property of a relationship template of non existing node should failed
     Given I define the property "fake_password" of the node "BlockStorage" as input property
-    And I set the property "fake_password" of a relationship "HostedOn_Compute" for the node template "BlockStorage-2_should_failed" to the input "fake_password"
+    And I set the property "fake_password" of a relationship "HostedOn_Compute" for the node template "BlockStorage_2_should_failed" to the input "fake_password"
     Then I should receive a RestResponse with an error code 504
 
   Scenario: Set the property of a relationship template to an input of the topology with different constraints must fail
@@ -113,13 +113,13 @@ Feature: Topology inputs controller
 
   Scenario: Unset the property of a relationship template to an input of the topology
     Given I define the property "fake_password" of the node "BlockStorage" as input property
-    Then I set the property "fake_password" of a relationship "HostedOn_Compute" for the node template "BlockStorage-2" to the input "fake_password"
+    Then I set the property "fake_password" of a relationship "HostedOn_Compute" for the node template "BlockStorage_2" to the input "fake_password"
     Then I should receive a RestResponse with no error
-    Then I unset the property "fake_password" of a relationship "HostedOn_Compute" for the node template "BlockStorage-2"
+    Then I unset the property "fake_password" of a relationship "HostedOn_Compute" for the node template "BlockStorage_2"
     Then I should receive a RestResponse with no error
 
   Scenario: Unset the non existing property of a relationship template to an input of the topology should failed
-    Given I unset the property "fake_password_should_failed" of a relationship "HostedOn_Compute" for the node template "BlockStorage-2"
+    Given I unset the property "fake_password_should_failed" of a relationship "HostedOn_Compute" for the node template "BlockStorage_2"
     Then I should receive a RestResponse with an error code 504
 
 ###
@@ -174,7 +174,7 @@ Feature: Topology inputs controller
   Scenario: The relationship input candidates are well managed
     Given I ask for the input candidate for the node template "BlockStorage" and property "fake_password" of relationship "HostedOn_Compute"
     Then The SPEL boolean expression "#root.size() == 0" should return true
-    And I define the property "fake_password" of the node "BlockStorage-2" as input property
+    And I define the property "fake_password" of the node "BlockStorage_2" as input property
     When I ask for the input candidate for the node template "BlockStorage" and property "fake_password" of relationship "HostedOn_Compute"
     Then The SPEL boolean expression "#root.size() == 1" should return true
 

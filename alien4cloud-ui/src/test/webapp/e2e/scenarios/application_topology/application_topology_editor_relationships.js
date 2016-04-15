@@ -57,7 +57,7 @@ describe('NodeTemplate relationships edition', function() {
 
     topologyEditorCommon.addRelationshipToNode('Java', 'Compute', 'host', 'tosca.relationships.HostedOn:' + componentData.normativeTypesVersion, 'hostedOnCompute');
     topologyEditorCommon.addNodeTemplatesCenterAndZoom({tomcat: componentData.alienTypes.tomcat()});
-    topologyEditorCommon.addRelationshipToNode('Tomcat', 'Compute-2', 'host', 'tosca.relationships.HostedOn:' + componentData.normativeTypesVersion, 'hostedOnCompute');
+    topologyEditorCommon.addRelationshipToNode('Tomcat', 'Compute_2', 'host', 'tosca.relationships.HostedOn:' + componentData.normativeTypesVersion, 'hostedOnCompute');
 
     topologyEditorCommon.selectNodeAndGoToDetailBloc('War', topologyEditorCommon.nodeDetailsBlocsIds.rel);
     topologyEditorCommon.addRelationshipToNode('War', 'Tomcat', 'host', 'alien.relationships.WarHostedOnTomcat:' + componentData.tomcatTypesVersion, 'hostedOnTomcat');
