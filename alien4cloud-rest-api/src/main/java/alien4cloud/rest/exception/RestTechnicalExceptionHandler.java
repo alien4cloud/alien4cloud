@@ -79,6 +79,14 @@ public class RestTechnicalExceptionHandler {
                 .error(RestErrorBuilder.builder(RestErrorCode.ALREADY_EXIST_ERROR).message("The posted object already exist.").build()).build();
     }
 
+    @ExceptionHandler(InvalidNodeNameException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public RestResponse<Void> invalidNodeName(InvalidNodeNameException e) {
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.INVALID_NODE_NAME).message("A name should only contains alphanumeric character from the basic Latin alphabet and the underscrore.").build()).build();
+    }
+
     @ExceptionHandler(DeleteReferencedObjectException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody

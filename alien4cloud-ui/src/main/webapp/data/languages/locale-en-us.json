@@ -100,6 +100,7 @@
         "ADD" : "Add To Input",
         "CONSTRAINT" : "Constraint"
       },
+      "INVALID_NODE_NAME" : "Invalid node name.",
       "LOCATION_UNAUTHORIZED_MESSAGE" : "You do not have the rights to deploy on the previously selected location: <{{locationName}}>, orchestrator: <{{orchestratorName}}>. \n Contact your admin for more explanations.",
       "NODE_INFO" : "Selected node",
       "NO_OUTPUTS" : "No output properties or attributes",
@@ -575,6 +576,7 @@
     "615" : "The Git repository url doesn't exists or isn't a correct one.",
     "616" : "You are not authorized to clone this Git repository. Please check your credentials.",
     "617" : "No modification have been detected since the last import process",
+    "618" : "A name should only contains alphanumeric character from the basic Latin alphabet and the underscrore.",
     "650" : "At least two of your Compute have a conflict name.",
     "651" : "A BlockStorage can not have a VolumeID when the cloud has the 'deletable' option to set.",
     "800" : {

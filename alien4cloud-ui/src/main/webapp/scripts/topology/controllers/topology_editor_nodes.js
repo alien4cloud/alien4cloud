@@ -7,8 +7,10 @@ define(function (require) {
   var angular = require('angular');
   var _ = require('lodash');
 
-  modules.get('a4c-topology-editor').factory('topoEditNodes', [ 'topologyServices', 'toscaService',
-    function(topologyServices, toscaService) {
+  modules.get('a4c-topology-editor').factory('topoEditNodes', [ 'topologyServices', 'toscaService', '$filter',
+    function(topologyServices, toscaService, $filter) {
+      var nodeNamePattern = '^\\w+$';
+
       var TopologyEditorMixin = function(scope) {
         this.scope = scope;
       };
@@ -59,6 +61,11 @@ define(function (require) {
           var scope = this.scope;
           // Update only when the name has changed
           scope.nodeTempNameEditError = null;
+
+          if (!newName.match(nodeNamePattern)) {
+            return $filter('translate')('APPLICATIONS.TOPOLOGY.INVALID_NODE_NAME');
+          }
+
           if (scope.selectedNodeTemplate.name !== newName) {
             topologyServices.nodeTemplate.updateName({
               topologyId: scope.topology.topology.id,

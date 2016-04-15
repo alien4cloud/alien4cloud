@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
@@ -76,6 +77,7 @@ public class TopologyServiceCore {
 
     private static ObjectMapper mapper = new ObjectMapper();
 
+    public static final String NODE_NAME_REGEX = "^\\w+$";
 
     /**
      * The default tosca element finder will search into repo.
@@ -575,4 +577,7 @@ public class TopologyServiceCore {
         indexerService.indexInheritableElement(csar.getName(), csar.getVersion(), topologyTemplateType, inheritanceDependencies);
     }
 
+    public boolean isValidNodeName(String name) {
+        return Pattern.matches(NODE_NAME_REGEX, name);
+    }
 }
