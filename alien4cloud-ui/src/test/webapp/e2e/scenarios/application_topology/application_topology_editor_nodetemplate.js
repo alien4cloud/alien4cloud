@@ -1,4 +1,4 @@
-/* global describe, it, element, by, browser, expect */
+/* global describe, it, element, by, browser, expect, protractor */
 'use strict';
 
 var path = require('path');
@@ -57,6 +57,16 @@ describe('Topology node template edition :', function() {
     xEdit.expect('nodetemplate-titles', 'Compute_new_NAME');
   });
 
+  it('should not be able to edit a node template name with an invalid new name', function() {
+    element(by.id('rect_Compute_new_NAME')).click();
+    xEdit.sendKeys('nodetemplate-titles', 'Compute_new_NAMEé');
+    element(by.css('#nodetemplate-titles input')).sendKeys(protractor.Key.BACK_SPACE);
+    topologyEditorCommon.go();
+    var nodeToEdit = element(by.id('rect_Compute_new_NAME'));
+    nodeToEdit.click();
+    xEdit.expect('nodetemplate-titles', 'Compute_new_NAME');
+  });
+  
   it('should be able to edit a scalar-unit.size and time', function() {
     var diskSizeName = 'disk_size';
     var diskSizeElement = element(by.id('p_' + diskSizeName));
