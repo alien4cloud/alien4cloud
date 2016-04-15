@@ -183,7 +183,9 @@ public class TopologyController {
         if (!topologyServiceCore.isValidNodeName(nodeTemplateRequest.getName())) {
             throw new InvalidNodeNameException("A name should only contains alphanumeric character from the basic Latin alphabet and the underscore.");
         }
-        isUniqueNodeTemplateName(topologyId, nodeTemplateRequest.getName(), topology.getNodeTemplates());
+        if (topology.getNodeTemplates() != null) {
+            isUniqueNodeTemplateName(topologyId, nodeTemplateRequest.getName(), topology.getNodeTemplates());
+        }
 
         IndexedNodeType indexedNodeType = alienDAO.findById(IndexedNodeType.class, nodeTemplateRequest.getIndexedNodeTypeId());
         if (indexedNodeType == null) {
