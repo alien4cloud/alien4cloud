@@ -17,7 +17,6 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class UpdatePropertyRequest {
     // property to update
     private String propertyName;

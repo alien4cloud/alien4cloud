@@ -13,7 +13,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Getter
 @Setter
-@SuppressWarnings("PMD.UnusedPrivateField")
 @FormProperties({ "interfaceName", "operationName", "artifactType", "artifactRef" })
 public class ImplementationArtifact implements IArtifact {
     /**

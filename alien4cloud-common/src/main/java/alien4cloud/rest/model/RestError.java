@@ -11,7 +11,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class RestError {
     private int code;
     private String message;

@@ -8,7 +8,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class PluginDescriptor {
     /** Unique id of the plugin. */
     private String id;

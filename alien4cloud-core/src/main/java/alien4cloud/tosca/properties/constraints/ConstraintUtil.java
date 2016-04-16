@@ -82,7 +82,6 @@ public final class ConstraintUtil {
     @Getter
     @Setter
     @NoArgsConstructor
-    @SuppressWarnings("PMD.UnusedPrivateField")
     public static class ConstraintInformation {
         private String name;
         private String path;

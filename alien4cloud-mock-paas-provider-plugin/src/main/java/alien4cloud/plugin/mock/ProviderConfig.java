@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
         "resourceIdsCount", "shuffleStateChange" })
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class ProviderConfig {
 
     private String firstArgument;

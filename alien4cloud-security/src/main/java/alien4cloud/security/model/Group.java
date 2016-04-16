@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @Setter
 @NoArgsConstructor
 @JsonInclude(Include.NON_NULL)
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class Group {
     @Id
     private String id;

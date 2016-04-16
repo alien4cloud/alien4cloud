@@ -10,7 +10,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class SuggestionsTask extends TopologyTask {
     // Array of suggested non abstract node types
     private IndexedNodeType[] suggestedNodeTypes;

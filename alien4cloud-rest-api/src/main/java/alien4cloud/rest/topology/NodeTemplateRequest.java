@@ -16,7 +16,6 @@ import org.hibernate.validator.constraints.NotBlank;
 @Setter
 @ToString
 @NoArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class NodeTemplateRequest {
     /** the name of the node template */
     @NotBlank

@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class TopologyTask extends AbstractTask {
     // Name of the node template that needs to be fixed.
     private String nodeTemplateName;

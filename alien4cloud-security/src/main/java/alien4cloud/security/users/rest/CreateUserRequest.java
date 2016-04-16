@@ -7,7 +7,6 @@ import org.hibernate.validator.constraints.NotBlank;
 
 @Getter
 @Setter
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class CreateUserRequest {
     @NotBlank
     private String username;

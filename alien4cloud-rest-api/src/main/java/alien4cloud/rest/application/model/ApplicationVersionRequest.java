@@ -15,7 +15,6 @@ import io.swagger.annotations.ApiModelProperty;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class ApplicationVersionRequest {
     @ApiModelProperty(required = true)
     private String version;

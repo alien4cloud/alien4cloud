@@ -11,7 +11,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class UpdateDeploymentTopologyRequest {
 
     private Map<String, String> providerDeploymentProperties;

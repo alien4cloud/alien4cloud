@@ -14,7 +14,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class FacetedSearchResult extends GetMultipleDataResult {
     private static final long serialVersionUID = 1L;
 

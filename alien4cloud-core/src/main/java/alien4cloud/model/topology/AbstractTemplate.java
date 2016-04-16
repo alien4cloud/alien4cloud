@@ -29,7 +29,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public abstract class AbstractTemplate {
 
     /**

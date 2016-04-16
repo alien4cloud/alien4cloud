@@ -14,7 +14,6 @@ import alien4cloud.ui.form.annotation.FormProperties;
 @Setter
 @NoArgsConstructor
 @FormProperties({ "firstArgument", "secondArgument", "thirdArgument", "tags", "properties" })
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class ProviderConfig {
 
     private List<Tag> tags;

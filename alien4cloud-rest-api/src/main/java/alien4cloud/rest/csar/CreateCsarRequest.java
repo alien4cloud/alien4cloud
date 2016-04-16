@@ -11,7 +11,6 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class CreateCsarRequest {
 
     private String name;

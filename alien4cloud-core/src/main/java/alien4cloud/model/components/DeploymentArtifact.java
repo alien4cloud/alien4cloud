@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Setter
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class DeploymentArtifact implements IArtifact {
     /** This attribute specifies the type of this artifact. */
     @Getter
