@@ -396,6 +396,7 @@
       "FAILED_TO_READ_FILE" : "Unable to read the file {{note}}",
       "FILE_PATH" : "File path",
       "INVALID_ICON_FORMAT" : "Icon file is not a supported image format.",
+      "INVALID_NODE_TEMPLATE_NAME": "The node template [{{problem}}] as an invalid name, we rename this node to [{{note}}].",
       "INVALID_SCALAR_UNIT" : "Expected type was a TOSCA scalar unit, both unit and value are required.",
       "INVALID_YAML" : "The File does not respect YAML format.",
       "LABEL" : "Errors",

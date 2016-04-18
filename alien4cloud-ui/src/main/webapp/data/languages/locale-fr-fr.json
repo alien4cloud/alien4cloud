@@ -397,6 +397,7 @@
       "FAILED_TO_READ_FILE" : "Impossible de lire le fichier à l'emplacement suivant {{note}}",
       "FILE_PATH" : "Fichier",
       "INVALID_ICON_FORMAT" : "L'icône n'est pas un fichier d'image supporté",
+      "INVALID_NODE_TEMPLATE_NAME": "Le node template [{{problem}}] a un nom invalide, nous l'avons renommé [{{note}}].",
       "INVALID_SCALAR_UNIT" : "Le type attendu est un Tosca scalar unit. L'unité et la valeur sont nécessaire.",
       "INVALID_YAML" : "Le fichier reférencé n'est pas conforme au format YAML.",
       "LABEL" : "Erreurs",

@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
+import alien4cloud.exception.AlreadyExistException;
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Sets;
@@ -76,8 +77,6 @@ public class TopologyServiceCore {
     private ICSARRepositoryIndexerService indexerService;
 
     private static ObjectMapper mapper = new ObjectMapper();
-
-    public static final String NODE_NAME_REGEX = "^\\w+$";
 
     /**
      * The default tosca element finder will search into repo.
@@ -418,7 +417,7 @@ public class TopologyServiceCore {
     }
 
     public TopologyTemplate searchTopologyTemplateByName(String name) {
-        Map<String, String[]> filters = MapUtil.newHashMap(new String[] { "name" }, new String[][] { new String[] { name } });
+        Map<String, String[]> filters = MapUtil.newHashMap(new String[]{"name"}, new String[][]{new String[]{name}});
         GetMultipleDataResult<TopologyTemplate> result = alienDAO.find(TopologyTemplate.class, filters, Integer.MAX_VALUE);
         if (result.getTotalResults() > 0) {
             return result.getData()[0];
@@ -577,7 +576,4 @@ public class TopologyServiceCore {
         indexerService.indexInheritableElement(csar.getName(), csar.getVersion(), topologyTemplateType, inheritanceDependencies);
     }
 
-    public boolean isValidNodeName(String name) {
-        return Pattern.matches(NODE_NAME_REGEX, name);
-    }
 }
