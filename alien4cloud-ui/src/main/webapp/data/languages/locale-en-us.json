@@ -6,7 +6,7 @@
     "DEPLOYMENT" : {
       "DEPLOY" : "Deploy",
       "INPUT" : "Input",
-      "MATCHING" : "Substitution",
+      "MATCHING" : "Matching",
       "PROPERTIES" : {
         "REQUIRED" : "Required",
         "WARNING" : "Warning",
