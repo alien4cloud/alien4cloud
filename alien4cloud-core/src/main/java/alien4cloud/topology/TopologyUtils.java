@@ -352,18 +352,20 @@ public class TopologyUtils {
             for (Map.Entry<String, NodeTemplate> nodeEntry : nodeTemplates.entrySet()) {
                 String nodeName = nodeEntry.getKey();
                 if (!isValidNodeName(nodeName)) {
-                    String newName = nodeName.toString().replaceAll("-", "_").replaceAll("\\.", "_");
+                    String newName = nodeName.toString().replaceAll("-", "_").replaceAll("\\.", "_").replaceAll(" ", "_");
                     newName = StringUtils.stripAccents(newName);
-                    if (nodeTemplates.containsKey(newName)) {
+                    if (topology.getNodeTemplates().containsKey(newName)) {
                         int i = 1;
-                        while (nodeTemplates.containsKey(newName + "_" + i)) {
+                        while (topology.getNodeTemplates().containsKey(newName + i)) {
                             i++;
                         }
-                        newName = newName + "_" + i;
+                        newName = newName + i;
                     }
                     renameNodeTemplate(topology, nodeName, newName);
-                    parsedArchive.getContext().getParsingErrors().add(
-                            new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_NODE_TEMPLATE_NAME, nodeName, null, nodeName, null, newName));
+                    if (parsedArchive != null) {
+                        parsedArchive.getContext().getParsingErrors().add(
+                                new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_NODE_TEMPLATE_NAME, nodeName, null, nodeName, null, newName));
+                    }
                 }
             }
         }
