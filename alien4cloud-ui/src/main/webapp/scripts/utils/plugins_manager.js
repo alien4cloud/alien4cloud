@@ -20,19 +20,24 @@ define(function (require) {
         var entryPoints = [];
         var pluginNames = [];
         var loadedPlugins = 0;
-        _.each(self.plugins, function(value, key){
-          // load the plugins entry points.
-          entryPoints.push(value.entryPoint);
-          pluginNames.push(key);
-          // create plugin sandbox
-          self.sandbox(key, value.entryPoint, function() {
-            loadedPlugins++;
-            if(loadedPlugins === pluginNames.length) {
-              // all plugins are loaded.
-              deferred.resolve(entryPoints, pluginNames);
-            }
+        var pluginCount = _.size(self.plugins);
+        if(pluginCount === 0) {
+          deferred.resolve();
+        } else {
+          _.each(self.plugins, function(value, key){
+            // load the plugins entry points.
+            entryPoints.push(value.entryPoint);
+            pluginNames.push(key);
+            // create plugin sandbox
+            self.sandbox(key, value.entryPoint, function() {
+              loadedPlugins++;
+              if(loadedPlugins === pluginCount) {
+                // all plugins are loaded.
+                deferred.resolve();
+              }
+            });
           });
-        });
+        }
       });
       return deferred;
     },
