@@ -145,7 +145,10 @@ define(function(require) {
 
           // update version
           nodeGroup.select('.version').text(function() {
-            if (_.defined(nodeTemplate.propertiesMap) && _.defined(nodeTemplate.propertiesMap.version)) {
+            if (_.defined(nodeTemplate.propertiesMap) &&
+                _.defined(nodeTemplate.propertiesMap.version) &&
+                _.defined(nodeTemplate.propertiesMap.version.value) &&
+                _.defined(nodeTemplate.propertiesMap.version.value.value)) {
               return 'v' + nodeTemplate.propertiesMap.version.value.value;
             }
           });
