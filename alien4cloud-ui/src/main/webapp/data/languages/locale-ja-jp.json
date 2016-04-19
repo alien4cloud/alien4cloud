@@ -57,7 +57,9 @@
         "APP_NAME" : "アプリケーション名",
         "DEPLOYMENT_ID" : "デプロイID",
         "ORCHESTRATOR_ID" : "Orchestrator ID",
-        "ORCHESTRATOR_NAME" : "Orchestrator name"
+        "ORCHESTRATOR_NAME" : "Orchestrator name",
+        "LOCATION_ID" : "Location ID",
+        "LOCATION_NAME" : "Location name"
       },
       "INSTANCE" : "インスタンス",
       "INSTANCES" : "インスタンス",

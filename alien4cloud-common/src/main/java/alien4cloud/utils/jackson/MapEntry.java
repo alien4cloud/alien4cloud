@@ -14,7 +14,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class MapEntry<T, V> {
     private T key;
     private V value;

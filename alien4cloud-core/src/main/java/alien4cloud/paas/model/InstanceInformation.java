@@ -13,7 +13,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @NoArgsConstructor
 @Getter
 @Setter
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class InstanceInformation {
 
     /**

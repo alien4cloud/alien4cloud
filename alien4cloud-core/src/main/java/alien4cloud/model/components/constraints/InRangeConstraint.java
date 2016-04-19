@@ -18,7 +18,7 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-@SuppressWarnings({ "PMD.UnusedPrivateField", "unchecked", "rawtypes" })
+@SuppressWarnings({ "unchecked", "rawtypes" })
 @EqualsAndHashCode(callSuper = false, of = { "inRange" })
 @FormProperties({ "rangeMinValue", "rangeMaxValue" })
 @Slf4j

@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false, of = { "lessOrEqual" })
-@SuppressWarnings({ "PMD.UnusedPrivateField", "unchecked" })
+@SuppressWarnings({ "unchecked" })
 public class LessOrEqualConstraint extends AbstractComparablePropertyConstraint {
 
     @JsonDeserialize(using = TextDeserializer.class)

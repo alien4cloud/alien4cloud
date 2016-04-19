@@ -11,7 +11,6 @@ import org.hibernate.validator.constraints.NotBlank;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class CreateTopologyTemplateRequest {
     @NotBlank
     private String name;

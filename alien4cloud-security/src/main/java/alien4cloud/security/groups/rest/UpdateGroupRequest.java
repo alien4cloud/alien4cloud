@@ -9,7 +9,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class UpdateGroupRequest {
     private String name;
     private String email;

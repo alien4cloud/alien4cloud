@@ -15,7 +15,6 @@ import io.swagger.annotations.ApiModelProperty;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 @ApiModel("Creation request for a suggestion.")
 public class CreateSuggestionEntryRequest {
 

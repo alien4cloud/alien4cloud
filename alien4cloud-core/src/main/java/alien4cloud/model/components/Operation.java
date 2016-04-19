@@ -24,7 +24,6 @@ import com.google.common.collect.Sets;
 @Getter
 @Setter
 @NoArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 @FormProperties({ "description" })
 public class Operation {
     /** Implementation artifact for the interface. */

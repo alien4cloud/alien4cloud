@@ -18,7 +18,6 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class RecommendationRequest {
     /**
      * The Id of the component to be recommended as default for a capability

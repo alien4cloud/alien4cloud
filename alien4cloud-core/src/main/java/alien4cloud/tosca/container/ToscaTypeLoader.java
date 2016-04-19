@@ -18,7 +18,6 @@ import com.google.common.collect.Sets;
 @Getter
 @Setter
 @Slf4j
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class ToscaTypeLoader {
 
     private Map<CSARDependency, Set<String>> dependenciesMap = Maps.newHashMap();

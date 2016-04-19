@@ -12,7 +12,7 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationExc
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false, of = { "greaterThan" })
-@SuppressWarnings({ "PMD.UnusedPrivateField", "unchecked" })
+@SuppressWarnings({ "unchecked" })
 public class GreaterThanConstraint extends AbstractComparablePropertyConstraint {
     @NotNull
     private String greaterThan;

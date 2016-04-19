@@ -10,7 +10,6 @@ import org.elasticsearch.annotation.ESObject;
 @Setter
 @ESObject
 @ToString(callSuper = true)
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class PaaSDeploymentStatusMonitorEvent extends AbstractMonitorEvent {
     private DeploymentStatus deploymentStatus;
 }

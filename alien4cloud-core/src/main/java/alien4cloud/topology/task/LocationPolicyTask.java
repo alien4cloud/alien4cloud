@@ -14,7 +14,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class LocationPolicyTask extends AbstractTask {
     // Name of the node template that needs to be fixed.
     private String groupName;

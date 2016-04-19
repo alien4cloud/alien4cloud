@@ -11,7 +11,6 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationExc
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false, of = { "length" })
-@SuppressWarnings({ "PMD.UnusedPrivateField" })
 public class LengthConstraint extends AbstractStringPropertyConstraint {
     @NotNull
     private Integer length;

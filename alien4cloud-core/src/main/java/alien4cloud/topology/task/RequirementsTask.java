@@ -11,7 +11,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class RequirementsTask extends TopologyTask {
     // list of requirements for which to satisfy lowerbound
     private List<RequirementToSatisfy> requirementsToImplement;

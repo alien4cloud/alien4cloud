@@ -18,7 +18,6 @@ import alien4cloud.ui.form.annotation.FormPropertyDefinition;
 @NoArgsConstructor
 @FormProperties({ "firstArgument", "secondArgument", "thirdArgument", "withBadConfiguraton", "tags", "properties", "javaVersion", "provideResourceIds",
         "resourceIdsCount", "shuffleStateChange" })
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class ProviderConfig {
 
     private String firstArgument;

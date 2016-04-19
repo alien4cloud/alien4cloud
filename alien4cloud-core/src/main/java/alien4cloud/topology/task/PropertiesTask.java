@@ -12,7 +12,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class PropertiesTask extends TopologyTask {
     // list of required properties not set
     private Map<TaskLevel, List<String>> properties;

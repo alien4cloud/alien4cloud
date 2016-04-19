@@ -9,7 +9,6 @@ import alien4cloud.model.topology.RelationshipTemplate;
 
 @Getter
 @Setter
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class PaaSRelationshipTemplate extends AbstractPaaSTemplate<IndexedRelationshipType, RelationshipTemplate> {
     private String source;
     private Path csarPath;

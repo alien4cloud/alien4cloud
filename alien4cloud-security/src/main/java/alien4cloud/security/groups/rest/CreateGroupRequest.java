@@ -11,7 +11,6 @@ import org.hibernate.validator.constraints.NotBlank;
 @Getter
 @Setter
 @NoArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class CreateGroupRequest {
 
     @NotBlank

@@ -18,7 +18,6 @@ import org.hibernate.validator.constraints.NotBlank;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class NodeOperationExecRequest {
     @NotBlank
     String nodeTemplateName;

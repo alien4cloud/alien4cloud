@@ -45,7 +45,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @ESObject
 @Getter
 @Setter
-@SuppressWarnings("PMD.UnusedPrivateField")
 @JsonInclude(Include.NON_NULL)
 @ESAll(analyser = "simple")
 public class Application implements ISecuredResource, IDeploymentSource, ITaggableResource, IMetaProperties {

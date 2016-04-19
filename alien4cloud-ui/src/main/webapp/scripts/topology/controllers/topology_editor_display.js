@@ -7,6 +7,8 @@ define(function (require) {
   var $ = require('jquery');
   var _ = require('lodash');
 
+  require('scripts/common/services/resize_services');
+
   modules.get('a4c-topology-editor').factory('topoEditDisplay', [ 'resizeServices',
     function(resizeServices) {
       var TopologyEditorMixin = function(scope) {
@@ -19,27 +21,36 @@ define(function (require) {
         init: function() {
           this.scope.view = 'RENDERED';
 
-          this.scope.isNodeTemplateCollapsed = false;
-          this.scope.isPropertiesCollapsed = false;
-          this.scope.isRelationshipsCollapsed = false;
-          this.scope.isRelationshipCollapsed = false;
-          this.scope.isArtifactsCollapsed = false;
-          this.scope.isArtifactCollapsed = false;
-          this.scope.isRequirementsCollapsed = false;
-          this.scope.isCapabilitiesCollapsed = false;
+          if(this.scope.isRuntime) {
+            this.scope.displays = {
+              details: { active: true, size: 500, selector: '#runtime-details-box' },
+              events: { active: false, size: 500, selector: '#runtime-events-box' },
+              workflows: { active: false, size: 400, selector: '#workflows-box' }
+            };
+          } else {
+            this.scope.isNodeTemplateCollapsed = false;
+            this.scope.isPropertiesCollapsed = false;
+            this.scope.isRelationshipsCollapsed = false;
+            this.scope.isRelationshipCollapsed = false;
+            this.scope.isArtifactsCollapsed = false;
+            this.scope.isArtifactCollapsed = false;
+            this.scope.isRequirementsCollapsed = false;
+            this.scope.isCapabilitiesCollapsed = false;
+
+            this.scope.displays = {
+              catalog: { active: true, size: 500, selector: '#catalog-box' },
+              dependencies: { active: false, size: 400, selector: '#dependencies-box' },
+              inputs: { active: false, size: 400, selector: '#inputs-box' },
+              artifacts: { active: false, size: 400, selector: '#artifacts-box' },
+              groups: { active: false, size: 400, selector: '#groups-box' },
+              substitutions: { active: false, size: 400, selector: '#substitutions-box' },
+              component: { active: false, size: 500, selector: '#nodetemplate-box' },
+              workflows: { active: false, size: 400, selector: '#workflows-box' }
+            };
+          }
 
           // default values that are going to be refreshed automatically
           this.scope.dimensions = { width: 800, height: 600 };
-
-          this.scope.displays = {
-            catalog: { active: true, size: 500, selector: '#catalog-box' },
-            dependencies: { active: false, size: 400, selector: '#dependencies-box' },
-            inputs: { active: false, size: 400, selector: '#inputs-box' },
-            artifacts: { active: false, size: 400 },
-            groups: { active: false, size: 400 },
-            substitutions: { active: false, size: 400 },
-            component: { active: false, size: 500, selector: '#nodetemplate-details' }
-          };
 
           var self = this;
           // Size management
@@ -100,11 +111,12 @@ define(function (require) {
           }
         },
         toggle: function(displayName) {
-          var beforeComponentActive = this.scope.displays.component.active;
+          var beforeComponentActive = this.scope.isRuntime ? false : this.scope.displays.component.active;
           this.scope.displays[displayName].active = !this.scope.displays[displayName].active;
           // Specific rules for displays which are logically linked
           if (this.scope.displays[displayName].active) {
             switch (displayName) {
+              // rules for editor view
               case 'catalog':
                 this.displayOnly(['topology', 'catalog']);
                 break;
@@ -145,6 +157,16 @@ define(function (require) {
                 } else {
                   this.displayOnly(['topology', 'component', 'substitutions']);
                 }
+                break;
+              // rules for runtime view
+              case 'details':
+                this.displayOnly(['topology', 'details']);
+                break;
+              case 'events':
+                this.displayOnly(['topology', 'events']);
+                break;
+              case 'workflows':
+                this.displayOnly(['workflows']);
                 break;
             }
           }

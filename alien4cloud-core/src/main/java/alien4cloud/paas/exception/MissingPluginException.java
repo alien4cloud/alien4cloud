@@ -10,7 +10,6 @@ public class MissingPluginException extends TechnicalException {
     private static final long serialVersionUID = 1L;
     /** If true this means that the plugin has been found but the plugin bean hasn't been found. If false the plugin has not been found. */
     @Getter
-    @SuppressWarnings("PMD.UnusedPrivateField")
     private boolean missingBean;
 
     /**

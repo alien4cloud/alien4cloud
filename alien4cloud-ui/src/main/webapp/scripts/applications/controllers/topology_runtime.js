@@ -5,14 +5,17 @@ define(function (require) {
   var states = require('states');
   var _ = require('lodash');
   var angular = require('angular');
-
   require('d3');
+
+  require('scripts/common/services/resize_services');
+
+  require('scripts/topology/controllers/topology_editor_display');
   require('scripts/topology/controllers/topology_editor_workflows');
   require('scripts/topology/directives/workflow_rendering');
 
   states.state('applications.detail.runtime.topology', {
     url: '/runtime/topology',
-    templateUrl: 'views/applications/topology_runtime.html',
+    templateUrl: 'views/topology/topology_runtime.html',
     controller: 'TopologyRuntimeCtrl',
     menu: {
       id: 'am.applications.detail.runtime.topology',
@@ -26,9 +29,42 @@ define(function (require) {
   states.forward('applications.detail.runtime', 'applications.detail.runtime.topology');
 
   modules.get('a4c-applications').controller('TopologyRuntimeCtrl',
-    ['$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'orchestratorService', 'appEnvironments', '$interval', 'toscaService', 'topologyJsonProcessor', 'topoEditWf',
-    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServicesFactory, $state, propertiesServices, toaster, orchestratorService, appEnvironments, $interval, toscaService, topologyJsonProcessor, topoEditWf) {
+    ['$scope',
+    'applicationServices',
+    '$translate',
+    'deploymentServices',
+    'applicationEventServicesFactory',
+    '$state',
+    'propertiesServices',
+    'toaster',
+    'orchestratorService',
+    'locationService',
+    'appEnvironments',
+    '$interval',
+    'toscaService',
+    'topologyJsonProcessor',
+    'topoEditWf',
+    'topoEditDisplay',
+    function($scope,
+      applicationServices,
+      $translate,
+      deploymentServices,
+      applicationEventServicesFactory,
+      $state,
+      propertiesServices,
+      toaster,
+      orchestratorService,
+      locationService,
+      appEnvironments,
+      $interval,
+      toscaService,
+      topologyJsonProcessor,
+      topoEditWf,
+      topoEditDisplay) {
+      $scope.isRuntime = true;
+
       topoEditWf($scope);
+      topoEditDisplay($scope);
 
       var pageStateId = $state.current.name;
       var applicationId = $state.params.id;
@@ -56,6 +92,12 @@ define(function (require) {
 
       // get the related cloud to display informations.
       var refreshOrchestratorInfo = function() {
+        locationService.get({
+          orchestratorId: $scope.topology.topology.orchestratorId,
+          locationId: $scope.topology.topology.locationGroups._A4C_ALL.policies[0].locationId
+        }, function(response) {
+          $scope.location = response.data.location;
+        });
         orchestratorService.get({
           orchestratorId: $scope.topology.topology.orchestratorId
         }, function(response) {
@@ -87,31 +129,6 @@ define(function (require) {
       $scope.filterEvents = function(filter) {
         $scope.selectedEventTypeFilter = filter;
       };
-
-      // Layout resize
-      var borderSpacing = 10;
-      var border = 2;
-      var detailDivWidth = 450;
-      var widthOffset = detailDivWidth + (3 * borderSpacing) + (2 * border);
-
-      function onResize(width, height) {
-        $scope.dimensions = {
-          width: width,
-          height: height
-        };
-        $scope.visualDimensions = $scope.dimensions;
-        $scope.eventsDivHeight = resizeServices.getHeight(236);
-      }
-
-      resizeServices.register(onResize, widthOffset, 124);
-
-      $scope.dimensions = {
-        height: resizeServices.getHeight(124),
-        width: resizeServices.getWidth(widthOffset)
-      };
-      $scope.visualDimensions = $scope.dimensions;
-      $scope.eventsDivHeight = resizeServices.getHeight(236);
-      // End Layout resize
 
       var applicationEventServices = null;
 
@@ -387,8 +404,8 @@ define(function (require) {
         }
         refreshSelectedNodeInstancesCount();
         $scope.clearInstanceSelection();
+        $scope.display.set('details', true);
         $scope.$apply();
-        document.getElementById('details-tab').click();
       };
 
       $scope.selectInstance = function(id) {

@@ -17,7 +17,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @Getter
 @Setter
 @NoArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 @ToscaPropertyDefaultValueType
 @ToscaPropertyConstraint
 @ToscaPropertyDefaultValueConstraints(groups = { ToscaPropertyPostValidationGroup.class })

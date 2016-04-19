@@ -12,7 +12,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 @ApiModel("Result for a request for specific plugin components.")
 public class PluginComponentDTO {
     @ApiModelProperty(value = "Id of the plugin that contains the component.")

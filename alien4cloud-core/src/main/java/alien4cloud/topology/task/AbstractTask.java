@@ -16,7 +16,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public abstract class AbstractTask {
     // task code
     private TaskCode code;

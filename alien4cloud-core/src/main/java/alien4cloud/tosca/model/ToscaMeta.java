@@ -14,7 +14,6 @@ import alien4cloud.model.components.CSARDependency;
  */
 @Getter
 @Setter
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class ToscaMeta {
     @NotNull
     private String name;

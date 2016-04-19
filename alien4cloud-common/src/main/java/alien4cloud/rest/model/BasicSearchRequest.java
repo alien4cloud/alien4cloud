@@ -17,7 +17,6 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class BasicSearchRequest {
     /* The component type to query */
     private String query;

@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @Getter
 @Setter
-@SuppressWarnings("PMD.UnusedPrivateField")
 @JsonInclude(Include.NON_NULL)
 public class IndexedArtifactToscaElement extends IndexedInheritableToscaElement {
     @FetchContext(contexts = { SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })

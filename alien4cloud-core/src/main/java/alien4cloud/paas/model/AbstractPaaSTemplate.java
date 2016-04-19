@@ -12,7 +12,6 @@ import alien4cloud.paas.IPaaSTemplate;
 
 @Getter
 @Setter
-@SuppressWarnings("PMD.UnusedPrivateField")
 public abstract class AbstractPaaSTemplate<V extends IndexedToscaElement, T extends AbstractTemplate> implements IPaaSTemplate<V> {
 
     /** The unique id for the template within the topology. */

@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  */
 @Getter
 @Setter
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class Capability {
     /**
      * The QName value of this attribute refers to the Capability Type definition of the Capability. This Capability Type denotes the semantics and well as

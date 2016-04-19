@@ -1,31 +1,45 @@
-<div>
-  <div class="row">
-    <div class="col-md-7 col-lg-8">
-      <div class="well topology" ng-init="visual = false;">
+<div id="topology-editor" class="topology-editor" style="height: {{dimensions.height}}px; width: {{dimensions.width}}px;">
+  <div class="topology-row" style="height: {{dimensions.height}}px;">
+    <!-- TOPOLOGY display -->
+    <div id="topology" class="topology-column">
+      <div class="topology topology-column-box">
         <div class="btn-toolbar">
           <div class="btn-group">
-            <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; ">{{'APPLICATIONS.TOPOLOGY.VISUAL_DETAILED' | translate}}</a>
-            <a class="btn btn-default btn-xs" ng-click="view = 'PLAN'" id="btn-run-topology-plan">{{'APPLICATIONS.TOPOLOGY.PLAN' | translate}}</a>
+            <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; display.set('details', true)">{{'APPLICATIONS.TOPOLOGY.VISUAL_DETAILED' | translate}}</a>
+            <a class="btn btn-default btn-xs" ng-click="view = 'PLAN'; display.set('workflows', true)" id="btn-app-topology-plan">{{'APPLICATIONS.TOPOLOGY.PLAN' | translate}}</a>
+            <!--  Environment list -->
+            <ui-select id="env-version-select" ng-model="selectedEnvironment" theme="bootstrap"
+              append-to-body="true"  on-select="changeEnvironment()"
+              ng-options="environment.name for environment in runtimeEnvironments | filter:{status: '!UNDEPLOYED'}">
+              <ui-select-match placeholder="Select or search an environment...">{{$select.selected.name | limitTo: 20}}{{$select.selected.name.length > 20 ? '...' : ''}}</ui-select-match>
+              <ui-select-choices repeat="environment in runtimeEnvironments | filter: {status: '!UNDEPLOYED', name: $select.search}">
+                <span ng-bind-html="environment.name | limitTo: 20 | highlight: $select.search"></span>
+                {{environment.name > 20 ? '...' : ''}}
+              </ui-select-choices>
+            </ui-select>
           </div>
         </div>
-        <topology-rendering ng-if="view === 'RENDERED' && topology" topology="topology" dimensions="dimensions"
+        <topology-rendering ng-if="view === 'RENDERED' && topology" topology="topology" dimensions="visualDimensions"
           trigger-refresh="triggerTopologyRefresh"
           select-callback="selectNodeTemplate(newSelectedName, oldSelectedName)" runtime="true">
         </topology-rendering>
         <topology-plan ng-if="view === 'PLAN' && topology" id="plan-graph-container"></topology-plan>
       </div>
     </div>
-    <div class="col-md-5 col-lg-4">
-      <!--  Environment list -->
-      <select id="app-environment-select" ng-model="selectedEnvironment" class="form-control " ng-options="environment.name for environment in runtimeEnvironments | filter:{status: '!UNDEPLOYED'}"
-              ng-change="changeEnvironment()">
-      </select>
-      <div ng-if="view === 'RENDERED'">
-      <tabset>
-        <tab>
-          <tab-heading id="details-tab">
-            <i class="fa fa-info"></i>  {{'DETAILS' | translate}}
-          </tab-heading>
+    <div id="runtime-details-box" ng-show="view === 'RENDERED' && displays.details.active" class="topology-column" style="width: {{displays.details.size}}px;">
+      <div class="topology-column-box">
+        <div class="topology-column-menu">
+          <i id="runtime-details-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
+        </div>
+        <div class="topology-column-content">
+          <div class="topology-column-content-head">
+            <span>
+              <i class="fa fa-info"></i> {{'DETAILS' | translate}}
+            </span>
+            <span id='closeDetails' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.set('details', false)">
+              <i class="fa fa-remove close-panel"></i>
+            </span>
+          </div>
           <!-- Main -->
           <div ng-show="!selectedNodeTemplate">
             <div class="row">
@@ -60,19 +74,32 @@
                       </td>
                     </tr>
                     <tr>
+                      <td class="col-md-4"><strong>{{'APPLICATIONS.ENVIRONMENT.ENV' | translate}}</strong></td>
+                      <td class="col-md-8" colspan="2">{{selectedEnvironment.name}}</td>
+                    </tr>
+                    <tr>
+                      <td class="col-md-4"><strong>{{'APPLICATIONS.VERSION.VERSION' | translate}}</strong></td>
+                      <td class="col-md-8" colspan="2">{{selectedEnvironment.currentVersionName}}</td>
+                    </tr>
+                    <tr>
                       <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.DEPLOYMENT_ID' | translate}}</strong></td>
-                      <td class="col-md-7">{{topology.topology.id}}</td>
-                      <td class="col-md-1"></td>
+                      <td class="col-md-8" colspan="2">{{topology.topology.id}}</td>
                     </tr>
                     <tr>
                       <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.ORCHESTRATOR_NAME' | translate}}</strong></td>
-                      <td class="col-md-7">{{orchestrator.name}}</td>
-                      <td class="col-md-1"></td>
+                      <td class="col-md-8" colspan="2">{{orchestrator.name}}</td>
                     </tr>
                     <tr>
                       <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.ORCHESTRATOR_ID' | translate}}</strong></td>
-                      <td class="col-md-7">{{orchestrator.id}}</td>
-                      <td class="col-md-1"></td>
+                      <td class="col-md-8" colspan="2">{{orchestrator.id}}</td>
+                    </tr>
+                    <tr>
+                      <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.LOCATION_NAME' | translate}}</strong></td>
+                      <td class="col-md-8" colspan="2">{{location.name}}</td>
+                    </tr>
+                    <tr>
+                      <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.LOCATION_ID' | translate}}</strong></td>
+                      <td class="col-md-8" colspan="2">{{location.id}}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -325,20 +352,28 @@
               </div>
             </div>
           </div>
-
-        </tab>
-
-        <!-- events -->
-        <tab>
-          <tab-heading id="events-tab">
-            <i class="fa fa-tasks"></i> {{'APPLICATIONS.RUNTIME.EVENTS_TAB' | translate}}
-          </tab-heading>
+        </div>
+      </div>
+    </div>
+    <div id="runtime-events-box" ng-show="view === 'RENDERED' && displays.events.active" class="topology-column" style="width: {{displays.events.size}}px;">
+      <div class="topology-column-box">
+        <div class="topology-column-menu">
+          <i id="runtime-events-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
+        </div>
+        <div class="topology-column-content">
+          <div class="topology-column-content-head">
+            <span>
+              <i class="fa fa-tasks"></i> {{'APPLICATIONS.RUNTIME.EVENTS_TAB' | translate}}
+            </span>
+            <span id='closeEvents' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.set('events', false)">
+              <i class="fa fa-remove close-panel"></i>
+            </span>
+          </div>
           <div>
             <div class="row form-horizontal">
               <div class="col-md-12">
                 <div class="form-group">
                   <label class="col-md-2 control-label">{{'COMMON.TYPE' | translate}}</label>
-
                   <div class="col-md-10">
                     <div class="btn-group">
                       <button id="eventTypeSelection" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
@@ -368,8 +403,7 @@
                     </thead>
                     <tbody>
                       <tr ng-repeat="event in events.data | orderBy:'date':true" ng-if="selectedEventTypeFilter.value === 'ALL' || eventTypeLabels[selectedEventTypeFilter.value] === event.type">
-                        <td><span class="badge badge-default">{{event.date | date:'d/M/yy H:mm'}}</span>
-                        </td>
+                        <td>{{event.date | date:'d/M/yy H:mm:ss'}}</td>
                         <td>{{event.type | translate }}</td>
                         <td>{{event.message.template | translate:event.message.data }}</td>
                       </tr>
@@ -379,27 +413,53 @@
               </div>
             </div>
           </div>
-        </tab>
-      </tabset>
+        </div>
       </div>
-      <div ng-if="view === 'PLAN'">
-		    <div class="well">
-	        <div class="row">
-	          <div class="col-md-8">
-			        <select name="wf-select" id="wf-select" ng-model="currentWorkflowName" ng-change="workflows.setCurrentWorkflowName(currentWorkflowName)">
-			          <option ng-repeat="w in topology.topology.workflows" value="{{w.name}}" ng-selected="w.name === currentWorkflowName">{{w.name}}</option>
-			        </select>
-	          </div>
-	          <div class="col-md-4">
-			        <button id="btn-deploy" type="button" class="btn btn-success application-deploy-button"
-			           ng-click="launchWorkflow()"
-			           ng-disabled="topology.topology.workflows[currentWorkflowName].standard || isLaunchingWorkflow" >
-			          <i class="fa" ng-class="{'fa-play': !isLaunchingWorkflow, 'fa-spinner fa-spin': isLaunchingWorkflow}"></i> {{'APPLICATIONS.WF.launch' | translate}}
-			        </button>
-	          </div>
-	        </div>
-		    </div>
+    </div>
+    <div id="workflows-box" ng-show="view === 'PLAN'" class="topology-column ui-resizable" style="width: {{displays.workflows.size}}px;">
+      <div class="topology-column-box">
+        <div class="topology-column-menu">
+          <i id="workflows-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
+        </div>
+        <div class="topology-column-content">
+          <div class="topology-column-content-head">
+            <span>
+              <i class="fa fa-power-off"></i> {{'APPLICATIONS.WF.title' | translate}}
+            </span>
+          </div>
+          <div class="well wfbox">
+            <div class="row">
+  	          <div class="col-md-8">
+  			        <select name="wf-select" id="wf-select" ng-model="currentWorkflowName" ng-change="workflows.setCurrentWorkflowName(currentWorkflowName)">
+  			          <option ng-repeat="w in topology.topology.workflows" value="{{w.name}}" ng-selected="w.name === currentWorkflowName">{{w.name}}</option>
+  			        </select>
+  	          </div>
+  	          <div class="col-md-4">
+  			        <button id="btn-deploy" type="button" class="btn btn-success application-deploy-button"
+  			           ng-click="launchWorkflow()"
+  			           ng-disabled="topology.topology.workflows[currentWorkflowName].standard || isLaunchingWorkflow" >
+  			          <i class="fa" ng-class="{'fa-play': !isLaunchingWorkflow, 'fa-spinner fa-spin': isLaunchingWorkflow}"></i> {{'APPLICATIONS.WF.launch' | translate}}
+  			        </button>
+  	          </div>
+  	        </div>
+          </div>
+        </div>
       </div>
+    </div>
+    <!-- Right vertical menu -->
+    <div id="topology-vertical-menu" class="topology-column">
+      <ul>
+        <li ng-show="view === 'RENDERED' && !displays.details.active">
+          <span id="topology-components-search" ng-click="display.toggle('details')">
+            <i class="fa fa-info"></i> {{'DETAILS' | translate}}
+          </span>
+        </li>
+        <li ng-show="view === 'RENDERED' && !displays.events.active">
+          <span id="topology-dependencies" ng-click="display.toggle('events')">
+            <i class="fa fa-tasks"></i> {{'APPLICATIONS.RUNTIME.EVENTS_TAB' | translate}}
+          </span>
+        </li>
+      </ul>
     </div>
   </div>
 </div>
