@@ -5,9 +5,9 @@
       <div class="topology topology-column-box" alien-droppable drag-data="" drag-on-drop="nodes.onDragged(data)" ng-init="visual = true;">
         <div class="btn-toolbar">
           <div class="btn-group">
-            <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED';">{{'APPLICATIONS.TOPOLOGY.VISUAL_DETAILED' | translate}}</a>
+            <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; display.set('catalog', true)">{{'APPLICATIONS.TOPOLOGY.VISUAL_DETAILED' | translate}}</a>
             <a class="btn btn-default btn-xs" ng-click="yaml.display()">{{'APPLICATIONS.TOPOLOGY.YAML' | translate}}</a>
-            <a class="btn btn-default btn-xs" ng-click="view = 'PLAN'" id="btn-app-topology-plan">{{'APPLICATIONS.TOPOLOGY.PLAN' | translate}}</a>
+            <a class="btn btn-default btn-xs" ng-click="view = 'PLAN'; display.set('workflows', true)" id="btn-app-topology-plan">{{'APPLICATIONS.TOPOLOGY.PLAN' | translate}}</a>
             <ui-select id="env-version-select" ng-if="appVersions != null" ng-model="selectedVersion" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="versions.change(selectedVersion, appVersions)" reset-search-input="true" close-on-select="true">
               <ui-select-match placeholder="Select or search a version...">{{$select.selected.version | limitTo: 20}}{{$select.selected.version.length > 20 ? '...' : ''}}</ui-select-match>
               <ui-select-choices repeat="appVersion in appVersions | filter: $select.search">
@@ -930,7 +930,7 @@
     </div>
 
     <!-- Workflows -->
-    <div id="workflows-box" ng-show="view === 'PLAN'" class="topology-column ui-resizable" style="width: {{displays.substitutions.size}}px;">
+    <div id="workflows-box" ng-show="view === 'PLAN'" class="topology-column ui-resizable" style="width: {{displays.workflows.size}}px;">
       <div class="topology-column-box">
         <div class="topology-column-menu">
           <i id="workflows-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>

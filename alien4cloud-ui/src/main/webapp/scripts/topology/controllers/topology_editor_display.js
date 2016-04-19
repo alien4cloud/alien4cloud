@@ -44,7 +44,8 @@ define(function (require) {
               artifacts: { active: false, size: 400, selector: '#artifacts-box' },
               groups: { active: false, size: 400, selector: '#groups-box' },
               substitutions: { active: false, size: 400, selector: '#substitutions-box' },
-              component: { active: false, size: 500, selector: '#nodetemplate-box' }
+              component: { active: false, size: 500, selector: '#nodetemplate-box' },
+              workflows: { active: false, size: 400, selector: '#workflows-box' }
             };
           }
 
@@ -163,6 +164,9 @@ define(function (require) {
                 break;
               case 'events':
                 this.displayOnly(['topology', 'events']);
+                break;
+              case 'workflows':
+                this.displayOnly(['workflows']);
                 break;
             }
           }

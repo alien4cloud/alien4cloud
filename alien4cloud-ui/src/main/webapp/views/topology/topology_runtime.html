@@ -5,8 +5,8 @@
       <div class="topology topology-column-box">
         <div class="btn-toolbar">
           <div class="btn-group">
-            <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED';">{{'APPLICATIONS.TOPOLOGY.VISUAL_DETAILED' | translate}}</a>
-            <a class="btn btn-default btn-xs" ng-click="view = 'PLAN'" id="btn-app-topology-plan">{{'APPLICATIONS.TOPOLOGY.PLAN' | translate}}</a>
+            <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; display.set('details', true)">{{'APPLICATIONS.TOPOLOGY.VISUAL_DETAILED' | translate}}</a>
+            <a class="btn btn-default btn-xs" ng-click="view = 'PLAN'; display.set('workflows', true)" id="btn-app-topology-plan">{{'APPLICATIONS.TOPOLOGY.PLAN' | translate}}</a>
             <!--  Environment list -->
             <ui-select id="env-version-select" ng-model="selectedEnvironment" theme="bootstrap"
               append-to-body="true"  on-select="changeEnvironment()"
