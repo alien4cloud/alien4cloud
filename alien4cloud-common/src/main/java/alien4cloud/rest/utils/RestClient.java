@@ -5,9 +5,10 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-
+import java.util.Map;
+import java.util.Map.Entry;
 import lombok.extern.slf4j.Slf4j;
-
+import org.apache.commons.collections4.MapUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -84,6 +85,22 @@ public class RestClient {
         HttpPost httpPost = new HttpPost(applicationUrl + path);
         MultipartEntityBuilder mpBuilder = MultipartEntityBuilder.create();
         mpBuilder.addPart("file", new InputStreamBody(data, fileName));
+        httpPost.setEntity(mpBuilder.build());
+        CloseableHttpResponse response = httpClient.execute(httpPost);
+        return ResponseUtil.toString(response);
+    }
+
+    public String postMultipart(String path, String fileName, InputStream data, Map<String, String> otherStringParts) throws IOException {
+        log.debug("Send post multipart request to [" + path + "], file [" + fileName + "], with json data: " + otherStringParts);
+        HttpPost httpPost = new HttpPost(applicationUrl + path);
+        MultipartEntityBuilder mpBuilder = MultipartEntityBuilder.create();
+        mpBuilder.addPart("file", new InputStreamBody(data, fileName));
+        // mpBuilder.addPart("", contentBody);
+        if (MapUtils.isNotEmpty(otherStringParts)) {
+            for (Entry<String, String> entry : otherStringParts.entrySet()) {
+                mpBuilder.addTextBody(entry.getKey(), entry.getValue());
+            }
+        }
         httpPost.setEntity(mpBuilder.build());
         CloseableHttpResponse response = httpClient.execute(httpPost);
         return ResponseUtil.toString(response);

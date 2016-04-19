@@ -47,6 +47,15 @@ public class OrchestratorsConfigurationDefinitionsSteps {
 
     }
 
+    @When("^I update orchestrator \"([^\"]*)\"'s configuration property \"([^\"]*)\" to \"([^\"]*)\"$")
+    public void I_update_orchestrator_configuration_property_to(String orchestratorName, String configurationProperty, String value) throws Throwable {
+        String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
+        Map<String, Object> config = Context.getInstance().getOrchestratorConfiguration();
+        config.put(configurationProperty, value);
+        String restResponse = Context.getRestClientInstance().putJSon("/rest/v1/orchestrators/" + orchestratorId + "/configuration", JsonUtil.toString(config));
+        Context.getInstance().registerRestResponse(restResponse);
+    }
+
     @Given("^I update \"(.*?)\" location import param for orchestrator with name \"(.*?)\" using \"(.*?)\"$")
     public void i_update_import_param_for_orchestrator_with_name_using(String infraType, String orchestratorName, String importsCsv) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
