@@ -102,6 +102,7 @@
         "ADD" : "Ajouter aux Propriétés d'entrée",
         "CONSTRAINT" : "Contrainte"
       },
+      "INVALID_NODE_NAME" : "Nom invalide.",
       "LOCATION_UNAUTHORIZED_MESSAGE" : "Vous n'avez plus l'authorisation de déployer sur la location précédament selectionnée pour cet environement (location: <{{locationName}}>, orchestrateur: <{{orchestratorName}}>). \n Veuillez contacter votre administrateur.",
       "NODE_INFO" : "Noeud sélectionné",
       "NO_OUTPUTS" : "Aucune propriété ou attribut en sortie",
@@ -398,6 +399,7 @@
       "FAILED_TO_READ_FILE" : "Impossible de lire le fichier à l'emplacement suivant {{note}}",
       "FILE_PATH" : "Fichier",
       "INVALID_ICON_FORMAT" : "L'icône n'est pas un fichier d'image supporté",
+      "INVALID_NODE_TEMPLATE_NAME": "Le node template [{{problem}}] a un nom invalide, nous l'avons renommé [{{note}}].",
       "INVALID_SCALAR_UNIT" : "Le type attendu est un Tosca scalar unit. L'unité et la valeur sont nécessaire.",
       "INVALID_YAML" : "Le fichier reférencé n'est pas conforme au format YAML.",
       "LABEL" : "Erreurs",
@@ -577,6 +579,7 @@
     "615" : "Le repository Git n'existe pas ou n'est pas valide.",
     "616" : "Vous n'êtes pas autorisé à cloner ce dépôt Git. Veuillez vérifier vos identifiants.",
     "617" : "Aucune modification a été détecté depuis le dernier import, celui-ci n'a pas été réalisé.",
+    "618" : "Le nom d'un node ne doit contenir que des caractères alpha-numérique de l'alphabet latin classique et le underscrore.",
     "650" : "Au moins deux de vos Compute ont un conflit de nom.",
     "651" : "Un BlockStorage ne peut pas avoir un volumeId lorsque le cloud a l'option 'deletable' d'activée.",
     "800" : {

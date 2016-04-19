@@ -14,7 +14,7 @@ topology_template:
     my_war_file:
       type: alien.artifacts.WarFile
   node_templates:
-    Compute-2:
+    compute_2:
       type: tosca.nodes.Compute
       properties:
         os_arch: x86_64
@@ -36,13 +36,13 @@ topology_template:
         war_file:
           type: alien.artifacts.WarFile
           implementation: { get_input_artifact: my_war_file }
-    Tomcat-2:
+    Tomcat_2:
       type: alien.nodes.cloudify.Tomcat
       properties:
         version: 7.0.23
       requirements:
         - host:
-            node: Compute-2
+            node: compute_2
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
       capabilities:
@@ -63,13 +63,13 @@ topology_template:
           implementation: scripts
           type: tosca.artifacts.File
           description: scripts
-    War-2:
+    War_2:
       type: alien.nodes.cloudify.War
       properties:
         contextPath: /myapp2
       requirements:
         - host:
-            node: Tomcat-2
+            node: Tomcat_2
             capability: alien.capabilities.WarHosting
             relationship: alien.relationships.cloudify.WarHostedOnTomcat
       artifacts:

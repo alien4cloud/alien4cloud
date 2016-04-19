@@ -43,6 +43,22 @@ Feature: Manage Nodetemplates of a topology
     Then I should receive a RestResponse with no error
     And The topology should contain a nodetemplate named "Template2"
 
+  Scenario: Update a nodetemplate's name from a topology with a new name with an accent should failed
+    Given I have added a node template "Template1" related to the "tosca.nodes.Compute:1.0" node type
+    When I update the node template's name from "Template1" to "Templateé"
+    Then I should receive a RestResponse with an error code 618
+    When I try to retrieve the created topology
+    Then I should receive a RestResponse with no error
+    And The topology should contain a nodetemplate named "Template1"
+
+  Scenario: Update a nodetemplate's name from a topology with a new name with a dash should failed
+    Given I have added a node template "Template1" related to the "tosca.nodes.Compute:1.0" node type
+    When I update the node template's name from "Template1" to "Template-"
+    Then I should receive a RestResponse with an error code 618
+    When I try to retrieve the created topology
+    Then I should receive a RestResponse with no error
+    And The topology should contain a nodetemplate named "Template1"
+
   Scenario: Update a nodetemplate's property from a topology
     Given I have added a node template "Template1" related to the "tosca.nodes.Compute:1.0" node type
     When I update the node template "Template1"'s property "disk_size" to "1024 B"

@@ -68,14 +68,14 @@ describe('Topology node groups', function() {
       compute: componentData.toscaBaseTypes.compute()
     });
     // and another group
-    topologyEditorCommon.addNodeTemplateToNodeGroup('Compute-2');
+    topologyEditorCommon.addNodeTemplateToNodeGroup('Compute_2');
     // close the node details box
     element(by.id('closeNodeTemplateDetails')).click();
 
     // show the groups box
     element(by.id('topology-groups')).element(by.xpath('..')).click();
     // rename the group
-    var xeditable = element(by.id('nodeGroupName_Compute-2'));
+    var xeditable = element(by.id('nodeGroupName_Compute_2'));
     xeditable.click();
     var form = xeditable.element(by.xpath('..')).element(by.tagName('form'));
     var input = form.element(by.tagName('input'));
@@ -123,8 +123,8 @@ describe('Topology node groups', function() {
       expect(element(by.id('group-members-MyGroup-content')).all(by.repeater('member in group.members')).count()).toEqual(2);
       element(by.id('group-members-MyGroup-content')).all(by.repeater('member in group.members')).then(function(members) {
         // It's a test one of as order is not respected
-        expectMemberName(members[0], 'Compute-2', 'Compute');
-        expectMemberName(members[1], 'Compute-2', 'Compute');
+        expectMemberName(members[0], 'Compute_2', 'Compute');
+        expectMemberName(members[1], 'Compute_2', 'Compute');
         // delete the member 'Compute'
         expect(members[1].element(by.tagName('a')).isDisplayed()).toBeTruthy();
         members[1].element(by.tagName('a')).click();
@@ -162,8 +162,8 @@ describe('Topology node groups', function() {
     // close the groups panel
     element(by.id('closeGroups')).click();
 
-    // click on the node 'Compute-2'
-    element(by.id('rect_Compute-2')).click();
+    // click on the node 'Compute_2'
+    element(by.id('rect_Compute_2')).click();
     // expect to have 0 groups now
     expect(element.all(by.repeater('groupId in selectedNodeTemplate.groups')).count()).toEqual(0);
     // the 'group' block should disappear
