@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 import javax.annotation.Resource;
 
 import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.InvalidNodeNameException;
 import alien4cloud.model.topology.*;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import lombok.SneakyThrows;
@@ -24,6 +23,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.mapping.FilterValuesStrategy;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.application.ApplicationService;
@@ -282,30 +282,6 @@ public class TopologyService {
         checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS);
     }
 
-    private String toLowerCase(String text) {
-        return text.substring(0, 1).toLowerCase() + text.substring(1);
-    }
-
-    private String toUpperCase(String text) {
-        return text.substring(0, 1).toUpperCase() + text.substring(1);
-    }
-
-    /**
-     * Construct a relationship name from target and relationship type.
-     *
-     * @param type type of the relationship
-     * @param targetName name of the target
-     * @return the default constructed name
-     */
-    public String getRelationShipName(String type, String targetName) {
-        String[] tokens = type.split("\\.");
-        if (tokens.length > 1) {
-            return toLowerCase(tokens[tokens.length - 1]) + toUpperCase(targetName);
-        } else {
-            return toLowerCase(type) + toUpperCase(targetName);
-        }
-    }
-
     /**
      * Create a {@link TopologyDTO} from a topology by fetching node types, relationship types and capability types used in the topology.
      *
@@ -489,91 +465,6 @@ public class TopologyService {
     }
 
 
-
-    /**
-     * Update properties in a topology
-     */
-    private void updateOnNodeTemplateNameChange(String oldNodeTemplateName, String newNodeTemplateName, Topology topology) {
-        // Output properties
-        if (topology.getOutputProperties() != null) {
-            Set<String> oldPropertiesOutputs = topology.getOutputProperties().remove(oldNodeTemplateName);
-            if (oldPropertiesOutputs != null) {
-                topology.getOutputProperties().put(newNodeTemplateName, oldPropertiesOutputs);
-            }
-        }
-        // substitution mapping
-        if (topology.getSubstitutionMapping() != null) {
-            if (topology.getSubstitutionMapping().getCapabilities() != null) {
-                for (SubstitutionTarget st : topology.getSubstitutionMapping().getCapabilities().values()) {
-                    if (st.getNodeTemplateName().equals(oldNodeTemplateName)) {
-                        st.setNodeTemplateName(newNodeTemplateName);
-                    }
-                }
-            }
-            if (topology.getSubstitutionMapping().getRequirements() != null) {
-                for (SubstitutionTarget st : topology.getSubstitutionMapping().getRequirements().values()) {
-                    if (st.getNodeTemplateName().equals(oldNodeTemplateName)) {
-                        st.setNodeTemplateName(newNodeTemplateName);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * <p>
-     * Update the name of a node template in the relationships of a topology. This requires two operations:
-     * <ul>
-     * <li>Rename the target node of a relationship</li>
-     * <li>If a relationship has an auto-generated id, update it's id to take in account the new target name.</li>
-     * </ul>
-     * </p>
-     *
-     * @param oldNodeTemplateName Name of the node template that changes.
-     * @param newNodeTemplateName New name for the node template.
-     * @param nodeTemplates Map of all node templates in the topology.
-     */
-    public void refreshNodeTempNameInRelationships(String oldNodeTemplateName, String newNodeTemplateName, Map<String, NodeTemplate> nodeTemplates) {
-        // node templates copy
-        for (NodeTemplate nodeTemplate : nodeTemplates.values()) {
-            if (nodeTemplate.getRelationships() != null) {
-                refreshNodeTemplateNameInRelationships(oldNodeTemplateName, newNodeTemplateName, nodeTemplate.getRelationships());
-            }
-        }
-    }
-
-    public void refreshNodeTemplateNameInRelationships(String oldNodeTemplateName, String newNodeTemplateName,
-                                                        Map<String, RelationshipTemplate> relationshipTemplates) {
-        Map<String, String> updatedKeys = Maps.newHashMap();
-        for (Entry<String, RelationshipTemplate> relationshipTemplateEntry : relationshipTemplates.entrySet()) {
-            String relationshipTemplateId = relationshipTemplateEntry.getKey();
-            RelationshipTemplate relationshipTemplate = relationshipTemplateEntry.getValue();
-
-            if (relationshipTemplate.getTarget().equals(oldNodeTemplateName)) {
-                relationshipTemplate.setTarget(newNodeTemplateName);
-                String formatedOldNodeName = getRelationShipName(relationshipTemplate.getType(), oldNodeTemplateName);
-                // if the id/name of the relationship is auto-generated we should update it also as auto-generation is <typeName+targetId>
-                if (relationshipTemplateId.equals(formatedOldNodeName)) {
-                    String newRelationshipTemplateId = getRelationShipName(relationshipTemplate.getType(), newNodeTemplateName);
-                    // check that the new name is not already used (so we won't override another relationship)...
-                    String validNewRelationshipTemplateId = newRelationshipTemplateId;
-                    int counter = 0;
-                    while (relationshipTemplates.containsKey(validNewRelationshipTemplateId)) {
-                        validNewRelationshipTemplateId = newRelationshipTemplateId + counter;
-                        counter++;
-                    }
-                    updatedKeys.put(relationshipTemplateId, validNewRelationshipTemplateId);
-                }
-            }
-        }
-
-        // update the relationship keys if any has been impacted
-        for (Entry<String, String> updateKeyEntry : updatedKeys.entrySet()) {
-            RelationshipTemplate relationshipTemplate = relationshipTemplates.remove(updateKeyEntry.getKey());
-            relationshipTemplates.put(updateKeyEntry.getValue(), relationshipTemplate);
-        }
-    }
-
     public void isUniqueNodeTemplateName(String topologyId, String newNodeTemplateName, Map<String, NodeTemplate> nodeTemplates) {
         if (nodeTemplates.containsKey(newNodeTemplateName.toLowerCase())) {
             log.debug("Add Node Template <{}> impossible (already exists)", newNodeTemplateName);
@@ -591,46 +482,4 @@ public class TopologyService {
         }
     }
 
-    /**
-     * Manage node group members when a node name is removed or its name has changed.
-     *
-     * @param newName : the new name of the node or <code>null</code> if the node has been removed.
-     */
-    public void updateGroupMembers(Topology topology, NodeTemplate template, String nodeName, String newName) {
-        Map<String, NodeGroup> topologyGroups = topology.getGroups();
-        if (template.getGroups() != null && !template.getGroups().isEmpty() && topologyGroups != null) {
-            for (String groupId : template.getGroups()) {
-                NodeGroup nodeGroup = topologyGroups.get(groupId);
-                if (nodeGroup != null && nodeGroup.getMembers() != null) {
-                    boolean removed = nodeGroup.getMembers().remove(nodeName);
-                    if (removed && newName != null) {
-                        nodeGroup.getMembers().add(newName);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Rename the node template of a topology.
-     * @param topology
-     * @param nodeTemplateName
-     * @param newNodeTemplateName
-     */
-    public void renameNodeTemplate(Topology topology, String nodeTemplateName, String newNodeTemplateName) {
-        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topology.getId(), nodeTemplateName, nodeTemplates);
-
-        nodeTemplate.setName(newNodeTemplateName);
-        nodeTemplates.put(newNodeTemplateName, nodeTemplate);
-        nodeTemplates.remove(nodeTemplateName);
-        refreshNodeTempNameInRelationships(nodeTemplateName, newNodeTemplateName, nodeTemplates);
-        updateOnNodeTemplateNameChange(nodeTemplateName, newNodeTemplateName, topology);
-        updateGroupMembers(topology, nodeTemplate, nodeTemplateName, newNodeTemplateName);
-        workflowBuilderService.renameNode(topology, nodeTemplateName, newNodeTemplateName);
-    }
-
-    public boolean isValidNodeName(String name) {
-        return Pattern.matches(NODE_NAME_REGEX, name);
-    }
 }

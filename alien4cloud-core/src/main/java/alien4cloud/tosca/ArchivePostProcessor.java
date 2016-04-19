@@ -1,13 +1,9 @@
 package alien4cloud.tosca;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.tosca.parser.ParsingErrorLevel;
-import org.apache.commons.lang3.StringUtils;
+import alien4cloud.topology.TopologyUtils;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.model.components.DeploymentArtifact;
@@ -26,13 +22,8 @@ import alien4cloud.tosca.parser.impl.ErrorCode;
 
 import com.google.common.collect.Maps;
 
-import javax.annotation.Resource;
-
 @Component
 public class ArchivePostProcessor {
-
-    @Resource
-    TopologyService topologyService;
 
     /**
      * Post process the archive: For every definition of the model it fills the id fields in the TOSCA elements from the key of the elements map.
@@ -76,35 +67,7 @@ public class ArchivePostProcessor {
         for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
             postProcessNodeTemplate(archiveName, archiveVersion, parsedArchive, nodeTemplate, globalElementsMap);
         }
-        postProcessNodeTemplateName(topology, parsedArchive);
-    }
-
-    /**
-     * Rename the node template with an invalid name on the topology.
-     * @param topology
-     * @param parsedArchive
-     */
-    private void postProcessNodeTemplateName(Topology topology, ParsingResult<ArchiveRoot> parsedArchive) {
-        if (topology.getNodeTemplates() != null && !topology.getNodeTemplates().isEmpty()) {
-            Map<String, NodeTemplate> nodeTemplates = Maps.newHashMap(topology.getNodeTemplates());
-            for (Entry<String, NodeTemplate> nodeEntry : nodeTemplates.entrySet()) {
-                String nodeName = nodeEntry.getKey();
-                if (!topologyService.isValidNodeName(nodeName)) {
-                    String newName = nodeName.toString().replaceAll("-", "_").replaceAll("\\.", "_");
-                    newName = StringUtils.stripAccents(newName);
-                    if (nodeTemplates.containsKey(newName)) {
-                        int i = 1;
-                        while (nodeTemplates.containsKey(newName + "_" + i)) {
-                            i++;
-                        }
-                        newName = newName + "_" + i;
-                    }
-                    topologyService.renameNodeTemplate(topology, nodeName, newName);
-                    parsedArchive.getContext().getParsingErrors().add(
-                            new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_NODE_TEMPLATE_NAME, nodeName, null, nodeName, null, newName));
-                }
-            }
-        }
+        TopologyUtils.normalizeAllNodeTemplateName(topology, parsedArchive);
     }
 
     private void postProcessNodeTemplate(String archiveName, String archiveVersion, ParsingResult<ArchiveRoot> parsedArchive, NodeTemplate nodeTemplate,
