@@ -51,7 +51,7 @@ define(function (require) {
 
     function addFacetFilter(termId, facetId) {
       // Test if the filter exists : [term:facet] and add it if not
-      if (_.undefined(_.find($scope.facetFilters, {term: termId, facet:[facetId]}))) {
+      if (_.undefined(_.find($scope.facetFilters, {term: termId}))) {
         var facetSearchObject = {};
         facetSearchObject.term = termId;
         facetSearchObject.facet = [];
@@ -147,10 +147,7 @@ define(function (require) {
 
     /* Add a facet Filters*/
     $scope.addFilter = function(termId, facetId) {
-
-      // Test if the filter exists : [term:facet] and add it if not
       addFacetFilter(termId, facetId);
-
       // Search update with new filters list
       $scope.doSearch();
     };
