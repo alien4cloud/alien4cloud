@@ -13,7 +13,6 @@ define(function (require) {
   require('scripts/common/directives/drag_drop');
   require('scripts/common/directives/property_display');
   require('scripts/common/directives/simple_modal');
-  require('scripts/common/services/resize_services');
   require('scripts/components/services/component_services');
   require('scripts/tosca/services/tosca_service');
   require('scripts/tosca/services/node_template_service');
@@ -71,6 +70,7 @@ define(function (require) {
     topoEditVersions,
     topoEditWf,
     topoEditYaml) {
+      $scope.isRuntime = false;
 
       topoEditArtifacts($scope);
       topoEditDisplay($scope);
