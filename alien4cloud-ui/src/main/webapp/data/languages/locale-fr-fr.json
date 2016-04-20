@@ -336,7 +336,7 @@
     "ABSTRACT" : "Composant abstrait",
     "ACTIVE_FILTERS" : "Filtres actifs",
     "ARCHIVE" : "Archive",
-    "ARCHIVE_NAME" : "Dossier de l'archive",
+    "ARCHIVE_NAME" : "Nom de l'archive",
     "ARCHIVE_VERSION" : "Version de l'archive",
     "CAPABILITIES" : {
       "CARDINALITIES_TOOLTIP" : "maximum",
@@ -377,6 +377,10 @@
       "SUPPORTED_ARTIFACTS": {
         "LABEL": "Artefacts supportés",
         "VALUE": "Portabilité: Artefacts supportés"
+      },
+      "RELATED_LOCATIONS": {
+        "LABEL": "Location(s) liées",
+        "VALUE": "Portabilité: Location(s) liées"
       }
     },
     "REQUIREMENTS" : {

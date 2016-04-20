@@ -377,6 +377,10 @@
       "SUPPORTED_ARTIFACTS": {
         "LABEL": "Supported artifacts",
         "VALUE": "Portability: Supported artifacts"
+      },
+      "RELATED_LOCATIONS": {
+        "LABEL": "Related locations",
+        "VALUE": "Portability: Related locations"
       }
     },
     "REQUIREMENTS" : {
