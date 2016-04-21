@@ -285,30 +285,6 @@
           </fieldset>
         </div>
 
-        <!-- Portability display -->
-        <div ng-if="!_.isEmpty(component.portability)" class="col-md-6">
-          <fieldset class="detail-bloc">
-            <legend>
-              <h4>
-                <i class="fa fa-list"></i> {{'COMPONENTS.PORTABILITY.TITLE' | translate}}
-              </h4>
-            </legend>
-            <div class="table-responsive">
-              <table class="table table-condensed">
-                <tr ng-repeat="(portabilityName, portability) in component.portability">
-                  <td><strong>{{'COMPONENTS.PORTABILITY.'+portabilityName+'.LABEL' | translate}}</strong></td>
-                  <td>
-                    <span> {{portability.value.join(', ')}} </span>
-                  </td>
-                  <td>
-                    <simple-modal class="pull-right" title="{{ 'MODAL.TITLE.PORTABILITY' | translate}}" content="coming soon" primary="true"> </simple-modal>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </fieldset>
-        </div>
-
       </div>
     </div>
   </div>
