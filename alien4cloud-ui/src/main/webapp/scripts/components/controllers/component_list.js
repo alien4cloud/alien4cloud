@@ -4,6 +4,7 @@ define(function (require) {
 
   var modules = require('modules');
   var states = require('states');
+  var _ = require('lodash');
 
   require('scripts/common/services/resize_services');
   // make sure that required directives are loaded
@@ -12,6 +13,7 @@ define(function (require) {
 
   // load other locations to manage components
   require('scripts/components/controllers/component_details');
+  require('scripts/components/controllers/component_info');
   require('scripts/components/controllers/csar_list');
   require('scripts/components/controllers/csar_git');
 
@@ -34,7 +36,15 @@ define(function (require) {
     templateUrl: 'views/components/component_list.html',
     controller: 'SearchComponentCtrl',
     resolve: {
-      defaultFilters: [function(){return {};}]
+      defaultFilters: [function(){return {};}],
+
+      // badges to display. objet with the folowing properties:
+      //   name: the name of the badge
+      //   tooltip: the message to display on the tooltip
+      //   imgSrc: the image to display
+      //   canDislay: a funtion to decide if the badge is displayabe for a component. takes as param the component and must return true or false.
+      //   onClick: callback for the click on the displayed badge. takes as param: the component, the $state object
+      badges: [function(){return[];}]
     },
     menu: {
       id: 'cm.components.list',
@@ -46,10 +56,11 @@ define(function (require) {
   });
   states.forward('components', 'components.list');
 
-  modules.get('a4c-components', ['ui.router', 'a4c-auth', 'a4c-common']).controller('SearchComponentCtrl', ['authService', '$scope', '$state', 'resizeServices', 'defaultFilters',
-    function(authService, $scope, $state, resizeServices, defaultFilters) {
+  modules.get('a4c-components', ['ui.router', 'a4c-auth', 'a4c-common']).controller('SearchComponentCtrl', ['authService', '$scope', '$state', 'resizeServices', 'defaultFilters', 'badges',
+    function(authService, $scope, $state, resizeServices, defaultFilters, badges) {
       $scope.isComponentManager = authService.hasRole('COMPONENTS_MANAGER');
       $scope.defaultFilters = defaultFilters;
+      $scope.badges = badges;
 
       $scope.uploadSuccessCallback = function(data) {
         $scope.refresh = data;

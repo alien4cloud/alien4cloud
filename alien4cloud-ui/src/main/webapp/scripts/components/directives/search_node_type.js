@@ -16,7 +16,8 @@ define(function (require) {
         'dragAndDropEnabled': '=',
         'heightInfo': '=',
         'widthInfo': '=',
-        'defaultFilters': '='
+        'defaultFilters': '=',
+        'badges': '='
       },
       link: function(scope, element) {
         scope.queryComponentType = 'NODE_TYPE';

@@ -7,10 +7,24 @@ define(function (require) {
 
   require('scripts/tosca/services/tosca_service');
 
-  modules.get('a4c-components', ['a4c-tosca']).controller('alienSearchComponentCtrl', ['$scope', '$filter', 'searchContext', '$resource', 'toscaService', 'searchServiceFactory', function($scope, $filter, searchContext, $resource, toscaService, searchServiceFactory) {
+  modules.get('a4c-components', ['a4c-tosca']).controller('alienSearchComponentCtrl', ['$scope', '$filter', 'searchContext', '$resource', 'toscaService', 'searchServiceFactory', '$state', function($scope, $filter, searchContext, $resource, toscaService, searchServiceFactory, $state) {
     var alienInternalTags = ['icon'];
     $scope.searchService = searchServiceFactory('rest/latest/components/search', false, $scope, 20, 10);
     $scope.searchService.filtered(true);
+
+    var badges = $scope.badges || [];
+    // abstract badge is always displayed
+    badges.push({
+      name: 'abstract',
+      tooltip: 'COMPONENTS.COMPONENT.ABSTRACT_COMPONENT',
+      imgSrc: 'images/abstract_ico.png',
+      canDislay: function(component){
+        return component.abstract;
+      },
+      priority: 0
+    });
+    //sort by priority
+    $scope.badges = _.sortBy(badges, 'priority');
 
     /** Used to display the correct text in UI */
     $scope.getFormatedFacetValue = function(term, value) {
@@ -233,6 +247,15 @@ define(function (require) {
           selectedVersionComponent.selectedVersion = newVersion;
           $scope.searchResult.data[index] = selectedVersionComponent;
         });
+      }
+    };
+
+    $scope.handleBadgeClick = function(badge, component, event) {
+      if(_.isFunction(badge.onClick)){
+        if(event){
+          event.stopPropagation();
+        }
+        badge.onClick(component, $state);
       }
     };
 
