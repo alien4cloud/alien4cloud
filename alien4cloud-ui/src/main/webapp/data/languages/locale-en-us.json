@@ -313,6 +313,7 @@
     "ADD" : "Add",
     "ATTRIBUTES" : "Attributes",
     "CAPABILITIES" : "Capabilities",
+    "DATA": "Data",
     "DESCRIPTION" : "Description",
     "EMAIL" : "Email",
     "ENABLED_false" : "Disabled",
@@ -320,6 +321,8 @@
     "FILTER" : "Filter",
     "GROUPS" : "Groups",
     "ID" : "Id",
+    "INFO": "Information",
+    "INFOS": "Informations",
     "NAME" : "Name",
     "NO" : "No",
     "NODE" : "Node",
@@ -665,6 +668,7 @@
       "CAPABILITY" : "Capability description",
       "CUSTOM_COMMAND" : "Custom command description",
       "META_PROPERTY" : "Meta-property description",
+      "PORTABILITY" : "Portability property description",
       "PROPERTY" : "Property description",
       "REQUIREMENT" : "Requirement description"
     }

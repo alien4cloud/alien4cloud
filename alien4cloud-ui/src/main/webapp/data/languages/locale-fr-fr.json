@@ -313,6 +313,7 @@
     "ADD" : "Ajouter",
     "ATTRIBUTES" : "Attributs",
     "CAPABILITIES" : "Capacités",
+    "DATA": "Données",
     "DESCRIPTION" : "Description",
     "EMAIL" : "Email",
     "ENABLED_false" : "Désactivé",
@@ -320,6 +321,8 @@
     "FILTER" : "Filtrer",
     "GROUPS" : "Groupes",
     "ID" : "Id",
+    "INFO": "Information",
+    "INFOS": "Informations",
     "NAME" : "Nom",
     "NO" : "Non",
     "NODE" : "Noeud",
@@ -379,8 +382,8 @@
         "VALUE": "Portabilité: Artefacts supportés"
       },
       "RELATED_LOCATIONS": {
-        "LABEL": "Location(s) liées",
-        "VALUE": "Portabilité: Location(s) liées"
+        "LABEL": "Locations liées",
+        "VALUE": "Portabilité: Locations liées"
       }
     },
     "REQUIREMENTS" : {
@@ -665,6 +668,7 @@
       "CAPABILITY" : "Description de la capacité",
       "CUSTOM_COMMAND" : "Description de l'opération",
       "META_PROPERTY" : "Description de la méta-propriété",
+      "PORTABILITY" : "Description de la propriété de portabilité",
       "PROPERTY" : "Description de la propriété",
       "REQUIREMENT" : "Description du pré-requis"
     }

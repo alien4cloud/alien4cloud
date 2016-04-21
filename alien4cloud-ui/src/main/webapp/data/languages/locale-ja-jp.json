@@ -312,6 +312,7 @@
     "ADD" : "追加",
     "ATTRIBUTES" : "属性",
     "CAPABILITIES" : "ケーパビリティ",
+    "DATA": "Data",
     "DESCRIPTION" : "説明",
     "EMAIL" : "Email",
     "ENABLED_false" : "無効化",
@@ -319,6 +320,8 @@
     "FILTER" : "フィルタ",
     "GROUPS" : "グループ",
     "ID" : "Id",
+    "INFO": "Information",
+    "INFOS": "Informations",
     "NAME" : "名前",
     "NO" : "No",
     "NODE" : "ノード",
@@ -661,6 +664,7 @@
       "CAPABILITY" : "Capability description",
       "CUSTOM_COMMAND" : "Custom command description",
       "META_PROPERTY" : "Meta-property description",
+      "PORTABILITY" : "Portability property description",
       "PROPERTY" : "Property description",
       "REQUIREMENT" : "Requirement description"
     }

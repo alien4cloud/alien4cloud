@@ -58,15 +58,13 @@
                 <a href ng-if="component.substitutionTopologyId" ng-click="displaySubtitutionTopology(component.substitutionTopologyId)">{{ 'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.DISPLAY' | translate}}</a>
               </div>
             </div>
-
           </fieldset>
-
         </div>
-
       </div>
+
       <div class="row">
-        <div class="col-md-6">
-          <!-- Component Documention bloc-->
+        <!-- Component Documention bloc-->
+        <div ng-if="component.description" class="col-md-6">
           <fieldset class="detail-bloc">
             <legend>
               <h4>
@@ -76,8 +74,59 @@
             <div>{{component.description}}</div>
           </fieldset>
         </div>
+
+        <!-- Properties display -->
+        <div ng-if="!_.isEmpty(component.properties)" class="col-md-6">
+          <fieldset class="detail-bloc">
+            <legend>
+              <h4>
+                <i class="fa fa-list"></i> {{'COMMON.PROPERTIES' | translate}}
+              </h4>
+            </legend>
+            <div class="table-responsive">
+              <table class="table table-condensed">
+                <tr ng-repeat="propertyEntry in component.properties">
+                  <td><strong>{{propertyEntry.key}}</strong></td>
+                  <td>
+                    <div ng-repeat="constraint in propertyEntry.value.constraints">
+                      <span ng-repeat="(name, value) in constraint"> {{name}} : {{value}} </span>
+                    </div>
+                  </td>
+                  <td>
+                    <simple-modal class="pull-right" title="{{ 'MODAL.TITLE.PROPERTY' | translate}}" content="{{propertyEntry.value.description}}" primary="true"> </simple-modal>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </fieldset>
+        </div>
+
+        <!-- Attributes display -->
+        <div ng-if="!_.isEmpty(component.attributes)" class="col-md-6">
+          <fieldset class="detail-bloc">
+            <legend>
+              <h4>
+                <i class="fa fa-list"></i> {{'COMMON.ATTRIBUTES' | translate}}
+              </h4>
+            </legend>
+            <div class="table-responsive">
+              <table class="table table-condensed">
+                <tr ng-repeat="(attributeName, attributeDef) in component.attributes">
+                  <td><strong>{{attributeName}}</strong>
+                  </td>
+                  <td>
+                    <span>
+                      {{attributeDef.description || '--' }}
+                    </span>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </fieldset>
+        </div>
+
+        <!-- Tags display -->
         <div class="col-md-6">
-          <!-- Tags display -->
           <fieldset class="detail-bloc">
             <legend>
               <h4>
@@ -87,7 +136,6 @@
 
             <div class="table-responsive">
               <table class="table table-condensed">
-
                 <tr ng-repeat="tag in component.tags" ng-if="!isInternalTag(tag.name)" id="tag_{{tag.name}}">
                   <td>
                     <span>
@@ -137,10 +185,9 @@
             </div>
           </fieldset>
         </div>
-      </div>
-      <div class="row">
-        <div class="col-md-6">
-          <!-- Capabilities display -->
+
+        <!-- Capabilities display -->
+        <div ng-if="!_.isEmpty(component.capabilities)" class="col-md-6">
           <fieldset class="detail-bloc">
             <legend>
               <h4>
@@ -178,34 +225,10 @@
               </table>
             </div>
           </fieldset>
-
-          <!-- Properties display -->
-          <fieldset class="detail-bloc">
-            <legend>
-              <h4>
-                <i class="fa fa-list"></i> {{'COMMON.PROPERTIES' | translate}}
-              </h4>
-            </legend>
-            <div class="table-responsive">
-              <table class="table table-condensed">
-                <tr ng-repeat="propertyEntry in component.properties">
-                  <td><strong>{{propertyEntry.key}}</strong></td>
-                  <td>
-                    <div ng-repeat="constraint in propertyEntry.value.constraints">
-                      <span ng-repeat="(name, value) in constraint"> {{name}} : {{value}} </span>
-                    </div>
-                  </td>
-                  <td>
-                    <simple-modal class="pull-right" title="{{ 'MODAL.TITLE.PROPERTY' | translate}}" content="{{propertyEntry.value.description}}" primary="true"> </simple-modal>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </fieldset>
-
         </div>
-        <div class="col-md-6">
-          <!-- Requirement display -->
+
+        <!-- Requirement display -->
+        <div ng-if="!_.isEmpty(component.requirements)" class="col-md-6">
           <fieldset class="detail-bloc">
             <legend>
               <h4>
@@ -228,37 +251,16 @@
               </table>
             </div>
           </fieldset>
+        </div>
 
-          <!-- Attributes display -->
-          <fieldset class="detail-bloc">
-            <legend>
-              <h4>
-                <i class="fa fa-list"></i> {{'COMMON.ATTRIBUTES' | translate}}
-              </h4>
-            </legend>
-            <div class="table-responsive">
-              <table class="table table-condensed">
-                <tr ng-repeat="(attributeName, attributeDef) in component.attributes">
-                  <td><strong>{{attributeName}}</strong>
-                  </td>
-                  <td>
-                    <span>
-                      {{attributeDef.description || '--' }}
-                    </span>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </fieldset>
-
-          <!-- Interfaces display -->
+        <!-- Interfaces display -->
+        <div ng-if="!_.isEmpty(component.interfaces)" class="col-md-6">
           <fieldset class="detail-bloc">
             <legend>
               <h4>
                 <i class="fa fa-cogs"></i> {{'COMPONENTS.COMPONENT.INTERFACES' | translate}}
               </h4>
             </legend>
-
             <div class="table-responsive">
               <table class="table table-condensed">
                 <tr ng-repeat="(interfaceName, interface) in component.interfaces">
@@ -282,6 +284,31 @@
             </div>
           </fieldset>
         </div>
+
+        <!-- Portability display -->
+        <div ng-if="!_.isEmpty(component.portability)" class="col-md-6">
+          <fieldset class="detail-bloc">
+            <legend>
+              <h4>
+                <i class="fa fa-list"></i> {{'COMPONENTS.PORTABILITY.TITLE' | translate}}
+              </h4>
+            </legend>
+            <div class="table-responsive">
+              <table class="table table-condensed">
+                <tr ng-repeat="(portabilityName, portability) in component.portability">
+                  <td><strong>{{'COMPONENTS.PORTABILITY.'+portabilityName+'.LABEL' | translate}}</strong></td>
+                  <td>
+                    <span> {{portability.value.join(', ')}} </span>
+                  </td>
+                  <td>
+                    <simple-modal class="pull-right" title="{{ 'MODAL.TITLE.PORTABILITY' | translate}}" content="coming soon" primary="true"> </simple-modal>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </fieldset>
+        </div>
+
       </div>
     </div>
   </div>
