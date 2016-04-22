@@ -20,11 +20,12 @@
     </button>
     <ul class="nav navbar-nav navbar-right">
       <li class="dropdown">
-        <a ng-if="status.currentStatus.data.isLogged" id="navbar-rightdrop" href="#" class="dropdown-toggle" data-toggle="dropdown">
-          <i class="fa fa-user"></i> {{ status.currentStatus.data.username }} <b class="caret"></b>
-        </a>
-        <a ng-if="!status.currentStatus.data.isLogged" id="navbar-rightdrop" href="#" class="dropdown-toggle" data-toggle="dropdown">
-          <img alt="" ng-src="images/flags/flags_iso/24/{{ 'CODE' | translate }}.png" /> <b class="caret"></b>
+        <a  id="navbar-rightdrop" href="#" class="dropdown-toggle" data-toggle="dropdown">
+          <span ng-if="status.currentStatus.data.isLogged">
+            <i class="fa fa-user"></i> {{ status.currentStatus.data.username }}
+          </span>
+          <img alt="" ng-src="images/flags/flags_iso/24/{{ 'CODE' | translate }}.png" />
+          <b class="caret"></b>
         </a>
         <ul class="dropdown-menu navbar-logout-dropdown">
           <li>
