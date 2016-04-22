@@ -24,20 +24,26 @@ import java.util.List;
 @Component
 public class ArchiveParser {
     public static final String TOSCA_META_FOLDER_NAME = "TOSCA-Metadata";
+
     @Deprecated
     public static final String ALIEN_META_FILE_LOCATION = FileSystems.getDefault().getSeparator() + TOSCA_META_FOLDER_NAME
             + FileSystems.getDefault().getSeparator() + "ALIEN-META.yaml";
+
     public static final String TOSCA_META_FILE_LOCATION = FileSystems.getDefault().getSeparator() + TOSCA_META_FOLDER_NAME
             + FileSystems.getDefault().getSeparator() + "TOSCA.meta";
 
     @Resource
     private ToscaMetaMapping toscaMetaMapping;
+
     @Resource
     private CsarMetaMapping csarMetaMapping;
+
     @Resource
     private ToscaParser toscaParser;
+
     @Resource
     private Validator validator;
+
     @Inject
     private ArchivePostProcessor postProcessor;
 

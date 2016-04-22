@@ -182,8 +182,8 @@ public class RuntimeController {
     }
 
     private void validateCommand(OperationExecRequest operationRequest, Topology topology) throws ConstraintFunctionalException {
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topology.getId(), operationRequest.getNodeTemplateName(),
-                topologyServiceCore.getNodeTemplates(topology));
+        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operationRequest.getNodeTemplateName(),
+                TopologyServiceCore.getNodeTemplates(topology));
         IndexedNodeType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
                 topology.getDependencies());
 

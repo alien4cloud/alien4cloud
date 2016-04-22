@@ -174,7 +174,7 @@ define(function (require) {
           if(_.defined(nodeTemplates)) {
             while (nodeTemplates.hasOwnProperty(tempName)) {
               i++;
-              tempName = baseName + '-' + i;
+              tempName = baseName + '_' + i;
             }
           }
           return tempName;

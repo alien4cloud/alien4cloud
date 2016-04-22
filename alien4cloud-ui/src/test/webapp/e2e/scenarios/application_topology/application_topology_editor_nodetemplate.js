@@ -1,4 +1,4 @@
-/* global describe, it, element, by, browser, expect */
+/* global describe, it, element, by, browser, expect, protractor */
 'use strict';
 
 var path = require('path');
@@ -46,17 +46,27 @@ describe('Topology node template edition :', function() {
   });
 
   it('should be able to edit a node template name', function() {
-    element(by.id('rect_Compute-2')).click();
+    element(by.id('rect_Compute_2')).click();
     // success update
-    xEdit.sendKeys('nodetemplate-titles', 'Compute-new-NAME');
-    xEdit.expect('nodetemplate-titles', 'Compute-new-NAME');
+    xEdit.sendKeys('nodetemplate-titles', 'Compute_new_NAME');
+    xEdit.expect('nodetemplate-titles', 'Compute_new_NAME');
     // fail update
     xEdit.sendKeys('nodetemplate-titles', 'Java');
     toaster.expectErrors();
     toaster.dismissIfPresent();
-    xEdit.expect('nodetemplate-titles', 'Compute-new-NAME');
+    xEdit.expect('nodetemplate-titles', 'Compute_new_NAME');
   });
 
+  it('should not be able to edit a node template name with an invalid new name', function() {
+    element(by.id('rect_Compute_new_NAME')).click();
+    xEdit.sendKeys('nodetemplate-titles', 'Compute_new_NAMEé');
+    element(by.css('#nodetemplate-titles input')).sendKeys(protractor.Key.BACK_SPACE);
+    topologyEditorCommon.go();
+    var nodeToEdit = element(by.id('rect_Compute_new_NAME'));
+    nodeToEdit.click();
+    xEdit.expect('nodetemplate-titles', 'Compute_new_NAME');
+  });
+  
   it('should be able to edit a scalar-unit.size and time', function() {
     var diskSizeName = 'disk_size';
     var diskSizeElement = element(by.id('p_' + diskSizeName));
@@ -104,7 +114,7 @@ describe('Topology node template edition :', function() {
 
   it('should have the a todo list if topology is not valid', function() {
     topologyEditorCommon.checkTodoList(true);
-    topologyEditorCommon.removeNodeTemplate('Compute-new-NAME');
+    topologyEditorCommon.removeNodeTemplate('Compute_new_NAME');
     topologyEditorCommon.removeNodeTemplate('War');
     topologyEditorCommon.removeNodeTemplate('Tomcat');
     topologyEditorCommon.checkTodoList(true);

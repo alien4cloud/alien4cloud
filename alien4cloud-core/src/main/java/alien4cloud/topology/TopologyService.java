@@ -8,9 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
+import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.model.topology.*;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,6 +23,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.mapping.FilterValuesStrategy;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.application.ApplicationService;
@@ -39,10 +44,6 @@ import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
-import alien4cloud.model.topology.AbstractTopologyVersion;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.Topology;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.Role;
@@ -82,6 +83,11 @@ public class TopologyService {
 
     @Resource
     private TopologyTemplateVersionService topologyTemplateVersionService;
+
+    @Resource
+    private WorkflowsBuilderService workflowBuilderService;
+
+    public static final String NODE_NAME_REGEX = "^\\w+$";
 
     private ToscaTypeLoader initializeTypeLoader(Topology topology) {
         ToscaTypeLoader loader = new ToscaTypeLoader(csarService);
@@ -276,30 +282,6 @@ public class TopologyService {
         checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS);
     }
 
-    private String toLowerCase(String text) {
-        return text.substring(0, 1).toLowerCase() + text.substring(1);
-    }
-
-    private String toUpperCase(String text) {
-        return text.substring(0, 1).toUpperCase() + text.substring(1);
-    }
-
-    /**
-     * Construct a relationship name from target and relationship type.
-     *
-     * @param type type of the relationship
-     * @param targetName name of the target
-     * @return the default constructed name
-     */
-    public String getRelationShipName(String type, String targetName) {
-        String[] tokens = type.split("\\.");
-        if (tokens.length > 1) {
-            return toLowerCase(tokens[tokens.length - 1]) + toUpperCase(targetName);
-        } else {
-            return toLowerCase(type) + toUpperCase(targetName);
-        }
-    }
-
     /**
      * Create a {@link TopologyDTO} from a topology by fetching node types, relationship types and capability types used in the topology.
      *
@@ -480,6 +462,24 @@ public class TopologyService {
             return ExceptionUtils.getFullStackTrace(e);
         }
 
+    }
+
+
+    public void isUniqueNodeTemplateName(String topologyId, String newNodeTemplateName, Map<String, NodeTemplate> nodeTemplates) {
+        if (nodeTemplates.containsKey(newNodeTemplateName.toLowerCase())) {
+            log.debug("Add Node Template <{}> impossible (already exists)", newNodeTemplateName);
+            // a node template already exist with the given name.
+            throw new AlreadyExistException(
+                    "A node template with the given name " + newNodeTemplateName + " already exists in the topology " + topologyId + ".");
+        }
+    }
+
+    public void isUniqueRelationshipName(String topologyId, String nodeTemplateName, String newName, Set<String> relationshipNames) {
+        if (relationshipNames.contains(newName)) {
+            // a relation already exist with the given name.
+            throw new AlreadyExistException("A relationship with the given name " + newName + " already exists in the node template " + nodeTemplateName
+                    + " of topology " + topologyId + ".");
+        }
     }
 
 }
