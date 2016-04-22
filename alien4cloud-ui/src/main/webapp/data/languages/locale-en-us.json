@@ -386,7 +386,7 @@
         "LABEL": "Supported artifacts",
         "VALUE": "Portability: Supported artifacts"
       },
-      "TITLE": "Portability",
+      "TITLE": "Portability"
     },
     "REQUIREMENTS" : {
       "TYPE" : "Prerequisites"
