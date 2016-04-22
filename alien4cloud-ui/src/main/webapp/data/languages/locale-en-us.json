@@ -364,7 +364,6 @@
       "TAG_KEY" : "Tag name can only contain characters a to Z, -, _ without spaces"
     },
     "PORTABILITY": {
-      "TITLE": "Portability",
       "IAASS": {
         "LABEL": "IaaSs",
         "VALUE": "Portability: IaaSs"
@@ -373,18 +372,20 @@
         "LABEL": "Orchestrators",
         "VALUE": "Portability: Orchestrators"
       },
+      "RELATED_LOCATIONS": {
+        "LABEL": "Related locations",
+        "VALUE": "Portability: Related locations"
+      },
       "RUNTIME_PACKAGES": {
         "LABEL": "Runtime packages",
         "VALUE": "Portability: Runtime packages"
       },
+      "SEE": "See portability infos",
       "SUPPORTED_ARTIFACTS": {
         "LABEL": "Supported artifacts",
         "VALUE": "Portability: Supported artifacts"
       },
-      "RELATED_LOCATIONS": {
-        "LABEL": "Related locations",
-        "VALUE": "Portability: Related locations"
-      }
+      "TITLE": "Portability",
     },
     "REQUIREMENTS" : {
       "TYPE" : "Prerequisites"

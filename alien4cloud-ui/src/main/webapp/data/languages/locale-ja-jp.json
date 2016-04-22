@@ -383,7 +383,8 @@
       "RELATED_LOCATIONS": {
         "LABEL": "Related locations",
         "VALUE": "Portability: Related locations"
-      }
+      },
+      "SEE": "See portability infos"
     },
     "REQUIREMENTS" : {
       "TYPE" : "必須コンポーネント"
