@@ -48,7 +48,7 @@ define(function (require) {
 
       /* i18n */
       $scope.changeLanguage = function(langKey) {
-        $translate.uses(langKey);
+        $translate.use(langKey);
       };
 
       $scope.status = authService;

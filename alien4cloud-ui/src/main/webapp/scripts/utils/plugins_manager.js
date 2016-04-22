@@ -11,9 +11,11 @@ define(function (require) {
     cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g;
 
   return {
+    registeredTranlations: [],
     init: function() {
       var self = this;
       var deferred = $.Deferred();
+
       $.ajax({ url: '/rest/latest/modules' }).then(function(data) {
         self.plugins = data;
         // init returns the list of entry points for the plugins.
@@ -108,6 +110,14 @@ define(function (require) {
         return this.plugins[pluginName].base;
       }
       return ''; // the plugin has no defined base
+    },
+
+    //register a translation file
+    registerTranslations: function(prefix, suffix){
+      this.registeredTranlations.push({
+        prefix: prefix,
+        suffix: suffix ||'.json'
+      });
     }
   };
 });

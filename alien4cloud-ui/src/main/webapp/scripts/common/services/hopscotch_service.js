@@ -19,7 +19,7 @@ define(function(require) {
             tourName = $state.current.name;
           }
           var instance = this;
-          $http.get('data/guides/' + tourName + '-' + $translate.uses() + '.json')
+          $http.get('data/guides/' + tourName + '-' + $translate.use() + '.json')
             .success(function(data) {
               instance.currentTour = data;
               hopscotch.endTour(true);
