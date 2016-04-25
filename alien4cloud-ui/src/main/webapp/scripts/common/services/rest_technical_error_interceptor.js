@@ -21,6 +21,8 @@ define(function (require) {
               return {
                 status: rejection.status,
                 data: _.defined(error.code) ? 'ERRORS.' + error.code : 'ERRORS.UNKNOWN',
+                message: error.message,
+                stacktrace: rejection.data.data,
                 code: error.code
               };
             }
@@ -50,7 +52,7 @@ define(function (require) {
           if (rejection.status === 401 && error.code !== 101) {
             // full page reload (not only url change)
             $location.path('/restricted');
-            toaster.pop('error', $translate('ERRORS.100'), $translate('ERRORS.' + rejection.status), 6000, 'trustedHtml', null);
+            toaster.pop('error', $translate('ERRORS.100'), $translate('ERRORS.' + rejection.status), 6000, 'trustedHtml');
             $timeout(function redirect() {
               $window.location.href = '/';
             }, 6000);
@@ -59,7 +61,17 @@ define(function (require) {
             // Display the toaster message on top with 4000 ms display timeout
             // Don't shot toaster for "tour" guides
             if (rejection.config.url.indexOf('data/guides') < 0) {
-              toaster.pop('error', $translate('ERRORS.INTERNAL') + ' - ' + error.status, $translate(error.data), 4000, 'trustedHtml', null);
+              var toasterBody;
+              if(_.defined(error.message)) {
+                toasterBody = '<div>'+$translate(error.data)+
+                  '</div><div>'+error.message+'</div>';
+                if(_.defined(error.stacktrace)) {
+                  console.error('Server error details', error.message, error.stacktrace);
+                }
+              } else {
+                toasterBody = $translate(error.data);
+              }
+              toaster.pop('error', $translate('ERRORS.INTERNAL') + ' - ' + error.status, toasterBody, 4000, 'trustedHtml');
             }
           }
           return $q.reject(rejection);
