@@ -4,9 +4,9 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import alien4cloud.exception.*;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.expression.ExpressionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -18,17 +18,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import alien4cloud.deployment.exceptions.InvalidDeploymentSetupException;
 import alien4cloud.component.repository.exception.RepositoryTechnicalException;
+import alien4cloud.deployment.exceptions.InvalidDeploymentSetupException;
+import alien4cloud.exception.*;
 import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
-import alien4cloud.paas.exception.ComputeConflictNameException;
-import alien4cloud.paas.exception.OrchestratorDeploymentIdConflictException;
-import alien4cloud.paas.exception.EmptyMetaPropertyException;
-import alien4cloud.paas.exception.MissingPluginException;
-import alien4cloud.paas.exception.PaaSDeploymentException;
-import alien4cloud.paas.exception.PaaSDeploymentIOException;
-import alien4cloud.paas.exception.PaaSUndeploymentException;
+import alien4cloud.paas.exception.*;
 import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
@@ -83,8 +78,8 @@ public class RestTechnicalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public RestResponse<Void> invalidNodeName(InvalidNodeNameException e) {
-        return RestResponseBuilder.<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.INVALID_NODE_NAME).message("A name should only contains alphanumeric character from the basic Latin alphabet and the underscrore.").build()).build();
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.INVALID_NODE_NAME)
+                .message("A name should only contains alphanumeric character from the basic Latin alphabet and the underscrore.").build()).build();
     }
 
     @ExceptionHandler(DeleteReferencedObjectException.class)
@@ -275,11 +270,10 @@ public class RestTechnicalExceptionHandler {
     @ExceptionHandler(value = Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public RestResponse<Void> catchAllErrorHandler(Exception e) {
-
-
+    public RestResponse<String> catchAllErrorHandler(Exception e) {
         log.error("Uncategorized error", e);
-        return RestResponseBuilder.<Void> builder()
+        String stackTrace = ExceptionUtils.getFullStackTrace(e);
+        return RestResponseBuilder.<String> builder().data(stackTrace)
                 .error(RestErrorBuilder.builder(RestErrorCode.UNCATEGORIZED_ERROR).message("Uncategorized error " + e.getMessage()).build()).build();
     }
 
@@ -391,8 +385,7 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> MissingCSARDependenciesExceptionHandler(MissingCSARDependenciesException e) {
         log.error("The CSAR of the location doesn't have all dependencies : " + e.getMessage());
-        return RestResponseBuilder.<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).message(e.getMessage()).build()).build();
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).message(e.getMessage()).build()).build();
     }
 
 }
