@@ -23,8 +23,6 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.ApplicationVersionNotFoundException;
-import alien4cloud.exception.DeleteDeployedException;
-import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -47,8 +45,9 @@ import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
 
 import com.google.common.collect.Lists;
-import io.swagger.annotations.ApiOperation;
+
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 @Slf4j
 @RestController
@@ -203,7 +202,7 @@ public class ApplicationEnvironmentController {
     }
 
     /**
-     * Delete an application environment based on it's id
+     * Delete an application environment based on it's id.
      *
      * @param applicationEnvironmentId
      * @return
@@ -215,19 +214,8 @@ public class ApplicationEnvironmentController {
     public RestResponse<Boolean> delete(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         // Only APPLICATION_MANAGER on the underlying application can delete an application environment
         applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId, ApplicationRole.APPLICATION_MANAGER);
-
-        int countEnvironment = applicationEnvironmentService.getByApplicationId(applicationId).length;
-        boolean isDeployed = applicationEnvironmentService.isDeployed(applicationEnvironmentId);
-        if (isDeployed) {
-            throw new DeleteDeployedException("Application environment with id <" + applicationEnvironmentId + "> cannot be deleted since it is deployed");
-        }
-        boolean deleted = false;
-        if (countEnvironment == 1 || isDeployed) {
-            throw new DeleteLastApplicationEnvironmentException("Application environment with id <" + applicationEnvironmentId
-                    + "> cannot be deleted as it's the last one for the application id <" + applicationId + ">");
-        }
-        deleted = applicationEnvironmentService.delete(applicationEnvironmentId);
-        return RestResponseBuilder.<Boolean> builder().data(deleted).build();
+        applicationEnvironmentService.delete(applicationEnvironmentId);
+        return RestResponseBuilder.<Boolean> builder().data(true).build();
     }
 
     /**

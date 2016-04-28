@@ -9,6 +9,8 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.exception.DeleteDeployedException;
+import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
@@ -120,7 +122,21 @@ public class ApplicationEnvironmentService {
      * @param id The id of the version to delete.
      */
     public boolean delete(String id) {
-        // TODO : do not delete if it's last environment
+        ApplicationEnvironment environmentToDelete = getOrFail(id);
+        boolean isDeployed = isDeployed(id);
+
+        if (isDeployed) {
+            throw new DeleteDeployedException("Application environment with id <" + id + "> cannot be deleted since it is deployed");
+        }
+
+        int countEnvironment = getByApplicationId(environmentToDelete.getApplicationId()).length;
+        if (countEnvironment == 1) {
+            throw new DeleteLastApplicationEnvironmentException("Application environment with id <" + id
+                    + "> cannot be deleted as it's the last one for the application id <" + environmentToDelete.getApplicationId() + ">");
+        }
+
+
+
         deploymentTopologyService.deleteByEnvironmentId(id);
         alienDAO.delete(ApplicationEnvironment.class, id);
         return true;
