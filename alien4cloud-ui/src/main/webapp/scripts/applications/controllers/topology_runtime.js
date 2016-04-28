@@ -581,8 +581,9 @@ define(function (require) {
         }
       };
 
-      $scope.changeEnvironment = function() {
-        appEnvironments.select($scope.selectedEnvironment.id, function() {
+      $scope.changeEnvironment = function(selectedEnvironment) {
+        appEnvironments.select(selectedEnvironment.id, function() {
+          $scope.selectedEnvironment = appEnvironments.selected;
           // update the environment
           $scope.loadTopologyRuntime();
           $scope.clearNodeSelection();

@@ -21,5 +21,4 @@ public class TopologyTemplate {
     private String name;
     @Setter
     private String description;
-    private String topologyId;
 }

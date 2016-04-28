@@ -9,7 +9,7 @@
             <a class="btn btn-default btn-xs" ng-click="view = 'PLAN'; display.set('workflows', true)" id="btn-app-topology-plan">{{'APPLICATIONS.TOPOLOGY.PLAN' | translate}}</a>
             <!--  Environment list -->
             <ui-select id="env-version-select" ng-model="selectedEnvironment" theme="bootstrap"
-              append-to-body="true"  on-select="changeEnvironment()"
+              append-to-body="true"  on-select="changeEnvironment(selectedEnvironment)"
               ng-options="environment.name for environment in runtimeEnvironments | filter:{status: '!UNDEPLOYED'}">
               <ui-select-match placeholder="Select or search an environment...">{{$select.selected.name | limitTo: 20}}{{$select.selected.name.length > 20 ? '...' : ''}}</ui-select-match>
               <ui-select-choices repeat="environment in runtimeEnvironments | filter: {status: '!UNDEPLOYED', name: $select.search}">
