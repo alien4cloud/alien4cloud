@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.FilterBuilder;
@@ -213,7 +214,15 @@ public class ApplicationEnvironmentController {
     @Audit
     public RestResponse<Boolean> delete(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         // Only APPLICATION_MANAGER on the underlying application can delete an application environment
+        ApplicationEnvironment environmentToDelete = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
         applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId, ApplicationRole.APPLICATION_MANAGER);
+
+        int countEnvironment = applicationEnvironmentService.getByApplicationId(environmentToDelete.getApplicationId()).length;
+        if (countEnvironment == 1) {
+            throw new DeleteLastApplicationEnvironmentException("Application environment with id <" + applicationEnvironmentId
+                    + "> cannot be deleted as it's the last one for the application id <" + environmentToDelete.getApplicationId() + ">");
+        }
+
         applicationEnvironmentService.delete(applicationEnvironmentId);
         return RestResponseBuilder.<Boolean> builder().data(true).build();
     }

@@ -1,18 +1,14 @@
 package alien4cloud.application;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.exception.DeleteDeployedException;
-import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
+import alien4cloud.events.DeleteEnvironmentEvent;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -20,6 +16,8 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.DeleteDeployedException;
+import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -54,6 +52,8 @@ public class ApplicationEnvironmentService {
     private DeploymentRuntimeStateService deploymentRuntimeStateService;
     @Inject
     private DeploymentTopologyService deploymentTopologyService;
+    @Resource
+    private ApplicationContext applicationContext;
 
     /**
      * Method used to create a default environment
@@ -129,16 +129,9 @@ public class ApplicationEnvironmentService {
             throw new DeleteDeployedException("Application environment with id <" + id + "> cannot be deleted since it is deployed");
         }
 
-        int countEnvironment = getByApplicationId(environmentToDelete.getApplicationId()).length;
-        if (countEnvironment == 1) {
-            throw new DeleteLastApplicationEnvironmentException("Application environment with id <" + id
-                    + "> cannot be deleted as it's the last one for the application id <" + environmentToDelete.getApplicationId() + ">");
-        }
-
-
-
         deploymentTopologyService.deleteByEnvironmentId(id);
         alienDAO.delete(ApplicationEnvironment.class, id);
+        applicationContext.publishEvent(new DeleteEnvironmentEvent(this, environmentToDelete));
         return true;
     }
 
