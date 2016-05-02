@@ -5,6 +5,7 @@ import java.util.*;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.deployment.DeploymentService;
 import alien4cloud.events.DeleteEnvironmentEvent;
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,6 +55,8 @@ public class ApplicationEnvironmentService {
     private DeploymentTopologyService deploymentTopologyService;
     @Resource
     private ApplicationContext applicationContext;
+    @Inject
+    private DeploymentService deploymentService;
 
     /**
      * Method used to create a default environment
@@ -100,7 +103,7 @@ public class ApplicationEnvironmentService {
      */
     public ApplicationEnvironment[] getByApplicationId(String applicationId) {
         GetMultipleDataResult<ApplicationEnvironment> result = alienDAO.find(ApplicationEnvironment.class,
-                MapUtil.newHashMap(new String[] { "applicationId" }, new String[][] { new String[] { applicationId } }), Integer.MAX_VALUE);
+                MapUtil.newHashMap(new String[]{"applicationId"}, new String[][]{new String[]{applicationId}}), Integer.MAX_VALUE);
         return result.getData();
     }
 
@@ -112,7 +115,7 @@ public class ApplicationEnvironmentService {
      */
     public ApplicationEnvironment[] getByVersionId(String versionId) {
         GetMultipleDataResult<ApplicationEnvironment> result = alienDAO.find(ApplicationEnvironment.class,
-                MapUtil.newHashMap(new String[] { "currentVersionId" }, new String[][] { new String[] { versionId } }), Integer.MAX_VALUE);
+                MapUtil.newHashMap(new String[]{"currentVersionId"}, new String[][]{new String[]{versionId}}), Integer.MAX_VALUE);
         return result.getData();
     }
 
@@ -131,7 +134,8 @@ public class ApplicationEnvironmentService {
 
         deploymentTopologyService.deleteByEnvironmentId(id);
         alienDAO.delete(ApplicationEnvironment.class, id);
-        applicationContext.publishEvent(new DeleteEnvironmentEvent(this, environmentToDelete));
+
+        applicationContext.publishEvent(new DeleteEnvironmentEvent(this, environmentToDelete, deploymentService.getAllOrchestratorIdsAndOrchestratorDeploymentId(id)));
         return true;
     }
 
