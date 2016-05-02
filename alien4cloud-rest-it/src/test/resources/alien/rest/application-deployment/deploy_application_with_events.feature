@@ -12,20 +12,19 @@ Feature: Listen to events of an deployed application.
     And I create a resource of type "alien.nodes.mock.openstack.Image" named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "id" to "img1" for the resource named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
   	And I autogenerate the on-demand resources for the location "Mount doom orchestrator"/"Thark location"
-    
+
     And There are these users in the system
       | sangoku |
     And I add a role "APPLICATIONS_MANAGER" to user "sangoku"
   	And I add a role "DEPLOYER" to user "sangoku" on the resource type "LOCATION" named "Thark location"
     And I am authenticated with user named "sangoku"
-    
    	And I pre register orchestrator properties
       | managementUrl | http://cloudifyurl:8099 |
       | numberBackup  | 1                       |
       | managerEmail  | admin@alien.fr          |
-      
 
 
+  @reset
   Scenario: Deploy an application and listen to events
    	Given I have an application "ALIEN" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0-SNAPSHOT"
     And I deploy the application "ALIEN" on the location "Mount doom orchestrator"/"Thark location" without waiting for the end of deployment
@@ -61,4 +60,4 @@ Feature: Listen to events of an deployed application.
 #      | starting    |
 #      | started     |
 #    And I should receive persistent resources events containing the following nodes and properties
-#      | Compute | volume_id | 
+#      | Compute | volume_id |

@@ -24,7 +24,7 @@ Feature: Deploy an application
       | numberBackup  | 1                       |
       | managerEmail  | admin@alien.fr          |
 
-
+  @reset
   Scenario: Deploy an application with success
 		 Given I have an application "ALIEN" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0-SNAPSHOT"
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
@@ -32,6 +32,7 @@ Feature: Deploy an application
     Then I should receive a RestResponse with no error
     And The application's deployment must succeed
 
+  @reset
   Scenario: Deploy an application with failure
  		Given I have an application "BAD-APPLICATION" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0-SNAPSHOT"
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
@@ -39,6 +40,7 @@ Feature: Deploy an application
     Then I should receive a RestResponse with no error
     And The application's deployment must fail
 
+  @reset
   Scenario: Deploy an application with warning
   	Given I have an application "WARN-APPLICATION" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0-SNAPSHOT"
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
@@ -46,6 +48,7 @@ Feature: Deploy an application
     Then I should receive a RestResponse with no error
     And The application's deployment must finish with warning
 
+  @reset
   Scenario: Create 2 applications without deploying and check application's statuses
     Given I have applications with names and descriptions
       | BAD APPLICATION | This Application should be in FAILURE status...  |
@@ -56,6 +59,7 @@ Feature: Deploy an application
       | ALIEN           | UNDEPLOYED |
     And I should receive a RestResponse with no error
 
+  @reset
   Scenario: Create 4 applications, deploy all and final check statuses
     Given I have applications with names and descriptions and a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0-SNAPSHOT"
       | My Software Factory | This application should be in DEPLOYED status... |
@@ -71,6 +75,7 @@ Feature: Deploy an application
       | My Software Factory | DEPLOYED |
     And I should receive a RestResponse with no error
 
+  @reset
   Scenario: deleting an deployed application should fail
     Given I have an application "ALIEN" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0-SNAPSHOT"
     And I deploy the application "ALIEN" on the location "Mount doom orchestrator"/"Thark location"
@@ -79,6 +84,7 @@ Feature: Deploy an application
     And the application can be found in ALIEN
     And The application's deployment must succeed
 
+  @reset
   Scenario: Create two app with similar names and deploy them on the same orchestrator should fail for the second app
     Given I have an application "App Test" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0-SNAPSHOT"
     And I deploy the application "App Test" on the location "Mount doom orchestrator"/"Thark location"

@@ -22,12 +22,13 @@ Feature: tag suggestion
       | my_tag          | this is my tag...               |
       | version_two     | v2.5                            |
 
-
+  @reset
   Scenario: suggestion request should return the expected result
     When I ask suggestions for tag "name" with "matur"
     Then I should receive a RestResponse with no error
     And The suggestion response should contains 3 elements
 
+  @reset
   Scenario: suggestion request should be able to search in both application and toscaElements tags
     When I ask suggestions for tag "name" with "vers"
     Then I should receive a RestResponse with no error

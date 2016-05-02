@@ -45,19 +45,13 @@ public class TopologyTemplateStepDefinitions {
 
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/templates/topology", JsonUtil.toString(ttRequest)));
         String topologyTemplateId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData();
-        // assertNotNull(topologyTemplateId);
 
-        // get the last version of this topology template
-        // String templateVersionJson = Context.getRestClientInstance().get("/rest/v1/templates/" + topologyTemplateId + "/versions/");
-        // TopologyTemplateVersion ttv = JsonUtil.read(templateVersionJson, TopologyTemplateVersion.class).getData();
         // recover the created template to register it
         String templateTopologyJson = Context.getRestClientInstance().get("/rest/v1/templates/topology/" + topologyTemplateId);
         TopologyTemplate template = JsonUtil.read(templateTopologyJson, TopologyTemplate.class).getData();
-        // assertNotNull(template);
 
         if (template != null) {
             Context.getInstance().registerTopologyTemplate(template);
-            // Context.getInstance().registerTopologyId(ttv.getTopologyId());
         }
     }
 
@@ -89,8 +83,8 @@ public class TopologyTemplateStepDefinitions {
             NodeTemplateRequest req = new NodeTemplateRequest(row.get(0), row.get(1));
             String nodeTypeJson = Context.getInstance().getJsonMapper().writeValueAsString(req);
             String topologyId = Context.getInstance().getTopologyId();
-            Context.getInstance().registerRestResponse(
-                    Context.getRestClientInstance().postJSon("/rest/v1/topologies/" + topologyId + "/nodetemplates", nodeTypeJson));
+            Context.getInstance()
+                    .registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/topologies/" + topologyId + "/nodetemplates", nodeTypeJson));
         }
 
         // Created topology should have a node template count == count(nodeTemplates)
@@ -182,8 +176,8 @@ public class TopologyTemplateStepDefinitions {
         assertNotNull(topologyId);
         List<NameValuePair> nvps = new ArrayList<NameValuePair>();
         nvps.add(new BasicNameValuePair("elementId", type));
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().putUrlEncoded("/rest/v1/topologies/" + topologyId + "/substitutions/type", nvps));
+        Context.getInstance()
+                .registerRestResponse(Context.getRestClientInstance().putUrlEncoded("/rest/v1/topologies/" + topologyId + "/substitutions/type", nvps));
     }
 
     @Given("^I expose the capability \"([^\"]*)\" for the node \"([^\"]*)\"$")

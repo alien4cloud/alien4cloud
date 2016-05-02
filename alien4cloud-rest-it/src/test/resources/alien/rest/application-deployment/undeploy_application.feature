@@ -24,6 +24,7 @@ Feature: Un-Deploy an application
 	  | numberBackup  | 1                       |
 	  | managerEmail  | admin@alien.fr          |
 
+  @reset
   Scenario: Create 1 application, deploy it, check statuses, undeploy it and check statuses
 	Given I have applications with names and descriptions and a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0-SNAPSHOT"
 	  | The great eye | This application should be in DEPLOYED status... |
@@ -42,6 +43,7 @@ Feature: Un-Deploy an application
 	And the response should contains 1 deployments DTO and applications with an end date set
 	  | The great eye |
 
+  @reset
   Scenario: Create 1 application, deploy it, undeploy it, disable the associate orchestrator and check the deployment topology
     Given I am authenticated with "ADMIN" role
     And I have applications with names and descriptions and a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0-SNAPSHOT"

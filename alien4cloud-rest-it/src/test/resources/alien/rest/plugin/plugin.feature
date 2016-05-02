@@ -3,26 +3,31 @@ Feature: Plugin management
 Background:
   Given I am authenticated with "ADMIN" role
 
+@reset
 Scenario: Upload a plugin
   When I upload a plugin
   Then I should receive a RestResponse with no error
 
+@reset
 Scenario: Re-Upload an exisitng plugin should fail
   Given I have uploaded a plugin
   When I upload a plugin
   Then I should receive a RestResponse with an error code 502
 
+@reset
 Scenario: Search for plugins
   Given I upload a plugin
   When I search for plugins
   Then I should receive a RestResponse with no error
     And The plugin response should contains 1 plugin
 
+@reset
 Scenario: Enable a plugin
   Given I upload a plugin
   When I enable the plugin
   Then I should receive a RestResponse with no error
 
+@reset
 Scenario: Disable a plugin
   Given I upload a plugin
     And I enable the plugin
@@ -37,6 +42,7 @@ Scenario: Disable a plugin
 #  Then I should receive a RestResponse with an error code 350
 #  Then I should receive a RestResponse with a non-empty list of plugin usages.
 
+@reset
 Scenario: Remove a plugin
   Given I upload a plugin
     And I enable the plugin

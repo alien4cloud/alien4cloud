@@ -12,6 +12,7 @@ Feature: CSAR upload with topology
   # By this way, we ensure that the imported then exported topology contain the same items.
   # The scenari that test failure cases are not duplicated.
 
+  @reset
   Scenario: Upload CSAR containing apache types and embeded topology template
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology apache"
@@ -45,6 +46,7 @@ Feature: CSAR upload with topology
     # this node has inherited capabilities
     And The SPEL int expression "nodeTemplates['apache'].capabilities.size()" should return 2
 
+  @reset
   Scenario: Re-Upload CSAR containing apache types and embeded topology template
     Given I upload the archive "tosca base types 1.0"
     And I upload the archive "topology apache"
@@ -78,6 +80,7 @@ Feature: CSAR upload with topology
     And The SPEL int expression "nodeTemplates['apache'].relationships['hostedOnCompute'].properties.size()" should return 2
     And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].properties['password'].value" should return "unfuckingbelievable"
 
+  @reset
   Scenario: Upload CSAR containing cutom types and embeded topology template using short notation for requirements
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology custom types"
@@ -92,6 +95,7 @@ Feature: CSAR upload with topology
     And The SPEL expression "nodeTemplates['software'].relationships['myRelationTypeCompute'].requirementType" should return "custom.capabilities.MyCapability"
     And The SPEL expression "nodeTemplates['software'].relationships['myRelationTypeCompute'].targetedCapabilityName" should return "host"
 
+  @reset
   Scenario: Re-Upload CSAR containing cutom types and embeded topology template using short notation for requirements
     Given I upload the archive "tosca base types 1.0"
     And I upload the archive "topology custom types"
@@ -108,6 +112,7 @@ Feature: CSAR upload with topology
     And The SPEL expression "nodeTemplates['software'].relationships['myRelationTypeCompute'].requirementType" should return "custom.capabilities.MyCapability"
     And The SPEL expression "nodeTemplates['software'].relationships['myRelationTypeCompute'].targetedCapabilityName" should return "host"
 
+  @reset
   Scenario: Upload twice a CSAR SNAPSHOT containing embeded topology template result in 2 topology templates
     Given I upload the archive "tosca base types 1.0"
     And I upload the archive "topology custom types"
@@ -116,36 +121,43 @@ Feature: CSAR upload with topology
     And If I search for topology templates I can find one with the name "AllInclusiveArchive" and store the related topology as a SPEL context
     And If I search for topology templates I can find one with the name "AllInclusiveArchive" and store the related topology as a SPEL context
 
+  @reset
   Scenario: Upload a CSAR containing topology with a node referencing a unexisting type
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology-error-missingtype"
     Then I should receive a RestResponse with 2 alerts in 1 files : 1 errors 1 warnings and 0 infos
 
+  @reset
   Scenario: Upload a CSAR containing topology with an unkown capability
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology-unknown-capability"
     Then I should receive a RestResponse with 2 alerts in 1 files : 1 errors 1 warnings and 0 infos
 
+  @reset
   Scenario: Upload a CSAR containing topology with an unkown capability, short requirement notation
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology-unknown-capability-short-notation"
     Then I should receive a RestResponse with 2 alerts in 1 files : 1 errors 1 warnings and 0 infos
 
+  @reset
   Scenario: Upload a CSAR containing topology with an unkown relationship type
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology-unknown-relationshiptype"
     Then I should receive a RestResponse with 2 alerts in 1 files : 1 errors 1 warnings and 0 infos
 
+  @reset
   Scenario: Upload a CSAR containing topology with an unknown requirement target
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology-unknown-reqtarget"
     Then I should receive a RestResponse with 2 alerts in 1 files : 1 errors 1 warnings and 0 infos
 
+  @reset
   Scenario: Upload a CSAR containing topology with an incorrect requirement name
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology-unknown-req"
     Then I should receive a RestResponse with 2 alerts in 1 files : 1 errors 1 warnings and 0 infos
 
+  @reset
   Scenario: Upload CSAR containing embeded topology template with inputs
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology_inputs"
@@ -160,6 +172,7 @@ Feature: CSAR upload with topology
     And The SPEL int expression "nodeTemplates['compute2'].properties['os_type'].parameters.size()" should return 1
     And The SPEL expression "nodeTemplates['compute2'].properties['os_type'].parameters[0]" should return "os_type"
 
+  @reset
   Scenario: Re-Upload CSAR containing embeded topology template with inputs
     Given I upload the archive "tosca base types 1.0"
     And I upload the archive "topology_inputs"
@@ -176,6 +189,7 @@ Feature: CSAR upload with topology
     And The SPEL int expression "nodeTemplates['compute2'].properties['os_type'].parameters.size()" should return 1
     And The SPEL expression "nodeTemplates['compute2'].properties['os_type'].parameters[0]" should return "os_type"
 
+  @reset
   Scenario: Upload CSAR containing embeded topology template with outputs
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology_outputs"
@@ -186,6 +200,7 @@ Feature: CSAR upload with topology
     And The SPEL int expression "outputProperties['apache'].size()" should return 1
     And The SPEL expression "outputAttributes['compute'][0]" should return "ip_address"
 
+  @reset
   Scenario: Re-Upload CSAR containing embeded topology template with outputs
     Given I upload the archive "tosca base types 1.0"
     And I upload the archive "topology_outputs"
@@ -198,6 +213,7 @@ Feature: CSAR upload with topology
     And The SPEL int expression "outputProperties['apache'].size()" should return 1
     And The SPEL expression "outputAttributes['compute'][0]" should return "ip_address"
 
+  @reset
   Scenario: Upload CSAR containing embeded topology template with capabilities properties
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology-capacility-prop"
@@ -208,6 +224,7 @@ Feature: CSAR upload with topology
     And The SPEL int expression "nodeTemplates['compute2'].capabilities['compute'].properties['containee_types'].parameters.size()" should return 1
     And The SPEL expression "nodeTemplates['compute2'].capabilities['compute'].properties['containee_types'].parameters[0]" should return "an_input"
 
+  @reset
   Scenario: Re-Upload CSAR containing embeded topology template with capabilities properties
     Given I upload the archive "tosca base types 1.0"
     And I upload the archive "topology-capacility-prop"
@@ -220,19 +237,21 @@ Feature: CSAR upload with topology
     And The SPEL int expression "nodeTemplates['compute2'].capabilities['compute'].properties['containee_types'].parameters.size()" should return 1
     And The SPEL expression "nodeTemplates['compute2'].capabilities['compute'].properties['containee_types'].parameters[0]" should return "an_input"
 
-
+  @reset
   Scenario: Upload CSAR containing embeded topology template with unknown capabilities
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology-capacility-unkown"
     Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos
     And If I search for topology templates I can find one with the name "topology-capacility-unkown" and store the related topology as a SPEL context
 
+  @reset
   Scenario: Upload CSAR containing embeded topology template with unknown capabilities property
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology-capacility-prop-unkown"
     Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos
     And If I search for topology templates I can find one with the name "topology-capacility-prop-unkown" and store the related topology as a SPEL context
 
+  @reset
   Scenario: Upload CSAR containing embeded topology template with relationship property using get_input
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology-template-relationship-funtionprop"
@@ -241,6 +260,7 @@ Feature: CSAR upload with topology
     And The SPEL expression "nodeTemplates['software'].relationships['hostedOnCompute'].properties['password'].function" should return "get_input"
     And The SPEL expression "nodeTemplates['software'].relationships['hostedOnCompute'].properties['password'].parameters[0]" should return "pwd"
 
+  @reset
   Scenario: Re-Upload CSAR containing embeded topology template with relationship property using get_input
     Given I upload the archive "tosca base types 1.0"
     And I upload the archive "topology-template-relationship-funtionprop"
@@ -251,6 +271,7 @@ Feature: CSAR upload with topology
     And The SPEL expression "nodeTemplates['software'].relationships['hostedOnCompute'].properties['password'].function" should return "get_input"
     And The SPEL expression "nodeTemplates['software'].relationships['hostedOnCompute'].properties['password'].parameters[0]" should return "pwd"
 
+  @reset
   Scenario: Upload CSAR containing embeded topology template with capability property using inputs and ouputs
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology-capability-io"
@@ -261,6 +282,7 @@ Feature: CSAR upload with topology
     And The SPEL int expression "nodeTemplates['Compute'].capabilities['host'].properties['valid_node_types'].parameters.size()" should return 1
     And The SPEL expression "nodeTemplates['Compute'].capabilities['host'].properties['valid_node_types'].parameters[0]" should return "valid_node_types"
 
+  @reset
   Scenario: Re-Upload CSAR containing embeded topology template with capability property using inputs and ouputs
     Given I upload the archive "tosca base types 1.0"
     And I upload the archive "topology-capability-io"
@@ -273,6 +295,7 @@ Feature: CSAR upload with topology
     And The SPEL int expression "nodeTemplates['Compute'].capabilities['host'].properties['valid_node_types'].parameters.size()" should return 1
     And The SPEL expression "nodeTemplates['Compute'].capabilities['host'].properties['valid_node_types'].parameters[0]" should return "valid_node_types"
 
+  @reset
   Scenario: Upload and delete CSAR containing only topology
     Given I upload the archive "tosca base types 1.0"
     And I upload the archive "topology_inputs"
@@ -284,6 +307,7 @@ Feature: CSAR upload with topology
   # When the CSAR contains both topology and type, the topology has a dependency to the CSAR
   # (since it may embed types contained in this CSAR)
   # so we need to delete the topology template before deleting the CSAR
+  @reset
   Scenario: Upload and delete CSAR containing types and topology
     Given I upload the archive "tosca base types 1.0"
     And I upload the archive "topology apache"
@@ -294,6 +318,7 @@ Feature: CSAR upload with topology
     Then I should receive a RestResponse with no error
     And I have no CSAR created with id "apache-type:1.1.0-SNAPSHOT"
 
+  @reset
   Scenario: Upload CSAR containing a type declaring an artifact
     Given I upload the archive "tosca base types 1.0"
     And I upload the archive "sample apache lb types 0.1"
@@ -378,11 +403,13 @@ Feature: CSAR upload with topology
   #  And The SPEL expression "groups['compute_scaling_group'].policies[0].name" should return "my_scaling_ha_policy"
   #  And The SPEL expression "groups['compute_scaling_group'].policies[0].type" should return "tosca.policy.ha"
 
+  @reset
   Scenario: Upload CSAR containing embedded topology template with missing referenced inputs
     Given I upload the archive "tosca base types 1.0"
     And I upload the archive "topology-missing-inputs"
     Then I should receive a RestResponse with 2 alerts in 1 files : 2 errors 0 warnings and 0 infos
 
+  @reset
   Scenario: Upload a topology template with invalid node template name should rename rename it and throw informations
     Given I am authenticated with "ADMIN" role
     And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
@@ -394,4 +421,3 @@ Feature: CSAR upload with topology
     And If I search for topology templates I can find one with the name "net.sample.MysqlSubsystem" and store the related topology as a SPEL context
     And The SPEL expression "nodeTemplates['Compute'].type" should return "tosca.nodes.Compute"
     And The SPEL expression "nodeTemplates['Mysql_DB'].type" should return "alien.nodes.Mysql"
-

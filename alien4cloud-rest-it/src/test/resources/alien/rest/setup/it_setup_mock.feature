@@ -1,5 +1,6 @@
 Feature: This is not a test, it reuses integration test step to set up Alien with all data
 
+  @reset
   Scenario: Setup Alien
     Given I am authenticated with "ADMIN" role
     And I have already created a cloud image with name "Ubuntu Trusty", architecture "x86_64", type "linux", distribution "Ubuntu" and version "14.04.1"

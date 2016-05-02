@@ -29,6 +29,7 @@ Feature: get runtime topology ubuntu type
     And I have added a node template "Ubuntu" related to the "alien.nodes.Ubuntu:0.1" node type
     And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-base-types" version "1.0" with source "apacheLBGroovy" and target "Ubuntu" for requirement "host" of type "tosca.capabilities.Container" and target capability "Ubuntu"
 
+  @reset
   Scenario: Getting the runtime version of the deployed topology
     Given I have deleted a node template "apacheLBGroovy" from the topology
     When I ask the runtime topology of the application "ALIEN" on the location "Thark location" of "Mount doom orchestrator"
