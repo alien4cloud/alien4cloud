@@ -14,13 +14,14 @@ Feature: Manage group's authorizations on location
     And I enable the orchestrator "Mount doom orchestrator"
     And I create a location named "middle_earth" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
 
-
+  @reset
   Scenario: Add / Remove rights to a group on a location with ADMIN role
     Given I add a role "DEPLOYER" to group "lordOfRing" on the resource type "LOCATION" named "middle_earth"
     Then I should receive a RestResponse with no error
     When I remove a role "DEPLOYER" to group "lordOfRing" on the resource type "LOCATION" named "middle_earth"
     Then I should receive a RestResponse with no error
 
+  @reset
   Scenario: Remove group right on location when i ve no sufficent rights
     Given I add a role "DEPLOYER" to group "lordOfRing" on the resource type "LOCATION" named "middle_earth"
     Then I should receive a RestResponse with no error

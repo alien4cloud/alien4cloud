@@ -16,6 +16,7 @@ Feature: Search applications should be able to filter
     And I create a new application with name "tron" and description "Tron legacy application." without errors
     And I create a new application with name "lost" and description "Lost application." without errors
 
+  @reset
   Scenario: Searching applications with right given to groups
     Given I add a role "APPLICATION_MANAGER" to group "a4c dev" on the resource type "APPLICATION" named "a4c"
     And I add a role "APPLICATION_DEVOPS" to group "a4c dev" on the resource type "APPLICATION" named "smartest"
@@ -26,6 +27,7 @@ Feature: Search applications should be able to filter
       | a4c      |
       | smartest |
 
+  @reset
   Scenario: Searching applications with right given to users
     Given I add a role "APPLICATION_DEVOPS" to user "dumb" on the resource type "APPLICATION" named "dumbest"
     And I add a role "APPLICATION_MANAGER" to user "dumb" on the resource type "APPLICATION" named "tron"
@@ -36,6 +38,7 @@ Feature: Search applications should be able to filter
       | dumbest |
       | tron    |
 
+  @reset
   Scenario: Searching applications with right given to groups and user
     Given I add a role "APPLICATION_MANAGER" to group "a4c dev" on the resource type "APPLICATION" named "a4c"
     And I add a role "APPLICATION_DEVOPS" to group "a4c dev" on the resource type "APPLICATION" named "smartest"

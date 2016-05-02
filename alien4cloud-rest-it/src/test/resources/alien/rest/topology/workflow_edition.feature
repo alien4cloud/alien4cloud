@@ -12,23 +12,27 @@ Feature: Workflow edition
       And I can get and register the topology for the last version of the registered topology template
     Given I add a node template "MyCompute" related to the "tosca.nodes.Compute:1.0.0-SNAPSHOT" node type
 
+  @reset
   Scenario: rename a standard workflow
     Given I edit the workflow named "install"
      When I rename the workflow to "my_install_wf"
      Then I should receive a RestResponse with an error code 500
 
+  @reset
   Scenario: delete a standard workflow
     Given I edit the workflow named "install"
      When I remove the workflow
      Then I should receive a RestResponse with an error code 500
 
   # we can not remove a step related to a delegate wf (abstract substituable native node)
+  @reset
   Scenario: remove a delegate step should fail
     Given I edit the workflow named "install"
      When I remove the workflow step named "MyCompute_install"
      Then I should receive a RestResponse with an error code 850
 
   # we add a hosedOn stuff, the steps must follow a defined order
+  @reset
   Scenario: Add a node hostedOn compute
     Given I add a node template "MySoftware" related to the "alien4cloud.tests.nodes.CustomInterface:1.1.0-SNAPSHOT" node type
      When I have added a relationship "hostedOnCompute" of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MySoftware" and target "MyCompute" for requirement "host" of type "tosca.capabilities.Container" and target capability "host"
@@ -76,6 +80,7 @@ Feature: Workflow edition
       And The workflow step "MySoftware_started" has no followers
 
   # rename a step and ensure that the wf still being consistent
+  @reset
   Scenario: Rename steps successfully
     Given I add a node template "MySoftware" related to the "alien4cloud.tests.nodes.CustomInterface:1.1.0-SNAPSHOT" node type
       And I have added a relationship "hostedOnCompute" of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MySoftware" and target "MyCompute" for requirement "host" of type "tosca.capabilities.Container" and target capability "host"
@@ -91,6 +96,7 @@ Feature: Workflow edition
       And The workflow step "MySoftware_created" is preceded by: "create_MySoftware_operation"
 
   # rename a step and ensure that the new name is not already used
+  @reset
   Scenario: Rename steps with name unicity checking
     Given I add a node template "MySoftware" related to the "alien4cloud.tests.nodes.CustomInterface:1.1.0-SNAPSHOT" node type
       And I have added a relationship "hostedOnCompute" of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MySoftware" and target "MyCompute" for requirement "host" of type "tosca.capabilities.Container" and target capability "host"
@@ -99,6 +105,7 @@ Feature: Workflow edition
      Then I should receive a RestResponse with an error code 502
 
   # remove a step and check that the wf still being consistent
+  @reset
   Scenario: Remove a step
     Given I add a node template "MySoftware" related to the "alien4cloud.tests.nodes.CustomInterface:1.1.0-SNAPSHOT" node type
       And I have added a relationship "hostedOnCompute" of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MySoftware" and target "MyCompute" for requirement "host" of type "tosca.capabilities.Container" and target capability "host"
@@ -111,6 +118,7 @@ Feature: Workflow edition
       And The workflow step "MySoftware_configured" is preceded by: "MySoftware_configuring"
 
   # append a custom command operation call after a given step
+  @reset
   Scenario: Add a custom command call
     Given I add a node template "MySoftware" related to the "alien4cloud.tests.nodes.CustomInterface:1.1.0-SNAPSHOT" node type
       And I have added a relationship "hostedOnCompute" of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MySoftware" and target "MyCompute" for requirement "host" of type "tosca.capabilities.Container" and target capability "host"
@@ -125,6 +133,7 @@ Feature: Workflow edition
       And The workflow step "MySoftware_configured" is preceded by: "success_MySoftware"
 
   # append a custom command operation call after a given step, then swap them
+  @reset
   Scenario: swap steps
     Given I add a node template "MySoftware" related to the "alien4cloud.tests.nodes.CustomInterface:1.1.0-SNAPSHOT" node type
       And I have added a relationship "hostedOnCompute" of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MySoftware" and target "MyCompute" for requirement "host" of type "tosca.capabilities.Container" and target capability "host"
@@ -143,6 +152,7 @@ Feature: Workflow edition
       And The workflow step "MySoftware_configured" is preceded by: "configure_MySoftware"
 
   # rename a node and check that the workflow still being consistent
+  @reset
   Scenario: rename node
     Given I add a node template "MySoftware" related to the "alien4cloud.tests.nodes.CustomInterface:1.1.0-SNAPSHOT" node type
       And I have added a relationship "hostedOnCompute" of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MySoftware" and target "MyCompute" for requirement "host" of type "tosca.capabilities.Container" and target capability "host"
@@ -180,6 +190,7 @@ Feature: Workflow edition
       And The SPEL expression "workflows['install'].steps['MySoftware_started'].hostId" should return "MyMachine"
 
   # connect a given step to 2 others
+  @reset
   Scenario: connect step to
     Given I add a node template "MySoftware" related to the "alien4cloud.tests.nodes.CustomInterface:1.1.0-SNAPSHOT" node type
       And I have added a relationship "hostedOnCompute" of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MySoftware" and target "MyCompute" for requirement "host" of type "tosca.capabilities.Container" and target capability "host"
@@ -220,6 +231,7 @@ Feature: Workflow edition
       And The workflow step "MySoftware_started" is preceded by: "start_MySoftware"
 
   # connect a given step from 2 others
+  @reset
   Scenario: connect step from
     Given I add a node template "MySoftware" related to the "alien4cloud.tests.nodes.CustomInterface:1.1.0-SNAPSHOT" node type
       And I have added a relationship "hostedOnCompute" of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MySoftware" and target "MyCompute" for requirement "host" of type "tosca.capabilities.Container" and target capability "host"
@@ -259,6 +271,7 @@ Feature: Workflow edition
       And The workflow step "start_MySoftware" is followed by: "MySoftware_started"
       And The workflow step "MySoftware_started" is preceded by: "start_MySoftware"
 
+  @reset
   Scenario: diconnect steps, check the workflow, then add an operation and finally reinit workflow
     Given I add a node template "MySoftware" related to the "alien4cloud.tests.nodes.CustomInterface:1.1.0-SNAPSHOT" node type
       And I have added a relationship "hostedOnCompute" of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MySoftware" and target "MyCompute" for requirement "host" of type "tosca.capabilities.Container" and target capability "host"
@@ -313,6 +326,7 @@ Feature: Workflow edition
       # MySoftware_started > .
       And The workflow step "MySoftware_started" has no followers
 
+  @reset
   Scenario: create a custom workflow
     Given I add a node template "MySoftware" related to the "alien4cloud.tests.nodes.CustomInterface:1.1.0-SNAPSHOT" node type
       And I have added a relationship "hostedOnCompute" of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MySoftware" and target "MyCompute" for requirement "host" of type "tosca.capabilities.Container" and target capability "host"
@@ -320,6 +334,7 @@ Feature: Workflow edition
      Then I should receive a RestResponse with no error
       And the workflow should exist in the topology and I start editing it
 
+  @reset
   Scenario: rename a custom workflow
     Given I add a node template "MySoftware" related to the "alien4cloud.tests.nodes.CustomInterface:1.1.0-SNAPSHOT" node type
       And I have added a relationship "hostedOnCompute" of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MySoftware" and target "MyCompute" for requirement "host" of type "tosca.capabilities.Container" and target capability "host"
@@ -333,6 +348,7 @@ Feature: Workflow edition
      Then The SPEL int expression "workflows.size()" should return 3
       And The SPEL boolean expression "workflows.containsKey('myCustomWorkflow')" should return true
 
+  @reset
   Scenario: rename a custom workflow with an existing name
     Given I add a node template "MySoftware" related to the "alien4cloud.tests.nodes.CustomInterface:1.1.0-SNAPSHOT" node type
       And I have added a relationship "hostedOnCompute" of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MySoftware" and target "MyCompute" for requirement "host" of type "tosca.capabilities.Container" and target capability "host"
@@ -342,6 +358,7 @@ Feature: Workflow edition
      When I rename the workflow to "install"
      Then I should receive a RestResponse with an error code 502
 
+  @reset
   Scenario: delete a custom workflow
     Given I add a node template "MySoftware" related to the "alien4cloud.tests.nodes.CustomInterface:1.1.0-SNAPSHOT" node type
       And I have added a relationship "hostedOnCompute" of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MySoftware" and target "MyCompute" for requirement "host" of type "tosca.capabilities.Container" and target capability "host"
@@ -356,6 +373,7 @@ Feature: Workflow edition
       And The SPEL boolean expression "workflows.containsKey('install')" should return true
       And The SPEL boolean expression "workflows.containsKey('uninstall')" should return true
 
+  @reset
   Scenario: create and edit a custom restart workflow
     Given I add a node template "MySoftware" related to the "alien4cloud.tests.nodes.CustomInterface:1.1.0-SNAPSHOT" node type
       And I have added a relationship "hostedOnCompute" of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MySoftware" and target "MyCompute" for requirement "host" of type "tosca.capabilities.Container" and target capability "host"
@@ -403,6 +421,7 @@ Feature: Workflow edition
       And The workflow step "MySoftware_started" has no followers
 
   # by connecting start to create, we generate a cycle
+  @reset
   Scenario: generate a cycle
     Given I add a node template "MySoftware" related to the "alien4cloud.tests.nodes.CustomInterface:1.1.0-SNAPSHOT" node type
       And I have added a relationship "hostedOnCompute" of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MySoftware" and target "MyCompute" for requirement "host" of type "tosca.capabilities.Container" and target capability "host"

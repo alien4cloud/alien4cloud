@@ -3,6 +3,7 @@ Feature: Mixing multiple versions of components
   Background:
     Given I am authenticated with "COMPONENTS_MANAGER" role
 
+  @reset
   Scenario: Upload CSAR with multiple versions
     Given I upload the archive "tosca base types 1.0"
     And I should receive a RestResponse with no error
@@ -27,6 +28,7 @@ Feature: Mixing multiple versions of components
         | 1.0 |
         | 2.0 |
 
+  @reset
   Scenario: Upload CSAR with multiple versions in irregular order
     Given I upload the archive "tosca base types 1.0"
     And I should receive a RestResponse with no error

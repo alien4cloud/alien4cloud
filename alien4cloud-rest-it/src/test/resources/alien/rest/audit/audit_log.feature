@@ -4,6 +4,7 @@ Feature: Audit log
     Given I am authenticated with user named "admin"
     And I reset audit log configuration
 
+  @reset
   Scenario: Creating applications should generate log audit
     When I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
     Then I should have 1 audit traces in Alien:
@@ -13,6 +14,7 @@ Feature: Audit log
       | admin | Application | create |
       | admin | Application | delete |
 
+  @reset
   Scenario: Audit Log configuration can be retrieved
     When I get audit log configuration
     Then I should have audit log enabled globally
@@ -20,6 +22,7 @@ Feature: Audit log
       | Application | create |
       | Application | delete |
 
+  @reset
   Scenario: Disable/enable audit log globally
     When I disable audit log globally
     And I get audit log configuration
@@ -33,6 +36,7 @@ Feature: Audit log
     Then I should have 1 audit traces in Alien:
       | admin | Application | create |
 
+  @reset
   Scenario: Disable/enable audit log per method
     When I disable audit log for following methods:
       | Application | delete |
@@ -54,6 +58,7 @@ Feature: Audit log
       | admin | Application | create |
       | admin | Application | delete |
 
+  @reset
   Scenario: Rest audit log configuration
     When I disable audit log globally
     And I disable audit log for following methods:

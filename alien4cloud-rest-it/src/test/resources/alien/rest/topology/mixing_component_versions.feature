@@ -17,6 +17,7 @@ Feature: Mixing multiple versions of components
     And I am authenticated with "APPLICATIONS_MANAGER" role
     And I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
 
+  @reset
   Scenario: Add a relationship between 2 nodes with mixing versions, ALIEN must be enough intelligent to upgrade versions
     Given I have added a node template "Compute" related to the "tosca.nodes.Compute:1.0" node type
     And I have added a node template "Java" related to the "fastconnect.nodes.Java:3.0" node type
