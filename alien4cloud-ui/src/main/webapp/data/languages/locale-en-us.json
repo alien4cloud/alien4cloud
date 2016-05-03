@@ -181,7 +181,56 @@
           "LABEL" : "Nodes properties"
         }
       },
-      "YAML" : "yaml"
+      "YAML" : "yaml",
+      "PORTABILITY": {
+        "ERROR": {
+          "ORCHESTRATOR_DEPENDENT": {
+            "LABEL": "Orchestrator dependent",
+            "DESCRIPTION": "The component is dependent to a particular orchestrator"
+          },
+          "IAAS_DEPENDENT": {
+            "LABEL": "IaaS dependent",
+            "DESCRIPTION": "The component is dependent to a particular IaaS"
+          },
+          "ARTIFACT_SUPPORT": {
+            "LABEL": "Artifact support",
+            "DESCRIPTION": "The component only supports particular types of artifacts"
+          },
+          "RUNTIME_PACKAGE": {
+            "LABEL": "Runtime package",
+            "DESCRIPTION": "The component requires one or more pre-installed packages in order to function properly"
+          },
+          "RUNTIME_PACKAGE_NOT_SATISFIED": {
+            "LABEL": "Runtime packages not satisfied",
+            "DESCRIPTION": "One or more runtime packages are not satisfied for the component"
+          },
+          "ORCHESTRATOR_CONFLICT": {
+            "LABEL": "Orchestrator conflict",
+            "DESCRIPTION": "There are components that are dependent on different types of orchestrator in the same topology"
+          },
+          "IAAS_CONFLICT": {
+            "LABEL": "IaaS conflict",
+            "DESCRIPTION": "There are components that are dependent on different types of IaaS in the same topology"
+          },
+          "ARTIFACT_NOT_SUPPORTED_ON_HOST": {
+            "LABEL": "Artifact not supported on host",
+            "DESCRIPTION": "Component's artifacts are not supported on the its host"
+          }
+        },
+        "INFO": {
+          "TITLE": "Topology's portability information",
+          "TYPE": "Type",
+          "ENTITY": "Entity",
+          "INFO": "Extra Information",
+          "SUCCESS": "No portability problem detected on the topology"
+        },
+        "LOCATION": {
+          "TITLE": "Topology's compatible locations",
+          "NO_LOCATION": "No location found",
+          "LOCATION_NAME": "Location",
+          "ENVIRONMENT_NAME": "Environment"
+        }
+      }
     },
     "UNDEPLOY" : "Undeploy",
     "VERSION" : {

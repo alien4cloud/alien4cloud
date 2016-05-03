@@ -14,6 +14,7 @@ define(function (require) {
 
   require('scripts/applications/controllers/application_info');
   require('scripts/applications/controllers/application_topology');
+  require('scripts/applications/controllers/application_topology_editor');
   require('scripts/applications/controllers/application_deployment');
   require('scripts/applications/controllers/application_environments');
   require('scripts/applications/controllers/application_versions');
