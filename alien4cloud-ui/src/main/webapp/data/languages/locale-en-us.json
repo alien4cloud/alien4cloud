@@ -741,7 +741,9 @@
     "MENU_RUNTIME" : "Runtime",
     "MENU_TOPOLOGY" : "Topology",
     "MENU_USERS" : "Users and Groups",
-    "MENU_VERSIONS" : "Versions"
+    "MENU_VERSIONS" : "Versions",
+    "MENU_TOPOLOGY_PORTABILITY_LOCATION": "Portable Locations",
+    "MENU_TOPOLOGY_PORTABILITY_INFO": "Portability Insight"
   },
   "NAVBAR" : {
     "BUTTON_LOGIN" : "Login",
