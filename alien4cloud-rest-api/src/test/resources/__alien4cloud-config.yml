@@ -8,8 +8,6 @@ directories:
   artifact_repository: artifacts
   # temporary directory for alien
   upload_temp: upload
-  # directory in which alien unzip loaded plugins.
-  plugins: plugins
   # directory in which alien4cloud stores images.
   images: images
 
