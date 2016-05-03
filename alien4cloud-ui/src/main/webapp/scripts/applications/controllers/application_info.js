@@ -171,7 +171,7 @@ define(function (require) {
             $state.go('applications.list');
           } else {
             // toaster message
-            toaster.pop('error', $translate('APPLICATIONS.ERRORS.DELETE_TITLE'), $translate('APPLICATIONS.ERRORS.DELETING_FAILED'), 4000, 'trustedHtml', null);
+            toaster.pop('error', $translate.instant('APPLICATIONS.ERRORS.DELETE_TITLE'), $translate.instant('APPLICATIONS.ERRORS.DELETING_FAILED'), 4000, 'trustedHtml', null);
           }
         });
       };
@@ -190,7 +190,7 @@ define(function (require) {
             $state.go($state.current, {}, {reload: true});
           },
           function(errorResponse) {// Error
-            return $translate('ERRORS.' + errorResponse.data.error.code);
+            return $translate.instant('ERRORS.' + errorResponse.data.error.code);
           }
         );
       };

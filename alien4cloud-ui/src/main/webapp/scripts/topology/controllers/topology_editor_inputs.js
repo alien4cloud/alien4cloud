@@ -343,8 +343,8 @@ define(function (require) {
               scope.refreshTopology(success.data);
             } else {
               inputDefinition.inputId = oldInput;
-              var msg = $translate('ERRORS.' + success.error.code);
-              toaster.pop('error', $translate(msg), $translate(msg), 6000, 'trustedHtml', null);
+              var msg = $translate.instant('ERRORS.' + success.error.code);
+              toaster.pop('error', $translate.instant(msg), $translate.instant(msg), 6000, 'trustedHtml', null);
             }
           });
         }

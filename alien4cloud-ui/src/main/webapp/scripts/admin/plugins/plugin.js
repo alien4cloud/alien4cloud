@@ -118,12 +118,12 @@ define(function (require) {
       function handleError(result) {
         var resultHtml = builtResultList(result);
         // toaster message
-        toaster.pop('error', $translate('PLUGINS.ERRORS.' + result.error.code + '_TITLE'), resultHtml, 4000, 'trustedHtml', null);
+        toaster.pop('error', $translate.instant('PLUGINS.ERRORS.' + result.error.code + '_TITLE'), resultHtml, 4000, 'trustedHtml', null);
       }
 
       // Prepare result html for toaster message
       function builtResultList(resultObject) {
-        var baseResponse = $translate('PLUGINS.ERRORS.' + resultObject.error.code);
+        var baseResponse = $translate.instant('PLUGINS.ERRORS.' + resultObject.error.code);
         var resourtceList = baseResponse + ' : <ul>';
         resultObject.data.forEach(function getResource(resource) {
           resourtceList += '<li>';
