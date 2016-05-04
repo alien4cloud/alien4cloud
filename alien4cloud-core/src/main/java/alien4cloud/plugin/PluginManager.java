@@ -20,6 +20,8 @@ import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConstructorArgumentValues;
+import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
@@ -390,13 +392,22 @@ public class PluginManager {
             pluginContext.register(pluginClassLoader.loadClass(plugin.getDescriptor().getConfigurationClass()));
         }
 
-        ManagedPlugin managedPlugin = new AlienManagedPlugin(pluginContext, plugin, pluginPath, pluginUiPath);
-
         // Register the context so that it can be injected by other beans
-        pluginContext.getBeanFactory().registerSingleton("alien-plugin-context", managedPlugin);
+        // pluginContext.getBeanFactory().registerSingleton("alien-plugin-context", managedPlugin);
+        GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
+        beanDefinition.setPrimary(true);
+        beanDefinition.setBeanClass(ManagedPlugin.class);
+        ConstructorArgumentValues constructorArgumentValues = new ConstructorArgumentValues();
+        constructorArgumentValues.addIndexedArgumentValue(0, pluginContext);
+        constructorArgumentValues.addIndexedArgumentValue(1, plugin);
+        constructorArgumentValues.addIndexedArgumentValue(2, pluginPath);
+        constructorArgumentValues.addIndexedArgumentValue(3, pluginUiPath);
+        beanDefinition.setConstructorArgumentValues(constructorArgumentValues);
+        pluginContext.registerBeanDefinition("alien-plugin-context", beanDefinition);
 
         pluginContext.refresh();
         pluginContext.start();
+        ManagedPlugin managedPlugin = (ManagedPlugin) pluginContext.getBean("alien-plugin-context");
 
         Map<String, PluginComponentDescriptor> componentDescriptors = getPluginComponentDescriptorAsMap(plugin);
 
