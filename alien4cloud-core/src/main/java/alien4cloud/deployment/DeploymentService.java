@@ -1,7 +1,6 @@
 package alien4cloud.deployment;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -175,9 +174,25 @@ public class DeploymentService {
     }
 
     private Deployment[] getOrchestratorActiveDeployments(String orchestratorId) {
-        Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "orchestratorId", "endDate" },
-                new String[][] { new String[] { orchestratorId }, new String[] { null } });
+        Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[]{"orchestratorId", "endDate"},
+                new String[][]{new String[]{orchestratorId}, new String[]{null}});
         GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, 1);
         return dataResult.getData();
+    }
+
+    public Map<String, Set<String>> getAllOrchestratorIdsAndOrchestratorDeploymentId(String applicationEnvironmentId) {
+        Map<String, Set<String>> result = new HashMap<>();
+        Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "environmentId" },
+                new String[][] { new String[] { applicationEnvironmentId }});
+        GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, Integer.MAX_VALUE);
+        if (dataResult.getData() != null && dataResult.getData().length > 0) {
+            for (Deployment deployment : dataResult.getData()) {
+                if (!result.containsKey(deployment.getOrchestratorId())) {
+                    result.put(deployment.getOrchestratorId(), new HashSet<String>());
+                }
+                result.get(deployment.getOrchestratorId()).add(deployment.getOrchestratorDeploymentId());
+            }
+        }
+        return result;
     }
 }

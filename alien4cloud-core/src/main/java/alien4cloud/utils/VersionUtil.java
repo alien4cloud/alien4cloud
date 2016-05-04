@@ -35,7 +35,7 @@ public final class VersionUtil {
      * @return true if it's following the defined version pattern
      */
     public static boolean isValid(String version) {
-        return VERSION_PATTERN.matcher(version).matches();
+        return version != null && VERSION_PATTERN.matcher(version).matches();
     }
 
     /**

@@ -164,12 +164,12 @@ define(function (require) {
             applicationEnvironmentId: environmentId
           }, angular.toJson(updateApplicationEnvironmentRequest)).$promise.then(function(response) {
             if (_.defined(response.error)) {
-              toaster.pop('error', $translate('ERRORS.' + response.error.code), response.error.message, 4000, 'trustedHtml', null);
+              toaster.pop('error', $translate.instant('ERRORS.' + response.error.code), response.error.message, 4000, 'trustedHtml', null);
             } else {
               updateEnvironment(environmentId, fieldName, realFieldValue);
             }
           }, function(errorResponse) {
-            return $translate('ERRORS.' + errorResponse.data.error.code);
+            return $translate.instant('ERRORS.' + errorResponse.data.error.code);
           });
         }
       };

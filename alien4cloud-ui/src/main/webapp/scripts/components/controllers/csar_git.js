@@ -76,8 +76,8 @@ define(function (require) {
         }
       }
       else{
-        var titleError = $translate('CSAR.ERRORS.NO_DATA.HEADER');
-        var bodyError=$translate('CSAR.ERRORS.NO_DATA.BODY');
+        var titleError = $translate.instant('CSAR.ERRORS.NO_DATA.HEADER');
+        var bodyError=$translate.instant('CSAR.ERRORS.NO_DATA.BODY');
         toaster.pop('note', titleError, bodyError, 4000, 'trustedHtml',null);
       }
     };
@@ -159,7 +159,7 @@ define(function (require) {
         csarGitService.create([], angular.toJson(csarGitTemplate), function(successResponse) {
           var errorMessage = successResponse;
           if (errorMessage.error !== null) {
-            var title = $translate('CSAR.ERRORS.' + errorMessage.error.code + '_TITLE');
+            var title = $translate.instant('CSAR.ERRORS.' + errorMessage.error.code + '_TITLE');
             toaster.pop('error', title, errorMessage.message, 4000, 'trustedHtml', null);
           }
           $scope.search();
@@ -183,7 +183,7 @@ define(function (require) {
         csarGitService.update({id: gitRepo.id },angular.toJson(gitRepo), function(successResponse) {
           var errorMessage = successResponse;
           if (errorMessage.error !== null) {
-            var title = $translate('CSAR.ERRORS.' + errorMessage.error.code + '_TITLE');
+            var title = $translate.instant('CSAR.ERRORS.' + errorMessage.error.code + '_TITLE');
             toaster.pop('error', title, errorMessage.message, 4000, 'trustedHtml', null);
           }else{
             //Do this instead of $scope.search(), to avoid useless REST call
