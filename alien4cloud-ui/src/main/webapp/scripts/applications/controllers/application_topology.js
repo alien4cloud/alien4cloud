@@ -1,21 +1,11 @@
-define(function (require) {
+define(function(require) {
   'use strict';
 
-  var modules = require('modules');
   var states = require('states');
-
-  require('angular-ui-select');
 
   states.state('applications.detail.topology', {
     url: '/topology',
-    templateUrl: 'views/topology/topology_editor.html',
-    controller: 'TopologyCtrl',
-    resolve: {
-      topologyId: function() {
-        return null;
-      },
-      preselectedVersion: function() { return undefined; }
-    },
+    template: '<ui-view></ui-view>',
     menu: {
       id: 'am.applications.detail.topology',
       state: 'applications.detail.topology',
@@ -25,6 +15,4 @@ define(function (require) {
       priority: 200
     }
   });
-
-  modules.get('a4c-applications', ['ui.select']);
-}); // define
+});

@@ -19,7 +19,7 @@ define(function (require) {
       **/
       // Prepare toaster html for toaster message
       function buildResourceUsageList(response) {
-        var baseResponse = $translate('ERRORS.' + response.error.code+'.MESSAGE');
+        var baseResponse = $translate.instant('ERRORS.' + response.error.code+'.MESSAGE');
         var usageList = baseResponse + ' : <ul>';
         response.data.forEach(function(usage) {
           usageList += '<li>';
@@ -32,7 +32,7 @@ define(function (require) {
       var handleResouceUsage = function(response){
         var toasterHtml = buildResourceUsageList(response);
         // toaster message
-        toaster.pop('error', $translate('ERRORS.' + response.error.code + '.TITLE'), toasterHtml, 4000, 'trustedHtml', null);
+        toaster.pop('error', $translate.instant('ERRORS.' + response.error.code + '.TITLE'), toasterHtml, 4000, 'trustedHtml', null);
       };
       //register
       handlers[508] = handleResouceUsage;

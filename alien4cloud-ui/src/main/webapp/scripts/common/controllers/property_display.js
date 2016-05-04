@@ -107,9 +107,9 @@ define(function(require) {
               var constraintInfo = saveResult.data;
               // Error message handled by x-editable
               if (saveResult.error.code === 800) {
-                return $translate('ERRORS.' + saveResult.error.code + '.' + constraintInfo.name, constraintInfo);
+                return $translate.instant('ERRORS.' + saveResult.error.code + '.' + constraintInfo.name, constraintInfo);
               } else {
-                return $translate('ERRORS.' + saveResult.error.code, constraintInfo);
+                return $translate.instant('ERRORS.' + saveResult.error.code, constraintInfo);
               }
             }
           });
@@ -164,7 +164,7 @@ define(function(require) {
                 propertyRequest.propertyValue = modalResult;
                 return callSaveService(propertyRequest);
               }, function() {
-                return $translate('CANCELLED');
+                return $translate.instant('CANCELLED');
               });
             } else {
               promise = callSaveService(propertyRequest);

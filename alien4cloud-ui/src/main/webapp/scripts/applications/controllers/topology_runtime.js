@@ -351,9 +351,9 @@ define(function (require) {
             var constraintInfo = successResult.data;
             var errorMessage = null;
             if (successResult.error.code === 804) {
-              errorMessage = $translate('ERRORS.' + successResult.error.code, constraintInfo);
+              errorMessage = $translate.instant('ERRORS.' + successResult.error.code, constraintInfo);
             } else { // 800
-              errorMessage = $translate('ERRORS.' + successResult.error.code + '.' + constraintInfo.name, constraintInfo);
+              errorMessage = $translate.instant('ERRORS.' + successResult.error.code + '.' + constraintInfo.name, constraintInfo);
             }
           } else {
             // No errors
@@ -489,7 +489,7 @@ define(function (require) {
           // success
           $scope.operationLoading[$scope.selectedNodeTemplate.name][interfaceName][operationName] = false;
           if (successResult.error !== null) {
-            var title = $translate('ERRORS.' + successResult.error.code + '.TITLE', {
+            var title = $translate.instant('ERRORS.' + successResult.error.code + '.TITLE', {
               'operation': operationName
             });
             var message = null;
@@ -499,10 +499,10 @@ define(function (require) {
             // 805 : required constraint for a property definition
             // 371 : Operation exception
             if (successResult.error.code === 804 || successResult.error.code === 805) { // Type matching error
-              message = $translate('ERRORS.' + successResult.error.code + '.MESSAGE', successResult.data);
+              message = $translate.instant('ERRORS.' + successResult.error.code + '.MESSAGE', successResult.data);
             } else if (successResult.error.code === 800) { // Constraint error
               var constraintInfo = successResult.data;
-              message = $translate('ERRORS.' + successResult.error.code + '.' + constraintInfo.name, constraintInfo);
+              message = $translate.instant('ERRORS.' + successResult.error.code + '.' + constraintInfo.name, constraintInfo);
             } else { // code 371, execution error
               message = successResult.error.message;
             }
@@ -510,7 +510,7 @@ define(function (require) {
             toaster.pop('error', title, message, 0, 'trustedHtml', null);
 
           } else if (!_.undefined(successResult.data)) {
-            var successTitle = $translate('APPLICATIONS.RUNTIME.OPERATION_EXECUTION.RESULT_TITLE', {
+            var successTitle = $translate.instant('APPLICATIONS.RUNTIME.OPERATION_EXECUTION.RESULT_TITLE', {
               'operation': operationName
             });
             // Toaster HTML result preview for all instances
@@ -521,7 +521,7 @@ define(function (require) {
               if (resultInstanceMap[instanceId]) {
                 resultHtml.push('<li>Instance ' + instanceId + ' : ' + resultInstanceMap[instanceId] + '</li>');
               } else {
-                resultHtml.push('<li>Instance ' + instanceId + ' : OK (' + $translate('APPLICATIONS.RUNTIME.OPERATION_EXECUTION.NO_RETURN') + ')</li>');
+                resultHtml.push('<li>Instance ' + instanceId + ' : OK (' + $translate.instant('APPLICATIONS.RUNTIME.OPERATION_EXECUTION.NO_RETURN') + ')</li>');
               }
 
             });
