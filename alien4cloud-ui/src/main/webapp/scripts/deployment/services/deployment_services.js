@@ -60,6 +60,8 @@ define(function (require) {
 
       var deploymentMaintenanceResource = $resource('rest/latest/applications/:applicationId/environments/:applicationEnvironmentId/deployment/maintenance');
 
+      var nonNativeNodesResource = $resource('rest/latest/runtime/:applicationId/environment/:applicationEnvironmentId/nonNatives');
+
       return {
         'get': deploymentsResource.get,
         'getEvents': deploymentEventResource.get,
@@ -74,7 +76,8 @@ define(function (require) {
         'deploymentMaintenance': {
           'on': deploymentMaintenanceResource.save,
           'off': deploymentMaintenanceResource.remove
-        }
+        },
+        'getNonNativeNodes' : nonNativeNodesResource.get
       };
     }
   ]);
