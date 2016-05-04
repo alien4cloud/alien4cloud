@@ -295,7 +295,7 @@ define(function (require) {
           topologyId: topologyId
         }, {}, function(result) {
           if (!result.error) {
-            $state.go('topologytemplates.detail.topology', {
+            $state.go('topologytemplates.detail.topology.editor', {
               id: result.data.topologyTemplateId,
               version: result.data.version
             });

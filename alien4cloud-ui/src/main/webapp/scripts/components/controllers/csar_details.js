@@ -41,7 +41,7 @@ define(function (require) {
 
       //Go to runtime view for a deployment
       $scope.goToRuntimeView = function(id){
-        $state.go('topologytemplates.detail.topology', {
+        $state.go('topologytemplates.detail.topology.editor', {
           id:id
         });
       };
