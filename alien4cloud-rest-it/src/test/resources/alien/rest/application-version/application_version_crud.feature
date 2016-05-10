@@ -1,37 +1,43 @@
 Feature: CRUD operations on application version
 
-  Background: 
+  Background:
     Given I am authenticated with "ADMIN" role
     And There are these users in the system
       | lufy |
     And I add a role "APPLICATIONS_MANAGER" to user "lufy"
     And I am authenticated with user named "lufy"
 
+  @reset
   Scenario: Create an application version with failure
     Given I have an application with name "ALIEN"
     And I create an application version with version "0.3..0-SNAPSHOT-SHOULD-FAILED"
     Then I should receive a RestResponse with an error code 605
 
+  @reset
   Scenario: Create an application version with the same name version raise a conflict
     Given I have an application with name "ALIEN"
     And I create an application version with version "0.1.0-SNAPSHOT"
     Then I should receive a RestResponse with an error code 502
 
+  @reset
   Scenario: Create an application version with success
     Given I have an application with name "ALIEN"
     And I create an application version with version "0.3.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
 
+  @reset
   Scenario: Delete an application version when it' the last should failled
     Given I have an application with name "ALIEN"
     And I delete an application version with name "0.1.0-SNAPSHOT"
     Then I should receive a RestResponse with an error code 610
 
+  @reset
   Scenario: Delete an application version with failure
     Given I have an application with name "ALIEN"
     And I delete an application version with name "0.2.0-SNAPSHOT"
     Then I should receive a RestResponse with an error code 504
 
+  @reset
   Scenario: Delete an application version with failure when application is deployed
     Given I am authenticated with "ADMIN" role
     And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
@@ -54,6 +60,7 @@ Feature: CRUD operations on application version
     And I delete an application version with name "0.1.0-SNAPSHOT"
     Then I should receive a RestResponse with an error code 507
 
+  @reset
   Scenario: Delete an application version with success
     Given I have an application with name "ALIEN"
     And I create an application version with version "0.2.0-SNAPSHOT"
@@ -61,6 +68,7 @@ Feature: CRUD operations on application version
     And I delete an application version with name "0.2.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
 
+  @reset
   Scenario: Search for application versions
     Given I have an application with name "ALIEN"
     And I create an application version with version "0.3.0-SNAPSHOT"
@@ -68,6 +76,7 @@ Feature: CRUD operations on application version
     When I search for application versions
     Then I should receive 2 application versions in the search result
 
+  @reset
   Scenario: Update an application version with success
     Given I have an application with name "ALIEN"
     And I create an application version with version "0.2.0-SNAPSHOT"
@@ -75,6 +84,7 @@ Feature: CRUD operations on application version
     And I update an application version with version "0.2.0-SNAPSHOT" to "0.4.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
 
+  @reset
   Scenario: Update an application version with an existing name should be failed
     Given I have an application with name "ALIEN"
     And I create an application version with version "0.2.0-SNAPSHOT"
@@ -82,6 +92,7 @@ Feature: CRUD operations on application version
     And I update an application version with version "0.1.0-SNAPSHOT" to "0.2.0-SNAPSHOT"
     Then I should receive a RestResponse with an error code 502
 
+  @reset
   Scenario: Update a released application version should be failed
     Given I have an application with name "ALIEN"
     And I create an application version with version "0.2.0"

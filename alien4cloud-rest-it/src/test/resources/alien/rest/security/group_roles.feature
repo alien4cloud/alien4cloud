@@ -10,6 +10,7 @@ Feature: Create an application an testing application group roles on it
     And There is a "evil" group in the system
     And There is a "kind" group in the system
 
+  @reset
   Scenario: Role attribution with user added to the group
     # Before the user is added to the group, create a new application should not work
     Given I add the role "APPLICATIONS_MANAGER" to the group "evil"
@@ -29,6 +30,7 @@ Feature: Create an application an testing application group roles on it
     When I create a new application with name "Trunk is the best v2" and description "This is the best app for trunk"
     Then I should receive a RestResponse with an error code 102
 
+  @reset
   Scenario: Role attribution with role added to group
     # Before the role is added to the group, create a csar will not work
     Given I add the user "sangoku" to the group "kind"
@@ -48,6 +50,7 @@ Feature: Create an application an testing application group roles on it
     When I create a CSAR with name "sangoku-on-the-cloud" and version "2.0"
     Then I should receive a RestResponse with an error code 102
 
+  @reset
   Scenario: Remove a group should remove also the right of user of this group
     Given I am authenticated with "ADMIN" role
     And I add the role "APPLICATIONS_MANAGER" to the group "evil"

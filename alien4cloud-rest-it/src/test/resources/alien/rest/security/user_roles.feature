@@ -5,6 +5,7 @@ Feature: Test user roles edit
     And There are these users in the system
       | trunk |
 
+  @reset
   Scenario: Role attribution
     Given I am authenticated with "ADMIN" role
     And I add a role "COMPONENTS_MANAGER" to user "trunk"
@@ -32,4 +33,3 @@ Feature: Test user roles edit
     Then I should receive a RestResponse with an error code 102
     When I create a new application with name "app of trunk v3" and description "This is the best app for trunk v3"
     Then I should receive a RestResponse with an error code 102
-

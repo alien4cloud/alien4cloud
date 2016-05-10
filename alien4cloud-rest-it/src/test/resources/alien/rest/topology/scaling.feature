@@ -9,6 +9,7 @@ Feature: Add / Remove / Edit scaling policy
     And I update the node template "Compute"'s property "os_arch" to "x86_64"
     And I update the node template "Compute"'s property "os_type" to "linux"
 
+  @reset
   Scenario: Edit a scaling policy
     When I update the node template "Compute"'s capability "scalable" of type "tosca.capabilities.Scalable"'s property "max_instances" to "4"
     Then I should receive a RestResponse with no error

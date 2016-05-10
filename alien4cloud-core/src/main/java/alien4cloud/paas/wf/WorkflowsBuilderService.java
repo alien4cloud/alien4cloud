@@ -255,7 +255,10 @@ public class WorkflowsBuilderService {
         return wf;
     }
 
-    public void renameNode(Topology topology, NodeTemplate nodeTemplate, String nodeTemplateName, String newNodeTemplateName) {
+    public void renameNode(Topology topology, String nodeTemplateName, String newNodeTemplateName) {
+        if (topology.getWorkflows() == null) {
+            return;
+        }
         TopologyContext topologyContext = buildTopologyContext(topology);
         for (Workflow wf : topology.getWorkflows().values()) {
             AbstractWorkflowBuilder builder = getWorkflowBuilder(wf);

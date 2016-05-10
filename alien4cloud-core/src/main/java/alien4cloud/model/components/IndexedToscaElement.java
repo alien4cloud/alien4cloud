@@ -28,7 +28,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @Getter
 @Setter
 @EqualsAndHashCode(of = { "elementId", "archiveName", "archiveVersion" })
-@SuppressWarnings("PMD.UnusedPrivateField")
 @JsonInclude(Include.NON_NULL)
 @ESAll(analyser = "simple")
 public abstract class IndexedToscaElement {

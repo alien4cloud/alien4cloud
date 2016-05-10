@@ -49,6 +49,8 @@ Feature: Topology composition
         | managementUrl | http://cloudifyurl:8099 |
         | numberBackup  | 1                       |
         | managerEmail  | admin@alien.fr          |
+
+  @reset
   Scenario: Expose the template as a type and check type properties and attributes
     Given I expose the template as type "tosca.nodes.Root"
     Then I should receive a RestResponse with no error
@@ -74,6 +76,7 @@ Feature: Topology composition
 #    And The SPEL boolean expression "attributes.containsKey('db_port')" should return true
     And The SPEL boolean expression "attributes.containsKey('port')" should return true
 
+  @reset
   Scenario: Expose capabilities and check type capabilities
     Given I expose the template as type "tosca.nodes.Root"
     And I expose the capability "database_endpoint" for the node "MyMysql"
@@ -89,7 +92,7 @@ Feature: Topology composition
     And The SPEL expression "capabilities.^[id == 'hostApache'].type" should return "alien.capabilities.ApacheContainer"
     And The SPEL expression "capabilities.^[id == 'attachWebsite'].type" should return "alien.capabilities.PHPModule"
 
-
+  @reset
   Scenario: Expose capabilities and use it in a topology
     Given I expose the template as type "tosca.nodes.Root"
     And I expose the capability "database_endpoint" for the node "MyMysql"
@@ -132,7 +135,8 @@ Feature: Topology composition
     And The SPEL expression "topology.outputAttributes['myLAMP_MyCompute'][0]" should return "ip_address"
     And The SPEL expression "topology.outputCapabilityProperties['myLAMP_MyApache']['data_endpoint'][0]" should return "port"
 
-Scenario: Recursive composition
+  @reset
+  Scenario: Recursive composition
 # in this scenario we have 3 templates:
 # - 1 mysql subsystem (mysql + compute)
 # - 1 apache + php subsystem (apache + php + compute)
@@ -222,7 +226,8 @@ Scenario: Recursive composition
     # the apache should be connected to the compute
     And The SPEL expression "topology.nodeTemplates['myLAMP_WWW_MyApache'].relationships.^[value.type == 'tosca.relationships.HostedOn'].values().iterator().next().target" should return "myLAMP_WWW_MyCompute"
 
-Scenario: Topology composition with interaction
+  @reset
+  Scenario: Topology composition with interaction
 # in this scenario we have 2 templates:
 # - 1 mysql subsystem (only mysql)
 # - 1 apache + php subsystem (apache + php + compute)
@@ -304,7 +309,8 @@ Scenario: Topology composition with interaction
     # the mysql should be connected to the compute
     And The SPEL expression "topology.nodeTemplates['myLAMP_DB_MyMysql'].relationships.^[value.type == 'tosca.relationships.HostedOn'].values().iterator().next().target" should return "myLAMP_WWW_MyCompute"
 
-Scenario: Cyclic reference
+  @reset
+  Scenario: Cyclic reference
 # When a topology template is exposed as a type, we forbid the use of this type in the same topology template
 # (since it will cause endless recursive calls). Here we test this limitation.
     Given I expose the template as type "tosca.nodes.Root"
@@ -312,8 +318,8 @@ Scenario: Cyclic reference
     When I add a node template "MyCompute" related to the "net.sample.LAMP:0.1.0-SNAPSHOT" node type
     Then I should receive a RestResponse with an error code 820
 
-
-Scenario: Indirect cyclic reference
+  @reset
+  Scenario: Indirect cyclic reference
 # Scenario:
 # - net.sample.LAMP is exposed as a type
 # - I cretae a template net.sample.LAMP2 that uses the type net.sample.LAMP and is exposed itself as a type
@@ -331,8 +337,8 @@ Scenario: Indirect cyclic reference
     And I add a node template "Lamp2" related to the "net.sample.LAMP2:0.1.0-SNAPSHOT" node type
     Then I should receive a RestResponse with an error code 820
 
-
-Scenario: Delete referenced topology template
+  @reset
+  Scenario: Delete referenced topology template
 # A topology template that is exposed as a type and used in another topology can not be deleted
     Given I expose the template as type "tosca.nodes.Root"
     And I create a new topology template version named "0.2.0-SNAPSHOT" based on the current version

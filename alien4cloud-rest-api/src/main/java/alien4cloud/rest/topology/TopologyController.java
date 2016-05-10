@@ -1,5 +1,6 @@
 package alien4cloud.rest.topology;
 
+import alien4cloud.exception.InvalidNodeNameException;
 import io.swagger.annotations.ApiOperation;
 
 import java.io.IOException;
@@ -102,8 +103,10 @@ public class TopologyController {
 
     @Resource
     private TopologyValidationService topologyValidationService;
+
     @Resource
     private TopologyCapabilityBoundsValidationServices topologyCapabilityBoundsValidationServices;
+
     @Resource
     private TopologyRequirementBoundsValidationServices topologyRequirementBoundsValidationServices;
 
@@ -178,6 +181,13 @@ public class TopologyController {
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
+        if (!TopologyUtils.isValidNodeName(nodeTemplateRequest.getName())) {
+            throw new InvalidNodeNameException("A name should only contains alphanumeric character from the basic Latin alphabet and the underscore.");
+        }
+        if (topology.getNodeTemplates() != null) {
+            topologyService.isUniqueNodeTemplateName(topologyId, nodeTemplateRequest.getName(), topology.getNodeTemplates());
+        }
+
         IndexedNodeType indexedNodeType = alienDAO.findById(IndexedNodeType.class, nodeTemplateRequest.getIndexedNodeTypeId());
         if (indexedNodeType == null) {
             return RestResponseBuilder.<TopologyDTO> builder().error(RestErrorBuilder.builder(RestErrorCode.COMPONENT_MISSING_ERROR).build()).build();
@@ -235,122 +245,17 @@ public class TopologyController {
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
-        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
-        isUniqueNodeTemplateName(topologyId, newNodeTemplateName, nodeTemplates);
+        if (!TopologyUtils.isValidNodeName(newNodeTemplateName)) {
+            throw new InvalidNodeNameException("A name should only contains alphanumeric character from the basic Latin alphabet and the underscore.");
+        }
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        topologyService.isUniqueNodeTemplateName(topology.getId(), newNodeTemplateName, nodeTemplates);
 
-        nodeTemplate.setName(newNodeTemplateName);
-        nodeTemplates.put(newNodeTemplateName, nodeTemplate);
-        nodeTemplates.remove(nodeTemplateName);
-        refreshNodeTempNameInRelationships(nodeTemplateName, newNodeTemplateName, nodeTemplates);
-        updateOnNodeTemplateNameChange(nodeTemplateName, newNodeTemplateName, topology);
-        updateGroupMembers(topology, nodeTemplate, nodeTemplateName, newNodeTemplateName);
-        workflowBuilderService.renameNode(topology, nodeTemplate, nodeTemplateName, newNodeTemplateName);
-        log.debug("Renaming the Node template <{}> with <{}> in the topology <{}> .", nodeTemplateName, newNodeTemplateName, topologyId);
-
+        TopologyUtils.renameNodeTemplate(topology, nodeTemplateName, newNodeTemplateName);
+        workflowBuilderService.renameNode(topology, nodeTemplateName, newNodeTemplateName);
+        log.debug("Renaming the Node template <{}> with <{}> in the topology <{}> .", nodeTemplateName, newNodeTemplateName, topology.getId());
         topologyServiceCore.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-    }
-
-    /**
-     * Update properties in a topology
-     */
-    private void updateOnNodeTemplateNameChange(String oldNodeTemplateName, String newNodeTemplateName, Topology topology) {
-        // Output properties
-        if (topology.getOutputProperties() != null) {
-            Set<String> oldPropertiesOutputs = topology.getOutputProperties().remove(oldNodeTemplateName);
-            if (oldPropertiesOutputs != null) {
-                topology.getOutputProperties().put(newNodeTemplateName, oldPropertiesOutputs);
-            }
-        }
-        // substitution mapping
-        if (topology.getSubstitutionMapping() != null) {
-            if (topology.getSubstitutionMapping().getCapabilities() != null) {
-                for (SubstitutionTarget st : topology.getSubstitutionMapping().getCapabilities().values()) {
-                    if (st.getNodeTemplateName().equals(oldNodeTemplateName)) {
-                        st.setNodeTemplateName(newNodeTemplateName);
-                    }
-                }
-            }
-            if (topology.getSubstitutionMapping().getRequirements() != null) {
-                for (SubstitutionTarget st : topology.getSubstitutionMapping().getRequirements().values()) {
-                    if (st.getNodeTemplateName().equals(oldNodeTemplateName)) {
-                        st.setNodeTemplateName(newNodeTemplateName);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * <p>
-     * Update the name of a node template in the relationships of a topology. This requires two operations:
-     * <ul>
-     * <li>Rename the target node of a relationship</li>
-     * <li>If a relationship has an auto-generated id, update it's id to take in account the new target name.</li>
-     * </ul>
-     * </p>
-     *
-     * @param oldNodeTemplateName Name of the node template that changes.
-     * @param newNodeTemplateName New name for the node template.
-     * @param nodeTemplates Map of all node templates in the topology.
-     */
-    private void refreshNodeTempNameInRelationships(String oldNodeTemplateName, String newNodeTemplateName, Map<String, NodeTemplate> nodeTemplates) {
-        // node templates copy
-        for (NodeTemplate nodeTemplate : nodeTemplates.values()) {
-            if (nodeTemplate.getRelationships() != null) {
-                refreshNodeTemplateNameInRelationships(oldNodeTemplateName, newNodeTemplateName, nodeTemplate.getRelationships());
-            }
-        }
-    }
-
-    private void refreshNodeTemplateNameInRelationships(String oldNodeTemplateName, String newNodeTemplateName,
-            Map<String, RelationshipTemplate> relationshipTemplates) {
-        Map<String, String> updatedKeys = Maps.newHashMap();
-        for (Entry<String, RelationshipTemplate> relationshipTemplateEntry : relationshipTemplates.entrySet()) {
-            String relationshipTemplateId = relationshipTemplateEntry.getKey();
-            RelationshipTemplate relationshipTemplate = relationshipTemplateEntry.getValue();
-
-            if (relationshipTemplate.getTarget().equals(oldNodeTemplateName)) {
-                relationshipTemplate.setTarget(newNodeTemplateName);
-                String formatedOldNodeName = topologyService.getRelationShipName(relationshipTemplate.getType(), oldNodeTemplateName);
-                // if the id/name of the relationship is auto-generated we should update it also as auto-generation is <typeName+targetId>
-                if (relationshipTemplateId.equals(formatedOldNodeName)) {
-                    String newRelationshipTemplateId = topologyService.getRelationShipName(relationshipTemplate.getType(), newNodeTemplateName);
-                    // check that the new name is not already used (so we won't override another relationship)...
-                    String validNewRelationshipTemplateId = newRelationshipTemplateId;
-                    int counter = 0;
-                    while (relationshipTemplates.containsKey(validNewRelationshipTemplateId)) {
-                        validNewRelationshipTemplateId = newRelationshipTemplateId + counter;
-                        counter++;
-                    }
-                    updatedKeys.put(relationshipTemplateId, validNewRelationshipTemplateId);
-                }
-            }
-        }
-
-        // update the relationship keys if any has been impacted
-        for (Entry<String, String> updateKeyEntry : updatedKeys.entrySet()) {
-            RelationshipTemplate relationshipTemplate = relationshipTemplates.remove(updateKeyEntry.getKey());
-            relationshipTemplates.put(updateKeyEntry.getValue(), relationshipTemplate);
-        }
-    }
-
-    private void isUniqueNodeTemplateName(String topologyId, String newNodeTemplateName, Map<String, NodeTemplate> nodeTemplates) {
-        if (nodeTemplates.containsKey(newNodeTemplateName)) {
-            log.debug("Add Node Template <{}> impossible (already exists)", newNodeTemplateName);
-            // a node template already exist with the given name.
-            throw new AlreadyExistException(
-                    "A node template with the given name " + newNodeTemplateName + " already exists in the topology " + topologyId + ".");
-        }
-    }
-
-    private void isUniqueRelationshipName(String topologyId, String nodeTemplateName, String newName, Set<String> relationshipNames) {
-        if (relationshipNames.contains(newName)) {
-            // a relation already exist with the given name.
-            throw new AlreadyExistException("A relationship with the given name " + newName + " already exists in the node template " + nodeTemplateName
-                    + " of topology " + topologyId + ".");
-        }
     }
 
     /**
@@ -376,8 +281,8 @@ public class TopologyController {
             return RestResponseBuilder.<TopologyDTO> builder().error(RestErrorBuilder.builder(RestErrorCode.COMPONENT_MISSING_ERROR).build()).build();
         }
         topologyService.loadType(topology, indexedRelationshipType);
-        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
 
         boolean upperBoundReachedSource = topologyRequirementBoundsValidationServices.isRequirementUpperBoundReachedForSource(nodeTemplate,
                 relationshipTemplateRequest.getRelationshipTemplate().getRequirementName(), topology.getDependencies());
@@ -453,9 +358,9 @@ public class TopologyController {
 
         log.debug("Removing the Node template <{}> from the topology <{}> .", nodeTemplateName, topology.getId());
 
-        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
 
-        NodeTemplate template = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+        NodeTemplate template = TopologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         // Clean up internal repository
         Map<String, DeploymentArtifact> artifacts = template.getArtifacts();
         if (artifacts != null) {
@@ -484,32 +389,12 @@ public class TopologyController {
         }
 
         // group members removal
-        updateGroupMembers(topology, template, nodeTemplateName, null);
+        TopologyUtils.updateGroupMembers(topology, template, nodeTemplateName, null);
         // update the workflows
         workflowBuilderService.removeNode(topology, nodeTemplateName, template);
         topologyServiceCore.save(topology);
         topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-    }
-
-    /**
-     * Manage node group members when a node name is removed or its name has changed.
-     *
-     * @param newName : the new name of the node or <code>null</code> if the node has been removed.
-     */
-    private void updateGroupMembers(Topology topology, NodeTemplate template, String nodeName, String newName) {
-        Map<String, NodeGroup> topologyGroups = topology.getGroups();
-        if (template.getGroups() != null && !template.getGroups().isEmpty() && topologyGroups != null) {
-            for (String groupId : template.getGroups()) {
-                NodeGroup nodeGroup = topologyGroups.get(groupId);
-                if (nodeGroup != null && nodeGroup.getMembers() != null) {
-                    boolean removed = nodeGroup.getMembers().remove(nodeName);
-                    if (removed && newName != null) {
-                        nodeGroup.getMembers().add(newName);
-                    }
-                }
-            }
-        }
     }
 
     private void removeNodeTemplateSubstitutionTargetMapEntry(String nodeTemplateName, Map<String, SubstitutionTarget> substitutionTargets) {
@@ -542,8 +427,8 @@ public class TopologyController {
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
-        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemp = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate nodeTemp = TopologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         String propertyName = updatePropertyRequest.getPropertyName();
         Object propertyValue = updatePropertyRequest.getPropertyValue();
 
@@ -597,8 +482,8 @@ public class TopologyController {
                 propertyName, relationshipType, nodeTemplateName, topology.getId(), relationshipTypes.get(relationshipType).getProperties().get(propertyName),
                 propertyValue);
 
-        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         Map<String, RelationshipTemplate> relationships = nodeTemplate.getRelationships();
 
         try {
@@ -643,8 +528,8 @@ public class TopologyController {
                 propertyName, capabilityType, nodeTemplateName, topology.getId(), capabilityTypes.get(capabilityType).getProperties().get(propertyName),
                 propertyValue);
 
-        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         Map<String, Capability> capabilities = nodeTemplate.getCapabilities();
 
         try {
@@ -689,7 +574,7 @@ public class TopologyController {
         Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
 
-        topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, topologyServiceCore.getNodeTemplates(topology));
+        TopologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, TopologyServiceCore.getNodeTemplates(topology));
 
         IndexedNodeType[] replacementsNodeTypes = topologyService.findReplacementForNode(nodeTemplateName, topology);
 
@@ -710,8 +595,8 @@ public class TopologyController {
         IndexedNodeType indexedNodeType = findIndexedNodeType(nodeTemplateRequest.getIndexedNodeTypeId());
 
         // Retrieve existing node template
-        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate oldNodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate oldNodeTemplate = TopologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         // Load the new type to the topology in order to update its dependencies
         indexedNodeType = topologyService.loadType(topology, indexedNodeType);
         // Build the new one
@@ -731,7 +616,7 @@ public class TopologyController {
             removeNodeTemplateSubstitutionTargetMapEntry(nodeTemplateName, topology.getSubstitutionMapping().getRequirements());
         }
 
-        refreshNodeTempNameInRelationships(nodeTemplateName, nodeTemplateRequest.getName(), nodeTemplates);
+        TopologyUtils.refreshNodeTempNameInRelationships(nodeTemplateName, nodeTemplateRequest.getName(), nodeTemplates);
         log.debug("Replacing the node template<{}> with <{}> bound to the node type <{}> on the topology <{}> .", nodeTemplateName,
                 nodeTemplateRequest.getName(), nodeTemplateRequest.getIndexedNodeTypeId(), topology.getId());
         // add the new node to the workflow
@@ -761,8 +646,8 @@ public class TopologyController {
         topologyService.throwsErrorIfReleased(topology);
 
         // Get the node template's artifacts to update
-        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         Map<String, DeploymentArtifact> artifacts = nodeTemplate.getArtifacts();
         if (artifacts == null) {
             throw new NotFoundException("Artifact with key [" + artifactId + "] do not exist");
@@ -800,8 +685,8 @@ public class TopologyController {
         topologyService.throwsErrorIfReleased(topology);
 
         // Get the node template's artifacts to update
-        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         Map<String, DeploymentArtifact> artifacts = nodeTemplate.getArtifacts();
         if (artifacts == null) {
             throw new NotFoundException("Artifact with key [" + artifactId + "] do not exist");
@@ -926,9 +811,9 @@ public class TopologyController {
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
-        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
 
-        NodeTemplate template = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+        NodeTemplate template = TopologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         log.debug("Removing the Relationship template <" + relationshipName + "> from the Node template <" + nodeTemplateName + ">, Topology <"
                 + topology.getId() + "> .");
         RelationshipTemplate relationshipTemplate = template.getRelationships().get(relationshipName);
@@ -953,8 +838,8 @@ public class TopologyController {
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
-        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
 
         if (nodeTemplate.getProperties() != null && nodeTemplate.getProperties().containsKey(propertyName)) {
             topology.setOutputProperties(addToMap(topology.getOutputProperties(), nodeTemplateName, propertyName));
@@ -972,8 +857,8 @@ public class TopologyController {
      */
     private Map<String, Map<String, Set<String>>> getOutputCapabilityPropertiesOrThrowException(Topology topology, String nodeTemplateName, String propertyId,
             String capabilityId) {
-        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topology.getId(), nodeTemplateName, nodeTemplates);
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), nodeTemplateName, nodeTemplates);
 
         if (nodeTemplate.getCapabilities() == null || nodeTemplate.getCapabilities().get(capabilityId) == null) {
             throw new NotFoundException("Capability " + capabilityId + " do not exist for the node " + nodeTemplateName);
@@ -1063,8 +948,8 @@ public class TopologyController {
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
-        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
 
         if (nodeTemplate.getAttributes() != null && nodeTemplate.getAttributes().containsKey(attributeName)) {
             topology.setOutputAttributes(addToMap(topology.getOutputAttributes(), nodeTemplateName, attributeName));
@@ -1116,8 +1001,8 @@ public class TopologyController {
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
-        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
 
         if (nodeTemplate.getArtifacts() != null && nodeTemplate.getArtifacts().containsKey(artifactId)) {
             DeploymentArtifact nodeArtifact = nodeTemplate.getArtifacts().get(artifactId);
@@ -1154,8 +1039,8 @@ public class TopologyController {
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
-        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         if (nodeTemplate.getArtifacts() != null && nodeTemplate.getArtifacts().containsKey(artifactId)) {
             InputArtifactUtil.unsetInputArtifact(nodeTemplate.getArtifacts().get(artifactId));
         }
@@ -1230,8 +1115,8 @@ public class TopologyController {
         Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
 
-        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         if (nodeTemplate.getArtifacts() != null && nodeTemplate.getArtifacts().containsKey(artifactName)) {
             DeploymentArtifact nodeDeploymentArtifact = nodeTemplate.getArtifacts().get(artifactName);
             List<String> inputIds = new ArrayList<String>();
@@ -1270,15 +1155,15 @@ public class TopologyController {
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
-        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
 
         Map<String, RelationshipTemplate> relationships = nodeTemplate.getRelationships();
         if (relationships == null || relationships.get(relationshipName) == null) {
             throw new NotFoundException("Node template [" + nodeTemplateName + "] do not have the relationship [" + relationshipName + "].");
         }
 
-        isUniqueRelationshipName(topologyId, nodeTemplateName, newRelationshipName, relationships.keySet());
+        topologyService.isUniqueRelationshipName(topologyId, nodeTemplateName, newRelationshipName, relationships.keySet());
 
         relationships.put(newRelationshipName, relationships.get(relationshipName));
         relationships.remove(relationshipName);
@@ -1310,7 +1195,7 @@ public class TopologyController {
         NodeGroup nodeGroup = topology.getGroups().remove(groupName);
         if (nodeGroup != null) {
             nodeGroup.setName(newGroupName);
-            Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
+            Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
             for (NodeTemplate nodeTemplate : nodeTemplates.values()) {
                 if (nodeTemplate.getGroups() != null) {
                     if (nodeTemplate.getGroups().remove(groupName)) {
@@ -1335,7 +1220,7 @@ public class TopologyController {
 
         NodeGroup nodeGroup = topology.getGroups().remove(groupName);
         if (nodeGroup != null) {
-            Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
+            Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
             for (NodeTemplate nodeTemplate : nodeTemplates.values()) {
                 if (nodeTemplate.getGroups() != null) {
                     nodeTemplate.getGroups().remove(groupName);
@@ -1377,7 +1262,7 @@ public class TopologyController {
         if (topology.getNodeTemplates() == null || !topology.getNodeTemplates().containsKey(nodeName)) {
             throw new NotFoundException("Attempt to add a non existing node [" + nodeName + "] to the group [" + groupName + "]");
         }
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplates(topology).get(nodeName);
+        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplates(topology).get(nodeName);
         if (nodeTemplate == null) {
             throw new NotFoundException("Attempt to add a non existing node [" + nodeName + "] to the group [" + groupName + "]");
         }
@@ -1403,7 +1288,7 @@ public class TopologyController {
             nodeGroup.getMembers().remove(nodeName);
         }
 
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplates(topology).get(nodeName);
+        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplates(topology).get(nodeName);
         if (nodeTemplate != null && nodeTemplate.getGroups() != null) {
             nodeTemplate.getGroups().remove(groupName);
         }

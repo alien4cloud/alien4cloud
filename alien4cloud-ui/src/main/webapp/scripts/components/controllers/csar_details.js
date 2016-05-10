@@ -31,7 +31,7 @@ define(function (require) {
         }, function(result) {
           var errorMessage = csarService.builtErrorResultList(result);
           if (errorMessage) {
-            var title = $translate('CSAR.ERRORS.' + result.error.code + '_TITLE');
+            var title = $translate.instant('CSAR.ERRORS.' + result.error.code + '_TITLE');
             toaster.pop('error', title, errorMessage, 4000, 'trustedHtml', null);
           } else {
             $state.go('components.csars');
@@ -41,7 +41,7 @@ define(function (require) {
 
       //Go to runtime view for a deployment
       $scope.goToRuntimeView = function(id){
-        $state.go('topologytemplates.detail.topology', {
+        $state.go('topologytemplates.detail.topology.editor', {
           id:id
         });
       };

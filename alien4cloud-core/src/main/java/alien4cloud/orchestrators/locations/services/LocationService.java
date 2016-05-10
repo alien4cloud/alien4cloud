@@ -1,12 +1,9 @@
 package alien4cloud.orchestrators.locations.services;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import static alien4cloud.utils.AlienUtils.arOfArray;
+import static alien4cloud.utils.AlienUtils.array;
+
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -39,11 +36,7 @@ import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import alien4cloud.orchestrators.plugin.ILocationAutoConfigurer;
-import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
-import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
-import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
-import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
+import alien4cloud.orchestrators.plugin.*;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.security.AuthorizationUtil;
@@ -127,17 +120,17 @@ public class LocationService {
         Set<CSARDependency> dependencies = locationArchiveIndexer.indexLocationArchives(orchestrator, location);
         location.setDependencies(dependencies);
 
-        //initialize meta properties
-        location.setMetaProperties(Maps.<String, String> newHashMap());        
-        //add existing meta properties to the cloud
-        GetMultipleDataResult<MetaPropConfiguration > result = alienDAO.find(MetaPropConfiguration.class, null, Integer.MAX_VALUE);
+        // initialize meta properties
+        location.setMetaProperties(Maps.<String, String> newHashMap());
+        // add existing meta properties to the cloud
+        GetMultipleDataResult<MetaPropConfiguration> result = alienDAO.find(MetaPropConfiguration.class, null, Integer.MAX_VALUE);
         for (MetaPropConfiguration element : result.getData()) {
             if (element.getTarget().toString().equals("cloud")) {
-            	location.setMetaProperties(Maps.<String, String> newHashMap());
-            	location.getMetaProperties().put(element.getId(), element.getDefault());
-	            log.debug("Adding meta property <{}> to the new location <{}> ", element.getName(), location.getName());
-        	}
-        }   
+                location.setMetaProperties(Maps.<String, String> newHashMap());
+                location.getMetaProperties().put(element.getId(), element.getDefault());
+                log.debug("Adding meta property <{}> to the new location <{}> ", element.getName(), location.getName());
+            }
+        }
 
         // save the new location
         alienDAO.save(location);
@@ -305,7 +298,7 @@ public class LocationService {
      */
     public Location[] getOrchestratorLocations(String orchestratorId) {
         GetMultipleDataResult<Location> locations = alienDAO.search(Location.class, null,
-                MapUtil.newHashMap(new String[] { "orchestratorId" }, new String[][] { new String[] { orchestratorId } }), Integer.MAX_VALUE);
+                MapUtil.newHashMap(array("orchestratorId"), (String[][]) arOfArray(array(orchestratorId))), Integer.MAX_VALUE);
         return locations.getData();
     }
 

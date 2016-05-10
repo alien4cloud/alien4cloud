@@ -5,12 +5,12 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Lists;
-
-import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.matching.plugins.ILocationMatcher;
 import alien4cloud.model.deployment.matching.ILocationMatch;
 import alien4cloud.model.deployment.matching.LocationMatch;
@@ -21,8 +21,8 @@ import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.exception.LocationMatchingException;
 import alien4cloud.utils.AlienUtils;
-import lombok.Getter;
-import lombok.Setter;
+
+import com.google.common.collect.Lists;
 
 /**
  * Default location matcher for topologies
@@ -33,13 +33,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class DefaultLocationMatcher implements ILocationMatcher {
-
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
-
     @Resource
     private LocationService locationService;
-
     @Resource
     private OrchestratorService orchestratorService;
     @Resource

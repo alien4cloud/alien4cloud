@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(Include.NON_NULL)
-@SuppressWarnings("PMD.UnusedPrivateField")
 @ESObject
 public class PluginConfiguration {
     @Id

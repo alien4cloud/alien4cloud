@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = { "id" })
-@SuppressWarnings("PMD.UnusedPrivateField")
 @FormProperties({ "type", "lowerBound", "upperBound" })
 public class RequirementDefinition {
     private String id;

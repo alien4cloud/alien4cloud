@@ -14,7 +14,6 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 @Getter
 @EqualsAndHashCode(callSuper = false, of = { "pattern" })
-@SuppressWarnings({ "PMD.UnusedPrivateField" })
 public class PatternConstraint extends AbstractStringPropertyConstraint {
     @NotNull
     private String pattern;

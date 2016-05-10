@@ -15,7 +15,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class RelationshipTemplate extends AbstractTemplate {
     /**
      * <p>

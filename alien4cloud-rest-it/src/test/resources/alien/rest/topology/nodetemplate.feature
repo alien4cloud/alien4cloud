@@ -11,18 +11,26 @@ Feature: Manage Nodetemplates of a topology
     And There is a "node type" with element name "fastconnect.nodes.War" and archive version "1.0"
     And I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
 
+  @reset
   Scenario: Add a nodetemplate based on a node type id
     When I add a node template "Template1" related to the "tosca.nodes.Compute:1.0" node type
     Then I should receive a RestResponse with no error
     And The RestResponse should contain a nodetemplate named "Template1" and type "tosca.nodes.Compute"
     And The RestResponse should contain a node type with "tosca.nodes.Compute:1.0" id
 
+  @reset
+  Scenario: Add a nodetemplate based on a node type id with an invalid name should failed
+    When I add a node template "Template!!!" related to the "tosca.nodes.Compute:1.0" node type
+    Then I should receive a RestResponse with an error code 618
+
+  @reset
   Scenario: Remove a nodetemplate from a topology
     Given I add a node template "Template1" related to the "tosca.nodes.Compute:1.0" node type
     When I delete a node template "Template1" from the topology
     Then I should receive a RestResponse with no error
     And The RestResponse should not contain a nodetemplate named "Template1"
 
+  @reset
   Scenario: Remove a nodetemplate being a target of a relationship from a topology
     Given I have added a node template "Template1" related to the "tosca.nodes.Compute:1.0" node type
     And I have added a node template "Template2" related to the "fastconnect.nodes.Java:1.0" node type
@@ -35,6 +43,7 @@ Feature: Manage Nodetemplates of a topology
     And The RestResponse should not contain a relationship of type "tosca.relationships.HostedOn" with source "Template2" and target "Template1"
     And The RestResponse should not contain a relationship of type "tosca.relationships.DependsOn" with source "Template3" and target "Template1"
 
+  @reset
   Scenario: Update a nodetemplate's name from a topology
     Given I have added a node template "Template1" related to the "tosca.nodes.Compute:1.0" node type
     When I update the node template's name from "Template1" to "Template2"
@@ -43,6 +52,25 @@ Feature: Manage Nodetemplates of a topology
     Then I should receive a RestResponse with no error
     And The topology should contain a nodetemplate named "Template2"
 
+  @reset
+  Scenario: Update a nodetemplate's name from a topology with a new name with an accent should failed
+    Given I have added a node template "Template1" related to the "tosca.nodes.Compute:1.0" node type
+    When I update the node template's name from "Template1" to "Templateé"
+    Then I should receive a RestResponse with an error code 618
+    When I try to retrieve the created topology
+    Then I should receive a RestResponse with no error
+    And The topology should contain a nodetemplate named "Template1"
+
+  @reset
+  Scenario: Update a nodetemplate's name from a topology with a new name with a dash should failed
+    Given I have added a node template "Template1" related to the "tosca.nodes.Compute:1.0" node type
+    When I update the node template's name from "Template1" to "Template-"
+    Then I should receive a RestResponse with an error code 618
+    When I try to retrieve the created topology
+    Then I should receive a RestResponse with no error
+    And The topology should contain a nodetemplate named "Template1"
+
+  @reset
   Scenario: Update a nodetemplate's property from a topology
     Given I have added a node template "Template1" related to the "tosca.nodes.Compute:1.0" node type
     When I update the node template "Template1"'s property "disk_size" to "1024 B"
@@ -51,6 +79,7 @@ Feature: Manage Nodetemplates of a topology
     Then I should receive a RestResponse with no error
     And The topology should contain a nodetemplate named "Template1" with property "disk_size" set to "1024 B"
 
+  @reset
   Scenario: Update a nodetemplate's deployment artifact from a topology
     Given I have added a node template "Template1" related to the "fastconnect.nodes.War:1.0" node type
     When I update the node template "Template1"'s artifact "war" with "myWar.war"
@@ -59,6 +88,7 @@ Feature: Manage Nodetemplates of a topology
     Then I should receive a RestResponse with no error
     And The topology should contain a nodetemplate named "Template1" with an artifact "war" with the specified UID and name "myWar.war"
 
+  @reset
   Scenario: Reset a nodetemplate's deployment artifact from a topology
     Given I have added a node template "Template1" related to the "fastconnect.nodes.War:1.0" node type
     When I update the node template "Template1"'s artifact "war" with "myWar.war"
@@ -72,6 +102,7 @@ Feature: Manage Nodetemplates of a topology
     Then I should receive a RestResponse with no error
     And The topology should contain a nodetemplate named "Template1" with an artifact "war" with the specified UID and name ""
 
+  @reset
   Scenario: Set a nodetemplate's artifact as application input artifact and update it
     Given I have added a node template "Template1" related to the "fastconnect.nodes.War:1.0" node type
     When I update the node template "Template1"'s artifact "war" with "myWar.war"
@@ -81,6 +112,7 @@ Feature: Manage Nodetemplates of a topology
     When I update the application's input artifact "inputWar" with "yourWar.war"
       Then I should receive a RestResponse with no error
 
+  @reset
   Scenario: Reset a nodetemplate's property with default value must put the default value
     Given I have added a node template "Template1" related to the "tosca.nodes.Compute:1.0" node type
     Then The topology should contain a nodetemplate named "Template1" with property "disk_size" set to "20 B"
@@ -95,6 +127,7 @@ Feature: Manage Nodetemplates of a topology
     Then I should receive a RestResponse with no error
     And The topology should contain a nodetemplate named "Template1" with property "disk_size" set to "20 B"
 
+  @reset
   Scenario: Reset a nodetemplate's property with no default value must put null value
     Given I have added a node template "Template1" related to the "tosca.nodes.Compute:1.0" node type
     Then The topology should contain a nodetemplate named "Template1" with property "num_cpus" set to null

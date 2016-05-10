@@ -17,7 +17,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class FacetedSearchFacet implements Serializable {
     private static final long serialVersionUID = 1L;
     private String facetValue;

@@ -16,7 +16,6 @@ import lombok.ToString;
 @Setter
 @ToString
 @NoArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class FilteredSearchRequest extends BasicSearchRequest {
     private Map<String, String[]> filters;
 

@@ -15,7 +15,9 @@ define(function (require) {
         'globalContext': '=',
         'dragAndDropEnabled': '=',
         'heightInfo': '=',
-        'widthInfo': '='
+        'widthInfo': '=',
+        'defaultFilters': '=',
+        'badges': '='
       },
       link: function(scope, element) {
         scope.queryComponentType = 'NODE_TYPE';

@@ -17,7 +17,6 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class UpdateTagRequest {
     // custom tag to update
     private String tagKey;

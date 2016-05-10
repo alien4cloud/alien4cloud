@@ -47,6 +47,23 @@ public class OrchestratorsConfigurationDefinitionsSteps {
 
     }
 
+    @When("^I update orchestrator \"([^\"]*)\"'s configuration property \"([^\"]*)\" to \"([^\"]*)\"$")
+    public void I_update_orchestrator_configuration_property_to(String orchestratorName, String configurationProperty, String value) throws Throwable {
+        String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
+        Map<String, Object> config = Context.getInstance().getOrchestratorConfiguration();
+        config.put(configurationProperty, value);
+        String restResponse = Context.getRestClientInstance().putJSon("/rest/v1/orchestrators/" + orchestratorId + "/configuration", JsonUtil.toString(config));
+        Context.getInstance().registerRestResponse(restResponse);
+    }
+
+    @When("^I update orchestrator \"([^\"]*)\"'s configuration property \"([^\"]*)\" to the value defined in environment variable \"([^\"]*)\"$")
+    public void I_update_orchestrator_configuration_property_to_the_value_defined_in_environment_variable(String orchestratorName, String configurationProperty,
+            String envName) throws Throwable {
+        String postDeploymentAppURL = System.getenv(envName);
+        Assert.assertTrue(envName + " is not defined", StringUtils.isNotBlank(postDeploymentAppURL));
+        I_update_orchestrator_configuration_property_to(orchestratorName, configurationProperty, postDeploymentAppURL);
+    }
+
     @Given("^I update \"(.*?)\" location import param for orchestrator with name \"(.*?)\" using \"(.*?)\"$")
     public void i_update_import_param_for_orchestrator_with_name_using(String infraType, String orchestratorName, String importsCsv) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);

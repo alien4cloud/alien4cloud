@@ -4,8 +4,7 @@
 
 .property-required {
   font-weight: 500;
-  font-style: italic;
-
+  color: $state-danger-text;
 }
 .property-required .editable-empty i {
   color: $state-danger-text;
@@ -28,7 +27,6 @@ a.editable-click:hover {
 }
 .editable-empty i {
   color: $brand-primary;
-
 }
 .editable-discreet.editable-click {
   background-color: transparent;

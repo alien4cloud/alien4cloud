@@ -194,12 +194,12 @@ define(function(require) {
             html += '<span class="clearfix"></span>';
             html += '<div class="row"><div class="col-md-3">Node' + ': </div><div class="col-md-9"><b>' + step.nodeId + '</b></div></div>';
             html += '<div class="row"><div class="col-md-3">Host' + ': </div><div class="col-md-9"><b>' + step.hostId + '</b></div></div>';
-            html += '<div class="row"><div class="col-md-3">' + $translate('APPLICATIONS.WF.activity') + ': </div>';
-            html += '<div class="col-md-9"><b>' + $translate('APPLICATIONS.WF.' + scope.workflows.getStepActivityType(step)) + '</b></div></div>';
+            html += '<div class="row"><div class="col-md-3">' + $translate.instant('APPLICATIONS.WF.activity') + ': </div>';
+            html += '<div class="col-md-9"><b>' + $translate.instant('APPLICATIONS.WF.' + scope.workflows.getStepActivityType(step)) + '</b></div></div>';
             var activityDetails = scope.workflows.getStepActivityDetails(step);
             for (var propName in activityDetails) {
               html += '<div class="row"><div class="col-md-3">';
-              html += $translate('APPLICATIONS.WF.' + propName) + ': </div><div class="col-md-9 wfActivityDetail"><b>' + _.startTrunc(activityDetails[propName], 25) + '</b></div></div>';
+              html += $translate.instant('APPLICATIONS.WF.' + propName) + ': </div><div class="col-md-9 wfActivityDetail"><b>' + _.startTrunc(activityDetails[propName], 25) + '</b></div></div>';
             }
             html += '</div>';
             return html;

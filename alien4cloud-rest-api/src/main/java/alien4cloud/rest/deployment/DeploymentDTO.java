@@ -19,7 +19,6 @@ import alien4cloud.model.orchestrators.locations.Location;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class DeploymentDTO<T extends IDeploymentSource> {
     private Deployment deployment;
     private T source;

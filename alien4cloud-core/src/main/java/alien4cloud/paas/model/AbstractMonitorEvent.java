@@ -15,7 +15,6 @@ import org.elasticsearch.mapping.IndexType;
 @Setter
 @ESObject
 @ToString
-@SuppressWarnings("PMD.UnusedPrivateField")
 public abstract class AbstractMonitorEvent {
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)

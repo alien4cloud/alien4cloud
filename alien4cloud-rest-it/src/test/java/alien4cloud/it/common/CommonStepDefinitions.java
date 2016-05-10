@@ -67,7 +67,7 @@ public class CommonStepDefinitions {
         indicesToClean.add(ElasticSearchDAO.SUGGESTION_INDEX);
     }
 
-    @Before
+    @Before("@reset")
     public void beforeScenario() throws Throwable {
         if (log.isDebugEnabled()) {
             log.debug("Before scenario, clean up elastic search and alien repositories from {}", Context.getInstance().getAlienPath());

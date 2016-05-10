@@ -15,7 +15,6 @@ import com.google.common.collect.Maps;
  */
 @Getter
 @Setter
-@SuppressWarnings("PMD.UnusedPrivateField")
 @FormProperties({ "operations" })
 public class Interface {
     private String description;

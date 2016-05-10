@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  */
 @Getter
 @Setter
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class Requirement {
     /**
      * The QName value of this attribute refers to the Requirement Type definition of the Requirement. This Requirement Type denotes the semantics and well as

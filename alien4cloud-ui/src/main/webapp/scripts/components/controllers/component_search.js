@@ -7,14 +7,24 @@ define(function (require) {
 
   require('scripts/tosca/services/tosca_service');
 
-  modules.get('a4c-components', ['a4c-tosca']).controller('alienSearchComponentCtrl', ['$scope', '$filter', 'searchContext', '$resource', 'toscaService', 'searchServiceFactory', function($scope, $filter, searchContext, $resource, toscaService, searchServiceFactory) {
+  modules.get('a4c-components', ['a4c-tosca']).controller('alienSearchComponentCtrl', ['$scope', '$filter', 'searchContext', '$resource', 'toscaService', 'searchServiceFactory', '$state', function($scope, $filter, searchContext, $resource, toscaService, searchServiceFactory, $state) {
     var alienInternalTags = ['icon'];
-
     $scope.searchService = searchServiceFactory('rest/latest/components/search', false, $scope, 20, 10);
     $scope.searchService.filtered(true);
 
-    var orchestratorTermId = 'portability.ORCHESTRATORS.value';
-    var iaasSTermId = 'portability.IAASS.value';
+    var badges = $scope.badges || [];
+    // abstract badge is always displayed
+    badges.push({
+      name: 'abstract',
+      tooltip: 'COMPONENTS.COMPONENT.ABSTRACT_COMPONENT',
+      imgSrc: 'images/abstract_ico.png',
+      canDislay: function(component){
+        return component.abstract;
+      },
+      priority: 0
+    });
+    //sort by priority
+    $scope.badges = _.sortBy(badges, 'priority');
 
     /** Used to display the correct text in UI */
     $scope.getFormatedFacetValue = function(term, value) {
@@ -55,7 +65,7 @@ define(function (require) {
 
     function addFacetFilter(termId, facetId) {
       // Test if the filter exists : [term:facet] and add it if not
-      if (_.undefined(_.find($scope.facetFilters, {term: termId, facet:[facetId]}))) {
+      if (_.undefined(_.find($scope.facetFilters, {term: termId}))) {
         var facetSearchObject = {};
         facetSearchObject.term = termId;
         facetSearchObject.facet = [];
@@ -80,9 +90,11 @@ define(function (require) {
       $scope.facetFilters = [];
     }
 
-    // add orchestrator and iaass filter
-    addFacetFilter(orchestratorTermId, null);
-    addFacetFilter(iaasSTermId, null);
+    if($scope.defaultFilters) {
+      _.each($scope.defaultFilters, function(value, key) {
+        addFacetFilter(key, value);
+      });
+    }
 
     /*update a search*/
     function updateSearch(filters) {
@@ -149,10 +161,7 @@ define(function (require) {
 
     /* Add a facet Filters*/
     $scope.addFilter = function(termId, facetId) {
-
-      // Test if the filter exists : [term:facet] and add it if not
       addFacetFilter(termId, facetId);
-
       // Search update with new filters list
       $scope.doSearch();
     };
@@ -238,6 +247,15 @@ define(function (require) {
           selectedVersionComponent.selectedVersion = newVersion;
           $scope.searchResult.data[index] = selectedVersionComponent;
         });
+      }
+    };
+
+    $scope.handleBadgeClick = function(badge, component, event) {
+      if(_.isFunction(badge.onClick)){
+        if(event){
+          event.stopPropagation();
+        }
+        badge.onClick(component, $state);
       }
     };
 

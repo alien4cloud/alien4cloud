@@ -1,6 +1,6 @@
 Feature: Match location for a deployment configuration.
 
-  Background: 
+  Background:
     Given I am authenticated with "ADMIN" role
     And There are these users in the system
       | frodon |
@@ -12,21 +12,23 @@ Feature: Match location for a deployment configuration.
     And I create a location named "Thark location 2" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
     And I have an application "ALIEN" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0-SNAPSHOT"
 
+  @reset
   Scenario: Get locations matchings for this topology, using admin account
     When I ask for the locations matching for the current application
     Then I should receive a match result with 2 locations
       | Thark location   |
       | Thark location 2 |
-	
+
+  @reset
 	Scenario: Get locations matchings for this topology, using a common account
 		Given I am authenticated with user named "frodon"
 		When I ask for the locations matching for the current application
 		Then I should receive a match result with no locations
-		
+
 		When I authenticate with "ADMIN" role
 		And I add a role "DEPLOYER" to user "frodon" on the resource type "LOCATION" named "Thark location"
 		Then I should receive a RestResponse with no error
-		
+
 		When I am authenticated with user named "frodon"
 		When I ask for the locations matching for the current application
 		Then I should receive a match result with 1 locations

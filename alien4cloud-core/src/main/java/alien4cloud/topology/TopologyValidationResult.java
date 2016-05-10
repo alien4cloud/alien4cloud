@@ -27,7 +27,6 @@ import com.google.common.collect.Lists;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class TopologyValidationResult {
 
     private boolean isValid;

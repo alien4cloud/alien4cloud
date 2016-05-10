@@ -57,7 +57,9 @@
         "APP_NAME" : "アプリケーション名",
         "DEPLOYMENT_ID" : "デプロイID",
         "ORCHESTRATOR_ID" : "Orchestrator ID",
-        "ORCHESTRATOR_NAME" : "Orchestrator name"
+        "ORCHESTRATOR_NAME" : "Orchestrator name",
+        "LOCATION_ID" : "Location ID",
+        "LOCATION_NAME" : "Location name"
       },
       "INSTANCE" : "インスタンス",
       "INSTANCES" : "インスタンス",
@@ -100,6 +102,7 @@
         "ADD" : "入力の追加",
         "CONSTRAINT" : "制約"
       },
+      "INVALID_NODE_NAME" : "Invalid node name.",
       "LOCATION_UNAUTHORIZED_MESSAGE" : "You do not have the rights to deploy on the previously selected location: <{{locationName}}>, orchestrator: <{{orchestratorName}}>. \n Contact your admin for more explanations.",
       "NODE_INFO" : "選択ノード",
       "NO_OUTPUTS" : "プロパティ、属性の出力なし",
@@ -310,6 +313,7 @@
     "ADD" : "追加",
     "ATTRIBUTES" : "属性",
     "CAPABILITIES" : "ケーパビリティ",
+    "DATA": "Data",
     "DESCRIPTION" : "説明",
     "EMAIL" : "Email",
     "ENABLED_false" : "無効化",
@@ -317,6 +321,8 @@
     "FILTER" : "フィルタ",
     "GROUPS" : "グループ",
     "ID" : "Id",
+    "INFO": "Information",
+    "INFOS": "Informations",
     "NAME" : "名前",
     "NO" : "No",
     "NODE" : "ノード",
@@ -374,7 +380,12 @@
       "SUPPORTED_ARTIFACTS": {
         "LABEL": "Supported artifacts",
         "VALUE": "Portability: Supported artifacts"
-      }
+      },
+      "RELATED_LOCATIONS": {
+        "LABEL": "Related locations",
+        "VALUE": "Portability: Related locations"
+      },
+      "SEE": "See portability infos"
     },
     "REQUIREMENTS" : {
       "TYPE" : "必須コンポーネント"
@@ -395,6 +406,7 @@
       "FAILED_TO_READ_FILE" : "Unable to read the file {{note}}",
       "FILE_PATH" : "File path",
       "INVALID_ICON_FORMAT" : "Icon file is not a supported image format.",
+      "INVALID_NODE_TEMPLATE_NAME": "The node template [{{problem}}] as an invalid name, we rename this node to [{{note}}].",
       "INVALID_SCALAR_UNIT" : "Expected type was a TOSCA scalar unit, both unit and value are required.",
       "INVALID_YAML" : "The File does not respect YAML format.",
       "LABEL" : "Errors",
@@ -570,6 +582,7 @@
     "615" : "The Git repository url doesn't exists or isn't a correct one.",
     "616" : "You are not authorized to clone this Git repository. Please check your credentials.",
     "617" : "No modification have been detected since the last import process",
+    "618" : "A name should only contains alphanumeric character from the basic Latin alphabet and the underscrore.",
     "650" : "At least two of your Compute have a conflict name.",
     "651" : "A BlockStorage can not have a VolumeID when the cloud has the 'deletable' option to set.",
     "800" : {
@@ -655,6 +668,7 @@
       "CAPABILITY" : "Capability description",
       "CUSTOM_COMMAND" : "Custom command description",
       "META_PROPERTY" : "Meta-property description",
+      "PORTABILITY" : "Portability property description",
       "PROPERTY" : "Property description",
       "REQUIREMENT" : "Requirement description"
     }

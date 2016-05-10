@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 @Setter
 @Getter
 @Service
-@SuppressWarnings("PMD.UnusedPrivateField")
 @ApiModel("Describe a component of a plugin (can be an IOrchestrator etc.).")
 public class PluginComponentDescriptor {
     /** Name of the component bean in the plugin spring context. */

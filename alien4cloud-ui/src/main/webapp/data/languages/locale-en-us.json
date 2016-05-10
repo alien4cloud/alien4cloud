@@ -6,7 +6,7 @@
     "DEPLOYMENT" : {
       "DEPLOY" : "Deploy",
       "INPUT" : "Input",
-      "MATCHING" : "Substitution",
+      "MATCHING" : "Matching",
       "PROPERTIES" : {
         "REQUIRED" : "Required",
         "WARNING" : "Warning",
@@ -57,7 +57,9 @@
         "APP_NAME" : "Application name",
         "DEPLOYMENT_ID" : "Deployment ID",
         "ORCHESTRATOR_ID" : "Orchestrator ID",
-        "ORCHESTRATOR_NAME" : "Orchestrator name"
+        "ORCHESTRATOR_NAME" : "Orchestrator name",
+        "LOCATION_ID" : "Location ID",
+        "LOCATION_NAME" : "Location name"
       },
       "INSTANCE" : "Instance",
       "INSTANCES" : "Instances",
@@ -100,6 +102,7 @@
         "ADD" : "Add To Input",
         "CONSTRAINT" : "Constraint"
       },
+      "INVALID_NODE_NAME" : "Invalid node name.",
       "LOCATION_UNAUTHORIZED_MESSAGE" : "You do not have the rights to deploy on the previously selected location: <{{locationName}}>, orchestrator: <{{orchestratorName}}>. \n Contact your admin for more explanations.",
       "NODE_INFO" : "Selected node",
       "NO_OUTPUTS" : "No output properties or attributes",
@@ -178,7 +181,56 @@
           "LABEL" : "Nodes properties"
         }
       },
-      "YAML" : "yaml"
+      "YAML" : "yaml",
+      "PORTABILITY": {
+        "ERROR": {
+          "ORCHESTRATOR_DEPENDENT": {
+            "LABEL": "Orchestrator dependent",
+            "DESCRIPTION": "The component is dependent to a particular orchestrator"
+          },
+          "IAAS_DEPENDENT": {
+            "LABEL": "IaaS dependent",
+            "DESCRIPTION": "The component is dependent to a particular IaaS"
+          },
+          "ARTIFACT_SUPPORT": {
+            "LABEL": "Artifact support",
+            "DESCRIPTION": "The component only supports particular types of artifacts"
+          },
+          "RUNTIME_PACKAGE": {
+            "LABEL": "Runtime package",
+            "DESCRIPTION": "The component requires one or more pre-installed packages in order to function properly"
+          },
+          "RUNTIME_PACKAGE_NOT_SATISFIED": {
+            "LABEL": "Runtime packages not satisfied",
+            "DESCRIPTION": "One or more runtime packages are not satisfied for the component"
+          },
+          "ORCHESTRATOR_CONFLICT": {
+            "LABEL": "Orchestrator conflict",
+            "DESCRIPTION": "There are components that are dependent on different types of orchestrator in the same topology"
+          },
+          "IAAS_CONFLICT": {
+            "LABEL": "IaaS conflict",
+            "DESCRIPTION": "There are components that are dependent on different types of IaaS in the same topology"
+          },
+          "ARTIFACT_NOT_SUPPORTED_ON_HOST": {
+            "LABEL": "Artifact not supported on host",
+            "DESCRIPTION": "Component's artifacts are not supported on the its host"
+          }
+        },
+        "INFO": {
+          "TITLE": "Topology's portability information",
+          "TYPE": "Type",
+          "ENTITY": "Entity",
+          "INFO": "Extra Information",
+          "SUCCESS": "No portability problem detected on the topology"
+        },
+        "LOCATION": {
+          "TITLE": "Topology's compatible locations",
+          "NO_LOCATION": "No location found",
+          "LOCATION_NAME": "Location",
+          "ENVIRONMENT_NAME": "Environment"
+        }
+      }
     },
     "UNDEPLOY" : "Undeploy",
     "VERSION" : {
@@ -311,6 +363,7 @@
     "ADD" : "Add",
     "ATTRIBUTES" : "Attributes",
     "CAPABILITIES" : "Capabilities",
+    "DATA": "Data",
     "DESCRIPTION" : "Description",
     "EMAIL" : "Email",
     "ENABLED_false" : "Disabled",
@@ -318,6 +371,8 @@
     "FILTER" : "Filter",
     "GROUPS" : "Groups",
     "ID" : "Id",
+    "INFO": "Information",
+    "INFOS": "Informations",
     "NAME" : "Name",
     "NO" : "No",
     "NODE" : "Node",
@@ -359,7 +414,6 @@
       "TAG_KEY" : "Tag name can only contain characters a to Z, -, _ without spaces"
     },
     "PORTABILITY": {
-      "TITLE": "Portability",
       "IAASS": {
         "LABEL": "IaaSs",
         "VALUE": "Portability: IaaSs"
@@ -368,14 +422,20 @@
         "LABEL": "Orchestrators",
         "VALUE": "Portability: Orchestrators"
       },
+      "RELATED_LOCATIONS": {
+        "LABEL": "Related locations",
+        "VALUE": "Portability: Related locations"
+      },
       "RUNTIME_PACKAGES": {
         "LABEL": "Runtime packages",
         "VALUE": "Portability: Runtime packages"
       },
+      "SEE": "See portability infos",
       "SUPPORTED_ARTIFACTS": {
         "LABEL": "Supported artifacts",
         "VALUE": "Portability: Supported artifacts"
-      }
+      },
+      "TITLE": "Portability"
     },
     "REQUIREMENTS" : {
       "TYPE" : "Prerequisites"
@@ -396,6 +456,7 @@
       "FAILED_TO_READ_FILE" : "Unable to read the file {{note}}",
       "FILE_PATH" : "File path",
       "INVALID_ICON_FORMAT" : "Icon file is not a supported image format.",
+      "INVALID_NODE_TEMPLATE_NAME": "The node template [{{problem}}] as an invalid name, we rename this node to [{{note}}].",
       "INVALID_SCALAR_UNIT" : "Expected type was a TOSCA scalar unit, both unit and value are required.",
       "INVALID_YAML" : "The File does not respect YAML format.",
       "LABEL" : "Errors",
@@ -575,6 +636,7 @@
     "615" : "The Git repository url doesn't exists or isn't a correct one.",
     "616" : "You are not authorized to clone this Git repository. Please check your credentials.",
     "617" : "No modification have been detected since the last import process",
+    "618" : "A name should only contains alphanumeric character from the basic Latin alphabet and the underscrore.",
     "650" : "At least two of your Compute have a conflict name.",
     "651" : "A BlockStorage can not have a VolumeID when the cloud has the 'deletable' option to set.",
     "800" : {
@@ -659,6 +721,7 @@
       "CAPABILITY" : "Capability description",
       "CUSTOM_COMMAND" : "Custom command description",
       "META_PROPERTY" : "Meta-property description",
+      "PORTABILITY" : "Portability property description",
       "PROPERTY" : "Property description",
       "REQUIREMENT" : "Requirement description"
     }
@@ -678,7 +741,9 @@
     "MENU_RUNTIME" : "Runtime",
     "MENU_TOPOLOGY" : "Topology",
     "MENU_USERS" : "Users and Groups",
-    "MENU_VERSIONS" : "Versions"
+    "MENU_VERSIONS" : "Versions",
+    "MENU_TOPOLOGY_PORTABILITY_LOCATION": "Portable Locations",
+    "MENU_TOPOLOGY_PORTABILITY_INFO": "Portability Insight"
   },
   "NAVBAR" : {
     "BUTTON_LOGIN" : "Login",

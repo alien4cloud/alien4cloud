@@ -12,7 +12,6 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 @EqualsAndHashCode(of = "name")
 public class Tag {
     private String name;

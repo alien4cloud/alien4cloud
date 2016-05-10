@@ -3,6 +3,7 @@ package alien4cloud.tosca;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import alien4cloud.topology.TopologyUtils;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.model.components.DeploymentArtifact;
@@ -23,6 +24,7 @@ import com.google.common.collect.Maps;
 
 @Component
 public class ArchivePostProcessor {
+
     /**
      * Post process the archive: For every definition of the model it fills the id fields in the TOSCA elements from the key of the elements map.
      * 
@@ -65,7 +67,7 @@ public class ArchivePostProcessor {
         for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
             postProcessNodeTemplate(archiveName, archiveVersion, parsedArchive, nodeTemplate, globalElementsMap);
         }
-
+        TopologyUtils.normalizeAllNodeTemplateName(topology, parsedArchive);
     }
 
     private void postProcessNodeTemplate(String archiveName, String archiveVersion, ParsingResult<ArchiveRoot> parsedArchive, NodeTemplate nodeTemplate,

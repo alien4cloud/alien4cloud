@@ -28,6 +28,7 @@ Feature: get runtime topology
     And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-base-types" version "1.0" with source "apacheLBGroovy" and target "Compute" for requirement "host" of type "tosca.capabilities.Container" and target capability "compute"
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
 
+  @reset
   Scenario: Getting the runtime version of the deployed topology
     When I deploy it
     And I have deleted a node template "apacheLBGroovy" from the topology
@@ -40,6 +41,7 @@ Feature: get runtime topology
     And The RestResponse should contain a nodetemplate named "Compute" and type "tosca.nodes.Compute"
     And The RestResponse should not contain a nodetemplate named "apacheLBGroovy"
 
+  @reset
   Scenario: get_input must be processed in a runtime topology
     Given I define the property "os_arch" of the node "Compute" as input property
     # And I set the input property "os_arch" of the topology to "x86_64"

@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Getter
 @Setter
 @EqualsAndHashCode(of = {}, callSuper = true)
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class IndexedInheritableToscaElement extends IndexedToscaElement {
 
     @TermsFacet

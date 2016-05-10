@@ -1,22 +1,5 @@
 package alien4cloud.orchestrators.locations.services;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
-
 import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.csar.services.CsarService;
@@ -41,10 +24,22 @@ import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.tosca.ArchiveIndexer;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
 /**
  * Manage the indexing of TOSCA archives.
@@ -99,10 +94,10 @@ public class PluginArchiveIndexer {
                 // TODO Link csar and archive elements to the location
                 log.debug("Archive {}:{} from plugin {}:{} location {} already exists in the repository and won't be updated.", archive.getArchive().getName(),
                         archive.getArchive().getVersion(), orchestrator.getPluginId(), orchestrator.getPluginBean(), location.getInfrastructureType());
-                Collection<IndexedNodeType> indexedNodeTypes = csarRepositoryIndexerService.getArchiveElements(archive.getArchive().getName(),
-                        archive.getArchive().getVersion(), IndexedNodeType.class).values();
+                Collection<IndexedNodeType> indexedNodeTypes = csarRepositoryIndexerService
+                        .getArchiveElements(archive.getArchive().getName(), archive.getArchive().getVersion(), IndexedNodeType.class).values();
                 // inject portability informations
-                injectPortabilityInfos(indexedNodeTypes, orchestrator, location);
+                publishLocationTypeIndexedEvent(indexedNodeTypes, orchestrator, location);
             }
             if (archive.getArchive().getDependencies() != null) {
                 dependencies.addAll(archive.getArchive().getDependencies());
@@ -117,7 +112,7 @@ public class PluginArchiveIndexer {
         try {
             IOrchestratorPlugin<?> orchestratorInstance = orchestratorFactory.newInstance();
             for (PluginArchive pluginArchive : orchestratorInstance.pluginArchives()) {
-                injectPortabilityInfos(pluginArchive.getArchive().getNodeTypes().values(), orchestratorFactory, null);
+                publishLocationTypeIndexedEvent(pluginArchive.getArchive().getNodeTypes().values(), orchestratorFactory, null);
                 List<ParsingError> parsingErrors = Lists.newArrayList();
                 archiveIndexer.importArchive(pluginArchive.getArchive(), pluginArchive.getArchiveFilePath(), parsingErrors);
             }
@@ -135,7 +130,6 @@ public class PluginArchiveIndexer {
         injectWorkSpace(archive.getCapabilityTypes().values(), orchestrator, location);
         injectWorkSpace(archive.getRelationshipTypes().values(), orchestrator, location);
 
-
         List<ParsingError> parsingErrors = Lists.newArrayList();
         // index the archive in alien catalog
         try {
@@ -144,16 +138,16 @@ public class PluginArchiveIndexer {
             log.info("Skipping location archive import as the released version already exists in the repository.");
         }
 
-        // inject portability informations
-        injectPortabilityInfos(archive.getNodeTypes().values(), orchestrator, location);
+        // publish LocationTypeIndexed event, so that potential listeners can process it
+        publishLocationTypeIndexedEvent(archive.getNodeTypes().values(), orchestrator, location);
     }
 
-    private void injectPortabilityInfos(Collection<IndexedNodeType> collection, Orchestrator orchestrator, Location location) {
+    private void publishLocationTypeIndexedEvent(Collection<IndexedNodeType> collection, Orchestrator orchestrator, Location location) {
         IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestrator);
-        injectPortabilityInfos(collection, orchestratorFactory, location);
+        publishLocationTypeIndexedEvent(collection, orchestratorFactory, location);
     }
 
-    private void injectPortabilityInfos(Collection<IndexedNodeType> collection, IOrchestratorPluginFactory orchestratorFactory, Location location) {
+    private void publishLocationTypeIndexedEvent(Collection<IndexedNodeType> collection, IOrchestratorPluginFactory orchestratorFactory, Location location) {
         if (CollectionUtils.isNotEmpty(collection)) {
             for (IndexedNodeType nodeType : collection) {
                 LocationTypeIndexed event = new LocationTypeIndexed(this);

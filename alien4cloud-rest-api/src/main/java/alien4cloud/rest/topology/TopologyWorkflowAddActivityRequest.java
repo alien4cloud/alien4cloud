@@ -8,7 +8,6 @@ import alien4cloud.paas.wf.AbstractActivity;
 @Getter
 @Setter
 @NoArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class TopologyWorkflowAddActivityRequest {
 
     /**

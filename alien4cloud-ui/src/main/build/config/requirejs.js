@@ -39,10 +39,7 @@ module.exports = function (grunt) {
               'd3-pie',
               'dagre',
               'graphlib'
-            ]//,
-//            excludeShallow: [
-//              'scripts/admin/admin'
-//            ],
+            ]
           }
         ],
 

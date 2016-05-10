@@ -65,7 +65,7 @@ define(function (require) {
           return orchestratorService.update({orchestratorId: orchestrator.id}, angular.toJson(request)).$promise.then(
             function() {}, // Success
             function(errorResponse) {
-              return $translate('ERRORS.' + errorResponse.data.error.code);
+              return $translate.instant('ERRORS.' + errorResponse.data.error.code);
             });
         }
       };

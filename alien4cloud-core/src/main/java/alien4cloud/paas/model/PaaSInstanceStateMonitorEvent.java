@@ -15,7 +15,6 @@ import org.elasticsearch.annotation.ESObject;
 @Setter
 @ESObject
 @ToString(callSuper = true)
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class PaaSInstanceStateMonitorEvent extends AbstractMonitorEvent {
     /** Id of the node template that describe the instance. */
     private String nodeTemplateId;

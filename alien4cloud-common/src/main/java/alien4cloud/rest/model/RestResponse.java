@@ -5,7 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class RestResponse<T> {
     private T data;
     private RestError error;

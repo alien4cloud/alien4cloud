@@ -7,12 +7,9 @@ define(function (require) {
 
   return {
     startup: function() {
-      plugins.init().then(function(files, modules) {
-        require(files, function() {
-          require(modules, function() {
-            alien4cloud.startup();
-          });
-        });
+      // load all plugins and then start alien 4 cloud.
+      plugins.init().then(function() {
+        alien4cloud.startup();
       });
     }
   };

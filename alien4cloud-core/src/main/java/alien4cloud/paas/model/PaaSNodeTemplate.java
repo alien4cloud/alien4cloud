@@ -14,7 +14,6 @@ import com.google.common.collect.Lists;
 
 @Getter
 @Setter
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class PaaSNodeTemplate extends AbstractPaaSTemplate<IndexedNodeType, NodeTemplate> {
 
     /** The path to the archive that contains the node type. **/

@@ -1,16 +1,15 @@
 package alien4cloud.application;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.deployment.DeploymentService;
+import alien4cloud.events.DeleteEnvironmentEvent;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -18,6 +17,8 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.DeleteDeployedException;
+import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -52,6 +53,10 @@ public class ApplicationEnvironmentService {
     private DeploymentRuntimeStateService deploymentRuntimeStateService;
     @Inject
     private DeploymentTopologyService deploymentTopologyService;
+    @Resource
+    private ApplicationContext applicationContext;
+    @Inject
+    private DeploymentService deploymentService;
 
     /**
      * Method used to create a default environment
@@ -98,7 +103,7 @@ public class ApplicationEnvironmentService {
      */
     public ApplicationEnvironment[] getByApplicationId(String applicationId) {
         GetMultipleDataResult<ApplicationEnvironment> result = alienDAO.find(ApplicationEnvironment.class,
-                MapUtil.newHashMap(new String[] { "applicationId" }, new String[][] { new String[] { applicationId } }), Integer.MAX_VALUE);
+                MapUtil.newHashMap(new String[]{"applicationId"}, new String[][]{new String[]{applicationId}}), Integer.MAX_VALUE);
         return result.getData();
     }
 
@@ -110,7 +115,7 @@ public class ApplicationEnvironmentService {
      */
     public ApplicationEnvironment[] getByVersionId(String versionId) {
         GetMultipleDataResult<ApplicationEnvironment> result = alienDAO.find(ApplicationEnvironment.class,
-                MapUtil.newHashMap(new String[] { "currentVersionId" }, new String[][] { new String[] { versionId } }), Integer.MAX_VALUE);
+                MapUtil.newHashMap(new String[]{"currentVersionId"}, new String[][]{new String[]{versionId}}), Integer.MAX_VALUE);
         return result.getData();
     }
 
@@ -120,9 +125,17 @@ public class ApplicationEnvironmentService {
      * @param id The id of the version to delete.
      */
     public boolean delete(String id) {
-        // TODO : do not delete if it's last environment
+        ApplicationEnvironment environmentToDelete = getOrFail(id);
+        boolean isDeployed = isDeployed(id);
+
+        if (isDeployed) {
+            throw new DeleteDeployedException("Application environment with id <" + id + "> cannot be deleted since it is deployed");
+        }
+
         deploymentTopologyService.deleteByEnvironmentId(id);
         alienDAO.delete(ApplicationEnvironment.class, id);
+
+        applicationContext.publishEvent(new DeleteEnvironmentEvent(this, environmentToDelete, deploymentService.getAllOrchestratorIdsAndOrchestratorDeploymentId(id)));
         return true;
     }
 

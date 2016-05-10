@@ -95,7 +95,7 @@ define(function (require) {
       $scope.searchService.search();
 
       $scope.openTopologyTemplate = function(topologyTemplateId) {
-        $state.go('topologytemplates.detail.topology', {
+        $state.go('topologytemplates.detail.topology.editor', {
           id: topologyTemplateId
         });
       };

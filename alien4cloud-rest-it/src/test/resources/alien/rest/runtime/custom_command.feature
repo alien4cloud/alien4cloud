@@ -34,22 +34,27 @@ Feature: trigger custom commands
 
     When I deploy it
 
+  @reset
   Scenario: Trigger a custom command other than [updateWar,updateWarFile, addNode] on apache LB node and throw an operation failed error
     When I trigger on the node template "customInterface" the custom command "fail" of the interface "mock" for application "ALIEN"
     Then I should receive a RestResponse with an error code 371
 
+  @reset
   Scenario: Trigger a custom command updateWarFile on an deployed application with success
     When I trigger on the node template "customInterface" the custom command "success" of the interface "mock" for application "ALIEN"
     Then The operation response should contain the result "OK" for instance "1"
 
+  @reset
   Scenario: Trigger a custom command updateWar on an deployed application with missing parameters error
     When I trigger on the node template "customInterface" the custom command "success_param" of the interface "mock" for application "ALIEN"
     Then I should receive a RestResponse with an error code 805
 
+  @reset
   Scenario: Trigger a custom command failure: interface not existing
     When I trigger on the node template "customInterface" the custom command "success" of the interface "IDoNotSeeYou" for application "ALIEN"
     Then I should receive a RestResponse with an error code 504 and a message containing "Interface [IDoNotSeeYou] not found in the node template [customInterface] related to [alien4cloud.tests.nodes.CustomInterface:1.1.0-SNAPSHOT]"
 
+  @reset
   Scenario: Trigger a custom command failure: operation not defined in interface
     When I trigger on the node template "customInterface" the custom command "virtualCommand" of the interface "mock" for application "ALIEN"
     Then I should receive a RestResponse with an error code 504 and a message containing "Operation [virtualCommand] is not defined in the interface [mock] of the node [customInterface]"

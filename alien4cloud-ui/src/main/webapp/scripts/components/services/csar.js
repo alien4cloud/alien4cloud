@@ -47,7 +47,7 @@ define(function (require) {
     var builtResultList = function builtResultList(resultObject) {
       var resourtceList;
       if (resultObject.error) {
-        var baseResponse = $translate('CSAR.ERRORS.' + resultObject.error.code);
+        var baseResponse = $translate.instant('CSAR.ERRORS.' + resultObject.error.code);
         resourtceList = baseResponse + ' : <ul>';
         resultObject.data.forEach(function getResource(resource) {
           resourtceList += '<li>';

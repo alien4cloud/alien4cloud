@@ -16,7 +16,6 @@ import alien4cloud.model.topology.Topology;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class AbstractTopologyDTO<T extends Topology> {
     private T topology;
     private Map<String, IndexedNodeType> nodeTypes;

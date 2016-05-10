@@ -85,7 +85,7 @@ define(function(require) {
             return locationService.update({orchestratorId: orchestrator.id, locationId: $scope.locationDTO.location.id}, angular.toJson(request)).$promise.then(
               function() {}, // Success
               function(errorResponse) {
-                return $translate('ERRORS.' + errorResponse.data.error.code);
+                return $translate.instant('ERRORS.' + errorResponse.data.error.code);
               });
           }
         };

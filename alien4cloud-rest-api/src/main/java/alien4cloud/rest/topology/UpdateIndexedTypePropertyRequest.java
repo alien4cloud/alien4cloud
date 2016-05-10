@@ -17,7 +17,6 @@ import io.swagger.annotations.ApiModelProperty;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class UpdateIndexedTypePropertyRequest {
     @ApiModelProperty(required = true)
     private String propertyName;

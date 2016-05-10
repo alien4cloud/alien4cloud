@@ -16,7 +16,6 @@ import org.hibernate.validator.constraints.NotBlank;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class OperationExecRequest extends NodeOperationExecRequest {
     @NotBlank
     String applicationEnvironmentId;

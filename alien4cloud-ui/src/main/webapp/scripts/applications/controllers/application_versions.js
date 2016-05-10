@@ -111,7 +111,7 @@ define(function (require) {
           versionId: versionId
         }, angular.toJson(applicationVersionUpdateRequest), undefined).$promise.then(
           function() {}, function(errorResponse) {
-            return $translate('ERRORS.' + errorResponse.data.error.code);
+            return $translate.instant('ERRORS.' + errorResponse.data.error.code);
           }
         );
       };

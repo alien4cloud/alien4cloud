@@ -6,7 +6,7 @@
     "DEPLOYMENT" : {
       "DEPLOY" : "Déployer",
       "INPUT" : "Input",
-      "MATCHING" : "Substitution",
+      "MATCHING" : "Matching",
       "PROPERTIES" : {
         "REQUIRED" : "Obligatoire",
         "WARNING" : "Alerte",
@@ -56,8 +56,10 @@
       "INFORMATIONS" : {
         "APP_NAME" : "Nom de l'application",
         "DEPLOYMENT_ID" : "ID du déploiement",
-        "ORCHESTRATOR_ID" : "ID du cloud",
-        "ORCHESTRATOR_NAME" : "Nom du cloud"
+        "ORCHESTRATOR_ID" : "ID de l'orchestrateur",
+        "ORCHESTRATOR_NAME" : "Nom de l'orchestrateur",
+        "LOCATION_ID" : "ID de la location",
+        "LOCATION_NAME" : "Nom de la location"
       },
       "INSTANCE" : "Instance",
       "INSTANCES" : "Instances",
@@ -100,6 +102,7 @@
         "ADD" : "Ajouter aux Propriétés d'entrée",
         "CONSTRAINT" : "Contrainte"
       },
+      "INVALID_NODE_NAME" : "Nom invalide.",
       "LOCATION_UNAUTHORIZED_MESSAGE" : "Vous n'avez plus l'authorisation de déployer sur la location précédament selectionnée pour cet environement (location: <{{locationName}}>, orchestrateur: <{{orchestratorName}}>). \n Veuillez contacter votre administrateur.",
       "NODE_INFO" : "Noeud sélectionné",
       "NO_OUTPUTS" : "Aucune propriété ou attribut en sortie",
@@ -311,6 +314,7 @@
     "ADD" : "Ajouter",
     "ATTRIBUTES" : "Attributs",
     "CAPABILITIES" : "Capacités",
+    "DATA": "Données",
     "DESCRIPTION" : "Description",
     "EMAIL" : "Email",
     "ENABLED_false" : "Désactivé",
@@ -318,6 +322,8 @@
     "FILTER" : "Filtrer",
     "GROUPS" : "Groupes",
     "ID" : "Id",
+    "INFO": "Information",
+    "INFOS": "Informations",
     "NAME" : "Nom",
     "NO" : "Non",
     "NODE" : "Noeud",
@@ -334,7 +340,7 @@
     "ABSTRACT" : "Composant abstrait",
     "ACTIVE_FILTERS" : "Filtres actifs",
     "ARCHIVE" : "Archive",
-    "ARCHIVE_NAME" : "Dossier de l'archive",
+    "ARCHIVE_NAME" : "Nom de l'archive",
     "ARCHIVE_VERSION" : "Version de l'archive",
     "CAPABILITIES" : {
       "CARDINALITIES_TOOLTIP" : "maximum",
@@ -375,7 +381,12 @@
       "SUPPORTED_ARTIFACTS": {
         "LABEL": "Artefacts supportés",
         "VALUE": "Portabilité: Artefacts supportés"
-      }
+      },
+      "RELATED_LOCATIONS": {
+        "LABEL": "Locations liées",
+        "VALUE": "Portabilité: Locations liées"
+      },
+      "SEE": "Voir infos sur portabilité"
     },
     "REQUIREMENTS" : {
       "TYPE" : "Prérequis"
@@ -396,6 +407,7 @@
       "FAILED_TO_READ_FILE" : "Impossible de lire le fichier à l'emplacement suivant {{note}}",
       "FILE_PATH" : "Fichier",
       "INVALID_ICON_FORMAT" : "L'icône n'est pas un fichier d'image supporté",
+      "INVALID_NODE_TEMPLATE_NAME": "Le node template [{{problem}}] a un nom invalide, nous l'avons renommé [{{note}}].",
       "INVALID_SCALAR_UNIT" : "Le type attendu est un Tosca scalar unit. L'unité et la valeur sont nécessaire.",
       "INVALID_YAML" : "Le fichier reférencé n'est pas conforme au format YAML.",
       "LABEL" : "Erreurs",
@@ -575,6 +587,7 @@
     "615" : "Le repository Git n'existe pas ou n'est pas valide.",
     "616" : "Vous n'êtes pas autorisé à cloner ce dépôt Git. Veuillez vérifier vos identifiants.",
     "617" : "Aucune modification a été détecté depuis le dernier import, celui-ci n'a pas été réalisé.",
+    "618" : "Le nom d'un node ne doit contenir que des caractères alpha-numérique de l'alphabet latin classique et le underscrore.",
     "650" : "Au moins deux de vos Compute ont un conflit de nom.",
     "651" : "Un BlockStorage ne peut pas avoir un volumeId lorsque le cloud a l'option 'deletable' d'activée.",
     "800" : {
@@ -659,6 +672,7 @@
       "CAPABILITY" : "Description de la capacité",
       "CUSTOM_COMMAND" : "Description de l'opération",
       "META_PROPERTY" : "Description de la méta-propriété",
+      "PORTABILITY" : "Description de la propriété de portabilité",
       "PROPERTY" : "Description de la propriété",
       "REQUIREMENT" : "Description du pré-requis"
     }

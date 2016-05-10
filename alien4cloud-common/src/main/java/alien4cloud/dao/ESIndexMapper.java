@@ -45,17 +45,13 @@ public abstract class ESIndexMapper {
     @Getter
     private MappingBuilder mappingBuilder;
 
-    @SuppressWarnings("PMD.UnusedPrivateField")
     @Getter
     private final Map<String, String> typesToIndices = Maps.newHashMap();
-    @SuppressWarnings("PMD.UnusedPrivateField")
     @Getter
     private final Map<String, Class<?>> typesToClasses = Maps.newHashMap();
 
-    @SuppressWarnings("PMD.UnusedPrivateField")
     @Getter
     private String[] allIndexes;
-    @SuppressWarnings("PMD.UnusedPrivateField")
     @Getter
     @Setter
     private ObjectMapper jsonMapper = new ObjectMapper();

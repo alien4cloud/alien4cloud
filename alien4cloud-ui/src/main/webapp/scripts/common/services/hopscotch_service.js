@@ -19,7 +19,7 @@ define(function(require) {
             tourName = $state.current.name;
           }
           var instance = this;
-          $http.get('data/guides/' + tourName + '-' + $translate.uses() + '.json')
+          $http.get('data/guides/' + tourName + '-' + $translate.use() + '.json')
             .success(function(data) {
               instance.currentTour = data;
               hopscotch.endTour(true);
@@ -58,7 +58,7 @@ define(function(require) {
 
             })
             .error(function() {
-              toaster.pop('info', $translate('HOPSCOTCH_MISSING.TITLE'), $translate('HOPSCOTCH_MISSING.CONTENT'), 2000, 'trustedHtml', null);
+              toaster.pop('info', $translate.instant('HOPSCOTCH_MISSING.TITLE'), $translate.instant('HOPSCOTCH_MISSING.CONTENT'), 2000, 'trustedHtml', null);
             });
         },
         resumeTour: function(tourName, step) {

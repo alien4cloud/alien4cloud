@@ -118,6 +118,8 @@ public class TestDataRegistry {
         addConditionFolder("topology-groups", "src/test/resources/data/csars/topology_template/topology-groups");
         addConditionFolder("topology-groups-unknown-policy", "src/test/resources/data/csars/topology_template/topology-groups-unknown-policy");
         addConditionFolder("topology-groups-unknown-member", "src/test/resources/data/csars/topology_template/topology-groups-unknown-member");
+        addConditionFolder("topology-invalid-node-name", "src/test/resources/data/csars/topology_template/topology-invalid-node-name");
+
 
         // Runtime archive
         addConditionFolder("custom-interface-mock-types", "src/test/resources/data/csars/custom-interface-mock-types");

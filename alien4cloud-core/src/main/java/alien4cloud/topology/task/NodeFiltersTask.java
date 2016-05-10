@@ -11,7 +11,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class NodeFiltersTask extends TopologyTask {
     // list of node filter with not satisfy
     private List<NodeFilterToSatisfy> nodeFiltersToSatisfy;
