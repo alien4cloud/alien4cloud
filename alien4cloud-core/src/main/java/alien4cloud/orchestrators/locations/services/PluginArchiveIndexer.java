@@ -1,5 +1,18 @@
 package alien4cloud.orchestrators.locations.services;
 
+import java.util.*;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
+
 import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.csar.services.CsarService;
@@ -24,22 +37,10 @@ import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.tosca.ArchiveIndexer;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 
 /**
  * Manage the indexing of TOSCA archives.
@@ -64,7 +65,7 @@ public class PluginArchiveIndexer {
     private ICSARRepositoryIndexerService csarRepositoryIndexerService;
 
     /**
-     * Ensure that location archives are indexed, note that by default the archives visibility is not public.
+     * Ensure that location archives are indexed.
      *
      * @param orchestrator the orchestrator for which to index archives.
      * @param location The location of the orchestrator for which to index archives.
@@ -73,7 +74,7 @@ public class PluginArchiveIndexer {
         IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) orchestratorPluginService.getOrFail(orchestrator.getId());
         ILocationConfiguratorPlugin configuratorPlugin = orchestratorInstance.getConfigurator(location.getInfrastructureType());
 
-        // ensure that the plugin archives for this location are imported in the
+        // ensure that the plugin archives for this location are imported in the catalog
         List<PluginArchive> pluginArchives = configuratorPlugin.pluginArchives();
         Set<CSARDependency> dependencies = Sets.newHashSet();
 
@@ -85,19 +86,10 @@ public class PluginArchiveIndexer {
         for (PluginArchive pluginArchive : pluginArchives) {
             ArchiveRoot archive = pluginArchive.getArchive();
             Csar csar = csarService.getIfExists(archive.getArchive().getName(), archive.getArchive().getVersion());
-
-            // TODO Do we really want to check this? as we might not be able to override location snapshot archives!
+            
             if (csar == null) {
                 // index the required archive
                 indexArchive(pluginArchive, orchestrator, location);
-            } else {
-                // TODO Link csar and archive elements to the location
-                log.debug("Archive {}:{} from plugin {}:{} location {} already exists in the repository and won't be updated.", archive.getArchive().getName(),
-                        archive.getArchive().getVersion(), orchestrator.getPluginId(), orchestrator.getPluginBean(), location.getInfrastructureType());
-                Collection<IndexedNodeType> indexedNodeTypes = csarRepositoryIndexerService
-                        .getArchiveElements(archive.getArchive().getName(), archive.getArchive().getVersion(), IndexedNodeType.class).values();
-                // inject portability informations
-                publishLocationTypeIndexedEvent(indexedNodeTypes, orchestrator, location);
             }
             if (archive.getArchive().getDependencies() != null) {
                 dependencies.addAll(archive.getArchive().getDependencies());
@@ -138,7 +130,7 @@ public class PluginArchiveIndexer {
             log.info("Skipping location archive import as the released version already exists in the repository.");
         }
 
-        // publish LocationTypeIndexed event, so that potential listeners can process it
+        // Publish event to allow plugins to post-process elements (portability plugin for example).
         publishLocationTypeIndexedEvent(archive.getNodeTypes().values(), orchestrator, location);
     }
 
@@ -223,9 +215,11 @@ public class PluginArchiveIndexer {
     }
 
     /**
-     * @return each exposed archives ids with associated {@link Location}s.
+     * Query for csars that are defined by locations.
+     *
+     * @return A maps of <csar_id, list of locations that uses the csar>.
      */
-    private Map<String, List<Location>> getAllExposedArchivesIdsExluding(Location excludedLocation) {
+    public Map<String, List<Location>> getAllExposedArchivesIdsExluding(Location excludedLocation) {
         // exclude a location from the search
         QueryBuilder query = QueryBuilders.boolQuery()
                 .mustNot(QueryBuilders.idsQuery(Location.class.getSimpleName().toLowerCase()).ids(excludedLocation.getId()));
