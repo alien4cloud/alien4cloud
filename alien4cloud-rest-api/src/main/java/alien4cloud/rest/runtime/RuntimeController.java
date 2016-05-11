@@ -1,10 +1,8 @@
 package alien4cloud.rest.runtime;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.Authorization;
-
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -17,12 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import alien4cloud.application.ApplicationEnvironmentService;
@@ -35,12 +28,7 @@ import alien4cloud.deployment.DeploymentService;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.components.IValue;
-import alien4cloud.model.components.IndexedModelUtils;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.Interface;
-import alien4cloud.model.components.Operation;
-import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.*;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.topology.NodeTemplate;
@@ -49,6 +37,8 @@ import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.paas.model.OperationExecRequest;
+import alien4cloud.paas.model.PaaSNodeTemplate;
+import alien4cloud.paas.plan.TopologyTreeBuilderService;
 import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -68,6 +58,10 @@ import alien4cloud.utils.services.ConstraintPropertyService;
 
 import com.google.common.collect.Lists;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
+
 @RestController
 @Slf4j
 @RequestMapping({"/rest/runtime", "/rest/v1/runtime", "/rest/latest/runtime"})
@@ -86,6 +80,8 @@ public class RuntimeController {
     private TopologyService topologyService;
     @Resource
     private TopologyServiceCore topologyServiceCore;
+    @Inject
+    private TopologyTreeBuilderService topologyTreeBuilderService;
     @Inject
     private DeploymentRuntimeStateService deploymentRuntimeStateService;
     @Inject
@@ -242,5 +238,23 @@ public class RuntimeController {
 
         // validate parameters (value/type and required value)
         validateParameters(interfass, operationRequest);
+    }
+
+
+    @ApiOperation(value = "Get non-natives node template of a topology.", notes = "Returns An map of non-natives {@link NodeTemplate}. Application role required [ APPLICATION_MANAGER | DEPLOYMENT_MANAGER ]")
+    @RequestMapping(value = "/{applicationId:.+?}/environment/{applicationEnvironmentId:.+?}/nonNatives", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<Map<String, NodeTemplate>> getNonNativesNodes(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
+        Application application = applicationService.getOrFail(applicationId);
+        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
+        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
+            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
+        }
+
+        Deployment deployment = deploymentService.getActiveDeploymentOrFail(environment.getId());
+        DeploymentTopology deploymentTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
+
+        Map<String, NodeTemplate> nonNativesNode = topologyTreeBuilderService.getNonNativesNodes(deploymentTopology);
+        return RestResponseBuilder.<Map<String, NodeTemplate>> builder().data(nonNativesNode).build();
     }
 }

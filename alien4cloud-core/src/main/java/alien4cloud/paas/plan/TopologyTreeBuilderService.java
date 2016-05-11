@@ -1,11 +1,8 @@
 package alien4cloud.paas.plan;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -110,6 +107,32 @@ public class TopologyTreeBuilderService {
             }
         }
         return nodeTemplates;
+    }
+
+    /**
+     * Get the non-natives node of a topology.
+     * @param topology
+     * @return a Map of non-natives nodes.
+     */
+    public Map<String, NodeTemplate> getNonNativesNodes(Topology topology) {
+        TypeMap cache = new TypeMap();
+        Map<String, NodeTemplate> nonNativesNode = new HashMap<>();
+
+        if (topology.getNodeTemplates() != null) {
+            for (Entry<String, NodeTemplate> templateEntry : topology.getNodeTemplates().entrySet()) {
+                NodeTemplate template = templateEntry.getValue();
+                IndexedNodeType indexedToscaElement = getToscaType(template.getType(), cache, topology.getDependencies(), IndexedNodeType.class);
+
+                boolean isCompute = ToscaUtils.isFromType(NormativeComputeConstants.COMPUTE_TYPE, indexedToscaElement);
+                boolean isNetwork = ToscaUtils.isFromType(NormativeNetworkConstants.NETWORK_TYPE, indexedToscaElement);
+                boolean isVolume = ToscaUtils.isFromType(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE, indexedToscaElement);
+                if (!isCompute && !isNetwork && !isVolume) {
+                    nonNativesNode.put(templateEntry.getKey(), template);
+                }
+            }
+        }
+
+        return nonNativesNode;
     }
 
     @SneakyThrows
