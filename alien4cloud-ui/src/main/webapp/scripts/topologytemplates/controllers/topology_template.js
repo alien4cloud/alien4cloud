@@ -5,7 +5,6 @@ define(function (require) {
   var modules = require('modules');
   var states = require('states');
   var angular = require('angular');
-  var _ = require('lodash');
 
   require('scripts/topologytemplates/services/topology_template_service');
   require('scripts/topologytemplates/services/topology_template_version_services');

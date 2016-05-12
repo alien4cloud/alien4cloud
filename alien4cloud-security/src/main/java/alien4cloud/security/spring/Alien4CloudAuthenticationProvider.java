@@ -7,9 +7,6 @@ import java.util.Map.Entry;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.users.IAlienUserDao;
-import alien4cloud.security.model.User;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -22,14 +19,16 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.security.saml.SAMLAuthenticationProvider;
-import org.springframework.security.saml.SAMLAuthenticationToken;
+
+import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.model.User;
+import alien4cloud.security.users.IAlienUserDao;
 
 @Slf4j
 public class Alien4CloudAuthenticationProvider implements AuthenticationProvider {
     @Resource
     private IAlienUserDao alienUserDao;
-    private AuthenticationProvider wrappedProvider = null;
+    protected AuthenticationProvider wrappedProvider = null;
 
     @Resource
     private ListableBeanFactory beanFactory;
@@ -155,10 +154,6 @@ public class Alien4CloudAuthenticationProvider implements AuthenticationProvider
 
     @Override
     public boolean supports(Class<?> authenticationClass) {
-        if (wrappedProvider instanceof SAMLAuthenticationProvider) {
-            return SAMLAuthenticationToken.class.isAssignableFrom(authenticationClass)
-                    || UsernamePasswordAuthenticationToken.class.isAssignableFrom(authenticationClass);
-        }
         return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authenticationClass);
     }
 }

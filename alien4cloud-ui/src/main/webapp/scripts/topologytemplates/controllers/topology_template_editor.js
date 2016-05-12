@@ -2,9 +2,7 @@
 define(function (require) {
   'use strict';
 
-  var modules = require('modules');
   var states = require('states');
-  var angular = require('angular');
   var _ = require('lodash');
 
   states.state('topologytemplates.detail.topology.editor', {
