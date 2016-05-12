@@ -18,6 +18,7 @@ define(function (require) {
               this.scope.selectedVersionName = name;
               this.scope.selectedVersion = this.scope.appVersions[i];
               this.scope.topologyId = this.scope.selectedVersion.topologyId;
+              this.scope.versionContext.topologyId = this.scope.topologyId;
               break;
             }
           }

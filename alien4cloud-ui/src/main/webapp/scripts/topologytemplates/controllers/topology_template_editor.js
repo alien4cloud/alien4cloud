@@ -3,24 +3,10 @@ define(function (require) {
   'use strict';
 
   var states = require('states');
-  var _ = require('lodash');
 
   states.state('topologytemplates.detail.topology.editor', {
     url: '/editor/:version',
     templateUrl: 'views/topology/topology_editor.html',
-    resolve: {
-      topologyId: ['topologyTemplate',
-        function (topologyTemplate) {
-          return topologyTemplate.data.topologyId;
-        }
-      ],
-      preselectedVersion: ['$stateParams', function ($stateParams) {
-        if (_.isEmpty($stateParams.version)) {
-          return undefined;
-        }
-        return $stateParams.version;
-      }]
-    },
     controller: 'TopologyCtrl',
     menu: {
       id: 'am.topologytemplate.detail.topology.editor',

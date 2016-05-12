@@ -5,6 +5,7 @@ define(function (require) {
   var modules = require('modules');
   var states = require('states');
   var angular = require('angular');
+  var _ = require('lodash');
 
   require('scripts/topologytemplates/services/topology_template_service');
   require('scripts/topologytemplates/services/topology_template_version_services');
@@ -26,13 +27,12 @@ define(function (require) {
       ],
       appVersions: ['$http', 'topologyTemplate', 'topologyTemplateVersionServices',
         function ($http, topologyTemplate, topologyTemplateVersionServices) {
-          var searchAppVersionRequestObject = {
-            'from': 0,
-            'size': 400
-          };
           return topologyTemplateVersionServices.searchVersion({
             delegateId: topologyTemplate.data.id
-          }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function (result) {
+          }, angular.toJson({
+            'from': 0,
+            'size': 400
+          })).$promise.then(function (result) {
             return result.data;
           });
         }
@@ -40,9 +40,19 @@ define(function (require) {
     },
     controller: 'TopologyTemplateCtrl'
   });
+
   states.state('topologytemplates.detail.topology', {
     url: '/topology',
-    template: '<ui-view></ui-view>'
+    template: '<ui-view></ui-view>',
+    resolve: {
+      context: function() { return { topologyId: undefined }; },
+      preselectedVersion: ['$stateParams', function ($stateParams) {
+        if (_.isEmpty($stateParams.version)) {
+          return undefined;
+        }
+        return $stateParams.version;
+      }]
+    }
   });
 
   states.state('topologytemplates.detail.versions', {

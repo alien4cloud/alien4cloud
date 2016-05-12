@@ -42,7 +42,7 @@ define(function (require) {
   require('scripts/topology/services/workflow_services');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles']).controller('TopologyCtrl',
-    ['$scope', '$modal', '$timeout', 'topologyJsonProcessor', 'topologyServices', 'componentService', 'nodeTemplateService', 'appVersions', 'preselectedVersion', 'topologyId', 'toscaService', 'toscaCardinalitiesService', 'workflowServices',
+    ['$scope', '$modal', '$timeout', 'topologyJsonProcessor', 'topologyServices', 'componentService', 'nodeTemplateService', 'appVersions', 'preselectedVersion', 'context', 'toscaService', 'toscaCardinalitiesService', 'workflowServices',
     'topoEditArtifacts',
     'topoEditDisplay',
     'topoEditGroups',
@@ -56,7 +56,7 @@ define(function (require) {
     'topoEditVersions',
     'topoEditWf',
     'topoEditYaml',
-    function($scope, $modal, $timeout, topologyJsonProcessor, topologyServices, componentService, nodeTemplateService, appVersions, preselectedVersion, topologyId, toscaService, toscaCardinalitiesService, workflowServices,
+    function($scope, $modal, $timeout, topologyJsonProcessor, topologyServices, componentService, nodeTemplateService, appVersions, preselectedVersion, context, toscaService, toscaCardinalitiesService, workflowServices,
     topoEditArtifacts,
     topoEditDisplay,
     topoEditGroups,
@@ -86,19 +86,16 @@ define(function (require) {
       topoEditWf($scope);
       topoEditYaml($scope);
 
-      // TODO : when topology templates edition with use also version, remove this IF statement
-      if (_.defined(appVersions) && _.defined(appVersions.data)) {
-        // default version loading
-        $scope.appVersions = appVersions.data;
-        $scope.selectedVersion = $scope.appVersions[0];
-        $scope.topologyId = $scope.selectedVersion.topologyId;
-        if (_.defined(preselectedVersion)) {
-          $scope.versions.setSelectedVersionByName(preselectedVersion);
-        }
-      } else {
-        // TODO : remove this part when apVersion will be given in state 'topologytemplates.detail.topology'
-        $scope.topologyId = topologyId;
+      // default version loading
+      $scope.versionContext = context;
+      $scope.appVersions = appVersions.data;
+      $scope.selectedVersion = $scope.appVersions[0];
+      $scope.topologyId = $scope.selectedVersion.topologyId;
+      $scope.versionContext.topologyId = $scope.topologyId;
+      if (_.defined(preselectedVersion)) {
+        $scope.versions.setSelectedVersionByName(preselectedVersion);
       }
+
       $scope.workflows.setCurrentWorkflowName('install');
 
       $scope.refreshTopology = function(topologyDTO, selectedNodeTemplate) {

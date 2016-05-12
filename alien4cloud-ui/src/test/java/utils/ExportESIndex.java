@@ -66,8 +66,10 @@ public class ExportESIndex {
                 Paths.get(pathToData + "/groups.json"));
 
         // Suggestion entry
-        export("curl -X POST \"http://localhost:9200/suggestionentry/_search?pretty=true\" -d '{\"from\" : 0, \"size\" : 1000,\"sort\": { \"_uid\": { \"order\": \"asc\" }},\"query\" : {\"match_all\" : {}}}' | grep _source",
+        export("curl -X POST \"http://localhost:9200/suggestion/suggestionentry/_search?pretty=true\" -d '{\"from\" : 0, \"size\" : 1000,\"sort\": { \"_uid\": { \"order\": \"asc\" }},\"query\" : {\"match_all\" : {}}}' | grep _source",
                 Paths.get(pathToData + "/suggestionentry.json"));
+        export("curl -X POST \"http://localhost:9200/suggestion/simplesuggestionentry/_search?pretty=true\" -d '{\"from\" : 0, \"size\" : 1000,\"sort\": { \"_uid\": { \"order\": \"asc\" }},\"query\" : {\"match_all\" : {}}}' | grep _source",
+                Paths.get(pathToData + "/simple_suggestionentry.json"));
     }
 
     private static void export(String command, Path targetFile) throws IOException {
