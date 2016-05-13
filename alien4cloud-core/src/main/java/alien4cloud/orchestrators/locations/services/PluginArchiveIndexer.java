@@ -5,13 +5,15 @@ import java.util.*;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
@@ -21,10 +23,7 @@ import alien4cloud.events.LocationArchiveDeleteRequested;
 import alien4cloud.events.LocationTypeIndexed;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.common.Usage;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.Csar;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.components.*;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
@@ -37,10 +36,7 @@ import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.tosca.ArchiveIndexer;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Manage the indexing of TOSCA archives.
@@ -86,7 +82,7 @@ public class PluginArchiveIndexer {
         for (PluginArchive pluginArchive : pluginArchives) {
             ArchiveRoot archive = pluginArchive.getArchive();
             Csar csar = csarService.getIfExists(archive.getArchive().getName(), archive.getArchive().getVersion());
-            
+
             if (csar == null) {
                 // index the required archive
                 indexArchive(pluginArchive, orchestrator, location);
@@ -100,13 +96,19 @@ public class PluginArchiveIndexer {
         return dependencies;
     }
 
-    public void indexOrchestratorArchives(IOrchestratorPluginFactory<IOrchestratorPlugin<?>, ?> orchestratorFactory) {
+    /**
+     * Index archives defined at the orchestrator level by a plugin.
+     *
+     * @param orchestratorFactory The orchestrator factory.
+     * @param orchestratorInstance The instance of the orchestrator (created by the factory).
+     */
+    public void indexOrchestratorArchives(IOrchestratorPluginFactory<IOrchestratorPlugin<?>, ?> orchestratorFactory,
+            IOrchestratorPlugin<Object> orchestratorInstance) {
         try {
-            IOrchestratorPlugin<?> orchestratorInstance = orchestratorFactory.newInstance();
             for (PluginArchive pluginArchive : orchestratorInstance.pluginArchives()) {
                 publishLocationTypeIndexedEvent(pluginArchive.getArchive().getNodeTypes().values(), orchestratorFactory, null);
-                List<ParsingError> parsingErrors = Lists.newArrayList();
-                archiveIndexer.importArchive(pluginArchive.getArchive(), pluginArchive.getArchiveFilePath(), parsingErrors);
+                archiveIndexer.importArchive(pluginArchive.getArchive(), CSARSource.ORCHESTRATOR, pluginArchive.getArchiveFilePath(),
+                        Lists.<ParsingError> newArrayList());
             }
         } catch (CSARVersionAlreadyExistsException e) {
             log.info("Skipping orchestrator archive import as the released version already exists in the repository.");
@@ -125,7 +127,7 @@ public class PluginArchiveIndexer {
         List<ParsingError> parsingErrors = Lists.newArrayList();
         // index the archive in alien catalog
         try {
-            archiveIndexer.importArchive(archive, pluginArchive.getArchiveFilePath(), parsingErrors);
+            archiveIndexer.importArchive(archive, CSARSource.ORCHESTRATOR, pluginArchive.getArchiveFilePath(), parsingErrors);
         } catch (CSARVersionAlreadyExistsException e) {
             log.info("Skipping location archive import as the released version already exists in the repository.");
         }

@@ -16,6 +16,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.model.components.CSARSource;
 import alien4cloud.plugin.PluginManager;
 import alien4cloud.plugin.exception.MissingPlugingDescriptorFileException;
 import alien4cloud.plugin.exception.PluginLoadingException;
@@ -96,7 +97,7 @@ public class InitialLoader {
             for (Path archive : archives) {
                 try {
                     log.debug("Initial load of archives from <{}>.", archive.toString());
-                    csarUploadService.upload(archive);
+                    csarUploadService.upload(archive, CSARSource.ALIEN);
                 } catch (CSARVersionAlreadyExistsException e) {
                     log.debug("Skipping initial upload of archive <{}>. Archive has already been loaded.", archive.toString(), e);
                 } catch (ParsingException e) {
