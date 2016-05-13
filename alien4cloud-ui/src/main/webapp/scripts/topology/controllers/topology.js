@@ -42,7 +42,7 @@ define(function (require) {
   require('scripts/topology/services/workflow_services');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles']).controller('TopologyCtrl',
-    ['$scope', '$modal', '$timeout', 'topologyJsonProcessor', 'topologyServices', 'componentService', 'nodeTemplateService', 'appVersions', 'preselectedVersion', 'context', 'toscaService', 'toscaCardinalitiesService', 'workflowServices',
+    ['$scope', '$modal', '$timeout', 'topologyJsonProcessor', 'topologyServices', 'componentService', 'nodeTemplateService', 'appVersions', 'context', 'toscaService', 'toscaCardinalitiesService', 'workflowServices',
     'topoEditArtifacts',
     'topoEditDisplay',
     'topoEditGroups',
@@ -56,7 +56,7 @@ define(function (require) {
     'topoEditVersions',
     'topoEditWf',
     'topoEditYaml',
-    function($scope, $modal, $timeout, topologyJsonProcessor, topologyServices, componentService, nodeTemplateService, appVersions, preselectedVersion, context, toscaService, toscaCardinalitiesService, workflowServices,
+    function($scope, $modal, $timeout, topologyJsonProcessor, topologyServices, componentService, nodeTemplateService, appVersions, context, toscaService, toscaCardinalitiesService, workflowServices,
     topoEditArtifacts,
     topoEditDisplay,
     topoEditGroups,
@@ -71,6 +71,9 @@ define(function (require) {
     topoEditWf,
     topoEditYaml) {
       $scope.isRuntime = false;
+      // wire version context and versions to the scope
+      $scope.versionContext = context;
+      $scope.appVersions = appVersions.data;
 
       topoEditArtifacts($scope);
       topoEditDisplay($scope);
@@ -85,16 +88,6 @@ define(function (require) {
       topoEditVersions($scope);
       topoEditWf($scope);
       topoEditYaml($scope);
-
-      // default version loading
-      $scope.versionContext = context;
-      $scope.appVersions = appVersions.data;
-      $scope.selectedVersion = $scope.appVersions[0];
-      $scope.topologyId = $scope.selectedVersion.topologyId;
-      $scope.versionContext.topologyId = $scope.topologyId;
-      if (_.defined(preselectedVersion)) {
-        $scope.versions.setSelectedVersionByName(preselectedVersion);
-      }
 
       $scope.workflows.setCurrentWorkflowName('install');
 

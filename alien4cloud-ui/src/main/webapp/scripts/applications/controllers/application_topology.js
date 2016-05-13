@@ -7,8 +7,7 @@ define(function(require) {
     url: '/topology',
     template: '<ui-view></ui-view>',
     resolve: {
-      context: function() { return { topologyId: undefined }; },
-      preselectedVersion: function() { return undefined; }
+      context: function() { return {}; },
     },
     menu: {
       id: 'am.applications.detail.topology',

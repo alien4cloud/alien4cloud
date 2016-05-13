@@ -364,30 +364,6 @@
     "FORM_ERRORS" : {
       "TAG_KEY" : "Le nom d'un tag doit contenir des lettres de a-Z, -, _ sans espace"
     },
-    "PORTABILITY": {
-      "TITLE": "Portabilité",
-      "IAASS": {
-        "LABEL": "IaaSs",
-        "VALUE": "Portabilité: IaaSs"
-      },
-      "ORCHESTRATORS": {
-        "LABEL": "Orchestrateurs",
-        "VALUE": "Portabilité: Orchestrateurs"
-      },
-      "RUNTIME_PACKAGES": {
-        "LABEL": "Packages installés",
-        "VALUE": "Portabilité: Packages installés"
-      },
-      "SUPPORTED_ARTIFACTS": {
-        "LABEL": "Artefacts supportés",
-        "VALUE": "Portabilité: Artefacts supportés"
-      },
-      "RELATED_LOCATIONS": {
-        "LABEL": "Locations liées",
-        "VALUE": "Portabilité: Locations liées"
-      },
-      "SEE": "Voir infos sur portabilité"
-    },
     "REQUIREMENTS" : {
       "TYPE" : "Prérequis"
     },
@@ -672,7 +648,6 @@
       "CAPABILITY" : "Description de la capacité",
       "CUSTOM_COMMAND" : "Description de l'opération",
       "META_PROPERTY" : "Description de la méta-propriété",
-      "PORTABILITY" : "Description de la propriété de portabilité",
       "PROPERTY" : "Description de la propriété",
       "REQUIREMENT" : "Description du pré-requis"
     }

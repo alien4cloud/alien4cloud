@@ -45,12 +45,12 @@ define(function (require) {
     url: '/topology',
     template: '<ui-view></ui-view>',
     resolve: {
-      context: function() { return { topologyId: undefined }; },
-      preselectedVersion: ['$stateParams', function ($stateParams) {
-        if (_.isEmpty($stateParams.version)) {
-          return undefined;
+      context: ['$stateParams', function ($stateParams) {
+        var context = { topologyId: undefined };
+        if (!_.isEmpty($stateParams.version)) {
+          context.versionName = $stateParams.version;
         }
-        return $stateParams.version;
+        return context;
       }]
     }
   });
