@@ -21,9 +21,16 @@ define(function (require) {
             tooltipContent += ' <img src="images/abstract_ico.png" height="' + icoSize + '" width="' + icoSize + '"></img>';
           }
           tooltipContent += '</div>';
-          if (_.defined(element.template.properties)) {
-            if (typeof element.template.properties.version === 'string') {
-              tooltipContent += '<div>' + 'v' + element.template.properties.version + '</div>';
+          if (_.defined(element.type.derivedFrom) &&
+              $.inArray('tosca.nodes.SoftwareComponent',element.type.derivedFrom) !== -1){
+            if (_.defined(element.template.propertiesMap) &&
+                _.defined(element.template.propertiesMap.component_version)) {
+                  tooltipContent += '<div>' + 'v' + element.template.propertiesMap.component_version.value.value + '</div>';
+            }else{
+              if(_.defined(element.template.propertiesMap) &&
+                 _.defined(element.template.propertiesMap.version)){
+                   tooltipContent += '<div>' + 'v' + element.template.propertiesMap.version.value.value + '</div>';
+              }
             }
           }
           tooltipContent += '</div>';
