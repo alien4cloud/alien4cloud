@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Sets;
@@ -30,6 +31,7 @@ import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
 
 @Service
+@Slf4j
 public class TopologyServiceCore {
 
     @Resource(name = "alien-es-dao")
@@ -280,7 +282,7 @@ public class TopologyServiceCore {
                             pv = new ScalarPropertyValue(defaultValue);
                         }
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        log.info(e.getMessage());
                     }
                     properties.put(entry.getKey(), pv);
                 } else {
