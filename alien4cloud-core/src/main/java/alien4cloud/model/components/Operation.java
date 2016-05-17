@@ -33,6 +33,8 @@ public class Operation {
     /** This OPTIONAL property contains a list of one or more input parameter definitions. */
     @JsonDeserialize(contentUsing = OperationParameterDeserializer.class)
     private Map<String, IValue> inputParameters;
+    /** This element is not part of TOSCA but allows to specifies some portability meta-data on the operation. */
+    private Map<String, AbstractPropertyValue> portability;
 
     /**
      * This OPTIONAL property contains a map of one or more outputs this operation execution might generate.

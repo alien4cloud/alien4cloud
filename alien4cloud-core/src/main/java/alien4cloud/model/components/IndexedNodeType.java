@@ -44,14 +44,10 @@ public class IndexedNodeType extends IndexedArtifactToscaElement {
     @NumberField(index = IndexType.not_analyzed, includeInAll = false)
     private long alienScore;
 
-    /**
-     * When the type is created from a topology template (substitution), contains the topology id.
-     */
+    /** When the type is created from a topology template (substitution), contains the topology id. */
     private String substitutionTopologyId;
 
-    /**
-     * portability informations
-     */
+    /** Portability information. */
     @ConditionalOnAttribute({ ConditionalAttributes.ES, ConditionalAttributes.REST })
     @JsonDeserialize(contentUsing = PropertyValueDeserializer.class)
     @TermsFacet(pathGenerator = ESPortabilityPropertiesPathsGenerator.class)

@@ -12,6 +12,7 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import alien4cloud.model.components.*;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,16 +21,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import alien4cloud.git.RepositoryManager;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.ConcatPropertyValue;
-import alien4cloud.model.components.Csar;
-import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.IValue;
-import alien4cloud.model.components.IndexedArtifactToscaElement;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.Operation;
-import alien4cloud.model.components.OperationOutput;
-import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
@@ -92,22 +83,22 @@ public class FunctionEvaluatorTest {
         Path typesPath = artifactsDirectory.resolve(normativeLocalName);
         Path typesZipPath = artifactsDirectory.resolve(normativeLocalName + ".zip");
         FileUtil.zip(typesPath, typesZipPath);
-        ParsingResult<Csar> result = archiveUploadService.upload(typesZipPath);
+        ParsingResult<Csar> result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER);
 
         typesPath = artifactsDirectory.resolve(extendedLocalName).resolve("alien-base-types");
         typesZipPath = artifactsDirectory.resolve("alien-base-types.zip");
         FileUtil.zip(typesPath, typesZipPath);
-        result = archiveUploadService.upload(typesZipPath);
+        result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER);
 
         typesPath = artifactsDirectory.resolve(sampleLocalName).resolve("tomcat-war");
         typesZipPath = artifactsDirectory.resolve("tomcat_war.zip");
         FileUtil.zip(typesPath, typesZipPath);
-        result = archiveUploadService.upload(typesZipPath);
+        result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER);
 
         typesPath = Paths.get("src/test/resources/alien/paas/function/csars/test-types");
         typesZipPath = artifactsDirectory.resolve("target/test-types.zip");
         FileUtil.zip(typesPath, typesZipPath);
-        result = archiveUploadService.upload(typesZipPath);
+        result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER);
 
         Topology topology = applicationUtil.parseYamlTopology("src/test/resources/alien/paas/function/topology/badFunctionsTomcatWar");
         topology.setId(UUID.randomUUID().toString());

@@ -27,13 +27,12 @@ define(function (require) {
       ],
       appVersions: ['$http', 'topologyTemplate', 'topologyTemplateVersionServices',
         function ($http, topologyTemplate, topologyTemplateVersionServices) {
-          var searchAppVersionRequestObject = {
-            'from': 0,
-            'size': 400
-          };
           return topologyTemplateVersionServices.searchVersion({
             delegateId: topologyTemplate.data.id
-          }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function (result) {
+          }, angular.toJson({
+            'from': 0,
+            'size': 400
+          })).$promise.then(function (result) {
             return result.data;
           });
         }
@@ -41,9 +40,19 @@ define(function (require) {
     },
     controller: 'TopologyTemplateCtrl'
   });
+
   states.state('topologytemplates.detail.topology', {
     url: '/topology',
-    template: '<ui-view></ui-view>'
+    template: '<ui-view></ui-view>',
+    resolve: {
+      context: ['$stateParams', function ($stateParams) {
+        var context = { topologyId: undefined };
+        if (!_.isEmpty($stateParams.version)) {
+          context.versionName = $stateParams.version;
+        }
+        return context;
+      }]
+    }
   });
 
   states.state('topologytemplates.detail.versions', {

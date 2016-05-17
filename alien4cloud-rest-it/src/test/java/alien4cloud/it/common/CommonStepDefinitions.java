@@ -1,5 +1,20 @@
 package alien4cloud.it.common;
 
+import java.nio.file.Files;
+import java.util.List;
+
+import alien4cloud.it.security.AuthenticationStepDefinitions;
+import lombok.extern.slf4j.Slf4j;
+
+import org.elasticsearch.client.Client;
+import org.elasticsearch.common.collect.Lists;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.junit.Assert;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+
 import alien4cloud.audit.AuditESDAO;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -27,17 +42,6 @@ import alien4cloud.utils.FileUtil;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import java.nio.file.Files;
-import java.util.List;
-import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.collect.Lists;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.junit.Assert;
-import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 @Slf4j
 public class CommonStepDefinitions {
@@ -56,8 +60,6 @@ public class CommonStepDefinitions {
         indicesToClean.add(Csar.class.getSimpleName().toLowerCase());
         indicesToClean.add(Topology.class.getSimpleName().toLowerCase());
         indicesToClean.add(TopologyTemplate.class.getSimpleName().toLowerCase());
-        indicesToClean.add(Plugin.class.getSimpleName().toLowerCase());
-        indicesToClean.add(PluginConfiguration.class.getSimpleName().toLowerCase());
         indicesToClean.add(Deployment.class.getSimpleName().toLowerCase());
         indicesToClean.add(Group.class.getSimpleName().toLowerCase());
         indicesToClean.add(User.class.getSimpleName().toLowerCase());
@@ -65,10 +67,19 @@ public class CommonStepDefinitions {
         indicesToClean.add(CsarGitRepository.class.getSimpleName().toLowerCase());
         indicesToClean.add(AuditESDAO.ALIEN_AUDIT_INDEX);
         indicesToClean.add(ElasticSearchDAO.SUGGESTION_INDEX);
+
+        indicesToClean.add(Plugin.class.getSimpleName().toLowerCase());
+        indicesToClean.add(PluginConfiguration.class.getSimpleName().toLowerCase());
     }
 
-    @Before("@reset")
+    @Before(value = "@reset", order = 1)
     public void beforeScenario() throws Throwable {
+        // teardown the platform before removing all data
+        // connect as admin
+        AuthenticationStepDefinitions authenticationStepDefinitions = new AuthenticationStepDefinitions();
+        authenticationStepDefinitions.I_am_authenticated_with_role("ADMIN");
+        Context.getRestClientInstance().postJSon("/rest/v1/maintenance/teardown-platform", "");
+
         if (log.isDebugEnabled()) {
             log.debug("Before scenario, clean up elastic search and alien repositories from {}", Context.getInstance().getAlienPath());
         }
@@ -88,6 +99,10 @@ public class CommonStepDefinitions {
             log.debug("Removing plugin directory [" + Context.getInstance().getPluginDirPath().toAbsolutePath() + "]");
             FileUtil.delete(Context.getInstance().getPluginDirPath());
         }
+        if (Files.exists(Context.getInstance().getWorkPath())) {
+            log.debug("Removing plugin directory [" + Context.getInstance().getWorkPath().toAbsolutePath() + "]");
+            FileUtil.delete(Context.getInstance().getWorkPath());
+        }
         if (Files.exists(Context.getInstance().getArtifactDirPath())) {
             log.debug("Removing artifact directory [" + Context.getInstance().getArtifactDirPath().toAbsolutePath() + "]");
             FileUtil.delete(Context.getInstance().getArtifactDirPath());
@@ -97,11 +112,13 @@ public class CommonStepDefinitions {
         Files.createDirectories(Context.getInstance().getRepositoryDirPath());
         Files.createDirectories(Context.getInstance().getUploadTempDirPath());
         Files.createDirectories(Context.getInstance().getPluginDirPath());
+        Files.createDirectories(Context.getInstance().getWorkPath().resolve("plugins/content"));
+        Files.createDirectories(Context.getInstance().getWorkPath().resolve("plugins/ui"));
         Files.createDirectories(Context.getInstance().getArtifactDirPath());
 
         // Clean elastic search cluster
-        for (String indice : indicesToClean) {
-            esClient.prepareDeleteByQuery(new String[] { indice }).setQuery(QueryBuilders.matchAllQuery()).execute().get();
+        for (String index : indicesToClean) {
+            esClient.prepareDeleteByQuery(new String[] { index }).setQuery(QueryBuilders.matchAllQuery()).execute().get();
         }
 
         // clean things in Context
