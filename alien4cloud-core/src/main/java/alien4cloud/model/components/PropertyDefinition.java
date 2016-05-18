@@ -78,6 +78,17 @@ public class PropertyDefinition implements IValue {
 
     private boolean isPassword;
 
+    public PropertyDefinition(PropertyDefinition from) {
+        this.type = from.type;
+        this.entrySchema = from.entrySchema;
+        this.required = from.required;
+        this.defaultValue = from.defaultValue;
+        this.description = from.description;
+        this.suggestionId = from.suggestionId;
+        this.constraints = from.constraints;
+        this.isPassword = from.isPassword;
+    }
+
     public String getDefault() {
         return this.defaultValue;
     }
@@ -85,6 +96,7 @@ public class PropertyDefinition implements IValue {
     public void setDefault(String defaultValue) {
         this.defaultValue = defaultValue;
     }
+
 
     @Override
     public boolean isDefinition() {

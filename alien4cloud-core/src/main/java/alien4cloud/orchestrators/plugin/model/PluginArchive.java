@@ -24,4 +24,17 @@ public class PluginArchive {
      * In case it exists Alien will use it to save the data of the archive so it is available for browsing as well as for importing icons.
      */
     private Path archiveFilePath;
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof PluginArchive) {
+            return archive.getArchive().equals(((PluginArchive) obj).archive.getArchive());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return archive.getArchive().hashCode();
+    }
 }

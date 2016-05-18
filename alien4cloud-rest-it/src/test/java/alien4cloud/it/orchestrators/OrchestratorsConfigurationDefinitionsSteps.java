@@ -42,9 +42,28 @@ public class OrchestratorsConfigurationDefinitionsSteps {
         default:
             throw new IllegalArgumentException("Cloudify version not supported " + cloudifyVersion);
         }
+        Context.getInstance().setOrchestratorConfiguration(config);
         String restResponse = Context.getRestClientInstance().putJSon("/rest/v1/orchestrators/" + orchestratorId + "/configuration", JsonUtil.toString(config));
         Context.getInstance().registerRestResponse(restResponse);
+    }
 
+    @And("^I update cloudify (\\d+) manager's \"([^\"]*)\" property to \"([^\"]*)\" for orchestrator with name \"([^\"]*)\"$")
+    public void I_update_cloudify_manager_s_property_to_for_cloud_with_name(int cloudifyVersion, String propertyName, String propertyValue, String orchestratorName) throws Throwable {
+        String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
+        Map<String, Object> config = Context.getInstance().getOrchestratorConfiguration();
+        switch (cloudifyVersion) {
+            case 3:
+                if (config.containsKey(propertyName)) {
+                    config.remove(propertyName);
+                }
+                config.put(propertyName, propertyValue);
+                break;
+            default:
+                throw new IllegalArgumentException("Cloudify version not supported " + cloudifyVersion);
+        }
+        Context.getInstance().setOrchestratorConfiguration(config);
+        String restResponse = Context.getRestClientInstance().putJSon("/rest/v1/orchestrators/" + orchestratorId + "/configuration", JsonUtil.toString(config));
+        Context.getInstance().registerRestResponse(restResponse);
     }
 
     @When("^I update orchestrator \"([^\"]*)\"'s configuration property \"([^\"]*)\" to \"([^\"]*)\"$")

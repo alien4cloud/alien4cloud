@@ -1,20 +1,18 @@
 package alien4cloud.topology;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Sets;
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Maps;
 
 import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.component.ICSARRepositorySearchService;
@@ -23,40 +21,17 @@ import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.ComplexPropertyValue;
-import alien4cloud.model.components.Csar;
-import alien4cloud.model.components.DeploymentArtifact;
-import alien4cloud.model.components.IValue;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedModelUtils;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.ListPropertyValue;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.PropertyValue;
-import alien4cloud.model.components.RequirementDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.components.*;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.Requirement;
-import alien4cloud.model.topology.SubstitutionTarget;
-import alien4cloud.model.topology.Topology;
+import alien4cloud.model.topology.*;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.normative.AlienCustomTypes;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Maps;
-
 @Service
+@Slf4j
 public class TopologyServiceCore {
 
     @Resource(name = "alien-es-dao")
@@ -158,7 +133,7 @@ public class TopologyServiceCore {
     }
 
     public Map<String, IndexedNodeType> getIndexedNodeTypesFromDependencies(Map<String, NodeTemplate> nodeTemplates, Set<CSARDependency> dependencies,
-                                                                            boolean abstractOnly, boolean useTemplateNameAsKey) {
+            boolean abstractOnly, boolean useTemplateNameAsKey) {
         Map<String, IndexedNodeType> nodeTypes = Maps.newHashMap();
         if (nodeTemplates == null) {
             return nodeTypes;
@@ -243,7 +218,7 @@ public class TopologyServiceCore {
      * @return new constructed node template
      */
     public static NodeTemplate buildNodeTemplate(Set<CSARDependency> dependencies, IndexedNodeType indexedNodeType, NodeTemplate templateToMerge,
-                                                 IToscaElementFinder toscaElementFinder) {
+            IToscaElementFinder toscaElementFinder) {
         NodeTemplate nodeTemplate = new NodeTemplate();
         nodeTemplate.setType(indexedNodeType.getElementId());
         Map<String, Capability> capabilities = Maps.newLinkedHashMap();
@@ -286,7 +261,7 @@ public class TopologyServiceCore {
     }
 
     public static void fillProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> propertiesDefinitions,
-                                      Map<String, AbstractPropertyValue> map) {
+            Map<String, AbstractPropertyValue> map) {
         if (propertiesDefinitions == null || properties == null) {
             return;
         }
@@ -300,14 +275,14 @@ public class TopologyServiceCore {
                     try {
                         if (AlienCustomTypes.checkDefaultIsComplex(defaultValue)) {
                             pv = new ComplexPropertyValue(JsonUtil.toMap(defaultValue));
-                        } else if(AlienCustomTypes.checkDefaultIsList(defaultValue)){
+                        } else if (AlienCustomTypes.checkDefaultIsList(defaultValue)) {
                             pv = new ListPropertyValue(JsonUtil.toList(defaultValue, Object.class));
 
                         } else {
-                            pv =  new ScalarPropertyValue(defaultValue);
+                            pv = new ScalarPropertyValue(defaultValue);
                         }
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        log.info(e.getMessage());
                     }
                     properties.put(entry.getKey(), pv);
                 } else {
@@ -320,7 +295,7 @@ public class TopologyServiceCore {
     }
 
     private static void fillCapabilitiesMap(Map<String, Capability> map, List<CapabilityDefinition> elements, Collection<CSARDependency> dependencies,
-                                            Map<String, Capability> mapToMerge, IToscaElementFinder toscaElementFinder) {
+            Map<String, Capability> mapToMerge, IToscaElementFinder toscaElementFinder) {
         if (elements == null) {
             return;
         }
@@ -339,7 +314,7 @@ public class TopologyServiceCore {
     }
 
     private static void fillRequirementsMap(Map<String, Requirement> map, List<RequirementDefinition> elements, Collection<CSARDependency> dependencies,
-                                            Map<String, Requirement> mapToMerge, IToscaElementFinder toscaElementFinder) {
+            Map<String, Requirement> mapToMerge, IToscaElementFinder toscaElementFinder) {
         if (elements == null) {
             return;
         }
@@ -348,8 +323,8 @@ public class TopologyServiceCore {
             if (toAddRequirement == null) {
                 toAddRequirement = new Requirement();
                 toAddRequirement.setType(requirement.getType());
-                IndexedCapabilityType indexedReq = toscaElementFinder
-                        .getElementInDependencies(IndexedCapabilityType.class, requirement.getType(), dependencies);
+                IndexedCapabilityType indexedReq = toscaElementFinder.getElementInDependencies(IndexedCapabilityType.class, requirement.getType(),
+                        dependencies);
                 if (indexedReq != null && indexedReq.getProperties() != null) {
                     toAddRequirement.setProperties(PropertyUtil.getDefaultPropertyValuesFromPropertyDefinitions(indexedReq.getProperties()));
                 }
@@ -413,7 +388,7 @@ public class TopologyServiceCore {
     }
 
     public TopologyTemplate searchTopologyTemplateByName(String name) {
-        Map<String, String[]> filters = MapUtil.newHashMap(new String[]{"name"}, new String[][]{new String[]{name}});
+        Map<String, String[]> filters = MapUtil.newHashMap(new String[] { "name" }, new String[][] { new String[] { name } });
         GetMultipleDataResult<TopologyTemplate> result = alienDAO.find(TopologyTemplate.class, filters, Integer.MAX_VALUE);
         if (result.getTotalResults() > 0) {
             return result.getData()[0];
@@ -446,8 +421,8 @@ public class TopologyServiceCore {
         if (topology.getSubstitutionMapping() == null || topology.getSubstitutionMapping().getSubstitutionType() == null) {
             return;
         }
-        IndexedNodeType nodeType = csarRepoSearchService.getElementInDependencies(IndexedNodeType.class, topology.getSubstitutionMapping()
-                .getSubstitutionType().getElementId(), topology.getDependencies());
+        IndexedNodeType nodeType = csarRepoSearchService.getElementInDependencies(IndexedNodeType.class,
+                topology.getSubstitutionMapping().getSubstitutionType().getElementId(), topology.getDependencies());
 
         TopologyTemplate topologyTemplate = alienDAO.findById(TopologyTemplate.class, topology.getDelegateId());
         TopologyTemplateVersion topologyTemplateVersion = topologyTemplateVersionService.getByTopologyId(topology.getId());
@@ -468,6 +443,7 @@ public class TopologyServiceCore {
         }
         csar.setDependencies(inheritanceDependencies);
         csar.getDependencies().addAll(topology.getDependencies());
+        csar.setImportSource(CSARSource.TOPOLOGY_SUBSTITUTION.name());
         csarService.save(csar);
 
         IndexedNodeType topologyTemplateType = new IndexedNodeType();
