@@ -1,18 +1,17 @@
 package alien4cloud.utils.services;
 
-import java.util.List;
-import java.util.Map;
-
-import lombok.extern.slf4j.Slf4j;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.paas.exception.NotSupportedException;
 import alien4cloud.tosca.normative.IPropertyType;
 import alien4cloud.tosca.normative.InvalidPropertyValueException;
 import alien4cloud.tosca.normative.ScalarType;
 import alien4cloud.tosca.normative.ScalarUnit;
 import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.utils.MapUtil;
+import java.util.List;
+import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class PropertyValueService {
@@ -46,13 +45,13 @@ public class PropertyValueService {
             return getValueInUnit((String) propertyValue, unit, ceil, propertyDefinition.getType());
         } else if (propertyValue instanceof List) {
             log.error("Conversion of unit is currently not supported for complex properties");
-            throw new NotImplementedException();
+            throw new NotSupportedException("Conversion of unit is currently not supported for complex properties");
         } else if (propertyValue instanceof Map) {
             log.error("Conversion of unit is currently not supported for complex properties");
-            throw new NotImplementedException();
+            throw new NotSupportedException("Conversion of unit is currently not supported for complex properties");
         } else {
-            throw new InvalidArgumentException("Not expecting to receive unit conversion for other types than String, Map or List as "
-                    + propertyValue.getClass().getName());
+            throw new InvalidArgumentException(
+                    "Not expecting to receive unit conversion for other types than String, Map or List as " + propertyValue.getClass().getName());
         }
     }
 

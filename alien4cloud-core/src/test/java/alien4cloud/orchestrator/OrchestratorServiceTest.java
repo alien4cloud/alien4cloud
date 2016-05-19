@@ -1,18 +1,11 @@
-package alien4cloud.cloud;
-
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-import org.junit.Test;
-import org.mockito.Mockito;
+package alien4cloud.orchestrator;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorConfiguration;
 import alien4cloud.model.orchestrators.OrchestratorState;
+import alien4cloud.orchestrators.locations.services.PluginArchiveIndexer;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import alien4cloud.orchestrators.services.OrchestratorConfigurationService;
@@ -20,10 +13,15 @@ import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.orchestrators.services.OrchestratorStateService;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.exception.PluginConfigurationException;
-
 import com.google.common.collect.Lists;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import org.junit.Test;
+import org.mockito.Mockito;
 
-public class CloudServiceTest {
+public class OrchestratorServiceTest {
     public static final String DEFAULT_CLOUD_CONFIGURATION = "This is the cloud configuration";
     private OrchestratorPluginService orchestratorPluginService;
     private OrchestratorConfigurationService orchestratorConfigurationService;
@@ -31,6 +29,7 @@ public class CloudServiceTest {
     private DeploymentService deploymentService;
     private OrchestratorStateService orchestratorStateService;
     private OrchestratorService orchestratorService;
+    private PluginArchiveIndexer archiveIndexer;
 
     private void setPrivateField(Object target, String fieldName, Object fieldValue) {
         Field field;
@@ -43,12 +42,13 @@ public class CloudServiceTest {
         }
     }
 
-    private void initializeMockedCloudService() {
+    private void initializeMockedOrchestratorService() {
         alienDAO = Mockito.mock(IGenericSearchDAO.class);
         orchestratorConfigurationService = Mockito.mock(OrchestratorConfigurationService.class);
         orchestratorPluginService = Mockito.mock(OrchestratorPluginService.class);
         deploymentService = Mockito.mock(DeploymentService.class);
         orchestratorService = Mockito.mock(OrchestratorService.class);
+        archiveIndexer = Mockito.mock(PluginArchiveIndexer.class);
         // initialize orchestrator state service instance with mocks
         orchestratorStateService = new OrchestratorStateService();
         setPrivateField(orchestratorStateService, "alienDAO", alienDAO);
@@ -56,34 +56,35 @@ public class CloudServiceTest {
         setPrivateField(orchestratorStateService, "orchestratorPluginService", orchestratorPluginService);
         setPrivateField(orchestratorStateService, "deploymentService", deploymentService);
         setPrivateField(orchestratorStateService, "orchestratorService", orchestratorService);
+        setPrivateField(orchestratorStateService, "archiveIndexer", archiveIndexer);
     }
 
     @Test
     public void testInitializeNullData() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-        initializeMockedCloudService();
+        initializeMockedOrchestratorService();
 
-        List<Orchestrator> enabledClouds = Lists.newArrayList();
-        initSearch(enabledClouds);
+        List<Orchestrator> enabledOrchestrators = Lists.newArrayList();
+        initSearch(enabledOrchestrators);
 
         orchestratorStateService.initialize();
     }
 
     @Test
     public void testInitializeEmptyData() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-        initializeMockedCloudService();
+        initializeMockedOrchestratorService();
 
-        List<Orchestrator> enabledClouds = Lists.newArrayList(new Orchestrator[0]);
-        initSearch(enabledClouds);
+        List<Orchestrator> enabledOrchestrators = Lists.newArrayList(new Orchestrator[0]);
+        initSearch(enabledOrchestrators);
 
         orchestratorStateService.initialize();
     }
 
     @SuppressWarnings("unchecked")
-    private void initSearch(List<Orchestrator> enabledClouds) {
-        Mockito.when(orchestratorService.getAllEnabledOrchestrators()).thenReturn(enabledClouds);
+    private void initSearch(List<Orchestrator> enabledOrchestrators) {
+        Mockito.when(orchestratorService.getAllEnabledOrchestrators()).thenReturn(enabledOrchestrators);
     }
 
-    private List<Orchestrator> searchCloud() {
+    private List<Orchestrator> searchOrchestrator() {
         Orchestrator cloud = new Orchestrator();
         cloud.setId("id");
         cloud.setName("name");
@@ -100,62 +101,65 @@ public class CloudServiceTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testInitializeConfigurableCloudValidConfig() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException,
-            PluginConfigurationException, ExecutionException, InterruptedException, IOException {
-        initializeMockedCloudService();
+    public void testInitializeConfigurableOrchestratorValidConfig() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException,
+            SecurityException, PluginConfigurationException, ExecutionException, InterruptedException, IOException {
+        initializeMockedOrchestratorService();
 
         IOrchestratorPluginFactory orchestratorPluginFactory = Mockito.mock(IOrchestratorPluginFactory.class);
         IOrchestratorPlugin orchestratorPlugin = Mockito.mock(IOrchestratorPlugin.class);
 
-        List<Orchestrator> enabledClouds = searchCloud();
-        Orchestrator cloud = enabledClouds.get(0);
-        OrchestratorConfiguration configuration = new OrchestratorConfiguration(cloud.getId(), DEFAULT_CLOUD_CONFIGURATION);
+        List<Orchestrator> enabledOrchestrators = searchOrchestrator();
+        Orchestrator orchestrator = enabledOrchestrators.get(0);
+        OrchestratorConfiguration configuration = new OrchestratorConfiguration(orchestrator.getId(), DEFAULT_CLOUD_CONFIGURATION);
 
-        initSearch(enabledClouds);
+        initSearch(enabledOrchestrators);
 
-        Mockito.when(orchestratorService.getPluginFactory(cloud)).thenReturn(orchestratorPluginFactory);
+        Mockito.when(orchestratorService.getPluginFactory(orchestrator)).thenReturn(orchestratorPluginFactory);
         Mockito.when(orchestratorPluginFactory.newInstance()).thenReturn(orchestratorPlugin);
         Mockito.when(orchestratorPluginFactory.getConfigurationType()).thenReturn(String.class);
         Mockito.when(orchestratorPluginFactory.getDefaultConfiguration()).thenReturn(DEFAULT_CLOUD_CONFIGURATION);
-        Mockito.when(orchestratorConfigurationService.configurationAsValidObject(cloud.getId(), configuration.getConfiguration())).thenReturn(
-                DEFAULT_CLOUD_CONFIGURATION);
-        Mockito.when(orchestratorConfigurationService.getConfigurationOrFail(cloud.getId())).thenReturn(configuration);
+        Mockito.when(orchestratorConfigurationService.configurationAsValidObject(orchestrator.getId(), configuration.getConfiguration()))
+                .thenReturn(DEFAULT_CLOUD_CONFIGURATION);
+        Mockito.when(orchestratorConfigurationService.getConfigurationOrFail(orchestrator.getId())).thenReturn(configuration);
         initializeAndWait();
 
         Mockito.verify(orchestratorPlugin, Mockito.times(1)).setConfiguration((String) configuration.getConfiguration());
-        Mockito.verify(orchestratorPluginService, Mockito.times(1)).register(cloud.getId(), orchestratorPlugin);
+        Mockito.verify(orchestratorPluginService, Mockito.times(1)).register(orchestrator.getId(), orchestratorPlugin);
+        IOrchestratorPluginFactory fatory = orchestratorService.getPluginFactory(orchestrator);
+        Mockito.verify(archiveIndexer, Mockito.times(1)).indexOrchestratorArchives(fatory, fatory.newInstance());
+        ;
     }
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testInitializeConfigurableCloudInvalidConfig() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException,
+    public void testInitializeConfigurableOrchstratorInvalidConfig() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException,
             SecurityException, PluginConfigurationException, ExecutionException, InterruptedException, IOException {
-        initializeMockedCloudService();
+        initializeMockedOrchestratorService();
 
         IOrchestratorPluginFactory orchestratorPluginFactory = Mockito.mock(IOrchestratorPluginFactory.class);
         IOrchestratorPlugin orchestratorPlugin = Mockito.mock(IOrchestratorPlugin.class);
 
-        List<Orchestrator> enabledClouds = searchCloud();
-        Orchestrator cloud = enabledClouds.get(0);
-        OrchestratorConfiguration configuration = new OrchestratorConfiguration(cloud.getId(), DEFAULT_CLOUD_CONFIGURATION);
+        List<Orchestrator> enabledOrchestrators = searchOrchestrator();
+        Orchestrator orchestrator = enabledOrchestrators.get(0);
+        OrchestratorConfiguration configuration = new OrchestratorConfiguration(orchestrator.getId(), DEFAULT_CLOUD_CONFIGURATION);
 
-        initSearch(enabledClouds);
+        initSearch(enabledOrchestrators);
 
-        Mockito.when(orchestratorService.getPluginFactory(cloud)).thenReturn(orchestratorPluginFactory);
+        Mockito.when(orchestratorService.getPluginFactory(orchestrator)).thenReturn(orchestratorPluginFactory);
         Mockito.when(orchestratorPluginFactory.newInstance()).thenReturn(orchestratorPlugin);
         Mockito.when(orchestratorPluginFactory.getConfigurationType()).thenReturn(String.class);
         Mockito.when(orchestratorPluginFactory.getDefaultConfiguration()).thenReturn(DEFAULT_CLOUD_CONFIGURATION);
-        Mockito.when(orchestratorConfigurationService.getConfigurationOrFail(cloud.getId())).thenReturn(configuration);
-        Mockito.when(orchestratorConfigurationService.configurationAsValidObject(cloud.getId(), configuration.getConfiguration())).thenReturn(
-                DEFAULT_CLOUD_CONFIGURATION);
+        Mockito.when(orchestratorConfigurationService.getConfigurationOrFail(orchestrator.getId())).thenReturn(configuration);
+        Mockito.when(orchestratorConfigurationService.configurationAsValidObject(orchestrator.getId(), configuration.getConfiguration()))
+                .thenReturn(DEFAULT_CLOUD_CONFIGURATION);
 
         Mockito.doThrow(PluginConfigurationException.class).when(orchestratorPlugin).setConfiguration((String) configuration.getConfiguration());
 
         initializeAndWait();
 
-        Mockito.verify(orchestratorPluginService, Mockito.times(0)).register(cloud.getId(), orchestratorPlugin);
-        cloud = (Orchestrator) searchCloud().get(0);
-        cloud.setState(OrchestratorState.DISABLED);
-        Mockito.verify(alienDAO, Mockito.times(2)).save(Mockito.refEq(cloud));
+        Mockito.verify(orchestratorPluginService, Mockito.times(0)).register(orchestrator.getId(), orchestratorPlugin);
+        orchestrator = (Orchestrator) searchOrchestrator().get(0);
+        orchestrator.setState(OrchestratorState.DISABLED);
+        Mockito.verify(alienDAO, Mockito.times(2)).save(Mockito.refEq(orchestrator));
     }
 }
