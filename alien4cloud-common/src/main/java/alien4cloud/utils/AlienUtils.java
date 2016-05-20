@@ -1,17 +1,15 @@
 package alien4cloud.utils;
 
+import com.google.common.collect.Maps;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import lombok.SneakyThrows;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.common.collect.Maps;
 
 public final class AlienUtils {
 

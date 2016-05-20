@@ -1,12 +1,5 @@
 package alien4cloud.paas.function;
 
-import java.util.List;
-import java.util.Map;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.lang3.StringUtils;
-
 import alien4cloud.common.AlienConstants;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.AttributeDefinition;
@@ -35,16 +28,22 @@ import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.List;
+import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 /**
- * Utility class to process functions defined in attributes level:
- * ex:
+ * Utility class to process functions defined in attributes or operations input level:
+ * ex:<br>
+ * 
+ * <pre>
  * attributes:
- * url: "http://get_property: [the_node_tempalte_1, the_property_name_1]:get_property: [the_node_tempalte_2, the_property_name_2 ]/super"
+ *   url: "http://get_property: [the_node_tempalte_1, the_property_name_1]:get_property: [the_node_tempalte_2, the_property_name_2 ]/super"
+ * </pre>
  */
 @Slf4j
 @SuppressWarnings({ "unchecked", "rawtypes" })

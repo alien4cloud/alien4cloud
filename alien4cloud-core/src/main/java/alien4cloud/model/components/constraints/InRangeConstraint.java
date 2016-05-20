@@ -1,27 +1,21 @@
 package alien4cloud.model.components.constraints;
 
-import java.util.List;
-
-import javax.validation.constraints.NotNull;
-
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import alien4cloud.tosca.normative.IPropertyType;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.ui.form.annotation.FormProperties;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
-import lombok.extern.slf4j.Slf4j;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import java.util.List;
+import javax.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 @EqualsAndHashCode(callSuper = false, of = { "inRange" })
 @FormProperties({ "rangeMinValue", "rangeMaxValue" })
-@Slf4j
 public class InRangeConstraint extends AbstractPropertyConstraint {
 
     @Getter

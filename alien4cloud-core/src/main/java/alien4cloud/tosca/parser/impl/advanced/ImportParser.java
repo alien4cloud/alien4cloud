@@ -1,20 +1,18 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
-import javax.annotation.Resource;
-
-import org.apache.commons.lang3.NotImplementedException;
-import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.nodes.Node;
-
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
+import alien4cloud.paas.exception.NotSupportedException;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import alien4cloud.tosca.parser.mapping.DefaultParser;
+import javax.annotation.Resource;
+import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.nodes.Node;
 
 @Component
 public class ImportParser extends DefaultParser<CSARDependency> {
@@ -36,18 +34,16 @@ public class ImportParser extends DefaultParser<CSARDependency> {
                 Csar csar = csarService.getIfExists(dependency.getName(), dependency.getVersion());
                 if (csar == null) {
                     // error is not a blocker, as long as no type is missing we just mark it as a warning.
-                    context.getParsingErrors().add(
-                            new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.MISSING_DEPENDENCY, "Import definition is not valid", node.getStartMark(),
-                                    "Specified dependency is not found in Alien 4 Cloud repository.", node.getEndMark(), valueAsString));
+                    context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.MISSING_DEPENDENCY, "Import definition is not valid",
+                            node.getStartMark(), "Specified dependency is not found in Alien 4 Cloud repository.", node.getEndMark(), valueAsString));
                 }
                 return dependency;
             }
-            context.getParsingErrors().add(
-                    new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.SYNTAX_ERROR, "Import definition is not valid", node.getStartMark(),
-                            "Dependency should be specified as name:version", node.getEndMark(), "Import"));
+            context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.SYNTAX_ERROR, "Import definition is not valid",
+                    node.getStartMark(), "Dependency should be specified as name:version", node.getEndMark(), "Import"));
         } else {
             // TODO check that the relative file exists and trigger import
-            throw new NotImplementedException("Relative import is currently not implemented in Alien 4 Cloud");
+            throw new NotSupportedException("Relative import is currently not supported in Alien 4 Cloud");
         }
         return null;
     }
