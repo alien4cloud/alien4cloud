@@ -187,8 +187,8 @@ define(function (require) {
         }
       };
       //
-      appEnvironments.select = function(environmentId, envChangedCallback) {
-        if(appEnvironments.selected.id === environmentId) {
+      appEnvironments.select = function(environmentId, envChangedCallback, force) {
+        if(appEnvironments.selected.id === environmentId && !force) {
           return; // the environement is already selected.
         }
         appEnvironments.selected.active = false;
