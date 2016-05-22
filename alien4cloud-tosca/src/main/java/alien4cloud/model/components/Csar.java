@@ -5,6 +5,7 @@ import static alien4cloud.dao.model.FetchContext.SUMMARY;
 import java.util.Date;
 import java.util.Set;
 
+import lombok.*;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.NestedObject;
@@ -14,16 +15,12 @@ import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
 import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.model.deployment.IDeploymentSource;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 @Setter
 @EqualsAndHashCode(of = { "name", "version" })
 @ESObject
-public class Csar implements IDeploymentSource {
+public class Csar {
     @FetchContext(contexts = { SUMMARY }, include = { true })
     private String name;
 

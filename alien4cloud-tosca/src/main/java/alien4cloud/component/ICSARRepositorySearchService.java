@@ -1,11 +1,10 @@
 package alien4cloud.component;
 
 import java.util.Collection;
-import java.util.Map;
 
+import alien4cloud.model.components.Csar;
 import org.elasticsearch.index.query.QueryBuilder;
 
-import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.IndexedToscaElement;
@@ -14,6 +13,14 @@ import alien4cloud.model.components.IndexedToscaElement;
  * Service interface to search elements in CSARs.
  */
 public interface ICSARRepositorySearchService {
+
+    /**
+     * Get an archive from it's id.
+     * 
+     * @param id The id of the archive.
+     * @return The cloud service archive matching the given id.
+     */
+    Csar getArchive(String id);
 
     /**
      * Check if an element exists in the given dependencies.
@@ -68,7 +75,8 @@ public interface ICSARRepositorySearchService {
      */
     <T extends IndexedToscaElement> T getParentOfElement(Class<T> elementClass, T indexedToscaElement, String parentElementId);
 
-    FacetedSearchResult search(Class<? extends IndexedToscaElement> classNameToQuery, String query, Integer from, Integer size, Map<String, String[]> filters,
-            boolean queryAllVersions);
+    // FacetedSearchResult search(Class<? extends IndexedToscaElement> classNameToQuery, String query, Integer from, Integer size, Map<String, String[]>
+    // filters,
+    // boolean queryAllVersions);
 
 }

@@ -28,7 +28,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @EqualsAndHashCode(of = {}, callSuper = true)
 @ESObject
 public class IndexedNodeType extends IndexedArtifactToscaElement {
-
     @FetchContext(contexts = { QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false })
     @TermsFacet(paths = "type")
     private List<CapabilityDefinition> capabilities;
@@ -52,5 +51,4 @@ public class IndexedNodeType extends IndexedArtifactToscaElement {
     @JsonDeserialize(contentUsing = PropertyValueDeserializer.class)
     @TermsFacet(pathGenerator = ESPortabilityPropertiesPathsGenerator.class)
     private Map<String, AbstractPropertyValue> portability;
-
 }

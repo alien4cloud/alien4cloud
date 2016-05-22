@@ -1,23 +1,23 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
-import alien4cloud.csar.services.CsarService;
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.nodes.Node;
+
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
 import alien4cloud.paas.exception.NotSupportedException;
+import alien4cloud.tosca.ToscaContext;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import alien4cloud.tosca.parser.mapping.DefaultParser;
-import javax.annotation.Resource;
-import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.nodes.Node;
 
 @Component
 public class ImportParser extends DefaultParser<CSARDependency> {
-    @Resource
-    private CsarService csarService;
     @Resource
     private ScalarParser scalarParser;
 
@@ -31,7 +31,7 @@ public class ImportParser extends DefaultParser<CSARDependency> {
             String[] dependencyStrs = valueAsString.split(":");
             if (dependencyStrs.length == 2) {
                 CSARDependency dependency = new CSARDependency(dependencyStrs[0], dependencyStrs[1]);
-                Csar csar = csarService.getIfExists(dependency.getName(), dependency.getVersion());
+                Csar csar = ToscaContext.get().getArchive(dependency.getName(), dependency.getVersion());
                 if (csar == null) {
                     // error is not a blocker, as long as no type is missing we just mark it as a warning.
                     context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.MISSING_DEPENDENCY, "Import definition is not valid",

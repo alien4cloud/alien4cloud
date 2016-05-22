@@ -2,15 +2,15 @@ package alien4cloud.model.components;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import alien4cloud.tosca.ToscaNormativeUtil;
+import alien4cloud.tosca.normative.ToscaFunctionConstants;
+import alien4cloud.ui.form.annotation.FormProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import alien4cloud.tosca.ToscaUtils;
-import alien4cloud.tosca.normative.ToscaFunctionConstants;
-import alien4cloud.ui.form.annotation.FormProperties;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * A TOSCA function to be used as the value for a property (or operation parameter).
@@ -77,7 +77,7 @@ public class FunctionPropertyValue extends AbstractPropertyValue {
         if (function != null) {
             switch (function) {
             case ToscaFunctionConstants.GET_OPERATION_OUTPUT:
-                return parameters.size() > 2 ? ToscaUtils.getProperInterfaceName(parameters.get(1)) : null;
+                return parameters.size() > 2 ? ToscaNormativeUtil.getLongInterfaceName(parameters.get(1)) : null;
             default:
                 return null;
             }

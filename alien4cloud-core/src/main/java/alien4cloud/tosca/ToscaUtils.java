@@ -87,14 +87,7 @@ public class ToscaUtils {
         return templateList;
     }
 
-    public static String getProperInterfaceName(String interfaceName) {
-        if (ToscaNodeLifecycleConstants.STANDARD_SHORT.equalsIgnoreCase(interfaceName)) {
-            return ToscaNodeLifecycleConstants.STANDARD;
-        } else if (ToscaRelationshipLifecycleConstants.CONFIGURE_SHORT.equalsIgnoreCase(interfaceName)) {
-            return ToscaRelationshipLifecycleConstants.CONFIGURE;
-        }
-        return interfaceName;
-    }
+
 
     public static String formatedOperationOutputName(String nodeName, String interfaceName, String operationName, String output) {
         return AlienUtils.prefixWith(AlienConstants.OPERATION_NAME_SEPARATOR, output, new String[] { nodeName, interfaceName, operationName });

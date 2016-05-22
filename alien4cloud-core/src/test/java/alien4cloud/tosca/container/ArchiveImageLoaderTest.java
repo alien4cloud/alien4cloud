@@ -25,7 +25,6 @@ import alien4cloud.images.IImageDAO;
 import alien4cloud.images.ImageData;
 import alien4cloud.tosca.ArchiveImageLoader;
 import alien4cloud.tosca.ArchiveParser;
-import alien4cloud.tosca.ArchivePostProcessor;
 import alien4cloud.tosca.ArchiveUploadService;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingErrorLevel;

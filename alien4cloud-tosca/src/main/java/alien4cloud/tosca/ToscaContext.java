@@ -4,12 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import lombok.Setter;
-import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.IndexedToscaElement;
-
 import com.google.common.collect.Maps;
+
+import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.model.components.*;
+import alien4cloud.tosca.model.ArchiveRoot;
+import lombok.Setter;
 
 /**
  * Manage thread-local tosca contexts.
@@ -61,11 +61,55 @@ public class ToscaContext {
      * Tosca context allows to cache TOSCA elements
      */
     public static class Context {
-        private final Map<String, Map<String, IndexedToscaElement>> toscaTypesCache = Maps.newHashMap();
+        /** Current context dependencies. */
         private final Set<CSARDependency> dependencies;
+        /** Context archives. */
+        private final Map<String, Csar> archivesMap = Maps.newHashMap();
+        /** Cached types in the context. */
+        private final Map<String, Map<String, IndexedToscaElement>> toscaTypesCache = Maps.newHashMap();
 
         private Context(Set<CSARDependency> dependencies) {
             this.dependencies = dependencies;
+        }
+
+        /**
+         * Load all elements from the given archive in the context.
+         * 
+         * @param root The parsed archive to load.
+         */
+        public void register(ArchiveRoot root) {
+            archivesMap.put(root.getArchive().getId(), root.getArchive());
+            register(IndexedArtifactType.class, root.getArtifactTypes());
+            register(IndexedCapabilityType.class, root.getCapabilityTypes());
+            register(IndexedDataType.class, root.getDataTypes());
+            register(IndexedNodeType.class, root.getNodeTypes());
+            register(IndexedRelationshipType.class, root.getRelationshipTypes());
+        }
+
+        private <T extends IndexedToscaElement> void register(Class<T> elementClass, Map<String, T> elementMap) {
+            String elementType = elementClass.getSimpleName();
+            Map<String, IndexedToscaElement> typeElements = toscaTypesCache.get(elementType);
+            if (typeElements == null) {
+                typeElements = new HashMap<>();
+                toscaTypesCache.put(elementType, typeElements);
+            }
+            typeElements.putAll(elementMap);
+        }
+
+        /**
+         * Get an archive from it's id.
+         * 
+         * @param name The name of the archive to get.
+         * @param version The version of the archive to get.
+         * @return The archive from it's id.
+         */
+        public Csar getArchive(String name, String version) {
+            String id = new Csar(name, version).getId();
+            Csar archive = archivesMap.get(id);
+            if (archive == null) {
+                archive = csarSearchService.getArchive(id);
+            }
+            return archive;
         }
 
         /**
