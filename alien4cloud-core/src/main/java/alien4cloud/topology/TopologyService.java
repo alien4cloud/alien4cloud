@@ -466,7 +466,7 @@ public class TopologyService {
 
 
     public void isUniqueNodeTemplateName(String topologyId, String newNodeTemplateName, Map<String, NodeTemplate> nodeTemplates) {
-        if (nodeTemplates.containsKey(newNodeTemplateName.toLowerCase())) {
+        if (nodeTemplates.containsKey(newNodeTemplateName)) {
             log.debug("Add Node Template <{}> impossible (already exists)", newNodeTemplateName);
             // a node template already exist with the given name.
             throw new AlreadyExistException(

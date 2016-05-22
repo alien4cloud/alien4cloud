@@ -66,7 +66,7 @@ describe('Topology node template edition :', function() {
     nodeToEdit.click();
     xEdit.expect('nodetemplate-titles', 'Compute_new_NAME');
   });
-  
+
   it('should be able to edit a scalar-unit.size and time', function() {
     var diskSizeName = 'disk_size';
     var diskSizeElement = element(by.id('p_' + diskSizeName));
