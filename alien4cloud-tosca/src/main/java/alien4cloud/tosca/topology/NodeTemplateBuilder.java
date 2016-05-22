@@ -1,11 +1,8 @@
 package alien4cloud.tosca.topology;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import alien4cloud.rest.utils.JsonUtil;
 import org.apache.commons.collections4.MapUtils;
 
 import com.google.common.collect.Maps;
@@ -14,22 +11,27 @@ import alien4cloud.model.components.*;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Requirement;
+import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.ToscaContext;
+import alien4cloud.tosca.normative.AlienCustomTypes;
 import alien4cloud.utils.PropertyUtil;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility to create a Node Template by merging Node Type and Node Template data.
  */
+@Slf4j
 public class NodeTemplateBuilder {
+
     /**
-     * Build a node template
+     * Build a node template. Note that a Tosca Context is required.
      *
-     * @param dependencies the dependencies on which new node will be constructed
      * @param indexedNodeType the type of the node
      * @param templateToMerge the template that can be used to merge into the new node template
-     * @return new constructed node template
+     * @return new constructed node template.
      */
-    public static NodeTemplate buildNodeTemplate(Set<CSARDependency> dependencies, IndexedNodeType indexedNodeType, NodeTemplate templateToMerge) {
+    public static NodeTemplate buildNodeTemplate(IndexedNodeType indexedNodeType, NodeTemplate templateToMerge) {
         NodeTemplate nodeTemplate = new NodeTemplate();
         nodeTemplate.setType(indexedNodeType.getElementId());
         Map<String, Capability> capabilities = Maps.newLinkedHashMap();
@@ -105,6 +107,7 @@ public class NodeTemplateBuilder {
         }
     }
 
+    @SneakyThrows
     public static void fillProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> propertiesDefinitions,
             Map<String, AbstractPropertyValue> map) {
         if (propertiesDefinitions == null || properties == null) {
@@ -117,18 +120,16 @@ public class NodeTemplateBuilder {
                 if (defaultValue != null && !defaultValue.trim().isEmpty()) {
                     defaultValue = defaultValue.trim();
                     PropertyValue<?> pv = null;
-                    try {
-                        if (AlienCustomTypes.checkDefaultIsComplex(defaultValue)) {
-                            pv = new ComplexPropertyValue(JsonUtil.toMap(defaultValue));
-                        } else if (AlienCustomTypes.checkDefaultIsList(defaultValue)) {
-                            pv = new ListPropertyValue(JsonUtil.toList(defaultValue, Object.class));
 
-                        } else {
-                            pv = new ScalarPropertyValue(defaultValue);
-                        }
-                    } catch (IOException e) {
-                        log.info(e.getMessage());
+                    if (AlienCustomTypes.checkDefaultIsComplex(defaultValue)) {
+                        pv = new ComplexPropertyValue(JsonUtil.toMap(defaultValue));
+                    } else if (AlienCustomTypes.checkDefaultIsList(defaultValue)) {
+                        pv = new ListPropertyValue(JsonUtil.toList(defaultValue, Object.class));
+
+                    } else {
+                        pv = new ScalarPropertyValue(defaultValue);
                     }
+
                     properties.put(entry.getKey(), pv);
                 } else {
                     properties.put(entry.getKey(), null);
