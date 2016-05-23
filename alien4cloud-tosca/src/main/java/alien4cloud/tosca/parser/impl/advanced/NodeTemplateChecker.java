@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class NodeTemplateChecker implements IChecker<NodeTemplate> {
 
+
     private static final String KEY = "nodeTemplateChecker";
 
     @Resource

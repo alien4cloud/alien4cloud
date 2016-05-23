@@ -49,7 +49,19 @@ public class ToscaContext {
      * @return The requested element.
      */
     public static <T extends IndexedToscaElement> T get(Class<T> elementClass, String elementId) {
-        return contextThreadLocal.get().getElement(elementClass, elementId);
+        return contextThreadLocal.get().getElement(elementClass, elementId, false);
+    }
+
+    /**
+     * Get an element from the local-cache or from ES.
+     *
+     * @param elementClass The class of the element to look for.
+     * @param elementId The id of the element to look for.
+     * @param <T> The type of element.
+     * @return The requested element.
+     */
+    public static <T extends IndexedToscaElement> T getOrFail(Class<T> elementClass, String elementId) {
+        return contextThreadLocal.get().getElement(elementClass, elementId, true);
     }
 
     /**
@@ -80,7 +92,7 @@ public class ToscaContext {
          * @param dependency The dependency to add.
          */
         public void addDependency(CSARDependency dependency) {
-            log.info("Add dependency to context", dependency);
+            log.debug("Add dependency to context", dependency);
             dependencies.add(dependency);
         }
 
@@ -90,7 +102,7 @@ public class ToscaContext {
          * @param root The parsed archive to load.
          */
         public void register(ArchiveRoot root) {
-            log.info("Register archive {}", root);
+            log.debug("Register archive {}", root);
             archivesMap.put(root.getArchive().getId(), root.getArchive());
             register(IndexedArtifactType.class, root.getArtifactTypes());
             register(IndexedCapabilityType.class, root.getCapabilityTypes());
@@ -119,10 +131,10 @@ public class ToscaContext {
         public Csar getArchive(String name, String version) {
             String id = new Csar(name, version).getId();
             Csar archive = archivesMap.get(id);
-            log.info("get archive from map {} {}", id, archive);
+            log.debug("get archive from map {} {}", id, archive);
             if (archive == null) {
                 archive = csarSearchService.getArchive(id);
-                log.info("get archive from repo {} {} {}", id, archive, csarSearchService.getClass().getName());
+                log.debug("get archive from repo {} {} {}", id, archive, csarSearchService.getClass().getName());
                 archivesMap.put(id, archive);
             }
             return archive;
@@ -136,7 +148,7 @@ public class ToscaContext {
          * @param <T> The type of element.
          * @return The requested element.
          */
-        public <T extends IndexedToscaElement> T getElement(Class<T> elementClass, String elementId) {
+        public <T extends IndexedToscaElement> T getElement(Class<T> elementClass, String elementId, boolean required) {
             String elementType = elementClass.getSimpleName();
             Map<String, IndexedToscaElement> typeElements = toscaTypesCache.get(elementType);
             if (typeElements == null) {
@@ -150,9 +162,10 @@ public class ToscaContext {
                 }
             }
 
-            T element = csarSearchService.getRequiredElementInDependencies(elementClass, elementId, dependencies);
+            T element = required ? csarSearchService.getRequiredElementInDependencies(elementClass, elementId, dependencies)
+                    : csarSearchService.getElementInDependencies(elementClass, elementId, dependencies);
             typeElements.put(elementId, element);
-            log.info("Retrieve element {} {}", element, dependencies);
+            log.debug("Retrieve element {} {}", element, dependencies);
             return element;
         }
     }

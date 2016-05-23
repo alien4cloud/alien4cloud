@@ -32,13 +32,13 @@ public class ToscaContextualAspect {
             joinPoint.getArgs();
             if (initContext) {
                 Set<CSARDependency> dependencies = findDependencies(joinPoint.getArgs());
-                log.info("Initializing Tosca Context with dependencies {}", dependencies);
+                log.debug("Initializing Tosca Context with dependencies {}", dependencies);
                 ToscaContext.init(dependencies);
             }
             return joinPoint.proceed();
         } finally {
             if (initContext) {
-                log.info("Destroying Tosca Context");
+                log.debug("Destroying Tosca Context");
                 ToscaContext.destroy();
             }
         }

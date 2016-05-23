@@ -47,16 +47,6 @@ public class TopologyServiceCore {
     private ICSARRepositoryIndexerService indexerService;
 
     /**
-     * The default tosca element finder will search into repo.
-     */
-    private IToscaElementFinder repoToscaElementFinder = new IToscaElementFinder() {
-        @Override
-        public <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, String elementId, Collection<CSARDependency> dependencies) {
-            return csarRepoSearchService.getElementInDependencies(elementClass, elementId, dependencies);
-        }
-    };
-
-    /**
      * Get the Map of {@link NodeTemplate} from a topology
      *
      * @param topology the topology
