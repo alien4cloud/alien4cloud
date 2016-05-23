@@ -4,7 +4,6 @@ import java.util.*;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -23,6 +22,7 @@ import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.utils.CollectionUtils;
 import alien4cloud.utils.VersionUtil;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -32,9 +32,7 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
 
     @Override
     public Csar getArchive(String id) {
-        Csar csar = searchDAO.findById(Csar.class, id);
-        log.info("getting archive {} {}", id, csar);
-        return csar;
+        return searchDAO.findById(Csar.class, id);
     }
 
     @Override

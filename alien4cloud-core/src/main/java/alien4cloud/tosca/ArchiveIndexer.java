@@ -74,7 +74,7 @@ public class ArchiveIndexer {
         }
         archiveRoot.getArchive().setImportSource(source.name());
         csarService.save(archiveRoot.getArchive());
-        log.info("Imported archive {}", archiveRoot.getArchive().getId());
+        log.debug("Imported archive {}", archiveRoot.getArchive().getId());
         if (archivePath != null) {
             // save the archive in the repository
             archiveRepositry.storeCSAR(archiveName, archiveVersion, archivePath);
