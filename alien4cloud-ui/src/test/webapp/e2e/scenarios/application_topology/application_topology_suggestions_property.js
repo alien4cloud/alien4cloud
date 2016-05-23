@@ -23,7 +23,7 @@ var topologiesData = require(__dirname + '/_data/application_topology_suggestion
 describe('Suggestion on property definition tests', function() {
   var appName = 'AlienUI-SuggestionEntry';
 
-  var editNodePropertySuggestionAndCheck = function(nodeTemplateName, propertyName, propertyValue, componentType, isModalDisplay, save, selectUbuntuValue) {
+  var editNodePropertySuggestionAndCheck = function(nodeTemplateName, propertyName, propertyValue, componentType, count, isModalDisplay, save, selectUbuntuValue) {
     topologyEditorCommon.showComponentsTab();
     topologyEditorCommon.selectNodeAndGoToDetailBloc(nodeTemplateName, topologyEditorCommon.nodeDetailsBlocsIds[componentType]);
     var propertyElement = common.element(by.id(topologyEditorCommon.nodeDetailsBlocsIds[componentType] + '-panel'));
@@ -36,7 +36,7 @@ describe('Suggestion on property definition tests', function() {
 
     inputValue.clear();
     inputValue.sendKeys(propertyValue);
-    expect(element.all(by.repeater('match in matches')).count()).toEqual(5);
+    expect(element.all(by.repeater('match in matches')).count()).toEqual(count);
     editForm.submit();
 
     expect(element(by.className('modal-dialog')).isPresent()).toBe(isModalDisplay);
@@ -71,33 +71,33 @@ describe('Suggestion on property definition tests', function() {
     authentication.login('admin');
   });
 
-  it('should set the distribution to kubuntu and add it to the suggestionentry', function() {
+  it('should set the distribution to xubuntu and add it to the suggestionentry', function() {
     applications.goToApplicationTopologyPage(appName);
-    editNodePropertySuggestionAndCheck('Compute', 'distribution', 'kubuntu', 'cap', true, true);
-    xedit.expect('div_distribution', 'kubuntu');
+    editNodePropertySuggestionAndCheck('Compute', 'distribution', 'xubuntu', 'cap', 6, true, true);
+    xedit.expect('div_distribution', 'xubuntu');
   });
 
   it('should set the distribution to ubuntu, no modal should be present', function() {
     applications.goToApplicationTopologyPage(appName);
-    editNodePropertySuggestionAndCheck('Compute', 'distribution', 'ubuntu', 'cap', false);
+    editNodePropertySuggestionAndCheck('Compute', 'distribution', 'ubuntu', 'cap', 5, false);
     xedit.expect('div_distribution', 'ubuntu');
   });
 
-  it('should set the distribution to kubuntu, no modal should be present', function() {
+  it('should set the distribution to xubuntu, no modal should be present', function() {
     applications.goToApplicationTopologyPage(appName);
-    editNodePropertySuggestionAndCheck('Compute', 'distribution', 'kubuntu', 'cap', false);
-    xedit.expect('div_distribution', 'kubuntu');
+    editNodePropertySuggestionAndCheck('Compute', 'distribution', 'xubuntu', 'cap', 5, false);
+    xedit.expect('div_distribution', 'xubuntu');
   });
 
   it('should set the distribution to lubuntu and select the selection with ubuntu', function() {
     applications.goToApplicationTopologyPage(appName);
-    editNodePropertySuggestionAndCheck('Compute', 'distribution', 'lubuntu', 'cap', true, true, true);
+    editNodePropertySuggestionAndCheck('Compute', 'distribution', 'lubuntu', 'cap', 6, true, true, true);
     xedit.expect('div_distribution', 'ubuntu');
   });
 
   it('should set the distribution to lubuntu and cancel the modal', function() {
     applications.goToApplicationTopologyPage(appName);
-    editNodePropertySuggestionAndCheck('Compute', 'distribution', 'lubuntu', 'cap', true, false);
+    editNodePropertySuggestionAndCheck('Compute', 'distribution', 'lubuntu', 'cap', 6, true, false);
     topologyEditorCommon.checkPropertyEditionError('Compute', 'distribution', 'Cancelled');
   });
 

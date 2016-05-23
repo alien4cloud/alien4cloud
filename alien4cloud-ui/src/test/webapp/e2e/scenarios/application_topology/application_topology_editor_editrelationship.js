@@ -100,7 +100,7 @@ describe('Editing Relationship name', function() {
   });
 
   it('should be able to update a property of a relationship', function() {
-    xEdit.sendKeys('p_task_name', 'Do my job');
+    xEdit.sendKeys('p_task_name', 'Do my job', false, 'tosca');
     applications.goToApplicationTopologyPage();
     topologyEditorCommon.selectNodeAndGoToDetailBloc('NeedHelp', topologyEditorCommon.nodeDetailsBlocsIds.rel);
     xEdit.expect('p_task_name', 'Do my job');

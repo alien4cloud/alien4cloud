@@ -1,4 +1,4 @@
-/* global by, element, browser, expect */
+/* global by, element, browser, expect, protractor */
 'use strict';
 
 var applications = require('../applications/applications');
@@ -34,6 +34,10 @@ var go = function() {
 };
 module.exports.go = go;
 
+var clickOnNode = function(nodeTemplateName) {
+  common.clickAndMouseMouve(by.id('rect_' + nodeTemplateName), 40, 5);
+};
+module.exports.clickOnNode = clickOnNode;
 
 // Show tabs in the topology page
 function showTopologyTab(panel, btn) {
@@ -281,12 +285,10 @@ module.exports.addNodeTemplatesCenterAndZoom = addNodeTemplatesCenterAndZoom;
 var removeRelationship = function(relationshipName) {
   common.deleteWithConfirm('btn-delete-rl-' + relationshipName, true);
 };
-
 module.exports.removeRelationship = removeRelationship;
 
 var replaceNodeTemplates = function(nodeName, replacementElementId) {
-  var node = element(by.id('title_' + nodeName));
-  browser.actions().click(node).perform();
+  clickOnNode(nodeName);
   browser.executeScript('window.scrollTo(0,0);').then(function() {
     browser.actions().click(element(by.css('.btn[ng-click^="nodesswap.getPossibleReplacements"]'))).perform();
     browser.actions().click(element(by.id('newnode_' + replacementElementId))).perform();
@@ -315,7 +317,7 @@ var removeScalingPolicy = function(computeId) {
 module.exports.removeScalingPolicy = removeScalingPolicy;
 
 var selectNodeAndGoToDetailBloc = function(nodeTemplateName, blocId) {
-  common.click(by.id('rect_' + nodeTemplateName));
+  clickOnNode(nodeTemplateName);
   if (blocId) {
     return collapseNodeDetailsBloc(blocId);
   }
@@ -441,8 +443,7 @@ var expectPropertyOutputState = function(nodeTemplateName, propertyName, checked
 module.exports.expectPropertyOutputState = expectPropertyOutputState;
 
 var expectAttributeOutputState = function(nodeTemplateName, propertyName, checked) {
-  var nodeToEdit = browser.element(by.id('rect_' + nodeTemplateName));
-  browser.actions().click(nodeToEdit).perform();
+  clickOnNode(nodeTemplateName);
   var ioButton = browser.element(by.id('a_output_' + propertyName));
   if (checked) {
     expect(ioButton.getAttribute('class')).toContain('active');

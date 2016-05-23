@@ -44,7 +44,7 @@ describe('Topology templates details:', function() {
   it('Architect should be able to see the topology editor and the version menu element on the detail page', function() {
     topologyTemplates.goToTopologyTemplateDetails(topologyTemplateName);
     topologyTemplates.checkTopologyTemplate(topologyTemplateName);
-    expect(element(by.id('app-version-select')).isPresent()).toBe(true);
+    expect(element(by.id('env-version-select')).isPresent()).toBe(true);
   });
 
   it('Component manager should be redirected to error page in case he goes to a topology template url in browser', function() {
