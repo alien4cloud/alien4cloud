@@ -1,12 +1,12 @@
 package alien4cloud.rest.topology;
 
+import java.awt.*;
+
 import javax.annotation.Resource;
 
-import org.springframework.data.geo.Point;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import springfox.documentation.annotations.ApiIgnore;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.model.topology.TopologyLayout;
@@ -16,13 +16,14 @@ import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import io.swagger.annotations.Api;
+import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * Manages layout updates for a given topology.
  */
 @ApiIgnore
 @RestController
-@RequestMapping({"/rest/topologies/{topologyId}/layout", "/rest/v1/topologies/{topologyId}/layout", "/rest/latest/topologies/{topologyId}/layout"})
+@RequestMapping({ "/rest/topologies/{topologyId}/layout", "/rest/v1/topologies/{topologyId}/layout", "/rest/latest/topologies/{topologyId}/layout" })
 @Api(value = "", description = "Operations to manage topology layout")
 public class TopologyLayoutController {
     @Resource(name = "alien-es-dao")

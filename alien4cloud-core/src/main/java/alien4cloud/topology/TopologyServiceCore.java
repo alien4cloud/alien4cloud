@@ -1,13 +1,10 @@
 package alien4cloud.topology;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Sets;
 import org.springframework.stereotype.Service;
@@ -25,10 +22,10 @@ import alien4cloud.model.components.*;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.*;
-import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.normative.AlienCustomTypes;
+import alien4cloud.tosca.context.ToscaContextual;
+import alien4cloud.tosca.topology.NodeTemplateBuilder;
 import alien4cloud.utils.MapUtil;
-import alien4cloud.utils.PropertyUtil;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -205,8 +202,17 @@ public class TopologyServiceCore {
         return capabilityTypes;
     }
 
+    /**
+     * Build a node template
+     * 
+     * @param dependencies The dependencies in which to search for the node type. This is used by the ToscaContextual annotation.
+     * @param indexedNodeType The index node type from which to create the node.
+     * @param templateToMerge The node template to merge in the type to create the actual node template.
+     * @return return the node template instance.
+     */
+    @ToscaContextual
     public NodeTemplate buildNodeTemplate(Set<CSARDependency> dependencies, IndexedNodeType indexedNodeType, NodeTemplate templateToMerge) {
-        return buildNodeTemplate(dependencies, indexedNodeType, templateToMerge, repoToscaElementFinder);
+        return NodeTemplateBuilder.buildNodeTemplate(indexedNodeType, templateToMerge);
     }
 
     public TopologyTemplate createTopologyTemplate(Topology topology, String name, String description, String version) {

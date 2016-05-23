@@ -12,7 +12,7 @@ import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Requirement;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.ToscaContext;
+import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.normative.AlienCustomTypes;
 import alien4cloud.utils.PropertyUtil;
 import lombok.SneakyThrows;

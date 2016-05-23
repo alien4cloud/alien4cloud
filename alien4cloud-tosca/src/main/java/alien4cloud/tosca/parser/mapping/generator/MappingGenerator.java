@@ -8,35 +8,22 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.nodes.MappingNode;
-import org.yaml.snakeyaml.nodes.Node;
-import org.yaml.snakeyaml.nodes.NodeTuple;
-import org.yaml.snakeyaml.nodes.ScalarNode;
-import org.yaml.snakeyaml.nodes.SequenceNode;
-import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.nodes.*;
 
-import alien4cloud.tosca.parser.IChecker;
-import alien4cloud.tosca.parser.INodeParser;
-import alien4cloud.tosca.parser.KeyValueMappingTarget;
-import alien4cloud.tosca.parser.MappingTarget;
-import alien4cloud.tosca.parser.ParserUtils;
-import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.ParsingError;
-import alien4cloud.tosca.parser.ParsingException;
-import alien4cloud.tosca.parser.ParsingResult;
-import alien4cloud.tosca.parser.YamlSimpleParser;
+import com.google.common.collect.Maps;
+
+import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.*;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.CheckedTypeNodeParser;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import alien4cloud.tosca.parser.impl.base.TypeNodeParser;
 import alien4cloud.tosca.parser.mapping.DefaultParser;
-
-import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Load type mapping definition from yaml and add it to the type mapping registry.

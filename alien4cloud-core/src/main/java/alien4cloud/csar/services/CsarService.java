@@ -54,7 +54,7 @@ public class CsarService implements ICsarDependencyLoader {
     private ApplicationService applicationService;
 
     /**
-     * Get a cloud service if exists in Dao.
+     * Get a cloud service archive.
      *
      * @param name The name of the archive.
      * @param version The version of the archive.

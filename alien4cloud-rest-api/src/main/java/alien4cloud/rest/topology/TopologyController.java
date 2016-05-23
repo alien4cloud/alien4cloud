@@ -1,34 +1,24 @@
 package alien4cloud.rest.topology;
 
-import alien4cloud.exception.InvalidNodeNameException;
-import io.swagger.annotations.ApiOperation;
-
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.io.Closeables;
 
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.TopologyCompositionService;
@@ -38,23 +28,11 @@ import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.CyclicReferenceException;
+import alien4cloud.exception.InvalidNodeNameException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.DeploymentArtifact;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.*;
 import alien4cloud.model.templates.TopologyTemplate;
-import alien4cloud.model.topology.AbstractPolicy;
-import alien4cloud.model.topology.AbstractTopologyVersion;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.HaPolicy;
-import alien4cloud.model.topology.NodeGroup;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.SubstitutionTarget;
-import alien4cloud.model.topology.Topology;
+import alien4cloud.model.topology.*;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
@@ -63,30 +41,22 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.topology.TopologyDTO;
-import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.topology.TopologyTemplateVersionService;
-import alien4cloud.topology.TopologyUtils;
-import alien4cloud.topology.TopologyValidationResult;
-import alien4cloud.topology.TopologyValidationService;
+import alien4cloud.topology.*;
 import alien4cloud.topology.validation.TopologyCapabilityBoundsValidationServices;
 import alien4cloud.topology.validation.TopologyRequirementBoundsValidationServices;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import alien4cloud.tosca.topology.NodeTemplateBuilder;
 import alien4cloud.utils.InputArtifactUtil;
 import alien4cloud.utils.RestConstraintValidator;
 import alien4cloud.utils.services.PropertyService;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.common.io.Closeables;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping({"/rest/topologies", "/rest/v1/topologies", "/rest/latest/topologies"})
+@RequestMapping({ "/rest/topologies", "/rest/v1/topologies", "/rest/latest/topologies" })
 public class TopologyController {
 
     @Resource(name = "alien-es-dao")
@@ -292,7 +262,8 @@ public class TopologyController {
                     .error(RestErrorBuilder
                             .builder(RestErrorCode.UPPER_BOUND_REACHED).message("UpperBound reached on requirement <"
                                     + relationshipTemplateRequest.getRelationshipTemplate().getRequirementName() + "> on node <" + nodeTemplateName + ">.")
-                    .build()).build();
+                            .build())
+                    .build();
         }
 
         boolean upperBoundReachedTarget = topologyCapabilityBoundsValidationServices.isCapabilityUpperBoundReachedForTarget(
@@ -318,7 +289,7 @@ public class TopologyController {
 
         RelationshipTemplate relationship = relationshipTemplateRequest.getRelationshipTemplate();
         Map<String, AbstractPropertyValue> properties = Maps.newHashMap();
-        TopologyServiceCore.fillProperties(properties, indexedRelationshipType.getProperties(), null);
+        NodeTemplateBuilder.fillProperties(properties, indexedRelationshipType.getProperties(), null);
         relationship.setProperties(properties);
         relationship.setAttributes(indexedRelationshipType.getAttributes());
         relationships.put(relationshipName, relationship);

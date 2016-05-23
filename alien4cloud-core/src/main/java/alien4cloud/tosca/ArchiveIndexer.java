@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.ICSARRepositoryIndexerService;
@@ -27,6 +28,7 @@ import alien4cloud.tosca.parser.ToscaParsingUtil;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.VersionUtil;
 
+@Slf4j
 @Component
 public class ArchiveIndexer {
     @Inject
@@ -72,6 +74,7 @@ public class ArchiveIndexer {
         }
         archiveRoot.getArchive().setImportSource(source.name());
         csarService.save(archiveRoot.getArchive());
+        log.info("Imported archive {}", archiveRoot.getArchive().getId());
         if (archivePath != null) {
             // save the archive in the repository
             archiveRepositry.storeCSAR(archiveName, archiveVersion, archivePath);

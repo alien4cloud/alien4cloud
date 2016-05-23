@@ -1,4 +1,4 @@
-package alien4cloud.tosca;
+package alien4cloud.tosca.context;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,10 +10,12 @@ import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.model.components.*;
 import alien4cloud.tosca.model.ArchiveRoot;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Manage thread-local tosca contexts.
  */
+@Slf4j
 public class ToscaContext {
     @Setter
     private static ICSARRepositorySearchService csarSearchService;
@@ -73,11 +75,22 @@ public class ToscaContext {
         }
 
         /**
+         * Add a dependency to the current context.
+         * 
+         * @param dependency The dependency to add.
+         */
+        public void addDependency(CSARDependency dependency) {
+            log.info("Add dependency to context", dependency);
+            dependencies.add(dependency);
+        }
+
+        /**
          * Load all elements from the given archive in the context.
          * 
          * @param root The parsed archive to load.
          */
         public void register(ArchiveRoot root) {
+            log.info("Register archive {}", root);
             archivesMap.put(root.getArchive().getId(), root.getArchive());
             register(IndexedArtifactType.class, root.getArtifactTypes());
             register(IndexedCapabilityType.class, root.getCapabilityTypes());
@@ -106,8 +119,11 @@ public class ToscaContext {
         public Csar getArchive(String name, String version) {
             String id = new Csar(name, version).getId();
             Csar archive = archivesMap.get(id);
+            log.info("get archive from map {} {}", id, archive);
             if (archive == null) {
                 archive = csarSearchService.getArchive(id);
+                log.info("get archive from repo {} {} {}", id, archive, csarSearchService.getClass().getName());
+                archivesMap.put(id, archive);
             }
             return archive;
         }
@@ -136,6 +152,7 @@ public class ToscaContext {
 
             T element = csarSearchService.getRequiredElementInDependencies(elementClass, elementId, dependencies);
             typeElements.put(elementId, element);
+            log.info("Retrieve element {} {}", element, dependencies);
             return element;
         }
     }

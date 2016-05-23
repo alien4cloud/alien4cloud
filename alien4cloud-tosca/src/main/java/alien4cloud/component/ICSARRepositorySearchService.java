@@ -16,7 +16,7 @@ public interface ICSARRepositorySearchService {
 
     /**
      * Get an archive from it's id.
-     * 
+     *
      * @param id The id of the archive.
      * @return The cloud service archive matching the given id.
      */

@@ -6,8 +6,6 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.elasticsearch.common.collect.Maps;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
@@ -15,19 +13,17 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 
 import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.csar.services.CsarService;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.topology.SubstitutionMapping;
 import alien4cloud.model.topology.SubstitutionTarget;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.ListParser;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import alien4cloud.tosca.parser.mapping.DefaultDeferredParser;
-
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
@@ -40,16 +36,10 @@ public class SustitutionMappingParser extends DefaultDeferredParser<Substitution
     private static final String REQUIREMENTS = "requirements";
 
     @Resource
-    private CsarService csarService;
-
-    @Resource
     private ScalarParser scalarParser;
 
     @Resource
     private ICSARRepositorySearchService searchService;
-
-    @Resource
-    private TopologyServiceCore topologyServiceCore;
 
     private ListParser<String> stringListParser;
 
@@ -82,8 +72,8 @@ public class SustitutionMappingParser extends DefaultDeferredParser<Substitution
                 String nodeTypeName = scalarParser.parse(valueNode, context);
                 IndexedNodeType nodeType = searchService.getElementInDependencies(IndexedNodeType.class, nodeTypeName, topology.getDependencies());
                 if (nodeType == null) {
-                    context.getParsingErrors().add(
-                            new ParsingError(ErrorCode.TYPE_NOT_FOUND, null, valueNode.getStartMark(), null, valueNode.getEndMark(), nodeTypeName));
+                    context.getParsingErrors()
+                            .add(new ParsingError(ErrorCode.TYPE_NOT_FOUND, null, valueNode.getStartMark(), null, valueNode.getEndMark(), nodeTypeName));
                     return null;
                 }
                 result.setSubstitutionType(nodeType);
@@ -104,8 +94,8 @@ public class SustitutionMappingParser extends DefaultDeferredParser<Substitution
     private Map<String, SubstitutionTarget> parseSubstitutionTargets(Node valueNode, ParsingContextExecution context) {
         if (!(valueNode instanceof MappingNode)) {
             // we expect a MappingNode
-            context.getParsingErrors().add(
-                    new ParsingError(ErrorCode.YAML_MAPPING_NODE_EXPECTED, null, valueNode.getStartMark(), null, valueNode.getEndMark(), null));
+            context.getParsingErrors()
+                    .add(new ParsingError(ErrorCode.YAML_MAPPING_NODE_EXPECTED, null, valueNode.getStartMark(), null, valueNode.getEndMark(), null));
             return null;
         }
         Map<String, SubstitutionTarget> result = Maps.newHashMap();
@@ -122,7 +112,7 @@ public class SustitutionMappingParser extends DefaultDeferredParser<Substitution
     }
 
     private SubstitutionTarget parseSubstitutionTarget(Node valueNode, ParsingContextExecution context) {
-        List<String> values = (List<String>)stringListParser.parse(valueNode, context);
+        List<String> values = (List<String>) stringListParser.parse(valueNode, context);
         if (values.size() != 2) {
             // TODO: throw ex
             return null;

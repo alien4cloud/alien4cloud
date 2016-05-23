@@ -1,4 +1,4 @@
-package alien4cloud.tosca;
+package alien4cloud.tosca.context;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

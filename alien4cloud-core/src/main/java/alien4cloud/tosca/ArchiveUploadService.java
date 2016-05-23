@@ -7,6 +7,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import alien4cloud.model.components.CSARSource;
+import alien4cloud.tosca.context.ToscaContextual;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
@@ -53,6 +54,7 @@ public class ArchiveUploadService {
      * @throws ParsingException
      * @throws CSARVersionAlreadyExistsException
      */
+    @ToscaContextual
     public ParsingResult<Csar> upload(Path path, CSARSource csarSource) throws ParsingException, CSARVersionAlreadyExistsException {
         // parse the archive.
         ParsingResult<ArchiveRoot> parsingResult = parser.parse(path);
@@ -82,6 +84,7 @@ public class ArchiveUploadService {
         return toSimpleResult(parsingResult);
     }
 
+    @ToscaContextual
     public Map<CSARDependency, CsarDependenciesBean> preParsing(Set<Path> paths) throws ParsingException {
         Map<CSARDependency, CsarDependenciesBean> csarDependenciesBeans = Maps.newHashMap();
         for (Path path : paths) {

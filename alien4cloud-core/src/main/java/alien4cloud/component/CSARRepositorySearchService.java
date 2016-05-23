@@ -1,20 +1,17 @@
 package alien4cloud.component;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Resource;
 
-import lombok.NonNull;
-
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
@@ -25,14 +22,20 @@ import alien4cloud.model.components.Csar;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.utils.CollectionUtils;
 import alien4cloud.utils.VersionUtil;
+import lombok.NonNull;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
+@Slf4j
 @Component
-public class CSARRepositorySearchService implements ICSARRepositorySearchService {
+public class CSARRepositorySearchService implements ICSARRepositorySearchService, IElementSearchService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO searchDAO;
+
+    @Override
+    public Csar getArchive(String id) {
+        Csar csar = searchDAO.findById(Csar.class, id);
+        log.info("getting archive {} {}", id, csar);
+        return csar;
+    }
 
     @Override
     public boolean isElementExistInDependencies(@NonNull Class<? extends IndexedToscaElement> elementClass, @NonNull String elementId,
@@ -125,5 +128,4 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
         FacetedSearchResult searchResult = searchDAO.facetedSearch(classNameToQuery, query, filters, FetchContext.SUMMARY, from, size);
         return searchResult;
     }
-
 }

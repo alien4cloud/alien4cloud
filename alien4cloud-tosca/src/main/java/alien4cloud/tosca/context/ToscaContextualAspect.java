@@ -1,11 +1,14 @@
-package alien4cloud.tosca;
+package alien4cloud.tosca.context;
 
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Sets;
 
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.topology.Topology;
@@ -13,10 +16,12 @@ import alien4cloud.model.topology.Topology;
 /**
  * This aspect executes for ToscaContextual methods and ensure that a ToscaContext is defined (or creates one if not).
  */
+@Slf4j
 @Aspect
 @Component
 public class ToscaContextualAspect {
-    @Around("@annotation(alien4cloud.tosca.ToscaContextual)")
+
+    @Around("@annotation(alien4cloud.tosca.context.ToscaContextual)")
     public Object ensureContext(ProceedingJoinPoint joinPoint) throws Throwable {
         boolean initContext = false;
         if (ToscaContext.get() == null) {
@@ -27,11 +32,13 @@ public class ToscaContextualAspect {
             joinPoint.getArgs();
             if (initContext) {
                 Set<CSARDependency> dependencies = findDependencies(joinPoint.getArgs());
+                log.info("Initializing Tosca Context with dependencies {}", dependencies);
                 ToscaContext.init(dependencies);
             }
             return joinPoint.proceed();
         } finally {
             if (initContext) {
+                log.info("Destroying Tosca Context");
                 ToscaContext.destroy();
             }
         }
@@ -49,6 +56,6 @@ public class ToscaContextualAspect {
                 }
             }
         }
-        throw new IllegalArgumentException("At least one argument must define some tosca dependencies");
+        return Sets.<CSARDependency> newHashSet();
     }
 }

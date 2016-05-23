@@ -27,7 +27,7 @@
 - abstract_property_value: alien4cloud.tosca.parser.impl.advanced.AbstractPropertyValueParser
 
 # declare standard mapping based parsers
-- definition: ArchiveRoot
+- definition: alien4cloud.tosca.model.ArchiveRoot
   tosca_definitions_version: archive.toscaDefinitionsVersion
   tosca_default_namespace: archive.toscaDefaultNamespace
   template_name: archive.name

@@ -12,6 +12,7 @@ import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.tosca.parser.impl.ErrorCode;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -26,6 +27,7 @@ import alien4cloud.tosca.normative.NormativeComputeConstants;
 
 import com.google.common.collect.Maps;
 
+@Slf4j
 public class TopologyUtils {
 
     private TopologyUtils() {
