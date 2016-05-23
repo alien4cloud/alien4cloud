@@ -3,13 +3,9 @@ package alien4cloud.component;
 import java.util.Collection;
 import java.util.Map;
 
-import com.google.common.collect.Maps;
-
-import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.utils.MapUtil;
 
 /**
  * Service responsible for indexing TOSCA elements.
@@ -60,5 +56,5 @@ public interface ICSARRepositoryIndexerService {
      */
     void deleteElements(Collection<IndexedToscaElement> elements);
 
-    public abstract <T extends IndexedToscaElement> Map<String, T> getArchiveElements(String archiveName, String archiveVersion, Class<T> type);
+    <T extends IndexedToscaElement> Map<String, T> getArchiveElements(String archiveName, String archiveVersion, Class<T> type);
 }

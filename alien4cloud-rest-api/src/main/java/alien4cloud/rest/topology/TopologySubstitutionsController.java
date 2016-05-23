@@ -4,20 +4,15 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import com.google.common.collect.Maps;
 
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
@@ -40,14 +35,13 @@ import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyTemplateVersionService;
-
-import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping({"/rest/topologies", "/rest/v1/topologies", "/rest/latest/topologies"})
+@RequestMapping({ "/rest/topologies", "/rest/v1/topologies", "/rest/latest/topologies" })
 public class TopologySubstitutionsController {
 
     @Resource(name = "alien-es-dao")
@@ -60,7 +54,7 @@ public class TopologySubstitutionsController {
     private TopologyServiceCore topologyServiceCore;
 
     @Resource
-    private ICSARRepositorySearchService csarRepoSearchService;
+    private CSARRepositorySearchService csarRepoSearchService;
 
     @Resource
     private TopologyTemplateVersionService topologyTemplateVersionService;
@@ -145,8 +139,7 @@ public class TopologySubstitutionsController {
     @RequestMapping(value = "/{topologyId:.+}/substitutions/capabilities/{substitutionCapabilityId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
     @Audit
-    public RestResponse<TopologyDTO> exposeCapability(
-            @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
+    public RestResponse<TopologyDTO> exposeCapability(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The substitution capability name.", required = true) @NotBlank @PathVariable final String substitutionCapabilityId,
             @ApiParam(value = "The node template id.", required = true) @NotBlank @RequestParam("nodeTemplateName") final String nodeTemplateName,
             @ApiParam(value = "The source node capability id.", required = true) @NotBlank @RequestParam("capabilityId") final String capabilityId)
@@ -210,8 +203,8 @@ public class TopologySubstitutionsController {
             throw new NotFoundException("No substitution capability or requirement has been found for key " + oldKey);
         }
         if (targetMap.containsKey(newKey)) {
-            throw new AlreadyExistException(String.format("Can not rename from <%s> to <%s> since capability or requirement <%s> already exists", oldKey,
-                    newKey, newKey));
+            throw new AlreadyExistException(
+                    String.format("Can not rename from <%s> to <%s> since capability or requirement <%s> already exists", oldKey, newKey, newKey));
         }
         targetMap.put(newKey, target);
         topologyServiceCore.save(topology);
@@ -237,7 +230,7 @@ public class TopologySubstitutionsController {
         Map<String, SubstitutionTarget> substitutionCapabilities = topology.getSubstitutionMapping().getCapabilities();
         return removeSubstitutionKey(topology, substitutionCapabilities, substitutionCapabilityId);
     }
-    
+
     private RestResponse<TopologyDTO> removeSubstitutionKey(Topology topology, Map<String, SubstitutionTarget> targetMap, String key) {
         if (targetMap == null) {
             throw new NotFoundException("No substitution capabilities or requirements has been found");

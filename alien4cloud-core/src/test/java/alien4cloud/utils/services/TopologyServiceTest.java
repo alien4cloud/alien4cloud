@@ -2,10 +2,6 @@ package alien4cloud.utils.services;
 
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.ParsingContext;
-import alien4cloud.tosca.parser.ParsingError;
-import alien4cloud.tosca.parser.ParsingResult;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,8 +10,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import alien4cloud.topology.TopologyUtils;
 
-import javax.validation.constraints.AssertTrue;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 

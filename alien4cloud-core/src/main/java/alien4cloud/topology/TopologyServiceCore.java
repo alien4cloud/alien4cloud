@@ -1,13 +1,10 @@
 package alien4cloud.topology;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Sets;
 import org.springframework.stereotype.Service;
@@ -25,10 +22,10 @@ import alien4cloud.model.components.*;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.*;
-import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.normative.AlienCustomTypes;
+import alien4cloud.tosca.context.ToscaContextual;
+import alien4cloud.tosca.topology.NodeTemplateBuilder;
 import alien4cloud.utils.MapUtil;
-import alien4cloud.utils.PropertyUtil;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -48,16 +45,6 @@ public class TopologyServiceCore {
 
     @Resource
     private ICSARRepositoryIndexerService indexerService;
-
-    /**
-     * The default tosca element finder will search into repo.
-     */
-    private IToscaElementFinder repoToscaElementFinder = new IToscaElementFinder() {
-        @Override
-        public <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, String elementId, Collection<CSARDependency> dependencies) {
-            return csarRepoSearchService.getElementInDependencies(elementClass, elementId, dependencies);
-        }
-    };
 
     /**
      * Get the Map of {@link NodeTemplate} from a topology
@@ -205,132 +192,17 @@ public class TopologyServiceCore {
         return capabilityTypes;
     }
 
-    public NodeTemplate buildNodeTemplate(Set<CSARDependency> dependencies, IndexedNodeType indexedNodeType, NodeTemplate templateToMerge) {
-        return buildNodeTemplate(dependencies, indexedNodeType, templateToMerge, repoToscaElementFinder);
-    }
-
     /**
      * Build a node template
-     *
-     * @param dependencies the dependencies on which new node will be constructed
-     * @param indexedNodeType the type of the node
-     * @param templateToMerge the template that can be used to merge into the new node template
-     * @return new constructed node template
+     * 
+     * @param dependencies The dependencies in which to search for the node type. This is used by the ToscaContextual annotation.
+     * @param indexedNodeType The index node type from which to create the node.
+     * @param templateToMerge The node template to merge in the type to create the actual node template.
+     * @return return the node template instance.
      */
-    public static NodeTemplate buildNodeTemplate(Set<CSARDependency> dependencies, IndexedNodeType indexedNodeType, NodeTemplate templateToMerge,
-            IToscaElementFinder toscaElementFinder) {
-        NodeTemplate nodeTemplate = new NodeTemplate();
-        nodeTemplate.setType(indexedNodeType.getElementId());
-        Map<String, Capability> capabilities = Maps.newLinkedHashMap();
-        Map<String, Requirement> requirements = Maps.newLinkedHashMap();
-        Map<String, AbstractPropertyValue> properties = Maps.newLinkedHashMap();
-        Map<String, DeploymentArtifact> deploymentArtifacts = null;
-        Map<String, DeploymentArtifact> deploymentArtifactsToMerge = templateToMerge != null ? templateToMerge.getArtifacts() : null;
-        if (deploymentArtifactsToMerge != null) {
-            if (indexedNodeType.getArtifacts() != null) {
-                deploymentArtifacts = Maps.newLinkedHashMap(indexedNodeType.getArtifacts());
-                for (Entry<String, DeploymentArtifact> entryArtifact : deploymentArtifactsToMerge.entrySet()) {
-                    DeploymentArtifact existingArtifact = entryArtifact.getValue();
-                    if (deploymentArtifacts.containsKey(entryArtifact.getKey())) {
-                        deploymentArtifacts.put(entryArtifact.getKey(), existingArtifact);
-                    }
-                }
-            }
-        } else if (indexedNodeType.getArtifacts() != null) {
-            deploymentArtifacts = Maps.newLinkedHashMap(indexedNodeType.getArtifacts());
-        }
-        fillCapabilitiesMap(capabilities, indexedNodeType.getCapabilities(), dependencies, templateToMerge != null ? templateToMerge.getCapabilities() : null,
-                toscaElementFinder);
-        fillRequirementsMap(requirements, indexedNodeType.getRequirements(), dependencies, templateToMerge != null ? templateToMerge.getRequirements() : null,
-                toscaElementFinder);
-        fillProperties(properties, indexedNodeType.getProperties(), templateToMerge != null ? templateToMerge.getProperties() : null);
-        nodeTemplate.setCapabilities(capabilities);
-        nodeTemplate.setRequirements(requirements);
-        nodeTemplate.setProperties(properties);
-        nodeTemplate.setAttributes(indexedNodeType.getAttributes());
-        nodeTemplate.setArtifacts(deploymentArtifacts);
-        if (templateToMerge != null) {
-            if (templateToMerge.getInterfaces() != null) {
-                nodeTemplate.setInterfaces(templateToMerge.getInterfaces());
-            }
-            if (templateToMerge.getRelationships() != null) {
-                nodeTemplate.setRelationships(templateToMerge.getRelationships());
-            }
-        }
-        return nodeTemplate;
-    }
-
-    public static void fillProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> propertiesDefinitions,
-            Map<String, AbstractPropertyValue> map) {
-        if (propertiesDefinitions == null || properties == null) {
-            return;
-        }
-        for (Map.Entry<String, PropertyDefinition> entry : propertiesDefinitions.entrySet()) {
-            AbstractPropertyValue existingValue = MapUtils.getObject(map, entry.getKey());
-            if (existingValue == null) {
-                String defaultValue = entry.getValue().getDefault();
-                if (defaultValue != null && !defaultValue.trim().isEmpty()) {
-                    defaultValue = defaultValue.trim();
-                    PropertyValue<?> pv = null;
-                    try {
-                        if (AlienCustomTypes.checkDefaultIsComplex(defaultValue)) {
-                            pv = new ComplexPropertyValue(JsonUtil.toMap(defaultValue));
-                        } else if (AlienCustomTypes.checkDefaultIsList(defaultValue)) {
-                            pv = new ListPropertyValue(JsonUtil.toList(defaultValue, Object.class));
-
-                        } else {
-                            pv = new ScalarPropertyValue(defaultValue);
-                        }
-                    } catch (IOException e) {
-                        log.info(e.getMessage());
-                    }
-                    properties.put(entry.getKey(), pv);
-                } else {
-                    properties.put(entry.getKey(), null);
-                }
-            } else {
-                properties.put(entry.getKey(), existingValue);
-            }
-        }
-    }
-
-    private static void fillCapabilitiesMap(Map<String, Capability> map, List<CapabilityDefinition> elements, Collection<CSARDependency> dependencies,
-            Map<String, Capability> mapToMerge, IToscaElementFinder toscaElementFinder) {
-        if (elements == null) {
-            return;
-        }
-        for (CapabilityDefinition capa : elements) {
-            Capability toAddCapa = MapUtils.getObject(mapToMerge, capa.getId());
-            if (toAddCapa == null) {
-                toAddCapa = new Capability();
-                toAddCapa.setType(capa.getType());
-                IndexedCapabilityType indexedCapa = toscaElementFinder.getElementInDependencies(IndexedCapabilityType.class, capa.getType(), dependencies);
-                if (indexedCapa != null && indexedCapa.getProperties() != null) {
-                    toAddCapa.setProperties(PropertyUtil.getDefaultPropertyValuesFromPropertyDefinitions(indexedCapa.getProperties()));
-                }
-            }
-            map.put(capa.getId(), toAddCapa);
-        }
-    }
-
-    private static void fillRequirementsMap(Map<String, Requirement> map, List<RequirementDefinition> elements, Collection<CSARDependency> dependencies,
-            Map<String, Requirement> mapToMerge, IToscaElementFinder toscaElementFinder) {
-        if (elements == null) {
-            return;
-        }
-        for (RequirementDefinition requirement : elements) {
-            Requirement toAddRequirement = MapUtils.getObject(mapToMerge, requirement.getId());
-            if (toAddRequirement == null) {
-                toAddRequirement = new Requirement();
-                toAddRequirement.setType(requirement.getType());
-                IndexedCapabilityType indexedReq = toscaElementFinder.getElementInDependencies(IndexedCapabilityType.class, requirement.getType(),
-                        dependencies);
-                if (indexedReq != null && indexedReq.getProperties() != null) {
-                    toAddRequirement.setProperties(PropertyUtil.getDefaultPropertyValuesFromPropertyDefinitions(indexedReq.getProperties()));
-                }
-            }
-            map.put(requirement.getId(), toAddRequirement);
-        }
+    @ToscaContextual
+    public NodeTemplate buildNodeTemplate(Set<CSARDependency> dependencies, IndexedNodeType indexedNodeType, NodeTemplate templateToMerge) {
+        return NodeTemplateBuilder.buildNodeTemplate(indexedNodeType, templateToMerge);
     }
 
     public TopologyTemplate createTopologyTemplate(Topology topology, String name, String description, String version) {

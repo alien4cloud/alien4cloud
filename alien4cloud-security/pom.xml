@@ -20,6 +20,11 @@
   <dependencies>
     <dependency>
       <groupId>alien4cloud</groupId>
+      <artifactId>alien4cloud-dao</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>alien4cloud</groupId>
       <artifactId>alien4cloud-common</artifactId>
       <version>${project.version}</version>
     </dependency>

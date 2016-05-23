@@ -13,10 +13,12 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import alien4cloud.model.components.*;
+import alien4cloud.tosca.parser.ParsingError;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -42,7 +44,7 @@ import alien4cloud.utils.services.ApplicationUtil;
 import com.google.common.collect.Maps;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:application-context-test.xml")
+@ContextConfiguration("classpath:function-application-context-test.xml")
 public class FunctionEvaluatorTest {
 
     @Resource
@@ -84,6 +86,9 @@ public class FunctionEvaluatorTest {
         Path typesZipPath = artifactsDirectory.resolve(normativeLocalName + ".zip");
         FileUtil.zip(typesPath, typesZipPath);
         ParsingResult<Csar> result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER);
+        for (ParsingError error : result.getContext().getParsingErrors()) {
+            System.out.println(error.getErrorLevel() + " " + error.getProblem());
+        }
 
         typesPath = artifactsDirectory.resolve(extendedLocalName).resolve("alien-base-types");
         typesZipPath = artifactsDirectory.resolve("alien-base-types.zip");
@@ -110,12 +115,12 @@ public class FunctionEvaluatorTest {
 
         Map<String, NodeTemplate> nodeTemplates = Maps.newHashMap();
         NodeTemplate nodeTemplate1 = new NodeTemplate();
-        nodeTemplate1.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_1" }, new AbstractPropertyValue[] { new ScalarPropertyValue(
-                "the_property_value_1") }));
+        nodeTemplate1.setProperties(
+                MapUtil.newHashMap(new String[] { "the_property_name_1" }, new AbstractPropertyValue[] { new ScalarPropertyValue("the_property_value_1") }));
         nodeTemplates.put("the_node_tempalte_1", nodeTemplate1);
         NodeTemplate nodeTemplate2 = new NodeTemplate();
-        nodeTemplate2.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_2" }, new AbstractPropertyValue[] { new ScalarPropertyValue(
-                "the_property_value_2") }));
+        nodeTemplate2.setProperties(
+                MapUtil.newHashMap(new String[] { "the_property_name_2" }, new AbstractPropertyValue[] { new ScalarPropertyValue("the_property_value_2") }));
         nodeTemplates.put("the_node_tempalte_2", nodeTemplate2);
         Topology topology = new Topology();
         topology.setNodeTemplates(nodeTemplates);
@@ -274,10 +279,8 @@ public class FunctionEvaluatorTest {
         IndexedArtifactToscaElement tocaElement = computePaaS.getIndexedToscaElement();
         IValue oldHostNameAttr = tocaElement.getAttributes().get("old_hostname");
         IValue newHostNameAttr = tocaElement.getAttributes().get("new_hostname");
-        Operation createOp = computePaaS.getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations()
-                .get(ToscaNodeLifecycleConstants.CREATE);
-        Operation configOp = computePaaS.getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations()
-                .get(ToscaNodeLifecycleConstants.CONFIGURE);
+        Operation createOp = computePaaS.getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations().get(ToscaNodeLifecycleConstants.CREATE);
+        Operation configOp = computePaaS.getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations().get(ToscaNodeLifecycleConstants.CONFIGURE);
         Set<OperationOutput> createOutput = createOp.getOutputs();
         Set<OperationOutput> configureOutput = configOp.getOutputs();
 
@@ -313,9 +316,11 @@ public class FunctionEvaluatorTest {
         PaaSNodeTemplate complexPropNode = builtPaaSNodeTemplates.get(complexPropName);
         Operation configOp = complexPropNode.getIndexedToscaElement().getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations()
                 .get(ToscaNodeLifecycleConstants.CREATE);
-        Assert.assertEquals("{\n" + "  \"nested_map\" : {\n" + "    \"tutu\" : \"tata\",\n" + "    \"toctoc\" : \"tactac\"\n" + "  },\n"
-                + "  \"nested\" : \"toto\",\n" + "  \"nested_array\" : [ \"titi\", \"tuctuc\" ]\n" + "}", FunctionEvaluator.evaluateGetPropertyFunction(
-                (FunctionPropertyValue) configOp.getInputParameters().get("COMPLEX"), complexPropNode, builtPaaSNodeTemplates));
+        Assert.assertEquals(
+                "{\n" + "  \"nested_map\" : {\n" + "    \"tutu\" : \"tata\",\n" + "    \"toctoc\" : \"tactac\"\n" + "  },\n" + "  \"nested\" : \"toto\",\n"
+                        + "  \"nested_array\" : [ \"titi\", \"tuctuc\" ]\n" + "}",
+                FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) configOp.getInputParameters().get("COMPLEX"), complexPropNode,
+                        builtPaaSNodeTemplates));
         Assert.assertEquals("toto", FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) configOp.getInputParameters().get("NESTED"),
                 complexPropNode, builtPaaSNodeTemplates));
         Assert.assertEquals("titi", FunctionEvaluator.evaluateGetPropertyFunction(
