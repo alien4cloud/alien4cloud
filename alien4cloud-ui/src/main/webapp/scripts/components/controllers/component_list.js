@@ -4,7 +4,6 @@ define(function (require) {
 
   var modules = require('modules');
   var states = require('states');
-  var _ = require('lodash');
 
   require('scripts/common/services/resize_services');
   // make sure that required directives are loaded

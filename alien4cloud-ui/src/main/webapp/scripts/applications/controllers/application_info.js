@@ -17,15 +17,6 @@ define(function (require) {
     url: '/infos',
     templateUrl: 'views/applications/application_infos.html',
     controller: 'ApplicationInfosCtrl',
-    resolve: {
-      defaultEnvironmentTab: ['appEnvironments', function(appEnvironments) {
-        // return the first deployed env found or null
-        var onlyDeployed = appEnvironments.environments.filter(function deployed(element) {
-          return element.status === 'DEPLOYED';
-        });
-        return onlyDeployed.length > 0 ? onlyDeployed[0] : null;
-      }]
-    },
     menu: {
       id: 'am.applications.info',
       state: 'applications.detail.info',
@@ -64,7 +55,7 @@ define(function (require) {
               $scope.refreshInstancesStatuses($scope.application.id, appEnvironments.selected.id, pageStateId);
             });
           });
-        });
+        }, true);
       };
 
       $scope.$on('$destroy', function() { // routing to another page
