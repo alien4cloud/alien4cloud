@@ -115,7 +115,7 @@ module.exports.element = wElement;
 
 function click(selector, fromElement, skipWaitAngular, scrollTo) {
   var target = wElement(selector, fromElement);
-  if(scrollTo) {
+  if (scrollTo) {
     // first let's scroll to the element position taking the navbar into account
     browser.wait(function() {
       var deferred = protractor.promise.defer();
@@ -133,6 +133,12 @@ function click(selector, fromElement, skipWaitAngular, scrollTo) {
   return target;
 }
 module.exports.click = click;
+
+var clickAndMouseMouve = function (selector, toRight, toBottom) {
+  var target = wElement(selector);
+  browser.actions().mouseMove(target, {x: toRight, y: toBottom}).click().perform();
+};
+module.exports.clickAndMouseMouve = clickAndMouseMouve;
 
 module.exports.clear = function(selector, fromElement) {
   var target = wElement(selector, fromElement);

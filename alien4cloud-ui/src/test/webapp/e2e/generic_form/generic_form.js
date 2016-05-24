@@ -25,7 +25,7 @@ module.exports.sendValueToPrimitiveInput = sendValueToPrimitiveInput;
 
 function sendValueToPrimitive (path, value, withAutoCompletion, elementType) {
   if (elementType === 'tosca') {
-    xedit.sendKeys('p_' + path, value);
+    xedit.sendKeys('p_' + path, value, withAutoCompletion, elementType);
   } else if (elementType === 'xeditable') {
     xedit.sendKeys('primitiveTypeFormLabel' + path + 'input', value, withAutoCompletion);
   } else if (elementType === 'select') {

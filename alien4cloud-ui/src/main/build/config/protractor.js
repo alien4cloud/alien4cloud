@@ -44,7 +44,7 @@ module.exports = function(grunt) {
             // '<%= yeoman.test %>/e2e/scenarios/application_topology/application_topology_editor_input_management.js',
             // '<%= yeoman.test %>/e2e/scenarios/application_topology/application_topology_editor_input_output.js',
             // '<%= yeoman.test %>/e2e/scenarios/application_topology/application_topology_editor_nodetemplate.js',
-            // '<%= yeoman.test %>/e2e/scenarios/application_topology/application_topology_editor_relationship.js',
+            // '<%= yeoman.test %>/e2e/scenarios/application_topology/application_topology_editor_relationships.js',
             // '<%= yeoman.test %>/e2e/scenarios/application_topology/application_topology_editor_replacenode.js',
             // '<%= yeoman.test %>/e2e/scenarios/application_topology/application_topology_editor_reset.js',
             // '<%= yeoman.test %>/e2e/scenarios/application_topology/application_topology_suggestions_property.js',
@@ -60,7 +60,7 @@ module.exports = function(grunt) {
             // '<%= yeoman.test %>/e2e/scenarios/components/csar_git_list.js',
             // '<%= yeoman.test %>/e2e/scenarios/topology_templates/topology_template_details.js',
             // '<%= yeoman.test %>/e2e/scenarios/topology_templates/topology_template_list.js',
-             '<%= yeoman.test %>/e2e/scenarios/**/*.js'
+            '<%= yeoman.test %>/e2e/scenarios/**/*.js'
           ]
         }
       }

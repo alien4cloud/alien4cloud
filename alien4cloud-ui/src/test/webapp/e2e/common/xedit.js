@@ -1,5 +1,4 @@
 /* global browser, by, expect */
-
 'use strict';
 
 var common = require('./common');
@@ -13,11 +12,15 @@ var sendKeysWithSelector = function(selector, value, withAutoCompletion, type) {
   var container = common.element(selector);
   var span = common.element(by.css('.editable-click'), container);
   // click on the span of x-editable to trigger input
-  common.click(by.tagName('i'), span);
+  if (type === 'tosca') {
+    common.click(by.tagName('span'), span);
+  } else {
+    common.click(by.tagName('i'), span);
+  }
 
   var editForm = common.element(by.tagName('form'), container);
   var editInput;
-  if (type) {
+  if (type && type !== 'tosca') {
     editInput = common.element(by.tagName(type), editForm);
   } else {
     editInput = common.element(by.tagName('input'), editForm);
@@ -52,9 +55,15 @@ var xeditExpect = function(id, value) {
 var xeditExpectWithSelector = function(selector, value) {
   var container = common.element(selector);
   var span = common.element(by.tagName('span'), container);
-  span.getText().then(function(spanText) {
-    expect(spanText.toLowerCase()).toContain(value.toString().toLowerCase());
-  });
+  if (value === '') { // toContain failed on empty string
+    span.getText().then(function(spanText) {
+      expect(spanText).toBe('');
+    });
+  } else {
+    span.getText().then(function(spanText) {
+      expect(spanText.toLowerCase()).toContain(value.toString().toLowerCase());
+    });
+  }
 };
 module.exports.expect = xeditExpect;
 module.exports.expectWithSelector = xeditExpectWithSelector;

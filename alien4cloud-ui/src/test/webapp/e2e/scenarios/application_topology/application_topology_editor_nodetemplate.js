@@ -102,12 +102,13 @@ describe('Topology node template edition :', function() {
       var myWar = artifacts[0];
       expect(myWar.element(by.binding('artifactId')).getText()).toEqual('war_file');
       expect(myWar.element(by.binding('artifact.artifactType')).getText()).toEqual('alien.artifacts.WarFile');
-      expect(myWar.element(by.binding('artifact.artifactName')).getText()).toEqual('myWar.war');
+      expect(myWar.element(by.binding('artifact.artifactName')).getText()).toEqual('warFiles/helloWor...');
       var myWarUpdateButton = browser.element(by.css('input[type="file"]'));
       myWarUpdateButton.sendKeys(path.resolve(__dirname,
         '../../../../../../../alien4cloud-rest-it/src/test/resources/data/artifacts/myWar.war'));
       common.element(by.binding('artifact.artifactName'), myWar).getText().then(function(text) {
         expect(text.length).toBeGreaterThan(0);
+        expect(myWar.element(by.binding('artifact.artifactName')).getText()).toEqual('myWar.war');
       });
     });
   });

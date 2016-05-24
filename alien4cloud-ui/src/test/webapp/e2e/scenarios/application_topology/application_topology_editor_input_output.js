@@ -1,5 +1,4 @@
 /* global describe, it, by, expect, browser */
-
 'use strict';
 
 var common = require('../../common/common');

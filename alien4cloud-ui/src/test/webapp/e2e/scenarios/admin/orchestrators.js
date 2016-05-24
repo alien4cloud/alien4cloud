@@ -51,7 +51,7 @@ describe('Orchestrators management', function() {
     var rows = element.all(by.repeater('orchestrator in orchestrators'));
     rows.count().then(function(count) {
       orchestrators.create('Mock Orchestrator Development');
-      expect(common.element(by.binding('toaster.html')).getText()).toBe('Object already exists');
+      expect(common.element(by.binding('toaster.html')).getText()).toBe('Object already exists\nThe posted object already exist.');
       // check that we still have the same number of orchestrators
       rows = element.all(by.repeater('orchestrator in orchestrators'));
       expect(rows.count()).toEqual(count);
@@ -72,7 +72,7 @@ describe('Orchestrators management', function() {
     orchestrators.go();
     common.click(by.id('orchestrator_f3657e4d-4250-45b4-a862-2e91699ef7a1'));
     xedit.sendKeys('orchestrator-name', 'Mock Orchestrator Production');
-    expect(common.element(by.binding('toaster.html')).getText()).toBe('Object already exists');
+    expect(common.element(by.binding('toaster.html')).getText()).toBe('Object already exists\nThe posted object already exist.');
     browser.actions().sendKeys(protractor.Key.ESCAPE).perform();
     var orchestratorNameEl = common.element(by.id('orchestrator-name'));
     expect(orchestratorNameEl.getText()).toBe('Mock Orchestrator Development');
