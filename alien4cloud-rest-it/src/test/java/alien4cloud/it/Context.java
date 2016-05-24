@@ -332,7 +332,11 @@ public class Context {
     }
 
     public Path getPluginDirPath() {
-        return Paths.get(getAlienPath() + "/" + getAppProperty("directories.plugins"));
+        return Paths.get(getAlienPath() + "/plugins");
+    }
+
+    public Path getWorkPath() {
+        return Paths.get(getAlienPath() + "/work");
     }
 
     public Path getArtifactDirPath() {

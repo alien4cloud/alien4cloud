@@ -46,6 +46,11 @@ $fa-font-path: "../bower_components/font-awesome/fonts" !default;
   margin-right: 5px;
 }
 
+#navbar-rightdrop {
+  padding-top: 13px;
+  padding-bottom: 13px;
+}
+
 @media all and (min-width: $screen-sm-min) and (max-width: $screen-md-min) {
   #alien-navbar-collapse i + span {
     display: inline-block;

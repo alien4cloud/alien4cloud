@@ -5,17 +5,12 @@ define(function (require) {
   var states = require('states');
 
   require('angular-ui-select');
+  modules.get('a4c-applications', ['ui.select']);
 
   states.state('applications.detail.topology.editor', {
     url: '/editor',
     templateUrl: 'views/topology/topology_editor.html',
     controller: 'TopologyCtrl',
-    resolve: {
-      topologyId: function() {
-        return null;
-      },
-      preselectedVersion: function() { return undefined; }
-    },
     menu: {
       id: 'am.applications.detail.topology.editor',
       state: 'applications.detail.topology.editor',
@@ -26,6 +21,4 @@ define(function (require) {
     }
   });
   states.forward('applications.detail.topology', 'applications.detail.topology.editor');
-
-  modules.get('a4c-applications', ['ui.select']);
 }); // define

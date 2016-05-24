@@ -3,7 +3,7 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>1.2.0-SM4</version>
+    <version>1.2.0-SM5</version>
   </parent>
   <artifactId>alien4cloud-security</artifactId>
   <name>Alien 4 Cloud Security</name>
@@ -18,6 +18,11 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>alien4cloud</groupId>
+      <artifactId>alien4cloud-dao</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>alien4cloud</groupId>
       <artifactId>alien4cloud-common</artifactId>
@@ -64,11 +69,6 @@
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-ldap</artifactId>
    	</dependency>
-    <dependency>
-      <groupId>org.springframework.security.extensions</groupId>
-      <artifactId>spring-security-saml2-core</artifactId>
-      <version>1.0.1.RELEASE</version>
-    </dependency>
   	<!-- Spring social dependencies -->
     <dependency>
         <groupId>org.springframework.social</groupId>

@@ -29,6 +29,8 @@
               <th>{{ 'COMMON.NAME' | translate}}</th>
               <th>{{ 'COMMON.VERSION' | translate}}</th>
               <th>{{ 'COMMON.DESCRIPTION' | translate}}</th>
+              <th>{{ 'COMMON.SOURCE' | translate}}</th>
+              <th>{{ 'UPDATE_DATE' | translate}}</th>
               <th></th>
             </tr>
           </thead>
@@ -40,6 +42,8 @@
               <td>{{csar.name}}</td>
               <td>{{csar.version}}</td>
               <td>{{csar.description || '---' }}</td>
+              <td>{{csar.importSource || '---' }}</td>
+              <td>{{(csar.importDate | date:'medium') || '---' }}</td>
               <td>
                 <delete-confirm
                   ng-if="!csar.substitutionTopologyId"

@@ -94,6 +94,7 @@ public class ApplicationsDeploymentStepDefinitions {
     @When("^I deploy it$")
     public void I_deploy_it() throws Throwable {
         // deploys the current application on default "Environment"
+        log.info("Deploy : Deploying the application " + ApplicationStepDefinitions.CURRENT_APPLICATION.getName());
         DeployApplicationRequest deployApplicationRequest = getDeploymentAppRequest(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null);
         String response = deploy(deployApplicationRequest);
         Context.getInstance().registerRestResponse(response);
@@ -105,7 +106,7 @@ public class ApplicationsDeploymentStepDefinitions {
         }
     }
 
-    private DeployApplicationRequest getDeploymentAppRequest(String applicationName, String environmentName) throws IOException {
+    public static DeployApplicationRequest getDeploymentAppRequest(String applicationName, String environmentName) throws IOException {
         DeployApplicationRequest deployApplicationRequest = new DeployApplicationRequest();
         Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
 

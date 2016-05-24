@@ -9,8 +9,6 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import alien4cloud.dao.model.FacetedSearchResult;
-import alien4cloud.rest.component.SearchRequest;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
@@ -19,6 +17,9 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.audit.annotation.Audit;
@@ -41,15 +42,12 @@ import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
 
 @RestController
-@RequestMapping({"/rest/deployments", "/rest/v1/deployments", "/rest/latest/deployments"})
+@RequestMapping({ "/rest/deployments", "/rest/v1/deployments", "/rest/latest/deployments" })
 public class DeploymentController {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
@@ -108,12 +106,13 @@ public class DeploymentController {
                         if (appSources != null) {
                             sources = appSources;
                         }
-                        break;
-                    case CSAR:
-                        Map<String, ? extends IDeploymentSource> csarSources = csarService.findByIds(FetchContext.SUMMARY, sourceIds);
-                        if (csarSources != null) {
-                            sources = csarSources;
-                        }
+                        // FIXME Allow CSAR deployment again for testing and validation purpose.
+                        // break;
+                        // case CSAR:
+                        // Map<String, ? extends IDeploymentSource> csarSources = csarService.findByIds(FetchContext.SUMMARY, sourceIds);
+                        // if (csarSources != null) {
+                        // sources = csarSources;
+                        // }
                     }
                 }
             }

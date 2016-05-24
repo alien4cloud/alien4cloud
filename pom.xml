@@ -2,12 +2,14 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>alien4cloud</groupId>
   <artifactId>alien4cloud-parent</artifactId>
-  <version>1.2.0-SM4</version>
+  <version>1.2.0-SM5</version>
   <packaging>pom</packaging>
   <name>Application LIfecycle ENabler parent project.</name>
   <description>Application LIfecycle ENabler is an application that allows you to manage your application's lifecycle on a cloud environment.</description>
   <modules>
     <module>alien4cloud-common</module>
+    <module>alien4cloud-tosca</module>
+    <module>alien4cloud-dao</module>
     <module>alien4cloud-security</module>
     <module>alien4cloud-core</module>
     <module>alien4cloud-mock-paas-provider-plugin</module>

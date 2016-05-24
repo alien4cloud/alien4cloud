@@ -25,10 +25,14 @@ var take = function(imgName) {
     if (debugEnabled) {
       console.log('Screenshot [' + imgName + ']');
     }
-    var dirExists = fs.existsSync(screenShotBaseDir);
+
     // create only one time the ${screenShotBaseDir} folder
+    var dirExists = fs.existsSync(screenShotBaseDir);
     if (!dirExists) {
-      fs.mkdirSync('../target');
+      var targetDirExists = fs.existsSync('../target');
+      if (!targetDirExists) {
+        fs.mkdirSync('../target');
+      }
       fs.mkdirSync(screenShotBaseDir);
     }
     browser.takeScreenshot().then(function(png) {

@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import alien4cloud.model.components.CSARSource;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -91,7 +92,7 @@ public class CloudServiceArchiveController {
             // save the archive in the temp directory
             FileUploadUtil.safeTransferTo(csarPath, csar);
             // load, parse the archive definitions and save on disk
-            ParsingResult<Csar> result = csarUploadService.upload(csarPath);
+            ParsingResult<Csar> result = csarUploadService.upload(csarPath, CSARSource.UPLOAD);
             RestError error = null;
             if (ArchiveUploadService.hasError(result, ParsingErrorLevel.ERROR)) {
                 error = RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build();

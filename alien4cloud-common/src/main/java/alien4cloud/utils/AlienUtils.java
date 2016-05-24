@@ -1,16 +1,15 @@
 package alien4cloud.utils;
 
+import com.google.common.collect.Maps;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import lombok.SneakyThrows;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.common.collect.Maps;
 
 public final class AlienUtils {
 
@@ -41,6 +40,26 @@ public final class AlienUtils {
      */
     public static <T> T[][] arOfArray(T[]... elements) {
         return elements;
+    }
+
+    /**
+     * Fill an array with data from an untyped collection. Both must have the same size.
+     *
+     * @param array The array in which to insert elements.
+     * @param collection The untyped collection that contains elements to put in the array.
+     * @param <T> Type of elements in the array (should be the same in collection)
+     * @return The filled array.
+     */
+    public static <T> T[] fill(T[] array, Collection collection) {
+        if (array.length != collection.size()) {
+            throw new IllegalArgumentException("Size of array and collection must be the same.");
+        }
+        int i = 0;
+        for (Object element : collection) {
+            array[i] = (T) element;
+            i++;
+        }
+        return array;
     }
 
     public static String putValueCommaSeparatedInPosition(String values, String valueToPut, int position) {

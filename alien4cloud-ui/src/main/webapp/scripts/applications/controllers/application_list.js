@@ -4,7 +4,7 @@ define(function (require) {
   var modules = require('modules');
   var states = require('states');
   var angular = require('angular');
-  require('d3');
+  var d3 = require('d3');
   var _ = require('lodash');
 
   require('scripts/common/services/pie_chart_service.js');

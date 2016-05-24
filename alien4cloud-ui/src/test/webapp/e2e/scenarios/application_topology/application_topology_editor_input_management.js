@@ -1,5 +1,4 @@
-/* global by,element */
-
+/* global describe,it */
 'use strict';
 
 var common = require('../../common/common');
@@ -9,7 +8,7 @@ var topologyEditorCommon = require('../../topology/topology_editor_common');
 var topologiesData = require(__dirname + '/_data/application_topology_editor_input_managements/topologies.json');
 var applications = require('../../applications/applications');
 
-describe('Topology input/output properties', function() {
+describe('Topology input management', function() {
 
   it('beforeAll', function() {
     setup.setup();
@@ -38,6 +37,7 @@ describe('Topology input/output properties', function() {
   });
 
   //TODO: Check value of inputs, rename...
+
   it('afterAll', function() {
     authentication.logout();
   });

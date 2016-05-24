@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
+import alien4cloud.tosca.context.ToscaContextual;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -111,6 +112,7 @@ public class TopologyTreeBuilderService {
 
     /**
      * Get the non-natives node of a topology.
+     * 
      * @param topology
      * @return a Map of non-natives nodes.
      */
@@ -164,6 +166,7 @@ public class TopologyTreeBuilderService {
      * @param topology The topology.
      * @return The parsed topology for the PaaS with.
      */
+    @ToscaContextual
     public PaaSTopology buildPaaSTopology(Topology topology) {
         return buildPaaSTopology(buildPaaSNodeTemplates(topology, new TypeMap()));
     }

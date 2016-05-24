@@ -6,6 +6,8 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import alien4cloud.model.components.CSARSource;
+import alien4cloud.tosca.context.ToscaContextual;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
@@ -47,11 +49,13 @@ public class ArchiveUploadService {
      * Upload a TOSCA archive and index its components.
      * 
      * @param path The archive path.
+     * @param csarSource The source of the upload.
      * @return The Csar object from the parsing.
      * @throws ParsingException
      * @throws CSARVersionAlreadyExistsException
      */
-    public ParsingResult<Csar> upload(Path path) throws ParsingException, CSARVersionAlreadyExistsException {
+    @ToscaContextual
+    public ParsingResult<Csar> upload(Path path, CSARSource csarSource) throws ParsingException, CSARVersionAlreadyExistsException {
         // parse the archive.
         ParsingResult<ArchiveRoot> parsingResult = parser.parse(path);
 
@@ -70,7 +74,7 @@ public class ArchiveUploadService {
                 return toSimpleResult(parsingResult);
             }
         }
-        archiveIndexer.importArchive(archiveRoot, path, parsingResult.getContext().getParsingErrors());
+        archiveIndexer.importArchive(archiveRoot, csarSource, path, parsingResult.getContext().getParsingErrors());
         try {
             suggestionService.postProcessSuggestionFromArchive(parsingResult);
             suggestionService.setAllSuggestionIdOnPropertyDefinition();
@@ -80,6 +84,7 @@ public class ArchiveUploadService {
         return toSimpleResult(parsingResult);
     }
 
+    @ToscaContextual
     public Map<CSARDependency, CsarDependenciesBean> preParsing(Set<Path> paths) throws ParsingException {
         Map<CSARDependency, CsarDependenciesBean> csarDependenciesBeans = Maps.newHashMap();
         for (Path path : paths) {
@@ -87,8 +92,8 @@ public class ArchiveUploadService {
                 ParsingResult<ArchiveRoot> parsingResult = parser.parse(path);
                 CsarDependenciesBean csarDepContainer = new CsarDependenciesBean();
                 csarDepContainer.setPath(path);
-                csarDepContainer.setSelf(new CSARDependency(parsingResult.getResult().getArchive().getName(), parsingResult.getResult().getArchive()
-                        .getVersion()));
+                csarDepContainer
+                        .setSelf(new CSARDependency(parsingResult.getResult().getArchive().getName(), parsingResult.getResult().getArchive().getVersion()));
                 csarDepContainer.setDependencies(parsingResult.getResult().getArchive().getDependencies());
                 csarDependenciesBeans.put(csarDepContainer.getSelf(), csarDepContainer);
             } catch (Exception e) {

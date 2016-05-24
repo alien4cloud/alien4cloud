@@ -1,18 +1,20 @@
 package alien4cloud.csar.services;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
 
-import alien4cloud.model.orchestrators.locations.Location;
-import lombok.extern.slf4j.Slf4j;
-
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.component.ICSARRepositoryIndexerService;
@@ -25,13 +27,11 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
+import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.topology.TopologyService;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Manages cloud services archives and their dependencies.
@@ -54,7 +54,7 @@ public class CsarService implements ICsarDependencyLoader {
     private ApplicationService applicationService;
 
     /**
-     * Get a cloud service if exists in Dao.
+     * Get a cloud service archive.
      *
      * @param name The name of the archive.
      * @param version The version of the archive.
@@ -84,10 +84,8 @@ public class CsarService implements ICsarDependencyLoader {
      * @return an array of CSARs that depend on this name:version.
      */
     public Csar[] getDependantCsars(String name, String version) {
-        FilterBuilder filter = FilterBuilders.nestedFilter(
-                "dependencies",
-                FilterBuilders.boolFilter().must(FilterBuilders.termFilter("dependencies.name", name))
-                        .must(FilterBuilders.termFilter("dependencies.version", version)));
+        FilterBuilder filter = FilterBuilders.nestedFilter("dependencies", FilterBuilders.boolFilter()
+                .must(FilterBuilders.termFilter("dependencies.name", name)).must(FilterBuilders.termFilter("dependencies.version", version)));
         GetMultipleDataResult<Csar> result = csarDAO.search(Csar.class, null, null, filter, null, 0, Integer.MAX_VALUE);
         return result.getData();
     }
@@ -96,10 +94,8 @@ public class CsarService implements ICsarDependencyLoader {
      * @return an array of <code>Topology</code>s that depend on this name:version.
      */
     public Topology[] getDependantTopologies(String name, String version) {
-        FilterBuilder filter = FilterBuilders.nestedFilter(
-                "dependencies",
-                FilterBuilders.boolFilter().must(FilterBuilders.termFilter("dependencies.name", name))
-                        .must(FilterBuilders.termFilter("dependencies.version", version)));
+        FilterBuilder filter = FilterBuilders.nestedFilter("dependencies", FilterBuilders.boolFilter()
+                .must(FilterBuilders.termFilter("dependencies.name", name)).must(FilterBuilders.termFilter("dependencies.version", version)));
         GetMultipleDataResult<Topology> result = csarDAO.search(Topology.class, null, null, filter, null, 0, Integer.MAX_VALUE);
         return result.getData();
     }
@@ -108,10 +104,8 @@ public class CsarService implements ICsarDependencyLoader {
      * @return an array of CSARs that depend on this name:version.
      */
     public Location[] getDependantLocations(String name, String version) {
-        FilterBuilder filter = FilterBuilders.nestedFilter(
-                "dependencies",
-                FilterBuilders.boolFilter().must(FilterBuilders.termFilter("dependencies.name", name))
-                        .must(FilterBuilders.termFilter("dependencies.version", version)));
+        FilterBuilder filter = FilterBuilders.nestedFilter("dependencies", FilterBuilders.boolFilter()
+                .must(FilterBuilders.termFilter("dependencies.name", name)).must(FilterBuilders.termFilter("dependencies.version", version)));
         GetMultipleDataResult<Location> result = csarDAO.search(Location.class, null, null, filter, null, 0, Integer.MAX_VALUE);
         return result.getData();
     }
@@ -122,6 +116,8 @@ public class CsarService implements ICsarDependencyLoader {
      * @param csar The csar to save.
      */
     public void save(Csar csar) {
+        // save the csar import date
+        csar.setImportDate(new Date());
         // fill in transitive dependencies.
         Set<CSARDependency> mergedDependencies = null;
         if (csar.getDependencies() != null) {
@@ -193,10 +189,8 @@ public class CsarService implements ICsarDependencyLoader {
             String linkedTopologyId = csar.getSubstitutionTopologyId();
             Topology topology = csarDAO.findById(Topology.class, linkedTopologyId);
             if (topology != null) {
-                throw new DeleteReferencedObjectException(
-                        "The CSAR with id <"
-                                + csarId
-                                + "> is linked to a topology template (substitution) and can not be deleted by this way. The archive can be deleted by deleting the related topology template version.");
+                throw new DeleteReferencedObjectException("The CSAR with id <" + csarId
+                        + "> is linked to a topology template (substitution) and can not be deleted by this way. The archive can be deleted by deleting the related topology template version.");
             }
         }
 

@@ -315,7 +315,7 @@ Feature: Topology composition
 # (since it will cause endless recursive calls). Here we test this limitation.
     Given I expose the template as type "tosca.nodes.Root"
     Then I should receive a RestResponse with no error
-    When I add a node template "MyCompute" related to the "net.sample.LAMP:0.1.0-SNAPSHOT" node type
+    When I add a node template "MyLampNode" related to the "net.sample.LAMP:0.1.0-SNAPSHOT" node type
     Then I should receive a RestResponse with an error code 820
 
   @reset

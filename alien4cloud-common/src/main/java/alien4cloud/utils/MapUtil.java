@@ -1,5 +1,6 @@
 package alien4cloud.utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,25 @@ import com.google.common.collect.Maps;
  */
 public final class MapUtil {
     private MapUtil() {
+    }
+
+    /**
+     * This method allows to add an element to the list of elements in a map for a given key. If the list is null for the given key it will create a new list,
+     * insert it in the map and add the element.
+     * 
+     * @param listMap A map of <Key, List<Values>>
+     * @param key The key in the map.
+     * @param value The element to add to the list that is mapped by the given key.
+     * @param <K> The key class.
+     * @param <V> The class of the list elements.
+     */
+    public static <K, V> void addToList(Map<K, List<V>> listMap, K key, V value) {
+        List<V> list = listMap.get(key);
+        if (list == null) {
+            list = new ArrayList<V>();
+            listMap.put(key, list);
+        }
+        list.add(value);
     }
 
     /**

@@ -1,4 +1,4 @@
-/* global element, by */
+/* global describe, element, expect, it, by */
 
 'use strict';
 

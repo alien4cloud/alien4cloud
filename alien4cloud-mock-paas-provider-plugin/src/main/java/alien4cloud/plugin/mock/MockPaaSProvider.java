@@ -1,15 +1,7 @@
 package alien4cloud.plugin.mock;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Random;
-import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -17,32 +9,18 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.elasticsearch.common.collect.Maps;
 
-import alien4cloud.component.ICSARRepositorySearchService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.deployment.Deployment;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.ScalingPolicy;
-import alien4cloud.model.topology.Topology;
+import alien4cloud.model.topology.*;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.PluginConfigurationException;
-import alien4cloud.paas.model.AbstractMonitorEvent;
-import alien4cloud.paas.model.DeploymentStatus;
-import alien4cloud.paas.model.InstanceInformation;
-import alien4cloud.paas.model.InstanceStatus;
-import alien4cloud.paas.model.NodeOperationExecRequest;
-import alien4cloud.paas.model.PaaSDeploymentContext;
-import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
-import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
-import alien4cloud.paas.model.PaaSMessageMonitorEvent;
-import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
+import alien4cloud.paas.model.*;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyUtils;
@@ -50,8 +28,7 @@ import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
 import alien4cloud.tosca.normative.NormativeRelationshipConstants;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class MockPaaSProvider extends AbstractPaaSProvider {
@@ -70,7 +47,7 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
     private final List<AbstractMonitorEvent> toBeDeliveredEvents = Collections.synchronizedList(new ArrayList<AbstractMonitorEvent>());
 
     @Resource
-    private ICSARRepositorySearchService csarRepoSearchService;
+    private CSARRepositorySearchService csarRepoSearchService;
 
     private static final String BAD_APPLICATION_THAT_NEVER_WORKS = "BAD-APPLICATION";
 
@@ -422,7 +399,8 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
     }
 
     @Override
-    public void launchWorkflow(PaaSDeploymentContext deploymentContext, final String workflowName, Map<String, Object> inputs, final IPaaSCallback<?> callback) {
+    public void launchWorkflow(PaaSDeploymentContext deploymentContext, final String workflowName, Map<String, Object> inputs,
+            final IPaaSCallback<?> callback) {
         log.info(String.format("Execution of workflow %s is scheduled", workflowName));
         executorService.schedule(new Runnable() {
             @Override

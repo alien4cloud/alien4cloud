@@ -6,34 +6,24 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import com.google.common.collect.Lists;
 
 import alien4cloud.Constants;
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.rest.model.RestError;
-import alien4cloud.rest.model.RestErrorBuilder;
-import alien4cloud.rest.model.RestErrorCode;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.model.RestResponseBuilder;
-
-import com.google.common.collect.Lists;
+import alien4cloud.rest.model.*;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Handle components
@@ -42,14 +32,14 @@ import io.swagger.annotations.ApiOperation;
  */
 @Slf4j
 @RestController
-@RequestMapping({"/rest/components", "/rest/v1/components", "/rest/latest/components"})
+@RequestMapping({ "/rest/components", "/rest/v1/components", "/rest/latest/components" })
 public class ComponentController {
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO dao;
 
     @Resource
-    private ICSARRepositorySearchService searchService;
+    private CSARRepositorySearchService searchService;
 
     /**
      * Get details for a component.
@@ -104,8 +94,8 @@ public class ComponentController {
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
     public RestResponse<FacetedSearchResult> search(@RequestBody SearchRequest searchRequest, @RequestParam(defaultValue = "false") boolean queryAllVersions) {
-        Class<? extends IndexedToscaElement> classNameToQuery = searchRequest.getType() == null ? IndexedToscaElement.class : searchRequest.getType()
-                .getIndexedToscaElementClass();
+        Class<? extends IndexedToscaElement> classNameToQuery = searchRequest.getType() == null ? IndexedToscaElement.class
+                : searchRequest.getType().getIndexedToscaElementClass();
         FacetedSearchResult searchResult = searchService.search(classNameToQuery, searchRequest.getQuery(), searchRequest.getFrom(), searchRequest.getSize(),
                 searchRequest.getFilters(), queryAllVersions);
         return RestResponseBuilder.<FacetedSearchResult> builder().data(searchResult).build();

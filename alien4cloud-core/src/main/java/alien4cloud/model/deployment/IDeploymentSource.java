@@ -6,7 +6,6 @@ package alien4cloud.model.deployment;
  * @author Minh Khang VU
  */
 public interface IDeploymentSource {
-
     String getId();
 
     String getName();
