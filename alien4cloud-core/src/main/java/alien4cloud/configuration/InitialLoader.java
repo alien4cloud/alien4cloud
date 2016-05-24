@@ -23,6 +23,7 @@ import alien4cloud.plugin.exception.PluginLoadingException;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.Role;
 import alien4cloud.security.model.User;
+import alien4cloud.tosca.context.ToscaContextInjector;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,6 +55,8 @@ public class InitialLoader {
     private ArchiveUploadService csarUploadService;
     @Inject
     private PluginManager pluginManager;
+    @Inject
+    private ToscaContextInjector toscaContextInjector;
 
     @Value("${directories.alien_init:}")
     private String alienInitDirectory;
@@ -61,6 +64,11 @@ public class InitialLoader {
 
     @PostConstruct
     public void initialLoad() throws IOException {
+        // Ensure tosca context injector is loaded first.
+        if(toscaContextInjector == null) {
+            log.error("Tosca Context Injector is required.");
+        }
+
         // Components
         if (alienInitDirectory == null || alienInitDirectory.isEmpty()) {
             log.debug("No init directory is configured - skipping initial loading of archives and plugins.");
