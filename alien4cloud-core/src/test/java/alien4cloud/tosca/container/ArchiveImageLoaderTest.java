@@ -10,7 +10,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,11 +17,11 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.model.components.IndexedInheritableToscaElement;
-import alien4cloud.model.common.Tag;
 import alien4cloud.dao.IGenericIdDAO;
 import alien4cloud.images.IImageDAO;
 import alien4cloud.images.ImageData;
+import alien4cloud.model.common.Tag;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.tosca.ArchiveImageLoader;
 import alien4cloud.tosca.ArchiveParser;
 import alien4cloud.tosca.ArchiveUploadService;
@@ -31,6 +30,7 @@ import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -75,8 +75,8 @@ public class ArchiveImageLoaderTest {
         ParsingResult<ArchiveRoot> result = parser.parse(csarFileForTesting);
         imageLoader.importImages(csarFileForTesting, result.getResult(), result.getContext().getParsingErrors());
 
-        Assert.assertFalse(ArchiveUploadService.hasError(result, ParsingErrorLevel.ERROR));
-        Assert.assertFalse(ArchiveUploadService.hasError(result, ParsingErrorLevel.WARNING));
+        Assert.assertFalse(result.hasError(ParsingErrorLevel.ERROR));
+        Assert.assertFalse(result.hasError(ParsingErrorLevel.WARNING));
 
         checkImages(result.getResult().getNodeTypes());
     }
@@ -112,7 +112,7 @@ public class ArchiveImageLoaderTest {
         imageLoader.importImages(csarFileForTesting, result.getResult(), result.getContext().getParsingErrors());
 
         // we expect to have warning issues due to missing files or invalid formats.
-        Assert.assertFalse(ArchiveUploadService.hasError(result, ParsingErrorLevel.ERROR));
-        Assert.assertTrue(ArchiveUploadService.hasError(result, ParsingErrorLevel.WARNING));
+        Assert.assertFalse(result.hasError(ParsingErrorLevel.ERROR));
+        Assert.assertTrue(result.hasError(ParsingErrorLevel.WARNING));
     }
 }

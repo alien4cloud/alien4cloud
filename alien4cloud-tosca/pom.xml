@@ -23,6 +23,11 @@
       <artifactId>alien4cloud-common</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!-- Templating -->
+    <dependency>
+      <groupId>org.apache.velocity</groupId>
+      <artifactId>velocity</artifactId>
+    </dependency>
 
     <!-- Validation -->
     <dependency>

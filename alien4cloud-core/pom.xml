@@ -96,11 +96,6 @@
             <groupId>org.glassfish.web</groupId>
             <artifactId>javax.el</artifactId>
         </dependency>
-        <!-- Templating -->
-        <dependency>
-            <groupId>org.apache.velocity</groupId>
-            <artifactId>velocity</artifactId>
-        </dependency>
         <!-- tests -->
         <dependency>
             <groupId>junit</groupId>

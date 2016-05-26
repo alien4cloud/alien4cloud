@@ -67,13 +67,13 @@ public class ArchiveUploadService {
             AuthorizationUtil.checkHasOneRoleIn(Role.COMPONENTS_MANAGER, Role.ADMIN);
         }
 
-        if (ArchiveUploadService.hasError(parsingResult, null)) {
-            // check if any blocker error has been found during parsing process.
-            if (ArchiveUploadService.hasError(parsingResult, ParsingErrorLevel.ERROR)) {
-                // do not save anything if any blocker error has been found during import.
-                return toSimpleResult(parsingResult);
-            }
+
+        // check if any blocker error has been found during parsing process.
+        if (parsingResult.hasError(ParsingErrorLevel.ERROR)) {
+            // do not save anything if any blocker error has been found during import.
+            return toSimpleResult(parsingResult);
         }
+
         archiveIndexer.importArchive(archiveRoot, csarSource, path, parsingResult.getContext().getParsingErrors());
         try {
             suggestionService.postProcessSuggestionFromArchive(parsingResult);
@@ -120,22 +120,5 @@ public class ArchiveUploadService {
         context.getParsingErrors().addAll(result.getContext().getParsingErrors());
         ParsingResult<T> cleaned = new ParsingResult<T>(null, context);
         return cleaned;
-    }
-
-    /**
-     * Checks if a given parsing result has any error.
-     * 
-     * @param parsingResult The parsing result to check.
-     * @param level The level of error to check. Null means any levels.
-     * @return true if the parsing result as at least one error of the requested level.
-     */
-    public static boolean hasError(ParsingResult<?> parsingResult, ParsingErrorLevel level) {
-        for (ParsingError error : parsingResult.getContext().getParsingErrors()) {
-            if (level == null || level.equals(error.getErrorLevel())) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }
