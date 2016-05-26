@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @AllArgsConstructor
 @EqualsAndHashCode(of = { "id" })
 @FormProperties({ "type", "lowerBound", "upperBound" })
-public class CapabilityDefinition {
+public class CapabilityDefinition implements UpperBoundedDefinition {
     private String id;
     private String description;
     /** Identifies the type of the capability. */
@@ -33,7 +33,7 @@ public class CapabilityDefinition {
     private String type;
 
     /**
-     * Specifies the upper boundary of client requirements the defined capability can serve. The default value for this attribute is one. A value of
+     * Specifies the upper boundary of client requirements the defined capability can serve. The default value for this attribute is unbounded. A value of
      * 'unbounded' indicates that there is no upper boundary.
      */
     @JsonDeserialize(using = BoundDeserializer.class)

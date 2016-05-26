@@ -8,7 +8,6 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import alien4cloud.tosca.context.ToscaContextual;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.error.Mark;
 import org.yaml.snakeyaml.nodes.MappingNode;
@@ -16,6 +15,7 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
+import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.mapping.generator.MappingGenerator;
@@ -40,6 +40,8 @@ public class ToscaParser extends YamlParser<ArchiveRoot> {
         parserRegistriesByVersion.put("tosca_simple_yaml_1_0_0_wd03", registry);
         registry = mappingGenerator.process("classpath:alien-dsl-1.1.0-mapping.yml");
         parserRegistriesByVersion.put("alien_dsl_1_1_0", registry);
+        registry = mappingGenerator.process("classpath:alien-dsl-1.2.0-mapping.yml");
+        parserRegistriesByVersion.put("alien_dsl_1_2_0", registry);
     }
 
     @Override
