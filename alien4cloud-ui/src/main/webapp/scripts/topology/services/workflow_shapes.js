@@ -81,7 +81,7 @@ define(function (require) {
             var nodeIcon = toscaService.getIcon(nodeType.tags);
             if (_.defined(nodeIcon)) {
               parent.append('image').attr('x', x + 5).attr('y', y + 5).attr('width', iconSize).attr('height', iconSize).attr('xlink:href',
-                'img?id=' + nodeIcon + '&quality=QUALITY_32');
+                'img?id=' + nodeIcon + '&quality=QUALITY_64');
             }
           }
 
