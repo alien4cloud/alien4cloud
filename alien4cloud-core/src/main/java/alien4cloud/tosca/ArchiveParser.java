@@ -1,49 +1,37 @@
 package alien4cloud.tosca;
 
-import alien4cloud.model.components.Csar;
-import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.model.ToscaMeta;
-import alien4cloud.tosca.parser.*;
-import alien4cloud.tosca.parser.impl.ErrorCode;
-import alien4cloud.tosca.parser.impl.base.ValidatedNodeParser;
-import alien4cloud.tosca.parser.mapping.CsarMetaMapping;
-import alien4cloud.tosca.parser.mapping.ToscaMetaMapping;
-import alien4cloud.utils.FileUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import javax.validation.Validator;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.EnumSet;
 import java.util.List;
 
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.validation.Validator;
+
+import org.springframework.stereotype.Component;
+
+import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.model.ToscaMeta;
+import alien4cloud.tosca.parser.*;
+import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.tosca.parser.mapping.ToscaMetaMapping;
+import alien4cloud.utils.FileUtil;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @Component
 public class ArchiveParser {
     public static final String TOSCA_META_FOLDER_NAME = "TOSCA-Metadata";
-
-    @Deprecated
-    public static final String ALIEN_META_FILE_LOCATION = FileSystems.getDefault().getSeparator() + TOSCA_META_FOLDER_NAME
-            + FileSystems.getDefault().getSeparator() + "ALIEN-META.yaml";
-
     public static final String TOSCA_META_FILE_LOCATION = FileSystems.getDefault().getSeparator() + TOSCA_META_FOLDER_NAME
             + FileSystems.getDefault().getSeparator() + "TOSCA.meta";
 
     @Resource
     private ToscaMetaMapping toscaMetaMapping;
-
-    @Resource
-    private CsarMetaMapping csarMetaMapping;
-
     @Resource
     private ToscaParser toscaParser;
-
     @Resource
     private Validator validator;
-
     @Inject
     private ArchivePostProcessor postProcessor;
 
@@ -70,8 +58,6 @@ public class ArchiveParser {
 
         if (Files.exists(csarFS.getPath(TOSCA_META_FILE_LOCATION))) {
             return postProcess(parseFromToscaMeta(csarFS));
-        } else if (Files.exists(csarFS.getPath(ALIEN_META_FILE_LOCATION))) {
-            return postProcess(parseFromAlienMeta(csarFS));
         }
         return postProcess(parseFromRootDefinitions(csarFS));
     }
@@ -96,26 +82,6 @@ public class ArchiveParser {
     private ParsingResult<ArchiveRoot> postProcess(ParsingResult<ArchiveRoot> parsingResult) {
         postProcessor.postProcess(parsingResult);
         return parsingResult;
-    }
-
-    @Deprecated
-    private ParsingResult<ArchiveRoot> parseFromAlienMeta(FileSystem csarFS) throws ParsingException {
-        // add deprecated warning.
-        YamlSimpleParser<ToscaMeta> parser = new YamlSimpleParser<ToscaMeta>(new ValidatedNodeParser<ToscaMeta>(validator, csarMetaMapping.getParser()));
-        ParsingResult<ToscaMeta> parsingResult = parser.parseFile(csarFS.getPath(ALIEN_META_FILE_LOCATION));
-        if (parsingResult.getResult().getEntryDefinitions() == null && parsingResult.getResult().getDefinitions().size() == 1) {
-            parsingResult.getResult().setEntryDefinitions(parsingResult.getResult().getDefinitions().get(0));
-        } else if (parsingResult.getResult().getDefinitions().size() > 1) {
-            throw new ParsingException(ALIEN_META_FILE_LOCATION,
-                    new ParsingError(ErrorCode.SINGLE_DEFINITION_SUPPORTED, "Alien only supports archives with a single definition.", null, null, null,
-                            String.valueOf(parsingResult.getResult().getDefinitions().size())));
-        }
-        ArchiveRoot archiveRoot = new ArchiveRoot();
-        Csar csar = new Csar();
-        csar.setDependencies(parsingResult.getResult().getDependencies());
-        archiveRoot.setArchive(csar);
-        ParsingResult<ArchiveRoot> archiveResult = parseFromToscaMeta(csarFS, parsingResult.getResult(), ALIEN_META_FILE_LOCATION, archiveRoot);
-        return mergeWithToscaMeta(archiveResult, parsingResult);
     }
 
     private ParsingResult<ArchiveRoot> parseFromToscaMeta(Path csarPath) throws ParsingException {
@@ -181,12 +147,12 @@ public class ArchiveParser {
             if (visitor.getDefinitionFiles().size() == 1) {
                 return toscaParser.parseFile(visitor.getDefinitionFiles().get(0));
             }
-            throw new ParsingException("Archive", new ParsingError(ErrorCode.SINGLE_DEFINITION_SUPPORTED,
-                    "Alien only supports archives with a single root definition.", null, null, null,
-                    "Matching file count in root of " + csarFS + ": " + visitor.getDefinitionFiles().size()));
+            throw new ParsingException("Archive",
+                    new ParsingError(ErrorCode.SINGLE_DEFINITION_SUPPORTED, "Alien only supports archives with a single root definition.", null, null, null,
+                            "Matching file count in root of " + csarFS + ": " + visitor.getDefinitionFiles().size()));
         } catch (IOException e) {
-            throw new ParsingException("Archive", new ParsingError(ErrorCode.FAILED_TO_READ_FILE, "Failed to list root definitions", null, null, null,
-                    "Error reading " + csarFS + ": " + e));
+            throw new ParsingException("Archive",
+                    new ParsingError(ErrorCode.FAILED_TO_READ_FILE, "Failed to list root definitions", null, null, null, "Error reading " + csarFS + ": " + e));
         }
     }
 }
