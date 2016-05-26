@@ -1,4 +1,4 @@
-# Mapping definition for alien 4 cloud specific dsl 1.1.0
+# Mapping definition for alien 4 cloud specific dsl 1.2.0
 
 # declare custom parsers for complex types that requires specific parser.
 - scalar: alien4cloud.tosca.parser.impl.base.ScalarParser
