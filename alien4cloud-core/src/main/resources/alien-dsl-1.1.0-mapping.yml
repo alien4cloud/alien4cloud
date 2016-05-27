@@ -12,6 +12,7 @@
 - derived_from_capability_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromCapabilityTypeParser
 - derived_from_data_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromDataTypeParser
 - capability_type_reference: alien4cloud.tosca.parser.impl.advanced.ReferencedCapabilityTypeParser
+- capability_or_node_type_reference: alien4cloud.tosca.parser.impl.advanced.ReferencedCapabilityOrNodeTypeParser
 - relationship_type_reference: alien4cloud.tosca.parser.impl.advanced.ReferencedRelationshipTypeParser
 - artifact_type_reference: alien4cloud.tosca.parser.impl.advanced.ReferencedArtifactTypeParser
 - tag: alien4cloud.tosca.parser.impl.advanced.TagParser
@@ -183,9 +184,9 @@
 - requirement_definition: alien4cloud.model.components.RequirementDefinition
   __0: # define mapping for the first tuple of a requirement_definition. Both key and values must be mapped to different fields.
     key: id # map the key of the first mapping
-    value: # map the value as a capability_type_reference
+    value: # map the value as a capability_or_node_type_reference
       reference: type
-      type: capability_type_reference
+      type: capability_or_node_type_reference
   description: description
   lower_bound:
     reference: lowerBound
