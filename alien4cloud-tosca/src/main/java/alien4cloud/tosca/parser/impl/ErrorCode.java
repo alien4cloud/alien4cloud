@@ -18,6 +18,10 @@ public enum ErrorCode {
     SYNTAX_ERROR,
     /** Tosca version cannot be found in a definition file. */
     MISSING_TOSCA_VERSION,
+    /** Tosca version is not recognized by Alien 4 Cloud. */
+    UNKNOWN_TOSCA_VERSION,
+    /** Tosca version must be the first line of the TOSCA document. */
+    TOSCA_VERSION_NOT_FIRST,
     /** A field is not recognized by Alien 4 Cloud and will be skipped. */
     UNRECOGNIZED_PROPERTY,
     /** A discriminator is not known and no failback parser. */
