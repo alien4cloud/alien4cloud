@@ -42,6 +42,11 @@ public class ToscaParser extends YamlParser<ArchiveRoot> {
         parserRegistriesByVersion.put("alien_dsl_1_1_0", registry);
         registry = mappingGenerator.process("classpath:alien-dsl-1.2.0-mapping.yml");
         parserRegistriesByVersion.put("alien_dsl_1_2_0", registry);
+        // experimental
+        registry = mappingGenerator.process("classpath:tosca_simple_yaml_1_0.yml");
+        parserRegistriesByVersion.put("tosca_simple_yaml_1_0", registry);
+        parserRegistriesByVersion.put("http://docs.oasis-open.org/tosca/ns/simple/yaml/1.0", registry);
+
     }
 
     @Override
@@ -71,7 +76,7 @@ public class ToscaParser extends YamlParser<ArchiveRoot> {
             Map<String, INodeParser> registry = parserRegistriesByVersion.get(definitionVersionInfo.definitionVersion);
             if (registry == null) {
                 throw new ParsingException(context.getFileName(),
-                        new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.MISSING_TOSCA_VERSION, "Definition version is not supported",
+                        new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.UNKNOWN_TOSCA_VERSION, "Definition version is not supported",
                                 definitionVersionInfo.definitionVersionTuple.getKeyNode().getStartMark(), "Version is not supported by Alien4Cloud",
                                 definitionVersionInfo.definitionVersionTuple.getValueNode().getStartMark(), definitionVersionInfo.definitionVersion));
             }

@@ -4,6 +4,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
+import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Component;
@@ -26,6 +28,7 @@ import com.google.common.collect.Maps;
 @Component
 public class InterfaceParser extends DefaultParser<Interface> {
     private static final String INPUTS_KEY = "inputs";
+    private static final String TYPE_KEY = "type";
     private static final String DESCRIPTION_KEY = "description";
 
     @Resource
@@ -50,13 +53,11 @@ public class InterfaceParser extends DefaultParser<Interface> {
         for (NodeTuple entry : node.getValue()) {
             String key = ParserUtils.getScalar(entry.getKeyNode(), context);
             if (INPUTS_KEY.equals(key)) {
-                // TODO process inputs.
+                // FIXME process inputs.
             } else if (DESCRIPTION_KEY.equals(key)) {
-                if (entry.getValueNode() instanceof ScalarNode) {
-                    interfaz.setDescription(((ScalarNode) entry.getValueNode()).getValue());
-                } else {
-                    ParserUtils.addTypeError(node, context.getParsingErrors(), "Interface description");
-                }
+                interfaz.setDescription(ParserUtils.getScalar(entry.getValueNode(), context));
+            } else if (TYPE_KEY.equals(key)) {
+                interfaz.setType(getInterfaceType(ParserUtils.getScalar(entry.getValueNode(), context)));
             } else {
                 if (entry.getValueNode() instanceof ScalarNode) {
                     Operation operation = new Operation();
@@ -71,6 +72,20 @@ public class InterfaceParser extends DefaultParser<Interface> {
             }
         }
         return interfaz;
+    }
+
+    /**
+     * FIXME PUT THAT SOMEWHERE MORE GLOBAL
+     * @param interfaceType
+     * @return
+     */
+    public static String getInterfaceType(String interfaceType) {
+        if (ToscaNodeLifecycleConstants.STANDARD_SHORT.equalsIgnoreCase(interfaceType)) {
+            return ToscaNodeLifecycleConstants.STANDARD;
+        } else if (ToscaRelationshipLifecycleConstants.CONFIGURE_SHORT.equalsIgnoreCase(interfaceType)) {
+            return ToscaRelationshipLifecycleConstants.CONFIGURE;
+        }
+        return interfaceType;
     }
 
 }
