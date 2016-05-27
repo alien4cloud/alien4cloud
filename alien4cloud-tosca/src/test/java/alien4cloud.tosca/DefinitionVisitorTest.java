@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumSet;
 
+import alien4cloud.tosca.parser.DefinitionVisitor;
 import org.junit.Assert;
 import org.junit.Test;
 
