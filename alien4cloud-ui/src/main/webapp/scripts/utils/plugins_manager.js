@@ -12,6 +12,13 @@ define(function (require) {
 
   return {
     registeredTranlations: [],
+    nativeModules: ['scripts/authentication/controllers/navbar',
+        'scripts/admin/admin',
+        'scripts/applications/controllers/application_list',
+        'scripts/users/controllers/users',
+        'scripts/orchestrators/controllers/orchestrator_list',
+        'scripts/components/controllers/component_list',
+        'scripts/topologytemplates/controllers/topology_template_list'],
     init: function() {
       var self = this;
       var deferred = $.Deferred();

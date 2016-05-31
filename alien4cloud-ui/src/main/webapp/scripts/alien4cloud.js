@@ -16,18 +16,6 @@ define(function(require) {
   require('angular-xeditable');
   require('scripts/layout/layout');
 
-  //some common directives directives
-  require('scripts/common/directives/empty_place_holder');
-
-  // require alien4cloud modules
-  require('scripts/authentication/controllers/navbar');
-  require('scripts/admin/admin');
-  require('scripts/applications/controllers/application_list');
-  require('scripts/users/controllers/users');
-  require('scripts/orchestrators/controllers/orchestrator_list');
-  require('scripts/components/controllers/component_list');
-  require('scripts/topologytemplates/controllers/topology_template_list');
-
   var alien4cloud = modules.get('alien4cloud', [
     'ngCookies',
     'ngResource',
