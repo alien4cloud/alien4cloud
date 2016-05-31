@@ -1,9 +1,0 @@
-# Define the current archive id and version.
-name: "archive-for-test"
-version: "1.0"
-license: "Apache v2.0"
-created_by: "FastConnect"
-
-# List of definitions file in the archive.
-definitions:
-    - /Definitions/archive-for-test.yml

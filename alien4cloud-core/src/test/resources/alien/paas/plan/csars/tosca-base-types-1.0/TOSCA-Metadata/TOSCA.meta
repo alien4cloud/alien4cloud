@@ -1,0 +1,4 @@
+Name: "tosca-base-types"
+CSAR-Version: "0.1"
+Created-By: "FastConnect"
+Entry-Definitions: Definitions/tosca-base-types.yaml

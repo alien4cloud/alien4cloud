@@ -118,6 +118,9 @@ public class ToscaContext {
                 typeElements = new HashMap<>();
                 toscaTypesCache.put(elementType, typeElements);
             }
+            if(elementMap == null) {
+                return;
+            }
             typeElements.putAll(elementMap);
         }
 

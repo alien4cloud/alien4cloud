@@ -4,6 +4,9 @@ description: >
   Alien 4 Cloud test types: Dummy definitions of java related types.
   This is the description ?
 
+imports:
+  - tosca-base-types:1.0
+
 node_types:
   fastconnect.nodes.War:
     derived_from: tosca.nodes.SoftwareComponent

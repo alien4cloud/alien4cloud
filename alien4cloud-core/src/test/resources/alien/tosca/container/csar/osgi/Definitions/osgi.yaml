@@ -2,7 +2,11 @@
 
 name: osgi-types
 namespace: alien
-description: Contains definitions for osgi types.
+description: Contains definitions for osgi types.test
+
+imports:
+  - tosca-base-types:1.0
+  - java-types:1.0
 
 node_types:
 

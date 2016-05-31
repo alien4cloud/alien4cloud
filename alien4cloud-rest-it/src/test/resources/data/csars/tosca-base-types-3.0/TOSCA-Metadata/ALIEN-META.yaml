@@ -1,9 +1,0 @@
-# Define the current archive id and version.
-name: tosca-base-types
-version: 3.0
-license: Apache v2.0
-created_by: Alien 4 Cloud
-
-# List of definitions file in the archive.
-definitions:
-    - /Definitions/tosca-base-types.yaml

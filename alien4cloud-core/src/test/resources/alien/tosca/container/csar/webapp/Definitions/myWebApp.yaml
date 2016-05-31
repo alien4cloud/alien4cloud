@@ -2,6 +2,9 @@ name: my_web_app
 namespace: myNameSpace
 description: A Basic Web App To test
 
+imports:
+  - java:1.0
+
 node_types:
   tosca.nodes.Tomcat:
     derived_from: tosca.nodes.Middleware

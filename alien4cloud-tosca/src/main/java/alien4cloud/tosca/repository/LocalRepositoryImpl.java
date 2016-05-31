@@ -34,7 +34,7 @@ import lombok.SneakyThrows;
 public class LocalRepositoryImpl implements ICSARRepositorySearchService {
     private static ThreadLocal<Boolean> recursiveCall = new ThreadLocal<>();
     @Resource
-    private ToscaArchiveParser toscaParser;
+    private ToscaArchiveParser toscaArchiveParser;
 
     /** Path of the local repository. */
     private Path localRepositoryPath = Paths.get("target/repository");
@@ -93,7 +93,8 @@ public class LocalRepositoryImpl implements ICSARRepositorySearchService {
         Path archivePath = localRepositoryPath.resolve(dependency.getName()).resolve(dependency.getVersion()).resolve(archiveFileName);
 
         // parse and load archive.
-        ParsingResult<ArchiveRoot> result = toscaParser.parse(archivePath);
-        ToscaContext.get().register(result.getResult());
+        ParsingResult<ArchiveRoot> result = toscaArchiveParser.parse(archivePath);
+        ToscaContext.Context context = ToscaContext.get();
+        context.register(result.getResult());
     }
 }

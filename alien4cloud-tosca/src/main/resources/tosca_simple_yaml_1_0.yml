@@ -4,7 +4,7 @@
 - scalar: alien4cloud.tosca.parser.impl.base.ScalarParser
 - property_value: alien4cloud.tosca.parser.impl.advanced.PropertyValueParser
 - import_definition: alien4cloud.tosca.parser.impl.advanced.ImportParser
-- bound: alien4cloud.tosca.parser.impl.advanced.BoundParser
+- occurrences: alien4cloud.tosca.parser.impl.advanced.OccurrencesParser
 - implementation_artifact: alien4cloud.tosca.parser.impl.advanced.ImplementationArtifactParser
 - derived_from_node_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromNodeTypeParser
 - derived_from_relationship_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromRelationshipTypeParser
@@ -193,9 +193,9 @@
   type:
     reference: type
     type: capability_type_reference
-  upper_bound:
-    reference: upperBound
-    type: bound
+  occurrences:
+    reference: void
+    type: occurrences
   properties:
     map: properties
     type: template_property
@@ -227,12 +227,9 @@
       reference: type
       type: capability_type_reference
   description: description
-  lower_bound:
-    reference: lowerBound
-    type: bound
-  upper_bound:
-    reference: upperBound
-    type: bound
+  occurrences:
+    reference: void
+    type: occurrences
   type:
     reference: relationshipType
     type: relationship_type_reference

@@ -46,7 +46,6 @@ public class ToscaParser extends YamlParser<ArchiveRoot> {
         registry = mappingGenerator.process("classpath:tosca_simple_yaml_1_0.yml");
         parserRegistriesByVersion.put("tosca_simple_yaml_1_0", registry);
         parserRegistriesByVersion.put("http://docs.oasis-open.org/tosca/ns/simple/yaml/1.0", registry);
-
     }
 
     @Override

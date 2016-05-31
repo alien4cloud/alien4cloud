@@ -37,8 +37,8 @@ public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodePa
     public TypeNodeParser(Class<T> type, String toscaType) {
         super(toscaType);
         this.type = type;
-        yamlToObjectMapping = Maps.newHashMap();
-        yamlOrderedToObjectMapping = Maps.newHashMap();
+        yamlToObjectMapping = Maps.newLinkedHashMap();
+        yamlOrderedToObjectMapping = Maps.newLinkedHashMap();
     }
 
     @Override
@@ -86,9 +86,8 @@ public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodePa
                     return constructor.newInstance(scalarValue);
                 } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                     log.error("Error while parsing Yaml, scalar value is not valid.", e);
-                    context.getParsingErrors().add(
-                            new ParsingError(ErrorCode.SYNTAX_ERROR, "Invalid scalar value.", node.getStartMark(),
-                                    "Tosca type cannot be expressed with the given scalar value.", node.getEndMark(), getToscaType()));
+                    context.getParsingErrors().add(new ParsingError(ErrorCode.SYNTAX_ERROR, "Invalid scalar value.", node.getStartMark(),
+                            "Tosca type cannot be expressed with the given scalar value.", node.getEndMark(), getToscaType()));
                     return null;
                 }
             }
@@ -134,15 +133,14 @@ public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodePa
         }
 
         if (target == null) {
-            context.getParsingErrors().add(
-                    new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNRECOGNIZED_PROPERTY, "Ignored field during import", nodeTuple.getKeyNode()
-                            .getStartMark(), "tosca key is not recognized", nodeTuple.getValueNode().getEndMark(), key));
+            context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNRECOGNIZED_PROPERTY, "Ignored field during import",
+                    nodeTuple.getKeyNode().getStartMark(), "tosca key is not recognized", nodeTuple.getValueNode().getEndMark(), key));
         } else {
             // set the value to the required path
             BeanWrapper targetBean = target.isRootPath() ? context.getRoot() : instance;
             if (target.getParser().isDeferred(context)) {
-                context.addDeferredParser(new DefferedParsingValueExecutor(key, targetBean, context, target, nodeTuple.getValueNode(), target.getParser()
-                        .getDeferredOrder(context)));
+                context.addDeferredParser(new DefferedParsingValueExecutor(key, targetBean, context, target, nodeTuple.getValueNode(),
+                        target.getParser().getDeferredOrder(context)));
             } else {
                 parseAndSetValue(targetBean, key, nodeTuple.getValueNode(), context, target);
             }
