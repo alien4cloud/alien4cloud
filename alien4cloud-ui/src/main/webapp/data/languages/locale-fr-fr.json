@@ -499,6 +499,7 @@
   "DEPLOYMENT" : {
     "STATUS" : {
       "DEPLOYED" : "Déployé",
+      "INIT_DEPLOYMENT" : "Initialisation du déploiement",
       "DEPLOYMENT_IN_PROGRESS" : "Déploiement en cours",
       "FAILURE" : "Echec",
       "UNDEPLOYED" : "Désinstallé",

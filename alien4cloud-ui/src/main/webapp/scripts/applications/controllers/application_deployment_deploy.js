@@ -32,7 +32,7 @@ define(function(require) {
           };
           $scope.isDeploying = true;
           applicationServices.deployApplication.deploy([], angular.toJson(deployApplicationRequest), function() {
-            $scope.deploymentContext.selectedEnvironment.status = 'DEPLOYMENT_IN_PROGRESS';
+            $scope.deploymentContext.selectedEnvironment.status = 'INIT_DEPLOYMENT';
             $scope.isDeploying = false;
           }, function() {
             $scope.isDeploying = false;
