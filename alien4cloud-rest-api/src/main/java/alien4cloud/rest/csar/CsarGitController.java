@@ -7,12 +7,7 @@ import javax.validation.Valid;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.csar.services.CsarGitRepositoryService;
@@ -20,19 +15,14 @@ import alien4cloud.csar.services.CsarGitService;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.git.CsarGitRepository;
-import alien4cloud.rest.model.RestError;
-import alien4cloud.rest.model.RestErrorBuilder;
-import alien4cloud.rest.model.RestErrorCode;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.tosca.ArchiveUploadService;
+import alien4cloud.rest.model.*;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingResult;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 @RestController
-@RequestMapping(value = {"/rest/csarsgit", "/rest/v1/csarsgit", "/rest/latest/csarsgit"})
+@RequestMapping(value = { "/rest/csarsgit", "/rest/v1/csarsgit", "/rest/latest/csarsgit" })
 public class CsarGitController {
     @Inject
     private CsarGitService csarGitService;
@@ -134,7 +124,7 @@ public class CsarGitController {
         RestError error = null;
         for (ParsingResult<Csar> result : parsingResult) {
             // check if there is any critical failure in the import
-            if (ArchiveUploadService.hasError(result, ParsingErrorLevel.ERROR)) {
+            if (result.hasError(ParsingErrorLevel.ERROR)) {
                 error = RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build();
             }
         }

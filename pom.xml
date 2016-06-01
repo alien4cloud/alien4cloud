@@ -380,6 +380,11 @@
         <version>${es-mapping.version}</version>
       </dependency>
       <dependency>
+        <groupId>fr.lucboutier.elasticsearch</groupId>
+        <artifactId>elasticsearch-annotations</artifactId>
+        <version>${es-mapping.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.codehaus.groovy</groupId>
         <artifactId>groovy-all</artifactId>
         <version>${groovy.version}</version>

@@ -49,7 +49,7 @@ public abstract class AbstractMapper<T> {
 
     /**
      * Map a field to be parsed as a scalar and mapped to a tosca field that use the same name based on LOWER_CASE_WITH_UNDERSCORES rather than CAMEL_CASE.
-     * 
+     *
      * @param fieldName The name of the field.
      */
     public void quickMap(String fieldName) {
@@ -65,7 +65,7 @@ public abstract class AbstractMapper<T> {
     /**
      * Map a field to be parsed with the given parser and mapped to a tosca field that use the same name based on LOWER_CASE_WITH_UNDERSCORES rather than
      * CAMEL_CASE.
-     * 
+     *
      * @param parser The parser to use to parse the field.
      * @param fieldName The name of the field to parse.
      */

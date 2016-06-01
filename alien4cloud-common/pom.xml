@@ -43,7 +43,7 @@
     </dependency>
     <dependency>
       <groupId>fr.lucboutier.elasticsearch</groupId>
-      <artifactId>elasticsearch-mapping</artifactId>
+      <artifactId>elasticsearch-annotations</artifactId>
     </dependency>
     <dependency>
       <groupId>org.codehaus.groovy</groupId>

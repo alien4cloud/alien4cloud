@@ -8,7 +8,6 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import alien4cloud.tosca.context.ToscaContextual;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.error.Mark;
 import org.yaml.snakeyaml.nodes.MappingNode;
@@ -16,6 +15,7 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
+import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.mapping.generator.MappingGenerator;
@@ -40,6 +40,12 @@ public class ToscaParser extends YamlParser<ArchiveRoot> {
         parserRegistriesByVersion.put("tosca_simple_yaml_1_0_0_wd03", registry);
         registry = mappingGenerator.process("classpath:alien-dsl-1.1.0-mapping.yml");
         parserRegistriesByVersion.put("alien_dsl_1_1_0", registry);
+        registry = mappingGenerator.process("classpath:alien-dsl-1.2.0-mapping.yml");
+        parserRegistriesByVersion.put("alien_dsl_1_2_0", registry);
+        // experimental
+        registry = mappingGenerator.process("classpath:tosca_simple_yaml_1_0.yml");
+        parserRegistriesByVersion.put("tosca_simple_yaml_1_0", registry);
+        parserRegistriesByVersion.put("http://docs.oasis-open.org/tosca/ns/simple/yaml/1.0", registry);
     }
 
     @Override
@@ -69,7 +75,7 @@ public class ToscaParser extends YamlParser<ArchiveRoot> {
             Map<String, INodeParser> registry = parserRegistriesByVersion.get(definitionVersionInfo.definitionVersion);
             if (registry == null) {
                 throw new ParsingException(context.getFileName(),
-                        new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.MISSING_TOSCA_VERSION, "Definition version is not supported",
+                        new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.UNKNOWN_TOSCA_VERSION, "Definition version is not supported",
                                 definitionVersionInfo.definitionVersionTuple.getKeyNode().getStartMark(), "Version is not supported by Alien4Cloud",
                                 definitionVersionInfo.definitionVersionTuple.getValueNode().getStartMark(), definitionVersionInfo.definitionVersion));
             }

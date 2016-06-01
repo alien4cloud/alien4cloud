@@ -391,6 +391,8 @@
       "MISSING_FILE" : "Reference file {{note}} cannot be found within the archive.",
       "MISSING_TOPOLOGY_INPUT" : "The input [{{problem}}] referenced by the property [{{problem}}] of [{{context}}] node was not found in the inputs list",
       "MISSING_TOSCA_VERSION" : "Tosca version is not specified and is required.",
+      "UNKNOWN_TOSCA_VERSION" : "Tosca version is unknown and not recognized by Alien 4 Cloud.",
+      "TOSCA_VERSION_NOT_FIRST": "Tosca version must be the first line of the service template.",
       "NotNull" : "The property [ {{path}} ] cannot be null",
       "OUTPUTS_BAD_PARAMS_COUNT" : "Function arguments count is incorrect",
       "OUTPUTS_UNKNOWN_FUNCTION" : "Unknown function [{{note}}]",
@@ -497,6 +499,7 @@
   "DEPLOYMENT" : {
     "STATUS" : {
       "DEPLOYED" : "Deployed",
+      "INIT_DEPLOYMENT" : "Deployment init",
       "DEPLOYMENT_IN_PROGRESS" : "Deployment in progress",
       "FAILURE" : "Failed",
       "UNDEPLOYED" : "Undeployed",

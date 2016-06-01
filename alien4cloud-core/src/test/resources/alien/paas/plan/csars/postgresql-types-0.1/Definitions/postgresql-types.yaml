@@ -3,6 +3,10 @@ tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
 name: postgresql
 description: PostgreSQL recipe.
 
+imports:
+  - tosca-base-types:1.0
+  - tomcat-types:0.1
+
 node_types:
   fastconnect.nodes.Postgresql:
     derived_from: tosca.nodes.SoftwareComponent

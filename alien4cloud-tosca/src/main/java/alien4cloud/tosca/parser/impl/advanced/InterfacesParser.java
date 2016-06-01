@@ -29,7 +29,10 @@ public class InterfacesParser extends MapParser<Interface> {
             Map<String, Interface> interfaces = super.parse(node, context);
             Map<String, Interface> cleanedInterfaces = Maps.newHashMap();
             for (Map.Entry<String, Interface> entry : interfaces.entrySet()) {
-                String interfaceType = getInterfaceType(entry.getKey());
+                String interfaceType = InterfaceParser.getInterfaceType(entry.getKey());
+                if (entry.getValue().getType() == null) {
+                    entry.getValue().setType(interfaceType);
+                }
                 cleanedInterfaces.put(interfaceType, entry.getValue());
             }
             return cleanedInterfaces;
@@ -54,16 +57,10 @@ public class InterfacesParser extends MapParser<Interface> {
     }
 
     private void addInterfaceFromType(ScalarNode node, Map<String, Interface> interfaces, ParsingContextExecution context) {
-        String interfaceType = getInterfaceType(((ScalarNode) node).getValue());
-        interfaces.put(interfaceType, new Interface());
-    }
-
-    public String getInterfaceType(String interfaceType) {
-        if (ToscaNodeLifecycleConstants.STANDARD_SHORT.equalsIgnoreCase(interfaceType)) {
-            return ToscaNodeLifecycleConstants.STANDARD;
-        } else if (ToscaRelationshipLifecycleConstants.CONFIGURE_SHORT.equalsIgnoreCase(interfaceType)) {
-            return ToscaRelationshipLifecycleConstants.CONFIGURE;
-        }
-        return interfaceType;
+        // FIXME look for interface type in the REPO
+        String interfaceType = InterfaceParser.getInterfaceType(((ScalarNode) node).getValue());
+        Interface interfaz = new Interface();
+        interfaz.setType(interfaceType);
+        interfaces.put(interfaceType, interfaz);
     }
 }

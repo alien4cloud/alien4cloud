@@ -1,0 +1,16 @@
+tosca_definitions_version: alien_dsl_1_2_0
+
+imports:
+  - tosca-normative-types:1.0.0.wd03-SNAPSHOT
+
+node_types:
+  my_company.my_types.MyAppNodeType:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: My company’s custom applicaton
+    requirements:
+      - host: tosca.nodes.Compute
+        relationship_type: tosca.relationships.HostedOn
+        capability: host
+        occurrences: [1, 2, 3]
+      - other: tosca.capabilities.Endpoint
+        occurrences: [0]        

@@ -391,6 +391,8 @@
       "MISSING_FILE" : "Le fichier référencé {{note}} n'existe pas dans l'archive.",
       "MISSING_TOPOLOGY_INPUT" : "L'input [{{problem}}] référéncé part la propriété [{{problem}}] du noeud [{{context}}] est introuvable dans la liste des inputs",
       "MISSING_TOSCA_VERSION" : "La version de TOSCA n'est pas spécifiée et est obligatoire.",
+      "UNKNOWN_TOSCA_VERSION": "La version de TOSCA spécifiée n'est pas reconnue par Alien 4 Cloud",
+      "TOSCA_VERSION_NOT_FIRST": "La version de TOSCA doit-être la première ligne du document TOSCA.",
       "NotNull" : "La propriété [ {{path}} ] n'est pas nullable",
       "OUTPUTS_BAD_PARAMS_COUNT" : "Le nombre d'arguments pour la fonction est incorrect",
       "OUTPUTS_UNKNOWN_FUNCTION" : "La fonction [{{note}}] est inconnue dans ce contexte",
@@ -497,6 +499,7 @@
   "DEPLOYMENT" : {
     "STATUS" : {
       "DEPLOYED" : "Déployé",
+      "INIT_DEPLOYMENT" : "Initialisation du déploiement",
       "DEPLOYMENT_IN_PROGRESS" : "Déploiement en cours",
       "FAILURE" : "Echec",
       "UNDEPLOYED" : "Désinstallé",

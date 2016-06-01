@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
@@ -26,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
+@Primary
 public class CSARRepositorySearchService implements ICSARRepositorySearchService, IElementSearchService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO searchDAO;

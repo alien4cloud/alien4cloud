@@ -34,7 +34,7 @@ public class ImportParser extends DefaultParser<CSARDependency> {
             if (dependencyStrs.length == 2) {
                 CSARDependency dependency = new CSARDependency(dependencyStrs[0], dependencyStrs[1]);
                 Csar csar = ToscaContext.get().getArchive(dependency.getName(), dependency.getVersion());
-                log.info("Import {} {} {}", dependency.getName(), dependency.getVersion(), csar);
+                log.debug("Import {} {} {}", dependency.getName(), dependency.getVersion(), csar);
                 if (csar == null) {
                     // error is not a blocker, as long as no type is missing we just mark it as a warning.
                     context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.MISSING_DEPENDENCY, "Import definition is not valid",

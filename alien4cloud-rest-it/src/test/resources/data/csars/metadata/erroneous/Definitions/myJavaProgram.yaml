@@ -2,6 +2,9 @@ name: my_java_application
 namespace: myNameSpace
 description: A Basic Java Program To test
 
+imports:
+  - java:1.0
+
 node_types:
   test.java.app:
     properties:

@@ -55,8 +55,8 @@ public abstract class YamlParser<T> {
             inputStream = Files.newInputStream(yamlPath);
             return parseFile(yamlPath.toString(), yamlPath.getFileName().toString(), inputStream, instance);
         } catch (IOException e) {
-            throw new ParsingException(yamlPath.getFileName().toString(), new ParsingError(ErrorCode.MISSING_FILE, "File not found in archive.", null, null, null, 
-                yamlPath.toString()));
+            throw new ParsingException(yamlPath.getFileName().toString(),
+                    new ParsingError(ErrorCode.MISSING_FILE, "File not found in archive.", null, null, null, yamlPath.toString()));
         } finally {
             if (inputStream != null) {
                 try {

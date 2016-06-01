@@ -10,12 +10,12 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
-import alien4cloud.exception.GitException;
-import alien4cloud.tosca.ArchiveParser;
-import alien4cloud.utils.FileUtil;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
+
+import alien4cloud.exception.GitException;
+import alien4cloud.tosca.parser.ToscaArchiveParser;
+import alien4cloud.utils.FileUtil;
 
 /**
  * This service detects TOSCA cloud service archives in a given folder and return an ordered list of archives path to import.
@@ -50,7 +50,7 @@ public class CsarFinderService {
 
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            if (ArchiveParser.TOSCA_META_FOLDER_NAME.equals(dir.getFileName())) {
+            if (ToscaArchiveParser.TOSCA_META_FOLDER_NAME.equals(dir.getFileName())) {
                 // zip parent folder and add the path.
                 addToscaArchive(dir.getParent());
                 return FileVisitResult.SKIP_SIBLINGS;

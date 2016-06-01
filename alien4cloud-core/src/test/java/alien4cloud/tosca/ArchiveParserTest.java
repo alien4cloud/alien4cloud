@@ -44,7 +44,7 @@ public class ArchiveParserTest {
 
         displayErrors(parsingResult);
 
-        Assert.assertFalse(ArchiveUploadService.hasError(parsingResult, ParsingErrorLevel.ERROR));
+        Assert.assertFalse(parsingResult.hasError(ParsingErrorLevel.ERROR));
     }
 
     public static void displayErrors(ParsingResult<?> parsingResult) {

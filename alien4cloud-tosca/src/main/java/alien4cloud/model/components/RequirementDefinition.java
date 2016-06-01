@@ -1,6 +1,10 @@
 package alien4cloud.model.components;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import alien4cloud.json.deserializer.BoundDeserializer;
 import alien4cloud.json.serializer.BoundSerializer;
 import alien4cloud.ui.form.annotation.FormProperties;
@@ -18,7 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @AllArgsConstructor
 @EqualsAndHashCode(of = { "id" })
 @FormProperties({ "type", "lowerBound", "upperBound" })
-public class RequirementDefinition {
+public class RequirementDefinition implements LowerBoundedDefinition, UpperBoundedDefinition {
     private String id;
     /**
      * <p>
@@ -43,7 +47,7 @@ public class RequirementDefinition {
     private int lowerBound = 1;
     /**
      * Specifies the upper boundary by which a requirement MUST be matched for Node Templates according to the current Node Type, or for instances created for
-     * those Node Templates. The default value for this attribute is one. A value of “unbounded�? indicates that there is no upper boundary.
+     * those Node Templates. The default value for this attribute is one. A value of "unbounded" indicates that there is no upper boundary.
      */
     @JsonDeserialize(using = BoundDeserializer.class)
     @JsonSerialize(using = BoundSerializer.class)
