@@ -13,7 +13,7 @@
             'fa-warning text-warning' : deploymentContext.selectedEnvironment.status === 'WARNING',
             'fa-circle text-danger' : deploymentContext.selectedEnvironment.status === 'FAILURE',
             'fa-question-circle text-muted' : deploymentContext.selectedEnvironment.status === 'UNKNOWN',
-            'fa-spinner fa-spin' : deploymentContext.selectedEnvironment.status === 'DEPLOYMENT_IN_PROGRESS' || deploymentContext.selectedEnvironment.status == 'UNDEPLOYMENT_IN_PROGRESS'
+            'fa-spinner fa-spin' : deploymentContext.selectedEnvironment.status === 'INIT_DEPLOYMENT' || deploymentContext.selectedEnvironment.status === 'DEPLOYMENT_IN_PROGRESS' || deploymentContext.selectedEnvironment.status == 'UNDEPLOYMENT_IN_PROGRESS'
           }">
       </i>
 
