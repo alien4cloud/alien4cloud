@@ -375,8 +375,13 @@
         <version>${commons-io.version}</version>
       </dependency>
       <dependency>
-        <groupId>fr.lucboutier.elasticsearch</groupId>
+        <groupId>org.alien4cloud</groupId>
         <artifactId>elasticsearch-mapping</artifactId>
+        <version>${es-mapping.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.alien4cloud</groupId>
+        <artifactId>elasticsearch-annotations</artifactId>
         <version>${es-mapping.version}</version>
       </dependency>
       <dependency>
