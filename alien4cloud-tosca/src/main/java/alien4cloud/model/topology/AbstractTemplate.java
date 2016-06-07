@@ -19,6 +19,7 @@ import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.elasticsearch.annotation.ObjectField;
 
 /**
  * Abstract template is parent of {@link NodeTemplate} and {@link RelationshipTemplate}.
@@ -30,7 +31,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @NoArgsConstructor
 @AllArgsConstructor
 public abstract class AbstractTemplate {
-
     /**
      * The QName value of this attribute refers to the Node Type providing the type of the Node Template.
      *
@@ -40,9 +40,8 @@ public abstract class AbstractTemplate {
      */
     private String type;
 
-    /**
-     * Properties of the template
-     */
+    /** Properties of the template. */
+    @ObjectField(enabled = false)
     @ConditionalOnAttribute(ConditionalAttributes.REST)
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class, contentUsing = PropertyValueDeserializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
@@ -51,6 +50,7 @@ public abstract class AbstractTemplate {
     /**
      * Attributes of the node template
      */
+    @ObjectField(enabled = false)
     @ConditionalOnAttribute(ConditionalAttributes.REST)
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class, contentUsing = AttributeDeserializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
