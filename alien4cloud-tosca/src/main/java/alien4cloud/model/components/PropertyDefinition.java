@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 
 import lombok.*;
 
+import org.elasticsearch.annotation.ObjectField;
 import org.hibernate.validator.constraints.NotBlank;
 
 import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
@@ -46,6 +47,7 @@ public class PropertyDefinition implements IValue {
     @NotNull
     private String type;
 
+    @ObjectField(enabled = false)
     private PropertyDefinition entrySchema;
 
     @NotNull
@@ -96,7 +98,6 @@ public class PropertyDefinition implements IValue {
     public void setDefault(String defaultValue) {
         this.defaultValue = defaultValue;
     }
-
 
     @Override
     public boolean isDefinition() {

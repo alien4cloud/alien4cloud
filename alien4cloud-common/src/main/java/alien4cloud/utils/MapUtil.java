@@ -55,6 +55,16 @@ public final class MapUtil {
         }
         String[] tokens = path.split("[\\.\\]\\[]");
 
+        return get(object, tokens);
+    }
+
+    /**
+     * Try to get a value following a path of tokens in a map or a list/array.
+     *
+     * @param object the map/list to search for path
+     * @param tokens keys in the map
+     */
+    public static Object get(Object object, String... tokens) {
         Object value = object;
         for (String token : tokens) {
             if (StringUtils.isEmpty(token)) {

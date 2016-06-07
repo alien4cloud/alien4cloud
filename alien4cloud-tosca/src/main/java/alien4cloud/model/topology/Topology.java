@@ -12,6 +12,7 @@ import lombok.Setter;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.NestedObject;
+import org.elasticsearch.annotation.ObjectField;
 import org.elasticsearch.annotation.query.TermFilter;
 
 import alien4cloud.model.components.CSARDependency;
@@ -60,6 +61,7 @@ public class Topology implements IManagedSecuredResource {
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, NodeTemplate> nodeTemplates;
 
+    @ObjectField(enabled = false)
     private Map<String, PropertyDefinition> inputs;
 
     /**
@@ -69,6 +71,7 @@ public class Topology implements IManagedSecuredResource {
      * <li>value is a list of node template property names.
      * </ul>
      */
+    @ObjectField(enabled = false)
     private Map<String, Set<String>> outputProperties;
 
     /**
@@ -79,6 +82,7 @@ public class Topology implements IManagedSecuredResource {
      * <li>value is a list of output property names.
      * </ul>
      */
+    @ObjectField(enabled = false)
     private Map<String, Map<String, Set<String>>> outputCapabilityProperties;
 
     /**
@@ -88,6 +92,7 @@ public class Topology implements IManagedSecuredResource {
      * <li>value is a list of node template attribute names.
      * </ul>
      */
+    @ObjectField(enabled = false)
     private Map<String, Set<String>> outputAttributes;
 
     /**
@@ -98,22 +103,24 @@ public class Topology implements IManagedSecuredResource {
     private Map<String, NodeGroup> groups;
 
     /**
-     * /**
-     * Return true if the topology is an empty topology (won't be saved on import).
-     * 
-     * @return True if the topology is empty (doesn't contains any node).
-     */
-    public boolean isEmpty() {
-        return nodeTemplates == null || nodeTemplates.isEmpty();
-    }
-
-    /**
      * When not null, describe how this topology can be used to substitute a node type in another topology (topology composition).
      */
+    @ObjectField(enabled = false)
     private SubstitutionMapping substitutionMapping;
 
     /**
      * All the workflows associated with this topology.
      */
+    @ObjectField(enabled = false)
     private Map<String, Workflow> workflows;
+
+    /**
+     * /**
+     * Return true if the topology is an empty topology (won't be saved on import).
+     *
+     * @return True if the topology is empty (doesn't contains any node).
+     */
+    public boolean isEmpty() {
+        return nodeTemplates == null || nodeTemplates.isEmpty();
+    }
 }
