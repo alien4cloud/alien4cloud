@@ -53,8 +53,10 @@ public class DeploymentTopology extends Topology {
     /** Id of the orchestrator (single one) that will manage the deployment. */
     private String orchestratorId;
     /** Id of the locations on which the orchestrator should deploy. */
+    @ObjectField(enabled = false)
     private Map<String, NodeGroup> locationGroups = Maps.newHashMap();
     /** List of dependencies introduced by the locations - specific location types. */
+    @ObjectField(enabled = false)
     private Set<CSARDependency> locationDependencies = Sets.newHashSet();
 
     // Node matching data
@@ -69,16 +71,17 @@ public class DeploymentTopology extends Topology {
      * The map that contains the user selected matching for nodes of the topology. key is the initial topology node id, value is the
      * (on-demand or service) location resource id.
      */
+    @ObjectField(enabled = false)
     private Map<String, String> substitutedNodes = Maps.newHashMap();
 
     @ObjectField(enabled = false)
     private Map<String, NodeTemplate> originalNodes = Maps.newHashMap();
 
-    // Inputs data
-
     /** Configuration of the deployment properties specific to the orchestrator if any. */
+    @ObjectField(enabled = false)
     private Map<String, String> providerDeploymentProperties;
     /** Values of the input properties as configured by the user. */
+    @ObjectField(enabled = false)
     private Map<String, String> inputProperties;
     // TODO add also the input artifacts here. /-> Note that they should/could be repository based.
 
