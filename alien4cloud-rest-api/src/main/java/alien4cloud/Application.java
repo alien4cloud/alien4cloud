@@ -25,7 +25,7 @@ import alien4cloud.utils.AlienYamlPropertiesFactoryBeanFactory;
 @Configuration
 @EnableAutoConfiguration(exclude = { HypermediaAutoConfiguration.class })
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-@ComponentScan(basePackages = { "alien4cloud", "org.elasticsearch.mapping" })
+@ComponentScan(basePackages = { "alien4cloud", "org.alien4cloud", "org.elasticsearch.mapping" })
 public class Application {
     /**
      * Alien 4 cloud standalone entry point.

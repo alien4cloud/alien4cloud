@@ -41,6 +41,8 @@ define(function (require) {
   require('scripts/topology/controllers/workflow_state_selector');
   require('scripts/topology/services/workflow_services');
 
+  require('scripts/topology/services/topology_editor_events_services');
+
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles']).controller('TopologyCtrl',
     ['$scope', '$modal', '$timeout', 'topologyJsonProcessor', 'topologyServices', 'componentService', 'nodeTemplateService', 'appVersions', 'context', 'toscaService', 'toscaCardinalitiesService', 'workflowServices',
     'topoEditArtifacts',
@@ -56,6 +58,7 @@ define(function (require) {
     'topoEditVersions',
     'topoEditWf',
     'topoEditYaml',
+    'topologyEditorEventFactory',
     function($scope, $modal, $timeout, topologyJsonProcessor, topologyServices, componentService, nodeTemplateService, appVersions, context, toscaService, toscaCardinalitiesService, workflowServices,
     topoEditArtifacts,
     topoEditDisplay,
@@ -69,7 +72,8 @@ define(function (require) {
     topoEditSubstitution,
     topoEditVersions,
     topoEditWf,
-    topoEditYaml) {
+    topoEditYaml,
+    topologyEditorEventFactory) {
       $scope.isRuntime = false;
       // wire version context and versions to the scope
       $scope.versionContext = context;
@@ -90,6 +94,18 @@ define(function (require) {
       topoEditYaml($scope);
 
       $scope.workflows.setCurrentWorkflowName('install');
+
+      var registration = topologyEditorEventFactory($scope.topologyId, function(event) {
+        console.log('received event', event);
+      });
+      var operation = {
+        type: 'org.alien4cloud.tosca.editor.commands.AddNodeTemplateOperation',
+        message: 'Hello world'
+      };
+      registration.send('/app/topology-editor/' + $scope.topologyId, operation);
+      $scope.$on('$destroy', function() {
+        registration.close();
+      });
 
       $scope.refreshTopology = function(topologyDTO, selectedNodeTemplate) {
         for (var nodeId in topologyDTO.topology.nodeTemplates) {

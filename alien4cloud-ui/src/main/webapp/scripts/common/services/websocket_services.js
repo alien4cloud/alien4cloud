@@ -6,19 +6,28 @@ define(function (require) {
 
   var modules = require('modules');
   var _ = require('lodash');
+  var angular = require('angular');
   require('stomp');
 
-  modules.get('a4c-common').factory('webSocketServices', ['$interval', '$log', '$window',
-    function($interval, $log, $window) {
+  modules.get('a4c-common').factory('webSocketServices', ['$q', '$interval', '$log', '$window',
+    function($q, $interval, $log, $window) {
 
       var socket = null;
       var subscribesRegistry = {};
-      var debugEnabled = false;
-      var debugStompEnabled = false;
+      var debugEnabled = true;
+      var debugStompEnabled = true;
       var subscribeQueue = [];
       var connected = false;
+      var connecting = false;
+      var connectingDefer;
 
-      var initSockets = function(onSuccess) {
+      var initSockets = function() {
+        if(connecting) {
+          return connectingDefer.promise;
+        }
+        connecting = true;
+        connectingDefer = $q.defer();
+
         socket = {};
         socket.client = new SockJS($window.location.pathname + 'rest/latest/alienEndPoint');
         socket.stomp = Stomp.over(socket.client);
@@ -27,24 +36,24 @@ define(function (require) {
             $log.debug(text);
           }
         };
-
         socket.stomp.connect({}, function() {
           if (debugEnabled) {
             $log.debug('Connected to alien end point');
           }
           connected = true;
-          onSuccess();
+          connectingDefer.resolve(true);
         }, function(error) {
           $log.error('Could not connect to alien end point');
           $log.error(error);
           connected = false;
+          connectingDefer.resolve(false);
         });
 
         socket.client.onclose = function() {
           $interval(function() {
             connected = false;
             if (Object.keys(subscribesRegistry).length > 0) {
-              initSockets(function() {
+              initSockets().then(function() {
                 for (var topic in subscribesRegistry) {
                   if (subscribesRegistry.hasOwnProperty(topic)) {
                     doSubscribe(topic, subscribesRegistry[topic].listener);
@@ -54,6 +63,13 @@ define(function (require) {
             }
           }, 2000, 1);
         };
+        return connectingDefer.promise;
+      };
+
+      var send = function(destination, message) {
+        initSockets().then(function() {
+          socket.stomp.send(destination, {}, angular.toJson(message));
+        });
       };
 
       var doSubscribe = function(topic, listener) {
@@ -73,7 +89,7 @@ define(function (require) {
             listener: listener
           });
           if (!_.defined(socket)) {
-            initSockets(function() {
+            initSockets().then(function() {
               for (var i = 0; i < subscribeQueue.length; i++) {
                 doSubscribe(subscribeQueue[i].topic, subscribeQueue[i].listener);
               }
@@ -108,6 +124,7 @@ define(function (require) {
       };
 
       return {
+        'send': send,
         'subscribe': subscribe,
         'unSubscribe': unSubscribe,
         'isTopicSubscribed': isTopicSubscribed

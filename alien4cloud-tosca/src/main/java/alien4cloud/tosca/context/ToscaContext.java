@@ -32,6 +32,15 @@ public class ToscaContext {
     }
 
     /**
+     * Set an existing tosca context.
+     * 
+     * @param context The context to set.
+     */
+    public static void set(Context context) {
+        contextThreadLocal.set(context);
+    }
+
+    /**
      * Get the context for the current thread.
      *
      * @return The context.
@@ -118,7 +127,7 @@ public class ToscaContext {
                 typeElements = new HashMap<>();
                 toscaTypesCache.put(elementType, typeElements);
             }
-            if(elementMap == null) {
+            if (elementMap == null) {
                 return;
             }
             typeElements.putAll(elementMap);
