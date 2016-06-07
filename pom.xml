@@ -64,7 +64,7 @@
     <metrics-spring.version>3.0.1</metrics-spring.version>
 
     <!-- Elastic Search mapper (reference the elastic search version actually). -->
-    <es-mapping.version>1.4.0</es-mapping.version>
+    <es-mapping.version>1.5.0-SNAPSHOT</es-mapping.version>
     <!-- Groovy is required for ElasticSearch to run as server in order to process scripts -->
     <groovy.version>2.3.5</groovy.version>
 
@@ -375,12 +375,12 @@
         <version>${commons-io.version}</version>
       </dependency>
       <dependency>
-        <groupId>fr.lucboutier.elasticsearch</groupId>
+        <groupId>org.alien4cloud</groupId>
         <artifactId>elasticsearch-mapping</artifactId>
         <version>${es-mapping.version}</version>
       </dependency>
       <dependency>
-        <groupId>fr.lucboutier.elasticsearch</groupId>
+        <groupId>org.alien4cloud</groupId>
         <artifactId>elasticsearch-annotations</artifactId>
         <version>${es-mapping.version}</version>
       </dependency>
