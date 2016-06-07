@@ -19,7 +19,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>fr.lucboutier.elasticsearch</groupId>
+      <groupId>org.alien4cloud</groupId>
       <artifactId>elasticsearch-mapping</artifactId>
     </dependency>
     <dependency>
