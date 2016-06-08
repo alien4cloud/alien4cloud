@@ -127,7 +127,7 @@ define(function (require) {
           });
         },
 
-        unwrapEdges(wrappedGraph, initialGraph) {
+        unwrapEdges: function(wrappedGraph, initialGraph) {
           var unwrappedEdges = [];
           _.each(initialGraph.edges(), function(edgeDef) {
             var edge = wrappedGraph.edge(edgeDef.v, edgeDef.w);

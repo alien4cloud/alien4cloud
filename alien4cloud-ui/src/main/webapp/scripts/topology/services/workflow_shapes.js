@@ -182,7 +182,7 @@ define(function (require) {
           return line(points);
         },
 
-        initMarkers(svg) {
+        initMarkers: function(svg) {
           var defs = svg.append('defs');
           function addMarker(name, color, large) {
             var marker = defs.append('marker')
