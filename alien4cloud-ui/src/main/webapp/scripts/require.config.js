@@ -1,5 +1,6 @@
 require.config({
   baseUrl: './',
+  waitSeconds: 60,
   paths: {
     'a4c-bootstrap': 'scripts/alien4cloud-bootstrap',
     'alien4cloud': 'scripts/alien4cloud',
