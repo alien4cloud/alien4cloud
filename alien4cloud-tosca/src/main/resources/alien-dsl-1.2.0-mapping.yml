@@ -158,6 +158,9 @@
   occurrences:
     reference: void
     type: occurrences
+  valid_source_types:
+    list: validSources
+    type: scalar
   properties:
     map: properties
     type: template_property
@@ -334,6 +337,9 @@
   properties:
     map: properties
     type: property_definition
+  valid_source_types:
+    list: validSources
+    type: scalar
 
 - relationship_type: alien4cloud.model.components.IndexedRelationshipType|toscaElementChecker
   description: description
@@ -358,9 +364,6 @@
     type: deployment_artifact
   valid_target_types:
     list: validTargets
-    type: scalar
-  valid_source_types:
-    list: validSources
     type: scalar
 
 - artifact_type: alien4cloud.model.components.IndexedArtifactType|toscaElementChecker

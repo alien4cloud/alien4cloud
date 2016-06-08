@@ -22,11 +22,27 @@ $utils.renderScalar($v.value)
 ## -- Serialize an AbstractPropertyValue map
 #macro(serializeAbtractPropertyValues $map $tab)
 #foreach($mapEntry in $map.entrySet())
-#if($utils.isAbstractPropertyValueNotNull($mapEntry.value))
+#if($utils.isComplexPropertyNotNull($mapEntry.value))
+$tab${mapEntry.key}:
+#displayMapOfStringObject($mapEntry.value.value "$tab  ")
+#elseif($utils.isAbstractPropertyValueNotNull($mapEntry.value))
 $tab${mapEntry.key}: #serializeAbtractPropertyValue(${mapEntry.value})
 #end## if
 #end## of mapEntry iteration  
 #end## macro serializeAbtractPropertyValues
+## --------------------------------------------
+## -- Iterate on map<string, object> and display all string
+#macro(displayMapOfStringObject $value $tab)
+#foreach($mapEntry in $value.entrySet())
+#if($utils.isMap($mapEntry.value))
+$tab${mapEntry.key}:
+#displayMapOfStringObject($mapEntry.value "$tab  ")
+#else
+$tab${mapEntry.key}: $mapEntry.value
+#end## if utils.isMap
+#end## foreach
+#end## macro displayMapOfStringObject
+## --------------------------------------------
 ## BEGINING OF DOCUMENT
 tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
 description: Alien4Cloud generated service template
