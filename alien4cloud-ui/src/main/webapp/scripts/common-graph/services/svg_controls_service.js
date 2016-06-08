@@ -119,7 +119,7 @@ define(function (require) {
           this.zoom.event(this.svgGroup);
         },
 
-        updateBBox(bbox) {
+        updateBBox: function(bbox) {
           // set the BoundingBox of the drawing
           this.bbox = bbox;
         },

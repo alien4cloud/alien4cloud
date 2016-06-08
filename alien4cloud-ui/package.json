@@ -2,8 +2,10 @@
   "name": "yo",
   "version": "0.0.0",
   "devDependencies": {
+    "amdefine": ">=0.1.0",
     "fs-extra": "^0.26.2",
     "grunt": "~0.4.2",
+    "grunt-execute": "~0.2.2",
     "grunt-autoprefixer": "~0.4.0",
     "grunt-bower-install": "~0.7.0",
     "grunt-concurrent": "~0.4.3",

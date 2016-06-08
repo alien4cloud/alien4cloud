@@ -47,7 +47,7 @@ public class PropertyDefinition implements IValue {
     @NotNull
     private String type;
 
-    @ObjectField(enabled = false) // do not perform recusive indexing of entry schema
+    @ObjectField(enabled = false)
     private PropertyDefinition entrySchema;
 
     @NotNull

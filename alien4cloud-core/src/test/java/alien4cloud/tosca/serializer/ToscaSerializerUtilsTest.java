@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import alien4cloud.model.components.ComplexPropertyValue;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -281,4 +282,25 @@ public class ToscaSerializerUtilsTest {
         }));
     }
 
+    @Test
+    public void testIsMap() {
+        Assert.assertFalse(utils.isMap(null));
+        Assert.assertFalse(utils.isMap(Lists.newArrayList()));
+        Assert.assertTrue(utils.isMap(Maps.newHashMap()));
+    }
+
+    @Test
+    public void testIsComplexPropertyNotNull() {
+        Assert.assertFalse(utils.isComplexPropertyNotNull(null));
+        Assert.assertFalse(utils.isComplexPropertyNotNull(new ScalarPropertyValue()));
+        Assert.assertFalse(utils.isComplexPropertyNotNull(new ScalarPropertyValue("value")));
+        Assert.assertFalse(utils.isComplexPropertyNotNull(new FunctionPropertyValue()));
+        Assert.assertFalse(utils.isComplexPropertyNotNull(new AbstractPropertyValue() {
+        }));
+        Assert.assertFalse(utils.isComplexPropertyNotNull(new ComplexPropertyValue()));
+        ComplexPropertyValue complexPropertyValue = new ComplexPropertyValue();
+        Map<String, Object> value = Maps.newHashMap();
+        complexPropertyValue.setValue(value);
+        Assert.assertTrue(utils.isComplexPropertyNotNull(complexPropertyValue));
+    }
 }
