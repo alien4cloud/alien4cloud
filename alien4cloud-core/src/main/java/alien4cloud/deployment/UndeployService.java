@@ -5,12 +5,14 @@ import javax.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
+import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.model.PaaSDeploymentContext;
 
@@ -58,13 +60,22 @@ public class UndeployService {
         undeploy(activeDeployment);
     }
 
-    private void undeploy(Deployment deployment) {
+    private void undeploy(final Deployment deployment) {
         log.info("Un-deploying deployment [{}] on cloud [{}]", deployment.getId(), deployment.getOrchestratorId());
         IOrchestratorPlugin orchestratorPlugin = orchestratorPluginService.getOrFail(deployment.getOrchestratorId());
         DeploymentTopology deployedTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
         PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext(deployment, deployedTopology);
-        orchestratorPlugin.undeploy(deploymentContext, null);
-        alienDao.save(deployment);
-        log.info("Un-deployed deployment [{}] on cloud [{}]", deployment.getId(), deployment.getOrchestratorId());
+        orchestratorPlugin.undeploy(deploymentContext, new IPaaSCallback<ResponseEntity>() {
+            @Override
+            public void onSuccess(ResponseEntity data) {
+                alienDao.save(deployment);
+                log.info("Un-deployed deployment [{}] on cloud [{}]", deployment.getId(), deployment.getOrchestratorId());
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                log.warn("Fail while Undeploying deployment [{}] on cloud [{}]", deployment.getId(), deployment.getOrchestratorId());
+            }
+        });
     }
 }

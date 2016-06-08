@@ -4,25 +4,25 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import org.elasticsearch.annotation.ESObject;
+import org.elasticsearch.annotation.ObjectField;
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Deployment topology is the topology for a given environment.
@@ -70,6 +70,8 @@ public class DeploymentTopology extends Topology {
      * (on-demand or service) location resource id.
      */
     private Map<String, String> substitutedNodes = Maps.newHashMap();
+
+    @ObjectField(enabled = false)
     private Map<String, NodeTemplate> originalNodes = Maps.newHashMap();
 
     // Inputs data

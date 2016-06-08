@@ -158,7 +158,16 @@ define(function (require) {
         if (envIndex !== null) {
           appEnvironments.deployEnvironments.splice(envIndex, 1);
         }
+
+        //eventually if it was the seleted one, then select another one
+        if(appEnvironments.selected.id === environmentId){
+          appEnvironments.selected = null;
+          if(_.isNotEmpty(appEnvironments.environments)){
+            appEnvironments.select(appEnvironments.environments[0].id);
+          }
+        }
       };
+
       appEnvironments.addEnvironment = function(environment) {
         appEnvironments.environments.push(environment);
         registerEnvironment(environment);
@@ -188,10 +197,12 @@ define(function (require) {
       };
       //
       appEnvironments.select = function(environmentId, envChangedCallback, force) {
-        if(appEnvironments.selected.id === environmentId && !force) {
-          return; // the environement is already selected.
+        if(_.defined(appEnvironments.selected)){
+          if(appEnvironments.selected.id === environmentId && !force) {
+            return; // the environement is already selected.
+          }
+          appEnvironments.selected.active = false;
         }
-        appEnvironments.selected.active = false;
         for (i = 0; i < appEnvironments.environments.length; i++) {
           if (appEnvironments.environments[i].id === environmentId) {
             appEnvironments.selected = appEnvironments.environments[i];

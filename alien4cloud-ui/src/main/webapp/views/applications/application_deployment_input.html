@@ -1,17 +1,17 @@
-<div>
+<div class="row">
   <!-- Input properties  -->
-  <div class="row" style="margin-top: 20px;" ng-if="isAllowedInputDeployment()">
-    <div class="col-md-12">
-      <h3 ng-click="isInputPropertiesCollapsed = !isInputPropertiesCollapsed" class="clickable">
-        <i class="fa fa-sign-in"> </i>
-        <span>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}</span>
-        <i class="fa" ng-class="{'fa-caret-down' : !isInputPropertiesCollapsed, 'fa-caret-right': isInputPropertiesCollapsed}"></i>
-      </h3>
-
+  <div ng-if="isAllowedInputDeployment()" class="col-md-6">
+    <fieldset class="detail-bloc">
+      <legend>
+        <h4 ng-click="isInputPropertiesCollapsed = !isInputPropertiesCollapsed" class="clickable">
+          <i class="fa fa-sign-in"> </i> {{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}
+          <i class="fa" ng-class="{'fa-caret-down' : !isInputPropertiesCollapsed, 'fa-caret-right': isInputPropertiesCollapsed}"></i>
+        </h4>
+      </legend>
       <div collapse="isInputPropertiesCollapsed" class="topology-level">
         <table class="table table-condensed" id="inputsTable">
           <tr ng-repeat="(inputId, inputDefinition) in deploymentContext.deploymentTopologyDTO.topology.inputs | allowedInputs">
-            <td 
+            <td
               ng-class="{'bg-danger': inputDefinition.required && !deploymentContext.deploymentTopologyDTO.topology.inputProperties[inputId]}">
               <property-display definition="inputDefinition"
                                 property-name="inputId"
@@ -24,19 +24,18 @@
           </tr>
         </table>
       </div>
-    </div>
+    </fieldset>
   </div>
 
   <!-- Input artifacts  -->
-  <div class="row" style="margin-top: 20px;" ng-if="deploymentContext.deploymentTopologyDTO.topology.inputArtifacts">
-    <div class="col-md-6">
-      <hr class="separator-h">
-      <h3 ng-click="isInputArtifactsCollapsed = !isInputArtifactsCollapsed" class="clickable">
-        <i class="fa fa-archive"> </i>
-        <span>{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.INPUTS' | translate}}</span>
-        <i class="fa" ng-class="{'fa-caret-down' : !isInputArtifactsCollapsed, 'fa-caret-right': isInputArtifactsCollapsed}"></i>
-      </h3>
-
+  <div ng-if="_.isNotEmpty(deploymentContext.deploymentTopologyDTO.topology.inputArtifacts)" class="col-md-6">
+    <fieldset class="detail-bloc">
+      <legend>
+        <h4 ng-click="isInputArtifactsCollapsed = !isInputArtifactsCollapsed" class="clickable">
+          <i class="fa fa-archive"></i> {{'APPLICATIONS.TOPOLOGY.ARTIFACTS.INPUTS' | translate}}
+          <i class="fa" ng-class="{'fa-caret-down' : !isInputArtifactsCollapsed, 'fa-caret-right': isInputArtifactsCollapsed}"></i>
+        </h4>
+      </legend>
       <div collapse="isInputArtifactsCollapsed" class="topology-level">
         <ul>
           <li ng-repeat="(artifactKey,artifactValue) in deploymentContext.deploymentTopologyDTO.topology.inputArtifacts">
@@ -68,22 +67,18 @@
           </li>
         </ul>
       </div>
-    </div>
-    
-    
+    </fieldset>
   </div>
 
   <!-- Provider deployment properties -->
-  <div ng-if="deploymentContext.orchestratorDeploymentPropertyDefinitions" class="row" style="margin-top: 20px;">
-    <div class="col-md-12">
-      <hr class="separator-h">
-      <h3 ng-click="isOrchestratorDeploymentPropertiesCollapsed = !isOrchestratorDeploymentPropertiesCollapsed" class="clickable">
-        <i class="fa fa-cog"> </i>
-        <span>{{'APPLICATIONS.TOPOLOGY.ORCHESTRATOR_PROPERTIES' | translate}}</span>
-        <i class="fa"
-           ng-class="{'fa-caret-down' : !isOrchestratorDeploymentPropertiesCollapsed, 'fa-caret-right': isOrchestratorDeploymentPropertiesCollapsed}"></i>
-      </h3>
-
+  <div ng-if="_.isNotEmpty(deploymentContext.orchestratorDeploymentPropertyDefinitions)" class="col-md-6">
+    <fieldset class="detail-bloc">
+      <legend>
+        <h4 ng-click="isOrchestratorDeploymentPropertiesCollapsed = !isOrchestratorDeploymentPropertiesCollapsed" class="clickable">
+          <i class="fa fa-cog"></i> {{'APPLICATIONS.TOPOLOGY.ORCHESTRATOR_PROPERTIES' | translate}}
+          <i class="fa" ng-class="{'fa-caret-down' : !isOrchestratorDeploymentPropertiesCollapsed, 'fa-caret-right': isOrchestratorDeploymentPropertiesCollapsed}"></i>
+        </h4>
+      </legend>
       <div collapse="isOrchestratorDeploymentPropertiesCollapsed" class="topology-level">
         <table class="table table-condensed" id="nodeTemplateProperties" style="margin-left:10px;">
           <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentContext.orchestratorDeploymentPropertyDefinitions">
@@ -101,6 +96,7 @@
           </tr>
         </table>
       </div>
-    </div>
+    </fieldset>
   </div>
+
 </div>
