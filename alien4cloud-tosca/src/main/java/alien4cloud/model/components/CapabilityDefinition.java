@@ -15,6 +15,7 @@ import alien4cloud.ui.form.annotation.FormSuggestion;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.elasticsearch.annotation.query.TermsFacet;
 
 /**
  * Specifies the capabilities that the Node Type exposes.
@@ -42,6 +43,9 @@ public class CapabilityDefinition implements UpperBoundedDefinition {
 
     /** Map of properties value(s) to define the capability. */
     private Map<String, List<String>> properties;
+
+    @TermsFacet
+    private String[] validSources;
 
     public CapabilityDefinition(String id, String type, int upperBound) {
         this.id = id;
