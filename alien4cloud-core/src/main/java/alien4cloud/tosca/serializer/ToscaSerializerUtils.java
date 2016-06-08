@@ -7,13 +7,10 @@ import java.io.StringWriter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.Interface;
-import alien4cloud.model.components.Operation;
-import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.components.*;
 import alien4cloud.model.components.constraints.AbstractPropertyConstraint;
 import alien4cloud.model.components.constraints.EqualConstraint;
 import alien4cloud.model.components.constraints.GreaterOrEqualConstraint;
@@ -72,6 +69,22 @@ public class ToscaSerializerUtils {
             return ((ScalarPropertyValue) value).getValue() != null;
         } else {
             return true;
+        }
+    }
+
+    public boolean isMap(Object object) {
+        if (object != null && object instanceof Map) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isComplexPropertyNotNull(AbstractPropertyValue value) {
+        if (value != null && value instanceof ComplexPropertyValue) {
+            return ((ComplexPropertyValue) value).getValue() != null;
+        } else {
+            return false;
         }
     }
 
