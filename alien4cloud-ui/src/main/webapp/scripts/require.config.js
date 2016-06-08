@@ -4,6 +4,7 @@ require.config({
   paths: {
     'a4c-bootstrap': 'scripts/alien4cloud-bootstrap',
     'alien4cloud': 'scripts/alien4cloud',
+    'a4c-native': 'scripts/a4c-native',
     'states': 'scripts/utils/states_manager',
     'modules': 'scripts/utils/modules_manager',
     'plugins': 'scripts/utils/plugins_manager',

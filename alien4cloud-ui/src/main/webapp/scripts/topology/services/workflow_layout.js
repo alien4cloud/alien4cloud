@@ -182,7 +182,7 @@ define(function (require) {
         xPadding: 20,
         yPadding: 20,
         groupIncrement: 0, // used to create new groups
-        createGroup(groupId) {
+        createGroup: function(groupId) {
           if(_.undefined(groupId)) {
             groupId = 'plan-layout-group-' + this.groupIncrement++;
           }

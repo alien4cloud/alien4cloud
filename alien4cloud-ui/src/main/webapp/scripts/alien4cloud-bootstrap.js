@@ -3,12 +3,15 @@ define(function (require) {
 
   // require jquery and load plugins from the server
   var plugins = require('plugins');
+  var mods = {
+    'nativeModules': require('a4c-native')
+  };
   var alien4cloud = require('alien4cloud');
 
   return {
     startup: function() {
       //some common directives directives
-      require(plugins.nativeModules , function() {
+      require(mods.nativeModules , function() {
         // load all plugins and then start alien 4 cloud.
         plugins.init().then(function() {
           alien4cloud.startup();

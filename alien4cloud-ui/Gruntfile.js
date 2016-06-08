@@ -9,6 +9,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-protractor-webdriver');
   grunt.loadNpmTasks('grunt-ng-annotate');
   grunt.loadNpmTasks('grunt-contrib-requirejs');
+  grunt.loadNpmTasks('grunt-execute');
 
   // Time how long tasks take. Can help when optimizing build times
   require('time-grunt')(grunt);
@@ -19,6 +20,7 @@ module.exports = function(grunt) {
       setup: 'src/main/build',
       app: 'src/main/webapp',
       test: 'src/test/webapp',
+      tmp: 'target/tmp',
       dist: 'target/webapp'
     },
   };
