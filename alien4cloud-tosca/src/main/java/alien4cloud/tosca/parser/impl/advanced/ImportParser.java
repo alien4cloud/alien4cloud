@@ -2,6 +2,7 @@ package alien4cloud.tosca.parser.impl.advanced;
 
 import javax.annotation.Resource;
 
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
@@ -16,6 +17,8 @@ import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import alien4cloud.tosca.parser.mapping.DefaultParser;
+
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -33,6 +36,14 @@ public class ImportParser extends DefaultParser<CSARDependency> {
             String[] dependencyStrs = valueAsString.split(":");
             if (dependencyStrs.length == 2) {
                 CSARDependency dependency = new CSARDependency(dependencyStrs[0], dependencyStrs[1]);
+
+                if (ToscaContext.get() == null) {
+                    Set<CSARDependency> dependencies = Sets.newConcurrentHashSet();
+                    dependencies.add(dependency);
+                    log.debug("Initializing Tosca Context with dependencies {}", dependencies);
+                    ToscaContext.init(dependencies);
+                }
+
                 Csar csar = ToscaContext.get().getArchive(dependency.getName(), dependency.getVersion());
                 log.info("Import {} {} {}", dependency.getName(), dependency.getVersion(), csar);
                 if (csar == null) {

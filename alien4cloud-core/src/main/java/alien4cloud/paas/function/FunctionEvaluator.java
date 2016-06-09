@@ -1,16 +1,7 @@
 package alien4cloud.paas.function;
 
 import alien4cloud.common.AlienConstants;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.AttributeDefinition;
-import alien4cloud.model.components.ConcatPropertyValue;
-import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.IValue;
-import alien4cloud.model.components.IndexedInheritableToscaElement;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.PropertyValue;
-import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.components.*;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Requirement;
@@ -299,6 +290,20 @@ public final class FunctionEvaluator {
         return null;
     }
 
+    private static String serializeComplexPropertyValue(Object value) {
+        try {
+            if (value instanceof String) {
+                return (String) value;
+            } else if (value instanceof  ComplexPropertyValue) {
+                return JsonUtil.toString(((ComplexPropertyValue) value).getValue());
+            } else {
+                return JsonUtil.toString(value);
+            }
+        } catch (JsonProcessingException e) {
+            return null;
+        }
+    }
+
     private static String getPropertyValue(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> propertyDefinitions,
             String propertyAccessPath) {
         if (properties == null || !properties.containsKey(propertyAccessPath)) {
@@ -325,15 +330,7 @@ public final class FunctionEvaluator {
                         throw new NotSupportedException("Only support static value in a get_property");
                     }
                     Object value = MapUtil.get(((PropertyValue) rawValue).getValue(), propertyAccessPath.substring(propertyName.length() + 1));
-                    if (value instanceof String) {
-                        return (String) value;
-                    } else {
-                        try {
-                            return JsonUtil.toString(value);
-                        } catch (JsonProcessingException e) {
-                            return null;
-                        }
-                    }
+                    return serializeComplexPropertyValue(value);
                 } else {
                     return null;
                 }
@@ -394,7 +391,11 @@ public final class FunctionEvaluator {
                 }
             }
 
-            return getScalarValue(propertyValue);
+            if (propertyValue instanceof ComplexPropertyValue) {
+                return serializeComplexPropertyValue(((ComplexPropertyValue) propertyValue).getValue());
+            } else {
+                return getScalarValue(propertyValue);
+            }
         }
 
         log.warn("The keyword <" + ToscaFunctionConstants.SELF
