@@ -24,12 +24,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TopologyEditionContext {
-    /** The topology under edition. */
+    /** The topology under edition in it's last saved state. */
     private Topology topology;
     /** The tosca context associated with the topology context. */
     private ToscaContext toscaContext;
     /** Path to the topology's local git repository. */
     private Path topologyLocalGit;
     /** List of commands that have been applied to the topology from the last-saved version. */
-    private List<IEditorOperation> commands = Lists.newArrayList();
+    private List<IEditorOperation> operations = Lists.newArrayList();
 }

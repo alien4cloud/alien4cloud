@@ -22,14 +22,30 @@ public class TopologyEditorService {
     public void execute(@DestinationVariable String topologyId, IEditorOperation operation) {
         // get the topology context.
         TopologyEditionContext editionContext = topologyEditionContextManager.get(topologyId);
-        // check that commands can be executed
-        // editionContext.
+        // check that operations can be executed (based on a kind of optimistic locking
+
         // no other command has been executed concurrently
 
         // find the handler for the command
 
         //
 
+    }
+
+    /**
+     * Return true if the operation is in a synchronized state based on the context.
+     *
+     * @param editionContext The topology edition context.
+     * @param operation, The operation under evaluation.
+     * @return
+     */
+    public synchronized boolean isSynchronized(TopologyEditionContext editionContext, IEditorOperation operation) {
+        if (operation.getIndex() == editionContext.getOperations().size()) {
+            editionContext.getOperations().add(operation);
+            return true;
+        }
+        // throw an edition concurrency exception
+        throw new
     }
 
     // upload file in the archive

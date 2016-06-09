@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import alien4cloud.git.RepositoryManager;
 import org.alien4cloud.tosca.editor.commands.IEditorOperation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

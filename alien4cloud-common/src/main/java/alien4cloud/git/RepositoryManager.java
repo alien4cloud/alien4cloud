@@ -1,18 +1,12 @@
 package alien4cloud.git;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
 
-import org.eclipse.jgit.api.CheckoutCommand;
-import org.eclipse.jgit.api.CloneCommand;
-import org.eclipse.jgit.api.FetchCommand;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.MergeResult;
-import org.eclipse.jgit.api.PullCommand;
-import org.eclipse.jgit.api.PullResult;
-import org.eclipse.jgit.api.TransportCommand;
+import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Ref;
@@ -28,6 +22,22 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class RepositoryManager {
+    /**
+     * Create a git repository that includes an empty readme file.
+     * 
+     * @param targetDirectory The path of the repository to create.
+     */
+    public static void create(Path targetDirectory) {
+        try {
+            Git.init().setDirectory(targetDirectory.toFile()).call();
+            File file = targetDirectory.resolve("readme.txt").toFile();
+            file.createNewFile();
+        } catch (GitAPIException | IOException e) {
+            log.error("Error while creating git repository", e);
+            throw new GitException("Error while creating git repository ", e);
+        }
+    }
+
     /**
      * Clone or checkout a git repository in a local directory relative to the given targetDirectory.
      *
@@ -78,16 +88,16 @@ public class RepositoryManager {
         try {
             CheckoutCommand checkoutCommand = repository.checkout();
             // had to add "origin/" to fix an error when trying to checkout a branch
-            checkoutCommand.setName("origin/"+branch);
+            checkoutCommand.setName("origin/" + branch);
             Ref ref = checkoutCommand.call();
             if (ref == null || branch.equals(ref.getName())) {
                 // failed to checkout the branch, let's fetch it
-                //TODO: this part seems useless. check it out 
+                // TODO: this part seems useless. check it out
                 FetchCommand fetchCommand = repository.fetch();
                 setCredentials(fetchCommand, username, password);
                 fetchCommand.call();
                 checkoutCommand = repository.checkout();
-                checkoutCommand.setName("origin/"+branch);
+                checkoutCommand.setName("origin/" + branch);
                 checkoutCommand.call();
             }
         } catch (GitAPIException e) {
