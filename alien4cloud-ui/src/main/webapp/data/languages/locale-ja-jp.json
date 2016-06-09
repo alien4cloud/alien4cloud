@@ -147,6 +147,7 @@
           "PROPERTY_NAME" : "Property name",
           "PROPERTY_TYPE_VIOLATION_ERROR" : "The property has no such target"
         },
+        "RELATED_INPUT":"Related input",
         "REPLACE" : "指定内容で置換",
         "REPLACE_LABEL" : "置換",
         "REQUIRED_PROPERTIES_LABEL" : "必須プロパティ",

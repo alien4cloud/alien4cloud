@@ -29,18 +29,22 @@
           </tbody>
         </table>
         <!-- node_filters properties -->
-        <table class="table table-condensed" ng-if="nodeFilterToSatisfy.violatedConstraints">
+        <table class="table table-condensed" ng-if="nodeFilterToSatisfy.violations">
           <thead>
             <th>{{ 'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.PROPERTY_NAME' | translate}}</th>
+            <th ng-if="inputColumn">{{ 'APPLICATIONS.TOPOLOGY.TASK.RELATED_INPUT' | translate }}</th>
             <th>{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING' | translate}}</th>
           </thead>
           <tbody>
-            <tr ng-repeat="(violatedConstraintName, violatedConstraint) in nodeFilterToSatisfy.violatedConstraints">
+            <tr ng-repeat= "violation in nodeFilterToSatisfy.violations">
               <td>
-                <span>{{violatedConstraintName}}</span>
+                {{violation.propertyName}}
+              </td>
+              <td ng-if="inputColumn">
+                  {{violation.relatedInput || '---' }}
               </td>
               <td>
-                <span>{{violatedConstraint[0].message}}</span>
+                {{violation.violatedConstraints[0].message}}
               </td>
             </tr>
           </tbody>

@@ -1,17 +1,5 @@
 package alien4cloud.deployment;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.common.MetaPropertiesService;
@@ -26,14 +14,23 @@ import alien4cloud.topology.task.PropertiesTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.TaskLevel;
 import alien4cloud.topology.validation.LocationPolicyValidationService;
+import alien4cloud.topology.validation.NodeFilterValidationService;
 import alien4cloud.topology.validation.TopologyAbstractNodeValidationService;
 import alien4cloud.topology.validation.TopologyPropertiesValidationService;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.services.ConstraintPropertyService;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
 
 /**
  * Perform validation of a topology before deployment.
@@ -63,6 +60,8 @@ public class DeploymentTopologyValidationService {
     private OrchestratorPropertiesValidationService orchestratorPropertiesValidationService;
     @Inject
     private DeploymentNodeSubstitutionValidationService substitutionValidationServices;
+    @Inject
+    private NodeFilterValidationService nodeFilterValidationService;
 
     /**
      * Perform validation of a deployment topology.
@@ -107,6 +106,9 @@ public class DeploymentTopologyValidationService {
         if (orchestratorValidation != null) {
             dto.addTasks(Lists.newArrayList(orchestratorValidation));
         }
+
+        // Validate node filters requirements
+        dto.addTasks(nodeFilterValidationService.validateAllRequirementFilters(deploymentTopology));
 
         if (TopologyValidationService.hasOnlyPropertiesWarnings(validateProperties)) {
             dto.addWarnings(validateProperties);
