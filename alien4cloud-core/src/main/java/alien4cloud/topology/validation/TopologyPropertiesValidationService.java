@@ -30,7 +30,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.collect.Lists;
@@ -129,11 +128,7 @@ public class TopologyPropertiesValidationService {
             }
 
             if (MapUtils.isNotEmpty(task.getProperties())) {
-                // why verify this????
-                if (CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.REQUIRED))
-                        || CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.WARNING))) {
-                    toReturnTaskList.add(task);
-                }
+                toReturnTaskList.add(task);
             }
         }
         return toReturnTaskList.isEmpty() ? null : toReturnTaskList;

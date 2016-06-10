@@ -2,7 +2,6 @@ package alien4cloud.topology.task;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,16 +29,4 @@ public class NodeFilterToSatisfy {
 
     }
 
-    @EqualsAndHashCode(of = "name")
-    @NoArgsConstructor
-    @Getter
-    @Setter
-    public static class PropertyNameWrapper {
-        public String name;
-        public String inputName;
-
-        public PropertyNameWrapper(String name) {
-            this.name = name;
-        }
-    }
 }
