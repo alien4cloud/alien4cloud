@@ -1,16 +1,14 @@
 package alien4cloud.paas.function;
 
+import java.util.List;
+import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang3.StringUtils;
+
 import alien4cloud.common.AlienConstants;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.AttributeDefinition;
-import alien4cloud.model.components.ConcatPropertyValue;
-import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.IValue;
-import alien4cloud.model.components.IndexedInheritableToscaElement;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.PropertyValue;
-import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.components.*;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Requirement;
@@ -28,18 +26,15 @@ import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.util.List;
-import java.util.Map;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Utility class to process functions defined in attributes or operations input level:
  * ex:<br>
- * 
+ *
  * <pre>
  * attributes:
  *   url: "http://get_property: [the_node_tempalte_1, the_property_name_1]:get_property: [the_node_tempalte_2, the_property_name_2 ]/super"
@@ -57,7 +52,7 @@ public final class FunctionEvaluator {
      * @param paaSTopology the pass topology
      */
     public static void postProcessInstanceInformation(Map<String, Map<String, InstanceInformation>> instanceInformations, Topology topology,
-            PaaSTopology paaSTopology) {
+                                                      PaaSTopology paaSTopology) {
         // parse attributes
         for (Map.Entry<String, Map<String, InstanceInformation>> nodeInstanceId : instanceInformations.entrySet()) {
 
@@ -92,8 +87,8 @@ public final class FunctionEvaluator {
      * @return
      */
     public static String parseAttribute(String attributeId, IValue attributeValue, Topology topology,
-            Map<String, Map<String, InstanceInformation>> runtimeInformations, String currentInstance,
-            IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate, Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
+                                        Map<String, Map<String, InstanceInformation>> runtimeInformations, String currentInstance,
+                                        IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate, Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
 
         if (attributeValue == null) {
             return null;
@@ -131,21 +126,21 @@ public final class FunctionEvaluator {
                     List<? extends IPaaSTemplate> paasTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionPropertyValue.getTemplateName(),
                             builtPaaSTemplates);
                     switch (functionPropertyValue.getFunction()) {
-                    case ToscaFunctionConstants.GET_ATTRIBUTE:
-                        evaluatedAttribute.append(extractRuntimeInformationAttribute(runtimeInformations, currentInstance, paasTemplates,
-                                functionPropertyValue.getElementNameToFetch()));
-                        break;
-                    case ToscaFunctionConstants.GET_PROPERTY:
-                        evaluatedAttribute.append(extractRuntimeInformationProperty(topology, functionPropertyValue.getElementNameToFetch(), paasTemplates));
-                        break;
-                    case ToscaFunctionConstants.GET_OPERATION_OUTPUT:
-                        String defaultValue = "<" + functionPropertyValue.getElementNameToFetch() + ">";
-                        evaluatedAttribute.append(extractRuntimeInformationOperationOutput(runtimeInformations, currentInstance, paasTemplates,
-                                functionPropertyValue, defaultValue));
-                        break;
-                    default:
-                        log.warn("Function [{}] is not yet handled in concat operation.", functionPropertyValue.getFunction());
-                        break;
+                        case ToscaFunctionConstants.GET_ATTRIBUTE:
+                            evaluatedAttribute.append(extractRuntimeInformationAttribute(runtimeInformations, currentInstance, paasTemplates,
+                                    functionPropertyValue.getElementNameToFetch()));
+                            break;
+                        case ToscaFunctionConstants.GET_PROPERTY:
+                            evaluatedAttribute.append(extractRuntimeInformationProperty(topology, functionPropertyValue.getElementNameToFetch(), paasTemplates));
+                            break;
+                        case ToscaFunctionConstants.GET_OPERATION_OUTPUT:
+                            String defaultValue = "<" + functionPropertyValue.getElementNameToFetch() + ">";
+                            evaluatedAttribute.append(extractRuntimeInformationOperationOutput(runtimeInformations, currentInstance, paasTemplates,
+                                    functionPropertyValue, defaultValue));
+                            break;
+                        default:
+                            log.warn("Function [{}] is not yet handled in concat operation.", functionPropertyValue.getFunction());
+                            break;
                     }
 
                 }
@@ -157,11 +152,11 @@ public final class FunctionEvaluator {
         if (attributeValue instanceof FunctionPropertyValue) {
             FunctionPropertyValue function = (FunctionPropertyValue) attributeValue;
             switch (function.getFunction()) {
-            case ToscaFunctionConstants.GET_OPERATION_OUTPUT:
-                List<? extends IPaaSTemplate> paasTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, function.getTemplateName(), builtPaaSTemplates);
-                return extractRuntimeInformationOperationOutput(runtimeInformations, currentInstance, paasTemplates, function, null);
-            default:
-                return null;
+                case ToscaFunctionConstants.GET_OPERATION_OUTPUT:
+                    List<? extends IPaaSTemplate> paasTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, function.getTemplateName(), builtPaaSTemplates);
+                    return extractRuntimeInformationOperationOutput(runtimeInformations, currentInstance, paasTemplates, function, null);
+                default:
+                    return null;
             }
         }
 
@@ -169,7 +164,7 @@ public final class FunctionEvaluator {
     }
 
     private static String extractRuntimeInformationOperationOutput(Map<String, Map<String, InstanceInformation>> runtimeInformations, String instanceId,
-            List<? extends IPaaSTemplate> nodes, FunctionPropertyValue function, String defaultValue) {
+                                                                   List<? extends IPaaSTemplate> nodes, FunctionPropertyValue function, String defaultValue) {
         String outputRQN = AlienUtils.prefixWith(AlienConstants.OPERATION_NAME_SEPARATOR, function.getElementNameToFetch(),
                 new String[] { function.getInterfaceName(), function.getOperationName() });
         // return the first found
@@ -229,7 +224,7 @@ public final class FunctionEvaluator {
      * @return runtime value
      */
     private static String extractRuntimeInformationAttribute(Map<String, Map<String, InstanceInformation>> runtimeInformations, String currentInstance,
-            List<? extends IPaaSTemplate> nodes, String propertyOrAttributeName) {
+                                                             List<? extends IPaaSTemplate> nodes, String propertyOrAttributeName) {
         Map<String, String> attributes = null;
         // return the first found
         for (IPaaSTemplate node : nodes) {
@@ -260,19 +255,19 @@ public final class FunctionEvaluator {
      * @return a list of PaaSTemplate(relationship or node) resulting from the evaluation
      */
     public static List<? extends IPaaSTemplate> getPaaSTemplatesFromKeyword(IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate, String keyword,
-            Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
+                                                                            Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         switch (keyword) {
-        case ToscaFunctionConstants.SELF:
-            return Lists.<IPaaSTemplate> newArrayList(basePaaSTemplate);
-        case ToscaFunctionConstants.HOST:
-            return getWithParentsNodes(getHostNode(basePaaSTemplate));
-        case ToscaFunctionConstants.SOURCE:
-            return getWithParentsNodes(getSourceNode(basePaaSTemplate, builtPaaSTemplates));
-        case ToscaFunctionConstants.TARGET:
-            return getWithParentsNodes(getTargetNode(basePaaSTemplate, builtPaaSTemplates));
-        default:
-            // FIXME if the keyword is in fact the name of a relationship??
-            return Lists.<IPaaSTemplate> newArrayList(getPaaSNodeOrFail(keyword, builtPaaSTemplates));
+            case ToscaFunctionConstants.SELF:
+                return Lists.<IPaaSTemplate> newArrayList(basePaaSTemplate);
+            case ToscaFunctionConstants.HOST:
+                return getWithParentsNodes(getHostNode(basePaaSTemplate));
+            case ToscaFunctionConstants.SOURCE:
+                return getWithParentsNodes(getSourceNode(basePaaSTemplate, builtPaaSTemplates));
+            case ToscaFunctionConstants.TARGET:
+                return getWithParentsNodes(getTargetNode(basePaaSTemplate, builtPaaSTemplates));
+            default:
+                // FIXME if the keyword is in fact the name of a relationship??
+                return Lists.<IPaaSTemplate> newArrayList(getPaaSNodeOrFail(keyword, builtPaaSTemplates));
         }
     }
 
@@ -286,7 +281,7 @@ public final class FunctionEvaluator {
      * @return the String result of the function evalutation
      */
     public static String evaluateGetPropertyFunction(FunctionPropertyValue functionParam,
-            IPaaSTemplate<? extends IndexedInheritableToscaElement> basePaaSTemplate, Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
+                                                     IPaaSTemplate<? extends IndexedInheritableToscaElement> basePaaSTemplate, Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         List<? extends IPaaSTemplate> paaSTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionParam.getTemplateName(), builtPaaSTemplates);
         for (IPaaSTemplate paaSTemplate : paaSTemplates) {
             String propertyValue = getPropertyFromTemplateOrCapability(paaSTemplate, functionParam.getCapabilityOrRequirementName(),
@@ -299,8 +294,22 @@ public final class FunctionEvaluator {
         return null;
     }
 
+    private static String serializeComplexPropertyValue(Object value) {
+        try {
+            if (value instanceof String) {
+                return (String) value;
+            } else if (value instanceof  ComplexPropertyValue) {
+                return JsonUtil.toString(((ComplexPropertyValue) value).getValue());
+            } else {
+                return JsonUtil.toString(value);
+            }
+        } catch (JsonProcessingException e) {
+            return null;
+        }
+    }
+
     private static String getPropertyValue(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> propertyDefinitions,
-            String propertyAccessPath) {
+                                           String propertyAccessPath) {
         if (properties == null || !properties.containsKey(propertyAccessPath)) {
             String propertyName = PropertyUtil.getPropertyNameFromComplexPath(propertyAccessPath);
             if (propertyName == null) {
@@ -325,15 +334,7 @@ public final class FunctionEvaluator {
                         throw new NotSupportedException("Only support static value in a get_property");
                     }
                     Object value = MapUtil.get(((PropertyValue) rawValue).getValue(), propertyAccessPath.substring(propertyName.length() + 1));
-                    if (value instanceof String) {
-                        return (String) value;
-                    } else {
-                        try {
-                            return JsonUtil.toString(value);
-                        } catch (JsonProcessingException e) {
-                            return null;
-                        }
-                    }
+                    return serializeComplexPropertyValue(value);
                 } else {
                     return null;
                 }
@@ -366,7 +367,7 @@ public final class FunctionEvaluator {
      * @return
      */
     private static String getPropertyFromTemplateOrCapability(IPaaSTemplate<? extends IndexedInheritableToscaElement> paaSTemplate,
-            String capabilityOrRequirementName, String elementName) {
+                                                              String capabilityOrRequirementName, String elementName) {
 
         // if no capability or requirement provided, return the value from the template property
         if (StringUtils.isBlank(capabilityOrRequirementName)) {
@@ -394,7 +395,11 @@ public final class FunctionEvaluator {
                 }
             }
 
-            return getScalarValue(propertyValue);
+            if (propertyValue instanceof ComplexPropertyValue) {
+                return serializeComplexPropertyValue(((ComplexPropertyValue) propertyValue).getValue());
+            } else {
+                return getScalarValue(propertyValue);
+            }
         }
 
         log.warn("The keyword <" + ToscaFunctionConstants.SELF
@@ -422,7 +427,7 @@ public final class FunctionEvaluator {
     }
 
     private static PaaSNodeTemplate getSourceNode(IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate,
-            Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
+                                                  Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         if (basePaaSTemplate instanceof PaaSRelationshipTemplate) {
             return getPaaSNodeOrFail(((PaaSRelationshipTemplate) basePaaSTemplate).getSource(), builtPaaSTemplates);
         }
@@ -431,7 +436,7 @@ public final class FunctionEvaluator {
     }
 
     private static PaaSNodeTemplate getTargetNode(IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate,
-            Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
+                                                  Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         if (basePaaSTemplate instanceof PaaSRelationshipTemplate) {
             return getPaaSNodeOrFail(((PaaSRelationshipTemplate) basePaaSTemplate).getRelationshipTemplate().getTarget(), builtPaaSTemplates);
         }
