@@ -5,44 +5,6 @@
 ## - application_description
 ## - topology
 ## --------------------------------------------
-## -- Serialize an AbstractPropertyValue 
-#macro(serializeAbtractPropertyValue $v)
-#if($utils.isScalarPropertyValue($v))
-## TODO: manage integer, boolean ... by looking into property definition
-$utils.renderScalar($v.value)
-#elseif($utils.isFunctionPropertyValue($v))
-#if($v.function=="get_input")
-{ ${v.function}: ${v.parameters.get(0)} }
-#else
-{ ${v.function}: [ $utils.getCsvToString($v.parameters) ] }
-#end## if
-#end
-#end## macro serializeAbtractPropertyValue
-## --------------------------------------------
-## -- Serialize an AbstractPropertyValue map
-#macro(serializeAbtractPropertyValues $map $tab)
-#foreach($mapEntry in $map.entrySet())
-#if($utils.isComplexPropertyNotNull($mapEntry.value))
-$tab${mapEntry.key}:
-#displayMapOfStringObject($mapEntry.value.value "$tab  ")
-#elseif($utils.isAbstractPropertyValueNotNull($mapEntry.value))
-$tab${mapEntry.key}: #serializeAbtractPropertyValue(${mapEntry.value})
-#end## if
-#end## of mapEntry iteration  
-#end## macro serializeAbtractPropertyValues
-## --------------------------------------------
-## -- Iterate on map<string, object> and display all string
-#macro(displayMapOfStringObject $value $tab)
-#foreach($mapEntry in $value.entrySet())
-#if($utils.isMap($mapEntry.value))
-$tab${mapEntry.key}:
-#displayMapOfStringObject($mapEntry.value "$tab  ")
-#else
-$tab${mapEntry.key}: $mapEntry.value
-#end## if utils.isMap
-#end## foreach
-#end## macro displayMapOfStringObject
-## --------------------------------------------
 ## BEGINING OF DOCUMENT
 tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
 description: Alien4Cloud generated service template
@@ -68,7 +30,7 @@ topology_template:
       type: ${inputEntry.value.type}
       required: $inputEntry.value.required
 #if($inputEntry.value.default)      
-      default: $utils.renderScalar($inputEntry.value.default)
+      default: $propertyUtils.renderScalar($inputEntry.value.default)
 #end## if default defined
 #if($utils.collectionIsNotEmpty($inputEntry.value.constraints))
       constraints: 
@@ -112,8 +74,7 @@ topology_template:
     ${nodeTemplateEntry.key}:
       type: ${nodeTemplateEntry.value.type}
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($nodeTemplateEntry.value.properties))      
-      properties:
-#serializeAbtractPropertyValues($nodeTemplateEntry.value.properties "        ")      
+      properties:$propertyUtils.formatProperties(4, $nodeTemplateEntry.value.properties)
 #end## if
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($nodeTemplateEntry.value.relationships)) 
       requirements:
@@ -123,8 +84,7 @@ topology_template:
             capability: $topology.nodeTemplates[$relationship.target].capabilities[$relationship.targetedCapabilityName].type
             relationship: ${relationship.type}
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($relationship.properties))
-            properties:
-#serializeAbtractPropertyValues($relationship.properties "              ")          
+            properties:$propertyUtils.formatProperties(7, $relationship.properties)
 #end## if
 #if($utils.doesInterfacesContaineImplementedOperation($relationship.interfaces))
             interfaces:
@@ -135,8 +95,7 @@ topology_template:
 #if($utils.isOperationImplemented($operationEntry.value))
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($operationEntry.value.inputParameters))
                 ${operationEntry.key}:
-                  inputs:
-#serializeAbtractPropertyValues($operationEntry.value.inputParameters "                    ")
+                  inputs:$propertyUtils.formatProperties(10, $operationEntry.value.inputParameters)
                   implementation: $operationEntry.value.implementationArtifact.artifactRef
 #else
                 ${operationEntry.key}: $operationEntry.value.implementationArtifact.artifactRef
@@ -153,8 +112,7 @@ topology_template:
 #foreach($capabilityEntry in ${nodeTemplateEntry.value.capabilities.entrySet()})
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($capabilityEntry.value.properties))
         ${capabilityEntry.key}:
-          properties:
-#serializeAbtractPropertyValues($capabilityEntry.value.properties "            ")
+          properties:$propertyUtils.formatProperties(6, $capabilityEntry.value.properties)
 #end## if capability properties not empty
 #end## of capabilityEntry iteration
 #end## if hasCapabilitiesContainingNotNullProperties
@@ -167,8 +125,7 @@ topology_template:
 #if($utils.isOperationImplemented($operationEntry.value))
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($operationEntry.value.inputParameters))
           ${operationEntry.key}:
-            input:
-#serializeAbtractPropertyValues($operationEntry.value.inputParameters "              ")
+            input:$propertyUtils.formatProperties(7, $operationEntry.value.inputParameters)
             implementation: $operationEntry.value.implementationArtifact.artifactRef
 #else
           ${operationEntry.key}: $operationEntry.value.implementationArtifact.artifactRef

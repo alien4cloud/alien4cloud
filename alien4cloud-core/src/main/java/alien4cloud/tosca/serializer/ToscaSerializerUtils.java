@@ -4,11 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.regex.Pattern;
+import java.util.*;
 
 import alien4cloud.model.components.*;
 import alien4cloud.model.components.constraints.AbstractPropertyConstraint;
@@ -37,63 +33,12 @@ import alien4cloud.paas.wf.SetStateActivity;
  */
 public class ToscaSerializerUtils {
 
-    private static Pattern ESCAPE_PATTERN = Pattern.compile(".*[,:\\[\\]\\{\\}-].*");
-
     public boolean collectionIsNotEmpty(Collection<?> c) {
         return c != null && !c.isEmpty();
     }
 
     public boolean mapIsNotEmpty(Map<?, ?> m) {
         return m != null && !m.isEmpty();
-    }
-
-    /**
-     * Render the scalar: when it contain '[' or ']' or '{' or '}' or ':' or '-' or ',', then quote the scalar.
-     */
-    public String renderScalar(String scalar) {
-        if (scalar == null) {
-            return null;
-        } else if (ESCAPE_PATTERN.matcher(scalar).matches()) {
-            return "\"" + escapeDoubleQuote(scalar) + "\"";
-        } else if (scalar.startsWith(" ") || scalar.endsWith(" ")) {
-            return "\"" + escapeDoubleQuote(scalar) + "\"";
-        } else {
-            return scalar;
-        }
-    }
-
-    public boolean isAbstractPropertyValueNotNull(AbstractPropertyValue value) {
-        if (value == null) {
-            return false;
-        } else if (value instanceof ScalarPropertyValue) {
-            return ((ScalarPropertyValue) value).getValue() != null;
-        } else {
-            return true;
-        }
-    }
-
-    public boolean isMap(Object object) {
-        if (object != null && object instanceof Map) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean isComplexPropertyNotNull(AbstractPropertyValue value) {
-        if (value != null && value instanceof ComplexPropertyValue) {
-            return ((ComplexPropertyValue) value).getValue() != null;
-        } else {
-            return false;
-        }
-    }
-
-    private static String escapeDoubleQuote(String scalar) {
-        if (scalar != null && scalar.contains("\"")) {
-            // escape double quote
-            return scalar.replaceAll("\"", "\\\\\"");
-        }
-        return scalar;
     }
 
     /**
@@ -157,14 +102,6 @@ public class ToscaSerializerUtils {
         return false;
     }
 
-    public boolean isScalarPropertyValue(AbstractPropertyValue apv) {
-        return apv instanceof ScalarPropertyValue;
-    }
-
-    public boolean isFunctionPropertyValue(AbstractPropertyValue apv) {
-        return apv instanceof FunctionPropertyValue;
-    }
-
     public String getCsvToString(Collection<?> list) {
         return getCsvToString(list, false);
     }
@@ -180,7 +117,7 @@ public class ToscaSerializerUtils {
                     sb.append(", ");
                 }
                 if (renderScalar) {
-                    sb.append(renderScalar(o.toString()));
+                    sb.append(ToscaPropertySerializerUtils.renderScalar(o.toString()));
                 } else {
                     sb.append(o.toString());
                 }
@@ -256,16 +193,16 @@ public class ToscaSerializerUtils {
         StringBuilder builder = new StringBuilder();
         if (c instanceof GreaterOrEqualConstraint) {
             builder.append("greater_or_equal: ");
-            builder.append(renderScalar(((GreaterOrEqualConstraint) c).getGreaterOrEqual()));
+            builder.append(ToscaPropertySerializerUtils.renderScalar(((GreaterOrEqualConstraint) c).getGreaterOrEqual()));
         } else if (c instanceof GreaterThanConstraint) {
             builder.append("greater_than: ");
-            builder.append(renderScalar(((GreaterThanConstraint) c).getGreaterThan()));
+            builder.append(ToscaPropertySerializerUtils.renderScalar(((GreaterThanConstraint) c).getGreaterThan()));
         } else if (c instanceof LessOrEqualConstraint) {
             builder.append("less_or_equal: ");
-            builder.append(renderScalar(((LessOrEqualConstraint) c).getLessOrEqual()));
+            builder.append(ToscaPropertySerializerUtils.renderScalar(((LessOrEqualConstraint) c).getLessOrEqual()));
         } else if (c instanceof LessThanConstraint) {
             builder.append("less_than: ");
-            builder.append(renderScalar(((LessThanConstraint) c).getLessThan()));
+            builder.append(ToscaPropertySerializerUtils.renderScalar(((LessThanConstraint) c).getLessThan()));
         } else if (c instanceof LengthConstraint) {
             builder.append("length: ");
             builder.append(((LengthConstraint) c).getLength());
@@ -277,10 +214,10 @@ public class ToscaSerializerUtils {
             builder.append(((MinLengthConstraint) c).getMinLength());
         } else if (c instanceof PatternConstraint) {
             builder.append("pattern: ");
-            builder.append(renderScalar(((PatternConstraint) c).getPattern()));
+            builder.append(ToscaPropertySerializerUtils.renderScalar(((PatternConstraint) c).getPattern()));
         } else if (c instanceof EqualConstraint) {
             builder.append("equal: ");
-            builder.append(renderScalar(((EqualConstraint) c).getEqual()));
+            builder.append(ToscaPropertySerializerUtils.renderScalar(((EqualConstraint) c).getEqual()));
         } else if (c instanceof InRangeConstraint) {
             builder.append("in_range: ");
             builder.append("[");
