@@ -1,0 +1,54 @@
+package org.alien4cloud.tosca.editor.processors;
+
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
+import org.alien4cloud.tosca.editor.commands.UpdateNodePropertyValueOperation;
+import org.springframework.stereotype.Component;
+
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.Topology;
+import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.utils.services.PropertyService;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * Process an update node property value operation against the topology in the edition context.
+ */
+@Slf4j
+@Component
+public class UpdateNodePropertyValueProcessor implements IEditorOperationProcessor<UpdateNodePropertyValueOperation> {
+    @Resource
+    private PropertyService propertyService;
+
+    @Override
+    @SneakyThrows
+    public void process(UpdateNodePropertyValueOperation operation) {
+        Topology topology = TopologyEditionContextManager.getTopology();
+
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate nodeTemp = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeTemplateName(), nodeTemplates);
+        String propertyName = operation.getPropertyName();
+        Object propertyValue = operation.getPropertyValue();
+
+        IndexedNodeType node = ToscaContext.getOrFail(IndexedNodeType.class, nodeTemp.getType());
+
+        PropertyDefinition propertyDefinition = node.getProperties().get(propertyName);
+        if (propertyDefinition == null) {
+            throw new NotFoundException(
+                    "Property <" + propertyName + "> doesn't exists for node <" + operation.getNodeTemplateName() + "> of type <" + nodeTemp.getType() + ">");
+        }
+
+        log.debug("Updating property <{}> of the Node template <{}> from the topology <{}>: changing value from [{}] to [{}].", propertyName,
+                operation.getNodeTemplateName(), topology.getId(), nodeTemp.getProperties().get(propertyName), propertyValue);
+
+        propertyService.setPropertyValue(nodeTemp, propertyDefinition, propertyName, propertyValue);
+    }
+}

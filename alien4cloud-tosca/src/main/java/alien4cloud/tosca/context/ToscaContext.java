@@ -91,7 +91,7 @@ public class ToscaContext {
         /** Cached types in the context. */
         private final Map<String, Map<String, IndexedToscaElement>> toscaTypesCache = Maps.newHashMap();
 
-        private Context(Set<CSARDependency> dependencies) {
+        public Context(Set<CSARDependency> dependencies) {
             this.dependencies = dependencies;
         }
 

@@ -9,8 +9,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import alien4cloud.git.RepositoryManager;
-import org.alien4cloud.tosca.editor.commands.IEditorOperation;
+import org.alien4cloud.tosca.editor.commands.AbstractEditorOperation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +31,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class TopologyEditionContextManager {
+    /** Holds the topology context */
+    private final static ThreadLocal<TopologyEditionContext> contextThreadLocal = new ThreadLocal<>();
+
     @Resource
     private TopologyServiceCore topologyServiceCore;
     @Resource(name = "alien-es-dao")
@@ -51,12 +53,15 @@ public class TopologyEditionContextManager {
             public TopologyEditionContext load(String topologyId) throws Exception {
                 log.debug("Loading topology context for topology {}", topologyId);
                 Topology topology = topologyServiceCore.getOrFail(topologyId);
+                // if we get it again this go through JSON and create a clone.
+                Topology clonedTopology = topologyServiceCore.getOrFail(topologyId);
                 ToscaContext context = new ToscaContext();
                 // check if the topology git repository has been created already
                 Path topologyGitPath = localGitRepositoryPath.resolve(topologyId);
                 createGitDirectory(topologyGitPath);
                 log.debug("Topology context for topology {} loaded", topologyId);
-                return new TopologyEditionContext(topology, new ToscaContext(), topologyGitPath, Lists.<IEditorOperation> newArrayList());
+                return new TopologyEditionContext(topology, clonedTopology, new ToscaContext.Context(topology.getDependencies()), topologyGitPath,
+                        Lists.<AbstractEditorOperation> newArrayList());
             }
         });
     }
@@ -70,8 +75,40 @@ public class TopologyEditionContextManager {
         }
     }
 
+    /**
+     * Initialize thread local contexts for the topology.
+     * 
+     * @param topologyId The id of the topology.
+     */
     @SneakyThrows
-    public TopologyEditionContext get(String topologyId) {
-        return contextCache.get(topologyId);
+    public synchronized void init(String topologyId) {
+        contextThreadLocal.set(contextCache.get(topologyId));
+        ToscaContext.set(contextThreadLocal.get().getToscaContext());
+    }
+
+    /**
+     * Get the current topology edition context for the thread.
+     * 
+     * @return The thread's topology edition context.
+     */
+    public static TopologyEditionContext get() {
+        return contextThreadLocal.get();
+    }
+
+    /**
+     * Get the current topology under edition.
+     *
+     * @return The thread's topology under edition.
+     */
+    public static Topology getTopology() {
+        return contextThreadLocal.get().getCurrentTopology();
+    }
+
+    /**
+     * Remove thread local contexts.
+     */
+    public void destroy() {
+        contextThreadLocal.remove();
+        ToscaContext.destroy();
     }
 }

@@ -2,29 +2,20 @@ package alien4cloud.topology;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
-
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.model.topology.*;
-import alien4cloud.paas.wf.WorkflowsBuilderService;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.mapping.FilterValuesStrategy;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
@@ -32,18 +23,19 @@ import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.components.*;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
+import alien4cloud.model.topology.AbstractTopologyVersion;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.Topology;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.Role;
@@ -55,9 +47,8 @@ import alien4cloud.tosca.container.ToscaTypeLoader;
 import alien4cloud.tosca.serializer.VelocityUtil;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -327,6 +318,7 @@ public class TopologyService {
      */
     @SuppressWarnings("unchecked")
     public <T extends IndexedToscaElement> T loadType(Topology topology, T element) {
+        // FIXME update the tosca context here.
         String type = element.getElementId();
         String archiveName = element.getArchiveName();
         String archiveVersion = element.getArchiveVersion();
@@ -464,13 +456,12 @@ public class TopologyService {
 
     }
 
-
-    public void isUniqueNodeTemplateName(String topologyId, String newNodeTemplateName, Map<String, NodeTemplate> nodeTemplates) {
-        if (nodeTemplates.containsKey(newNodeTemplateName)) {
+    public void isUniqueNodeTemplateName(Topology topology, String newNodeTemplateName) {
+        if (topology.getNodeTemplates() != null && topology.getNodeTemplates().containsKey(newNodeTemplateName)) {
             log.debug("Add Node Template <{}> impossible (already exists)", newNodeTemplateName);
             // a node template already exist with the given name.
             throw new AlreadyExistException(
-                    "A node template with the given name " + newNodeTemplateName + " already exists in the topology " + topologyId + ".");
+                    "A node template with the given name " + newNodeTemplateName + " already exists in the topology " + topology.getId() + ".");
         }
     }
 

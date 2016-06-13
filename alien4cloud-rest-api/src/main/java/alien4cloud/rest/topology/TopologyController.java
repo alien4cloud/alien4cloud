@@ -155,7 +155,7 @@ public class TopologyController {
             throw new InvalidNodeNameException("A name should only contains alphanumeric character from the basic Latin alphabet and the underscore.");
         }
         if (topology.getNodeTemplates() != null) {
-            topologyService.isUniqueNodeTemplateName(topologyId, nodeTemplateRequest.getName(), topology.getNodeTemplates());
+            topologyService.isUniqueNodeTemplateName(topology, nodeTemplateRequest.getName());
         }
 
         IndexedNodeType indexedNodeType = alienDAO.findById(IndexedNodeType.class, nodeTemplateRequest.getIndexedNodeTypeId());
@@ -182,7 +182,7 @@ public class TopologyController {
             // a node template already exist with the given name.
             throw new AlreadyExistException("A node template with the given name already exists.");
         } else {
-            log.debug("Create application <{}>", nodeTemplateRequest.getName());
+            log.debug("Create node template <{}>", nodeTemplateRequest.getName());
         }
         indexedNodeType = topologyService.loadType(topology, indexedNodeType);
         NodeTemplate nodeTemplate = topologyService.buildNodeTemplate(topology.getDependencies(), indexedNodeType, null);
@@ -218,8 +218,9 @@ public class TopologyController {
         if (!TopologyUtils.isValidNodeName(newNodeTemplateName)) {
             throw new InvalidNodeNameException("A name should only contains alphanumeric character from the basic Latin alphabet and the underscore.");
         }
-        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
-        topologyService.isUniqueNodeTemplateName(topology.getId(), newNodeTemplateName, nodeTemplates);
+        // ensure there is node templates
+        TopologyServiceCore.getNodeTemplates(topology);
+        topologyService.isUniqueNodeTemplateName(topology, newNodeTemplateName);
 
         TopologyUtils.renameNodeTemplate(topology, nodeTemplateName, newNodeTemplateName);
         workflowBuilderService.renameNode(topology, nodeTemplateName, newNodeTemplateName);
@@ -560,6 +561,7 @@ public class TopologyController {
     @PreAuthorize("isAuthenticated()")
     public RestResponse<TopologyDTO> replaceNodeTemplate(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
             @RequestBody @Valid NodeTemplateRequest nodeTemplateRequest) {
+        // FIXME should we remove outputs here ?
         Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkEditionAuthorizations(topology);
 

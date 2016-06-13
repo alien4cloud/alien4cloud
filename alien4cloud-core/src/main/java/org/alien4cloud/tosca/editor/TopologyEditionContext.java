@@ -3,7 +3,7 @@ package org.alien4cloud.tosca.editor;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.alien4cloud.tosca.editor.commands.IEditorOperation;
+import org.alien4cloud.tosca.editor.commands.AbstractEditorOperation;
 
 import com.google.common.collect.Lists;
 
@@ -24,12 +24,15 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TopologyEditionContext {
+    // FIXME add node types and other elements we can get from a CSAR
     /** The topology under edition in it's last saved state. */
-    private Topology topology;
+    private Topology savedTopology;
+    /** The topology as processed after applying all operations on the saved topology. */
+    private Topology currentTopology;
     /** The tosca context associated with the topology context. */
-    private ToscaContext toscaContext;
+    private ToscaContext.Context toscaContext;
     /** Path to the topology's local git repository. */
     private Path topologyLocalGit;
     /** List of commands that have been applied to the topology from the last-saved version. */
-    private List<IEditorOperation> operations = Lists.newArrayList();
+    private List<AbstractEditorOperation> operations = Lists.newArrayList();
 }

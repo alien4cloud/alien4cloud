@@ -100,7 +100,7 @@ public class ApplicationController {
             topologyId = ttv.getTopologyId();
         }
         // create the application with default environment and version
-        String applicationId = applicationService.create(auth.getName(), request.getName(), request.getDescription(), null);
+        String applicationId = applicationService.create(auth.getName(), request.getName(), request.getDescription());
         ApplicationVersion version = applicationVersionService.createApplicationVersion(applicationId, topologyId);
         ApplicationEnvironment environment = applicationEnvironmentService.createApplicationEnvironment(auth.getName(), applicationId, version.getId());
         return RestResponseBuilder.<String> builder().data(applicationId).build();

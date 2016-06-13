@@ -4,12 +4,14 @@ import java.util.*;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.QueryHelper;
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -22,10 +24,7 @@ import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.utils.MapUtil;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service to manage applications.
@@ -50,10 +49,9 @@ public class ApplicationService {
      * @param user The user that is creating the application (will be APPLICATION_MANAGER)
      * @param name The name of the new application.
      * @param description The description of the new application.
-     * @param workspaceId The id of the workspace in which the application should be added.
      * @return The id of the newly created application.
      */
-    public String create(String user, String name, String description, String workspaceId) {
+    public String create(String user, String name, String description) {
         // application name must be unique
         ensureNameUnicity(name);
 
