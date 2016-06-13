@@ -1,13 +1,14 @@
 package alien4cloud.tosca.serializer;
 
-import alien4cloud.model.components.*;
-import alien4cloud.paas.exception.NotSupportedException;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.PropertyValue;
+import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.paas.exception.NotSupportedException;
 
 public class ToscaPropertySerializerUtils {
 
@@ -148,10 +149,6 @@ public class ToscaPropertySerializerUtils {
             return true;
         }
         return false;
-    }
-
-    public static String getNativePropertyValue(IndexedNodeType toscaNodeType, String property) {
-        return toscaNodeType.getProperties().get(property).getDefault();
     }
 
     public static String formatProperties(int indentLevel, Map<String, AbstractPropertyValue> properties) {
