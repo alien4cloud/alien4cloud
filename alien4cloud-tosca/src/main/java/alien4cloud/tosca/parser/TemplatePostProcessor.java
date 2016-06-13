@@ -1,9 +1,14 @@
 package alien4cloud.tosca.parser;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.model.components.*;
@@ -11,10 +16,19 @@ import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.normative.IPropertyType;
+import alien4cloud.tosca.normative.InvalidPropertyValueException;
+import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import alien4cloud.utils.services.DependencyService;
 
 @Component
 public class TemplatePostProcessor {
+    // FIXME can't we use the tosca context here ?
+    @Resource
+    private DependencyService dependencyService;
+
     /**
      * Post process the archive: For every definition of the model it fills the id fields in the TOSCA elements from the key of the elements map.
      *
@@ -30,12 +44,194 @@ public class TemplatePostProcessor {
     private final void postProcessArchive(String archiveName, String archiveVersion, ParsingResult<ArchiveRoot> parsedArchive,
             Map<String, String> globalElementsMap) {
         postProcessElements(archiveName, archiveVersion, parsedArchive, parsedArchive.getResult().getNodeTypes(), globalElementsMap);
+        postProcessPropertyDefinitions(parsedArchive.getResult().getNodeTypes(), parsedArchive);
         postProcessIndexedArtifactToscaElement(parsedArchive.getResult(), parsedArchive.getResult().getNodeTypes());
         postProcessElements(archiveName, archiveVersion, parsedArchive, parsedArchive.getResult().getRelationshipTypes(), globalElementsMap);
+        postProcessPropertyDefinitions(parsedArchive.getResult().getRelationshipTypes(), parsedArchive);
         postProcessIndexedArtifactToscaElement(parsedArchive.getResult(), parsedArchive.getResult().getRelationshipTypes());
         postProcessElements(archiveName, archiveVersion, parsedArchive, parsedArchive.getResult().getCapabilityTypes(), globalElementsMap);
+        postProcessPropertyDefinitions(parsedArchive.getResult().getCapabilityTypes(), parsedArchive);
         postProcessElements(archiveName, archiveVersion, parsedArchive, parsedArchive.getResult().getArtifactTypes(), globalElementsMap);
         postProcessTopology(archiveName, archiveVersion, parsedArchive, parsedArchive.getResult().getTopology(), globalElementsMap);
+    }
+
+    private final <T extends IndexedInheritableToscaElement> void postProcessPropertyDefinitions(Map<String, T> elements,
+            ParsingResult<ArchiveRoot> parsedArchive) {
+        for (Entry<String, T> elementEntry : elements.entrySet()) {
+            Map<String, PropertyDefinition> propertyDefinitions = elementEntry.getValue().getProperties();
+            if (propertyDefinitions != null) {
+                for (Entry<String, PropertyDefinition> propertyDefinitionEntry : propertyDefinitions.entrySet()) {
+                    String propertyFqn = elementEntry.getKey() + "." + propertyDefinitionEntry.getKey();
+                    validateDefaultValue(propertyDefinitionEntry.getValue(), propertyFqn, parsedArchive);
+                }
+            }
+        }
+    }
+
+    private void validateDefaultValue(PropertyDefinition propertyDefinition, String propertyFqn, ParsingResult<ArchiveRoot> parsedArchive) {
+        // TODO:XDE
+        AbstractPropertyValue defaultObject = propertyDefinition.getDefault();
+        if (defaultObject == null) {
+            return;
+        }
+        //
+        if (ToscaType.isSimple(propertyDefinition.getType())) {
+            if (!(defaultObject instanceof ScalarPropertyValue)) {
+                addNonCompatiblePropertyTypeError(propertyDefinition.getType(), defaultObject.toString(), parsedArchive);
+                return;
+            }
+            ScalarPropertyValue scalarPropertyValue = (ScalarPropertyValue) defaultObject;
+            String defaultAsString = scalarPropertyValue.getValue();
+            validateSimpleObjectValue(propertyDefinition.getType(), propertyDefinition.getConstraints(), defaultAsString, parsedArchive);
+        } else if (ToscaType.LIST.equals(propertyDefinition.getType())) {
+            if (!(defaultObject instanceof ListPropertyValue)) {
+                addNonCompatiblePropertyTypeError(propertyDefinition.getType(), defaultObject.toString(), parsedArchive);
+                return;
+            }
+            ListPropertyValue listPropertyValue = (ListPropertyValue) defaultObject;
+            PropertyDefinition entryPropertyDefinition = propertyDefinition.getEntrySchema();
+            List<Object> entries = listPropertyValue.getValue();
+            int i = 0;
+            for (Object value : entries) {
+                validateObjectValue(entryPropertyDefinition, value, propertyFqn + "[" + ++i + "]", parsedArchive);
+            }
+        } else if (ToscaType.MAP.equals(propertyDefinition.getType())) {
+            if (!(defaultObject instanceof ComplexPropertyValue)) {
+                addNonCompatiblePropertyTypeError(propertyDefinition.getType(), defaultObject.toString(), parsedArchive);
+                return;
+            }
+            ComplexPropertyValue complexPropertyValue = (ComplexPropertyValue) defaultObject;
+            Map<String, Object> complexPropertyValueMap = complexPropertyValue.getValue();
+            PropertyDefinition entryPropertyDefinition = propertyDefinition.getEntrySchema();
+            for (Entry<String, Object> entry : complexPropertyValueMap.entrySet()) {
+                validateObjectValue(entryPropertyDefinition, entry.getValue(), propertyFqn + "." + entry.getKey(), parsedArchive);
+            }
+        } else if (!ToscaType.isPrimitive(propertyDefinition.getType())) {
+            // complex object
+            // complex type that derives from simple
+            IndexedDataType dataType = dependencyService.getDataType(propertyDefinition.getType(),
+                    new DependencyService.ArchiveDependencyContext(parsedArchive.getResult()));
+            if (dataType instanceof PrimitiveIndexedDataType) {
+                if (!(defaultObject instanceof ScalarPropertyValue)) {
+                    addNonCompatiblePropertyTypeError(propertyDefinition.getType(), defaultObject.toString(), parsedArchive);
+                    return;
+                }
+                ScalarPropertyValue scalarPropertyValue = (ScalarPropertyValue) defaultObject;
+                String defaultAsString = scalarPropertyValue.getValue();
+                List<PropertyConstraint> constraints = Lists.newArrayList();
+                if (propertyDefinition.getConstraints() != null) {
+                    constraints.addAll(propertyDefinition.getConstraints());
+                }
+                if (((PrimitiveIndexedDataType) dataType).getConstraints() != null) {
+                    constraints.addAll(((PrimitiveIndexedDataType) dataType).getConstraints());
+                }
+                validateSimpleObjectValue(dataType.getDerivedFrom().get(0), constraints, defaultAsString, parsedArchive);
+            } else {
+                if (!(defaultObject instanceof ComplexPropertyValue)) {
+                    addNonCompatiblePropertyTypeError(propertyDefinition.getType(), defaultObject.toString(), parsedArchive);
+                    return;
+                }
+                ComplexPropertyValue complexPropertyValue = (ComplexPropertyValue) defaultObject;
+                Map<String, Object> complexPropertyValueMap = complexPropertyValue.getValue();
+                for (Entry<String, PropertyDefinition> propEntry : dataType.getProperties().entrySet()) {
+                    Object propertyValue = complexPropertyValueMap.get(propEntry.getKey());
+                    PropertyDefinition propertyPropertyDefinition = propEntry.getValue();
+                    validateObjectValue(propertyPropertyDefinition, propertyValue, propertyFqn + "." + propEntry.getKey(), parsedArchive);
+                }
+            }
+
+        }
+    }
+
+    private void validateObjectValue(PropertyDefinition propertyDefinition, Object value, String propertyFqn, ParsingResult<ArchiveRoot> parsedArchive) {
+        if (value == null) {
+            if (propertyDefinition.isRequired()) {
+                parsedArchive.getContext().getParsingErrors().add(new ParsingError(ErrorCode.VALIDATION_ERROR, "ToscaPropertyDefaultValueConstraints", null,
+                        "A value is required but was not found for property " + propertyFqn, null, "constraints"));
+            }
+            return;
+        }
+        if (ToscaType.isSimple(propertyDefinition.getType())) {
+            validateSimpleObjectValue(propertyDefinition.getType(), propertyDefinition.getConstraints(), value.toString(), parsedArchive);
+        } else if (ToscaType.LIST.equals(propertyDefinition.getType())) {
+            if (!(value instanceof List)) {
+                addNonCompatiblePropertyTypeError(propertyDefinition.getType(), value.toString(), parsedArchive);
+                return;
+            }
+            PropertyDefinition entryPropertyDefinition = propertyDefinition.getEntrySchema();
+            List<Object> entries = (List<Object>) value;
+            int i = 0;
+            for (Object entry : entries) {
+                validateObjectValue(entryPropertyDefinition, entry, propertyFqn + "[" + ++i + "]", parsedArchive);
+            }
+        } else if (ToscaType.MAP.equals(propertyDefinition.getType())) {
+            if (!(value instanceof Map)) {
+                addNonCompatiblePropertyTypeError(propertyDefinition.getType(), value.toString(), parsedArchive);
+                return;
+            }
+            PropertyDefinition entryPropertyDefinition = propertyDefinition.getEntrySchema();
+            Map<String, Object> valueMap = (Map<String, Object>) value;
+            for (Entry<String, Object> entry : valueMap.entrySet()) {
+                validateObjectValue(entryPropertyDefinition, entry.getValue(), propertyFqn + "." + entry.getKey(), parsedArchive);
+            }
+        } else if (!ToscaType.isPrimitive(propertyDefinition.getType())) {
+            // complex object
+            IndexedDataType dataType = dependencyService.getDataType(propertyDefinition.getType(),
+                    new DependencyService.ArchiveDependencyContext(parsedArchive.getResult()));
+            if (dataType instanceof PrimitiveIndexedDataType) {
+                List<PropertyConstraint> constraints = Lists.newArrayList();
+                if (propertyDefinition.getConstraints() != null) {
+                    constraints.addAll(propertyDefinition.getConstraints());
+                }
+                if (((PrimitiveIndexedDataType) dataType).getConstraints() != null) {
+                    constraints.addAll(((PrimitiveIndexedDataType) dataType).getConstraints());
+                }
+                validateSimpleObjectValue(dataType.getDerivedFrom().get(0), constraints, value.toString(), parsedArchive);
+
+            } else {
+                if (!(value instanceof Map)) {
+                    addNonCompatiblePropertyTypeError(propertyDefinition.getType(), value.toString(), parsedArchive);
+                    return;
+                }
+                Map<String, Object> complexPropertyValueMap = (Map<String, Object>) value;
+                for (Entry<String, PropertyDefinition> propEntry : dataType.getProperties().entrySet()) {
+                    Object propertyValue = complexPropertyValueMap.get(propEntry.getKey());
+                    PropertyDefinition propertyPropertyDefinition = propEntry.getValue();
+                    validateObjectValue(propertyPropertyDefinition, propertyValue, propertyFqn + "." + propEntry.getKey(), parsedArchive);
+                }
+            }
+        }
+    }
+
+    private void addNonCompatiblePropertyTypeError(String type, String defaultAsString, ParsingResult<ArchiveRoot> parsedArchive) {
+        parsedArchive.getContext().getParsingErrors().add(new ParsingError(ErrorCode.VALIDATION_ERROR, "ToscaPropertyDefaultValueType", null,
+                "Default value " + defaultAsString + " is not valid or is not supported for the property type " + type, null, "default"));
+    }
+
+    private void addNonCompatibleConstraintError(PropertyConstraint constraint, String defaultAsString, ParsingResult<ArchiveRoot> parsedArchive) {
+        parsedArchive.getContext().getParsingErrors().add(new ParsingError(ErrorCode.VALIDATION_ERROR, "ToscaPropertyDefaultValueConstraints", null,
+                "Default value " + defaultAsString + " is not valid for the constraint " + constraint.getClass().getSimpleName(), null, "constraints"));
+    }
+
+    private void validateSimpleObjectValue(String type, List<PropertyConstraint> constraints, String value, ParsingResult<ArchiveRoot> parsedArchive) {
+        IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(type);
+        Object defaultValue;
+        try {
+            defaultValue = toscaType.parse(value);
+        } catch (InvalidPropertyValueException e) {
+            addNonCompatiblePropertyTypeError(type, value, parsedArchive);
+            return;
+        }
+        if (constraints != null && !constraints.isEmpty()) {
+            for (int i = 0; i < constraints.size(); i++) {
+                PropertyConstraint constraint = constraints.get(i);
+                try {
+                    constraint.validate(defaultValue);
+                } catch (ConstraintViolationException e) {
+                    addNonCompatibleConstraintError(constraint, value, parsedArchive);
+                }
+            }
+        }
     }
 
     private void postProcessTopology(String archiveName, String archiveVersion, ParsingResult<ArchiveRoot> parsedArchive, Topology topology,
