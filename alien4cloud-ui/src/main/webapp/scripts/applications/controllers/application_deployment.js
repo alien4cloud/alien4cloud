@@ -99,10 +99,6 @@ define(function(require) {
       icon: 'fa fa-cloud-upload',
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'], // is deployer
       priority: 300
-    },
-    params: {
-      // optional id of the environment to automatically select when triggering this state
-      openOnEnvironment:null
     }
   });
 

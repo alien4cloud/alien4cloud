@@ -52,7 +52,7 @@ define(function (require) {
         }
         $state.go('applications.detail.runtime', {
           id:deployment.sourceId,
-          selectedEnvironmentId: deployment.environmentId
+          openOnEnvironment: deployment.environmentId
         });
       };
 
