@@ -23,7 +23,7 @@ define(function(require) {
   require('scripts/deployment/directives/display_outputs');
   require('scripts/applications/directives/topology_errors_display');
 
-  var globalConfTaskCodes = ['SCALABLE_CAPABILITY_INVALID', 'PROPERTIES'];
+  var globalConfTaskCodes = ['SCALABLE_CAPABILITY_INVALID', 'PROPERTIES', 'NODE_FILTER_INVALID'];
 
   function refreshDeploymentContext(deploymentContext, application, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menus) {
     return deploymentTopologyServices.get({
