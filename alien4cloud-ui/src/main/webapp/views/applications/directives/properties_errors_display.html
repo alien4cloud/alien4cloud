@@ -8,10 +8,9 @@
       <thead>
         <th></th>
         <th>{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.REQUIRED' | translate}}</th>
-        <th><i class="fa fa-exclamation-triangle" tooltip="{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING_MESSAGE' | translate}}"></i> {{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING' | translate}}</th>
       </thead>
       <tbody>
-        <tr ng-init="existsWarning = task.properties['WARNING'].length>0" ng-repeat="task in tasks" ng-class="{'bg-warning':existsWarning}">
+        <tr ng-repeat="task in tasks">
           <td>
             <strong>{{task.nodeTemplateName}}</strong>
             <span>({{task.component.elementId}})</span>
@@ -19,13 +18,6 @@
           <td>
             <ul class="td_list liste-no-style">
               <li ng-repeat="property in task.properties['REQUIRED']">
-                {{property}}
-              </li>
-            </ul>
-          </td>
-          <td>
-            <ul class="td_list liste-no-style">
-              <li ng-repeat="property in task.properties['WARNING']">
                 {{property}}
               </li>
             </ul>

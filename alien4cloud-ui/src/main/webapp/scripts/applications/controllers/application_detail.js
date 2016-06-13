@@ -67,7 +67,11 @@ define(function (require) {
       ]
     },
     templateUrl: 'views/applications/vertical_menu_layout.html',
-    controller: 'ApplicationCtrl'
+    controller: 'ApplicationCtrl',
+    params: {
+      // optional id of the environment to automatically select when triggering this state
+      openOnEnvironment:null
+    }
   });
 
   // definition of the parent controller and scope for application management.

@@ -50,7 +50,7 @@
           </div>
           <div class="row clickable-media" collapse="isEnvironmentsCollapsed"  ng-repeat="environment in applicationStatuses[application.name] | orderBy: '-indexToOrder'"  >
             <div class="col-span-12" style="border-width: 1px 0px 0px; border-style: solid; border-color: #DDD; padding: 8px;"
-                 ng-click="openDeploymentPage(application.id)" >
+                 ng-click="openDeploymentPage(application.id, environment.id)" >
               <div class="row">
                 <div>
                   <div class="col-md-1"> </div>
