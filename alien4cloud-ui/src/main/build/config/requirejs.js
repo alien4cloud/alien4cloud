@@ -44,6 +44,7 @@ module.exports = function (grunt) {
         baseUrl: '.',
 
         keepBuildDir: true,
+        allowSourceOverwrites: true,
 
         optimize: 'uglify',
         // optimize: 'none',
