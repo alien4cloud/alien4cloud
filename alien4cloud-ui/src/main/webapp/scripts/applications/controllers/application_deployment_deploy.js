@@ -16,7 +16,10 @@ define(function(require) {
       state: 'applications.detail.deployment.deploy',
       key: 'APPLICATIONS.DEPLOYMENT.DEPLOY',
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'], // is deployer
-      priority: 400
+      priority: 400,
+      step: {
+        taskCodes: ['NODE_FILTER_INVALID', 'PROPERTIES', 'SCALABLE_CAPABILITY_INVALID']
+      }
     }
   });
 
