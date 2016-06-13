@@ -99,6 +99,10 @@ define(function(require) {
       icon: 'fa fa-cloud-upload',
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'], // is deployer
       priority: 300
+    },
+    params: {
+      // optional id of the environment to automatically select when triggering this state
+      openOnEnvironment:null
     }
   });
 
@@ -169,7 +173,14 @@ define(function(require) {
           appEnvironments.select($scope.deploymentContext.selectedEnvironment.id, goToNextInvalidStep);
         };
 
-        goToNextInvalidStep(); // immediately go to the next invalid tab
+        if(_.defined($state.params.openOnEnvironment) && appEnvironments.selected.id !== $state.params.openOnEnvironment){
+          appEnvironments.select($state.params.openOnEnvironment, function(){
+            $scope.deploymentContext.selectedEnvironment = appEnvironments.selected;
+            goToNextInvalidStep();
+          });
+        }else{
+          goToNextInvalidStep(); // immediately go to the next invalid tab
+        }
 
         $scope.showTodoList = function() {
           return !$scope.validTopologyDTO.valid && $scope.isManager;
