@@ -147,6 +147,7 @@
           "PROPERTY_NAME" : "Nom de la propriété",
           "PROPERTY_TYPE_VIOLATION_ERROR" : "Le type de la propriété cible est invalide"
         },
+        "RELATED_INPUT": "Propriétée d'entrée",
         "REPLACE" : "Remplacer par l'un des noeuds suggérés",
         "REPLACE_LABEL" : "A remplacer",
         "REQUIRED_PROPERTIES_LABEL" : "Propriétés obligatoires",
