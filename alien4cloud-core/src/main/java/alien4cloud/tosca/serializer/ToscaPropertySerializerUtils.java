@@ -5,6 +5,7 @@ import alien4cloud.paas.exception.NotSupportedException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -13,8 +14,17 @@ public class ToscaPropertySerializerUtils {
 
     private static Pattern ESCAPE_PATTERN = Pattern.compile(".*[,:\\[\\]\\{\\}-].*");
 
+    public static String indent(int indentLevel) {
+        StringBuilder buffer = new StringBuilder();
+        for (int i = 0; i < indentLevel; i++) {
+            buffer.append("  ");
+        }
+        return buffer.toString();
+    }
+
     public static String formatTextValue(int indentLevel, String text) {
         if (text != null && text.contains("\n")) {
+            indentLevel++;
             StringBuilder indentationBuffer = new StringBuilder();
             for (int i = 0; i < indentLevel; i++) {
                 indentationBuffer.append("  ");
@@ -30,14 +40,6 @@ public class ToscaPropertySerializerUtils {
         } else {
             return text == null ? "" : text;
         }
-    }
-
-    public static String indent(int indentLevel) {
-        StringBuilder buffer = new StringBuilder();
-        for (int i = 0; i < indentLevel; i++) {
-            buffer.append("  ");
-        }
-        return buffer.toString();
     }
 
     public static String formatPropertyValue(int indentLevel, AbstractPropertyValue propertyValue) {
@@ -57,7 +59,7 @@ public class ToscaPropertySerializerUtils {
     }
 
     public static String formatValue(boolean appendLf, int indentLevel, Object value) {
-        if (value instanceof String) {
+        if (isPrimitiveType(value)) {
             return formatTextValue(indentLevel, (String) value);
         } else if (value instanceof Map) {
             return formatMapValue(appendLf, indentLevel, (Map<String, Object>) value);
@@ -73,6 +75,7 @@ public class ToscaPropertySerializerUtils {
     }
 
     private static String formatMapValue(boolean appendFirstLf, int indentLevel, Map<String, Object> value) {
+        indentLevel++;
         StringBuilder buffer = new StringBuilder();
         boolean isFirst = true;
         for (Map.Entry<String, Object> valueEntry : value.entrySet()) {
@@ -80,7 +83,7 @@ public class ToscaPropertySerializerUtils {
                 if (!isFirst || appendFirstLf) {
                     buffer.append("\n").append(indent(indentLevel));
                 }
-                buffer.append(valueEntry.getKey()).append(": ").append(formatValue(indentLevel + 1, valueEntry.getValue()));
+                buffer.append(valueEntry.getKey()).append(": ").append(formatValue(indentLevel, valueEntry.getValue()));
                 if (isFirst) {
                     isFirst = false;
                 }
@@ -90,10 +93,22 @@ public class ToscaPropertySerializerUtils {
     }
 
     private static String formatListValue(int indentLevel, List<Object> value) {
+        indentLevel++;
         StringBuilder buffer = new StringBuilder();
         for (Object element : value) {
             if (element != null) {
                 buffer.append("\n").append(indent(indentLevel)).append("- ").append(formatValue(false, indentLevel + 1, element));
+            }
+        }
+        return buffer.toString();
+    }
+
+    public static String formatProperties(int indentLevel, Map<String, AbstractPropertyValue> properties) {
+        StringBuilder buffer = new StringBuilder();
+        for (Map.Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
+            if (propertyEntry.getValue() != null) {
+                buffer.append("\n").append(indent(indentLevel)).append(propertyEntry.getKey()).append(": ")
+                        .append(formatPropertyValue(indentLevel, propertyEntry.getValue()));
             }
         }
         return buffer.toString();
@@ -154,14 +169,15 @@ public class ToscaPropertySerializerUtils {
         return toscaNodeType.getProperties().get(property).getDefault();
     }
 
-    public static String formatProperties(int indentLevel, Map<String, AbstractPropertyValue> properties) {
-        StringBuilder buffer = new StringBuilder();
-        for (Map.Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
-            if (propertyEntry.getValue() != null) {
-                buffer.append("\n").append(indent(indentLevel)).append(propertyEntry.getKey()).append(": ")
-                        .append(formatPropertyValue(indentLevel + 1, propertyEntry.getValue()));
-            }
-        }
-        return buffer.toString();
-    }
+    public static Map<String, AbstractPropertyValue> addPropertyValueIfMissing(Map<String, AbstractPropertyValue> properties, String key, String value) {
+         Map<String, AbstractPropertyValue> copy = new HashMap<>(properties);
+         if (!copy.containsKey(key) || copy.get(key) == null) {
+             copy.put(key, new ScalarPropertyValue(value));
+         }
+         return copy;
+     }
+
+    private static boolean isPrimitiveType(Object value) {
+         return value instanceof String || value instanceof Number || value instanceof Boolean;
+     }
 }
