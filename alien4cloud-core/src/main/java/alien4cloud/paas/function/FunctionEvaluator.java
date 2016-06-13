@@ -490,4 +490,8 @@ public final class FunctionEvaluator {
         return ToscaFunctionConstants.GET_OPERATION_OUTPUT.equals(function.getFunction());
     }
 
+    public static boolean isGetInput(FunctionPropertyValue function) {
+        return ToscaFunctionConstants.GET_INPUT.equals(function.getFunction());
+    }
+
 }

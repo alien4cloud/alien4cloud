@@ -33,7 +33,8 @@ define(function(require) {
       templateUrl: 'views/applications/directives/node_filters_errors_display.html',
       restrict: 'E',
       scope: {
-        'tasks': '='
+        'tasks': '=',
+        'inputColumn': '='
       },
       link: function (){
       }

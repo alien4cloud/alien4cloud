@@ -23,7 +23,7 @@ define(function(require) {
   require('scripts/deployment/directives/display_outputs');
   require('scripts/applications/directives/topology_errors_display');
 
-  var globalConfTaskCodes = ['SCALABLE_CAPABILITY_INVALID', 'PROPERTIES'];
+  var globalConfTaskCodes = ['SCALABLE_CAPABILITY_INVALID', 'PROPERTIES', 'NODE_FILTER_INVALID'];
 
   function refreshDeploymentContext(deploymentContext, application, deploymentTopologyServices, deploymentTopologyProcessor, tasksProcessor, menus) {
     return deploymentTopologyServices.get({
@@ -169,7 +169,14 @@ define(function(require) {
           appEnvironments.select($scope.deploymentContext.selectedEnvironment.id, goToNextInvalidStep);
         };
 
-        goToNextInvalidStep(); // immediately go to the next invalid tab
+        if(_.defined($state.params.openOnEnvironment) && appEnvironments.selected.id !== $state.params.openOnEnvironment){
+          appEnvironments.select($state.params.openOnEnvironment, function(){
+            $scope.deploymentContext.selectedEnvironment = appEnvironments.selected;
+            goToNextInvalidStep();
+          });
+        }else{
+          goToNextInvalidStep(); // immediately go to the next invalid tab
+        }
 
         $scope.showTodoList = function() {
           return !$scope.validTopologyDTO.valid && $scope.isManager;

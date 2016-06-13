@@ -40,7 +40,8 @@
 
             <!--  Node Filter tasks  -->
             <node-filters-errors-display
-              tasks = "validTopologyDTO.taskList['NODE_FILTER_INVALID']">
+              tasks = "validTopologyDTO.taskList['NODE_FILTER_INVALID']"
+              input-column=false>
             </node-filters-errors-display>
 
             <!--  LowerBound not satisfied tasks  -->
@@ -54,7 +55,7 @@
             </properties-errors-display>
 
             <scalability-errors-display
-              tasks="validTopologyDTO.taskList['SCALABLE_CAPABILITY_INVALID']">
+              tasks="validTopologyDTO.taskList['SCALABLE_CAPABILITY_INVALID']" >
             </scalability-errors-display>
 
             <!--  Workflow tasks  -->
@@ -152,6 +153,12 @@
           <h3 class="text-danger"><i class="fa fa-exclamation-triangle"></i> {{'APPLICATIONS.TOPOLOGY.TASK.ERRORS_LABEL' | translate}}</h3>
 
          <div class="task-list-box">
+           <!-- NODE FILTERS-->
+           <node-filters-errors-display
+             tasks = "deploymentContext.deploymentTopologyDTO.validation.taskList['NODE_FILTER_INVALID']"
+             input-column=true>
+          </node-filters-errors-display>
+
           <!-- SCALABILITY ERRORS -->
           <scalability-errors-display
             tasks="deploymentContext.deploymentTopologyDTO.validation.taskList['SCALABLE_CAPABILITY_INVALID']">

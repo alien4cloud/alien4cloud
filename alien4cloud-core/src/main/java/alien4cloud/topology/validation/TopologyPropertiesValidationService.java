@@ -1,21 +1,5 @@
 package alien4cloud.topology.validation;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.common.collect.Lists;
-import org.springframework.stereotype.Component;
-
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.ComplexPropertyValue;
@@ -37,9 +21,19 @@ import alien4cloud.topology.task.ScalableTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.TaskLevel;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
-
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import javax.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.common.collect.Lists;
+import org.springframework.stereotype.Component;
 
 /**
  * Performs validation of the properties
@@ -134,11 +128,7 @@ public class TopologyPropertiesValidationService {
             }
 
             if (MapUtils.isNotEmpty(task.getProperties())) {
-                // why verify this????
-                if (CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.REQUIRED))
-                        || CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.WARNING))) {
-                    toReturnTaskList.add(task);
-                }
+                toReturnTaskList.add(task);
             }
         }
         return toReturnTaskList.isEmpty() ? null : toReturnTaskList;
@@ -271,12 +261,12 @@ public class TopologyPropertiesValidationService {
                     if (listValue.isEmpty()) {
                         addRequiredPropertyError(task, propertyEntry.getKey());
                     }
-                } else {
+                } else if (skipInputProperties) {
                     // this is a get_input funtion.
-                    if (skipInputProperties) {
-                        // get_input Will be validated later on
-                        continue;
-                    }
+                    // get_input Will be validated later on
+                    continue;
+                } else {
+                    addRequiredPropertyError(task, propertyEntry.getKey());
                 }
             }
         }
