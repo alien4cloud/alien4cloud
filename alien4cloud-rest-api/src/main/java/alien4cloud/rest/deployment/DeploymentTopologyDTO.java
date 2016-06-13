@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import alien4cloud.deployment.model.DeploymentSubstitutionConfiguration;
 import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedDataType;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.deployment.DeploymentTopology;
@@ -40,8 +41,9 @@ public class DeploymentTopologyDTO extends AbstractTopologyDTO<DeploymentTopolog
     private DeploymentSubstitutionConfiguration availableSubstitutions;
 
     public DeploymentTopologyDTO(DeploymentTopology topology, Map<String, IndexedNodeType> nodeTypes, Map<String, IndexedRelationshipType> relationshipTypes,
-            Map<String, IndexedCapabilityType> capabilityTypes, Map<String, Map<String, Set<String>>> outputCapabilityProperties) {
-        super(topology, nodeTypes, relationshipTypes, capabilityTypes, outputCapabilityProperties);
+            Map<String, IndexedCapabilityType> capabilityTypes, Map<String, Map<String, Set<String>>> outputCapabilityProperties,
+            Map<String, IndexedDataType> dataTypes) {
+        super(topology, nodeTypes, relationshipTypes, capabilityTypes, outputCapabilityProperties, dataTypes);
     }
 
     public DeploymentTopologyDTO() {

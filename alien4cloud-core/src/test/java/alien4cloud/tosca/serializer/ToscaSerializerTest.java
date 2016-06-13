@@ -62,7 +62,7 @@ public class ToscaSerializerTest {
         PropertyDefinition pd2 = new PropertyDefinition();
         pd2.setType("integer");
         pd2.setRequired(false);
-        pd2.setDefault("10");
+        pd2.setDefault(new ScalarPropertyValue("10"));
         topology.getInputs().put("input2", pd2);
 
         topology.setNodeTemplates(new HashMap<String, NodeTemplate>());

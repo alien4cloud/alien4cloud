@@ -1,5 +1,7 @@
 package alien4cloud.rest.tags;
 
+import io.swagger.annotations.ApiOperation;
+
 import java.util.Set;
 import java.util.UUID;
 
@@ -34,11 +36,10 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.utils.MapUtil;
+import alien4cloud.utils.PropertyUtil;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import io.swagger.annotations.ApiOperation;
 
 @Slf4j
 @RestController
@@ -125,7 +126,7 @@ public class TagConfigurationController {
             if (element.getMetaProperties() == null) {
                 element.setMetaProperties(Maps.<String, String> newHashMap());
             }
-            element.getMetaProperties().put(configuration.getId(), configuration.getDefault());
+            PropertyUtil.setScalarDefaultValueOrNull(element.getMetaProperties(), configuration.getId(), configuration.getDefault());
             dao.save(element);
             log.debug("Adding meta property <{}> to a resource of type <{}> ", configuration.getName(), element.getClass());
         }

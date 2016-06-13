@@ -21,6 +21,7 @@ import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.RequirementDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.components.constraints.GreaterThanConstraint;
 import alien4cloud.model.components.constraints.LessThanConstraint;
 import alien4cloud.model.components.constraints.MaxLengthConstraint;
@@ -110,7 +111,7 @@ public abstract class AbstractToscaParserSimpleProfileTest {
 
         PropertyDefinition def1 = new PropertyDefinition();
         def1.setType("string");
-        def1.setDefault("default");
+        def1.setDefault(new ScalarPropertyValue("default"));
         def1.setDescription("application password");
         List<PropertyConstraint> constraints = Lists.newArrayList();
         constraints.add(new MinLengthConstraint(6));
@@ -123,7 +124,7 @@ public abstract class AbstractToscaParserSimpleProfileTest {
 
         PropertyDefinition def3 = new PropertyDefinition();
         def3.setType("scalar-unit.size");
-        def3.setDefault("1 GB");
+        def3.setDefault(new ScalarPropertyValue("1 GB"));
         LessThanConstraint ltConstraint = new LessThanConstraint();
         ltConstraint.setLessThan("1 TB");
         constraints = Lists.<PropertyConstraint> newArrayList(ltConstraint);
@@ -131,7 +132,7 @@ public abstract class AbstractToscaParserSimpleProfileTest {
 
         PropertyDefinition def4 = new PropertyDefinition();
         def4.setType("scalar-unit.time");
-        def4.setDefault("1 d");
+        def4.setDefault(new ScalarPropertyValue("1 d"));
         GreaterThanConstraint gtConstraint = new GreaterThanConstraint();
         gtConstraint.setGreaterThan("1 h");
         constraints = Lists.<PropertyConstraint> newArrayList(gtConstraint);

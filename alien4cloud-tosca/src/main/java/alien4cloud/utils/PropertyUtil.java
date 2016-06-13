@@ -1,19 +1,13 @@
 package alien4cloud.utils;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections4.MapUtils;
 
-import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.ComplexPropertyValue;
-import alien4cloud.model.components.ListPropertyValue;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.ScalarPropertyValue;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
 
 import com.google.common.collect.Maps;
 
@@ -39,20 +33,46 @@ public final class PropertyUtil {
         Map<String, AbstractPropertyValue> defaultPropertyValues = Maps.newHashMap();
 
         for (Map.Entry<String, PropertyDefinition> entry : propertyDefinitions.entrySet()) {
-            String defaultValue = entry.getValue().getDefault();
-            if (defaultValue != null && !defaultValue.trim().isEmpty()) {
-                defaultPropertyValues.put(entry.getKey(), new ScalarPropertyValue(defaultValue));
-            } else {
-                defaultPropertyValues.put(entry.getKey(), null);
-            }
+            defaultPropertyValues.put(entry.getKey(), getDefaultPropertyValueFromPropertyDefinition(entry.getValue()));
         }
 
         return defaultPropertyValues;
     }
 
+    public static AbstractPropertyValue getDefaultPropertyValueFromPropertyDefinition(PropertyDefinition propertyDefinition) {
+        if (propertyDefinition == null) {
+            return null;
+        }
+        Object defaultValue = propertyDefinition.getDefault();
+        if (defaultValue == null) {
+            return null;
+        }
+        return (AbstractPropertyValue) defaultValue;
+    }
+
+    public static boolean setScalarDefaultValueIfNotNull(Map<String, String> properties, String key, AbstractPropertyValue abstractPropertyValue) {
+        if (abstractPropertyValue != null && abstractPropertyValue instanceof ScalarPropertyValue) {
+            properties.put(key, ((ScalarPropertyValue) abstractPropertyValue).getValue());
+            return true;
+        }
+        return false;
+    }
+
+    public static void setScalarDefaultValueOrNull(Map<String, String> properties, String key, AbstractPropertyValue abstractPropertyValue) {
+        if (abstractPropertyValue != null && abstractPropertyValue instanceof ScalarPropertyValue) {
+            properties.put(key, ((ScalarPropertyValue) abstractPropertyValue).getValue());
+        } else {
+            properties.put(key, null);
+        }
+    }
+
+    /**
+     * TODO: should be removed !
+     */
+    @Deprecated
     public static String getDefaultValueFromPropertyDefinitions(String propertyName, Map<String, PropertyDefinition> propertyDefinitions) {
         if (MapUtils.isNotEmpty(propertyDefinitions) && propertyDefinitions.containsKey(propertyName)) {
-            return propertyDefinitions.get(propertyName).getDefault();
+            return propertyDefinitions.get(propertyName).getDefault().toString();
         } else {
             return null;
         }

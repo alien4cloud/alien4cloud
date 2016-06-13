@@ -31,6 +31,7 @@ import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.tosca.ArchiveImageLoader;
+import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
 
@@ -107,22 +108,28 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
         Date creationDate = element.getCreationDate() == null ? element.getLastUpdateDate() : element.getCreationDate();
         element.setCreationDate(creationDate);
         if (element.getDerivedFrom() != null) {
-            Class<? extends IndexedInheritableToscaElement> indexedType = element.getClass();
-            BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-            // Check dependencies
-            if (dependencies != null) {
-                for (CSARDependency dependency : dependencies) {
-                    addArchiveToQuery(boolQueryBuilder, element.getDerivedFrom().get(0), dependency.getName(), dependency.getVersion());
+            boolean deriveFromSimpleType = false;
+            if (element.getDerivedFrom().size() == 1 && ToscaType.isSimple(element.getDerivedFrom().get(0))) {
+                deriveFromSimpleType = true;
+            }
+            if (!deriveFromSimpleType) {
+                Class<? extends IndexedInheritableToscaElement> indexedType = element.getClass();
+                BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+                // Check dependencies
+                if (dependencies != null) {
+                    for (CSARDependency dependency : dependencies) {
+                        addArchiveToQuery(boolQueryBuilder, element.getDerivedFrom().get(0), dependency.getName(), dependency.getVersion());
+                    }
                 }
+                // Check in the archive it-self
+                addArchiveToQuery(boolQueryBuilder, element.getDerivedFrom().get(0), archiveName, archiveVersion);
+                IndexedInheritableToscaElement superElement = alienDAO.customFind(indexedType, boolQueryBuilder);
+                if (superElement == null) {
+                    throw new IndexingServiceException("Indexing service is in an inconsistent state, the super element [" + element.getDerivedFrom()
+                            + "] is not found for element [" + element.getId() + "]");
+                }
+                IndexedModelUtils.mergeInheritableIndex(superElement, element);
             }
-            // Check in the archive it-self
-            addArchiveToQuery(boolQueryBuilder, element.getDerivedFrom().get(0), archiveName, archiveVersion);
-            IndexedInheritableToscaElement superElement = alienDAO.customFind(indexedType, boolQueryBuilder);
-            if (superElement == null) {
-                throw new IndexingServiceException("Indexing service is in an inconsistent state, the super element [" + element.getDerivedFrom()
-                        + "] is not found for element [" + element.getId() + "]");
-            }
-            IndexedModelUtils.mergeInheritableIndex(superElement, element);
         }
         saveAndUpdateHighestVersion(element);
     }
