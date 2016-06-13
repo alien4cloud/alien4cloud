@@ -1,5 +1,3 @@
-'use strict';
-
 // Copies files not processed by requirejs optimization from source to dist so other tasks can process them
 module.exports = {
   dist: {
@@ -16,8 +14,8 @@ module.exports = {
         'bower_components/**/*',
         'js-lib/**/*',
         'images/**/*',
-        'data/**/*',
         'scripts/**/*',
+        'data/**/*',
         'api-doc/**/*',
         'version.json',
       ]

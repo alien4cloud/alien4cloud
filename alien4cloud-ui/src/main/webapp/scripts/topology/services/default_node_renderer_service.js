@@ -104,7 +104,7 @@ define(function(require) {
             var tags = listToMapService.listToMap(nodeType.tags, 'name', 'value');
             if (tags.icon) {
               nodeGroup.append('image').attr('x', 8).attr('y', 8).attr('width', '32').attr('height', '32').attr('xlink:href',
-                'img?id=' + tags.icon + '&quality=QUALITY_32');
+                'img?id=' + tags.icon + '&quality=QUALITY_64');
             }
           }
           if (nodeType.abstract) {

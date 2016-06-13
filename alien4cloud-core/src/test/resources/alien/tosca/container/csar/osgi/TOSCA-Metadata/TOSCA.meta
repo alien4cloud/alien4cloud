@@ -1,0 +1,4 @@
+Name: "osgi"
+CSAR-Version: "1.0"
+Created-By: "FastConnect"
+Entry-Definitions: Definitions/osgi.yaml

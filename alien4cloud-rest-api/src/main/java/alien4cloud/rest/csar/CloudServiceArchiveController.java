@@ -94,7 +94,7 @@ public class CloudServiceArchiveController {
             // load, parse the archive definitions and save on disk
             ParsingResult<Csar> result = csarUploadService.upload(csarPath, CSARSource.UPLOAD);
             RestError error = null;
-            if (ArchiveUploadService.hasError(result, ParsingErrorLevel.ERROR)) {
+            if (result.hasError(ParsingErrorLevel.ERROR)) {
                 error = RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build();
             }
             return RestResponseBuilder.<CsarUploadResult> builder().error(error).data(toUploadResult(result)).build();

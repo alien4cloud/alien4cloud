@@ -1,0 +1,4 @@
+Name: "postgresql-types"
+CSAR-Version: "0.1"
+Created-By: "FastConnect"
+Entry-Definitions: Definitions/postgresql-types.yaml

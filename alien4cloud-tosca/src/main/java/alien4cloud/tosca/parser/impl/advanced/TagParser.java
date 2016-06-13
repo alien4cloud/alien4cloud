@@ -30,7 +30,7 @@ public class TagParser extends DefaultParser<List<Tag>> {
                 }
             }
         } else {
-            ParserUtils.addTypeError(node, context.getParsingErrors(), "Alien Tag");
+            ParserUtils.addTypeError(node, context.getParsingErrors(), "metadata");
         }
         return tagList;
     }

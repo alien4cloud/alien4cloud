@@ -7,6 +7,8 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
+import com.google.common.collect.Sets;
+
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.model.components.IndexedDataType;
 import alien4cloud.model.components.PropertyConstraint;
@@ -22,8 +24,6 @@ import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.utils.services.DependencyService;
 import alien4cloud.utils.services.DependencyService.ArchiveDependencyContext;
-
-import com.google.common.collect.Sets;
 
 @Component
 public class PropertyDefinitionChecker implements IChecker<PropertyDefinition> {
@@ -53,9 +53,8 @@ public class PropertyDefinitionChecker implements IChecker<PropertyDefinition> {
             for (PropertyConstraint constraint : propertyDefinition.getConstraints()) {
                 validate(propertyDefinition, constraint, context, node);
                 if (!definedConstraints.add(constraint.getClass().getName())) {
-                    context.getParsingErrors().add(
-                            new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.VALIDATION_ERROR, "ToscaPropertyConstraintDuplicate", node.getStartMark(),
-                                    "Constraint duplicated", node.getEndMark(), "constraint"));
+                    context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.VALIDATION_ERROR, "ToscaPropertyConstraintDuplicate",
+                            node.getStartMark(), "Constraint duplicated", node.getEndMark(), "constraint"));
                 }
             }
         }
@@ -64,28 +63,24 @@ public class PropertyDefinitionChecker implements IChecker<PropertyDefinition> {
     private void validateType(PropertyDefinition propertyDefinition, ParsingContextExecution context, Node node) {
         String propertyType = propertyDefinition.getType();
         if (propertyType == null) {
-            context.getParsingErrors().add(
-                    new ParsingError(ErrorCode.VALIDATION_ERROR, "ToscaPropertyType", node.getStartMark(), "Property type must be defined", node.getEndMark(),
-                            "type"));
+            context.getParsingErrors().add(new ParsingError(ErrorCode.VALIDATION_ERROR, "ToscaPropertyType", node.getStartMark(),
+                    "Property type must be defined", node.getEndMark(), "type"));
         } else if (!ToscaType.isSimple(propertyType)) {
             if (ToscaType.LIST.equals(propertyType) || ToscaType.MAP.equals(propertyType)) {
                 PropertyDefinition entrySchema = propertyDefinition.getEntrySchema();
                 if (entrySchema == null) {
-                    context.getParsingErrors().add(
-                            new ParsingError(ErrorCode.VALIDATION_ERROR, "ToscaPropertyType", node.getStartMark(), "Type " + propertyType
-                                    + " must define entry schema", node.getEndMark(), "type"));
-                } else {
-                    validateType(entrySchema, context, node);
+                    context.getParsingErrors().add(new ParsingError(ErrorCode.VALIDATION_ERROR, "ToscaPropertyType", node.getStartMark(),
+                            "Type " + propertyType + " must define entry schema", node.getEndMark(), "type"));
                 }
+                // No need to perform type validation as the entry_schema is already a property definition hence validated
             } else {
                 // It's data type
                 ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
                 if (!archiveRoot.getDataTypes().containsKey(propertyType)) {
                     IndexedDataType dataType = dependencyService.getDataType(propertyType, new ArchiveDependencyContext(archiveRoot));
                     if (dataType == null) {
-                        context.getParsingErrors().add(
-                                new ParsingError(ErrorCode.VALIDATION_ERROR, "ToscaPropertyType", node.getStartMark(), "Type " + propertyType
-                                        + " is not valid for the property definition", node.getEndMark(), "type"));
+                        context.getParsingErrors().add(new ParsingError(ErrorCode.TYPE_NOT_FOUND, "ToscaPropertyType", node.getStartMark(),
+                                "Type " + propertyType + " is not found.", node.getEndMark(), "type"));
                     }
                 }
             }
@@ -95,16 +90,15 @@ public class PropertyDefinitionChecker implements IChecker<PropertyDefinition> {
     private void validate(PropertyDefinition propertyDefinition, PropertyConstraint constraint, ParsingContextExecution context, Node keyNode) {
         IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(propertyDefinition.getType());
         if (toscaType == null) {
-            context.getParsingErrors().add(
-                    new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.INVALID_CONSTRAINT, "Constraint parsing issue", keyNode.getStartMark(),
+            context.getParsingErrors()
+                    .add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.INVALID_CONSTRAINT, "Constraint parsing issue", keyNode.getStartMark(),
                             "Limitation - Constraint cannot be used for type " + propertyDefinition.getType(), keyNode.getEndMark(), "constraint"));
         } else {
             try {
                 constraint.initialize(toscaType);
             } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
-                context.getParsingErrors().add(
-                        new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.VALIDATION_ERROR, "ToscaPropertyConstraint", keyNode.getStartMark(),
-                                e.getMessage(), keyNode.getEndMark(), "constraint"));
+                context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.VALIDATION_ERROR, "ToscaPropertyConstraint",
+                        keyNode.getStartMark(), e.getMessage(), keyNode.getEndMark(), "constraint"));
                 return;
             }
         }

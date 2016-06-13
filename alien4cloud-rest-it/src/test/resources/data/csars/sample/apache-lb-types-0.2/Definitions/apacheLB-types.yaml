@@ -2,6 +2,9 @@ tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
 
 description: apache load balancer test recipe (do not include valid implementations and definition).
 
+imports:
+  - tosca-base-types:1.0
+
 node_types:
   fastconnect.nodes.apacheLB:
     abstract : true

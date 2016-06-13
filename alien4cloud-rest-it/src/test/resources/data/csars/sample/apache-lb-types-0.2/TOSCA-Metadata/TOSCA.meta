@@ -1,0 +1,4 @@
+Name: apacheLB
+CSAR-Version: 0.2
+Created-By: FastConnect
+Entry-Definitions: Definitions/apacheLB-types.yaml

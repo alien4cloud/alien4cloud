@@ -172,6 +172,7 @@ define(function (require) {
                 segment.color = colors[tmpArray[key].environmentStatus];
                 segment.indexToOrder = priorityToOrder[tmpArray[key].environmentStatus];
                 segment.value = 1;
+                segment.id = key;
                 segment.name = tmpArray[key].environmentName;
 
                 // Initial the counter of number deployed environment by applications to sort
@@ -221,10 +222,11 @@ define(function (require) {
         });
       };
 
-      $scope.openDeploymentPage = function(applicationId) {
+      $scope.openDeploymentPage = function(applicationId, environmentId) {
         $scope.openApplication(applicationId);
         $state.go('applications.detail.deployment', {
-          id: applicationId
+          id: applicationId,
+          openOnEnvironment: environmentId
         });
       };
 

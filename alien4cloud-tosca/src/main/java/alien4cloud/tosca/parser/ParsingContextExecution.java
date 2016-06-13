@@ -1,37 +1,36 @@
 package alien4cloud.tosca.parser;
 
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Queue;
+import java.util.*;
+
+import org.springframework.beans.BeanWrapper;
+import org.yaml.snakeyaml.nodes.Node;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.BeanWrapper;
-
 @Slf4j
 public class ParsingContextExecution {
-
+    /** Root node under parsing. */
     @Getter
     @Setter
     private BeanWrapper root;
-
-    private final Queue<DefferedParsingValueExecutor> deferredParsers = new PriorityQueue<DefferedParsingValueExecutor>();
-
-    @Getter
-    private final ParsingContext parsingContext;
-
-    /** Map of parsers by type */
-    @Getter
-    @Setter
-    private Map<String, INodeParser> registry;
-
     /** Eventually, the current node parent object. */
     @Getter
     @Setter
     private Object parent;
+    /** Map of parsers by type */
+    @Getter
+    @Setter
+    private Map<String, INodeParser> registry;
+    /** Map of all parsed objects and the node from which they where parsed. */
+    @Getter
+    private Map<Object, Node> objectToNodeMap = new IdentityHashMap<>();
+    /** The parsing context. */
+    @Getter
+    private final ParsingContext parsingContext;
+
+    private final Queue<DefferedParsingValueExecutor> deferredParsers = new PriorityQueue<DefferedParsingValueExecutor>();
 
     public ParsingContextExecution(String fileName) {
         parsingContext = new ParsingContext(fileName);

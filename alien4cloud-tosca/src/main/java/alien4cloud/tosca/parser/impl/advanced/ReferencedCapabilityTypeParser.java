@@ -11,6 +11,6 @@ import alien4cloud.model.components.IndexedNodeType;
 @Component
 public class ReferencedCapabilityTypeParser extends ReferencedToscaTypeParser {
     public ReferencedCapabilityTypeParser() {
-        super(IndexedCapabilityType.class, IndexedNodeType.class);
+        super(IndexedCapabilityType.class);
     }
 }

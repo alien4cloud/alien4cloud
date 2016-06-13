@@ -11,44 +11,27 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.IndexedDataType;
-import alien4cloud.model.components.IndexedInheritableToscaElement;
-import alien4cloud.model.components.IndexedModelUtils;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.PrimitiveIndexedDataType;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.PropertyValue;
+import alien4cloud.model.components.*;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.paas.wf.AbstractActivity;
-import alien4cloud.paas.wf.AbstractStep;
-import alien4cloud.paas.wf.NodeActivityStep;
-import alien4cloud.paas.wf.Workflow;
-import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.paas.wf.*;
 import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
 import alien4cloud.paas.wf.util.WorkflowUtils;
+import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.IChecker;
-import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.ParsingError;
-import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.ToscaParsingUtil;
+import alien4cloud.tosca.parser.*;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.services.ConstraintPropertyService;
 import alien4cloud.utils.services.DependencyService.ArchiveDependencyContext;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 @Component
 public class TopologyChecker implements IChecker<Topology> {
@@ -86,14 +69,17 @@ public class TopologyChecker implements IChecker<Topology> {
         });
         mergeHierarchy(dataTypes, archiveRoot);
         mergeHierarchy(archiveRoot.getRelationshipTypes(), archiveRoot);
+
+        // Register the archive in the context to ensure that all types are here.
+        ToscaContext.get().register(archiveRoot);
     }
 
     @Override
     public void check(final Topology instance, ParsingContextExecution context, Node node) {
         if (instance.isEmpty()) {
             // if the topology doesn't contains any node template it won't be imported so add a warning.
-            context.getParsingErrors().add(
-                    new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.EMPTY_TOPOLOGY, null, node.getStartMark(), null, node.getEndMark(), ""));
+            context.getParsingErrors()
+                    .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.EMPTY_TOPOLOGY, null, node.getStartMark(), null, node.getEndMark(), ""));
         }
 
         final ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
@@ -113,9 +99,8 @@ public class TopologyChecker implements IChecker<Topology> {
                     NodeTemplate nodeTemplate = instance.getNodeTemplates().get(nodeTemplateId);
                     if (nodeTemplate == null) {
                         // add an error to the context
-                        context.getParsingErrors().add(
-                                new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNKOWN_GROUP_MEMBER, null, node.getStartMark(), null, node.getEndMark(),
-                                        nodeTemplateId));
+                        context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNKOWN_GROUP_MEMBER, null, node.getStartMark(),
+                                null, node.getEndMark(), nodeTemplateId));
                         // and remove the member
                         groupMembers.remove();
                     } else {
@@ -147,9 +132,8 @@ public class TopologyChecker implements IChecker<Topology> {
                     String propertyName = propertyEntry.getKey();
                     AbstractPropertyValue propertyValue = propertyEntry.getValue();
                     if (nodeType.getProperties() == null || !nodeType.getProperties().containsKey(propertyName)) {
-                        context.getParsingErrors().add(
-                                new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.UNRECOGNIZED_PROPERTY, nodeName, node.getStartMark(), "Property "
-                                        + propertyName + " does not exist in type " + nodeType.getElementId(), node.getEndMark(), propertyName));
+                        context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.UNRECOGNIZED_PROPERTY, nodeName, node.getStartMark(),
+                                "Property " + propertyName + " does not exist in type " + nodeType.getElementId(), node.getEndMark(), propertyName));
                         continue;
                     }
                     PropertyDefinition propertyDefinition = nodeType.getProperties().get(propertyName);
@@ -159,9 +143,8 @@ public class TopologyChecker implements IChecker<Topology> {
                         // check get_input only
                         if (function.getFunction().equals("get_input")) {
                             if (instance.getInputs() == null || !instance.getInputs().keySet().contains(parameters)) {
-                                context.getParsingErrors().add(
-                                        new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.MISSING_TOPOLOGY_INPUT, nodeName, node.getStartMark(), parameters,
-                                                node.getEndMark(), propertyName));
+                                context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.MISSING_TOPOLOGY_INPUT, nodeName,
+                                        node.getStartMark(), parameters, node.getEndMark(), propertyName));
                             }
                         }
                     } else if (propertyValue instanceof PropertyValue<?>) {
@@ -174,9 +157,8 @@ public class TopologyChecker implements IChecker<Topology> {
                                 problem.append("for " + e.getConstraintInformation().toString());
                             }
                             problem.append(e.getMessage());
-                            context.getParsingErrors().add(
-                                    new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.VALIDATION_ERROR, nodeName, node.getStartMark(), problem.toString(),
-                                            node.getEndMark(), propertyName));
+                            context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.VALIDATION_ERROR, nodeName, node.getStartMark(),
+                                    problem.toString(), node.getEndMark(), propertyName));
                         }
                     }
                 }
@@ -189,6 +171,7 @@ public class TopologyChecker implements IChecker<Topology> {
             public Topology getTopology() {
                 return instance;
             }
+
             @Override
             public <T extends IndexedToscaElement> T findElement(Class<T> clazz, String id) {
                 return ToscaParsingUtil.getElementFromArchiveOrDependencies(clazz, id, archiveRoot, searchService);
@@ -218,9 +201,8 @@ public class TopologyChecker implements IChecker<Topology> {
                             if (followingStep == null) {
                                 followingIds.remove();
                                 // TODO: add an error in parsing context ?
-                                context.getParsingErrors().add(
-                                        new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNKNWON_WORKFLOW_STEP, null, node.getStartMark(), null, node
-                                                .getEndMark(), followingId));
+                                context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNKNWON_WORKFLOW_STEP, null,
+                                        node.getStartMark(), null, node.getEndMark(), followingId));
                             } else {
                                 followingStep.addPreceding(step.getName());
                             }
@@ -239,13 +221,12 @@ public class TopologyChecker implements IChecker<Topology> {
             WorkflowUtils.fillHostId(wf, topologyContext);
             int errorCount = workflowBuilderService.validateWorkflow(topologyContext, wf);
             if (errorCount > 0) {
-                context.getParsingErrors().add(
-                        new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.WORKFLOW_HAS_ERRORS, null, node.getStartMark(), null, node.getEndMark(), wf
-                                .getName()));
+                context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.WORKFLOW_HAS_ERRORS, null, node.getStartMark(), null,
+                        node.getEndMark(), wf.getName()));
             }
         }
     }
-    
+
     private <T extends IndexedInheritableToscaElement> void mergeHierarchy(Map<String, T> indexedElements, ArchiveRoot archiveRoot) {
         if (indexedElements == null) {
             return;
