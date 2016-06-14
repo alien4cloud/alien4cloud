@@ -49,8 +49,10 @@ public class ToscaPropertySerializerUtils {
     public static String formatPropertyValue(boolean appendLf, int indentLevel, AbstractPropertyValue propertyValue) {
         if (propertyValue instanceof PropertyValue) {
             return formatValue(appendLf, indentLevel, ((PropertyValue) propertyValue).getValue());
+        } else if (propertyValue instanceof FunctionPropertyValue) {
+            return formatFunctionPropertyValue(appendLf, indentLevel, ((FunctionPropertyValue) propertyValue));
         } else {
-            throw new NotSupportedException("Do not support other types than PropertyValue");
+            throw new NotSupportedException("Do not support other types than PropertyValue or FunctionPropertyValue");
         }
     }
 
@@ -72,6 +74,17 @@ public class ToscaPropertySerializerUtils {
         } else {
             throw new NotSupportedException("Do not support other types than string map and list");
         }
+    }
+
+    private static String formatFunctionPropertyValue(boolean appendLf, int indentLevel, FunctionPropertyValue value) {
+        indentLevel++;
+        StringBuilder buffer = new StringBuilder();
+        if (value.getFunction().equals("get_input")) {
+            buffer.append("{ ").append(value.getFunction()).append(": ").append(value.getParameters().get(0)).append(" }");
+        } else {
+            buffer.append("{ ").append(value.getFunction()).append(": [").append(ToscaSerializerUtils.getCsvToString(value.getParameters())).append("] }");
+        }
+        return buffer.toString();
     }
 
     private static String formatMapValue(boolean appendFirstLf, int indentLevel, Map<String, Object> value) {

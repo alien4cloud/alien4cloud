@@ -102,11 +102,11 @@ public class ToscaSerializerUtils {
         return false;
     }
 
-    public String getCsvToString(Collection<?> list) {
+    public static  String getCsvToString(Collection<?> list) {
         return getCsvToString(list, false);
     }
 
-    public String getCsvToString(Collection<?> list, boolean renderScalar) {
+    public static String getCsvToString(Collection<?> list, boolean renderScalar) {
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;
         if (list != null) {
