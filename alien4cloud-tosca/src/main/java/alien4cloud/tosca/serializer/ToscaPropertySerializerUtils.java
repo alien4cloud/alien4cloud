@@ -1,14 +1,13 @@
 package alien4cloud.tosca.serializer;
 
-import alien4cloud.model.components.*;
-import alien4cloud.paas.exception.NotSupportedException;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import alien4cloud.model.components.*;
+import alien4cloud.paas.exception.NotSupportedException;
 
 public class ToscaPropertySerializerUtils {
 
@@ -110,7 +109,7 @@ public class ToscaPropertySerializerUtils {
         StringBuilder buffer = new StringBuilder();
         for (Object element : value) {
             if (element != null) {
-                buffer.append("\n").append(indent(indentLevel)).append("- ").append(formatValue(false, indentLevel + 1, element));
+                buffer.append("\n").append(indent(indentLevel)).append("- ").append(formatValue(false, indentLevel, element));
             }
         }
         return buffer.toString();
@@ -183,14 +182,14 @@ public class ToscaPropertySerializerUtils {
     }
 
     public static Map<String, AbstractPropertyValue> addPropertyValueIfMissing(Map<String, AbstractPropertyValue> properties, String key, String value) {
-         Map<String, AbstractPropertyValue> copy = new HashMap<>(properties);
-         if (!copy.containsKey(key) || copy.get(key) == null) {
-             copy.put(key, new ScalarPropertyValue(value));
-         }
-         return copy;
-     }
+        Map<String, AbstractPropertyValue> copy = new HashMap<>(properties);
+        if (!copy.containsKey(key) || copy.get(key) == null) {
+            copy.put(key, new ScalarPropertyValue(value));
+        }
+        return copy;
+    }
 
     private static boolean isPrimitiveType(Object value) {
-         return value instanceof String || value instanceof Number || value instanceof Boolean;
-     }
+        return value instanceof String || value instanceof Number || value instanceof Boolean;
+    }
 }
