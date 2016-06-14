@@ -143,7 +143,9 @@
     type: non_deferred_property_definition
   required: required
   description: description
-  default: default
+  default: 
+    reference: default
+    type: abstract_property_value
   constraints:
     list: constraints
     type: constraint
@@ -311,8 +313,25 @@
     map: portability
     type: node_template_property
     
-
-- data_type: alien4cloud.model.components.IndexedDataType|toscaElementChecker
+- data_type: __discriminator
+  keys:
+    constraints: simple_data_type
+  default: complex_data_type
+  
+- simple_data_type: alien4cloud.model.components.PrimitiveIndexedDataType|toscaElementChecker
+  description: description
+  abstract: abstract
+  tags:
+    reference: tags
+    type: tag  
+  derived_from:
+    reference: derivedFrom
+    type: derived_from_data_type
+  constraints:
+    list: constraints
+    type: constraint
+      
+- complex_data_type: alien4cloud.model.components.IndexedDataType|toscaElementChecker
   description: description
   abstract: abstract
   tags:

@@ -3,20 +3,25 @@ package alien4cloud.tosca.topology;
 import java.util.List;
 import java.util.Map;
 
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections4.MapUtils;
 
-import com.google.common.collect.Maps;
-
-import alien4cloud.model.components.*;
+import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.DeploymentArtifact;
+import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.RequirementDefinition;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Requirement;
-import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.tosca.normative.AlienCustomTypes;
 import alien4cloud.utils.PropertyUtil;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+
+import com.google.common.collect.Maps;
 
 /**
  * Utility to create a Node Template by merging Node Type and Node Template data.
@@ -116,24 +121,8 @@ public class NodeTemplateBuilder {
         for (Map.Entry<String, PropertyDefinition> entry : propertiesDefinitions.entrySet()) {
             AbstractPropertyValue existingValue = MapUtils.getObject(map, entry.getKey());
             if (existingValue == null) {
-                String defaultValue = entry.getValue().getDefault();
-                if (defaultValue != null && !defaultValue.trim().isEmpty()) {
-                    defaultValue = defaultValue.trim();
-                    PropertyValue<?> pv = null;
-
-                    if (AlienCustomTypes.checkDefaultIsComplex(defaultValue)) {
-                        pv = new ComplexPropertyValue(JsonUtil.toMap(defaultValue));
-                    } else if (AlienCustomTypes.checkDefaultIsList(defaultValue)) {
-                        pv = new ListPropertyValue(JsonUtil.toList(defaultValue, Object.class));
-
-                    } else {
-                        pv = new ScalarPropertyValue(defaultValue);
-                    }
-
-                    properties.put(entry.getKey(), pv);
-                } else {
-                    properties.put(entry.getKey(), null);
-                }
+                AbstractPropertyValue pv = PropertyUtil.getDefaultPropertyValueFromPropertyDefinition(entry.getValue());
+                properties.put(entry.getKey(), pv);
             } else {
                 properties.put(entry.getKey(), existingValue);
             }

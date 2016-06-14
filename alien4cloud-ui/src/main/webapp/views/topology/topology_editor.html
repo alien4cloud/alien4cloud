@@ -217,6 +217,7 @@
                     <property-display
                       ng-init="condensed = true"
                       definition="properties.getFormatedProperty(propEntry.key)"
+                      property-type="topology.dataTypes[properties.getFormatedProperty(propEntry.key).type]"
                       dependencies="topology.topology.dependencies"
                       property-name="propEntry.key"
                       property-value="propEntry.value"

@@ -6,22 +6,21 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import lombok.*;
-
 import org.elasticsearch.annotation.ObjectField;
-import org.hibernate.validator.constraints.NotBlank;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
+import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import alien4cloud.model.components.constraints.*;
 import alien4cloud.tosca.container.validation.*;
 import alien4cloud.ui.form.annotation.FormContentTypes;
 import alien4cloud.ui.form.annotation.FormProperties;
 import alien4cloud.ui.form.annotation.FormType;
 import alien4cloud.ui.form.annotation.FormValidValues;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import lombok.*;
 
 /**
  *
@@ -54,9 +53,10 @@ public class PropertyDefinition implements IValue {
     private boolean required = true;
 
     @JsonProperty("default")
+    @JsonDeserialize(using = PropertyValueDeserializer.class)
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
-    private String defaultValue;
+    private PropertyValue defaultValue;
 
     private String description;
 
@@ -91,11 +91,11 @@ public class PropertyDefinition implements IValue {
         this.isPassword = from.isPassword;
     }
 
-    public String getDefault() {
+    public PropertyValue getDefault() {
         return this.defaultValue;
     }
 
-    public void setDefault(String defaultValue) {
+    public void setDefault(PropertyValue defaultValue) {
         this.defaultValue = defaultValue;
     }
 

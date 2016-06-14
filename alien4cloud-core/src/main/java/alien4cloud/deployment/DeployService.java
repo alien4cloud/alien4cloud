@@ -38,6 +38,7 @@ import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.exception.EmptyMetaPropertyException;
 import alien4cloud.paas.exception.OrchestratorDeploymentIdConflictException;
 import alien4cloud.topology.TopologyValidationResult;
+import alien4cloud.utils.PropertyUtil;
 
 import com.google.common.collect.Maps;
 
@@ -185,9 +186,7 @@ public class DeployService {
                 metaProp = (MetaPropConfiguration) result.getData()[i];
                 if (app.getMetaProperties().get(metaProp.getId()) != null) {
                     metaProperties.put(metaProp.getName(), app.getMetaProperties().get(metaProp.getId()));
-                } else if (metaProp.getDefault() != null) {
-                    metaProperties.put(metaProp.getName(), metaProp.getDefault());
-                } else {
+                } else if (!PropertyUtil.setScalarDefaultValueIfNotNull(metaProperties, metaProp.getName(), metaProp.getDefault())) {
                     throw new EmptyMetaPropertyException("The meta property " + metaProp.getName() + " is null and don't have a default value.");
                 }
             }

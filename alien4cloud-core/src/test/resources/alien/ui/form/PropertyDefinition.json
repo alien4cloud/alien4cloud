@@ -3,7 +3,15 @@
   "_order" : [ "type", "required", "default", "description" ],
   "_propertyType" : {
     "default" : {
-      "_type" : "string"
+      "_order" : [ "value" ],
+      "_propertyType" : {
+        "value" : {
+          "_order" : [ ],
+          "_propertyType" : { },
+          "_type" : "complex"
+        }
+      },
+      "_type" : "complex"
     },
     "description" : {
       "_type" : "string"
@@ -17,5 +25,6 @@
       "_type" : "boolean",
       "_notNull" : true
     }
-  }
+  },
+  "_type" : "complex"
 }

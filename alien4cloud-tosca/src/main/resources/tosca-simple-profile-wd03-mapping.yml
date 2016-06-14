@@ -177,7 +177,9 @@
     type: non_deferred_property_definition
   required: required
   description: description
-  default: default
+  default: 
+    reference: default
+    type: abstract_property_value
   constraints:
     list: constraints
     type: constraint

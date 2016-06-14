@@ -25,6 +25,7 @@ import alien4cloud.model.components.IndexedDataType;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.components.PrimitiveIndexedDataType;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.git.CsarGitRepository;
@@ -67,7 +68,7 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         setJsonMapper(ElasticSearchMapper.getInstance());
 
         initIndices(TOSCA_ELEMENT_INDEX, null, IndexedCapabilityType.class, IndexedArtifactType.class, IndexedRelationshipType.class, IndexedNodeType.class,
-                IndexedDataType.class);
+                IndexedDataType.class, PrimitiveIndexedDataType.class);
         initIndices(TOSCA_ELEMENT_INDEX, null, IndexedArtifactToscaElement.class, IndexedToscaElement.class);
 
         initIndice(Application.class);
