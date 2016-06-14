@@ -6,7 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import alien4cloud.model.components.*;
+import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.FunctionPropertyValue;
+import alien4cloud.model.components.PropertyValue;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.paas.exception.NotSupportedException;
 
 public class ToscaPropertySerializerUtils {
@@ -175,10 +178,6 @@ public class ToscaPropertySerializerUtils {
             return true;
         }
         return false;
-    }
-
-    public static String getNativePropertyValue(IndexedNodeType toscaNodeType, String property) {
-        return toscaNodeType.getProperties().get(property).getDefault();
     }
 
     public static Map<String, AbstractPropertyValue> addPropertyValueIfMissing(Map<String, AbstractPropertyValue> properties, String key, String value) {
