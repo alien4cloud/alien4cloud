@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import org.elasticsearch.annotation.MapKeyValue;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermsFacet;
 
@@ -26,7 +27,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Setter
 @EqualsAndHashCode(of = {}, callSuper = true)
 public class IndexedInheritableToscaElement extends IndexedToscaElement {
-
     @TermsFacet
     private boolean isAbstract;
 
@@ -34,7 +34,8 @@ public class IndexedInheritableToscaElement extends IndexedToscaElement {
     @TermsFacet
     private List<String> derivedFrom;
 
-    @ConditionalOnAttribute(ConditionalAttributes.REST)
+    @MapKeyValue
+    @ConditionalOnAttribute(value = { ConditionalAttributes.REST, ConditionalAttributes.ES })
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     @FetchContext(contexts = { SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })

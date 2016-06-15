@@ -2,10 +2,12 @@ package alien4cloud.model.topology;
 
 import java.util.Map;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.elasticsearch.annotation.MapKeyValue;
+import org.elasticsearch.annotation.ObjectField;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import alien4cloud.json.deserializer.AttributeDeserializer;
 import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import alien4cloud.model.components.AbstractPropertyValue;
@@ -16,10 +18,10 @@ import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;
 import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
 import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.elasticsearch.annotation.ObjectField;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Abstract template is parent of {@link NodeTemplate} and {@link RelationshipTemplate}.
@@ -59,11 +61,16 @@ public abstract class AbstractTemplate {
     /**
      * The deployment artifacts
      */
+    @MapKeyValue
+    @ConditionalOnAttribute(value = { ConditionalAttributes.ES })
+    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
+    @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, DeploymentArtifact> artifacts;
 
     /**
      * The interfaces that are defined at the template level (overriding type's one).
      */
-    @ConditionalOnAttribute(ConditionalAttributes.REST)
+    @MapKeyValue
+    @ConditionalOnAttribute(value = { ConditionalAttributes.REST, ConditionalAttributes.ES })
     private Map<String, Interface> interfaces;
 }
