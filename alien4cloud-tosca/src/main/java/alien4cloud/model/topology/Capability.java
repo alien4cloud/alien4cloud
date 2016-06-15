@@ -13,6 +13,7 @@ import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.elasticsearch.annotation.ObjectField;
 
 /**
  * Capability for a node template. This should match a capability definition from the node's type.
@@ -31,6 +32,7 @@ public class Capability {
      * This element specifies initial values for one or more of the Capability Properties according to the Capability Type providing the property definitions.
      * Properties are provided in the form of an XML fragment. The same rules as outlined for the Properties element of the Node Template apply.
      */
+    @ObjectField(enabled = false)
     @ConditionalOnAttribute(ConditionalAttributes.REST)
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class, contentUsing = PropertyValueDeserializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)

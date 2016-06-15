@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.elasticsearch.annotation.MapKeyValue;
+import org.elasticsearch.annotation.ObjectField;
 
 /**
  * Specifies a kind of a component making up the cloud application.
@@ -38,7 +40,8 @@ public class NodeTemplate extends AbstractTemplate {
     /**
      * The requirement that this node template defines
      */
-    @ConditionalOnAttribute(ConditionalAttributes.REST)
+    @MapKeyValue
+    @ConditionalOnAttribute(value = { ConditionalAttributes.REST, ConditionalAttributes.ES })
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, Requirement> requirements;
@@ -46,7 +49,8 @@ public class NodeTemplate extends AbstractTemplate {
     /**
      * Relationships between node templates
      */
-    @ConditionalOnAttribute(ConditionalAttributes.REST)
+    @MapKeyValue
+    @ConditionalOnAttribute(value = { ConditionalAttributes.REST, ConditionalAttributes.ES })
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, RelationshipTemplate> relationships;
@@ -54,7 +58,8 @@ public class NodeTemplate extends AbstractTemplate {
     /**
      * The capabilities that this node template defines
      */
-    @ConditionalOnAttribute(ConditionalAttributes.REST)
+    @MapKeyValue
+    @ConditionalOnAttribute(value = { ConditionalAttributes.REST, ConditionalAttributes.ES })
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, Capability> capabilities;

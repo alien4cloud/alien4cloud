@@ -12,6 +12,7 @@ import alien4cloud.ui.form.annotation.FormSuggestion;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.elasticsearch.annotation.ObjectField;
 
 /**
  * Specifies the requirements that the Node Type exposes.
@@ -53,6 +54,7 @@ public class RequirementDefinition implements LowerBoundedDefinition, UpperBound
     @JsonSerialize(using = BoundSerializer.class)
     private int upperBound = 1;
 
+    @ObjectField(enabled = false)
     /** Constraints to specify on the target capability or node's properties. */
     private NodeFilter nodeFilter;
 
