@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import alien4cloud.model.components.ComplexPropertyValue;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,24 +67,24 @@ public class ToscaSerializerUtilsTest {
 
     @Test
     public void testRenderScalar() {
-        Assert.assertEquals("a scalar", utils.renderScalar("a scalar"));
+        Assert.assertEquals("a scalar", ToscaPropertySerializerUtils.renderScalar("a scalar"));
         // contains a [ so should be quoted
-        Assert.assertEquals("\"[a scalar\"", utils.renderScalar("[a scalar"));
-        Assert.assertEquals("\"a ]scalar\"", utils.renderScalar("a ]scalar"));
+        Assert.assertEquals("\"[a scalar\"", ToscaPropertySerializerUtils.renderScalar("[a scalar"));
+        Assert.assertEquals("\"a ]scalar\"", ToscaPropertySerializerUtils.renderScalar("a ]scalar"));
         // contains a { so should be quoted
-        Assert.assertEquals("\"{a scalar\"", utils.renderScalar("{a scalar"));
-        Assert.assertEquals("\"a }scalar\"", utils.renderScalar("a }scalar"));
+        Assert.assertEquals("\"{a scalar\"", ToscaPropertySerializerUtils.renderScalar("{a scalar"));
+        Assert.assertEquals("\"a }scalar\"", ToscaPropertySerializerUtils.renderScalar("a }scalar"));
         // contains a : so should be quoted
-        Assert.assertEquals("\":a scalar\"", utils.renderScalar(":a scalar"));
-        Assert.assertEquals("\"a :scalar\"", utils.renderScalar("a :scalar"));
+        Assert.assertEquals("\":a scalar\"", ToscaPropertySerializerUtils.renderScalar(":a scalar"));
+        Assert.assertEquals("\"a :scalar\"", ToscaPropertySerializerUtils.renderScalar("a :scalar"));
         // contains a - so should be quoted
-        Assert.assertEquals("\"-a scalar\"", utils.renderScalar("-a scalar"));
-        Assert.assertEquals("\"a -scalar\"", utils.renderScalar("a -scalar"));
+        Assert.assertEquals("\"-a scalar\"", ToscaPropertySerializerUtils.renderScalar("-a scalar"));
+        Assert.assertEquals("\"a -scalar\"", ToscaPropertySerializerUtils.renderScalar("a -scalar"));
         // starts or ends with a ' ' so should be quoted
-        Assert.assertEquals("\" a scalar\"", utils.renderScalar(" a scalar"));
-        Assert.assertEquals("\"a scalar \"", utils.renderScalar("a scalar "));
+        Assert.assertEquals("\" a scalar\"", ToscaPropertySerializerUtils.renderScalar(" a scalar"));
+        Assert.assertEquals("\"a scalar \"", ToscaPropertySerializerUtils.renderScalar("a scalar "));
         // and then " should be escaped
-        Assert.assertEquals("\"a \\\"scalar\\\" \"", utils.renderScalar("a \"scalar\" "));
+        Assert.assertEquals("\"a \\\"scalar\\\" \"", ToscaPropertySerializerUtils.renderScalar("a \"scalar\" "));
     }
 
     @Test
@@ -254,31 +255,4 @@ public class ToscaSerializerUtilsTest {
         };
         Assert.assertEquals("", utils.renderConstraint(abstractPropertyConstraint));
     }
-
-    @Test
-    public void testIsScalarPropertyValue() {
-        Assert.assertTrue(utils.isScalarPropertyValue(new ScalarPropertyValue()));
-        Assert.assertFalse(utils.isScalarPropertyValue(new FunctionPropertyValue()));
-        Assert.assertFalse(utils.isScalarPropertyValue(new AbstractPropertyValue() {
-        }));
-    }
-
-    @Test
-    public void testIsFunctionPropertyValue() {
-        Assert.assertFalse(utils.isFunctionPropertyValue(new ScalarPropertyValue()));
-        Assert.assertTrue(utils.isFunctionPropertyValue(new FunctionPropertyValue()));
-        Assert.assertFalse(utils.isFunctionPropertyValue(new AbstractPropertyValue() {
-        }));
-    }
-
-    @Test
-    public void testIsAbstractPropertyValueNotNull() {
-        Assert.assertFalse(utils.isAbstractPropertyValueNotNull(null));
-        Assert.assertFalse(utils.isAbstractPropertyValueNotNull(new ScalarPropertyValue()));
-        Assert.assertTrue(utils.isAbstractPropertyValueNotNull(new ScalarPropertyValue("value")));
-        Assert.assertTrue(utils.isAbstractPropertyValueNotNull(new FunctionPropertyValue()));
-        Assert.assertFalse(utils.isFunctionPropertyValue(new AbstractPropertyValue() {
-        }));
-    }
-
 }

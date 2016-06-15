@@ -57,7 +57,18 @@ public class ToscaType {
         return TYPES_MAP.get(typeName);
     }
 
+    /**
+     * A simple type is represented as a scalar in TOSCA yaml.
+     */
     public static boolean isSimple(String typeName) {
         return TYPES_MAP.containsKey(typeName);
     }
+
+    /**
+     * Indicates if the type is a simple type or a list or a map (everything except custom data type).
+     */
+    public static boolean isPrimitive(String typeName) {
+        return isSimple(typeName) || LIST.equals(typeName) || MAP.equals(typeName);
+    }
+
 }

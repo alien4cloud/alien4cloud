@@ -14,6 +14,7 @@ import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -23,6 +24,7 @@ import alien4cloud.utils.AlienYamlPropertiesFactoryBeanFactory;
 
 @Configuration
 @EnableAutoConfiguration(exclude = { HypermediaAutoConfiguration.class })
+@EnableAspectJAutoProxy(proxyTargetClass = true)
 @ComponentScan(basePackages = { "alien4cloud", "org.elasticsearch.mapping" })
 public class Application {
     /**

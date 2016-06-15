@@ -1,7 +1,7 @@
 package alien4cloud.paas.model;
 
 /**
- * Status of an application on the PaaS
+ * Status of an application in the orchestrator.
  */
 public enum DeploymentStatus {
     /**
@@ -12,6 +12,10 @@ public enum DeploymentStatus {
      * Application is not deployed
      */
     UNDEPLOYED,
+    /**
+     * A deployment has just been triggered, it's in its init stage.
+     */
+    INIT_DEPLOYMENT,
     /**
      * A deployment has been triggered, it's in progress
      */

@@ -15,6 +15,7 @@ import alien4cloud.ui.form.annotation.FormSuggestion;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.elasticsearch.annotation.query.TermsFacet;
 
 /**
  * Specifies the capabilities that the Node Type exposes.
@@ -25,7 +26,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @AllArgsConstructor
 @EqualsAndHashCode(of = { "id" })
 @FormProperties({ "type", "lowerBound", "upperBound" })
-public class CapabilityDefinition {
+public class CapabilityDefinition implements UpperBoundedDefinition {
     private String id;
     private String description;
     /** Identifies the type of the capability. */
@@ -33,7 +34,7 @@ public class CapabilityDefinition {
     private String type;
 
     /**
-     * Specifies the upper boundary of client requirements the defined capability can serve. The default value for this attribute is one. A value of
+     * Specifies the upper boundary of client requirements the defined capability can serve. The default value for this attribute is unbounded. A value of
      * 'unbounded' indicates that there is no upper boundary.
      */
     @JsonDeserialize(using = BoundDeserializer.class)
@@ -42,6 +43,9 @@ public class CapabilityDefinition {
 
     /** Map of properties value(s) to define the capability. */
     private Map<String, List<String>> properties;
+
+    @TermsFacet
+    private String[] validSources;
 
     public CapabilityDefinition(String id, String type, int upperBound) {
         this.id = id;

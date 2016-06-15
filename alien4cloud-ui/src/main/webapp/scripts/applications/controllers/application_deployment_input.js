@@ -28,6 +28,7 @@ define(function(require) {
     ['$scope', '$upload', 'applicationServices', '$http', '$filter', 'deploymentTopologyServices',
       function($scope, $upload, applicationServices, $http, $filter, deploymentTopologyServices) {
 
+        $scope._=_;
         $scope.isAllowedInputDeployment = function() {
           return !_.isEmpty($filter('allowedInputs')($scope.deploymentContext.deploymentTopologyDTO.topology.inputs));
         };

@@ -1,5 +1,5 @@
 <div class="row" style="margin-top: 10px;">
-  <div class="col-md-12">
+  <div class="col-md-4">
     <!-- DEPLOY BUTTON -->
     <button id="btn-deploy"
             type="button"
@@ -12,7 +12,7 @@
     <button id="btn-undeploy"
             type="button"
             class="btn btn-danger application-deploy-button"
-            ng-disabled="deploymentContext.selectedEnvironment.status === 'UNDEPLOYMENT_IN_PROGRESS'"
+            ng-disabled="deploymentContext.selectedEnvironment.status === 'UNDEPLOYMENT_IN_PROGRESS' || deploymentContext.selectedEnvironment.status === 'INIT_DEPLOYMENT'"
             ng-click="undeploy()"
             ng-if="deploymentContext.selectedEnvironment.status !== 'UNDEPLOYED' ">
       <i class="fa" ng-class="{'fa-stop': !isUnDeploying, 'fa-spinner fa-spin': isUnDeploying}"></i> {{'APPLICATIONS.UNDEPLOY' | translate}}

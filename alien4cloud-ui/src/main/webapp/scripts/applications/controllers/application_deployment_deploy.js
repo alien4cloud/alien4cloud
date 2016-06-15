@@ -16,7 +16,10 @@ define(function(require) {
       state: 'applications.detail.deployment.deploy',
       key: 'APPLICATIONS.DEPLOYMENT.DEPLOY',
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'], // is deployer
-      priority: 400
+      priority: 400,
+      step: {
+        taskCodes: ['NODE_FILTER_INVALID', 'PROPERTIES', 'SCALABLE_CAPABILITY_INVALID']
+      }
     }
   });
 
@@ -32,7 +35,7 @@ define(function(require) {
           };
           $scope.isDeploying = true;
           applicationServices.deployApplication.deploy([], angular.toJson(deployApplicationRequest), function() {
-            $scope.deploymentContext.selectedEnvironment.status = 'DEPLOYMENT_IN_PROGRESS';
+            $scope.deploymentContext.selectedEnvironment.status = 'INIT_DEPLOYMENT';
             $scope.isDeploying = false;
           }, function() {
             $scope.isDeploying = false;

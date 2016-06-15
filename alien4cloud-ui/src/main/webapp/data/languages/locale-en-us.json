@@ -141,12 +141,13 @@
         "NODE_FILTER" : {
           "CAPABILITY_MISSING_ERROR" : "The target has not this ability",
           "CAPABILITY_NAME" : "Capacity name",
-          "NODE_FILTER_INVALID" : "NodeFilters not satisfy",
+          "NODE_FILTER_INVALID" : "NodeFilters not satisfied",
           "PROPERTY_CONSTRAINT_VIOLATION_ERROR" : "One constraint on this property is not respected",
           "PROPERTY_MISSING_ERROR" : "La cible de posséde pas cette propriété",
           "PROPERTY_NAME" : "Property name",
           "PROPERTY_TYPE_VIOLATION_ERROR" : "The property has no such target"
         },
+        "RELATED_INPUT":"Related input",
         "REPLACE" : "Replace by one of the suggested",
         "REPLACE_LABEL" : "To replace",
         "REQUIRED_PROPERTIES_LABEL" : "Required properties",
@@ -391,6 +392,8 @@
       "MISSING_FILE" : "Reference file {{note}} cannot be found within the archive.",
       "MISSING_TOPOLOGY_INPUT" : "The input [{{problem}}] referenced by the property [{{problem}}] of [{{context}}] node was not found in the inputs list",
       "MISSING_TOSCA_VERSION" : "Tosca version is not specified and is required.",
+      "UNKNOWN_TOSCA_VERSION" : "Tosca version is unknown and not recognized by Alien 4 Cloud.",
+      "TOSCA_VERSION_NOT_FIRST": "Tosca version must be the first line of the service template.",
       "NotNull" : "The property [ {{path}} ] cannot be null",
       "OUTPUTS_BAD_PARAMS_COUNT" : "Function arguments count is incorrect",
       "OUTPUTS_UNKNOWN_FUNCTION" : "Unknown function [{{note}}]",
@@ -497,6 +500,7 @@
   "DEPLOYMENT" : {
     "STATUS" : {
       "DEPLOYED" : "Deployed",
+      "INIT_DEPLOYMENT" : "Deployment init",
       "DEPLOYMENT_IN_PROGRESS" : "Deployment in progress",
       "FAILURE" : "Failed",
       "UNDEPLOYED" : "Undeployed",

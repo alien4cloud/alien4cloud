@@ -6,8 +6,9 @@ define(function (require) {
   var _ = require('lodash');
 
   require('scripts/tosca/services/tosca_service');
+  require('scripts/common/services/search_service_factory');
 
-  modules.get('a4c-components', ['a4c-tosca']).controller('alienSearchComponentCtrl', ['$scope', '$filter', 'searchContext', '$resource', 'toscaService', 'searchServiceFactory', '$state', function($scope, $filter, searchContext, $resource, toscaService, searchServiceFactory, $state) {
+  modules.get('a4c-components', ['a4c-tosca', 'a4c-search']).controller('alienSearchComponentCtrl', ['$scope', '$filter', 'searchContext', '$resource', 'toscaService', 'searchServiceFactory', '$state', function($scope, $filter, searchContext, $resource, toscaService, searchServiceFactory, $state) {
     var alienInternalTags = ['icon'];
     $scope.searchService = searchServiceFactory('rest/latest/components/search', false, $scope, 20, 10);
     $scope.searchService.filtered(true);

@@ -3,7 +3,7 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>1.2.0-SM5</version>
+    <version>1.2.0-RC1</version>
   </parent>
   <artifactId>alien4cloud-tosca</artifactId>
   <name>Alien 4 Cloud TOSCA</name>
@@ -23,11 +23,21 @@
       <artifactId>alien4cloud-common</artifactId>
       <version>${project.version}</version>
     </dependency>
-
+    <!-- Templating -->
+    <dependency>
+      <groupId>org.apache.velocity</groupId>
+      <artifactId>velocity</artifactId>
+    </dependency>
     <!-- Validation -->
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-validator</artifactId>
+    </dependency>
+
+    <!-- tests -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
     </dependency>
   </dependencies>
 </project>

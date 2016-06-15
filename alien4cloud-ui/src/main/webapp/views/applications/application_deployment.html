@@ -13,7 +13,7 @@
             'fa-warning text-warning' : deploymentContext.selectedEnvironment.status === 'WARNING',
             'fa-circle text-danger' : deploymentContext.selectedEnvironment.status === 'FAILURE',
             'fa-question-circle text-muted' : deploymentContext.selectedEnvironment.status === 'UNKNOWN',
-            'fa-spinner fa-spin' : deploymentContext.selectedEnvironment.status === 'DEPLOYMENT_IN_PROGRESS' || deploymentContext.selectedEnvironment.status == 'UNDEPLOYMENT_IN_PROGRESS'
+            'fa-spinner fa-spin' : deploymentContext.selectedEnvironment.status === 'INIT_DEPLOYMENT' || deploymentContext.selectedEnvironment.status === 'DEPLOYMENT_IN_PROGRESS' || deploymentContext.selectedEnvironment.status == 'UNDEPLOYMENT_IN_PROGRESS'
           }">
       </i>
 
@@ -40,7 +40,8 @@
 
             <!--  Node Filter tasks  -->
             <node-filters-errors-display
-              tasks = "validTopologyDTO.taskList['NODE_FILTER_INVALID']">
+              tasks = "validTopologyDTO.taskList['NODE_FILTER_INVALID']"
+              input-column=false>
             </node-filters-errors-display>
 
             <!--  LowerBound not satisfied tasks  -->
@@ -54,7 +55,7 @@
             </properties-errors-display>
 
             <scalability-errors-display
-              tasks="validTopologyDTO.taskList['SCALABLE_CAPABILITY_INVALID']">
+              tasks="validTopologyDTO.taskList['SCALABLE_CAPABILITY_INVALID']" >
             </scalability-errors-display>
 
             <!--  Workflow tasks  -->
@@ -152,6 +153,12 @@
           <h3 class="text-danger"><i class="fa fa-exclamation-triangle"></i> {{'APPLICATIONS.TOPOLOGY.TASK.ERRORS_LABEL' | translate}}</h3>
 
          <div class="task-list-box">
+           <!-- NODE FILTERS-->
+           <node-filters-errors-display
+             tasks = "deploymentContext.deploymentTopologyDTO.validation.taskList['NODE_FILTER_INVALID']"
+             input-column=true>
+          </node-filters-errors-display>
+
           <!-- SCALABILITY ERRORS -->
           <scalability-errors-display
             tasks="deploymentContext.deploymentTopologyDTO.validation.taskList['SCALABLE_CAPABILITY_INVALID']">

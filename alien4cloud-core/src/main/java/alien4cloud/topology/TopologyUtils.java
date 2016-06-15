@@ -134,11 +134,11 @@ public class TopologyUtils {
         capability.getProperties().put(propertyName, new ScalarPropertyValue(String.valueOf(propertyValue)));
     }
 
-    public static Capability getCapability(Topology topology, String nodeTemplateId, String capabilityName, boolean throwNotFoundException) {
+    private static Capability getCapability(Topology topology, String nodeTemplateId, String capabilityName, boolean throwNotFoundException) {
         return getCapability(topology.getNodeTemplates(), nodeTemplateId, capabilityName, throwNotFoundException);
     }
 
-    public static Capability getCapability(Map<String, NodeTemplate> nodes, String nodeTemplateId, String capabilityName, boolean throwNotFoundException) {
+    private static Capability getCapability(Map<String, NodeTemplate> nodes, String nodeTemplateId, String capabilityName, boolean throwNotFoundException) {
         NodeTemplate node = nodes.get(nodeTemplateId);
         if (node == null) {
             if (throwNotFoundException) {
@@ -192,7 +192,7 @@ public class TopologyUtils {
         return indexSet.iterator().next();
     }
 
-    private static String  toLowerCase(String text) {
+    private static String toLowerCase(String text) {
         return text.substring(0, 1).toLowerCase() + text.substring(1);
     }
 
@@ -207,7 +207,7 @@ public class TopologyUtils {
      * @param targetName name of the target
      * @return the default constructed name
      */
-    public static String  getRelationShipName(String type, String targetName) {
+    private static String getRelationShipName(String type, String targetName) {
         String[] tokens = type.split("\\.");
         if (tokens.length > 1) {
             return toLowerCase(tokens[tokens.length - 1]) + toUpperCase(targetName);
@@ -269,8 +269,8 @@ public class TopologyUtils {
         }
     }
 
-    public static void refreshNodeTemplateNameInRelationships(String oldNodeTemplateName, String newNodeTemplateName,
-                                                        Map<String, RelationshipTemplate> relationshipTemplates) {
+    private static void refreshNodeTemplateNameInRelationships(String oldNodeTemplateName, String newNodeTemplateName,
+            Map<String, RelationshipTemplate> relationshipTemplates) {
         Map<String, String> updatedKeys = Maps.newHashMap();
         for (Map.Entry<String, RelationshipTemplate> relationshipTemplateEntry : relationshipTemplates.entrySet()) {
             String relationshipTemplateId = relationshipTemplateEntry.getKey();
@@ -323,6 +323,7 @@ public class TopologyUtils {
 
     /**
      * Rename formattedOldNodeName node template of a topology.
+     * 
      * @param topology
      * @param nodeTemplateName
      * @param newNodeTemplateName
@@ -345,6 +346,7 @@ public class TopologyUtils {
 
     /**
      * Rename the node template with an invalid name on the topology.
+     * 
      * @param topology
      * @param parsedArchive
      */

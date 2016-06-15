@@ -48,7 +48,6 @@ public class NodeTemplateChecker implements IChecker<NodeTemplate> {
                     "The type specified for a node_template is not found neither in the archive nor its dependencies.", node.getEndMark(), nodeTypeName));
             return;
         }
-        ToscaContext.get().register(archiveRoot);
 
         NodeTemplate tempObject = NodeTemplateBuilder.buildNodeTemplate(indexedNodeType, instance);
 

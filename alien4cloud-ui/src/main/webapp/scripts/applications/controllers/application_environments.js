@@ -120,20 +120,12 @@ define(function (require) {
         }
       };
 
-      var getVersionIdByName = function(name) {
-        for (var i = 0; i < $scope.versions.length; i++) {
-          if ($scope.versions[i].version === name) {
-            return $scope.versions[i].id;
-          }
-        }
+      $scope.getVersionByName = function(name) {
+        return _.find($scope.versions, {'version': name});
       };
 
-      $scope.getVersionByName = function(name) {
-        for (var i = 0; i < $scope.versions.length; i++) {
-          if ($scope.versions[i].version === name) {
-            return $scope.versions[i];
-          }
-        }
+      var getVersionIdByName = function(name) {
+        return _.result($scope.getVersionByName(name), 'id');
       };
 
       function updateEnvironment(environmentId, fieldName, fieldValue) {

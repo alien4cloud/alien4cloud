@@ -62,7 +62,7 @@
                       <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.APP_NAME' | translate}}</strong></td>
                       <td class="col-md-7">{{application.name}}</td>
                       <td class="col-md-1">
-                        <a class="{{hasNOdeInstanceInMaintenanceMode ? 'btn btn-danger btn-xs' : 'btn btn-success btn-xs'}}"
+                        <!-- <a class="{{hasNOdeInstanceInMaintenanceMode ? 'btn btn-danger btn-xs' : 'btn btn-success btn-xs'}}"
                            id="appMaintenanceButton"
                            confirm="{{hasNOdeInstanceInMaintenanceMode ? 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.OFF' : 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.ON' | translate}}"
                            confirm-title="{{'APPLICATIONS.RUNTIME.MAINTENANCE' | translate }}"
@@ -70,7 +70,7 @@
                            confirm-handler="switchDeployementMaintenanceMode()"
                            ng-click="$event.stopPropagation();">
                           <i class="fa fa-wrench"></i>
-                        </a>
+                        </a> -->
                       </td>
                     </tr>
                     <tr>
@@ -183,11 +183,11 @@
                         <td class="col-md-1">
                           <i class="fa" ng-class="{'fa-check text-success': info.instanceStatus === 'SUCCESS',
                           'fa-times text-danger': info.instanceStatus === 'FAILURE',
-                          'fa-spinner fa-spin' : info.instanceStatus === 'PROCESSING',
-                          'fa-wrench text-warning' : info.instanceStatus === 'MAINTENANCE'}"></i>
+                          'fa-spinner fa-spin' : info.instanceStatus === 'PROCESSING'}"></i>
+                          <!-- 'fa-wrench text-warning' : info.instanceStatus === 'MAINTENANCE'}"></i> -->
                         </td>
                         <td class="col-md-1">
-                          <div ng-if="isComputeType(selectedNodeTemplate) && (info.instanceStatus === 'SUCCESS' || info.instanceStatus === 'MAINTENANCE')" >
+                          <!-- <div ng-if="isComputeType(selectedNodeTemplate) && (info.instanceStatus === 'SUCCESS' || info.instanceStatus === 'MAINTENANCE')" >
                             <a class="{{info.instanceStatus === 'SUCCESS' ? 'btn btn-success btn-xs' : 'btn btn-danger btn-xs'}}"
                                id="instanceMaintenanceButton"
                                confirm="{{info.instanceStatus === 'SUCCESS' ? 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.ON' : 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.OFF' | translate}}"
@@ -197,7 +197,7 @@
                                ng-click="$event.stopPropagation();">
                               <i class="fa fa-wrench"></i>
                             </a>
-                          </div>
+                          </div> -->
                         </td>
                       </tr>
                     </tbody>

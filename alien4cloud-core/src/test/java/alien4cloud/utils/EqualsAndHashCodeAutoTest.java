@@ -1,6 +1,7 @@
 package alien4cloud.utils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -8,8 +9,23 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
 import alien4cloud.model.common.Tag;
-import alien4cloud.model.components.*;
-import alien4cloud.model.components.constraints.*;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.Csar;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.RequirementDefinition;
+import alien4cloud.model.components.constraints.EqualConstraint;
+import alien4cloud.model.components.constraints.GreaterOrEqualConstraint;
+import alien4cloud.model.components.constraints.GreaterThanConstraint;
+import alien4cloud.model.components.constraints.InRangeConstraint;
+import alien4cloud.model.components.constraints.LengthConstraint;
+import alien4cloud.model.components.constraints.LessOrEqualConstraint;
+import alien4cloud.model.components.constraints.LessThanConstraint;
+import alien4cloud.model.components.constraints.MaxLengthConstraint;
+import alien4cloud.model.components.constraints.MinLengthConstraint;
+import alien4cloud.model.components.constraints.PatternConstraint;
+import alien4cloud.model.components.constraints.ValidValuesConstraint;
 
 /**
  * Most of the equals and hashcode methods are generated using Lombok.
@@ -58,7 +74,7 @@ public class EqualsAndHashCodeAutoTest {
             Field field = ReflectionUtil.getDeclaredField(clazz, fieldNames[i]);
             if (ReflectionUtil.isPrimitiveOrWrapperOrString(field.getType())) {
                 allFieldValues[i] = new Object[] { "0", "1" };
-            } else if (!field.getType().isInterface()) {
+            } else if (!field.getType().isInterface() && !Modifier.isAbstract(field.getType().getModifiers())) {
                 allFieldValues[i] = new Object[] { field.getType().newInstance(), field.getType().newInstance() };
             } else {
                 allFieldValues[i] = new Object[] { null, null };

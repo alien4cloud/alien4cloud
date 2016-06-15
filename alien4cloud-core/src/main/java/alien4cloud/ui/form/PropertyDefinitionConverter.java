@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.components.constraints.EqualConstraint;
 import alien4cloud.model.components.constraints.GreaterOrEqualConstraint;
 import alien4cloud.model.components.constraints.GreaterThanConstraint;
@@ -35,7 +36,8 @@ public class PropertyDefinitionConverter {
         }
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType(definitionAnnotation.type());
-        propertyDefinition.setDefault(definitionAnnotation.defaultValue());
+        // FIXME ? can be other than a scalar here ?
+        propertyDefinition.setDefault(new ScalarPropertyValue(definitionAnnotation.defaultValue()));
         propertyDefinition.setDescription(definitionAnnotation.description());
         propertyDefinition.setPassword(definitionAnnotation.isPassword());
         propertyDefinition.setRequired(definitionAnnotation.isRequired());

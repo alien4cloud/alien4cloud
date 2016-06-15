@@ -54,6 +54,7 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintTechnicalExc
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.ReflectionUtil;
+import alien4cloud.utils.services.DependencyService.TopologyDependencyContext;
 import alien4cloud.utils.services.PropertyService;
 
 import com.google.common.collect.Lists;
@@ -297,7 +298,7 @@ public class DeploymentTopologyService {
         buildConstaintException(originalNode.getProperties().get(propertyName), propertyDefinition, "in the portable topology", propertyName, propertyValue);
 
         // Set the value and check constraints
-        propertyService.setPropertyValue(substitutedNode, propertyDefinition, propertyName, propertyValue);
+        propertyService.setPropertyValue(substitutedNode, propertyDefinition, propertyName, propertyValue, new TopologyDependencyContext(deploymentTopology));
         alienDAO.save(deploymentTopology);
     }
 
@@ -340,7 +341,8 @@ public class DeploymentTopologyService {
         buildConstaintException(originalNodePropertyValue, propertyDefinition, "in the portable topology", propertyName, propertyValue);
 
         // Set the value and check constraints
-        propertyService.setCapabilityPropertyValue(substitutedNode.getCapabilities().get(capabilityName), propertyDefinition, propertyName, propertyValue);
+        propertyService.setCapabilityPropertyValue(substitutedNode.getCapabilities().get(capabilityName), propertyDefinition, propertyName, propertyValue,
+                new TopologyDependencyContext(deploymentTopology));
         alienDAO.save(deploymentTopology);
     }
 

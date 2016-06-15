@@ -1,22 +1,29 @@
 package alien4cloud.deployment;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+
+import org.elasticsearch.common.collect.Lists;
+import org.springframework.stereotype.Service;
+
 import alien4cloud.component.repository.ArtifactRepositoryConstants;
+import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.orchestrators.services.OrchestratorDeploymentService;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.InputArtifactUtil;
+import alien4cloud.utils.PropertyUtil;
 import alien4cloud.utils.services.ConstraintPropertyService;
+
 import com.google.common.collect.Maps;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import javax.inject.Inject;
-import org.elasticsearch.common.collect.Lists;
-import org.springframework.stereotype.Service;
 
 @Service
 public class DeploymentInputService {
@@ -61,9 +68,10 @@ public class DeploymentInputService {
             for (Map.Entry<String, PropertyDefinition> inputDefinitionEntry : inputDefinitions.entrySet()) {
                 String existingValue = inputProperties.get(inputDefinitionEntry.getKey());
                 if (existingValue == null) {
-                    String defaultValue = inputDefinitionEntry.getValue().getDefault();
-                    if (defaultValue != null) {
-                        inputProperties.put(inputDefinitionEntry.getKey(), defaultValue);
+                    AbstractPropertyValue defaultValue = inputDefinitionEntry.getValue().getDefault();
+                    // we only support scalar properties for topology input properties
+                    if (defaultValue != null && defaultValue instanceof ScalarPropertyValue) {
+                        inputProperties.put(inputDefinitionEntry.getKey(), ((ScalarPropertyValue) defaultValue).getValue());
                     }
                 }
             }
@@ -142,13 +150,16 @@ public class DeploymentInputService {
                         constraintPropertyService.checkSimplePropertyConstraint(propertyDefinitionEntry.getKey(), existingValue,
                                 propertyDefinitionEntry.getValue());
                     } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
-                        propertyValueMap.put(propertyDefinitionEntry.getKey(), propertyDefinitionEntry.getValue().getDefault());
+                        PropertyUtil.setScalarDefaultValueOrNull(propertyValueMap, propertyDefinitionEntry.getKey(), propertyDefinitionEntry.getValue()
+                                .getDefault());
                     }
-                } else if (propertyDefinitionEntry.getValue().getDefault() != null) {
-                    propertyValueMap.put(propertyDefinitionEntry.getKey(), propertyDefinitionEntry.getValue().getDefault());
+                } else {
+                    PropertyUtil.setScalarDefaultValueIfNotNull(propertyValueMap, propertyDefinitionEntry.getKey(), propertyDefinitionEntry.getValue()
+                            .getDefault());
                 }
             }
             deploymentTopology.setProviderDeploymentProperties(propertyValueMap);
         }
     }
+
 }

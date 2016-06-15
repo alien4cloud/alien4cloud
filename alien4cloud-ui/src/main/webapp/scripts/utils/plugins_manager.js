@@ -79,7 +79,7 @@ define(function (require) {
                 .replace(commentRegExp, '')
                 .replace(cjsRequireRegExp, function (match, dep) {
                     deps.push(dep);
-                });
+                  });
               deps = (callback.length === 1 ? ['require'] : ['require', 'exports', 'module']).concat(deps);
             }
           }

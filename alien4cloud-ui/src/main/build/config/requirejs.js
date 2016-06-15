@@ -1,11 +1,9 @@
-'use strict';
-
 // Require js optimizer configuration
 module.exports = function (grunt) {
   var config = {
     dist: {
       options: {
-        appDir: '<%= yeoman.app %>',
+        appDir: '<%= yeoman.dist %>',
         dir: '<%= yeoman.dist %>',
         mainConfigFile:'./src/main/webapp/scripts/require.config.js',
         modules:[
@@ -46,6 +44,7 @@ module.exports = function (grunt) {
         baseUrl: '.',
 
         keepBuildDir: true,
+        allowSourceOverwrites: true,
 
         optimize: 'uglify',
         // optimize: 'none',
@@ -85,7 +84,6 @@ module.exports = function (grunt) {
               return done(new Error('r.js build contains relative modules, duplicates probably exist'));
             }
           }
-
           done();
         }
       }

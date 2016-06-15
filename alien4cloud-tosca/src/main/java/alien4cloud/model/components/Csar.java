@@ -3,8 +3,10 @@ package alien4cloud.model.components;
 import static alien4cloud.dao.model.FetchContext.SUMMARY;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
+import alien4cloud.model.common.Tag;
 import lombok.*;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
@@ -44,6 +46,9 @@ public class Csar {
     private String cloudId;
 
     private String license;
+
+    /** Archive metadata. */
+    private List<Tag> tags;
 
     private String importSource;
     private Date importDate;

@@ -1,18 +1,22 @@
 package alien4cloud.it.orchestrators;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.junit.Assert;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import alien4cloud.it.Context;
 import alien4cloud.model.orchestrators.OrchestratorConfiguration;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
-import java.util.List;
-import java.util.Map;
-import org.apache.commons.lang.StringUtils;
-import org.junit.Assert;
 
 public class OrchestratorsConfigurationDefinitionsSteps {
 
@@ -29,18 +33,18 @@ public class OrchestratorsConfigurationDefinitionsSteps {
 
     @And("^I update cloudify (\\d+) manager's url to \"([^\"]*)\" with login \"([^\"]*)\" and password \"([^\"]*)\" for orchestrator with name \"([^\"]*)\"$")
     public void I_update_cloudify_manager_s_url_to_with_login_and_password_for_cloud_with_name(int cloudifyVersion, String cloudifyUrl, String login,
-            String password, String orchestratorName) throws Throwable {
+                                                                                               String password, String orchestratorName) throws Throwable {
         String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
         Map<String, Object> config = Context.getInstance().getOrchestratorConfiguration();
         switch (cloudifyVersion) {
-        case 3:
-            config.put("url", cloudifyUrl);
-            config.put("userName", login);
-            config.put("password", password);
-            config.put("disableSSLVerification", true);
-            break;
-        default:
-            throw new IllegalArgumentException("Cloudify version not supported " + cloudifyVersion);
+            case 3:
+                config.put("url", cloudifyUrl);
+                config.put("userName", login);
+                config.put("password", password);
+                config.put("disableSSLVerification", true);
+                break;
+            default:
+                throw new IllegalArgumentException("Cloudify version not supported " + cloudifyVersion);
         }
         Context.getInstance().setOrchestratorConfiguration(config);
         String restResponse = Context.getRestClientInstance().putJSon("/rest/v1/orchestrators/" + orchestratorId + "/configuration", JsonUtil.toString(config));
@@ -77,7 +81,7 @@ public class OrchestratorsConfigurationDefinitionsSteps {
 
     @When("^I update orchestrator \"([^\"]*)\"'s configuration property \"([^\"]*)\" to the value defined in environment variable \"([^\"]*)\"$")
     public void I_update_orchestrator_configuration_property_to_the_value_defined_in_environment_variable(String orchestratorName, String configurationProperty,
-            String envName) throws Throwable {
+                                                                                                          String envName) throws Throwable {
         String postDeploymentAppURL = System.getenv(envName);
         Assert.assertTrue(envName + " is not defined", StringUtils.isNotBlank(postDeploymentAppURL));
         I_update_orchestrator_configuration_property_to(orchestratorName, configurationProperty, postDeploymentAppURL);
@@ -105,10 +109,47 @@ public class OrchestratorsConfigurationDefinitionsSteps {
 
     @And("^I update cloudify (\\d+) manager's url to value defined in environment variable \"([^\"]*)\" for orchestrator with name \"([^\"]*)\"$")
     public void iUpdateCloudifyManagerSUrlToValueDefinedInEnvironmentVariableForOrchestratorWithName(int cloudifyVersion, String envVar,
-            String orchestratorName) throws Throwable {
+                                                                                                     String orchestratorName) throws Throwable {
         String managerURL = System.getenv(envVar);
         Assert.assertTrue(envVar + " is not defined", StringUtils.isNotBlank(managerURL));
-        I_update_cloudify_manager_s_url_to_with_login_and_password_for_cloud_with_name(cloudifyVersion, managerURL, "admin", "admin", orchestratorName);
+        String user = System.getenv("CLOUDIFY3_MANAGER_USER");
+        if (StringUtils.isEmpty(user)) {
+            user = "admin";
+        }
+        String password = System.getenv("CLOUDIFY3_MANAGER_PASSWORD");
+        if (StringUtils.isEmpty(password)) {
+            password = "admin";
+        }
+        I_update_cloudify_manager_s_url_to_with_login_and_password_for_cloud_with_name(cloudifyVersion, managerURL, user, password, orchestratorName);
     }
 
+    private void merge(Map<String, Object> from, Map<String, Object> to) {
+        for (Map.Entry<String, Object> fromEntry : from.entrySet()) {
+            Object toValue = to.get(fromEntry.getKey());
+            Object fromValue = fromEntry.getValue();
+            if (toValue instanceof Map) {
+                // The target is a map then try to merge keys from 'from' map into the target
+                if (fromValue == null) {
+                    ((Map) toValue).remove(fromEntry.getKey());
+                } else if (fromValue instanceof Map) {
+                    merge((Map<String, Object>) fromValue, (Map<String, Object>) toValue);
+                } else {
+                    throw new IllegalArgumentException("merge from " + fromValue + " to " + toValue + " not possible as type is not compatible");
+                }
+            } else {
+                // Override
+                to.put(fromEntry.getKey(), fromValue);
+            }
+        }
+    }
+
+    @And("I update the configuration of orchestrator \"([^\"]*)\" with \"\"\"(.*?)\"\"\"")
+    public void iUpdateTheConfigurationOfOrchestratorWith(String orchestratorName, String configurationToMergeJson) throws IOException {
+        String orchestratorId = Context.getInstance().getOrchestratorId(orchestratorName);
+        Map<String, Object> config = Context.getInstance().getOrchestratorConfiguration();
+        Map<String, Object> configToMerge = JsonUtil.toMap(configurationToMergeJson);
+        merge(configToMerge, config);
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().putJSon("/rest/v1/orchestrators/" + orchestratorId + "/configuration", JsonUtil.toString(config)));
+    }
 }

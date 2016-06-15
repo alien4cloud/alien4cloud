@@ -9,6 +9,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import org.springframework.aop.framework.Advised;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Component;
@@ -43,7 +44,13 @@ public class MappingGenerator extends DefaultParser<Map<String, INodeParser>> {
         Map<String, INodeParser> contextParsers = applicationContext.getBeansOfType(INodeParser.class);
         // register parsers based on their class name.
         for (INodeParser parser : contextParsers.values()) {
-            parsers.put(parser.getClass().getName(), parser);
+            String className;
+            if (parser instanceof Advised) {
+                className = ((Advised) parser).getTargetSource().getTargetClass().getName();
+            } else {
+                className = parser.getClass().getName();
+            }
+            parsers.put(className, parser);
         }
         Map<String, IMappingBuilder> contextMappingBuilders = applicationContext.getBeansOfType(IMappingBuilder.class);
         for (IMappingBuilder mappingBuilder : contextMappingBuilders.values()) {
@@ -76,8 +83,8 @@ public class MappingGenerator extends DefaultParser<Map<String, INodeParser>> {
             throw new ParsingException(resource.getFilename(), result.getContext().getParsingErrors());
         } catch (IOException e) {
             log.error("Failed to open stream", e);
-            throw new ParsingException(resource.getFilename(), new ParsingError(ErrorCode.MISSING_FILE, "Unable to load file.", null, e.getMessage(), null,
-                    resource.getFilename()));
+            throw new ParsingException(resource.getFilename(),
+                    new ParsingError(ErrorCode.MISSING_FILE, "Unable to load file.", null, e.getMessage(), null, resource.getFilename()));
         }
     }
 
@@ -92,9 +99,8 @@ public class MappingGenerator extends DefaultParser<Map<String, INodeParser>> {
                 }
             }
         } else {
-            context.getParsingErrors().add(
-                    new ParsingError(ErrorCode.SYNTAX_ERROR, "Mapping should be a sequence of type mappings", node.getStartMark(), "Actually was "
-                            + node.getClass().getSimpleName(), node.getEndMark(), ""));
+            context.getParsingErrors().add(new ParsingError(ErrorCode.SYNTAX_ERROR, "Mapping should be a sequence of type mappings", node.getStartMark(),
+                    "Actually was " + node.getClass().getSimpleName(), node.getEndMark(), ""));
         }
         return parsers;
     }
@@ -104,14 +110,14 @@ public class MappingGenerator extends DefaultParser<Map<String, INodeParser>> {
             return doProcessTypeMapping(node, context);
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
             log.error("Failed to load class while parsing mapping", e);
-            context.getParsingErrors().add(
-                    new ParsingError(ErrorCode.SYNTAX_ERROR, "Unable to load class", node.getStartMark(), e.getMessage(), node.getEndMark(), ""));
+            context.getParsingErrors()
+                    .add(new ParsingError(ErrorCode.SYNTAX_ERROR, "Unable to load class", node.getStartMark(), e.getMessage(), node.getEndMark(), ""));
             return null;
         }
     }
 
-    private Map.Entry<String, INodeParser<?>> doProcessTypeMapping(Node node, ParsingContextExecution context) throws ClassNotFoundException,
-            IllegalAccessException, InstantiationException {
+    private Map.Entry<String, INodeParser<?>> doProcessTypeMapping(Node node, ParsingContextExecution context)
+            throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         // process the mapping of a given type
         if (node instanceof MappingNode) {
             MappingNode mapping = (MappingNode) node;
@@ -138,8 +144,8 @@ public class MappingGenerator extends DefaultParser<Map<String, INodeParser>> {
                     // collection for example).
                     IMappingBuilder builder = mappingBuilders.get(type);
                     if (builder != null) {
-                        mapping.getValue().add(0, new NodeTuple(new ScalarNode(new Tag(builder.getKey()), builder.getKey(), tuple.getKeyNode().getStartMark(), tuple
-                                .getKeyNode().getEndMark(), 'c'), tuple.getValueNode()));
+                        mapping.getValue().add(0, new NodeTuple(new ScalarNode(new Tag(builder.getKey()), builder.getKey(), tuple.getKeyNode().getStartMark(),
+                                tuple.getKeyNode().getEndMark(), 'c'), tuple.getValueNode()));
 
                         // there is a builder
                         parser = builder.buildMapping(mapping, context).getParser();
@@ -155,9 +161,8 @@ public class MappingGenerator extends DefaultParser<Map<String, INodeParser>> {
             }
             return new AbstractMap.SimpleEntry<String, INodeParser<?>>(yamlType, parser);
         } else {
-            context.getParsingErrors().add(
-                    new ParsingError(ErrorCode.SYNTAX_ERROR, "Unable to process type mapping.", node.getStartMark(),
-                            "Mapping must be defined using a mapping node.", node.getEndMark(), ""));
+            context.getParsingErrors().add(new ParsingError(ErrorCode.SYNTAX_ERROR, "Unable to process type mapping.", node.getStartMark(),
+                    "Mapping must be defined using a mapping node.", node.getEndMark(), ""));
         }
         return null;
     }
@@ -242,9 +247,8 @@ public class MappingGenerator extends DefaultParser<Map<String, INodeParser>> {
                 } else if (tupleKey.equals("value")) {
                     valueMappingTarget = getMappingTarget(tuple.getValueNode(), context);
                 } else {
-                    context.getParsingErrors().add(
-                            new ParsingError(ErrorCode.SYNTAX_ERROR, "Unknown key for position mapping.", tuple.getKeyNode().getStartMark(), tupleKey, tuple
-                                    .getKeyNode().getEndMark(), ""));
+                    context.getParsingErrors().add(new ParsingError(ErrorCode.SYNTAX_ERROR, "Unknown key for position mapping.",
+                            tuple.getKeyNode().getStartMark(), tupleKey, tuple.getKeyNode().getEndMark(), ""));
                 }
             }
             if (valueMappingTarget == null) {
@@ -256,9 +260,8 @@ public class MappingGenerator extends DefaultParser<Map<String, INodeParser>> {
                 parser.getYamlOrderedToObjectMapping().put(index, new KeyValueMappingTarget(key, valueMappingTarget.getPath(), valueMappingTarget.getParser()));
             }
         } else {
-            context.getParsingErrors().add(
-                    new ParsingError(ErrorCode.SYNTAX_ERROR, "Position mapping must be a mapping node with key and value fields.", positionMapping
-                            .getStartMark(), "", positionMapping.getEndMark(), ""));
+            context.getParsingErrors().add(new ParsingError(ErrorCode.SYNTAX_ERROR, "Position mapping must be a mapping node with key and value fields.",
+                    positionMapping.getStartMark(), "", positionMapping.getEndMark(), ""));
         }
     }
 
@@ -269,9 +272,8 @@ public class MappingGenerator extends DefaultParser<Map<String, INodeParser>> {
             log.debug("Mapping yaml key <" + key + "> using mapping builder " + mappingBuilder.getClass().getName());
             return mappingBuilder.buildMapping(mappingNode, context);
         }
-        context.getParsingErrors().add(
-                new ParsingError(ErrorCode.SYNTAX_ERROR, "No mapping target found for key", mappingNode.getValue().get(0).getKeyNode().getStartMark(), key,
-                        mappingNode.getValue().get(0).getKeyNode().getEndMark(), ""));
+        context.getParsingErrors().add(new ParsingError(ErrorCode.SYNTAX_ERROR, "No mapping target found for key",
+                mappingNode.getValue().get(0).getKeyNode().getStartMark(), key, mappingNode.getValue().get(0).getKeyNode().getEndMark(), ""));
         return null;
     }
 

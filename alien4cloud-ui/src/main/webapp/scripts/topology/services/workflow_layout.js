@@ -127,7 +127,7 @@ define(function (require) {
           });
         },
 
-        unwrapEdges(wrappedGraph, initialGraph) {
+        unwrapEdges: function(wrappedGraph, initialGraph) {
           var unwrappedEdges = [];
           _.each(initialGraph.edges(), function(edgeDef) {
             var edge = wrappedGraph.edge(edgeDef.v, edgeDef.w);
@@ -182,7 +182,7 @@ define(function (require) {
         xPadding: 20,
         yPadding: 20,
         groupIncrement: 0, // used to create new groups
-        createGroup(groupId) {
+        createGroup: function(groupId) {
           if(_.undefined(groupId)) {
             groupId = 'plan-layout-group-' + this.groupIncrement++;
           }

@@ -1,0 +1,4 @@
+Name: "My Web App"
+CSAR-Version: "1.0"
+Created-By: "FastConnect"
+Entry-Definitions: Definitions/myWebApp.yaml

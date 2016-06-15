@@ -1,0 +1,4 @@
+Name: csar-test-no-topology
+CSAR-Version: 1.0-SNAPSHOT
+Created-By: Alien 4 Cloud
+Entry-Definitions: Definitions/java-types.yaml

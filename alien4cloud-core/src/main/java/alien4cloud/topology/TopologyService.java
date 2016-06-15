@@ -8,13 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.model.topology.*;
-import alien4cloud.paas.wf.WorkflowsBuilderService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,7 +19,6 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.mapping.FilterValuesStrategy;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.application.ApplicationService;
@@ -32,6 +27,7 @@ import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.model.application.Application;
@@ -39,11 +35,20 @@ import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.CapabilityDefinition;
 import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedDataType;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.components.PrimitiveIndexedDataType;
+import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
+import alien4cloud.model.topology.AbstractTopologyVersion;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.Topology;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.Role;
@@ -52,6 +57,7 @@ import alien4cloud.topology.exception.UpdateTopologyException;
 import alien4cloud.topology.task.SuggestionsTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.tosca.container.ToscaTypeLoader;
+import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.serializer.VelocityUtil;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
@@ -293,7 +299,37 @@ public class TopologyService {
         Map<String, IndexedRelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology);
         Map<String, IndexedCapabilityType> capabilityTypes = getIndexedCapabilityTypes(nodeTypes.values(), topology.getDependencies());
         Map<String, Map<String, Set<String>>> outputCapabilityProperties = topology.getOutputCapabilityProperties();
-        return new TopologyDTO(topology, nodeTypes, relationshipTypes, capabilityTypes, outputCapabilityProperties);
+        Map<String, IndexedDataType> dataTypes = getDataTypes(topology, nodeTypes, relationshipTypes, capabilityTypes);
+        return new TopologyDTO(topology, nodeTypes, relationshipTypes, capabilityTypes, outputCapabilityProperties, dataTypes);
+    }
+
+    private Map<String, IndexedDataType> getDataTypes(Topology topology, Map<String, IndexedNodeType> nodeTypes,
+            Map<String, IndexedRelationshipType> relationshipTypes, Map<String, IndexedCapabilityType> capabilityTypes) {
+        Map<String, IndexedDataType> indexedDataTypes = Maps.newHashMap();
+        indexedDataTypes = fillDataTypes(topology, indexedDataTypes, nodeTypes);
+        indexedDataTypes = fillDataTypes(topology, indexedDataTypes, relationshipTypes);
+        indexedDataTypes = fillDataTypes(topology, indexedDataTypes, capabilityTypes);
+        return indexedDataTypes;
+    }
+
+    private <T extends IndexedInheritableToscaElement> Map<String, IndexedDataType> fillDataTypes(Topology topology,
+            Map<String, IndexedDataType> indexedDataTypes, Map<String, T> elements) {
+        for (IndexedInheritableToscaElement indexedNodeType : elements.values()) {
+            if (indexedNodeType.getProperties() != null) {
+                for (PropertyDefinition pd : indexedNodeType.getProperties().values()) {
+                    String type = pd.getType();
+                    if (ToscaType.isPrimitive(type) || indexedDataTypes.containsKey(type)) {
+                        continue;
+                    }
+                    IndexedDataType dataType = csarRepoSearchService.getElementInDependencies(IndexedDataType.class, type, topology.getDependencies());
+                    if (dataType == null) {
+                        dataType = csarRepoSearchService.getElementInDependencies(PrimitiveIndexedDataType.class, type, topology.getDependencies());
+                    }
+                    indexedDataTypes.put(type, dataType);
+                }
+            }
+        }
+        return indexedDataTypes;
     }
 
     /**
@@ -464,13 +500,12 @@ public class TopologyService {
 
     }
 
-
     public void isUniqueNodeTemplateName(String topologyId, String newNodeTemplateName, Map<String, NodeTemplate> nodeTemplates) {
         if (nodeTemplates.containsKey(newNodeTemplateName)) {
             log.debug("Add Node Template <{}> impossible (already exists)", newNodeTemplateName);
             // a node template already exist with the given name.
-            throw new AlreadyExistException(
-                    "A node template with the given name " + newNodeTemplateName + " already exists in the topology " + topologyId + ".");
+            throw new AlreadyExistException("A node template with the given name " + newNodeTemplateName + " already exists in the topology " + topologyId
+                    + ".");
         }
     }
 
