@@ -268,7 +268,7 @@ define(function(require) {
         if (_.defined($scope.propertyType) && _.defined($scope.propertyType.constraints)) {
           constraints.push($scope.propertyType.constraints);
         }
-        
+
         // Second phase : regarding constraints
         for (var i = 0; i < constraints.length; i++) {
           if (constraints[i].hasOwnProperty('validValues')) {
@@ -306,7 +306,7 @@ define(function(require) {
         if (_.defined($scope.propertyType) && $scope.propertyType.deriveFromSimpleType) {
           type = $scope.propertyType.derivedFrom[0];
         }
-        
+
         // Second phase : regardless constraints
         switch (type) {
           case 'boolean':
@@ -343,7 +343,11 @@ define(function(require) {
           case 'integer':
           case 'string':
             $scope.definitionObject.uiName = 'string';
-            $scope.definitionObject.uiValue = shownValue;
+            if(_.defined(shownValue.value)) {
+              $scope.definitionObject.uiValue = shownValue.value;
+            } else {
+              $scope.definitionObject.uiValue = shownValue;
+            }
             $scope.definitionObject.uiPassword = $scope.definition.password;
             $scope.isLongText = _.defined(shownValue) && typeof shownValue === 'string' && shownValue.indexOf('\n') > -1;
             break;
