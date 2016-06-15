@@ -11,8 +11,7 @@
       <div collapse="isInputPropertiesCollapsed" class="topology-level">
         <table class="table table-condensed" id="inputsTable">
           <tr ng-repeat="(inputId, inputDefinition) in deploymentContext.deploymentTopologyDTO.topology.inputs | allowedInputs">
-            <td
-              ng-class="{'bg-danger': inputDefinition.required && !deploymentContext.deploymentTopologyDTO.topology.inputProperties[inputId]}">
+            <td>
               <property-display definition="inputDefinition"
                                 property-name="inputId"
                                 property-value="deploymentContext.deploymentTopologyDTO.topology.inputProperties[inputId]"
@@ -82,8 +81,7 @@
       <div collapse="isOrchestratorDeploymentPropertiesCollapsed" class="topology-level">
         <table class="table table-condensed" id="nodeTemplateProperties" style="margin-left:10px;">
           <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentContext.orchestratorDeploymentPropertyDefinitions">
-            <td id="p_deployment_{{propertyKey}}"
-              ng-class="{'bg-danger': propertyDefinition.required && !deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyKey]}">
+            <td id="p_deployment_{{propertyKey}}">
               <property-display ng-init="condensed = true"
                                 definition="propertyDefinition"
                                 property-name="propertyKey"

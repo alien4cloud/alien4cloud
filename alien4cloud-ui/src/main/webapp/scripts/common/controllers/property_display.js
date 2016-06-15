@@ -307,6 +307,11 @@ define(function(require) {
           type = $scope.propertyType.derivedFrom[0];
         }
 
+        $scope.definitionObject.uiEmpty = false;
+        if(_.undefined(shownValue) || _.isEmpty(shownValue)) {
+          $scope.definitionObject.uiEmpty = true;
+        }
+
         // Second phase : regardless constraints
         switch (type) {
           case 'boolean':
@@ -343,7 +348,7 @@ define(function(require) {
           case 'integer':
           case 'string':
             $scope.definitionObject.uiName = 'string';
-            if(_.defined(shownValue.value)) {
+            if(_.defined(shownValue) && _.defined(shownValue.value)) {
               $scope.definitionObject.uiValue = shownValue.value;
             } else {
               $scope.definitionObject.uiValue = shownValue;
