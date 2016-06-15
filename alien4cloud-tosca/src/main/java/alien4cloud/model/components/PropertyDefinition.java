@@ -52,6 +52,7 @@ public class PropertyDefinition implements IValue {
     @NotNull
     private boolean required = true;
 
+    @ObjectField(enabled = false)
     @JsonProperty("default")
     @JsonDeserialize(using = PropertyValueDeserializer.class)
     @Getter(AccessLevel.NONE)
