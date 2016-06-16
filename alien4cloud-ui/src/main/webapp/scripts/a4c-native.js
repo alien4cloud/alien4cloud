@@ -9,5 +9,6 @@ define(function () {
         'scripts/users/controllers/users',
         'scripts/orchestrators/controllers/orchestrator_list',
         'scripts/components/controllers/component_list',
-        'scripts/topologytemplates/controllers/topology_template_list'];
+        'scripts/topologytemplates/controllers/topology_template_list',
+        'scripts/common/directives/empty_place_holder'];
 });
