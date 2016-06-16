@@ -62,7 +62,7 @@ public abstract class AbstractTemplate {
      * The deployment artifacts
      */
     @MapKeyValue
-    @ConditionalOnAttribute(value = { ConditionalAttributes.ES })
+    @ConditionalOnAttribute(value = { ConditionalAttributes.ES_1_2 })
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, DeploymentArtifact> artifacts;
@@ -71,6 +71,6 @@ public abstract class AbstractTemplate {
      * The interfaces that are defined at the template level (overriding type's one).
      */
     @MapKeyValue
-    @ConditionalOnAttribute(value = { ConditionalAttributes.REST, ConditionalAttributes.ES })
+    @ConditionalOnAttribute(value = { ConditionalAttributes.REST, ConditionalAttributes.ES_1_2 })
     private Map<String, Interface> interfaces;
 }
