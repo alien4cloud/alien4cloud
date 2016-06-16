@@ -36,8 +36,8 @@ import alien4cloud.utils.MapUtil;
 @Slf4j
 @Service
 public class OrchestratorService {
-    public static final String[] ENABLED_STATES = new String[] { OrchestratorState.CONNECTED.toString().toLowerCase(),
-            OrchestratorState.CONNECTING.toString().toLowerCase(), OrchestratorState.DISCONNECTED.toString().toLowerCase() };
+    public static final String[] ENABLED_STATES = new String[] { OrchestratorState.CONNECTED.toString(),
+            OrchestratorState.CONNECTING.toString(), OrchestratorState.DISCONNECTED.toString() };
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;

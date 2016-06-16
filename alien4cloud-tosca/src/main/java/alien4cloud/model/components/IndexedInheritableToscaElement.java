@@ -1,27 +1,24 @@
 package alien4cloud.model.components;
 
-import static alien4cloud.dao.model.FetchContext.QUICK_SEARCH;
-import static alien4cloud.dao.model.FetchContext.SUMMARY;
-import static alien4cloud.dao.model.FetchContext.TAG_SUGGESTION;
+import static alien4cloud.dao.model.FetchContext.*;
 
 import java.util.List;
 import java.util.Map;
-
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 
 import org.elasticsearch.annotation.MapKeyValue;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermsFacet;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;
 import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
 import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -35,7 +32,7 @@ public class IndexedInheritableToscaElement extends IndexedToscaElement {
     private List<String> derivedFrom;
 
     @MapKeyValue
-    @ConditionalOnAttribute(value = { ConditionalAttributes.REST, ConditionalAttributes.ES })
+    @ConditionalOnAttribute(value = { ConditionalAttributes.REST, ConditionalAttributes.ES_1_2 })
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     @FetchContext(contexts = { SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
