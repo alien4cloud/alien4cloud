@@ -52,8 +52,6 @@ import com.google.common.collect.Lists;
 @ContextConfiguration("classpath:application-context-test.xml")
 @Slf4j
 public class EsDaoCrudTest extends AbstractDAOTest {
-    private static final String APPLICATION_INDEX = Application.class.getSimpleName().toLowerCase();
-
     private final ObjectMapper jsonMapper = new ObjectMapper();
 
     private List<Tag> threeTags = Lists.newArrayList(new Tag("node.icon", "my-icon.png"), new Tag("tag1", "My free tag with my free content (tag-0)"), new Tag(

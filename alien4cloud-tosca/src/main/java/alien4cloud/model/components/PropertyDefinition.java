@@ -6,6 +6,7 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.elasticsearch.annotation.BooleanField;
 import org.elasticsearch.annotation.ObjectField;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -21,6 +22,8 @@ import alien4cloud.ui.form.annotation.FormProperties;
 import alien4cloud.ui.form.annotation.FormType;
 import alien4cloud.ui.form.annotation.FormValidValues;
 import lombok.*;
+import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.mapping.IndexType;
 
 /**
  *
@@ -41,6 +44,7 @@ import lombok.*;
 @FormProperties({ "type", "required", "default", "description" })
 @ToString
 public class PropertyDefinition implements IValue {
+    @StringField(indexType = IndexType.not_analyzed)
     @ToscaPropertyType
     @FormValidValues({ "boolean", "string", "float", "integer", "version" })
     @NotNull
@@ -50,19 +54,22 @@ public class PropertyDefinition implements IValue {
     private PropertyDefinition entrySchema;
 
     @NotNull
+    @BooleanField(index = IndexType.no)
     private boolean required = true;
 
-    @ObjectField(enabled = false)
     @JsonProperty("default")
     @JsonDeserialize(using = PropertyValueDeserializer.class)
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     private PropertyValue defaultValue;
 
+    @StringField(indexType = IndexType.no)
     private String description;
 
+    @StringField(indexType = IndexType.no)
     private String suggestionId;
 
+    @ObjectField(enabled = false)
     @Valid
     @ToscaPropertyConstraintDuplicate
     @JsonDeserialize(contentUsing = PropertyConstraintDeserializer.class)
@@ -79,6 +86,7 @@ public class PropertyDefinition implements IValue {
             @FormType(discriminantProperty = "validValues", label = "CONSTRAINT.VALID_VALUES", implementation = ValidValuesConstraint.class) })
     private List<PropertyConstraint> constraints;
 
+    @BooleanField(index = IndexType.no)
     private boolean isPassword;
 
     public PropertyDefinition(PropertyDefinition from) {
@@ -92,6 +100,7 @@ public class PropertyDefinition implements IValue {
         this.isPassword = from.isPassword;
     }
 
+    @ObjectField(enabled = false)
     public PropertyValue getDefault() {
         return this.defaultValue;
     }

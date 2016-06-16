@@ -3,15 +3,15 @@ package alien4cloud.dao;
 import java.beans.IntrospectionException;
 import java.io.IOException;
 
-import lombok.extern.slf4j.Slf4j;
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+
 import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
 import alien4cloud.json.serializer.BoundSerializer;
 import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.utils.jackson.ConditionalAttributes;
-
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ElasticSearchMapper extends ObjectMapper {
@@ -21,7 +21,9 @@ public class ElasticSearchMapper extends ObjectMapper {
         super();
         this._serializationConfig = this._serializationConfig.withAttribute(BoundSerializer.BOUND_SERIALIZER_AS_NUMBER, "true");
         this._serializationConfig = this._serializationConfig.withAttribute(ConditionalAttributes.ES, "true");
+        this._serializationConfig = this._serializationConfig.withAttribute(ConditionalAttributes.ES_1_2, "true");
         this._deserializationConfig = this._deserializationConfig.withAttribute(ConditionalAttributes.ES, "true");
+        this._deserializationConfig = this._deserializationConfig.withAttribute(ConditionalAttributes.ES_1_2, "true");
     }
 
     public static ElasticSearchMapper getInstance() {

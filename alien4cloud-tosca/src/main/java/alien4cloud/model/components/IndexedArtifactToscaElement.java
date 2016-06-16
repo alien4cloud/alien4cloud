@@ -9,6 +9,7 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 
+import org.elasticsearch.annotation.ObjectField;
 import org.elasticsearch.annotation.query.FetchContext;
 
 import alien4cloud.json.deserializer.AttributeDeserializer;
@@ -24,6 +25,7 @@ public class IndexedArtifactToscaElement extends IndexedInheritableToscaElement 
     @FetchContext(contexts = { SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
     private Map<String, DeploymentArtifact> artifacts;
 
+    @ObjectField(enabled = false)
     @FetchContext(contexts = { SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
     @JsonDeserialize(contentUsing = AttributeDeserializer.class)
     private Map<String, IValue> attributes;
