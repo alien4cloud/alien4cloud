@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class AddRelationshipTemplateProcessor implements IEditorOperationProcessor<AddRelationshipOperation> {
+public class AddRelationshipTemplateProcessor extends AbstractNodeProcessor<AddRelationshipOperation> {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource
@@ -48,8 +48,10 @@ public class AddRelationshipTemplateProcessor implements IEditorOperationProcess
 
     @Override
     @SneakyThrows
-    public void process(AddRelationshipOperation operation) {
+    protected void processNodeOperation(AddRelationshipOperation operation, NodeTemplate sourceNode) {
         Topology topology = TopologyEditionContextManager.getTopology();
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+
         String relationshipId = operation.getRelationshipType() + ":" + operation.getRelationshipVersion();
         IndexedRelationshipType indexedRelationshipType = alienDAO.findById(IndexedRelationshipType.class, relationshipId);
         if (indexedRelationshipType == null) {
@@ -57,14 +59,11 @@ public class AddRelationshipTemplateProcessor implements IEditorOperationProcess
                     "Unable to find relationship type to create template in topology.");
         }
 
-        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate sourceNode = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getSource(), nodeTemplates);
-
         boolean upperBoundReachedSource = topologyRequirementBoundsValidationServices.isRequirementUpperBoundReachedForSource(sourceNode,
                 operation.getRequirementName(), topology.getDependencies());
         if (upperBoundReachedSource) {
             // throw exception here
-            throw new RequirementBoundException(operation.getSource(), operation.getRequirementName());
+            throw new RequirementBoundException(operation.getNodeName(), operation.getRequirementName());
         }
 
         boolean upperBoundReachedTarget = topologyCapabilityBoundsValidationServices.isCapabilityUpperBoundReachedForTarget(operation.getTarget(),
@@ -98,8 +97,8 @@ public class AddRelationshipTemplateProcessor implements IEditorOperationProcess
 
         relationships.put(operation.getRelationshipName(), relationshipTemplate);
         WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
-        workflowBuilderService.addRelationship(topologyContext, operation.getSource(), operation.getRelationshipName());
-        log.debug("Added relationship to the topology [" + topology.getId() + "], node name [" + operation.getSource() + "], relationship name ["
+        workflowBuilderService.addRelationship(topologyContext, operation.getNodeName(), operation.getRelationshipName());
+        log.debug("Added relationship to the topology [" + topology.getId() + "], node name [" + operation.getNodeName() + "], relationship name ["
                 + operation.getRelationshipName() + "]");
     }
 }

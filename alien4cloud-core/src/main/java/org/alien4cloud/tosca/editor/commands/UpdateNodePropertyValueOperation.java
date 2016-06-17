@@ -8,8 +8,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class UpdateNodePropertyValueOperation extends AbstractEditorOperation {
-    private String nodeTemplateName;
+public class UpdateNodePropertyValueOperation extends AbstractNodeOperation {
     private String propertyName;
     private Object propertyValue;
 }

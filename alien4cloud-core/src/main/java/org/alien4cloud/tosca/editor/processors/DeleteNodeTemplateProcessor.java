@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class DeleteNodeTemplateProcessor implements IEditorOperationProcessor<DeleteNodeOperation> {
+public class DeleteNodeTemplateProcessor extends AbstractNodeProcessor<DeleteNodeOperation> {
     @Resource
     private TopologyService topologyService;
     @Resource
@@ -39,12 +39,9 @@ public class DeleteNodeTemplateProcessor implements IEditorOperationProcessor<De
     private WorkflowsBuilderService workflowBuilderService;
 
     @Override
-    public void process(DeleteNodeOperation operation) {
+    protected void processNodeOperation(DeleteNodeOperation operation, NodeTemplate template) {
         Topology topology = TopologyEditionContextManager.getTopology();
-        String nodeTemplateName = operation.getNodeTemplateName();
-
         Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate template = TopologyServiceCore.getNodeTemplate(topology.getId(), nodeTemplateName, nodeTemplates);
 
         // FIXME cleanup files on the github repository / This way we can commit or revert if not saved.
         // FIXME we SHOULD we delegate all this processing to the save operation as we don't support undo on disk.
@@ -69,19 +66,19 @@ public class DeleteNodeTemplateProcessor implements IEditorOperationProcessor<De
         }
         topologyService.unloadType(topology, typesTobeUnloaded.toArray(new String[typesTobeUnloaded.size()]));
 
-        removeRelationShipReferences(nodeTemplateName, topology);
-        nodeTemplates.remove(nodeTemplateName);
-        removeOutputs(nodeTemplateName, topology);
+        removeRelationShipReferences(operation.getNodeName(), topology);
+        nodeTemplates.remove(operation.getNodeName());
+        removeOutputs(operation.getNodeName(), topology);
         if (topology.getSubstitutionMapping() != null) {
-            removeNodeTemplateSubstitutionTargetMapEntry(nodeTemplateName, topology.getSubstitutionMapping().getCapabilities());
-            removeNodeTemplateSubstitutionTargetMapEntry(nodeTemplateName, topology.getSubstitutionMapping().getRequirements());
+            removeNodeTemplateSubstitutionTargetMapEntry(operation.getNodeName(), topology.getSubstitutionMapping().getCapabilities());
+            removeNodeTemplateSubstitutionTargetMapEntry(operation.getNodeName(), topology.getSubstitutionMapping().getRequirements());
         }
 
         // group members removal
-        TopologyUtils.updateGroupMembers(topology, template, nodeTemplateName, null);
+        TopologyUtils.updateGroupMembers(topology, template, operation.getNodeName(), null);
         // update the workflows
-        workflowBuilderService.removeNode(topology, nodeTemplateName, template);
-        log.debug("Removed node template <{}> from the topology <{}> .", nodeTemplateName, topology.getId());
+        workflowBuilderService.removeNode(topology, operation.getNodeName(), template);
+        log.debug("Removed node template <{}> from the topology <{}> .", operation.getNodeName(), topology.getId());
     }
 
     /**

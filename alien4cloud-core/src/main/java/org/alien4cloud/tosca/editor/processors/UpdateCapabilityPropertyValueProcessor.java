@@ -34,21 +34,19 @@ public class UpdateCapabilityPropertyValueProcessor implements IEditorOperationP
         String propertyName = operation.getPropertyName();
         Object propertyValue = operation.getPropertyValue();
         Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeTemplateName(), nodeTemplates);
+        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
         Capability capability = nodeTemplate.getCapabilities().get(operation.getCapabilityName());
 
         IndexedCapabilityType capabilityType = ToscaContext.get(IndexedCapabilityType.class, capability.getType());
 
         if (!capabilityType.getProperties().containsKey(propertyName)) {
             throw new NotFoundException(
-                    "Property <" + propertyName + "> doesn't exists for node <" + operation.getNodeTemplateName() + "> of type <" + capabilityType + ">");
+                    "Property <" + propertyName + "> doesn't exists for node <" + operation.getNodeName() + "> of type <" + capabilityType + ">");
         }
 
         log.debug("Updating property <{}> of the capability <{}> for the Node template <{}> from the topology <{}>: changing value from [{}] to [{}].",
-                propertyName, capability.getType(), operation.getNodeTemplateName(), topology.getId(), capabilityType.getProperties().get(propertyName),
-                propertyValue);
+                propertyName, capability.getType(), operation.getNodeName(), topology.getId(), capabilityType.getProperties().get(propertyName), propertyValue);
 
         propertyService.setPropertyValue(capability.getProperties(), capabilityType.getProperties().get(propertyName), propertyName, propertyValue);
-
     }
 }

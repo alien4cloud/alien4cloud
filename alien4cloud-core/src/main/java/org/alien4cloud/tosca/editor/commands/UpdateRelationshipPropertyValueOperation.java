@@ -8,6 +8,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class UpdateRelationshipPropertyValueOperation extends UpdateNodePropertyValueOperation {
-    private String relationshipName;
+public class UpdateRelationshipPropertyValueOperation extends AbstractRelationshipOperation {
+    private String propertyName;
+    private Object propertyValue;
 }

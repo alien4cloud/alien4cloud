@@ -11,7 +11,5 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class DeleteRelationshipOperation extends AbstractEditorOperation {
-    private String nodeTemplateName;
-    private String relationshipTemplateName;
+public class DeleteRelationshipOperation extends AbstractRelationshipOperation {
 }

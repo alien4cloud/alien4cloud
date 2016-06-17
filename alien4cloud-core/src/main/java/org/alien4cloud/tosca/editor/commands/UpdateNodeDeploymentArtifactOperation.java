@@ -8,8 +8,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class UpdateNodeDeploymentArtifactOperation extends AbstractEditorOperation {
-    private String nodeTemplateName;
+public class UpdateNodeDeploymentArtifactOperation extends AbstractNodeOperation {
     private String artifactName;
     private String artifactRepository;
     private String artifactReference;

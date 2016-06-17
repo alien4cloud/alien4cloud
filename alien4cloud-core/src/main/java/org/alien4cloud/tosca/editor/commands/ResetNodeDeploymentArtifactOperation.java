@@ -8,6 +8,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class ResetNodeDeploymentArtifactOperation extends AbstractEditorOperation {
-
+public class ResetNodeDeploymentArtifactOperation extends AbstractNodeOperation {
+    // TODO
 }

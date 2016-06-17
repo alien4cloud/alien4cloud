@@ -6,11 +6,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Update the name of a node template.
+ * Define an operation on a relationship
  */
 @Getter
 @Setter
-public class RenameNodeOperation extends AbstractNodeOperation {
+public class AbstractRelationshipOperation extends AbstractNodeOperation {
     @NotBlank
-    private String newName;
+    private String relationshipName;
 }

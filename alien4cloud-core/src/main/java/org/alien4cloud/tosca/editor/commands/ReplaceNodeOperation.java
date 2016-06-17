@@ -1,5 +1,7 @@
 package org.alien4cloud.tosca.editor.commands;
 
+import org.hibernate.validator.constraints.NotBlank;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,8 +10,8 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class ReplaceNodeOperation extends AbstractEditorOperation {
-    private String nodeTemplateName;
+public class ReplaceNodeOperation extends AbstractNodeOperation {
     /** Id of the new indexed node type to assign to the node. */
+    @NotBlank
     private String newTypeId;
 }

@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
+import org.alien4cloud.tosca.editor.commands.AbstractNodeOperation;
 import org.alien4cloud.tosca.editor.commands.DeleteRelationshipOperation;
 import org.springframework.stereotype.Component;
 
@@ -21,29 +22,25 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class DeleteRelationshipProcessor implements IEditorOperationProcessor<DeleteRelationshipOperation> {
+public class DeleteRelationshipProcessor extends AbstractNodeProcessor<DeleteRelationshipOperation> {
     @Resource
     private TopologyService topologyService;
     @Resource
     private WorkflowsBuilderService workflowBuilderService;
 
     @Override
-    public void process(DeleteRelationshipOperation operation) {
+    protected void processNodeOperation(DeleteRelationshipOperation operation, NodeTemplate template) {
         Topology topology = TopologyEditionContextManager.getTopology();
-
-        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
-
-        NodeTemplate template = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeTemplateName(), nodeTemplates);
-        log.debug("Removing the Relationship template <" + operation.getRelationshipTemplateName() + "> from the Node template <"
-                + operation.getNodeTemplateName() + ">, Topology <" + topology.getId() + "> .");
-        RelationshipTemplate relationshipTemplate = template.getRelationships().get(operation.getRelationshipTemplateName());
+        log.debug("Removing the Relationship template <" + operation.getRelationshipName() + "> from the Node template <" + operation.getNodeName()
+                + ">, Topology <" + topology.getId() + "> .");
+        RelationshipTemplate relationshipTemplate = template.getRelationships().get(operation.getRelationshipName());
         if (relationshipTemplate != null) {
             topologyService.unloadType(topology, relationshipTemplate.getType());
-            template.getRelationships().remove(operation.getRelationshipTemplateName());
+            template.getRelationships().remove(operation.getRelationshipName());
         } else {
-            throw new NotFoundException("The relationship with name [" + operation.getRelationshipTemplateName() + "] do not exist for the node ["
-                    + operation.getNodeTemplateName() + "] of the topology [" + topology.getId() + "]");
+            throw new NotFoundException("The relationship with name [" + operation.getRelationshipName() + "] do not exist for the node ["
+                    + operation.getNodeName() + "] of the topology [" + topology.getId() + "]");
         }
-        workflowBuilderService.removeRelationship(topology, operation.getNodeTemplateName(), operation.getRelationshipTemplateName(), relationshipTemplate);
+        workflowBuilderService.removeRelationship(topology, operation.getNodeName(), operation.getRelationshipName(), relationshipTemplate);
     }
 }

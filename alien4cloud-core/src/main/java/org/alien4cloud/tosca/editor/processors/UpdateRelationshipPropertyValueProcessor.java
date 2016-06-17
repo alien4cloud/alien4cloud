@@ -37,19 +37,18 @@ public class UpdateRelationshipPropertyValueProcessor implements IEditorOperatio
         Object propertyValue = operation.getPropertyValue();
 
         Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeTemplateName(), nodeTemplates);
+        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
         // FIXME we should have the same kind of utility methods to get relationships as we have for nodes.
         RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(operation.getRelationshipName());
 
         IndexedRelationshipType relationshipType = ToscaContext.getOrFail(IndexedRelationshipType.class, relationshipTemplate.getType());
         if (!relationshipType.getProperties().containsKey(propertyName)) {
             throw new NotFoundException(
-                    "Property <" + propertyName + "> doesn't exists for node <" + operation.getNodeTemplateName() + "> of type <" + relationshipType + ">");
+                    "Property <" + propertyName + "> doesn't exists for node <" + operation.getNodeName() + "> of type <" + relationshipType + ">");
         }
 
         log.debug("Updating property <{}> of the relationship <{}> for the Node template <{}> from the topology <{}>: changing value from [{}] to [{}].",
-                propertyName, relationshipType, operation.getNodeTemplateName(), topology.getId(), relationshipType.getProperties().get(propertyName),
-                propertyValue);
+                propertyName, relationshipType, operation.getNodeName(), topology.getId(), relationshipType.getProperties().get(propertyName), propertyValue);
         propertyService.setPropertyValue(relationshipTemplate.getProperties(), relationshipType.getProperties().get(propertyName), propertyName, propertyValue);
     }
 }

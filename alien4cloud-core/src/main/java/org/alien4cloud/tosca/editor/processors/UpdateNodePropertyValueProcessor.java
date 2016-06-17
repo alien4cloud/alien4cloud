@@ -34,7 +34,7 @@ public class UpdateNodePropertyValueProcessor implements IEditorOperationProcess
         Topology topology = TopologyEditionContextManager.getTopology();
 
         Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemp = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeTemplateName(), nodeTemplates);
+        NodeTemplate nodeTemp = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
         String propertyName = operation.getPropertyName();
         Object propertyValue = operation.getPropertyValue();
 
@@ -43,11 +43,11 @@ public class UpdateNodePropertyValueProcessor implements IEditorOperationProcess
         PropertyDefinition propertyDefinition = node.getProperties().get(propertyName);
         if (propertyDefinition == null) {
             throw new NotFoundException(
-                    "Property <" + propertyName + "> doesn't exists for node <" + operation.getNodeTemplateName() + "> of type <" + nodeTemp.getType() + ">");
+                    "Property <" + propertyName + "> doesn't exists for node <" + operation.getNodeName() + "> of type <" + nodeTemp.getType() + ">");
         }
 
         log.debug("Updating property <{}> of the Node template <{}> from the topology <{}>: changing value from [{}] to [{}].", propertyName,
-                operation.getNodeTemplateName(), topology.getId(), nodeTemp.getProperties().get(propertyName), propertyValue);
+                operation.getNodeName(), topology.getId(), nodeTemp.getProperties().get(propertyName), propertyValue);
 
         propertyService.setPropertyValue(nodeTemp, propertyDefinition, propertyName, propertyValue);
     }

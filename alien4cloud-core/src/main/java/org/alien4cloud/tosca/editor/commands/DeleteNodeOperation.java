@@ -8,6 +8,5 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class DeleteNodeOperation extends AbstractEditorOperation {
-    private String nodeTemplateName;
+public class DeleteNodeOperation extends AbstractNodeOperation {
 }

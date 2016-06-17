@@ -44,11 +44,11 @@ public class AddNodeTemplateProcessor implements IEditorOperationProcessor<AddNo
     public void process(AddNodeOperation operation) {
         Topology topology = TopologyEditionContextManager.getTopology();
 
-        if (!TopologyUtils.isValidNodeName(operation.getName())) {
+        if (!TopologyUtils.isValidNodeName(operation.getNodeName())) {
             throw new InvalidNodeNameException("A name should only contains alphanumeric character from the basic Latin alphabet and the underscore.");
         }
 
-        topologyService.isUniqueNodeTemplateName(topology, operation.getName());
+        topologyService.isUniqueNodeTemplateName(topology, operation.getNodeName());
 
         IndexedNodeType indexedNodeType = alienDAO.findById(IndexedNodeType.class, operation.getIndexedNodeTypeId());
         if (indexedNodeType == null) {
@@ -72,25 +72,25 @@ public class AddNodeTemplateProcessor implements IEditorOperationProcessor<AddNo
 
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
         Set<String> nodeTemplatesNames = nodeTemplates.keySet();
-        if (nodeTemplatesNames.contains(operation.getName())) {
-            log.debug("Add Node Template <{}> impossible (already exists)", operation.getName());
+        if (nodeTemplatesNames.contains(operation.getNodeName())) {
+            log.debug("Add Node Template <{}> impossible (already exists)", operation.getNodeName());
             // a node template already exist with the given name.
             throw new AlreadyExistException("A node template with the given name already exists.");
         } else {
-            log.debug("Create node template <{}>", operation.getName());
+            log.debug("Create node template <{}>", operation.getNodeName());
         }
 
         // FIXME update the tosca context here.
         indexedNodeType = topologyService.loadType(topology, indexedNodeType);
 
         NodeTemplate nodeTemplate = topologyService.buildNodeTemplate(topology.getDependencies(), indexedNodeType, null);
-        nodeTemplate.setName(operation.getName());
-        topology.getNodeTemplates().put(operation.getName(), nodeTemplate);
+        nodeTemplate.setName(operation.getNodeName());
+        topology.getNodeTemplates().put(operation.getNodeName(), nodeTemplate);
 
-        log.debug("Adding a new Node template <" + operation.getName() + "> bound to the node type <" + operation.getIndexedNodeTypeId() + "> to the topology <"
-                + topology.getId() + "> .");
+        log.debug("Adding a new Node template <" + operation.getNodeName() + "> bound to the node type <" + operation.getIndexedNodeTypeId()
+                + "> to the topology <" + topology.getId() + "> .");
 
         WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
-        workflowBuilderService.addNode(topologyContext, operation.getName(), nodeTemplate);
+        workflowBuilderService.addNode(topologyContext, operation.getNodeName(), nodeTemplate);
     }
 }

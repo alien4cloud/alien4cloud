@@ -30,7 +30,7 @@ public class UpdateNodeDeploymentArtifactProcessor implements IEditorOperationPr
 
         // Get the node template's artifacts to update
         Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeTemplateName(), nodeTemplates);
+        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
         DeploymentArtifact artifact = nodeTemplate.getArtifacts() == null ? null : nodeTemplate.getArtifacts().get(operation.getArtifactName());
         if (artifact == null) {
             throw new NotFoundException("Artifact with key [" + operation.getArtifactName() + "] do not exist");

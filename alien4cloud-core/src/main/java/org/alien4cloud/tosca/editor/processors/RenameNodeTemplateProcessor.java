@@ -33,11 +33,10 @@ public class RenameNodeTemplateProcessor implements IEditorOperationProcessor<Re
             throw new InvalidNodeNameException("A name should only contains alphanumeric character from the basic Latin alphabet and the underscore.");
         }
         // ensure there is node templates
-        TopologyServiceCore.getNodeTemplates(topology);
         topologyService.isUniqueNodeTemplateName(topology, operation.getNewName());
 
-        TopologyUtils.renameNodeTemplate(topology, operation.getCurrentName(), operation.getNewName());
-        workflowBuilderService.renameNode(topology, operation.getCurrentName(), operation.getNewName());
-        log.debug("Renaming the Node template <{}> with <{}> in the topology <{}> .", operation.getCurrentName(), operation.getNewName(), topology.getId());
+        TopologyUtils.renameNodeTemplate(topology, operation.getNodeName(), operation.getNewName());
+        workflowBuilderService.renameNode(topology, operation.getNodeName(), operation.getNewName());
+        log.debug("Renaming the Node template <{}> with <{}> in the topology <{}> .", operation.getNodeName(), operation.getNewName(), topology.getId());
     }
 }

@@ -36,7 +36,7 @@ public class ReplaceNodeTemplateProcessor implements IEditorOperationProcessor<R
 
         // Retrieve existing node template
         Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate oldNodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeTemplateName(), nodeTemplates);
+        NodeTemplate oldNodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
 
         IndexedNodeType newType = alienDAO.findById(IndexedNodeType.class, operation.getNewTypeId());
         // Load the new type to the topology in order to update its dependencies

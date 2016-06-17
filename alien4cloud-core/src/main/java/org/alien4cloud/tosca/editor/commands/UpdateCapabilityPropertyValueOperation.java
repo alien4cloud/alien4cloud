@@ -10,6 +10,4 @@ import lombok.Setter;
 @Setter
 public class UpdateCapabilityPropertyValueOperation extends UpdateNodePropertyValueOperation {
     private String capabilityName;
-
-
 }
