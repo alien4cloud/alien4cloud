@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.Map.Entry;
-
 import javax.annotation.Resource;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -44,6 +42,7 @@ import alien4cloud.topology.exception.UpdateTopologyException;
 import alien4cloud.topology.task.SuggestionsTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.tosca.container.ToscaTypeLoader;
+import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.serializer.VelocityUtil;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
@@ -284,7 +283,37 @@ public class TopologyService {
         Map<String, IndexedRelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology);
         Map<String, IndexedCapabilityType> capabilityTypes = getIndexedCapabilityTypes(nodeTypes.values(), topology.getDependencies());
         Map<String, Map<String, Set<String>>> outputCapabilityProperties = topology.getOutputCapabilityProperties();
-        return new TopologyDTO(topology, nodeTypes, relationshipTypes, capabilityTypes, outputCapabilityProperties);
+        Map<String, IndexedDataType> dataTypes = getDataTypes(topology, nodeTypes, relationshipTypes, capabilityTypes);
+        return new TopologyDTO(topology, nodeTypes, relationshipTypes, capabilityTypes, outputCapabilityProperties, dataTypes);
+    }
+
+    private Map<String, IndexedDataType> getDataTypes(Topology topology, Map<String, IndexedNodeType> nodeTypes,
+            Map<String, IndexedRelationshipType> relationshipTypes, Map<String, IndexedCapabilityType> capabilityTypes) {
+        Map<String, IndexedDataType> indexedDataTypes = Maps.newHashMap();
+        indexedDataTypes = fillDataTypes(topology, indexedDataTypes, nodeTypes);
+        indexedDataTypes = fillDataTypes(topology, indexedDataTypes, relationshipTypes);
+        indexedDataTypes = fillDataTypes(topology, indexedDataTypes, capabilityTypes);
+        return indexedDataTypes;
+    }
+
+    private <T extends IndexedInheritableToscaElement> Map<String, IndexedDataType> fillDataTypes(Topology topology,
+            Map<String, IndexedDataType> indexedDataTypes, Map<String, T> elements) {
+        for (IndexedInheritableToscaElement indexedNodeType : elements.values()) {
+            if (indexedNodeType.getProperties() != null) {
+                for (PropertyDefinition pd : indexedNodeType.getProperties().values()) {
+                    String type = pd.getType();
+                    if (ToscaType.isPrimitive(type) || indexedDataTypes.containsKey(type)) {
+                        continue;
+                    }
+                    IndexedDataType dataType = csarRepoSearchService.getElementInDependencies(IndexedDataType.class, type, topology.getDependencies());
+                    if (dataType == null) {
+                        dataType = csarRepoSearchService.getElementInDependencies(PrimitiveIndexedDataType.class, type, topology.getDependencies());
+                    }
+                    indexedDataTypes.put(type, dataType);
+                }
+            }
+        }
+        return indexedDataTypes;
     }
 
     /**

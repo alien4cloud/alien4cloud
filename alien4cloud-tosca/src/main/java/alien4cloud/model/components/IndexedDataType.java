@@ -14,4 +14,7 @@ import org.elasticsearch.annotation.ESObject;
 @EqualsAndHashCode(of = {}, callSuper = true)
 @ESObject
 public class IndexedDataType extends IndexedInheritableToscaElement {
+
+    private boolean deriveFromSimpleType = false;
+
 }

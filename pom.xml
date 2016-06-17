@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>alien4cloud</groupId>
   <artifactId>alien4cloud-parent</artifactId>
-  <version>1.2.0-SM6-SNAPSHOT</version>
+  <version>1.3.0-SM1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Application LIfecycle ENabler parent project.</name>
   <description>Application LIfecycle ENabler is an application that allows you to manage your application's lifecycle on a cloud environment.</description>
@@ -64,7 +64,7 @@
     <metrics-spring.version>3.0.1</metrics-spring.version>
 
     <!-- Elastic Search mapper (reference the elastic search version actually). -->
-    <es-mapping.version>1.5.0-SNAPSHOT</es-mapping.version>
+    <es-mapping.version>1.5.1</es-mapping.version>
     <!-- Groovy is required for ElasticSearch to run as server in order to process scripts -->
     <groovy.version>2.3.5</groovy.version>
 

@@ -28,7 +28,7 @@ public final class IndexedModelUtils {
     }
 
     /**
-     * This utility method returns an ordered {@link alien4cloud.component.model.IndexedInheritableToscaElement} collection. The parent elements will be before
+     * This utility method returns an ordered {@link alien4cloud.model.components.IndexedInheritableToscaElement} collection. The parent elements will be before
      * the children elements
      * This utility method returns an ordered {@link IndexedInheritableToscaElement} collection. The parent elements will be before the children elements
      *

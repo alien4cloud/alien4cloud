@@ -5,6 +5,7 @@ import static alien4cloud.dao.model.FetchContext.*;
 import java.util.Map;
 
 import org.elasticsearch.annotation.ESObject;
+import org.elasticsearch.annotation.ObjectField;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermsFacet;
 
@@ -18,6 +19,7 @@ import lombok.Setter;
 @Setter
 @ESObject
 public class IndexedCapabilityType extends IndexedInheritableToscaElement {
+    @ObjectField(enabled = false)
     @FetchContext(contexts = { SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
     @JsonDeserialize(contentUsing = AttributeDeserializer.class)
     private Map<String, IValue> attributes;

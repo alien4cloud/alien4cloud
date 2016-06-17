@@ -50,6 +50,7 @@ public abstract class IndexedToscaElement {
     @TermFilter
     private boolean isHighestVersion;
 
+    @StringField(indexType = IndexType.not_analyzed)
     private Set<String> olderVersions;
 
     @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
@@ -61,6 +62,7 @@ public abstract class IndexedToscaElement {
     private Date lastUpdateDate;
 
     /* Normative element */
+    @StringField(indexType = IndexType.no)
     @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
     private String description;
 

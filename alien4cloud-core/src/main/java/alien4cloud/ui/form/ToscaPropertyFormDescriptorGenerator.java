@@ -1,6 +1,14 @@
 package alien4cloud.ui.form;
 
-import static alien4cloud.ui.form.GenericFormConstants.*;
+import static alien4cloud.ui.form.GenericFormConstants.ARRAY_TYPE;
+import static alien4cloud.ui.form.GenericFormConstants.COMPLEX_TYPE;
+import static alien4cloud.ui.form.GenericFormConstants.CONTENT_TYPE_KEY;
+import static alien4cloud.ui.form.GenericFormConstants.MAP_TYPE;
+import static alien4cloud.ui.form.GenericFormConstants.ORDER_KEY;
+import static alien4cloud.ui.form.GenericFormConstants.PROPERTY_TYPE_KEY;
+import static alien4cloud.ui.form.GenericFormConstants.TOSCA_DEFINITION_KEY;
+import static alien4cloud.ui.form.GenericFormConstants.TOSCA_TYPE;
+import static alien4cloud.ui.form.GenericFormConstants.TYPE_KEY;
 
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +21,7 @@ import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.IndexedDataType;
+import alien4cloud.model.components.PrimitiveIndexedDataType;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.tosca.normative.ToscaType;
 
@@ -59,14 +68,23 @@ public class ToscaPropertyFormDescriptorGenerator {
 
     private Map<String, Object> generateDescriptorForDataType(Set<String> processedDataTypes, IndexedDataType dataType, Set<CSARDependency> dependencies) {
         Map<String, Object> dataTypeDescriptors = Maps.newHashMap();
-        dataTypeDescriptors.put(TYPE_KEY, COMPLEX_TYPE);
-        Map<String, Object> propertyTypes = Maps.newHashMap();
-        dataTypeDescriptors.put(PROPERTY_TYPE_KEY, propertyTypes);
-        if (dataType.getProperties() != null) {
-            for (Map.Entry<String, PropertyDefinition> propertyDefinitionEntry : dataType.getProperties().entrySet()) {
-                propertyTypes.put(propertyDefinitionEntry.getKey(), doGenerateDescriptor(processedDataTypes, propertyDefinitionEntry.getValue(), dependencies));
+        if (dataType instanceof PrimitiveIndexedDataType) {
+            dataTypeDescriptors.put(TYPE_KEY, TOSCA_TYPE);
+            PropertyDefinition propertyDefinition = new PropertyDefinition();
+            propertyDefinition.setType(dataType.getDerivedFrom().get(0));
+            propertyDefinition.setConstraints(((PrimitiveIndexedDataType) dataType).getConstraints());
+            dataTypeDescriptors.put(TOSCA_DEFINITION_KEY, propertyDefinition);
+        } else {
+            dataTypeDescriptors.put(TYPE_KEY, COMPLEX_TYPE);
+            Map<String, Object> propertyTypes = Maps.newHashMap();
+            dataTypeDescriptors.put(PROPERTY_TYPE_KEY, propertyTypes);
+            if (dataType.getProperties() != null) {
+                for (Map.Entry<String, PropertyDefinition> propertyDefinitionEntry : dataType.getProperties().entrySet()) {
+                    propertyTypes.put(propertyDefinitionEntry.getKey(),
+                            doGenerateDescriptor(processedDataTypes, propertyDefinitionEntry.getValue(), dependencies));
+                }
+                dataTypeDescriptors.put(ORDER_KEY, dataType.getProperties().keySet());
             }
-            dataTypeDescriptors.put(ORDER_KEY, dataType.getProperties().keySet());
         }
         return dataTypeDescriptors;
     }

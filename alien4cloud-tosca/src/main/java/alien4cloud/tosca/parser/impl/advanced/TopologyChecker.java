@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -30,6 +31,7 @@ import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.services.ConstraintPropertyService;
+import alien4cloud.utils.services.DependencyService.ArchiveDependencyContext;
 
 @Component
 public class TopologyChecker implements IChecker<Topology> {
@@ -58,7 +60,14 @@ public class TopologyChecker implements IChecker<Topology> {
         mergeHierarchy(archiveRoot.getArtifactTypes(), archiveRoot);
         mergeHierarchy(archiveRoot.getCapabilityTypes(), archiveRoot);
         mergeHierarchy(archiveRoot.getNodeTypes(), archiveRoot);
-        mergeHierarchy(archiveRoot.getDataTypes(), archiveRoot);
+        // only merge dataTypes that derive from complex type
+        Map<String, IndexedDataType> dataTypes = Maps.filterValues(archiveRoot.getDataTypes(), new Predicate<IndexedDataType>() {
+            @Override
+            public boolean apply(IndexedDataType input) {
+                return !(input instanceof PrimitiveIndexedDataType);
+            }
+        });
+        mergeHierarchy(dataTypes, archiveRoot);
         mergeHierarchy(archiveRoot.getRelationshipTypes(), archiveRoot);
 
         // Register the archive in the context to ensure that all types are here.
@@ -141,7 +150,7 @@ public class TopologyChecker implements IChecker<Topology> {
                     } else if (propertyValue instanceof PropertyValue<?>) {
                         try {
                             constraintPropertyService.checkPropertyConstraint(propertyName, ((PropertyValue<?>) propertyValue).getValue(), propertyDefinition,
-                                    archiveRoot);
+                                    new ArchiveDependencyContext(archiveRoot));
                         } catch (ConstraintValueDoNotMatchPropertyTypeException | ConstraintViolationException e) {
                             StringBuilder problem = new StringBuilder("Validation issue ");
                             if (e.getConstraintInformation() != null) {

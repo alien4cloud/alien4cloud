@@ -23,6 +23,7 @@ import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.Interface;
 import alien4cloud.model.components.Operation;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;
@@ -142,14 +143,14 @@ public class IndexedModelTest {
         AttributeDefinition attrDef = new AttributeDefinition();
 
         propDef.setType("string");
-        propDef.setDefault("default_parent");
+        propDef.setDefault(new ScalarPropertyValue("default_parent"));
         attrDef.setType("string");
         parent.setProperties(MapUtil.newHashMap(new String[] { "prop1" }, new PropertyDefinition[] { propDef }));
         parent.setAttributes(Maps.<String, IValue> newHashMap());
         parent.getAttributes().put("attr1", attrDef);
 
         propDef = new PropertyDefinition();
-        propDef.setDefault("default_parent2");
+        propDef.setDefault(new ScalarPropertyValue("default_parent2"));
         propDef.setType("string");
         attrDef = new AttributeDefinition();
         attrDef.setType("version");
@@ -158,7 +159,7 @@ public class IndexedModelTest {
         parent.getAttributes().put("attr2", attrDef);
 
         propDef = new PropertyDefinition();
-        propDef.setDefault("default_son");
+        propDef.setDefault(new ScalarPropertyValue("default_son"));
         propDef.setType("string");
         attrDef = new AttributeDefinition();
         attrDef.setType("integer");
@@ -168,7 +169,7 @@ public class IndexedModelTest {
         son.getAttributes().put("attr1", attrDef);
 
         propDef = new PropertyDefinition();
-        propDef.setDefault("default_son2");
+        propDef.setDefault(new ScalarPropertyValue("default_son2"));
         propDef.setType("integer");
         attrDef = new AttributeDefinition();
         attrDef.setType("boolean");
@@ -184,7 +185,7 @@ public class IndexedModelTest {
         // son should'nt have parent's one when both defined the same
         PropertyDefinition propDefSon = son.getProperties().get("prop1");
         assertNotNull(propDefSon);
-        assertEquals("default_son", propDefSon.getDefault());
+        assertEquals(new ScalarPropertyValue("default_son"), propDefSon.getDefault());
         AttributeDefinition attrDefSon = (AttributeDefinition) son.getAttributes().get("attr1");
         assertEquals("integer", attrDefSon.getType());
 

@@ -121,4 +121,15 @@ public class ConstraintPropertyServiceTest {
         constraintPropertyService.checkSimplePropertyConstraint("test", "value", propertyDefinition);
     }
 
+    @Test(expected = ConstraintValueDoNotMatchPropertyTypeException.class)
+    public void testInvalidFloatPropertyWithConstraint() throws Exception {
+        PropertyDefinition propertyDefinition = new PropertyDefinition();
+        propertyDefinition.setConstraints(new ArrayList<PropertyConstraint>());
+        LengthConstraint lengthConstraint = new LengthConstraint();
+        lengthConstraint.setLength(3);
+        propertyDefinition.getConstraints().add(lengthConstraint);
+        propertyDefinition.setType("float");
+        constraintPropertyService.checkSimplePropertyConstraint("test", "aaa", propertyDefinition);
+    }
+
 }

@@ -1,17 +1,16 @@
 <div ng-class="{'row':condensed, 'form-group': !condensed}" ng-controller="PropertiesCtrl">
   <!-- Property Name -->
-  <label ng-if="translated" id="p_name_{{propertyName}}" class="col-md-4 property-display-label-ellipsed control-label" ng-class="{'property-required': definition.required }"
+  <label ng-if="translated" id="p_name_{{propertyName}}" class="col-md-4 property-display-label-ellipsed control-label" ng-class="{'property-required': definition.required && definitionObject.uiEmpty}"
          tooltip="{{propertyName | translate}}" tooltip-append-to-body="true">
     {{propertyName | translate}}
   </label>
-  <label ng-if="!translated" id="p_name_{{propertyName}}" class="col-md-4 property-display-label-ellipsed control-label" ng-class="{'property-required': definition.required }" tooltip="{{propertyName}}" tooltip-append-to-body="true">
+  <label ng-if="!translated" id="p_name_{{propertyName}}" class="col-md-4 property-display-label-ellipsed control-label" ng-class="{'property-required': definition.required && definitionObject.uiEmpty}" tooltip="{{propertyName}}" tooltip-append-to-body="true">
     {{propertyName}}
   </label>
-
   <div ng-class="{'col-md-5': deletable, 'col-md-8': !deletable, 'form-editable': !condensed}"
     ng-init="isStringDisplayType = (definitionObject.uiName === 'scalar-unit' || definitionObject.uiName === 'string');">
     <!-- Property Value -->
-    <div id="div_{{propertyName}}"  ng-if="isStringDisplayType" ng-class="{'property-required' : definition.required}">
+    <div id="div_{{propertyName}}"  ng-if="isStringDisplayType" ng-class="{'property-required' : definition.required && definitionObject.uiEmpty}">
       <!-- Case : string -->
       <span id="p_{{propertyName}}" ng-if="!definitionObject.uiPassword && !definitionObject.units && editable">
         <span ng-if="!isLongText"
@@ -69,6 +68,7 @@
       <em ng-if="definitionObject.uiPassword && !editable">{{ definitionObject.uiValue | password:'*' }}</em>
 
       <em ng-if="definitionObject.units && definitionObject.uiUnit && !editable">{{definitionObject.uiUnit}}</em>
+      <label ng-if="definition.required" tooltip="{{ 'REQUIRED' | translate }}">*</label>
       <!-- Reset button for any property definition -->
       <span id='reset-property-{{propertyName}}' ng-if="editable" class="btn btn-xs pull-right" ng-click="resetProperty();">
         <i class="fa fa-undo text-default" tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
@@ -99,15 +99,6 @@
         <!-- Case : Timestamp (date) -->
         <a href="#" editable-bsdate="definitionObject.uiValue" e-datepicker-popup="dd-MMMM-yyyy" onbeforesave="propertySave($data)" ng-if="editable">
           {{ (definitionObject.uiValue | date:"dd/MM/yyyy") || 'empty' }} <i class="fa fa-pencil-square-o"></i>
-        </a>
-        <em ng-if="!editable">{{definitionObject.uiValue}}</em>
-      </span>
-
-      <span ng-switch-when="range">
-        <!-- Case : inRange (date) -->
-        <a href="#" editable-range="definitionObject.uiValue" e-min="{{definitionObject.uiValueMin}}" e-max="{{definitionObject.uiValueMax}}" e-step="1"
-           onbeforesave="propertySave($data)" ng-if="editable">
-          {{definitionObject.uiValue}} <i class="fa fa-pencil-square-o"></i>
         </a>
         <em ng-if="!editable">{{definitionObject.uiValue}}</em>
       </span>

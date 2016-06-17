@@ -15,7 +15,6 @@ import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +28,7 @@ import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
@@ -51,6 +51,8 @@ import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
+import alien4cloud.tosca.normative.ToscaType;
+import alien4cloud.utils.PropertyUtil;
 
 import com.google.common.collect.Maps;
 
@@ -94,19 +96,24 @@ public class TopologyInputsController {
         if (inputs.containsKey(inputId)) {
             throw new AlreadyExistException("An input with the id " + inputId + "already exist in the topology " + topologyId);
         }
+        if (!ToscaType.isSimple(newPropertyDefinition.getType())) {
+            throw new InvalidArgumentException("An input with a non simple propery is not allowed.");
+        }
 
         inputs.put(inputId, newPropertyDefinition);
         topology.setInputs(inputs);
 
         log.debug("Add a new input <{}> for the topology <{}>.", inputId, topologyId);
         topologyServiceCore.save(topology);
-        if (StringUtils.isNotEmpty(newPropertyDefinition.getDefault())) {
+        AbstractPropertyValue defaultValue = newPropertyDefinition.getDefault();
+        if (defaultValue != null && defaultValue instanceof ScalarPropertyValue) {
+            String defaultScalarValue = ((ScalarPropertyValue) defaultValue).getValue();
             DeploymentTopology[] deploymentTopologies = deploymentTopologyService.getByTopologyId(topologyId);
             for (DeploymentTopology deploymentTopology : deploymentTopologies) {
                 if (deploymentTopology.getInputProperties() == null) {
                     deploymentTopology.setInputProperties(Maps.<String, String> newHashMap());
                 }
-                deploymentTopology.getInputProperties().put(inputId, newPropertyDefinition.getDefault());
+                deploymentTopology.getInputProperties().put(inputId, defaultScalarValue);
                 alienDAO.save(deploymentTopology);
             }
         }
@@ -212,12 +219,9 @@ public class TopologyInputsController {
             if (propertyEntry.getValue() instanceof FunctionPropertyValue) {
                 FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) propertyEntry.getValue();
                 if (ToscaFunctionConstants.GET_INPUT.equals(functionPropertyValue.getFunction()) && functionPropertyValue.getTemplateName().equals(inputId)) {
-                    String defaultValue = propertyDefinitions.get(propertyEntry.getKey()).getDefault();
-                    if (StringUtils.isNotEmpty(defaultValue)) {
-                        propertyEntry.setValue(new ScalarPropertyValue(defaultValue));
-                    } else {
-                        propertyEntry.setValue(null);
-                    }
+                    PropertyDefinition pd = propertyDefinitions.get(propertyEntry.getKey());
+                    AbstractPropertyValue pv = PropertyUtil.getDefaultPropertyValueFromPropertyDefinition(pd);
+                    propertyEntry.setValue(pv);
                 }
             }
         }
@@ -355,12 +359,8 @@ public class TopologyInputsController {
             IndexedNodeType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
                     topology.getDependencies());
             PropertyDefinition pd = indexedNodeType.getProperties().get(propertyId);
-
-            if (pd != null && pd.getDefault() != null) {
-                nodeTemplate.getProperties().put(propertyId, new ScalarPropertyValue(pd.getDefault()));
-            } else {
-                nodeTemplate.getProperties().put(propertyId, null);
-            }
+            AbstractPropertyValue pv = PropertyUtil.getDefaultPropertyValueFromPropertyDefinition(pd);
+            nodeTemplate.getProperties().put(propertyId, pv);
             log.debug("Disassociated the property <{}> of the node template <{}> to an input of the topology <{}>.", propertyId, nodeTemplateName, topologyId);
             topologyServiceCore.save(topology);
         }
@@ -556,11 +556,8 @@ public class TopologyInputsController {
             IndexedRelationshipType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedRelationshipType.class,
                     relationshipTemplate.getType(), topology.getDependencies());
             PropertyDefinition pd = indexedNodeType.getProperties().get(propertyId);
-            if (pd != null && pd.getDefault() != null) {
-                relationshipTemplate.getProperties().put(propertyId, new ScalarPropertyValue(pd.getDefault()));
-            } else {
-                relationshipTemplate.getProperties().put(propertyId, null);
-            }
+            AbstractPropertyValue pv = PropertyUtil.getDefaultPropertyValueFromPropertyDefinition(pd);
+            relationshipTemplate.getProperties().put(propertyId, pv);
             log.debug("Disassociated the property <{}> of the relationship template <{}> to an input of the topology <{}>.", propertyId, relationshipId,
                     topologyId);
         } else {
@@ -663,11 +660,8 @@ public class TopologyInputsController {
             IndexedCapabilityType indexedCapabilityType = csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class,
                     capabilityTemplate.getType(), topology.getDependencies());
             PropertyDefinition pd = indexedCapabilityType.getProperties().get(propertyId);
-            if (pd != null && pd.getDefault() != null) {
-                capabilityTemplate.getProperties().put(propertyId, new ScalarPropertyValue(pd.getDefault()));
-            } else {
-                capabilityTemplate.getProperties().put(propertyId, null);
-            }
+            AbstractPropertyValue pv = PropertyUtil.getDefaultPropertyValueFromPropertyDefinition(pd);
+            capabilityTemplate.getProperties().put(propertyId, pv);
             log.debug("Disassociated the property <{}> of the capability template <{}> to an input of the topology <{}>.", propertyId, capabilityId,
                     topologyId);
         } else {

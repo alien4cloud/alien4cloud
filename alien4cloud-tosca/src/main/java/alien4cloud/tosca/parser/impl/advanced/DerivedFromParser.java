@@ -29,7 +29,7 @@ public abstract class DerivedFromParser extends DefaultDeferredParser<List<Strin
     @Resource
     private ICSARRepositorySearchService searchService;
     @Resource
-    private ScalarParser scalarParser;
+    protected ScalarParser scalarParser;
 
     private final Class<? extends IndexedInheritableToscaElement> validType;
 

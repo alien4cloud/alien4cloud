@@ -5,7 +5,6 @@ var setup = require('../../common/setup');
 var common = require('../../common/common');
 var authentication = require('../../authentication/authentication');
 var csars = require('../../components/csars');
-var _ = require('lodash');
 
 var tomcatWar = {
     name:'tomcat-war-types',

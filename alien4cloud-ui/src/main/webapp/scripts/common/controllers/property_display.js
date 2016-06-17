@@ -260,25 +260,29 @@ define(function(require) {
         shownValue = shownValue || $scope.definition.default;
         $scope.definitionObject.hasDefaultValue = _.defined($scope.definition.default);
 
-        // Second phase : regarding constraints
+        // merge the constraints from the definition and from the type
+        var constraints = [];
         if (_.defined($scope.definition.constraints)) {
-          for (var i = 0; i < $scope.definition.constraints.length; i++) {
+          constraints.push($scope.definition.constraints);
+        }
+        if (_.defined($scope.propertyType) && _.defined($scope.propertyType.constraints)) {
+          constraints.push($scope.propertyType.constraints);
+        }
 
-            if ($scope.definition.constraints[i].hasOwnProperty('validValues')) {
-              $scope.definitionObject.uiName = 'select';
-              $scope.definitionObject.uiValue = shownValue;
-              $scope.definitionObject.uiSelectValues = $scope.definition.constraints[i].validValues;
-              return $scope.definitionObject;
-            }
-
-            if ($scope.definition.constraints[i].hasOwnProperty('inRange')) {
-              $scope.definitionObject.uiName = 'range';
-              $scope.definitionObject.uiValue = shownValue;
-              $scope.definitionObject.uiValueMax = $scope.definition.constraints[i].rangeMaxValue;
-              $scope.definitionObject.uiValueMin = $scope.definition.constraints[i].rangeMinValue;
-              return $scope.definitionObject;
-            }
-
+        // Second phase : regarding constraints
+        for (var i = 0; i < constraints.length; i++) {
+          if (constraints[i].hasOwnProperty('validValues')) {
+            $scope.definitionObject.uiName = 'select';
+            $scope.definitionObject.uiValue = shownValue;
+            $scope.definitionObject.uiSelectValues = constraints[i].validValues;
+            return $scope.definitionObject;
+          }
+          if (constraints[i].hasOwnProperty('inRange')) {
+            $scope.definitionObject.uiName = 'range';
+            $scope.definitionObject.uiValue = shownValue;
+            $scope.definitionObject.uiValueMax = constraints[i].rangeMaxValue;
+            $scope.definitionObject.uiValueMin = constraints[i].rangeMinValue;
+            return $scope.definitionObject;
           }
         }
 
@@ -298,8 +302,18 @@ define(function(require) {
         };
         $scope.splitScalarUnitValue = splitScalarUnitValue;
 
+        var type = $scope.definition.type;
+        if (_.defined($scope.propertyType) && $scope.propertyType.deriveFromSimpleType) {
+          type = $scope.propertyType.derivedFrom[0];
+        }
+
+        $scope.definitionObject.uiEmpty = false;
+        if(_.undefined(shownValue) || _.isEmpty(shownValue)) {
+          $scope.definitionObject.uiEmpty = true;
+        }
+
         // Second phase : regardless constraints
-        switch ($scope.definition.type) {
+        switch (type) {
           case 'boolean':
             $scope.definitionObject.uiName = 'checkbox';
             if (_.undefined(shownValue)) {
@@ -334,7 +348,11 @@ define(function(require) {
           case 'integer':
           case 'string':
             $scope.definitionObject.uiName = 'string';
-            $scope.definitionObject.uiValue = shownValue;
+            if(_.defined(shownValue) && _.defined(shownValue.value)) {
+              $scope.definitionObject.uiValue = shownValue.value;
+            } else {
+              $scope.definitionObject.uiValue = shownValue;
+            }
             $scope.definitionObject.uiPassword = $scope.definition.password;
             $scope.isLongText = _.defined(shownValue) && typeof shownValue === 'string' && shownValue.indexOf('\n') > -1;
             break;
@@ -361,9 +379,9 @@ define(function(require) {
       /** Reset the property to the default value if any */
       $scope.resetProperty = function resetPropertyToDefault() {
         $scope.initScope();
-        $scope.saveReset($scope.definition.default);
+        $scope.saveReset($scope.definition.default.value);
         if ($scope.propertyValue.hasOwnProperty('value')) {
-          $scope.propertyValue.value = $scope.definition.default; // if same value affected, no watch applied
+          $scope.propertyValue.value = $scope.definition.default.value; // if same value affected, no watch applied
         } else {
           $scope.propertyValue = $scope.definition.default;
         }

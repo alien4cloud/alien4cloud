@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedDataType;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.topology.Topology;
@@ -22,4 +23,5 @@ public class AbstractTopologyDTO<T extends Topology> {
     private Map<String, IndexedRelationshipType> relationshipTypes;
     private Map<String, IndexedCapabilityType> capabilityTypes;
     private Map<String, Map<String, Set<String>>> outputCapabilityProperties;
+    private Map<String, IndexedDataType> dataTypes;
 }

@@ -46,6 +46,7 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMa
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
+import alien4cloud.utils.services.DependencyService.DependenciesDependencyContext;
 import alien4cloud.utils.services.PropertyService;
 
 import com.google.common.collect.Lists;
@@ -321,7 +322,8 @@ public class LocationResourceService implements ILocationResourceService {
         if (resourceType.getProperties() == null || !resourceType.getProperties().containsKey(propertyName)) {
             throw new NotFoundException("Property <" + propertyName + "> is not found in type <" + resourceType.getElementId() + ">");
         }
-        propertyService.setPropertyValue(resourceTemplate.getTemplate(), resourceType.getProperties().get(propertyName), propertyName, propertyValue);
+        propertyService.setPropertyValue(resourceTemplate.getTemplate(), resourceType.getProperties().get(propertyName), propertyName, propertyValue,
+                new DependenciesDependencyContext(location.getDependencies()));
         saveResource(resourceTemplate);
     }
 
@@ -339,7 +341,8 @@ public class LocationResourceService implements ILocationResourceService {
         IndexedCapabilityType capabilityType = csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class,
                 capabilityDefinition.getType(), location.getDependencies());
         PropertyDefinition propertyDefinition = getOrFailCapabilityPropertyDefinition(capabilityType, propertyName);
-        propertyService.setCapabilityPropertyValue(capability, propertyDefinition, propertyName, propertyValue);
+        propertyService.setCapabilityPropertyValue(capability, propertyDefinition, propertyName, propertyValue,
+                new DependenciesDependencyContext(location.getDependencies()));
     }
 
     private Capability getOrFailCapability(NodeTemplate nodeTemplate, String capabilityName) {
