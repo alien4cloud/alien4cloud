@@ -10,6 +10,7 @@ import javax.validation.Validator;
 
 import org.springframework.stereotype.Component;
 
+import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.model.ToscaMeta;
 import alien4cloud.tosca.parser.impl.ErrorCode;
@@ -43,6 +44,7 @@ public class ToscaArchiveParser {
      * @return A parsing result that contains the Archive Root and eventual errors and/or warnings.
      * @throws ParsingException
      */
+    @ToscaContextual
     public ParsingResult<ArchiveRoot> parse(Path archiveFile) throws ParsingException {
         FileSystem csarFS;
         try {
@@ -72,6 +74,7 @@ public class ToscaArchiveParser {
      * @return the parsing result
      * @throws ParsingException
      */
+    @ToscaContextual
     public ParsingResult<ArchiveRoot> parseDir(Path archiveDir) throws ParsingException {
         Path toscaMetaFile = archiveDir.resolve(TOSCA_META_FILE_LOCATION);
         if (Files.exists(toscaMetaFile)) {
