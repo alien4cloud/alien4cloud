@@ -4,44 +4,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.annotation.Resource;
-
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.ComplexPropertyValue;
-import alien4cloud.model.components.DeploymentArtifact;
-import alien4cloud.model.components.ImplementationArtifact;
-import alien4cloud.model.components.IndexedArtifactToscaElement;
-import alien4cloud.model.components.IndexedDataType;
-import alien4cloud.model.components.IndexedInheritableToscaElement;
-import alien4cloud.model.components.Interface;
-import alien4cloud.model.components.ListPropertyValue;
-import alien4cloud.model.components.Operation;
-import alien4cloud.model.components.PrimitiveIndexedDataType;
-import alien4cloud.model.components.PropertyConstraint;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import alien4cloud.model.components.*;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.normative.IPropertyType;
 import alien4cloud.tosca.normative.InvalidPropertyValueException;
 import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
-import alien4cloud.utils.services.DependencyService;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 @Component
 public class TemplatePostProcessor {
-    // FIXME can't we use the tosca context here ?
-    @Resource
-    private DependencyService dependencyService;
-
     /**
      * Post process the archive: For every definition of the model it fills the id fields in the TOSCA elements from the key of the elements map.
      *
@@ -122,8 +103,7 @@ public class TemplatePostProcessor {
         } else if (!ToscaType.isPrimitive(propertyDefinition.getType())) {
             // complex object
             // complex type that derives from simple
-            IndexedDataType dataType = dependencyService.getDataType(propertyDefinition.getType(),
-                    new DependencyService.ArchiveDependencyContext(parsedArchive.getResult()));
+            IndexedDataType dataType = ToscaContext.get(IndexedDataType.class, propertyDefinition.getType());
             if (dataType instanceof PrimitiveIndexedDataType) {
                 if (!(defaultObject instanceof ScalarPropertyValue)) {
                     addNonCompatiblePropertyTypeError(propertyDefinition.getType(), defaultObject.toString(), propertyFqn, parsedArchive);
@@ -159,11 +139,9 @@ public class TemplatePostProcessor {
     private void validateObjectValue(PropertyDefinition propertyDefinition, Object value, String propertyFqn, ParsingResult<ArchiveRoot> parsedArchive) {
         if (value == null) {
             if (propertyDefinition.isRequired()) {
-                parsedArchive
-                        .getContext()
-                        .getParsingErrors()
+                parsedArchive.getContext().getParsingErrors()
                         .add(new ParsingError(ErrorCode.VALIDATION_ERROR, "A value is required but was not found for property " + propertyFqn, null,
-                        "A value is required but was not found for property " + propertyFqn, null, "constraints"));
+                                "A value is required but was not found for property " + propertyFqn, null, "constraints"));
             }
             return;
         }
@@ -192,8 +170,7 @@ public class TemplatePostProcessor {
             }
         } else if (!ToscaType.isPrimitive(propertyDefinition.getType())) {
             // complex object
-            IndexedDataType dataType = dependencyService.getDataType(propertyDefinition.getType(),
-                    new DependencyService.ArchiveDependencyContext(parsedArchive.getResult()));
+            IndexedDataType dataType = ToscaContext.get(IndexedDataType.class, propertyDefinition.getType());
             if (dataType instanceof PrimitiveIndexedDataType) {
                 List<PropertyConstraint> constraints = Lists.newArrayList();
                 if (propertyDefinition.getConstraints() != null) {
@@ -220,21 +197,20 @@ public class TemplatePostProcessor {
     }
 
     private void addNonCompatiblePropertyTypeError(String type, String defaultAsString, String propertyFqn, ParsingResult<ArchiveRoot> parsedArchive) {
-        parsedArchive
-                .getContext()
-                .getParsingErrors()
-                .add(new ParsingError(ErrorCode.VALIDATION_ERROR, "Default value " + defaultAsString
-                        + " is not valid or is not supported for the property type " + type + " ( + " + propertyFqn + ")", null,
-                "Default value " + defaultAsString + " is not valid or is not supported for the property type " + type, null, "default"));
+        parsedArchive.getContext().getParsingErrors()
+                .add(new ParsingError(ErrorCode.VALIDATION_ERROR,
+                        "Default value " + defaultAsString + " is not valid or is not supported for the property type " + type + " ( + " + propertyFqn + ")",
+                        null, "Default value " + defaultAsString + " is not valid or is not supported for the property type " + type, null, "default"));
     }
 
-    private void addNonCompatibleConstraintError(PropertyConstraint constraint, String defaultAsString, String propertyFqn, ParsingResult<ArchiveRoot> parsedArchive) {
-        parsedArchive
-                .getContext()
-                .getParsingErrors()
-                .add(new ParsingError(ErrorCode.VALIDATION_ERROR, "Default value " + defaultAsString + " is not valid regarding the constraint "
-                        + constraint.getClass().getSimpleName() + " for property " + propertyFqn, null,
-                "Default value " + defaultAsString + " is not valid for the constraint " + constraint.getClass().getSimpleName(), null, "constraints"));
+    private void addNonCompatibleConstraintError(PropertyConstraint constraint, String defaultAsString, String propertyFqn,
+            ParsingResult<ArchiveRoot> parsedArchive) {
+        parsedArchive.getContext().getParsingErrors()
+                .add(new ParsingError(ErrorCode.VALIDATION_ERROR,
+                        "Default value " + defaultAsString + " is not valid regarding the constraint " + constraint.getClass().getSimpleName()
+                                + " for property " + propertyFqn,
+                        null, "Default value " + defaultAsString + " is not valid for the constraint " + constraint.getClass().getSimpleName(), null,
+                        "constraints"));
     }
 
     private void validateSimpleObjectValue(String type, List<PropertyConstraint> constraints, String value, String propertyFqn,

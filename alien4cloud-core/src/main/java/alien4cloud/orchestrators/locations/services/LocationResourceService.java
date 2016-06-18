@@ -1,11 +1,6 @@
 package alien4cloud.orchestrators.locations.services;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -17,18 +12,16 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.events.LocationTemplateCreated;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedModelUtils;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.*;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
@@ -46,12 +39,7 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMa
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
-import alien4cloud.utils.services.DependencyService.DependenciesDependencyContext;
 import alien4cloud.utils.services.PropertyService;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 /**
  * Location Resource Service provides utilities to query LocationResourceTemplate.
@@ -75,7 +63,9 @@ public class LocationResourceService implements ILocationResourceService {
     @Inject
     private ApplicationContext applicationContext;
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#getLocationResources(alien4cloud.model.orchestrators.locations.Location)
      */
     @Override
@@ -91,8 +81,12 @@ public class LocationResourceService implements ILocationResourceService {
         return locationResources;
     }
 
-    /* (non-Javadoc)
-     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#getLocationResourcesFromOrchestrator(alien4cloud.model.orchestrators.locations.Location)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * alien4cloud.orchestrators.locations.services.ILocationResourceService#getLocationResourcesFromOrchestrator(alien4cloud.model.orchestrators.locations.
+     * Location)
      */
     @Override
     public LocationResources getLocationResourcesFromOrchestrator(Location location) {
@@ -108,7 +102,9 @@ public class LocationResourceService implements ILocationResourceService {
         return locationResources;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#getLocationResourceTypes(java.util.Collection)
      */
     @Override
@@ -148,10 +144,8 @@ public class LocationResourceService implements ILocationResourceService {
 
             if (exposedIndexedNodeType.getCapabilities() != null && !exposedIndexedNodeType.getCapabilities().isEmpty()) {
                 for (CapabilityDefinition capabilityDefinition : exposedIndexedNodeType.getCapabilities()) {
-                    locationResourceTypes.getCapabilityTypes().put(
-                            capabilityDefinition.getType(),
-                            csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class, capabilityDefinition.getType(),
-                                    location.getDependencies()));
+                    locationResourceTypes.getCapabilityTypes().put(capabilityDefinition.getType(), csarRepoSearchService
+                            .getRequiredElementInDependencies(IndexedCapabilityType.class, capabilityDefinition.getType(), location.getDependencies()));
                 }
             }
         }
@@ -172,7 +166,9 @@ public class LocationResourceService implements ILocationResourceService {
         }
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#accessor(java.lang.String)
      */
     @Override
@@ -220,7 +216,9 @@ public class LocationResourceService implements ILocationResourceService {
         return Lists.newArrayList(result.getData());
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#getResourcesTemplates(java.lang.String)
      */
     @Override
@@ -228,7 +226,9 @@ public class LocationResourceService implements ILocationResourceService {
         return getResourcesTemplates(getLocationIdFilter(locationId));
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#getMultiple(java.util.Collection)
      */
     @Override
@@ -243,7 +243,9 @@ public class LocationResourceService implements ILocationResourceService {
         return result;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#addResourceTemplate(java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
@@ -275,7 +277,9 @@ public class LocationResourceService implements ILocationResourceService {
         return locationResourceTemplate;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#deleteResourceTemplate(java.lang.String)
      */
     @Override
@@ -287,7 +291,9 @@ public class LocationResourceService implements ILocationResourceService {
         alienDAO.save(location);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#getOrFail(java.lang.String)
      */
     @Override
@@ -299,7 +305,9 @@ public class LocationResourceService implements ILocationResourceService {
         return locationResourceTemplate;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#merge(java.lang.Object, java.lang.String)
      */
     @Override
@@ -309,12 +317,14 @@ public class LocationResourceService implements ILocationResourceService {
         saveResource(resourceTemplate);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#setTemplateProperty(java.lang.String, java.lang.String, java.lang.Object)
      */
     @Override
-    public void setTemplateProperty(String resourceId, String propertyName, Object propertyValue) throws ConstraintValueDoNotMatchPropertyTypeException,
-            ConstraintViolationException {
+    public void setTemplateProperty(String resourceId, String propertyName, Object propertyValue)
+            throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
         IndexedNodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, resourceTemplate.getTemplate().getType(),
@@ -322,13 +332,15 @@ public class LocationResourceService implements ILocationResourceService {
         if (resourceType.getProperties() == null || !resourceType.getProperties().containsKey(propertyName)) {
             throw new NotFoundException("Property <" + propertyName + "> is not found in type <" + resourceType.getElementId() + ">");
         }
-        propertyService.setPropertyValue(resourceTemplate.getTemplate(), resourceType.getProperties().get(propertyName), propertyName, propertyValue,
-                new DependenciesDependencyContext(location.getDependencies()));
+        propertyService.setPropertyValue(resourceTemplate.getTemplate(), resourceType.getProperties().get(propertyName), propertyName, propertyValue);
         saveResource(resourceTemplate);
     }
 
-    /* (non-Javadoc)
-     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#setTemplateCapabilityProperty(alien4cloud.model.orchestrators.locations.LocationResourceTemplate, java.lang.String, java.lang.String, java.lang.Object)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#setTemplateCapabilityProperty(alien4cloud.model.orchestrators.locations.
+     * LocationResourceTemplate, java.lang.String, java.lang.String, java.lang.Object)
      */
     @Override
     public void setTemplateCapabilityProperty(LocationResourceTemplate resourceTemplate, String capabilityName, String propertyName, Object propertyValue)
@@ -341,8 +353,7 @@ public class LocationResourceService implements ILocationResourceService {
         IndexedCapabilityType capabilityType = csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class,
                 capabilityDefinition.getType(), location.getDependencies());
         PropertyDefinition propertyDefinition = getOrFailCapabilityPropertyDefinition(capabilityType, propertyName);
-        propertyService.setCapabilityPropertyValue(capability, propertyDefinition, propertyName, propertyValue,
-                new DependenciesDependencyContext(location.getDependencies()));
+        propertyService.setCapabilityPropertyValue(capability, propertyDefinition, propertyName, propertyValue);
     }
 
     private Capability getOrFailCapability(NodeTemplate nodeTemplate, String capabilityName) {
@@ -369,8 +380,11 @@ public class LocationResourceService implements ILocationResourceService {
         throw new NotFoundException("Capability <" + capabilityName + "> not found in type <" + resourceType.getElementId() + ">");
     }
 
-    /* (non-Javadoc)
-     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#setTemplateCapabilityProperty(java.lang.String, java.lang.String, java.lang.String, java.lang.Object)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#setTemplateCapabilityProperty(java.lang.String, java.lang.String,
+     * java.lang.String, java.lang.Object)
      */
     @Override
     public void setTemplateCapabilityProperty(String resourceId, String capabilityName, String propertyName, Object propertyValue)
@@ -380,7 +394,9 @@ public class LocationResourceService implements ILocationResourceService {
         saveResource(resourceTemplate);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#autoConfigureResources(java.lang.String)
      */
     @Override
@@ -388,7 +404,9 @@ public class LocationResourceService implements ILocationResourceService {
         return locationService.autoConfigure(locationId);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#deleteGeneratedResources(java.lang.String)
      */
     @Override
@@ -403,8 +421,11 @@ public class LocationResourceService implements ILocationResourceService {
         alienDAO.save(location);
     }
 
-    /* (non-Javadoc)
-     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#saveResource(alien4cloud.model.orchestrators.locations.Location, alien4cloud.model.orchestrators.locations.LocationResourceTemplate)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#saveResource(alien4cloud.model.orchestrators.locations.Location,
+     * alien4cloud.model.orchestrators.locations.LocationResourceTemplate)
      */
     @Override
     public void saveResource(Location location, LocationResourceTemplate resourceTemplate) {
@@ -413,8 +434,11 @@ public class LocationResourceService implements ILocationResourceService {
         alienDAO.save(resourceTemplate);
     }
 
-    /* (non-Javadoc)
-     * @see alien4cloud.orchestrators.locations.services.ILocationResourceService#saveResource(alien4cloud.model.orchestrators.locations.LocationResourceTemplate)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * alien4cloud.orchestrators.locations.services.ILocationResourceService#saveResource(alien4cloud.model.orchestrators.locations.LocationResourceTemplate)
      */
     @Override
     public void saveResource(LocationResourceTemplate resourceTemplate) {
