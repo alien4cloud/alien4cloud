@@ -2,10 +2,12 @@ package alien4cloud.paas.model;
 
 import java.util.Date;
 
+import org.elasticsearch.annotation.ESObject;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.Getter;
 import lombok.Setter;
-import org.elasticsearch.annotation.ESObject;
 
 /**
  * This represents a log entry from orchestrator
@@ -84,4 +86,12 @@ public class PaaSDeploymentLog {
      * This field is mandatory
      */
     private String content;
+
+    @Override
+    public String toString() {
+        return "PaaSDeploymentLog{" + "deploymentPaaSId='" + deploymentPaaSId + '\'' + ", level=" + level + ", type='" + type + '\'' + ", timestamp="
+                + timestamp + ", workflowId='" + workflowId + '\'' + ", executionId='" + executionId + '\'' + ", nodeId='" + nodeId + '\'' + ", instanceId='"
+                + instanceId + '\'' + ", interfaceName='" + interfaceName + '\'' + ", operationName='" + operationName + '\'' + ", content='" + content + '\''
+                + '}';
+    }
 }
