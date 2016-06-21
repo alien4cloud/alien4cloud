@@ -2,7 +2,12 @@ package alien4cloud.paas.model;
 
 import java.util.Date;
 
+import org.elasticsearch.annotation.DateField;
 import org.elasticsearch.annotation.ESObject;
+import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.annotation.TimeStamp;
+import org.elasticsearch.annotation.query.TermFilter;
+import org.elasticsearch.mapping.IndexType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -23,12 +28,16 @@ public class PaaSDeploymentLog {
      * It corresponds to {@link alien4cloud.model.deployment.Deployment#getOrchestratorDeploymentId}
      * This field is mandatory
      */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String deploymentPaaSId;
 
     /**
      * Log's level
      * This field is mandatory
      */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private PaaSDeploymentLogLevel level;
 
     /**
@@ -37,54 +46,72 @@ public class PaaSDeploymentLog {
      * For puccini it can be operation_output, operation_info, plugin, provider, general ...
      * This field is mandatory
      */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String type;
 
     /**
      * Log's timestamp
      * This field is mandatory
      */
+    @TermFilter
+    @DateField
+    @TimeStamp(format = "", index = IndexType.not_analyzed)
     private Date timestamp;
 
     /**
      * Id of the workflow that generated the log
      * This field is optional
      */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String workflowId;
 
     /**
      * Id of the execution that generated the log
      * This field is optional
      */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String executionId;
 
     /**
      * Id of the node that generated the log
      * This field is optional
      */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String nodeId;
 
     /**
      * Id of the instance that generated the log
      * This field is optional
      */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String instanceId;
 
     /**
      * Interface on the node that generated the log
      * This field is optional
      */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String interfaceName;
 
     /**
      * Operation inside the interface on the node that generated the log
      * This field is optional
      */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String operationName;
 
     /**
      * Finally the log's content in free text
      * This field is mandatory
      */
+    @StringField
     private String content;
 
     @Override

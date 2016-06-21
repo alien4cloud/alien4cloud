@@ -25,8 +25,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping({ "/rest/applications/{applicationId:.+}/logs", "/rest/v1/applications/{applicationId:.+}/logs",
-        "/rest/latest/applications/{applicationId:.+}/logs" })
+@RequestMapping({ "/rest/applications/{applicationId}/environments/{applicationEnvironmentId}/logs",
+        "/rest/v1/applications/{applicationId}/environments/{applicationEnvironmentId}/logs",
+        "/rest/latest/applications/{applicationId}/environments/{applicationEnvironmentId}/logs" })
 @Api(value = "", description = "Manages application's deploymeng logs")
 public class ApplicationLogController {
 
@@ -65,14 +66,14 @@ public class ApplicationLogController {
             }
         }
 
-        String sortBy = null;
-        boolean ascending = false;
+        String sortBy = "timestamp";
+        boolean ascending = true;
         if (searchRequest.getSortConfiguration() != null) {
             sortBy = searchRequest.getSortConfiguration().getSortBy();
             ascending = searchRequest.getSortConfiguration().isAscending();
         }
         FacetedSearchResult searchResult = alienMonitorDao.facetedSearch(PaaSDeploymentLog.class, searchRequest.getQuery(), searchRequest.getFilters(),
-                dateRangeBuilder, null, searchRequest.getFrom(), searchRequest.getSize(), sortBy, ascending);
+                dateRangeBuilder, null, searchRequest.getFrom(), searchRequest.getSize(), sortBy, !ascending);
         return RestResponseBuilder.<FacetedSearchResult> builder().data(searchResult).build();
     }
 }
