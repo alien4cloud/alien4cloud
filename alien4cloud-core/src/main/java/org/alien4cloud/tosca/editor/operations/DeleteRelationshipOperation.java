@@ -1,4 +1,4 @@
-package org.alien4cloud.tosca.editor.commands;
+package org.alien4cloud.tosca.editor.operations;
 
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;

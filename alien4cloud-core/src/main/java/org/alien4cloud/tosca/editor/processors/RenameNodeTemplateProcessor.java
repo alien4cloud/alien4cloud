@@ -3,13 +3,12 @@ package org.alien4cloud.tosca.editor.processors;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
-import org.alien4cloud.tosca.editor.commands.RenameNodeOperation;
+import org.alien4cloud.tosca.editor.operations.RenameNodeOperation;
 
 import alien4cloud.exception.InvalidNodeNameException;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

@@ -7,7 +7,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
-import org.alien4cloud.tosca.editor.commands.AddNodeOperation;
+import org.alien4cloud.tosca.editor.operations.AddNodeOperation;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.application.TopologyCompositionService;

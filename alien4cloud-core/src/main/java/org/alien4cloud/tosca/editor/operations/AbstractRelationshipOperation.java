@@ -1,4 +1,4 @@
-package org.alien4cloud.tosca.editor.commands;
+package org.alien4cloud.tosca.editor.operations;
 
 import org.hibernate.validator.constraints.NotBlank;
 

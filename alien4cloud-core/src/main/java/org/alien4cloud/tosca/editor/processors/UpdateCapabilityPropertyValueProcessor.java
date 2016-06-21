@@ -5,7 +5,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
-import org.alien4cloud.tosca.editor.commands.UpdateCapabilityPropertyValueOperation;
+import org.alien4cloud.tosca.editor.operations.UpdateCapabilityPropertyValueOperation;
 
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.IndexedCapabilityType;

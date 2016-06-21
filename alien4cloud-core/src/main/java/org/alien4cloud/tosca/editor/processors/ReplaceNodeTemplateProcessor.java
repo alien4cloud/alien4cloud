@@ -6,7 +6,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
-import org.alien4cloud.tosca.editor.commands.ReplaceNodeOperation;
+import org.alien4cloud.tosca.editor.operations.ReplaceNodeOperation;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.components.IndexedNodeType;

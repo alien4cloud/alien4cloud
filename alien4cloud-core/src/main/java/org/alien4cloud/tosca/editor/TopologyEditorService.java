@@ -8,17 +8,19 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.editor.commands.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.model.EditionConcurrencyException;
+import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 
+import com.google.common.collect.Maps;
+
+import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.utils.ReflectionUtil;
-import lombok.SneakyThrows;
 
 /**
  * This service manages command execution on the TOSCA topology template editor.
@@ -33,7 +35,7 @@ public class TopologyEditorService {
     private TopologyEditionContextManager topologyEditionContextManager;
 
     /** Processors map by type. */
-    private Map<Class<?>, IEditorOperationProcessor<? extends AbstractEditorOperation>> processorMap;
+    private Map<Class<?>, IEditorOperationProcessor<? extends AbstractEditorOperation>> processorMap = Maps.newHashMap();
 
     @PostConstruct
     public void initialize() {
@@ -46,10 +48,15 @@ public class TopologyEditorService {
 
     // trigger editor operation
     @MessageMapping("/topology-editor/{topologyId}")
-    public <T extends AbstractEditorOperation> void execute(@DestinationVariable String topologyId, T operation) {
+    public <T extends AbstractEditorOperation> TopologyEditionContext execute(@DestinationVariable String topologyId, T operation)
+            throws EditionConcurrencyException {
         // get the topology context.
         try {
             topologyEditionContextManager.init(topologyId);
+
+            operation.setAuthor(AuthorizationUtil.getCurrentUser().getUserId());
+            // check authorization to update a topology
+            topologyService.checkEditionAuthorizations(TopologyEditionContextManager.getTopology());
 
             // If the version of the topology is not snapshot we don't allow modifications.
             topologyService.throwsErrorIfReleased(TopologyEditionContextManager.getTopology());
@@ -59,6 +66,9 @@ public class TopologyEditorService {
             // attach the topology tosca context and process the operation
             IEditorOperationProcessor<T> processor = (IEditorOperationProcessor<T>) processorMap.get(operation.getClass());
             processor.process(operation);
+
+            // return the topology context
+            return TopologyEditionContextManager.get();
         } finally {
             topologyEditionContextManager.destroy();
         }
@@ -69,8 +79,7 @@ public class TopologyEditorService {
      *
      * @param operation, The operation under evaluation.
      */
-    @SneakyThrows
-    private synchronized void checkSynchronization(AbstractEditorOperation operation) {
+    private synchronized void checkSynchronization(AbstractEditorOperation operation) throws EditionConcurrencyException {
         List<AbstractEditorOperation> operations = TopologyEditionContextManager.get().getOperations();
         // if someone performed some operations we have to ensure that the new operation is performed on top of a synchronized topology
         if (operations.size() == 0 || operation.getPreviousOperationId() == operations.get(operations.size() - 1).getId()) {
@@ -82,15 +91,20 @@ public class TopologyEditorService {
         throw new EditionConcurrencyException();
     }
 
-    // upload file in the archive
+    public void undoRedo(String topologyId, int at, String lastOperationId) {
+        // TODO check that the requested index (at) is in the operation range.
+        // TODO Re-initialize the Type Loader from the topology context
+        // TODO Replay all operations until the given index
+    }
 
     // save
     public void save() {
         // save is updating the topology on elasticsearch and also performs a local commit
-        // FIXME implements save
-        // GIT COMMIT
+        // TODO implements save
         // topologyServiceCore.save(topology);
         // topologyServiceCore.updateSubstitutionType(topology);
+        // TODO Copy and cleanup all temporary files from the executed operations.
+        // TODO GIT COMMIT
     }
 
     /**
@@ -123,33 +137,4 @@ public class TopologyEditorService {
 
     }
 
-    /**
-     * Delete a file from the archive under edition.
-     * 
-     * @param topologyId The id of the topology under edition.
-     * @param path The path of the file to revert.
-     */
-    public void deleteFile(String topologyId, String path) {
-        // Fails if the path refers to the topology yaml file (cannot be deleted).
-
-    }
-
-    /**
-     * Revert a file to it's initial state based on the current edition context.
-     * 
-     * @param topologyId The id of the topology under edition.
-     * @param path The path of the file to revert.
-     */
-    public void revertFile(String topologyId, String path) {
-        // Fails if the path refers to the topology yaml file (not managed in the same way as other files).
-
-    }
-
-    /**
-     * Upload a full tosca-archive to override a given topology.
-     */
-    public void uploadArchive() {
-        // This overrides all changes in the topology.
-
-    }
 }

@@ -10,6 +10,7 @@ define(function (require) {
   require('scripts/topologytemplates/services/topology_template_service');
   require('scripts/topologytemplates/services/topology_template_version_services');
   require('scripts/topology/controllers/topology');
+  require('scripts/topology/controllers/editor');
   require('scripts/applications/controllers/application_versions');
   require('scripts/topologytemplates/controllers/topology_template_editor');
 
@@ -42,8 +43,9 @@ define(function (require) {
   });
 
   states.state('topologytemplates.detail.topology', {
-    url: '/topology',
-    template: '<ui-view></ui-view>',
+    url: '/topology/:version',
+    templateUrl: 'views/layout/vertical_menu_layout.html',
+    controller: 'TopologyEditorCtrl',
     resolve: {
       context: ['$stateParams', function ($stateParams) {
         var context = { topologyId: undefined };

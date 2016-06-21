@@ -7,7 +7,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
-import org.alien4cloud.tosca.editor.commands.DeleteNodeOperation;
+import org.alien4cloud.tosca.editor.operations.DeleteNodeOperation;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;

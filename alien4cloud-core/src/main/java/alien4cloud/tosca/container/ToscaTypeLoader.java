@@ -19,9 +19,9 @@ import com.google.common.collect.Sets;
 @Setter
 @Slf4j
 public class ToscaTypeLoader {
-
+    /** Map of type names per archives. */
     private Map<CSARDependency, Set<String>> dependenciesMap = Maps.newHashMap();
-
+    /** Count the usage of a given type in the current context. */
     private Map<String, Integer> typeUsagesMap = Maps.newHashMap();
 
     private ICsarDependencyLoader dependencyLoader;
@@ -102,8 +102,7 @@ public class ToscaTypeLoader {
             log.warn("Version conflicting for archive [" + dependency.getName() + "] override current version [" + currentDependency.getVersion() + "] with ["
                     + dependency.getVersion() + "]");
         } else {
-            log.warn("Version conflicting for archive [" + dependency.getName() + "] do not override and use current version ["
-                    + currentDependency.getVersion()
+            log.warn("Version conflicting for archive [" + dependency.getName() + "] do not override and use current version [" + currentDependency.getVersion()
                     + "] ignore old version [" + dependency.getVersion() + "]");
             dependenciesMap.get(currentDependency).add(type);
         }

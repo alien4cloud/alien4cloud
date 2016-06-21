@@ -9,24 +9,23 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.editor.commands.AbstractEditorOperation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Lists;
 
 import alien4cloud.dao.ESGenericIdDAO;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * The toplogy edition context manager is responsible to manage the caching and lifecycle of TopologyEditionContexts.
+ * The topology edition context manager is responsible to manage the caching and lifecycle of TopologyEditionContexts.
  */
 @Slf4j
 @Component
@@ -36,17 +35,24 @@ public class TopologyEditionContextManager {
 
     @Resource
     private TopologyServiceCore topologyServiceCore;
+    @Resource
+    private TopologyService topologyService;
+
     @Resource(name = "alien-es-dao")
     private ESGenericIdDAO dao;
-    @Value("${directories.alien}")
-    private String topologyEditorGitPath;
+
     private Path localGitRepositoryPath;
+
     // TODO make cache management time a parameter
     private LoadingCache<String, TopologyEditionContext> contextCache;
 
+    @Value("${directories.alien}")
+    public void setLocalGitRepositoryPath(String pathStr) {
+        localGitRepositoryPath = Paths.get(pathStr);
+    }
+
     @PostConstruct
     public void setup() {
-        localGitRepositoryPath = Paths.get(topologyEditorGitPath).resolve("topologyeditor");
         // initialize the cache
         contextCache = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).build(new CacheLoader<String, TopologyEditionContext>() {
             @Override
@@ -60,8 +66,7 @@ public class TopologyEditionContextManager {
                 Path topologyGitPath = localGitRepositoryPath.resolve(topologyId);
                 createGitDirectory(topologyGitPath);
                 log.debug("Topology context for topology {} loaded", topologyId);
-                return new TopologyEditionContext(topology, clonedTopology, new ToscaContext.Context(topology.getDependencies()), topologyGitPath,
-                        Lists.<AbstractEditorOperation> newArrayList());
+                return new TopologyEditionContext(topology, clonedTopology, topologyGitPath);
             }
         });
     }

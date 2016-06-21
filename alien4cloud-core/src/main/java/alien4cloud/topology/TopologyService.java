@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.Map.Entry;
+
 import javax.annotation.Resource;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -42,6 +44,7 @@ import alien4cloud.topology.exception.UpdateTopologyException;
 import alien4cloud.topology.task.SuggestionsTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.tosca.container.ToscaTypeLoader;
+import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.serializer.VelocityUtil;
 import alien4cloud.utils.MapUtil;
@@ -278,6 +281,7 @@ public class TopologyService {
      * @param topology The topology for which to create a DTO.
      * @return The {@link TopologyDTO} that contains the given topology
      */
+    @Deprecated
     public TopologyDTO buildTopologyDTO(Topology topology) {
         Map<String, IndexedNodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false);
         Map<String, IndexedRelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology);
@@ -347,7 +351,6 @@ public class TopologyService {
      */
     @SuppressWarnings("unchecked")
     public <T extends IndexedToscaElement> T loadType(Topology topology, T element) {
-        // FIXME update the tosca context here.
         String type = element.getElementId();
         String archiveName = element.getArchiveName();
         String archiveVersion = element.getArchiveVersion();
@@ -384,8 +387,12 @@ public class TopologyService {
                 element = csarRepoSearchService.getElementInDependencies((Class<T>) element.getClass(), element.getElementId(), topology.getDependencies());
             }
         }
+        // FIXME Transitive dependencies could change here and thus types be affected ?
         ToscaTypeLoader typeLoader = initializeTypeLoader(topology);
         typeLoader.loadType(type, new CSARDependency(element.getArchiveName(), element.getArchiveVersion()));
+        for (CSARDependency updatedDependency : typeLoader.getLoadedDependencies()) {
+            ToscaContext.get().updateDependency(updatedDependency);
+        }
         topology.setDependencies(typeLoader.getLoadedDependencies());
         return element;
     }
@@ -394,6 +401,10 @@ public class TopologyService {
         ToscaTypeLoader typeLoader = initializeTypeLoader(topology);
         for (String type : types) {
             typeLoader.unloadType(type);
+        }
+        // FIXME if a dependency is just removed don't add it back
+        for (CSARDependency updatedDependency : typeLoader.getLoadedDependencies()) {
+            ToscaContext.get().updateDependency(updatedDependency);
         }
         topology.setDependencies(typeLoader.getLoadedDependencies());
     }

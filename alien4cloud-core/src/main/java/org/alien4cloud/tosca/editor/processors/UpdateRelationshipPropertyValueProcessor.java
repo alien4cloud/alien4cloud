@@ -5,7 +5,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
-import org.alien4cloud.tosca.editor.commands.UpdateRelationshipPropertyValueOperation;
+import org.alien4cloud.tosca.editor.operations.UpdateRelationshipPropertyValueOperation;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;

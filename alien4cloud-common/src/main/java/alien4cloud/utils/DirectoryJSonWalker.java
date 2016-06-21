@@ -22,6 +22,17 @@ public final class DirectoryJSonWalker {
      * @throws IOException In case of an IO issue while walking the directory.
      */
     public static void directoryJson(Path directory, Path target) throws IOException {
+        final TreeNode root = getDirectoryTree(directory);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(target.toFile(), root);
+    }
+
+    /**
+     * Generate a TreeNode that represents the content of the directory given as a parameter.
+     * 
+     * @param directory The path to the directory for which to get a tree node.
+     */
+    public static TreeNode getDirectoryTree(Path directory) throws IOException {
         final TreeNode root = new TreeNode();
         root.setLeaf(false);
         root.setFullPath("");
@@ -60,7 +71,6 @@ public final class DirectoryJSonWalker {
                 return super.visitFile(file, attrs);
             }
         });
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(target.toFile(), root);
+        return root;
     }
 }

@@ -9,6 +9,9 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
+import alien4cloud.tosca.context.ToscaContextual;
+import org.alien4cloud.tosca.editor.TopologyDTOBuilder;
+import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -101,6 +104,11 @@ public class TopologyController {
     @Resource
     private WorkflowsBuilderService workflowBuilderService;
 
+    @Resource
+    private TopologyEditionContextManager topologyEditionContextManager;
+    @Inject
+    private TopologyDTOBuilder dtoBuilder;
+
     /**
      * Retrieve an existing {@link alien4cloud.model.topology.Topology}
      *
@@ -115,7 +123,12 @@ public class TopologyController {
         Topology topology = topologyServiceCore.getOrFail(topologyId);
         topologyService.checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS,
                 ApplicationRole.APPLICATION_USER);
-        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
+        try {
+            topologyEditionContextManager.init(topologyId);
+            return RestResponseBuilder.<TopologyDTO> builder().data(dtoBuilder.buildTopologyDTO(TopologyEditionContextManager.get())).build();
+        } finally {
+            topologyEditionContextManager.destroy();
+        }
     }
 
     /**

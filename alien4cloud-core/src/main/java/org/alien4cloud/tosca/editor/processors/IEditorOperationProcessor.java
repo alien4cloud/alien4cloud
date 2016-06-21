@@ -1,6 +1,6 @@
 package org.alien4cloud.tosca.editor.processors;
 
-import org.alien4cloud.tosca.editor.commands.AbstractEditorOperation;
+import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 
 /**
  * Every IEditorOperation has a related IEditorOperationProcessor implementation that will process it and update the topology model accordingly as well as

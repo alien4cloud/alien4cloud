@@ -1,9 +1,11 @@
 package alien4cloud.tosca.context;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.component.ICSARRepositorySearchService;
@@ -103,6 +105,56 @@ public class ToscaContext {
         public void addDependency(CSARDependency dependency) {
             log.debug("Add dependency to context", dependency);
             dependencies.add(dependency);
+        }
+
+        /**
+         * Remove a given dependency from the TOSCA Context.
+         *
+         * @param removedDependency The dependency to remove.
+         */
+        public void removeDependency(CSARDependency removedDependency) {
+            if (dependencies.remove(removedDependency)) {
+                List<String> toRemove = Lists.newArrayList();
+                // unload all types from this dependency
+                for (Map<String, IndexedToscaElement> elementMap : toscaTypesCache.values()) {
+                    for (Map.Entry<String, IndexedToscaElement> entry : elementMap.entrySet()) {
+                        if (entry.getValue().getArchiveName().equals(removedDependency.getName())
+                                && entry.getValue().getArchiveVersion().equals(removedDependency.getVersion())) {
+                            toRemove.add(entry.getKey());
+                        }
+                    }
+                    for (String removeId : toRemove) {
+                        elementMap.remove(removeId);
+                    }
+                    toRemove.clear();
+                }
+                log.debug("Removed dependency {} from the TOSCA context.", removedDependency);
+            } else {
+                log.debug("Cannot remove dependency {} from the TOSCA context as it wasn't found in the dependencies.", removedDependency);
+            }
+        }
+
+        /**
+         * Performs an add or update of a dependency in a TOSCA context.
+         *
+         * @param dependency The updated dependency.
+         */
+        public void updateDependency(CSARDependency dependency) {
+            // Do not update dependency if the version hasn't changed
+            if (!hasDependency(dependency)) {
+                log.debug("Dependency already exist in context.");
+            }
+            removeDependency(dependency);
+            addDependency(dependency);
+        }
+
+        private boolean hasDependency(CSARDependency dependency) {
+            for (CSARDependency existDependency : this.dependencies) {
+                if (existDependency.getName().equals(dependency.getName())) {
+                    return existDependency.getVersion().equals(dependency.getVersion());
+                }
+            }
+            return false;
         }
 
         /**

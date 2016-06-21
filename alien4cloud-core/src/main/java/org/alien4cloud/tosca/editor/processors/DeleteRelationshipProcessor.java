@@ -1,12 +1,9 @@
 package org.alien4cloud.tosca.editor.processors;
 
-import java.util.Map;
-
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
-import org.alien4cloud.tosca.editor.commands.AbstractNodeOperation;
-import org.alien4cloud.tosca.editor.commands.DeleteRelationshipOperation;
+import org.alien4cloud.tosca.editor.operations.DeleteRelationshipOperation;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;
@@ -15,7 +12,6 @@ import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyServiceCore;
 import lombok.extern.slf4j.Slf4j;
 
 /**
