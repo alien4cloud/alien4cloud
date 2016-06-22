@@ -1,13 +1,13 @@
 <nav ng-controller="alienNavBarCtrl" class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="navbar-header">
-    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#alien-navbar-collapse">
+    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#alien-navbar-collapse" ng-click="isCollapsed = !isCollapsed">
       <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
     </button>
     <a class="navbar-brand" href="#">
       <img ng-src="images/cloudalien-small.png" style="height:50px;" class="pull-left">
     </a>
   </div>
-  <div class="collapse navbar-collapse" id="alien-navbar-collapse">
+  <div class="collapse navbar-collapse" id="alien-navbar-collapse" collapse="isCollapsed">
 
     <div ng-if="status.currentStatus.data.isLogged">
       <ul class="nav navbar-nav">
@@ -73,7 +73,7 @@
       </form>
     </div>
     <div ng-if="status.currentStatus.data.isLogged" class="nav navbar-nav navbar-right">
-      <div class="collapse navbar-collapse" id="alien-navbar-collapse">
+      <div class="collapse navbar-collapse" id="alien-navbar-collapse" collapse="isCollapsed">
         <form class="nav navbar-nav navbar-form" role="search" ng-submit="">
           <div class="form-group">
             <input type="text" ng-model="itemSelected" class="form-control" placeholder="{{ 'NAVBAR.INPUT_SEARCH_MESSAGE' | translate }}" typeahead="item as item.elementId || item.name for item in quickSearchHandler.doQuickSearch($viewValue)" typeahead-on-select="quickSearchHandler.onItemSelected(itemSelected);"

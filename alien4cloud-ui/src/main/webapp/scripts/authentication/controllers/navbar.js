@@ -14,6 +14,7 @@ define(function (require) {
   modules.get('a4c-auth', ['pascalprecht.translate', 'ng-hopscotch']).controller('alienNavBarCtrl',
     ['$rootScope', '$scope', 'authService', 'quickSearchServices', '$translate', 'hopscotchService', '$http',
     function($rootScope, $scope, authService, quickSearchServices, $translate, hopscotchService, $http) {
+      $scope.isCollapsed = true;
       $scope.login = {};
       $scope.signIn = function() {
         var data = 'username=' + $scope.login.username + '&password=' + $scope.login.password + '&submit=Login';
