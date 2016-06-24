@@ -1,9 +1,10 @@
-package org.alien4cloud.tosca.editor.processors;
+package org.alien4cloud.tosca.editor.processors.relationshiptemplate;
 
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.DeleteRelationshipOperation;
+import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;

@@ -1,4 +1,4 @@
-package org.alien4cloud.tosca.editor.processors;
+package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
+import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.application.TopologyCompositionService;

@@ -1,4 +1,4 @@
-package org.alien4cloud.tosca.editor.processors;
+package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
 import java.util.Map;
 
@@ -14,6 +14,7 @@ import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.topology.TopologyServiceCore;
+import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 
 /**
  * .

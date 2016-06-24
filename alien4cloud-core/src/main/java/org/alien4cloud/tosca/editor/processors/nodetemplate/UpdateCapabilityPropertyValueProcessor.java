@@ -1,4 +1,4 @@
-package org.alien4cloud.tosca.editor.processors;
+package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
 import java.util.Map;
 
@@ -17,6 +17,7 @@ import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.services.PropertyService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 
 /**
  * Process an update capability property value operation against the topology in the edition context.

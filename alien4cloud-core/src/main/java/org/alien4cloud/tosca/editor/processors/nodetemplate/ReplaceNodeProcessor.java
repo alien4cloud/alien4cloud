@@ -1,4 +1,4 @@
-package org.alien4cloud.tosca.editor.processors;
+package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -17,6 +17,7 @@ import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 
 /**
  * Replace the type of a node template by another compatible type (inherited or that fulfills the same used capabilities and requirements).

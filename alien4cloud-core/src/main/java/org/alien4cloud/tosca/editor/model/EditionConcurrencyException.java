@@ -1,7 +1,7 @@
 package org.alien4cloud.tosca.editor.model;
 
 /**
- * Created by lucboutier on 10/06/2016.
+ * Exception to be thrown in case there is a concurrency on an archive edition that prevent from .
  */
-public class EditionConcurrencyException extends Exception {
+public class EditionConcurrencyException extends RuntimeException {
 }

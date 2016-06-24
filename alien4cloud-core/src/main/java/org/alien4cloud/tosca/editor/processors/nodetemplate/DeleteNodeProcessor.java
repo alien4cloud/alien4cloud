@@ -1,4 +1,4 @@
-package org.alien4cloud.tosca.editor.processors;
+package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
 import java.util.Iterator;
 import java.util.List;
@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation;
+import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;

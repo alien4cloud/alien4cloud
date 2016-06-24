@@ -25,7 +25,6 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.topology.TopologyDTO;
 import io.swagger.annotations.ApiOperation;
-import lombok.SneakyThrows;
 
 /**
  * Controller endpoint for topology edition.
@@ -45,7 +44,6 @@ public class EditorController {
      * @param topologyId The id of the topology/archive under edition.
      * @param operation The operation to execute
      */
-    @SneakyThrows
     @ApiOperation(value = "Updates the deployment artifact of the node template.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId}/execute", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
@@ -62,7 +60,6 @@ public class EditorController {
      * @param path The path in which to save/override the file in the archive.
      * @param file The file to save in the archive.
      */
-    @SneakyThrows
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(value = "/{topologyId}/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> upload(@PathVariable String topologyId, @RequestParam("previousOperationId") String previousOperationId,

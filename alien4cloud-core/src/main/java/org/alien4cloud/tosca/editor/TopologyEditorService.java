@@ -1,6 +1,5 @@
 package org.alien4cloud.tosca.editor;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -19,6 +18,7 @@ import org.springframework.stereotype.Controller;
 
 import com.google.common.collect.Maps;
 
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyService;
@@ -64,34 +64,33 @@ public class TopologyEditorService {
         }
     }
 
+    private void initContext(String topologyId, AbstractEditorOperation operation) {
+        topologyEditionContextManager.init(topologyId);
+        // check authorization to update a topology
+        topologyService.checkEditionAuthorizations(TopologyEditionContextManager.getTopology());
+        // If the version of the topology is not snapshot we don't allow modifications.
+        topologyService.throwsErrorIfReleased(TopologyEditionContextManager.getTopology());
+        // check that operations can be executed (based on a kind of optimistic locking
+        checkSynchronization(operation);
+    }
+
     // trigger editor operation
     @MessageMapping("/topology-editor/{topologyId}")
-    public <T extends AbstractEditorOperation> TopologyDTO execute(@DestinationVariable String topologyId, T operation) throws EditionConcurrencyException {
+    public <T extends AbstractEditorOperation> TopologyDTO execute(@DestinationVariable String topologyId, T operation) {
         // get the topology context.
         try {
-            topologyEditionContextManager.init(topologyId);
-
+            initContext(topologyId, operation);
             operation.setAuthor(AuthorizationUtil.getCurrentUser().getUserId());
-            // check authorization to update a topology
-            topologyService.checkEditionAuthorizations(TopologyEditionContextManager.getTopology());
-
-            // If the version of the topology is not snapshot we don't allow modifications.
-            topologyService.throwsErrorIfReleased(TopologyEditionContextManager.getTopology());
-            // check that operations can be executed (based on a kind of optimistic locking
-            checkSynchronization(operation);
 
             // attach the topology tosca context and process the operation
             IEditorOperationProcessor<T> processor = (IEditorOperationProcessor<T>) processorMap.get(operation.getClass());
-            try {
-                processor.process(operation);
-                TopologyEditionContextManager.get().getOperations().add(operation);
-            } finally {
-                TopologyEditionContextManager.get().setCurrentOperation(null);
-            }
+            processor.process(operation);
+            TopologyEditionContextManager.get().getOperations().add(operation);
 
             // return the topology context
             return dtoBuilder.buildTopologyDTO(TopologyEditionContextManager.get());
         } finally {
+            TopologyEditionContextManager.get().setCurrentOperation(null);
             topologyEditionContextManager.destroy();
         }
     }
@@ -101,7 +100,7 @@ public class TopologyEditorService {
      *
      * @param operation, The operation under evaluation.
      */
-    private synchronized void checkSynchronization(AbstractEditorOperation operation) throws EditionConcurrencyException {
+    private synchronized void checkSynchronization(AbstractEditorOperation operation) {
         // there is an operation being processed so just fail (nobody could get the notification)
         if (TopologyEditionContextManager.get().getCurrentOperation() != null) {
             throw new EditionConcurrencyException();
@@ -117,10 +116,24 @@ public class TopologyEditorService {
         throw new EditionConcurrencyException();
     }
 
-    public void undoRedo(String topologyId, int at, String lastOperationId) {
-        // TODO check that the requested index (at) is in the operation range.
-        // TODO Re-initialize the Type Loader from the topology context
-        // TODO Replay all operations until the given index
+    public TopologyDTO undoRedo(String topologyId, int at, String lastOperationId) {
+        try {
+            topologyEditionContextManager.init(topologyId);
+            // TODO check that the requested index (at) is in the operation range.
+            if (0 > at || at > TopologyEditionContextManager.get().getOperations().size()) {
+                throw new NotFoundException("Unable to find the requested index for undo/redo");
+            }
+
+            // create a fake undo operation
+            initContext(topologyId, operation);
+            // TODO Re-initialize the Type Loader from the topology context
+            // TODO Replay all operations until the given index
+
+            return dtoBuilder.buildTopologyDTO(TopologyEditionContextManager.get());
+        } finally {
+            TopologyEditionContextManager.get().setCurrentOperation(null);
+            topologyEditionContextManager.destroy();
+        }
     }
 
     // save

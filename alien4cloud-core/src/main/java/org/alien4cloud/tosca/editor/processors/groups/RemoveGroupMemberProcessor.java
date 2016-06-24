@@ -2,7 +2,7 @@ package org.alien4cloud.tosca.editor.processors.groups;
 
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
 import org.alien4cloud.tosca.editor.operations.groups.RemoveGroupMemberOperation;
-import org.alien4cloud.tosca.editor.processors.AbstractNodeProcessor;
+import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
 
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;

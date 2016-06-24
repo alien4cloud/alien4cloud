@@ -6,7 +6,7 @@ import java.util.Set;
 
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
 import org.alien4cloud.tosca.editor.operations.groups.AddGroupMemberOperation;
-import org.alien4cloud.tosca.editor.processors.AbstractNodeProcessor;
+import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

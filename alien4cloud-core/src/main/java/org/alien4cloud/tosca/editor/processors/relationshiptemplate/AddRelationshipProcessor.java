@@ -1,4 +1,4 @@
-package org.alien4cloud.tosca.editor.processors;
+package org.alien4cloud.tosca.editor.processors.relationshiptemplate;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -9,6 +9,7 @@ import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation;
 import org.alien4cloud.tosca.editor.exception.CapabilityBoundException;
 import org.alien4cloud.tosca.editor.exception.RequirementBoundException;
+import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
