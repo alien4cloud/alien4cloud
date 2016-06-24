@@ -5,7 +5,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
-import org.alien4cloud.tosca.editor.operations.UpdateNodeDeploymentArtifactOperation;
+import org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodeDeploymentArtifactOperation;
 
 import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.component.repository.IFileRepository;

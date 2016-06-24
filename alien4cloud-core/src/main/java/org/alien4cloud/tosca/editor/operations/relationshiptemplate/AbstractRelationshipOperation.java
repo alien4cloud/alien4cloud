@@ -1,5 +1,6 @@
-package org.alien4cloud.tosca.editor.operations;
+package org.alien4cloud.tosca.editor.operations.relationshiptemplate;
 
+import org.alien4cloud.tosca.editor.operations.nodetemplate.AbstractNodeOperation;
 import org.hibernate.validator.constraints.NotBlank;
 
 import lombok.Getter;

@@ -6,7 +6,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
-import org.alien4cloud.tosca.editor.operations.ReplaceNodeOperation;
+import org.alien4cloud.tosca.editor.operations.nodetemplate.ReplaceNodeOperation;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.components.IndexedNodeType;
@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
  * Replace the type of a node template by another compatible type (inherited or that fulfills the same used capabilities and requirements).
  */
 @Slf4j
-public class ReplaceNodeTemplateProcessor implements IEditorOperationProcessor<ReplaceNodeOperation> {
+public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNodeOperation> {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource

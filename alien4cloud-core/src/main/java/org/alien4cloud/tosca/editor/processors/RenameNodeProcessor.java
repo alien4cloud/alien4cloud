@@ -3,7 +3,7 @@ package org.alien4cloud.tosca.editor.processors;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
-import org.alien4cloud.tosca.editor.operations.RenameNodeOperation;
+import org.alien4cloud.tosca.editor.operations.nodetemplate.RenameNodeOperation;
 
 import alien4cloud.exception.InvalidNodeNameException;
 import alien4cloud.model.topology.Topology;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class RenameNodeTemplateProcessor implements IEditorOperationProcessor<RenameNodeOperation> {
+public class RenameNodeProcessor implements IEditorOperationProcessor<RenameNodeOperation> {
     @Resource
     private TopologyService topologyService;
     @Resource

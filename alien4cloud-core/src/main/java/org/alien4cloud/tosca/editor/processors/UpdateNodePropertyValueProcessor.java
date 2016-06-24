@@ -5,7 +5,8 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
-import org.alien4cloud.tosca.editor.operations.UpdateNodePropertyValueOperation;
+import org.alien4cloud.tosca.editor.exception.PropertyValueException;
+import org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePropertyValueOperation;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;
@@ -15,8 +16,8 @@ import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
 import alien4cloud.utils.services.PropertyService;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -29,7 +30,6 @@ public class UpdateNodePropertyValueProcessor implements IEditorOperationProcess
     private PropertyService propertyService;
 
     @Override
-    @SneakyThrows
     public void process(UpdateNodePropertyValueOperation operation) {
         Topology topology = TopologyEditionContextManager.getTopology();
 
@@ -49,6 +49,10 @@ public class UpdateNodePropertyValueProcessor implements IEditorOperationProcess
         log.debug("Updating property <{}> of the Node template <{}> from the topology <{}>: changing value from [{}] to [{}].", propertyName,
                 operation.getNodeName(), topology.getId(), nodeTemp.getProperties().get(propertyName), propertyValue);
 
-        propertyService.setPropertyValue(nodeTemp, propertyDefinition, propertyName, propertyValue);
+        try {
+            propertyService.setPropertyValue(nodeTemp, propertyDefinition, propertyName, propertyValue);
+        } catch (ConstraintFunctionalException e) {
+            throw new PropertyValueException("Error when setting node " + operation.getNodeName() + " property.", e, propertyName, propertyValue);
+        }
     }
 }

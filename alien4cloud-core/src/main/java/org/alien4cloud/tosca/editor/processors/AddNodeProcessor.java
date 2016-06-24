@@ -7,7 +7,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
-import org.alien4cloud.tosca.editor.operations.AddNodeOperation;
+import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.application.TopologyCompositionService;
@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class AddNodeTemplateProcessor implements IEditorOperationProcessor<AddNodeOperation> {
+public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperation> {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource

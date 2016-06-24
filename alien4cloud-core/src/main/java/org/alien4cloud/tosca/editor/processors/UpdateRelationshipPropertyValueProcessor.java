@@ -5,7 +5,8 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
-import org.alien4cloud.tosca.editor.operations.UpdateRelationshipPropertyValueOperation;
+import org.alien4cloud.tosca.editor.exception.PropertyValueException;
+import org.alien4cloud.tosca.editor.operations.relationshiptemplate.UpdateRelationshipPropertyValueOperation;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;
@@ -15,8 +16,8 @@ import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
 import alien4cloud.utils.services.PropertyService;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -29,7 +30,6 @@ public class UpdateRelationshipPropertyValueProcessor implements IEditorOperatio
     private PropertyService propertyService;
 
     @Override
-    @SneakyThrows
     public void process(UpdateRelationshipPropertyValueOperation operation) {
         Topology topology = TopologyEditionContextManager.getTopology();
 
@@ -49,6 +49,13 @@ public class UpdateRelationshipPropertyValueProcessor implements IEditorOperatio
 
         log.debug("Updating property <{}> of the relationship <{}> for the Node template <{}> from the topology <{}>: changing value from [{}] to [{}].",
                 propertyName, relationshipType, operation.getNodeName(), topology.getId(), relationshipType.getProperties().get(propertyName), propertyValue);
-        propertyService.setPropertyValue(relationshipTemplate.getProperties(), relationshipType.getProperties().get(propertyName), propertyName, propertyValue);
+        try {
+            propertyService.setPropertyValue(relationshipTemplate.getProperties(), relationshipType.getProperties().get(propertyName), propertyName,
+                    propertyValue);
+        } catch (ConstraintFunctionalException e) {
+            throw new PropertyValueException(
+                    "Error when setting relationship " + operation.getNodeName() + "." + operation.getRelationshipName() + " property.", e, propertyName,
+                    propertyValue);
+        }
     }
 }

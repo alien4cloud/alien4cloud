@@ -7,7 +7,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
-import org.alien4cloud.tosca.editor.operations.DeleteNodeOperation;
+import org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class DeleteNodeTemplateProcessor extends AbstractNodeProcessor<DeleteNodeOperation> {
+public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperation> {
     @Resource
     private TopologyService topologyService;
     @Resource

@@ -6,7 +6,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
-import org.alien4cloud.tosca.editor.operations.AddRelationshipOperation;
+import org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation;
 import org.alien4cloud.tosca.editor.exception.CapabilityBoundException;
 import org.alien4cloud.tosca.editor.exception.RequirementBoundException;
 import org.springframework.stereotype.Component;
@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class AddRelationshipTemplateProcessor extends AbstractNodeProcessor<AddRelationshipOperation> {
+public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelationshipOperation> {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource
@@ -88,8 +88,8 @@ public class AddRelationshipTemplateProcessor extends AbstractNodeProcessor<AddR
         relationshipTemplate.setRequirementName(operation.getRequirementName());
         relationshipTemplate.setRequirementType(sourceNode.getRequirements().get(operation.getRequirementName()).getType());
         relationshipTemplate.setType(indexedRelationshipType.getElementId());
-        relationshipTemplate.setArtifacts(new LinkedHashMap<>(indexedRelationshipType.getArtifacts()));
-        relationshipTemplate.setAttributes(new LinkedHashMap<>(indexedRelationshipType.getAttributes()));
+        relationshipTemplate.setArtifacts(newLinkedHashMap(indexedRelationshipType.getArtifacts()));
+        relationshipTemplate.setAttributes(newLinkedHashMap(indexedRelationshipType.getAttributes()));
         Map<String, AbstractPropertyValue> properties = new LinkedHashMap<String, AbstractPropertyValue>();
         NodeTemplateBuilder.fillProperties(properties, indexedRelationshipType.getProperties(), null);
         relationshipTemplate.setProperties(properties);
@@ -100,5 +100,12 @@ public class AddRelationshipTemplateProcessor extends AbstractNodeProcessor<AddR
         workflowBuilderService.addRelationship(topologyContext, operation.getNodeName(), operation.getRelationshipName());
         log.debug("Added relationship to the topology [" + topology.getId() + "], node name [" + operation.getNodeName() + "], relationship name ["
                 + operation.getRelationshipName() + "]");
+    }
+
+    private <T, V> Map<T, V> newLinkedHashMap(Map<T, V> from) {
+        if (from == null) {
+            return new LinkedHashMap<>();
+        }
+        return new LinkedHashMap<>(from);
     }
 }

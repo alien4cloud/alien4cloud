@@ -5,7 +5,7 @@ import alien4cloud.topology.TopologyServiceCore;
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
 
 import alien4cloud.model.topology.NodeTemplate;
-import org.alien4cloud.tosca.editor.operations.AbstractNodeOperation;
+import org.alien4cloud.tosca.editor.operations.nodetemplate.AbstractNodeOperation;
 
 import java.util.Map;
 

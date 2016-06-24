@@ -1,4 +1,4 @@
-package org.alien4cloud.tosca.editor.operations;
+package org.alien4cloud.tosca.editor.operations.nodetemplate;
 
 import lombok.Getter;
 import lombok.Setter;
