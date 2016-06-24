@@ -3,11 +3,10 @@ define(function (require) {
   'use strict';
   var modules = require('modules');
   var _ = require('lodash');
-  var angular = require('angular');
 
   modules.get('a4c-topology-editor', ['pascalprecht.translate', 'toaster']).factory('topoEditInputs',
-    ['topologyServices', '$translate', 'toaster',
-    function(topologyServices, $translate, toaster) {
+    ['$translate', 'toaster', 'topologyServices',
+    function($translate, toaster, topologyServices) {
       var TopologyEditorMixin = function(scope) {
         this.scope = scope;
       };
@@ -29,219 +28,135 @@ define(function (require) {
         },
 
         createInput: function(inputId, propertyDefinition, callback) {
-          var instance = this;
-          topologyServices.inputs.add({
-            topologyId: instance.scope.topology.topology.id,
-            inputId: inputId
-          }, angular.toJson(propertyDefinition), function(success) {
-            if (!success.error) {
-              instance.scope.refreshTopology(success.data);
+          this.scope.execute({
+            type: 'org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation',
+            inputName: inputId,
+            propertyDefinition: propertyDefinition
+          }, function(result) {
+            if (!result.error) {
               callback();
             }
           });
         },
 
         createFromRelationshipProperty: function(relationshipName, propertyName) {
-          var instance = this;
+          var self = this;
           var selectedRelationshipType = this.scope.topology.relationshipTypes[this.scope.selectedNodeTemplate.relationshipsMap[relationshipName].value.type];
           var selectedRelationshipPropertyDefinition = selectedRelationshipType.propertiesMap[propertyName].value;
           var inputId = this.generateInputIdFromPropertyName(propertyName);
           this.createInput(inputId, selectedRelationshipPropertyDefinition, function() {
-            instance.scope.currentInputCandidatesForRelationshipProperty.push(inputId);
-            instance.toggleRelationshipProperty(relationshipName, propertyName, inputId);
+            self.scope.currentInputCandidatesForRelationshipProperty.push(inputId);
+            self.toggleRelationshipProperty(relationshipName, propertyName, inputId);
           });
         },
 
         createFromCapabilityProperty: function(capabilityName, propertyName) {
-          var instance = this;
+          var self = this;
           var selectedCapabilityType = this.scope.topology.capabilityTypes[this.scope.selectedNodeTemplate.capabilitiesMap[capabilityName].value.type];
           var selectedCapabilityPropertyDefinition = selectedCapabilityType.propertiesMap[propertyName].value;
           var inputId = this.generateInputIdFromPropertyName(propertyName);
           this.createInput(inputId, selectedCapabilityPropertyDefinition, function() {
-            instance.scope.currentInputCandidatesForCapabilityProperty.push(inputId);
-            instance.toggleCapabilityProperty(capabilityName, propertyName, inputId);
+            self.scope.currentInputCandidatesForCapabilityProperty.push(inputId);
+            self.toggleCapabilityProperty(capabilityName, propertyName, inputId);
           });
         },
 
         createFromProperty: function(propertyName) {
-          var instance = this;
+          var self = this;
           var selectedNodeTemplateType = this.scope.topology.nodeTypes[this.scope.selectedNodeTemplate.type];
           var selectedPropertyDefinition = selectedNodeTemplateType.propertiesMap[propertyName].value;
           var inputId = this.generateInputIdFromPropertyName(propertyName);
           this.createInput(inputId, selectedPropertyDefinition, function() {
-            instance.scope.currentInputCandidatesForProperty.push(inputId);
-            instance.toggleProperty(propertyName, inputId);
-          });
-        },
-
-        createFromArtifact: function(artifactId) {
-          var instance = this;
-          topologyServices.nodeTemplate.artifacts.setInput({
-            topologyId: instance.scope.topology.topology.id,
-            nodeTemplateName: instance.scope.selectedNodeTemplate.name,
-            artifactId: artifactId,
-            inputArtifactId: artifactId
-          }, {}, function(result) {
-            if (!result.error) {
-              instance.scope.refreshTopology(result.data);
-            }
+            self.scope.currentInputCandidatesForProperty.push(inputId);
+            self.toggleProperty(propertyName, inputId);
           });
         },
 
         getCandidatesForProperty: function(propertyName) {
-          var instance = this;
+          var self = this;
           this.scope.currentInputCandidatesForProperty = [];
           topologyServices.nodeTemplate.getInputCandidates.getCandidates({
-            topologyId: instance.scope.topology.topology.id,
-            nodeTemplateName: instance.scope.selectedNodeTemplate.name,
+            topologyId: self.scope.topology.topology.id,
+            nodeTemplateName: self.scope.selectedNodeTemplate.name,
             propertyId: propertyName
           }, function(success) {
-            instance.scope.currentInputCandidatesForProperty = success.data;
+            self.scope.currentInputCandidatesForProperty = success.data;
           });
         },
 
         getCandidatesForArtifact: function(artifactId) {
-          var instance = this;
+          var self = this;
           this.scope.currentInputCandidatesForArtifact = [];
           topologyServices.nodeTemplate.artifacts.getInputCandidates({
-            topologyId: instance.scope.topology.topology.id,
-            nodeTemplateName: instance.scope.selectedNodeTemplate.name,
+            topologyId: self.scope.topology.topology.id,
+            nodeTemplateName: self.scope.selectedNodeTemplate.name,
             artifactId: artifactId
           }, function(success) {
-            instance.scope.currentInputCandidatesForArtifact = success.data;
+            self.scope.currentInputCandidatesForArtifact = success.data;
           });
         },
 
         getCandidatesForRelationshipProperty: function(relationshipName, propertyName) {
-          var instance = this;
+          var self = this;
           this.scope.currentInputCandidatesForRelationshipProperty = [];
           topologyServices.nodeTemplate.relationship.getInputCandidates.getCandidates({
-            topologyId: instance.scope.topology.topology.id,
-            nodeTemplateName: instance.scope.selectedNodeTemplate.name,
+            topologyId: self.scope.topology.topology.id,
+            nodeTemplateName: self.scope.selectedNodeTemplate.name,
             propertyId: propertyName,
             relationshipId: relationshipName
           }, function(success) {
-            instance.scope.currentInputCandidatesForRelationshipProperty = success.data;
+            self.scope.currentInputCandidatesForRelationshipProperty = success.data;
           });
         },
 
         getCandidatesForCapabilityProperty: function(capabilityName, propertyName) {
-          var instance = this;
+          var self = this;
           this.scope.currentInputCandidatesForCapabilityProperty = [];
           topologyServices.nodeTemplate.capability.getInputCandidates.getCandidates({
-            topologyId: instance.scope.topology.topology.id,
-            nodeTemplateName: instance.scope.selectedNodeTemplate.name,
+            topologyId: self.scope.topology.topology.id,
+            nodeTemplateName: self.scope.selectedNodeTemplate.name,
             propertyId: propertyName,
             capabilityId: capabilityName
           }, function(success) {
-            instance.scope.currentInputCandidatesForCapabilityProperty = success.data;
+            self.scope.currentInputCandidatesForCapabilityProperty = success.data;
           });
         },
 
         toggleProperty: function(propertyName, inputId) {
           var scope = this.scope;
           if (!this.isPropertyAssociatedToInput(propertyName, inputId)) {
-            topologyServices.nodeTemplate.setInputs.set({
-              topologyId: scope.topology.topology.id,
-              inputId: inputId,
-              nodeTemplateName: scope.selectedNodeTemplate.name,
-              propertyId: propertyName
-            }, function(success) {
-              if (!success.error) {
-                scope.refreshTopology(success.data);
-              }
+            this.scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.SetNodePropertyAsInputOperation',
+              nodeName: scope.selectedNodeTemplate.name,
+              propertyName: propertyName,
+              inputName: inputId
             });
           } else {
-            topologyServices.nodeTemplate.setInputs.unset({
-              topologyId: scope.topology.topology.id,
-              nodeTemplateName: scope.selectedNodeTemplate.name,
-              propertyId: propertyName
-            }, function(success) {
-              if (!success.error) {
-                scope.refreshTopology(success.data);
-              }
+            this.scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.UnsetNodePropertyAsInputOperation',
+              nodeName: scope.selectedNodeTemplate.name,
+              propertyName: propertyName
             });
           }
-        },
-
-        toggleArtifact: function(artifactId, inputArtifactId) {
-          var scope = this.scope;
-          if (!this.isArtifactAssociatedToInput(artifactId, inputArtifactId)) {
-            topologyServices.nodeTemplate.artifacts.setInput({
-              topologyId: scope.topology.topology.id,
-              nodeTemplateName: scope.selectedNodeTemplate.name,
-              artifactId: artifactId,
-              inputArtifactId: inputArtifactId
-            }, {}, function(result) {
-              if (!result.error) {
-                scope.refreshTopology(result.data);
-              }
-            });
-          } else {
-            topologyServices.nodeTemplate.artifacts.unsetInput({
-              topologyId: scope.topology.topology.id,
-              nodeTemplateName: scope.selectedNodeTemplate.name,
-              artifactId: artifactId,
-              inputArtifactId: inputArtifactId
-            }, {}, function(result) {
-              if (!result.error) {
-                scope.refreshTopology(result.data);
-              }
-            });
-          }
-        },
-
-        updateArtifactId: function(inputArtifactId, newId) {
-          var scope = this.scope;
-          if (inputArtifactId === newId) {
-            return;
-          }
-          topologyServices.inputArtifacts.rename({
-            topologyId: scope.topology.topology.id,
-            inputArtifactId: inputArtifactId
-          }, {newId: newId}, function(result) {
-            if (!result.error) {
-              scope.refreshTopology(result.data);
-            }
-          });
-        },
-
-        removeArtifact: function(inputArtifactId) {
-          var scope = this.scope;
-          topologyServices.inputArtifacts.remove({
-            topologyId: scope.topology.topology.id,
-            inputArtifactId: inputArtifactId
-          }, {}, function(result) {
-            if (!result.error) {
-              scope.refreshTopology(result.data);
-            }
-          });
         },
 
         toggleRelationshipProperty: function(relationshipName, propertyName, inputId) {
           var scope = this.scope;
           if (!this.isRelationshipPropertyAssociatedToInput(relationshipName, propertyName, inputId)) {
-            topologyServices.nodeTemplate.relationship.setInputs.set({
-              topologyId: scope.topology.topology.id,
-              inputId: inputId,
-              nodeTemplateName: scope.selectedNodeTemplate.name,
-              propertyId: propertyName,
-              relationshipId: relationshipName
-            }, function(success) {
-              if (!success.error) {
-                scope.refreshTopology(success.data);
-              }
+            this.scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.relationshiptemplate.SetRelationshipPropertyAsInputOperation',
+              nodeName: scope.selectedNodeTemplate.name,
+              relationshipName: relationshipName,
+              propertyName: propertyName,
+              inputName: inputId
             });
           } else {
-            topologyServices.nodeTemplate.relationship.setInputs.unset({
-              topologyId: scope.topology.topology.id,
-              nodeTemplateName: scope.selectedNodeTemplate.name,
-              propertyId: propertyName,
-              relationshipId: relationshipName
-            }, function(success) {
-              if (!success.error) {
-                scope.refreshTopology(success.data);
-              }
+            this.scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.relationshiptemplate.UnsetRelationshipPropertyAsInputOperation',
+              nodeName: scope.selectedNodeTemplate.name,
+              relationshipName: relationshipName,
+              propertyName: propertyName,
+              inputName: inputId
             });
           }
         },
@@ -249,27 +164,19 @@ define(function (require) {
         toggleCapabilityProperty: function(capabilityName, propertyName, inputId) {
           var scope = this.scope;
           if (!this.isCapabilityPropertyAssociatedToInput(capabilityName, propertyName, inputId)) {
-            topologyServices.nodeTemplate.capability.setInputs.set({
-              topologyId: scope.topology.topology.id,
-              inputId: inputId,
-              nodeTemplateName: scope.selectedNodeTemplate.name,
-              propertyId: propertyName,
-              capabilityId: capabilityName
-            }, function(success) {
-              if (!success.error) {
-                scope.refreshTopology(success.data);
-              }
+            this.scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.SetNodeCapabilityPropertyAsInputOperation',
+              nodeName: scope.selectedNodeTemplate.name,
+              capabilityName: capabilityName,
+              propertyName: propertyName,
+              inputName: inputId
             });
           } else {
-            topologyServices.nodeTemplate.capability.setInputs.unset({
-              topologyId: scope.topology.topology.id,
-              nodeTemplateName: scope.selectedNodeTemplate.name,
-              propertyId: propertyName,
-              capabilityId: capabilityName
-            }, function(success) {
-              if (!success.error) {
-                scope.refreshTopology(success.data);
-              }
+            this.scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.UnsetNodeCapabilityPropertyAsInputOperation',
+              nodeName: scope.selectedNodeTemplate.name,
+              capabilityName: capabilityName,
+              propertyName: propertyName
             });
           }
         },
@@ -319,13 +226,10 @@ define(function (require) {
 
         remove: function(inputId) {
           var scope = this.scope;
-          topologyServices.inputs.remove({
-            topologyId: scope.topology.topology.id,
-            inputId: inputId
-          }, function(success) {
-            if (!success.error) {
-              scope.refreshTopology(success.data);
-            }
+          this.scope.execute({
+            type: 'org.alien4cloud.tosca.editor.operations.inputs.RemoveInputOperation',
+            nodeName: scope.selectedNodeTemplate.name,
+            inputName: inputId
           });
         },
 
@@ -334,18 +238,63 @@ define(function (require) {
           if (newInput === oldInput) {
             return;
           }
-          topologyServices.inputs.update({
-            topologyId: scope.topology.topology.id,
-            inputId: oldInput,
-            newInputId: newInput
-          }, function(success) {
-            if (!success.error) {
-              scope.refreshTopology(success.data);
-            } else {
+          this.scope.execute({
+            type: 'org.alien4cloud.tosca.editor.operations.inputs.RenameInputOperation',
+            nodeName: scope.selectedNodeTemplate.name,
+            inputName: oldInput,
+            newInputName: newInput
+          },function(result){
+            if(_.defined(result.error)){
               inputDefinition.inputId = oldInput;
-              var msg = $translate.instant('ERRORS.' + success.error.code);
+              var msg = $translate.instant('ERRORS.' + result.error.code);
               toaster.pop('error', $translate.instant(msg), $translate.instant(msg), 6000, 'trustedHtml', null);
             }
+          });
+        },
+        createFromArtifact: function(artifactId) {
+          var scope = this.scope;
+          scope.execute({
+            type: 'org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation',
+            nodeName: scope.selectedNodeTemplate.name,
+            inputName: artifactId,
+            artifactName: artifactId
+          });
+        },
+        toggleArtifact: function(artifactId, inputArtifactId) {
+          var scope = this.scope;
+          if (!this.isArtifactAssociatedToInput(artifactId, inputArtifactId)) {
+            scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.SetNodeArtifactAsInputOperation',
+              nodeName: scope.selectedNodeTemplate.name,
+              inputName: inputArtifactId,
+              artifactName: artifactId
+            });
+          } else {
+            scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.UnsetNodeArtifactAsInputOperation',
+              nodeName: scope.selectedNodeTemplate.name,
+              artifactName: artifactId
+            });
+          }
+        },
+
+        updateArtifactId: function(inputArtifactId, newId) {
+          var scope = this.scope;
+          if (inputArtifactId === newId) {
+            return;
+          }
+          scope.execute({
+            type: 'org.alien4cloud.tosca.editor.operations.inputs.RenameInputArtifactOperation',
+            inputName: inputArtifactId,
+            newInputName: newId
+          });
+        },
+
+        removeArtifact: function(inputArtifactId) {
+          var scope = this.scope;
+          scope.execute({
+            type: 'org.alien4cloud.tosca.editor.operations.inputs.RemoveInputArtifactOperation',
+            inputName: inputArtifactId
           });
         }
       };

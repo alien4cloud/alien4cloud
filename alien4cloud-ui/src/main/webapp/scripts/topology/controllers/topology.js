@@ -68,8 +68,27 @@ define(function (require) {
     topoEditYaml) {
       $scope.isRuntime = false;
 
+      $scope.isNodeTemplateCollapsed = false;
+      $scope.isPropertiesCollapsed = false;
+      $scope.isRelationshipsCollapsed = false;
+      $scope.isRelationshipCollapsed = false;
+      $scope.isArtifactsCollapsed = false;
+      $scope.isArtifactCollapsed = false;
+      $scope.isRequirementsCollapsed = false;
+      $scope.isCapabilitiesCollapsed = false;
+      $scope.displays = {
+        catalog: { active: true, size: 500, selector: '#catalog-box', only: ['topology', 'catalog'] },
+        dependencies: { active: false, size: 400, selector: '#dependencies-box', only: ['topology', 'dependencies'] },
+        inputs: { active: false, size: 400, selector: '#inputs-box', only: ['topology', 'inputs'], keep: ['nodetemplate'] },
+        artifacts: { active: false, size: 400, selector: '#artifacts-box', only: ['topology', 'artifacts'], keep: ['nodetemplate'] },
+        groups: { active: false, size: 400, selector: '#groups-box', only: ['topology', 'groups'], keep: ['nodetemplate'] },
+        substitutions: { active: false, size: 400, selector: '#substitutions-box', only: ['topology', 'substitutions'], keep: ['nodetemplate'] },
+        nodetemplate: { active: false, size: 500, selector: '#nodetemplate-box', only: ['topology', 'nodetemplate'], keep: ['inputs'] },
+        workflows: { active: false, size: 400, selector: '#workflows-box', only:['workflows'] }
+      };
+
+      topoEditDisplay($scope, '#topology-editor');
       topoEditArtifacts($scope);
-      topoEditDisplay($scope);
       topoEditGroups($scope);
       topoEditInputs($scope);
       topoEditNodes($scope);
@@ -83,10 +102,8 @@ define(function (require) {
 
       $scope.workflows.setCurrentWorkflowName('install');
 
-      $scope.$on('topologyRefreshedEvent', function(event, param) {
-        console.log(param);
-        var selectedNodeTemplate = param.selectedNodeTemplate;
-        if(param.initial) { // we perform this only at init time.
+      var refresh = function(selectedNodeTemplate) {
+        if(_.undefined($scope.groupCollapsed)) { // we perform this only at init time.
           $scope.groupCollapsed = {};
           _.each($scope.topology.topology.groups, function(value, key) {
             $scope.groupCollapsed[key] = { main: false, members: true, policies: true };
@@ -124,7 +141,16 @@ define(function (require) {
         });
 
         $scope.substitution.refresh();
+      };
+
+      $scope.$on('topologyRefreshedEvent', function(event, param) {
+        var selectedNodeTemplate = param.selectedNodeTemplate;
+        refresh(selectedNodeTemplate);
       });
+
+      if(_.defined($scope.topology)) {
+        refresh();
+      }
 
       $scope.checkMapSize = function(map) {
         return angular.isDefined(map) && map !== null && Object.keys(map).length > 0;
@@ -243,7 +269,7 @@ define(function (require) {
           }
         },
         selectNodeTemplate: function(newSelectedName) {
-          $scope.display.set('component', true);
+          $scope.display.set('nodetemplate', true);
           if (_.defined($scope.selectedNodeTemplate)) {
             var oldSelected = $scope.topology.topology.nodeTemplates[$scope.selectedNodeTemplate.name];
             if (oldSelected) {

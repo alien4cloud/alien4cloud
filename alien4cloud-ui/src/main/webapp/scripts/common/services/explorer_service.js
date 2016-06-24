@@ -59,6 +59,11 @@ define(function (require) {
         getOps: function(dirSelectable) {
           return {
             dirSelectable: dirSelectable,
+            injectClasses: {
+              iExpanded: 'fa',
+              iCollapsed: 'fa',
+              iLeaf: 'fa'
+            },
             equality: function(node1, node2) {
               if(node1 && node2) {
                 return node1.fullPath === node2.fullPath;

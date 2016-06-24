@@ -40,19 +40,35 @@
 
 .topology-column-menu {
   position: absolute;
-  left: 0px;
   top: 0px;
   width: 20px;
   height: inherit;
   overflow-x: hidden;
   overflow-y: auto;
   background-color: $gray-lighter;
-  border-left: solid 1px #cccccc;
   text-align: center;
+}
+
+.topology-column-menu-left {
+  left: 0px;
+  border-left: solid 1px #cccccc;
+}
+
+.topology-column-menu-right {
+  right: 0px;
+  border-right: solid 1px #cccccc;
 }
 
 .topology-column-content {
   padding-left: 20px;
+  height: inherit;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.topology-column-content-left {
+  padding-right: 20px;
   height: inherit;
   width: 100%;
   overflow-x: hidden;

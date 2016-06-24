@@ -13,6 +13,7 @@
   padding: 0px;
   background: #035b8b;
   z-index: 1000;
+  border-right: 1px solid #023652;
 }
 
 .vertical-navbar li a {
@@ -50,8 +51,9 @@
 
 .vertical-panel-shift .vertical-navbar {
   top: 0px;
-  left: 34px;
+  left: 35px;
   background: #555555;
+  border-right: 1px solid #333333;
 }
 
 .vertical-panel-shift .vertical-navbar li a:hover {

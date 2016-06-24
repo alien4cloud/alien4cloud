@@ -63,8 +63,13 @@ define(function (require) {
       topoEditDisplay) {
       $scope.isRuntime = true;
 
+      $scope.displays = {
+        details: { active: true, size: 500, selector: '#runtime-details-box', only: ['topology', 'details'] },
+        events: { active: false, size: 500, selector: '#runtime-events-box', only: ['topology', 'events'] },
+        workflows: { active: false, size: 400, selector: '#workflows-box', only: ['workflows'] }
+      };
+      topoEditDisplay($scope, '#topology-editor');
       topoEditWf($scope);
-      topoEditDisplay($scope);
 
       var pageStateId = $state.current.name;
       var applicationId = $state.params.id;

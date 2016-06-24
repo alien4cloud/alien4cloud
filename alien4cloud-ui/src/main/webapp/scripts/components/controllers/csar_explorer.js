@@ -20,7 +20,7 @@ define(function (require) {
     };
 
     var selected = null;
-    if(openOnFile && openOnFile !== null) {
+    if(_.defined(openOnFile)) {
       selected = {fullPath: '/expanded/'+openOnFile};
       $scope.selected = selected;
     }

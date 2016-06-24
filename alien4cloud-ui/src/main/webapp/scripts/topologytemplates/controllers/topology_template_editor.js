@@ -11,7 +11,7 @@ define(function (require) {
     menu: {
       id: 'am.topologytemplate.detail.topology.editor',
       state: 'topologytemplates.detail.topology.editor',
-      key: 'NAVAPPLICATIONS.MENU_TOPOLOGY',
+      key: 'EDITOR.MENU_TOPOLOGY',
       icon: 'fa fa-sitemap',
       show: true,
       priority: 1
@@ -25,10 +25,24 @@ define(function (require) {
     menu: {
       id: 'am.topologytemplate.detail.topology.files',
       state: 'topologytemplates.detail.topology.files',
-      key: 'NAVAPPLICATIONS.MENU_FILES',
+      key: 'EDITOR.MENU_FILES',
       icon: 'fa fa-folder-open',
       show: true,
       priority: 10
+    }
+  });
+
+  states.state('topologytemplates.detail.topology.validation', {
+    url: '/validation',
+    templateUrl: 'views/topology/topology_validation.html',
+    controller: 'TopologyValidationCtrl',
+    menu: {
+      id: 'am.topologytemplate.detail.topology.validation',
+      state: 'topologytemplates.detail.topology.validation',
+      key: 'EDITOR.MENU_VALIDATION',
+      icon: 'fa fa-check',
+      show: true,
+      priority: 20
     }
   });
 
@@ -39,10 +53,10 @@ define(function (require) {
     menu: {
       id: 'am.topologytemplate.detail.topology.history',
       state: 'topologytemplates.detail.topology.history',
-      key: 'NAVAPPLICATIONS.MENU_HISTORY',
+      key: 'EDITOR.MENU_HISTORY',
       icon: 'fa fa-history',
       show: true,
-      priority: 10
+      priority: 30
     }
   });
 

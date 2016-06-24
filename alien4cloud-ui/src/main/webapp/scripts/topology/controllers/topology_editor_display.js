@@ -18,37 +18,8 @@ define(function (require) {
       TopologyEditorMixin.prototype = {
         constructor: TopologyEditorMixin,
         /** Init method is called when the controller is ready. */
-        init: function() {
+        init: function(container) {
           this.scope.view = 'RENDERED';
-
-          if(this.scope.isRuntime) {
-            this.scope.displays = {
-              details: { active: true, size: 500, selector: '#runtime-details-box' },
-              events: { active: false, size: 500, selector: '#runtime-events-box' },
-              workflows: { active: false, size: 400, selector: '#workflows-box' }
-            };
-          } else {
-            this.scope.isNodeTemplateCollapsed = false;
-            this.scope.isPropertiesCollapsed = false;
-            this.scope.isRelationshipsCollapsed = false;
-            this.scope.isRelationshipCollapsed = false;
-            this.scope.isArtifactsCollapsed = false;
-            this.scope.isArtifactCollapsed = false;
-            this.scope.isRequirementsCollapsed = false;
-            this.scope.isCapabilitiesCollapsed = false;
-
-            this.scope.displays = {
-              catalog: { active: true, size: 500, selector: '#catalog-box' },
-              dependencies: { active: false, size: 400, selector: '#dependencies-box' },
-              inputs: { active: false, size: 400, selector: '#inputs-box' },
-              artifacts: { active: false, size: 400, selector: '#artifacts-box' },
-              groups: { active: false, size: 400, selector: '#groups-box' },
-              substitutions: { active: false, size: 400, selector: '#substitutions-box' },
-              component: { active: false, size: 500, selector: '#nodetemplate-box' },
-              workflows: { active: false, size: 400, selector: '#workflows-box' }
-            };
-          }
-
           // default values that are going to be refreshed automatically
           this.scope.dimensions = { width: 800, height: 600 };
 
@@ -69,7 +40,7 @@ define(function (require) {
               });
             }
           });
-          resizeServices.registerContainer(function(width, height) { self.onResize(width, height); }, '#topology-editor');
+          resizeServices.registerContainer(function(width, height) { self.onResize(width, height); }, container);
           this.updateVisualDimensions();
         },
         onResize: function(width, height) {
@@ -98,12 +69,13 @@ define(function (require) {
             width: width
           };
         },
-        displayOnly: function(displays) {
-          for (var displayName in this.scope.displays) {
-            if (this.scope.displays.hasOwnProperty(displayName)) {
-              this.scope.displays[displayName].active = _.contains(displays, displayName);
+        // display given elements and hide others except keepDisplays if active
+        displayOnly: function(displays, keepDisplays) {
+          _.each(this.scope.displays, function(display, displayName){
+            if(!_.contains(keepDisplays, displayName)) {
+              display.active = _.contains(displays, displayName);
             }
-          }
+          });
         },
         set: function(displayName, active) {
           if (this.scope.displays[displayName].active !== active) {
@@ -111,67 +83,15 @@ define(function (require) {
           }
         },
         toggle: function(displayName) {
-          var beforeComponentActive = this.scope.isRuntime ? false : this.scope.displays.component.active;
-          this.scope.displays[displayName].active = !this.scope.displays[displayName].active;
-          // Specific rules for displays which are logically linked
-          if (this.scope.displays[displayName].active) {
-            switch (displayName) {
-              // rules for editor view
-              case 'catalog':
-                this.displayOnly(['topology', 'catalog']);
-                break;
-              case 'dependencies':
-                this.displayOnly(['topology', 'dependencies']);
-                break;
-              case 'inputs':
-                if (!this.scope.displays.component.active) {
-                  this.displayOnly(['topology', 'inputs']);
-                } else {
-                  this.displayOnly(['topology', 'component', 'inputs']);
-                }
-                break;
-              case 'groups':
-                if (!this.scope.displays.component.active) {
-                  this.displayOnly(['topology', 'groups']);
-                } else {
-                  this.displayOnly(['topology', 'component', 'groups']);
-                }
-                break;
-              case 'artifacts':
-                if (!this.scope.displays.component.active) {
-                  this.displayOnly(['topology', 'artifacts']);
-                } else {
-                  this.displayOnly(['topology', 'component', 'artifacts']);
-                }
-                break;
-              case 'component':
-                if (!this.scope.displays.inputs.active) {
-                  this.displayOnly(['topology', 'component']);
-                } else {
-                  this.displayOnly(['topology', 'component', 'inputs']);
-                }
-                break;
-              case 'substitutions':
-                if (!this.scope.displays.component.active) {
-                  this.displayOnly(['topology', 'substitutions']);
-                } else {
-                  this.displayOnly(['topology', 'component', 'substitutions']);
-                }
-                break;
-              // rules for runtime view
-              case 'details':
-                this.displayOnly(['topology', 'details']);
-                break;
-              case 'events':
-                this.displayOnly(['topology', 'events']);
-                break;
-              case 'workflows':
-                this.displayOnly(['workflows']);
-                break;
-            }
+          var beforeComponentActive = this.scope.isRuntime ? false : this.scope.displays.nodetemplate.active;
+          var targetDisplay = this.scope.displays[displayName];
+          targetDisplay.active = !targetDisplay.active;
+          // When some display are active some other may have not to be displayed.
+          if (targetDisplay.active) {
+            this.displayOnly(targetDisplay.only, targetDisplay.keep);
           }
 
-          if(beforeComponentActive && !this.scope.displays.component.active &&
+          if(beforeComponentActive && !this.scope.displays.nodetemplate.active &&
             _.defined(this.scope.selectedNodeTemplate)) {
             this.scope.selectedNodeTemplate.selected = false;
             this.scope.selectedNodeTemplate = null;
@@ -182,10 +102,10 @@ define(function (require) {
         }
       };
 
-      return function(scope) {
+      return function(scope, container) {
         var instance = new TopologyEditorMixin(scope);
         scope.display = instance;
-        instance.init();
+        instance.init(container);
       };
     }
   ]); // modules

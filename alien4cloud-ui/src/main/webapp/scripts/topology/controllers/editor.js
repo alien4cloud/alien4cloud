@@ -7,6 +7,9 @@ define(function (require) {
 
   var modules = require('modules');
   var _ = require('lodash');
+  var angular = require('angular');
+
+  require('scripts/topology/controllers/editor_browser');
 
   require('scripts/tosca/services/tosca_cardinalities_service');
   require('scripts/topology/services/topology_json_processor');
@@ -17,8 +20,8 @@ define(function (require) {
   require('scripts/topology/services/topology_editor_events_services');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles']).controller('TopologyEditorCtrl',
-    ['$scope', 'menu', 'layoutService', 'appVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaCardinalitiesService', 'topoEditVersions',// 'topologyEditorEventFactory',
-    function($scope, menu, layoutService, appVersions, topologyServices, topologyJsonProcessor, toscaCardinalitiesService, topoEditVersions) {// , topologyEditorEventFactory) {
+    ['$scope', 'menu', 'layoutService', 'appVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',// 'topologyEditorEventFactory',
+    function($scope, menu, layoutService, appVersions, topologyServices, topologyJsonProcessor, toscaCardinalitiesService, topoEditVersions, $alresource) {// , topologyEditorEventFactory) {
       // register for websockets events
       // var registration = topologyEditorEventFactory($scope.topologyId, function(event) {
       //   console.log('received event', event);
@@ -38,6 +41,7 @@ define(function (require) {
       // Manage topology version selection (version is provided as parameter from the template or application)
       $scope.topologyVersions = appVersions.data;
       $scope.versionContext = {};
+      $scope.released = false; // this allow to avoid file edition in the ui-ace.
       topoEditVersions($scope);
 
       /**
@@ -74,6 +78,27 @@ define(function (require) {
           initial: initial,
           selectedNodeTemplate: selectedNodeTemplate
         });
+      };
+
+      var editorResource = $alresource('rest/latest/editor/:topologyId/execute');
+      $scope.execute = function(operation, successCallback, errorCallback, selectedNodeTemplate) {
+        operation.previousOperationId = $scope.topology.lastOperationId;
+        // execute operations, create is a post
+        return editorResource.create({
+          topologyId: $scope.topologyId,
+        }, angular.toJson(operation), function(result) {
+            if(_.undefined(result.error)) {
+              $scope.refreshTopology(result.data, selectedNodeTemplate);
+            }
+            if(_.defined(successCallback)) {
+              successCallback(result);
+            }
+        }, function(error) {
+          if(_.defined(errorCallback)){
+            errorCallback(error);
+          }
+          return error;
+        }).$promise;
       };
 
       // Initial load of the topology
