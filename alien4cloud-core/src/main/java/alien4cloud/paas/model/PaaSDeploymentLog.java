@@ -7,6 +7,7 @@ import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.TimeStamp;
 import org.elasticsearch.annotation.query.TermFilter;
+import org.elasticsearch.annotation.query.TermsFacet;
 import org.elasticsearch.mapping.IndexType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -37,6 +38,7 @@ public class PaaSDeploymentLog {
      * This field is mandatory
      */
     @TermFilter
+    @TermsFacet
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private PaaSDeploymentLogLevel level;
 
@@ -47,6 +49,7 @@ public class PaaSDeploymentLog {
      * This field is mandatory
      */
     @TermFilter
+    @TermsFacet
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String type;
 
@@ -64,6 +67,7 @@ public class PaaSDeploymentLog {
      * This field is optional
      */
     @TermFilter
+    @TermsFacet
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String workflowId;
 
@@ -72,6 +76,7 @@ public class PaaSDeploymentLog {
      * This field is optional
      */
     @TermFilter
+    @TermsFacet
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String executionId;
 
@@ -80,6 +85,7 @@ public class PaaSDeploymentLog {
      * This field is optional
      */
     @TermFilter
+    @TermsFacet
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String nodeId;
 
@@ -88,6 +94,7 @@ public class PaaSDeploymentLog {
      * This field is optional
      */
     @TermFilter
+    @TermsFacet
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String instanceId;
 
@@ -96,6 +103,7 @@ public class PaaSDeploymentLog {
      * This field is optional
      */
     @TermFilter
+    @TermsFacet
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String interfaceName;
 
@@ -104,6 +112,7 @@ public class PaaSDeploymentLog {
      * This field is optional
      */
     @TermFilter
+    @TermsFacet
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String operationName;
 
