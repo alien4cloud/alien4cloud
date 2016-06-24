@@ -228,7 +228,9 @@ public class ToscaContext {
 
             T element = required ? csarSearchService.getRequiredElementInDependencies(elementClass, elementId, dependencies)
                     : csarSearchService.getElementInDependencies(elementClass, elementId, dependencies);
-            typeElements.put(elementId, element);
+            if (element != null) {
+                typeElements.put(elementId, element);
+            }
             log.debug("Retrieve element {} {}", element, dependencies);
             return element;
         }

@@ -1,5 +1,6 @@
 package alien4cloud.component.repository;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -45,6 +46,17 @@ public abstract class AbstractLocalRepository implements IFileRepository {
         } catch (IOException e) {
             throw new RepositoryIOException("Could not store file with UID [" + id + "]", e);
         }
+    }
+
+    @Override
+    public long getFileLength(String id) {
+        File f = resolveFile(id).toFile();
+        try {
+
+        }finally {
+
+        }
+        return resolveFile(id).toFile().length();
     }
 
     public Path resolveFile(String id) {

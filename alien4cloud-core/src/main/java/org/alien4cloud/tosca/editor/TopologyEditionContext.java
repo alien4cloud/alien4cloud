@@ -34,6 +34,8 @@ public class TopologyEditionContext {
     private ToscaContext.Context toscaContext;
     /** Path to the topology's local git repository. */
     private Path localGitPath;
+    /** The operation under processing */
+    private AbstractEditorOperation currentOperation;
     /** List of commands that have been applied to the topology from the last-saved version. */
     private List<AbstractEditorOperation> operations = Lists.newArrayList();
     /** Root of the file hierarchy. */

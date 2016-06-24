@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.model.EditionConcurrencyException;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import com.google.common.collect.Maps;
 
 import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.utils.ReflectionUtil;
 
@@ -33,6 +35,8 @@ public class TopologyEditorService {
     private TopologyService topologyService;
     @Resource
     private TopologyEditionContextManager topologyEditionContextManager;
+    @Inject
+    private TopologyDTOBuilder dtoBuilder;
 
     /** Processors map by type. */
     private Map<Class<?>, IEditorOperationProcessor<? extends AbstractEditorOperation>> processorMap = Maps.newHashMap();
@@ -46,10 +50,23 @@ public class TopologyEditorService {
         }
     }
 
+    /**
+     * Check the authorization in the context of a topology edition.
+     * 
+     * @param topologyId The id of the topology.
+     */
+    public void checkAuthorization(String topologyId) {
+        try {
+            topologyEditionContextManager.init(topologyId);
+            topologyService.checkEditionAuthorizations(TopologyEditionContextManager.getTopology());
+        } finally {
+            topologyEditionContextManager.destroy();
+        }
+    }
+
     // trigger editor operation
     @MessageMapping("/topology-editor/{topologyId}")
-    public <T extends AbstractEditorOperation> TopologyEditionContext execute(@DestinationVariable String topologyId, T operation)
-            throws EditionConcurrencyException {
+    public <T extends AbstractEditorOperation> TopologyDTO execute(@DestinationVariable String topologyId, T operation) throws EditionConcurrencyException {
         // get the topology context.
         try {
             topologyEditionContextManager.init(topologyId);
@@ -65,10 +82,15 @@ public class TopologyEditorService {
 
             // attach the topology tosca context and process the operation
             IEditorOperationProcessor<T> processor = (IEditorOperationProcessor<T>) processorMap.get(operation.getClass());
-            processor.process(operation);
+            try {
+                processor.process(operation);
+                TopologyEditionContextManager.get().getOperations().add(operation);
+            } finally {
+                TopologyEditionContextManager.get().setCurrentOperation(null);
+            }
 
             // return the topology context
-            return TopologyEditionContextManager.get();
+            return dtoBuilder.buildTopologyDTO(TopologyEditionContextManager.get());
         } finally {
             topologyEditionContextManager.destroy();
         }
@@ -80,11 +102,15 @@ public class TopologyEditorService {
      * @param operation, The operation under evaluation.
      */
     private synchronized void checkSynchronization(AbstractEditorOperation operation) throws EditionConcurrencyException {
+        // there is an operation being processed so just fail (nobody could get the notification)
+        if (TopologyEditionContextManager.get().getCurrentOperation() != null) {
+            throw new EditionConcurrencyException();
+        }
         List<AbstractEditorOperation> operations = TopologyEditionContextManager.get().getOperations();
         // if someone performed some operations we have to ensure that the new operation is performed on top of a synchronized topology
-        if (operations.size() == 0 || operation.getPreviousOperationId() == operations.get(operations.size() - 1).getId()) {
+        if (operations.size() == 0 || operation.getPreviousOperationId().equals(operations.get(operations.size() - 1).getId())) {
             operation.setId(UUID.randomUUID().toString());
-            operations.add(operation);
+            TopologyEditionContextManager.get().setCurrentOperation(operation);
             return;
         }
         // throw an edition concurrency exception
@@ -126,15 +152,8 @@ public class TopologyEditorService {
 
     }
 
-    /**
-     * Upload a file in the archive.
-     *
-     * Note, if the updated file is the YAML we have to process it fully.
-     * 
-     * @param
-     */
-    public void uploadFile(String topologyId, String path, InputStream fileStream) {
-
+    public void history() {
+        // repository.log().setMaxCount(10).call().iterator()
     }
 
 }

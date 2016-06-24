@@ -9,12 +9,9 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import com.google.common.cache.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 
 import alien4cloud.dao.ESGenericIdDAO;
 import alien4cloud.model.topology.Topology;
@@ -37,24 +34,25 @@ public class TopologyEditionContextManager {
     private TopologyServiceCore topologyServiceCore;
     @Resource
     private TopologyService topologyService;
+    @Resource
+    private TopologyEditorRepositoryService repositoryService;
 
     @Resource(name = "alien-es-dao")
     private ESGenericIdDAO dao;
 
-    private Path localGitRepositoryPath;
-
     // TODO make cache management time a parameter
     private LoadingCache<String, TopologyEditionContext> contextCache;
-
-    @Value("${directories.alien}")
-    public void setLocalGitRepositoryPath(String pathStr) {
-        localGitRepositoryPath = Paths.get(pathStr);
-    }
 
     @PostConstruct
     public void setup() {
         // initialize the cache
-        contextCache = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).build(new CacheLoader<String, TopologyEditionContext>() {
+        contextCache = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).removalListener(new RemovalListener<String, TopologyEditionContext>() {
+            @Override
+            public void onRemoval(RemovalNotification<String, TopologyEditionContext> removalNotification) {
+                log.debug("Topology edition context with id {} has been evicted. {} pending operations are lost.", removalNotification.getKey(),
+                        removalNotification.getValue().getOperations().size());
+            }
+        }).build(new CacheLoader<String, TopologyEditionContext>() {
             @Override
             public TopologyEditionContext load(String topologyId) throws Exception {
                 log.debug("Loading topology context for topology {}", topologyId);
@@ -63,21 +61,11 @@ public class TopologyEditionContextManager {
                 Topology clonedTopology = topologyServiceCore.getOrFail(topologyId);
                 ToscaContext context = new ToscaContext();
                 // check if the topology git repository has been created already
-                Path topologyGitPath = localGitRepositoryPath.resolve(topologyId);
-                createGitDirectory(topologyGitPath);
+                Path topologyGitPath = repositoryService.createGitDirectory(topologyId);
                 log.debug("Topology context for topology {} loaded", topologyId);
                 return new TopologyEditionContext(topology, clonedTopology, topologyGitPath);
             }
         });
-    }
-
-    private void createGitDirectory(Path topologyGitPath) throws IOException {
-        if (!Files.isDirectory(topologyGitPath)) {
-            log.debug("Initializing topology git repository {}", localGitRepositoryPath.toAbsolutePath());
-            Files.createDirectories(topologyGitPath);
-        } else {
-            log.info("Alien Repository folder already created at {}", localGitRepositoryPath.toAbsolutePath());
-        }
     }
 
     /**

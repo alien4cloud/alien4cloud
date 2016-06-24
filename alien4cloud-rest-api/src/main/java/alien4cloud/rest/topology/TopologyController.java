@@ -9,7 +9,6 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import alien4cloud.tosca.context.ToscaContextual;
 import org.alien4cloud.tosca.editor.TopologyDTOBuilder;
 import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
 import org.apache.commons.lang3.StringUtils;
@@ -1156,128 +1155,6 @@ public class TopologyController {
 
         log.debug("Renaiming the relationship <{}> with <{}> in the node template <{}> of topology <{}> .", relationshipName, newRelationshipName,
                 nodeTemplateName, topologyId);
-
-        topologyServiceCore.save(topology);
-        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-    }
-
-    @ApiOperation(value = "", notes = "Returns a response with no errors in case of success. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodeGroups/{groupName}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<TopologyDTO> updateGroupName(@PathVariable String topologyId, @PathVariable String groupName,
-            @RequestParam(value = "newName") String newGroupName) {
-        Topology topology = topologyServiceCore.getOrFail(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
-        topologyService.throwsErrorIfReleased(topology);
-
-        if (groupName.equals(newGroupName)) {
-            return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-        }
-
-        if (topology.getGroups().containsKey(newGroupName)) {
-            throw new AlreadyExistException("Group with name [" + newGroupName + "] already exists, please choose another name");
-        }
-
-        NodeGroup nodeGroup = topology.getGroups().remove(groupName);
-        if (nodeGroup != null) {
-            nodeGroup.setName(newGroupName);
-            Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
-            for (NodeTemplate nodeTemplate : nodeTemplates.values()) {
-                if (nodeTemplate.getGroups() != null) {
-                    if (nodeTemplate.getGroups().remove(groupName)) {
-                        nodeTemplate.getGroups().add(newGroupName);
-                    }
-                }
-            }
-            topology.getGroups().put(newGroupName, nodeGroup);
-        }
-
-        topologyServiceCore.save(topology);
-        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-    }
-
-    @ApiOperation(value = "", notes = "Returns a response with no errors in case of success. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodeGroups/{groupName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<TopologyDTO> deleteNodeGroup(@PathVariable String topologyId, @PathVariable String groupName) {
-        Topology topology = topologyServiceCore.getOrFail(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
-        topologyService.throwsErrorIfReleased(topology);
-
-        NodeGroup nodeGroup = topology.getGroups().remove(groupName);
-        if (nodeGroup != null) {
-            Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
-            for (NodeTemplate nodeTemplate : nodeTemplates.values()) {
-                if (nodeTemplate.getGroups() != null) {
-                    nodeTemplate.getGroups().remove(groupName);
-                }
-            }
-        }
-
-        topologyServiceCore.save(topology);
-        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-    }
-
-    @ApiOperation(value = "Add a node to a node group. If the group doesn't exists, it's created.", notes = "Returns a response with no errors in case of success. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodeGroups/{groupName}/members/{nodeName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<TopologyDTO> addNodeGroupMember(@PathVariable String topologyId, @PathVariable String groupName, @PathVariable String nodeName) {
-        Topology topology = topologyServiceCore.getOrFail(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
-        topologyService.throwsErrorIfReleased(topology);
-        Map<String, NodeGroup> groups = topology.getGroups();
-        if (groups == null) {
-            groups = Maps.newHashMap();
-            topology.setGroups(groups);
-        }
-        NodeGroup nodeGroup = groups.get(groupName);
-        if (nodeGroup == null) {
-            nodeGroup = new NodeGroup();
-            nodeGroup.setName(groupName);
-            nodeGroup.setIndex(TopologyUtils.getAvailableGroupIndex(topology));
-            Set<String> members = Sets.newHashSet();
-            nodeGroup.setMembers(members);
-            List<AbstractPolicy> policies = Lists.newArrayList();
-            // For the moment, groups are created only for HA
-            AbstractPolicy policy = new HaPolicy();
-            policy.setName("High Availability");
-            policies.add(policy);
-            nodeGroup.setPolicies(policies);
-            groups.put(groupName, nodeGroup);
-        }
-        if (topology.getNodeTemplates() == null || !topology.getNodeTemplates().containsKey(nodeName)) {
-            throw new NotFoundException("Attempt to add a non existing node [" + nodeName + "] to the group [" + groupName + "]");
-        }
-        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplates(topology).get(nodeName);
-        if (nodeTemplate == null) {
-            throw new NotFoundException("Attempt to add a non existing node [" + nodeName + "] to the group [" + groupName + "]");
-        }
-        if (nodeTemplate.getGroups() == null) {
-            nodeTemplate.setGroups(Sets.<String> newHashSet());
-        }
-        nodeTemplate.getGroups().add(groupName);
-        nodeGroup.getMembers().add(nodeName);
-        topologyServiceCore.save(topology);
-        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-    }
-
-    @ApiOperation(value = "Remove a node from a node group.", notes = "Returns a response with no errors in case of success. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodeGroups/{groupName}/members/{nodeName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<TopologyDTO> removeNodeGroupMember(@PathVariable String topologyId, @PathVariable String groupName, @PathVariable String nodeName) {
-        Topology topology = topologyServiceCore.getOrFail(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
-        topologyService.throwsErrorIfReleased(topology);
-
-        NodeGroup nodeGroup = topology.getGroups().get(groupName);
-        if (nodeGroup != null && nodeGroup.getMembers() != null) {
-            nodeGroup.getMembers().remove(nodeName);
-        }
-
-        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplates(topology).get(nodeName);
-        if (nodeTemplate != null && nodeTemplate.getGroups() != null) {
-            nodeTemplate.getGroups().remove(groupName);
-        }
 
         topologyServiceCore.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();

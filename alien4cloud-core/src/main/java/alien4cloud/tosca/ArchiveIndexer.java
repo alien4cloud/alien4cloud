@@ -1,18 +1,20 @@
 package alien4cloud.tosca;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 
-import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.editor.TopologyEditorRepositoryService;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.component.repository.ICsarRepositry;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
+import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.model.components.*;
 import alien4cloud.model.templates.TopologyTemplate;
@@ -27,6 +29,7 @@ import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ToscaParsingUtil;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.VersionUtil;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -47,6 +50,8 @@ public class ArchiveIndexer {
     private WorkflowsBuilderService workflowBuilderService;
     @Inject
     private ICSARRepositorySearchService searchService;
+    @Inject
+    private TopologyEditorRepositoryService repositoryService;
 
     /**
      * Import a pre-parsed archive to alien 4 cloud indexed catalog.
@@ -63,7 +68,7 @@ public class ArchiveIndexer {
         String archiveVersion = archiveRoot.getArchive().getVersion();
         Csar archive = csarService.getIfExists(archiveName, archiveVersion);
 
-        // Cannot override RELEASED CSAR .
+        // Cannot override RELEASED CSAR. FIXME Or RELEASED Topology Template
         if (archive != null && !VersionUtil.isSnapshot(archive.getVersion())) {
             throw new CSARVersionAlreadyExistsException("CSAR: " + archiveName + ", Version: " + archiveVersion + " already exists in the repository.");
         }
@@ -112,11 +117,12 @@ public class ArchiveIndexer {
             // TODO: here we should update the topology if it already exists
             // TODO: the name should only contains the archiveName
             TopologyTemplate existingTemplate = topologyServiceCore.searchTopologyTemplateByName(archiveRoot.getArchive().getName());
+            String topologyId;
             if (existingTemplate != null) {
                 // the topology template already exists
                 topology.setDelegateId(existingTemplate.getId());
                 topology.setDelegateType(TopologyTemplate.class.getSimpleName().toLowerCase());
-                String topologyId = topologyServiceCore.saveTopology(topology);
+                topologyId = topologyServiceCore.saveTopology(topology);
                 // now search the version
                 TopologyTemplateVersion ttv = topologyTemplateVersionService.searchByDelegateAndVersion(existingTemplate.getId(), archiveVersion);
                 if (ttv != null) {
@@ -128,11 +134,21 @@ public class ArchiveIndexer {
                 }
                 parsingErrors.add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_UPDATED, "", null, "A topology template has been updated", null,
                         archiveName));
-
             } else {
                 parsingErrors.add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_DETECTED, "", null, "A topology template has been detected", null,
                         archiveName));
                 topologyServiceCore.createTopologyTemplate(topology, archiveName, archiveRoot.getTopologyTemplateDescription(), archiveVersion);
+                topologyId = topology.getId();
+            }
+            // store the archive for topology edition in case the version is snapshot
+            if (VersionUtil.isSnapshot(archiveVersion)) {
+                // Copy files from the archive repository to the editor
+                try {
+                    repositoryService.copyFrom(topologyId, archiveRepositry.getExpendedCSAR(archiveName, archiveVersion));
+                } catch (CSARVersionNotFoundException | IOException e) {
+                    log.error("Failed to initialize the topology repository", e);
+                    // FIXME we should cleanup everything or actually do that before indexing all data.
+                }
             }
             topologyServiceCore.updateSubstitutionType(topology);
         }

@@ -1,5 +1,6 @@
 package alien4cloud.topology;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,6 +13,7 @@ import alien4cloud.utils.TreeNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 
 /**
  * Topology DTO contains the topology and a map of the types used in the topology.
@@ -22,6 +24,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class TopologyDTO extends AbstractTopologyDTO<Topology> {
     private TreeNode archiveContentTree;
+    private List<AbstractEditorOperation> operations;
+    private String lastOperationId;
 
     public TopologyDTO(Topology topology, Map<String, IndexedNodeType> nodeTypes, Map<String, IndexedRelationshipType> relationshipTypes,
             Map<String, IndexedCapabilityType> capabilityTypes, Map<String, Map<String, Set<String>>> outputCapabilityProperties,

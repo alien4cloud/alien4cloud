@@ -18,6 +18,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 public class StaticResourcesConfiguration extends WebMvcConfigurerAdapter {
     @Value("${directories.alien}/${directories.csar_repository}/")
     private String toscaRepo;
+    @Value("${directories.alien}/editor/")
+    private String editorRepo;
     @Value("${directories.alien}/work/plugins/ui/")
     private String pluginsUi;
 
@@ -28,10 +30,13 @@ public class StaticResourcesConfiguration extends WebMvcConfigurerAdapter {
         String prefix = "file:///";
         // resource locations must be full path and not relatives
         String absToscaRepo = prefix.concat(safeGetRealPath(toscaRepo)).concat("/");
+        String absEditorRepo = prefix.concat(safeGetRealPath(editorRepo)).concat("/");
         String absPluginUi = prefix.concat(safeGetRealPath(pluginsUi)).concat("/");
+
         log.info("Serving {} as tosca repo content.", absToscaRepo);
         log.info("Serving {} as plugin ui content.", absPluginUi);
         registry.addResourceHandler("/static/tosca/**").addResourceLocations(absToscaRepo);
+        registry.addResourceHandler("/static/editor/**").addResourceLocations(absEditorRepo);
         registry.addResourceHandler(PLUGIN_STATIC_ENDPOINT + "**").addResourceLocations(absPluginUi);
     }
 

@@ -32,6 +32,10 @@ public class TopologyDTOBuilder {
         TopologyDTO topologyDTO = new TopologyDTO();
         buildAbstractTopologyDTO(context.getCurrentTopology(), topologyDTO);
         topologyDTO.setArchiveContentTree(context.getArchiveContentTree());
+        if (context.getOperations().size() > 0) {
+            topologyDTO.setLastOperationId(context.getOperations().get(context.getOperations().size() - 1).getId());
+        }
+        topologyDTO.setOperations(context.getOperations());
         // FIXME add validation information
         return topologyDTO;
     }
@@ -52,7 +56,7 @@ public class TopologyDTOBuilder {
 
     private <T extends Topology> Map<String, IndexedRelationshipType> getRelationshipTypes(T topology) {
         Map<String, IndexedRelationshipType> types = Maps.newHashMap();
-        if(topology.getNodeTemplates()!=null) {
+        if (topology.getNodeTemplates() != null) {
             for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
                 fillTypeMap(IndexedRelationshipType.class, types, nodeTemplate.getRelationships(), false, false);
             }
@@ -67,7 +71,15 @@ public class TopologyDTOBuilder {
                 types.put(capabilityDefinition.getType(), ToscaContext.get(IndexedCapabilityType.class, capabilityDefinition.getType()));
             }
             for (RequirementDefinition requirementDefinition : nodeType.getRequirements()) {
-                types.put(requirementDefinition.getType(), ToscaContext.get(IndexedCapabilityType.class, requirementDefinition.getType()));
+                IndexedCapabilityType capabilityType = ToscaContext.get(IndexedCapabilityType.class, requirementDefinition.getType());
+                if (capabilityType != null) {
+                    types.put(requirementDefinition.getType(), capabilityType);
+                } else {
+                    // requirements are authorized to be a node type rather than a capability type TODO is it still possible in TOSCA ?
+                    IndexedNodeType indexedNodeType = ToscaContext.get(IndexedNodeType.class, requirementDefinition.getType());
+                    // add it to the actual node types map
+                    topologyDTO.getNodeTypes().put(requirementDefinition.getType(), indexedNodeType);
+                }
             }
         }
         return types;

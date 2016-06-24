@@ -11,16 +11,6 @@ import alien4cloud.tosca.parser.ParsingResult;
  * Interface for all CSAR repositories
  */
 public interface ICsarRepositry {
-
-    /**
-     * Store the given parsing results in the repository.
-     * 
-     * @param name the name of the CSAR to store.
-     * @param version the version of the CSAR to store.
-     * @param parsingResult the result of the parsing of the CSAR.
-     */
-    void storeParsingResults(String name, String version, ParsingResult<Csar> parsingResult);
-
     /**
      * Store an CSAR into the repository. This method will perform a move of the temporary file to save IO disk operations
      * 
@@ -33,18 +23,24 @@ public interface ICsarRepositry {
 
     /**
      * Get a CSAR stored into the repository
-     * 
-     * @param name
-     *            the name of the CSAR to store.
-     * @param version
-     *            the version of the CSAR to store.
-     * 
-     * @return {@link Path} <br>
-     *         The path to the CSAR file
+     *
+     * @param name The name of the csar.
+     * @param version The version of the CSAR
+     * @return The path to the zipped csar file.
      * @throws CSARVersionNotFoundException
      */
     Path getCSAR(String name, String version) throws CSARVersionNotFoundException;
 
+    /**
+     * Get the path of the expended directory in which the CSAR is stored.
+     * 
+     * @param name The name of the csar.
+     * @param version The version of the CSAR
+     * @return The path to the expended csar file.
+     * @throws CSARVersionNotFoundException
+     */
+    Path getExpendedCSAR(String name, String version) throws CSARVersionNotFoundException;
+
     void removeCSAR(String name, String version);
-    
+
 }

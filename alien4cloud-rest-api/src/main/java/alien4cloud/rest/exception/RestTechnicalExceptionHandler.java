@@ -4,8 +4,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.alien4cloud.tosca.editor.exception.PropertyValueException;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.expression.ExpressionException;
 import org.springframework.http.HttpStatus;
@@ -17,6 +16,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import com.google.common.collect.Lists;
 
 import alien4cloud.component.repository.exception.RepositoryTechnicalException;
 import alien4cloud.deployment.exceptions.InvalidDeploymentSetupException;
@@ -31,12 +32,14 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.spring.Alien4CloudAccessDeniedHandler;
 import alien4cloud.topology.exception.UpdateTopologyException;
+import alien4cloud.tosca.properties.constraints.ConstraintUtil;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import alien4cloud.utils.RestConstraintValidator;
 import alien4cloud.utils.version.InvalidVersionException;
 import alien4cloud.utils.version.UpdateApplicationVersionException;
-
-import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * All technical (runtime) exception handler goes here. It's unexpected exception and is in general back-end exception or bug in our code
@@ -49,6 +52,14 @@ public class RestTechnicalExceptionHandler {
 
     @Resource
     private Alien4CloudAccessDeniedHandler accessDeniedHandler;
+
+    @ExceptionHandler(PropertyValueException.class)
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ResponseBody
+    public RestResponse<ConstraintUtil.ConstraintInformation> invalidPropertyValue(PropertyValueException e) {
+        log.debug("Message: {}, property name: {}, property value: {}", e.getMessage(), e.getPropertyName(), e.getPropertyValue(), e);
+        return RestConstraintValidator.fromException((ConstraintFunctionalException) e.getCause(), e.getPropertyName(), e.getPropertyValue());
+    }
 
     @ExceptionHandler(InvalidDeploymentSetupException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
