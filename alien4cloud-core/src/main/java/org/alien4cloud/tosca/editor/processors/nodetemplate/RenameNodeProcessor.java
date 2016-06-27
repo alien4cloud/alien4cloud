@@ -2,7 +2,7 @@ package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
+import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.RenameNodeOperation;
 
 import alien4cloud.exception.InvalidNodeNameException;
@@ -27,7 +27,7 @@ public class RenameNodeProcessor implements IEditorOperationProcessor<RenameNode
 
     @Override
     public void process(RenameNodeOperation operation) {
-        Topology topology = TopologyEditionContextManager.getTopology();
+        Topology topology = EditionContextManager.getTopology();
 
         if (!TopologyUtils.isValidNodeName(operation.getNewName())) {
             throw new InvalidNodeNameException("A name should only contains alphanumeric character from the basic Latin alphabet and the underscore.");

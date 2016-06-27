@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
+import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation;
 import org.alien4cloud.tosca.editor.exception.CapabilityBoundException;
 import org.alien4cloud.tosca.editor.exception.RequirementBoundException;
@@ -50,7 +50,7 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
     @Override
     @SneakyThrows
     protected void processNodeOperation(AddRelationshipOperation operation, NodeTemplate sourceNode) {
-        Topology topology = TopologyEditionContextManager.getTopology();
+        Topology topology = EditionContextManager.getTopology();
         Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
 
         String relationshipId = operation.getRelationshipType() + ":" + operation.getRelationshipVersion();

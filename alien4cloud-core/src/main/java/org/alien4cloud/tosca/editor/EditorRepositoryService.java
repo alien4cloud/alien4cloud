@@ -13,10 +13,12 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Manage git repository integration for the editor.
+ *
+ * For every archive (bound to a CSAR or to an Application)
  */
 @Slf4j
 @Component
-public class TopologyEditorRepositoryService {
+public class EditorRepositoryService {
     private Path localGitRepositoryPath;
 
     // TODO we need a Git Branch Strategy Handler as well as a Git Multi-directory Handler so we can handle edition of repositories

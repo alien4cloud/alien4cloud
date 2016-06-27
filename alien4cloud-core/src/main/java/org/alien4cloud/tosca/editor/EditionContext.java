@@ -24,7 +24,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class TopologyEditionContext {
+public class EditionContext {
     // FIXME add node types and other elements we can get from a CSAR to enable full archive edition rather than just topology edition.
     /** The topology under edition in it's last saved state. */
     private Topology savedTopology;
@@ -48,7 +48,7 @@ public class TopologyEditionContext {
      * @param editionClone A clone of the initial topology that will be updated to represent the current state of the topology.
      * @param localGitPath The git location associated with the topology.
      */
-    public TopologyEditionContext(Topology initial, Topology editionClone, Path localGitPath) throws IOException {
+    public EditionContext(Topology initial, Topology editionClone, Path localGitPath) throws IOException {
         //
         this.savedTopology = initial;
         this.currentTopology = editionClone;

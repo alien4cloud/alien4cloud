@@ -4,7 +4,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
+import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.exception.PropertyValueException;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePropertyValueOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
@@ -32,7 +32,7 @@ public class UpdateNodePropertyValueProcessor implements IEditorOperationProcess
 
     @Override
     public void process(UpdateNodePropertyValueOperation operation) {
-        Topology topology = TopologyEditionContextManager.getTopology();
+        Topology topology = EditionContextManager.getTopology();
 
         Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemp = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);

@@ -1,16 +1,12 @@
 package org.alien4cloud.tosca.editor;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import com.google.common.cache.*;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.dao.ESGenericIdDAO;
@@ -26,35 +22,35 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class TopologyEditionContextManager {
+public class EditionContextManager {
     /** Holds the topology context */
-    private final static ThreadLocal<TopologyEditionContext> contextThreadLocal = new ThreadLocal<>();
+    private final static ThreadLocal<EditionContext> contextThreadLocal = new ThreadLocal<>();
 
     @Resource
     private TopologyServiceCore topologyServiceCore;
     @Resource
     private TopologyService topologyService;
     @Resource
-    private TopologyEditorRepositoryService repositoryService;
+    private EditorRepositoryService repositoryService;
 
     @Resource(name = "alien-es-dao")
     private ESGenericIdDAO dao;
 
     // TODO make cache management time a parameter
-    private LoadingCache<String, TopologyEditionContext> contextCache;
+    private LoadingCache<String, EditionContext> contextCache;
 
     @PostConstruct
     public void setup() {
         // initialize the cache
-        contextCache = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).removalListener(new RemovalListener<String, TopologyEditionContext>() {
+        contextCache = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).removalListener(new RemovalListener<String, EditionContext>() {
             @Override
-            public void onRemoval(RemovalNotification<String, TopologyEditionContext> removalNotification) {
+            public void onRemoval(RemovalNotification<String, EditionContext> removalNotification) {
                 log.debug("Topology edition context with id {} has been evicted. {} pending operations are lost.", removalNotification.getKey(),
                         removalNotification.getValue().getOperations().size());
             }
-        }).build(new CacheLoader<String, TopologyEditionContext>() {
+        }).build(new CacheLoader<String, EditionContext>() {
             @Override
-            public TopologyEditionContext load(String topologyId) throws Exception {
+            public EditionContext load(String topologyId) throws Exception {
                 log.debug("Loading topology context for topology {}", topologyId);
                 Topology topology = topologyServiceCore.getOrFail(topologyId);
                 // if we get it again this go through JSON and create a clone.
@@ -63,7 +59,7 @@ public class TopologyEditionContextManager {
                 // check if the topology git repository has been created already
                 Path topologyGitPath = repositoryService.createGitDirectory(topologyId);
                 log.debug("Topology context for topology {} loaded", topologyId);
-                return new TopologyEditionContext(topology, clonedTopology, topologyGitPath);
+                return new EditionContext(topology, clonedTopology, topologyGitPath);
             }
         });
     }
@@ -84,7 +80,7 @@ public class TopologyEditionContextManager {
      * 
      * @return The thread's topology edition context.
      */
-    public static TopologyEditionContext get() {
+    public static EditionContext get() {
         return contextThreadLocal.get();
     }
 

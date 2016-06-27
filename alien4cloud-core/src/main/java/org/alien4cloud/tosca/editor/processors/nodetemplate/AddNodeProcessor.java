@@ -6,7 +6,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
+import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.springframework.stereotype.Component;
@@ -43,7 +43,7 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
 
     @Override
     public void process(AddNodeOperation operation) {
-        Topology topology = TopologyEditionContextManager.getTopology();
+        Topology topology = EditionContextManager.getTopology();
 
         if (!TopologyUtils.isValidNodeName(operation.getNodeName())) {
             throw new InvalidNodeNameException("A name should only contains alphanumeric character from the basic Latin alphabet and the underscore.");

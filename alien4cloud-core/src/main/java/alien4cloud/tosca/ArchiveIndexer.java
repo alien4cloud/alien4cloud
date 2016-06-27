@@ -7,7 +7,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.alien4cloud.tosca.editor.TopologyEditorRepositoryService;
+import org.alien4cloud.tosca.editor.EditorRepositoryService;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.ICSARRepositoryIndexerService;
@@ -51,7 +51,7 @@ public class ArchiveIndexer {
     @Inject
     private ICSARRepositorySearchService searchService;
     @Inject
-    private TopologyEditorRepositoryService repositoryService;
+    private EditorRepositoryService repositoryService;
 
     /**
      * Import a pre-parsed archive to alien 4 cloud indexed catalog.

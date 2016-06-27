@@ -28,7 +28,7 @@ public class TopologyDTOBuilder {
      * @param context The edition context from which to build the dto.
      */
     @ToscaContextual
-    public TopologyDTO buildTopologyDTO(TopologyEditionContext context) {
+    public TopologyDTO buildTopologyDTO(EditionContext context) {
         TopologyDTO topologyDTO = new TopologyDTO();
         buildAbstractTopologyDTO(context.getCurrentTopology(), topologyDTO);
         topologyDTO.setArchiveContentTree(context.getArchiveContentTree());

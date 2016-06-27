@@ -2,7 +2,7 @@ package org.alien4cloud.tosca.editor.processors;
 
 import java.util.ArrayList;
 
-import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
+import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.exception.InvalidPathException;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.springframework.stereotype.Component;
@@ -22,8 +22,8 @@ public class UpdateFileProcessor implements IEditorOperationProcessor<UpdateFile
     @SneakyThrows
     public void process(UpdateFileOperation operation) {
         // archive content tree is actually a node that contains only the folder of the topology
-        String initPath = TopologyEditionContextManager.get().getArchiveContentTree().getFullPath();
-        TreeNode root = TopologyEditionContextManager.get().getArchiveContentTree().getChildren().get(0);
+        String initPath = EditionContextManager.get().getArchiveContentTree().getFullPath();
+        TreeNode root = EditionContextManager.get().getArchiveContentTree().getChildren().get(0);
         // walk the file path to insert an element
         TreeNode target = root;
         String[] pathElements = operation.getPath().split("/");

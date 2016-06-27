@@ -4,7 +4,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
+import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateCapabilityPropertyValueOperation;
 
 import alien4cloud.exception.NotFoundException;
@@ -30,7 +30,7 @@ public class UpdateCapabilityPropertyValueProcessor implements IEditorOperationP
     @Override
     @SneakyThrows
     public void process(UpdateCapabilityPropertyValueOperation operation) {
-        Topology topology = TopologyEditionContextManager.getTopology();
+        Topology topology = EditionContextManager.getTopology();
 
         String propertyName = operation.getPropertyName();
         Object propertyValue = operation.getPropertyValue();

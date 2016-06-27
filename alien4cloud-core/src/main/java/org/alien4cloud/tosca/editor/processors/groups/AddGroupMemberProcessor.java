@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
+import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.groups.AddGroupMemberOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
 
@@ -21,7 +21,7 @@ import alien4cloud.topology.TopologyUtils;
 public class AddGroupMemberProcessor extends AbstractNodeProcessor<AddGroupMemberOperation> {
     @Override
     protected void processNodeOperation(AddGroupMemberOperation operation, NodeTemplate nodeTemplate) {
-        Topology topology = TopologyEditionContextManager.getTopology();
+        Topology topology = EditionContextManager.getTopology();
         // Ensure that the group exist and create it if not.
         Map<String, NodeGroup> groups = topology.getGroups();
         if (groups == null) {

@@ -2,7 +2,7 @@ package org.alien4cloud.tosca.editor.processors.groups;
 
 import java.util.Map;
 
-import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
+import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.groups.DeleteGroupOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 
@@ -17,7 +17,7 @@ import alien4cloud.topology.TopologyServiceCore;
 public class DeleteGroupProcessor implements IEditorOperationProcessor<DeleteGroupOperation> {
     @Override
     public void process(DeleteGroupOperation operation) {
-        Topology topology = TopologyEditionContextManager.getTopology();
+        Topology topology = EditionContextManager.getTopology();
 
         NodeGroup nodeGroup = topology.getGroups().remove(operation.getGroupName());
         if (nodeGroup != null) {

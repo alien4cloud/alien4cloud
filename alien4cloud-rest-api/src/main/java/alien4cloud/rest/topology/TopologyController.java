@@ -10,7 +10,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 
 import org.alien4cloud.tosca.editor.TopologyDTOBuilder;
-import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
+import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -104,7 +104,7 @@ public class TopologyController {
     private WorkflowsBuilderService workflowBuilderService;
 
     @Resource
-    private TopologyEditionContextManager topologyEditionContextManager;
+    private EditionContextManager topologyEditionContextManager;
     @Inject
     private TopologyDTOBuilder dtoBuilder;
 
@@ -124,7 +124,7 @@ public class TopologyController {
                 ApplicationRole.APPLICATION_USER);
         try {
             topologyEditionContextManager.init(topologyId);
-            return RestResponseBuilder.<TopologyDTO> builder().data(dtoBuilder.buildTopologyDTO(TopologyEditionContextManager.get())).build();
+            return RestResponseBuilder.<TopologyDTO> builder().data(dtoBuilder.buildTopologyDTO(EditionContextManager.get())).build();
         } finally {
             topologyEditionContextManager.destroy();
         }

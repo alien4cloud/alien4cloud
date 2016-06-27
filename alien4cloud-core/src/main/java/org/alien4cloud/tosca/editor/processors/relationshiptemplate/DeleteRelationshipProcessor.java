@@ -2,7 +2,7 @@ package org.alien4cloud.tosca.editor.processors.relationshiptemplate;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
+import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.DeleteRelationshipOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
 import org.springframework.stereotype.Component;
@@ -27,7 +27,7 @@ public class DeleteRelationshipProcessor extends AbstractNodeProcessor<DeleteRel
 
     @Override
     protected void processNodeOperation(DeleteRelationshipOperation operation, NodeTemplate template) {
-        Topology topology = TopologyEditionContextManager.getTopology();
+        Topology topology = EditionContextManager.getTopology();
         log.debug("Removing the Relationship template <" + operation.getRelationshipName() + "> from the Node template <" + operation.getNodeName()
                 + ">, Topology <" + topology.getId() + "> .");
         RelationshipTemplate relationshipTemplate = template.getRelationships().get(operation.getRelationshipName());

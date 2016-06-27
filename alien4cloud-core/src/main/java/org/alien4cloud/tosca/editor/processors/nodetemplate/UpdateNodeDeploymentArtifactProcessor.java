@@ -4,7 +4,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
+import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodeDeploymentArtifactOperation;
 
 import alien4cloud.component.repository.ArtifactRepositoryConstants;
@@ -27,7 +27,7 @@ public class UpdateNodeDeploymentArtifactProcessor implements IEditorOperationPr
     public void process(UpdateNodeDeploymentArtifactOperation operation) {
         // FIXME
         // Perform check that authorization's ok
-        Topology topology = TopologyEditionContextManager.getTopology();
+        Topology topology = EditionContextManager.getTopology();
 
         // Get the node template's artifacts to update
         Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);

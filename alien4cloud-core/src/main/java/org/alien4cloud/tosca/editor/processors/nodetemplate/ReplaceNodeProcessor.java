@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
+import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.ReplaceNodeOperation;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -33,7 +33,7 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
 
     @Override
     public void process(ReplaceNodeOperation operation) {
-        Topology topology = TopologyEditionContextManager.getTopology();
+        Topology topology = EditionContextManager.getTopology();
 
         // Retrieve existing node template
         Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);

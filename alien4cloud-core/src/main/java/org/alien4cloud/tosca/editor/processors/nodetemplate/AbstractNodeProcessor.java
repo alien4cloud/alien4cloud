@@ -2,7 +2,7 @@ package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
 import alien4cloud.model.topology.Topology;
 import alien4cloud.topology.TopologyServiceCore;
-import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
+import org.alien4cloud.tosca.editor.EditionContextManager;
 
 import alien4cloud.model.topology.NodeTemplate;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AbstractNodeOperation;
@@ -16,7 +16,7 @@ import java.util.Map;
 public abstract class AbstractNodeProcessor<T extends AbstractNodeOperation> implements IEditorOperationProcessor<T> {
     @Override
     public void process(T operation) {
-        Topology topology = TopologyEditionContextManager.getTopology();
+        Topology topology = EditionContextManager.getTopology();
         Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
 

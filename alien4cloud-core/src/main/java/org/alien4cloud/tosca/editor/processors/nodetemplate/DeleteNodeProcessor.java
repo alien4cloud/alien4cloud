@@ -6,9 +6,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
+import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation;
-import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
@@ -41,7 +40,7 @@ public class DeleteNodeProcessor extends AbstractNodeProcessor<DeleteNodeOperati
 
     @Override
     protected void processNodeOperation(DeleteNodeOperation operation, NodeTemplate template) {
-        Topology topology = TopologyEditionContextManager.getTopology();
+        Topology topology = EditionContextManager.getTopology();
         Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
 
         // FIXME cleanup files on the github repository / This way we can commit or revert if not saved.

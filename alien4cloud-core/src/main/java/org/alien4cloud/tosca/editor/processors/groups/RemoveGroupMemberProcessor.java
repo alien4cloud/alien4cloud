@@ -1,6 +1,6 @@
 package org.alien4cloud.tosca.editor.processors.groups;
 
-import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
+import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.groups.RemoveGroupMemberOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
 
@@ -14,7 +14,7 @@ import alien4cloud.model.topology.Topology;
 public class RemoveGroupMemberProcessor extends AbstractNodeProcessor<RemoveGroupMemberOperation> {
     @Override
     protected void processNodeOperation(RemoveGroupMemberOperation operation, NodeTemplate nodeTemplate) {
-        Topology topology = TopologyEditionContextManager.getTopology();
+        Topology topology = EditionContextManager.getTopology();
 
         NodeGroup nodeGroup = topology.getGroups().get(operation.getGroupName());
         if (nodeGroup != null && nodeGroup.getMembers() != null) {

@@ -2,7 +2,7 @@ package org.alien4cloud.tosca.editor.processors.groups;
 
 import java.util.Map;
 
-import org.alien4cloud.tosca.editor.TopologyEditionContextManager;
+import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.groups.RenameGroupOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 
@@ -18,7 +18,7 @@ import alien4cloud.topology.TopologyServiceCore;
 public class RenameGroupProcessor implements IEditorOperationProcessor<RenameGroupOperation> {
     @Override
     public void process(RenameGroupOperation operation) {
-        Topology topology = TopologyEditionContextManager.getTopology();
+        Topology topology = EditionContextManager.getTopology();
 
         if (operation.getGroupName().equals(operation.getNewGroupName())) {
             return; // nothing has changed.

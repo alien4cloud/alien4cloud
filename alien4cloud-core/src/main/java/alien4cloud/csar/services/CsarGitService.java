@@ -86,7 +86,7 @@ public class CsarGitService {
 
         List<ParsingResult<Csar>> results = Lists.newArrayList();
         try {
-            // Iterate over locations to be imported within the CsarGitRepository
+            // Iterate over locations (branches, folders etc.) and process the import
             for (CsarGitCheckoutLocation csarGitCheckoutLocation : csarGitRepository.getImportLocations()) {
                 List<ParsingResult<Csar>> result = doImport(csarGitRepository, csarGitCheckoutLocation);
                 if (result != null) {

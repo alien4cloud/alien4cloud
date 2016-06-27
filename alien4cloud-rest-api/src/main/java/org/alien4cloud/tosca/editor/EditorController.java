@@ -33,7 +33,7 @@ import io.swagger.annotations.ApiOperation;
 @RequestMapping({ "/rest/v2/editor", "/rest/latest/editor" })
 public class EditorController {
     @Inject
-    private TopologyEditorService editorService;
+    private EditorService editorService;
     /** We use the artifact repository to store temporary files from the edition context. */
     @Resource
     private IFileRepository artifactRepository;
