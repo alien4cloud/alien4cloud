@@ -676,7 +676,6 @@
   "NAVBAR" : {
     "BUTTON_LOGIN" : "Connexion",
     "BUTTON_LOGOUT" : "Déconnexion",
-    "BUTTON_SAML_LOGIN" : "Connexion SAML",
     "INPUT_SEARCH_MESSAGE" : "Que cherchez vous ?",
     "MENU_ADMIN" : "Administration",
     "MENU_APPS" : "Applications",
