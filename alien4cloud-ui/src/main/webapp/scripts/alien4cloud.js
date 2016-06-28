@@ -11,6 +11,8 @@ define(function(require) {
   require('angular-resource');
   require('angular-sanitize');
   require('angular-bootstrap');
+  require('moment');
+  require('angular-bootstrap-datetimepicker');
   require('angular-ui-router');
   require('angular-translate');
   require('angular-xeditable');
