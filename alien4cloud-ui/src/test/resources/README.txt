@@ -6,6 +6,14 @@ curl -X POST "http://localhost:9200/csar/csar/_search?pretty=true" -d '
 }
 '
 
+curl -X POST "http://localhost:9200/paasdeploymentlog/paasdeploymentlog/_search?pretty=true" -d '
+{
+    "query" : {
+        "match_all" : {}
+    }
+}
+'
+
 curl -X POST "http://localhost:9200/toscaelement/indexeddatatype/_search?pretty=true" -d '
 {
     "query" : {
