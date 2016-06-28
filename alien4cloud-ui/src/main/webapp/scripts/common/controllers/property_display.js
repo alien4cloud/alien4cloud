@@ -379,7 +379,11 @@ define(function(require) {
       /** Reset the property to the default value if any */
       $scope.resetProperty = function resetPropertyToDefault() {
         $scope.initScope();
-        $scope.saveReset($scope.definition.default.value);
+        if (_.isEmpty($scope.definition.default) || _.isEmpty($scope.definition.default.value)) {
+          $scope.saveReset(null);
+        } else {
+          $scope.saveReset($scope.definition.default.value);
+        }
         if ($scope.propertyValue.hasOwnProperty('value')) {
           $scope.propertyValue.value = $scope.definition.default.value; // if same value affected, no watch applied
         } else {
