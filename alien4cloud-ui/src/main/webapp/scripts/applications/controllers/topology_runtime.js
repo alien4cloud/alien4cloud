@@ -371,11 +371,9 @@ define(function (require) {
       };
 
       $scope.selectNodeTemplate = function(newSelectedName, oldSelectedName) {
-        if (oldSelectedName) {
-          var oldSelected = $scope.topology.topology.nodeTemplates[oldSelectedName];
-          if (oldSelected) {
-            oldSelected.selected = false;
-          }
+        var oldSelected = $scope.topology.topology.nodeTemplates[oldSelectedName] || $scope.selectedNodeTemplate;
+        if (oldSelected) {
+          oldSelected.selected = false;
         }
 
         var newSelected = $scope.topology.topology.nodeTemplates[newSelectedName];

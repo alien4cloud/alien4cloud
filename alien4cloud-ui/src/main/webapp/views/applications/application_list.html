@@ -40,7 +40,10 @@
             <div class="col-md-1" style="width: 36px;" ng-click="isEnvironmentsCollapsed = !isEnvironmentsCollapsed; $event.stopPropagation();">
               <i style="padding: 8px;" class="pull-left fa fa-caret-right" ng-class="{'fa-caret-down' : !isEnvironmentsCollapsed, 'fa-caret-right': isEnvironmentsCollapsed}"></i>
             </div>
-            <div class="col-md-4"><i class="pull-left media-object fa fa-desktop fa-2x" ng-show="!application.imageId"></i>{{application.name}}</div>
+            <div class="col-md-4">
+              <i class="pull-left media-object fa fa-desktop fa-2x" ng-if="!application.imageId"></i>
+              <img class="pull-left media-object fa img-circle" style="height: 46px;" ng-if="application.imageId" ng-src="img?id={{application.imageId}}&quality=QUALITY_64" />
+              {{application.name}}</div>
             <div class="col-md-5" class="">{{application.description}}</div>
             <div class="col-md-2" style="width: 130px;" ng-if="isManager" style="width: 115px;">
               <delete-confirm class="pull-right" id='delete-app_{{application.name}}' func="removeApplication(application.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">

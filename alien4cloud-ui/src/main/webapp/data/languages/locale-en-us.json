@@ -676,7 +676,6 @@
   "NAVBAR" : {
     "BUTTON_LOGIN" : "Login",
     "BUTTON_LOGOUT" : "Logout",
-    "BUTTON_SAML_LOGIN" : "SAML Login",
     "INPUT_SEARCH_MESSAGE" : "What do you need ?",
     "MENU_ADMIN" : "Administration",
     "MENU_APPS" : "Applications",
