@@ -741,15 +741,6 @@
     },
     "UPLOAD" : "プラグインのアップロード"
   },
-  "POST_DEPLOYMENT" : {
-    "OPERATION": {
-      "DRAG_DROP_UPLOAD": "Drop operation to upload here",
-      "INFOS": "Complete informations to create new operation",
-      "NEW": "Create operation",
-      "TITLE": "Operation"
-    },
-    "SELECT_NODE" : "-- Select a node --"
-  },
   "PROPERTY_RESET" : "Set to default value or reset",
   "REQUIRED" : "Required",
   "ROLE_TABS" : {
@@ -861,14 +852,5 @@
     "refresh.button" : "Refresh",
     "title" : "Alien 4 Cloud's Metrics"
   },
-  "operations" : "Operations",
-  "PATCH": {
-    "TITLE": "Patch",
-    "NO_PATCH_FOUND": "No patch found for deployment",
-    "ACK": "Executed",
-    "NACK": "Not executed",
-    "DRAG_DROP_UPLOAD": "Drop patch to upload here",
-    "NEW": "Create patch",
-    "INFOS": "Complete information to create new patch"
-  }
+  "operations" : "Operations"
 }
