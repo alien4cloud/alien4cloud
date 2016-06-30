@@ -1,3 +1,12 @@
-[
-  {"id":"1b452ffe-127e-4cdd-84d2-b1688feafee3","name":"tomcat","creationDate":1453828521924,"lastUpdateDate":1453828521924,"tags":[],"metaProperties":{},"userRoles":[{"key":"admin","value":["APPLICATION_MANAGER"]}]}
-]
+[ {
+  "id" : "1b452ffe-127e-4cdd-84d2-b1688feafee3",
+  "name" : "tomcat",
+  "creationDate" : 1453828521924,
+  "lastUpdateDate" : 1453828521924,
+  "tags" : [ ],
+  "metaProperties" : { },
+  "userRoles" : [ {
+    "key" : "admin",
+    "value" : [ "APPLICATION_MANAGER" ]
+  } ]
+} ]
