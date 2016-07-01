@@ -864,5 +864,14 @@
     "refresh.button" : "Refresh",
     "title" : "Alien 4 Cloud's Metrics"
   },
-  "operations" : "Operations"
+  "operations" : "Operations",
+  "CONSTRAINTS": {
+    "VALIDATION": {
+      "TYPE": "The value defined in constraint do not match its declared type",
+      "DEFAULT_VALUE_TYPE": "The default value does not match its declared type",
+      "ROOT": "The constraint is not valid",
+      "DEFAULT_VALUE_NOT_MATCH_CONSTRAINTS": "The default value does not match constraints",
+      "DUPLICATED_CONSTRAINT": "Multiple constraints with the same type has been detected"
+    }
+  }
 }
