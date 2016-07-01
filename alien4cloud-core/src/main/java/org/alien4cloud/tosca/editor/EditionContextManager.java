@@ -55,7 +55,6 @@ public class EditionContextManager {
                 Topology topology = topologyServiceCore.getOrFail(topologyId);
                 // if we get it again this go through JSON and create a clone.
                 Topology clonedTopology = topologyServiceCore.getOrFail(topologyId);
-                ToscaContext context = new ToscaContext();
                 // check if the topology git repository has been created already
                 Path topologyGitPath = repositoryService.createGitDirectory(topologyId);
                 log.debug("Topology context for topology {} loaded", topologyId);
