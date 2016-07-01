@@ -16,7 +16,7 @@ import javax.validation.Payload;
 @Constraint(validatedBy = ToscaPropertyDefaultValueConstraintsValidator.class)
 @Documented
 public @interface ToscaPropertyDefaultValueConstraints {
-    String message() default "{alien4cloud.tosca.container.validation.propertyvaluematchconstraints}";
+    String message() default "CONSTRAINTS.VALIDATION.DEFAULT_VALUE_NOT_MATCH_CONSTRAINTS";
 
     Class<?>[] groups() default {};
 

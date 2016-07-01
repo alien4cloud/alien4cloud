@@ -863,5 +863,14 @@
     "refresh.button" : "Rafraichir",
     "title" : "Métriques d'Alien 4 Cloud"
   },
-  "operations" : "Opérations"
+  "operations" : "Opérations",
+  "CONSTRAINTS": {
+    "VALIDATION": {
+      "TYPE": "La valeur définie dans la contrainte n'est pas valid par rapport au type de la propriété",
+      "DEFAULT_VALUE_TYPE": "La valeur par défaut n'est pas valide par rapport au type de la propriété",
+      "ROOT": "La contrainte n'est pas valide",
+      "DEFAULT_VALUE_NOT_MATCH_CONSTRAINTS": "La valeur par défaut n'est pas valide par rapport aux contraintes déclarées dans le type",
+      "DUPLICATED_CONSTRAINT": "Contraintes de même type ont été détectées dans la propriété"
+    }
+  }
 }

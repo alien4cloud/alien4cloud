@@ -17,7 +17,7 @@ import javax.validation.Payload;
 @Constraint(validatedBy = ToscaPropertyConstraintDuplicateValidator.class)
 @Documented
 public @interface ToscaPropertyConstraintDuplicate {
-    String message() default "{alien4cloud.tosca.container.validation.propertyconstraintduplicate}";
+    String message() default "CONSTRAINTS.VALIDATION.DUPLICATED_CONSTRAINT";
 
     Class<?>[] groups() default {};
 

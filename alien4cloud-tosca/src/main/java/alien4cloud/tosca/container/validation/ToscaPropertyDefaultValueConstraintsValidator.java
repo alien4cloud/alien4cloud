@@ -41,11 +41,13 @@ public class ToscaPropertyDefaultValueConstraintsValidator implements Constraint
         } catch (InvalidPropertyValueException e) {
             return false;
         }
-        for (PropertyConstraint constraint : value.getConstraints()) {
-            try {
-                constraint.validate(parsedDefaultValue);
-            } catch (ConstraintViolationException e) {
-                return false;
+        if (value.getConstraints() != null) {
+            for (PropertyConstraint constraint : value.getConstraints()) {
+                try {
+                    constraint.validate(parsedDefaultValue);
+                } catch (ConstraintViolationException e) {
+                    return false;
+                }
             }
         }
         return true;

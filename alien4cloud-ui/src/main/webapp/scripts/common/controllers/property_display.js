@@ -263,10 +263,10 @@ define(function(require) {
         // merge the constraints from the definition and from the type
         var constraints = [];
         if (_.defined($scope.definition.constraints)) {
-          constraints.push($scope.definition.constraints);
+          constraints = $scope.definition.constraints;
         }
         if (_.defined($scope.propertyType) && _.defined($scope.propertyType.constraints)) {
-          constraints.push($scope.propertyType.constraints);
+          _.concat(constraints, $scope.propertyType.constraints);
         }
 
         // Second phase : regarding constraints
