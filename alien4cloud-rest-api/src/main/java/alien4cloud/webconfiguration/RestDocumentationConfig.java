@@ -120,7 +120,7 @@ public class RestDocumentationConfig {
     }
 
     @Bean
-    private UiConfiguration uiConfig() {
+    public UiConfiguration uiConfig() {
         return new UiConfiguration(null);
     }
 }
