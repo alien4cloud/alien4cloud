@@ -1,16 +1,20 @@
 package alien4cloud.webconfiguration;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Lists;
 import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Lists;
+
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger.web.UiConfiguration;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
@@ -113,5 +117,10 @@ public class RestDocumentationConfig {
                 "Join us on slack! http://localhost:4000/community/index.html", "Licensed under the Apache License, Version 2.0",
                 "http://www.apache.org/licenses/LICENSE-2.0");
         return apiInfo;
+    }
+
+    @Bean
+    private UiConfiguration uiConfig() {
+        return new UiConfiguration(null);
     }
 }
