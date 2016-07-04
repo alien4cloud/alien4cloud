@@ -1,7 +1,5 @@
 package alien4cloud.rest.tags;
 
-import io.swagger.annotations.ApiOperation;
-
 import java.util.Set;
 import java.util.UUID;
 
@@ -9,16 +7,13 @@ import javax.annotation.Resource;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.collections.MapUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.IGenericSearchDAO;
@@ -35,15 +30,15 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.tosca.container.validation.ToscaSequence;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping({"/rest/metaproperties", "/rest/v1/metaproperties", "/rest/latest/metaproperties"})
+@RequestMapping({ "/rest/metaproperties", "/rest/v1/metaproperties", "/rest/latest/metaproperties" })
 public class TagConfigurationController {
 
     @Resource
@@ -82,7 +77,7 @@ public class TagConfigurationController {
         if (configuration.getId() == null) {
             configuration.setId(UUID.randomUUID().toString());
         }
-        Set<ConstraintViolation<MetaPropConfiguration>> violations = validator.validate(configuration);
+        Set<ConstraintViolation<MetaPropConfiguration>> violations = validator.validate(configuration, ToscaSequence.class);
         if (violations != null && !violations.isEmpty()) {
             Set<TagConfigurationValidationError> violationDTOs = Sets.newHashSet();
             for (ConstraintViolation<MetaPropConfiguration> violation : violations) {
