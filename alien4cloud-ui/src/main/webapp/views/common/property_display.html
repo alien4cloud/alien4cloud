@@ -10,7 +10,6 @@
   <div ng-class="{'col-md-5': deletable, 'col-md-8': !deletable, 'form-editable': !condensed}"
     ng-init="isStringDisplayType = (definitionObject.uiName === 'scalar-unit' || definitionObject.uiName === 'string');">
     <!-- Property Value -->
-
     <div id="div_{{propertyName}}"  ng-if="isStringDisplayType" ng-class="{'property-required' : definition.required && definitionObject.uiEmpty}">
       <!-- Case : string -->
       <span id="p_{{propertyName}}" ng-if="!definitionObject.uiPassword && !definitionObject.units && editable">
@@ -100,15 +99,6 @@
         <!-- Case : Timestamp (date) -->
         <a href="#" editable-bsdate="definitionObject.uiValue" e-datepicker-popup="dd-MMMM-yyyy" onbeforesave="propertySave($data)" ng-if="editable">
           {{ (definitionObject.uiValue | date:"dd/MM/yyyy") || 'empty' }} <i class="fa fa-pencil-square-o"></i>
-        </a>
-        <em ng-if="!editable">{{definitionObject.uiValue}}</em>
-      </span>
-
-      <span ng-switch-when="range">
-        <!-- Case : inRange (date) -->
-        <a href="#" editable-range="definitionObject.uiValue" e-min="{{definitionObject.uiValueMin}}" e-max="{{definitionObject.uiValueMax}}" e-step="1"
-           onbeforesave="propertySave($data)" ng-if="editable">
-          {{definitionObject.uiValue}} <i class="fa fa-pencil-square-o"></i>
         </a>
         <em ng-if="!editable">{{definitionObject.uiValue}}</em>
       </span>

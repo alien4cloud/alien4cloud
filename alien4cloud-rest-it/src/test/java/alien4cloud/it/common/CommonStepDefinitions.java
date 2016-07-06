@@ -3,9 +3,6 @@ package alien4cloud.it.common;
 import java.nio.file.Files;
 import java.util.List;
 
-import alien4cloud.it.security.AuthenticationStepDefinitions;
-import lombok.extern.slf4j.Slf4j;
-
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -19,6 +16,7 @@ import alien4cloud.audit.AuditESDAO;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
+import alien4cloud.it.security.AuthenticationStepDefinitions;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
@@ -31,6 +29,7 @@ import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.paas.model.PaaSDeploymentLog;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.model.PluginConfiguration;
 import alien4cloud.rest.exception.FieldErrorDTO;
@@ -42,6 +41,7 @@ import alien4cloud.utils.FileUtil;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class CommonStepDefinitions {
@@ -65,6 +65,7 @@ public class CommonStepDefinitions {
         indicesToClean.add(User.class.getSimpleName().toLowerCase());
         indicesToClean.add(MetaPropConfiguration.class.getSimpleName().toLowerCase());
         indicesToClean.add(CsarGitRepository.class.getSimpleName().toLowerCase());
+        indicesToClean.add(PaaSDeploymentLog.class.getSimpleName().toLowerCase());
         indicesToClean.add(AuditESDAO.ALIEN_AUDIT_INDEX);
         indicesToClean.add(ElasticSearchDAO.SUGGESTION_INDEX);
 

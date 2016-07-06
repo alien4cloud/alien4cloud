@@ -40,7 +40,7 @@
           <div class="facet-choice" collapse="isFacetCollapsed">
             <ul class="nav facet-choice">
               <li ng-repeat="filter in facetFilters">
-                <a href="" ng-click="removeFilter(filter)">{{'COMPONENTS.'+(filter.term | uppercase) | translate}}: <span class="label label-primary">
+                <a href="" ng-click="removeFilter(filter)">{{translateKey(filter.term)}}: <span class="label label-primary">
                   {{ getFormatedFacetValue(filter.term, filter.facet) }}</span><i class="fa fa-times"></i>
                 </a>
               </li>
@@ -51,7 +51,7 @@
         <!-- Displaying all terms and its facets -->
         <div ng-repeat="(term, termFacets) in searchResult.facets">
           <div ng-click="isFacetCollapsed = !isFacetCollapsed" class="facet-category">
-            <span>{{'COMPONENTS.'+(term | uppercase) | translate}}</span>
+            <span>{{translateKey(term)}}</span>
             <i class="pull-right fa" ng-class="{'fa-caret-down' : !isFacetCollapsed, 'fa-caret-right': isFacetCollapsed}"></i>
           </div>
           <div class="facet-option" collapse="isFacetCollapsed">

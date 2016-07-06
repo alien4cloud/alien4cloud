@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
+import org.elasticsearch.annotation.ObjectField;
 
 /**
  * Global configuration for the orchestrator. Usually contains connexion settings etc.
@@ -22,5 +23,6 @@ public class OrchestratorConfiguration {
     @Id
     private String id;
     /** Configuration object. */
+    @ObjectField(enabled = false)
     private Object configuration;
 }

@@ -2,19 +2,21 @@ package alien4cloud.model.components.constraints;
 
 import javax.validation.constraints.NotNull;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import alien4cloud.tosca.normative.IPropertyType;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import alien4cloud.ui.form.annotation.FormProperties;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false, of = { "equal" })
+@FormProperties("equal")
 public class EqualConstraint extends AbstractPropertyConstraint implements IMatchPropertyConstraint {
     @NotNull
     private String equal;

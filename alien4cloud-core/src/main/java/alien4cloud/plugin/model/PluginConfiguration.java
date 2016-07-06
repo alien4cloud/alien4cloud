@@ -10,6 +10,7 @@ import org.elasticsearch.annotation.Id;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import org.elasticsearch.annotation.ObjectField;
 
 /**
  * Describe a plugin configuration: PluginId + configuration Object
@@ -26,5 +27,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 public class PluginConfiguration {
     @Id
     private String pluginId;
+    @ObjectField(enabled = false)
     private Object configuration;
 }

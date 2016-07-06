@@ -26,7 +26,7 @@ public class ToscaPropertyConstraintDuplicateValidator implements ConstraintVali
         for (int i = 0; i < value.size(); i++) {
             PropertyConstraint constraint = value.get(i);
             if (!definedConstraints.add(constraint.getClass().getName())) {
-                context.buildConstraintViolationWithTemplate("{alien4cloud.tosca.container.validation.propertyconstraintduplicate}").addBeanNode().inIterable()
+                context.buildConstraintViolationWithTemplate("CONSTRAINTS.VALIDATION.DUPLICATED_CONSTRAINT").addBeanNode().inIterable()
                         .atIndex(i).addConstraintViolation();
                 isValid = false;
             }

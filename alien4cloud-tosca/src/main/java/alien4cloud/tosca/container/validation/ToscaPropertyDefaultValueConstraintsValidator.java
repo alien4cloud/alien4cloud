@@ -3,9 +3,15 @@ package alien4cloud.tosca.container.validation;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.PropertyValue;
+import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.tosca.normative.IPropertyType;
+import alien4cloud.tosca.normative.InvalidPropertyValueException;
+import alien4cloud.tosca.normative.ToscaType;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 
-@Deprecated
 public class ToscaPropertyDefaultValueConstraintsValidator implements ConstraintValidator<ToscaPropertyDefaultValueConstraints, PropertyDefinition> {
 
     @Override
@@ -14,30 +20,36 @@ public class ToscaPropertyDefaultValueConstraintsValidator implements Constraint
 
     @Override
     public boolean isValid(PropertyDefinition value, ConstraintValidatorContext context) {
-        // TODO:XDE
-        // String defaultAsString = value.getDefault();
-        // if (defaultAsString == null) {
-        // // no default value is specified.
-        // return true;
-        // }
-        // // validate that the default value matches the defined constraints.
-        // IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(value.getType());
-        // if (toscaType == null) {
-        // return false;
-        // }
-        // Object defaultValue = null;
-        // try {
-        // defaultValue = toscaType.parse(defaultAsString);
-        // } catch (InvalidPropertyValueException e) {
-        // return false;
-        // }
-        // for (PropertyConstraint constraint : value.getConstraints()) {
-        // try {
-        // constraint.validate(defaultValue);
-        // } catch (ConstraintViolationException e) {
-        // return false;
-        // }
-        // }
+        PropertyValue defaultValue = value.getDefault();
+        if (defaultValue == null) {
+            // no default value is specified.
+            return true;
+        }
+        // validate that the default value matches the defined constraints.
+        IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(value.getType());
+        if (toscaType == null) {
+            return false;
+        }
+        if (!(defaultValue instanceof ScalarPropertyValue)) {
+            // No constraint can be made on other thing than scalar values
+            return false;
+        }
+        String defaultValueAsString = ((ScalarPropertyValue) defaultValue).getValue();
+        Object parsedDefaultValue;
+        try {
+            parsedDefaultValue = toscaType.parse(defaultValueAsString);
+        } catch (InvalidPropertyValueException e) {
+            return false;
+        }
+        if (value.getConstraints() != null) {
+            for (PropertyConstraint constraint : value.getConstraints()) {
+                try {
+                    constraint.validate(parsedDefaultValue);
+                } catch (ConstraintViolationException e) {
+                    return false;
+                }
+            }
+        }
         return true;
     }
 }

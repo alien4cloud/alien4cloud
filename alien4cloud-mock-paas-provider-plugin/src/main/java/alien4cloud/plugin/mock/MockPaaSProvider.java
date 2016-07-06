@@ -14,6 +14,7 @@ import org.elasticsearch.common.collect.Maps;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import alien4cloud.component.CSARRepositorySearchService;
+import alien4cloud.dao.MonitorESDAO;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.deployment.Deployment;
@@ -48,6 +49,9 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
 
     @Resource
     private CSARRepositorySearchService csarRepoSearchService;
+
+    @Resource(name = "alien-monitor-es-dao")
+    private MonitorESDAO alienMonitorDao;
 
     private static final String BAD_APPLICATION_THAT_NEVER_WORKS = "BAD-APPLICATION";
 
@@ -195,6 +199,15 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
         DeploymentStatus oldDeploymentStatus = runtimeDeploymentInfo.getStatus();
         log.info("Deployment [" + deploymentPaaSId + "] moved from status [" + oldDeploymentStatus + "] to [" + status + "]");
         runtimeDeploymentInfo.setStatus(status);
+        PaaSDeploymentLog deploymentLog = new PaaSDeploymentLog();
+        deploymentLog.setContent("Change deployment status to " + status);
+        deploymentLog.setDeploymentPaaSId(deploymentPaaSId);
+        deploymentLog.setLevel(PaaSDeploymentLogLevel.INFO);
+        deploymentLog.setTimestamp(new Date());
+        deploymentLog.setType("deployment_status_change");
+        deploymentLog.setWorkflowId("install");
+        alienMonitorDao.getClient().admin().indices().prepareRefresh(PaaSDeploymentLog.class.getSimpleName().toLowerCase()).execute().actionGet();
+        alienMonitorDao.save(deploymentLog);
         executorService.schedule(new Runnable() {
             @Override
             public void run() {
@@ -210,7 +223,6 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
                 toBeDeliveredEvents.add(messageMonitorEvent);
             }
         }, 2, TimeUnit.SECONDS);
-
         return oldDeploymentStatus;
     }
 
@@ -300,6 +312,19 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
             } else {
                 notifyInstanceStateChanged(id, nodeId, instanceId, information, 2);
             }
+            PaaSDeploymentLog deploymentLog = new PaaSDeploymentLog();
+            deploymentLog.setContent("Change state to " + nextState);
+            deploymentLog.setDeploymentPaaSId(id);
+            deploymentLog.setInstanceId(instanceId);
+            deploymentLog.setNodeId(nodeId);
+            deploymentLog.setInterfaceName("Standard");
+            deploymentLog.setOperationName("changeState");
+            deploymentLog.setLevel(PaaSDeploymentLogLevel.INFO);
+            deploymentLog.setTimestamp(new Date());
+            deploymentLog.setType("state_change");
+            deploymentLog.setWorkflowId("install");
+            alienMonitorDao.save(deploymentLog);
+            alienMonitorDao.getClient().admin().indices().prepareRefresh(PaaSDeploymentLog.class.getSimpleName().toLowerCase()).execute().actionGet();
         }
     }
 

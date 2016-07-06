@@ -6,15 +6,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
-import alien4cloud.rest.model.RestResponse;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+
+import alien4cloud.rest.model.RestResponse;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Simple utility for JSon processing.
@@ -140,6 +140,18 @@ public final class JsonUtil {
      */
     public static String toString(Object obj) throws JsonProcessingException {
         return getNewObjectMapper().writeValueAsString(obj);
+    }
+
+    /**
+     * Convert a map or list to an object
+     * 
+     * @param raw a map or a list
+     * @param targetType the target class
+     * @param <T> the target
+     * @return
+     */
+    public static <T> T toObject(Object raw, Class<T> targetType) {
+        return getNewObjectMapper().convertValue(raw, targetType);
     }
 
     /**

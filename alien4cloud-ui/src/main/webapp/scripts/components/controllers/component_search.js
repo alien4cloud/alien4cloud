@@ -8,7 +8,8 @@ define(function (require) {
   require('scripts/tosca/services/tosca_service');
   require('scripts/common/services/search_service_factory');
 
-  modules.get('a4c-components', ['a4c-tosca', 'a4c-search']).controller('alienSearchComponentCtrl', ['$scope', '$filter', 'searchContext', '$resource', 'toscaService', 'searchServiceFactory', '$state', function($scope, $filter, searchContext, $resource, toscaService, searchServiceFactory, $state) {
+  modules.get('a4c-components', ['a4c-tosca', 'a4c-search']).controller('alienSearchComponentCtrl', ['$scope', '$filter', 'searchContext', '$resource', 'toscaService', 'searchServiceFactory', '$state', '$translate',
+   function($scope, $filter, searchContext, $resource, toscaService, searchServiceFactory, $state, $translate) {
     var alienInternalTags = ['icon'];
     $scope.searchService = searchServiceFactory('rest/latest/components/search', false, $scope, 20, 10);
     $scope.searchService.filtered(true);
@@ -26,6 +27,15 @@ define(function (require) {
     });
     //sort by priority
     $scope.badges = _.sortBy(badges, 'priority');
+
+    $scope.translateKey = function(term) {
+      var upterm = term.toUpperCase();
+      if(upterm.indexOf('PORTABILITY') > -1) {
+        return $translate.instant(upterm);
+      }
+
+      return $translate.instant('COMPONENTS.'+upterm);
+    };
 
     /** Used to display the correct text in UI */
     $scope.getFormatedFacetValue = function(term, value) {

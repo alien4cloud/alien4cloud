@@ -49,8 +49,8 @@ module.exports.maturityTag = {
   },
   default: {
     'field': 'default',
-    'ui': 'xeditable',
-    'value': 'Milestone maturity...'
+    'ui': 'tosca',
+    'value': 'M2'
   }
 };
 
@@ -82,7 +82,7 @@ var tagValidValues = {
   },
   default: {
     'field': 'default',
-    'ui': 'xeditable',
+    'ui': 'tosca',
     'value': 'Q3'
   }
 };
@@ -121,7 +121,7 @@ var tagMinLength = {
   },
   default: {
     'field': 'default',
-    'ui': 'xeditable',
+    'ui': 'tosca',
     'value': ''
   }
 };
@@ -155,7 +155,7 @@ module.exports.defaultLocationProperty = {
   },
   default: {
     'field': 'default',
-    'ui': 'xeditable',
+    'ui': 'tosca',
     'value': ''
   }
 };
@@ -169,7 +169,7 @@ module.exports.tagValidValuesConstraint = tagValidValuesConstraint;
 
 module.exports.tagMaturityValidValuesConstraint = [{
   constraint: constraintsMap.validValues,
-  value: ['M1', 'M2', 'M2']
+  value: ['M1', 'M2', 'M3']
 }];
 
 var tagMinLengthConstraint = [{

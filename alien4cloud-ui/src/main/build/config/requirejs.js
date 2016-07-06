@@ -15,6 +15,7 @@ module.exports = function (grunt) {
               'angular',
               'angular-cookies',
               'angular-bootstrap',
+              'angular-bootstrap-datetimepicker',
               'angular-resource',
               'angular-sanitize',
               'angular-ui-router',

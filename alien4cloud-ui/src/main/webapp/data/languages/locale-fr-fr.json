@@ -676,7 +676,6 @@
   "NAVBAR" : {
     "BUTTON_LOGIN" : "Connexion",
     "BUTTON_LOGOUT" : "Déconnexion",
-    "BUTTON_SAML_LOGIN" : "Connexion SAML",
     "INPUT_SEARCH_MESSAGE" : "Que cherchez vous ?",
     "MENU_ADMIN" : "Administration",
     "MENU_APPS" : "Applications",
@@ -727,6 +726,7 @@
     "STATES" : {
       "CONNECTED" : "Connecté",
       "CONNECTING" : "Connection en cours",
+      "DISABLING" : "Désactivation en cours",
       "DISABLED" : "Désactivé",
       "DISCONNECTED" : "Déconnecté"
     }
@@ -744,15 +744,6 @@
       "350_TITLE" : "Supprimer / Désactiver un plugin"
     },
     "UPLOAD" : "Uploader un plugin"
-  },
-  "POST_DEPLOYMENT" : {
-    "OPERATION": {
-      "DRAG_DROP_UPLOAD": "Déposer l'opération à uploader ici",
-      "INFOS": "Completer les informations de l'opération",
-      "NEW": "Nouvelle opération",
-      "TITLE": "Opération"
-    },
-    "SELECT_NODE" : "-- Selectionez un noeud --"
   },
   "PROPERTY_RESET" : "Réinitialiser à la valeur par défaut",
   "PROPERTY_SUGGESTION" : {
@@ -874,13 +865,13 @@
     "title" : "Métriques d'Alien 4 Cloud"
   },
   "operations" : "Opérations",
-  "PATCH": {
-    "TITLE": "Patch",
-    "NO_PATCH_FOUND": "Aucun patch exist pour le deployment",
-    "ACK": "Exécuté",
-    "NACK": "Non exécuté",
-    "DRAG_DROP_UPLOAD": "Déposer les patches à uploader ici",
-    "NEW": "Créer patch",
-    "INFOS": "Completer les informations pour créer nouveau patch"
+  "CONSTRAINTS": {
+    "VALIDATION": {
+      "TYPE": "La valeur définie dans la contrainte n'est pas valid par rapport au type de la propriété",
+      "DEFAULT_VALUE_TYPE": "La valeur par défaut n'est pas valide par rapport au type de la propriété",
+      "ROOT": "La contrainte n'est pas valide",
+      "DEFAULT_VALUE_NOT_MATCH_CONSTRAINTS": "La valeur par défaut n'est pas valide par rapport aux contraintes déclarées dans le type",
+      "DUPLICATED_CONSTRAINT": "Contraintes de même type ont été détectées dans la propriété"
+    }
   }
 }

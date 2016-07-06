@@ -1,0 +1,31 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: Test es schema free bug.
+template_name: es_bug_types
+template_version: 1.1.0-SNAPSHOT
+template_author: FastConnect
+
+imports:
+  - "tosca-normative-types:1.0.0-SNAPSHOT"
+
+data_types:
+  alien.data.Complex:
+    properties:
+      simple:
+        type: string
+      list:
+        type: list
+        entry_schema:
+          type: string
+
+node_types:
+  alien4cloud.tests.nodes.IdSimple:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      id:
+        type: string
+
+  alien4cloud.tests.nodes.IdComplex:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      id:
+        type: alien.data.Complex

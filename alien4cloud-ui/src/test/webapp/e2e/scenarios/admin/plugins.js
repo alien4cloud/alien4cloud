@@ -59,14 +59,14 @@ describe('Upload and handle paas plugins', function() {
       // Problem with scope which became enumeration and not string anymore
       // Generic form do not manage enumeration for the moment
       // 'scope' : 'runtime',
-      'default': 4,
+      'default': '4',
       'description': 'Number of cpu'
     };
 
     var cpuPropertyElementType = {
       'type': 'select',
       'required': 'radio',
-      'default': 'xeditable',
+      'default': 'tosca',
       'description': 'xeditable'
     };
 
