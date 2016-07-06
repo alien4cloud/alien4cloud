@@ -726,6 +726,7 @@
     "STATES" : {
       "CONNECTED" : "Connected",
       "CONNECTING" : "Connecting",
+      "DISABLING" : "Disabling",
       "DISABLED" : "Disabled",
       "DISCONNECTED" : "Disconnected"
     }

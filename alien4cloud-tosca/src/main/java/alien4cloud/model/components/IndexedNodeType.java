@@ -12,7 +12,9 @@ import lombok.Setter;
 
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.NumberField;
+import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.FetchContext;
+import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.annotation.query.TermsFacet;
 import org.elasticsearch.mapping.IndexType;
 
@@ -49,6 +51,6 @@ public class IndexedNodeType extends IndexedArtifactToscaElement {
     /** Portability information. */
     @ConditionalOnAttribute({ ConditionalAttributes.ES, ConditionalAttributes.REST })
     @JsonDeserialize(contentUsing = PropertyValueDeserializer.class)
-    @TermsFacet(pathGenerator = ESPortabilityPropertiesPathsGenerator.class)
+    @TermFilter(pathGenerator = ESPortabilityPropertiesPathsGenerator.class)
     private Map<String, AbstractPropertyValue> portability;
 }

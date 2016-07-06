@@ -726,6 +726,7 @@
     "STATES" : {
       "CONNECTED" : "Connecté",
       "CONNECTING" : "Connection en cours",
+      "DISABLING" : "Désactivation en cours",
       "DISABLED" : "Désactivé",
       "DISCONNECTED" : "Déconnecté"
     }
