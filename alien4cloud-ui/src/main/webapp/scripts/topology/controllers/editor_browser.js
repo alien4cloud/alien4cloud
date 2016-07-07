@@ -1,3 +1,4 @@
+// Editor file browser controller.
 define(function (require) {
   'use strict';
 

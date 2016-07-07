@@ -143,7 +143,7 @@ public class EditorService {
         // topologyServiceCore.save(topology);
         // topologyServiceCore.updateSubstitutionType(topology);
         // TODO Copy and cleanup all temporary files from the executed operations.
-        // TODO GIT COMMIT
+        // TODO LOCAL GIT COMMIT
     }
 
     /**

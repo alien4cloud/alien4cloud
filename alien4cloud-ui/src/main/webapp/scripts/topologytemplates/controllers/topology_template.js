@@ -12,7 +12,8 @@ define(function (require) {
   require('scripts/topology/controllers/topology');
   require('scripts/topology/controllers/editor');
   require('scripts/applications/controllers/application_versions');
-  require('scripts/topologytemplates/controllers/topology_template_editor');
+  var registerService = require('scripts/topology/editor_register_service');
+  registerService('topologytemplates.detail.topology');
 
   // register components root state
   states.state('topologytemplates.detail', {
@@ -44,7 +45,7 @@ define(function (require) {
 
   states.state('topologytemplates.detail.topology', {
     url: '/topology/:version',
-    templateUrl: 'views/layout/vertical_menu_layout.html',
+    templateUrl: 'views/topology/topology_editor_vertical_layout.html',
     controller: 'TopologyEditorCtrl',
     resolve: {
       context: ['$stateParams', function ($stateParams) {

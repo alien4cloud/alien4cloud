@@ -1,0 +1,30 @@
+<ul class="vertical-navbar">
+  <li ng-repeat="menuItem in menu" ui-sref-active="active" ng-if="menuItem.show">
+    <a id="{{menuItem.id}}"
+       ng-click="onItemClick($event, menuItem)"
+       ui-sref="{{menuItem.state}}"
+       tooltip="{{menuItem.key | translate}}"
+       tooltip-placement="right"
+       tooltip-append-to-body="true"
+       ng-class="{'disabled' : menuItem.disabled}">
+      <i class="{{menuItem.icon}}" ng-show="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i>
+    </a>
+  </li>
+</ul>
+<div class="vertical-panel-shift">
+  <div class="topology-editor" style="margin-top: -10px; padding:2px; padding-left:20px; padding-right:20px; background-color: #666666;">
+    <button type="button" class="btn btn-success btn-xs">
+      <i class="fa fa-save"></i> {{'EDITOR.SAVE' | translate}}
+    </button>
+
+    <div class="btn-group" role="group">
+      <button type="button" class="btn btn-primary btn-xs">
+        <i class="fa fa-undo"></i> {{'EDITOR.UNDO' | translate}}
+      </button>
+      <button type="button" class="btn btn-primary btn-xs">
+        <i class="fa fa-repeat"></i> {{'EDITOR.REDO' | translate}}
+      </button>
+    </div>
+   </div>
+  <div ui-view></div>
+</div>
