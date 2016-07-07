@@ -18,8 +18,8 @@ module.exports = function(grunt) {
       options: {
         args: {
           capabilities: {
-            // 'browserName': 'chrome'
-            'browserName': 'firefox'
+             'browserName': 'chrome'
+            //'browserName': 'firefox'
           },
           baseUrl: 'http://localhost:8088',
           // baseUrl: 'http://127.0.0.1:9999',

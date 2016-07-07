@@ -106,9 +106,9 @@ public class PluginArchiveIndexer {
             IOrchestratorPlugin<Object> orchestratorInstance) {
         try {
             for (PluginArchive pluginArchive : orchestratorInstance.pluginArchives()) {
-                publishLocationTypeIndexedEvent(pluginArchive.getArchive().getNodeTypes().values(), orchestratorFactory, null);
                 archiveIndexer.importArchive(pluginArchive.getArchive(), CSARSource.ORCHESTRATOR, pluginArchive.getArchiveFilePath(),
                         Lists.<ParsingError> newArrayList());
+                publishLocationTypeIndexedEvent(pluginArchive.getArchive().getNodeTypes().values(), orchestratorFactory, null);
             }
         } catch (CSARVersionAlreadyExistsException e) {
             log.info("Skipping orchestrator archive import as the released version already exists in the repository.");

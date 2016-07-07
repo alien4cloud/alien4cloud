@@ -5,6 +5,7 @@
     "angular": "1.2.21",
     "angular-animate": "1.2.28",
     "angular-bootstrap": "0.10.0",
+    "angular-bootstrap-datetimepicker": "0.3.8",
     "angular-cookies": "1.2.21",
     "angular-i18n": "1.2.21",
     "angular-resource": "1.2.21",

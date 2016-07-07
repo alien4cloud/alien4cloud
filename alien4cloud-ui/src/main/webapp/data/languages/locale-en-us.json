@@ -679,7 +679,6 @@
   "NAVBAR" : {
     "BUTTON_LOGIN" : "Login",
     "BUTTON_LOGOUT" : "Logout",
-    "BUTTON_SAML_LOGIN" : "SAML Login",
     "INPUT_SEARCH_MESSAGE" : "What do you need ?",
     "MENU_ADMIN" : "Administration",
     "MENU_APPS" : "Applications",
@@ -730,6 +729,7 @@
     "STATES" : {
       "CONNECTED" : "Connected",
       "CONNECTING" : "Connecting",
+      "DISABLING" : "Disabling",
       "DISABLED" : "Disabled",
       "DISCONNECTED" : "Disconnected"
     }
@@ -747,15 +747,6 @@
       "350_TITLE" : "Delete / Disable a plugin"
     },
     "UPLOAD" : "Upload plugin"
-  },
-  "POST_DEPLOYMENT" : {
-    "OPERATION": {
-      "DRAG_DROP_UPLOAD": "Drop operation to upload here",
-      "INFOS": "Complete informations to create new operation",
-      "NEW": "Create operation",
-      "TITLE": "Operation"
-    },
-    "SELECT_NODE" : "-- Select a node --"
   },
   "PROPERTY_RESET" : "Set to default value or reset",
   "PROPERTY_SUGGESTION" : {
@@ -877,13 +868,13 @@
     "title" : "Alien 4 Cloud's Metrics"
   },
   "operations" : "Operations",
-  "PATCH": {
-    "TITLE": "Patch",
-    "NO_PATCH_FOUND": "No patch found for deployment",
-    "ACK": "Executed",
-    "NACK": "Not executed",
-    "DRAG_DROP_UPLOAD": "Drop patch to upload here",
-    "NEW": "Create patch",
-    "INFOS": "Complete informations to create new patch"
+  "CONSTRAINTS": {
+    "VALIDATION": {
+      "TYPE": "The value defined in constraint do not match its declared type",
+      "DEFAULT_VALUE_TYPE": "The default value does not match its declared type",
+      "ROOT": "The constraint is not valid",
+      "DEFAULT_VALUE_NOT_MATCH_CONSTRAINTS": "The default value does not match constraints",
+      "DUPLICATED_CONSTRAINT": "Multiple constraints with the same type has been detected"
+    }
   }
 }

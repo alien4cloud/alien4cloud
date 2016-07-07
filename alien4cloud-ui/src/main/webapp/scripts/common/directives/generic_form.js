@@ -359,12 +359,7 @@ define(function(require) {
       link: function(scope, element) {
         FORMS.initFormScope('toscaTypeFormLabel', scope, element, false);
         scope.inputChanged = function(propertyDefinition, propertyValue) {
-          if (_.undefined(propertyValue)) {
-            FORMS.deleteValueForPath(scope.rootObject, scope.path);
-            if (scope.configuration.automaticSave) {
-              scope.saveAction(scope.rootObject);
-            }
-          } else {
+          if (!_.undefined(propertyValue)) {
             if (_.isObject(propertyValue) || _.isArray(propertyValue)) {
               // It's an object or an array then don't try to validate constraints
               FORMS.setValueForPath(scope.rootObject, propertyValue, scope.path);

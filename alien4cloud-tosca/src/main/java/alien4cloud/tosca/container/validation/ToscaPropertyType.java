@@ -17,7 +17,7 @@ import javax.validation.Payload;
 @Constraint(validatedBy = ToscaPropertyTypeValidator.class)
 @Documented
 public @interface ToscaPropertyType {
-    String message() default "{alien4cloud.tosca.container.validation.propertytype}";
+    String message() default "CONSTRAINTS.VALIDATION.INVALID_TOSCA_TYPE";
 
     Class<?>[] groups() default {};
 

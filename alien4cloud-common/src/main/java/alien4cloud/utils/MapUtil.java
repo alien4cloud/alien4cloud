@@ -21,6 +21,20 @@ public final class MapUtil {
     }
 
     /**
+     * Map.putall with non null check on the other map.
+     * 
+     * @param map The map in which to put data.
+     * @param otherMap The map to merge in the first map (may be null).
+     * @param <K> Type of keys.
+     * @param <V> Type of values.
+     */
+    public static <K, V> void putAll(Map<K, V> map, Map<K, V> otherMap) {
+        if (otherMap != null) {
+            map.putAll(otherMap);
+        }
+    }
+
+    /**
      * This method allows to add an element to the list of elements in a map for a given key. If the list is null for the given key it will create a new list,
      * insert it in the map and add the element.
      * 

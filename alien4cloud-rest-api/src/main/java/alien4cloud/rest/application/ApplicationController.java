@@ -6,21 +6,13 @@ import java.util.Date;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.elasticsearch.index.query.FilterBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.application.ApplicationEnvironmentService;
@@ -50,10 +42,9 @@ import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.Role;
 import alien4cloud.topology.TopologyTemplateVersionService;
 import alien4cloud.utils.ReflectionUtil;
-import alien4cloud.utils.services.ConstraintPropertyService;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service that allows managing applications.
@@ -63,8 +54,6 @@ import io.swagger.annotations.ApiOperation;
 @RequestMapping({"/rest/applications", "/rest/v1/applications", "/rest/latest/applications"})
 @Api(value = "", description = "Operations on Applications")
 public class ApplicationController {
-    @Resource
-    private ConstraintPropertyService constraintPropertyService;
     @Resource
     private IImageDAO imageDAO;
     @Resource(name = "alien-es-dao")
