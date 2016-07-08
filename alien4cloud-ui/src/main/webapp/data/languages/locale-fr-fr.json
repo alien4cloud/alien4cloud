@@ -318,6 +318,7 @@
     "DATA": "Données",
     "DESCRIPTION" : "Description",
     "EMAIL" : "Email",
+    "EMAIL_INVALID" : "Email non valide.",
     "ENABLED_false" : "Désactivé",
     "ENABLED_true" : "Activé",
     "FILTER" : "Filtrer",
@@ -627,7 +628,6 @@
   },
   "GROUPS" : {
     "EDIT_GROUPS" : "Editer les groupes",
-    "EMAIL_INVALID" : "Email non valide.",
     "NEW" : "Nouveau Groupe",
     "ROLES" : "Roles"
   },
@@ -800,7 +800,6 @@
     "CONFIRM_PASSWORD_HOLDER" : "Confirmez",
     "EDIT_GROUPS" : "Editer les groupes",
     "EDIT_GROUP_HEADER" : "Ajouter ou retirer des groupes",
-    "EMAIL_INVALID" : "Email non valide.",
     "FIRST_NAME" : "Prénom",
     "LAST_NAME" : "Nom",
     "NEW" : "Nouvel Utilisateur",
