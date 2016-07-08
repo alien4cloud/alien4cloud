@@ -26,6 +26,15 @@ public class PaaSDeploymentLog {
 
     /**
      * Deployment PaaS id is unique for an application on a given environment (for ex : Alien-Prod)
+     * It corresponds to {@link alien4cloud.model.deployment.Deployment#getId}
+     * This field is mandatory
+     */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
+    private String deploymentId;
+
+    /**
+     * Deployment PaaS id is unique for an application on a given environment (for ex : Alien-Prod)
      * It corresponds to {@link alien4cloud.model.deployment.Deployment#getOrchestratorDeploymentId}
      * This field is mandatory
      */
