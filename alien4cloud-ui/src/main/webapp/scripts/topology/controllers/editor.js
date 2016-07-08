@@ -10,6 +10,7 @@ define(function (require) {
   var angular = require('angular');
 
   require('scripts/topology/controllers/editor_browser');
+  require('scripts/topology/controllers/editor_workflow');
 
   require('scripts/tosca/services/tosca_cardinalities_service');
   require('scripts/topology/services/topology_json_processor');
@@ -99,6 +100,18 @@ define(function (require) {
           }
           return error;
         }).$promise;
+      };
+
+      $scope.save = function() {
+        console.log('saving');
+      };
+
+      $scope.undo = function() {
+        console.log('undo');
+      };
+
+      $scope.redo = function() {
+        console.log('redo');
       };
 
       // Initial load of the topology

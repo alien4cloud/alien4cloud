@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
+import alien4cloud.utils.ReflectionUtil;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 
 import com.google.common.collect.Lists;
@@ -49,12 +50,23 @@ public class EditionContext {
      * @param localGitPath The git location associated with the topology.
      */
     public EditionContext(Topology initial, Topology editionClone, Path localGitPath) throws IOException {
-        //
         this.savedTopology = initial;
         this.currentTopology = editionClone;
         this.toscaContext = new ToscaContext.Context(this.savedTopology.getDependencies());
         this.localGitPath = localGitPath;
         // initialize the file tree based on the git repository location
+        this.archiveContentTree = DirectoryJSonWalker.getDirectoryTree(this.localGitPath);
+    }
+
+    /**
+     * Reset the topology context to it's initial state.
+     * 
+     * @param editionClone The clone of the initial topology. // TODO better use an inner java cloning.
+     * @throws IOException In case we wait to initialize the archive content tree.
+     */
+    public void reset(Topology editionClone) throws IOException {
+        this.currentTopology = editionClone;
+        this.toscaContext = new ToscaContext.Context(this.savedTopology.getDependencies());
         this.archiveContentTree = DirectoryJSonWalker.getDirectoryTree(this.localGitPath);
     }
 }

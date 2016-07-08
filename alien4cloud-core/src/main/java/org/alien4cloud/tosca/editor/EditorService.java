@@ -1,5 +1,6 @@
 package org.alien4cloud.tosca.editor;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -126,10 +127,16 @@ public class EditorService {
 
             // create a fake undo operation
             // initContext(topologyId, operation);
-            // TODO Re-initialize the Type Loader from the topology context
+            // TODO Improve this by avoiding dao query for cloning topology and keeping cache for TOSCA types that are required.
+            topologyEditionContextManager.reset();
+            
+
+
             // TODO Replay all operations until the given index
 
             return dtoBuilder.buildTopologyDTO(EditionContextManager.get());
+        } catch (IOException e) {
+            // TODO throw exception as undo failed.
         } finally {
             EditionContextManager.get().setCurrentOperation(null);
             topologyEditionContextManager.destroy();

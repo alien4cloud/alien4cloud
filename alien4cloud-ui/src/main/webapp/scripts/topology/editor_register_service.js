@@ -21,7 +21,7 @@ define(function (require) {
     states.state(prefix + '.workflow', {
       url: '/workflow',
       templateUrl: 'views/topology/topology_workflow_editor.html',
-      controller: 'TopologyCtrl',
+      controller: 'TopologyWorkflowEditorCtrl',
       menu: {
         id: 'am.' + prefix + '.workflow',
         state: prefix + '.workflow',

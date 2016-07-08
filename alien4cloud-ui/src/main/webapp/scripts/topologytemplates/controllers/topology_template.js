@@ -45,7 +45,7 @@ define(function (require) {
 
   states.state('topologytemplates.detail.topology', {
     url: '/topology/:version',
-    templateUrl: 'views/topology/topology_editor_vertical_layout.html',
+    templateUrl: 'views/topology/topology_editor_layout.html',
     controller: 'TopologyEditorCtrl',
     resolve: {
       context: ['$stateParams', function ($stateParams) {

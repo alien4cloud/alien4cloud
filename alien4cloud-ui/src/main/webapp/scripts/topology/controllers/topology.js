@@ -27,20 +27,14 @@ define(function (require) {
   require('scripts/topology/controllers/topology_editor_properties');
   require('scripts/topology/controllers/topology_editor_relationships');
   require('scripts/topology/controllers/topology_editor_substitution');
-  require('scripts/topology/controllers/topology_editor_workflows');
   require('scripts/topology/controllers/topology_editor_yaml');
 
   require('scripts/topology/controllers/search_relationship');
-  require('scripts/topology/directives/workflow_rendering');
-  require('scripts/topology/directives/topology_rendering');
-  require('scripts/topology/controllers/workflow_operation_selector');
-  require('scripts/topology/controllers/workflow_state_selector');
-  require('scripts/topology/services/workflow_services');
 
   require('scripts/topology/services/topology_editor_events_services');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles']).controller('TopologyCtrl',
-    ['$scope', '$modal', '$timeout', 'componentService', 'nodeTemplateService', 'toscaService', 'workflowServices',
+    ['$scope', '$modal', '$timeout', 'componentService', 'nodeTemplateService', 'toscaService',
     'topoEditArtifacts',
     'topoEditDisplay',
     'topoEditGroups',
@@ -51,9 +45,8 @@ define(function (require) {
     'topoEditProperties',
     'topoEditRelationships',
     'topoEditSubstitution',
-    'topoEditWf',
     'topoEditYaml',
-    function($scope, $modal, $timeout, componentService, nodeTemplateService, toscaService, workflowServices,
+    function($scope, $modal, $timeout, componentService, nodeTemplateService, toscaService,
     topoEditArtifacts,
     topoEditDisplay,
     topoEditGroups,
@@ -64,7 +57,6 @@ define(function (require) {
     topoEditProperties,
     topoEditRelationships,
     topoEditSubstitution,
-    topoEditWf,
     topoEditYaml) {
       $scope.isRuntime = false;
 
@@ -97,10 +89,7 @@ define(function (require) {
       topoEditProperties($scope);
       topoEditRelationships($scope);
       topoEditSubstitution($scope);
-      topoEditWf($scope);
       topoEditYaml($scope);
-
-      $scope.workflows.setCurrentWorkflowName('install');
 
       var refresh = function(selectedNodeTemplate) {
         if(_.undefined($scope.groupCollapsed)) { // we perform this only at init time.

@@ -1,13 +1,15 @@
 package org.alien4cloud.tosca.editor;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import com.google.common.cache.*;
 import org.springframework.stereotype.Component;
+
+import com.google.common.cache.*;
 
 import alien4cloud.dao.ESGenericIdDAO;
 import alien4cloud.model.topology.Topology;
@@ -47,6 +49,7 @@ public class EditionContextManager {
             public void onRemoval(RemovalNotification<String, EditionContext> removalNotification) {
                 log.debug("Topology edition context with id {} has been evicted. {} pending operations are lost.", removalNotification.getKey(),
                         removalNotification.getValue().getOperations().size());
+                // FIXME remove temp files ?
             }
         }).build(new CacheLoader<String, EditionContext>() {
             @Override
@@ -72,6 +75,16 @@ public class EditionContextManager {
     public synchronized void init(String topologyId) {
         contextThreadLocal.set(contextCache.get(topologyId));
         ToscaContext.set(contextThreadLocal.get().getToscaContext());
+    }
+
+    /**
+     * Reset the state of the topology context to it's initial state.
+     * 
+     * @throws IOException In case the parsing of the directory content fails.
+     */
+    public void reset() throws IOException {
+        String topologyId = contextThreadLocal.get().getSavedTopology().getId();
+        contextThreadLocal.get().reset(topologyServiceCore.getOrFail(topologyId));
     }
 
     /**
