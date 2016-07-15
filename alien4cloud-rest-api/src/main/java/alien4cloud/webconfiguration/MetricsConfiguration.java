@@ -3,6 +3,7 @@ package alien4cloud.webconfiguration;
 import java.lang.management.ManagementFactory;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,6 +41,7 @@ public class MetricsConfiguration extends MetricsConfigurerAdapter implements En
     private static final MetricRegistry METRIC_REGISTRY = new MetricRegistry();
     private static final HealthCheckRegistry HEALTH_CHECK_REGISTRY = new HealthCheckRegistry();
     private RelaxedPropertyResolver propertyResolver;
+    private JmxReporter jmxReporter;
 
     @Override
     public void setEnvironment(Environment environment) {
@@ -56,8 +58,18 @@ public class MetricsConfiguration extends MetricsConfigurerAdapter implements En
         METRIC_REGISTRY.register(PROP_METRIC_REG_JVM_BUFFERS, new BufferPoolMetricSet(ManagementFactory.getPlatformMBeanServer()));
         if (propertyResolver.getProperty(PROP_JMX_ENABLED, Boolean.class, false)) {
             log.info("Initializing Metrics JMX reporting");
-            final JmxReporter jmxReporter = JmxReporter.forRegistry(METRIC_REGISTRY).build();
+            jmxReporter = JmxReporter.forRegistry(METRIC_REGISTRY).build();
             jmxReporter.start();
+        }
+    }
+
+    @PreDestroy
+    public void destoy() {
+        for (String name : METRIC_REGISTRY.getNames()) {
+            METRIC_REGISTRY.remove(name);
+        }
+        if (jmxReporter != null) {
+            jmxReporter.stop();
         }
     }
 
