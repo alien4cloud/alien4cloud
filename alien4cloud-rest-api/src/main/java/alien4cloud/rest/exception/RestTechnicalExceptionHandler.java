@@ -82,6 +82,14 @@ public class RestTechnicalExceptionHandler {
                 .message("A name should only contains alphanumeric character from the basic Latin alphabet and the underscrore.").build()).build();
     }
 
+    @ExceptionHandler(InvalidApplicationNameException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public RestResponse<Void> invalidApplicationName(InvalidApplicationNameException e) {
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.INVALID_APPLICATION_NAME)
+                .message("An application name should not contains slash or backslash.").build()).build();
+    }
+
     @ExceptionHandler(DeleteReferencedObjectException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody

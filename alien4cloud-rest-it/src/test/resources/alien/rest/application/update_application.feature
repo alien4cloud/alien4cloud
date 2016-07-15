@@ -51,7 +51,14 @@ Feature: Update an application (image or tags)
     And The application can be found in ALIEN with its "description" set to "Great app which will succeed"
 
   @reset
-  Scenario: Rename an application with an existing application name
+  Scenario: Rename an application with an invalid application name should fail
+    Given There is a "watchmiddleearth" application
+    When I set the "name" of this application to "new\\\\\application"
+    Then I should receive a RestResponse with an error code 619
+    And The application can be found in ALIEN with its "name" set to "watchmiddleearth"
+
+  @reset
+  Scenario: Rename an application with an existing application name should fail
     Given There is a "watchmiddleearth" application
     When I set the "name" of this application to "new_application_name_with_tags"
     Then I should receive a RestResponse with an error code 502
