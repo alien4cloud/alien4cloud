@@ -88,8 +88,9 @@ public class EditorService {
         }
         List<AbstractEditorOperation> operations = EditionContextManager.get().getOperations();
         // if someone performed some operations we have to ensure that the new operation is performed on top of a synchronized topology
-        if (((operations.size() == 0 || EditionContextManager.get().getLastOperationIndex() == -1) && operation.getPreviousOperationId() == null)
-                || operation.getPreviousOperationId().equals(operations.get(EditionContextManager.get().getLastOperationIndex()).getId())) {
+
+        boolean noPreviousOps = (operations.size() == 0 || EditionContextManager.get().getLastOperationIndex() == -1) ? operation.getPreviousOperationId() == null : false;
+        if (noPreviousOps || operation.getPreviousOperationId().equals(operations.get(EditionContextManager.get().getLastOperationIndex()).getId())) {
             operation.setId(UUID.randomUUID().toString());
             EditionContextManager.get().setCurrentOperation(operation);
             return;
@@ -131,7 +132,7 @@ public class EditorService {
      * Undo or redo operations until the given index (including)
      * 
      * @param topologyId The id of the topology for which to undo or redo operations.
-     * @param at The index on which to place the undo/redo cursor (0 means no operations, then 1 is first operation etc.)
+     * @param at The index on which to place the undo/redo cursor (-1 means no operations, then 0 is first operation etc.)
      * @param lastOperationId The last known operation id for client optimistic locking.
      * @return The topology DTO.
      */
@@ -143,11 +144,11 @@ public class EditorService {
             undoOperation.setPreviousOperationId(lastOperationId);
             initContext(topologyId, undoOperation);
 
-            if (0 > at || at > EditionContextManager.get().getOperations().size()) {
+            if (-1 > at || at > EditionContextManager.get().getOperations().size()) {
                 throw new NotFoundException("Unable to find the requested index for undo/redo");
             }
 
-            if ((at + 1) == EditionContextManager.get().getLastOperationIndex()) {
+            if (at == EditionContextManager.get().getLastOperationIndex()) {
                 // nothing to change.
                 return dtoBuilder.buildTopologyDTO(EditionContextManager.get());
             }
@@ -155,13 +156,13 @@ public class EditorService {
             // TODO Improve this by avoiding dao query for (deep) cloning topology and keeping cache for TOSCA types that are required.
             topologyEditionContextManager.reset();
 
-            for (int i = 0; i < at; i++) {
+            for (int i = 0; i < at + 1; i++) {
                 AbstractEditorOperation operation = EditionContextManager.get().getOperations().get(i);
                 IEditorOperationProcessor processor = processorMap.get(operation.getClass());
                 processor.process(operation);
             }
 
-            EditionContextManager.get().setLastOperationIndex(at - 1);
+            EditionContextManager.get().setLastOperationIndex(at);
 
             return dtoBuilder.buildTopologyDTO(EditionContextManager.get());
         } catch (IOException e) {

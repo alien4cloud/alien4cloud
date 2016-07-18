@@ -21,8 +21,9 @@ define(function (require) {
   require('scripts/topology/services/topology_editor_events_services');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles', 'cfp.hotkeys']).controller('TopologyEditorCtrl',
-    ['$scope', 'menu', 'layoutService', 'appVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',// 'topologyEditorEventFactory',
-    function($scope, menu, layoutService, appVersions, topologyServices, topologyJsonProcessor, toscaCardinalitiesService, topoEditVersions, $alresource) {// , topologyEditorEventFactory) {
+    ['$scope', 'menu', 'layoutService', 'appVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',
+    'hotkeys',// 'topologyEditorEventFactory',
+    function($scope, menu, layoutService, appVersions, topologyServices, topologyJsonProcessor, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys) {// , topologyEditorEventFactory) {
       // register for websockets events
       // var registration = topologyEditorEventFactory($scope.topologyId, function(event) {
       //   console.log('received event', event);
@@ -83,7 +84,7 @@ define(function (require) {
       };
 
       function getLastOperationId(nullAsString) {
-        if($scope.topology.lastOperationIndex > 0) {
+        if($scope.topology.lastOperationIndex >= 0) {
           return $scope.topology.operations[$scope.topology.lastOperationIndex].id;
         }
         return _.defined(nullAsString) && nullAsString ? 'null' : null;
@@ -115,34 +116,58 @@ define(function (require) {
       };
 
       var editorUndoResource = $alresource('rest/latest/editor/:topologyId/undo');
-      $scope.undo = function() {
-        var undoAt = $scope.topology.lastOperationIndex;
+      function undoRedo(at) {
         editorUndoResource.create({
           topologyId: $scope.topologyId,
-          at: undoAt,
+          at: at,
           lastOperationId: getLastOperationId(true)
         }, null, function(result) {
           if(_.undefined(result.error)) {
             $scope.refreshTopology(result.data);
           }
         });
-      };
-      $scope.redo = function() {
-        if($scope.topology.operations.length === $scope.topology.lastOperationIndex) {
-          // nothing to redo.
+      }
+      $scope.undo = function() {
+        if(0 === ($scope.topology.lastOperationIndex + 1)) {
           return;
         }
-        var undoAt = $scope.topology.lastOperationIndex + 1;
-        editorUndoResource.create({
-          topologyId: $scope.topologyId,
-          at: undoAt,
-          lastOperationId: getLastOperationId(true)
-        }, null, function(result) {
-          if(_.undefined(result.error)) {
-            $scope.refreshTopology(result.data);
+        var at = $scope.topology.lastOperationIndex - 1;
+        undoRedo(at);
+      };
+      $scope.redo = function() {
+        if($scope.topology.operations.length === ($scope.topology.lastOperationIndex + 1)) {
+          return;
+        }
+        var at = $scope.topology.lastOperationIndex + 1;
+        undoRedo(at);
+      };
+
+      // key binding
+      hotkeys.bindTo($scope)
+        .add({
+          combo: 'mod+z',
+          description: 'undo the last operation.',
+          callback: function(e) {
+            $scope.undo();
+            if(e.preventDefault) {
+              e.preventDefault();
+            } else {
+              e.returnValue = false;
+            }
+          }
+        })
+        .add ({
+          combo: 'mod+y',
+          description: 'redo the last operation.',
+          callback: function(e) {
+            $scope.redo();
+            if(e.preventDefault) {
+              e.preventDefault();
+            } else {
+              e.returnValue = false;
+            }
           }
         });
-      };
 
       // Initial load of the topology
       topologyServices.dao.get({ topologyId: $scope.topologyId },

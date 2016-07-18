@@ -64,6 +64,9 @@ public class EditorController {
     @RequestMapping(value = "/{topologyId}/undo", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> undoRedo(@PathVariable String topologyId, @RequestParam("at") int at,
             @RequestParam("lastOperationId") String lastOperationId) {
+        if (lastOperationId != null && "null".equals(lastOperationId)) {
+            lastOperationId = null;
+        }
         // Call the service that will save and commit
         TopologyDTO topologyDTO = editorService.undoRedo(topologyId, at, lastOperationId);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
