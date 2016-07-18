@@ -5,6 +5,7 @@ define(function (require) {
   var modules = require('modules');
 
   var _ = require('lodash');
+  var $ = require('jquery');
 
   modules.get('a4c-topology-editor').factory('commonNodeRendererService', [ 'd3Service',
     function(d3Service) {
@@ -21,9 +22,11 @@ define(function (require) {
             tooltipContent += ' <img src="images/abstract_ico.png" height="' + icoSize + '" width="' + icoSize + '"></img>';
           }
           tooltipContent += '</div>';
-          if (_.defined(element.template.properties)) {
-            if (typeof element.template.properties.version === 'string') {
-              tooltipContent += '<div>' + 'v' + element.template.properties.version + '</div>';
+          if (_.defined(element.type.derivedFrom) && $.inArray('tosca.nodes.SoftwareComponent', element.type.derivedFrom) !== -1){
+            if (_.defined(element.template.propertiesMap) && _.defined(element.template.propertiesMap.component_version) && _.defined(element.template.propertiesMap.component_version.value) && _.defined(element.template.propertiesMap.component_version.value.value)) {
+              tooltipContent += '<div>' + 'v' + element.template.propertiesMap.component_version.value.value + '</div>';
+            } else if (_.defined(element.template.propertiesMap) && _.defined(element.template.propertiesMap.version) && _.defined(element.template.propertiesMap.version.value) && _.defined(element.template.propertiesMap.version.value.value)) {
+              tooltipContent += '<div>' + 'v' + element.template.propertiesMap.version.value.value + '</div>';
             }
           }
           tooltipContent += '</div>';

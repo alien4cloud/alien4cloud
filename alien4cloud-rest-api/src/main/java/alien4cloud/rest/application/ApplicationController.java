@@ -200,6 +200,7 @@ public class ApplicationController {
             throw new InvalidArgumentException("Application's name cannot be set to null or empty");
         }
         if (!currentName.equals(application.getName())) {
+            applicationService.ensureNameIsValid(application.getName());
             applicationService.ensureNameUnicity(application.getName());
         }
         // update updateDate
