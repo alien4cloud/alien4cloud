@@ -33,6 +33,7 @@ require.config({
     'angular-file-upload-shim': 'bower_components/ng-file-upload/angular-file-upload-shim',
     'angular-file-upload': 'bower_components/ng-file-upload/angular-file-upload',
     'angular-ui-ace': 'bower_components/angular-ui-ace/ui-ace',
+    'angular-hotkeys': 'angular-hotkeys',
     'ace': 'bower_components/ace-builds/src-min-noconflict/ace',
     'sockjs': 'bower_components/sockjs/sockjs',
     'stomp': 'bower_components/stomp-websocket/lib/stomp',
