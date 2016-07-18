@@ -32,9 +32,7 @@ public class TopologyDTOBuilder {
         TopologyDTO topologyDTO = new TopologyDTO();
         buildAbstractTopologyDTO(context.getCurrentTopology(), topologyDTO);
         topologyDTO.setArchiveContentTree(context.getArchiveContentTree());
-        if (context.getOperations().size() > 0) {
-            topologyDTO.setLastOperationId(context.getOperations().get(context.getOperations().size() - 1).getId());
-        }
+        topologyDTO.setLastOperationIndex(context.getLastOperationIndex());
         topologyDTO.setOperations(context.getOperations());
         // FIXME add validation information
         return topologyDTO;

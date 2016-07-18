@@ -53,6 +53,23 @@ public class EditorController {
     }
 
     /**
+     * Undo or redo operations.
+     * 
+     * @param topologyId The id of the topology under edition on which to undo operations.
+     * @param at The index in the operations array to reach (0 means no operations, 1 means first operation etc.).
+     * @param lastOperationId The id of the last operation from editor client point of view (for optimistic locking).
+     * @return A topology DTO with the updated topology.
+     */
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId}/undo", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> undoRedo(@PathVariable String topologyId, @RequestParam("at") int at,
+            @RequestParam("lastOperationId") String lastOperationId) {
+        // Call the service that will save and commit
+        TopologyDTO topologyDTO = editorService.undoRedo(topologyId, at, lastOperationId);
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
+    }
+
+    /**
      * Method exposed to REST to upload a file in an archive under edition.
      * 
      * @param topologyId The id of the topology/archive under edition.
@@ -117,17 +134,6 @@ public class EditorController {
      * @param topologyId The id of the topology/archive under edition to save.
      */
     public void save(@PathVariable String topologyId) {
-        // Call the service that will save and commit
-
-    }
-
-    /**
-     * Undo or redo operations so that we reach the given index in the operation stack.
-     *
-     * @param topologyId The id of the topology/archive under edition to save.
-     * @param at the index of the operation to go to.
-     */
-    public void undoRedo(@PathVariable String topologyId, int at, String lastOperationId) {
         // Call the service that will save and commit
 
     }

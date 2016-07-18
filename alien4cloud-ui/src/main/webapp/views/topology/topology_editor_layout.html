@@ -18,10 +18,12 @@
     </button>
 
     <div class="btn-group" role="group">
-      <button type="button" class="btn btn-primary btn-xs" ng-click="undo()">
+      <button type="button" class="btn btn-primary btn-xs" ng-click="undo()"
+        ng-disabled="0 === (topology.lastOperationIndex + 1)">
         <i class="fa fa-undo"></i> {{'EDITOR.UNDO' | translate}}
       </button>
-      <button type="button" class="btn btn-primary btn-xs" ng-click="redo()">
+      <button type="button" class="btn btn-primary btn-xs" ng-click="redo()"
+        ng-disabled="topology.operations.length === (topology.lastOperationIndex + 1)">
         <i class="fa fa-repeat"></i> {{'EDITOR.REDO' | translate}}
       </button>
     </div>

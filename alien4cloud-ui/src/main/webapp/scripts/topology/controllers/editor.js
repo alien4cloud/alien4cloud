@@ -20,7 +20,7 @@ define(function (require) {
   // manage websockets for topology editor
   require('scripts/topology/services/topology_editor_events_services');
 
-  modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles']).controller('TopologyEditorCtrl',
+  modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles', 'cfp.hotkeys']).controller('TopologyEditorCtrl',
     ['$scope', 'menu', 'layoutService', 'appVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',// 'topologyEditorEventFactory',
     function($scope, menu, layoutService, appVersions, topologyServices, topologyJsonProcessor, toscaCardinalitiesService, topoEditVersions, $alresource) {// , topologyEditorEventFactory) {
       // register for websockets events
@@ -61,6 +61,7 @@ define(function (require) {
       * Added to the scope as right now every operation returns the full and update topology.
       */
       $scope.refreshTopology = function(topologyDTO, selectedNodeTemplate, initial) {
+        console.log('refreshing topology', topologyDTO);
         $scope.topology = topologyDTO;
         $scope.isTopologyTemplate = ($scope.topology.topology.delegateType === 'topologytemplate');
         // Process the topology to enrich it with some additional data
@@ -81,9 +82,16 @@ define(function (require) {
         });
       };
 
+      function getLastOperationId(nullAsString) {
+        if($scope.topology.lastOperationIndex > 0) {
+          return $scope.topology.operations[$scope.topology.lastOperationIndex].id;
+        }
+        return _.defined(nullAsString) && nullAsString ? 'null' : null;
+      }
+
       var editorResource = $alresource('rest/latest/editor/:topologyId/execute');
       $scope.execute = function(operation, successCallback, errorCallback, selectedNodeTemplate) {
-        operation.previousOperationId = $scope.topology.lastOperationId;
+        operation.previousOperationId = getLastOperationId();
         // execute operations, create is a post
         return editorResource.create({
           topologyId: $scope.topologyId,
@@ -95,7 +103,7 @@ define(function (require) {
               successCallback(result);
             }
         }, function(error) {
-          if(_.defined(errorCallback)){
+          if(_.defined(errorCallback)) {
             errorCallback(error);
           }
           return error;
@@ -106,12 +114,34 @@ define(function (require) {
         console.log('saving');
       };
 
+      var editorUndoResource = $alresource('rest/latest/editor/:topologyId/undo');
       $scope.undo = function() {
-        console.log('undo');
+        var undoAt = $scope.topology.lastOperationIndex;
+        editorUndoResource.create({
+          topologyId: $scope.topologyId,
+          at: undoAt,
+          lastOperationId: getLastOperationId(true)
+        }, null, function(result) {
+          if(_.undefined(result.error)) {
+            $scope.refreshTopology(result.data);
+          }
+        });
       };
-
       $scope.redo = function() {
-        console.log('redo');
+        if($scope.topology.operations.length === $scope.topology.lastOperationIndex) {
+          // nothing to redo.
+          return;
+        }
+        var undoAt = $scope.topology.lastOperationIndex + 1;
+        editorUndoResource.create({
+          topologyId: $scope.topologyId,
+          at: undoAt,
+          lastOperationId: getLastOperationId(true)
+        }, null, function(result) {
+          if(_.undefined(result.error)) {
+            $scope.refreshTopology(result.data);
+          }
+        });
       };
 
       // Initial load of the topology

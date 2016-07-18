@@ -35,8 +35,10 @@ public class EditionContext {
     private ToscaContext.Context toscaContext;
     /** Path to the topology's local git repository. */
     private Path localGitPath;
-    /** The operation under processing */
+    /** The operation under processing if any or null. */
     private AbstractEditorOperation currentOperation;
+    /** The index of the operation considered as the last operation (may be in the middle based on undo/redo) */
+    private int lastOperationIndex = -1;
     /** List of commands that have been applied to the topology from the last-saved version. */
     private List<AbstractEditorOperation> operations = Lists.newArrayList();
     /** Root of the file hierarchy. */

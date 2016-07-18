@@ -23,6 +23,7 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyService;
+import alien4cloud.utils.CollectionUtils;
 import alien4cloud.utils.ReflectionUtil;
 
 /**
@@ -75,27 +76,6 @@ public class EditorService {
         checkSynchronization(operation);
     }
 
-    // trigger editor operation
-    @MessageMapping("/topology-editor/{topologyId}")
-    public <T extends AbstractEditorOperation> TopologyDTO execute(@DestinationVariable String topologyId, T operation) {
-        // get the topology context.
-        try {
-            initContext(topologyId, operation);
-            operation.setAuthor(AuthorizationUtil.getCurrentUser().getUserId());
-
-            // attach the topology tosca context and process the operation
-            IEditorOperationProcessor<T> processor = (IEditorOperationProcessor<T>) processorMap.get(operation.getClass());
-            processor.process(operation);
-            EditionContextManager.get().getOperations().add(operation);
-
-            // return the topology context
-            return dtoBuilder.buildTopologyDTO(EditionContextManager.get());
-        } finally {
-            EditionContextManager.get().setCurrentOperation(null);
-            topologyEditionContextManager.destroy();
-        }
-    }
-
     /**
      * Ensure that the request is synchronized with the current state of the edition.
      *
@@ -108,7 +88,8 @@ public class EditorService {
         }
         List<AbstractEditorOperation> operations = EditionContextManager.get().getOperations();
         // if someone performed some operations we have to ensure that the new operation is performed on top of a synchronized topology
-        if (operations.size() == 0 || operation.getPreviousOperationId().equals(operations.get(operations.size() - 1).getId())) {
+        if (((operations.size() == 0 || EditionContextManager.get().getLastOperationIndex() == -1) && operation.getPreviousOperationId() == null)
+                || operation.getPreviousOperationId().equals(operations.get(EditionContextManager.get().getLastOperationIndex()).getId())) {
             operation.setId(UUID.randomUUID().toString());
             EditionContextManager.get().setCurrentOperation(operation);
             return;
@@ -117,26 +98,75 @@ public class EditorService {
         throw new EditionConcurrencyException();
     }
 
+    // trigger editor operation
+    @MessageMapping("/topology-editor/{topologyId}")
+    public <T extends AbstractEditorOperation> TopologyDTO execute(@DestinationVariable String topologyId, T operation) {
+        // get the topology context.
+        try {
+            initContext(topologyId, operation);
+            operation.setAuthor(AuthorizationUtil.getCurrentUser().getUserId());
+
+            // attach the topology tosca context and process the operation
+            IEditorOperationProcessor<T> processor = (IEditorOperationProcessor<T>) processorMap.get(operation.getClass());
+            processor.process(operation);
+
+            List<AbstractEditorOperation> operations = EditionContextManager.get().getOperations();
+            if (EditionContextManager.get().getLastOperationIndex() == operations.size() - 1) {
+                // Clear the operations to 'redo'.
+                CollectionUtils.clearFrom(operations, EditionContextManager.get().getLastOperationIndex() + 1);
+            }
+            // update the last operation and index
+            EditionContextManager.get().getOperations().add(operation);
+            EditionContextManager.get().setLastOperationIndex(EditionContextManager.get().getOperations().size() - 1);
+
+            // return the topology context
+            return dtoBuilder.buildTopologyDTO(EditionContextManager.get());
+        } finally {
+            EditionContextManager.get().setCurrentOperation(null);
+            topologyEditionContextManager.destroy();
+        }
+    }
+
+    /**
+     * Undo or redo operations until the given index (including)
+     * 
+     * @param topologyId The id of the topology for which to undo or redo operations.
+     * @param at The index on which to place the undo/redo cursor (0 means no operations, then 1 is first operation etc.)
+     * @param lastOperationId The last known operation id for client optimistic locking.
+     * @return The topology DTO.
+     */
     public TopologyDTO undoRedo(String topologyId, int at, String lastOperationId) {
         try {
-            topologyEditionContextManager.init(topologyId);
-            // TODO check that the requested index (at) is in the operation range.
+            // create a fake undo operation just to check the last operation id
+            AbstractEditorOperation undoOperation = new AbstractEditorOperation() {
+            };
+            undoOperation.setPreviousOperationId(lastOperationId);
+            initContext(topologyId, undoOperation);
+
             if (0 > at || at > EditionContextManager.get().getOperations().size()) {
                 throw new NotFoundException("Unable to find the requested index for undo/redo");
             }
 
-            // create a fake undo operation
-            // initContext(topologyId, operation);
-            // TODO Improve this by avoiding dao query for cloning topology and keeping cache for TOSCA types that are required.
+            if ((at + 1) == EditionContextManager.get().getLastOperationIndex()) {
+                // nothing to change.
+                return dtoBuilder.buildTopologyDTO(EditionContextManager.get());
+            }
+
+            // TODO Improve this by avoiding dao query for (deep) cloning topology and keeping cache for TOSCA types that are required.
             topologyEditionContextManager.reset();
-            
 
+            for (int i = 0; i < at; i++) {
+                AbstractEditorOperation operation = EditionContextManager.get().getOperations().get(i);
+                IEditorOperationProcessor processor = processorMap.get(operation.getClass());
+                processor.process(operation);
+            }
 
-            // TODO Replay all operations until the given index
+            EditionContextManager.get().setLastOperationIndex(at - 1);
 
             return dtoBuilder.buildTopologyDTO(EditionContextManager.get());
         } catch (IOException e) {
-            // TODO throw exception as undo failed.
+            // FIXME undo should be fail-safe...
+            return null;
         } finally {
             EditionContextManager.get().setCurrentOperation(null);
             topologyEditionContextManager.destroy();
@@ -166,7 +196,9 @@ public class EditorService {
     }
 
     /**
-     * Performs a git push.
+     * Push the content to a remote git repository.
+     *
+     * Note that conflicts are not managed in a4c. In case of conflicts a new branch is created for manual merge by users.
      */
     public void push() {
 

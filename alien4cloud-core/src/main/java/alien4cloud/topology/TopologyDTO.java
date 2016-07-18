@@ -24,8 +24,8 @@ import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 @NoArgsConstructor
 public class TopologyDTO extends AbstractTopologyDTO<Topology> {
     private TreeNode archiveContentTree;
+    private int lastOperationIndex;
     private List<AbstractEditorOperation> operations;
-    private String lastOperationId;
 
     public TopologyDTO(Topology topology, Map<String, IndexedNodeType> nodeTypes, Map<String, IndexedRelationshipType> relationshipTypes,
             Map<String, IndexedCapabilityType> capabilityTypes, Map<String, Map<String, Set<String>>> outputCapabilityProperties,
