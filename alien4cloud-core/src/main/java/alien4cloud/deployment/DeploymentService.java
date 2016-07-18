@@ -95,21 +95,29 @@ public class DeploymentService {
         return deployment;
     }
 
-
     /**
-     * Get a deployment for a given environment
+     * Get a deployment for a given environment/
      *
      * @param applicationEnvironmentId id of the environment
-     * @return active deployment or null if not exist
+     * @return active deployment if exist or the last, null if the application environment has not been deployed
      */
     public Deployment getDeployment(String applicationEnvironmentId) {
         Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "environmentId" },
                 new String[][] { new String[] { applicationEnvironmentId } });
-        GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, 1);
+        GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, Integer.MAX_VALUE);
+
+        Deployment lastDeployment = null;
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
-            return dataResult.getData()[0];
+            lastDeployment = dataResult.getData()[0];
+            for (Deployment deployment : dataResult.getData()) {
+                if (deployment.getEndDate() == null) {
+                    return deployment;
+                } else if (deployment.getEndDate().after(lastDeployment.getEndDate())) {
+                    lastDeployment = deployment;
+                }
+            }
         }
-        return null;
+        return lastDeployment;
     }
 
     /**
