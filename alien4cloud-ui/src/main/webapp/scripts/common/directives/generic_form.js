@@ -359,7 +359,7 @@ define(function(require) {
       link: function(scope, element) {
         FORMS.initFormScope('toscaTypeFormLabel', scope, element, false);
         scope.inputChanged = function(propertyDefinition, propertyValue) {
-         if (_.undefined(propertyValue)) {
+          if (_.undefined(propertyValue)) {
             FORMS.deleteValueForPath(scope.rootObject, scope.path);
             if (scope.configuration.automaticSave) {
               scope.saveAction(scope.rootObject);
