@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.FilterBuilder;
+import org.springframework.context.ApplicationListener;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,12 +21,13 @@ import alien4cloud.audit.model.AuditTrace;
 import alien4cloud.audit.model.Method;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.events.HALeaderElectionEvent;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.security.AuthorizationUtil;
 
 @Component
 @Slf4j
-public class AuditService {
+public class AuditService implements ApplicationListener<HALeaderElectionEvent> {
 
     public static final String CONTROLLER_SUFFIX = "Controller";
 
@@ -48,6 +50,7 @@ public class AuditService {
         }
         return this.auditConfiguration;
     }
+
 
     public synchronized void saveAuditConfiguration(AuditConfiguration auditConfiguration) {
         alienDAO.save(auditConfiguration);
@@ -137,4 +140,14 @@ public class AuditService {
         }
         return audit;
     }
+
+    @Override
+    public void onApplicationEvent(HALeaderElectionEvent event) {
+        if (event.isLeader()) {
+            this.auditConfiguration = null;
+            getAuditConfiguration();
+        }
+        
+    }
+
 }

@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -75,5 +76,15 @@ public class Application {
         ServletRegistrationBean registration = new ServletRegistrationBean(imageServlet);
         registration.addUrlMappings("/img/*");
         return registration;
+    }
+
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer placeHolderConfigurer() {
+        PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
+        // this to avoid errors when properties are not resolvable
+        // beans should use default value syntax to verify that the property exists
+        // @Value("${some.key:#{null}}")
+        configurer.setIgnoreUnresolvablePlaceholders(true);
+        return configurer;
     }
 }

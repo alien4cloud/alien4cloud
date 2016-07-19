@@ -49,7 +49,7 @@ import com.google.common.collect.Lists;
  *
  * @author luc boutier
  */
-public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearchDAO {
+public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearchDAO {
     // private static final String SCORE_SCRIPT = "_score * ((doc.containsKey('alienScore') && !doc['alienScore'].empty) ? doc['alienScore'].value : 1)";
     @Resource
     private ElasticSearchClient esClient;

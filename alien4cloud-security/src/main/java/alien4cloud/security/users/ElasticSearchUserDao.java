@@ -9,7 +9,6 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import alien4cloud.security.model.User;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +16,7 @@ import alien4cloud.dao.ESGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.security.model.User;
 
 import com.google.common.collect.Maps;
 

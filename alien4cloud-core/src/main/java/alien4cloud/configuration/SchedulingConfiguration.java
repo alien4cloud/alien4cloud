@@ -31,4 +31,5 @@ public class SchedulingConfiguration {
         threadPoolTaskScheduler.setThreadNamePrefix("node-type-score-");
         return threadPoolTaskScheduler;
     }
+
 }

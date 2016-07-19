@@ -2,19 +2,21 @@ package alien4cloud.component;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.ScheduledFuture;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.Constants;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.events.HALeaderElectionEvent;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
@@ -27,7 +29,7 @@ import com.google.common.collect.Maps;
  */
 @Slf4j
 @Component
-public class NodeTypeScoreService implements Runnable {
+public class NodeTypeScoreService implements Runnable, ApplicationListener<HALeaderElectionEvent> {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienESDAO;
     @Resource(name = "node-type-score-scheduler")
@@ -42,12 +44,28 @@ public class NodeTypeScoreService implements Runnable {
     @Value("${components.search.boost.default}")
     private long defaultBoost;
 
+    private ScheduledFuture<?> scheduleFuture;
+
+    @Override
+    public void onApplicationEvent(HALeaderElectionEvent event) {
+        if (event.isLeader()) {
+            log.info("Instance is elected as leader, should switch on score service");
+            refreshBoostCompute();
+        } else {
+            log.info("Instance is banished as leader, should switch off score service");
+            if (scheduleFuture != null) {
+                scheduleFuture.cancel(true);
+            }
+        }
+    }
+
     /** Refresh boost for all indexed node types in the system. */
-    @PostConstruct
+    // @PostConstruct
     public void refreshBoostCompute() {
         long frequencyMs = frequencyH * 1000 * 60 * 60;
         Date date = new Date(System.currentTimeMillis() + frequencyMs);
-        scheduler.scheduleAtFixedRate(this, date, frequencyMs);
+        log.info("Type score is scheduled with {} ms frequency", frequencyMs);
+        scheduleFuture = scheduler.scheduleAtFixedRate(this, date, frequencyMs);
     }
 
     @Override
@@ -66,6 +84,9 @@ public class NodeTypeScoreService implements Runnable {
 
     private void processNodeTypes(IndexedNodeType[] indexedNodeTypes) {
         for (IndexedNodeType nodeType : indexedNodeTypes) {
+            if (log.isDebugEnabled()) {
+                log.debug("Processing node score for type {}", nodeType.getId());
+            }
             Map<String, String[]> usedNodeFiler = Maps.newHashMap();
             usedNodeFiler.put("nodeTemplates.value.type", new String[] { nodeType.getElementId() });
             // count the applications that uses the node-type

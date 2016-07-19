@@ -1,5 +1,5 @@
 server:
-  port: 8088
+  port: 8089
 
 # Configuration of alien4cloud's CSAR repository, temporary folder and upload settings.
 directories:
@@ -42,12 +42,26 @@ components.search.boost:
   frequency: 24
 
 # Configuration of the elastic search cluster.
+#elasticSearch:
+#  clusterName: alien4cloud
+#  local: false
+#  client: true
+#  transportClient: true
+#  # a comma separated list of host:port couples
+#  hosts: 52.208.113.95:9300,52.208.133.237:9300
+#  resetData: false
+#  prefix_max_expansions: 10
+
+# Configuration of the elastic search cluster.  
 elasticSearch:
   clusterName: escluster
   local: false
   client: false
+  transportClient: false
+  # a comma separated list of host:port couples
+  hosts: localhost
   resetData: false
-  prefix_max_expansions: 10
+  prefix_max_expansions: 10  
 
 # Configuration of default admin ensurer, if true it creates a default admin user if no admin can be found in the system.
 alien_security:
@@ -107,3 +121,18 @@ upload:
 
 audit:
   ttl: 1d
+
+ha:
+  ha_enabled: false
+  #  consulAgentIp: localhost
+  #  consulAgentPort: 8500
+  # the ip that will be given to consul for health check (can be a private ip)
+  instanceIp: 172.17.0.1
+  # health will be checked by consul using this period
+  healthCheckPeriodInSecond: 1
+  # the TTL of consul session (will be renewed at half TTL)
+  consulSessionTTLInSecond: 60
+  # the delay between the session invalidation and the lock release
+  consulLockDelayInSecond: 0
+  
+  
