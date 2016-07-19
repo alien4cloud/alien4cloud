@@ -41,17 +41,6 @@ components.search.boost:
   # define in hours at what frequency the components boost should be recalculated.
   frequency: 24
 
-# Configuration of the elastic search cluster.
-#elasticSearch:
-#  clusterName: alien4cloud
-#  local: false
-#  client: true
-#  transportClient: true
-#  # a comma separated list of host:port couples
-#  hosts: 52.208.113.95:9300,52.208.133.237:9300
-#  resetData: false
-#  prefix_max_expansions: 10
-
 # Configuration of the elastic search cluster.  
 elasticSearch:
   clusterName: escluster
