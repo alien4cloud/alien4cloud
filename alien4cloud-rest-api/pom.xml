@@ -18,6 +18,13 @@
   </properties>
 
   <dependencies>
+    <!-- TODO: Move to appropriate plugin -->
+    <dependency>
+      <groupId>com.orbitz.consul</groupId>
+      <artifactId>consul-client</artifactId>
+      <version>0.12.3</version>
+    </dependency>
+      
     <dependency>
       <groupId>alien4cloud</groupId>
       <artifactId>alien4cloud-core</artifactId>

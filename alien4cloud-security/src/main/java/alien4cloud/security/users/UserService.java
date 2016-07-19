@@ -7,28 +7,29 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import alien4cloud.security.model.Role;
-import alien4cloud.security.model.User;
-import alien4cloud.security.users.rest.UpdateUserRequest;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationListener;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.events.HALeaderElectionEvent;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.security.model.Group;
 import alien4cloud.security.groups.IAlienGroupDao;
+import alien4cloud.security.model.Group;
+import alien4cloud.security.model.Role;
+import alien4cloud.security.model.User;
+import alien4cloud.security.users.rest.UpdateUserRequest;
 import alien4cloud.utils.ReflectionUtil;
 
 import com.google.common.collect.Sets;
 
 @Component
-public class UserService {
+public class UserService implements ApplicationListener<HALeaderElectionEvent> {
 
     @Resource
     private IAlienUserDao alienUserDao;
@@ -48,7 +49,7 @@ public class UserService {
     private String email;
 
     /** Ensure that there is at least one user with admin role. */
-    @PostConstruct
+    // @PostConstruct
     public void ensureAdminUser() {
         if (!ensure) {
             return;
@@ -65,6 +66,13 @@ public class UserService {
 
             String[] roles = new String[] { Role.ADMIN.toString() };
             createUser(adminUserName, email, null, null, roles, adminPassword);
+        }
+    }
+
+    @Override
+    public void onApplicationEvent(HALeaderElectionEvent event) {
+        if (event.isLeader()) {
+            ensureAdminUser();
         }
     }
 
@@ -255,4 +263,5 @@ public class UserService {
         ArrayList<String> roles = new ArrayList(Arrays.asList(user.getRoles()));
         return roles.contains("ADMIN");
     }
+
 }

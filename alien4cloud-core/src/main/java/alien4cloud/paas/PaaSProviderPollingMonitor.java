@@ -133,6 +133,9 @@ public class PaaSProviderPollingMonitor implements Runnable {
 
     @Override
     public synchronized void run() {
+        if (log.isTraceEnabled()) {
+            log.trace("Poll scheduled");
+        }
         if (getEventsInProgress) {
             // Get events since is running
             return;
