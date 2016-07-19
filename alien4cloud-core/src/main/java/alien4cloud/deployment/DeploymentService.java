@@ -104,20 +104,15 @@ public class DeploymentService {
     public Deployment getDeployment(String applicationEnvironmentId) {
         Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "environmentId" },
                 new String[][] { new String[] { applicationEnvironmentId } });
-        GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, Integer.MAX_VALUE);
-
-        Deployment lastDeployment = null;
+        GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, null, null, 0, Integer.MAX_VALUE, "endDate", true);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
-            lastDeployment = dataResult.getData()[0];
-            for (Deployment deployment : dataResult.getData()) {
-                if (deployment.getEndDate() == null) {
-                    return deployment;
-                } else if (deployment.getEndDate().after(lastDeployment.getEndDate())) {
-                    lastDeployment = deployment;
-                }
+            if (dataResult.getData()[dataResult.getData().length -1].getEndDate() == null) {
+                return dataResult.getData()[dataResult.getData().length -1];
+            } else {
+                return dataResult.getData()[0];
             }
         }
-        return lastDeployment;
+        return null;
     }
 
     /**
