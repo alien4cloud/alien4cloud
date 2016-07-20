@@ -12,4 +12,9 @@ import org.alien4cloud.tosca.editor.operations.nodetemplate.AbstractNodeOperatio
 @Setter
 public class RemoveGroupMemberOperation extends AbstractNodeOperation {
     private String groupName;
+
+    @Override
+    public String commitMessage() {
+        return "remove member <" + getNodeName() + "> from group <" + groupName + ">";
+    }
 }

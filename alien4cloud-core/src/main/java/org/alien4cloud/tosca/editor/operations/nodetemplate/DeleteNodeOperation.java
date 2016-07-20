@@ -9,4 +9,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class DeleteNodeOperation extends AbstractNodeOperation {
+    @Override
+    public String commitMessage() {
+        return "delete node <" + getNodeName() + ">";
+    }
 }

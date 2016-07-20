@@ -11,4 +11,9 @@ import lombok.Setter;
 public class AddArtifactInputOperation extends AbstractNodeOperation {
     private String inputName;
     private String artifactName;
+
+    @Override
+    public String commitMessage() {
+        return "set the artifact <" + artifactName + "> from node <" + getNodeName() + "> to the input <" + inputName + ">";
+    }
 }

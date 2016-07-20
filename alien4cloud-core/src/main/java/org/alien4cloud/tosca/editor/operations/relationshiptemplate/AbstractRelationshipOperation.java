@@ -11,7 +11,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class AbstractRelationshipOperation extends AbstractNodeOperation {
+public abstract class AbstractRelationshipOperation extends AbstractNodeOperation {
     @NotBlank
     private String relationshipName;
 }

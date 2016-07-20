@@ -5,6 +5,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.exception.PropertyValueException;
+import org.alien4cloud.tosca.editor.model.EditionConcurrencyException;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.expression.ExpressionException;
 import org.springframework.http.HttpStatus;
@@ -97,8 +98,9 @@ public class RestTechnicalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public RestResponse<Void> invalidApplicationName(InvalidApplicationNameException e) {
-        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.INVALID_APPLICATION_NAME)
-                .message("An application name should not contains slash or backslash.").build()).build();
+        return RestResponseBuilder.<Void> builder().error(
+                RestErrorBuilder.builder(RestErrorCode.INVALID_APPLICATION_NAME).message("An application name should not contains slash or backslash.").build())
+                .build();
     }
 
     @ExceptionHandler(DeleteReferencedObjectException.class)
@@ -407,4 +409,14 @@ public class RestTechnicalExceptionHandler {
         return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).message(e.getMessage()).build()).build();
     }
 
+    @ExceptionHandler(value = EditionConcurrencyException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<Void> handleEditionConcurrencyException(EditionConcurrencyException e) {
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.DEPLOYMENT_NAMING_POLICY_ERROR).message(
+                        "Another user has changed the topology and your version is not consistent or topology edition session has expired." + e.getMessage())
+                        .build())
+                .build();
+    }
 }

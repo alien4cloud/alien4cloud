@@ -13,4 +13,9 @@ import lombok.Setter;
 public class RenameNodeOperation extends AbstractNodeOperation {
     @NotBlank
     private String newName;
+
+    @Override
+    public String commitMessage() {
+        return "rename node <" + getNodeName() + "> to <" + newName + ">";
+    }
 }

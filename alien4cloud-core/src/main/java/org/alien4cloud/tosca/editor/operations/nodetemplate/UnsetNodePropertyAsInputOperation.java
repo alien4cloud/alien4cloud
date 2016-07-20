@@ -6,4 +6,9 @@ package org.alien4cloud.tosca.editor.operations.nodetemplate;
 public class UnsetNodePropertyAsInputOperation extends AbstractNodeOperation {
     /** Id of the property */
     private String propertyName;
+
+    @Override
+    public String commitMessage() {
+        return "property <" + propertyName + "> of node <" + getNodeName() + "> is not tied to an input anymore.";
+    }
 }

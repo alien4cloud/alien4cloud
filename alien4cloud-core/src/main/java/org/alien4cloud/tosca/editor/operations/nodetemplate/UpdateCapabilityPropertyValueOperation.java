@@ -10,4 +10,12 @@ import lombok.Setter;
 @Setter
 public class UpdateCapabilityPropertyValueOperation extends UpdateNodePropertyValueOperation {
     private String capabilityName;
+
+    @Override
+    public String commitMessage() {
+        if (getPropertyValue() instanceof String) {
+            return "update value of property <" + getPropertyName() + "> from capability <" + getCapabilityName() + "> in node <" + getNodeName() + "> to <" + getPropertyValue() + ">";
+        }
+        return "update value of property <" + getPropertyName() + "> from capability <" + getCapabilityName() + "> in node <" + getNodeName() + ">";
+    }
 }

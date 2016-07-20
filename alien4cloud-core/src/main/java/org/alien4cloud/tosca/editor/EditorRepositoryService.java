@@ -6,8 +6,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import alien4cloud.git.RepositoryManager;
+import alien4cloud.security.model.User;
 import alien4cloud.utils.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,10 +42,16 @@ public class EditorRepositoryService {
     public Path createGitDirectory(String topologyId) throws IOException {
         Path topologyGitPath = localGitRepositoryPath.resolve(topologyId);
         if (!Files.isDirectory(topologyGitPath)) {
-            log.debug("Initializing topology git repository {}", localGitRepositoryPath.toAbsolutePath());
+            log.debug("Initializing topology work directory at {}", localGitRepositoryPath.toAbsolutePath());
             Files.createDirectories(topologyGitPath);
         } else {
-            log.debug("Alien Repository folder already created at {}", localGitRepositoryPath.toAbsolutePath());
+            log.debug("Topology work directory already created at {}", localGitRepositoryPath.toAbsolutePath());
+        }
+        if (!RepositoryManager.isGitRepository(topologyGitPath)) {
+            RepositoryManager.create(topologyGitPath, "TOSCA topology created by Alien4Cloud.");
+            log.debug("Initializing topology local git repository at {}", localGitRepositoryPath.toAbsolutePath());
+        } else {
+            log.debug("Topology local git repository already created at {}", localGitRepositoryPath.toAbsolutePath());
         }
         return topologyGitPath;
     }
@@ -57,5 +67,27 @@ public class EditorRepositoryService {
         // check that directory is a git repo, if not initialize it and commit as initial data
         Path topologyGitPath = localGitRepositoryPath.resolve(topologyId);
         FileUtil.copy(source, topologyGitPath);
+    }
+
+    public void commit(String topologyId, String message) {
+        Path topologyGitPath = localGitRepositoryPath.resolve(topologyId);
+        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = null;
+        String useremail = null;
+        User user = auth == null ? null : (User) auth.getPrincipal();
+        if (user != null) {
+            username = user.getUsername();
+            useremail = user.getEmail();
+        }
+        RepositoryManager.commitAll(topologyGitPath, username, useremail, message);
+    }
+
+    /**
+     * Get the git history for a given topology.
+     * 
+     * @param topologyId The id of the topology.
+     */
+    public void getHistory(String topologyId) {
+
     }
 }

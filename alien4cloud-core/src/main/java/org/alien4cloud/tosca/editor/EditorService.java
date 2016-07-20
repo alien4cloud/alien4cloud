@@ -1,28 +1,36 @@
 package org.alien4cloud.tosca.editor;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.editor.exception.EditorIOException;
 import org.alien4cloud.tosca.editor.model.EditionConcurrencyException;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
+import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyService;
+import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.CollectionUtils;
 import alien4cloud.utils.ReflectionUtil;
 
@@ -31,14 +39,20 @@ import alien4cloud.utils.ReflectionUtil;
  */
 @Controller
 public class EditorService {
-    @Resource
+    @Inject
     private ApplicationContext applicationContext;
-    @Resource
+    @Inject
     private TopologyService topologyService;
-    @Resource
+    @Inject
+    private TopologyServiceCore topologyServiceCore;
+    @Inject
     private EditionContextManager topologyEditionContextManager;
     @Inject
     private TopologyDTOBuilder dtoBuilder;
+    @Inject
+    private IFileRepository artifactRepository;
+    @Inject
+    private EditorRepositoryService repositoryService;
 
     /** Processors map by type. */
     private Map<Class<?>, IEditorOperationProcessor<? extends AbstractEditorOperation>> processorMap = Maps.newHashMap();
@@ -66,6 +80,31 @@ public class EditorService {
         }
     }
 
+    /**
+     * Call this method only for checking optimistic locking and initializing edition context for method that don't process an operation (save, undo etc.)
+     * 
+     * @param topologyId The id of the topology under edition.
+     * @param lastOperationId The id of the last operation.
+     */
+    private void initContext(String topologyId, String lastOperationId) {
+        // create a fake operation for optimistic locking
+        AbstractEditorOperation optimisticLockOperation = new AbstractEditorOperation() {
+            @Override
+            public String commitMessage() {
+                return "This operation will never be enqueued and never commited.";
+            }
+        };
+        optimisticLockOperation.setPreviousOperationId(lastOperationId);
+        // init the edition context with the fake operation.
+        initContext(topologyId, optimisticLockOperation);
+    }
+
+    /**
+     * Initialize the edition context, (checks authorizations etc.)
+     * 
+     * @param topologyId The id of the topology under edition.
+     * @param operation The operation to be processed.
+     */
     private void initContext(String topologyId, AbstractEditorOperation operation) {
         topologyEditionContextManager.init(topologyId);
         // check authorization to update a topology
@@ -88,15 +127,16 @@ public class EditorService {
         }
         List<AbstractEditorOperation> operations = EditionContextManager.get().getOperations();
         // if someone performed some operations we have to ensure that the new operation is performed on top of a synchronized topology
-
-        boolean noPreviousOps = (operations.size() == 0 || EditionContextManager.get().getLastOperationIndex() == -1) ? operation.getPreviousOperationId() == null : false;
-        if (noPreviousOps || operation.getPreviousOperationId().equals(operations.get(EditionContextManager.get().getLastOperationIndex()).getId())) {
-            operation.setId(UUID.randomUUID().toString());
-            EditionContextManager.get().setCurrentOperation(operation);
-            return;
+        if (EditionContextManager.get().getLastOperationIndex() == -1) {
+            if (operation.getPreviousOperationId() != null) {
+                throw new EditionConcurrencyException();
+            }
+        } else if (!operation.getPreviousOperationId().equals(operations.get(EditionContextManager.get().getLastOperationIndex()).getId())) {
+            throw new EditionConcurrencyException();
         }
-        // throw an edition concurrency exception
-        throw new EditionConcurrencyException();
+        operation.setId(UUID.randomUUID().toString());
+        EditionContextManager.get().setCurrentOperation(operation);
+        return;
     }
 
     // trigger editor operation
@@ -138,11 +178,7 @@ public class EditorService {
      */
     public TopologyDTO undoRedo(String topologyId, int at, String lastOperationId) {
         try {
-            // create a fake undo operation just to check the last operation id
-            AbstractEditorOperation undoOperation = new AbstractEditorOperation() {
-            };
-            undoOperation.setPreviousOperationId(lastOperationId);
-            initContext(topologyId, undoOperation);
+            initContext(topologyId, lastOperationId);
 
             if (-1 > at || at > EditionContextManager.get().getOperations().size()) {
                 throw new NotFoundException("Unable to find the requested index for undo/redo");
@@ -174,14 +210,66 @@ public class EditorService {
         }
     }
 
-    // save
-    public void save() {
-        // save is updating the topology on elasticsearch and also performs a local commit
-        // TODO implements save
-        // topologyServiceCore.save(topology);
-        // topologyServiceCore.updateSubstitutionType(topology);
-        // TODO Copy and cleanup all temporary files from the executed operations.
-        // TODO LOCAL GIT COMMIT
+    /**
+     * Save a topology under edition. It updates the local repository files, the topology in elastic-search and perform a local git commit.
+     * 
+     * @param topologyId The id of the topology under edition.
+     * @param lastOperationId The id of the last operation.
+     */
+    public TopologyDTO save(String topologyId, String lastOperationId) {
+        try {
+            initContext(topologyId, lastOperationId);
+
+            EditionContext context = EditionContextManager.get();
+            if (context.getLastSavedOperationIndex() <= context.getLastOperationIndex()) {
+                // nothing to save..
+                return dtoBuilder.buildTopologyDTO(EditionContextManager.get());
+            }
+
+            StringBuilder commitMessage = new StringBuilder();
+            // copy and cleanup all temporary files from the executed operations.
+            for (int i = context.getLastSavedOperationIndex() + 1; i <= context.getLastOperationIndex(); i++) {
+                AbstractEditorOperation operation = context.getOperations().get(i);
+                if (operation instanceof UpdateFileOperation) {
+                    UpdateFileOperation fileOperation = (UpdateFileOperation) operation;
+                    Path targetPath = EditionContextManager.get().getLocalGitPath().resolve(fileOperation.getPath());
+                    Files.copy(artifactRepository.getFile(fileOperation.getTempFileId()), targetPath);
+                }
+                commitMessage.append(operation.getAuthor()).append(": ").append(operation.commitMessage()).append("\n");
+            }
+
+            saveYamlFile();
+
+            Topology topology = EditionContextManager.getTopology();
+            // Save the topology in elastic search
+            topologyServiceCore.save(topology);
+            topologyServiceCore.updateSubstitutionType(topology);
+
+            // Local git commit
+            repositoryService.commit(topologyId, commitMessage.toString());
+
+            // TODO add support for undo even after save, this require ability to rollback files to git state, we need file rollback support for that..
+            context.setOperations(Lists.newArrayList(context.getOperations().subList(context.getLastOperationIndex() + 1, context.getOperations().size())));
+            context.setLastOperationIndex(-1);
+
+            return dtoBuilder.buildTopologyDTO(EditionContextManager.get());
+        } catch (IOException e) {
+            // when there is a failure in file copy to the local repo.
+            // FIXME git revert to put back the local files state in the initial state.
+            throw new EditorIOException("Error while saving files state in local repository", e);
+        } finally {
+            EditionContextManager.get().setCurrentOperation(null);
+            topologyEditionContextManager.destroy();
+        }
+    }
+
+    private void saveYamlFile() throws IOException {
+        Topology topology = EditionContextManager.getTopology();
+        Path targetPath = EditionContextManager.get().getLocalGitPath().resolve(topology.getYamlFilePath());
+        String yaml = topologyService.getYaml(topology);
+        try (BufferedWriter writer = Files.newBufferedWriter(targetPath)) {
+            writer.write(yaml);
+        }
     }
 
     /**

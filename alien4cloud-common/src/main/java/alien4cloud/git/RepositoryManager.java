@@ -1,5 +1,6 @@
 package alien4cloud.git;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,18 +24,76 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RepositoryManager {
     /**
-     * Create a git repository that includes an empty readme file.
+     * Close a repository.
      * 
-     * @param targetDirectory The path of the repository to create.
+     * @param repository The repository to close.
      */
-    public static void create(Path targetDirectory) {
+    public static void close(Git repository) {
+        if (repository != null) {
+            repository.close();
+        }
+    }
+
+    /**
+     * Check if a given directory is a git repository.
+     * 
+     * @param targetDirectory The directory to check.
+     * @return true if the directory is a git repository, false if not.
+     */
+    public static boolean isGitRepository(Path targetDirectory) {
+        Git repository = null;
         try {
-            Git.init().setDirectory(targetDirectory.toFile()).call();
-            File file = targetDirectory.resolve("readme.txt").toFile();
-            file.createNewFile();
+            repository = Git.open(targetDirectory.toFile());
+            return true;
+        } catch (IOException e) {
+            return false;
+        } finally {
+            close(repository);
+        }
+    }
+
+    /**
+     * Create a git repository that includes an optional readme file.
+     *
+     * @param targetDirectory The path of the repository to create.
+     * @param readmeContentIfEmpty
+     */
+    public static void create(Path targetDirectory, String readmeContentIfEmpty) {
+        Git repository = null;
+        try {
+            repository = Git.init().setDirectory(targetDirectory.toFile()).call();
+            if (readmeContentIfEmpty != null) {
+                Path readmePath = targetDirectory.resolve("readme.txt");
+                File file = readmePath.toFile();
+                file.createNewFile();
+                try (BufferedWriter writer = Files.newBufferedWriter(readmePath)) {
+                    writer.write(readmeContentIfEmpty);
+                }
+            }
         } catch (GitAPIException | IOException e) {
             log.error("Error while creating git repository", e);
             throw new GitException("Error while creating git repository ", e);
+        } finally {
+            close(repository);
+        }
+    }
+
+    /**
+     * Commit all changes in the given repository.
+     *
+     * @param targetDirectory The target directory.
+     */
+    public static void commitAll(Path targetDirectory, String userName, String userEmail, String commitMessage) {
+        Git repository = null;
+        try {
+            repository = Git.open(targetDirectory.toFile());
+            repository.add().addFilepattern(".").call();
+            repository.commit().setCommitter(userName, userEmail).setMessage(commitMessage).call();
+        } catch (GitAPIException | IOException e) {
+            log.error("Error while trying to commit to git repository", e);
+            throw new GitException("Unable to commit to the git repository ", e);
+        } finally {
+            close(repository);
         }
     }
 
@@ -47,7 +106,12 @@ public class RepositoryManager {
      * @param localDirectory The path, relative to targetDirectory, in which to checkout or clone the git directory.
      */
     public static void cloneOrCheckout(Path targetDirectory, String repositoryUrl, String branch, String localDirectory) {
-        cloneOrCheckout(targetDirectory, repositoryUrl, null, null, branch, localDirectory);
+        Git repository = null;
+        try {
+            repository = cloneOrCheckout(targetDirectory, repositoryUrl, null, null, branch, localDirectory);
+        } finally {
+            close(repository);
+        }
     }
 
     /**

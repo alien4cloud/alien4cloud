@@ -11,4 +11,9 @@ import lombok.Setter;
 public class RenameRelationshipOperation extends AbstractRelationshipOperation {
     /** New name for the relationship template. */
     private String newRelationshipName;
+
+    @Override
+    public String commitMessage() {
+        return "rename relationship <" + getRelationshipName() + "> in node <" + getNodeName() + "> to <" + newRelationshipName + ">";
+    }
 }

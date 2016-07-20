@@ -7,6 +7,7 @@ import java.util.Set;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.groups.AddGroupMemberOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
+import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -14,10 +15,12 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.model.topology.*;
 import alien4cloud.topology.TopologyUtils;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Process the addition to a node template to a group. If the group does not exists, it is created.
  */
+@Component
 public class AddGroupMemberProcessor extends AbstractNodeProcessor<AddGroupMemberOperation> {
     @Override
     protected void processNodeOperation(AddGroupMemberOperation operation, NodeTemplate nodeTemplate) {

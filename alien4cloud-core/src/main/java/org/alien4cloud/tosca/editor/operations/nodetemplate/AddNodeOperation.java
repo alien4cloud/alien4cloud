@@ -14,4 +14,9 @@ public class AddNodeOperation extends AbstractNodeOperation {
     /** related NodeType id */
     @NotBlank
     private String indexedNodeTypeId;
+
+    @Override
+    public String commitMessage() {
+        return "add node <" + getNodeName() + "> of type <" + indexedNodeTypeId + ">";
+    }
 }

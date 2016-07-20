@@ -5,6 +5,7 @@ import java.util.Map;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.groups.RenameGroupOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.model.topology.NodeGroup;
@@ -15,6 +16,7 @@ import alien4cloud.topology.TopologyServiceCore;
 /**
  * Rename a group in the topology under edition.
  */
+@Component
 public class RenameGroupProcessor implements IEditorOperationProcessor<RenameGroupOperation> {
     @Override
     public void process(RenameGroupOperation operation) {

@@ -30,7 +30,9 @@ define(function (require) {
 
         this.selectedNodeId = null;
         // create svg element
-        this.svgGraph = svgServiceFactory.create(containerElement, 'topologySvgContainer', 'topology-svg');
+        var contextContainer = d3.select('#editor-context-container');
+        contextContainer.html('');
+        this.svgGraph = svgServiceFactory.create(containerElement, 'topologySvgContainer', 'topology-svg', contextContainer);
         this.svg = this.svgGraph.svgGroup;
         d3.selectAll('.d3-tip').remove();
         var self = this;

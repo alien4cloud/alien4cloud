@@ -14,4 +14,9 @@ public class ReplaceNodeOperation extends AbstractNodeOperation {
     /** Id of the new indexed node type to assign to the node. */
     @NotBlank
     private String newTypeId;
+
+    @Override
+    public String commitMessage() {
+        return "replace type of node <" + getNodeName() + "> to <" + newTypeId + ">";
+    }
 }

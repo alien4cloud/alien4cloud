@@ -11,4 +11,9 @@ import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 @Setter
 public class DeleteGroupOperation extends AbstractEditorOperation {
     private String groupName;
+
+    @Override
+    public String commitMessage() {
+        return "delete group <" + groupName + ">";
+    }
 }

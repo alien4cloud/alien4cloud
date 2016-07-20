@@ -6,11 +6,15 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
+import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
+import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.springframework.stereotype.Component;
 
 import com.google.common.cache.*;
 
+import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.dao.ESGenericIdDAO;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.topology.TopologyService;
@@ -34,6 +38,8 @@ public class EditionContextManager {
     private TopologyService topologyService;
     @Resource
     private EditorRepositoryService repositoryService;
+    @Inject
+    private IFileRepository artifactRepository;
 
     @Resource(name = "alien-es-dao")
     private ESGenericIdDAO dao;
@@ -49,19 +55,27 @@ public class EditionContextManager {
             public void onRemoval(RemovalNotification<String, EditionContext> removalNotification) {
                 log.debug("Topology edition context with id {} has been evicted. {} pending operations are lost.", removalNotification.getKey(),
                         removalNotification.getValue().getOperations().size());
-                // FIXME remove temp files ?
+                for (AbstractEditorOperation operation : removalNotification.getValue().getOperations()) {
+                    if (operation instanceof UpdateFileOperation) {
+                        String fileId = ((UpdateFileOperation) operation).getTempFileId();
+                        if (artifactRepository.isFileExist(fileId)) {
+                            artifactRepository.deleteFile(fileId);
+                        }
+                    }
+                }
             }
         }).build(new CacheLoader<String, EditionContext>() {
             @Override
             public EditionContext load(String topologyId) throws Exception {
                 log.debug("Loading topology context for topology {}", topologyId);
                 Topology topology = topologyServiceCore.getOrFail(topologyId);
-                // if we get it again this go through JSON and create a clone.
-                Topology clonedTopology = topologyServiceCore.getOrFail(topologyId);
+                if (topology.getYamlFilePath() == null) {
+                    topology.setYamlFilePath("topology.yml");
+                }
                 // check if the topology git repository has been created already
                 Path topologyGitPath = repositoryService.createGitDirectory(topologyId);
                 log.debug("Topology context for topology {} loaded", topologyId);
-                return new EditionContext(topology, clonedTopology, topologyGitPath);
+                return new EditionContext(topology, topologyGitPath);
             }
         });
     }
@@ -83,8 +97,8 @@ public class EditionContextManager {
      * @throws IOException In case the parsing of the directory content fails.
      */
     public void reset() throws IOException {
-        String topologyId = contextThreadLocal.get().getSavedTopology().getId();
-        contextThreadLocal.get().reset(topologyServiceCore.getOrFail(topologyId));
+        EditionContext context = contextThreadLocal.get();
+        contextThreadLocal.get().reset(topologyServiceCore.getOrFail(getTopology().getId()));
     }
 
     /**
@@ -102,7 +116,7 @@ public class EditionContextManager {
      * @return The thread's topology under edition.
      */
     public static Topology getTopology() {
-        return contextThreadLocal.get().getCurrentTopology();
+        return contextThreadLocal.get().getTopology();
     }
 
     /**

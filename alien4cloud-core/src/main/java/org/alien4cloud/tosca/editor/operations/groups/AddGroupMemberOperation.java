@@ -12,4 +12,9 @@ import org.alien4cloud.tosca.editor.operations.nodetemplate.AbstractNodeOperatio
 @Setter
 public class AddGroupMemberOperation extends AbstractNodeOperation {
     private String groupName;
+
+    @Override
+    public String commitMessage() {
+        return "add node <" + getNodeName() + "> to group <" + groupName + ">";
+    }
 }

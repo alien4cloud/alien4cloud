@@ -13,4 +13,9 @@ import lombok.Setter;
 public class RemoveInputArtifactOperation extends AbstractEditorOperation {
     /** The name of the input to add in the topology. */
     private String inputName;
+
+    @Override
+    public String commitMessage() {
+        return "remove input artifact <" + inputName + ">";
+    }
 }

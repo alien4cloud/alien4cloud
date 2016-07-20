@@ -8,4 +8,10 @@ public class SetRelationshipPropertyAsInputOperation extends AbstractRelationshi
     private String propertyName;
     /** The id of the input to associate to the property. */
     private String inputName;
+
+    @Override
+    public String commitMessage() {
+        return "set property <" + propertyName + "> of relationship <" + getRelationshipName() + "> in node <" + getNodeName() + "> to the input <" + inputName
+                + ">.";
+    }
 }

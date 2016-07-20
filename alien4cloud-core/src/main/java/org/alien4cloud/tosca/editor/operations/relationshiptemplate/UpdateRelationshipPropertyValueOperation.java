@@ -11,4 +11,13 @@ import lombok.Setter;
 public class UpdateRelationshipPropertyValueOperation extends AbstractRelationshipOperation {
     private String propertyName;
     private Object propertyValue;
+
+    @Override
+    public String commitMessage() {
+        if (getPropertyValue() instanceof String) {
+            return "update value of property <" + getPropertyName() + "> from relationship <" + getRelationshipName() + "> in node <" + getNodeName() + "> to <"
+                    + getPropertyValue() + ">";
+        }
+        return "update value of property <" + getPropertyName() + "> from relationship <" + getRelationshipName() + "> in node <" + getNodeName() + ">";
+    }
 }

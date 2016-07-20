@@ -78,6 +78,10 @@ public enum RestErrorCode {
     COMPONENT_MISSING_ERROR(700),
     COMPONENT_INTERNALTAG_ERROR(701),
 
+    // Editor errors
+    EDITOR_CONCURRENCY_ERROR(750),
+    EDITOR_IO_ERROR(751),
+
     // Topology management errors.
     // Node template properties handling errors
     PROPERTY_CONSTRAINT_VIOLATION_ERROR(800),

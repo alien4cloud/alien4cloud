@@ -20,4 +20,6 @@ public abstract class AbstractEditorOperation {
     private String author;
     /** This is used for optimistic locking and validating that operations are done in the right order. */
     private String previousOperationId;
+
+    public abstract String commitMessage();
 }

@@ -15,4 +15,9 @@ import lombok.Setter;
 public class UpdateFileOperation extends AbstractEditorOperation {
     private String path;
     private String tempFileId;
+
+    @Override
+    public String commitMessage() {
+        return "updated content of file <" + path + ">";
+    }
 }

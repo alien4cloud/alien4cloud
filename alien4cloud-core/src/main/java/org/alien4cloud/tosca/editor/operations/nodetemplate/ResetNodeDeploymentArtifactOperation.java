@@ -10,4 +10,8 @@ import lombok.Setter;
 @Setter
 public class ResetNodeDeploymentArtifactOperation extends AbstractNodeOperation {
     // TODO
+    @Override
+    public String commitMessage() {
+        return "reset the deployment artifact <" + "> of node <" + getNodeName() + "> to it's original value.";
+    }
 }

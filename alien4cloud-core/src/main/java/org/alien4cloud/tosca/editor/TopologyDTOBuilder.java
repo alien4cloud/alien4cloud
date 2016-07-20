@@ -30,7 +30,7 @@ public class TopologyDTOBuilder {
     @ToscaContextual
     public TopologyDTO buildTopologyDTO(EditionContext context) {
         TopologyDTO topologyDTO = new TopologyDTO();
-        buildAbstractTopologyDTO(context.getCurrentTopology(), topologyDTO);
+        buildAbstractTopologyDTO(context.getTopology(), topologyDTO);
         topologyDTO.setArchiveContentTree(context.getArchiveContentTree());
         topologyDTO.setLastOperationIndex(context.getLastOperationIndex());
         topologyDTO.setOperations(context.getOperations());

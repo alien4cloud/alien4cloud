@@ -10,7 +10,7 @@ import org.hibernate.validator.constraints.NotBlank;
  */
 @Getter
 @Setter
-public class AbstractNodeOperation extends AbstractEditorOperation {
+public abstract class AbstractNodeOperation extends AbstractEditorOperation {
     @NotBlank
     private String nodeName;
 }

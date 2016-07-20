@@ -15,4 +15,9 @@ public class AddInputOperation extends AbstractEditorOperation {
     private String inputName;
     /** The property definition to associate to the input. */
     private PropertyDefinition propertyDefinition;
+
+    @Override
+    public String commitMessage() {
+        return "add new input with name <" + inputName + "> and type <" + propertyDefinition.getType() + ">";
+    }
 }

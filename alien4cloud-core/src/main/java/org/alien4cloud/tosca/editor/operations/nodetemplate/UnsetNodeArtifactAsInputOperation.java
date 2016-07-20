@@ -5,4 +5,9 @@ package org.alien4cloud.tosca.editor.operations.nodetemplate;
  */
 public class UnsetNodeArtifactAsInputOperation extends AbstractNodeOperation {
     private String artifactName;
+
+    @Override
+    public String commitMessage() {
+        return "artifact <" + artifactName + "> from node <" + getNodeName() + "> is not linked to an input artifact anymore.";
+    }
 }

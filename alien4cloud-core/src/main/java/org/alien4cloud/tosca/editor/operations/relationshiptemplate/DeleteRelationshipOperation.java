@@ -12,4 +12,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class DeleteRelationshipOperation extends AbstractRelationshipOperation {
+    @Override
+    public String commitMessage() {
+        return "delete relationship with name <" + getRelationshipName() + "> on node <" + getNodeName() + ">";
+    }
 }

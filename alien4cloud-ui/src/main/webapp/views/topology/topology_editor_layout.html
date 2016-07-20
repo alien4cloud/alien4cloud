@@ -13,8 +13,9 @@
 </ul>
 <div class="vertical-panel-shift">
   <div id="editor-head-menu" class="topology-editor" style="margin-top: -10px; padding:2px; padding-left:20px; padding-right:20px; background-color: #666666;">
-    <button type="button" class="btn btn-success btn-xs" ng-click="save()">
-      <i class="fa fa-save"></i> {{'EDITOR.SAVE' | translate}}
+    <button type="button" class="btn btn-success btn-xs" ng-click="save()"
+      ng-disabled="topology.operations.length === 0 || topology.lastOperationIndex===-1">
+      <i class="fa fa-save"></i> {{'EDITOR.SAVE' | translate}} {{topology.operations.length}}
     </button>
 
     <div class="btn-group" role="group">
@@ -35,6 +36,9 @@
         {{topologyVersion.version.length > 20 ? '...' : ''}}
       </ui-select-choices>
     </ui-select>
+
+    <div id="editor-context-container" class="pull-right">
+    </div>
    </div>
   <div ui-view></div>
 </div>

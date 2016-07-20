@@ -23,4 +23,10 @@ public class AddRelationshipOperation extends AbstractRelationshipOperation {
     private String target;
     /** Name of the capability on the target node. */
     private String targetedCapabilityName;
+
+    @Override
+    public String commitMessage() {
+        return "add relationship <" + getRelationshipName() + "> of type <" + relationshipType + ":" + relationshipVersion + "> source: [ node <"
+                + getNodeName() + "> requirement <" + requirementName + "> ] target: [ node <" + target + "> capability <" + targetedCapabilityName + "> ]";
+    }
 }

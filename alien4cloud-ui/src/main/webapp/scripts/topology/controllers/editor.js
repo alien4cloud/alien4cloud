@@ -62,7 +62,6 @@ define(function (require) {
       * Added to the scope as right now every operation returns the full and update topology.
       */
       $scope.refreshTopology = function(topologyDTO, selectedNodeTemplate, initial) {
-        console.log('refreshing topology', topologyDTO);
         $scope.topology = topologyDTO;
         $scope.isTopologyTemplate = ($scope.topology.topology.delegateType === 'topologytemplate');
         // Process the topology to enrich it with some additional data
@@ -83,16 +82,16 @@ define(function (require) {
         });
       };
 
-      function getLastOperationId(nullAsString) {
+      $scope.getLastOperationId = function(nullAsString) {
         if($scope.topology.lastOperationIndex >= 0) {
           return $scope.topology.operations[$scope.topology.lastOperationIndex].id;
         }
         return _.defined(nullAsString) && nullAsString ? 'null' : null;
-      }
+      };
 
       var editorResource = $alresource('rest/latest/editor/:topologyId/execute');
       $scope.execute = function(operation, successCallback, errorCallback, selectedNodeTemplate) {
-        operation.previousOperationId = getLastOperationId();
+        operation.previousOperationId = $scope.getLastOperationId();
         // execute operations, create is a post
         return editorResource.create({
           topologyId: $scope.topologyId,
@@ -111,8 +110,20 @@ define(function (require) {
         }).$promise;
       };
 
+      var editorSaveResource = $alresource('rest/latest/editor/:topologyId');
       $scope.save = function() {
-        console.log('saving');
+        if($scope.topology.operations.length === 0 || $scope.topology.lastOperationIndex===-1) {
+          // nothing to save
+          return;
+        }
+        editorSaveResource.create({
+          topologyId: $scope.topologyId,
+          lastOperationId: $scope.getLastOperationId(true)
+        }, null, function(result) {
+          if(_.undefined(result.error)) {
+            $scope.refreshTopology(result.data);
+          }
+        });
       };
 
       var editorUndoResource = $alresource('rest/latest/editor/:topologyId/undo');
@@ -120,7 +131,7 @@ define(function (require) {
         editorUndoResource.create({
           topologyId: $scope.topologyId,
           at: at,
-          lastOperationId: getLastOperationId(true)
+          lastOperationId: $scope.getLastOperationId(true)
         }, null, function(result) {
           if(_.undefined(result.error)) {
             $scope.refreshTopology(result.data);
@@ -144,6 +155,18 @@ define(function (require) {
 
       // key binding
       hotkeys.bindTo($scope)
+      .add({
+        combo: 'mod+s',
+        description: 'save and commit the operations.',
+        callback: function(e) {
+          $scope.save();
+          if(e.preventDefault) {
+            e.preventDefault();
+          } else {
+            e.returnValue = false;
+          }
+        }
+      })
         .add({
           combo: 'mod+z',
           description: 'undo the last operation.',

@@ -76,13 +76,13 @@ public class EditorController {
      * Method exposed to REST to upload a file in an archive under edition.
      * 
      * @param topologyId The id of the topology/archive under edition.
-     * @param previousOperationId The id of the user last known operation (for optimistic locking edition).
+     * @param lastOperationId The id of the user last known operation (for optimistic locking edition).
      * @param path The path in which to save/override the file in the archive.
      * @param file The file to save in the archive.
      */
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(value = "/{topologyId}/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<TopologyDTO> upload(@PathVariable String topologyId, @RequestParam("previousOperationId") String previousOperationId,
+    public RestResponse<TopologyDTO> upload(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId,
             @RequestParam("path") String path, @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
         // The controller saves the file in a temporary location and create a UpdateFileOperation to be sent in the edition context.
         String artifactFileId = null;
@@ -96,7 +96,7 @@ public class EditorController {
         }
         try {
             UpdateFileOperation updateFileOperation = new UpdateFileOperation(path, artifactFileId);
-            updateFileOperation.setPreviousOperationId(previousOperationId);
+            updateFileOperation.setPreviousOperationId(lastOperationId);
             TopologyDTO topologyDTO = editorService.execute(topologyId, updateFileOperation);
             return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
         } catch (EditionConcurrencyException e) {
@@ -135,9 +135,17 @@ public class EditorController {
      * Save the given topology and commit to the local git repository.
      *
      * @param topologyId The id of the topology/archive under edition to save.
+     * @param lastOperationId The id of the last operation from editor client point of view (for optimistic locking).
+     * @return A topology DTO with the updated topology.
      */
-    public void save(@PathVariable String topologyId) {
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> save(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId) {
+        if (lastOperationId != null && "null".equals(lastOperationId)) {
+            lastOperationId = null;
+        }
         // Call the service that will save and commit
-
+        TopologyDTO topologyDTO = editorService.save(topologyId, lastOperationId);
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
     }
 }

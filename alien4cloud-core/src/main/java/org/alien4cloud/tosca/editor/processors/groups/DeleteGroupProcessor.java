@@ -5,6 +5,7 @@ import java.util.Map;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.groups.DeleteGroupOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.springframework.stereotype.Component;
 
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
@@ -14,6 +15,7 @@ import alien4cloud.topology.TopologyServiceCore;
 /**
  * Delete a group from a topology.
  */
+@Component
 public class DeleteGroupProcessor implements IEditorOperationProcessor<DeleteGroupOperation> {
     @Override
     public void process(DeleteGroupOperation operation) {

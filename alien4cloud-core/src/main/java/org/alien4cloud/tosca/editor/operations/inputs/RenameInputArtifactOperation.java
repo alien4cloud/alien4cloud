@@ -12,4 +12,9 @@ import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 public class RenameInputArtifactOperation extends AbstractEditorOperation {
     private String inputName;
     private String newInputName;
+
+    @Override
+    public String commitMessage() {
+        return "rename input artifact <" + inputName + "> to <" + newInputName + ">";
+    }
 }

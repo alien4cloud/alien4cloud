@@ -13,4 +13,9 @@ import lombok.Setter;
 public class RenameGroupOperation extends AbstractEditorOperation {
     private String groupName;
     private String newGroupName;
+
+    @Override
+    public String commitMessage() {
+        return "rename group <" + groupName + "> to <" + newGroupName + ">";
+    }
 }

@@ -6,4 +6,9 @@ package org.alien4cloud.tosca.editor.operations.nodetemplate;
 public class SetNodeArtifactAsInputOperation extends AbstractNodeOperation {
     private String artifactName;
     private String inputName;
+
+    @Override
+    public String commitMessage() {
+        return "set the artifact <" + inputName + "> of node <" + getNodeName() + "> to input artifact <" + artifactName + ">";
+    }
 }

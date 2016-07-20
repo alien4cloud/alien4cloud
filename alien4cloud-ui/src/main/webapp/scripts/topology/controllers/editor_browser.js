@@ -95,7 +95,7 @@ define(function (require) {
       if($scope.filePath.length ===0 || $scope.filePath.endsWith('/')) {
         $scope.filePath += file.name;
       }
-      uploadService.doUpload(file, {file: file, url: url, data: {previousOperationId: 'none', path: $scope.filePath}});
+      uploadService.doUpload(file, {file: file, url: url, data: {lastOperationId: $scope.getLastOperationId(), path: $scope.filePath}});
     };
 
   }]);
