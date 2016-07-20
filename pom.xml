@@ -81,7 +81,7 @@
     <springockito.version>1.0.4</springockito.version>
 
     <!-- Build tools -->
-    <java.version>1.7</java.version>
+    <java.version>1.8</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.version>2.3.2</maven.compiler.version>
     <maven.assembly.version>2.4</maven.assembly.version>
