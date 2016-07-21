@@ -1,0 +1,44 @@
+<div id="history-explorer" class="topology-editor" style="height: {{dimensions.height}}px; width: {{dimensions.width}}px;">
+  <div class="topology-row" style="height: {{dimensions.height}}px;">
+    <div id="history-box" class="topology-column" style="width: {{displays.history.size}}px;">
+      <div class="topology-column-box">
+        <div class="topology-column-content-left" style="padding-top: 10px;">
+          <table class="table table-hover">
+            <thead>
+              <th>author</th>
+              <th>operation</th>
+            </thead>
+            <tbody>
+              <tr ng-repeat="operation in topology.operations.slice().reverse()" ng-click="selectOperation(operation)">
+                <td>{{operation.author}}</td>
+                <td>{{getShortName(operation.type)}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="topology-column-menu topology-column-menu-right">
+          <i id="history-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-e resizable-bar"></i>
+        </div>
+      </div>
+    </div>
+    <div id="file-content" class="topology-column" style="padding: 10px;">
+      <div ng-if="selectedOperation">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="topology-column-content-head">{{'EDITOR.HISTORY.DETAIL' | translate}}</div>
+          </div>
+        </div>
+        <div class="row" ng-repeat="(key, value) in selectedOperation">
+          <div ng-if="key !== 'previousOperationId' && key !== 'id'">
+            <div class="col-md-2">
+              <strong>{{key}}</strong>
+            </div>
+            <div class="col-md-10">
+              {{value}}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

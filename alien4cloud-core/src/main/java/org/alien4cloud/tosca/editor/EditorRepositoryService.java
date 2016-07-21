@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -11,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.git.RepositoryManager;
+import alien4cloud.git.SimpleGitHistoryEntry;
 import alien4cloud.security.model.User;
 import alien4cloud.utils.FileUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -86,8 +88,12 @@ public class EditorRepositoryService {
      * Get the git history for a given topology.
      * 
      * @param topologyId The id of the topology.
+     * @param from Start to query from the given history.
+     * @param count The number of history entries to retrieve.
+     * @return A list of simplified history entries.
      */
-    public void getHistory(String topologyId) {
-
+    public List<SimpleGitHistoryEntry> getHistory(String topologyId, int from, int count) {
+        Path topologyGitPath = localGitRepositoryPath.resolve(topologyId);
+        return RepositoryManager.getHistory(localGitRepositoryPath, from, count);
     }
 }

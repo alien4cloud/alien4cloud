@@ -195,7 +195,6 @@ define(function (require) {
       };
 
       $scope.getIcon = toscaService.getIcon;
-      $scope.getShortName = toscaService.simpleName;
       // check if compute type
       $scope.isComputeType = function(nodeTemplate) {
         if (_.undefined($scope.topology) || _.undefined(nodeTemplate)) {

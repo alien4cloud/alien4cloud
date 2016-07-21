@@ -11,8 +11,9 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import alien4cloud.git.SimpleGitHistoryEntry;
 import org.alien4cloud.tosca.editor.exception.EditorIOException;
-import org.alien4cloud.tosca.editor.model.EditionConcurrencyException;
+import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
@@ -221,7 +222,7 @@ public class EditorService {
             initContext(topologyId, lastOperationId);
 
             EditionContext context = EditionContextManager.get();
-            if (context.getLastSavedOperationIndex() <= context.getLastOperationIndex()) {
+            if (context.getLastOperationIndex() <= context.getLastSavedOperationIndex()) {
                 // nothing to save..
                 return dtoBuilder.buildTopologyDTO(EditionContextManager.get());
             }
@@ -293,8 +294,8 @@ public class EditorService {
 
     }
 
-    public void history() {
-        // repository.log().setMaxCount(10).call().iterator()
+    public List<SimpleGitHistoryEntry> history(String topologyId, int from, int count) {
+        return repositoryService.getHistory(topologyId, from, count);
     }
 
 }

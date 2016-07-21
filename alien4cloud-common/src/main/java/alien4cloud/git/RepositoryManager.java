@@ -5,7 +5,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -13,6 +15,8 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+
+import com.google.common.collect.Lists;
 
 import alien4cloud.exception.GitException;
 import alien4cloud.utils.FileUtil;
@@ -234,6 +238,33 @@ public class RepositoryManager {
     private static void setCredentials(TransportCommand<?, ?> command, String username, String password) {
         if (username != null) {
             command.setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password));
+        }
+    }
+
+    /**
+     * Return a simplified git commit history list.
+     * 
+     * @param repositoryDirectory The directory in which the git repo exists.
+     * @param from Start to query from the given history.
+     * @param count The number of history entries to retrieve.
+     * @return A list of simplified history entries.
+     */
+    public static List<SimpleGitHistoryEntry> getHistory(Path repositoryDirectory, int from, int count) {
+        Git repository = null;
+        try {
+            repository = Git.open(repositoryDirectory.toFile());
+            Iterable<RevCommit> commits = repository.log().setSkip(from).setMaxCount(count).call();
+            List<SimpleGitHistoryEntry> historyEntries = Lists.newArrayList();
+            for (RevCommit commit : commits) {
+                historyEntries.add(new SimpleGitHistoryEntry(commit.getId().getName(), commit.getAuthorIdent().getName(),
+                        commit.getAuthorIdent().getEmailAddress(), commit.getFullMessage(), new Date(commit.getCommitTime() * 1000L)));
+            }
+            return historyEntries;
+        } catch (GitAPIException | IOException e) {
+            log.error("Error while trying to commit to git repository", e);
+            throw new GitException("Unable to commit to the git repository ", e);
+        } finally {
+            close(repository);
         }
     }
 }

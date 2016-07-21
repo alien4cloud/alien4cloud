@@ -62,7 +62,7 @@ define(function (require) {
 
     states.state(prefix + '.history', {
       url: '/history',
-      templateUrl: 'views/topology/topology_browser.html',
+      templateUrl: 'views/topology/editor_history.html',
       controller: 'TopologyHistoryCtrl',
       menu: {
         id: 'am.' + prefix + '.history',

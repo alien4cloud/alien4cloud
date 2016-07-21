@@ -15,7 +15,7 @@ define(function (require) {
     var openOnFile = $stateParams.file;
 
     $scope.displays = {
-      tree: { active: true, size: 400, selector: '#tree-box', only: ['topology', 'catalog'] },
+      tree: { active: true, size: 400, selector: '#tree-box', only: [] },
     };
     topoEditDisplay($scope, '#editor-explorer');
 

@@ -5,7 +5,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.exception.PropertyValueException;
-import org.alien4cloud.tosca.editor.model.EditionConcurrencyException;
+import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.expression.ExpressionException;
 import org.springframework.http.HttpStatus;
