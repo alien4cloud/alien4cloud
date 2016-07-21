@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.editor;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.google.common.io.Closeables;
 
 import alien4cloud.component.repository.IFileRepository;
+import alien4cloud.git.SimpleGitHistoryEntry;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.topology.TopologyDTO;
@@ -147,5 +149,13 @@ public class EditorController {
         // Call the service that will save and commit
         TopologyDTO topologyDTO = editorService.save(topologyId, lastOperationId);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId}/history", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<List<SimpleGitHistoryEntry>> history(@PathVariable String topologyId, @RequestParam("from") int from,
+            @RequestParam("count") int count) {
+        List<SimpleGitHistoryEntry> historyEntries = editorService.history(topologyId, from, count);
+        return RestResponseBuilder.<List<SimpleGitHistoryEntry>> builder().data(historyEntries).build();
     }
 }

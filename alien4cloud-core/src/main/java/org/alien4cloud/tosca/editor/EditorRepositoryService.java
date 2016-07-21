@@ -94,6 +94,6 @@ public class EditorRepositoryService {
      */
     public List<SimpleGitHistoryEntry> getHistory(String topologyId, int from, int count) {
         Path topologyGitPath = localGitRepositoryPath.resolve(topologyId);
-        return RepositoryManager.getHistory(localGitRepositoryPath, from, count);
+        return RepositoryManager.getHistory(topologyGitPath, from, count);
     }
 }
