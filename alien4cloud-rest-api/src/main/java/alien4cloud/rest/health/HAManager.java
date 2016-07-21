@@ -1,8 +1,17 @@
 package alien4cloud.rest.health;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
@@ -10,6 +19,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,7 +35,6 @@ import org.springframework.stereotype.Component;
 import alien4cloud.events.HALeaderElectionEvent;
 
 import com.google.common.base.Optional;
-import com.google.common.net.HostAndPort;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.Consul.Builder;
 import com.orbitz.consul.ConsulException;
@@ -49,10 +60,10 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
     @Value("${ha.ha_enabled:#{false}}")
     private boolean haEnabled;
 
-    @Value("${ha.consulAgentIp:#{null}}")
+    @Value("${ha.consulAgentIp:127.0.0.1}")
     private String consulAgentIp;
 
-    @Value("${ha.consulAgentPort:#{0}}")
+    @Value("${ha.consulAgentPort:8500}")
     private int consulAgentPort;
 
     private String instanceId;
@@ -60,16 +71,16 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
     @Value("${ha.instanceIp:#{null}}")
     private String instanceIp;
 
-    @Value("${ha.healthCheckPeriodInSecond:#{5}}")
+    @Value("${ha.healthCheckPeriodInSecond:5}")
     private long healthCheckPeriodInSecond;
 
-    @Value("${ha.consulSessionTTLInSecond:#{1800}}")
+    @Value("${ha.consulSessionTTLInSecond:1800}")
     private long consulSessionTTLInSecond;
 
-    @Value("${ha.consulLockDelayInSecond:#{15}}")
+    @Value("${ha.consulLockDelayInSecond:15}")
     private long consulLockDelayInSecond;
 
-    @Value("${ha.consulQueryTimeoutInMin:#{3}}")
+    @Value("${ha.consulQueryTimeoutInMin:3}")
     private int consulQueryTimeoutInMin;
 
     @Value("${ha.consulConnectTimeoutInMillis:#{1000 * 30}}" /* default 30 s */)
@@ -77,6 +88,18 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
 
     @Value("${ha.consulReadTimeoutInMillis:#{1000 * 60 * 5}}" /* default 5 min */)
     private long consulReadTimeoutInMillis;
+
+    @Value("${ha.consul_tls_enabled:#{false}}")
+    private boolean consulTlsEnabled;
+
+    @Value("${ha.keyStorePath:#{null}}")
+    private String keyStorePath;
+
+    @Value("${ha.trustStorePath:#{null}}")
+    private String trustStorePath;
+
+    @Value("${ha.keyStoresPwd:#{null}}")
+    private String keyStoresPwd;
 
     @Resource
     private ApplicationContext alienContext;
@@ -104,20 +127,37 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
         }
 
         Builder consulBuilder = Consul.builder();
-        if (consulAgentIp != null && consulAgentPort > 0) {
-            consulBuilder = consulBuilder.withHostAndPort(HostAndPort.fromParts(consulAgentIp, consulAgentPort));
-            if (log.isDebugEnabled()) {
-                log.debug("Will connect to consul using ip <{}> and port <{}>");
-            }
-        } else {
-            // if consulAgentIp && consulAgentPort are not specified, connect to localhost agent
-            if (log.isDebugEnabled()) {
-                log.debug("Will connect to localhost consul");
-            }
-        }
+        String url = String.format("%s://%s:%d", this.consulTlsEnabled ? "https" : "http", consulAgentIp, consulAgentPort);
+        consulBuilder.withUrl(url);
         if (log.isDebugEnabled()) {
-            log.debug("Will connect to consul using {}ms connect timeout and {}ms read timeout", consulConnectTimeoutInMillis,
+            log.debug("Will connect to consul using url <{}>, {}ms connect timeout and {}ms read timeout", url, consulConnectTimeoutInMillis,
                     consulReadTimeoutInMillis);
+        }
+
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug("Consul connection is secured, initializing the SSL Context using key store <{}> and trust store <{}>", this.keyStorePath,
+                        this.trustStorePath);
+            }
+            SSLContext sslContext = SSLContext.getInstance("TLSv1");
+
+            KeyStore ks = KeyStore.getInstance("JKS");
+            ks.load(new FileInputStream(new File(this.keyStorePath)), this.keyStoresPwd.toCharArray());
+
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            // FIXME: really necessary ?
+            kmf.init(ks, this.keyStoresPwd.toCharArray());
+
+            KeyStore ts = KeyStore.getInstance("JKS");
+            ts.load(new FileInputStream(new File(this.trustStorePath)), this.keyStoresPwd.toCharArray());
+
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(ts);
+
+            sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+            consulBuilder = consulBuilder.withSslContext(sslContext);
+        } catch (KeyStoreException | CertificateException | IOException | UnrecoverableKeyException | KeyManagementException | NoSuchAlgorithmException e) {
+            log.error("Not able to initialize SSL Context", e);
         }
         consulBuilder = consulBuilder.withReadTimeoutMillis(consulReadTimeoutInMillis);
         consulBuilder = consulBuilder.withConnectTimeoutMillis(consulConnectTimeoutInMillis);

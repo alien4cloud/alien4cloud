@@ -116,12 +116,16 @@ ha:
   #  consulAgentIp: localhost
   #  consulAgentPort: 8500
   # the ip that will be given to consul for health check (can be a private ip)
-  instanceIp: 172.17.0.1
+  instanceIp: 127.0.0.1
   # health will be checked by consul using this period
   healthCheckPeriodInSecond: 1
   # the TTL of consul session (will be renewed at half TTL)
   consulSessionTTLInSecond: 60
   # the delay between the session invalidation and the lock release
   consulLockDelayInSecond: 0
+  consul_tls_enabled: true
+  keyStorePath: ""
+  trustStorePath: ""
+  keyStoresPwd: ""
   
   
