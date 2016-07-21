@@ -105,7 +105,7 @@ public class ToscaSerializerTest {
         velocityCtx.put("application_description", "Here is a \nmultiline description");
 
         StringWriter writer = new StringWriter();
-        VelocityUtil.generate("templates/topology-1_0_0_wd03.yml.vm", writer, velocityCtx);
+        VelocityUtil.generate("templates/topology-alien_dsl_1_2_0.yml.vm", writer, velocityCtx);
         System.out.println(writer.toString());
     }
 
