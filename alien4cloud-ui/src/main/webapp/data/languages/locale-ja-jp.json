@@ -507,6 +507,10 @@
       "UNDEPLOYMENT_IN_PROGRESS" : "Undeployment in progress",
       "UNKNOWN" : "Unknown",
       "WARNING" : "Warning"
+    },
+    "TOASTER_STATUS" : {
+      "DEPLOYED" : "The environment < {{envName}} > of application < {{appName}} > is deployed.",
+      "FAILURE" : "A failure has occurred during the deployment of the environment < {{envName}} > of application < {{appName}} >. See logs deployment for more informations."
     }
   },
   "DETAILS" : "Details",

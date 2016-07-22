@@ -508,6 +508,10 @@
       "UNDEPLOYMENT_IN_PROGRESS" : "Désinstallation en cours",
       "UNKNOWN" : "Inconnu",
       "WARNING" : "Alerte"
+    },
+    "TOASTER_STATUS" : {
+      "DEPLOYED" : "L'environment < {{envName}} > de l'application < {{appName}} > est déployé.",
+      "FAILURE" : "Échec du déploiement de l'environment < {{envName}} > de l'application < {{appName}} >. Consultez les logs de déploiement pour plus d'information."
     }
   },
   "DETAILS" : "Détails",
