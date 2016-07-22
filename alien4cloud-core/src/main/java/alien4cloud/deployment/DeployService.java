@@ -9,9 +9,13 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.paas.IPaaSCallback;
+import alien4cloud.paas.model.PaaSDeploymentLog;
+import alien4cloud.paas.model.PaaSDeploymentLogLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -78,10 +82,10 @@ public class DeployService {
      * @param deploymentSource Application to be deployed or the Csar that contains test toplogy to be deployed
      * @return The id of the generated deployment.
      */
-    public String deploy(DeploymentTopology deploymentTopology, IDeploymentSource deploymentSource) {
+    public String deploy(final DeploymentTopology deploymentTopology, IDeploymentSource deploymentSource) {
         Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deploymentTopology);
         Map<String, Location> locations = deploymentTopologyService.getLocations(locationIds);
-        Location firstLocation = locations.values().iterator().next();
+        final Location firstLocation = locations.values().iterator().next();
         // FIXME check that all nodes to match are matched
         // FIXME check that all required properties are defined
         // TODO DeploymentSetupValidator.validate doesn't check that inputs linked to required properties are indeed configured.
@@ -92,7 +96,7 @@ public class DeployService {
         String deploymentTopologyId = deploymentTopology.getId();
 
         // Create a deployment object to be kept in ES.
-        Deployment deployment = new Deployment();
+        final Deployment deployment = new Deployment();
         deployment.setId(UUID.randomUUID().toString());
         deployment.setOrchestratorId(firstLocation.getOrchestratorId());
         deployment.setLocationIds(locationIds.values().toArray(new String[locationIds.size()]));
@@ -119,9 +123,29 @@ public class DeployService {
         // put back the old Id for deployment
         deploymentTopology.setId(deploymentTopologyId);
         // Build the context for deployment and deploy
-        orchestratorPlugin.deploy(deploymentContextService.buildTopologyDeploymentContext(deployment, locations, deploymentTopology), null);
-        log.info("Deployed topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(), firstLocation.getId(),
-                deployment.getId());
+        orchestratorPlugin.deploy(deploymentContextService.buildTopologyDeploymentContext(deployment, locations, deploymentTopology),
+                new IPaaSCallback<Object>() {
+                    @Override
+                    public void onSuccess(Object data) {
+                        log.info("Deployed topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(),
+                                firstLocation.getId(), deployment.getId());
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        log.error("Deployment failed with cause", t);
+                        PaaSDeploymentLog deploymentLog = new PaaSDeploymentLog();
+                        deploymentLog.setDeploymentId(deployment.getId());
+                        deploymentLog.setDeploymentPaaSId(deployment.getOrchestratorDeploymentId());
+                        deploymentLog.setContent(t.getMessage() + "\n" + ExceptionUtils.getStackTrace(t));
+                        deploymentLog.setLevel(PaaSDeploymentLogLevel.ERROR);
+                        deploymentLog.setTimestamp(new Date());
+                        alienMonitorDao.save(deploymentLog);
+
+                    }
+                });
+        log.debug("Triggered deployment of topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(),
+                firstLocation.getId(), deployment.getId());
         return deployment.getId();
     }
 
