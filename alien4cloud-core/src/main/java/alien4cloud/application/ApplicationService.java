@@ -55,10 +55,9 @@ public class ApplicationService {
      * @param user The user that is creating the application (will be APPLICATION_MANAGER)
      * @param name The name of the new application.
      * @param description The description of the new application.
-     * @param workspaceId The id of the workspace in which the application should be added.
      * @return The id of the newly created application.
      */
-    public String create(String user, String name, String description, String workspaceId) {
+    public String create(String user, String name, String description) {
         ensureNameIsValid(name);
         ensureNameUnicity(name);
 
