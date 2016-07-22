@@ -9,17 +9,13 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.paas.IPaaSCallback;
-import alien4cloud.paas.model.PaaSDeploymentLog;
-import alien4cloud.paas.model.PaaSDeploymentLogLevel;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Maps;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
@@ -38,13 +34,17 @@ import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.services.OrchestratorService;
+import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.exception.EmptyMetaPropertyException;
 import alien4cloud.paas.exception.OrchestratorDeploymentIdConflictException;
+import alien4cloud.paas.model.PaaSDeploymentLog;
+import alien4cloud.paas.model.PaaSDeploymentLogLevel;
+import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.topology.TopologyValidationResult;
 import alien4cloud.utils.PropertyUtil;
-
-import com.google.common.collect.Maps;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service responsible for deployment of an application.
@@ -141,6 +141,13 @@ public class DeployService {
                         deploymentLog.setLevel(PaaSDeploymentLogLevel.ERROR);
                         deploymentLog.setTimestamp(new Date());
                         alienMonitorDao.save(deploymentLog);
+
+                        PaaSMessageMonitorEvent messageMonitorEvent = new PaaSMessageMonitorEvent();
+                        messageMonitorEvent.setDeploymentId(deploymentLog.getDeploymentId());
+                        messageMonitorEvent.setOrchestratorId(deploymentLog.getDeploymentPaaSId());
+                        messageMonitorEvent.setMessage(t.getMessage());
+                        messageMonitorEvent.setDate(deploymentLog.getTimestamp().getTime());
+                        alienMonitorDao.save(messageMonitorEvent);
 
                     }
                 });
