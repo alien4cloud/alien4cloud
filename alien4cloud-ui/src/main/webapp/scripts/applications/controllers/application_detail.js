@@ -76,9 +76,9 @@ define(function (require) {
 
   // definition of the parent controller and scope for application management.
   modules.get('a4c-applications').controller('ApplicationCtrl',
-    ['$rootScope', '$scope', 'menu', 'authService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory', 'topologyServices', 'applicationServices', 'applicationEventServicesFactory', 'topologyJsonProcessor', 'toscaService', '$filter', 'toaster',
+    ['$rootScope', '$scope', 'menu', 'authService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory', 'topologyServices', 'applicationServices', 'applicationEventServicesFactory', 'topologyJsonProcessor', 'toscaService', '$translate', 'toaster',
     function($rootScope, $scope, menu, authService, applicationResult, $state, applicationEnvironmentServices, appEnvironments,
-      environmentEventServicesFactory, topologyServices, applicationServices, applicationEventServicesFactory, topologyJsonProcessor, toscaService, $filter, toaster) {
+      environmentEventServicesFactory, topologyServices, applicationServices, applicationEventServicesFactory, topologyJsonProcessor, toscaService, $translate, toaster) {
 
       var application = applicationResult.data;
       $scope.application = application;
@@ -124,22 +124,22 @@ define(function (require) {
         if (environment.status === 'FAILURE') {
           toaster.pop(
             'error',
-            $filter('translate')('DEPLOYMENT.STATUS.FAILURE'),
-            $filter('translate')('DEPLOYMENT.TOASTER_STATUS.FAILURE', {
+            $translate.instant('DEPLOYMENT.STATUS.FAILURE'),
+            $translate.instant('DEPLOYMENT.TOASTER_STATUS.FAILURE', {
               envName : environment.name,
               appName : $scope.application.name
             }),
-            0, 'trustedHtml', null
+            6000, 'trustedHtml', null
           );
         } else if (environment.status === 'DEPLOYED') {
           toaster.pop(
             'success',
-            $filter('translate')('DEPLOYMENT.STATUS.DEPLOYED'),
-            $filter('translate')('DEPLOYMENT.TOASTER_STATUS.DEPLOYED', {
+            $translate.instant('DEPLOYMENT.STATUS.DEPLOYED'),
+            $translate.instant('DEPLOYMENT.TOASTER_STATUS.DEPLOYED', {
               envName : environment.name,
               appName : $scope.application.name
             }),
-            0, 'trustedHtml', null
+            4000, 'trustedHtml', null
           );
         }
       }
