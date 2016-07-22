@@ -142,6 +142,8 @@ public class TestDataRegistry {
         addConditionFolder("samples topology load-balancer-tomcat", GIT_ARTIFACTS_PATH + "samples/topology-load-balancer-tomcat");
         addConditionFolder("es schema free bug types", "src/test/resources/data/csars/es-bug/types");
         addConditionFolder("es schema free bug template", "src/test/resources/data/csars/es-bug/topology");
+        addConditionFolder("complex properties types", "src/test/resources/data/csars/data_type/data_type_types");
+        addConditionFolder("complex properties template", "src/test/resources/data/csars/data_type/data_type_topology");
 
         // We put all artifacts to a4c root project dir
         // test uploading an unzipped file (do not zip it)
