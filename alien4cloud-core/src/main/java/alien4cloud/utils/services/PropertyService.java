@@ -7,19 +7,15 @@ import javax.inject.Inject;
 
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.Maps;
+
 import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.ComplexPropertyValue;
-import alien4cloud.model.components.ListPropertyValue;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.components.*;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.services.DependencyService.DependencyContext;
-
-import com.google.common.collect.Maps;
 
 /**
  * Service to set and check constraints on properties.
@@ -39,22 +35,16 @@ public class PropertyService {
         }
 
         // if the default value is also empty, we set the property value to null
-        if (propertyValue == null) {
-            properties.put(propertyName, null);
+        constraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition, dependencyContext);
+        if (propertyValue instanceof String) {
+            // constraintPropertyService.checkSimplePropertyConstraint(propertyName, (String) propertyValue, propertyDefinition);
+            properties.put(propertyName, new ScalarPropertyValue((String) propertyValue));
+        } else if (propertyValue instanceof Map) {
+            properties.put(propertyName, new ComplexPropertyValue((Map<String, Object>) propertyValue));
+        } else if (propertyValue instanceof List) {
+            properties.put(propertyName, new ListPropertyValue((List<Object>) propertyValue));
         } else {
-            if (propertyValue instanceof String) {
-                constraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition, dependencyContext);
-                // constraintPropertyService.checkSimplePropertyConstraint(propertyName, (String) propertyValue, propertyDefinition);
-                properties.put(propertyName, new ScalarPropertyValue((String) propertyValue));
-            } else if (propertyValue instanceof Map) {
-                // TODO check complex constraints.
-                properties.put(propertyName, new ComplexPropertyValue((Map<String, Object>) propertyValue));
-            } else if (propertyValue instanceof List) {
-                // TODO check complex constraints.
-                properties.put(propertyName, new ListPropertyValue((List<Object>) propertyValue));
-            } else {
-                throw new InvalidArgumentException("Property type " + propertyValue.getClass().getName() + " is invalid");
-            }
+            throw new InvalidArgumentException("Property type " + propertyValue.getClass().getName() + " is invalid");
         }
     }
 
@@ -67,8 +57,7 @@ public class PropertyService {
      * @param propertyValue the value to be set
      */
     public void setPropertyValue(NodeTemplate nodeTemplate, PropertyDefinition propertyDefinition, String propertyName, Object propertyValue,
-            DependencyContext dependencyContext)
-            throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+            DependencyContext dependencyContext) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         if (nodeTemplate.getProperties() == null) {
             nodeTemplate.setProperties(Maps.<String, AbstractPropertyValue> newHashMap());
         }
@@ -84,8 +73,7 @@ public class PropertyService {
      * @param propertyValue the value of the property
      */
     public void setCapabilityPropertyValue(Capability capability, PropertyDefinition propertyDefinition, String propertyName, Object propertyValue,
-            DependencyContext dependencyContext)
-            throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+            DependencyContext dependencyContext) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         if (capability.getProperties() == null) {
             capability.setProperties(Maps.<String, AbstractPropertyValue> newHashMap());
         }
