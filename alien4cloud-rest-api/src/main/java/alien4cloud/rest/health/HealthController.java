@@ -4,6 +4,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,12 +30,16 @@ public class HealthController {
     @Resource
     private ApplicationContext alienContext;
 
+    @Deprecated
+    @Resource
+    private HAManager haManager;
+
     @ApiOperation(value = "Healthcheck endpoint")
     @RequestMapping(value = "/check", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
-    public String check() {
+    public String check(HttpServletRequest request, HttpServletResponse response) {
         if (log.isTraceEnabled()) {
-            log.trace("Health checked");
+            log.trace("Health checked from {}", request.getRemoteAddr());
         }
         // TODO: here we should try to contact ES, try to write something on FS ?
         // TODO: To avoid DoS we should ensure to enqueue requests (do not accept every check request in parallel)
@@ -56,6 +62,24 @@ public class HealthController {
     public void banish() {
         log.info("Instance is banish (no more leader)");
         alienContext.publishEvent(new HALeaderElectionEvent(this, false));
+    }
+
+    @RequestMapping(value = "/fail", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    @Deprecated
+    // TODO: remove when consul algo will be implemented
+    public void fail() {
+        log.info("Instance is elected as leader");
+        haManager.setFail(true);
+    }
+
+    @RequestMapping(value = "/unfail", method = RequestMethod.GET)
+    @ResponseStatus(value = HttpStatus.OK)
+    @Deprecated
+    // TODO: remove when consul algo will be implemented
+    public void unfail() {
+        log.info("Instance is elected as leader");
+        haManager.setFail(false);
     }
 
 }

@@ -37,7 +37,6 @@ import alien4cloud.events.HALeaderElectionEvent;
 import com.google.common.base.Optional;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.Consul.Builder;
-import com.orbitz.consul.ConsulException;
 import com.orbitz.consul.async.ConsulResponseCallback;
 import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.model.agent.ImmutableRegistration;
@@ -101,6 +100,9 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
     @Value("${ha.keyStoresPwd:#{null}}")
     private String keyStoresPwd;
 
+    @Value("${ha.serverProtocol:http}")
+    private String serverProtocol;
+
     @Resource
     private ApplicationContext alienContext;
 
@@ -119,6 +121,14 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
     private ThreadPoolTaskScheduler sessionRenewerTaskScheduler;
 
     private ThreadPoolTaskScheduler consulLockAquisitionTaskScheduler;
+
+    @Deprecated
+    private volatile boolean fail;
+
+    @Deprecated
+    public void setFail(boolean fail) {
+        this.fail = fail;
+    }
 
     @PostConstruct
     public void init() {
@@ -272,7 +282,7 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
     }
 
     private URL getCheckUrl() throws MalformedURLException {
-        return new URL("http://" + instanceIp + ":" + listenPort + "/rest/latest/health/check");
+        return new URL(serverProtocol + "://" + instanceIp + ":" + listenPort + "/rest/latest/health/check");
     }
 
     @Override
@@ -294,6 +304,9 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
 
         @Override
         public void run() {
+            if (fail) {
+                return;
+            }
             sessionLock.lock();
             try {
                 if (sessionId == null) {
@@ -326,7 +339,7 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
                         log.trace("Consul session with id <{}> renewed", sessionId);
                     }
                 }
-            } catch (ConsulException e) {
+            } catch (Exception e) {
                 sessionId = null;
                 log.error("Not able to create or renew session", e);
                 banish();
@@ -379,7 +392,7 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
                     }
                     banish();
                 }
-            } catch (ConsulException e) {
+            } catch (Exception e) {
                 log.error("Not able to acquire leadership due to consul exception", e);
                 banish();
             } finally {
@@ -393,7 +406,7 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
             }
             try {
                 consul.keyValueClient().getValue(LEARDER_KEY, QueryOptions.blockMinutes(consulQueryTimeoutInMin, responseIndex.get()).build(), this);
-            } catch (ConsulException e) {
+            } catch (Exception e) {
                 log.error("Not able to acquire watch leader resource due to consul exception", e);
                 banish();
                 Date retryStartDate = new Date(System.currentTimeMillis() + (healthCheckPeriodInSecond * 1000));

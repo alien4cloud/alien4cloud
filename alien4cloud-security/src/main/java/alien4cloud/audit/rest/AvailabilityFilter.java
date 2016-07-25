@@ -41,7 +41,7 @@ public class AvailabilityFilter extends OncePerRequestFilter implements Ordered,
     private boolean haEnabled;
 
     // TODO use http://projects.spring.io/spring-statemachine/#quick-start
-    private volatile boolean init = true;
+    // private volatile boolean init = true;
 
     private volatile boolean available;
 
@@ -55,24 +55,25 @@ public class AvailabilityFilter extends OncePerRequestFilter implements Ordered,
         if (log.isTraceEnabled()) {
             log.trace("Matcher matches ? {}", matcher.matches());
         }
-        if (matcher.matches()) {
-            boolean isCheck = matcher.group(2).equals("check");
-            if (isCheck && !init && !available) {
-                // TODO use http://projects.spring.io/spring-statemachine/#quick-start
-                return true;
-            }
-            return false;
-        }
-        return true;
+        return !matcher.matches();
+        // if (matcher.matches()) {
+        // // boolean isCheck = matcher.group(2).equals("check");
+        // // if (isCheck /* && !init && !available */) {
+        // // // TODO use http://projects.spring.io/spring-statemachine/#quick-start
+        // // return true;
+        // // }
+        // return false;
+        // }
+        // return true;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (!haEnabled) {
+        if (!haEnabled || available) {
             filterChain.doFilter(request, response);
             return;
         }
-        if (isFiltered(request.getRequestURI()) && !available) {
+        if (isFiltered(request.getRequestURI())) {
             if (log.isTraceEnabled()) {
                 log.trace("Application not availaible (not elected), refusing requests");
             }
@@ -87,9 +88,9 @@ public class AvailabilityFilter extends OncePerRequestFilter implements Ordered,
     public void onApplicationEvent(HALeaderElectionEvent event) {
         log.info("Election event received. Am I availaible ? => {}", event.isLeader());
         available = event.isLeader();
-        if (available && init) {
-            // TODO use http://projects.spring.io/spring-statemachine/#quick-start
-            init = false;
-        }
+        // if (available && init) {
+        // // TODO use http://projects.spring.io/spring-statemachine/#quick-start
+        // init = false;
+        // }
     }
 }
