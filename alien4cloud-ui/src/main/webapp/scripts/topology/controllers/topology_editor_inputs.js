@@ -5,11 +5,15 @@ define(function (require) {
   var _ = require('lodash');
 
   modules.get('a4c-topology-editor', ['pascalprecht.translate', 'toaster']).factory('topoEditInputs',
-    ['$translate', 'toaster', 'topologyServices',
-    function($translate, toaster, topologyServices) {
+    ['$translate', 'toaster', '$alresource',
+    function($translate, toaster, $alresource) {
       var TopologyEditorMixin = function(scope) {
         this.scope = scope;
       };
+
+      var nodeInputResource = $alresource('rest/latest/editor/:topologyId/inputhelper/node');
+      var capabilityPropInputResource = $alresource('rest/latest/editor/:topologyId/inputhelper/capability');
+      var relationshipPropInputResource = $alresource('rest/latest/editor/:topologyId/inputhelper/relationship');
 
       TopologyEditorMixin.prototype = {
         constructor: TopologyEditorMixin,
@@ -75,51 +79,52 @@ define(function (require) {
         getCandidatesForProperty: function(propertyName) {
           var self = this;
           this.scope.currentInputCandidatesForProperty = [];
-          topologyServices.nodeTemplate.getInputCandidates.getCandidates({
-            topologyId: self.scope.topology.topology.id,
-            nodeTemplateName: self.scope.selectedNodeTemplate.name,
-            propertyId: propertyName
-          }, function(success) {
-            self.scope.currentInputCandidatesForProperty = success.data;
-          });
+            nodeInputResource.get({
+              topologyId: self.scope.topology.topology.id,
+              nodeTemplateName: self.scope.selectedNodeTemplate.name,
+              propertyId: propertyName
+            }, function(result) {
+              self.scope.currentInputCandidatesForProperty = result.data;
+            });
         },
 
-        getCandidatesForArtifact: function(artifactId) {
+        getCandidatesForCapabilityProperty: function(capabilityName, propertyName) {
           var self = this;
-          this.scope.currentInputCandidatesForArtifact = [];
-          topologyServices.nodeTemplate.artifacts.getInputCandidates({
+          this.scope.currentInputCandidatesForCapabilityProperty = [];
+          capabilityPropInputResource.get({
             topologyId: self.scope.topology.topology.id,
             nodeTemplateName: self.scope.selectedNodeTemplate.name,
-            artifactId: artifactId
-          }, function(success) {
-            self.scope.currentInputCandidatesForArtifact = success.data;
+            propertyId: propertyName,
+            capabilityId: capabilityName
+          }, function(result) {
+            self.scope.currentInputCandidatesForCapabilityProperty = result.data;
           });
         },
 
         getCandidatesForRelationshipProperty: function(relationshipName, propertyName) {
           var self = this;
           this.scope.currentInputCandidatesForRelationshipProperty = [];
-          topologyServices.nodeTemplate.relationship.getInputCandidates.getCandidates({
+          relationshipPropInputResource.get({
             topologyId: self.scope.topology.topology.id,
             nodeTemplateName: self.scope.selectedNodeTemplate.name,
             propertyId: propertyName,
             relationshipId: relationshipName
-          }, function(success) {
-            self.scope.currentInputCandidatesForRelationshipProperty = success.data;
+          }, function(result) {
+            self.scope.currentInputCandidatesForRelationshipProperty = result.data;
           });
         },
 
-        getCandidatesForCapabilityProperty: function(capabilityName, propertyName) {
+        getCandidatesForArtifact: function(artifact) {
+          // artifact filtering is based only on type, no need to reuse java code for constraints so process client side.
           var self = this;
-          this.scope.currentInputCandidatesForCapabilityProperty = [];
-          topologyServices.nodeTemplate.capability.getInputCandidates.getCandidates({
-            topologyId: self.scope.topology.topology.id,
-            nodeTemplateName: self.scope.selectedNodeTemplate.name,
-            propertyId: propertyName,
-            capabilityId: capabilityName
-          }, function(success) {
-            self.scope.currentInputCandidatesForCapabilityProperty = success.data;
-          });
+          this.scope.currentInputCandidatesForArtifact = [];
+          if(_.isDefined(this.scope.topology.inputArtifacts)) {
+            _.each(this.scope.topology.inputArtifacts, function(inputArtifact, inputArtifactId) {
+              if(artifact.artifactType === inputArtifact.artifactType) {
+                self.scope.currentInputCandidatesForArtifact.push(inputArtifactId);
+              }
+            });
+          }
         },
 
         toggleProperty: function(propertyName, inputId) {

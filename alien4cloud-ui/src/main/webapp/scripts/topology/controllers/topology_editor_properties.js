@@ -7,8 +7,8 @@ define(function(require) {
   var angular = require('angular');
   var _ = require('lodash');
 
-  modules.get('a4c-topology-editor').factory('topoEditProperties', ['topologyServices',
-    function(topologyServices) {
+  modules.get('a4c-topology-editor').factory('topoEditProperties', [
+    function() {
       var TopologyEditorMixin = function(scope) {
         this.scope = scope;
       };
@@ -76,29 +76,27 @@ define(function(require) {
         /* Update properties of a capability */
         updateCapabilityProperty: function(propertyName, propertyValue, capabilityType, capabilityId) {
           var scope = this.scope;
-          var updateIndexedTypePropertyRequest = {
-            'propertyName': propertyName,
-            'propertyValue': propertyValue,
-            'type': capabilityType
-          };
-          return topologyServices.capability.updateProperty({
-            topologyId: scope.topology.topology.id,
-            nodeTemplateName: scope.selectedNodeTemplate.name,
-            capabilityId: capabilityId
-          }, angular.toJson(updateIndexedTypePropertyRequest), function() {
-            // update the selectedNodeTemplate properties locally
-            scope.topology.topology.nodeTemplates[scope.selectedNodeTemplate.name].capabilitiesMap[capabilityId].value.propertiesMap[propertyName].value = {
-              value: propertyValue,
-              definition: false
-            };
+          return scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateCapabilityPropertyValueOperation',
+              nodeName: scope.selectedNodeTemplate.name,
+              capabilityName: capabilityId,
+              propertyName: propertyName,
+              propertyValue: propertyValue
+            },
+            function(result){
+              if (_.undefined(result.error)) {
+                scope.topology.topology.nodeTemplates[scope.selectedNodeTemplate.name].capabilitiesMap[capabilityId].value.propertiesMap[propertyName].value = {
+                  value: propertyValue,
+                  definition: false
+                };
 
-            if(capabilityType === 'tosca.capabilities.Scalable') {
-              // scalable informations are displayed on topology editor
-              scope.triggerTopologyRefresh = {};
+                if(capabilityType === 'tosca.capabilities.Scalable') {
+                  // scalable informations are displayed on topology editor
+                  scope.triggerTopologyRefresh = {};
+                }
+              }
             }
-
-            scope.yaml.refresh();
-          }).$promise;
+          );
         }
       };
 

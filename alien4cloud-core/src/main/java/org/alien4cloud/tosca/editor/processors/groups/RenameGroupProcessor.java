@@ -26,8 +26,8 @@ public class RenameGroupProcessor implements IEditorOperationProcessor<RenameGro
             return; // nothing has changed.
         }
 
-        if (topology.getGroups().containsKey(operation.getGroupName())) {
-            throw new AlreadyExistException("Group with name [" + operation.getGroupName() + "] already exists, please choose another name");
+        if (topology.getGroups().containsKey(operation.getNewGroupName())) {
+            throw new AlreadyExistException("Group with name [" + operation.getNewGroupName() + "] already exists, please choose another name");
         }
 
         NodeGroup nodeGroup = topology.getGroups().remove(operation.getGroupName());

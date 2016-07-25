@@ -1,7 +1,5 @@
 package org.alien4cloud.tosca.editor.operations.inputs;
 
-import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,12 +8,11 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class RenameInputOperation extends AbstractEditorOperation {
-    private String inputName;
+public class RenameInputOperation extends AbstractInputOperation {
     private String newInputName;
 
     @Override
     public String commitMessage() {
-        return "rename input artifact <" + inputName + "> to <" + newInputName + ">";
+        return "rename input artifact <" + getInputName() + "> to <" + newInputName + ">";
     }
 }

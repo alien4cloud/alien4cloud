@@ -1092,35 +1092,7 @@ public class TopologyController {
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
-    @ApiOperation(value = "Get the list of input artifacts candidates for this node's artifact.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifacts/{artifactName}/inputcandidates", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<List<String>> getInputArtifactCandidate(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
-            @PathVariable String artifactName) {
-        Topology topology = topologyServiceCore.getOrFail(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
 
-        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
-        if (nodeTemplate.getArtifacts() != null && nodeTemplate.getArtifacts().containsKey(artifactName)) {
-            DeploymentArtifact nodeDeploymentArtifact = nodeTemplate.getArtifacts().get(artifactName);
-            List<String> inputIds = new ArrayList<String>();
-            if (topology.getInputArtifacts() != null && !topology.getInputArtifacts().isEmpty()) {
-                // iterate overs existing inputs artifacts and filter them by checking type compatibility
-                for (Entry<String, DeploymentArtifact> inputEntry : topology.getInputArtifacts().entrySet()) {
-                    if (inputEntry.getValue().getArtifactType().equals(nodeDeploymentArtifact.getArtifactType())) {
-                        inputIds.add(inputEntry.getKey());
-                    }
-                }
-            }
-            return RestResponseBuilder.<List<String>> builder().data(inputIds).build();
-        } else {
-            // TODO: throw an exception
-            // attributeName does not exists in the node template
-            return RestResponseBuilder.<List<String>> builder().error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_MISSING_ERROR).build()).build();
-        }
-
-    }
 
     /**
      * Update the name of a relationship.

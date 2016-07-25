@@ -10,14 +10,12 @@ import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
  */
 @Getter
 @Setter
-public class AddInputOperation extends AbstractEditorOperation {
-    /** The name of the input to add in the topology. */
-    private String inputName;
+public class AddInputOperation extends AbstractInputOperation {
     /** The property definition to associate to the input. */
     private PropertyDefinition propertyDefinition;
 
     @Override
     public String commitMessage() {
-        return "add new input with name <" + inputName + "> and type <" + propertyDefinition.getType() + ">";
+        return "add new input with name <" + getInputName() + "> and type <" + propertyDefinition.getType() + ">";
     }
 }

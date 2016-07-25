@@ -4,8 +4,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.editor.exception.PropertyValueException;
-import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
+import org.alien4cloud.tosca.editor.exception.*;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.expression.ExpressionException;
 import org.springframework.http.HttpStatus;
@@ -415,8 +414,30 @@ public class RestTechnicalExceptionHandler {
     public RestResponse<Void> handleEditionConcurrencyException(EditionConcurrencyException e) {
         return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.DEPLOYMENT_NAMING_POLICY_ERROR).message(
-                        "Another user has changed the topology and your version is not consistent or topology edition session has expired." + e.getMessage())
+                        "Another user has changed the topology and your version is not consistent or topology edition session has expired. " + e.getMessage())
                         .build())
                 .build();
+    }
+
+    @ExceptionHandler(value = UnmatchedElementPatternException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<Void> handleEditionConcurrencyException(UnmatchedElementPatternException e) {
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.ELEMENT_NAME_PATTERN_CONSTRAINT).message(e.getMessage()).build()).build();
+    }
+
+    @ExceptionHandler(value = CapabilityBoundException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<Void> handleEditionConcurrencyException(CapabilityBoundException e) {
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.UPPER_BOUND_REACHED).message(e.getMessage()).build()).build();
+    }
+
+    @ExceptionHandler(value = RequirementBoundException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<Void> handleEditionConcurrencyException(RequirementBoundException e) {
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.UPPER_BOUND_REACHED).message(e.getMessage()).build()).build();
     }
 }

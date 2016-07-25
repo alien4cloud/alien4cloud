@@ -11,22 +11,22 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import alien4cloud.git.SimpleGitHistoryEntry;
-import org.alien4cloud.tosca.editor.exception.EditorIOException;
 import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
+import org.alien4cloud.tosca.editor.exception.EditorIOException;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.git.SimpleGitHistoryEntry;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.topology.TopologyDTO;
@@ -38,7 +38,7 @@ import alien4cloud.utils.ReflectionUtil;
 /**
  * This service manages command execution on the TOSCA topology template editor.
  */
-@Controller
+@Service
 public class EditorService {
     @Inject
     private ApplicationContext applicationContext;
@@ -47,7 +47,7 @@ public class EditorService {
     @Inject
     private TopologyServiceCore topologyServiceCore;
     @Inject
-    private EditionContextManager topologyEditionContextManager;
+    private EditionContextManager editionContextManager;
     @Inject
     private TopologyDTOBuilder dtoBuilder;
     @Inject
@@ -74,10 +74,10 @@ public class EditorService {
      */
     public void checkAuthorization(String topologyId) {
         try {
-            topologyEditionContextManager.init(topologyId);
+            editionContextManager.init(topologyId);
             topologyService.checkEditionAuthorizations(EditionContextManager.getTopology());
         } finally {
-            topologyEditionContextManager.destroy();
+            editionContextManager.destroy();
         }
     }
 
@@ -107,7 +107,7 @@ public class EditorService {
      * @param operation The operation to be processed.
      */
     private void initContext(String topologyId, AbstractEditorOperation operation) {
-        topologyEditionContextManager.init(topologyId);
+        editionContextManager.init(topologyId);
         // check authorization to update a topology
         topologyService.checkEditionAuthorizations(EditionContextManager.getTopology());
         // If the version of the topology is not snapshot we don't allow modifications.
@@ -165,7 +165,7 @@ public class EditorService {
             return dtoBuilder.buildTopologyDTO(EditionContextManager.get());
         } finally {
             EditionContextManager.get().setCurrentOperation(null);
-            topologyEditionContextManager.destroy();
+            editionContextManager.destroy();
         }
     }
 
@@ -191,7 +191,7 @@ public class EditorService {
             }
 
             // TODO Improve this by avoiding dao query for (deep) cloning topology and keeping cache for TOSCA types that are required.
-            topologyEditionContextManager.reset();
+            editionContextManager.reset();
 
             for (int i = 0; i < at + 1; i++) {
                 AbstractEditorOperation operation = EditionContextManager.get().getOperations().get(i);
@@ -207,7 +207,7 @@ public class EditorService {
             return null;
         } finally {
             EditionContextManager.get().setCurrentOperation(null);
-            topologyEditionContextManager.destroy();
+            editionContextManager.destroy();
         }
     }
 
@@ -260,7 +260,7 @@ public class EditorService {
             throw new EditorIOException("Error while saving files state in local repository", e);
         } finally {
             EditionContextManager.get().setCurrentOperation(null);
-            topologyEditionContextManager.destroy();
+            editionContextManager.destroy();
         }
     }
 
@@ -294,8 +294,15 @@ public class EditorService {
 
     }
 
+    /**
+     * Retrieve simplified vision of the git history for the given topology.
+     * 
+     * @param topologyId The id of the topology.
+     * @param from from which index to get history.
+     * @param count number of histories entry to retrieve.
+     * @return a list of simplified git commit entry.
+     */
     public List<SimpleGitHistoryEntry> history(String topologyId, int from, int count) {
         return repositoryService.getHistory(topologyId, from, count);
     }
-
 }

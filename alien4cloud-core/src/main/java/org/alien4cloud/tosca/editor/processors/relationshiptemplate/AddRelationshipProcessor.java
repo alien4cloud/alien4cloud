@@ -48,7 +48,6 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
     private TopologyCapabilityBoundsValidationServices topologyCapabilityBoundsValidationServices;
 
     @Override
-    @SneakyThrows
     protected void processNodeOperation(AddRelationshipOperation operation, NodeTemplate sourceNode) {
         Topology topology = EditionContextManager.getTopology();
         Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
