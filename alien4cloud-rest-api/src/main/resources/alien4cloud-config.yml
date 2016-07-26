@@ -1,5 +1,9 @@
 server:
   port: 8089
+  #ssl:
+  #  key-store: keystore.jks
+  #  key-store-password: ******
+  #  key-password: ******
 
 # Configuration of alien4cloud's CSAR repository, temporary folder and upload settings.
 directories:
@@ -113,19 +117,22 @@ audit:
 
 ha:
   ha_enabled: false
-  #  consulAgentIp: localhost
-  #  consulAgentPort: 8500
+  consulAgentIp: 129.185.67.36
+  consulAgentPort: 8555
   # the ip that will be given to consul for health check (can be a private ip)
   instanceIp: 127.0.0.1
   # health will be checked by consul using this period
-  healthCheckPeriodInSecond: 1
-  # the TTL of consul session (will be renewed at half TTL)
+  healthCheckPeriodInSecond: 5
+  # the TTL of consul session
   consulSessionTTLInSecond: 60
   # the delay between the session invalidation and the lock release
   consulLockDelayInSecond: 0
+  # the delay before retrying to acquire lock when it fail
+  lockAcquisitionDelayInSecond: 20
   consul_tls_enabled: true
   keyStorePath: ""
   trustStorePath: ""
   keyStoresPwd: ""
+  serverProtocol: ""
   
   

@@ -69,7 +69,7 @@ public class HealthController {
     @Deprecated
     // TODO: remove when consul algo will be implemented
     public void fail() {
-        log.info("Instance is elected as leader");
+        log.info("Fail mode activated, Instance will no more renew it's session");
         haManager.setFail(true);
     }
 
@@ -78,7 +78,7 @@ public class HealthController {
     @Deprecated
     // TODO: remove when consul algo will be implemented
     public void unfail() {
-        log.info("Instance is elected as leader");
+        log.info("Fail mode desactivated, Instance will renew it's session normallly");
         haManager.setFail(false);
     }
 

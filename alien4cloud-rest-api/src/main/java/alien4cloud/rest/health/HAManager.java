@@ -43,6 +43,7 @@ import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.orbitz.consul.model.agent.Registration;
 import com.orbitz.consul.model.session.ImmutableSession;
 import com.orbitz.consul.model.session.Session;
+import com.orbitz.consul.model.session.SessionCreatedResponse;
 import com.orbitz.consul.model.session.SessionInfo;
 import com.orbitz.consul.option.QueryOptions;
 
@@ -72,6 +73,12 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
 
     @Value("${ha.healthCheckPeriodInSecond:5}")
     private long healthCheckPeriodInSecond;
+
+    /**
+     * When the lock acquisition fail, the delay before retrying to acquire a lock.
+     */
+    @Value("${ha.lockAcquisitionDelayInSecond:10}")
+    private long lockAcquisitionDelayInSecond;
 
     @Value("${ha.consulSessionTTLInSecond:1800}")
     private long consulSessionTTLInSecond;
@@ -112,7 +119,11 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
 
     private String checkId;
 
-    private volatile String sessionId;
+    // private volatile String sessionId;
+    private volatile String lastSessionId;
+    private SessionInfo session;
+
+
     private ReentrantLock sessionLock = new ReentrantLock();
 
     private volatile boolean leader;
@@ -124,6 +135,10 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
 
     @Deprecated
     private volatile boolean fail;
+
+    private SessionRenewer sessionRenewer = new SessionRenewer();
+    
+    private LockAquisition lockAquisition = new LockAquisition();
 
     @Deprecated
     public void setFail(boolean fail) {
@@ -230,9 +245,9 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
         if (!haEnabled) {
             return;
         }
-        if (sessionId != null) {
+        if (session != null) {
             try {
-                consul.sessionClient().destroySession(sessionId);
+                consul.sessionClient().destroySession(session.getId());
             } catch (Exception e) {
                 log.warn("Not able to destroy session on shutdown", e);
             }
@@ -272,12 +287,11 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
         // consul.agentClient().registerCheck(this.checkId, SERVICE_NAME, getCheckUrl(), healthCheckPeriodInSecond);
         
         // we start the session renewer (that will also create the session after 2 health checks)
-        Date sessionRenewStartDate = new Date(System.currentTimeMillis() + (2* healthCheckPeriodInSecond * 1000));
-        // we renew the session at the half time of it's TTL
-        long renewSessionSchedulePeriod = consulSessionTTLInSecond * 1000 / 2;
-        sessionRenewerTaskScheduler.scheduleAtFixedRate(new SessionRenewer(), sessionRenewStartDate, renewSessionSchedulePeriod);
+        // Date sessionRenewStartDate = new Date(System.currentTimeMillis() + (2* healthCheckPeriodInSecond * 1000));
+        // sessionRenewerTaskScheduler.scheduleAtFixedRate(new SessionRenewer(), sessionRenewStartDate, renewSessionSchedulePeriod);
+        scheduleSessionRenewInSecondes(2 * healthCheckPeriodInSecond);
+        // sessionRenewerTaskScheduler.schedule(sessionRenewer, sessionRenewStartDate);
 
-        consulLockAquisitionTaskScheduler.schedule(new LockAquisition(), sessionRenewStartDate);
         // consulLockAquisitionTaskScheduler.scheduleAtFixedRate(new LockAquisition(), consulLeaderElectionPeriodInSecond * 1000);
     }
 
@@ -305,49 +319,129 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
         @Override
         public void run() {
             if (fail) {
+                scheduleSessionRenewInSecondes(consulSessionTTLInSecond);
                 return;
             }
             sessionLock.lock();
             try {
-                if (sessionId == null) {
-                    String sessionName = SERVICE_NAME.concat("_").concat(instanceId).concat("_session");
-                    if (log.isDebugEnabled()) {
-                        log.debug("Creating consul session with name <{}> with TTL {} seconds", sessionName, consulSessionTTLInSecond);
+                boolean sessionWasNull = (session == null);
+                if (lastSessionId == null) {
+                    session = acquireSession();
+                } else {
+                    session = renewSession(lastSessionId);
+                }
+                if (session != null) {
+                    lastSessionId = session.getId();
+                    long ttlInSeconde = Math.max(Math.round(consulSessionTTLInSecond * 1000 * 0.8) / 1000, 1);
+                    Optional<String> ttlAsString = session.getTtl();
+                    if (ttlAsString.isPresent()) {
+                        try {
+                            if (log.isTraceEnabled()) {
+                                log.trace("TTL value received: {}", ttlAsString.get());
+                            }
+                            ttlInSeconde = Long.parseLong(ttlAsString.get().substring(0, ttlAsString.get().length() - 1));
+                            // renew the session at 80% of its TTL, but never less than 1 seconde
+                            ttlInSeconde = Math.max(Math.round(ttlInSeconde * 1000 * 0.8) / 1000, 1);
+                            if (log.isTraceEnabled()) {
+                                log.trace("Returned TTL is <{}>, so the session will be renewed in {}s", ttlAsString.get(), ttlInSeconde);
+                            }
+                        } catch (NumberFormatException e) {
+                        }
                     }
-                    com.orbitz.consul.model.session.ImmutableSession.Builder sessionBuilder = ImmutableSession.builder();
-                    sessionBuilder = sessionBuilder.name(sessionName);
-                    sessionBuilder = sessionBuilder.addChecks("service:" + checkId);
-                    sessionBuilder = sessionBuilder.ttl(consulSessionTTLInSecond + "s");
-                    sessionBuilder = sessionBuilder.lockDelay(consulLockDelayInSecond + "s");
-                    Session session = sessionBuilder.build();
-                    sessionId = consul.sessionClient().createSession(session).getId();
-                    if (log.isDebugEnabled()) {
-                        log.debug("Created consul session with id <{}>", sessionId);
+                    scheduleSessionRenewInSecondes(ttlInSeconde);
+                    if (sessionWasNull) {
+                        // this is the first time we acquire a session, launch the lock acquisition task
+                        scheduleLockAcquisitionInSecondes(0);
                     }
                 } else {
-                    if (log.isTraceEnabled()) {
-                        log.trace("Renewing consul session with id <{}>", sessionId);
+                    // session is null
+                    if (log.isDebugEnabled()) {
+                        log.debug("No active session on Consul, something went wrong");
                     }
-                    Optional<SessionInfo> sessionInfo = consul.sessionClient().renewSession(sessionId);
-                    if (!sessionInfo.isPresent()) {
-                        sessionId = null;
-                        // no session renewed
-                        log.warn("Not able to renew session");
-                        banish();
-                    }
-                    if (log.isTraceEnabled()) {
-                        log.trace("Consul session with id <{}> renewed", sessionId);
-                    }
+                    scheduleSessionRenewInSecondes(2 * healthCheckPeriodInSecond);
+                    banish();
                 }
-            } catch (Exception e) {
-                sessionId = null;
-                log.error("Not able to create or renew session", e);
-                banish();
             } finally {
                 sessionLock.unlock();
             }
         }
 
+    }
+
+    private void scheduleSessionRenewInSecondes(long secondes) {
+        if (log.isTraceEnabled()) {
+            log.trace("Scheduling session renew task in {}s", secondes);
+        }
+        Date sessionRenewStartDate = new Date(System.currentTimeMillis() + (secondes * 1000));
+        sessionRenewerTaskScheduler.schedule(sessionRenewer, sessionRenewStartDate);
+    }
+
+    private void scheduleLockAcquisitionInSecondes(long secondes) {
+        Date startDate = new Date(System.currentTimeMillis() + (secondes * 1000));
+        if (log.isTraceEnabled()) {
+            log.trace("Scheduling lock acquisition task in {}s", secondes);
+        }
+        consulLockAquisitionTaskScheduler.schedule(lockAquisition, startDate);
+    }
+
+    private SessionInfo renewSession(String sessionId) {
+        try {
+            // first of all just verify the session exists on Consul
+            Optional<SessionInfo> sessionInfo = consul.sessionClient().getSessionInfo(sessionId);
+            if (sessionInfo.isPresent()) {
+                // if the session exist, then renew it
+                if (log.isTraceEnabled()) {
+                    log.trace("Renewing session with id <{}>", sessionId);
+                }
+                sessionInfo = consul.sessionClient().renewSession(sessionId);
+                if (sessionInfo.isPresent()) {
+                    if (log.isTraceEnabled()) {
+                        log.trace("Consul session with id <{}> renewed", sessionId);
+                    }
+                    return sessionInfo.get();
+                } else {
+                    log.warn("Not able to renew session");
+                    return null;
+                }
+            } else {
+                // the session doesn't exist anymore, creating a new one
+                if (log.isTraceEnabled()) {
+                    log.trace("Session with id <{}> not found, will create a new one", sessionId);
+                }
+                return acquireSession();
+            }
+        } catch (Exception e) {
+            log.error("Not able to renew session", e);
+            return null;
+        }
+    }
+
+    private SessionInfo acquireSession() {
+        try {
+            String sessionName = SERVICE_NAME.concat("_").concat(instanceId).concat("_session");
+            if (log.isDebugEnabled()) {
+                log.debug("Creating consul session with name <{}> with TTL {} seconds", sessionName, consulSessionTTLInSecond);
+            }
+            com.orbitz.consul.model.session.ImmutableSession.Builder sessionBuilder = ImmutableSession.builder();
+            sessionBuilder = sessionBuilder.name(sessionName);
+            sessionBuilder = sessionBuilder.addChecks("service:" + checkId);
+            sessionBuilder = sessionBuilder.ttl(consulSessionTTLInSecond + "s");
+            sessionBuilder = sessionBuilder.lockDelay(consulLockDelayInSecond + "s");
+            Session session = sessionBuilder.build();
+            SessionCreatedResponse response = consul.sessionClient().createSession(session);
+            Optional<SessionInfo> sessionInfo = consul.sessionClient().getSessionInfo(response.getId());
+            if (sessionInfo.isPresent()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Created consul session with id <{}>", sessionInfo.get().getId());
+                }
+                return sessionInfo.get();
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            log.error("Not able to create session", e);
+            return null;
+        }
     }
 
     private class LockAquisition implements Runnable, ConsulResponseCallback<Optional<com.orbitz.consul.model.kv.Value>> {
@@ -356,15 +450,16 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
 
         @Override
         public void run() {
+            if (log.isTraceEnabled()) {
+                log.trace("LockAquisition task run");
+            }
             sessionLock.lock();
             try {
-                if (sessionId == null) {
+                if (session == null) {
                     if (log.isTraceEnabled()) {
-                        log.trace("No known consul session, do nothing");
-                        Date retryStartDate = new Date(System.currentTimeMillis() + (healthCheckPeriodInSecond * 1000));
-                        consulLockAquisitionTaskScheduler.schedule(this, retryStartDate);
-                        return;
+                        log.trace("No known consul session when running LockAquisition task, do nothing");
                     }
+                    return;
                 } else {
                     // first off all, we try to acquire leadership onto resource
                     acquireLeadership();
@@ -375,89 +470,132 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
         }
 
         private void acquireLeadership() {
-            if (log.isDebugEnabled()) {
-                log.debug("Trying to acquire lock on resource {}", LEARDER_KEY);
-            }
-            // the value of the key will be used by consul template to generated nginx config
-            String value = instanceIp + ":" + listenPort;
+            sessionLock.lock();
             try {
-                if (consul.keyValueClient().acquireLock(LEARDER_KEY, value, sessionId)) {
+                if (session == null) {
+                    if (log.isTraceEnabled()) {
+                        log.trace("No known consul session, do nothing");
+                    }
+                    // scheduleLockAcquisitionInSecondes(lockAcquisitionDelayInSecond);
+                    return;
+                }
+
+                if (log.isDebugEnabled()) {
+                    log.debug("Trying to acquire lock on resource {}", LEARDER_KEY);
+                }
+                // the value of the key will be used by consul template to generated nginx config
+                String value = instanceIp + ":" + listenPort;
+                if (consul.keyValueClient().acquireLock(LEARDER_KEY, value, session.getId())) {
                     if (log.isDebugEnabled()) {
                         log.debug("Lock is acquired on resource {}, I am the leader", LEARDER_KEY);
                     }
                     elect();
+                    watch();
                 } else {
                     if (log.isDebugEnabled()) {
                         log.debug("Not able to get lock on resource {}, I am banished", LEARDER_KEY);
                     }
                     banish();
+                    watch();
                 }
             } catch (Exception e) {
                 log.error("Not able to acquire leadership due to consul exception", e);
-                banish();
+                if (session == null) {
+                    if (log.isTraceEnabled()) {
+                        log.trace("No known consul session while exception occured when trying to acquire leadership, do nothing");
+                    }
+                    return;
+                } else {
+                    scheduleLockAcquisitionInSecondes(lockAcquisitionDelayInSecond);
+                }
+                return;
             } finally {
-                watch();
+                sessionLock.unlock();
             }
         }
 
         private void watch() {
-            if (log.isTraceEnabled()) {
-                log.trace("Watch: Block read key <{}>", LEARDER_KEY);
-            }
+            sessionLock.lock();
             try {
+                if (session == null) {
+                    if (log.isTraceEnabled()) {
+                        log.trace("No known consul session while trying to watch changes on the key, do nothing");
+                    }
+                    return;
+                }
+                if (log.isTraceEnabled()) {
+                    log.trace("Watch: Block read key <{}>", LEARDER_KEY);
+                }
                 consul.keyValueClient().getValue(LEARDER_KEY, QueryOptions.blockMinutes(consulQueryTimeoutInMin, responseIndex.get()).build(), this);
             } catch (Exception e) {
-                log.error("Not able to acquire watch leader resource due to consul exception", e);
-                banish();
-                Date retryStartDate = new Date(System.currentTimeMillis() + (healthCheckPeriodInSecond * 1000));
-                consulLockAquisitionTaskScheduler.schedule(this, retryStartDate);
+                log.error("Not able to watch leader resource due to consul exception", e);
+                if (session == null) {
+                    if (log.isTraceEnabled()) {
+                        log.trace("No known consul session while exception occurred when trying to watch changes on the key, do nothing");
+                    }
+                } else {
+                    scheduleLockAcquisitionInSecondes(lockAcquisitionDelayInSecond);
+                }
+            } finally {
+                sessionLock.unlock();
             }
         }
 
         @Override
         public void onComplete(ConsulResponse<Optional<com.orbitz.consul.model.kv.Value>> consulResponse) {
             sessionLock.lock();
-            if (sessionId == null) {
-                if (log.isTraceEnabled()) {
-                    log.trace("No known consul session, do nothing");
-                }
-                // just wait during the health check delay
-                Date retryStartDate = new Date(System.currentTimeMillis() + (healthCheckPeriodInSecond * 1000));
-                consulLockAquisitionTaskScheduler.schedule(this, retryStartDate);
-                return;
-            }
             try {
+                if (session == null) {
+                    if (log.isTraceEnabled()) {
+                        log.trace("No known consul session when watch key returns, do nothing");
+                    }
+                    return;
+                }
                 if (consulResponse.getResponse().isPresent()) {
                     if (log.isTraceEnabled()) {
-                        log.trace("Response received");
+                        log.trace("Response received in onComplete");
                     }
                     responseIndex.set(consulResponse.getIndex());
                     com.orbitz.consul.model.kv.Value response = consulResponse.getResponse().get();
                     if (response.getSession().isPresent()) {
                         String leaderSessionId = response.getSession().get();
-                        if (sessionId.equals(leaderSessionId)) {
+                        if (session.getId().equals(leaderSessionId)) {
                             if (log.isTraceEnabled()) {
-                                log.trace("I am already leader with session <{}>", leaderSessionId);
+                                log.trace("I am already leader with session <{}>, just watch again the key for changes", leaderSessionId);
                             }
+                            watch();
+                            return;
                         } else {
                             if (log.isTraceEnabled()) {
-                                log.trace("Another instance is already elected with session <{}>", leaderSessionId);
+                                log.trace("Another instance is already elected with session <{}>, just watch again the key for changes", leaderSessionId);
                             }
-                            banish();
+                            watch();
+                            return;
                         }
                     } else {
+                        if (log.isTraceEnabled()) {
+                            log.trace("No session associated to the key, will try to acquire lock");
+                        }
                         // no session associated to value, try aqcuiring lock
                         acquireLeadership();
                         return;
                     }
                 } else {
                     if (log.isTraceEnabled()) {
-                        log.trace("No response received");
+                        log.trace("No response received, will try to acquire lock");
                     }
                     acquireLeadership();
                     return;
                 }
-                watch();
+            } catch (Exception e) {
+                log.error("An exception occured in onComplete", e);
+                if (session == null) {
+                    if (log.isTraceEnabled()) {
+                        log.trace("No known consul session on exception thrown in onComplete, do nothing");
+                    }
+                } else {
+                    scheduleLockAcquisitionInSecondes(lockAcquisitionDelayInSecond);
+                }
             } finally {
                 sessionLock.unlock();
             }
@@ -465,10 +603,19 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
 
         @Override
         public void onFailure(Throwable e) {
-            log.error("Error occured while watching leader key, will retry later", e);
-            // just wait during the health check delay
-            Date retryStartDate = new Date(System.currentTimeMillis() + (healthCheckPeriodInSecond * 1000));
-            consulLockAquisitionTaskScheduler.schedule(this, retryStartDate);
+            log.error("Error occured while watching leader key", e);
+            sessionLock.lock();
+            try {
+                if (session == null) {
+                    if (log.isTraceEnabled()) {
+                        log.trace("No known consul session while exception thrown in ConsulResponseCallback, do nothing");
+                    }
+                } else {
+                    scheduleLockAcquisitionInSecondes(lockAcquisitionDelayInSecond);
+                }
+            } finally {
+                sessionLock.unlock();
+            }
         }
 
     }
