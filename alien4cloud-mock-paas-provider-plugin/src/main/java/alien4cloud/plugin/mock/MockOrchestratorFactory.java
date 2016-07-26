@@ -26,6 +26,8 @@ import com.google.common.collect.Maps;
 @Component("mock-orchestrator-factory")
 public class MockOrchestratorFactory implements IOrchestratorPluginFactory<MockOrchestrator, ProviderConfig> {
     public static final String OPENSTACK = "OpenStack";
+    public static final String AWS = "Amazon";
+
     @Resource
     private BeanFactory beanFactory;
     private final Map<String, PropertyDefinition> deploymentProperties = Maps.newHashMap();
@@ -52,7 +54,7 @@ public class MockOrchestratorFactory implements IOrchestratorPluginFactory<MockO
 
     @Override
     public LocationSupport getLocationSupport() {
-        return new LocationSupport(true, new String[] { OPENSTACK });
+        return new LocationSupport(true, new String[] { OPENSTACK, AWS });
     }
 
     @Override
