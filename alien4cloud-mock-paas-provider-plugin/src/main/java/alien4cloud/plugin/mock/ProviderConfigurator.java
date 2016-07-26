@@ -1,13 +1,12 @@
 package alien4cloud.plugin.mock;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import alien4cloud.plugin.IPluginConfigurator;
 import alien4cloud.rest.utils.JsonUtil;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component("mock-paas-provider-configurator")
@@ -15,7 +14,7 @@ public class ProviderConfigurator implements IPluginConfigurator<ProviderConfig>
 
     @Override
     public ProviderConfig getDefaultConfiguration() {
-        return null;
+        return new ProviderConfig();
     }
 
     @Override
