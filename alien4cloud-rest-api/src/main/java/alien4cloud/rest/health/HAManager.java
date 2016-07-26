@@ -125,11 +125,15 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
 
     private String checkId;
 
+    /** The last known sessionId. */
     private volatile String lastSessionId;
 
     /** The current session (created or renewed). */
     private SessionInfo session;
 
+    /**
+     * Guard for the session.
+     */
     private ReentrantLock sessionLock = new ReentrantLock();
 
     private volatile boolean leader;
@@ -578,7 +582,6 @@ public class HAManager implements ApplicationListener<EmbeddedServletContainerIn
                         if (log.isTraceEnabled()) {
                             log.trace("No session associated to the key, will try to acquire lock");
                         }
-                        // no session associated to value, try acquiring lock
                         acquireLeadership();
                         return;
                     }
