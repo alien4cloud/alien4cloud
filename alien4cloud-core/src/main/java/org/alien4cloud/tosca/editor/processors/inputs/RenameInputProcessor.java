@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.exception.UnmatchedElementPatternException;
 import org.alien4cloud.tosca.editor.operations.inputs.RenameInputOperation;
+import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class RenameInputProcessor extends AbstractInputProcessor<RenameInputOperation> {
+public class RenameInputProcessor extends AbstractInputProcessor<RenameInputOperation> implements IEditorCommitableProcessor<RenameInputOperation> {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject
@@ -77,16 +78,6 @@ public class RenameInputProcessor extends AbstractInputProcessor<RenameInputOper
 
         log.debug("Change the name of an input parameter <{}> to <{}> for the topology ", operation.getInputName(), operation.getNewInputName(),
                 topology.getId());
-        topologyServiceCore.save(topology);
-        DeploymentTopology[] deploymentTopologies = deploymentTopologyService.getByTopologyId(topology.getId());
-        for (DeploymentTopology deploymentTopology : deploymentTopologies) {
-            if (deploymentTopology.getInputProperties() != null && deploymentTopology.getInputProperties().containsKey(operation.getInputName())) {
-                String oldValue = deploymentTopology.getInputProperties().remove(operation.getInputName());
-                deploymentTopology.getInputProperties().put(operation.getNewInputName(), oldValue);
-                alienDAO.save(deploymentTopology);
-            }
-        }
-        topologyServiceCore.updateSubstitutionType(topology);
     }
 
     /**
@@ -106,6 +97,19 @@ public class RenameInputProcessor extends AbstractInputProcessor<RenameInputOper
                         functionPropertyValue.setParameters(Arrays.asList(newInputName));
                     }
                 }
+            }
+        }
+    }
+
+    @Override
+    public void beforeCommit(RenameInputOperation operation) {
+        Topology topology = EditionContextManager.getTopology();
+        DeploymentTopology[] deploymentTopologies = deploymentTopologyService.getByTopologyId(topology.getId());
+        for (DeploymentTopology deploymentTopology : deploymentTopologies) {
+            if (deploymentTopology.getInputProperties() != null && deploymentTopology.getInputProperties().containsKey(operation.getInputName())) {
+                String oldValue = deploymentTopology.getInputProperties().remove(operation.getInputName());
+                deploymentTopology.getInputProperties().put(operation.getNewInputName(), oldValue);
+                alienDAO.save(deploymentTopology);
             }
         }
     }

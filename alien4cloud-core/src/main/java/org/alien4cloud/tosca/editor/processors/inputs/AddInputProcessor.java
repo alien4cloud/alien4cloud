@@ -7,6 +7,7 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation;
+import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
@@ -29,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class AddInputProcessor extends AbstractInputProcessor<AddInputOperation> {
+public class AddInputProcessor extends AbstractInputProcessor<AddInputOperation> implements IEditorCommitableProcessor<AddInputOperation> {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject
@@ -54,7 +55,11 @@ public class AddInputProcessor extends AbstractInputProcessor<AddInputOperation>
         topology.setInputs(inputs);
 
         log.debug("Add a new input <{}> for the topology <{}>.", operation.getInputName(), topology.getId());
-        topologyServiceCore.save(topology);
+    }
+
+    @Override
+    public void beforeCommit(AddInputOperation operation) {
+        Topology topology = EditionContextManager.getTopology();
         // Update default values for each deployment topology
         AbstractPropertyValue defaultValue = operation.getPropertyDefinition().getDefault();
         if (defaultValue != null && defaultValue instanceof ScalarPropertyValue) {
@@ -68,7 +73,6 @@ public class AddInputProcessor extends AbstractInputProcessor<AddInputOperation>
                 alienDAO.save(deploymentTopology);
             }
         }
-        topologyServiceCore.updateSubstitutionType(topology);
     }
 
     @Override

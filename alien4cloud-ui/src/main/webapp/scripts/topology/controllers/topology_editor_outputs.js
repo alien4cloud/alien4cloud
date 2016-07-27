@@ -5,8 +5,8 @@ define(function (require) {
   var angular = require('angular');
   var _ = require('lodash');
 
-  modules.get('a4c-topology-editor').factory('topoEditOutputs', [ 'topologyServices',
-    function(topologyServices) {
+  modules.get('a4c-topology-editor').factory('topoEditOutputs', [
+    function() {
 
       var outputKeys = ['outputProperties', 'outputAttributes'];
 

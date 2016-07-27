@@ -3,8 +3,6 @@ package org.alien4cloud.tosca.editor.processors.nodetemplate;
 import java.util.Arrays;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.SetNodePropertyAsInputOperation;
 import org.springframework.stereotype.Component;
@@ -15,7 +13,6 @@ import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import lombok.extern.slf4j.Slf4j;
@@ -26,9 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class SetNodePropertyAsInputProcessor extends AbstractNodeProcessor<SetNodePropertyAsInputOperation> {
-    @Inject
-    private TopologyServiceCore topologyServiceCore;
-
     @Override
     protected void processNodeOperation(SetNodePropertyAsInputOperation operation, NodeTemplate nodeTemplate) {
         Topology topology = EditionContextManager.getTopology();
@@ -49,6 +43,5 @@ public class SetNodePropertyAsInputProcessor extends AbstractNodeProcessor<SetNo
 
         log.debug("Associate the property <{}> of the node template <{}> to input <{}> of the topology <{}>.", operation.getPropertyName(),
                 operation.getNodeName(), operation.getInputName(), topology.getId());
-        topologyServiceCore.save(topology);
     }
 }

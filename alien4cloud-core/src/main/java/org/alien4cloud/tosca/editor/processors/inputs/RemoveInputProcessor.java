@@ -7,6 +7,7 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.inputs.RemoveInputOperation;
+import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -29,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class RemoveInputProcessor extends AbstractInputProcessor<RemoveInputOperation> {
+public class RemoveInputProcessor extends AbstractInputProcessor<RemoveInputOperation> implements IEditorCommitableProcessor<RemoveInputOperation> {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject
@@ -65,16 +66,6 @@ public class RemoveInputProcessor extends AbstractInputProcessor<RemoveInputOper
         }
 
         log.debug("Remove the input " + operation.getInputName() + " from the topology " + topology.getId());
-        topologyServiceCore.save(topology);
-        // Update the configuration of existing deployment topologies
-        DeploymentTopology[] deploymentTopologies = deploymentTopologyService.getByTopologyId(topology.getId());
-        for (DeploymentTopology deploymentTopology : deploymentTopologies) {
-            if (deploymentTopology.getInputProperties() != null && deploymentTopology.getInputProperties().containsKey(operation.getInputName())) {
-                deploymentTopology.getInputProperties().remove(operation.getInputName());
-                alienDAO.save(deploymentTopology);
-            }
-        }
-        topologyServiceCore.updateSubstitutionType(topology);
     }
 
     /**
@@ -97,6 +88,19 @@ public class RemoveInputProcessor extends AbstractInputProcessor<RemoveInputOper
                     AbstractPropertyValue pv = PropertyUtil.getDefaultPropertyValueFromPropertyDefinition(pd);
                     propertyEntry.setValue(pv);
                 }
+            }
+        }
+    }
+
+    @Override
+    public void beforeCommit(RemoveInputOperation operation) {
+        Topology topology = EditionContextManager.getTopology();
+        // Update the configuration of existing deployment topologies
+        DeploymentTopology[] deploymentTopologies = deploymentTopologyService.getByTopologyId(topology.getId());
+        for (DeploymentTopology deploymentTopology : deploymentTopologies) {
+            if (deploymentTopology.getInputProperties() != null && deploymentTopology.getInputProperties().containsKey(operation.getInputName())) {
+                deploymentTopology.getInputProperties().remove(operation.getInputName());
+                alienDAO.save(deploymentTopology);
             }
         }
     }
