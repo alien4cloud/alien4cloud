@@ -1,5 +1,5 @@
 module.exports = function (grunt) {
-  var tasks = ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start'];
+  var tasks = ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test']; //, 'protractor_webdriver:start'];
 
   var registerLocal = function(name, launchTask) {
     var itTasks = tasks.slice(3); // copy and create a new array
