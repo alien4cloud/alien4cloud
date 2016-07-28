@@ -20,9 +20,19 @@ Feature: Topology editor: nodes templates
 
 
 #@Ignore
+  Scenario: Remove a non existing nodetemplate from an empty topology should fail
+    Given I execute the operation
+      | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation |
+      | nodeName | missingNode                                                              |
+    Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
+
+#@Ignore
   Scenario: Remove a non existing nodetemplate from a topology should fail
-    Given I build the operation: add a node template "Template1" related to the "tosca.nodes.Compute:1.0" node type
-    And I execute the current operation on the current topology
-    When I build the operation: delete a node template "Template0" from the topology
-    And I execute the current operation on the current topology
+    Given I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | Template1                                                             |
+      | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
+    Given I execute the operation
+      | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation |
+      | nodeName | missingNode                                                              |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
