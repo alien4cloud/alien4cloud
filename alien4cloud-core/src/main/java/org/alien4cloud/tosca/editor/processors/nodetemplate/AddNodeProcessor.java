@@ -71,15 +71,7 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
             topology.setNodeTemplates(new HashMap<String, NodeTemplate>());
         }
 
-        Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
-        Set<String> nodeTemplatesNames = nodeTemplates.keySet();
-        if (nodeTemplatesNames.contains(operation.getNodeName())) {
-            log.debug("Add Node Template <{}> impossible (already exists)", operation.getNodeName());
-            // a node template already exist with the given name.
-            throw new AlreadyExistException("A node template with the given name already exists.");
-        } else {
-            log.debug("Create node template <{}>", operation.getNodeName());
-        }
+        log.debug("Create node template <{}>", operation.getNodeName());
 
         // FIXME update the tosca context here.
         indexedNodeType = topologyService.loadType(topology, indexedNodeType);
