@@ -1,13 +1,18 @@
 package org.alien4cloud.tosca.editor;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
+import com.google.common.collect.Maps;
+import cucumber.api.DataTable;
+import gherkin.formatter.model.DataTableRow;
 import lombok.extern.slf4j.Slf4j;
 
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
@@ -19,6 +24,7 @@ import org.junit.Assert;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -166,6 +172,36 @@ public class EditorStepDefs {
         }
     }
 
+    @Given("^I execute the operation$")
+    public void i_execute_the_operation(DataTable operationDT) throws Throwable {
+        Map<String, String> operationMap = Maps.newHashMap();
+        for (DataTableRow row : operationDT.getGherkinRows()) {
+            operationMap.put(row.getCells().get(0), row.getCells().get(1));
+        }
+
+        Class operationClass = Class.forName(operationMap.get("type"));
+        AbstractEditorOperation operation = (AbstractEditorOperation) operationClass.newInstance();
+        EvaluationContext operationContext = new StandardEvaluationContext(operation);
+        SpelParserConfiguration config = new SpelParserConfiguration(true, true);
+        SpelExpressionParser parser = new SpelExpressionParser(config);
+        for (Map.Entry<String, String> operationEntry : operationMap.entrySet()) {
+            if (!"type".equals(operationEntry.getKey())) {
+                parser.parseRaw(operationEntry.getKey()).setValue(operationContext, operationEntry.getValue());
+            }
+        }
+
+        thrownException = null;
+        operation.setPreviousOperationId(lastOperationId);
+        try {
+            TopologyDTO topologyDTO = editorService.execute(topologyId, operation);
+            lastOperationId = topologyDTO.getOperations().get(topologyDTO.getLastOperationIndex()).getId();
+            spelEvaluationContext = new StandardEvaluationContext(topologyDTO.getTopology());
+        } catch (Exception e) {
+            log.error("Exception occured while executing operation", e);
+            thrownException = e;
+        }
+    }
+
     @Then("^The SPEL boolean expression \"([^\"]*)\" should return true$")
     public void evaluateSpelBooleanExpressionUsingCurrentContext(String spelExpression) {
         Boolean result = (Boolean) evaluateExpression(spelExpression);
@@ -190,8 +226,8 @@ public class EditorStepDefs {
     public void The_SPEL_int_expression_should_return(String spelExpression, int expected) throws Throwable {
         Integer actual = (Integer) evaluateExpression(spelExpression);
         Assert.assertEquals(String.format("The SPEL expression [%s] should return [%d]", spelExpression, expected), expected, actual.intValue());
-    }    
-    
+    }
+
     @Then("^No exception should be thrown$")
     public void no_exception_should_be_thrown() throws Throwable {
         Assert.assertNull(thrownException);
