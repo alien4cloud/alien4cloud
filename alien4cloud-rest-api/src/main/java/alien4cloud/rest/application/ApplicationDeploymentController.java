@@ -97,7 +97,7 @@ public class ApplicationDeploymentController {
     @RequestMapping(value = "/deployment", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     @Audit
-    public RestResponse<?> deploy(@Valid @RequestBody DeployApplicationRequest deployApplicationRequest) throws OrchestratorDisabledException {
+    public RestResponse<?> deploy(@Valid @RequestBody DeployApplicationRequest deployApplicationRequest) {
         String applicationId = deployApplicationRequest.getApplicationId();
         String environmentId = deployApplicationRequest.getApplicationEnvironmentId();
         Application application = applicationService.checkAndGetApplication(applicationId);

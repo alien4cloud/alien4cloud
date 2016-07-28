@@ -76,9 +76,9 @@ define(function (require) {
 
   // definition of the parent controller and scope for application management.
   modules.get('a4c-applications').controller('ApplicationCtrl',
-    ['$rootScope', '$scope', 'menu', 'authService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory', 'topologyServices', 'applicationServices', 'applicationEventServicesFactory', 'topologyJsonProcessor', 'toscaService',
+    ['$rootScope', '$scope', 'menu', 'authService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory', 'topologyServices', 'applicationServices', 'applicationEventServicesFactory', 'topologyJsonProcessor', 'toscaService', '$translate', 'toaster',
     function($rootScope, $scope, menu, authService, applicationResult, $state, applicationEnvironmentServices, appEnvironments,
-      environmentEventServicesFactory, topologyServices, applicationServices, applicationEventServicesFactory, topologyJsonProcessor, toscaService) {
+      environmentEventServicesFactory, topologyServices, applicationServices, applicationEventServicesFactory, topologyJsonProcessor, toscaService, $translate, toaster) {
 
       var application = applicationResult.data;
       $scope.application = application;
@@ -120,8 +120,33 @@ define(function (require) {
         runtimeMenuItem.disabled = disabled;
       }
 
+      function displayDeploymentStatusToaster(environment) {
+        if (environment.status === 'FAILURE') {
+          toaster.pop(
+            'error',
+            $translate.instant('DEPLOYMENT.STATUS.FAILURE'),
+            $translate.instant('DEPLOYMENT.TOASTER_STATUS.FAILURE', {
+              envName : environment.name,
+              appName : $scope.application.name
+            }),
+            6000, 'trustedHtml', null
+          );
+        } else if (environment.status === 'DEPLOYED') {
+          toaster.pop(
+            'success',
+            $translate.instant('DEPLOYMENT.STATUS.DEPLOYED'),
+            $translate.instant('DEPLOYMENT.TOASTER_STATUS.DEPLOYED', {
+              envName : environment.name,
+              appName : $scope.application.name
+            }),
+            4000, 'trustedHtml', null
+          );
+        }
+      }
+
       var callback = function(environment, event) {
         environment.status = event.deploymentStatus;
+        displayDeploymentStatusToaster(environment);
         updateRuntimeDisabled();
         // update the current scope and it's child scopes.
         $scope.$digest();

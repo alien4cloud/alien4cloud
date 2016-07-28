@@ -592,7 +592,7 @@ public class ApplicationsDeploymentStepDefinitions {
         log.info("Re-deploy : Deploying the application " + ApplicationStepDefinitions.CURRENT_APPLICATION.getName());
         I_deploy_it();
         // Sleep some seconds to be sure that the application status has changed
-        Thread.sleep(31000L);
+        Thread.sleep(60000L);
         log.info("Re-deploy : Finished deployment of the application " + ApplicationStepDefinitions.CURRENT_APPLICATION.getName());
     }
 

@@ -6,7 +6,7 @@ template_version: 1.0-SNAPSHOT
 
 imports:
   - tosca-normative-types:1.0.0-SNAPSHOT
-  - alien-base-types:1.1.0-SNAPSHOT
+  - alien-base-types:1.2.0-SNAPSHOT
   #- tomcat-war-types:2.0.0-SNAPSHOT
 
 

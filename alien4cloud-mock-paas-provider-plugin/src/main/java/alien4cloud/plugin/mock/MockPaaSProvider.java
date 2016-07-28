@@ -200,6 +200,7 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
         log.info("Deployment [" + deploymentPaaSId + "] moved from status [" + oldDeploymentStatus + "] to [" + status + "]");
         runtimeDeploymentInfo.setStatus(status);
         PaaSDeploymentLog deploymentLog = new PaaSDeploymentLog();
+        deploymentLog.setDeploymentId(paaSDeploymentIdToAlienDeploymentIdMap.get(deploymentPaaSId));
         deploymentLog.setContent("Change deployment status to " + status);
         deploymentLog.setDeploymentPaaSId(deploymentPaaSId);
         deploymentLog.setLevel(PaaSDeploymentLogLevel.INFO);
@@ -314,6 +315,7 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
             }
             PaaSDeploymentLog deploymentLog = new PaaSDeploymentLog();
             deploymentLog.setContent("Change state to " + nextState);
+            deploymentLog.setDeploymentId(paaSDeploymentIdToAlienDeploymentIdMap.get(id));
             deploymentLog.setDeploymentPaaSId(id);
             deploymentLog.setInstanceId(instanceId);
             deploymentLog.setNodeId(nodeId);

@@ -2,12 +2,14 @@ package alien4cloud.model.components;
 
 import static alien4cloud.dao.model.FetchContext.SUMMARY;
 
+import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.model.common.Tag;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-
-import alien4cloud.model.common.Tag;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.NestedObject;
@@ -15,8 +17,6 @@ import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
-
-import alien4cloud.exception.IndexingServiceException;
 
 @Getter
 @Setter
@@ -27,6 +27,7 @@ public class Csar {
     private String name;
 
     @TermFilter
+    @FetchContext(contexts = { SUMMARY }, include = { true })
     private String version;
 
     private String toscaDefinitionsVersion;
@@ -59,6 +60,12 @@ public class Csar {
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
     private String substitutionTopologyId;
+
+    /**
+     * Hash of the main yaml file included in the csar
+     */
+    @FetchContext(contexts = { SUMMARY }, include = { true })
+    private String hash;
 
     /** Default constructor */
     public Csar() {

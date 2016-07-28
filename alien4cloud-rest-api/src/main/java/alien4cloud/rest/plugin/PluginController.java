@@ -54,7 +54,7 @@ import io.swagger.annotations.ApiOperation;
  * Controller for plugins.
  */
 @RestController
-@RequestMapping(value = {"/rest/plugins", "/rest/v1/plugins", "/rest/latest/plugins"}, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = { "/rest/plugins", "/rest/v1/plugins", "/rest/latest/plugins" }, produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 @Api(value = "Plugins", description = "Manages plugins.", authorizations = { @Authorization("ADMIN") })
 public class PluginController {
@@ -65,11 +65,13 @@ public class PluginController {
     private IGenericSearchDAO alienDAO;
     private Path tempDirPath;
 
-    @ApiOperation(value = "Upload a plugin archive.", notes = "Content of the zip file must be compliant with the expected alien 4 cloud plugin structure.", authorizations = { @Authorization("ADMIN") })
+    @ApiOperation(value = "Upload a plugin archive.", notes = "Content of the zip file must be compliant with the expected alien 4 cloud plugin structure.", authorizations = {
+            @Authorization("ADMIN") })
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<Void> upload(@ApiParam(value = "Zip file that contains the plugin.", required = true) @RequestParam("file") MultipartFile pluginArchive) {
+    public RestResponse<Void> upload(
+            @ApiParam(value = "Zip file that contains the plugin.", required = true) @RequestParam("file") MultipartFile pluginArchive) {
         Path pluginPath = null;
         try {
             // save the plugin archive in the temp directory
@@ -83,16 +85,13 @@ public class PluginController {
             }
         } catch (MissingPlugingDescriptorFileException e) {
             log.error("Your plugin don't have the META-INF/plugin.yml file.", e);
-            return RestResponseBuilder
-                    .<Void> builder()
-                    .error(new RestError(RestErrorCode.MISSING_PLUGIN_DESCRIPTOR_FILE_EXCEPTION.getCode(),
-                            "Your plugin don't have the META-INF/plugin.yml file.")).build();
+            return RestResponseBuilder.<Void> builder().error(
+                    new RestError(RestErrorCode.MISSING_PLUGIN_DESCRIPTOR_FILE_EXCEPTION.getCode(), "Your plugin don't have the META-INF/plugin.yml file."))
+                    .build();
         } catch (IOException | PluginLoadingException e) {
             log.error("Unexpected IO error on plugin upload.", e);
-            return RestResponseBuilder
-                    .<Void> builder()
-                    .error(new RestError(RestErrorCode.INDEXING_SERVICE_ERROR.getCode(), "A technical issue occured during the plugin upload <"
-                            + e.getMessage() + ">.")).build();
+            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.INDEXING_SERVICE_ERROR.getCode(),
+                    "A technical issue occured during the plugin upload <" + e.getMessage() + ">.")).build();
         } finally {
             if (pluginPath != null) {
                 try {
@@ -169,9 +168,7 @@ public class PluginController {
         if (usages == null || usages.isEmpty()) {
             return RestResponseBuilder.<List<PluginUsage>> builder().build();
         }
-        return RestResponseBuilder
-                .<List<PluginUsage>> builder()
-                .data(usages)
+        return RestResponseBuilder.<List<PluginUsage>> builder().data(usages)
                 .error(new RestError(RestErrorCode.PLUGIN_USED_ERROR.getCode(), "The plugin is used and cannot be disabled. It has been marked as deprecated."))
                 .build();
     }
@@ -185,9 +182,7 @@ public class PluginController {
         if (usages == null || usages.isEmpty()) {
             return RestResponseBuilder.<List<PluginUsage>> builder().build();
         }
-        return RestResponseBuilder
-                .<List<PluginUsage>> builder()
-                .data(usages)
+        return RestResponseBuilder.<List<PluginUsage>> builder().data(usages)
                 .error(new RestError(RestErrorCode.PLUGIN_USED_ERROR.getCode(), "The plugin is used and cannot be disabled. It has been marked as deprecated."))
                 .build();
     }
@@ -206,14 +201,8 @@ public class PluginController {
         }
 
         if (pluginManager.isPluginConfigurable(pluginId)) {
-            Class<?> configType = pluginManager.getConfigurationType(pluginId);
-            try {
-                Object configObject = configType.newInstance();
-                response.setData(configObject);
-            } catch (InstantiationException | IllegalAccessException e) {
-                response.setError(RestErrorBuilder.builder(RestErrorCode.INVALID_PLUGIN_CONFIGURATION).message(e.getMessage()).build());
-                return response;
-            }
+            Object configObject = pluginManager.getConfiguratorFor(pluginId).getDefaultConfiguration();
+            response.setData(configObject);
         }
         return response;
     }

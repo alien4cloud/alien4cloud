@@ -11,7 +11,7 @@ import alien4cloud.common.AlienConstants;
 
 @Getter
 @Setter
-@ApiModel(description = "Request to set locations policies fro a deployment.")
+@ApiModel(description = "Request to set locations policies for a deployment.")
 public class SetLocationPoliciesRequest {
     @ApiModelProperty(value = "Id of the Orchestratrator managing the locations on which we want to deploy.", required = true, dataType = "string")
     private String orchestratorId;
