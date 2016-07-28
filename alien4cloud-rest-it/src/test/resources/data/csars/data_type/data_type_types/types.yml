@@ -1,0 +1,47 @@
+tosca_definitions_version: alien_dsl_1_2_0
+description: Test complex types.
+template_name: complex_types
+template_version: 1.1.0-SNAPSHOT
+template_author: FastConnect
+
+imports:
+  - "tosca-normative-types:1.0.0-SNAPSHOT"
+
+data_types:
+
+  alien.data.Simple:
+    derived_from: string
+    constraints:
+      - min_length: 8
+      - max_length: 12
+
+  alien.data.Complex:
+    properties:
+      simple:
+        type: string
+        constraints:
+          - min_length: 8
+          - max_length: 12
+      simple_complex:
+        type: alien.data.Simple
+
+node_types:
+
+  alien4cloud.nodes.TestDataType:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      simple_complex:
+        type: alien.data.Simple
+      complex:
+        type: alien.data.Complex
+      map:
+        type: map
+        entry_schema:
+          type: string
+          constraints:
+            - min_length: 8
+            - max_length: 12
+      list:
+        type: list
+        entry_schema:
+          type: alien.data.Simple

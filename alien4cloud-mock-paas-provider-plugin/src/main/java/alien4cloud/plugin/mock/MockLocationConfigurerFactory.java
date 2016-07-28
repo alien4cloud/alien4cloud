@@ -37,8 +37,10 @@ public class MockLocationConfigurerFactory {
 
     public ILocationConfiguratorPlugin newInstance(String locationType) {
         if (MockOrchestratorFactory.OPENSTACK.equals(locationType)) {
-            MockOpenStackLocationConfigurer configurer = applicationContext.getBean(MockOpenStackLocationConfigurer.class);
-            return configurer;
+            return applicationContext.getBean(MockOpenStackLocationConfigurer.class);
+        }
+        if (MockOrchestratorFactory.AWS.equals(locationType)) {
+            return applicationContext.getBean(MockAmazonLocationConfigurer.class);
         }
         return new ILocationConfiguratorPlugin() {
             @Override
@@ -60,7 +62,6 @@ public class MockLocationConfigurerFactory {
             public List<LocationResourceTemplate> instances(ILocationResourceAccessor resourceAccessor) {
                 return null;
             }
-
 
         };
     }

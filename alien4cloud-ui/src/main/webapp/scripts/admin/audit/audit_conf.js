@@ -19,7 +19,7 @@ define(function (require) {
   });
 
   modules.get('alien4cloud-admin').controller('AuditConfController',
-    ['$scope', 'auditService', 'auditConfiguration', '$state', '$filter', 'toaster', function($scope, auditService, auditConfiguration, $state, $filter, toaster) {
+    ['$scope', 'auditService', 'auditConfiguration', '$state', '$translate', 'toaster', function($scope, auditService, auditConfiguration, $state, $translate, toaster) {
 
       var refresh = function() {
 
@@ -59,8 +59,8 @@ define(function (require) {
           refresh();
           toaster.pop(
             'success',
-            $filter('translate')('AUDIT.CONFIGURATION.LABEL'),
-            $filter('translate')('AUDIT.CONFIGURATION.CONFIGURATION_IS_RESETED'),
+            $translate.instant('AUDIT.CONFIGURATION.LABEL'),
+            $translate.instant('AUDIT.CONFIGURATION.CONFIGURATION_IS_RESETED'),
             4000, 'trustedHtml', null
           );
         });

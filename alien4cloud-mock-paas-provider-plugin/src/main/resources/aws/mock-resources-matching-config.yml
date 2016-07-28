@@ -1,0 +1,16 @@
+
+matching_configurations:
+  alien.nodes.mock.aws.Compute:
+    capabilities:
+      - host:
+          properties:
+            - num_cpus: { less_or_equal: 0 } # we match if the template value is less or equal that the location resource value
+            - cpu_frequency: { less_or_equal: 0 Hz }
+            - mem_size: { less_or_equal: 0 B }
+            - disk_size: { less_or_equal: 0 B }
+      - os:
+          properties:
+            - architecture: { equal: "" }
+            - type: { equal: "" }
+            - distribution: { equal: "" }
+            - version: { less_or_equal: "" }
