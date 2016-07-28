@@ -1,6 +1,8 @@
 package org.alien4cloud.tosca.editor;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
@@ -69,11 +71,17 @@ public class EditionContextManager {
             public EditionContext load(String topologyId) throws Exception {
                 log.debug("Loading topology context for topology {}", topologyId);
                 Topology topology = topologyServiceCore.getOrFail(topologyId);
-                if (topology.getYamlFilePath() == null) {
-                    topology.setYamlFilePath("topology.yml");
-                }
                 // check if the topology git repository has been created already
                 Path topologyGitPath = repositoryService.createGitDirectory(topologyId);
+                if (topology.getYamlFilePath() == null) {
+                    topology.setYamlFilePath("topology.yml");
+                    // export the content of the topology in the yaml.
+                    Path targetPath = topologyGitPath.resolve(topology.getYamlFilePath());
+                    String yaml = topologyService.getYaml(topology);
+                    try (BufferedWriter writer = Files.newBufferedWriter(targetPath)) {
+                        writer.write(yaml);
+                    }
+                }
                 log.debug("Topology context for topology {} loaded", topologyId);
                 return new EditionContext(topology, topologyGitPath);
             }

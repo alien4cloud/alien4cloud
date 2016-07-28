@@ -1,12 +1,17 @@
 package org.alien4cloud.tosca.editor.processors;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+
+import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.exception.InvalidPathException;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.springframework.stereotype.Component;
 
+import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.utils.TreeNode;
 import lombok.SneakyThrows;
 
@@ -17,7 +22,10 @@ import lombok.SneakyThrows;
  * Process an operation that uploaded or updated a file.
  */
 @Component
-public class UpdateFileProcessor implements IEditorOperationProcessor<UpdateFileOperation> {
+public class UpdateFileProcessor implements IEditorCommitableProcessor<UpdateFileOperation> {
+    @Inject
+    private IFileRepository artifactRepository;
+
     @Override
     @SneakyThrows
     public void process(UpdateFileOperation operation) {
@@ -63,5 +71,12 @@ public class UpdateFileProcessor implements IEditorOperationProcessor<UpdateFile
             }
         }
         return null;
+    }
+
+    @Override
+    @SneakyThrows
+    public void beforeCommit(UpdateFileOperation operation) {
+        Path targetPath = EditionContextManager.get().getLocalGitPath().resolve(operation.getPath());
+        Files.copy(artifactRepository.getFile(operation.getTempFileId()), targetPath);
     }
 }

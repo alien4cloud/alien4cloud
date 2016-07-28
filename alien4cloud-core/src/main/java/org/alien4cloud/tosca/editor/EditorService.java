@@ -14,7 +14,7 @@ import javax.inject.Inject;
 import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
 import org.alien4cloud.tosca.editor.exception.EditorIOException;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
-import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
+import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.git.SimpleGitHistoryEntry;
 import alien4cloud.model.topology.Topology;
@@ -50,8 +49,6 @@ public class EditorService {
     private EditionContextManager editionContextManager;
     @Inject
     private TopologyDTOBuilder dtoBuilder;
-    @Inject
-    private IFileRepository artifactRepository;
     @Inject
     private EditorRepositoryService repositoryService;
 
@@ -231,10 +228,9 @@ public class EditorService {
             // copy and cleanup all temporary files from the executed operations.
             for (int i = context.getLastSavedOperationIndex() + 1; i <= context.getLastOperationIndex(); i++) {
                 AbstractEditorOperation operation = context.getOperations().get(i);
-                if (operation instanceof UpdateFileOperation) {
-                    UpdateFileOperation fileOperation = (UpdateFileOperation) operation;
-                    Path targetPath = EditionContextManager.get().getLocalGitPath().resolve(fileOperation.getPath());
-                    Files.copy(artifactRepository.getFile(fileOperation.getTempFileId()), targetPath);
+                IEditorOperationProcessor<?> processor = (IEditorOperationProcessor) processorMap.get(operation.getClass());
+                if (processor instanceof IEditorCommitableProcessor) {
+                    ((IEditorCommitableProcessor) processor).beforeCommit(operation);
                 }
                 commitMessage.append(operation.getAuthor()).append(": ").append(operation.commitMessage()).append("\n");
             }
