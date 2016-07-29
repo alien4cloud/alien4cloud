@@ -234,10 +234,15 @@ public class EditorStepDefs {
     }
 
     @Then("^an exception of type \"(.*?)\" should be thrown$")
-    public void an_exception_of_type_should_be_thrown(String exceptionType) throws Throwable {
-        Class<?> exceptionClass = Class.forName(exceptionType);
-        Assert.assertNotNull(thrownException);
-        Assert.assertTrue(exceptionClass.isAssignableFrom(thrownException.getClass()));
+    public void an_exception_of_type_should_be_thrown(String exceptionTypesStr) throws Throwable {
+        String[] exceptionTypes = exceptionTypesStr.split("/");
+        Throwable checkException = thrownException;
+        for (String exceptionType : exceptionTypes) {
+            Class<?> exceptionClass = Class.forName(exceptionType);
+            Assert.assertNotNull(checkException);
+            Assert.assertEquals(checkException.getClass(), exceptionClass);
+            checkException = checkException.getCause();
+        }
     }
 
     @When("^I build the operation: delete a node template \"(.*?)\" from the topology$")

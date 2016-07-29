@@ -51,6 +51,8 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
     protected void processNodeOperation(AddRelationshipOperation operation, NodeTemplate sourceNode) {
         Topology topology = EditionContextManager.getTopology();
         Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        // ensure that the target node exists
+        TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getTarget(), nodeTemplates);
 
         String relationshipId = operation.getRelationshipType() + ":" + operation.getRelationshipVersion();
         IndexedRelationshipType indexedRelationshipType = alienDAO.findById(IndexedRelationshipType.class, relationshipId);

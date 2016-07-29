@@ -1,4 +1,4 @@
-Feature: Topology editor: nodes templates
+Feature: Topology editor: add node template
 
   Background:
     Given I am authenticated with "ADMIN" role
@@ -6,9 +6,8 @@ Feature: Topology editor: nodes templates
     And I upload CSAR from path "../../alien4cloud/target/it-artifacts/java-types-1.0.csar"
     And I create an empty topology template
 
-#@Ignore
-  Scenario: Add a node that exists in the repository shoud succeed.
-    Given I execute the operation
+  Scenario: Add a node that exists in the repository should succeed.
+    When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Template1                                                             |
       | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
@@ -16,22 +15,20 @@ Feature: Topology editor: nodes templates
     And The SPEL int expression "nodeTemplates.size()" should return 1
     And The SPEL expression "nodeTemplates['Template1'].type" should return "tosca.nodes.Compute"
 
-  Scenario: Add a node that doesn't exists in the repository shoud succeed.
-    Given I execute the operation
+  Scenario: Add a node that does not exists in the repository should succeed.
+    When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Template1                                                             |
       | indexedNodeTypeId | the.node.that.does.not.Exists:1.0                                     |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
 
-#@Ignore
   Scenario: Add a node with an invalid name should fail
-    Given I execute the operation
+    When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Template1!!!!                                                         |
       | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
     Then an exception of type "alien4cloud.exception.InvalidNodeNameException" should be thrown
 
-    #@Ignore
   Scenario: Add a node with an existing name should fail
     Given I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
