@@ -1,7 +1,6 @@
 package org.alien4cloud.tosca.editor;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,11 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
-
-import com.google.common.collect.Maps;
-import cucumber.api.DataTable;
-import gherkin.formatter.model.DataTableRow;
-import lombok.extern.slf4j.Slf4j;
 
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
@@ -34,27 +28,23 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 
+import com.google.common.collect.Maps;
+
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.model.components.CSARSource;
-import alien4cloud.model.components.Csar;
-import alien4cloud.model.components.IndexedArtifactToscaElement;
-import alien4cloud.model.components.IndexedArtifactType;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedDataType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.PrimitiveIndexedDataType;
+import alien4cloud.model.components.*;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.security.model.User;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.ArchiveUploadService;
+import cucumber.api.DataTable;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import gherkin.formatter.model.DataTableRow;
+import lombok.extern.slf4j.Slf4j;
 
 @ContextConfiguration("classpath:org/alien4cloud/tosca/editor/application-context-test.xml")
 @Slf4j
@@ -217,9 +207,13 @@ public class EditorStepDefs {
 
     @Then("^The SPEL expression \"([^\"]*)\" should return \"([^\"]*)\"$")
     public void evaluateSpelExpressionUsingCurrentContext(String spelExpression, String expected) {
-        String result = evaluateExpression(spelExpression).toString();
-        Assert.assertNotNull(String.format("The SPEL expression [%s] result should not be null", spelExpression), result);
-        Assert.assertEquals(String.format("The SPEL expression [%s] should return [%s]", spelExpression, expected), expected, result);
+        Object result = evaluateExpression(spelExpression);
+        if ("null".equals(expected)) {
+            Assert.assertNull(String.format("The SPEL expression [%s] result should be null", spelExpression), result);
+        } else {
+            Assert.assertNotNull(String.format("The SPEL expression [%s] result should not be null", spelExpression), result);
+            Assert.assertEquals(String.format("The SPEL expression [%s] should return [%s]", spelExpression, expected), expected, result.toString());
+        }
     }
 
     @Then("^The SPEL int expression \"([^\"]*)\" should return (\\d+)$")
