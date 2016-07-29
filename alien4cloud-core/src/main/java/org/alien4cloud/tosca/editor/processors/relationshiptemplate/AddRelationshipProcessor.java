@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import alien4cloud.exception.InvalidNameException;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation;
 import org.alien4cloud.tosca.editor.exception.CapabilityBoundException;
@@ -49,6 +50,10 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
 
     @Override
     protected void processNodeOperation(AddRelationshipOperation operation, NodeTemplate sourceNode) {
+        if (operation.getRelationshipName() == null || operation.getRelationshipName().isEmpty()) {
+            throw new InvalidNameException("relationshipName", operation.getRelationshipName(), "Not null or empty");
+        }
+
         Topology topology = EditionContextManager.getTopology();
         Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
         // ensure that the target node exists

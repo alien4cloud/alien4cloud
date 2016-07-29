@@ -15,7 +15,7 @@ Feature: Topology editor: add relationship
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Java                                                                  |
       | indexedNodeTypeId | fastconnect.nodes.Java:1.0                                            |
-    And I execute the operation
+    When I execute the operation
       | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
       | nodeName               | Java                                                                                  |
       | relationshipName       | MyRelationship                                                                        |
@@ -29,7 +29,7 @@ Feature: Topology editor: add relationship
     And The SPEL int expression "nodeTemplates.size()" should return 2
     And The SPEL int expression "nodeTemplates['Java'].relationships.size()" should return 1
 
-  Scenario: Adding a relationship without a name to connect two compatible types should succeed
+  Scenario: Adding a relationship that already exists should fail
     Given I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Compute                                                               |
@@ -41,15 +41,65 @@ Feature: Topology editor: add relationship
     And I execute the operation
       | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
       | nodeName               | Java                                                                                  |
+      | relationshipName       | MyRelationship                                                                        |
       | relationshipType       | tosca.relationships.HostedOn                                                          |
       | relationshipVersion    | 1.0                                                                                   |
       | requirementName        | host                                                                                  |
       | requirementType        | tosca.capabilities.Container                                                          |
       | target                 | Compute                                                                               |
       | targetedCapabilityName | host                                                                                  |
-    Then No exception should be thrown
-    And The SPEL int expression "nodeTemplates.size()" should return 2
-    And The SPEL int expression "nodeTemplates['Java'].relationships.size()" should return 1
+    When I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | Java                                                                                  |
+      | relationshipName       | MyRelationship                                                                        |
+      | relationshipType       | tosca.relationships.HostedOn                                                          |
+      | relationshipVersion    | 1.0                                                                                   |
+      | requirementName        | host                                                                                  |
+      | requirementType        | tosca.capabilities.Container                                                          |
+      | target                 | Compute                                                                               |
+      | targetedCapabilityName | host                                                                                  |
+    Then an exception of type "alien4cloud.exception.AlreadyExistException" should be thrown
+
+
+  Scenario: Adding a relationship without a name to connect two compatible types should fail
+    Given I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | Compute                                                               |
+      | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | Java                                                                  |
+      | indexedNodeTypeId | fastconnect.nodes.Java:1.0                                            |
+    When I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | Java                                                                                  |
+      | relationshipType       | tosca.relationships.HostedOn                                                          |
+      | relationshipVersion    | 1.0                                                                                   |
+      | requirementName        | host                                                                                  |
+      | requirementType        | tosca.capabilities.Container                                                          |
+      | target                 | Compute                                                                               |
+      | targetedCapabilityName | host                                                                                  |
+    Then an exception of type "alien4cloud.exception.InvalidNameException" should be thrown
+
+  Scenario: Adding a relationship with a missing type should fail
+    Given I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | Compute                                                               |
+      | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | Java                                                                  |
+      | indexedNodeTypeId | fastconnect.nodes.Java:1.0                                            |
+    When I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | Java                                                                                  |
+      | relationshipType       | tosca.relationships.MissingType                                                       |
+      | relationshipVersion    | 1.0                                                                                   |
+      | requirementName        | host                                                                                  |
+      | requirementType        | tosca.capabilities.Container                                                          |
+      | target                 | Compute                                                                               |
+      | targetedCapabilityName | host                                                                                  |
+    Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
 
   Scenario: Adding a relationship on a missing source node should fail
     Given I execute the operation
@@ -60,7 +110,7 @@ Feature: Topology editor: add relationship
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Java                                                                  |
       | indexedNodeTypeId | fastconnect.nodes.Java:1.0                                            |
-    And I execute the operation
+    When I execute the operation
       | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
       | nodeName               | missing node                                                                          |
       | relationshipType       | tosca.relationships.HostedOn                                                          |
@@ -80,7 +130,7 @@ Feature: Topology editor: add relationship
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Java                                                                  |
       | indexedNodeTypeId | fastconnect.nodes.Java:1.0                                            |
-    And I execute the operation
+    When I execute the operation
       | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
       | nodeName               | Compute                                                                               |
       | relationshipType       | tosca.relationships.HostedOn                                                          |
@@ -100,7 +150,7 @@ Feature: Topology editor: add relationship
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Java                                                                  |
       | indexedNodeTypeId | fastconnect.nodes.Java:1.0                                            |
-    And I execute the operation
+    When I execute the operation
       | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
       | nodeName               | Compute                                                                               |
       | relationshipType       | tosca.relationships.HostedOn                                                          |
@@ -120,7 +170,7 @@ Feature: Topology editor: add relationship
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Java                                                                  |
       | indexedNodeTypeId | fastconnect.nodes.Java:1.0                                            |
-    And I execute the operation
+    When I execute the operation
       | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
       | nodeName               | Compute                                                                               |
       | relationshipType       | tosca.relationships.HostedOn                                                          |
