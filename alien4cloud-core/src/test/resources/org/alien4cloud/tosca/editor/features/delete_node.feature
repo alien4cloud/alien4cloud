@@ -1,4 +1,4 @@
-Feature: Topology editor: delete nodes template
+Feature: Topology editor: delete node template
 
   Background:
     Given I am authenticated with "ADMIN" role

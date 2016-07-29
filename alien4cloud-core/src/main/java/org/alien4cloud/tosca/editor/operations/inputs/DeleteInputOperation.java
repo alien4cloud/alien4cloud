@@ -8,7 +8,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class RemoveInputOperation extends AbstractInputOperation {
+public class DeleteInputOperation extends AbstractInputOperation {
     @Override
     public String commitMessage() {
         return "remove input <" + getInputName() + ">";

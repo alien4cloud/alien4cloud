@@ -232,7 +232,7 @@ define(function (require) {
         remove: function(inputId) {
           var scope = this.scope;
           this.scope.execute({
-            type: 'org.alien4cloud.tosca.editor.operations.inputs.RemoveInputOperation',
+            type: 'org.alien4cloud.tosca.editor.operations.inputs.DeleteInputOperation',
             nodeName: scope.selectedNodeTemplate.name,
             inputName: inputId
           });
@@ -298,7 +298,7 @@ define(function (require) {
         removeArtifact: function(inputArtifactId) {
           var scope = this.scope;
           scope.execute({
-            type: 'org.alien4cloud.tosca.editor.operations.inputs.RemoveInputArtifactOperation',
+            type: 'org.alien4cloud.tosca.editor.operations.inputs.DeleteInputArtifactOperation',
             inputName: inputArtifactId
           });
         }

@@ -1,4 +1,4 @@
-Feature: Topology editor: add node template
+Feature: Topology editor: add input
 
   Background:
     Given I am authenticated with "ADMIN" role
