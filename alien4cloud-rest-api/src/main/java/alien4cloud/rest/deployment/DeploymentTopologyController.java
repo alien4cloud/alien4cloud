@@ -154,7 +154,7 @@ public class DeploymentTopologyController {
      * @param environmentId Id of the environment we want to update
      * @param updateRequest an {@link UpdateDeploymentTopologyRequest} object
      * @return a {@link RestResponse} with:<br>
-     *         the {@link DeploymentTopologyDTO} if everithing went well, the <br>
+     *         the {@link DeploymentTopologyDTO} if everything went well, the <br>
      *         Error if not
      *
      * @throws OrchestratorDisabledException
