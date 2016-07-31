@@ -2,8 +2,6 @@ Feature: Topology editor: add node template
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I upload CSAR from path "../../alien4cloud/target/it-artifacts/tosca-base-types-1.0.csar"
-    And I upload CSAR from path "../../alien4cloud/target/it-artifacts/java-types-1.0.csar"
     And I create an empty topology template
 
   Scenario: Add a node that exists in the repository should succeed

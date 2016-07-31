@@ -1,15 +1,18 @@
 package alien4cloud.utils;
 
-import com.google.common.collect.Maps;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import lombok.SneakyThrows;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import com.google.common.collect.Maps;
+
+import lombok.SneakyThrows;
 
 public final class AlienUtils {
 
@@ -18,6 +21,31 @@ public final class AlienUtils {
 
     private AlienUtils() {
 
+    }
+
+    /**
+     * Utility method to iterate over a list that can be null<br>
+     * for(T element : safe(list)) {}
+     * 
+     * @param collection The list that may be null.
+     * @param <T> The type of list inner elements
+     * @return The list of an empty list.
+     */
+    public static <T> Collection<T> safe(Collection<T> collection) {
+        return org.apache.commons.collections4.CollectionUtils.emptyIfNull(collection);
+    }
+
+    /**
+     * Utility method to iterate over a map that can be null<br>
+     * for(T element : safe(list)) {}
+     *
+     * @param map The list that may be null.
+     * @param <K> The type of map keys
+     * @param <K> The type of map values
+     * @return The map of an empty map.
+     */
+    public static <K, V> Map<K, V> safe(Map<K, V> map) {
+        return org.apache.commons.collections4.MapUtils.emptyIfNull(map);
     }
 
     /**

@@ -1,5 +1,7 @@
 package org.alien4cloud.tosca.editor.processors.inputs;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.Arrays;
 import java.util.Map;
 
@@ -7,7 +9,6 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
-import org.alien4cloud.tosca.editor.exception.UnmatchedElementPatternException;
 import org.alien4cloud.tosca.editor.operations.inputs.RenameInputOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
 import org.apache.commons.collections4.MapUtils;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.InvalidNameException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
@@ -51,7 +53,7 @@ public class RenameInputProcessor extends AbstractInputProcessor<RenameInputOper
             return; // nothing has changed.
         }
         if (!operation.getNewInputName().matches("\\w+")) {
-            throw new UnmatchedElementPatternException("Input name doesn't match the required pattern.");
+            throw new InvalidNameException("newInputName", operation.getNewInputName(), "\\w+");
         }
         if (inputs.containsKey(operation.getNewInputName())) {
             throw new AlreadyExistException("Input " + operation.getNewInputName() + " already existed");
@@ -62,7 +64,7 @@ public class RenameInputProcessor extends AbstractInputProcessor<RenameInputOper
 
         Topology topology = EditionContextManager.getTopology();
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
-        for (NodeTemplate nodeTemp : nodeTemplates.values()) {
+        for (NodeTemplate nodeTemp : safe(nodeTemplates).values()) {
             renameInputInProperties(nodeTemp.getProperties(), operation.getInputName(), operation.getNewInputName());
             if (nodeTemp.getRelationships() != null) {
                 for (RelationshipTemplate relationshipTemplate : nodeTemp.getRelationships().values()) {

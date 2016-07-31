@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidNameException;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation;
@@ -54,6 +55,11 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
             throw new InvalidNameException("relationshipName", operation.getRelationshipName(), "Not null or empty");
         }
 
+        if (sourceNode.getRequirements() == null || sourceNode.getRequirements().get(operation.getRequirementName()) == null) {
+            throw new NotFoundException(
+                    "Unable to find requirement with name <" + operation.getRequirementName() + "> on the source node" + operation.getNodeName());
+        }
+
         Topology topology = EditionContextManager.getTopology();
         Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
         // ensure that the target node exists
@@ -87,6 +93,9 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
         if (relationships == null) {
             relationships = Maps.newHashMap();
             sourceNode.setRelationships(relationships);
+        }
+        if (relationships.containsKey(operation.getRelationshipName())) {
+            throw new AlreadyExistException("Relationship " + operation.getRelationshipName() + " already exist on node " + operation.getNodeName());
         }
 
         RelationshipTemplate relationshipTemplate = new RelationshipTemplate();

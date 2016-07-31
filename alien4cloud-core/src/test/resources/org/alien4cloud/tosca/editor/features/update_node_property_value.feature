@@ -2,7 +2,6 @@ Feature: Topology editor: nodes templates
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I upload CSAR from path "../../alien4cloud/target/it-artifacts/tosca-normative-types-1.0.0-SNAPSHOT.csar"
     And I create an empty topology template
 
   Scenario: Updating a scalar property value should succeed

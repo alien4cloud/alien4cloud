@@ -2,8 +2,6 @@ Feature: Topology editor: delete relationship
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I upload CSAR from path "../../alien4cloud/target/it-artifacts/tosca-base-types-1.0.csar"
-    And I upload CSAR from path "../../alien4cloud/target/it-artifacts/java-types-1.0.csar"
     And I create an empty topology template
 
   Scenario: Deleting a relationship should succeed
@@ -22,7 +20,6 @@ Feature: Topology editor: delete relationship
       | relationshipType       | tosca.relationships.HostedOn                                                          |
       | relationshipVersion    | 1.0                                                                                   |
       | requirementName        | host                                                                                  |
-      | requirementType        | tosca.capabilities.Container                                                          |
       | target                 | Compute                                                                               |
       | targetedCapabilityName | host                                                                                  |
     When I execute the operation
@@ -49,7 +46,6 @@ Feature: Topology editor: delete relationship
       | relationshipType       | tosca.relationships.HostedOn                                                          |
       | relationshipVersion    | 1.0                                                                                   |
       | requirementName        | host                                                                                  |
-      | requirementType        | tosca.capabilities.Container                                                          |
       | target                 | Compute                                                                               |
       | targetedCapabilityName | host                                                                                  |
     When I execute the operation

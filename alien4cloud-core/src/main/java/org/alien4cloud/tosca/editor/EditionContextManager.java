@@ -106,7 +106,11 @@ public class EditionContextManager {
      */
     public void reset() throws IOException {
         EditionContext context = contextThreadLocal.get();
-        contextThreadLocal.get().reset(topologyServiceCore.getOrFail(getTopology().getId()));
+        Topology topology = topologyServiceCore.getOrFail(getTopology().getId());
+        if (topology.getYamlFilePath() == null) {
+            topology.setYamlFilePath("topology.yml");
+        }
+        contextThreadLocal.get().reset(topology);
     }
 
     /**
