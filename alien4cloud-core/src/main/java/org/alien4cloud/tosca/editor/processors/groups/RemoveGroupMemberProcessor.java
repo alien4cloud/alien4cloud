@@ -1,5 +1,6 @@
 package org.alien4cloud.tosca.editor.processors.groups;
 
+import alien4cloud.exception.NotFoundException;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.groups.RemoveGroupMemberOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
@@ -20,7 +21,10 @@ public class RemoveGroupMemberProcessor extends AbstractNodeProcessor<RemoveGrou
 
         NodeGroup nodeGroup = topology.getGroups().get(operation.getGroupName());
         if (nodeGroup != null && nodeGroup.getMembers() != null) {
-            nodeGroup.getMembers().remove(operation.getNodeName());
+            boolean removed = nodeGroup.getMembers().remove(operation.getNodeName());
+            if (!removed) {
+                throw new NotFoundException("Node <" + operation.getNodeName() + "> is not part of group <" + operation.getGroupName() + ">.");
+            }
         }
 
         if (nodeTemplate != null && nodeTemplate.getGroups() != null) {

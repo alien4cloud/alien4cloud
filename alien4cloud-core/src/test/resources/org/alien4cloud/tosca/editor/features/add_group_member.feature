@@ -25,12 +25,12 @@ Feature: Topology editor: add group member operation
       | groupName | simple_group                                                           |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
 
-  Scenario: Adding a node that is already in a group should succeed and not change anything
+  Scenario: Adding a node that is already in the group should fail
     Given I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Compute                                                               |
       | indexedNodeTypeId | tosca.nodes.Compute:1.0.0-SNAPSHOT                                    |
-    And I execute the operation
+    When I execute the operation
       | type      | org.alien4cloud.tosca.editor.operations.groups.AddGroupMemberOperation |
       | nodeName  | Compute                                                                |
       | groupName | simple_group                                                           |
@@ -38,7 +38,4 @@ Feature: Topology editor: add group member operation
       | type      | org.alien4cloud.tosca.editor.operations.groups.AddGroupMemberOperation |
       | nodeName  | Compute                                                                |
       | groupName | simple_group                                                           |
-    Then No exception should be thrown
-    And The SPEL int expression "groups.size()" should return 1
-    And The SPEL expression "groups['simple_group'].members[0]" should return "Compute"
-    And The SPEL expression "nodeTemplates['Compute'].groups[0]" should return "simple_group"
+    Then an exception of type "alien4cloud.exception.AlreadyExistException" should be thrown

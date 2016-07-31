@@ -1,4 +1,4 @@
-Feature: Topology editor: remove input
+Feature: Topology editor: delete input
 
   Background:
     Given I am authenticated with "ADMIN" role
