@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import alien4cloud.exception.InvalidNameException;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.groups.AddGroupMemberOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
@@ -33,6 +34,11 @@ public class AddGroupMemberProcessor extends AbstractNodeProcessor<AddGroupMembe
         }
         NodeGroup nodeGroup = groups.get(operation.getGroupName());
         if (nodeGroup == null) {
+            // If we create the group then check that the name is valid
+            if (!operation.getGroupName().matches("\\w+")) {
+                throw new InvalidNameException("groupName", operation.getGroupName(), "\\w+");
+            }
+
             nodeGroup = new NodeGroup();
             nodeGroup.setName(operation.getGroupName());
             nodeGroup.setIndex(TopologyUtils.getAvailableGroupIndex(topology));
