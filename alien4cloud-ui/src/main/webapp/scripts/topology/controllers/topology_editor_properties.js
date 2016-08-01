@@ -4,10 +4,9 @@
 define(function(require) {
   'use strict';
   var modules = require('modules');
-  var angular = require('angular');
   var _ = require('lodash');
 
-  modules.get('a4c-topology-editor').factory('topoEditProperties', [
+  modules.get('a4c-topology-editor').factory('topoEditProperties',
     function() {
       var TopologyEditorMixin = function(scope) {
         this.scope = scope;
@@ -83,15 +82,13 @@ define(function(require) {
               propertyName: propertyName,
               propertyValue: propertyValue
             },
-            function(result){
+            function(result) {
               if (_.undefined(result.error)) {
                 scope.topology.topology.nodeTemplates[scope.selectedNodeTemplate.name].capabilitiesMap[capabilityId].value.propertiesMap[propertyName].value = {
                   value: propertyValue,
                   definition: false
                 };
-
-                if(capabilityType === 'tosca.capabilities.Scalable') {
-                  // scalable informations are displayed on topology editor
+                if (capabilityType === 'tosca.capabilities.Scalable') {
                   scope.triggerTopologyRefresh = {};
                 }
               }
@@ -105,5 +102,5 @@ define(function(require) {
         scope.properties = instance;
       };
     }
-  ]); // modules
+  ); // modules
 }); // define
