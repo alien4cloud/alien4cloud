@@ -28,10 +28,10 @@ public class HealthConfiguration {
     HealthAggregator healthAggregator;
 
     @Bean
-    public HealthIndicator healthIndicator(ElasticSearchClient esClient, @Value("${directories.alien:#{null}}") String path,
-            @Value("${ha.dir_threshold:#{10 * 1024 * 1024}}") Long threshold) {
+    public HealthIndicator healthIndicator(ElasticSearchClient esClient, @Value("${directories.alien}") String path,
+            @Value("${ha.health_disk_space_threshold:#{10 * 1024 * 1024}}") Long threshold) {
 
-        HealthIndicator diskHealthIndicator = createDiskSpaceHealthIndicator(path, threshold);
+        HealthIndicator diskHealthIndicator = createDiskHealthIndicator(path, threshold);
         HealthIndicator esHealthIndicator = createESHealthIndicator(esClient);
 
         CompositeHealthIndicator healthIndicator = new CompositeHealthIndicator(healthAggregator);
@@ -46,7 +46,7 @@ public class HealthConfiguration {
         return new ElasticsearchHealthIndicator(esClient.getClient());
     }
 
-    private HealthIndicator createDiskSpaceHealthIndicator(String path, Long threshold) {
+    private HealthIndicator createDiskHealthIndicator(String path, Long threshold) {
         DiskSpaceHealthIndicatorProperties properties = new DiskSpaceHealthIndicatorProperties();
         File pathAsFile = Paths.get(path).toFile();
         properties.setPath(pathAsFile);
@@ -68,7 +68,6 @@ public class HealthConfiguration {
 
         @Override
         protected void doHealthCheck(Builder builder) throws Exception {
-            log.info("IN DISK CHECK");
             if (this.path.canWrite()) {
                 builder.up();
             } else {
@@ -80,6 +79,10 @@ public class HealthConfiguration {
         }
     }
 
+    /**
+     * This class is copied from spring boot 1.4.0, since we are using 1.2.1 version
+     * FIXME: remove it when upgrading our spring boot dependency
+     */
     private class ElasticsearchHealthIndicator extends AbstractHealthIndicator {
 
         private final String[] allIndices = { "_all" };
