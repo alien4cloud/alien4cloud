@@ -22,7 +22,7 @@ import cucumber.api.junit.Cucumber;
         // "src/test/resources/org/alien4cloud/tosca/editor/features/rename_group.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/rename_input.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/rename_node.feature"
-        "src/test/resources/org/alien4cloud/tosca/editor/features/replace_node.feature"
+        // "src/test/resources/org/alien4cloud/tosca/editor/features/replace_node.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/set_node_property_as_input.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/update_node_property_value.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/update_capability_property_value.feature"

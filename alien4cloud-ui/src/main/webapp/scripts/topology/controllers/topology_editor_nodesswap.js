@@ -17,15 +17,16 @@ define(function (require) {
       TopologyEditorMixin.prototype = {
         constructor: TopologyEditorMixin,
 
-        getPossibleReplacements: function(selectedNodeTemplate) {
-          var scope = this.scope;
-          topologyServices.nodeTemplate.getPossibleReplacements({
-            topologyId: scope.topology.topology.id,
-            nodeTemplateName: selectedNodeTemplate.name
+        getPossibleReplacements: function() {
+          var self = this;
+          nodeTemplateReplacementHelperResource.get({
+            topologyId: self.scope.topology.topology.id,
+            nodeTemplateName: self.scope.selectedNodeTemplate.name
           }, function(result) {
-            scope.suggestedReplacements = result.data;
+            self.scope.currentInputCandidatesForCapabilityProperty = result.data;
           });
         },
+
 
         swapNodeTemplate: function(selectedNodeTemplate, newNodeType) {
           var scope = this.scope;
