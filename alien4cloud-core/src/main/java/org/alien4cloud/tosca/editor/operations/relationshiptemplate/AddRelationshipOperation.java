@@ -16,8 +16,6 @@ public class AddRelationshipOperation extends AbstractRelationshipOperation {
 
     /** Name of the requirement on the source node. */
     private String requirementName;
-    /** Type of the requirement on the source node. */
-    private String requirementType;
 
     /** Name of the node template that is target of the relationship. */
     private String target;

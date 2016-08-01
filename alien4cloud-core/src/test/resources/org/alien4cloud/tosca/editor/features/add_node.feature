@@ -2,11 +2,9 @@ Feature: Topology editor: add node template
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I upload CSAR from path "../../alien4cloud/target/it-artifacts/tosca-base-types-1.0.csar"
-    And I upload CSAR from path "../../alien4cloud/target/it-artifacts/java-types-1.0.csar"
     And I create an empty topology template
 
-  Scenario: Add a node that exists in the repository should succeed.
+  Scenario: Add a node that exists in the repository should succeed
     When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Template1                                                             |
@@ -15,7 +13,7 @@ Feature: Topology editor: add node template
     And The SPEL int expression "nodeTemplates.size()" should return 1
     And The SPEL expression "nodeTemplates['Template1'].type" should return "tosca.nodes.Compute"
 
-  Scenario: Add a node that does not exists in the repository should succeed.
+  Scenario: Add a node that does not exists in the repository should succeed
     When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Template1                                                             |

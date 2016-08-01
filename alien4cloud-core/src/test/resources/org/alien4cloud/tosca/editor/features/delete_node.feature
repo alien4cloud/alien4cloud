@@ -1,9 +1,7 @@
-Feature: Topology editor: delete nodes template
+Feature: Topology editor: delete node template
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I upload CSAR from path "../../alien4cloud/target/it-artifacts/tosca-base-types-1.0.csar"
-    And I upload CSAR from path "../../alien4cloud/target/it-artifacts/java-types-1.0.csar"
     And I create an empty topology template
 
   Scenario: Remove a node template from a topology
@@ -48,7 +46,6 @@ Feature: Topology editor: delete nodes template
       | relationshipType       | tosca.relationships.HostedOn                                                          |
       | relationshipVersion    | 1.0                                                                                   |
       | requirementName        | host                                                                                  |
-      | requirementType        | tosca.capabilities.Container                                                          |
       | target                 | Template1                                                                             |
       | targetedCapabilityName | compute                                                                               |
     Given I execute the operation
@@ -61,3 +58,19 @@ Feature: Topology editor: delete nodes template
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Template1                                                             |
       | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
+
+  Scenario: Remove a node template used in a group should succeed and remove the node from the group
+    Given I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | Compute                                                               |
+      | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
+    And I execute the operation
+      | type      | org.alien4cloud.tosca.editor.operations.groups.AddGroupMemberOperation |
+      | nodeName  | Compute                                                                |
+      | groupName | simple_group                                                           |
+    Given I execute the operation
+      | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation |
+      | nodeName | Compute                                                                  |
+    Then No exception should be thrown
+    And The SPEL int expression "groups.size()" should return 1
+    And The SPEL int expression "nodeTemplates.size()" should return 0

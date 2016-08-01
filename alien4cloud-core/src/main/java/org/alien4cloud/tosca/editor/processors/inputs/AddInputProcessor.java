@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.exception.InvalidNameException;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
@@ -40,6 +41,10 @@ public class AddInputProcessor extends AbstractInputProcessor<AddInputOperation>
 
     @Override
     protected void processInputOperation(AddInputOperation operation, Map<String, PropertyDefinition> inputs) {
+        if (!operation.getInputName().matches("\\w+")) {
+            throw new InvalidNameException("inputName", operation.getInputName(), "\\w+");
+        }
+
         Topology topology = EditionContextManager.getTopology();
 
         if (inputs.containsKey(operation.getInputName())) {

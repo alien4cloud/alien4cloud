@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import alien4cloud.exception.InvalidNameException;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.groups.AddGroupMemberOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
@@ -13,9 +14,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.model.topology.*;
 import alien4cloud.topology.TopologyUtils;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Process the addition to a node template to a group. If the group does not exists, it is created.
@@ -33,6 +34,11 @@ public class AddGroupMemberProcessor extends AbstractNodeProcessor<AddGroupMembe
         }
         NodeGroup nodeGroup = groups.get(operation.getGroupName());
         if (nodeGroup == null) {
+            // If we create the group then check that the name is valid
+            if (!operation.getGroupName().matches("\\w+")) {
+                throw new InvalidNameException("groupName", operation.getGroupName(), "\\w+");
+            }
+
             nodeGroup = new NodeGroup();
             nodeGroup.setName(operation.getGroupName());
             nodeGroup.setIndex(TopologyUtils.getAvailableGroupIndex(topology));
@@ -51,6 +57,11 @@ public class AddGroupMemberProcessor extends AbstractNodeProcessor<AddGroupMembe
         if (nodeTemplate.getGroups() == null) {
             nodeTemplate.setGroups(Sets.<String> newHashSet());
         }
+
+        if (nodeGroup.getMembers().contains(operation.getNodeName())) {
+            throw new AlreadyExistException("Node <" + operation.getNodeName() + "> is already member of group <" + operation.getGroupName() + ">.");
+        }
+
         nodeTemplate.getGroups().add(operation.getGroupName());
         nodeGroup.getMembers().add(operation.getNodeName());
     }

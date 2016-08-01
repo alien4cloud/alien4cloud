@@ -6,7 +6,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
-import org.alien4cloud.tosca.editor.operations.inputs.RemoveInputOperation;
+import org.alien4cloud.tosca.editor.operations.inputs.DeleteInputOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class RemoveInputProcessor extends AbstractInputProcessor<RemoveInputOperation> implements IEditorCommitableProcessor<RemoveInputOperation> {
+public class DeleteInputProcessor extends AbstractInputProcessor<DeleteInputOperation> implements IEditorCommitableProcessor<DeleteInputOperation> {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject
@@ -39,7 +39,7 @@ public class RemoveInputProcessor extends AbstractInputProcessor<RemoveInputOper
     private DeploymentTopologyService deploymentTopologyService;
 
     @Override
-    protected void processInputOperation(RemoveInputOperation operation, Map<String, PropertyDefinition> inputs) {
+    protected void processInputOperation(DeleteInputOperation operation, Map<String, PropertyDefinition> inputs) {
         Topology topology = EditionContextManager.getTopology();
         if (!inputs.containsKey(operation.getInputName())) {
             throw new NotFoundException("Input " + operation.getInputName() + "not found in topology");
@@ -47,6 +47,9 @@ public class RemoveInputProcessor extends AbstractInputProcessor<RemoveInputOper
         inputs.remove(operation.getInputName());
 
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
+        if (nodeTemplates == null) {
+            return;
+        }
 
         for (NodeTemplate nodeTemplate : nodeTemplates.values()) {
             IndexedNodeType nodeType = ToscaContext.get(IndexedNodeType.class, nodeTemplate.getType());
@@ -93,7 +96,7 @@ public class RemoveInputProcessor extends AbstractInputProcessor<RemoveInputOper
     }
 
     @Override
-    public void beforeCommit(RemoveInputOperation operation) {
+    public void beforeCommit(DeleteInputOperation operation) {
         Topology topology = EditionContextManager.getTopology();
         // Update the configuration of existing deployment topologies
         DeploymentTopology[] deploymentTopologies = deploymentTopologyService.getByTopologyId(topology.getId());

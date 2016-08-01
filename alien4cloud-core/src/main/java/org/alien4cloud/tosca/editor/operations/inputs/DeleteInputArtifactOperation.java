@@ -10,7 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class RemoveInputArtifactOperation extends AbstractEditorOperation {
+public class DeleteInputArtifactOperation extends AbstractEditorOperation {
     /** The name of the input to add in the topology. */
     private String inputName;
 

@@ -1,7 +1,6 @@
 package org.alien4cloud.tosca.editor;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,15 +9,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import com.google.common.collect.Maps;
-import cucumber.api.DataTable;
-import gherkin.formatter.model.DataTableRow;
-import lombok.extern.slf4j.Slf4j;
-
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
-import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
-import org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation;
-import org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Assert;
 import org.springframework.expression.EvaluationContext;
@@ -34,32 +25,26 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 
+import com.google.common.collect.Maps;
+
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.model.components.CSARSource;
-import alien4cloud.model.components.Csar;
-import alien4cloud.model.components.IndexedArtifactToscaElement;
-import alien4cloud.model.components.IndexedArtifactType;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedDataType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.PrimitiveIndexedDataType;
+import alien4cloud.model.components.*;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.security.model.User;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.ArchiveUploadService;
+import cucumber.api.DataTable;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import gherkin.formatter.model.DataTableRow;
+import lombok.extern.slf4j.Slf4j;
 
 @ContextConfiguration("classpath:org/alien4cloud/tosca/editor/application-context-test.xml")
 @Slf4j
 public class EditorStepDefs {
-
     @Resource
     private ArchiveUploadService csarUploadService;
 
@@ -75,15 +60,7 @@ public class EditorStepDefs {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
 
-    @Given("^I am authenticated with \"(.*?)\" role$")
-    public void i_am_authenticated_with_role(String role) throws Throwable {
-        Authentication auth = new TestAuth(role);
-        SecurityContextHolder.getContext().setAuthentication(auth);
-    }
-
     private String topologyId;
-
-    private AbstractEditorOperation currentOperation;
 
     private EvaluationContext spelEvaluationContext;
 
@@ -92,6 +69,12 @@ public class EditorStepDefs {
     private String lastOperationId;
 
     private List<Class> typesToClean = new ArrayList<Class>();
+
+    // @Required
+    // @Value("${directories.alien}")
+    // public void setAlienDirectory(String alienDirectory) {
+    // this.alienDirectory = alienDirectory;
+    // }
 
     public EditorStepDefs() {
         super();
@@ -106,19 +89,16 @@ public class EditorStepDefs {
         typesToClean.add(Csar.class);
     }
 
-    // @Required
-    // @Value("${directories.alien}")
-    // public void setAlienDirectory(String alienDirectory) {
-    // this.alienDirectory = alienDirectory;
-    // }
-
     @Before
     public void init() throws IOException {
         lastOperationId = null;
         thrownException = null;
-        for (Class<?> type : typesToClean) {
-            alienDAO.delete(type, QueryBuilders.matchAllQuery());
-        }
+    }
+
+    @Given("^I am authenticated with \"(.*?)\" role$")
+    public void i_am_authenticated_with_role(String role) throws Throwable {
+        Authentication auth = new TestAuth(role);
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     private static class TestAuth extends UsernamePasswordAuthenticationToken {
@@ -137,12 +117,11 @@ public class EditorStepDefs {
 
     }
 
-    @Given("^I create an empty topology template$")
-    public void i_create_an_empty_topology_template() throws Throwable {
-        Topology topology = new Topology();
-        topology.setDelegateType(Topology.class.getSimpleName().toLowerCase());
-        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
-        topologyId = topologyServiceCore.saveTopology(topology);
+    @Given("^I cleanup archives$")
+    public void i_cleanup_archives() throws Throwable {
+        for (Class<?> type : typesToClean) {
+            alienDAO.delete(type, QueryBuilders.matchAllQuery());
+        }
     }
 
     @Given("^I upload CSAR from path \"(.*?)\"$")
@@ -150,26 +129,12 @@ public class EditorStepDefs {
         csarUploadService.upload(Paths.get(arg1), CSARSource.UPLOAD);
     }
 
-    @Given("^I build the operation: add a node template \"(.*?)\" related to the \"(.*?)\" node type$")
-    public void i_build_the_operation_add_a_node_template_related_to_the_node_type(String nodeName, String nodeType) throws Throwable {
-        AddNodeOperation operation = new AddNodeOperation();
-        operation.setIndexedNodeTypeId(nodeType);
-        operation.setNodeName(nodeName);
-        currentOperation = operation;
-    }
-
-    @Given("^I execute the current operation on the current topology$")
-    public void i_execute_the_current_operation_on_the_current_topology() throws Throwable {
-        thrownException = null;
-        currentOperation.setPreviousOperationId(lastOperationId);
-        try {
-            TopologyDTO topologyDTO = editorService.execute(topologyId, currentOperation);
-            lastOperationId = topologyDTO.getOperations().get(topologyDTO.getLastOperationIndex()).getId();
-            spelEvaluationContext = new StandardEvaluationContext(topologyDTO.getTopology());
-        } catch (Exception e) {
-            log.error("Exception occured while executing operation", e);
-            thrownException = e;
-        }
+    @Given("^I create an empty topology template$")
+    public void i_create_an_empty_topology_template() throws Throwable {
+        Topology topology = new Topology();
+        topology.setDelegateType(Topology.class.getSimpleName().toLowerCase());
+        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
+        topologyId = topologyServiceCore.saveTopology(topology);
     }
 
     @Given("^I execute the operation$")
@@ -217,9 +182,13 @@ public class EditorStepDefs {
 
     @Then("^The SPEL expression \"([^\"]*)\" should return \"([^\"]*)\"$")
     public void evaluateSpelExpressionUsingCurrentContext(String spelExpression, String expected) {
-        String result = evaluateExpression(spelExpression).toString();
-        Assert.assertNotNull(String.format("The SPEL expression [%s] result should not be null", spelExpression), result);
-        Assert.assertEquals(String.format("The SPEL expression [%s] should return [%s]", spelExpression, expected), expected, result);
+        Object result = evaluateExpression(spelExpression);
+        if ("null".equals(expected)) {
+            Assert.assertNull(String.format("The SPEL expression [%s] result should be null", spelExpression), result);
+        } else {
+            Assert.assertNotNull(String.format("The SPEL expression [%s] result should not be null", spelExpression), result);
+            Assert.assertEquals(String.format("The SPEL expression [%s] should return [%s]", spelExpression, expected), expected, result.toString());
+        }
     }
 
     @Then("^The SPEL int expression \"([^\"]*)\" should return (\\d+)$")
@@ -240,30 +209,8 @@ public class EditorStepDefs {
         for (String exceptionType : exceptionTypes) {
             Class<?> exceptionClass = Class.forName(exceptionType);
             Assert.assertNotNull(checkException);
-            Assert.assertEquals(checkException.getClass(), exceptionClass);
+            Assert.assertEquals(exceptionClass, checkException.getClass());
             checkException = checkException.getCause();
         }
     }
-
-    @When("^I build the operation: delete a node template \"(.*?)\" from the topology$")
-    public void i_build_the_operation_delete_a_node_template_from_the_topology(String nodeName) throws Throwable {
-        DeleteNodeOperation operation = new DeleteNodeOperation();
-        operation.setNodeName(nodeName);
-        currentOperation = operation;
-    }
-
-    @When("^I build the operation: add a relationship of type \"(.*?)\" defined in archive \"(.*?)\" version \"(.*?)\" with source \"(.*?)\" and target \"(.*?)\" for requirement \"(.*?)\" of type \"(.*?)\" and target capability \"(.*?)\"$")
-    public void i_build_the_operation_add_a_relationship_of_type_defined_in_archive_version_with_source_and_target_for_requirement_of_type_and_target_capability(
-            String type, String csar, String version, String source, String target, String req, String reqType, String capability) throws Throwable {
-        AddRelationshipOperation operation = new AddRelationshipOperation();
-        operation.setNodeName(source);
-        operation.setRelationshipType(type);
-        operation.setRelationshipVersion(version);
-        operation.setRequirementName(req);
-        operation.setRequirementType(reqType);
-        operation.setTarget(target);
-        operation.setTargetedCapabilityName(capability);
-        currentOperation = operation;
-    }
-
 }
