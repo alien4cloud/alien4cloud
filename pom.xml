@@ -65,6 +65,7 @@
 
     <!-- Elastic Search mapper (reference the elastic search version actually). -->
     <es-mapping.version>1.5.2</es-mapping.version>
+    <elasticsearch.version>1.7.0</elasticsearch.version>
     <!-- Groovy is required for ElasticSearch to run as server in order to process scripts -->
     <groovy.version>2.3.5</groovy.version>
 
@@ -383,6 +384,11 @@
         <groupId>org.alien4cloud</groupId>
         <artifactId>elasticsearch-annotations</artifactId>
         <version>${es-mapping.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.elasticsearch</groupId>
+        <artifactId>elasticsearch</artifactId>
+        <version>${elasticsearch.version}</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.groovy</groupId>
