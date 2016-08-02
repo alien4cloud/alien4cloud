@@ -8,7 +8,6 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.springframework.core.io.InputStreamResource;
@@ -85,28 +84,18 @@ public class EditorController {
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(value = "/{topologyId}/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> upload(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId,
-            @RequestParam("path") String path, @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
+            @RequestParam("path") String path, @RequestParam(value = "file") MultipartFile file) throws IOException {
         // The controller saves the file in a temporary location and create a UpdateFileOperation to be sent in the edition context.
         String artifactFileId = null;
-        if (file != null) {
-            InputStream artifactStream = file.getInputStream();
-            try {
-                artifactFileId = artifactRepository.storeFile(artifactStream);
-            } finally {
-                Closeables.close(artifactStream, true);
-            }
-        }
+
+        InputStream artifactStream = file.getInputStream();
         try {
-            UpdateFileOperation updateFileOperation = new UpdateFileOperation(path, artifactFileId);
+            UpdateFileOperation updateFileOperation = new UpdateFileOperation(path, artifactStream);
             updateFileOperation.setPreviousOperationId(lastOperationId);
             TopologyDTO topologyDTO = editorService.execute(topologyId, updateFileOperation);
             return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
-        } catch (EditionConcurrencyException e) {
-            // Failed to perform the operation for concurrency issue, delete the temporary file.
-            if (artifactFileId != null) {
-                artifactRepository.deleteFile(artifactFileId);
-            }
-            throw e;
+        } finally {
+            Closeables.close(artifactStream, true);
         }
     }
 

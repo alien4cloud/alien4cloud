@@ -11,14 +11,14 @@ define(function (require) {
   require('scripts/common/services/explorer_service');
 
   require('scripts/topology/controllers/topology_editor_workflows');
-  
+
   require('scripts/topology/directives/workflow_rendering');
   require('scripts/topology/directives/topology_rendering');
   require('scripts/topology/controllers/workflow_operation_selector');
   require('scripts/topology/controllers/workflow_state_selector');
   require('scripts/topology/services/workflow_services');
 
-  modules.get('a4c-components', ['a4c-common', 'ui.ace', 'treeControl']).controller('TopologyWorkflowEditorCtrl',
+  modules.get('a4c-topology-editor', ['a4c-common', 'ui.ace', 'treeControl']).controller('TopologyWorkflowEditorCtrl',
     ['$scope', '$http', 'explorerService', '$stateParams', 'topoEditDisplay', 'topoEditWf',
     function($scope, $http, explorerService, $stateParams, topoEditDisplay, topoEditWf) {
     $scope.displays = {

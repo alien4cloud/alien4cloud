@@ -534,60 +534,65 @@
                    ng-repeat="(artifactId, artifact) in selectedNodeTemplate.artifacts">
                 <div class="clickable"
                      ng-click="isArtifactCollapsed = !isArtifactCollapsed">
-                  <i class=" fa"
+                  <i class="fa"
                      ng-class="{'fa-caret-down' : !isArtifactCollapsed, 'fa-caret-right': isArtifactCollapsed}"></i>
-                  <span>{{artifactId}}</span>
-                  <span id='reset-artifact-{{artifactId}}' class="btn btn-xs" ng-click="artifacts.reset(artifactId); $event.stopPropagation();">
-                    <i class="fa fa-undo text-default" tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
-                  </span>
-                  <span class="pull-right btn-group" data-toggle="buttons">
-                    <a id="p_input_art_{{artifactId}}"
-                       ng-click="$event.stopPropagation(); inputs.getCandidatesForArtifact(artifact); "
-                       class="btn btn-default btn-xs dropdown-toggle"
-                       ng-class="{'active' : inputs.isInputArtifact(artifactId)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.ARTIFACTS.ADDINPUT' | translate}}"
-                       tooltip-append-to-body="true">
-                      <i class="fa fa-file"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-left" role="menu">
-                      <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.INPUTS' | translate }}</li>
-                      <li>
-                        <a id="addToInputBtn_art_{{artifactId}}" ng-click="$event.stopPropagation(); inputs.createFromArtifact(artifactId)">
-                          <strong>{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.ADDINPUT' | translate }} <i class="fa fa-plus"></i></strong>
-                        </a>
-                      </li>
-                      <!-- TODO Maybe improve the isArtifactAssociatedToInput  -->
-                      <li ng-repeat="inputArtifactId in currentInputCandidatesForArtifact | orderBy:'toString()'">
-                        <a id="{{selectedNodeTemplate.name}}_{{artifactId}}_toAssociate_{{inputArtifactId}}" ng-click="$event.stopPropagation(); inputs.toggleArtifact(artifactId, inputArtifactId)">
-                          <i class="fa fa-fw"
-                             ng-class="inputs.isArtifactAssociatedToInput(artifactId, inputArtifactId) ? 'fa-check-square-o' : 'fa-square-o'"></i>
-                          {{inputArtifactId}}
-                        </a>
-                      </li>
-                    </ul>
-                  </span>
+                  {{artifactId}}
                 </div>
                 <div class="topology-level" collapse="isArtifactCollapsed">
                   <div class="row">
+                    <div class="col-md-1 dropup">
+                      <a id="p_input_art_{{artifactId}}"
+                         ng-click="$event.stopPropagation(); inputs.getCandidatesForArtifact(artifact); "
+                         class="btn btn-default btn-xs dropdown-toggle"
+                         ng-class="{'active' : inputs.isInputArtifact(artifactId)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.ARTIFACTS.ADDINPUT' | translate}}"
+                         tooltip-append-to-body="true">
+                        <i class="fa fa-file"></i>
+                      </a>
+                      <ul class="dropdown-menu dropdown-menu-top" role="menu">
+                        <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.INPUTS' | translate }}</li>
+                        <li>
+                          <a id="addToInputBtn_art_{{artifactId}}" ng-click="$event.stopPropagation(); inputs.createFromArtifact(artifactId)">
+                            <strong>{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.ADDINPUT' | translate }} <i class="fa fa-plus"></i></strong>
+                          </a>
+                        </li>
+                        <!-- TODO Maybe improve the isArtifactAssociatedToInput  -->
+                        <li ng-repeat="inputArtifactId in currentInputCandidatesForArtifact | orderBy:'toString()'">
+                          <a id="{{selectedNodeTemplate.name}}_{{artifactId}}_toAssociate_{{inputArtifactId}}" ng-click="$event.stopPropagation(); inputs.toggleArtifact(artifactId, inputArtifactId)">
+                            <i class="fa fa-fw"
+                               ng-class="inputs.isArtifactAssociatedToInput(artifactId, inputArtifactId) ? 'fa-check-square-o' : 'fa-square-o'"></i>
+                            {{inputArtifactId}}
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
                     <div class="col-md-3">{{'COMMON.TYPE' | translate}}</div>
-                    <div class="col-md-9">{{artifact.artifactType}}</div>
+                    <div class="col-md-8">{{artifact.artifactType}}</div>
                   </div>
                   <div class="row">
+                    <div class="col-md-1"></div>
                     <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.REFERENCE' | translate}}</div>
-                    <div class="col-md-9">
-                      <div ng-if="!uploads[artifactId].isUploading">
-                        <span id="{{artifactId}}-artifactName" tooltip="{{artifact.artifactName}}" tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[artifact.artifactName.length > 20]}}">{{artifact.artifactName | truncate:20}}</span>
-
-                        <div ng-if="!inputs.isInputArtifact(artifactId)" class="fileUploadImg btn" tooltip="{{'APPLICATIONS.TOPOLOGY.UPDATE_ARTIFACT' | translate}}">
-                          <span>
-                            <i class="fa fa-upload text-primary"></i>
-                          </span>
-                            <input type="file" class="upload" ng-file-select="artifacts.onSelected($files, artifactId)">
-                        </div>
-
-
-                      </div>
-                      <progressbar ng-if="uploads[artifactId].isUploading" class="progress-striped active" value="uploads[artifactId].uploadProgress"
-                                   type="{{uploads[artifactId].type}}" />
+                    <div class="col-md-8">
+                      <span id="{{artifactId}}-artifactRef" tooltip="{{artifact.artifactRef}}" tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[artifact.artifactRef.length > 40]}}">
+                        {{artifact.artifactRef | truncate:40}}
+                      </span>
+                      <span class="pull-right btn-group">
+                        <a id="addToInputBtn_art_{{artifactId}}" class="btn btn-default btn-xs"
+                          ng-click="$event.stopPropagation(); artifacts.onSelect(artifactId)">
+                          <i class="fa fa-file" tooltip="{{ 'EDITOR.ARTIFACTS.SELECT' | translate }}"></i>
+                        </a>
+                        <a id='reset-artifact-{{artifactId}}' class="btn btn-default btn-xs" ng-click="artifacts.reset(artifactId); $event.stopPropagation();">
+                          <i class="fa fa-undo text-default" tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
+                        </a>
+                      </span>
+                    </div>
+                  </div>
+                  <div class="row" ng-if="artifact.artifactRepository">
+                    <div class="col-md-1"></div>
+                    <div class="col-md-3">{{'EDITOR.ARTIFACTS.REPOSITORY' | translate}}</div>
+                    <div class="col-md-8">
+                      <span id="{{artifactId}}-artifactRepository" tooltip="{{artifact.artifactRepository}}" tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[artifact.artifactRepository.length > 40]}}">
+                        {{artifact.artifactRepository | truncate:40}}
+                      </span>
                     </div>
                   </div>
                 </div>

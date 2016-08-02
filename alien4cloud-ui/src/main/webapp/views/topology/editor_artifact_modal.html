@@ -1,0 +1,19 @@
+<form name="selectArtifactForm" class="form-horizontal" role="form" ng-submit="save(selectArtifactForm.$valid)" novalidate>
+  <div class="modal-header">
+    <h3>{{'EDITOR.ARTIFACTS.SELECT' | translate}}</h3>
+  </div>
+  <div class="modal-body">
+    <treecontrol class="tree-classic" tree-model="treedata" options="opts" on-selection="onSelect(node)" on-node-toggle="onSelect(node)" selected-node="selected" expanded-nodes="expandedNodes">
+      {{node.name}}
+    </treecontrol>
+    <input type="hidden" class="form-control" id="artifact_reference_id" ng-model="artifact.reference" name="name" required >
+  </div>
+  <div class="modal-footer">
+    <button id="select-artifact-button" ng-disabled="selectArtifactForm.$invalid" class="btn btn-primary">
+      {{'SELECT' | translate}}
+    </button>
+    <a class="btn btn-default" ng-click="cancel()">
+      {{'CANCEL' | translate}}
+    </a>
+  </div>
+</form>

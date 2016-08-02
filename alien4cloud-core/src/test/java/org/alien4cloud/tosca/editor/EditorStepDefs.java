@@ -1,6 +1,7 @@
 package org.alien4cloud.tosca.editor;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,6 +11,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
+import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Assert;
 import org.springframework.expression.EvaluationContext;
@@ -62,7 +64,8 @@ public class EditorStepDefs {
 
     private String topologyId;
 
-    private EvaluationContext spelEvaluationContext;
+    private EvaluationContext topologyEvaluationContext;
+    private EvaluationContext dtoEvaluationContext;
 
     private Exception thrownException;
 
@@ -154,13 +157,23 @@ public class EditorStepDefs {
                 parser.parseRaw(operationEntry.getKey()).setValue(operationContext, operationEntry.getValue());
             }
         }
+        doExecuteOperation(operation);
+    }
 
+    @Given("^I upload a file located at \"(.*?)\" to the archive path \"(.*?)\"$")
+    public void i_upload_a_file_located_at_to_the_archive_path(String filePath, String archiveTargetPath) throws Throwable {
+        UpdateFileOperation updateFileOperation = new UpdateFileOperation(archiveTargetPath, Files.newInputStream(Paths.get(filePath)));
+        doExecuteOperation(updateFileOperation);
+    }
+
+    private void doExecuteOperation(AbstractEditorOperation operation) {
         thrownException = null;
         operation.setPreviousOperationId(lastOperationId);
         try {
             TopologyDTO topologyDTO = editorService.execute(topologyId, operation);
             lastOperationId = topologyDTO.getOperations().get(topologyDTO.getLastOperationIndex()).getId();
-            spelEvaluationContext = new StandardEvaluationContext(topologyDTO.getTopology());
+            topologyEvaluationContext = new StandardEvaluationContext(topologyDTO.getTopology());
+            dtoEvaluationContext = new StandardEvaluationContext(topologyDTO);
         } catch (Exception e) {
             log.error("Exception occured while executing operation", e);
             thrownException = e;
@@ -174,7 +187,10 @@ public class EditorStepDefs {
     }
 
     private Object evaluateExpression(String spelExpression) {
-        EvaluationContext context = spelEvaluationContext;
+        return evaluateExpression(topologyEvaluationContext, spelExpression);
+    }
+
+    private Object evaluateExpression(EvaluationContext context, String spelExpression) {
         ExpressionParser parser = new SpelExpressionParser();
         Expression exp = parser.parseExpression(spelExpression);
         return exp.getValue(context);
@@ -183,6 +199,16 @@ public class EditorStepDefs {
     @Then("^The SPEL expression \"([^\"]*)\" should return \"([^\"]*)\"$")
     public void evaluateSpelExpressionUsingCurrentContext(String spelExpression, String expected) {
         Object result = evaluateExpression(spelExpression);
+        assertSpelResult(expected, result, spelExpression);
+    }
+
+    @Then("^The dto SPEL expression \"([^\"]*)\" should return \"([^\"]*)\"$")
+    public void evaluateSpelExpressionUsingCurrentDTOContext(String spelExpression, String expected) {
+        Object result = evaluateExpression(dtoEvaluationContext, spelExpression);
+        assertSpelResult(expected, result, spelExpression);
+    }
+
+    private void assertSpelResult(String expected, Object result, String spelExpression) {
         if ("null".equals(expected)) {
             Assert.assertNull(String.format("The SPEL expression [%s] result should be null", spelExpression), result);
         } else {

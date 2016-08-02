@@ -9,9 +9,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ResetNodeDeploymentArtifactOperation extends AbstractNodeOperation {
-    // TODO
+    private String artifactName;
+
     @Override
     public String commitMessage() {
-        return "reset the deployment artifact <" + "> of node <" + getNodeName() + "> to it's original value.";
+        return "reset the deployment artifact <" + artifactName + "> of node <" + getNodeName() + "> to it's original value.";
     }
 }

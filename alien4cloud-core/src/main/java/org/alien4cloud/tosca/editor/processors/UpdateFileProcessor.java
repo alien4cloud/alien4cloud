@@ -3,6 +3,7 @@ package org.alien4cloud.tosca.editor.processors;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.TreeSet;
 
 import javax.inject.Inject;
 
@@ -22,7 +23,7 @@ import lombok.SneakyThrows;
  * Process an operation that uploaded or updated a file.
  */
 @Component
-public class UpdateFileProcessor implements IEditorCommitableProcessor<UpdateFileOperation> {
+public class UpdateFileProcessor implements IEditorCommitableProcessor<UpdateFileOperation>, IEditorOperationProcessor<UpdateFileOperation> {
     @Inject
     private IFileRepository artifactRepository;
 
@@ -30,14 +31,13 @@ public class UpdateFileProcessor implements IEditorCommitableProcessor<UpdateFil
     @SneakyThrows
     public void process(UpdateFileOperation operation) {
         // archive content tree is actually a node that contains only the folder of the topology
-        String initPath = EditionContextManager.get().getArchiveContentTree().getFullPath();
-        TreeNode root = EditionContextManager.get().getArchiveContentTree().getChildren().get(0);
+        TreeNode root = EditionContextManager.get().getArchiveContentTree().getChildren().first();
         // walk the file path to insert an element
         TreeNode target = root;
         String[] pathElements = operation.getPath().split("/");
         for (int i = 0; i < pathElements.length; i++) {
             String pathElement = pathElements[i];
-            TreeNode child = getChild(target, pathElement);
+            TreeNode child = target.getChild(pathElement);
             if (child == null) {
                 if (target.isLeaf()) {
                     throw new InvalidPathException();
@@ -51,26 +51,19 @@ public class UpdateFileProcessor implements IEditorCommitableProcessor<UpdateFil
                 if (i == pathElements.length - 1) {
                     child.setLeaf(true);
                 } else {
-                    child.setChildren(new ArrayList<TreeNode>());
+                    child.setChildren(new TreeSet<>());
                 }
             }
             target = child;
         }
         if (target.isLeaf()) {
-            target.setArtifactId(operation.getTempFileId()); // let's just impact the url to point to the temp file.
+            // store the file in the local temporary file repository
+            String artifactFileId = artifactRepository.storeFile(operation.getArtifactStream());
+            target.setArtifactId(artifactFileId); // let's just impact the url to point to the temp file.
         } else {
             // Fail as we cannot override a directory
             throw new InvalidPathException();
         }
-    }
-
-    private TreeNode getChild(TreeNode node, String childName) {
-        for (TreeNode child : node.getChildren()) {
-            if (child.getName().equals(childName)) {
-                return child;
-            }
-        }
-        return null;
     }
 
     @Override
@@ -78,5 +71,6 @@ public class UpdateFileProcessor implements IEditorCommitableProcessor<UpdateFil
     public void beforeCommit(UpdateFileOperation operation) {
         Path targetPath = EditionContextManager.get().getLocalGitPath().resolve(operation.getPath());
         Files.copy(artifactRepository.getFile(operation.getTempFileId()), targetPath);
+        artifactRepository.deleteFile(operation.getTempFileId());
     }
 }

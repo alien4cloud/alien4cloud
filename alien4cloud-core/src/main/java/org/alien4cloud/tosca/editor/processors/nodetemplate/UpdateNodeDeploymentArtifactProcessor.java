@@ -2,31 +2,26 @@ package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodeDeploymentArtifactOperation;
+import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.apache.commons.lang3.NotImplementedException;
+import org.springframework.stereotype.Component;
 
-import alien4cloud.component.repository.ArtifactRepositoryConstants;
-import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.topology.TopologyServiceCore;
-import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import alien4cloud.utils.TreeNode;
 
 /**
- * .
+ * Process an {@link UpdateNodeDeploymentArtifactOperation}.
  */
+@Component
 public class UpdateNodeDeploymentArtifactProcessor implements IEditorOperationProcessor<UpdateNodeDeploymentArtifactOperation> {
-    @Resource
-    private IFileRepository artifactRepository;
-
     @Override
     public void process(UpdateNodeDeploymentArtifactOperation operation) {
-        // FIXME
-        // Perform check that authorization's ok
         Topology topology = EditionContextManager.getTopology();
 
         // Get the node template's artifacts to update
@@ -36,22 +31,27 @@ public class UpdateNodeDeploymentArtifactProcessor implements IEditorOperationPr
         if (artifact == null) {
             throw new NotFoundException("Artifact with key [" + operation.getArtifactName() + "] do not exist");
         }
-        String oldArtifactId = artifact.getArtifactRef();
-        // FIXME when using git we should not have artifat repository anymore in alien (all should be part of archive).
-        if (ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY.equals(artifact.getArtifactRepository())) {
-            artifactRepository.deleteFile(oldArtifactId);
+
+        if (operation.getArtifactRepository() == null) {
+            // this is an archive file, ensure that the file exists within the archive
+            TreeNode root = EditionContextManager.get().getArchiveContentTree().getChildren().first();
+            TreeNode target = root;
+            String[] pathElements = operation.getArtifactReference().split("/");
+            for (int i = 0; i < pathElements.length; i++) {
+                String pathElement = pathElements[i];
+                TreeNode child = target.getChild(pathElement);
+                if (child == null) {
+                    throw new NotFoundException(
+                            "The artifact specified at path <" + operation.getArtifactReference() + "> does not exists in the topology archive.");
+                }
+                target = child;
+            }
+        } else {
+            // FIXME ensure that the repository is defined in the topology or globally in a4c
+            throw new NotImplementedException("Alien 4 Cloud doesn't support repositories in topology editor.");
         }
 
-        // InputStream artifactStream = artifactFile.getInputStream();
-        // try {
-        // String artifactFileId = artifactRepository.storeFile(artifactStream);
-        // artifact.setArtifactName(artifactFile.getOriginalFilename());
-        // artifact.setArtifactRef(artifactFileId);
-        // artifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY);
-        // topologyServiceCore.save(topology);
-        // return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-        // } finally {
-        // Closeables.close(artifactStream, true);
-        // }
+        artifact.setArtifactRef(operation.getArtifactReference());
+        artifact.setArtifactRepository(operation.getArtifactRepository());
     }
 }

@@ -10,7 +10,6 @@ define(function (require) {
 
       $scope.save = function(valid) {
         if (valid) {
-          console.log('closing', $scope.newLocation);
           $modalInstance.close($scope.newLocation);
         }
       };

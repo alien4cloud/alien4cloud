@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.TreeSet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -36,7 +37,7 @@ public final class DirectoryJSonWalker {
         final TreeNode root = new TreeNode();
         root.setLeaf(false);
         root.setFullPath("");
-        root.setChildren(new ArrayList<TreeNode>());
+        root.setChildren(new TreeSet<>());
         // create the directory layout file
         Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
             TreeNode current = root;
@@ -47,7 +48,7 @@ public final class DirectoryJSonWalker {
                 treeNode.setLeaf(false);
                 treeNode.setName(dir.getFileName().toString());
                 treeNode.setFullPath(current.getFullPath() + "/" + dir.getFileName().toString());
-                treeNode.setChildren(new ArrayList<TreeNode>());
+                treeNode.setChildren(new TreeSet<>());
                 treeNode.setParent(current);
                 current.getChildren().add(treeNode);
                 current = treeNode;

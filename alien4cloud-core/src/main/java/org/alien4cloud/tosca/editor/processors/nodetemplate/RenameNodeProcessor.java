@@ -15,7 +15,7 @@ import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.springframework.stereotype.Component;
 
 /**
- * 
+ * Process a {@link RenameNodeOperation}
  */
 @Slf4j
 @Component

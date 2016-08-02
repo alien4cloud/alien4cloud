@@ -26,7 +26,7 @@ import alien4cloud.topology.TopologyUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- *
+ * Process a {@link DeleteNodeOperation}
  */
 @Slf4j
 @Component

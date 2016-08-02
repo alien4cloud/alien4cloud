@@ -9,7 +9,7 @@ define(function (require) {
   require('angular-tree-control');
   require('scripts/common/services/explorer_service');
 
-  modules.get('a4c-components', ['a4c-common', 'ui.ace', 'treeControl']).controller('TopologyBrowserCtrl',
+  modules.get('a4c-topology-editor', ['a4c-common', 'ui.ace', 'treeControl']).controller('TopologyBrowserCtrl',
     ['$scope', '$http', 'explorerService', '$stateParams', 'topoEditDisplay', 'uploadServiceFactory',
     function($scope, $http, explorerService, $stateParams, topoEditDisplay, uploadServiceFactory) {
     var openOnFile = $stateParams.file;

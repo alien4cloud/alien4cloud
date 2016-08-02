@@ -1,8 +1,6 @@
 package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.application.TopologyCompositionService;
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.CyclicReferenceException;
 import alien4cloud.exception.InvalidNodeNameException;
 import alien4cloud.exception.NotFoundException;
@@ -27,7 +24,7 @@ import alien4cloud.topology.TopologyUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Process an add node template operation.
+ * Process an {@link AddNodeOperation}
  */
 @Slf4j
 @Component

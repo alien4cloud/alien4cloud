@@ -4,7 +4,7 @@ define(function (require) {
 
   var modules = require('modules');
 
-  modules.get('a4c-components', ['a4c-common', 'ui.ace', 'treeControl']).controller('TopologyHistoryCtrl',
+  modules.get('a4c-topology-editor', ['a4c-common', 'ui.ace', 'treeControl']).controller('TopologyHistoryCtrl',
     ['$scope', '$alresource', 'topoEditDisplay', function($scope, $alresource, topoEditDisplay) {
       $scope.displays = {
         history: { active: true, size: 400, selector: '#history-box', only: [] },
