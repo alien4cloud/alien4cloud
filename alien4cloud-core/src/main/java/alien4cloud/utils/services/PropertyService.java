@@ -36,7 +36,6 @@ public class PropertyService {
         // if the default value is also empty, we set the property value to null
         constraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
         if (propertyValue instanceof String) {
-            // constraintPropertyService.checkSimplePropertyConstraint(propertyName, (String) propertyValue, propertyDefinition);
             properties.put(propertyName, new ScalarPropertyValue((String) propertyValue));
         } else if (propertyValue instanceof Map) {
             properties.put(propertyName, new ComplexPropertyValue((Map<String, Object>) propertyValue));

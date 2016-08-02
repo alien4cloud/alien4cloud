@@ -109,8 +109,8 @@ public class RenameInputProcessor extends AbstractInputProcessor<RenameInputOper
         DeploymentTopology[] deploymentTopologies = deploymentTopologyService.getByTopologyId(topology.getId());
         for (DeploymentTopology deploymentTopology : deploymentTopologies) {
             if (deploymentTopology.getInputProperties() != null && deploymentTopology.getInputProperties().containsKey(operation.getInputName())) {
-                String oldValue = deploymentTopology.getInputProperties().remove(operation.getInputName());
-                deploymentTopology.getInputProperties().put(operation.getNewInputName(), oldValue);
+                AbstractPropertyValue previousValue = deploymentTopology.getInputProperties().remove(operation.getInputName());
+                deploymentTopology.getInputProperties().put(operation.getNewInputName(), previousValue);
                 alienDAO.save(deploymentTopology);
             }
         }

@@ -103,12 +103,12 @@ public class DeploymentTopologyService {
     }
 
     /**
-     * Get or create if not yet existing the {@link DeploymentTopology}
+     * Get or create if not yet existing the {@link DeploymentTopology} for the given environment.
      *
-     * @param environmentId environment's id
-     * @return the existing deployment topology or new created one
+     * @param environmentId The environment for which to get or create a {@link DeploymentTopology}
+     * @return the existing {@link DeploymentTopology} or new created one
      */
-    private DeploymentTopology getOrCreateDeploymentTopology(String environmentId) {
+    public DeploymentTopology getDeploymentTopology(String environmentId) {
         ApplicationEnvironment environment = appEnvironmentServices.getOrFail(environmentId);
         ApplicationVersion version = applicationVersionService.getOrFail(environment.getCurrentVersionId());
         return getOrCreateDeploymentTopology(environment, version.getTopologyId());
@@ -162,7 +162,7 @@ public class DeploymentTopologyService {
     }
 
     public DeploymentConfiguration getDeploymentConfiguration(String environmentId) {
-        DeploymentTopology deploymentTopology = getOrCreateDeploymentTopology(environmentId);
+        DeploymentTopology deploymentTopology = getDeploymentTopology(environmentId);
         return getDeploymentConfiguration(deploymentTopology);
     }
 
@@ -257,15 +257,15 @@ public class DeploymentTopologyService {
      * @param propertyName The name of the property for which to update the value.
      * @param propertyValue The new value of the property.
      */
-    public void updateProperty(String environmentId, String nodeTemplateId, String propertyName, Object propertyValue) throws ConstraintViolationException,
-            ConstraintValueDoNotMatchPropertyTypeException {
+    public void updateProperty(String environmentId, String nodeTemplateId, String propertyName, Object propertyValue)
+            throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         DeploymentConfiguration deploymentConfiguration = getDeploymentConfiguration(environmentId);
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
         // It is not allowed to override a value from an original node or from a location resource.
         NodeTemplate substitutedNode = deploymentTopology.getNodeTemplates().get(nodeTemplateId);
         if (substitutedNode == null) {
-            throw new NotFoundException("The deployment topology <" + deploymentTopology.getId() + "> doesn't contains any node with id <" + nodeTemplateId
-                    + ">");
+            throw new NotFoundException(
+                    "The deployment topology <" + deploymentTopology.getId() + "> doesn't contains any node with id <" + nodeTemplateId + ">");
         }
         String substitutionId = deploymentTopology.getSubstitutedNodes().get(nodeTemplateId);
         if (substitutionId == null) {
@@ -298,8 +298,8 @@ public class DeploymentTopologyService {
         // It is not allowed to override a value from an original node or from a location resource.
         NodeTemplate substitutedNode = deploymentTopology.getNodeTemplates().get(nodeTemplateId);
         if (substitutedNode == null) {
-            throw new NotFoundException("The deployment topology <" + deploymentTopology.getId() + "> doesn't contains any node with id <" + nodeTemplateId
-                    + ">");
+            throw new NotFoundException(
+                    "The deployment topology <" + deploymentTopology.getId() + "> doesn't contains any node with id <" + nodeTemplateId + ">");
         }
         String substitutionId = deploymentTopology.getSubstitutedNodes().get(nodeTemplateId);
         if (substitutionId == null) {

@@ -5,7 +5,6 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.exception.InvalidNameException;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
@@ -16,14 +15,12 @@ import com.google.common.collect.Maps;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.InvalidArgumentException;
+import alien4cloud.exception.InvalidNameException;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.tosca.normative.ToscaType;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -51,11 +48,6 @@ public class AddInputProcessor extends AbstractInputProcessor<AddInputOperation>
             throw new AlreadyExistException("An input with the id " + operation.getInputName() + "already exist in the topology " + topology.getId());
         }
 
-        // FIXME fix this for alien 1.3.0
-        if (!ToscaType.isSimple(operation.getPropertyDefinition().getType())) {
-            throw new InvalidArgumentException("An input with a non simple propery is not supported right now.");
-        }
-
         inputs.put(operation.getInputName(), operation.getPropertyDefinition());
         topology.setInputs(inputs);
 
@@ -67,14 +59,13 @@ public class AddInputProcessor extends AbstractInputProcessor<AddInputOperation>
         Topology topology = EditionContextManager.getTopology();
         // Update default values for each deployment topology
         AbstractPropertyValue defaultValue = operation.getPropertyDefinition().getDefault();
-        if (defaultValue != null && defaultValue instanceof ScalarPropertyValue) {
-            String defaultScalarValue = ((ScalarPropertyValue) defaultValue).getValue();
+        if (defaultValue != null) {
             DeploymentTopology[] deploymentTopologies = deploymentTopologyService.getByTopologyId(topology.getId());
             for (DeploymentTopology deploymentTopology : deploymentTopologies) {
                 if (deploymentTopology.getInputProperties() == null) {
-                    deploymentTopology.setInputProperties(Maps.<String, String> newHashMap());
+                    deploymentTopology.setInputProperties(Maps.newHashMap());
                 }
-                deploymentTopology.getInputProperties().put(operation.getInputName(), defaultScalarValue);
+                deploymentTopology.getInputProperties().put(operation.getInputName(), defaultValue);
                 alienDAO.save(deploymentTopology);
             }
         }

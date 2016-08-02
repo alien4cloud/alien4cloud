@@ -13,6 +13,8 @@
           <tr ng-repeat="(inputId, inputDefinition) in deploymentContext.deploymentTopologyDTO.topology.inputs | allowedInputs">
             <td>
               <property-display definition="inputDefinition"
+                                property-type="deploymentContext.deploymentTopologyDTO.dataTypes[inputDefinition.type]"
+                                dependencies="deploymentContext.deploymentTopologyDTO.topology.dependencies"
                                 property-name="inputId"
                                 property-value="deploymentContext.deploymentTopologyDTO.topology.inputProperties[inputId]"
                                 on-save="updateInputValue(propertyDefinition, propertyValue, inputId)"

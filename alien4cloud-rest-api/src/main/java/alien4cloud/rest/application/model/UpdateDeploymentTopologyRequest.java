@@ -2,6 +2,7 @@ package alien4cloud.rest.application.model;
 
 import java.util.Map;
 
+import alien4cloud.model.components.AbstractPropertyValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,5 +16,5 @@ public class UpdateDeploymentTopologyRequest {
 
     private Map<String, String> providerDeploymentProperties;
 
-    private Map<String, String> inputProperties;
+    private Map<String, Object> inputProperties;
 }

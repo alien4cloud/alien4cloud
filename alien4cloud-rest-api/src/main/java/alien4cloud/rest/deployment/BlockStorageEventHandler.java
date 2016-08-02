@@ -6,21 +6,16 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Sets;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.ComplexPropertyValue;
-import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.ListPropertyValue;
-import alien4cloud.model.components.PropertyValue;
-import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.components.*;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.topology.NodeTemplate;
@@ -28,8 +23,7 @@ import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
-
-import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -98,7 +92,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
                 // the value is set in the input (deployment setup)
                 log.info("Updating deploymentsetup <{}> input properties <{}> to add a new VolumeId", deploymentTopology.getId(), function.getTemplateName());
                 log.debug("VolumeId to add: <{}>. New value is <{}>", persistentResourceEvent.getPropertyValue(), propertyValue);
-                deploymentTopology.getInputProperties().put(function.getTemplateName(), (String) propertyValue);
+                deploymentTopology.getInputProperties().put(function.getTemplateName(), new ScalarPropertyValue((String) propertyValue));
             } else {
                 // this is not supported / print a warning
                 log.warn("Failed to store the id of the created block storage <{}> for deployment <{}> application <{}> environment <{}>");
@@ -113,7 +107,8 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
         deploymentTopologyService.updateDeploymentTopology(deploymentTopology);
     }
 
-    private void updateRuntimeTopology(DeploymentTopology runtimeTopo, PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent, Object propertyValue) {
+    private void updateRuntimeTopology(DeploymentTopology runtimeTopo, PaaSInstancePersistentResourceMonitorEvent persistentResourceEvent,
+            Object propertyValue) {
         NodeTemplate nodeTemplate = topoServiceCore.getNodeTemplate(runtimeTopo, persistentResourceEvent.getNodeTemplateId());
         log.info("Updating Runtime topology: Storage NodeTemplate <{}.{}> to add a new volumeId", runtimeTopo.getId(),
                 persistentResourceEvent.getNodeTemplateId());

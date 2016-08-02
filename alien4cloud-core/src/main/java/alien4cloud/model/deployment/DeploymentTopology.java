@@ -16,6 +16,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
@@ -82,7 +83,7 @@ public class DeploymentTopology extends Topology {
     private Map<String, String> providerDeploymentProperties;
     /** Values of the input properties as configured by the user. */
     @ObjectField(enabled = false)
-    private Map<String, String> inputProperties;
+    private Map<String, AbstractPropertyValue> inputProperties;
     // TODO add also the input artifacts here. /-> Note that they should/could be repository based.
 
     /**
