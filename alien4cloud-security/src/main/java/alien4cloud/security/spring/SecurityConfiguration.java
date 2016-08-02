@@ -95,6 +95,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) throws Exception {
         log.debug("Configure ignore path");
         web.ignoring().antMatchers("/api-doc/**", "/api-docs/**", "/data/**", "/bower_components/**", "/images/**", "/js-lib/**", "/scripts/**", "/styles/**",
-                "/views/**");
+                "/views/**", "/rest/admin/health");
     }
 }
