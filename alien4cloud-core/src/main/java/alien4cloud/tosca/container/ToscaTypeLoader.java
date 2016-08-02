@@ -65,10 +65,11 @@ public class ToscaTypeLoader {
                 // Still used
                 typeUsagesMap.put(type, currentUsageCount - 1);
             }
-        } else {
-            log.error("Unload a type which is not used [" + type + "]");
-            throw new NotFoundException("Remove a type which is not used [" + type + "]");
         }
+//        else {
+//            log.error("Unload a type which is not used [" + type + "]");
+//            throw new NotFoundException("Remove a type which is not used [" + type + "]");
+//        }
         if (log.isDebugEnabled()) {
             log.debug("Type usage [" + typeUsagesMap + "]");
             log.debug("Dependencies usage [" + dependenciesMap + "]");

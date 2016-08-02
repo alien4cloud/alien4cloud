@@ -2,7 +2,6 @@ Feature: Topology editor: nodes templates
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I upload CSAR from path "../../alien4cloud/target/it-artifacts/tosca-normative-types-1.0.0-SNAPSHOT.csar"
     And I create an empty topology template
 
   Scenario: Updating a scalar property value of capability should succeed
@@ -44,3 +43,16 @@ Feature: Topology editor: nodes templates
       | propertyName   | num_cpus                                                                                    |
       | propertyValue  | 0                                                                                           |
     Then an exception of type "org.alien4cloud.tosca.editor.exception.PropertyValueException/alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException" should be thrown
+
+  Scenario: Updating a scalar property value of capability with a wrong name should fail
+    Given I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | compute                                                               |
+      | indexedNodeTypeId | tosca.nodes.Compute:1.0.0-SNAPSHOT                                    |
+    When I execute the operation
+      | type           | org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateCapabilityPropertyValueOperation |
+      | nodeName       | compute                                                                                     |
+      | capabilityName | host                                                                                        |
+      | propertyName   | num_cpusFAILLED                                                                             |
+      | propertyValue  | 0                                                                                           |
+    Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown

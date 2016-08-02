@@ -18,11 +18,13 @@ import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.springframework.stereotype.Component;
 
 /**
  * Replace the type of a node template by another compatible type (inherited or that fulfills the same used capabilities and requirements).
  */
 @Slf4j
+@Component
 public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNodeOperation> {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
