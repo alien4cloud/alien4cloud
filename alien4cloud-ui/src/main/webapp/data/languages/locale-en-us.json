@@ -321,6 +321,7 @@
     "DATA": "Data",
     "DESCRIPTION" : "Description",
     "EMAIL" : "Email",
+    "EMAIL_INVALID" : "Invalid Email.",
     "ENABLED_false" : "Disabled",
     "ENABLED_true" : "Enabled",
     "FILTER" : "Filter",
@@ -510,6 +511,10 @@
       "UNDEPLOYMENT_IN_PROGRESS" : "Undeployment in progress",
       "UNKNOWN" : "Unknown",
       "WARNING" : "Warning"
+    },
+    "TOASTER_STATUS" : {
+      "DEPLOYED" : "The environment < {{envName}} > of application < {{appName}} > is deployed.",
+      "FAILURE" : "A failure has occurred during the deployment of the environment < {{envName}} > of application < {{appName}} >. See logs deployment for more informations."
     }
   },
   "DETAILS" : "Details",
@@ -631,7 +636,6 @@
   },
   "GROUPS" : {
     "EDIT_GROUPS" : "Edit groups",
-    "EMAIL_INVALID" : "Invalid Email.",
     "NEW" : "New Group",
     "ROLES" : "Roles"
   },
@@ -804,7 +808,6 @@
     "CONFIRM_PASSWORD_HOLDER" : "Confirm",
     "EDIT_GROUPS" : "Edit groups",
     "EDIT_GROUP_HEADER" : "Add or remove groups",
-    "EMAIL_INVALID" : "Invalid Email.",
     "FIRST_NAME" : "First Name",
     "LAST_NAME" : "Last Name",
     "NEW" : "New User",

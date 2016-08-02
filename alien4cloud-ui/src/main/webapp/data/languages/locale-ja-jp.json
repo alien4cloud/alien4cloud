@@ -317,6 +317,7 @@
     "DATA": "Data",
     "DESCRIPTION" : "説明",
     "EMAIL" : "Email",
+    "EMAIL_INVALID" : "Emailが無効です",
     "ENABLED_false" : "無効化",
     "ENABLED_true" : "有効化",
     "FILTER" : "フィルタ",
@@ -506,6 +507,10 @@
       "UNDEPLOYMENT_IN_PROGRESS" : "Undeployment in progress",
       "UNKNOWN" : "Unknown",
       "WARNING" : "Warning"
+    },
+    "TOASTER_STATUS" : {
+      "DEPLOYED" : "The environment < {{envName}} > of application < {{appName}} > is deployed.",
+      "FAILURE" : "A failure has occurred during the deployment of the environment < {{envName}} > of application < {{appName}} >. See logs deployment for more informations."
     }
   },
   "DETAILS" : "Details",
@@ -624,7 +629,6 @@
   },
   "GROUPS" : {
     "EDIT_GROUPS" : "グループの編集",
-    "EMAIL_INVALID" : "Emailが無効です",
     "NEW" : "新しいグループ",
     "ROLES" : "ロール"
   },
@@ -789,7 +793,6 @@
     "CONFIRM_PASSWORD_HOLDER" : "確認",
     "EDIT_GROUPS" : "グループの編集",
     "EDIT_GROUP_HEADER" : "グループの追加もしくは削除",
-    "EMAIL_INVALID" : "Emailが無効です",
     "FIRST_NAME" : "First Name",
     "LAST_NAME" : "Last Name",
     "NEW" : "新しいユーザ",

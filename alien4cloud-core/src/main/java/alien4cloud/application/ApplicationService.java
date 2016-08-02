@@ -178,7 +178,7 @@ public class ApplicationService {
     /**
      * Check if the connected user has at least one application role on the related application with a fail when applicationId is not valid
      * If no roles mentioned, all {@link ApplicationRole} values will be used (one at least required)
-     * 
+     *
      * @param applicationId
      * @return the related application
      */

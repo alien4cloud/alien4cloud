@@ -487,7 +487,7 @@ public class TopologyService {
 
         try {
             StringWriter writer = new StringWriter();
-            VelocityUtil.generate("templates/topology-1_0_0_wd03.yml.vm", writer, velocityCtx);
+            VelocityUtil.generate("templates/topology-alien_dsl_1_2_0.yml.vm", writer, velocityCtx);
             return writer.toString();
         } catch (Exception e) {
             log.error("Exception while templating YAML for topology " + topology.getId(), e);
