@@ -1,7 +1,5 @@
 package alien4cloud.plugin.aop;
 
-import alien4cloud.events.AlienEvent;
-import com.google.common.collect.Maps;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -11,7 +9,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -28,6 +28,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 import org.springframework.util.ReflectionUtils.MethodFilter;
+
+import alien4cloud.events.AlienEvent;
+
+import com.google.common.collect.Maps;
 
 /**
  * Manage inter context proxies : thanks to it, we can define aspects upon main context beans in child contexts. Also broadcast {@link AlienEvent}s to child
@@ -117,6 +121,9 @@ public class ChildContextAspectsManager implements ApplicationListener<Applicati
     }
 
     private void onContextStarted(ApplicationContext ctx) {
+        if (ctx.getId().endsWith(":leader")) {
+            return;
+        }
         lock.lock();
         try {
             childContexts.put(ctx.toString(), ctx);
@@ -146,6 +153,9 @@ public class ChildContextAspectsManager implements ApplicationListener<Applicati
     }
 
     private void onContextStopped(ApplicationContext ctx) {
+        if (ctx.getId().endsWith(":leader")) {
+            return;
+        }
         lock.lock();
         try {
             if (log.isDebugEnabled()) {

@@ -7,9 +7,9 @@ import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.events.HALeaderElectionEvent;
 import alien4cloud.orchestrators.services.OrchestratorStateService;
 import alien4cloud.plugin.PluginManager;
 
@@ -17,7 +17,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 @Slf4j
 @Component
-public class ApplicationBootstrap implements ApplicationListener<HALeaderElectionEvent> {
+public class ApplicationBootstrap implements ApplicationListener<ContextRefreshedEvent> {
     @Inject
     private PluginManager pluginManager;
     @Inject
@@ -52,28 +52,11 @@ public class ApplicationBootstrap implements ApplicationListener<HALeaderElectio
     }
 
     @Override
-    public void onApplicationEvent(HALeaderElectionEvent event) {
-        if (event.isLeader()) {
-            if (initialized) {
-                return;
-            }
-            initialized = true;
-            bootstrap();
-        } else {
-            if (!initialized) {
-                return;
-            }
-            initialized = false;
-            teardown();
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        if (initialized) {
+            return;
         }
+        initialized = true;
+        bootstrap();
     }
-
-    // @Override
-    // public void onApplicationEvent(ContextRefreshedEvent event) {
-    // if (initialized) {
-    // return;
-    // }
-    // initialized = true;
-    // bootstrap();
-    // }
 }

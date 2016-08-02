@@ -116,9 +116,9 @@ audit:
   ttl: 1d
 
 ha:
-  ha_enabled: false
-  consulAgentIp: 129.185.67.36
-  consulAgentPort: 8555
+  ha_enabled: true
+  consulAgentIp: localhost
+  consulAgentPort: 8500
   # the ip that will be given to consul for health check (can be a private ip)
   instanceIp: 127.0.0.1
   # health will be checked by consul using this period
@@ -129,10 +129,10 @@ ha:
   consulLockDelayInSecond: 0
   # the delay before retrying to acquire lock when it fail
   lockAcquisitionDelayInSecond: 20
-  consul_tls_enabled: true
+  consul_tls_enabled: false
   keyStorePath: ""
   trustStorePath: ""
   keyStoresPwd: ""
-  serverProtocol: ""
+  serverProtocol: "http"
   
   

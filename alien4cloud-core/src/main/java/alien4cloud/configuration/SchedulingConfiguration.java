@@ -13,6 +13,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @EnableAsync
 @EnableScheduling
 public class SchedulingConfiguration {
+
     @Value("${paas_monitor.threadpool_size}")
     private int paasMonitorThreadPoolSize;
 

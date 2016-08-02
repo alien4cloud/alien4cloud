@@ -1,4 +1,4 @@
-package alien4cloud.rest.health;
+package alien4cloud.ha;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,7 +25,7 @@ import com.orbitz.consul.model.health.Service;
 
 @Slf4j
 @Deprecated
-public class ConsulSandbox2 {
+public class ConsulSandbox {
 
     public static void main(String[] args) throws Exception {
 

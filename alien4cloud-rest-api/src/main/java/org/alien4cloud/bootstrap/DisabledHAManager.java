@@ -1,4 +1,4 @@
-package alien4cloud.rest.health;
+package org.alien4cloud.bootstrap;
 
 import javax.annotation.Resource;
 
@@ -17,6 +17,7 @@ import alien4cloud.events.HALeaderElectionEvent;
  */
 @Component
 @Slf4j
+// @Bootstrapable
 public class DisabledHAManager implements ApplicationListener<EmbeddedServletContainerInitializedEvent> {
 
     @Value("${ha.ha_enabled:#{false}}")
