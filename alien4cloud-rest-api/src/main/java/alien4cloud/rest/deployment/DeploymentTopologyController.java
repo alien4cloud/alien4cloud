@@ -2,6 +2,8 @@ package alien4cloud.rest.deployment;
 
 import static alien4cloud.utils.AlienUtils.safe;
 import alien4cloud.deployment.OrchestratorPropertiesValidationService;
+import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.services.PropertyService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -181,6 +183,7 @@ public class DeploymentTopologyController {
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
 
         try {
+            ToscaContext.init(deploymentTopology.getDependencies());
             // update topology inputs
             for (Map.Entry<String, Object> inputPropertyValue : safe(updateRequest.getInputProperties()).entrySet()) {
                 propertyService.setPropertyValue(deploymentTopology.getInputProperties(), deploymentTopology.getInputs().get(inputPropertyValue.getKey()),
@@ -193,15 +196,18 @@ public class DeploymentTopologyController {
                 orchestratorPropertiesValidationService.checkConstraints(deploymentTopology.getOrchestratorId(),
                         updateRequest.getProviderDeploymentProperties());
             }
+
+            deploymentTopologyService.updateDeploymentTopologyInputsAndSave(deploymentTopology);
         } catch (ConstraintViolationException e) {
             return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().data(e.getConstraintInformation())
                     .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
         } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
             return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().data(e.getConstraintInformation())
                     .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
+        } finally {
+            ToscaContext.destroy();
         }
 
-        deploymentTopologyService.updateDeploymentTopologyInputsAndSave(deploymentTopology);
         return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(deploymentTopologyHelper.buildDeploymentTopologyDTO(deploymentConfiguration)).build();
     }
 

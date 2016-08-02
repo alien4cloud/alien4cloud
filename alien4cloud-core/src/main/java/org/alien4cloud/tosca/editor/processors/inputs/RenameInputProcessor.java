@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.model.components.PropertyValue;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.inputs.RenameInputOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
@@ -109,7 +110,7 @@ public class RenameInputProcessor extends AbstractInputProcessor<RenameInputOper
         DeploymentTopology[] deploymentTopologies = deploymentTopologyService.getByTopologyId(topology.getId());
         for (DeploymentTopology deploymentTopology : deploymentTopologies) {
             if (deploymentTopology.getInputProperties() != null && deploymentTopology.getInputProperties().containsKey(operation.getInputName())) {
-                AbstractPropertyValue previousValue = deploymentTopology.getInputProperties().remove(operation.getInputName());
+                PropertyValue previousValue = deploymentTopology.getInputProperties().remove(operation.getInputName());
                 deploymentTopology.getInputProperties().put(operation.getNewInputName(), previousValue);
                 alienDAO.save(deploymentTopology);
             }

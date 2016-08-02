@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.model.components.PropertyValue;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
@@ -139,7 +140,7 @@ public class DeploymentTopologyValidationService {
         task.setCode(TaskCode.INPUT_PROPERTY);
         task.setProperties(Maps.<TaskLevel, List<String>> newHashMap());
         task.getProperties().put(TaskLevel.REQUIRED, Lists.<String> newArrayList());
-        Map<String, AbstractPropertyValue> inputValues = safe(deploymentTopology.getInputProperties());
+        Map<String, PropertyValue> inputValues = safe(deploymentTopology.getInputProperties());
         for (Entry<String, PropertyDefinition> propDef : safe(deploymentTopology.getInputs().entrySet())) {
             if (propDef.getValue().isRequired() && inputValues.get(propDef.getKey()) == null) {
                 task.getProperties().get(TaskLevel.REQUIRED).add(propDef.getKey());

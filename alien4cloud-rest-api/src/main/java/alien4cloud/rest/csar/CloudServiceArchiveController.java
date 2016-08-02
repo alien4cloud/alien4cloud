@@ -88,7 +88,7 @@ public class CloudServiceArchiveController {
         Path csarPath = null;
         try {
             log.info("Serving file upload with name [" + csar.getOriginalFilename() + "]");
-            csarPath = Files.createTempFile(tempDirPath, "", '.' + CsarFileRepository.CSAR_EXTENSION);
+            csarPath = Files.createTempFile(tempDirPath, null, '.' + CsarFileRepository.CSAR_EXTENSION);
             // save the archive in the temp directory
             FileUploadUtil.safeTransferTo(csarPath, csar);
             // load, parse the archive definitions and save on disk
@@ -104,15 +104,13 @@ public class CloudServiceArchiveController {
 
             CsarUploadResult uploadResult = new CsarUploadResult();
             uploadResult.getErrors().put(fileName, e.getParsingErrors());
-            return RestResponseBuilder.<CsarUploadResult> builder().error(RestErrorBuilder.builder(RestErrorCode.CSAR_INVALID_ERROR).build())
-                    .data(uploadResult).build();
+            return RestResponseBuilder.<CsarUploadResult> builder().error(RestErrorBuilder.builder(RestErrorCode.CSAR_INVALID_ERROR).build()).data(uploadResult)
+                    .build();
         } catch (CSARVersionAlreadyExistsException e) {
             log.error("A CSAR with the same name and the same version already existed in the repository", e);
             CsarUploadResult uploadResult = new CsarUploadResult();
-            uploadResult.getErrors().put(
-                    csar.getOriginalFilename(),
-                    Lists.newArrayList(new ParsingError(ErrorCode.CSAR_ALREADY_EXISTS, "CSAR already exists", null,
-                            "Unable to override an existing CSAR if the version is not a SNAPSHOT version.", null, null)));
+            uploadResult.getErrors().put(csar.getOriginalFilename(), Lists.newArrayList(new ParsingError(ErrorCode.CSAR_ALREADY_EXISTS, "CSAR already exists",
+                    null, "Unable to override an existing CSAR if the version is not a SNAPSHOT version.", null, null)));
             return RestResponseBuilder.<CsarUploadResult> builder().error(RestErrorBuilder.builder(RestErrorCode.ALREADY_EXIST_ERROR).build())
                     .data(uploadResult).build();
         } finally {

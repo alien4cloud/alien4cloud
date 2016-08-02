@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import alien4cloud.model.components.PropertyValue;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -236,7 +237,7 @@ public class DeploymentTopologyStepDefinitions {
         }
     }
 
-    private void assertPropMapContains(Map<String, AbstractPropertyValue> map, Map<String, AbstractPropertyValue> expectedMap) {
+    private void assertPropMapContains(Map<String, PropertyValue> map, Map<String, AbstractPropertyValue> expectedMap) {
         map = AlienUtils.safe(map);
         for (Entry<String, AbstractPropertyValue> entry : expectedMap.entrySet()) {
             assertEquals(entry.getValue(), map.get(entry.getKey()));

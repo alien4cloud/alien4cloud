@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
+import alien4cloud.model.components.PropertyValue;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
 
@@ -65,7 +66,7 @@ public class InputsPreProcessorService {
      */
     public void processGetInput(DeploymentTopology deploymentTopology, ApplicationEnvironment environment, Topology topology) {
         topologyCompositionService.processTopologyComposition(topology);
-        Map<String, AbstractPropertyValue> inputs = getInputs(deploymentTopology, environment);
+        Map<String, PropertyValue> inputs = getInputs(deploymentTopology, environment);
         if (deploymentTopology.getNodeTemplates() != null) {
             for (Entry<String, NodeTemplate> entry : deploymentTopology.getNodeTemplates().entrySet()) {
                 NodeTemplate nodeTemplate = entry.getValue();
@@ -159,9 +160,9 @@ public class InputsPreProcessorService {
      * @return A unified map of input for the topology containing the inputs from the deployment setup as well as the ones coming from location or application
      *         meta-properties.
      */
-    private Map<String, AbstractPropertyValue> getInputs(DeploymentTopology deploymentTopology, ApplicationEnvironment environment) {
+    private Map<String, PropertyValue> getInputs(DeploymentTopology deploymentTopology, ApplicationEnvironment environment) {
         // initialize a map with input from the deployment setup
-        Map<String, AbstractPropertyValue> inputs = MapUtils.isEmpty(deploymentTopology.getInputProperties()) ? Maps.newHashMap()
+        Map<String, PropertyValue> inputs = MapUtils.isEmpty(deploymentTopology.getInputProperties()) ? Maps.newHashMap()
                 : deploymentTopology.getInputProperties();
 
         // Map id -> value of meta properties from cloud or application.
@@ -204,7 +205,7 @@ public class InputsPreProcessorService {
      * @param prefix The prefix to be added to the context inputs.
      * @param contextInputs The map of inputs from context elements (cloud, application, environment).
      */
-    private void prefixAndAddContextInput(Map<String, AbstractPropertyValue> inputs, String prefix, Map<String, String> contextInputs, boolean isMeta) {
+    private void prefixAndAddContextInput(Map<String, PropertyValue> inputs, String prefix, Map<String, String> contextInputs, boolean isMeta) {
         if (contextInputs == null || contextInputs.isEmpty()) {
             return; // no inputs to add.
         }
@@ -225,14 +226,14 @@ public class InputsPreProcessorService {
         }
     }
 
-    private void processGetInput(Map<String, AbstractPropertyValue> inputs, Map<String, AbstractPropertyValue> properties) {
+    private void processGetInput(Map<String, PropertyValue> inputs, Map<String, AbstractPropertyValue> properties) {
         if (properties != null) {
             for (Map.Entry<String, AbstractPropertyValue> propEntry : properties.entrySet()) {
                 if (propEntry.getValue() instanceof FunctionPropertyValue) {
                     FunctionPropertyValue function = (FunctionPropertyValue) propEntry.getValue();
                     if (ToscaFunctionConstants.GET_INPUT.equals(function.getFunction())) {
                         String inputName = function.getParameters().get(0);
-                        AbstractPropertyValue value = inputs.get(inputName);
+                        PropertyValue value = inputs.get(inputName);
                         // if not null, replace the input value. Otherwise, let it as a function for validation purpose later
                         if (value != null) {
                             propEntry.setValue(value);

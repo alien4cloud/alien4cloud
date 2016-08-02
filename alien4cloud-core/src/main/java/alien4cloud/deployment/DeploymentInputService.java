@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import alien4cloud.model.components.PropertyValue;
 import org.elasticsearch.common.collect.Lists;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +40,7 @@ public class DeploymentInputService {
      * @param topology The deployment topology to impact.
      */
     public void processInputProperties(DeploymentTopology topology) {
-        Map<String, AbstractPropertyValue> inputProperties = topology.getInputProperties();
+        Map<String, PropertyValue> inputProperties = topology.getInputProperties();
         Map<String, PropertyDefinition> inputDefinitions = topology.getInputs();
         if (inputDefinitions == null || inputDefinitions.isEmpty()) {
             topology.setInputProperties(null);
@@ -49,14 +50,14 @@ public class DeploymentInputService {
                 topology.setInputProperties(inputProperties);
             } else {
                 // Ensure that previous defined values are still compatible with the latest input definition (as the topology may have changed).
-                Iterator<Map.Entry<String, AbstractPropertyValue>> inputPropertyEntryIterator = inputProperties.entrySet().iterator();
+                Iterator<Map.Entry<String, PropertyValue>> inputPropertyEntryIterator = inputProperties.entrySet().iterator();
                 while (inputPropertyEntryIterator.hasNext()) {
-                    Map.Entry<String, AbstractPropertyValue> inputPropertyEntry = inputPropertyEntryIterator.next();
+                    Map.Entry<String, PropertyValue> inputPropertyEntry = inputPropertyEntryIterator.next();
                     if (!inputDefinitions.containsKey(inputPropertyEntry.getKey())) {
                         inputPropertyEntryIterator.remove();
                     } else {
                         try {
-                            constraintPropertyService.checkPropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue(),
+                            constraintPropertyService.checkPropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue().getValue(),
                                     inputDefinitions.get(inputPropertyEntry.getKey()));
                         } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
                             // Property is not valid anymore for the input, remove the old value
@@ -67,10 +68,10 @@ public class DeploymentInputService {
             }
             // set default values for every unset property.
             for (Map.Entry<String, PropertyDefinition> inputDefinitionEntry : inputDefinitions.entrySet()) {
-                AbstractPropertyValue existingValue = inputProperties.get(inputDefinitionEntry.getKey());
+                PropertyValue existingValue = inputProperties.get(inputDefinitionEntry.getKey());
                 if (existingValue == null) {
                     // If user has not specified a value and there is
-                    AbstractPropertyValue defaultValue = inputDefinitionEntry.getValue().getDefault();
+                    PropertyValue defaultValue = inputDefinitionEntry.getValue().getDefault();
                     if (defaultValue != null) {
                         inputProperties.put(inputDefinitionEntry.getKey(), defaultValue);
                     }

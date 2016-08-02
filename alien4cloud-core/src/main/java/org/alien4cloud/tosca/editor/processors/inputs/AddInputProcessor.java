@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.model.components.PropertyValue;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
@@ -58,7 +59,7 @@ public class AddInputProcessor extends AbstractInputProcessor<AddInputOperation>
     public void beforeCommit(AddInputOperation operation) {
         Topology topology = EditionContextManager.getTopology();
         // Update default values for each deployment topology
-        AbstractPropertyValue defaultValue = operation.getPropertyDefinition().getDefault();
+        PropertyValue defaultValue = operation.getPropertyDefinition().getDefault();
         if (defaultValue != null) {
             DeploymentTopology[] deploymentTopologies = deploymentTopologyService.getByTopologyId(topology.getId());
             for (DeploymentTopology deploymentTopology : deploymentTopologies) {

@@ -24,23 +24,23 @@ public class PropertyService {
     @Inject
     private ConstraintPropertyService constraintPropertyService;
 
-    public void setPropertyValue(Map<String, AbstractPropertyValue> properties, PropertyDefinition propertyDefinition, String propertyName,
+    public <T extends AbstractPropertyValue> void setPropertyValue(Map<String, T> properties, PropertyDefinition propertyDefinition, String propertyName,
             Object propertyValue) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         // take the default value
         if (propertyValue == null) {
             // no check here, the default value has to be valid at parse time
-            properties.put(propertyName, propertyDefinition.getDefault());
+            properties.put(propertyName, (T) propertyDefinition.getDefault());
             return;
         }
 
         // if the default value is also empty, we set the property value to null
         constraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
         if (propertyValue instanceof String) {
-            properties.put(propertyName, new ScalarPropertyValue((String) propertyValue));
+            properties.put(propertyName, (T) new ScalarPropertyValue((String) propertyValue));
         } else if (propertyValue instanceof Map) {
-            properties.put(propertyName, new ComplexPropertyValue((Map<String, Object>) propertyValue));
+            properties.put(propertyName, (T) new ComplexPropertyValue((Map<String, Object>) propertyValue));
         } else if (propertyValue instanceof List) {
-            properties.put(propertyName, new ListPropertyValue((List<Object>) propertyValue));
+            properties.put(propertyName, (T) new ListPropertyValue((List<Object>) propertyValue));
         } else {
             throw new InvalidArgumentException("Property type " + propertyValue.getClass().getName() + " is invalid");
         }
