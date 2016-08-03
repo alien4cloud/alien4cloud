@@ -317,6 +317,7 @@
     "DATA": "Data",
     "DESCRIPTION" : "説明",
     "EMAIL" : "Email",
+    "EMAIL_INVALID" : "Emailが無効です",
     "ENABLED_false" : "無効化",
     "ENABLED_true" : "有効化",
     "FILTER" : "フィルタ",
@@ -506,6 +507,10 @@
       "UNDEPLOYMENT_IN_PROGRESS" : "Undeployment in progress",
       "UNKNOWN" : "Unknown",
       "WARNING" : "Warning"
+    },
+    "TOASTER_STATUS" : {
+      "DEPLOYED" : "The environment < {{envName}} > of application < {{appName}} > is deployed.",
+      "FAILURE" : "A failure has occurred during the deployment of the environment < {{envName}} > of application < {{appName}} >. See logs deployment for more informations."
     }
   },
   "DETAILS" : "Details",
@@ -563,6 +568,7 @@
     "616" : "You are not authorized to clone this Git repository. Please check your credentials.",
     "617" : "No modification have been detected since the last import process",
     "618" : "A name should only contains alphanumeric character from the basic Latin alphabet and the underscrore.",
+    "619" : "Invalid application name.",
     "650" : "At least two of your Compute have a conflict name.",
     "651" : "A BlockStorage can not have a VolumeID when the cloud has the 'deletable' option to set.",
     "800" : {
@@ -623,7 +629,6 @@
   },
   "GROUPS" : {
     "EDIT_GROUPS" : "グループの編集",
-    "EMAIL_INVALID" : "Emailが無効です",
     "NEW" : "新しいグループ",
     "ROLES" : "ロール"
   },
@@ -788,7 +793,6 @@
     "CONFIRM_PASSWORD_HOLDER" : "確認",
     "EDIT_GROUPS" : "グループの編集",
     "EDIT_GROUP_HEADER" : "グループの追加もしくは削除",
-    "EMAIL_INVALID" : "Emailが無効です",
     "FIRST_NAME" : "First Name",
     "LAST_NAME" : "Last Name",
     "NEW" : "新しいユーザ",

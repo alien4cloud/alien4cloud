@@ -1,6 +1,7 @@
 package alien4cloud.application;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.InvalidApplicationNameException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.Tag;
@@ -44,17 +46,19 @@ public class ApplicationService {
     @Resource
     private ApplicationVersionService applicationVersionService;
 
+    private static final String APPLICATION_NAME_REGEX = "[^/\\\\\\\\]+";
+
+
     /**
      * Create a new application and return it's id
      *
      * @param user The user that is creating the application (will be APPLICATION_MANAGER)
      * @param name The name of the new application.
      * @param description The description of the new application.
-     * @param workspaceId The id of the workspace in which the application should be added.
      * @return The id of the newly created application.
      */
-    public String create(String user, String name, String description, String workspaceId) {
-        // application name must be unique
+    public String create(String user, String name, String description) {
+        ensureNameIsValid(name);
         ensureNameUnicity(name);
 
         String id = UUID.randomUUID().toString();
@@ -89,6 +93,23 @@ public class ApplicationService {
             log.debug("Application name <{}> already exists.", name);
             throw new AlreadyExistException("An application with the given name already exists.");
         }
+    }
+
+    /**
+     * Check the the name of the application is valid.
+     *
+     * @param name The name of the application.
+     * @return throw an error if invalid.
+     */
+    public void ensureNameIsValid(String name) {
+        if (!isValidNodeName(name)) {
+            log.debug("Application name <{}> contains forbidden character.", name);
+            throw new InvalidApplicationNameException("An application name should not contains slash or backslash.");
+        }
+    }
+
+    public static boolean isValidNodeName(String name) {
+        return Pattern.matches(APPLICATION_NAME_REGEX, name);
     }
 
     /**
@@ -161,7 +182,7 @@ public class ApplicationService {
     /**
      * Check if the connected user has at least one application role on the related application with a fail when applicationId is not valid
      * If no roles mentioned, all {@link ApplicationRole} values will be used (one at least required)
-     * 
+     *
      * @param applicationId
      * @return the related application
      */

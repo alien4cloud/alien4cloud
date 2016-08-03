@@ -511,8 +511,7 @@ define(function (require) {
             } else { // code 371, execution error
               message = successResult.error.message;
             }
-            // to dismiss by the user
-            toaster.pop('error', title, message, 0, 'trustedHtml', null);
+            toaster.pop('error', title, message, 6000, 'trustedHtml', null);
 
           } else if (!_.undefined(successResult.data)) {
             var successTitle = $translate.instant('APPLICATIONS.RUNTIME.OPERATION_EXECUTION.RESULT_TITLE', {
@@ -531,8 +530,7 @@ define(function (require) {
 
             });
             resultHtml.push('</ul>');
-            // timeout at 0 == keep displayed until close
-            toaster.pop('success', successTitle, resultHtml.join(''), 0, 'trustedHtml', null);
+            toaster.pop('success', successTitle, resultHtml.join(''), 4000, 'trustedHtml', null);
           }
 
         }, function(errorResult) {

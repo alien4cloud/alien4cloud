@@ -7,7 +7,7 @@ template_author: admin
 imports:
   - tosca-normative-types:1.0.0-SNAPSHOT
   - tomcat-war-types:1.0-SNAPSHOT
-  - alien-base-types:1.1.0-SNAPSHOT
+  - alien-base-types:1.2.0-SNAPSHOT
 
 topology_template:
   input_artifacts:

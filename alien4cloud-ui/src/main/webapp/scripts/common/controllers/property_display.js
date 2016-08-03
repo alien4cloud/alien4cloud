@@ -120,7 +120,8 @@ define(function(require) {
         delete $scope.unitError;
         if (_.isBoolean(data)) {
           data = data.toString();
-        } else if (_.isEmpty(data)) {
+        } else if (_.undefined(data)) {
+          // WHY DO THIS _.isEmpty instead of _.undefined ???
           data = null;
         }
 
@@ -379,15 +380,18 @@ define(function(require) {
       /** Reset the property to the default value if any */
       $scope.resetProperty = function resetPropertyToDefault() {
         $scope.initScope();
-        if (_.isEmpty($scope.definition.default) || _.isEmpty($scope.definition.default.value)) {
-          $scope.saveReset(null);
-        } else {
-          $scope.saveReset($scope.definition.default.value);
+        var defaultValue = null;
+        if(_.has($scope.definition, 'default.value')){
+          defaultValue = $scope.definition.default.value;
+        }else{
+          defaultValue = _.get($scope.definition, 'default');
         }
-        if ($scope.propertyValue.hasOwnProperty('value')) {
-          $scope.propertyValue.value = $scope.definition.default.value; // if same value affected, no watch applied
+        $scope.saveReset(defaultValue);
+
+        if (_.has($scope.propertyValue, 'value')) {
+          $scope.propertyValue.value = defaultValue; // if same value affected, no watch applied
         } else {
-          $scope.propertyValue = $scope.definition.default;
+          $scope.propertyValue = defaultValue;
         }
       };
 

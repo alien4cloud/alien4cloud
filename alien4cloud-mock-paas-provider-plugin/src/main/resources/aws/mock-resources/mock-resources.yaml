@@ -1,0 +1,25 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+
+template_name: mock-plugin-types
+template_author: Alien 4 Cloud
+template_version: ${project.version}
+
+description: "Defines resources for the mock plugin, mocking openstack configuration."
+
+imports:
+  - tosca-normative-types:1.0.0-SNAPSHOT
+
+node_types:
+  alien.nodes.mock.aws.Compute:
+    derived_from: tosca.nodes.Compute
+    properties:
+      imageId:
+        type: string
+        required: true
+      flavorId:
+        type: string
+        required: true
+  alien.nodes.mock.aws.BlockStorage:
+    derived_from: tosca.nodes.BlockStorage
+  alien.nodes.mock.aws.Network:
+    derived_from: tosca.nodes.Network
