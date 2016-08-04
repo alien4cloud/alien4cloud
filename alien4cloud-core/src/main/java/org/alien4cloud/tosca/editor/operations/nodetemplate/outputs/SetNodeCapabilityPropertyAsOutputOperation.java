@@ -14,6 +14,6 @@ public class SetNodeCapabilityPropertyAsOutputOperation extends SetNodePropertyA
 
     @Override
     public String commitMessage() {
-        return "set property <" + getPropertyName() + "> of capability <" + capabilityName + ">  of node<" + getNodeName() + "> as output property.";
+        return "set property <" + getPropertyName() + "> of capability <" + capabilityName + ">  of node <" + getNodeName() + "> as output property.";
     }
 }

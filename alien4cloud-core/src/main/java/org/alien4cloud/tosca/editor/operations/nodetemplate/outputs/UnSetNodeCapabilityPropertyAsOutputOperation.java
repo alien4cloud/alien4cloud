@@ -14,6 +14,6 @@ public class UnSetNodeCapabilityPropertyAsOutputOperation extends SetNodePropert
 
     @Override
     public String commitMessage() {
-        return "Unset property <" + getPropertyName() + "> of capability <" + capabilityName + ">  of node<" + getNodeName() + "> as output property.";
+        return "Unset property <" + getPropertyName() + "> of capability <" + capabilityName + ">  of node <" + getNodeName() + "> as output property.";
     }
 }

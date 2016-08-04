@@ -32,7 +32,7 @@ public class UnSetNodeAttributeAsOutputProcessor extends AbstractNodeProcessor<U
         check(operation, topology, nodeTemplate);
         Map<String, Set<String>> outputs = topology.getOutputAttributes();
         removeAndClean(operation, outputs);
-        topology.setOutputProperties(outputs);
+        topology.setOutputAttributes(outputs);
 
         log.debug("Unset node <{}>'s attribute <{}> as output for the topology <{}>.", operation.getNodeName(), operation.getAttributeName(), topology.getId());
     }
