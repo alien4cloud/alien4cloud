@@ -7,6 +7,7 @@ define(function(require) {
   var _ = require('lodash');
   var angular = require('angular');
 
+  require('autofill-event');
   require('angular-cookies');
   require('angular-resource');
   require('angular-sanitize');

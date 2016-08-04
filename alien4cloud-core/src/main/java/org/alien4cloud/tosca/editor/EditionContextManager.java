@@ -105,7 +105,6 @@ public class EditionContextManager {
      * @throws IOException In case the parsing of the directory content fails.
      */
     public void reset() throws IOException {
-        EditionContext context = contextThreadLocal.get();
         Topology topology = topologyServiceCore.getOrFail(getTopology().getId());
         if (topology.getYamlFilePath() == null) {
             topology.setYamlFilePath("topology.yml");

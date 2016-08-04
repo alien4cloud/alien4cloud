@@ -30,6 +30,17 @@ define(function (require) {
       selected = {fullPath: openOnFile};
       $scope.selected = selected;
     }
+    var aceEditor;
+    $scope.aceLoaded = function(_editor){
+      aceEditor = _editor;
+      _editor.commands.addCommand({
+        name: 'save',
+        bindKey: {win: 'Ctrl-S', mac: 'Command-S'},
+          exec: function() {
+            $scope.saveFile();
+          }
+      });
+    };
 
     $scope.mode = explorerService.getDefaultMode(); // jshint ignore:line
     $scope.expandedNodes = [];
@@ -62,7 +73,9 @@ define(function (require) {
           $http({method: 'GET',
             url: selectedUrl})
             .success(function(data) {
-              $scope.editorContent = data;
+              $scope.aceFilePath = dirName;
+              aceEditor.getSession().setValue(data);
+              // $scope.editorContent = data;
               $scope.mode = explorerService.getMode(node);
             });
         }
@@ -98,5 +111,57 @@ define(function (require) {
       uploadService.doUpload(file, {file: file, url: url, data: {lastOperationId: $scope.getLastOperationId(), path: $scope.filePath}});
     };
 
+    $scope.deleteFile = function() {
+      $scope.execute({
+        type: 'org.alien4cloud.tosca.editor.operations.DeleteFileOperation',
+        path: $scope.filePath
+      });
+    };
+    $scope.isFile = function() {
+      return $scope.filePath.length!==0 || !$scope.filePath.endsWith('/');
+    };
+    $scope.isNewFile = function() {
+      if(!$scope.isFile()) {
+        return false; // this is not a file so this is not a new file.
+      }
+      return !$scope.exists();
+    };
+    $scope.exists = function() {
+      if(_.undefined($scope.topology)) {
+        return false;
+      }
+      var currentNode = $scope.topology.archiveContentTree.children[0];
+      var part, parts = $scope.filePath.split('/');
+      for(var i=0;i<parts.length;i++) {
+        part = parts[i];
+        if(part.length === 0) {
+          continue;
+        }
+        var partIndex = _.findIndex(currentNode.children, 'name', part);
+        if(partIndex === -1) {
+          return false; // not found
+        }
+        currentNode = currentNode.children[partIndex];
+      }
+      return true;
+    };
+    $scope.createFile = function() {
+      console.log($scope.filePath);
+      $scope.execute({
+        type: 'org.alien4cloud.tosca.editor.operations.UpdateFileContentOperation',
+        path: $scope.filePath,
+        content: ''
+      });
+    };
+    $scope.saveFile = function() {
+      if(_.undefined($scope.aceFilePath) || _.undefined(aceEditor)) {
+        return;
+      }
+      $scope.execute({
+        type: 'org.alien4cloud.tosca.editor.operations.UpdateFileContentOperation',
+        path: $scope.aceFilePath,
+        content: aceEditor.getSession().getDocument().getValue()
+      });
+    };
   }]);
 });

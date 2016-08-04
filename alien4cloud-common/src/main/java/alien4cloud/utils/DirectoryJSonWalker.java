@@ -68,6 +68,7 @@ public final class DirectoryJSonWalker {
                 treeNode.setName(file.getFileName().toString());
                 treeNode.setFullPath(current.getFullPath() + "/" + file.getFileName().toString());
                 treeNode.setChildren(null);
+                treeNode.setParent(current);
                 current.getChildren().add(treeNode);
                 return super.visitFile(file, attrs);
             }
