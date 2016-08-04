@@ -14,6 +14,7 @@ import cucumber.api.junit.Cucumber;
         // "src/test/resources/org/alien4cloud/tosca/editor/features/add_input.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/add_node.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/add_relationship.feature"
+        // "src/test/resources/org/alien4cloud/tosca/editor/features/delete_file.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/delete_group.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/delete_input.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/delete_node.feature"

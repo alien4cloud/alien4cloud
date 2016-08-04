@@ -129,7 +129,7 @@ public class EditorService {
             if (operation.getPreviousOperationId() != null) {
                 throw new EditionConcurrencyException();
             }
-        } else if (!operation.getPreviousOperationId().equals(operations.get(EditionContextManager.get().getLastOperationIndex()).getId())) {
+        } else if (!operations.get(EditionContextManager.get().getLastOperationIndex()).getId().equals(operation.getPreviousOperationId())) {
             throw new EditionConcurrencyException();
         }
         operation.setId(UUID.randomUUID().toString());

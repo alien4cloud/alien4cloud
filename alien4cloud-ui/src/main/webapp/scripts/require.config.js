@@ -28,6 +28,7 @@ require.config({
     'angular-ui-select': 'bower_components/angular-ui-select/dist/select',
     'angular-tree-control': 'bower_components/angular-tree-control/angular-tree-control',
     'ng-table': 'bower_components/ng-table/dist/ng-table',
+    'autofill-event': 'bower_components/autofill-event/src/autofill-event',
     'toaster': 'bower_components/angularjs-toaster/toaster',
     'hopscotch': 'bower_components/hopscotch/dist/js/hopscotch',
     'angular-file-upload-shim': 'bower_components/ng-file-upload/angular-file-upload-shim',

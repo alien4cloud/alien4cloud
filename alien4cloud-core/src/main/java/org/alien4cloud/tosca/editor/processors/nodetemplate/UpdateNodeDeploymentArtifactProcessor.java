@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodeDeploymentArtifactOperation;
+import org.alien4cloud.tosca.editor.processors.FileProcessorHelper;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Component;
@@ -34,18 +35,7 @@ public class UpdateNodeDeploymentArtifactProcessor implements IEditorOperationPr
 
         if (operation.getArtifactRepository() == null) {
             // this is an archive file, ensure that the file exists within the archive
-            TreeNode root = EditionContextManager.get().getArchiveContentTree().getChildren().first();
-            TreeNode target = root;
-            String[] pathElements = operation.getArtifactReference().split("/");
-            for (int i = 0; i < pathElements.length; i++) {
-                String pathElement = pathElements[i];
-                TreeNode child = target.getChild(pathElement);
-                if (child == null) {
-                    throw new NotFoundException(
-                            "The artifact specified at path <" + operation.getArtifactReference() + "> does not exists in the topology archive.");
-                }
-                target = child;
-            }
+            FileProcessorHelper.getFileTreeNode(operation.getArtifactReference());
         } else {
             // FIXME ensure that the repository is defined in the topology or globally in a4c
             throw new NotImplementedException("Alien 4 Cloud doesn't support repositories in topology editor.");

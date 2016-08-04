@@ -1,5 +1,6 @@
 package org.alien4cloud.tosca.editor.operations;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,13 +16,7 @@ import java.io.InputStream;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UpdateFileOperation extends AbstractEditorOperation {
-    private String path;
-    private InputStream artifactStream;
-
-    /** Files as stored in the local repository as temporary file as long as save is not triggered (to allow undo/redo). We keep temporary id here. */
-    private String tempFileId;
-
+public class UpdateFileOperation extends AbstractUpdateFileOperation {
     /**
      * Create a new operation to upload a file.
      * 
@@ -29,12 +24,6 @@ public class UpdateFileOperation extends AbstractEditorOperation {
      * @param artifactStream The input stream of the file content.
      */
     public UpdateFileOperation(String path, InputStream artifactStream) {
-        this.path = path;
-        this.artifactStream = artifactStream;
-    }
-
-    @Override
-    public String commitMessage() {
-        return "updated content of file <" + path + ">";
+        super(path, artifactStream);
     }
 }

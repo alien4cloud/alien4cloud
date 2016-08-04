@@ -18,8 +18,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.google.common.io.Closeables;
-
 import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.git.SimpleGitHistoryEntry;
 import alien4cloud.rest.model.RestResponse;
@@ -85,17 +83,15 @@ public class EditorController {
     @RequestMapping(value = "/{topologyId}/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> upload(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId,
             @RequestParam("path") String path, @RequestParam(value = "file") MultipartFile file) throws IOException {
-        // The controller saves the file in a temporary location and create a UpdateFileOperation to be sent in the edition context.
-        String artifactFileId = null;
+        if (lastOperationId != null && "null".equals(lastOperationId)) {
+            lastOperationId = null;
+        }
 
-        InputStream artifactStream = file.getInputStream();
-        try {
+        try (InputStream artifactStream = file.getInputStream()) {
             UpdateFileOperation updateFileOperation = new UpdateFileOperation(path, artifactStream);
             updateFileOperation.setPreviousOperationId(lastOperationId);
             TopologyDTO topologyDTO = editorService.execute(topologyId, updateFileOperation);
             return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
-        } finally {
-            Closeables.close(artifactStream, true);
         }
     }
 
