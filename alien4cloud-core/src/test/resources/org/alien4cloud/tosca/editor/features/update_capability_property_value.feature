@@ -2,7 +2,7 @@ Feature: Topology editor: nodes templates
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology
 
   Scenario: Updating a scalar property value of capability should succeed
     Given I execute the operation

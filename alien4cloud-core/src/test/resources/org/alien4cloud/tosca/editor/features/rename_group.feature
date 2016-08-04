@@ -2,7 +2,7 @@ Feature: Topology editor: rename group operation
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology
 
   Scenario: Renaming a group should succeed
     Given I execute the operation

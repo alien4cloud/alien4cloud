@@ -2,7 +2,7 @@ Feature: Topology editor: add node template
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology
 
   Scenario: Add a node that exists in the repository should succeed
     When I execute the operation

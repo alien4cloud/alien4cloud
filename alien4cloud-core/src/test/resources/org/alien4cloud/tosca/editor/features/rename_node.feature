@@ -2,7 +2,7 @@ Feature: Topology editor: rename node
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology
 
   Scenario: Rename a nodetemplate in a topology
     Given I execute the operation
