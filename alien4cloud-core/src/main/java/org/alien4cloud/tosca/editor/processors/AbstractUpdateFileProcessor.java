@@ -135,7 +135,16 @@ public abstract class AbstractUpdateFileProcessor<T extends AbstractUpdateFileOp
                 throw new EditorToscaYamlUpdateException("A topology template is required in the topology edition context.");
             }
 
+            Topology currentTopology = EditionContextManager.getTopology();
             Topology parsedTopology = parsingResult.getResult().getTopology();
+
+            // Copy static elements from the topology
+            parsedTopology.setId(currentTopology.getId());
+            parsedTopology.setYamlFilePath(currentTopology.getYamlFilePath());
+            parsedTopology.setDelegateId(currentTopology.getDelegateId());
+            parsedTopology.setDelegateType(currentTopology.getDelegateType());
+
+            // Update editor tosca context
             ToscaContext.get().updateDependencies(parsedTopology.getDependencies());
 
             // init the workflows for the topology based on the yaml
