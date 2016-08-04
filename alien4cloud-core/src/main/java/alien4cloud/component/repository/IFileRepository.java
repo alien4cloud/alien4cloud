@@ -53,6 +53,14 @@ public interface IFileRepository {
     InputStream getFile(String id);
 
     /**
+     * Retrieve the path to access a given file based on it's id.
+     * 
+     * @param id The id of the file to retrieve.
+     * @return a path to the file.
+     */
+    Path resolveFile(String id);
+
+    /**
      * Retrieve the lenght of the content of the file with given id from the file repository.
      *
      * @param id the UID of the file for which to get length

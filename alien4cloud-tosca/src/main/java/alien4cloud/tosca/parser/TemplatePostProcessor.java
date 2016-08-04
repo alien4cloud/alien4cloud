@@ -23,6 +23,9 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationExc
 
 @Component
 public class TemplatePostProcessor {
+
+
+
     /**
      * Post process the archive: For every definition of the model it fills the id fields in the TOSCA elements from the key of the elements map.
      *

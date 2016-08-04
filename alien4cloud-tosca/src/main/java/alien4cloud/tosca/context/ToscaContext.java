@@ -98,6 +98,30 @@ public class ToscaContext {
         }
 
         /**
+         * Update the ToscaContext to take in account the new dependencies.
+         *
+         * @param newDependencies The new list of dependencies for this context.
+         */
+        public void updateDependencies(Set<CSARDependency> newDependencies) {
+            Map<String, CSARDependency> dependenciesByName = Maps.newHashMap();
+            for (CSARDependency dependency : dependencies) {
+                dependenciesByName.put(dependency.getName(), dependency);
+            }
+            // now add/ update /remove dependencies to match the new dependencies.
+            for (CSARDependency dependency : newDependencies) {
+                CSARDependency previous = dependenciesByName.remove(dependency.getName());
+                if (previous == null) {
+                    addDependency(dependency);
+                } else if (!previous.getVersion().equals(dependency.getVersion())) {
+                    updateDependency(dependency);
+                }
+            }
+            for (CSARDependency dependency : dependenciesByName.values()) {
+                removeDependency(dependency);
+            }
+        }
+
+        /**
          * Add a dependency to the current context.
          * 
          * @param dependency The dependency to add.
