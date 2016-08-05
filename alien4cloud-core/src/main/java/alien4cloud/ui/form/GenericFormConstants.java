@@ -25,4 +25,5 @@ public class GenericFormConstants {
     public static final String DATE_TYPE = "date";
     public static final String VALID_VALUES_KEY = "_validValues";
     public static final String NOT_NULL_KEY = "_notNull";
+    public static final String IS_PASSWORD_KEY = "_isPassword";
 }

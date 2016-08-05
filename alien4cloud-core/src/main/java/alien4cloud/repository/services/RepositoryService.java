@@ -17,6 +17,7 @@ import com.google.common.collect.Maps;
 
 import alien4cloud.component.repository.IArtifactResolver;
 import alien4cloud.component.repository.IConfigurableArtifactResolver;
+import alien4cloud.component.repository.IConfigurableArtifactResolverFactory;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.AlreadyExistException;
@@ -103,9 +104,18 @@ public class RepositoryService {
         return repositoryPluginComponents;
     }
 
+    public Class<?> getRepositoryConfigurationType(String pluginId) {
+        IConfigurableArtifactResolverFactory configurableArtifactResolverFactory = configurableResolverRegistry.getSinglePluginBean(pluginId);
+        if (configurableArtifactResolverFactory == null) {
+            throw new NotFoundException("Plugin " + pluginId + " is not found");
+        }
+        return configurableArtifactResolverFactory.getResolverConfigurationType();
+    }
+
     private void createConfiguredResolver(String repositoryId, Object configuration, String pluginId) {
-        IConfigurableArtifactResolver configurableArtifactResolver = configurableResolverRegistry.getSinglePluginBean(pluginId).newInstance();
-        configurableArtifactResolver.setConfiguration(JsonUtil.toObject(configuration, configurableArtifactResolver.getResolverConfigurationType()));
+        IConfigurableArtifactResolverFactory configurableArtifactResolverFactory = configurableResolverRegistry.getSinglePluginBean(pluginId);
+        IConfigurableArtifactResolver configurableArtifactResolver = configurableArtifactResolverFactory.newInstance();
+        configurableArtifactResolver.setConfiguration(JsonUtil.toObject(configuration, configurableArtifactResolverFactory.getResolverConfigurationType()));
         registeredResolvers.put(repositoryId, configurableArtifactResolver);
     }
 

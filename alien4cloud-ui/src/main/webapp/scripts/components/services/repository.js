@@ -15,4 +15,9 @@ define(function (require) {
     }
   ]);
 
+  modules.get('a4c-components', ['a4c-common']).factory('repositoryPluginConfigurationService', ['$alresource',
+    function ($alresource) {
+      return $alresource('rest/latest/formdescriptor/repositoryConfig/:pluginId');
+    }
+  ]);
 });

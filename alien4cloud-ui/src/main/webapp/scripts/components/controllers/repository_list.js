@@ -9,6 +9,7 @@ define(function (require) {
   require('scripts/common/directives/facet_search_panel');
   require('scripts/common/directives/pagination');
   require('scripts/components/services/repository');
+  require('scripts/common/directives/generic_form');
 
   states.state('components.repositories', {
     url: '/repositories',
@@ -26,21 +27,16 @@ define(function (require) {
   states.state('components.repositories.list', {
     url: '/list',
     templateUrl: 'views/components/repository_list.html',
-    controller: 'RepositoryListCtrl',
-    resolve: {
-      repositoryPlugins: ['repositoryPluginService', function (repositoryPluginService) {
-        return repositoryPluginService.get({}, undefined).$promise.then(function (response) {
-          return response.data;
-        });
-      }]
-    }
+    controller: 'RepositoryListCtrl'
   });
   states.forward('components.repositories', 'components.repositories.list');
 
-  var NewRepositoryCtrl = ['$scope', '$modalInstance',
-    function ($scope, $modalInstance) {
+  var NewRepositoryCtrl = ['$scope', '$modalInstance', 'repositoryPlugins', 'repositoryPluginConfigurationService',
+    function ($scope, $modalInstance, repositoryPlugins, repositoryPluginConfigurationService) {
 
-      $scope.repository = {};
+      $scope.repositoryPlugins = repositoryPlugins;
+
+      $scope.repository = {configuration: {}};
 
       $scope.repositoryTypes = _.map($scope.repositoryPlugins, 'repositoryType');
 
@@ -54,9 +50,27 @@ define(function (require) {
         $modalInstance.dismiss('cancel');
       };
 
+      var findPluginId = function (repositoryType) {
+        return _.find($scope.repositoryPlugins, function (plugin) {
+          return plugin.repositoryType === repositoryType;
+        }).pluginComponent.pluginId;
+      };
+
+      $scope.prepareStep = function (forStep) {
+        switch (forStep) {
+          case 2:
+            $scope.repository.pluginId = findPluginId($scope.repository.type);
+            repositoryPluginConfigurationService.get({
+              pluginId: $scope.repository.pluginId
+            }, undefined, function (response) {
+              $scope.configurationDefinition = response.data;
+            });
+        }
+      };
+
       $scope.next = function (valid) {
         if (valid) {
-          $scope.step++;
+          $scope.prepareStep(++$scope.step);
           if ($scope.step > $scope.maxStep) {
             $modalInstance.close($scope.repository);
           }
@@ -64,9 +78,8 @@ define(function (require) {
       };
     }];
 
-  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('RepositoryListCtrl', ['$scope', '$modal', 'repositoryService', 'repositoryPlugins',
-    function ($scope, $modal, repositoryService, repositoryPlugins) {
-      $scope.repositoryPlugins = repositoryPlugins;
+  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('RepositoryListCtrl', ['$scope', '$modal', 'repositoryService',
+    function ($scope, $modal, repositoryService) {
       $scope.onSearch = function (searchConfig) {
         $scope.searchConfig = searchConfig;
       };
@@ -75,12 +88,18 @@ define(function (require) {
         var modalInstance = $modal.open({
           templateUrl: 'views/components/repository_new.html',
           controller: NewRepositoryCtrl,
-          scope: $scope
+          resolve: {
+            repositoryPlugins: ['repositoryPluginService', function (repositoryPluginService) {
+              return repositoryPluginService.get({}, undefined).$promise.then(function (response) {
+                return response.data;
+              });
+            }]
+          }
         });
         modalInstance.result.then(function (application) {
           // create a new application from the given name and description.
           repositoryService.create({}, angular.toJson(application), function (response) {
-            console.log('Received', response);
+            $scope.searchConfig.service.search();
           });
         });
       };

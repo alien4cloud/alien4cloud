@@ -1,8 +1,10 @@
-<form name="newRepositoryForm" class="form-horizontal" role="form" ng-submit="next(newRepositoryForm.$valid)" novalidate>
+<form name="newRepositoryForm" ng-show="step === 1" class="form-horizontal" role="form"
+      ng-submit="next(newRepositoryForm.$valid)"
+      novalidate>
     <div class="modal-header">
         <h3>{{'REPOSITORY.ADD' | translate}}</h3>
     </div>
-    <div ng-if="step === 1 && repositoryPlugins.length > 0" class="modal-body">
+    <div ng-if="repositoryPlugins.length > 0" class="modal-body">
         <div class="form-group" ng-class="{'has-error': newRepositoryForm.name.$invalid}">
             <label for="nameid" class="col-md-3 control-label">{{'COMMON.NAME' | translate}}</label>
             <div class="col-md-9">
@@ -22,9 +24,6 @@
             </div>
         </div>
     </div>
-    <div ng-if="step === 2 && repositoryPlugins.length > 0" class="modal-body">
-        <h1>STEP 2</h1>
-    </div>
     <div ng-if="repositoryPlugins.length === 0" class="modal-body">
         <h4><em class="text-danger">{{'REPOSITORY.PLUGINS_NOT_FOUND' | translate}}</em></h4>
     </div>
@@ -38,3 +37,17 @@
         </button>
     </div>
 </form>
+<generic-form ng-if="configurationDefinition"
+              ng-show="step === 2"
+              form-title="REPOSITORY.CONFIGURATION"
+              root-object="repository.configuration"
+              type="configurationDefinition"
+              form-style="window"
+              form-class="search"
+              use-xeditable="false"
+              save="next(true)"
+              cancel="cancel()"
+              automatic-save="false"
+              is-read-only="false"
+              is-cancelable="true">
+</generic-form>

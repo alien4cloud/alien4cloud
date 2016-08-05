@@ -884,6 +884,7 @@
     "TITLE": "Repositories",
     "ADD": "New repository",
     "TYPE": "Repository's type",
-    "PLUGINS_NOT_FOUND": "No resolver plugins found"
+    "PLUGINS_NOT_FOUND": "No resolver plugins found",
+    "CONFIGURATION": "Repository's configuration"
   }
 }

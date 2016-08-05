@@ -35,7 +35,7 @@
     <div id="{{idPrefix + 'input'}}" class="form-editable"
          ng-class="{'col-md-5': isDeletable, 'col-md-8': !isDeletable}">
       <div ng-if="!propertyType._isReadOnly && !configuration.isReadOnly">
-        <span ng-if="configuration.useXeditable"
+        <span ng-if="configuration.useXeditable && !propertyType._isPassword"
               class="form-input-editable"
               editable-text="input.value"
               buttons="no"
@@ -49,7 +49,22 @@
               | translate}}</em>
             <i class="fa fa-pencil-square-o"></i>
         </span>
-        <input ng-if="!configuration.useXeditable"
+          <span ng-if="configuration.useXeditable && propertyType._isPassword"
+                class="form-input-editable"
+                editable-text="input.value"
+                e-type="password"
+                buttons="no"
+                onbeforesave="inputCheck($data)"
+                onaftersave="inputChanged()"
+                e-typeahead="item for item in suggestion.get($viewValue)"
+                typeahead-min-length="suggestion.minLength"
+                blur="submit">
+            {{input.value  | password:'*' | truncate:30}}
+            <em ng-if="input.value === null || input.value === undefined" class="text-muted">{{'GENERIC_FORM.UNDEFINED'
+              | translate}}</em>
+            <i class="fa fa-pencil-square-o"></i>
+        </span>
+        <input ng-if="!configuration.useXeditable && !propertyType._isPassword"
                class="form-control"
                type="text"
                ng-model="input.newValue"
@@ -58,6 +73,15 @@
                typeahead="item for item in suggestion.get($viewValue)">
                 <span ng-if="input.error && !configuration.useXeditable"
                       class="help-inline text-danger">{{input.error}}</span>
+          <input ng-if="!configuration.useXeditable && propertyType._isPassword"
+                 class="form-control"
+                 type="password"
+                 ng-model="input.newValue"
+                 ng-change="inputCheckForNonXeditable(input.newValue)"
+                 ng-blur="inputChangedForNonXeditable()"
+                 typeahead="item for item in suggestion.get($viewValue)">
+          <span ng-if="input.error && !configuration.useXeditable"
+                class="help-inline text-danger">{{input.error}}</span>
       </div>
       <div ng-if="propertyType._isReadOnly || configuration.isReadOnly">
                 <span ng-if="propertyType._isReadOnly || configuration.isReadOnly">
