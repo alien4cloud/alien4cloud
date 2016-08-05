@@ -814,169 +814,6 @@ public class TopologyController {
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
-    @ApiOperation(value = "Activate a property as an output property.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/property/{propertyName}/isOutput", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<TopologyDTO> addOutputProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
-            @PathVariable String propertyName) {
-        Topology topology = topologyServiceCore.getOrFail(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
-        topologyService.throwsErrorIfReleased(topology);
-
-        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
-
-        if (nodeTemplate.getProperties() != null && nodeTemplate.getProperties().containsKey(propertyName)) {
-            topology.setOutputProperties(addToMap(topology.getOutputProperties(), nodeTemplateName, propertyName));
-        } else {
-            // attributeName does not exists in the node template
-            return RestResponseBuilder.<TopologyDTO> builder().error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_MISSING_ERROR).build()).build();
-        }
-        topologyServiceCore.save(topology);
-        topologyServiceCore.updateSubstitutionType(topology);
-        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-    }
-
-    /*
-     * Get the output capability properties of an topology or throw an exception if an element is not found
-     */
-    private Map<String, Map<String, Set<String>>> getOutputCapabilityPropertiesOrThrowException(Topology topology, String nodeTemplateName, String propertyId,
-            String capabilityId) {
-        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), nodeTemplateName, nodeTemplates);
-
-        if (nodeTemplate.getCapabilities() == null || nodeTemplate.getCapabilities().get(capabilityId) == null) {
-            throw new NotFoundException("Capability " + capabilityId + " do not exist for the node " + nodeTemplateName);
-        }
-
-        Capability capabilityTemplate = nodeTemplate.getCapabilities().get(capabilityId);
-        IndexedCapabilityType indexedCapabilityType = csarRepoSearch.getRequiredElementInDependencies(IndexedCapabilityType.class, capabilityTemplate.getType(),
-                topology.getDependencies());
-        if (indexedCapabilityType.getProperties() == null || !indexedCapabilityType.getProperties().containsKey(propertyId)) {
-            throw new NotFoundException("Property " + propertyId + " do not exist for capability " + capabilityId + " of node " + nodeTemplateName);
-        }
-
-        return topology.getOutputCapabilityProperties();
-    }
-
-    @ApiOperation(value = "Activate a capability property as an output property.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/capability/{capabilityId}/property/{propertyId}/isOutput", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<TopologyDTO> addOutputCapabilityProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
-            @PathVariable String propertyId, @PathVariable String capabilityId) {
-        Topology topology = topologyServiceCore.getOrFail(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
-        topologyService.throwsErrorIfReleased(topology);
-
-        Map<String, Map<String, Set<String>>> outputCapabilityProperties = getOutputCapabilityPropertiesOrThrowException(topology, nodeTemplateName, propertyId,
-                capabilityId);
-        if (outputCapabilityProperties == null) {
-            Set<String> outputProperties = Sets.newHashSet(propertyId);
-            Map<String, Set<String>> capabilityOutputProperties = Maps.newHashMap();
-            capabilityOutputProperties.put(capabilityId, outputProperties);
-            outputCapabilityProperties = Maps.newHashMap();
-            outputCapabilityProperties.put(nodeTemplateName, capabilityOutputProperties);
-        } else if (!outputCapabilityProperties.containsKey(nodeTemplateName)) {
-            Set<String> outputProperties = Sets.newHashSet(propertyId);
-            Map<String, Set<String>> capabilityOutputProperties = Maps.newHashMap();
-            capabilityOutputProperties.put(capabilityId, outputProperties);
-            outputCapabilityProperties.put(nodeTemplateName, capabilityOutputProperties);
-        } else if (!outputCapabilityProperties.get(nodeTemplateName).containsKey(capabilityId)) {
-            Set<String> outputProperties = Sets.newHashSet(propertyId);
-            Map<String, Set<String>> capabilityOutputProperties = outputCapabilityProperties.get(nodeTemplateName);
-            capabilityOutputProperties.put(capabilityId, outputProperties);
-            outputCapabilityProperties.put(nodeTemplateName, capabilityOutputProperties);
-        } else if (!outputCapabilityProperties.get(nodeTemplateName).get(capabilityId).contains(propertyId)) {
-            outputCapabilityProperties.get(nodeTemplateName).get(capabilityId).add(propertyId);
-        } else {
-            // the property is already set as an output property
-            return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-        }
-
-        topology.setOutputCapabilityProperties(outputCapabilityProperties);
-        topologyServiceCore.save(topology);
-        topologyServiceCore.updateSubstitutionType(topology);
-        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-    }
-
-    @ApiOperation(value = "Remove a capability property from the output property list.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/capability/{capabilityId}/property/{propertyId}/isOutput", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<TopologyDTO> removeOutputCapabilityProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
-            @PathVariable String capabilityId, @PathVariable String propertyId) {
-        Topology topology = topologyServiceCore.getOrFail(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
-        topologyService.throwsErrorIfReleased(topology);
-
-        Map<String, Map<String, Set<String>>> outputCapabilityProperties = getOutputCapabilityPropertiesOrThrowException(topology, nodeTemplateName, propertyId,
-                capabilityId);
-        if (outputCapabilityProperties == null || !outputCapabilityProperties.containsKey(nodeTemplateName)
-                || !outputCapabilityProperties.get(nodeTemplateName).containsKey(capabilityId)
-                || !outputCapabilityProperties.get(nodeTemplateName).get(capabilityId).contains(propertyId)) {
-            return RestResponseBuilder.<TopologyDTO> builder().error(RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).build()).build();
-        }
-
-        outputCapabilityProperties.get(nodeTemplateName).get(capabilityId).remove(propertyId);
-
-        topology.setOutputCapabilityProperties(outputCapabilityProperties);
-        topologyServiceCore.save(topology);
-        topologyServiceCore.updateSubstitutionType(topology);
-        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-    }
-
-    @ApiOperation(value = "Activate an attribute as an output attribute.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/attributes/{attributeName}/output", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<TopologyDTO> addOutputAttribute(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
-            @PathVariable String attributeName) {
-        Topology topology = topologyServiceCore.getOrFail(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
-        topologyService.throwsErrorIfReleased(topology);
-
-        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
-
-        if (nodeTemplate.getAttributes() != null && nodeTemplate.getAttributes().containsKey(attributeName)) {
-            topology.setOutputAttributes(addToMap(topology.getOutputAttributes(), nodeTemplateName, attributeName));
-        } else {
-            // attributeName does not exists in the node template
-            return RestResponseBuilder.<TopologyDTO> builder().error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_MISSING_ERROR).build()).build();
-        }
-        topologyServiceCore.save(topology);
-        topologyServiceCore.updateSubstitutionType(topology);
-        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-    }
-
-    @ApiOperation(value = "Remove a property from the output property list.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/property/{propertyName}/isOutput", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<TopologyDTO> removeOutputProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
-            @PathVariable String propertyName) {
-        Topology topology = topologyServiceCore.getOrFail(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
-        topologyService.throwsErrorIfReleased(topology);
-
-        topology.setOutputProperties(removeValueFromMap(topology.getOutputProperties(), nodeTemplateName, propertyName));
-        topologyServiceCore.save(topology);
-        topologyServiceCore.updateSubstitutionType(topology);
-        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-    }
-
-    @ApiOperation(value = "Remove an attribute from the output attributes list.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/attributes/{attributeName}/output", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<TopologyDTO> removeOutputAttribute(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
-            @PathVariable String attributeName) {
-        Topology topology = topologyServiceCore.getOrFail(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
-        topologyService.throwsErrorIfReleased(topology);
-
-        topology.setOutputAttributes(removeValueFromMap(topology.getOutputAttributes(), nodeTemplateName, attributeName));
-        topologyServiceCore.save(topology);
-        topologyServiceCore.updateSubstitutionType(topology);
-        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-    }
-
     @ApiOperation(value = "Associate an artifact to an input artifact (create it if it doesn't exist).", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifacts/{artifactId}/{inputArtifactId}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
@@ -1092,8 +929,6 @@ public class TopologyController {
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
-
-
     /**
      * Update the name of a relationship.
      *
@@ -1130,29 +965,6 @@ public class TopologyController {
 
         topologyServiceCore.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-    }
-
-    private Map<String, Set<String>> addToMap(Map<String, Set<String>> map, String key, String value) {
-        map = map == null ? new HashMap<String, Set<String>>() : map;
-
-        if (map.containsKey(key)) {
-            map.get(key).add(value);
-        } else {
-            map.put(key, Sets.newHashSet(value));
-        }
-        return map;
-    }
-
-    private Map<String, Set<String>> removeValueFromMap(Map<String, Set<String>> map, String key, String value) {
-        if (map != null) {
-            if (map.containsKey(key)) {
-                map.get(key).remove(value);
-                if (map.get(key).isEmpty()) {
-                    map.remove(key);
-                }
-            }
-        }
-        return map;
     }
 
     @ApiOperation(value = "Get the version of application or topology related to this topology.")
