@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
+import alien4cloud.repository.services.RepositoryService;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.context.ApplicationListener;
@@ -23,6 +24,8 @@ public class ApplicationBootstrap implements ApplicationListener<ContextRefreshe
     @Inject
     private OrchestratorStateService orchestratorStateService;
     @Inject
+    private RepositoryService repositoryService;
+    @Inject
     private InitialLoader initialLoader;
 
     private boolean initialized = false;
@@ -40,6 +43,7 @@ public class ApplicationBootstrap implements ApplicationListener<ContextRefreshe
         } catch (IOException e) {
             log.error("Error while loading plugins.", e);
         }
+        repositoryService.initialize();
         return orchestratorStateService.initialize();
     }
 
@@ -48,6 +52,7 @@ public class ApplicationBootstrap implements ApplicationListener<ContextRefreshe
      */
     public void teardown() {
         orchestratorStateService.unloadAllOrchestrators();
+        repositoryService.unloadAllResolvers();
         pluginManager.unloadAllPlugins();
     }
 

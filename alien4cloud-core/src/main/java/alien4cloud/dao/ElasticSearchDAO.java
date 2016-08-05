@@ -5,8 +5,6 @@ import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.IndexingServiceException;
@@ -33,11 +31,13 @@ import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorConfiguration;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
+import alien4cloud.model.repository.Repository;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.model.PluginConfiguration;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Elastic Search DAO for alien 4 cloud application.
@@ -76,6 +76,7 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         initIndice(ApplicationEnvironment.class);
         initIndice(Topology.class);
         initIndice(Csar.class);
+        initIndice(Repository.class);
         initIndice(Plugin.class);
         initIndice(PluginConfiguration.class);
         initIndice(TopologyTemplate.class);

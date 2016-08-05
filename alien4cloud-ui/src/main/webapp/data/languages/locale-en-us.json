@@ -446,6 +446,7 @@
     "VALID_VALUES": "Valid values"
   },
   "CREATE" : "Create",
+  "NEXT": "Next",
   "CREATION_DATE" : "Creation date",
   "CSAR" : {
     "ACTIONS" : "Operations",
@@ -687,7 +688,8 @@
     "MENU_COMPONENTS" : "Components",
     "MENU_CSARS" : "CSARS",
     "MENU_CSARS_GIT" : "CSARS Git Integration",
-    "MENU_TOPOLOGY_TEMPLATE" : "Topology templates"
+    "MENU_TOPOLOGY_TEMPLATE" : "Topology templates",
+    "MENU_REPOSITORIES": "Repositories"
   },
   "OPTIONAL" : "Optional",
   "ORCHESTRATORS" : {
@@ -877,5 +879,11 @@
       "DEFAULT_VALUE_NOT_MATCH_CONSTRAINTS": "The default value does not match constraints",
       "DUPLICATED_CONSTRAINT": "Multiple constraints with the same type has been detected"
     }
+  },
+  "REPOSITORY": {
+    "TITLE": "Repositories",
+    "ADD": "New repository",
+    "TYPE": "Repository's type",
+    "PLUGINS_NOT_FOUND": "No resolver plugins found"
   }
 }
