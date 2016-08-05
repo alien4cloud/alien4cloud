@@ -1092,46 +1092,6 @@ public class TopologyController {
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
-
-
-    /**
-     * Update the name of a relationship.
-     *
-     * @param topologyId The id of the topology in which the related node template lies.
-     * @param nodeTemplateName The name of the node template in which is the relationship to rename.
-     * @param relationshipName The old name of the relationship to rename.
-     * @param newRelationshipName The new name of the relationship
-     * @return {@link RestResponse}<{@link String}> an response with the new relationship name as data and no error if successful.
-     */
-    @ApiOperation(value = "Change the name of a node template in a topology.", notes = "Returns a response with no errors in case of success. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/relationships/{relationshipName}/updateName", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<TopologyDTO> updateRelationshipName(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
-            @PathVariable String relationshipName, @RequestParam(value = "newName") String newRelationshipName) {
-        Topology topology = topologyServiceCore.getOrFail(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
-        topologyService.throwsErrorIfReleased(topology);
-
-        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
-
-        Map<String, RelationshipTemplate> relationships = nodeTemplate.getRelationships();
-        if (relationships == null || relationships.get(relationshipName) == null) {
-            throw new NotFoundException("Node template [" + nodeTemplateName + "] do not have the relationship [" + relationshipName + "].");
-        }
-
-        topologyService.isUniqueRelationshipName(topologyId, nodeTemplateName, newRelationshipName, relationships.keySet());
-
-        relationships.put(newRelationshipName, relationships.get(relationshipName));
-        relationships.remove(relationshipName);
-
-        log.debug("Renaiming the relationship <{}> with <{}> in the node template <{}> of topology <{}> .", relationshipName, newRelationshipName,
-                nodeTemplateName, topologyId);
-
-        topologyServiceCore.save(topology);
-        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-    }
-
     private Map<String, Set<String>> addToMap(Map<String, Set<String>> map, String key, String value) {
         map = map == null ? new HashMap<String, Set<String>>() : map;
 

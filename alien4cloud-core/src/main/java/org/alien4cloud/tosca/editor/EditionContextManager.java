@@ -1,29 +1,29 @@
 package org.alien4cloud.tosca.editor;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
-import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
-import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
-import org.springframework.stereotype.Component;
-
-import com.google.common.cache.*;
-
 import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.dao.ESGenericIdDAO;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.inject.Inject;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
+import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
+import org.springframework.stereotype.Component;
 
 /**
  * The topology edition context manager is responsible to manage the caching and lifecycle of TopologyEditionContexts.
@@ -52,7 +52,7 @@ public class EditionContextManager {
     @PostConstruct
     public void setup() {
         // initialize the cache
-        contextCache = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).removalListener(new RemovalListener<String, EditionContext>() {
+        contextCache = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.MINUTES).removalListener(new RemovalListener<String, EditionContext>() {
             @Override
             public void onRemoval(RemovalNotification<String, EditionContext> removalNotification) {
                 log.debug("Topology edition context with id {} has been evicted. {} pending operations are lost.", removalNotification.getKey(),

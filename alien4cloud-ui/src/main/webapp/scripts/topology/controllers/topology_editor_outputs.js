@@ -46,105 +46,45 @@ define(function (require) {
 
         toggleOutput: function(propertyName, outputType) {
           var scope = this.scope;
-          var nodeTemplateName = scope.selectedNodeTemplate.name;
-          var topology = scope.topology.topology;
-          var params = {
-            topologyId: scope.topology.topology.id,
-            nodeTemplateName: nodeTemplateName
+          var operation = {
+            nodeName: scope.selectedNodeTemplate.name
           };
 
-          if (outputType === 'outputProperties') {
-            params.propertyName = propertyName;
-          }
-          if (outputType === 'outputAttributes') {
-            params.attributeName = propertyName;
+          switch (outputType) {
+            case 'outputProperties':
+              operation.propertyName = propertyName;
+              operation.type = scope.properties.isOutputProperty(propertyName)?
+                                 'org.alien4cloud.tosca.editor.operations.nodetemplate.outputs.UnSetNodePropertyAsOutputOperation'
+                                :'org.alien4cloud.tosca.editor.operations.nodetemplate.outputs.SetNodePropertyAsOutputOperation';
+              break;
+            case 'outputAttributes':
+              operation.attributeName = propertyName;
+              operation.type = scope.properties.isOutputAttribute(propertyName)?
+                                 'org.alien4cloud.tosca.editor.operations.nodetemplate.outputs.UnSetNodeAttributeAsOutputOperation'
+                                :'org.alien4cloud.tosca.editor.operations.nodetemplate.outputs.SetNodeAttributeAsOutputOperation';
+              break;
+            default:
           }
 
-          var inputIndex = topology[outputType][nodeTemplateName].indexOf(propertyName);
+          // add/remove output
+          this.scope.execute(operation);
 
-          if (inputIndex < 0) {
-            // add input property
-            topologyServices.nodeTemplate[outputType].add(
-              params,
-              function(successResult) {
-                if (!successResult.error) {
-                  scope.refreshTopology(successResult.data);
-                } else {
-                  console.debug(successResult.error);
-                }
-              },
-              function(errorResult) {
-                console.debug(errorResult);
-              }
-            );
-          } else {
-            // remove input
-            topologyServices.nodeTemplate[outputType].remove(
-              params,
-              function(successResult) {
-                if (!successResult.error) {
-                  scope.refreshTopology(successResult.data);
-                } else {
-                  console.debug(successResult.error);
-                }
-              },
-              function(errorResult) {
-                console.debug(errorResult);
-              }
-            );
-          }
         },
 
-        toggleCapabilityOutput: function(capabilityId, propertyId) {
+        toggleOutputCapabilityProperty: function(capabilityName, propertyName) {
           var scope = this.scope;
-          var nodeTemplateName = scope.selectedNodeTemplate.name;
-          var topology = scope.topology.topology;
-          var inputIndex = -1;
-
-          if (_.defined(topology.outputCapabilityProperties) &&
-            _.defined(topology.outputCapabilityProperties[nodeTemplateName]) &&
-            _.defined(topology.outputCapabilityProperties[nodeTemplateName][capabilityId])) {
-            inputIndex = topology.outputCapabilityProperties[nodeTemplateName][capabilityId].indexOf(propertyId);
-          }
-
-          var params = {
-            topologyId: scope.topology.topology.id,
-            nodeTemplateName: nodeTemplateName,
-            capabilityId: capabilityId,
-            propertyId: propertyId
+          var operation = {
+            nodeName: scope.selectedNodeTemplate.name,
+            propertyName: propertyName,
+            capabilityName: capabilityName
           };
 
-          if (inputIndex < 0) {
-            // add input property
-            topologyServices.nodeTemplate.capability.outputProperties.add(
-              params,
-              function(successResult) {
-                if (!successResult.error) {
-                  scope.refreshTopology(successResult.data);
-                } else {
-                  console.debug(successResult.error);
-                }
-              },
-              function(errorResult) {
-                console.debug(errorResult);
-              }
-            );
-          } else {
-            // remove input
-            topologyServices.nodeTemplate.capability.outputProperties.remove(
-              params,
-              function(successResult) {
-                if (!successResult.error) {
-                  scope.refreshTopology(successResult.data);
-                } else {
-                  console.debug(successResult.error);
-                }
-              },
-              function(errorResult) {
-                console.debug(errorResult);
-              }
-            );
-          }
+          operation.type = scope.properties.isOutputCapabilityProperty(capabilityName,propertyName)?
+                             'org.alien4cloud.tosca.editor.operations.nodetemplate.outputs.UnSetNodeCapabilityPropertyAsOutputOperation'
+                            :'org.alien4cloud.tosca.editor.operations.nodetemplate.outputs.SetNodeCapabilityPropertyAsOutputOperation';
+
+          // add/remove output
+          this.scope.execute(operation);
         },
 
         toggleOutputProperty: function(propertyName) {

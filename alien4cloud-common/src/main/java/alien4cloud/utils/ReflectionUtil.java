@@ -5,27 +5,19 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
-
-import lombok.extern.slf4j.Slf4j;
+import java.lang.reflect.*;
+import java.util.*;
 
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
 import org.springframework.util.ReflectionUtils;
 
-import alien4cloud.exception.InvalidArgumentException;
-
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+
+import alien4cloud.exception.InvalidArgumentException;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utility class to help working with java reflection.
@@ -37,89 +29,91 @@ public final class ReflectionUtil {
     }
 
     /**
-     * Get all the interfaces implemented by a given class including interfaces implemented by the parent classes.
-     * 
-     * @param clazz The actual class for which to get all implemented interfaces.
-     */
-    public static Set<Type> getAllGenericInterfaces(Class<?> clazz) {
-        Set<Type> genericInterfaces = Sets.newHashSet();
-
-        while (clazz != null) {
-            Type[] clazzGenericInterfaces = clazz.getGenericInterfaces();
-
-            for (Type clazzGI : clazzGenericInterfaces) {
-                if (clazzGI instanceof Class) {
-                    genericInterfaces.addAll(getAllGenericInterfaces((Class<?>) clazzGI));
-                }
-            }
-
-            genericInterfaces.addAll(Arrays.asList(clazzGenericInterfaces));
-            clazz = clazz.getSuperclass();
-        }
-
-        return genericInterfaces;
-    }
-
-    /**
      * Get the Class of the generic argument of a generic class based on it's implementation class.
-     * 
+     *
      * @param implementationClass The implementation class that actually is a sub-class of generic class.
      * @param genericClass The generic class for which to get the argument type.
      * @param index The index of the argument.
      * @return null if the type cannot be found, the generic type when found.
      */
-    public static Class<?> getGenericArgumentType(Class<?> implementationClass, Class<?> genericClass, int index) {
+    public static <T> Class<?> getGenericArgumentType(Class<? extends T> implementationClass, Class<T> genericClass, int index) {
         if (implementationClass.isAssignableFrom(genericClass)) {
             return null;
         }
 
-        if (genericClass.isInterface()) {
-            Type generic = getInterfaceTypeArgument(implementationClass, genericClass, index);
-            if (generic instanceof TypeVariable) {
-                return getTypeVariable(implementationClass.getGenericSuperclass(), (TypeVariable<?>) generic);
-            }
-
-            return (Class<?>) generic;
+        Type[] types = getGenericArgumentTypes(implementationClass, genericClass, implementationClass.getTypeParameters());
+        if (types != null) {
+            return (Class<?>) types[index];
         }
 
         return null;
     }
 
-    private static Type getInterfaceTypeArgument(Class<?> implementationClass, Class<?> genericClass, int index) {
-        Set<Type> genericInterfaces = ReflectionUtil.getAllGenericInterfaces(implementationClass);
-        for (Type genericInterface : genericInterfaces) {
-            if (genericInterface instanceof ParameterizedType) {
-                ParameterizedType paramGenericInterface = (ParameterizedType) genericInterface;
-                if (genericClass.equals(paramGenericInterface.getRawType())) {
-                    return paramGenericInterface.getActualTypeArguments()[index];
-                }
-            }
+    private static <T> Type[] getGenericArgumentTypes(Class<? extends T> currentClass, Class<T> genericClass, Type... resolvedTypes) {
+        Map<String, Type> resolvedTypesByName = new HashMap<String, Type>();
+        for (int i = 0; i < resolvedTypes.length; i++) {
+            TypeVariable<?> typeVariable = (TypeVariable<?>) currentClass.getTypeParameters()[i];
+            resolvedTypesByName.put(typeVariable.getName(), resolvedTypes[i]);
         }
-        return null;
-    }
 
-    private static Class<?> getTypeVariable(Type from, TypeVariable<?> typeVariable) {
-        Class<?> fromClass;
-        if (from instanceof ParameterizedType) {
-            ParameterizedType fromParam = (ParameterizedType) from;
-            fromClass = (Class<?>) fromParam.getRawType();
-            if (fromClass.equals(typeVariable.getGenericDeclaration())) {
-                TypeVariable<?>[] fromTypeVariables = fromClass.getTypeParameters();
-                for (int i = 0; i < fromTypeVariables.length; i++) {
-                    TypeVariable<?> fromTypeVariable = fromTypeVariables[i];
-                    if (fromTypeVariable.equals(typeVariable)) {
-                        return (Class<?>) fromParam.getActualTypeArguments()[i];
+        Set<Type> directGenericInterfaces = getDirectGenericInterfaces(currentClass, genericClass);
+        Type[] types = null;
+        for (Type genericInterface : directGenericInterfaces) {
+            if (genericInterface instanceof Class) {
+                types = getGenericArgumentTypes((Class<? extends T>) genericInterface, genericClass);
+            }
+            if (types == null && genericInterface instanceof ParameterizedType) {
+                ParameterizedType parameterizedType = (ParameterizedType) genericInterface;
+                List<Type> nextResolvedTypes = new LinkedList<Type>();
+                for (Type t : parameterizedType.getActualTypeArguments()) {
+                    if (t instanceof TypeVariable<?>) {
+                        Type resolvedType = resolvedTypesByName.get(((TypeVariable<?>) t).getName());
+                        nextResolvedTypes.add(resolvedType != null ? resolvedType : t);
+                    } else {
+                        nextResolvedTypes.add(t);
                     }
                 }
+
+                types = getGenericArgumentTypes((Class<? extends T>) parameterizedType.getRawType(), genericClass,
+                        nextResolvedTypes.toArray(new Type[nextResolvedTypes.size()]));
             }
-        } else {
-            fromClass = (Class<?>) from;
+            if (types != null) {
+                return types;
+            }
         }
-        Type superType = fromClass.getGenericSuperclass();
-        if (superType != null) {
-            return getTypeVariable(superType, typeVariable);
+
+        return resolvedTypes;
+    }
+
+    /**
+     * Get all direct generic interfaces that can be assigned from the expected class.
+     * 
+     * @param clazz The class from which to get generic.
+     * @param expectedClazz The class from which .
+     * @return a Set that contains all direct generic interfaces matching the expectedClazz from clazz.
+     */
+    private static Set<Type> getDirectGenericInterfaces(Class<?> clazz, Class<?> expectedClazz) {
+        Set<Type> superTypes = Sets.newHashSet();
+        if (clazz.getGenericSuperclass() != null && isAssignableFrom(clazz.getGenericSuperclass(), expectedClazz)) {
+            superTypes.add(clazz.getGenericSuperclass());
         }
-        return null;
+        for (Type genericInterface : clazz.getGenericInterfaces()) {
+            if (isAssignableFrom(genericInterface, expectedClazz)) {
+                superTypes.add(genericInterface);
+            }
+        }
+        return superTypes;
+    }
+
+    private static boolean isAssignableFrom(Type type, Class<?> clazz) {
+        if (type instanceof Class) {
+            return clazz.isAssignableFrom((Class<?>) type);
+        }
+        if (type instanceof ParameterizedType) {
+            Type rawType = ((ParameterizedType) type).getRawType();
+            return rawType instanceof Class && clazz.isAssignableFrom((Class<?>) rawType);
+        }
+        return false;
     }
 
     /**

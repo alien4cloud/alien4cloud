@@ -37,5 +37,5 @@ Feature: Topology editor: set node property as input
       | nodeName     | software_component                                                                   |
       | propertyName | component_version                                                                    |
       | inputName    | component_version                                                                    |
-    Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
+    Then an exception of type "alien4cloud.model.components.IncompatiblePropertyDefinitionException" should be thrown
     And The SPEL expression "nodeTemplates['software_component'].properties['component_version']" should return "null"
