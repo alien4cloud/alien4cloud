@@ -26,7 +26,8 @@ import alien4cloud.utils.AlienYamlPropertiesFactoryBeanFactory;
 @Configuration("bootstrap-config")
 @EnableAutoConfiguration(exclude = { HypermediaAutoConfiguration.class })
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-@ComponentScan(basePackages = { "org.alien4cloud.bootstrap", "alien4cloud.security", "org.elasticsearch.mapping", "alien4cloud.dao", "alien4cloud.servlet",
+@ComponentScan(basePackages = { "org.alien4cloud.bootstrap", "alien4cloud.security", "alien4cloud.webconfiguration", "org.elasticsearch.mapping",
+        "alien4cloud.dao", "alien4cloud.servlet",
         "alien4cloud.images" })
 public class Bootstrap {
 

@@ -1,56 +1,52 @@
 Manifest-Version: 1.0
-Class-Path: alien4cloud-rest-api.jar alien4cloud-core.jar alien4cloud-
- security.jar alien4cloud-common.jar org.eclipse.jgit-3.4.1.2014062018
- 15-r.jar jsch-0.1.50.jar JavaEWAH-0.7.9.jar httpclient-4.3.2.jar http
- core-4.3.1.jar commons-codec-1.7.jar guava-15.0.jar commons-lang3-3.3
- .2.jar commons-collections4-4.0.jar commons-compress-1.9.jar elastics
- earch-mapping-1.4.0.jar elasticsearch-1.7.0.jar lucene-core-4.10.4.ja
- r lucene-analyzers-common-4.10.4.jar lucene-queries-4.10.4.jar lucene
- -memory-4.10.4.jar lucene-highlighter-4.10.4.jar lucene-queryparser-4
- .10.4.jar lucene-sandbox-4.10.4.jar lucene-suggest-4.10.4.jar lucene-
- misc-4.10.4.jar lucene-join-4.10.4.jar lucene-grouping-4.10.4.jar luc
- ene-spatial-4.10.4.jar spatial4j-0.4.1.jar antlr-runtime-3.5.jar asm-
- 4.1.jar asm-commons-4.1.jar snakeyaml-1.12.jar jackson-databind-2.3.1
- .jar jackson-annotations-2.3.0.jar jackson-core-2.3.1.jar spring-cont
- ext-4.1.4.RELEASE.jar spring-aop-4.1.4.RELEASE.jar aopalliance-1.0.ja
- r spring-beans-4.1.4.RELEASE.jar spring-core-4.1.4.RELEASE.jar spring
- -expression-4.1.4.RELEASE.jar elasticsearch-annotations-1.4.0.jar gro
- ovy-all-2.3.5.jar jackson-dataformat-yaml-2.3.1.jar spring-aspects-4.
- 1.4.RELEASE.jar aspectjweaver-1.7.4.jar spring-boot-actuator-1.2.1.RE
- LEASE.jar spring-boot-1.2.1.RELEASE.jar spring-boot-autoconfigure-1.2
- .1.RELEASE.jar aspectjrt-1.7.4.jar validation-api-1.1.0.Final.jar slf
- 4j-api-1.7.5.jar slf4j-log4j12-1.7.5.jar log4j-1.2.16.jar commons-io-
- 1.3.2.jar hibernate-validator-5.0.2.Final.jar jboss-logging-3.1.1.GA.
- jar classmate-1.2.0.jar javax.el-api-3.0.0.jar javax.el-2.2.6.jar spr
- ing-boot-starter-security-1.2.1.RELEASE.jar spring-boot-starter-1.2.1
- .RELEASE.jar spring-boot-starter-logging-1.2.1.RELEASE.jar jcl-over-s
- lf4j-1.7.8.jar jul-to-slf4j-1.7.8.jar spring-web-4.1.4.RELEASE.jar sp
- ring-security-config-3.2.5.RELEASE.jar spring-security-core-3.2.5.REL
- EASE.jar spring-security-web-3.2.5.RELEASE.jar spring-security-ldap-3
- .2.5.RELEASE.jar spring-ldap-core-2.0.1.RELEASE.jar spring-data-commo
- ns-1.9.1.RELEASE.jar spring-tx-4.1.4.RELEASE.jar spring-security-saml
- 2-core-1.0.1.RELEASE.jar opensaml-2.6.1.jar openws-1.5.1.jar xmltooli
- ng-1.4.1.jar bcprov-jdk15-1.46.jar joda-time-2.5.jar not-yet-commons-
- ssl-0.3.9.jar commons-httpclient-3.1.jar xmlsec-1.5.6.jar xercesImpl-
- 2.10.0.jar serializer-2.7.1.jar xml-resolver-1.2.jar xalan-2.7.1.jar 
- commons-collections-3.2.1.jar commons-lang-2.4.jar velocity-1.7.jar e
- sapi-2.0.1.jar xml-apis-1.4.01.jar spring-social-core-1.1.0.RELEASE.j
- ar spring-social-web-1.1.0.RELEASE.jar javax.inject-1.jar spring-webm
- vc-4.1.4.RELEASE.jar spring-social-github-1.0.0.M4.jar spring-social-
- config-1.1.0.RELEASE.jar spring-social-security-1.1.0.RELEASE.jar spr
- ing-ldap-core-tiger-2.0.1.RELEASE.jar springfox-swagger2-2.2.2.jar ma
- pstruct-1.0.0.CR1.jar swagger-annotations-1.5.3.jar swagger-models-1.
- 5.3.jar springfox-spi-2.2.2.jar springfox-core-2.2.2.jar spring-plugi
- n-core-1.2.0.RELEASE.jar spring-plugin-metadata-1.2.0.RELEASE.jar spr
- ing-hateoas-0.16.0.RELEASE.jar objenesis-2.1.jar springfox-schema-2.2
- .2.jar springfox-swagger-common-2.2.2.jar springfox-spring-web-2.2.2.
- jar spring-context-support-4.1.4.RELEASE.jar spring-messaging-4.1.4.R
- ELEASE.jar jaxb-api-2.0.jar jsr173_api-1.0.jar activation-1.1.jar jax
- b-2.1.9.jar spring-boot-starter-web-1.2.1.RELEASE.jar spring-boot-sta
- rter-actuator-1.2.1.RELEASE.jar spring-boot-starter-websocket-1.2.1.R
- ELEASE.jar spring-websocket-4.1.4.RELEASE.jar metrics-core-3.0.2.jar 
- metrics-jvm-3.0.2.jar metrics-servlet-3.0.2.jar metrics-json-3.0.2.ja
- r metrics-servlets-3.0.2.jar metrics-spring-3.0.1.jar metrics-healthc
- hecks-3.0.2.jar metrics-annotation-3.0.2.jar commons-fileupload-1.2.2
- .jar springfox-swagger-ui-2.2.2.jar
+Class-Path: alien4cloud-rest-api.jar consul-client-0.12.3.jar guava-15
+ .0.jar slf4j-api-1.7.5.jar alien4cloud-core.jar alien4cloud-security.
+ jar alien4cloud-dao.jar elasticsearch-mapping-1.5.2.jar elasticsearch
+ -1.7.0.jar lucene-core-4.10.4.jar lucene-analyzers-common-4.10.4.jar 
+ lucene-queries-4.10.4.jar lucene-memory-4.10.4.jar lucene-highlighter
+ -4.10.4.jar lucene-queryparser-4.10.4.jar lucene-sandbox-4.10.4.jar l
+ ucene-suggest-4.10.4.jar lucene-misc-4.10.4.jar lucene-join-4.10.4.ja
+ r lucene-grouping-4.10.4.jar lucene-spatial-4.10.4.jar spatial4j-0.4.
+ 1.jar antlr-runtime-3.5.jar asm-4.1.jar asm-commons-4.1.jar snakeyaml
+ -1.12.jar jackson-databind-2.3.1.jar jackson-annotations-2.3.0.jar ja
+ ckson-core-2.3.1.jar spring-context-4.1.4.RELEASE.jar spring-aop-4.1.
+ 4.RELEASE.jar aopalliance-1.0.jar spring-beans-4.1.4.RELEASE.jar spri
+ ng-core-4.1.4.RELEASE.jar spring-expression-4.1.4.RELEASE.jar elastic
+ search-annotations-1.5.2.jar alien4cloud-common.jar org.eclipse.jgit-
+ 3.4.1.201406201815-r.jar jsch-0.1.50.jar JavaEWAH-0.7.9.jar httpclien
+ t-4.3.2.jar httpcore-4.3.1.jar commons-codec-1.6.jar commons-lang3-3.
+ 3.2.jar commons-collections4-4.1.jar commons-compress-1.9.jar groovy-
+ all-2.3.5.jar jackson-dataformat-yaml-2.3.1.jar spring-aspects-4.1.4.
+ RELEASE.jar aspectjweaver-1.7.4.jar spring-boot-actuator-1.2.1.RELEAS
+ E.jar spring-boot-1.2.1.RELEASE.jar spring-boot-autoconfigure-1.2.1.R
+ ELEASE.jar aspectjrt-1.7.4.jar validation-api-1.1.0.Final.jar slf4j-l
+ og4j12-1.7.5.jar log4j-1.2.16.jar commons-io-1.3.2.jar hibernate-vali
+ dator-5.0.2.Final.jar jboss-logging-3.1.1.GA.jar classmate-1.3.1.jar 
+ javax.el-api-3.0.0.jar javax.el-2.2.6.jar spring-boot-starter-securit
+ y-1.2.1.RELEASE.jar spring-boot-starter-1.2.1.RELEASE.jar spring-boot
+ -starter-logging-1.2.1.RELEASE.jar jcl-over-slf4j-1.7.8.jar jul-to-sl
+ f4j-1.7.8.jar spring-web-4.1.4.RELEASE.jar spring-security-config-3.2
+ .5.RELEASE.jar spring-security-core-3.2.5.RELEASE.jar spring-security
+ -web-3.2.5.RELEASE.jar spring-security-ldap-3.2.5.RELEASE.jar spring-
+ ldap-core-2.0.1.RELEASE.jar spring-data-commons-1.9.1.RELEASE.jar spr
+ ing-tx-4.1.4.RELEASE.jar spring-social-core-1.1.0.RELEASE.jar spring-
+ social-web-1.1.0.RELEASE.jar javax.inject-1.jar spring-webmvc-4.1.4.R
+ ELEASE.jar spring-social-github-1.0.0.M4.jar spring-social-config-1.1
+ .0.RELEASE.jar spring-social-security-1.1.0.RELEASE.jar spring-ldap-c
+ ore-tiger-2.0.1.RELEASE.jar springfox-swagger2-2.3.1.jar mapstruct-1.
+ 0.0.Final.jar swagger-annotations-1.5.5.jar swagger-models-1.5.5.jar 
+ springfox-spi-2.3.1.jar springfox-core-2.3.1.jar spring-plugin-core-1
+ .2.0.RELEASE.jar spring-plugin-metadata-1.2.0.RELEASE.jar springfox-s
+ chema-2.3.1.jar springfox-swagger-common-2.3.1.jar springfox-spring-w
+ eb-2.3.1.jar alien4cloud-tosca.jar velocity-1.7.jar commons-collectio
+ ns-3.2.1.jar commons-lang-2.4.jar spring-context-support-4.1.4.RELEAS
+ E.jar spring-messaging-4.1.4.RELEASE.jar jaxb-api-2.0.jar jsr173_api-
+ 1.0.jar activation-1.1.jar jaxb-2.1.9.jar spring-boot-starter-web-1.2
+ .1.RELEASE.jar spring-boot-starter-actuator-1.2.1.RELEASE.jar spring-
+ boot-starter-websocket-1.2.1.RELEASE.jar spring-websocket-4.1.4.RELEA
+ SE.jar spring-boot-starter-aop-1.2.1.RELEASE.jar metrics-core-3.0.2.j
+ ar metrics-jvm-3.0.2.jar metrics-servlet-3.0.2.jar metrics-json-3.0.2
+ .jar metrics-servlets-3.0.2.jar metrics-spring-3.0.1.jar metrics-heal
+ thchecks-3.0.2.jar metrics-annotation-3.0.2.jar commons-fileupload-1.
+ 2.2.jar springfox-swagger-ui-2.3.1.jar
 

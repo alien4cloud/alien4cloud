@@ -10,6 +10,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.annotation.Resource;
+
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
@@ -67,6 +69,9 @@ public class ChildContextAspectsManager implements ApplicationListener<Applicati
 
     private Lock lock = new ReentrantLock();
 
+    @Resource
+    private ApplicationContext context;
+
     @Override
     public Object postProcessAfterInitialization(final Object bean, final String id) throws BeansException {
         if (log.isTraceEnabled()) {
@@ -121,7 +126,7 @@ public class ChildContextAspectsManager implements ApplicationListener<Applicati
     }
 
     private void onContextStarted(ApplicationContext ctx) {
-        if (ctx.getId().endsWith(":leader")) {
+        if (ctx == context) {
             return;
         }
         lock.lock();
