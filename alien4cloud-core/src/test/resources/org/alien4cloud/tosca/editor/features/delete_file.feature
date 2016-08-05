@@ -41,7 +41,7 @@ Feature: Topology editor: delete file
     When I execute the operation
       | type | org.alien4cloud.tosca.editor.operations.DeleteFileOperation |
       | path | topology.yml                                         |
-    Then an exception of type "alien4cloud.exception.InvalidPathException" should be thrown
+    Then an exception of type "org.alien4cloud.tosca.editor.exception.InvalidPathException" should be thrown
 
   Scenario: Delete a file that does not exists should fail
     When I execute the operation

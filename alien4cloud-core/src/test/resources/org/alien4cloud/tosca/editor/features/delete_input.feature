@@ -15,10 +15,20 @@ Feature: Topology editor: delete input
     Then No exception should be thrown
     And The SPEL int expression "inputs.size()" should return 0
 
-  Scenario: Remove an input that does not exists should fail
+  Scenario: Remove an input that does not exists while there is no inputs should fail
     When I execute the operation
       | type      | org.alien4cloud.tosca.editor.operations.inputs.DeleteInputOperation |
       | inputName | simple_input                                                        |
+    Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
+
+  Scenario: Remove an input that does not exists should fail
+    Given I execute the operation
+      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
+      | inputName               | simple_input                                                     |
+      | propertyDefinition.type | string                                                           |
+    When I execute the operation
+      | type      | org.alien4cloud.tosca.editor.operations.inputs.DeleteInputOperation |
+      | inputName | other_input                                                        |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
 
   Scenario: Remove an input that is associated to a node property should remove the association
