@@ -883,8 +883,10 @@
   "REPOSITORY": {
     "TITLE": "Repositories",
     "ADD": "New repository",
-    "TYPE": "Repository's type",
+    "NAME": "Name",
+    "TYPE": "Type",
     "PLUGINS_NOT_FOUND": "No resolver plugins found",
-    "CONFIGURATION": "Repository's configuration"
+    "CONFIGURATION": "Configuration",
+    "REPOSITORYTYPE": "Type"
   }
 }

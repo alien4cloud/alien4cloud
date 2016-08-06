@@ -11,9 +11,9 @@ define(function (require) {
       controller: 'FacetsController',
       scope: {
         // currently selected filters by user
-        facetFilters: '&',
+        facetFilters: '=',
         // facet data, which can be updated vi doSearch()
-        facets: '&',
+        facets: '=',
         // the prefix for all label, it's useful for translation
         filterPrefix: '@',
         // trigger a query to refresh data

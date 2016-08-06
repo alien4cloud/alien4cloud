@@ -61,12 +61,13 @@ public class RepositoryController {
     public RestResponse<Void> update(@ApiParam(value = "Id of the repository to update", required = true) @PathVariable String id,
             @ApiParam(value = "Request for repository update", required = true) @Valid @RequestBody UpdateRepositoryRequest updateRequest) {
         Repository repository = repositoryService.getOrFail(id);
+        String oldName = repository.getName();
         ReflectionUtil.mergeObject(updateRequest, repository);
-        repositoryService.updateRepositoryConfiguration(repository);
+        repositoryService.updateRepository(repository, oldName, updateRequest.getConfiguration() != null);
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    @RequestMapping(method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @ApiOperation(value = "Delete a repository.", authorizations = { @Authorization("COMPONENTS_MANAGER") })
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     @Audit

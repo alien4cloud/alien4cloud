@@ -31,8 +31,8 @@ define(function (require) {
   });
   states.forward('components.repositories', 'components.repositories.list');
 
-  var NewRepositoryCtrl = ['$scope', '$modalInstance', 'repositoryPlugins', 'repositoryPluginConfigurationService',
-    function ($scope, $modalInstance, repositoryPlugins, repositoryPluginConfigurationService) {
+  var NewRepositoryCtrl = ['$scope', '$modalInstance', 'repositoryPlugins', 'repositoryService', 'repositoryPluginConfigurationService',
+    function ($scope, $modalInstance, repositoryPlugins, repositoryService, repositoryPluginConfigurationService) {
 
       $scope.repositoryPlugins = repositoryPlugins;
 
@@ -68,20 +68,60 @@ define(function (require) {
         }
       };
 
+      var closeModal = function () {
+        $modalInstance.close($scope.repository);
+      };
+
       $scope.next = function (valid) {
         if (valid) {
           $scope.prepareStep(++$scope.step);
           if ($scope.step > $scope.maxStep) {
-            $modalInstance.close($scope.repository);
+            // create a new application from the given name and description.
+            return repositoryService.create({}, angular.toJson($scope.repository), closeModal, closeModal).$promise;
           }
         }
       };
     }];
 
-  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('RepositoryListCtrl', ['$scope', '$modal', 'repositoryService',
-    function ($scope, $modal, repositoryService) {
+  var UpdateRepositoryConfigurationController = ['$scope', '$modalInstance', 'repositoryService', 'configurationDefinition', 'repository',
+    function ($scope, $modalInstance, repositoryService, configurationDefinition, repository) {
+
+      $scope.configurationDefinition = configurationDefinition;
+      $scope.repository = repository;
+
+      var closeModal = function () {
+        $modalInstance.close();
+      };
+
+      $scope.save = function () {
+        return repositoryService.update({repositoryId: $scope.repository.id}, angular.toJson({configuration: $scope.repository.configuration}), closeModal, closeModal).$promise;
+      };
+
+      $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+      };
+    }
+  ];
+
+  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('RepositoryListCtrl', ['$scope', '$modal', 'repositoryService', '$window',
+    function ($scope, $modal, repositoryService, $window) {
+
       $scope.onSearch = function (searchConfig) {
         $scope.searchConfig = searchConfig;
+      };
+
+      $scope.tableMaxHeight = window.innerHeight - 190;
+      angular.element($window).bind('resize', function () {
+        $scope.tableMaxHeight = window.innerHeight - 190;
+        $scope.$digest();
+      });
+
+      $scope.deleteRepository = function (repository) {
+        repositoryService.remove({
+          repositoryId: repository.id
+        }, undefined, function () {
+          $scope.searchConfig.service.search();
+        });
       };
 
       $scope.openCreateRepositoryModal = function () {
@@ -96,12 +136,34 @@ define(function (require) {
             }]
           }
         });
-        modalInstance.result.then(function (application) {
-          // create a new application from the given name and description.
-          repositoryService.create({}, angular.toJson(application), function (response) {
-            $scope.searchConfig.service.search();
-          });
+        modalInstance.result.then(function () {
+          $scope.searchConfig.service.search();
         });
+      };
+
+      $scope.openUpdateRepositoryConfigurationModal = function (repository) {
+        $modal.open({
+          templateUrl: 'views/components/repository_update.html',
+          controller: UpdateRepositoryConfigurationController,
+          resolve: {
+            configurationDefinition: ['repositoryPluginConfigurationService', function (repositoryPluginConfigurationService) {
+              return repositoryPluginConfigurationService.get({
+                pluginId: repository.pluginId
+              }, undefined).$promise.then(function (response) {
+                return response.data;
+              });
+            }],
+            repository: function () {
+              return repository;
+            }
+          }
+        });
+      };
+
+      $scope.updateRepository = function (repository, field, newValue) {
+        var request = {};
+        request[field] = newValue;
+        return repositoryService.update({repositoryId: repository.id}, angular.toJson(request), undefined).$promise;
       };
     }]);
 });

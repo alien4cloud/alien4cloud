@@ -1,5 +1,5 @@
 <!-- Displaying active filters -->
-<div ng-if="advancedSearch" ng-show="facetFilters.length>0" class="filter-category">
+<div ng-show="facetFilters.length>0" class="filter-category">
     <div>
         {{ filterPrefix + 'ACTIVE_FILTERS' | translate }} <span class="badge">{{facetFilters.length}}</span>
         <button type="button" class="btn btn-default btn-xs" ng-click="reset()">
@@ -19,7 +19,7 @@
 </div>
 
 <!-- Displaying all terms and its facets -->
-<div ng-if="advancedSearch" ng-repeat="(term, termFacets) in facets">
+<div ng-repeat="(term, termFacets) in facets">
     <div ng-click="isFacetCollapsed = !isFacetCollapsed" class="facet-category">
         <span>{{filterPrefix + (term | uppercase) | translate}}</span>
         <i class="pull-right fa"

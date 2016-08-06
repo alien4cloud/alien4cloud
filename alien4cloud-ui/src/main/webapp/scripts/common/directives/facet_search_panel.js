@@ -65,7 +65,7 @@ define(function (require) {
       onSearchCompleted: onSearchCompleted
     };
 
-    $scope.searchService = searchServiceFactory($scope.searchUrl, false, $scope.queryProvider, 20, 10);
+    $scope.searchService = searchServiceFactory($scope.searchUrl, false, $scope.queryProvider, 10, 10);
     $scope.searchService.filtered(true);
     $scope.doSearch();
 

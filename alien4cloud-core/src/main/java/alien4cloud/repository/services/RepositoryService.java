@@ -127,10 +127,14 @@ public class RepositoryService {
         return id;
     }
 
-    public void updateRepositoryConfiguration(Repository updated) {
-        ensureNameUnicityAndSave(updated, updated.getName());
-        if (registeredResolvers.containsKey(updated.getId())) {
-            registeredResolvers.get(updated.getId()).setConfiguration(updated.getConfiguration());
+    public void updateRepository(Repository updated, String oldName, boolean updateConfiguration) {
+        ensureNameUnicityAndSave(updated, oldName);
+        if (updateConfiguration) {
+            if (registeredResolvers.containsKey(updated.getId())) {
+                IConfigurableArtifactResolverFactory resolverFactory = configurableResolverRegistry.getSinglePluginBean(updated.getPluginId());
+                IConfigurableArtifactResolver resolver = registeredResolvers.get(updated.getId());
+                resolver.setConfiguration(JsonUtil.toObject(updated.getConfiguration(), resolverFactory.getResolverConfigurationType()));
+            }
         } else {
             log.warn("Repository not found with id [" + updated.getId() + "] and name [" + updated.getName() + "]");
         }

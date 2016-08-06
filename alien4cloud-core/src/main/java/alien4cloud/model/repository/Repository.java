@@ -24,7 +24,8 @@ import lombok.Setter;
 public class Repository {
     @Id
     private String id;
-    @StringField
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed)
     private String name;
     /** Id of the plugin. */
     @TermFilter
