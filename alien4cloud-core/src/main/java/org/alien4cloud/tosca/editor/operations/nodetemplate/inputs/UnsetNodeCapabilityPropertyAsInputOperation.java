@@ -1,4 +1,4 @@
-package org.alien4cloud.tosca.editor.operations.nodetemplate;
+package org.alien4cloud.tosca.editor.operations.nodetemplate.inputs;
 
 /**
  * Allows to remove get_input function to the property of a node.

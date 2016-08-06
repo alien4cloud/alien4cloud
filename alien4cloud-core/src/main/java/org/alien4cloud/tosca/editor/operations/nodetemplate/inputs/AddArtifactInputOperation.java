@@ -1,7 +1,8 @@
-package org.alien4cloud.tosca.editor.operations.nodetemplate;
+package org.alien4cloud.tosca.editor.operations.nodetemplate.inputs;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.alien4cloud.tosca.editor.operations.nodetemplate.AbstractNodeOperation;
 
 /**
  * Operation to place an artifact as input for the topology.

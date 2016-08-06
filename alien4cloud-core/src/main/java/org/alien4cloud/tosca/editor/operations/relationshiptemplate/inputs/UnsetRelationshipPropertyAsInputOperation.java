@@ -1,4 +1,6 @@
-package org.alien4cloud.tosca.editor.operations.relationshiptemplate;
+package org.alien4cloud.tosca.editor.operations.relationshiptemplate.inputs;
+
+import org.alien4cloud.tosca.editor.operations.relationshiptemplate.AbstractRelationshipOperation;
 
 /**
  * Allows to remove get_input function to the property of a node.

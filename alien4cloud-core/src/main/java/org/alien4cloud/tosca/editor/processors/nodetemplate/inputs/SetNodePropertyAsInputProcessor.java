@@ -1,10 +1,11 @@
-package org.alien4cloud.tosca.editor.processors.nodetemplate;
+package org.alien4cloud.tosca.editor.processors.nodetemplate.inputs;
 
 import java.util.Arrays;
 import java.util.Map;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
-import org.alien4cloud.tosca.editor.operations.nodetemplate.SetNodePropertyAsInputOperation;
+import org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodePropertyAsInputOperation;
+import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;
