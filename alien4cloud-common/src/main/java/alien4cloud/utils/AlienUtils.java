@@ -7,12 +7,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import alien4cloud.exception.NotFoundException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.Maps;
 
 import lombok.SneakyThrows;
+import org.slf4j.helpers.FormattingTuple;
+import org.slf4j.helpers.MessageFormatter;
 
 public final class AlienUtils {
 
@@ -46,6 +49,43 @@ public final class AlienUtils {
      */
     public static <K, V> Map<K, V> safe(Map<K, V> map) {
         return org.apache.commons.collections4.MapUtils.emptyIfNull(map);
+    }
+
+    /**
+     * Get an element from the map (that can be null) or throw a NotFoundException if the element is not in the map.
+     * 
+     * @param map The map from which to get the element or null.
+     * @param key The key of the element.
+     * @param <K> The type of map keys
+     * @param <K> The type of map values
+     * @return A non null element.
+     */
+    public static <K, V> V getOrFail(Map<K, V> map, K key) {
+        return getOrFail(map, key, "The element with key <{}> cannot be found", key.toString());
+    }
+
+    /**
+     * Get an element from the map (that can be null) or throw a NotFoundException if the element is not in the map.
+     *
+     * @param map The map from which to get the element or null.
+     * @param key The key of the element.
+     * @param message The error message for the not found exception. The message supports same formatting as logs "This is message {}", "message".
+     * @param args The arguments for the message formatting.
+     * @param <K> The type of map keys
+     * @param <K> The type of map values
+     * @return A non null element.
+     */
+    public static <K, V> V getOrFail(Map<K, V> map, K key, String message, Object... args) {
+        if (map == null) {
+            FormattingTuple ft = MessageFormatter.arrayFormat(message, args);
+            throw new NotFoundException(ft.getMessage());
+        }
+        V value = map.get(key);
+        if (value == null) {
+            FormattingTuple ft = MessageFormatter.arrayFormat(message, args);
+            throw new NotFoundException(ft.getMessage());
+        }
+        return value;
     }
 
     /**

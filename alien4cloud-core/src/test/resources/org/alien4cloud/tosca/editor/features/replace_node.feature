@@ -2,7 +2,7 @@ Feature: Topology editor: replace nodes templates
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology
 
   Scenario: Replace a nodetemplate in a topology
     Given I execute the operation

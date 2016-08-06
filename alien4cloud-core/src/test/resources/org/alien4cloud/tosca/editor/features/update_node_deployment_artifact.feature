@@ -2,7 +2,7 @@ Feature: Topology editor: set deployment artifact
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology
 
   Scenario: Setting an artifact to a temporary file from the archive root should succeed
     Given I execute the operation

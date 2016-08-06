@@ -2,7 +2,7 @@ Feature: Topology editor: delete relationship
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology
 
   Scenario: Deleting a relationship should succeed
     Given I execute the operation

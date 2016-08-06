@@ -229,6 +229,20 @@ public class ToscaContext {
         }
 
         /**
+         * Get an archive with the given topology id.
+         * @param topologyId the topology id of the Csar to get.
+         * @return The archive from it's topology id.
+         */
+        public Csar getArchiveByTopologyId(String topologyId) {
+            for (Map.Entry<String, Csar> entry : archivesMap.entrySet()) {
+                if (entry.getValue().getTopologyId().equals(topologyId)) {
+                    return entry.getValue();
+                }
+            }
+            return null;
+        }
+
+        /**
          * Get an element from the local-cache or from ES.
          *
          * @param elementClass The class of the element to look for.

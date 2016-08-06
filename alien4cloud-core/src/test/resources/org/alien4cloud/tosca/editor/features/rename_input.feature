@@ -2,7 +2,7 @@ Feature: Topology editor: rename input
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology
 
   Scenario: Rename an input should succeed
     Given I execute the operation
