@@ -1,5 +1,6 @@
 package org.alien4cloud.tosca.editor.operations.substitution;
 
+import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.hibernate.validator.constraints.NotBlank;
 
 import lombok.Getter;
@@ -10,7 +11,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class UpdateCapabilitySubstitutionTypeOperation extends AbstractTopologyTemplateOperation {
+public class UpdateCapabilitySubstitutionTypeOperation extends AbstractEditorOperation {
 
     @NotBlank
     private String substitutionCapabilityId;
@@ -18,9 +19,8 @@ public class UpdateCapabilitySubstitutionTypeOperation extends AbstractTopologyT
     @NotBlank
     private String newCapabilityId;
 
-
     @Override
     public String commitMessage() {
-        return "update capability type substitution <" + substitutionCapabilityId + "> to <" + newCapabilityId + "> for the topology <" + getTopologyId() + ">";
+        return "Change name of the exposed capability from <" + substitutionCapabilityId + "> to <" + newCapabilityId + "> in the substitute type.";
     }
 }

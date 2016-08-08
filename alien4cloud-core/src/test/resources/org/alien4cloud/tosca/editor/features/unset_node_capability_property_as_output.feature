@@ -2,7 +2,7 @@ Feature: Topology editor: unset node capability's property as output
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology
 
   Scenario: UnSet a node capability's property as output should succeed
     Given I execute the operation

@@ -1,5 +1,6 @@
 package org.alien4cloud.tosca.editor.operations.substitution;
 
+import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.hibernate.validator.constraints.NotBlank;
 
 import lombok.Getter;
@@ -10,13 +11,13 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class AddSubstitutionTypeOperation extends AbstractTopologyTemplateOperation {
+public class AddSubstitutionTypeOperation extends AbstractEditorOperation {
 
     @NotBlank
     private String elementId;
 
     @Override
     public String commitMessage() {
-        return "add type <" + elementId + "> for the topology <" + getTopologyId() + ">";
+        return "add type <" + elementId + ">";
     }
 }

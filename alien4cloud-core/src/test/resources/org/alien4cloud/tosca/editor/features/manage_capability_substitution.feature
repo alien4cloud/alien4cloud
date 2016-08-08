@@ -15,7 +15,6 @@ Feature: Topology editor: capability substitution
       | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
     When I execute the operation
       | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
-      | topologyId               |                                                                                             |
       | nodeTemplateName         | Compute                                                                                     |
       | capabilityId             | host                                                                                        |
       | substitutionCapabilityId | host                                                                                        |
@@ -32,7 +31,6 @@ Feature: Topology editor: capability substitution
       | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
     When I execute the operation
       | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
-      | topologyId               |                                                                                             |
       | nodeTemplateName         | Compute                                                                                     |
       | capabilityId             | host_failed                                                                                 |
       | substitutionCapabilityId | host                                                                                        |
@@ -49,13 +47,11 @@ Feature: Topology editor: capability substitution
       | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
     When I execute the operation
       | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
-      | topologyId               |                                                                                             |
       | nodeTemplateName         | Compute                                                                                     |
       | capabilityId             | host                                                                                        |
       | substitutionCapabilityId | host                                                                                        |
     When I execute the operation
       | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
-      | topologyId               |                                                                                             |
       | nodeTemplateName         | Compute                                                                                     |
       | capabilityId             | scalable                                                                                    |
       | substitutionCapabilityId | host                                                                                        |
@@ -64,7 +60,6 @@ Feature: Topology editor: capability substitution
   Scenario: Remove a capability substitution
     When I execute the operation
       | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | topologyId  |                                                                                   |
       | elementId   | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
@@ -72,32 +67,27 @@ Feature: Topology editor: capability substitution
       | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
     When I execute the operation
       | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
-      | topologyId               |                                                                                             |
       | nodeTemplateName         | Compute                                                                                     |
       | capabilityId             | host                                                                                        |
       | substitutionCapabilityId | host                                                                                        |
     And The SPEL expression "substitutionMapping.capabilities['host'].nodeTemplateName" should return "Compute"
     When I execute the operation
       | type                     | org.alien4cloud.tosca.editor.operations.substitution.RemoveCapabilitySubstitutionTypeOperation |
-      | topologyId               |                                                                                                |
       | substitutionCapabilityId | host                                                                                           |
     And The SPEL expression "substitutionMapping.capabilities['host']" should return "null"
 
   Scenario: Remove a non existing capability substitution should failed
     When I execute the operation
       | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | topologyId  |                                                                                   |
       | elementId   | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type                     | org.alien4cloud.tosca.editor.operations.substitution.RemoveCapabilitySubstitutionTypeOperation |
-      | topologyId               |                                                                                                |
       | substitutionCapabilityId | host                                                                                           |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
 
   Scenario: Update a capability substitution
     When I execute the operation
       | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
-      | topologyId  |                                                                                   |
       | elementId   | tosca.nodes.Compute                                                               |
     When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
@@ -105,14 +95,12 @@ Feature: Topology editor: capability substitution
       | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
     When I execute the operation
       | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
-      | topologyId               |                                                                                             |
       | nodeTemplateName         | Compute                                                                                     |
       | capabilityId             | host                                                                                        |
       | substitutionCapabilityId | host                                                                                        |
     And The SPEL expression "substitutionMapping.capabilities['host'].nodeTemplateName" should return "Compute"
     When I execute the operation
       | type                     | org.alien4cloud.tosca.editor.operations.substitution.UpdateCapabilitySubstitutionTypeOperation |
-      | topologyId               |                                                                                                |
       | substitutionCapabilityId | host                                                                                           |
       | newCapabilityId          | host_bis                                                                                       |
     And The SPEL expression "substitutionMapping.capabilities['host_bis'].nodeTemplateName" should return "Compute"

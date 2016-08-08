@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.editor.operations.substitution;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.hibernate.validator.constraints.NotBlank;
 
 /**
@@ -9,7 +10,7 @@ import org.hibernate.validator.constraints.NotBlank;
  */
 @Getter
 @Setter
-public class AddCapabilitySubstitutionTypeOperation extends AbstractTopologyTemplateOperation {
+public class AddCapabilitySubstitutionTypeOperation extends AbstractEditorOperation {
 
     @NotBlank
     private String nodeTemplateName;
@@ -20,9 +21,8 @@ public class AddCapabilitySubstitutionTypeOperation extends AbstractTopologyTemp
     @NotBlank
     private String capabilityId;
 
-
     @Override
     public String commitMessage() {
-        return "add capability type substitution for <" + capabilityId + "> of node <" + nodeTemplateName + "> for the topology <" + getTopologyId() + ">";
+        return "add capability type substitution for <" + capabilityId + "> of node <" + nodeTemplateName + ">";
     }
 }

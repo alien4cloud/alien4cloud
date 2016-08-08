@@ -41,7 +41,7 @@ Feature: Topology editor: delete input
       | inputName               | component_version                                                |
       | propertyDefinition.type | version                                                          |
     And I execute the operation
-      | type         | org.alien4cloud.tosca.editor.operations.nodetemplate.SetNodePropertyAsInputOperation |
+      | type         | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodePropertyAsInputOperation |
       | nodeName     | software_component                                                                   |
       | propertyName | component_version                                                                    |
       | inputName    | component_version                                                                    |

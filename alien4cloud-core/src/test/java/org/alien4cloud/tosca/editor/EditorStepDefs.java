@@ -11,7 +11,6 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import alien4cloud.model.templates.TopologyTemplate;
-import alien4cloud.topology.TopologyTemplateVersionService;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -148,14 +147,15 @@ public class EditorStepDefs {
         topology.setDelegateType(TopologyTemplate.class.getSimpleName().toLowerCase());
         workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
         TopologyTemplate topologyTemplate = topologyServiceCore.createTopologyTemplate(topology, topologyTemplateName, "", null);
-;        topologyId = topology.getId();
+        topology.setDelegateId(topologyTemplate.getId());
+        topologyId = topology.getId();
     }
 
     @Given("^I execute the operation$")
     public void i_execute_the_operation(DataTable operationDT) throws Throwable {
         Map<String, String> operationMap = Maps.newHashMap();
         for (DataTableRow row : operationDT.getGherkinRows()) {
-            if ( (row.getCells().get(0).equals("topologyId") || row.getCells().get(0).equals("topologyId")) && row.getCells().get(1).isEmpty()) {
+            if ((row.getCells().get(0).equals("topologyId") || row.getCells().get(0).equals("topologyId")) && row.getCells().get(1).isEmpty()) {
                 operationMap.put(row.getCells().get(0), topologyId);
             } else {
                 operationMap.put(row.getCells().get(0), row.getCells().get(1));

@@ -2,7 +2,7 @@ Feature: Topology editor: unset node property as output
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology
 
   Scenario: Unset a node property to an input that matches type should succeed
     Given I execute the operation
