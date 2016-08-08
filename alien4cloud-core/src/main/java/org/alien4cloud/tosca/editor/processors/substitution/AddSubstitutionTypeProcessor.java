@@ -46,9 +46,8 @@ public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<A
         }
 
         IndexedNodeType nodeType = csarRepoSearchService.getElementInDependencies(IndexedNodeType.class, operation.getElementId(), topology.getDependencies());
-        if (nodeType != null) {
-            // the node type exists in the dependencies, there is no choices for this type version
-        } else {
+        // if not null the node type exists in the dependencies, there is no choices for this type version
+        if (nodeType == null) {
             // the node type does'nt exist in this topology dependencies
             // we need to find the latest version of this component and use it as default
             Map<String, String[]> filters = Maps.newHashMap();
