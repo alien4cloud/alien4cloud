@@ -34,7 +34,6 @@ define(function (require) {
           if (!this.scope.topology.topology.substitutionMapping || this.scope.topology.topology.substitutionMapping.substitutionType !== substitutionType) {
             this.scope.execute({
               type: 'org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation',
-              topologyId: self.scope.topology.topology.id,
               elementId: substitutionType
             }, function(result) {
               if (!result.error) {
@@ -47,8 +46,7 @@ define(function (require) {
         remove: function() {
           var self = this;
           this.scope.execute({
-            type: 'org.alien4cloud.tosca.editor.operations.substitution.RemoveSubstitutionTypeOperation',
-            topologyId: self.scope.topology.topology.id
+            type: 'org.alien4cloud.tosca.editor.operations.substitution.RemoveSubstitutionTypeOperation'
           }, function(result) {
             if (!result.error) {
               self.scope.refreshTopology(result.data);
@@ -72,7 +70,6 @@ define(function (require) {
           }
           this.scope.execute({
             type: 'org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation',
-            topologyId: self.scope.topology.topology.id,
             nodeTemplateName: self.scope.selectedNodeTemplate.name,
             substitutionCapabilityId: capabilityId,
             capabilityId: capabilityId
@@ -98,7 +95,6 @@ define(function (require) {
           var self = this;
           this.scope.execute({
             type: 'org.alien4cloud.tosca.editor.operations.substitution.UpdateCapabilitySubstitutionTypeOperation',
-            topologyId: self.scope.topology.topology.id,
             substitutionCapabilityId: oldKey,
             newCapabilityId: newKey
           }, function(result) {
@@ -112,7 +108,6 @@ define(function (require) {
           var self = this;
           this.scope.execute({
             type: 'org.alien4cloud.tosca.editor.operations.substitution.RemoveCapabilitySubstitutionTypeOperation',
-            topologyId: self.scope.topology.topology.id,
             substitutionCapabilityId: key
           }, function(result) {
             if (!result.error) {
@@ -128,7 +123,6 @@ define(function (require) {
           }
           this.scope.execute({
             type: 'org.alien4cloud.tosca.editor.operations.substitution.AddRequirementSubstitutionTypeOperation',
-            topologyId: self.scope.topology.topology.id,
             nodeTemplateName: self.scope.selectedNodeTemplate.name,
             substitutionRequirementId: requirementId,
             requirementId: requirementId
@@ -154,7 +148,6 @@ define(function (require) {
           var self = this;
           this.scope.execute({
             type: 'org.alien4cloud.tosca.editor.operations.substitution.UpdateRequirementSubstitutionTypeOperation',
-            topologyId: self.scope.topology.topology.id,
             substitutionRequirementId: oldKey,
             newRequirementId: newKey
           }, function(result) {
@@ -168,7 +161,6 @@ define(function (require) {
           var self = this;
           this.scope.execute({
             type: 'org.alien4cloud.tosca.editor.operations.substitution.RemoveRequirementSubstitutionTypeOperation',
-            topologyId: self.scope.topology.topology.id,
             substitutionRequirementId: key
           }, function(result) {
             if (!result.error) {
