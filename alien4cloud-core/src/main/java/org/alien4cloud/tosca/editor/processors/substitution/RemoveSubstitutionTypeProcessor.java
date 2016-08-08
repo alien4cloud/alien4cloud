@@ -14,7 +14,6 @@ import alien4cloud.model.components.Csar;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyServiceCore;
 
 /**
  * Delete the substitute of a topology template.
@@ -24,9 +23,6 @@ public class RemoveSubstitutionTypeProcessor implements IEditorOperationProcesso
 
     @Resource
     private TopologyService topologyService;
-
-    @Resource
-    private TopologyServiceCore topologyServiceCore;
 
     @Resource
     private CsarService csarService;

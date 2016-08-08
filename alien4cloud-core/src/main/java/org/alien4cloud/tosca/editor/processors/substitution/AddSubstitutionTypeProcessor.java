@@ -1,23 +1,24 @@
 package org.alien4cloud.tosca.editor.processors.substitution;
 
-import alien4cloud.component.CSARRepositorySearchService;
-import alien4cloud.dao.model.FacetedSearchResult;
-import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.templates.TopologyTemplate;
-import alien4cloud.model.topology.SubstitutionMapping;
-import alien4cloud.topology.TopologyService;
-import com.google.common.collect.Maps;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.topology.Topology;
+import com.google.common.collect.Maps;
 
-import javax.annotation.Resource;
-import java.util.Map;
+import alien4cloud.component.CSARRepositorySearchService;
+import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.exception.InvalidArgumentException;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.templates.TopologyTemplate;
+import alien4cloud.model.topology.SubstitutionMapping;
+import alien4cloud.model.topology.Topology;
 
 /**
  * Process the creation of topology template as substitute.
@@ -26,17 +27,12 @@ import java.util.Map;
 public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<AddSubstitutionTypeOperation> {
 
     @Resource
-    private TopologyService topologyService;
-
-    @Resource
     private CSARRepositorySearchService csarRepoSearchService;
 
 
     @Override
     public void process(AddSubstitutionTypeOperation operation) {
         Topology topology = EditionContextManager.getTopology();
-        topologyService.checkEditionAuthorizations(topology);
-        topologyService.throwsErrorIfReleased(topology);
         if (!topology.getDelegateType().equals(TopologyTemplate.class.getSimpleName().toLowerCase())) {
             throw new InvalidArgumentException("This operation is only allowed for topology templates");
         }
@@ -52,7 +48,7 @@ public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<A
             // we need to find the latest version of this component and use it as default
             Map<String, String[]> filters = Maps.newHashMap();
             filters.put("elementId", new String[] { operation.getElementId() });
-            FacetedSearchResult result = csarRepoSearchService.search(IndexedNodeType.class, null, 0, Integer.MAX_VALUE, filters, false);
+            FacetedSearchResult result = csarRepoSearchService.search(IndexedNodeType.class, null, 0, 1, filters, false);
             if (result.getTotalResults() > 0) {
                 nodeType = (IndexedNodeType) result.getData()[0];
             }

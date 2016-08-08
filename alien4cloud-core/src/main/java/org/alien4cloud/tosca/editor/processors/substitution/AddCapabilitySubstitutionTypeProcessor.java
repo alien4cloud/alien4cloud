@@ -1,21 +1,19 @@
 package org.alien4cloud.tosca.editor.processors.substitution;
 
-import javax.annotation.Resource;
+import java.util.Map;
 
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.SubstitutionTarget;
-import com.google.common.collect.Maps;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.topology.Topology;
-import alien4cloud.topology.TopologyService;
+import com.google.common.collect.Maps;
 
-import java.util.Map;
+import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.SubstitutionTarget;
+import alien4cloud.model.topology.Topology;
 
 /**
  * Process given capability as a capability for the substitution type associated with this topology.
@@ -23,15 +21,9 @@ import java.util.Map;
 @Component
 public class AddCapabilitySubstitutionTypeProcessor implements IEditorOperationProcessor<AddCapabilitySubstitutionTypeOperation> {
 
-    @Resource
-    private TopologyService topologyService;
-
-
     @Override
     public void process(AddCapabilitySubstitutionTypeOperation operation) {
         Topology topology = EditionContextManager.getTopology();
-        topologyService.checkEditionAuthorizations(topology);
-        topologyService.throwsErrorIfReleased(topology);
         if (topology.getNodeTemplates() == null || !topology.getNodeTemplates().containsKey(operation.getNodeTemplateName())) {
             throw new NotFoundException("Node " + operation.getNodeTemplateName() + " do not exist");
         }

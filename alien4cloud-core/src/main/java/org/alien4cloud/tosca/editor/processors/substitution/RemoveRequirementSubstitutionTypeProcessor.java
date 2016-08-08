@@ -2,8 +2,6 @@ package org.alien4cloud.tosca.editor.processors.substitution;
 
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.substitution.RemoveRequirementSubstitutionTypeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
@@ -12,8 +10,6 @@ import org.springframework.stereotype.Component;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.topology.SubstitutionTarget;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyServiceCore;
 
 /**
  * Delete a group from a topology.
@@ -21,18 +17,9 @@ import alien4cloud.topology.TopologyServiceCore;
 @Component
 public class RemoveRequirementSubstitutionTypeProcessor implements IEditorOperationProcessor<RemoveRequirementSubstitutionTypeOperation> {
 
-    @Resource
-    private TopologyService topologyService;
-
-    @Resource
-    private TopologyServiceCore topologyServiceCore;
-
-
     @Override
     public void process(RemoveRequirementSubstitutionTypeOperation operation) {
         Topology topology = EditionContextManager.getTopology();
-        topologyService.checkEditionAuthorizations(topology);
-        topologyService.throwsErrorIfReleased(topology);
         if (topology.getSubstitutionMapping() == null || topology.getSubstitutionMapping().getSubstitutionType() == null) {
             throw new NotFoundException("No substitution type has been found");
         }

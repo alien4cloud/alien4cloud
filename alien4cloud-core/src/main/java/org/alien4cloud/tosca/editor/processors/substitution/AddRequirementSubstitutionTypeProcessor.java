@@ -2,8 +2,6 @@ package org.alien4cloud.tosca.editor.processors.substitution;
 
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.substitution.AddRequirementSubstitutionTypeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
@@ -16,7 +14,6 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.SubstitutionTarget;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.topology.TopologyService;
 
 /**
  * Process given requirement as a requirement for the substitution type associated with this topology.
@@ -24,15 +21,9 @@ import alien4cloud.topology.TopologyService;
 @Component
 public class AddRequirementSubstitutionTypeProcessor implements IEditorOperationProcessor<AddRequirementSubstitutionTypeOperation> {
 
-    @Resource
-    private TopologyService topologyService;
-
-
     @Override
     public void process(AddRequirementSubstitutionTypeOperation operation) {
         Topology topology = EditionContextManager.getTopology();
-        topologyService.checkEditionAuthorizations(topology);
-        topologyService.throwsErrorIfReleased(topology);
         if (topology.getNodeTemplates() == null || !topology.getNodeTemplates().containsKey(operation.getNodeTemplateName())) {
             throw new NotFoundException("Node " + operation.getNodeTemplateName() + " do not exist");
         }

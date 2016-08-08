@@ -2,8 +2,6 @@ package org.alien4cloud.tosca.editor.processors.substitution;
 
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.substitution.UpdateCapabilitySubstitutionTypeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
@@ -13,7 +11,6 @@ import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.topology.SubstitutionTarget;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.topology.TopologyService;
 
 /**
  * Process the addition to a node template to a group. If the group does not exists, it is created.
@@ -21,15 +18,9 @@ import alien4cloud.topology.TopologyService;
 @Component
 public class UpdateCapabilitySubstitutionTypeProcessor implements IEditorOperationProcessor<UpdateCapabilitySubstitutionTypeOperation> {
 
-    @Resource
-    private TopologyService topologyService;
-
-
     @Override
     public void process(UpdateCapabilitySubstitutionTypeOperation operation) {
         Topology topology = EditionContextManager.getTopology();
-        topologyService.checkEditionAuthorizations(topology);
-        topologyService.throwsErrorIfReleased(topology);
         if (topology.getSubstitutionMapping() == null || topology.getSubstitutionMapping().getSubstitutionType() == null) {
             throw new NotFoundException("No substitution type has been found");
         }
