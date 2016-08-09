@@ -2,7 +2,7 @@ Feature: Topology editor: set node capability's property as output
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology
 
   Scenario: Set a node capability's property as output should succeed
     Given I execute the operation

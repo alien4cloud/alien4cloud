@@ -2,7 +2,7 @@ Feature: Topology editor: delete file
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology
 
   Scenario: Delete a file at the root of the archive should succeed
     Given I upload a file located at "src/test/resources/org/alien4cloud/tosca/editor/features/upload_file.feature" to the archive path "upload_file.feature"
@@ -41,7 +41,7 @@ Feature: Topology editor: delete file
     When I execute the operation
       | type | org.alien4cloud.tosca.editor.operations.DeleteFileOperation |
       | path | topology.yml                                         |
-    Then an exception of type "alien4cloud.exception.InvalidPathException" should be thrown
+    Then an exception of type "org.alien4cloud.tosca.editor.exception.InvalidPathException" should be thrown
 
   Scenario: Delete a file that does not exists should fail
     When I execute the operation

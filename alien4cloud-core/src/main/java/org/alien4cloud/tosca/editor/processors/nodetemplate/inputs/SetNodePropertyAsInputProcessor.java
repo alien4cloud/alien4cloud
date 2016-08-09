@@ -1,13 +1,14 @@
-package org.alien4cloud.tosca.editor.processors.nodetemplate;
+package org.alien4cloud.tosca.editor.processors.nodetemplate.inputs;
+
+import static alien4cloud.utils.AlienUtils.getOrFail;
 
 import java.util.Arrays;
-import java.util.Map;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
-import org.alien4cloud.tosca.editor.operations.nodetemplate.SetNodePropertyAsInputOperation;
+import org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodePropertyAsInputOperation;
+import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.PropertyDefinition;
@@ -26,20 +27,20 @@ public class SetNodePropertyAsInputProcessor extends AbstractNodeProcessor<SetNo
     @Override
     protected void processNodeOperation(SetNodePropertyAsInputOperation operation, NodeTemplate nodeTemplate) {
         Topology topology = EditionContextManager.getTopology();
-        Map<String, PropertyDefinition> inputs = topology.getInputs();
-        if (inputs == null || !inputs.containsKey(operation.getInputName())) {
-            throw new NotFoundException("Input " + operation.getInputName() + "not found in topology");
-        }
 
+        PropertyDefinition inputPropertyDefinition = getOrFail(topology.getInputs(), operation.getInputName(), "Input {} not found in topology",
+                operation.getInputName());
         IndexedNodeType indexedNodeType = ToscaContext.get(IndexedNodeType.class, nodeTemplate.getType());
-        PropertyDefinition propertyDefinition = inputs.get(operation.getInputName());
-        propertyDefinition.checkIfCompatibleOrFail(indexedNodeType.getProperties().get(operation.getPropertyName()));
+        PropertyDefinition nodePropertyDefinition = getOrFail(indexedNodeType.getProperties(), operation.getPropertyName(),
+                "Property {} do not exist for node {}", operation.getPropertyName(), operation.getNodeName());
+
+        // Check that the property definition of the input is indeed compatible with the property definition of the capability.
+        inputPropertyDefinition.checkIfCompatibleOrFail(nodePropertyDefinition);
 
         FunctionPropertyValue getInput = new FunctionPropertyValue();
         getInput.setFunction(ToscaFunctionConstants.GET_INPUT);
         getInput.setParameters(Arrays.asList(operation.getInputName()));
         nodeTemplate.getProperties().put(operation.getPropertyName(), getInput);
-        topology.setInputs(inputs);
 
         log.debug("Associate the property <{}> of the node template <{}> to input <{}> of the topology <{}>.", operation.getPropertyName(),
                 operation.getNodeName(), operation.getInputName(), topology.getId());

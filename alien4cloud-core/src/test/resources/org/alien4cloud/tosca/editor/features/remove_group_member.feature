@@ -2,7 +2,7 @@ Feature: Topology editor: remove group member operation
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology template "TopologyTemplate1"
 
   Scenario: Removing a node from a group when the node was the only member should succeed
     Given I execute the operation

@@ -30,26 +30,26 @@ define(function (require) {
         },
 
         selectType: function(substitutionType) {
-          var instance = this;
+          var self = this;
           if (!this.scope.topology.topology.substitutionMapping || this.scope.topology.topology.substitutionMapping.substitutionType !== substitutionType) {
-            topologyServices.substitutionType.set({
-              topologyId: instance.scope.topology.topology.id,
+            this.scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation',
               elementId: substitutionType
-            }, {}, function(result) {
+            }, function(result) {
               if (!result.error) {
-                instance.scope.refreshTopology(result.data);
+                self.scope.refreshTopology(result.data);
               }
             });
           }
         },
 
         remove: function() {
-          var instance = this;
-          topologyServices.substitutionType.remove({
-            topologyId: instance.scope.topology.topology.id
-          }, {}, function(result) {
+          var self = this;
+          this.scope.execute({
+            type: 'org.alien4cloud.tosca.editor.operations.substitution.RemoveSubstitutionTypeOperation'
+          }, function(result) {
             if (!result.error) {
-              instance.scope.refreshTopology(result.data);
+              self.scope.refreshTopology(result.data);
             }
           });
         },
@@ -64,18 +64,18 @@ define(function (require) {
         },
 
         exposeCapability: function(capabilityId) {
-          var instance = this;
+          var self = this;
           if (this.isCapabilityExposed(capabilityId)) {
             return;
           }
-          topologyServices.capabilitySubstitution.add({
-            topologyId: instance.scope.topology.topology.id,
-            nodeTemplateName: instance.scope.selectedNodeTemplate.name,
+          this.scope.execute({
+            type: 'org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation',
+            nodeTemplateName: self.scope.selectedNodeTemplate.name,
             substitutionCapabilityId: capabilityId,
             capabilityId: capabilityId
-          }, {}, function(result) {
+          }, function(result) {
             if (!result.error) {
-              instance.scope.refreshTopology(result.data);
+              self.scope.refreshTopology(result.data);
             }
           });
         },
@@ -92,43 +92,43 @@ define(function (require) {
         },
 
         updateCababilityKey: function(oldKey, newKey) {
-          var instance = this;
-          topologyServices.capabilitySubstitution.update({
-            topologyId: instance.scope.topology.topology.id,
+          var self = this;
+          this.scope.execute({
+            type: 'org.alien4cloud.tosca.editor.operations.substitution.UpdateCapabilitySubstitutionTypeOperation',
             substitutionCapabilityId: oldKey,
             newCapabilityId: newKey
-          }, {}, function(result) {
+          }, function(result) {
             if (!result.error) {
-              instance.scope.refreshTopology(result.data);
+              self.scope.refreshTopology(result.data);
             }
           });
         },
 
         removeCabability: function(key) {
-          var instance = this;
-          topologyServices.capabilitySubstitution.remove({
-            topologyId: instance.scope.topology.topology.id,
+          var self = this;
+          this.scope.execute({
+            type: 'org.alien4cloud.tosca.editor.operations.substitution.RemoveCapabilitySubstitutionTypeOperation',
             substitutionCapabilityId: key
-          }, {}, function(result) {
+          }, function(result) {
             if (!result.error) {
-              instance.scope.refreshTopology(result.data);
+              self.scope.refreshTopology(result.data);
             }
           });
         },
 
         exposeRequirement: function(requirementId) {
-          var instance = this;
+          var self = this;
           if (this.isRequirementExposed(requirementId)) {
             return;
           }
-          topologyServices.requirementSubstitution.add({
-            topologyId: instance.scope.topology.topology.id,
-            nodeTemplateName: instance.scope.selectedNodeTemplate.name,
+          this.scope.execute({
+            type: 'org.alien4cloud.tosca.editor.operations.substitution.AddRequirementSubstitutionTypeOperation',
+            nodeTemplateName: self.scope.selectedNodeTemplate.name,
             substitutionRequirementId: requirementId,
             requirementId: requirementId
-          }, {}, function(result) {
+          }, function(result) {
             if (!result.error) {
-              instance.scope.refreshTopology(result.data);
+              self.scope.refreshTopology(result.data);
             }
           });
         },
@@ -145,26 +145,26 @@ define(function (require) {
         },
 
         updateRequirementKey: function(oldKey, newKey) {
-          var instance = this;
-          topologyServices.requirementSubstitution.update({
-            topologyId: instance.scope.topology.topology.id,
+          var self = this;
+          this.scope.execute({
+            type: 'org.alien4cloud.tosca.editor.operations.substitution.UpdateRequirementSubstitutionTypeOperation',
             substitutionRequirementId: oldKey,
             newRequirementId: newKey
-          }, {}, function(result) {
+          }, function(result) {
             if (!result.error) {
-              instance.scope.refreshTopology(result.data);
+              self.scope.refreshTopology(result.data);
             }
           });
         },
 
         removeRequirement: function(key) {
-          var instance = this;
-          topologyServices.requirementSubstitution.remove({
-            topologyId: instance.scope.topology.topology.id,
+          var self = this;
+          this.scope.execute({
+            type: 'org.alien4cloud.tosca.editor.operations.substitution.RemoveRequirementSubstitutionTypeOperation',
             substitutionRequirementId: key
-          }, {}, function(result) {
+          }, function(result) {
             if (!result.error) {
-              instance.scope.refreshTopology(result.data);
+              self.scope.refreshTopology(result.data);
             }
           });
         },

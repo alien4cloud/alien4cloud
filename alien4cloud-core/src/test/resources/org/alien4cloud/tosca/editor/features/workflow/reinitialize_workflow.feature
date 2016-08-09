@@ -4,7 +4,7 @@ Feature: Workflow editor: reinitialize workflow
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology
 
   Scenario: Reinitializing a standard workflow should succeed
     When I execute the operation

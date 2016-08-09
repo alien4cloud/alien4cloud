@@ -4,10 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -16,6 +13,7 @@ import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsExcept
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.utils.FileUtil;
 import cucumber.api.java.en.When;
+import alien4cloud.model.templates.TopologyTemplate;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -71,16 +69,17 @@ public class EditorStepDefs {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
 
-    private String topologyId;
+    private LinkedList<String> topologyIds = new LinkedList();
 
     private EvaluationContext topologyEvaluationContext;
     private EvaluationContext dtoEvaluationContext;
 
     private Exception thrownException;
 
-    private String lastOperationId;
+    private Map<String, String> topologyIdToLastOperationId = new HashMap<>();
 
     private List<Class> typesToClean = new ArrayList<Class>();
+
 
     // @Required
     // @Value("${directories.alien}")
@@ -103,13 +102,22 @@ public class EditorStepDefs {
 
     @Before
     public void init() throws IOException {
-        lastOperationId = null;
         thrownException = null;
     }
 
+    @Given("^I save the topology$")
+    public void i_save_the_topology() throws Throwable {
+        editorService.save(topologyIds.getLast(), topologyIdToLastOperationId.get(topologyIds.getLast()));
+        topologyIdToLastOperationId.put(topologyIds.getLast(), null);    }
+
     @Given("^I am authenticated with \"(.*?)\" role$")
     public void i_am_authenticated_with_role(String role) throws Throwable {
-        Authentication auth = new TestAuth(role);
+        User user = new User();
+        user.setUsername("Username");
+        user.setFirstName("firstName");
+        user.setLastName("lastname");
+        user.setEmail("user@fastco");
+        Authentication auth = new TestAuth(user, role);
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
@@ -117,8 +125,8 @@ public class EditorStepDefs {
 
         Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 
-        public TestAuth(String role) {
-            super(new User(), null);
+        public TestAuth(User user, String role) {
+            super(user, null);
             authorities.add(new SimpleGrantedAuthority(role));
         }
 
@@ -141,20 +149,32 @@ public class EditorStepDefs {
         csarUploadService.upload(Paths.get(arg1), CSARSource.UPLOAD);
     }
 
-    @Given("^I create an empty topology template$")
-    public void i_create_an_empty_topology_template() throws Throwable {
+    @Given("^I create an empty topology$")
+    public void i_create_an_empty_topology() throws Throwable {
         Topology topology = new Topology();
         topology.setDelegateType(Topology.class.getSimpleName().toLowerCase());
         workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
-        topologyId = topologyServiceCore.saveTopology(topology);
+        topologyIds.addLast(topologyServiceCore.saveTopology(topology));
     }
 
-    @Given("^I execute the operation$")
-    public void i_execute_the_operation(Map<String, String> operationMap) throws Throwable {
-        // Map<String, String> operationMap = Maps.newHashMap();
-        // for (DataTableRow row : operationDT.getGherkinRows()) {
-        // operationMap.put(row.getCells().get(0), row.getCells().get(1));
-        // }
+    @Given("^I create an empty topology template \"(.*?)\"$")
+    public void i_create_an_empty_topology_template(String topologyTemplateName) throws Throwable {
+        Topology topology = new Topology();
+        topology.setDelegateType(TopologyTemplate.class.getSimpleName().toLowerCase());
+        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
+        TopologyTemplate topologyTemplate = topologyServiceCore.createTopologyTemplate(topology, topologyTemplateName, "", null);
+        topology.setDelegateId(topologyTemplate.getId());
+        topologyIds.addLast(topology.getId());
+
+    }
+
+    @Given("^I execute the operation on the topology number (\\d+)$")
+    public void i_execute_the_operation_on_topology_number(int indexOfTopologyId, DataTable operationDT) throws Throwable {
+        Map<String, String> operationMap = Maps.newHashMap();
+        for (DataTableRow row : operationDT.getGherkinRows()) {
+            operationMap.put(row.getCells().get(0), row.getCells().get(1));
+        }
+
         Class operationClass = Class.forName(operationMap.get("type"));
         AbstractEditorOperation operation = (AbstractEditorOperation) operationClass.newInstance();
         EvaluationContext operationContext = new StandardEvaluationContext(operation);
@@ -165,7 +185,12 @@ public class EditorStepDefs {
                 parser.parseRaw(operationEntry.getKey()).setValue(operationContext, operationEntry.getValue());
             }
         }
-        doExecuteOperation(operation);
+        doExecuteOperation(operation, topologyIds.get(indexOfTopologyId));
+    }
+
+    @Given("^I execute the operation$")
+    public void i_execute_the_operation(DataTable operationDT) throws Throwable {
+        i_execute_the_operation_on_topology_number(topologyIds.size() - 1, operationDT);
     }
 
     @Given("^I upload a file located at \"(.*?)\" to the archive path \"(.*?)\"$")
@@ -174,18 +199,23 @@ public class EditorStepDefs {
         doExecuteOperation(updateFileOperation);
     }
 
-    private void doExecuteOperation(AbstractEditorOperation operation) {
+    private void doExecuteOperation(AbstractEditorOperation operation, String topologyId) {
         thrownException = null;
-        operation.setPreviousOperationId(lastOperationId);
+        operation.setPreviousOperationId(topologyIdToLastOperationId.get(topologyId));
         try {
             TopologyDTO topologyDTO = editorService.execute(topologyId, operation);
-            lastOperationId = topologyDTO.getOperations().get(topologyDTO.getLastOperationIndex()).getId();
+            String lastOperationId = topologyDTO.getOperations().get(topologyDTO.getLastOperationIndex()).getId();
+            topologyIdToLastOperationId.put(topologyId, lastOperationId);
             topologyEvaluationContext = new StandardEvaluationContext(topologyDTO.getTopology());
             dtoEvaluationContext = new StandardEvaluationContext(topologyDTO);
         } catch (Exception e) {
             log.error("Exception occured while executing operation", e);
             thrownException = e;
         }
+    }
+
+    private void doExecuteOperation(AbstractEditorOperation operation) {
+        doExecuteOperation(operation, topologyIds.getLast());
     }
 
     @Then("^The SPEL boolean expression \"([^\"]*)\" should return true$")
@@ -251,7 +281,7 @@ public class EditorStepDefs {
     @When("^I get the edited topology$")
     public void I_get_the_edited_topology() {
         try {
-            editionContextManager.init(topologyId);
+            editionContextManager.init(topologyIds.getLast());
             Topology topology = editionContextManager.getTopology();
             topologyEvaluationContext = new StandardEvaluationContext(topology);
         } finally {

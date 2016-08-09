@@ -2,7 +2,7 @@ Feature: Topology editor: delete node template
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology
 
   Scenario: Remove a node template from a topology
     Given I execute the operation

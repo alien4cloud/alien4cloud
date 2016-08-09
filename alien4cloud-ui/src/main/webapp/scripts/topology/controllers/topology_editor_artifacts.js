@@ -5,8 +5,8 @@ define(function (require) {
 
   require('scripts/topology/controllers/editor_artifact_modal');
 
-  modules.get('a4c-topology-editor').factory('topoEditArtifacts', [ 'topologyServices', '$modal',
-    function(topologyServices, $modal) {
+  modules.get('a4c-topology-editor').factory('topoEditArtifacts', [ '$modal',
+    function($modal) {
       var TopologyEditorMixin = function(scope) {
         this.scope = scope;
       };

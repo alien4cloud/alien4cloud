@@ -2,9 +2,9 @@ Feature: Topology editor: rename node
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology
 
-  Scenario: Rename a nodetemplate in a topology
+  Scenario: Rename a node template in a topology
     Given I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Template1                                                             |
@@ -18,7 +18,7 @@ Feature: Topology editor: rename node
     And The SPEL expression "nodeTemplates['Template1']" should return "null"
     And The SPEL expression "nodeTemplates['Template2'].type" should return "tosca.nodes.Compute"
 
-  Scenario: Rename a non existing nodetemplate in an empty topology should fail
+  Scenario: Rename a non existing node template in an empty topology should fail
     When I execute the operation
       | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.RenameNodeOperation |
       | nodeName | missingNode                                                              |
@@ -36,7 +36,7 @@ Feature: Topology editor: rename node
       | newName  | Template2                                                                |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
 
-  Scenario: Rename a nodetemplate in a topology with an invalid name should fail
+  Scenario: Rename a node template in a topology with an invalid name should fail
     Given I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | Template1                                                             |

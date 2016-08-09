@@ -14,6 +14,9 @@ import cucumber.api.junit.Cucumber;
         // "src/test/resources/org/alien4cloud/tosca/editor/features/add_input.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/add_node.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/add_relationship.feature"
+        // "src/test/resources/org/alien4cloud/tosca/editor/features/manage_capability_substitution.feature"
+        // "src/test/resources/org/alien4cloud/tosca/editor/features/manage_requirement_substitution.feature"
+        // "src/test/resources/org/alien4cloud/tosca/editor/features/manage_topology_substitution.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/delete_file.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/delete_group.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/delete_input.feature"
@@ -23,6 +26,7 @@ import cucumber.api.junit.Cucumber;
         // "src/test/resources/org/alien4cloud/tosca/editor/features/rename_group.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/rename_input.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/rename_node.feature"
+        // "src/test/resources/org/alien4cloud/tosca/editor/features/rename_relationship.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/replace_node.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/set_node_property_as_input.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/set_node_property_as_output.feature",

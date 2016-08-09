@@ -2,7 +2,7 @@ Feature: Workflow editor: rename workflow
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology
 
   Scenario: Renaming a workflow should succeed
     When I execute the operation

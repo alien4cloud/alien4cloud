@@ -131,14 +131,14 @@ define(function (require) {
           var scope = this.scope;
           if (!this.isPropertyAssociatedToInput(propertyName, inputId)) {
             this.scope.execute({
-              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.SetNodePropertyAsInputOperation',
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodePropertyAsInputOperation',
               nodeName: scope.selectedNodeTemplate.name,
               propertyName: propertyName,
               inputName: inputId
             });
           } else {
             this.scope.execute({
-              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.UnsetNodePropertyAsInputOperation',
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.UnsetNodePropertyAsInputOperation',
               nodeName: scope.selectedNodeTemplate.name,
               propertyName: propertyName
             });
@@ -170,7 +170,7 @@ define(function (require) {
           var scope = this.scope;
           if (!this.isCapabilityPropertyAssociatedToInput(capabilityName, propertyName, inputId)) {
             this.scope.execute({
-              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.SetNodeCapabilityPropertyAsInputOperation',
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodeCapabilityPropertyAsInputOperation',
               nodeName: scope.selectedNodeTemplate.name,
               capabilityName: capabilityName,
               propertyName: propertyName,
@@ -178,7 +178,7 @@ define(function (require) {
             });
           } else {
             this.scope.execute({
-              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.UnsetNodeCapabilityPropertyAsInputOperation',
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.UnsetNodeCapabilityPropertyAsInputOperation',
               nodeName: scope.selectedNodeTemplate.name,
               capabilityName: capabilityName,
               propertyName: propertyName
@@ -269,14 +269,14 @@ define(function (require) {
           var scope = this.scope;
           if (!this.isArtifactAssociatedToInput(artifactId, inputArtifactId)) {
             scope.execute({
-              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.SetNodeArtifactAsInputOperation',
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodeArtifactAsInputOperation',
               nodeName: scope.selectedNodeTemplate.name,
               inputName: inputArtifactId,
               artifactName: artifactId
             });
           } else {
             scope.execute({
-              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.UnsetNodeArtifactAsInputOperation',
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.UnsetNodeArtifactAsInputOperation',
               nodeName: scope.selectedNodeTemplate.name,
               artifactName: artifactId
             });

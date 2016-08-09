@@ -2,7 +2,7 @@ Feature: Topology editor: rename input
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology
 
   Scenario: Rename an input should succeed
     Given I execute the operation
@@ -64,7 +64,7 @@ Feature: Topology editor: rename input
       | inputName               | component_version                                                |
       | propertyDefinition.type | version                                                          |
     And I execute the operation
-      | type         | org.alien4cloud.tosca.editor.operations.nodetemplate.SetNodePropertyAsInputOperation |
+      | type         | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodePropertyAsInputOperation |
       | nodeName     | software_component                                                                   |
       | propertyName | component_version                                                                    |
       | inputName    | component_version                                                                    |

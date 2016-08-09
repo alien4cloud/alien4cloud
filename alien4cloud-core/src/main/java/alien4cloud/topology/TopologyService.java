@@ -504,13 +504,4 @@ public class TopologyService {
                     "A node template with the given name " + newNodeTemplateName + " already exists in the topology " + topology.getId() + ".");
         }
     }
-
-    public void isUniqueRelationshipName(String topologyId, String nodeTemplateName, String newName, Set<String> relationshipNames) {
-        if (relationshipNames.contains(newName)) {
-            // a relation already exist with the given name.
-            throw new AlreadyExistException("A relationship with the given name " + newName + " already exists in the node template " + nodeTemplateName
-                    + " of topology " + topologyId + ".");
-        }
-    }
-
 }

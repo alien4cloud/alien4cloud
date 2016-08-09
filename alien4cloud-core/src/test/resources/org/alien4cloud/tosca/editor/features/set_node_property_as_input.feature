@@ -2,7 +2,7 @@ Feature: Topology editor: set node property as input
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology
 
   Scenario: Set a node property to an input that matches type should succeed
     Given I execute the operation
@@ -14,7 +14,7 @@ Feature: Topology editor: set node property as input
       | inputName               | component_version                                                |
       | propertyDefinition.type | version                                                          |
     When I execute the operation
-      | type         | org.alien4cloud.tosca.editor.operations.nodetemplate.SetNodePropertyAsInputOperation |
+      | type         | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodePropertyAsInputOperation |
       | nodeName     | software_component                                                                   |
       | propertyName | component_version                                                                    |
       | inputName    | component_version                                                                    |
@@ -33,7 +33,7 @@ Feature: Topology editor: set node property as input
       | inputName               | component_version                                                |
       | propertyDefinition.type | int                                                          |
     When I execute the operation
-      | type         | org.alien4cloud.tosca.editor.operations.nodetemplate.SetNodePropertyAsInputOperation |
+      | type         | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodePropertyAsInputOperation |
       | nodeName     | software_component                                                                   |
       | propertyName | component_version                                                                    |
       | inputName    | component_version                                                                    |

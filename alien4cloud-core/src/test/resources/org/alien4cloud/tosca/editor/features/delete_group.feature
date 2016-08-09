@@ -2,7 +2,7 @@ Feature: Topology editor: delete group operation
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology
 
   Scenario: Adding a node to an unexisting group should create the group and succeed
     Given I execute the operation

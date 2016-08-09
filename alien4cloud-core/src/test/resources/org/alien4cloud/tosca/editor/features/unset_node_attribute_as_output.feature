@@ -2,7 +2,7 @@ Feature: Topology editor: unset node attribute as output
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology
 
   Scenario: Unset a node attribute to an input that matches type should succeed
     Given I execute the operation

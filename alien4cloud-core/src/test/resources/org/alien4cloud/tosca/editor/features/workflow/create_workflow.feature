@@ -2,7 +2,7 @@ Feature: Workflow editor: create new workflow
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template
+    And I create an empty topology
 
   Scenario: Create a workflow should succeed
     When I execute the operation
