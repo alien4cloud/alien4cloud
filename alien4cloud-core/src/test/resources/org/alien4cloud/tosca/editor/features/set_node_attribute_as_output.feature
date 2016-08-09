@@ -36,4 +36,5 @@ Feature: Topology editor: set node attribute as output
       | nodeName      | network                                                                                        |
       | attributeName | i_do_not_exist                                                                                 |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
-    And The SPEL expression "outputAttributes" should return "null"
+    When I get the edited topology
+    Then The SPEL expression "outputAttributes" should return "null"

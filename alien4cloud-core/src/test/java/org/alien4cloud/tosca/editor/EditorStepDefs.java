@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.editor;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,7 +10,12 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
+import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
+import alien4cloud.tosca.parser.ParsingException;
+import alien4cloud.utils.FileUtil;
+import cucumber.api.java.en.When;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -52,6 +58,9 @@ public class EditorStepDefs {
 
     @Resource
     private EditorService editorService;
+
+    @Inject
+    private EditionContextManager editionContextManager;
 
     @Resource
     private TopologyServiceCore topologyServiceCore;
@@ -141,12 +150,11 @@ public class EditorStepDefs {
     }
 
     @Given("^I execute the operation$")
-    public void i_execute_the_operation(DataTable operationDT) throws Throwable {
-        Map<String, String> operationMap = Maps.newHashMap();
-        for (DataTableRow row : operationDT.getGherkinRows()) {
-            operationMap.put(row.getCells().get(0), row.getCells().get(1));
-        }
-
+    public void i_execute_the_operation(Map<String, String> operationMap) throws Throwable {
+        // Map<String, String> operationMap = Maps.newHashMap();
+        // for (DataTableRow row : operationDT.getGherkinRows()) {
+        // operationMap.put(row.getCells().get(0), row.getCells().get(1));
+        // }
         Class operationClass = Class.forName(operationMap.get("type"));
         AbstractEditorOperation operation = (AbstractEditorOperation) operationClass.newInstance();
         EvaluationContext operationContext = new StandardEvaluationContext(operation);
@@ -239,4 +247,16 @@ public class EditorStepDefs {
             checkException = checkException.getCause();
         }
     }
+
+    @When("^I get the edited topology$")
+    public void I_get_the_edited_topology() {
+        try {
+            editionContextManager.init(topologyId);
+            Topology topology = editionContextManager.getTopology();
+            topologyEvaluationContext = new StandardEvaluationContext(topology);
+        } finally {
+            editionContextManager.destroy();
+        }
+    }
+
 }

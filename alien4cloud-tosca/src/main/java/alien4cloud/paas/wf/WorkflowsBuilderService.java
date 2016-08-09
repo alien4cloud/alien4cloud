@@ -65,8 +65,8 @@ public class WorkflowsBuilderService {
         return topologyContext;
     }
 
-    public Workflow ceateWorkflow(Topology topology) {
-        String workflowName = getWorkflowName(topology, "newWf", 0);
+    public Workflow ceateWorkflow(Topology topology, String name) {
+        String workflowName = getWorkflowName(topology, name, 0);
         Workflow wf = new Workflow();
         wf.setName(workflowName);
         wf.setStandard(false);
@@ -379,5 +379,21 @@ public class WorkflowsBuilderService {
             }
         }
         return tasks;
+    }
+
+    /**
+     * Get a workflow from a topoogy or fail with a {@link NotFoundException}
+     * 
+     * @param workflowName name of the wrolkflow to retrieve
+     * @param topology {@link Topology } in which to retrieve the workflow
+     * @return The workflow found with the given name
+     */
+    public Workflow getWorkflow(String workflowName, Topology topology) {
+        Workflow workflow = topology.getWorkflows().get(workflowName);
+        if (workflow == null) {
+            throw new NotFoundException("Workflow <" + workflowName + "> not found in topology <" + topology.getId() + ">");
+        }
+
+        return workflow;
     }
 }

@@ -35,7 +35,11 @@ import cucumber.api.junit.Cucumber;
         // "src/test/resources/org/alien4cloud/tosca/editor/features/update_node_deployment_artifact.feature",
         // "src/test/resources/org/alien4cloud/tosca/editor/features/update_node_property_value.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/upload_file.feature"
-        //
+        // "src/test/resources/org/alien4cloud/tosca/editor/features/workflow/"
+        // "src/test/resources/org/alien4cloud/tosca/editor/features/workflow/create_workflow.feature"
+        // "src/test/resources/org/alien4cloud/tosca/editor/features/workflow/remove_workflow.feature"
+        // "src/test/resources/org/alien4cloud/tosca/editor/features/workflow/rename_workflow.feature"
+        // "src/test/resources/org/alien4cloud/tosca/editor/features/workflow/reinitialize_workflow.feature"
 })
 public class EditorTest {
 }

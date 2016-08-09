@@ -236,7 +236,7 @@ public abstract class AbstractWorkflowBuilder {
 
     public void renameStep(Workflow wf, String stepId, String newStepName) {
         if (wf.getSteps().containsKey(newStepName)) {
-            throw new AlreadyExistException(String.format("A step nammed ''{0}'' already exists", newStepName));
+            throw new AlreadyExistException(String.format("A step named ''{0}'' already exists in workflow '%s'", newStepName, wf.getName()));
         }
         AbstractStep step = wf.getSteps().remove(stepId);
         step.setName(newStepName);
@@ -275,8 +275,6 @@ public abstract class AbstractWorkflowBuilder {
      * relationship (when the link is created consecutively to a relationship add).
      * 
      * @param wf
-     * @param paaSTopology
-     * @param paaSNodeTemplate
      * @param relationhipTarget
      */
     public void removeRelationship(Workflow wf, String nodeId, String relationhipTarget) {

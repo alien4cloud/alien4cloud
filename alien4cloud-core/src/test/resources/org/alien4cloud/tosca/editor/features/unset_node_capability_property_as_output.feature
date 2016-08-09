@@ -66,7 +66,8 @@ Feature: Topology editor: unset node capability's property as output
       | capabilityName     	| i_do_not_exist                                                                   |
       | propertyName 		| min_instances                                                                    |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
-    And The SPEL expression "outputCapabilityProperties" should return "null"
+    When I get the edited topology
+    Then The SPEL expression "outputCapabilityProperties" should return "null"
 
   Scenario: UnSet as output a node capability's property that doesn't exists should fail
     Given I execute the operation
@@ -79,4 +80,5 @@ Feature: Topology editor: unset node capability's property as output
       | capabilityName     	| scalable                                                                   |
       | propertyName 		| i_do_not_exist                                                                    |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
-    And The SPEL expression "outputCapabilityProperties" should return "null"
+    When I get the edited topology
+    Then The SPEL expression "outputCapabilityProperties" should return "null"

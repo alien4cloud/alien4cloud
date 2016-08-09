@@ -45,7 +45,8 @@ Feature: Topology editor: unset node property as output
       | nodeName     | network                                                                   |
       | propertyName | network_id                                                                 |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
-    And The SPEL int expression "outputProperties.size()" should return 1
+    When I get the edited topology
+    Then The SPEL int expression "outputProperties.size()" should return 1
 
   Scenario: UnSet as output a property that doesn't exists in a node should fail
     Given I execute the operation
@@ -57,4 +58,5 @@ Feature: Topology editor: unset node property as output
       | nodeName     | network                                                                   |
       | propertyName | i_do_not_exist                                                                 |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
-    And The SPEL expression "outputProperties" should return "null"
+    When I get the edited topology
+    Then The SPEL expression "outputProperties" should return "null"

@@ -1,0 +1,36 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: Test archive with mock types.
+template_name: custom_interface_mock_types
+template_version: 1.1.0-SNAPSHOT
+template_author: FastConnect
+
+imports:
+  - "tosca-normative-types:1.0.0-SNAPSHOT"
+
+node_types:
+  alien4cloud.tests.nodes.CustomInterface:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: Mock node that has custom interfaces.
+    interfaces:
+      Standard:
+        create: scripts/create.sh
+        configure: scripts/configure.sh
+        start: scripts/start.sh
+        stop: scripts/stop.sh
+        delete: scripts/delete.sh        
+      lifecycle:
+        create: scripts/create.sh
+        start: scripts/start.sh
+      mock:
+        success:
+          implementation: scripts/success.sh
+        success_param:
+          inputs:
+            param:
+              type: string
+              required: true
+            param_2:
+              type: string
+              required: true
+          implementation: scripts/success.sh
+        fail: scripts/fail.sh
