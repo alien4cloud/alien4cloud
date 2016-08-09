@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
@@ -93,7 +94,8 @@ public class TopologyService {
     @Resource
     private WorkflowsBuilderService workflowBuilderService;
 
-    public static final String NODE_NAME_REGEX = "^\\w+$";
+    public static final Pattern NODE_NAME_PATTERN = Pattern.compile("^\\w+$");
+    public static final Pattern NODE_NAME_REPLACE_PATTERN = Pattern.compile("\\W");
 
     private ToscaTypeLoader initializeTypeLoader(Topology topology) {
         ToscaTypeLoader loader = new ToscaTypeLoader(csarService);
@@ -504,8 +506,8 @@ public class TopologyService {
         if (nodeTemplates.containsKey(newNodeTemplateName)) {
             log.debug("Add Node Template <{}> impossible (already exists)", newNodeTemplateName);
             // a node template already exist with the given name.
-            throw new AlreadyExistException("A node template with the given name " + newNodeTemplateName + " already exists in the topology " + topologyId
-                    + ".");
+            throw new AlreadyExistException(
+                    "A node template with the given name " + newNodeTemplateName + " already exists in the topology " + topologyId + ".");
         }
     }
 
