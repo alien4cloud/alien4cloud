@@ -43,6 +43,7 @@ define(function (require) {
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles']).controller('TopologyCtrl',
     ['$scope', '$modal', '$timeout', 'topologyJsonProcessor', 'topologyServices', 'componentService', 'nodeTemplateService', 'appVersions', 'context', 'toscaService', 'toscaCardinalitiesService', 'workflowServices',
+    'defaultFilters',
     'topoEditArtifacts',
     'topoEditDisplay',
     'topoEditGroups',
@@ -57,6 +58,7 @@ define(function (require) {
     'topoEditWf',
     'topoEditYaml',
     function($scope, $modal, $timeout, topologyJsonProcessor, topologyServices, componentService, nodeTemplateService, appVersions, context, toscaService, toscaCardinalitiesService, workflowServices,
+    defaultFilters,
     topoEditArtifacts,
     topoEditDisplay,
     topoEditGroups,
@@ -70,6 +72,7 @@ define(function (require) {
     topoEditVersions,
     topoEditWf,
     topoEditYaml) {
+      $scope.defaultFilters = defaultFilters;
       $scope.isRuntime = false;
       // wire version context and versions to the scope
       $scope.versionContext = context;
