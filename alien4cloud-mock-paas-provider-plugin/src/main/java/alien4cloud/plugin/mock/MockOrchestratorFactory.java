@@ -60,7 +60,7 @@ public class MockOrchestratorFactory implements IOrchestratorPluginFactory<MockO
     @Override
     public ArtifactSupport getArtifactSupport() {
         // support all type of implementations artifacts
-        return new ArtifactSupport(new String[] { "tosca.artifacts.Implementation", "tosca.artifacts.ShellScript" });
+        return new ArtifactSupport(new String[] { "alien.artifacts.BatchScript", "tosca.artifacts.Implementation.Bash" });
     }
 
     @Override
