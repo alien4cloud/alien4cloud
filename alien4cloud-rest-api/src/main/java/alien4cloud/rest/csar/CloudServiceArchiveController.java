@@ -1,5 +1,7 @@
 package alien4cloud.rest.csar;
 
+import io.swagger.annotations.ApiOperation;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,7 +12,6 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
-import alien4cloud.model.components.CSARSource;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -43,6 +44,7 @@ import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.CSARSource;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.rest.component.SearchRequest;
@@ -62,8 +64,6 @@ import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.VersionUtil;
 
 import com.google.common.collect.Lists;
-
-import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping({ "/rest/csars", "/rest/v1/csars", "/rest/latest/csars" })
@@ -118,11 +118,11 @@ public class CloudServiceArchiveController {
         } finally {
             if (csarPath != null) {
                 // Clean up
-                try {
-                    FileUtil.delete(csarPath);
-                } catch (IOException e) {
-                    // The repository might just move the file instead of copying to save IO disk access
-                }
+                // try {
+                // FileUtil.delete(csarPath);
+                // } catch (IOException e) {
+                // // The repository might just move the file instead of copying to save IO disk access
+                // }
             }
         }
     }

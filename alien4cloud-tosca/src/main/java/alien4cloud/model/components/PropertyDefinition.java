@@ -6,24 +6,45 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
 import org.elasticsearch.annotation.BooleanField;
 import org.elasticsearch.annotation.ObjectField;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.mapping.IndexType;
 
 import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
 import alien4cloud.json.deserializer.PropertyValueDeserializer;
-import alien4cloud.model.components.constraints.*;
-import alien4cloud.tosca.container.validation.*;
+import alien4cloud.model.components.constraints.EqualConstraint;
+import alien4cloud.model.components.constraints.GreaterOrEqualConstraint;
+import alien4cloud.model.components.constraints.GreaterThanConstraint;
+import alien4cloud.model.components.constraints.InRangeConstraint;
+import alien4cloud.model.components.constraints.LengthConstraint;
+import alien4cloud.model.components.constraints.LessOrEqualConstraint;
+import alien4cloud.model.components.constraints.LessThanConstraint;
+import alien4cloud.model.components.constraints.MaxLengthConstraint;
+import alien4cloud.model.components.constraints.MinLengthConstraint;
+import alien4cloud.model.components.constraints.PatternConstraint;
+import alien4cloud.model.components.constraints.ValidValuesConstraint;
+import alien4cloud.tosca.container.validation.ToscaPropertyConstraint;
+import alien4cloud.tosca.container.validation.ToscaPropertyConstraintDuplicate;
+import alien4cloud.tosca.container.validation.ToscaPropertyDefaultValueConstraints;
+import alien4cloud.tosca.container.validation.ToscaPropertyDefaultValueType;
+import alien4cloud.tosca.container.validation.ToscaPropertyPostValidationGroup;
+import alien4cloud.tosca.container.validation.ToscaPropertyType;
 import alien4cloud.ui.form.annotation.FormContentTypes;
 import alien4cloud.ui.form.annotation.FormProperties;
 import alien4cloud.ui.form.annotation.FormType;
 import alien4cloud.ui.form.annotation.FormValidValues;
-import lombok.*;
-import org.elasticsearch.annotation.StringField;
-import org.elasticsearch.mapping.IndexType;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  *
@@ -58,7 +79,6 @@ public class PropertyDefinition implements IValue {
     private boolean required = true;
 
     @JsonProperty("default")
-    @JsonDeserialize(using = PropertyValueDeserializer.class)
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     private PropertyValue defaultValue;
@@ -100,6 +120,7 @@ public class PropertyDefinition implements IValue {
         this.isPassword = from.isPassword;
     }
 
+    @JsonDeserialize(using = PropertyValueDeserializer.class)
     @ObjectField(enabled = false)
     public PropertyValue getDefault() {
         return this.defaultValue;

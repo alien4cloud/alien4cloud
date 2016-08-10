@@ -18,13 +18,6 @@
   </properties>
 
   <dependencies>
-    <!-- TODO: Move to appropriate plugin -->
-    <dependency>
-      <groupId>com.orbitz.consul</groupId>
-      <artifactId>consul-client</artifactId>
-      <version>0.12.3</version>
-    </dependency>
-      
     <dependency>
       <groupId>alien4cloud</groupId>
       <artifactId>alien4cloud-core</artifactId>
@@ -55,8 +48,8 @@
       <artifactId>jetty-webapp</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-jsp</artifactId>
+      <groupId>org.eclipse.jetty.orbit</groupId>
+      <artifactId>javax.servlet.jsp</artifactId>
     </dependency>
 
     <dependency>
@@ -130,6 +123,12 @@
       <artifactId>springfox-swagger2</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.orbitz.consul</groupId>
+      <artifactId>consul-client</artifactId>
+      <version>0.12.3</version>
+    </dependency>
+    
     <!-- tests -->
     <dependency>
       <groupId>junit</groupId>

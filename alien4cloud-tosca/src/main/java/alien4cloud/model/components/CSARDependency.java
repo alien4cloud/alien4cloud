@@ -8,6 +8,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.mapping.IndexType;
 
@@ -17,8 +18,8 @@ import org.elasticsearch.mapping.IndexType;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@RequiredArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
+@RequiredArgsConstructor(suppressConstructorProperties = true)
 @EqualsAndHashCode(of = { "name", "version" })
 @ToString
 public class CSARDependency {
