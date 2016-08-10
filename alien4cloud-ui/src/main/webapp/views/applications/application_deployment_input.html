@@ -1,4 +1,26 @@
 <div class="row">
+  <div id="configurationsErrors" class="col-md-6" ng-if="validTopologyDTO.valid && showConfgurationsErrors()">
+    <!-- DEPLOYMENT TOPO CONFIGURATION ERRORS -->
+    <h4 class="text-danger"><i class="fa fa-exclamation-triangle"></i> {{'APPLICATIONS.TOPOLOGY.TASK.ERRORS_LABEL' | translate}}</h4>
+    
+    <div class="task-list-box">
+      <!-- NODE FILTERS-->
+      <node-filters-errors-display
+        tasks = "deploymentContext.deploymentTopologyDTO.validation.taskList['NODE_FILTER_INVALID']"
+        input-column=true>
+      </node-filters-errors-display>
+
+      <!-- SCALABILITY ERRORS -->
+      <scalability-errors-display
+        tasks="deploymentContext.deploymentTopologyDTO.validation.taskList['SCALABLE_CAPABILITY_INVALID']">
+      </scalability-errors-display>
+
+      <!--  Required properties tasks  -->
+      <properties-errors-display
+        tasks = "deploymentContext.deploymentTopologyDTO.validation.taskList['PROPERTIES']">
+      </properties-errors-display>
+    </div>
+  </div>
   <!-- Input properties  -->
   <div ng-if="isAllowedInputDeployment()" class="col-md-6">
     <fieldset class="detail-bloc">

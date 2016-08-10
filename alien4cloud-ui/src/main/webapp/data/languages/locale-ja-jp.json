@@ -137,7 +137,7 @@
         "ERRORS_LABEL" : "エラー",
         "IMPLEMENT" : "ノードの実装",
         "IMPLEMENT_LABEL" : "実装",
-        "LABEL" : "Todo リスト",
+        "LABEL" : "The topology is not valid:",
         "NODE_FILTER" : {
           "CAPABILITY_MISSING_ERROR" : "The target has not this ability",
           "CAPABILITY_NAME" : "Capacity name",
