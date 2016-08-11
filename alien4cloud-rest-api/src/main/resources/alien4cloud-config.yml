@@ -1,5 +1,6 @@
 server:
   port: 8089
+  use-forward-headers: true
   #ssl:
   #  key-store: keystore.jks
   #  key-store-password: ******
@@ -116,7 +117,7 @@ audit:
   ttl: 1d
 
 ha:
-  ha_enabled: true
+  ha_enabled: false
   consulAgentIp: localhost
   consulAgentPort: 8500
   # the ip that will be given to consul for health check (can be a private ip)
