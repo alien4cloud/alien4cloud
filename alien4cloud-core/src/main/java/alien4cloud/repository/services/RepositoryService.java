@@ -23,6 +23,7 @@ import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.repository.Repository;
+import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.PluginManager;
 import alien4cloud.plugin.model.PluginComponent;
 import alien4cloud.repository.model.RepositoryPluginComponent;
@@ -53,7 +54,13 @@ public class RepositoryService {
         List<Repository> repositories = alienDAO.customFindAll(Repository.class, QueryBuilders.matchAllQuery());
         if (repositories != null) {
             for (Repository repository : repositories) {
-                createConfiguredResolver(repository.getId(), repository.getConfiguration(), repository.getPluginId());
+                Plugin plugin = alienDAO.findById(Plugin.class, repository.getPluginId());
+                if (plugin.isEnabled()) {
+                    createConfiguredResolver(repository.getId(), repository.getConfiguration(), repository.getPluginId());
+                } else {
+                    // TODO Later when the user has re-enabled the plugin must re-initialize this
+                    log.info("Don't enable resolver as the plugin {} with name {} is not enabled ", plugin.getId(), plugin.getDescriptor().getName());
+                }
             }
         }
     }
@@ -99,21 +106,33 @@ public class RepositoryService {
         List<PluginComponent> pluginComponents = pluginManager.getPluginComponents(IArtifactResolver.class.getSimpleName());
         for (PluginComponent pluginComponent : pluginComponents) {
             repositoryPluginComponents
-                    .add(new RepositoryPluginComponent(pluginComponent, resolverRegistry.getSinglePluginBean(pluginComponent.getPluginId()).getResolverType()));
+                    .add(new RepositoryPluginComponent(pluginComponent, getResolverFactoryOrFail(pluginComponent.getPluginId()).getResolverType()));
         }
         return repositoryPluginComponents;
     }
 
-    public Class<?> getRepositoryConfigurationType(String pluginId) {
+    private IConfigurableArtifactResolverFactory getResolverFactoryOrFail(String pluginId) {
         IConfigurableArtifactResolverFactory configurableArtifactResolverFactory = configurableResolverRegistry.getSinglePluginBean(pluginId);
         if (configurableArtifactResolverFactory == null) {
-            throw new NotFoundException("Plugin " + pluginId + " is not found");
+            throw new NotFoundException("Plugin " + pluginId + " is not found or is not enabled");
         }
-        return configurableArtifactResolverFactory.getResolverConfigurationType();
+        return configurableArtifactResolverFactory;
+    }
+
+    private IArtifactResolver getResolverOrFail(String pluginId) {
+        IArtifactResolver artifactResolver = resolverRegistry.getSinglePluginBean(pluginId);
+        if (artifactResolver == null) {
+            throw new NotFoundException("Plugin " + pluginId + " is not found or is not enabled");
+        }
+        return artifactResolver;
+    }
+
+    public Class<?> getRepositoryConfigurationType(String pluginId) {
+        return getResolverFactoryOrFail(pluginId).getResolverConfigurationType();
     }
 
     private void createConfiguredResolver(String repositoryId, Object configuration, String pluginId) {
-        IConfigurableArtifactResolverFactory configurableArtifactResolverFactory = configurableResolverRegistry.getSinglePluginBean(pluginId);
+        IConfigurableArtifactResolverFactory configurableArtifactResolverFactory = getResolverFactoryOrFail(pluginId);
         IConfigurableArtifactResolver configurableArtifactResolver = configurableArtifactResolverFactory.newInstance();
         configurableArtifactResolver.setConfiguration(JsonUtil.toObject(configuration, configurableArtifactResolverFactory.getResolverConfigurationType()));
         registeredResolvers.put(repositoryId, configurableArtifactResolver);
@@ -121,7 +140,7 @@ public class RepositoryService {
 
     public String createRepositoryConfiguration(String name, String pluginId, Object configuration) {
         String id = UUID.randomUUID().toString();
-        Repository repository = new Repository(id, name, pluginId, resolverRegistry.getSinglePluginBean(pluginId).getResolverType(), configuration);
+        Repository repository = new Repository(id, name, pluginId, getResolverFactoryOrFail(pluginId).getResolverType(), configuration);
         ensureNameUnicityAndSave(repository, null);
         createConfiguredResolver(id, configuration, pluginId);
         return id;
@@ -131,7 +150,7 @@ public class RepositoryService {
         ensureNameUnicityAndSave(updated, oldName);
         if (updateConfiguration) {
             if (registeredResolvers.containsKey(updated.getId())) {
-                IConfigurableArtifactResolverFactory resolverFactory = configurableResolverRegistry.getSinglePluginBean(updated.getPluginId());
+                IConfigurableArtifactResolverFactory resolverFactory = getResolverFactoryOrFail(updated.getPluginId());
                 IConfigurableArtifactResolver resolver = registeredResolvers.get(updated.getId());
                 resolver.setConfiguration(JsonUtil.toObject(updated.getConfiguration(), resolverFactory.getResolverConfigurationType()));
             }

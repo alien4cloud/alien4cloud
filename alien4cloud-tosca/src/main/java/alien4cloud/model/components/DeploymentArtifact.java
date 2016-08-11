@@ -10,4 +10,9 @@ public class DeploymentArtifact extends AbstractArtifact {
     public String getArtifactName() {
         return artifactName != null ? artifactName : getArtifactRef();
     }
+
+    @Override
+    public String toString() {
+        return "DeploymentArtifact{" + "artifactName='" + artifactName + '\'' + "} " + super.toString();
+    }
 }

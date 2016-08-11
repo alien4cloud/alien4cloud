@@ -6,4 +6,5 @@ public interface IConfigurableArtifactResolverFactory<T> {
 
     Class<T> getResolverConfigurationType();
 
+    String getResolverType();
 }

@@ -45,6 +45,20 @@ public interface ICsarRepositry {
      */
     Path getCSAR(String name, String version) throws CSARVersionNotFoundException;
 
+    /**
+     * Get a CSAR as an unzipped directory
+     *
+     * @param name
+     *            the name of the CSAR to store.
+     * @param version
+     *            the version of the CSAR to store.
+     *
+     * @return {@link Path} <br>
+     *         The path to the CSAR file
+     * @throws CSARVersionNotFoundException
+     */
+    Path getExpandedCSAR(String name, String version) throws CSARVersionNotFoundException;
+
     void removeCSAR(String name, String version);
-    
+
 }

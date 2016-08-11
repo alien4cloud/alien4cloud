@@ -1,5 +1,9 @@
 package alien4cloud.model.components;
 
+import java.nio.file.Path;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,4 +33,24 @@ public abstract class AbstractArtifact implements IArtifact {
     private String repositoryCredentials;
 
     private String repositoryName;
+
+    /**
+     * The local path to retrieve the artifact. Attention this is normally set before deployment so that the plugin knows where to get artifact.
+     */
+    @JsonIgnore
+    private Path artifactPath;
+
+    @Override
+    public String toString() {
+        return "AbstractArtifact{" +
+                "artifactType='" + artifactType + '\'' +
+                ", artifactRef='" + artifactRef + '\'' +
+                ", artifactRepository='" + artifactRepository + '\'' +
+                ", archiveName='" + archiveName + '\'' +
+                ", archiveVersion='" + archiveVersion + '\'' +
+                ", repositoryURL='" + repositoryURL + '\'' +
+                ", repositoryName='" + repositoryName + '\'' +
+                ", artifactPath=" + artifactPath +
+                '}';
+    }
 }

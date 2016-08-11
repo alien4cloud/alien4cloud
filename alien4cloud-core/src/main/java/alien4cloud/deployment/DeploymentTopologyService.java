@@ -5,19 +5,21 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationVersionService;
@@ -54,12 +56,9 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintTechnicalExc
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.ReflectionUtil;
-import alien4cloud.utils.services.DependencyService.TopologyDependencyContext;
 import alien4cloud.utils.services.PropertyService;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import alien4cloud.utils.services.DependencyService.TopologyDependencyContext;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Manages the deployment topology handling.
@@ -269,15 +268,15 @@ public class DeploymentTopologyService {
      * @param propertyName The name of the property for which to update the value.
      * @param propertyValue The new value of the property.
      */
-    public void updateProperty(String environmentId, String nodeTemplateId, String propertyName, Object propertyValue) throws ConstraintViolationException,
-            ConstraintValueDoNotMatchPropertyTypeException {
+    public void updateProperty(String environmentId, String nodeTemplateId, String propertyName, Object propertyValue)
+            throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         DeploymentConfiguration deploymentConfiguration = getDeploymentConfiguration(environmentId);
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
         // It is not allowed to override a value from an original node or from a location resource.
         NodeTemplate substitutedNode = deploymentTopology.getNodeTemplates().get(nodeTemplateId);
         if (substitutedNode == null) {
-            throw new NotFoundException("The deployment topology <" + deploymentTopology.getId() + "> doesn't contains any node with id <" + nodeTemplateId
-                    + ">");
+            throw new NotFoundException(
+                    "The deployment topology <" + deploymentTopology.getId() + "> doesn't contains any node with id <" + nodeTemplateId + ">");
         }
         String substitutionId = deploymentTopology.getSubstitutedNodes().get(nodeTemplateId);
         if (substitutionId == null) {
@@ -310,8 +309,8 @@ public class DeploymentTopologyService {
         // It is not allowed to override a value from an original node or from a location resource.
         NodeTemplate substitutedNode = deploymentTopology.getNodeTemplates().get(nodeTemplateId);
         if (substitutedNode == null) {
-            throw new NotFoundException("The deployment topology <" + deploymentTopology.getId() + "> doesn't contains any node with id <" + nodeTemplateId
-                    + ">");
+            throw new NotFoundException(
+                    "The deployment topology <" + deploymentTopology.getId() + "> doesn't contains any node with id <" + nodeTemplateId + ">");
         }
         String substitutionId = deploymentTopology.getSubstitutedNodes().get(nodeTemplateId);
         if (substitutionId == null) {

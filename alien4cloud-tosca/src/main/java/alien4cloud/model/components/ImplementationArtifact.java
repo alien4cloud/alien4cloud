@@ -6,4 +6,8 @@ package alien4cloud.model.components;
  * @author luc boutier
  */
 public class ImplementationArtifact extends AbstractArtifact {
+    @Override
+    public String toString() {
+        return "ImplementationArtifact{} " + super.toString();
+    }
 }
