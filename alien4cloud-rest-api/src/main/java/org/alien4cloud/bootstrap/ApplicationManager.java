@@ -66,6 +66,8 @@ public class ApplicationManager implements ApplicationListener<HALeaderElectionE
 
                 mapper = null;
                 fullApplicationContext.destroy();
+
+                childContextLaunched = false;
             } else {
                 log.warn("The full application context is already destroyed, something seems wrong in the current state !");
             }
