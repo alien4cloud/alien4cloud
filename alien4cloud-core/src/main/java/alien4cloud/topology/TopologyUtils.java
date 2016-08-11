@@ -341,10 +341,11 @@ public class TopologyUtils {
     }
 
     public static boolean isValidNodeName(String name) {
-        return Pattern.matches(TopologyService.NODE_NAME_REGEX, name);
+        return TopologyService.NODE_NAME_PATTERN.matcher(name).matches();
     }
 
     /**
+     * In alien 4 Cloud we try
      * Rename the node template with an invalid name on the topology.
      * 
      * @param topology
@@ -356,8 +357,8 @@ public class TopologyUtils {
             for (Map.Entry<String, NodeTemplate> nodeEntry : nodeTemplates.entrySet()) {
                 String nodeName = nodeEntry.getKey();
                 if (!isValidNodeName(nodeName)) {
-                    String newName = nodeName.toString().replaceAll("-", "_").replaceAll("\\.", "_").replaceAll(" ", "_");
-                    newName = StringUtils.stripAccents(newName);
+                    String newName = StringUtils.stripAccents(nodeName);
+                    newName = TopologyService.NODE_NAME_REPLACE_PATTERN.matcher(newName).replaceAll("_");
                     if (topology.getNodeTemplates().containsKey(newName)) {
                         int i = 1;
                         while (topology.getNodeTemplates().containsKey(newName + i)) {

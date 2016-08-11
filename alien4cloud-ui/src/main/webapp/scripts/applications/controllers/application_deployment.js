@@ -113,6 +113,20 @@ define(function(require) {
         $scope.application = applicationResult.data;
         $scope.envs = appEnvironments.deployEnvironments;
 
+        $scope.undeploy = function() {
+          $scope.isUnDeploying = true;
+          applicationServices.deployment.undeploy({
+            applicationId: $scope.application.id,
+            applicationEnvironmentId: $scope.deploymentContext.selectedEnvironment.id
+          }, function() {
+            $scope.deploymentContext.selectedEnvironment.status = 'UNDEPLOYMENT_IN_PROGRESS';
+            $scope.isUnDeploying = false;
+            $scope.stopEvent();
+          }, function() {
+            $scope.isUnDeploying = false;
+          });
+        };
+
         // Retrieval and validation of the topology associated with the deployment.
         var checkTopology = function() {
 

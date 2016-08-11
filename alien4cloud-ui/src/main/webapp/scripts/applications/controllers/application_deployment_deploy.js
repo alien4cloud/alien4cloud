@@ -18,7 +18,7 @@ define(function(require) {
       roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'], // is deployer
       priority: 400,
       step: {
-        taskCodes: ['NODE_FILTER_INVALID', 'PROPERTIES', 'SCALABLE_CAPABILITY_INVALID']
+        taskCodes: []
       }
     }
   });
@@ -41,21 +41,6 @@ define(function(require) {
             $scope.isDeploying = false;
           });
         };
-
-        $scope.undeploy = function() {
-          $scope.isUnDeploying = true;
-          applicationServices.deployment.undeploy({
-            applicationId: $scope.application.id,
-            applicationEnvironmentId: $scope.deploymentContext.selectedEnvironment.id
-          }, function() {
-            $scope.deploymentContext.selectedEnvironment.status = 'UNDEPLOYMENT_IN_PROGRESS';
-            $scope.isUnDeploying = false;
-            $scope.stopEvent();
-          }, function() {
-            $scope.isUnDeploying = false;
-          });
-        };
-
       }
     ]); //controller
 }); //Define

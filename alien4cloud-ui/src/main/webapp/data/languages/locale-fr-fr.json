@@ -137,7 +137,7 @@
         "ERRORS_LABEL" : "Erreurs",
         "IMPLEMENT" : "Implémenter les noeuds",
         "IMPLEMENT_LABEL" : "A implémenter",
-        "LABEL" : "Tâches à faire",
+        "LABEL" : "La topologie n'est pas valide :",
         "NODE_FILTER" : {
           "CAPABILITY_MISSING_ERROR" : "La cible de posséde pas cette capacité",
           "CAPABILITY_NAME" : "Nom de la capacité",

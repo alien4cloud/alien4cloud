@@ -54,35 +54,21 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
     protected void send(AbstractMonitorEvent event) {
         String eventType = MappingBuilder.indexTypeFromClass(event.getClass());
         String topicName = TOPIC_PREFIX + '/' + event.getDeploymentId() + '/' + eventType;
-        if (log.isDebugEnabled()) {
-            log.debug("Send [" + event.getClass().getSimpleName() + "] to [" + topicName + "]: " + event);
-        }
-        template.convertAndSend(topicName, event);
+        dispatchEvent(event, topicName);
 
         if (event instanceof PaaSDeploymentStatusMonitorEvent) {
-
             Deployment deployment = alienDAO.findById(Deployment.class, event.getDeploymentId());
-
-            if (deployment != null) {
-                updateDeploymentStatus(deployment, ((PaaSDeploymentStatusMonitorEvent) event).getDeploymentStatus());
-
-                if (deployment.getEnvironmentId() != null) {
-                    // dispatch an event on the environment topic
-                    topicName = ENV_TOPIC_PREFIX + "/" + deployment.getEnvironmentId();
-                    if (log.isDebugEnabled()) {
-                        log.debug("Send [" + event.getClass().getSimpleName() + "] to [" + topicName + "]: " + event);
-                    }
-                    template.convertAndSend(topicName, event);
-                }
+            if (deployment != null && deployment.getEnvironmentId() != null) {
+                // dispatch an event on the environment topic
+                topicName = ENV_TOPIC_PREFIX + "/" + deployment.getEnvironmentId();
+                dispatchEvent(event, topicName);
             }
         }
     }
 
-    private void updateDeploymentStatus(Deployment deployment, DeploymentStatus newStatus) {
-        if (DeploymentStatus.UNDEPLOYED.equals(newStatus)) {
-            deployment.setEndDate(new Date());
-        }
-        alienDAO.save(deployment);
+    private void dispatchEvent(AbstractMonitorEvent event, String topicName) {
+        log.debug("Send [{}] to [{}]: {}", event.getClass().getSimpleName(), topicName, event);
+        template.convertAndSend(topicName, event);
     }
 
     /**

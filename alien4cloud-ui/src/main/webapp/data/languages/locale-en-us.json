@@ -137,7 +137,7 @@
         "ERRORS_LABEL" : "Errors",
         "IMPLEMENT" : "Implement the node",
         "IMPLEMENT_LABEL" : "To implement",
-        "LABEL" : "Todo list",
+        "LABEL" : "The topology is not valid :",
         "NODE_FILTER" : {
           "CAPABILITY_MISSING_ERROR" : "The target has not this ability",
           "CAPABILITY_NAME" : "Capacity name",

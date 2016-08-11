@@ -11,6 +11,10 @@ define(function (require) {
     url: '/editor',
     templateUrl: 'views/topology/topology_editor.html',
     controller: 'TopologyCtrl',
+    resolve: {
+      defaultFilters: [function(){return {};}],
+      badges: [function(){return[];}]
+    },
     menu: {
       id: 'am.applications.detail.topology.editor',
       state: 'applications.detail.topology.editor',

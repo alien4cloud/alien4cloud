@@ -19,7 +19,7 @@ define(function(require) {
       priority: 300,
       step: {
         nextStepId: 'am.applications.detail.deployment.deploy',
-        taskCodes: ['INPUT_PROPERTY', 'ORCHESTRATOR_PROPERTY']
+        taskCodes: ['INPUT_PROPERTY', 'ORCHESTRATOR_PROPERTY', 'NODE_FILTER_INVALID', 'PROPERTIES', 'SCALABLE_CAPABILITY_INVALID']
       }
     }
   });

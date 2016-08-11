@@ -269,15 +269,15 @@ public class DeploymentTopologyService {
      * @param propertyName The name of the property for which to update the value.
      * @param propertyValue The new value of the property.
      */
-    public void updateProperty(String environmentId, String nodeTemplateId, String propertyName, Object propertyValue) throws ConstraintViolationException,
-            ConstraintValueDoNotMatchPropertyTypeException {
+    public void updateProperty(String environmentId, String nodeTemplateId, String propertyName, Object propertyValue)
+            throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         DeploymentConfiguration deploymentConfiguration = getDeploymentConfiguration(environmentId);
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
         // It is not allowed to override a value from an original node or from a location resource.
         NodeTemplate substitutedNode = deploymentTopology.getNodeTemplates().get(nodeTemplateId);
         if (substitutedNode == null) {
-            throw new NotFoundException("The deployment topology <" + deploymentTopology.getId() + "> doesn't contains any node with id <" + nodeTemplateId
-                    + ">");
+            throw new NotFoundException(
+                    "The deployment topology <" + deploymentTopology.getId() + "> doesn't contains any node with id <" + nodeTemplateId + ">");
         }
         String substitutionId = deploymentTopology.getSubstitutedNodes().get(nodeTemplateId);
         if (substitutionId == null) {
@@ -310,8 +310,8 @@ public class DeploymentTopologyService {
         // It is not allowed to override a value from an original node or from a location resource.
         NodeTemplate substitutedNode = deploymentTopology.getNodeTemplates().get(nodeTemplateId);
         if (substitutedNode == null) {
-            throw new NotFoundException("The deployment topology <" + deploymentTopology.getId() + "> doesn't contains any node with id <" + nodeTemplateId
-                    + ">");
+            throw new NotFoundException(
+                    "The deployment topology <" + deploymentTopology.getId() + "> doesn't contains any node with id <" + nodeTemplateId + ">");
         }
         String substitutionId = deploymentTopology.getSubstitutedNodes().get(nodeTemplateId);
         if (substitutionId == null) {
@@ -387,9 +387,22 @@ public class DeploymentTopologyService {
         // Set to new locations and process generation of all default properties
         ApplicationEnvironment environment = appEnvironmentServices.getOrFail(environmentId);
         ApplicationVersion appVersion = appVersionService.getOrFail(environment.getCurrentVersionId());
+
+        DeploymentTopology oldDT = alienDAO.findById(DeploymentTopology.class, DeploymentTopology.generateId(appVersion.getId(), environmentId));
+
         DeploymentTopology deploymentTopology = new DeploymentTopology();
         deploymentTopology.setOrchestratorId(orchestratorId);
         addLocationPolicies(deploymentTopology, groupsToLocations);
+
+        if (oldDT != null) {
+            // we should keep input properties
+            deploymentTopology.setInputProperties(oldDT.getInputProperties());
+            if (deploymentTopology.getOrchestratorId().equals(oldDT.getOrchestratorId())) {
+                // and orchestrator properties if not changed.
+                deploymentTopology.setProviderDeploymentProperties(oldDT.getProviderDeploymentProperties());
+            }
+        }
+
         Topology topology = topologyServiceCore.getOrFail(appVersion.getTopologyId());
         generateDeploymentTopology(DeploymentTopology.generateId(appVersion.getId(), environmentId), environment, topology, deploymentTopology);
         return getDeploymentConfiguration(deploymentTopology);
