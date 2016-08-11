@@ -17,6 +17,7 @@ Feature: Test alien4cloud failure (process and machine crash)
     #When I deploy it
 
 
+  ## OK
   Scenario: The alien process fails on the leader instance
     When I shutdown the alien process on the alien4cloud leader instance
      And I wait for 10 seconds before continuing the test
@@ -24,6 +25,7 @@ Feature: Test alien4cloud failure (process and machine crash)
      And I should be able to access the application "ALIEN"
      And the alien4cloud backup instance should be the new leader
 
+  ## OK
   Scenario: The alien process fails on the backup instance
     When I shutdown the consul agent on the alien4cloud backup instance
      And I wait for 10 seconds before continuing the test
@@ -31,6 +33,7 @@ Feature: Test alien4cloud failure (process and machine crash)
      And I should be able to access the application "ALIEN"
      And the alien4cloud leader instance should still be the leader
 
+  ## OK
   Scenario: The alien4cloud leader instance crashes
     When I delete the alien4cloud primary instance
      And I wait for 10 seconds before continuing the test
@@ -38,6 +41,7 @@ Feature: Test alien4cloud failure (process and machine crash)
      And I should be able to access the application "ALIEN"
      And the alien4cloud leader instance should still be the leader
 
+  # OK
   Scenario: The alien4cloud backup instance crashes
     When I delete the alien4cloud backup instance
      And I wait for 10 seconds before continuing the test

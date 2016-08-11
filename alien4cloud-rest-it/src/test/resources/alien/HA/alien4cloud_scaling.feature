@@ -3,6 +3,7 @@ Feature: Test alien4cloud scaling behavior in HA mode
   #   - alien4cloud scale up: make sure the new scaled instance can be leader and works well
   #   - alien4cloud scale down
 
+  ## OK
   Scenario: Scale up alien4cloud, and fail the previous instances so that the new one could be leader
     When I scale up the alien4cloud compute node by adding 1 instance
      And The node "alien4cloud" should contain 3 instance(s) after at maximum 15 minutes
@@ -17,6 +18,7 @@ Feature: Test alien4cloud scaling behavior in HA mode
      And I should be able to access the application "ALIEN"
      And the alien4cloud backup instance should be the new leader
 
+   ## OK
   Scenario: Scale down alien4cloud
     When I scale down the alien4cloud compute node by removing 1 instance
      And I wait for 10 seconds before continuing the test

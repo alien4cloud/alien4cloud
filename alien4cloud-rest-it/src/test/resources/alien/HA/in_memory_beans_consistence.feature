@@ -16,6 +16,7 @@ Feature: Check the states of a bunch of supposed in-memory beans
     #When I deploy it
 
 
+  ## OK
   Scenario: Audit configuration: Fail the alien process on leader instance, and check the audit conf
     Given I disable audit log for following methods:
       | Application | delete |

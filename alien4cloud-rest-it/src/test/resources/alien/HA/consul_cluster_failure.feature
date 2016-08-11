@@ -14,6 +14,7 @@ Feature: Test consul server process failure
     #When I deploy it
 
 
+  ## OK
   Scenario: The consul leader server fails, then another consul server fails, and finally the consul cluster is up again
     When I shutdown the consul process on the consul leader instance
      And I wait for 10 seconds before continuing the test
@@ -21,11 +22,14 @@ Feature: Test consul server process failure
      And I should be able to access the application "ALIEN"
      And one consul backup instance should be the new leader
 
+    ## OK
     # another consul server failure ==> the consul cluster not available
     When I shutdown the consul process on one of the two remaining running server
      And I wait for 10 seconds before continuing the test
     Then alien4cloud should not be available
 
+
+    ## OK
     # start all consul servers processes ==> consul cluster available again
     When I restart all unavailable consul servers processes
      And I wait for 30 seconds before continuing the test
