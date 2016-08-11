@@ -72,6 +72,7 @@ public class RepositoryController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     @Audit
     public RestResponse<Void> delete(@ApiParam(value = "Id of the repository to update", required = true) @PathVariable String id) {
+        repositoryService.getOrFail(id);
         repositoryService.delete(id);
         return RestResponseBuilder.<Void> builder().build();
     }
