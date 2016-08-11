@@ -1,0 +1,70 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+tosca_default_namespace:   # Optional. default namespace (schema, types version)
+template_name:             # Optional name of this service template
+template_author:           # Optional author of this service template
+template_version:          # Optional version of this service template
+
+description: This is an example of a single line description (no folding).
+
+imports:
+  - tosca-normative-types:1.0.0.wd03-SNAPSHOT
+
+dsl_definitions:
+  # list of YAML alias anchors (or macros)
+
+topology_template:
+  inputs:
+    # list of global input parameters
+
+  node_templates:
+    # list of node templates
+
+  groups:
+    # list of groups defined in service template
+
+  outputs:
+    # list of output parameters
+
+node_types:
+  my_company.my_types.MyAppNodeType:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: My company’s custom applicaton
+    properties:
+      my_app_password:
+        type: string
+        default: default
+        description: application password
+        constraints:
+          - min_length: 6
+          - max_length: 10
+      my_app_duration:
+        type: scalar-unit.time
+        default: 1 d
+        constraints:
+          - greater_than: 1 h
+      my_app_size:
+        type: scalar-unit.size
+        default: 1 GB
+        constraints:
+          - less_than: 1 TB
+      my_app_port:
+        type: integer
+        description: application port number
+    requirements:
+      - host: tosca.nodes.Compute
+        relationship_type: tosca.relationships.HostedOn
+        capability: host
+        occurrences: [1, 1]
+      - other: tosca.capabilities.Endpoint
+        occurrences: [0, unbounded]
+    interfaces: [ Standard ]
+
+capability_types:
+  # list of capability type definitions
+
+relationship_types:
+  # list of relationship type definitions
+
+artifact_types:
+  # list of artifact type definitions

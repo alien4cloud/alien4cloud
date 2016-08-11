@@ -1,18 +1,22 @@
 package alien4cloud.tosca.model;
 
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.collections4.MapUtils;
+
+import com.google.common.collect.Maps;
+
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.components.IndexedArtifactType;
 import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedDataType;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.RepositoryDefinition;
 import alien4cloud.model.topology.Topology;
-import com.google.common.collect.Maps;
-import java.util.List;
-import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.collections4.MapUtils;
 
 /** Root object to be de-serialized. */
 @Getter
@@ -33,6 +37,7 @@ public class ArchiveRoot {
     private Map<String, IndexedRelationshipType> relationshipTypes = Maps.newHashMap();
     private Map<String, IndexedCapabilityType> capabilityTypes = Maps.newHashMap();
     private Map<String, IndexedArtifactType> artifactTypes = Maps.newHashMap();
+    private Map<String, RepositoryDefinition> repositories = Maps.newHashMap();
 
     /**
      * Indicates if this archive contains tosca types (node types, relationships, capabilities, artifacts).
