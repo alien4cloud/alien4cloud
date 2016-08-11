@@ -4,8 +4,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
-import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Component;
@@ -14,16 +12,18 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
+import com.google.common.collect.Maps;
+
 import alien4cloud.model.components.Interface;
 import alien4cloud.model.components.Operation;
+import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
+import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 import alien4cloud.tosca.parser.DefferedParsingValueExecutor;
 import alien4cloud.tosca.parser.MappingTarget;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.impl.base.ReferencedParser;
 import alien4cloud.tosca.parser.mapping.DefaultParser;
-
-import com.google.common.collect.Maps;
 
 @Component
 public class InterfaceParser extends DefaultParser<Interface> {
@@ -76,6 +76,7 @@ public class InterfaceParser extends DefaultParser<Interface> {
 
     /**
      * FIXME PUT THAT SOMEWHERE MORE GLOBAL
+     * 
      * @param interfaceType
      * @return
      */
