@@ -23,7 +23,7 @@ node_types:
     artifacts:
       - simple_war: binary/myWar.war
       - remote_war:
-          file: alien4cloud@alien4cloud-ui@1.3.0-SM3
+          file: alien4cloud:alien4cloud-ui:1.3.0-SM3
           type: tosca.artifacts.Deployment.War
           repository: maven_repo
 
@@ -33,7 +33,7 @@ relationship_types:
     artifacts:
       - simple_war: binary/myWar.war
       - remote_war:
-          file: alien4cloud@alien4cloud-ui@1.3.0-SM3
+          file: alien4cloud:alien4cloud-ui:1.3.0-SM3
           type: tosca.artifacts.Deployment.War
           repository: maven_repo
 
@@ -42,7 +42,7 @@ topology_template:
   input_artifacts:
     simple_war: binary/myWar.war
     remote_war:
-      file: alien4cloud@alien4cloud-ui@1.3.0-SM3
+      file: alien4cloud:alien4cloud-ui:1.3.0-SM3
       type: tosca.artifacts.Deployment.War
       repository: maven_repo
 
@@ -52,6 +52,6 @@ topology_template:
       artifacts:
         simple_war: binary/myWar.war
         remote_war:
-          file: alien4cloud@alien4cloud-ui@1.3.0-SM3
+          file: alien4cloud:alien4cloud-ui:1.3.0-SM3
           type: tosca.artifacts.Deployment.War
           repository: maven_repo

@@ -40,7 +40,7 @@ node_types:
       tosca.interfaces.node.lifecycle.Standard:
         create:
           implementation:
-            file: master@myGitScript.xyz
+            file: master:myGitScript.xyz
             repository: git_repo
             type: tosca.artifacts.Implementation.Bash
 
