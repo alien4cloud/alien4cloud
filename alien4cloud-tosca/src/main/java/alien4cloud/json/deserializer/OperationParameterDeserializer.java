@@ -1,10 +1,7 @@
 package alien4cloud.json.deserializer;
 
-import alien4cloud.model.components.ConcatPropertyValue;
-import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.IValue;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.components.*;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 
 /**
  * Custom deserializer to handle multiple operation parameters types.
@@ -15,6 +12,9 @@ public class OperationParameterDeserializer extends AbstractDiscriminatorPolymor
         addToRegistry("type", PropertyDefinition.class);
         addToRegistry("function", FunctionPropertyValue.class);
         addToRegistry("function_concat", ConcatPropertyValue.class);
-        addToRegistry("value", ScalarPropertyValue.class);
+        addToRegistry("value", JsonNodeType.STRING.toString(), ScalarPropertyValue.class);
+        addToRegistry("value", JsonNodeType.ARRAY.toString(), ListPropertyValue.class);
+        addToRegistry("value", JsonNodeType.OBJECT.toString(), ComplexPropertyValue.class);
+        setValueStringClass(ScalarPropertyValue.class);
     }
 }
