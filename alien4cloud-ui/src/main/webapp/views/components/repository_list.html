@@ -13,7 +13,7 @@
         </facet-search-panel>
     </div>
     <div class="col-md-9">
-        <div class="table-responsive large-data-container" style="max-height:{{tableMaxHeight}}px; overflow-y:auto;">
+        <div class="table-responsive large-data-container" style="max-height:{{tableMaxHeight}}px; overflow-y:auto;" ng-if="searchConfig.result.data.length > 0">
             <table class="table table-hover">
                 <thead>
                 <tr>

@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -45,7 +46,7 @@ public class ArtifactProcessorService {
 
     private Path tempDir;
 
-    private InputStream resolveArtifact(AbstractArtifact artifact) {
+    private Path resolveArtifact(AbstractArtifact artifact) {
         return repositoryService.resolveArtifact(artifact.getArtifactRef(), artifact.getRepositoryURL(), artifact.getArtifactRepository(),
                 artifact.getRepositoryCredentials());
     }
@@ -68,11 +69,12 @@ public class ArtifactProcessorService {
             // TODO this should be done on Alien's side, the orchestrator plugin does not have responsibility to retrieve artifact it-self
             return;
         }
+        URL artifactURL = null;
         if (artifact.getRepositoryName() == null) {
             // Short notation
             try {
                 // Test if it's an URL
-                new URL(artifact.getArtifactRef());
+                artifactURL = new URL(artifact.getArtifactRef());
             } catch (MalformedURLException e) {
                 if (log.isDebugEnabled()) {
                     log.debug("Processing local artifact {}", artifact);
@@ -85,27 +87,27 @@ public class ArtifactProcessorService {
         if (log.isDebugEnabled()) {
             log.debug("Processing remote artifact {}", artifact);
         }
-        InputStream artifactStream = resolveArtifact(artifact);
-        if (artifactStream == null) {
-            throw new UnresolvableArtifactException("Artifact could not be found " + artifact);
-        }
-        try {
-            Path tempArtifactPath = Files.createTempFile(tempDir, "artifact", "");
-            Files.copy(artifactStream, tempArtifactPath, StandardCopyOption.REPLACE_EXISTING);
-            if (log.isDebugEnabled()) {
-                log.debug("Remote artifact from {} resolved to {}", artifact.getArtifactRef(), tempArtifactPath);
-            }
-            artifact.setArtifactPath(tempArtifactPath);
-            artifact.setArtifactRef(tempArtifactPath.getFileName().toString());
-        } catch (IOException e) {
-            throw new UnresolvableArtifactException("Artifact could not be resolved " + artifact, e);
-        } finally {
-            try {
-                artifactStream.close();
-            } catch (IOException e) {
-                // Ignore
+        Path artifactPath = resolveArtifact(artifact);
+        if (artifactPath == null) {
+            if (artifactURL != null) {
+                try {
+                    // In a best effort try in a generic manner to obtain the artifact
+                    try (InputStream artifactStream = artifactURL.openStream()) {
+                        artifactPath = Files.createTempFile(tempDir, "url-artifact", FilenameUtils.getExtension(artifact.getArtifactRef()));
+                        Files.copy(artifactStream, artifactPath, StandardCopyOption.REPLACE_EXISTING);
+                    }
+                } catch (IOException e) {
+                    throw new UnresolvableArtifactException("Artifact could not be found " + artifact, e);
+                }
+            } else {
+                throw new UnresolvableArtifactException("Artifact could not be found " + artifact);
             }
         }
+        if (log.isDebugEnabled()) {
+            log.debug("Remote artifact from {} resolved to {}", artifact.getArtifactRef(), artifactPath);
+        }
+        artifact.setArtifactPath(artifactPath);
+        artifact.setArtifactRef(artifactPath.getFileName().toString());
     }
 
     private void processInterfaces(Map<String, Interface> interfaceMap) {

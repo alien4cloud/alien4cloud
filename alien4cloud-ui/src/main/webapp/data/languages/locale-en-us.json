@@ -881,6 +881,7 @@
     }
   },
   "REPOSITORY": {
+    "ACTIVE_FILTERS" : "Active filters",
     "TITLE": "Repositories",
     "ADD": "New repository",
     "NAME": "Name",
