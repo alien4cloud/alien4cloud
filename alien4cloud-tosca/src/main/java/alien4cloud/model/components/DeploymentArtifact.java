@@ -33,6 +33,9 @@ public class DeploymentArtifact implements IArtifact {
     @Getter
     private String archiveVersion;
 
+    @Getter
+    private String description;
+
     public String getArtifactName() {
         return artifactName != null ? artifactName : artifactRef;
     }

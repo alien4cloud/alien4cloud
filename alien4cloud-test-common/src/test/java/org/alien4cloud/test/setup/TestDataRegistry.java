@@ -1,4 +1,4 @@
-package alien4cloud.it.setup;
+package org.alien4cloud.test.setup;
 
 import com.google.common.collect.Maps;
 import java.nio.file.Path;

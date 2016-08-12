@@ -1,4 +1,4 @@
-package alien4cloud.it.setup;
+package org.alien4cloud.test.setup;
 
 import alien4cloud.git.RepositoryManager;
 import alien4cloud.utils.FileUtil;
