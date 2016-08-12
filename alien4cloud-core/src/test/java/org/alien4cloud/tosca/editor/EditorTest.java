@@ -30,6 +30,7 @@ import cucumber.api.junit.Cucumber;
         // "src/test/resources/org/alien4cloud/tosca/editor/features/replace_node.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/set_node_property_as_input.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/set_node_property_as_output.feature",
+        // "src/test/resources/org/alien4cloud/tosca/editor/features/set_node_relationship_property_as_input.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/set_node_capability_property_as_output.feature",
         // "src/test/resources/org/alien4cloud/tosca/editor/features/unset_node_property_as_output.feature",
         // "src/test/resources/org/alien4cloud/tosca/editor/features/unset_node_capability_property_as_output.feature",

@@ -1,17 +1,16 @@
 package alien4cloud.application;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.Map;
+import static alien4cloud.paas.function.FunctionEvaluator.isGetInput;
+
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.exception.AlreadyExistException;
@@ -19,21 +18,13 @@ import alien4cloud.exception.CyclicReferenceException;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeGroup;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.SubstitutionTarget;
-import alien4cloud.model.topology.Topology;
+import alien4cloud.model.topology.*;
 import alien4cloud.paas.wf.Workflow;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
 import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import alien4cloud.utils.MapUtil;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -41,7 +32,7 @@ public class TopologyCompositionService {
 
     @Resource
     private ICSARRepositorySearchService csarRepoSearchService;
-    
+
     @Resource
     private TopologyServiceCore topologyServiceCore;
 
@@ -62,13 +53,13 @@ public class TopologyCompositionService {
                 log.debug(String.format("Topology composition has been processed for topology <%s> substituting %d embeded topologies", topology.getId(),
                         stack.size()));
             }
-            
+
             // std workflows are reinitialized when some composition is processed
             // TODO: find a better way to manage this
             TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
             workflowBuilderService.reinitWorkflow(Workflow.INSTALL_WF, topologyContext);
             workflowBuilderService.reinitWorkflow(Workflow.UNINSTALL_WF, topologyContext);
-            
+
         }
     }
 
@@ -89,8 +80,8 @@ public class TopologyCompositionService {
         for (NodeTemplate childNodeTemplate : compositionCouple.child.getNodeTemplates().values()) {
             for (Entry<String, AbstractPropertyValue> propertyEntry : childNodeTemplate.getProperties().entrySet()) {
                 AbstractPropertyValue pValue = propertyEntry.getValue();
-                if (pValue instanceof FunctionPropertyValue && ((FunctionPropertyValue)pValue).getFunction().equals(ToscaFunctionConstants.GET_INPUT)) {
-                    String inputName = ((FunctionPropertyValue)pValue).getTemplateName();
+                if (isGetInput(pValue)) {
+                    String inputName = ((FunctionPropertyValue) pValue).getTemplateName();
                     propertyEntry.setValue(proxyNodeTemplate.getProperties().get(inputName));
                 }
             }
@@ -98,7 +89,7 @@ public class TopologyCompositionService {
                 if (capabilityEntry.getValue().getProperties() != null) {
                     for (Entry<String, AbstractPropertyValue> propertyEntry : capabilityEntry.getValue().getProperties().entrySet()) {
                         AbstractPropertyValue pValue = propertyEntry.getValue();
-                        if (pValue instanceof FunctionPropertyValue && ((FunctionPropertyValue) pValue).getFunction().equals(ToscaFunctionConstants.GET_INPUT)) {
+                        if (isGetInput(pValue)) {
                             String inputName = ((FunctionPropertyValue) pValue).getTemplateName();
                             propertyEntry.setValue(proxyNodeTemplate.getProperties().get(inputName));
                         }
@@ -273,7 +264,7 @@ public class TopologyCompositionService {
             }
         }
     }
-    
+
     private void renameNodes(CompositionCouple compositionCouple) {
         Topology topology = compositionCouple.child;
         String[] nodeNames = new String[topology.getNodeTemplates().size()];

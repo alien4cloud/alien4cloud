@@ -1,4 +1,4 @@
-Feature: Topology editor: nodes templates
+Feature: Topology editor: update node property value
 
   Background:
     Given I am authenticated with "ADMIN" role

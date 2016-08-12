@@ -7,81 +7,69 @@ Feature: Topology editor: set node capability property as input
   Scenario: Set a node capability property to an input that matches type should succeed
     Given I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
-      | nodeName          | software_component                                                    |
+      | nodeName          | compute_node                                                          |
       | indexedNodeTypeId | tosca.nodes.Compute:1.0.0-SNAPSHOT                                    |
     And I execute the operation
       | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
       | inputName               | max_instances                                                    |
-      | propertyDefinition.type | int                                                              |
+      | propertyDefinition.type | integer                                                          |
     When I execute the operation
       | type           | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodeCapabilityPropertyAsInputOperation |
-      | nodeName       | software_component                                                                                    |
+      | nodeName       | compute_node                                                                                          |
       | capabilityName | scalable                                                                                              |
       | propertyName   | max_instances                                                                                         |
       | inputName      | max_instances                                                                                         |
     Then No exception should be thrown
     And The SPEL int expression "inputs.size()" should return 1
-    And The SPEL expression "nodeTemplates['software_component'].properties['component_version'].function" should return "get_input"
-    And The SPEL expression "nodeTemplates['software_component'].properties['component_version'].parameters[0]" should return "component_version"
-
-  Scenario: Set a node capability property to an input that matches type should succeed
-    Given I execute the operation
-      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
-      | nodeName          | software_component                                                    |
-      | indexedNodeTypeId | tosca.nodes.Compute:1.0.0-SNAPSHOT                                    |
-    And I execute the operation
-      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
-      | inputName               | max_instances                                                    |
-      | propertyDefinition.type | int                                                              |
-    When I execute the operation
-      | type           | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodeCapabilityPropertyAsInputOperation |
-      | nodeName       | software_component                                                                                    |
-      | capabilityName | scalable                                                                                              |
-      | propertyName   | max_instances                                                                                         |
-      | inputName      | max_instances                                                                                         |
-    Then No exception should be thrown
-    And The SPEL int expression "inputs.size()" should return 1
-    And The SPEL expression "nodeTemplates['software_component'].properties['component_version'].function" should return "get_input"
-    And The SPEL expression "nodeTemplates['software_component'].properties['component_version'].parameters[0]" should return "component_version"
+    And The SPEL expression "nodeTemplates['compute_node'].capabilities['scalable'].properties['max_instances'].function" should return "get_input"
+    And The SPEL expression "nodeTemplates['compute_node'].capabilities['scalable'].properties['max_instances'].parameters[0]" should return "max_instances"
 
   Scenario: Set a node capability property to an input that does not exists should fail
     Given I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
-      | nodeName          | software_component                                                    |
+      | nodeName          | compute_node                                                          |
       | indexedNodeTypeId | tosca.nodes.Compute:1.0.0-SNAPSHOT                                    |
     When I execute the operation
       | type           | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodeCapabilityPropertyAsInputOperation |
-      | nodeName       | software_component                                                                                    |
+      | nodeName       | compute_node                                                                                          |
       | capabilityName | scalable                                                                                              |
-      | propertyName   | component_version                                                                                     |
-      | inputName      | component_version                                                                                     |
+      | propertyName   | max_instances                                                                                         |
+      | inputName      | do_not_exist                                                                                          |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
-    And The SPEL expression "nodeTemplates['software_component'].properties['component_version']" should return "null"
+    And The SPEL expression "nodeTemplates['compute_node'].capabilities['scalable'].properties['max_instances'].value" should return "1"
 
   Scenario: Set a node capability property to a capability property that does not exists should fail
     Given I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
-      | nodeName          | software_component                                                    |
+      | nodeName          | compute_node                                                          |
       | indexedNodeTypeId | tosca.nodes.Compute:1.0.0-SNAPSHOT                                    |
+    And I execute the operation
+      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
+      | inputName               | max_instances                                                    |
+      | propertyDefinition.type | integer                                                          |
     When I execute the operation
       | type           | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodeCapabilityPropertyAsInputOperation |
-      | nodeName       | software_component                                                                                    |
+      | nodeName       | compute_node                                                                                          |
       | capabilityName | scalable                                                                                              |
       | propertyName   | do_not_exist                                                                                          |
-      | inputName      | component_version                                                                                     |
+      | inputName      | max_instances                                                                                         |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
-    And The SPEL expression "nodeTemplates['software_component'].properties['component_version']" should return "null"
+    And The SPEL expression "nodeTemplates['compute_node'].capabilities['scalable'].properties['max_instances'].value" should return "1"
 
   Scenario: Set a node capability property to a capability that does not exists should fail
     Given I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
-      | nodeName          | software_component                                                    |
+      | nodeName          | compute_node                                                          |
       | indexedNodeTypeId | tosca.nodes.Compute:1.0.0-SNAPSHOT                                    |
+    And I execute the operation
+      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
+      | inputName               | max_instances                                                    |
+      | propertyDefinition.type | integer                                                          |
     When I execute the operation
       | type           | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodeCapabilityPropertyAsInputOperation |
-      | nodeName       | software_component                                                                                    |
+      | nodeName       | compute_node                                                                                          |
       | capabilityName | do_not_exist                                                                                          |
-      | propertyName   | component_version                                                                                     |
-      | inputName      | component_version                                                                                     |
+      | propertyName   | max_instances                                                                                         |
+      | inputName      | max_instances                                                                                         |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
-    And The SPEL expression "nodeTemplates['software_component'].properties['component_version']" should return "null"
+    And The SPEL expression "nodeTemplates['compute_node'].capabilities['scalable'].properties['max_instances'].value" should return "1"

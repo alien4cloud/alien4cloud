@@ -1,5 +1,6 @@
 package org.alien4cloud.tosca.editor.processors.nodetemplate.inputs;
 
+import static alien4cloud.paas.function.FunctionEvaluator.isGetInput;
 import static alien4cloud.utils.AlienUtils.getOrFail;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
@@ -7,6 +8,7 @@ import org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.UnsetNodeCapa
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
 import org.springframework.stereotype.Component;
 
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.PropertyDefinition;
@@ -26,6 +28,12 @@ public class UnsetNodeCapabilityPropertyAsInputProcessor extends AbstractNodePro
     protected void processNodeOperation(UnsetNodeCapabilityPropertyAsInputOperation operation, NodeTemplate nodeTemplate) {
         Capability capabilityTemplate = getOrFail(nodeTemplate.getCapabilities(), operation.getCapabilityName(), "Capability {} do not exist for node {}",
                 operation.getCapabilityName(), operation.getNodeName());
+
+        // check if the node property value is a get_input
+        AbstractPropertyValue currentValue = capabilityTemplate.getProperties().get(operation.getPropertyName());
+        if (!isGetInput(currentValue)) {
+            throw new NotFoundException("Property {} of node {} is not associated to an input.", operation.getPropertyName(), operation.getNodeName());
+        }
 
         IndexedCapabilityType capabilityType = ToscaContext.get(IndexedCapabilityType.class, capabilityTemplate.getType());
         PropertyDefinition capabilityPropertyDefinition = getOrFail(capabilityType.getProperties(), operation.getPropertyName(),

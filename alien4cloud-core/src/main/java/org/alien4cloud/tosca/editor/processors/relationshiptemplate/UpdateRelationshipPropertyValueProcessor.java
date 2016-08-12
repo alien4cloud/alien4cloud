@@ -1,4 +1,4 @@
-package org.alien4cloud.tosca.editor.processors.nodetemplate;
+package org.alien4cloud.tosca.editor.processors.relationshiptemplate;
 
 import java.util.Map;
 
