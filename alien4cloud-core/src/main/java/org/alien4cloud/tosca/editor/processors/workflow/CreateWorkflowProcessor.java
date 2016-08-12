@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import javax.inject.Inject;
 
 /**
- * Process the {@link CreateWorkflowOperation} operation
+ * Process the {@link CreateWorkflowOperation} operation.
  */
 @Slf4j
 @Component
@@ -25,14 +25,10 @@ public class CreateWorkflowProcessor implements IEditorOperationProcessor<Create
     @Override
     public void process(CreateWorkflowOperation operation) {
         Topology topology = EditionContextManager.getTopology();
-        ensureUniqueness(topology, operation.getWorkflowName());
-        log.debug("creating new workflow <{}> in topology <{}>", operation.getWorkflowName(), topology.getId());
+        if (log.isDebugEnabled()) {
+            log.debug("creating new workflow <{}> in topology <{}>", operation.getWorkflowName(), topology.getId());
+        }
         Workflow wf = workflowsBuilderService.ceateWorkflow(topology, operation.getWorkflowName());
     }
 
-    private void ensureUniqueness(Topology topology, String name) {
-        if (topology.getWorkflows().containsKey(name)) {
-            throw new AlreadyExistException(String.format("The workflow '%s' already exists in topology '%s'.", name, topology.getId()));
-        }
-    }
 }
