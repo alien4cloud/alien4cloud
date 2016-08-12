@@ -15,7 +15,6 @@ public class ConnectStepToOperation extends AbstractWorkflowOperation {
     @NotBlank
     private String fromStepId;
 
-    @NotBlank
     private String[] toStepIds;
 
     @Override

@@ -4,8 +4,8 @@ define(function (require) {
   var modules = require('modules');
   var angular = require('angular');
 
-  modules.get('a4c-topology-editor').factory('topoEditWf', [ 'workflowServices', '$modal', '$interval', '$filter', 'listToMapService',
-    function(workflowServices, $modal, $interval, $filter, listToMapService) {
+  modules.get('a4c-topology-editor').factory('topoEditWf', [ '$modal', '$interval', '$filter', 'listToMapService',
+    function($modal, $interval, $filter, listToMapService) {
       var TopologyEditorMixin = function(scope) {
         this.scope = scope;
         // the current step that is displayed
@@ -39,6 +39,13 @@ define(function (require) {
         constructor: TopologyEditorMixin,
         setCurrentWorkflowName: function(workflowName) {
           this.clearSelection();
+          // the given name is undefined, let select the first wf in the list
+          if (_.undefined(workflowName)) {
+            var wfNames = Object.keys(this.scope.topology.topology.workflows);
+            if (wfNames.length > 0) {
+              workflowName = wfNames[0];
+            }
+          }
           this.scope.currentWorkflowName = workflowName;
           // this is need in case of failure while renaming
           this.workflowName = workflowName;
@@ -201,15 +208,21 @@ define(function (require) {
         createWorkflow: function() {
           var scope = this.scope;
           var instance = this;
-          workflowServices.workflows.create(
-            {
-              topologyId: scope.topology.topology.id
-            }, {},
+          var oldWorkflows = Object.keys(scope.topology.topology.workflows);
+          this.scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.workflow.CreateWorkflowOperation',
+              workflowName: 'customWorkflow'
+            },
             function(successResult) {
               if (!successResult.error) {
                 instance.clearSelection();
-                scope.topology.topology.workflows[successResult.data.name] = successResult.data;
-                instance.setCurrentWorkflowName(successResult.data.name);
+                // compare the old workflow keys list with the new one
+                // and so guess the new workflow name
+                var newWorkflows = Object.keys(scope.topology.topology.workflows);
+                var addedWorkflows = _.difference(newWorkflows, oldWorkflows);
+                if (addedWorkflows.length === 1) {
+                  instance.setCurrentWorkflowName(addedWorkflows[0]);
+                }
                 console.debug('operation succeded, workflow create: ' + successResult.data.name);
               } else {
                 console.debug(successResult.error);
@@ -223,14 +236,12 @@ define(function (require) {
         removeWorkflow: function() {
           var scope = this.scope;
           var instance = this;
-          workflowServices.workflows.remove(
-            {
-              topologyId: scope.topology.topology.id,
+          this.scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.workflow.RemoveWorkflowOperation',
               workflowName: scope.currentWorkflowName
-            },
+            },          
             function(successResult) {
               if (!successResult.error) {
-                delete scope.topology.topology.workflows[scope.currentWorkflowName];
                 instance.setCurrentWorkflowName(undefined);
               } else {
                 console.debug(successResult.error);
@@ -244,16 +255,13 @@ define(function (require) {
         renameWorkflow: function(newName) {
           var scope = this.scope;
           var instance = this;
-          workflowServices.workflows.rename(
-            {
-              topologyId: scope.topology.topology.id,
+          this.scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.workflow.RenameWorkflowOperation',
               workflowName: scope.currentWorkflowName,
               newName: newName
-            }, {},
+            },           
             function(successResult) {
               if (!successResult.error) {
-                scope.topology.topology.workflows[newName] = successResult.data;
-                delete scope.topology.topology.workflows[scope.currentWorkflowName];
                 instance.setCurrentWorkflowName(newName);
               } else {
                 instance.setCurrentWorkflowName(scope.currentWorkflowName);
@@ -269,13 +277,12 @@ define(function (require) {
         reinitWorkflow: function() {
           var scope = this.scope;
           var instance = this;
-          workflowServices.workflows.init({
-              topologyId: scope.topology.topology.id,
+          this.scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.workflow.ReinitializeWorkflowOperation',
               workflowName: scope.currentWorkflowName
-            }, {},
+            },           
             function(successResult) {
               if (!successResult.error) {
-                scope.topology.topology.workflows[scope.currentWorkflowName] = successResult.data;
                 instance.refreshGraph(true, true);
               } else {
                 console.debug(successResult.error);
@@ -291,16 +298,14 @@ define(function (require) {
           var scope = this.scope;
           var instance = this;
           instance.unpinCurrent();
-          workflowServices.step.rename(
-            {
-              topologyId: scope.topology.topology.id,
-              workflowName: scope.currentWorkflowName,
-              stepId: stepId,
-              newStepName: newStepName
-            }, {},
-            function(successResult) {
-              if (!successResult.error) {
-                scope.topology.topology.workflows[scope.currentWorkflowName] = successResult.data;
+          this.scope.execute({
+            type: 'org.alien4cloud.tosca.editor.operations.workflow.RenameStepOperation',
+            stepId: stepId,
+            workflowName: scope.currentWorkflowName,
+            newName: newStepName
+          },
+          function(successResult) {
+              if (_.undefined(successResult.error)) {
                 instance.refreshGraph(true, true);
                 instance.setPinnedWorkflowStep(newStepName, scope.topology.topology.workflows[scope.currentWorkflowName].steps[newStepName]);
                 console.debug('operation succeded');
@@ -318,22 +323,20 @@ define(function (require) {
         removeEdge: function(from, to) {
           var scope = this.scope;
           var instance = this;
-          workflowServices.edge.remove({
-              topologyId: scope.topology.topology.id,
-              workflowName: scope.currentWorkflowName,
-              from: from,
-              to: to
-            },
+          this.scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.workflow.RemoveEdgeOperation',
+              fromStepId: from,
+              toStepId: to,
+              workflowName: scope.currentWorkflowName
+            },          
             function(successResult) {
               if (!successResult.error) {
-                var wf = successResult.data;
                 if (scope.pinnedWorkflowStep) {
-                  instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, wf.steps[scope.pinnedWorkflowStep.name]);
+                  instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, scope.topology.topology.workflows[scope.currentWorkflowName].steps[scope.pinnedWorkflowStep.name]);
                 }
                 if (instance.isEdgePinned(from, to)) {
                   scope.wfPinnedEdge = undefined;
                 }
-                scope.topology.topology.workflows[scope.currentWorkflowName] = wf;
                 instance.refreshGraph(true, true);
                 console.debug('operation succeded');
               } else {
@@ -348,15 +351,14 @@ define(function (require) {
         removeStep: function(stepId) {
           var scope = this.scope;
           var instance = this;
-          workflowServices.step.remove({
-              topologyId: scope.topology.topology.id,
-              workflowName: scope.currentWorkflowName,
-              stepId: stepId
-            },
+          this.scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.workflow.RemoveStepOperation',
+              stepId: stepId,
+              workflowName: scope.currentWorkflowName
+            },          
             function(successResult) {
               if (!successResult.error) {
                 instance.clearSelection();
-                scope.topology.topology.workflows[scope.currentWorkflowName] = successResult.data;
                 instance.refreshGraph(true, true);
                 console.debug('operation succeded');
               } else {
@@ -375,18 +377,17 @@ define(function (require) {
           if (connectFromCandidate.length === 0) {
             return;
           }
-          workflowServices.step.connectFrom({
-              topologyId: scope.topology.topology.id,
+          this.scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.workflow.ConnectStepFromOperation',
+              toStepId: scope.pinnedWorkflowStep.name,
               workflowName: scope.currentWorkflowName,
-              stepId: scope.pinnedWorkflowStep.name
-            }, angular.toJson(connectFromCandidate),
+              fromStepIds: connectFromCandidate
+            },            
             function(successResult) {
               if (!successResult.error) {
-                var wf = successResult.data;
                 if (scope.pinnedWorkflowStep) {
-                  instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, wf.steps[scope.pinnedWorkflowStep.name]);
+                  instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, scope.topology.topology.workflows[scope.currentWorkflowName].steps[scope.pinnedWorkflowStep.name]);
                 }
-                scope.topology.topology.workflows[scope.currentWorkflowName] = wf;
                 instance.refreshGraph(true, true);
                 console.debug('operation succeded');
               } else {
@@ -405,18 +406,17 @@ define(function (require) {
           if (connectToCandidate.length === 0) {
             return;
           }
-          workflowServices.step.connectTo({
-              topologyId: scope.topology.topology.id,
+          this.scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.workflow.ConnectStepToOperation',
+              fromStepId: scope.pinnedWorkflowStep.name,
               workflowName: scope.currentWorkflowName,
-              stepId: scope.pinnedWorkflowStep.name
-            }, angular.toJson(connectToCandidate),
+              toStepIds: connectToCandidate
+            },
             function(successResult) {
               if (!successResult.error) {
-                var wf = successResult.data;
                 if (scope.pinnedWorkflowStep) {
-                  instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, wf.steps[scope.pinnedWorkflowStep.name]);
+                  instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, scope.topology.topology.workflows[scope.currentWorkflowName].steps[scope.pinnedWorkflowStep.name]);
                 }
-                scope.topology.topology.workflows[scope.currentWorkflowName] = wf;
                 instance.refreshGraph(true, true);
                 console.debug('operation succeded');
               } else {
@@ -431,30 +431,27 @@ define(function (require) {
         swap: function(from, to) {
           var scope = this.scope;
           var instance = this;
-          workflowServices.step.swap({
-            topologyId: scope.topology.topology.id,
-            workflowName: scope.currentWorkflowName,
-            stepId: from,
-            targetId: to
-          }, {},
-          function(successResult) {
-            if (!successResult.error) {
-              var wf = successResult.data;
-              scope.topology.topology.workflows[scope.currentWorkflowName] = wf;
-              instance.refreshGraph(true, true);
-              if (scope.pinnedWorkflowStep) {
-                instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, wf.steps[scope.pinnedWorkflowStep.name]);
+          this.scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.workflow.SwapStepOperation',
+              stepId: from,
+              workflowName: scope.currentWorkflowName,
+              targetStepId: to
+            },          
+            function(successResult) {
+              if (!successResult.error) {
+                instance.refreshGraph(true, true);
+                if (scope.pinnedWorkflowStep) {
+                  instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, scope.topology.topology.workflows[scope.currentWorkflowName].steps[scope.pinnedWorkflowStep.name]);
+                }
+                console.debug('operation succeded');
+              } else {
+                console.debug(successResult.error);
               }
-              console.debug('operation succeded');
-            } else {
-              console.debug(successResult.error);
+            },
+            function(errorResult) {
+              console.debug(errorResult);
             }
-          },
-          function(errorResult) {
-            console.debug(errorResult);
-          }
-        );
-
+          );
         },
         addOperation: function() {
           this.addOperationActivity();
@@ -479,6 +476,8 @@ define(function (require) {
           });
           modalInstance.result.then(function(trilogy) {
             var activityRequest = {
+              type: 'org.alien4cloud.tosca.editor.operations.workflow.AddActivityOperation',
+              workflowName: scope.currentWorkflowName,
               relatedStepId: stepId,
               before: before,
               activity: {
@@ -494,17 +493,14 @@ define(function (require) {
         addActivity: function(activityRequest) {
           var scope = this.scope;
           var instance = this;
-          workflowServices.activity.add({
-              topologyId: scope.topology.topology.id,
-              workflowName: scope.currentWorkflowName
-            }, activityRequest,
+
+          this.scope.execute(activityRequest, 
             function(successResult) {
               if (!successResult.error) {
                 var wf = successResult.data;
                 if (scope.pinnedWorkflowStep) {
-                  instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, wf.steps[scope.pinnedWorkflowStep.name]);
+                  instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, scope.topology.topology.workflows[scope.currentWorkflowName].steps[scope.pinnedWorkflowStep.name]);
                 }
-                scope.topology.topology.workflows[scope.currentWorkflowName] = wf;
                 instance.refreshGraph(true, true);
                 console.debug('operation succeded');
               } else {
@@ -539,6 +535,8 @@ define(function (require) {
           });
           modalInstance.result.then(function(trilogy) {
             var activityRequest = {
+              type: 'org.alien4cloud.tosca.editor.operations.workflow.AddActivityOperation',
+              workflowName: scope.currentWorkflowName,
               relatedStepId: stepId,
               before: before,
               activity: {
