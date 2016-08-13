@@ -1,13 +1,14 @@
 package alien4cloud.component.repository;
 
-import java.io.InputStream;
 import java.nio.file.Path;
+
+import alien4cloud.repository.model.ValidationResult;
 
 public interface IArtifactResolver {
 
     String getResolverType();
 
-    boolean canHandleArtifact(String artifactReference, String repositoryURL, String repositoryType, String credentials);
+    ValidationResult canHandleArtifact(String artifactReference, String repositoryURL, String repositoryType, String credentials);
 
     Path resolveArtifact(String artifactReference, String repositoryURL, String repositoryType, String credentials);
 }

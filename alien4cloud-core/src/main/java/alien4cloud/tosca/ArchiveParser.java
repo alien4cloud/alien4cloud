@@ -33,7 +33,7 @@ public class ArchiveParser {
      * @throws ParsingException
      */
     public ParsingResult<ArchiveRoot> parse(Path archiveFile) throws ParsingException {
-        return postProcessor.process(toscaArchiveParser.parse(archiveFile));
+        return postProcessor.process(archiveFile, toscaArchiveParser.parse(archiveFile));
     }
 
     /**
@@ -44,6 +44,6 @@ public class ArchiveParser {
      * @throws ParsingException
      */
     public ParsingResult<ArchiveRoot> parseDir(Path archiveDir) throws ParsingException {
-        return postProcessor.process(toscaArchiveParser.parseDir(archiveDir));
+        return postProcessor.process(archiveDir, toscaArchiveParser.parseDir(archiveDir));
     }
 }

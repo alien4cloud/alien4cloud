@@ -27,6 +27,7 @@ import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.PluginManager;
 import alien4cloud.plugin.model.PluginComponent;
 import alien4cloud.repository.model.RepositoryPluginComponent;
+import alien4cloud.repository.model.ValidationResult;
 import alien4cloud.rest.model.FilteredSearchRequest;
 import alien4cloud.rest.utils.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -94,6 +95,24 @@ public class RepositoryService {
             }
         }
         return null;
+    }
+
+    public boolean canResolveArtifact(String artifactReference, String repositoryURL, String repositoryType, String credentials) {
+        for (IConfigurableArtifactResolver configurableArtifactResolver : registeredResolvers.values()) {
+            ValidationResult validationResult = configurableArtifactResolver.canHandleArtifact(artifactReference, repositoryURL, repositoryType, credentials);
+            if (validationResult == ValidationResult.SUCCESS) {
+                return true;
+            }
+        }
+        for (Map<String, IArtifactResolver> resolverMap : resolverRegistry.getInstancesByPlugins().values()) {
+            for (IArtifactResolver resolver : resolverMap.values()) {
+                ValidationResult validationResult = resolver.canHandleArtifact(artifactReference, repositoryURL, repositoryType, credentials);
+                if (validationResult == ValidationResult.SUCCESS) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public FacetedSearchResult search(FilteredSearchRequest searchRequest) {

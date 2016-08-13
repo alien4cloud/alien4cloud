@@ -51,7 +51,7 @@ public enum ErrorCode {
     /** Detect a potential bad property value based on precedent inserted values **/
     POTENTIAL_BAD_PROPERTY_VALUE,
     /** Implementation artifact is unknown. */
-    UNKNOWN_IMPLEMENTATION_ARTIFACT, UNKNOWN_IMPLEMENTATION_ARTIFACT_KEY, UNKNOWN_REPOSITORY,
+    UNKNOWN_ARTIFACT, UNKNOWN_ARTIFACT_KEY, UNKNOWN_REPOSITORY, INVALID_ARTIFACT_REFERENCE, UNRESOLVED_ARTIFACT,
     /** A topology has been detected. */
     TOPOLOGY_DETECTED, TOPOLOGY_UPDATED,
     /** A property defined as get_input has an issue */

@@ -41,7 +41,7 @@ public abstract class ArtifactParser<T extends AbstractArtifact> extends Default
                 type = artifactType.getElementId();
             }
             if (type == null) {
-                context.getParsingErrors().add(new ParsingError(ErrorCode.UNKNOWN_IMPLEMENTATION_ARTIFACT, "Implementation artifact", node.getStartMark(),
+                context.getParsingErrors().add(new ParsingError(ErrorCode.UNKNOWN_ARTIFACT, "Implementation artifact", node.getStartMark(),
                         "No artifact type in the repository references the artifact's extension", node.getEndMark(), extension));
                 type = "unknown";
             }
@@ -86,7 +86,7 @@ public abstract class ArtifactParser<T extends AbstractArtifact> extends Default
                                 archiveRoot.getArchive().getDependencies());
                     }
                     if (artifactType == null) {
-                        context.getParsingErrors().add(new ParsingError(ErrorCode.UNKNOWN_IMPLEMENTATION_ARTIFACT, "Implementation artifact",
+                        context.getParsingErrors().add(new ParsingError(ErrorCode.UNKNOWN_ARTIFACT, "Implementation artifact",
                                 node.getStartMark(), "No artifact type in the repository references the artifact's type", node.getEndMark(), value));
                         artifact.setArtifactType("unknown");
                     } else {
@@ -94,7 +94,7 @@ public abstract class ArtifactParser<T extends AbstractArtifact> extends Default
                     }
                     break;
                 default:
-                    context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNKNOWN_IMPLEMENTATION_ARTIFACT_KEY, null,
+                    context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNKNOWN_ARTIFACT_KEY, null,
                             node.getStartMark(), "Unrecognized key while parsing implementation artifact", node.getEndMark(), key));
                 }
             }
