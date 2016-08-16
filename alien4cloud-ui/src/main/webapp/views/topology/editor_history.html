@@ -19,9 +19,11 @@
             <a class="btn btn-default btn-block" ng-click="gitHistory()"><i class="fa fa-git"></i> {{'EDITOR.GIT_HISTORY' | translate}}</a>
           </div>
         </div>
-        <div class="topology-column-menu topology-column-menu-right">
-          <i id="history-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-e resizable-bar"></i>
-        </div>
+        <resizable-bar
+          id="history-box-handler"
+          direction="e"
+          classes="topology-column-menu-right">
+        </resizable-bar>
       </div>
     </div>
     <div id="file-content" class="topology-column" style="padding: 10px;">
