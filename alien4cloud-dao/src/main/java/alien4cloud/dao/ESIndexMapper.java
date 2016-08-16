@@ -101,7 +101,7 @@ public abstract class ESIndexMapper {
                     throw new IndexingServiceException("Failed to create index <" + indexName + ">");
                 }
             } catch (Exception e) {
-                log.error("Not able to init indice, maybe it has been created elsewhere", e);
+                log.warn("Not able to init indice for index {}, maybe it has been created elsewhere", indexName);
             }
         }
     }
