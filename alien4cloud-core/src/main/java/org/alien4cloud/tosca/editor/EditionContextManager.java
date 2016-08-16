@@ -37,7 +37,7 @@ public class EditionContextManager {
     private TopologyServiceCore topologyServiceCore;
     @Resource
     private TopologyService topologyService;
-    @Resource
+    @Inject
     private EditorRepositoryService repositoryService;
     @Inject
     private IFileRepository artifactRepository;

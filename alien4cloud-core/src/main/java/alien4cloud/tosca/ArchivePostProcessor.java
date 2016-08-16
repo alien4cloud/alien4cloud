@@ -91,6 +91,9 @@ public class ArchivePostProcessor {
     }
 
     private void processLocalArtifact(ArchivePathResolver archivePathResolver, AbstractArtifact artifact, ParsingContext context) {
+        if (artifact.getArtifactRef() == null || artifact.getArtifactRef().isEmpty()) {
+            return; // Artifact may not be specified and may be set in alien4cloud.
+        }
         if (!Files.exists(archivePathResolver.resolve(artifact.getArtifactRef()))) {
             context.getParsingErrors().add(new ParsingError(ErrorCode.INVALID_ARTIFACT_REFERENCE, "Invalid artifact reference", null,
                     "CSAR's artifact does not exist", null, artifact.getArtifactRef()));

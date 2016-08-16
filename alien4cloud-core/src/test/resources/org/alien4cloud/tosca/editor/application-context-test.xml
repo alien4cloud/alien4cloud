@@ -27,6 +27,7 @@
 		alien4cloud.orchestrators,
 		alien4cloud.paas,
 		alien4cloud.paas.plan,
+		alien4cloud.repository.*,
 		alien4cloud.tosca,
 		alien4cloud.suggestions,
 		alien4cloud.cloud,

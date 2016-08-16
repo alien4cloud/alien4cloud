@@ -1,4 +1,5 @@
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
        xmlns:mockito="http://www.mockito.org/spring/mockito"
        xmlns:aop="http://www.springframework.org/schema/aop"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -12,7 +13,7 @@
   <aop:aspectj-autoproxy proxy-target-class="true"/>
 
   <context:component-scan
-      base-package="alien4cloud.topology, alien4cloud.tosca.context, alien4cloud.tosca.parser, alien4cloud.tosca.parser.*, alien4cloud.utils.services, alien4cloud.paas.wf">
+      base-package="alien4cloud.topology, alien4cloud.tosca.context, alien4cloud.tosca.parser, alien4cloud.tosca.parser.*, alien4cloud.repository.*, alien4cloud.utils.services, alien4cloud.plugin, alien4cloud.paas.wf">
     <context:exclude-filter type="regex" expression="alien4cloud.topology.TopologyService"/>
     <context:exclude-filter type="regex" expression="alien4cloud.utils.services.ApplicationUtil"/>
     <context:exclude-filter type="regex" expression="alien4cloud.topology.TopologyValidationService"/>
