@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>alien4cloud</groupId>
@@ -15,8 +16,10 @@
   <properties>
     <sonar.language>js</sonar.language>
     <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-    <sonar.javascript.jstestdriver.reportsPath>${project.basedir}/target/reports/ui/protractor.xml</sonar.javascript.jstestdriver.reportsPath>
-    <sonar.javascript.lcov.reportPath>${project.basedir}/target/coverage/coverage.lcov</sonar.javascript.lcov.reportPath>
+    <sonar.javascript.jstestdriver.reportsPath>${project.basedir}/target/reports/ui/protractor.xml
+    </sonar.javascript.jstestdriver.reportsPath>
+    <sonar.javascript.lcov.reportPath>${project.basedir}/target/coverage/coverage.lcov
+    </sonar.javascript.lcov.reportPath>
     <sonar.sources>src/main/webapp/scripts,pom.xml</sonar.sources>
   </properties>
 
@@ -152,7 +155,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore />
+                    <ignore/>
                   </action>
                 </pluginExecution>
               </pluginExecutions>
@@ -283,7 +286,7 @@
                 <configuration>
                   <tasks>
                     <delete includeemptydirs="true" failonerror="false">
-                      <fileset dir="${user.home}/.alien" includes="**/*" />
+                      <fileset dir="${user.home}/.alien" includes="**/*"/>
                     </delete>
                     <!-- COPY plugins and archives to have out of the box for tests. -->
                   </tasks>
@@ -332,7 +335,8 @@
                   <cargo.servlet.port>8088</cargo.servlet.port>
                   <cargo.logging>high</cargo.logging>
                   <cargo.jvmargs>-Denv=test
-                    -Dspring.profiles.active=security-demo</cargo.jvmargs>
+                    -Dspring.profiles.active=security-demo
+                  </cargo.jvmargs>
                 </properties>
               </configuration>
 

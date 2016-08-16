@@ -1,23 +1,22 @@
 package alien4cloud.git;
 
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
-import org.eclipse.jgit.api.CheckoutCommand;
-import org.eclipse.jgit.api.CloneCommand;
-import org.eclipse.jgit.api.FetchCommand;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.MergeResult;
-import org.eclipse.jgit.api.PullCommand;
-import org.eclipse.jgit.api.PullResult;
-import org.eclipse.jgit.api.TransportCommand;
+import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+
+import com.google.common.collect.Lists;
 
 import alien4cloud.exception.GitException;
 import alien4cloud.utils.FileUtil;
@@ -29,6 +28,80 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RepositoryManager {
     /**
+     * Close a repository.
+     * 
+     * @param repository The repository to close.
+     */
+    public static void close(Git repository) {
+        if (repository != null) {
+            repository.close();
+        }
+    }
+
+    /**
+     * Check if a given directory is a git repository.
+     * 
+     * @param targetDirectory The directory to check.
+     * @return true if the directory is a git repository, false if not.
+     */
+    public static boolean isGitRepository(Path targetDirectory) {
+        Git repository = null;
+        try {
+            repository = Git.open(targetDirectory.toFile());
+            return true;
+        } catch (IOException e) {
+            return false;
+        } finally {
+            close(repository);
+        }
+    }
+
+    /**
+     * Create a git repository that includes an optional readme file.
+     *
+     * @param targetDirectory The path of the repository to create.
+     * @param readmeContentIfEmpty
+     */
+    public static void create(Path targetDirectory, String readmeContentIfEmpty) {
+        Git repository = null;
+        try {
+            repository = Git.init().setDirectory(targetDirectory.toFile()).call();
+            if (readmeContentIfEmpty != null) {
+                Path readmePath = targetDirectory.resolve("readme.txt");
+                File file = readmePath.toFile();
+                file.createNewFile();
+                try (BufferedWriter writer = Files.newBufferedWriter(readmePath)) {
+                    writer.write(readmeContentIfEmpty);
+                }
+            }
+        } catch (GitAPIException | IOException e) {
+            log.error("Error while creating git repository", e);
+            throw new GitException("Error while creating git repository ", e);
+        } finally {
+            close(repository);
+        }
+    }
+
+    /**
+     * Commit all changes in the given repository.
+     *
+     * @param targetDirectory The target directory.
+     */
+    public static void commitAll(Path targetDirectory, String userName, String userEmail, String commitMessage) {
+        Git repository = null;
+        try {
+            repository = Git.open(targetDirectory.toFile());
+            repository.add().addFilepattern(".").call();
+            repository.commit().setCommitter(userName, userEmail).setMessage(commitMessage).call();
+        } catch (GitAPIException | IOException e) {
+            log.error("Error while trying to commit to git repository", e);
+            throw new GitException("Unable to commit to the git repository ", e);
+        } finally {
+            close(repository);
+        }
+    }
+
+    /**
      * Clone or checkout a git repository in a local directory relative to the given targetDirectory.
      *
      * @param targetDirectory The root directory that will contains the localDirectory in which to checkout the archives.
@@ -37,7 +110,12 @@ public class RepositoryManager {
      * @param localDirectory The path, relative to targetDirectory, in which to checkout or clone the git directory.
      */
     public static void cloneOrCheckout(Path targetDirectory, String repositoryUrl, String branch, String localDirectory) {
-        cloneOrCheckout(targetDirectory, repositoryUrl, null, null, branch, localDirectory);
+        Git repository = null;
+        try {
+            repository = cloneOrCheckout(targetDirectory, repositoryUrl, null, null, branch, localDirectory);
+        } finally {
+            close(repository);
+        }
     }
 
     /**
@@ -78,16 +156,16 @@ public class RepositoryManager {
         try {
             CheckoutCommand checkoutCommand = repository.checkout();
             // had to add "origin/" to fix an error when trying to checkout a branch
-            checkoutCommand.setName("origin/"+branch);
+            checkoutCommand.setName("origin/" + branch);
             Ref ref = checkoutCommand.call();
             if (ref == null || branch.equals(ref.getName())) {
                 // failed to checkout the branch, let's fetch it
-                //TODO: this part seems useless. check it out 
+                // TODO: this part seems useless. check it out
                 FetchCommand fetchCommand = repository.fetch();
                 setCredentials(fetchCommand, username, password);
                 fetchCommand.call();
                 checkoutCommand = repository.checkout();
-                checkoutCommand.setName("origin/"+branch);
+                checkoutCommand.setName("origin/" + branch);
                 checkoutCommand.call();
             }
         } catch (GitAPIException e) {
@@ -160,6 +238,33 @@ public class RepositoryManager {
     private static void setCredentials(TransportCommand<?, ?> command, String username, String password) {
         if (username != null) {
             command.setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password));
+        }
+    }
+
+    /**
+     * Return a simplified git commit history list.
+     * 
+     * @param repositoryDirectory The directory in which the git repo exists.
+     * @param from Start to query from the given history.
+     * @param count The number of history entries to retrieve.
+     * @return A list of simplified history entries.
+     */
+    public static List<SimpleGitHistoryEntry> getHistory(Path repositoryDirectory, int from, int count) {
+        Git repository = null;
+        try {
+            repository = Git.open(repositoryDirectory.toFile());
+            Iterable<RevCommit> commits = repository.log().setSkip(from).setMaxCount(count).call();
+            List<SimpleGitHistoryEntry> historyEntries = Lists.newArrayList();
+            for (RevCommit commit : commits) {
+                historyEntries.add(new SimpleGitHistoryEntry(commit.getId().getName(), commit.getAuthorIdent().getName(),
+                        commit.getAuthorIdent().getEmailAddress(), commit.getFullMessage(), new Date(commit.getCommitTime() * 1000L)));
+            }
+            return historyEntries;
+        } catch (GitAPIException | IOException e) {
+            log.error("Error while trying to commit to git repository", e);
+            throw new GitException("Unable to commit to the git repository ", e);
+        } finally {
+            close(repository);
         }
     }
 }

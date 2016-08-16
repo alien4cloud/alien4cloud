@@ -1,19 +1,8 @@
 package alien4cloud.security;
 
-import alien4cloud.Constants;
-import alien4cloud.security.groups.IAlienGroupDao;
-import alien4cloud.security.model.ApplicationEnvironmentRole;
-import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.security.model.CloudRole;
-import alien4cloud.security.model.Group;
-import alien4cloud.security.model.Role;
-import alien4cloud.security.model.User;
-import alien4cloud.security.spring.Alien4CloudAccessDeniedHandler;
-import alien4cloud.security.spring.FailureAuthenticationEntryPoint;
-import com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.Set;
-import lombok.extern.slf4j.Slf4j;
+
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +14,15 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Sets;
+
+import alien4cloud.Constants;
+import alien4cloud.security.groups.IAlienGroupDao;
+import alien4cloud.security.model.*;
+import alien4cloud.security.spring.Alien4CloudAccessDeniedHandler;
+import alien4cloud.security.spring.FailureAuthenticationEntryPoint;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Applications and topologies concerns
@@ -390,13 +388,20 @@ public final class AuthorizationUtil {
         return userRoles.size() == 1 && userRoles.contains(role.toString());
     }
 
+    /**
+     * Utility method to configure the application endpoint whatever security implementation is defined.
+     * 
+     * @param httpSecurity The http security object to configure.
+     * @throws Exception see httpSecurity.authorizeRequests()
+     */
     public static void configure(HttpSecurity httpSecurity) throws Exception {
-
         // authorizations
-
         httpSecurity.authorizeRequests().antMatchers("/*").permitAll();
         httpSecurity.authorizeRequests().antMatchers("/static/tosca/**").hasAnyAuthority("ADMIN", "COMPONENTS_MANAGER", "COMPONENTS_BROWSER");
         httpSecurity.authorizeRequests().antMatchers("/rest/admin/**").hasAuthority("ADMIN");
+
+        // FIXME Secure the editor data
+        // httpSecurity.authorizeRequests().antMatchers("/static/editor/**").access("hasPermission(#contact, 'admin')");
 
         // previous api version support
         httpSecurity.authorizeRequests().antMatchers("/rest/alienEndPoint/**").authenticated();

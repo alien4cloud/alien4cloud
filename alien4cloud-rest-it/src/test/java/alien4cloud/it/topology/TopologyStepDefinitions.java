@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.alien4cloud.test.setup.TestDataRegistry;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.http.NameValuePair;
@@ -33,7 +34,6 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.components.AddCommponentDefinitionSteps;
-import alien4cloud.it.setup.TestDataRegistry;
 import alien4cloud.model.components.*;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.NodeGroup;

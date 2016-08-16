@@ -1,0 +1,44 @@
+<ul class="vertical-navbar">
+  <li ng-repeat="menuItem in menu" ui-sref-active="active" ng-if="menuItem.show">
+    <a id="{{menuItem.id}}"
+       ng-click="onItemClick($event, menuItem)"
+       ui-sref="{{menuItem.state}}"
+       tooltip="{{menuItem.key | translate}}"
+       tooltip-placement="right"
+       tooltip-append-to-body="true"
+       ng-class="{'disabled' : menuItem.disabled}">
+      <i class="{{menuItem.icon}}" ng-show="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i>
+    </a>
+  </li>
+</ul>
+<div class="vertical-panel-shift">
+  <div id="editor-head-menu" class="topology-editor" style="margin-top: -10px; padding:2px; padding-left:20px; padding-right:20px; background-color: #666666;">
+    <button type="button" class="btn btn-success btn-xs" ng-click="save()"
+      ng-disabled="topology.operations.length === 0 || topology.lastOperationIndex===-1">
+      <i class="fa fa-save"></i> {{'EDITOR.SAVE' | translate}}
+    </button>
+
+    <div class="btn-group" role="group">
+      <button type="button" class="btn btn-primary btn-xs" ng-click="undo()"
+        ng-disabled="0 === (topology.lastOperationIndex + 1)">
+        <i class="fa fa-undo"></i> {{'EDITOR.UNDO' | translate}}
+      </button>
+      <button type="button" class="btn btn-primary btn-xs" ng-click="redo()"
+        ng-disabled="topology.operations.length === (topology.lastOperationIndex + 1)">
+        <i class="fa fa-repeat"></i> {{'EDITOR.REDO' | translate}}
+      </button>
+    </div>
+
+    <ui-select id="editor-env-version-select" ng-if="topologyVersions != null" ng-model="selectedVersion" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="versions.change(selectedVersion, topologyVersions)" reset-search-input="true" close-on-select="true">
+      <ui-select-match placeholder="Select or search a version...">{{$select.selected.version | limitTo: 20}}{{$select.selected.version.length > 20 ? '...' : ''}}</ui-select-match>
+      <ui-select-choices repeat="topologyVersion in topologyVersions | filter: $select.search">
+        <span ng-bind-html="topologyVersion.version | limitTo: 20 | highlight: $select.search"></span>
+        {{topologyVersion.version.length > 20 ? '...' : ''}}
+      </ui-select-choices>
+    </ui-select>
+
+    <div id="editor-context-container" class="pull-right">
+    </div>
+   </div>
+  <div ui-view></div>
+</div>

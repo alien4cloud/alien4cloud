@@ -4,15 +4,8 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.AlreadyExistException;
@@ -23,6 +16,7 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Manage topology workflows.
@@ -49,6 +43,7 @@ public class TopologyWorkflowController {
         return new RestResponse<Set<String>>();
     }
 
+    @Deprecated
     @RequestMapping(value = "/{topologyId}/workflows", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Workflow> createWorkflow(@PathVariable String topologyId) {
 
@@ -56,11 +51,12 @@ public class TopologyWorkflowController {
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
-        Workflow wf = workflowBuilderService.ceateWorkflow(topology);
+        Workflow wf = workflowBuilderService.ceateWorkflow(topology, "newWf");
         topologyServiceCore.save(topology);
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
+    @Deprecated
     @RequestMapping(value = "/{topologyId}/workflows/{workflowName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> removeWorkflow(@PathVariable String topologyId, @PathVariable String workflowName) {
 
@@ -76,6 +72,7 @@ public class TopologyWorkflowController {
         return new RestResponse<Void>();
     }
 
+    @Deprecated
     @RequestMapping(value = "/{topologyId}/workflows/{workflowName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Workflow> renameWorkflow(@PathVariable String topologyId, @PathVariable String workflowName, @RequestParam String newName) {
 
@@ -96,6 +93,7 @@ public class TopologyWorkflowController {
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
+    @Deprecated
     @RequestMapping(value = "/{topologyId}/workflows/{workflowName}/init", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Workflow> initWorkflow(@PathVariable String topologyId, @PathVariable String workflowName) {
 
@@ -108,6 +106,7 @@ public class TopologyWorkflowController {
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
+    @Deprecated
     @RequestMapping(value = "/{topologyId}/workflows/{workflowName}/edges/{from}/{to}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Workflow> removeEdge(@PathVariable String topologyId, @PathVariable String workflowName, @PathVariable String from,
             @PathVariable String to) {
@@ -121,6 +120,7 @@ public class TopologyWorkflowController {
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
+    @Deprecated
     @RequestMapping(value = "/{topologyId}/workflows/{workflowName}/steps/{stepId}/connectFrom", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Workflow> connectStepFrom(@PathVariable String topologyId, @PathVariable String workflowName, @PathVariable String stepId,
             @RequestBody String[] stepNames) {
@@ -134,6 +134,7 @@ public class TopologyWorkflowController {
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
+    @Deprecated
     @RequestMapping(value = "/{topologyId}/workflows/{workflowName}/steps/{stepId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Workflow> renameStep(@PathVariable String topologyId, @PathVariable String workflowName, @PathVariable String stepId,
             @RequestParam String newStepName) {
@@ -147,6 +148,7 @@ public class TopologyWorkflowController {
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
+    @Deprecated
     @RequestMapping(value = "/{topologyId}/workflows/{workflowName}/steps/{stepId}/connectTo", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Workflow> connectStepTo(@PathVariable String topologyId, @PathVariable String workflowName, @PathVariable String stepId,
             @RequestBody String[] stepNames) {
@@ -173,6 +175,7 @@ public class TopologyWorkflowController {
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
+    @Deprecated
     @RequestMapping(value = "/{topologyId}/workflows/{workflowName}/activities", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Workflow> addActivity(@PathVariable String topologyId, @PathVariable String workflowName,
             @RequestBody TopologyWorkflowAddActivityRequest activityRequest) {
@@ -187,6 +190,7 @@ public class TopologyWorkflowController {
         return RestResponseBuilder.<Workflow> builder().data(wf).build();
     }
 
+    @Deprecated
     @RequestMapping(value = "/{topologyId}/workflows/{workflowName}/steps/{stepId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Workflow> removeStep(@PathVariable String topologyId, @PathVariable String workflowName, @PathVariable String stepId) {
         Topology topology = topologyServiceCore.getOrFail(topologyId);

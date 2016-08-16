@@ -36,19 +36,13 @@ define(function(require) {
         /* Handle properties inputs */
         $scope.updateInputValue = function(definition, inputValue, inputId) {
           // No update if it's the same value
-          if (_.undefined($scope.deploymentContext.deploymentTopologyDTO.topology.inputProperties)) {
-            $scope.deploymentContext.deploymentTopologyDTO.topology.inputProperties = {};
-          }
-          if (inputValue === $scope.deploymentContext.deploymentTopologyDTO.topology.inputProperties[inputId]) {
-            return;
-          } else {
-            $scope.deploymentContext.deploymentTopologyDTO.topology.inputProperties[inputId] = inputValue;
-          }
+          var updatedProperties = {};
+          updatedProperties[inputId] = inputValue;
           return deploymentTopologyServices.updateInputProperties({
             appId: $scope.application.id,
             envId: $scope.deploymentContext.selectedEnvironment.id
           }, angular.toJson({
-            inputProperties: $scope.deploymentContext.deploymentTopologyDTO.topology.inputProperties
+            inputProperties: updatedProperties
           }), function(result){
             if(!result.error) {
               $scope.updateScopeDeploymentTopologyDTO(result.data);

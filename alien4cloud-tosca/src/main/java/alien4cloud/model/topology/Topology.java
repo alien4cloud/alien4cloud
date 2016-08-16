@@ -46,6 +46,9 @@ public class Topology implements IManagedSecuredResource {
     /** Last update date of the topology to verify if the topology has been changed **/
     private Date lastUpdateDate = new Date();
 
+    /** Path of the yaml file in the archive (relative to the root). */
+    private String yamlFilePath;
+
     /** The list of dependencies of this topology. */
     @TermFilter(paths = { "name", "version" })
     @NestedObject(nestedClass = CSARDependency.class)

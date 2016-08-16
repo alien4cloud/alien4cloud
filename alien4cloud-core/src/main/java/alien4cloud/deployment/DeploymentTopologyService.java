@@ -1,23 +1,20 @@
 package alien4cloud.deployment;
 
 import java.beans.IntrospectionException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationVersionService;
@@ -38,12 +35,7 @@ import alien4cloud.model.components.constraints.EqualConstraint;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import alien4cloud.model.topology.AbstractPolicy;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.LocationPlacementPolicy;
-import alien4cloud.model.topology.NodeGroup;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
+import alien4cloud.model.topology.*;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.security.AuthorizationUtil;
@@ -54,12 +46,8 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintTechnicalExc
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.ReflectionUtil;
-import alien4cloud.utils.services.DependencyService.TopologyDependencyContext;
 import alien4cloud.utils.services.PropertyService;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Manages the deployment topology handling.
@@ -115,12 +103,12 @@ public class DeploymentTopologyService {
     }
 
     /**
-     * Get or create if not yet existing the {@link DeploymentTopology}
+     * Get or create if not yet existing the {@link DeploymentTopology} for the given environment.
      *
-     * @param environmentId environment's id
-     * @return the existing deployment topology or new created one
+     * @param environmentId The environment for which to get or create a {@link DeploymentTopology}
+     * @return the existing {@link DeploymentTopology} or new created one
      */
-    private DeploymentTopology getOrCreateDeploymentTopology(String environmentId) {
+    public DeploymentTopology getDeploymentTopology(String environmentId) {
         ApplicationEnvironment environment = appEnvironmentServices.getOrFail(environmentId);
         ApplicationVersion version = applicationVersionService.getOrFail(environment.getCurrentVersionId());
         return getOrCreateDeploymentTopology(environment, version.getTopologyId());
@@ -174,7 +162,7 @@ public class DeploymentTopologyService {
     }
 
     public DeploymentConfiguration getDeploymentConfiguration(String environmentId) {
-        DeploymentTopology deploymentTopology = getOrCreateDeploymentTopology(environmentId);
+        DeploymentTopology deploymentTopology = getDeploymentTopology(environmentId);
         return getDeploymentConfiguration(deploymentTopology);
     }
 
@@ -298,7 +286,7 @@ public class DeploymentTopologyService {
         buildConstaintException(originalNode.getProperties().get(propertyName), propertyDefinition, "in the portable topology", propertyName, propertyValue);
 
         // Set the value and check constraints
-        propertyService.setPropertyValue(substitutedNode, propertyDefinition, propertyName, propertyValue, new TopologyDependencyContext(deploymentTopology));
+        propertyService.setPropertyValue(substitutedNode, propertyDefinition, propertyName, propertyValue);
         alienDAO.save(deploymentTopology);
     }
 
@@ -341,8 +329,7 @@ public class DeploymentTopologyService {
         buildConstaintException(originalNodePropertyValue, propertyDefinition, "in the portable topology", propertyName, propertyValue);
 
         // Set the value and check constraints
-        propertyService.setCapabilityPropertyValue(substitutedNode.getCapabilities().get(capabilityName), propertyDefinition, propertyName, propertyValue,
-                new TopologyDependencyContext(deploymentTopology));
+        propertyService.setCapabilityPropertyValue(substitutedNode.getCapabilities().get(capabilityName), propertyDefinition, propertyName, propertyValue);
         alienDAO.save(deploymentTopology);
     }
 

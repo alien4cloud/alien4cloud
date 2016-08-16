@@ -6,14 +6,16 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import alien4cloud.model.components.PropertyValue;
 import org.elasticsearch.common.collect.Lists;
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Maps;
 
 import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.orchestrators.services.OrchestratorDeploymentService;
@@ -22,8 +24,6 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationExc
 import alien4cloud.utils.InputArtifactUtil;
 import alien4cloud.utils.PropertyUtil;
 import alien4cloud.utils.services.ConstraintPropertyService;
-
-import com.google.common.collect.Maps;
 
 @Service
 public class DeploymentInputService {
@@ -40,7 +40,7 @@ public class DeploymentInputService {
      * @param topology The deployment topology to impact.
      */
     public void processInputProperties(DeploymentTopology topology) {
-        Map<String, String> inputProperties = topology.getInputProperties();
+        Map<String, PropertyValue> inputProperties = topology.getInputProperties();
         Map<String, PropertyDefinition> inputDefinitions = topology.getInputs();
         if (inputDefinitions == null || inputDefinitions.isEmpty()) {
             topology.setInputProperties(null);
@@ -49,14 +49,15 @@ public class DeploymentInputService {
                 inputProperties = Maps.newHashMap();
                 topology.setInputProperties(inputProperties);
             } else {
-                Iterator<Map.Entry<String, String>> inputPropertyEntryIterator = inputProperties.entrySet().iterator();
+                // Ensure that previous defined values are still compatible with the latest input definition (as the topology may have changed).
+                Iterator<Map.Entry<String, PropertyValue>> inputPropertyEntryIterator = inputProperties.entrySet().iterator();
                 while (inputPropertyEntryIterator.hasNext()) {
-                    Map.Entry<String, String> inputPropertyEntry = inputPropertyEntryIterator.next();
+                    Map.Entry<String, PropertyValue> inputPropertyEntry = inputPropertyEntryIterator.next();
                     if (!inputDefinitions.containsKey(inputPropertyEntry.getKey())) {
                         inputPropertyEntryIterator.remove();
                     } else {
                         try {
-                            constraintPropertyService.checkSimplePropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue(),
+                            constraintPropertyService.checkPropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue().getValue(),
                                     inputDefinitions.get(inputPropertyEntry.getKey()));
                         } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
                             // Property is not valid anymore for the input, remove the old value
@@ -65,13 +66,14 @@ public class DeploymentInputService {
                     }
                 }
             }
+            // set default values for every unset property.
             for (Map.Entry<String, PropertyDefinition> inputDefinitionEntry : inputDefinitions.entrySet()) {
-                String existingValue = inputProperties.get(inputDefinitionEntry.getKey());
+                PropertyValue existingValue = inputProperties.get(inputDefinitionEntry.getKey());
                 if (existingValue == null) {
-                    AbstractPropertyValue defaultValue = inputDefinitionEntry.getValue().getDefault();
-                    // we only support scalar properties for topology input properties
-                    if (defaultValue != null && defaultValue instanceof ScalarPropertyValue) {
-                        inputProperties.put(inputDefinitionEntry.getKey(), ((ScalarPropertyValue) defaultValue).getValue());
+                    // If user has not specified a value and there is
+                    PropertyValue defaultValue = inputDefinitionEntry.getValue().getDefault();
+                    if (defaultValue != null) {
+                        inputProperties.put(inputDefinitionEntry.getKey(), defaultValue);
                     }
                 }
             }
@@ -150,12 +152,12 @@ public class DeploymentInputService {
                         constraintPropertyService.checkSimplePropertyConstraint(propertyDefinitionEntry.getKey(), existingValue,
                                 propertyDefinitionEntry.getValue());
                     } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
-                        PropertyUtil.setScalarDefaultValueOrNull(propertyValueMap, propertyDefinitionEntry.getKey(), propertyDefinitionEntry.getValue()
-                                .getDefault());
+                        PropertyUtil.setScalarDefaultValueOrNull(propertyValueMap, propertyDefinitionEntry.getKey(),
+                                propertyDefinitionEntry.getValue().getDefault());
                     }
                 } else {
-                    PropertyUtil.setScalarDefaultValueIfNotNull(propertyValueMap, propertyDefinitionEntry.getKey(), propertyDefinitionEntry.getValue()
-                            .getDefault());
+                    PropertyUtil.setScalarDefaultValueIfNotNull(propertyValueMap, propertyDefinitionEntry.getKey(),
+                            propertyDefinitionEntry.getValue().getDefault());
                 }
             }
             deploymentTopology.setProviderDeploymentProperties(propertyValueMap);

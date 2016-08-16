@@ -8,6 +8,8 @@ import javax.validation.constraints.NotNull;
 
 import org.elasticsearch.annotation.BooleanField;
 import org.elasticsearch.annotation.ObjectField;
+import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.mapping.IndexType;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -22,8 +24,6 @@ import alien4cloud.ui.form.annotation.FormProperties;
 import alien4cloud.ui.form.annotation.FormType;
 import alien4cloud.ui.form.annotation.FormValidValues;
 import lombok.*;
-import org.elasticsearch.annotation.StringField;
-import org.elasticsearch.mapping.IndexType;
 
 /**
  *
@@ -58,7 +58,6 @@ public class PropertyDefinition implements IValue {
     private boolean required = true;
 
     @JsonProperty("default")
-    @JsonDeserialize(using = PropertyValueDeserializer.class)
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     private PropertyValue defaultValue;
@@ -100,6 +99,7 @@ public class PropertyDefinition implements IValue {
         this.isPassword = from.isPassword;
     }
 
+    @JsonDeserialize(using = PropertyValueDeserializer.class)
     @ObjectField(enabled = false)
     public PropertyValue getDefault() {
         return this.defaultValue;

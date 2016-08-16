@@ -1,25 +1,26 @@
 package alien4cloud.it.application.deployment;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
+import alien4cloud.model.components.PropertyValue;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import alien4cloud.common.AlienConstants;
 import alien4cloud.it.Context;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
@@ -30,14 +31,12 @@ import alien4cloud.rest.deployment.DeploymentTopologyDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.MapUtil;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 public class DeploymentTopologyStepDefinitions {
 
@@ -172,7 +171,7 @@ public class DeploymentTopologyStepDefinitions {
     }
 
     @When("^I set the following inputs properties$")
-    public void I_set_the_following_inputs_properties(Map<String, String> inputProperties) throws Throwable {
+    public void I_set_the_following_inputs_properties(Map<String, Object> inputProperties) throws Throwable {
         UpdateDeploymentTopologyRequest request = new UpdateDeploymentTopologyRequest();
         request.setInputProperties(inputProperties);
         executeUpdateDeploymentTopologyCall(request);
@@ -186,9 +185,13 @@ public class DeploymentTopologyStepDefinitions {
     }
 
     @Then("^the deployment topology should have the following inputs properties$")
-    public void The_deployment_topology_sould_have_the_following_input_properties(Map<String, String> expectedInputProperties) throws Throwable {
+    public void The_deployment_topology_sould_have_the_following_input_properties(Map<String, String> expectedStringInputProperties) throws Throwable {
         DeploymentTopologyDTO dto = getDTOAndassertNotNull();
-        assertMapContains(dto.getTopology().getInputProperties(), expectedInputProperties);
+        Map<String, AbstractPropertyValue> expectedInputProperties = Maps.newHashMap();
+        for (Entry<String, String> inputEntry : expectedStringInputProperties.entrySet()) {
+            expectedInputProperties.put(inputEntry.getKey(), new ScalarPropertyValue(inputEntry.getValue()));
+        }
+        assertPropMapContains(dto.getTopology().getInputProperties(), expectedInputProperties);
     }
 
     @Then("^the deployment topology should have the following orchestrator properties$")
@@ -231,6 +234,13 @@ public class DeploymentTopologyStepDefinitions {
     private void assertMapContains(Map<String, String> map, Map<String, String> expectedMap) {
         for (Entry<String, String> entry : expectedMap.entrySet()) {
             assertEquals(entry.getValue(), MapUtils.getObject(map, entry.getKey()));
+        }
+    }
+
+    private void assertPropMapContains(Map<String, PropertyValue> map, Map<String, AbstractPropertyValue> expectedMap) {
+        map = AlienUtils.safe(map);
+        for (Entry<String, AbstractPropertyValue> entry : expectedMap.entrySet()) {
+            assertEquals(entry.getValue(), map.get(entry.getKey()));
         }
     }
 

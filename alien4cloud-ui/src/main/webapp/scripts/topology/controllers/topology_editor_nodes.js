@@ -7,8 +7,8 @@ define(function (require) {
   var angular = require('angular');
   var _ = require('lodash');
 
-  modules.get('a4c-topology-editor').factory('topoEditNodes', [ 'topologyServices', 'toscaService', '$filter',
-    function(topologyServices, toscaService, $filter) {
+  modules.get('a4c-topology-editor').factory('topoEditNodes', ['toscaService', '$filter',
+    function(toscaService, $filter) {
       var nodeNamePattern = '^\\w+$';
 
       var TopologyEditorMixin = function(scope) {
@@ -38,23 +38,16 @@ define(function (require) {
         /** Actually trigger the node template addition. */
         doAddNodeTemplate: function(nodeTemplateName, selectedNodeType, targetNodeTemplateName) {
           var scope = this.scope;
-          var nodeTemplateRequest = {
-            'name': nodeTemplateName,
-            'indexedNodeTypeId': selectedNodeType.id
-          };
-          topologyServices.nodeTemplate.add({
-            topologyId: scope.topology.topology.id
-          }, angular.toJson(nodeTemplateRequest), function(result) {
-            if (!result.error) {
-              // refresh ui elements.
-              scope.refreshTopology(result.data, nodeTemplateName);
-              // if we have a target node we should try to create a hosted on relationship
-              if (targetNodeTemplateName) {
-                // drag a node on another node
-                scope.relationships.autoOpenRelationshipModal(nodeTemplateName, targetNodeTemplateName);
-              }
+          scope.execute({
+            type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation',
+            nodeName: nodeTemplateName,
+            indexedNodeTypeId: selectedNodeType.id
+          }, function(result) {
+            if (_.undefined(result.error) && targetNodeTemplateName) {
+              // drag a node on another node
+              scope.relationships.autoOpenRelationshipModal(nodeTemplateName, targetNodeTemplateName);
             }
-          });
+          }, null, nodeTemplateName);
         },
         /* Update node template name */
         updateName: function(newName) {
@@ -67,52 +60,44 @@ define(function (require) {
           }
 
           if (scope.selectedNodeTemplate.name !== newName) {
-            topologyServices.nodeTemplate.updateName({
-              topologyId: scope.topology.topology.id,
-              nodeTemplateName: scope.selectedNodeTemplate.name,
-              newName: newName
-            }, function(resultData) {
-              if (resultData.error === null) {
-                scope.refreshTopology(resultData.data, scope.selectedNodeTemplate ? newName : undefined);
-              }
-            }, function() {
-              scope.nodeNameObj.val = scope.selectedNodeTemplate.name;
-            });
+            scope.execute({
+                type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.RenameNodeOperation',
+                nodeName: scope.selectedNodeTemplate.name,
+                newName: newName
+              }, null,
+              function() { // error handling
+                scope.nodeNameObj.val = scope.selectedNodeTemplate.name;
+              }, scope.selectedNodeTemplate ? newName : undefined
+            );
           } // if end
-          scope.display.set('component', true);
+          scope.display.set('nodetemplate', true);
         },
-
+        delete: function(nodeTemplName) {
+          var scope = this.scope;
+          scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation',
+              nodeName: nodeTemplName,
+            },
+            function(){ scope.display.displayOnly(['topology']); }
+          );
+        },
         /* Update properties of a node template */
         updateProperty: function(propertyDefinition, propertyName, propertyValue) {
           var scope = this.scope;
-          var updatePropsObject = {
-            'propertyName': propertyName,
-            'propertyValue': propertyValue
-          };
 
           var updatedNodeTemplate = scope.selectedNodeTemplate;
-          return topologyServices.nodeTemplate.updateProperty({
-            topologyId: scope.topology.topology.id,
-            nodeTemplateName: scope.selectedNodeTemplate.name
-          }, angular.toJson(updatePropsObject), function(saveResult) {
-            // update the selectedNodeTemplate properties locally
-            if (_.undefined(saveResult.error)) {
-              updatedNodeTemplate.propertiesMap[propertyName].value = {value: propertyValue, definition: false};
-              scope.yaml.refresh();
+          return scope.execute({
+              type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePropertyValueOperation',
+              nodeName: scope.selectedNodeTemplate.name,
+              propertyName: propertyName,
+              propertyValue: propertyValue
+            },
+            function(result){
+              if (_.undefined(result.error)) {
+                updatedNodeTemplate.propertiesMap[propertyName].value = {value: propertyValue, definition: false};
+              }
             }
-          }).$promise;
-        },
-
-        delete: function(nodeTemplName) {
-          var scope = this.scope;
-          topologyServices.nodeTemplate.remove({
-            topologyId: scope.topology.topology.id,
-            nodeTemplateName: nodeTemplName
-          }, function(result) {
-            // for refreshing the ui
-            scope.refreshTopology(result.data);
-            scope.display.displayOnly(['topology']);
-          });
+          );
         }
       };
 

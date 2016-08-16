@@ -23,14 +23,6 @@
             tooltip-append-to-body="true"
             ng-src="{{badge.imgSrc}}"
             ng-click="handleBadgeClick(badge, component, $event)" />
-
-            <!-- <img ng-if="component.abstract"
-              class="icon_16"
-              alt="abstract_ico_16"
-              tooltip="{{'COMPONENTS.COMPONENT.ABSTRACT_COMPONENT' | translate}}"
-              tooltip-placement="top"
-              tooltip-append-to-body="true"
-              src="images/abstract_ico.png"/> -->
           <small ng-if="!globalContext">
             <a class=" btn btn-default btn-xs" id="btn-{{component.elementId}}" ng-href="#/components/details/{{component.elementId}}:{{component.archiveVersion}}" target="_blank"><i class="fa fa-eye text-primary"></i></a>
           </small>

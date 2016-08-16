@@ -1,9 +1,11 @@
 package alien4cloud.tosca.context;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.component.ICSARRepositorySearchService;
@@ -29,6 +31,15 @@ public class ToscaContext {
      */
     public static void init(final Set<CSARDependency> dependencies) {
         contextThreadLocal.set(new Context(dependencies));
+    }
+
+    /**
+     * Set an existing tosca context.
+     * 
+     * @param context The context to set.
+     */
+    public static void set(Context context) {
+        contextThreadLocal.set(context);
     }
 
     /**
@@ -82,8 +93,32 @@ public class ToscaContext {
         /** Cached types in the context. */
         private final Map<String, Map<String, IndexedToscaElement>> toscaTypesCache = Maps.newHashMap();
 
-        private Context(Set<CSARDependency> dependencies) {
+        public Context(Set<CSARDependency> dependencies) {
             this.dependencies = dependencies;
+        }
+
+        /**
+         * Update the ToscaContext to take in account the new dependencies.
+         *
+         * @param newDependencies The new list of dependencies for this context.
+         */
+        public void updateDependencies(Set<CSARDependency> newDependencies) {
+            Map<String, CSARDependency> dependenciesByName = Maps.newHashMap();
+            for (CSARDependency dependency : dependencies) {
+                dependenciesByName.put(dependency.getName(), dependency);
+            }
+            // now add/ update /remove dependencies to match the new dependencies.
+            for (CSARDependency dependency : newDependencies) {
+                CSARDependency previous = dependenciesByName.remove(dependency.getName());
+                if (previous == null) {
+                    addDependency(dependency);
+                } else if (!previous.getVersion().equals(dependency.getVersion())) {
+                    updateDependency(dependency);
+                }
+            }
+            for (CSARDependency dependency : dependenciesByName.values()) {
+                removeDependency(dependency);
+            }
         }
 
         /**
@@ -94,6 +129,56 @@ public class ToscaContext {
         public void addDependency(CSARDependency dependency) {
             log.debug("Add dependency to context", dependency);
             dependencies.add(dependency);
+        }
+
+        /**
+         * Remove a given dependency from the TOSCA Context.
+         *
+         * @param removedDependency The dependency to remove.
+         */
+        public void removeDependency(CSARDependency removedDependency) {
+            if (dependencies.remove(removedDependency)) {
+                List<String> toRemove = Lists.newArrayList();
+                // unload all types from this dependency
+                for (Map<String, IndexedToscaElement> elementMap : toscaTypesCache.values()) {
+                    for (Map.Entry<String, IndexedToscaElement> entry : elementMap.entrySet()) {
+                        if (entry.getValue().getArchiveName().equals(removedDependency.getName())
+                                && entry.getValue().getArchiveVersion().equals(removedDependency.getVersion())) {
+                            toRemove.add(entry.getKey());
+                        }
+                    }
+                    for (String removeId : toRemove) {
+                        elementMap.remove(removeId);
+                    }
+                    toRemove.clear();
+                }
+                log.debug("Removed dependency {} from the TOSCA context.", removedDependency);
+            } else {
+                log.debug("Cannot remove dependency {} from the TOSCA context as it wasn't found in the dependencies.", removedDependency);
+            }
+        }
+
+        /**
+         * Performs an add or update of a dependency in a TOSCA context.
+         *
+         * @param dependency The updated dependency.
+         */
+        public void updateDependency(CSARDependency dependency) {
+            // Do not update dependency if the version hasn't changed
+            if (!hasDependency(dependency)) {
+                log.debug("Dependency already exist in context.");
+            }
+            removeDependency(dependency);
+            addDependency(dependency);
+        }
+
+        private boolean hasDependency(CSARDependency dependency) {
+            for (CSARDependency existDependency : this.dependencies) {
+                if (existDependency.getName().equals(dependency.getName())) {
+                    return existDependency.getVersion().equals(dependency.getVersion());
+                }
+            }
+            return false;
         }
 
         /**
@@ -118,7 +203,7 @@ public class ToscaContext {
                 typeElements = new HashMap<>();
                 toscaTypesCache.put(elementType, typeElements);
             }
-            if(elementMap == null) {
+            if (elementMap == null) {
                 return;
             }
             typeElements.putAll(elementMap);
@@ -167,7 +252,9 @@ public class ToscaContext {
 
             T element = required ? csarSearchService.getRequiredElementInDependencies(elementClass, elementId, dependencies)
                     : csarSearchService.getElementInDependencies(elementClass, elementId, dependencies);
-            typeElements.put(elementId, element);
+            if (element != null) {
+                typeElements.put(elementId, element);
+            }
             log.debug("Retrieve element {} {}", element, dependencies);
             return element;
         }

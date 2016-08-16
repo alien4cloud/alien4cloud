@@ -5,12 +5,14 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.QueryHelper;
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -24,15 +26,10 @@ import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.utils.MapUtil;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service to manage applications.
- *
- * @author luc boutier
  */
 @Slf4j
 @Service
@@ -47,7 +44,6 @@ public class ApplicationService {
     private ApplicationVersionService applicationVersionService;
 
     private static final String APPLICATION_NAME_REGEX = "[^/\\\\\\\\]+";
-
 
     /**
      * Create a new application and return it's id

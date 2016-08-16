@@ -14,7 +14,7 @@ define(function (require) {
           this.setSelectedVersionByName(scope.versionContext.versionName);
         } else {
           // select the last version number (first in the array)
-          scope.selectedVersion = scope.appVersions[0];
+          scope.selectedVersion = scope.topologyVersions[0];
           scope.topologyId = scope.selectedVersion.topologyId;
           scope.versionContext.topologyId = scope.topologyId;
           scope.versionContext.versionName = scope.selectedVersion.name;
@@ -25,10 +25,10 @@ define(function (require) {
         constructor: TopologyEditorMixin,
 
         setSelectedVersionByName: function(name) {
-          for (var i = 0; i < this.scope.appVersions.length; i++) {
-            if (this.scope.appVersions[i].version === name) {
+          for (var i = 0; i < this.scope.topologyVersions.length; i++) {
+            if (this.scope.topologyVersions[i].version === name) {
               this.scope.selectedVersionName = name;
-              this.scope.selectedVersion = this.scope.appVersions[i];
+              this.scope.selectedVersion = this.scope.topologyVersions[i];
               this.scope.topologyId = this.scope.selectedVersion.topologyId;
               this.scope.versionContext.topologyId = this.scope.topologyId;
               this.scope.versionContext.versionName = this.scope.name;

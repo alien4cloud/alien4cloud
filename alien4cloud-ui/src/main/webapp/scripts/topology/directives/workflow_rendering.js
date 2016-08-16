@@ -22,7 +22,9 @@ define(function(require) {
         link : function(scope) {
           // Default parent svg markup to render the workflow
           var containerElement = d3.select('#plan-graph-container');
-          var svgGraph = svgServiceFactory.create(containerElement,'plan-svg', 'plan-svg');
+          var contextContainer = d3.select('#editor-context-container');
+          contextContainer.html('');
+          var svgGraph = svgServiceFactory.create(containerElement,'plan-svg', 'plan-svg', contextContainer);
           var svgGroup = svgGraph.svgGroup;
           // add markers for arrows
           workflowShapes.initMarkers(svgGraph.svg);
