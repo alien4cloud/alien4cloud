@@ -54,13 +54,16 @@
 }
 
 .form-container-no-tree {
-  border: solid 1px #dddddd;
   margin: auto;
   position: relative;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
   margin-bottom: 20px !important;
+}
+
+.form-container-no-tree.form-with-title {
+  border: solid 1px #dddddd;
 }
 
 .form-container-with-tree {

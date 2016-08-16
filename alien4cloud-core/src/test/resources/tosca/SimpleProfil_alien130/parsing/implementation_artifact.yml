@@ -1,0 +1,60 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+template_name: implementation-artifact
+template_author: FC
+template_version: 1.0.0-SNAPSHOT
+
+repositories:
+
+  script_repo:
+    url: https://myCompany/script
+    credentials: good_user:real_secured_password
+  git_repo:
+    url: https://github.com/myId/myRepo.git
+    type: git
+
+artifact_types:
+
+  tosca.artifacts.Implementation.Bash:
+    description: Script artifact for the Unix Bash shell
+    mime_type: application/x-sh
+    file_ext: [ sh ]
+
+node_types:
+
+  my.http.component:
+    interfaces:
+      tosca.interfaces.node.lifecycle.Standard:
+        create: https://otherCompany/script/short_notation.sh
+        start:
+          inputs:
+            TOTO: tata
+            TITI: tutu
+          implementation:
+            file: myScript.abc
+            repository: script_repo
+            type: tosca.artifacts.Implementation.Bash
+
+  my.git.component:
+    interfaces:
+      tosca.interfaces.node.lifecycle.Standard:
+        create:
+          implementation:
+            file: master:myGitScript.xyz
+            repository: git_repo
+            type: tosca.artifacts.Implementation.Bash
+
+relationship_types:
+
+  my.http.relationship:
+    interfaces:
+      Configure:
+        create: https://otherCompany/script/short_notation.sh
+        start:
+          inputs:
+            TOTO: tata
+            TITI: tutu
+          implementation:
+            file: myScript.abc
+            repository: script_repo
+            type: tosca.artifacts.Implementation.Bash

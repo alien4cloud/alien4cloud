@@ -18,7 +18,7 @@ define(function (require) {
       state: 'components.csars.list',
       key: 'NAVBAR.MENU_CSARS',
       icon: 'fa fa-archive',
-      priority: 20,
+      priority: 30,
       roles: ['COMPONENTS_MANAGER']
     }
   });

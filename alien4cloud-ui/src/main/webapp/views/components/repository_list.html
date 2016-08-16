@@ -1,0 +1,52 @@
+<div class="row">
+    <div class="col-md-12">
+        <button class="btn btn-success" ng-click="openCreateRepositoryModal()"><i class="fa fa-plus"></i> {{'REPOSITORY.ADD'
+            | translate}}
+        </button>
+    </div>
+</div>
+<div class="row" style="margin-top: 10px;">
+    <div class="col-md-3">
+        <facet-search-panel search-url="rest/latest/repositories/search"
+                            component-prefix="REPOSITORY."
+                            on-search="onSearch(searchConfig)">
+        </facet-search-panel>
+    </div>
+    <div class="col-md-9">
+        <div class="table-responsive large-data-container" style="max-height:{{tableMaxHeight}}px; overflow-y:auto;" ng-if="searchConfig.result.data.length > 0">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>{{'REPOSITORY.NAME' | translate}}</th>
+                    <th>{{'REPOSITORY.TYPE' | translate}}</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="repository in searchConfig.result.data">
+                    <td class="col-md-6">
+                        <span editable-text="repository.name"
+                              buttons="no"
+                              e-required
+                              onbeforesave="updateRepository(repository, 'name',$data)"
+                              blur="submit">{{repository.name}} <i class="fa fa-edit"></i>
+                        </span>
+                    </td>
+                    <td class="col-md-4">{{repository.repositoryType}}</td>
+                    <td class="col-md-2">
+                        <button class="btn btn-default btn-sm" ng-click="openUpdateRepositoryConfigurationModal(repository)"><i class="fa fa-cogs"></i></button>
+                        <delete-confirm func="deleteRepository(repository)" position="left" fastyle="fa-trash-o" bssize="btn-sm"></delete-confirm>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <empty-place-holder
+                for="'REPOSITORY.TITLE'"
+                data="searchConfig.result.data">
+        </empty-place-holder>
+
+        <pagination-directive pagination-info="searchConfig.service.pagination"/>
+    </div>
+</div>

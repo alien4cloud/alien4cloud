@@ -1,4 +1,4 @@
-package alien4cloud.rest.plugin;
+package alien4cloud.plugin.model;
 
 import alien4cloud.plugin.model.PluginComponentDescriptor;
 import io.swagger.annotations.ApiModel;
@@ -13,7 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel("Result for a request for specific plugin components.")
-public class PluginComponentDTO {
+public class PluginComponent {
     @ApiModelProperty(value = "Id of the plugin that contains the component.")
     private String pluginId;
     @ApiModelProperty(value = "Name of the plugin that contains the component.")

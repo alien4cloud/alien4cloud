@@ -3,9 +3,9 @@ package alien4cloud.plugin;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-import alien4cloud.plugin.exception.MissingPluginException;
-
 import com.google.common.collect.Maps;
+
+import alien4cloud.plugin.exception.MissingPluginException;
 
 /**
  * Utility abstract implementation of an {@link IPluginLinker}.
@@ -48,6 +48,20 @@ public abstract class AbstractPluginLinker<T> implements IPluginLinker<T> {
             throw new MissingPluginException("The bean <" + pluginBeanName + "> from plugin <" + pluginId + "> cannot be found", true);
         }
         return pluginBean;
+    }
+
+    /**
+     * Get the first bean found of a plugin based on it's id
+     *
+     * @param pluginId The id of the plugin that should contains the bean.
+     * @return The bean.
+     */
+    public T getSinglePluginBean(String pluginId) {
+        Map<String, T> pluginBeans = instancesByPlugins.get(pluginId);
+        if (pluginBeans == null || pluginBeans.isEmpty()) {
+            throw new MissingPluginException("The plugin <" + pluginId + "> cannot be found", false);
+        }
+        return pluginBeans.values().iterator().next();
     }
 
     /**

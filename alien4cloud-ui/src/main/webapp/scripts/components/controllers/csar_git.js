@@ -19,7 +19,7 @@ define(function (require) {
       state: 'components.git',
       key: 'NAVBAR.MENU_CSARS_GIT',
       icon: 'fa fa-git',
-      priority: 30,
+      priority: 40,
       roles: ['COMPONENTS_MANAGER']
     }
   });

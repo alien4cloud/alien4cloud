@@ -1,6 +1,6 @@
 <div class="form-horizontal" role="form">
-  <div class="panel panel-default form-panel">
-    <div class="panel-heading">
+  <div ng-class="{'panel panel-default form-panel': formTitle}">
+    <div ng-if="formTitle" class="panel-heading">
       <h4 style="display: inline;">{{formTitle | translate}} </h4>
       <button id="deleteGenericFormButton" type="button" class="btn btn-danger btn-xs" ng-click="deleteData()"
               ng-if="isRemovable && automaticSave" tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}"><i
@@ -8,7 +8,7 @@
       <button id="closeGenericFormButton" type="button" class="close" ng-click="cancelForm()" aria-hidden="true"
               ng-if="isCancelable && automaticSave">&times;</button>
     </div>
-    <div class="panel-body">
+    <div ng-class="{'panel-body': formTitle}">
       <div class="row" ng-if="showPath">
         <div class="col-md-12">
           <ol class="breadcrumb">
@@ -61,7 +61,7 @@
                  'form-container-no-tree form-container-horizontal-scroll': configuration.formStyle === 'window',
                  'well form-container-with-tree form-container-scroll': configuration.formStyle === 'tree',
                  '{{formClass}}': configuration.formStyle === 'tree' && formClass,
-                 'well': configuration.formStyle === 'tree' && showTree
+                 'form-with-title': formTitle
                }">
             <!-- The root form -->
             <div class="genericformpropertiescontainer"

@@ -2,13 +2,20 @@ package alien4cloud.plugin;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
-import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
@@ -32,7 +39,12 @@ import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.plugin.exception.MissingPlugingDescriptorFileException;
 import alien4cloud.plugin.exception.PluginLoadingException;
-import alien4cloud.plugin.model.*;
+import alien4cloud.plugin.model.ManagedPlugin;
+import alien4cloud.plugin.model.PluginComponent;
+import alien4cloud.plugin.model.PluginComponentDescriptor;
+import alien4cloud.plugin.model.PluginConfiguration;
+import alien4cloud.plugin.model.PluginDescriptor;
+import alien4cloud.plugin.model.PluginUsage;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
@@ -558,6 +570,22 @@ public class PluginManager {
 
     public Map<String, ManagedPlugin> getPluginContexts() {
         return pluginContexts;
+    }
+
+    public List<PluginComponent> getPluginComponents(String type) {
+        List<PluginComponent> pluginComponents = new ArrayList<>();
+        for (ManagedPlugin plugin : pluginContexts.values()) {
+            PluginDescriptor descriptor = plugin.getPlugin().getDescriptor();
+            if (descriptor.getComponentDescriptors() != null) {
+                for (PluginComponentDescriptor componentDescriptor : descriptor.getComponentDescriptors()) {
+                    if (componentDescriptor.getType().equals(type)) {
+                        pluginComponents
+                                .add(new PluginComponent(plugin.getPlugin().getId(), descriptor.getName(), descriptor.getVersion(), componentDescriptor));
+                    }
+                }
+            }
+        }
+        return pluginComponents;
     }
 
     @AllArgsConstructor

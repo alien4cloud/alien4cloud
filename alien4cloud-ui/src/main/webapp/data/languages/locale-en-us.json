@@ -430,7 +430,9 @@
       "POTENTIAL_BAD_PROPERTY_VALUE" : "There might be typographical errors: {{note}}.",
       "YAML_MAPPING_NODE_EXPECTED" : "A mapping node is expected.",
       "YAML_SCALAR_NODE_EXPECTED" : "A YAML node of type scalar is expected here.",
-      "YAML_SEQUENCE_EXPECTED" : "A YAML sequence is expected."
+      "YAML_SEQUENCE_EXPECTED" : "A YAML sequence is expected.",
+      "INVALID_ARTIFACT_REFERENCE": "Invalid artifact's reference {{note}}",
+      "UNRESOLVED_ARTIFACT": "Artifact {{note}} cannot be resolved "
     }
   },
   "CONFIRM" : "Confirm",
@@ -449,6 +451,7 @@
     "VALID_VALUES": "Valid values"
   },
   "CREATE" : "Create",
+  "NEXT": "Next",
   "CREATION_DATE" : "Creation date",
   "CSAR" : {
     "ACTIONS" : "Operations",
@@ -690,7 +693,8 @@
     "MENU_COMPONENTS" : "Components",
     "MENU_CSARS" : "CSARS",
     "MENU_CSARS_GIT" : "CSARS Git Integration",
-    "MENU_TOPOLOGY_TEMPLATE" : "Topology templates"
+    "MENU_TOPOLOGY_TEMPLATE" : "Topology templates",
+    "MENU_REPOSITORIES": "Repositories"
   },
   "OPTIONAL" : "Optional",
   "ORCHESTRATORS" : {
@@ -880,5 +884,15 @@
       "DEFAULT_VALUE_NOT_MATCH_CONSTRAINTS": "The default value does not match constraints",
       "DUPLICATED_CONSTRAINT": "Multiple constraints with the same type has been detected"
     }
+  },
+  "REPOSITORY": {
+    "ACTIVE_FILTERS" : "Active filters",
+    "TITLE": "Repositories",
+    "ADD": "New repository",
+    "NAME": "Name",
+    "TYPE": "Type",
+    "PLUGINS_NOT_FOUND": "No resolver plugins found",
+    "CONFIGURATION": "Configuration",
+    "REPOSITORYTYPE": "Type"
   }
 }

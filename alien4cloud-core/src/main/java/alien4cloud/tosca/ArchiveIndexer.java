@@ -144,7 +144,7 @@ public class ArchiveIndexer {
             if (VersionUtil.isSnapshot(archiveVersion)) {
                 // Copy files from the archive repository to the editor
                 try {
-                    repositoryService.copyFrom(topologyId, archiveRepositry.getExpendedCSAR(archiveName, archiveVersion));
+                    repositoryService.copyFrom(topologyId, archiveRepositry.getExpandedCSAR(archiveName, archiveVersion));
                 } catch (CSARVersionNotFoundException | IOException e) {
                     log.error("Failed to initialize the topology repository", e);
                     // FIXME we should cleanup everything or actually do that before indexing all data.

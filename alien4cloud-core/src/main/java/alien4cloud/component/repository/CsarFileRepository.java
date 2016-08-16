@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import alien4cloud.component.repository.exception.CSARDirectoryCreationFailureException;
 import alien4cloud.component.repository.exception.CSARStorageFailureException;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
@@ -103,7 +105,7 @@ public class CsarFileRepository implements ICsarRepositry {
     }
 
     @Override
-    public Path getExpendedCSAR(String name, String version) throws CSARVersionNotFoundException {
+    public Path getExpandedCSAR(String name, String version) throws CSARVersionNotFoundException {
         Path csarDir = rootPath.resolve(name).resolve(version);
         Path expandedPath = csarDir.resolve("expanded");
         if (Files.exists(expandedPath)) {

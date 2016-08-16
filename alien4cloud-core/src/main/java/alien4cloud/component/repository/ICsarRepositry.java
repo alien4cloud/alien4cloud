@@ -4,8 +4,6 @@ import java.nio.file.Path;
 
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
-import alien4cloud.model.components.Csar;
-import alien4cloud.tosca.parser.ParsingResult;
 
 /**
  * Interface for all CSAR repositories
@@ -39,7 +37,7 @@ public interface ICsarRepositry {
      * @return The path to the expended csar file.
      * @throws CSARVersionNotFoundException
      */
-    Path getExpendedCSAR(String name, String version) throws CSARVersionNotFoundException;
+    Path getExpandedCSAR(String name, String version) throws CSARVersionNotFoundException;
 
     void removeCSAR(String name, String version);
 

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
@@ -80,7 +81,8 @@ public class TopologyService {
     @Resource
     private WorkflowsBuilderService workflowBuilderService;
 
-    public static final String NODE_NAME_REGEX = "^\\w+$";
+    public static final Pattern NODE_NAME_PATTERN = Pattern.compile("^\\w+$");
+    public static final Pattern NODE_NAME_REPLACE_PATTERN = Pattern.compile("\\W");
 
     private ToscaTypeLoader initializeTypeLoader(Topology topology) {
         ToscaTypeLoader loader = new ToscaTypeLoader(csarService);

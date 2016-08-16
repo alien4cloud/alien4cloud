@@ -41,6 +41,7 @@ import alien4cloud.paas.exception.OrchestratorDeploymentIdConflictException;
 import alien4cloud.paas.model.PaaSDeploymentLog;
 import alien4cloud.paas.model.PaaSDeploymentLogLevel;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
+import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.topology.TopologyValidationResult;
 import alien4cloud.utils.PropertyUtil;
 import lombok.Getter;
@@ -74,6 +75,8 @@ public class DeployService {
     private DeploymentTopologyService deploymentTopologyService;
     @Inject
     private DeploymentTopologyValidationService deploymentTopologyValidationService;
+    @Inject
+    private ArtifactProcessorService artifactProcessorService;
 
     /**
      * Deploy a topology and return the deployment ID.
@@ -122,35 +125,37 @@ public class DeployService {
         alienMonitorDao.save(deploymentTopology);
         // put back the old Id for deployment
         deploymentTopology.setId(deploymentTopologyId);
+        PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(deployment, locations, deploymentTopology);
+        // Download and process all remote artifacts before deployment
+        artifactProcessorService.processArtifacts(deploymentContext);
         // Build the context for deployment and deploy
-        orchestratorPlugin.deploy(deploymentContextService.buildTopologyDeploymentContext(deployment, locations, deploymentTopology),
-                new IPaaSCallback<Object>() {
-                    @Override
-                    public void onSuccess(Object data) {
-                        log.info("Deployed topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(),
-                                firstLocation.getId(), deployment.getId());
-                    }
+        orchestratorPlugin.deploy(deploymentContext, new IPaaSCallback<Object>() {
+            @Override
+            public void onSuccess(Object data) {
+                log.info("Deployed topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(),
+                        firstLocation.getId(), deployment.getId());
+            }
 
-                    @Override
-                    public void onFailure(Throwable t) {
-                        log.error("Deployment failed with cause", t);
-                        PaaSDeploymentLog deploymentLog = new PaaSDeploymentLog();
-                        deploymentLog.setDeploymentId(deployment.getId());
-                        deploymentLog.setDeploymentPaaSId(deployment.getOrchestratorDeploymentId());
-                        deploymentLog.setContent(t.getMessage() + "\n" + ExceptionUtils.getStackTrace(t));
-                        deploymentLog.setLevel(PaaSDeploymentLogLevel.ERROR);
-                        deploymentLog.setTimestamp(new Date());
-                        alienMonitorDao.save(deploymentLog);
+            @Override
+            public void onFailure(Throwable t) {
+                log.error("Deployment failed with cause", t);
+                PaaSDeploymentLog deploymentLog = new PaaSDeploymentLog();
+                deploymentLog.setDeploymentId(deployment.getId());
+                deploymentLog.setDeploymentPaaSId(deployment.getOrchestratorDeploymentId());
+                deploymentLog.setContent(t.getMessage() + "\n" + ExceptionUtils.getStackTrace(t));
+                deploymentLog.setLevel(PaaSDeploymentLogLevel.ERROR);
+                deploymentLog.setTimestamp(new Date());
+                alienMonitorDao.save(deploymentLog);
 
-                        PaaSMessageMonitorEvent messageMonitorEvent = new PaaSMessageMonitorEvent();
-                        messageMonitorEvent.setDeploymentId(deploymentLog.getDeploymentId());
-                        messageMonitorEvent.setOrchestratorId(deploymentLog.getDeploymentPaaSId());
-                        messageMonitorEvent.setMessage(t.getMessage());
-                        messageMonitorEvent.setDate(deploymentLog.getTimestamp().getTime());
-                        alienMonitorDao.save(messageMonitorEvent);
+                PaaSMessageMonitorEvent messageMonitorEvent = new PaaSMessageMonitorEvent();
+                messageMonitorEvent.setDeploymentId(deploymentLog.getDeploymentId());
+                messageMonitorEvent.setOrchestratorId(deploymentLog.getDeploymentPaaSId());
+                messageMonitorEvent.setMessage(t.getMessage());
+                messageMonitorEvent.setDate(deploymentLog.getTimestamp().getTime());
+                alienMonitorDao.save(messageMonitorEvent);
 
-                    }
-                });
+            }
+        });
         log.debug("Triggered deployment of topology [{}] on location [{}], generated deployment with id [{}]", deploymentTopology.getInitialTopologyId(),
                 firstLocation.getId(), deployment.getId());
         return deployment.getId();

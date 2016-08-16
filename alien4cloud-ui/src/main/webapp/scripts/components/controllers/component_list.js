@@ -15,6 +15,7 @@ define(function (require) {
   require('scripts/components/controllers/component_info');
   require('scripts/components/controllers/csar_list');
   require('scripts/components/controllers/csar_git');
+  require('scripts/components/controllers/repository_list');
 
   // register components root state
   states.state('components', {

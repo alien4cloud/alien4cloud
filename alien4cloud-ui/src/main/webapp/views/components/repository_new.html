@@ -1,0 +1,52 @@
+<form name="newRepositoryForm" ng-show="step === 1" class="form-horizontal" role="form"
+      ng-submit="next(newRepositoryForm.$valid)"
+      novalidate>
+    <div class="modal-header">
+        <h3>{{'REPOSITORY.ADD' | translate}}</h3>
+    </div>
+    <div ng-if="repositoryPlugins.length > 0" class="modal-body">
+        <div class="form-group" ng-class="{'has-error': newRepositoryForm.name.$invalid}">
+            <label for="nameid" class="col-md-3 control-label">{{'COMMON.NAME' | translate}}</label>
+            <div class="col-md-9">
+                <input type="text" class="form-control" id="nameid" ng-model="repository.name" name="name"
+                       placeholder="{{'COMMON.NAME' | translate}}" required>
+            </div>
+        </div>
+        <div class="form-group" ng-class="{'has-error': newRepositoryForm.name.$invalid}">
+            <label for="typeid" class="col-md-3 control-label">{{'COMMON.TYPE' | translate}}</label>
+            <div class="col-md-9">
+                <select id="typeid"
+                        class="form-control"
+                        ng-model="repository.type"
+                        ng-options="repositoryType for repositoryType in repositoryTypes"
+                        required>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div ng-if="repositoryPlugins.length === 0" class="modal-body">
+        <h4><em class="text-danger">{{'REPOSITORY.PLUGINS_NOT_FOUND' | translate}}</em></h4>
+    </div>
+    <div class="modal-footer">
+        <button ng-disabled="newRepositoryForm.$invalid" class="btn btn-primary">
+            <span ng-if="step < maxStep">{{'NEXT' | translate}}</span>
+            <span ng-if="step >= maxStep">{{'OK' | translate}}</span>
+        </button>
+        <button class="btn btn-default" ng-click="cancel()">
+            {{'CANCEL' | translate}}
+        </button>
+    </div>
+</form>
+<generic-form ng-if="configurationDefinition"
+              ng-show="step === 2"
+              form-title="REPOSITORY.CONFIGURATION"
+              root-object="repository.configuration"
+              type="configurationDefinition"
+              form-style="window"
+              use-xeditable="false"
+              save="next(true)"
+              cancel="cancel()"
+              automatic-save="false"
+              is-read-only="false"
+              is-cancelable="true">
+</generic-form>

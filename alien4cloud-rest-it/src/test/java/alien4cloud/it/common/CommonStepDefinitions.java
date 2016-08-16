@@ -3,6 +3,7 @@ package alien4cloud.it.common;
 import java.nio.file.Files;
 import java.util.List;
 
+import alien4cloud.model.repository.Repository;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -68,6 +69,7 @@ public class CommonStepDefinitions {
         indicesToClean.add(PaaSDeploymentLog.class.getSimpleName().toLowerCase());
         indicesToClean.add(AuditESDAO.ALIEN_AUDIT_INDEX);
         indicesToClean.add(ElasticSearchDAO.SUGGESTION_INDEX);
+        indicesToClean.add(Repository.class.getSimpleName().toLowerCase());
 
         indicesToClean.add(Plugin.class.getSimpleName().toLowerCase());
         indicesToClean.add(PluginConfiguration.class.getSimpleName().toLowerCase());
