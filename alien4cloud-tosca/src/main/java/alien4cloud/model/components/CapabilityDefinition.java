@@ -3,19 +3,16 @@ package alien4cloud.model.components;
 import java.util.List;
 import java.util.Map;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.elasticsearch.annotation.query.TermsFacet;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import alien4cloud.json.deserializer.BoundDeserializer;
 import alien4cloud.json.serializer.BoundSerializer;
 import alien4cloud.ui.form.annotation.FormProperties;
 import alien4cloud.ui.form.annotation.FormSuggestion;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.elasticsearch.annotation.query.TermsFacet;
+import lombok.*;
 
 /**
  * Specifies the capabilities that the Node Type exposes.
@@ -23,7 +20,7 @@ import org.elasticsearch.annotation.query.TermsFacet;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @EqualsAndHashCode(of = { "id" })
 @FormProperties({ "type", "lowerBound", "upperBound" })
 public class CapabilityDefinition implements UpperBoundedDefinition {
