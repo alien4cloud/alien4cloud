@@ -6,9 +6,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
@@ -21,6 +18,12 @@ import org.springframework.core.io.Resource;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.PropertyPlaceholderHelper;
+
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import alien4cloud.it.exception.ITException;
 import alien4cloud.it.provider.util.AwsClient;
@@ -37,13 +40,9 @@ import alien4cloud.rest.utils.RestClient;
 import alien4cloud.rest.utils.RestMapper;
 import alien4cloud.topology.task.AbstractTask;
 import alien4cloud.utils.MapUtil;
-
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import cucumber.runtime.io.ClasspathResourceLoader;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * In order to communicate between different step definitions
@@ -506,14 +505,6 @@ public class Context {
         } else {
             return Lists.newArrayList();
         }
-    }
-
-    public void registerCloudForTopology(String cloudId) {
-        topologyCloudInfos = cloudId;
-    }
-
-    public String getCloudForTopology() {
-        return topologyCloudInfos;
     }
 
     public void registerOrchestratorProperties(Map<String, String> deployApplicationProperties) {
