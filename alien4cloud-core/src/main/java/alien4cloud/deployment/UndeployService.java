@@ -16,6 +16,8 @@ import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.model.PaaSDeploymentContext;
 
+import java.util.Date;
+
 /**
  * Manages topology un-deployment.
  */
@@ -68,6 +70,7 @@ public class UndeployService {
         orchestratorPlugin.undeploy(deploymentContext, new IPaaSCallback<ResponseEntity>() {
             @Override
             public void onSuccess(ResponseEntity data) {
+                deployment.setEndDate(new Date()); // Set the deployment end date.
                 alienDao.save(deployment);
                 log.info("Un-deployed deployment [{}] on cloud [{}]", deployment.getId(), deployment.getOrchestratorId());
             }
