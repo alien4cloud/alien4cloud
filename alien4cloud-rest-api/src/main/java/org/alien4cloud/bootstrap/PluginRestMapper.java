@@ -1,9 +1,8 @@
-package alien4cloud.rest.plugin;
+package org.alien4cloud.bootstrap;
 
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +14,6 @@ import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import alien4cloud.plugin.IPluginLoadingCallback;
-import alien4cloud.plugin.PluginManager;
 import alien4cloud.plugin.model.ManagedPlugin;
 
 import com.google.common.collect.Lists;
@@ -28,8 +26,6 @@ import com.google.common.collect.Maps;
 @Component
 public class PluginRestMapper implements IPluginLoadingCallback, HandlerMapping, PriorityOrdered {
     private List<HandlerMapping> handlerMappings = Lists.newArrayList();
-    @Resource
-    private PluginManager pluginManager;
     private Map<String, RequestMappingHandlerMapping> pluginMappings = Maps.newHashMap();
 
     @Override
