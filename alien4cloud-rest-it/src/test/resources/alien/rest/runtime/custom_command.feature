@@ -12,7 +12,6 @@ Feature: trigger custom commands
     And I create a resource of type "alien.nodes.mock.openstack.Image" named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I update the property "id" to "img1" for the resource named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
     And I autogenerate the on-demand resources for the location "Mount doom orchestrator"/"Thark location"
-
     And I upload the archive "custom-interface-mock-types"
     And I should receive a RestResponse with no error
 
@@ -39,6 +38,7 @@ Feature: trigger custom commands
       | requirementName        | host                                                                                  |
       | target                 | Compute                                                                               |
       | targetedCapabilityName | host                                                                                  |
+    And I save the topology
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     And I deploy it
 
