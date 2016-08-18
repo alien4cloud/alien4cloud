@@ -1,0 +1,69 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: Alien4Cloud generated service template
+template_name: test-recovery-topology
+template_version: 0.1.0-SNAPSHOT
+template_author: admin
+
+imports:
+  - test-topo-recovery-types:0.1-SNAPSHOT
+  - tosca-normative-types:1.0.0-SNAPSHOT
+
+topology_template:
+  node_templates:
+    TestComponentSource:
+      type: alien.test.nodes.TestComponentSource
+      requirements:
+        - capa_upperbound_test:
+            node: TestComponent
+            capability: alien.test.capabilities.CapaUpperBoundTest
+            relationship: alien.test.relationships.CapaUpperBoundTest
+        - host:
+            node: Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+        - capa_upperbound_test:
+            node: TestComponent
+            capability: alien.test.capabilities.CapaUpperBoundTest
+            relationship: alien.test.relationships.CapaUpperBoundTest
+        - req_upperbound_test:
+            node: TestComponent
+            capability: alien.test.capabilities.ReqUpperBoundTest
+            relationship: alien.test.relationships.ReqUpperBoundTest
+        - req_to_be_deleted:
+            node: TestComponent
+            capability: alien.test.capabilities.ReqToBeDeleted
+            relationship: alien.test.relationships.ReqToBeDeleted
+        - req_upperbound_test:
+            node: TestComponent
+            capability: alien.test.capabilities.ReqUpperBoundTest
+            relationship: alien.test.relationships.ReqUpperBoundTest
+        - connect:
+            node: TestComponent
+            capability: alien.test.capabilities.TestComponentConnects
+            relationship: alien.test.relationships.TestComponentConnectsTo
+        - capa_to_be_deleted:
+            node: TestComponent
+            capability: alien.test.capabilities.CapaToBeDeleted
+            relationship: alien.test.relationships.CapaToBeDeleted
+    TestComponent:
+      type: alien.test.nodes.TestComponent
+      requirements:
+        - host:
+            node: Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+
+    Compute:
+      type: tosca.nodes.Compute
+      capabilities:
+        scalable:
+          properties:
+            max_instances: 1
+            min_instances: 1
+            default_instances: 1
+        endpoint:
+          properties:
+            protocol: tcp
+            initiator: source
+            secure: true
+            network_name: PRIVATE

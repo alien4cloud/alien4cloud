@@ -1,19 +1,17 @@
 package alien4cloud.model.components;
 
-import static alien4cloud.dao.model.FetchContext.*;
-
-import java.util.Map;
-
+import alien4cloud.json.deserializer.AttributeDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import lombok.Getter;
+import lombok.Setter;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.ObjectField;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermsFacet;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.Map;
 
-import alien4cloud.json.deserializer.AttributeDeserializer;
-import lombok.Getter;
-import lombok.Setter;
+import static alien4cloud.dao.model.FetchContext.*;
 
 @Getter
 @Setter

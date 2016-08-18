@@ -1,23 +1,13 @@
 package alien4cloud.json.deserializer;
 
-import java.util.Map;
-
-import alien4cloud.topology.task.AbstractTask;
-import alien4cloud.topology.task.LocationPolicyTask;
-import alien4cloud.topology.task.NodeFiltersTask;
-import alien4cloud.topology.task.PropertiesTask;
-import alien4cloud.topology.task.RequirementsTask;
-import alien4cloud.topology.task.ScalableTask;
-import alien4cloud.topology.task.SuggestionsTask;
-import alien4cloud.topology.task.TaskCode;
-import alien4cloud.topology.task.TopologyTask;
-import alien4cloud.topology.task.WorkflowTask;
-
+import alien4cloud.topology.task.*;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import java.util.Map;
 
 /**
  * Custom deserializer to handle multiple {@link AbstractTask} types.

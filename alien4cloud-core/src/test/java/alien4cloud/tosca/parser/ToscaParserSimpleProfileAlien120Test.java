@@ -1,11 +1,11 @@
 package alien4cloud.tosca.parser;
 
-import java.io.FileNotFoundException;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import alien4cloud.model.components.*;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.tosca.ArchiveParserTest;
+import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.impl.ErrorCode;
+import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,20 +13,11 @@ import org.mockito.Mockito;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.ComplexPropertyValue;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.ListPropertyValue;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.tosca.ArchiveParserTest;
-import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.impl.ErrorCode;
-
-import com.google.common.collect.Lists;
+import java.io.FileNotFoundException;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Test tosca parsing for Tosca Simple profile in YAML alien_dsl_1_2_0

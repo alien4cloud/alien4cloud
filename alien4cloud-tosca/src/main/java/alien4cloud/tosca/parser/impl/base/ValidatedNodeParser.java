@@ -1,16 +1,14 @@
 package alien4cloud.tosca.parser.impl.base;
 
-import java.util.Set;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
-
-import org.yaml.snakeyaml.nodes.Node;
-
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.impl.ErrorCode;
+import org.yaml.snakeyaml.nodes.Node;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import java.util.Set;
 
 /**
  * Wraps an {@link INodeParser} and performs validation (using javax validation) on the given node. All validation errors are added to the parsing result.

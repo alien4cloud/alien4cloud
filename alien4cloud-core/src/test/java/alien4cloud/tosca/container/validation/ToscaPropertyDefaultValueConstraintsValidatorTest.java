@@ -1,33 +1,20 @@
 package alien4cloud.tosca.container.validation;
 
-import java.util.List;
-import java.util.Set;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-
+import alien4cloud.model.components.PropertyConstraint;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.components.constraints.*;
+import alien4cloud.tosca.normative.ToscaType;
+import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import alien4cloud.model.components.PropertyConstraint;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
-import alien4cloud.model.components.constraints.EqualConstraint;
-import alien4cloud.model.components.constraints.GreaterOrEqualConstraint;
-import alien4cloud.model.components.constraints.GreaterThanConstraint;
-import alien4cloud.model.components.constraints.InRangeConstraint;
-import alien4cloud.model.components.constraints.LengthConstraint;
-import alien4cloud.model.components.constraints.LessOrEqualConstraint;
-import alien4cloud.model.components.constraints.LessThanConstraint;
-import alien4cloud.model.components.constraints.MaxLengthConstraint;
-import alien4cloud.model.components.constraints.MinLengthConstraint;
-import alien4cloud.model.components.constraints.PatternConstraint;
-import alien4cloud.model.components.constraints.ValidValuesConstraint;
-import alien4cloud.tosca.normative.ToscaType;
-
-import com.google.common.collect.Lists;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import java.util.List;
+import java.util.Set;
 
 @Ignore
 public class ToscaPropertyDefaultValueConstraintsValidatorTest {

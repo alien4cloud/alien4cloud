@@ -1,21 +1,19 @@
 package alien4cloud.tosca.parser;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import javax.annotation.Resource;
-
+import alien4cloud.tosca.ArchiveParser;
+import alien4cloud.tosca.ArchiveParserTest;
+import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.utils.FileUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.tosca.ArchiveParser;
-import alien4cloud.tosca.ArchiveParserTest;
-import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.utils.FileUtil;
+import javax.annotation.Resource;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:tosca/archive-parser-application-context.xml")

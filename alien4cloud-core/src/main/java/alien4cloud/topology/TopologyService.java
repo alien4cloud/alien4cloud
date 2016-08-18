@@ -1,28 +1,13 @@
 package alien4cloud.topology;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.regex.Pattern;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.elasticsearch.common.collect.Lists;
-import org.elasticsearch.mapping.FilterValuesStrategy;
-import org.springframework.stereotype.Service;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.component.CSARRepositorySearchService;
+import alien4cloud.component.repository.ArtifactRepositoryConstants;
+import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
@@ -32,10 +17,7 @@ import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.components.*;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
-import alien4cloud.model.topology.AbstractTopologyVersion;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.Topology;
+import alien4cloud.model.topology.*;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
@@ -50,8 +32,25 @@ import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.serializer.VelocityUtil;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
+import alien4cloud.utils.cache.CachedFinder;
+import alien4cloud.utils.cache.IFinder;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.elasticsearch.common.collect.Lists;
+import org.elasticsearch.mapping.FilterValuesStrategy;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -83,27 +82,33 @@ public class TopologyService {
 
     public static final Pattern NODE_NAME_PATTERN = Pattern.compile("^\\w+$");
     public static final Pattern NODE_NAME_REPLACE_PATTERN = Pattern.compile("\\W");
+    @Resource
+    public IFileRepository artifactRepository;
+
+    public static final String NODE_NAME_REGEX = "^\\w+$";
 
     private ToscaTypeLoader initializeTypeLoader(Topology topology) {
         ToscaTypeLoader loader = new ToscaTypeLoader(csarService);
+        CachedFinder<Csar> finder = buildCaheFinder();
         Map<String, IndexedNodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false);
         Map<String, IndexedRelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology);
         if (topology.getNodeTemplates() != null) {
             for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
                 IndexedNodeType nodeType = nodeTypes.get(nodeTemplate.getType());
-                loader.loadType(nodeTemplate.getType(), new CSARDependency(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
+                loader.loadType(nodeTemplate.getType(), buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion(), finder));
                 if (nodeTemplate.getRelationships() != null) {
                     for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
                         IndexedRelationshipType relationshipType = relationshipTypes.get(relationshipTemplate.getType());
                         loader.loadType(relationshipTemplate.getType(),
-                                new CSARDependency(relationshipType.getArchiveName(), relationshipType.getArchiveVersion()));
+                                buildDependencyBean(relationshipType.getArchiveName(), relationshipType.getArchiveVersion(), finder));
                     }
                 }
             }
         }
         if (topology.getSubstitutionMapping() != null && topology.getSubstitutionMapping().getSubstitutionType() != null) {
             IndexedNodeType substitutionType = topology.getSubstitutionMapping().getSubstitutionType();
-            loader.loadType(substitutionType.getElementId(), new CSARDependency(substitutionType.getArchiveName(), substitutionType.getArchiveVersion()));
+            loader.loadType(substitutionType.getElementId(),
+                    buildDependencyBean(substitutionType.getArchiveName(), substitutionType.getArchiveVersion(), finder));
         }
         return loader;
     }
@@ -356,13 +361,15 @@ public class TopologyService {
         String type = element.getElementId();
         String archiveName = element.getArchiveName();
         String archiveVersion = element.getArchiveVersion();
-        CSARDependency newDependency = new CSARDependency(archiveName, archiveVersion);
         CSARDependency topologyDependency = getDependencyWithName(topology, archiveName);
+        CSARDependency toLoadDependency = topologyDependency;
+        CachedFinder<Csar> finder = buildCaheFinder();
         if (topologyDependency != null) {
-            int comparisonResult = VersionUtil.compare(newDependency.getVersion(), topologyDependency.getVersion());
+            int comparisonResult = VersionUtil.compare(archiveVersion, topologyDependency.getVersion());
             if (comparisonResult > 0) {
                 // Dependency of the type is more recent, try to upgrade the topology
-                topology.getDependencies().add(newDependency);
+                toLoadDependency = buildDependencyBean(archiveName, archiveVersion, finder);
+                topology.getDependencies().add(toLoadDependency);
                 topology.getDependencies().remove(topologyDependency);
                 Map<String, IndexedNodeType> nodeTypes;
                 try {
@@ -387,16 +394,31 @@ public class TopologyService {
             } else if (comparisonResult < 0) {
                 // Dependency of the topology is more recent, try to upgrade the dependency of the type
                 element = csarRepoSearchService.getElementInDependencies((Class<T>) element.getClass(), element.getElementId(), topology.getDependencies());
+                toLoadDependency = topologyDependency;
             }
+        } else {
+            // the type is not yet loaded
+            toLoadDependency = buildDependencyBean(archiveName, archiveVersion, finder);
         }
         // FIXME Transitive dependencies could change here and thus types be affected ?
         ToscaTypeLoader typeLoader = initializeTypeLoader(topology);
-        typeLoader.loadType(type, new CSARDependency(element.getArchiveName(), element.getArchiveVersion()));
+        typeLoader.loadType(type, toLoadDependency);
         for (CSARDependency updatedDependency : typeLoader.getLoadedDependencies()) {
             ToscaContext.get().updateDependency(updatedDependency);
         }
         topology.setDependencies(typeLoader.getLoadedDependencies());
         return element;
+    }
+
+    private CSARDependency buildDependencyBean(String name, String version, IFinder<Csar> finder) {
+        CSARDependency newDependency = new CSARDependency(name, version);
+        Csar csar = new Csar(name, version);
+        csar = finder.find(Csar.class, csar.getId());
+        csar = csarService.findByIds(FetchContext.SUMMARY, csar.getId()).get(csar.getId());
+        if (csar != null) {
+            newDependency.setHash(csar.getHash());
+        }
+        return newDependency;
     }
 
     public void unloadType(Topology topology, String... types) {
@@ -506,4 +528,211 @@ public class TopologyService {
                     "A node template with the given name " + newNodeTemplateName + " already exists in the topology " + topology.getId() + ".");
         }
     }
+
+    public void isUniqueRelationshipName(String topologyId, String nodeTemplateName, String newName, Set<String> relationshipNames) {
+        if (relationshipNames.contains(newName)) {
+            // a relation already exist with the given name.
+            throw new AlreadyExistException("A relationship with the given name " + newName + " already exists in the node template " + nodeTemplateName
+                    + " of topology " + topologyId + ".");
+        }
+    }
+
+    public void removeNodeTemplate(String nodeTemplateName, Topology topology) {
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate template = TopologyServiceCore.getNodeTemplate(topology.getId(), nodeTemplateName, nodeTemplates);
+        template.setName(nodeTemplateName);
+        removeNodeTemplate(template, topology);
+    }
+
+    public void removeNodeTemplate(NodeTemplate template, Topology topology) {
+        cleanArtifactsFromRepository(template);
+
+        // Clean up dependencies of the topology
+        List<String> typesTobeUnloaded = com.google.common.collect.Lists.newArrayList();
+        typesTobeUnloaded.add(template.getType());
+        if (template.getRelationships() != null) {
+            for (RelationshipTemplate relationshipTemplate : template.getRelationships().values()) {
+                typesTobeUnloaded.add(relationshipTemplate.getType());
+            }
+        }
+        unloadType(topology, typesTobeUnloaded.toArray(new String[typesTobeUnloaded.size()]));
+
+        removeAndCleanTopology(template, topology);
+        // update the workflows
+        workflowBuilderService.removeNode(topology, template.getName(), template);
+        topologyServiceCore.save(topology);
+        topologyServiceCore.updateSubstitutionType(topology);
+    }
+
+    /**
+     *
+     * Clean a topology after removing a nodeTemplate<br>
+     * relationship references, outputs, substitutions, groups
+     *
+     *
+     * @param template
+     * @param topology
+     */
+    public void removeAndCleanTopology(NodeTemplate template, Topology topology) {
+        topology.getNodeTemplates().remove(template.getName());
+        removeRelationShipReferences(template.getName(), topology);
+        removeOutputs(template.getName(), topology);
+        if (topology.getSubstitutionMapping() != null) {
+            removeNodeTemplateSubstitutionTargetMapEntry(template.getName(), topology.getSubstitutionMapping().getCapabilities());
+            removeNodeTemplateSubstitutionTargetMapEntry(template.getName(), topology.getSubstitutionMapping().getRequirements());
+        }
+
+        // group members removal
+        TopologyUtils.updateGroupMembers(topology, template, template.getName(), null);
+    }
+
+    /**
+     * Clean artifacts in the repository related to a node template
+     *
+     * @param template
+     */
+    public void cleanArtifactsFromRepository(NodeTemplate template) {
+        // Clean up internal repository
+        Map<String, DeploymentArtifact> artifacts = template.getArtifacts();
+        if (artifacts != null) {
+            for (Map.Entry<String, DeploymentArtifact> artifactEntry : artifacts.entrySet()) {
+                DeploymentArtifact artifact = artifactEntry.getValue();
+                if (ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY.equals(artifact.getArtifactRepository())) {
+                    artifactRepository.deleteFile(artifact.getArtifactRef());
+                }
+            }
+        }
+    }
+
+    public void removeRelationship(String nodeTemplateName, String relationshipName, Topology topology) {
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+
+        NodeTemplate template = TopologyServiceCore.getNodeTemplate(topology.getId(), nodeTemplateName, nodeTemplates);
+        template.setName(nodeTemplateName);
+        removeRelationship(relationshipName, template, topology);
+    }
+
+    public void removeRelationship(String relationshipName, NodeTemplate template, Topology topology) {
+        log.debug("Removing the Relationship template <" + relationshipName + "> from the Node template <" + template.getName() + ">, Topology <"
+                + topology.getId() + "> .");
+        RelationshipTemplate relationshipTemplate = template.getRelationships().get(relationshipName);
+        if (relationshipTemplate != null) {
+            unloadType(topology, relationshipTemplate.getType());
+            template.getRelationships().remove(relationshipName);
+        } else {
+            throw new NotFoundException("The relationship with name [" + relationshipName + "] do not exist for the node [" + template.getName()
+                    + "] of the topology [" + topology.getId() + "]");
+        }
+        workflowBuilderService.removeRelationship(topology, template.getName(), relationshipName, relationshipTemplate);
+        topologyServiceCore.save(topology);
+    }
+
+    private void removeNodeTemplateSubstitutionTargetMapEntry(String nodeTemplateName, Map<String, SubstitutionTarget> substitutionTargets) {
+        if (substitutionTargets == null) {
+            return;
+        }
+        Iterator<Entry<String, SubstitutionTarget>> capabilities = substitutionTargets.entrySet().iterator();
+        while (capabilities.hasNext()) {
+            Entry<String, SubstitutionTarget> e = capabilities.next();
+            if (e.getValue().getNodeTemplateName().equals(nodeTemplateName)) {
+                capabilities.remove();
+            }
+        }
+    }
+
+    /**
+     * Remove a nodeTemplate outputs in a topology
+     */
+    private void removeOutputs(String nodeTemplateName, Topology topology) {
+        if (topology.getOutputProperties() != null) {
+            topology.getOutputProperties().remove(nodeTemplateName);
+        }
+        if (topology.getOutputAttributes() != null) {
+            topology.getOutputAttributes().remove(nodeTemplateName);
+        }
+    }
+
+    private Map<String, NodeTemplate> removeRelationShipReferences(String nodeTemplateName, Topology topology) {
+        Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
+        Map<String, NodeTemplate> impactedNodeTemplates = Maps.newHashMap();
+        List<String> keysToRemove = com.google.common.collect.Lists.newArrayList();
+        for (String key : nodeTemplates.keySet()) {
+            NodeTemplate nodeTemp = nodeTemplates.get(key);
+            if (nodeTemp.getRelationships() == null) {
+                continue;
+            }
+            keysToRemove.clear();
+            for (String key2 : nodeTemp.getRelationships().keySet()) {
+                RelationshipTemplate relTemp = nodeTemp.getRelationships().get(key2);
+                if (relTemp == null) {
+                    continue;
+                }
+                if (relTemp.getTarget() != null && relTemp.getTarget().equals(nodeTemplateName)) {
+                    keysToRemove.add(key2);
+                }
+            }
+            for (String relName : keysToRemove) {
+                nodeTemplates.get(key).getRelationships().remove(relName);
+                impactedNodeTemplates.put(key, nodeTemplates.get(key));
+            }
+        }
+        return impactedNodeTemplates.isEmpty() ? null : impactedNodeTemplates;
+    }
+
+    public void replaceNodeTemplate(String nodeTemplateName, String newName, String newIndexedNodeType, Topology topology) {
+        IndexedNodeType indexedNodeType = findIndexedNodeTypeOrFail(newIndexedNodeType);
+
+        // Retrieve existing node template
+        Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate oldNodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), nodeTemplateName, nodeTemplates);
+        // Load the new type to the topology in order to update its dependencies
+        indexedNodeType = loadType(topology, indexedNodeType);
+        // Build the new one
+        NodeTemplate newNodeTemplate = buildNodeTemplate(topology.getDependencies(), indexedNodeType, null);
+        newNodeTemplate.setName(newName);
+        newNodeTemplate.setRelationships(oldNodeTemplate.getRelationships());
+        // Put the new one in the topology
+        nodeTemplates.put(newName, newNodeTemplate);
+
+        // Unload and remove old node template
+        unloadType(topology, oldNodeTemplate.getType());
+        // remove the node from the workflows
+        workflowBuilderService.removeNode(topology, nodeTemplateName, oldNodeTemplate);
+        nodeTemplates.remove(nodeTemplateName);
+        if (topology.getSubstitutionMapping() != null) {
+            removeNodeTemplateSubstitutionTargetMapEntry(nodeTemplateName, topology.getSubstitutionMapping().getCapabilities());
+            removeNodeTemplateSubstitutionTargetMapEntry(nodeTemplateName, topology.getSubstitutionMapping().getRequirements());
+        }
+
+        TopologyUtils.refreshNodeTempNameInRelationships(nodeTemplateName, newName, nodeTemplates);
+        log.debug("Replacing the node template<{}> with <{}> bound to the node type <{}> on the topology <{}> .", nodeTemplateName, newName, newIndexedNodeType,
+                topology.getId());
+        // add the new node to the workflow
+        workflowBuilderService.addNode(workflowBuilderService.buildTopologyContext(topology), newName, newNodeTemplate);
+
+        topologyServiceCore.save(topology);
+    }
+
+    private IndexedNodeType findIndexedNodeTypeOrFail(final String indexedNodeTypeId) {
+        IndexedNodeType indexedNodeType = alienDAO.findById(IndexedNodeType.class, indexedNodeTypeId);
+        if (indexedNodeType == null) {
+            throw new NotFoundException("Indexed Node Type [" + indexedNodeTypeId + "] cannot be found");
+        }
+        return indexedNodeType;
+    }
+
+    public void rebuildDependencies(Topology topology) {
+        ToscaTypeLoader typeLoader = initializeTypeLoader(topology);
+        topology.setDependencies(typeLoader.getLoadedDependencies());
+    }
+
+    private CachedFinder<Csar> buildCaheFinder() {
+        return new CachedFinder<Csar>(new IFinder<Csar>() {
+            @Override
+            public <K extends Csar> K find(Class<K> clazz, String id) {
+                return (K) csarService.findByIds(FetchContext.SUMMARY, id).get(id);
+            }
+        });
+    }
+
 }

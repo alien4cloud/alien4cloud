@@ -1,13 +1,12 @@
 package alien4cloud.component;
 
-import java.util.Collection;
-
-import alien4cloud.model.components.Csar;
-import org.elasticsearch.index.query.QueryBuilder;
-
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.Csar;
 import alien4cloud.model.components.IndexedToscaElement;
+import org.elasticsearch.index.query.QueryBuilder;
+
+import java.util.Collection;
 
 /**
  * Service interface to search elements in CSARs.

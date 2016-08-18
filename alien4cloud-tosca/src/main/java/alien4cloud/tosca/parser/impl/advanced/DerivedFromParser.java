@@ -1,26 +1,18 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.yaml.snakeyaml.nodes.Node;
-
 import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.model.components.IndexedArtifactType;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedDataType;
-import alien4cloud.model.components.IndexedInheritableToscaElement;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.*;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import alien4cloud.tosca.parser.mapping.DefaultDeferredParser;
-
 import com.google.common.collect.Lists;
+import org.yaml.snakeyaml.nodes.Node;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * Parse a type reference value. The referenced type must exists in the local definitions or in the alien repository.

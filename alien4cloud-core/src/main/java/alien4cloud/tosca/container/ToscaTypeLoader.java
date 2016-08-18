@@ -1,19 +1,17 @@
 package alien4cloud.tosca.container;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
+import alien4cloud.csar.services.ICsarDependencyLoader;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.utils.VersionUtil;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import alien4cloud.csar.services.ICsarDependencyLoader;
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.utils.VersionUtil;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -130,6 +128,9 @@ public class ToscaTypeLoader {
         typeUsagesMap.put(type, currentUsageCount + 1);
         if (typesLoadedByDependency != null) {
             typesLoadedByDependency.add(type);
+            // make sure we replace the key it because the Equals on CSARDependency is only based on the name and the version
+            dependenciesMap.remove(directDependency);
+            dependenciesMap.put(directDependency, typesLoadedByDependency);
         } else {
             addNewDependency(directDependency, type);
         }

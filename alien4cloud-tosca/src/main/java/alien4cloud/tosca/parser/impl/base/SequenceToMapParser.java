@@ -1,13 +1,12 @@
 package alien4cloud.tosca.parser.impl.base;
 
-import java.util.Map;
-
 import alien4cloud.tosca.parser.*;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import lombok.AllArgsConstructor;
-
 import org.elasticsearch.common.collect.Maps;
 import org.yaml.snakeyaml.nodes.*;
+
+import java.util.Map;
 
 /**
  * Parse a yaml sequence into a {@link Map}

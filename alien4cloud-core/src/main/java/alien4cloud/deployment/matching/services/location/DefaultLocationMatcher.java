@@ -1,16 +1,5 @@
 package alien4cloud.deployment.matching.services.location;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
-import lombok.Getter;
-import lombok.Setter;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.stereotype.Component;
-
 import alien4cloud.deployment.matching.plugins.ILocationMatcher;
 import alien4cloud.model.deployment.matching.ILocationMatch;
 import alien4cloud.model.deployment.matching.LocationMatch;
@@ -21,8 +10,15 @@ import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.exception.LocationMatchingException;
 import alien4cloud.utils.AlienUtils;
-
 import com.google.common.collect.Lists;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Default location matcher for topologies

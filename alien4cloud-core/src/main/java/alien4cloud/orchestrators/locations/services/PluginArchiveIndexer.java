@@ -1,21 +1,7 @@
 package alien4cloud.orchestrators.locations.services;
 
-import java.util.*;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import alien4cloud.component.ICSARRepositoryIndexerService;
+import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
@@ -36,7 +22,19 @@ import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.tosca.ArchiveIndexer;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.util.*;
 
 /**
  * Manage the indexing of TOSCA archives.
@@ -82,15 +80,19 @@ public class PluginArchiveIndexer {
         for (PluginArchive pluginArchive : pluginArchives) {
             ArchiveRoot archive = pluginArchive.getArchive();
             Csar csar = csarService.getIfExists(archive.getArchive().getName(), archive.getArchive().getVersion());
+            String lastParsedHash = null;
 
             if (csar == null) {
                 // index the required archive
                 indexArchive(pluginArchive, orchestrator, location);
+                lastParsedHash = archive.getArchive().getHash();
+            } else {
+                lastParsedHash = csar.getHash();
             }
             if (archive.getArchive().getDependencies() != null) {
                 dependencies.addAll(archive.getArchive().getDependencies());
             }
-            dependencies.add(new CSARDependency(archive.getArchive().getName(), archive.getArchive().getVersion()));
+            dependencies.add(new CSARDependency(archive.getArchive().getName(), archive.getArchive().getVersion(), lastParsedHash));
         }
 
         return dependencies;
@@ -104,14 +106,16 @@ public class PluginArchiveIndexer {
      */
     public void indexOrchestratorArchives(IOrchestratorPluginFactory<IOrchestratorPlugin<?>, ?> orchestratorFactory,
             IOrchestratorPlugin<Object> orchestratorInstance) {
-        try {
-            for (PluginArchive pluginArchive : orchestratorInstance.pluginArchives()) {
+        for (PluginArchive pluginArchive : orchestratorInstance.pluginArchives()) {
+            try {
                 archiveIndexer.importArchive(pluginArchive.getArchive(), CSARSource.ORCHESTRATOR, pluginArchive.getArchiveFilePath(),
                         Lists.<ParsingError> newArrayList());
                 publishLocationTypeIndexedEvent(pluginArchive.getArchive().getNodeTypes().values(), orchestratorFactory, null);
+            } catch (CSARVersionAlreadyExistsException e) {
+                log.info("Skipping orchestrator archive import as the released version already exists in the repository. " + e.getMessage());
+            } catch (CSARUsedInActiveDeployment e) {
+                log.info("Skipping orchestrator archive import as it is used in an active deployment. " + e.getMessage());
             }
-        } catch (CSARVersionAlreadyExistsException e) {
-            log.info("Skipping orchestrator archive import as the released version already exists in the repository.");
         }
     }
 
@@ -130,6 +134,8 @@ public class PluginArchiveIndexer {
             archiveIndexer.importArchive(archive, CSARSource.ORCHESTRATOR, pluginArchive.getArchiveFilePath(), parsingErrors);
         } catch (CSARVersionAlreadyExistsException e) {
             log.info("Skipping location archive import as the released version already exists in the repository.");
+        } catch (CSARUsedInActiveDeployment e) {
+            log.info("Skipping orchestrator archive import as it is used in an active deployment. " + e.getMessage());
         }
 
         // Publish event to allow plugins to post-process elements (portability plugin for example).

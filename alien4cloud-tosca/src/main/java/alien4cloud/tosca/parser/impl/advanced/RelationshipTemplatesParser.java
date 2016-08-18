@@ -1,19 +1,5 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.nodes.*;
-
-import com.google.common.collect.Maps;
-
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.model.components.*;
 import alien4cloud.model.topology.Capability;
@@ -26,7 +12,18 @@ import alien4cloud.tosca.parser.impl.base.MapParser;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import alien4cloud.tosca.parser.mapping.DefaultDeferredParser;
 import alien4cloud.tosca.topology.NodeTemplateBuilder;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.nodes.*;
+
+import javax.annotation.Resource;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 @Component
 @Slf4j
@@ -135,7 +132,7 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
             key += attempCount;
         }
         if (map.containsKey(key)) {
-            addRelationshipTemplateToMap(map, name, relationshipTemplate, attempCount++);
+            addRelationshipTemplateToMap(map, name, relationshipTemplate, ++attempCount);
         } else {
             map.put(key, relationshipTemplate);
         }

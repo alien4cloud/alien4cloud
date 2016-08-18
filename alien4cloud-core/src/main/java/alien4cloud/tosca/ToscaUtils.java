@@ -1,17 +1,14 @@
 package alien4cloud.tosca;
 
-import java.util.List;
-
 import alien4cloud.common.AlienConstants;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.model.PaaSNodeTemplate;
-import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
-import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
 import alien4cloud.utils.AlienUtils;
-
 import com.google.common.collect.Lists;
+
+import java.util.List;
 
 public class ToscaUtils {
 

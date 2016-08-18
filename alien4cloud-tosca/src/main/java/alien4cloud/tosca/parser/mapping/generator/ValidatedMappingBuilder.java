@@ -1,17 +1,16 @@
 package alien4cloud.tosca.parser.mapping.generator;
 
-import javax.annotation.Resource;
-import javax.validation.Validator;
-
-import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.nodes.MappingNode;
-import org.yaml.snakeyaml.nodes.NodeTuple;
-
 import alien4cloud.tosca.parser.MappingTarget;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.impl.base.ReferencedParser;
 import alien4cloud.tosca.parser.impl.base.ValidatedNodeParser;
+import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.nodes.MappingNode;
+import org.yaml.snakeyaml.nodes.NodeTuple;
+
+import javax.annotation.Resource;
+import javax.validation.Validator;
 
 /**
  * Build Mapping target for map.

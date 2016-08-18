@@ -8,6 +8,8 @@ public enum ErrorCode {
     INVALID_YAML,
     /** The csar already exists (and the version is not a SNAPSHOT version). */
     CSAR_ALREADY_EXISTS,
+    /** The csar is used in an active deployment (It cannot be overrided). */
+    CSAR_USED_IN_ACTIVE_DEPLOYMENT,
     /** Temporary error, currently Alien supports only a single definition file. */
     SINGLE_DEFINITION_SUPPORTED,
     /** In TOSCA Meta the entry definition was missing. */

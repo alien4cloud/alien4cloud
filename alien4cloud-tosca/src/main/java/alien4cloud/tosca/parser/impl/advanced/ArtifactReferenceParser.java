@@ -1,15 +1,14 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
-import javax.annotation.Resource;
-
+import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.impl.base.ScalarParser;
+import alien4cloud.tosca.parser.mapping.DefaultParser;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.impl.base.ScalarParser;
-import alien4cloud.tosca.parser.mapping.DefaultParser;
+import javax.annotation.Resource;
 
 @Component
 public class ArtifactReferenceParser extends DefaultParser<String> {

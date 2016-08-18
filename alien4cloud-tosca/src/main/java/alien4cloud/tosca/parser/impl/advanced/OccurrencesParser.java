@@ -1,13 +1,5 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
-import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.nodes.Node;
-
 import alien4cloud.model.components.LowerBoundedDefinition;
 import alien4cloud.model.components.UpperBoundedDefinition;
 import alien4cloud.tosca.parser.ParsingContextExecution;
@@ -15,6 +7,12 @@ import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.ListParser;
 import alien4cloud.tosca.parser.mapping.DefaultParser;
+import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.nodes.Node;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import java.util.List;
 
 @Component
 public class OccurrencesParser extends DefaultParser<List<String>> {

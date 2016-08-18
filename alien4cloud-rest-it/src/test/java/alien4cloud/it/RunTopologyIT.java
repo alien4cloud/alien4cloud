@@ -2,7 +2,6 @@ package alien4cloud.it;
 
 import cucumber.api.CucumberOptions;
 import cucumber.api.junit.Cucumber;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
@@ -24,6 +23,7 @@ import org.junit.runner.RunWith;
         // "classpath:alien/rest/topology/validate_topology_with_meta_properties.feature"
         "classpath:alien/rest/topology/topology_composition.feature"
         // "classpath:alien/rest/topology/workflow_edition.feature"
+        // "classpath:alien/rest/topology/topology_recovery.feature"
         //
 }, format = { "pretty", "html:target/cucumber/topology", "json:target/cucumber/cucumber-topology.json" })
 //@Ignore

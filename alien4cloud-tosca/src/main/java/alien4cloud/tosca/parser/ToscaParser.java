@@ -1,13 +1,11 @@
 package alien4cloud.tosca.parser;
 
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
+import alien4cloud.tosca.context.ToscaContextual;
+import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.tosca.parser.mapping.generator.MappingGenerator;
+import alien4cloud.utils.FileUtil;
+import com.google.common.collect.Maps;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.error.Mark;
 import org.yaml.snakeyaml.nodes.MappingNode;
@@ -15,12 +13,12 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import alien4cloud.tosca.context.ToscaContextual;
-import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.impl.ErrorCode;
-import alien4cloud.tosca.parser.mapping.generator.MappingGenerator;
-
-import com.google.common.collect.Maps;
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Main entry point for TOSCA template parsing.
@@ -65,7 +63,9 @@ public class ToscaParser extends YamlParser<ArchiveRoot> {
     @Override
     @ToscaContextual
     public ParsingResult<ArchiveRoot> parseFile(Path yamlPath, ArchiveRoot instance) throws ParsingException {
-        return super.parseFile(yamlPath, instance);
+        ParsingResult<ArchiveRoot> result = super.parseFile(yamlPath, instance);
+        result.getResult().getArchive().setHash(FileUtil.getSHA1Checksum(yamlPath));
+        return result;
     }
 
     @Override

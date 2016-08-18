@@ -19,10 +19,10 @@ package alien4cloud.utils.version;
  * under the License.
  */
 
+import lombok.NoArgsConstructor;
+
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
-
-import lombok.NoArgsConstructor;
 
 /**
  * Default implementation of artifact versioning.

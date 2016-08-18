@@ -1,5 +1,12 @@
 package alien4cloud.csar.services;
 
+import alien4cloud.exception.GitException;
+import alien4cloud.tosca.parser.ToscaArchiveParser;
+import alien4cloud.utils.FileUtil;
+import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
+import org.springframework.stereotype.Service;
+
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -7,15 +14,6 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Set;
-
-import org.springframework.stereotype.Service;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Sets;
-
-import alien4cloud.exception.GitException;
-import alien4cloud.tosca.parser.ToscaArchiveParser;
-import alien4cloud.utils.FileUtil;
 
 /**
  * This service detects TOSCA cloud service archives in a given folder and return an ordered list of archives path to import.

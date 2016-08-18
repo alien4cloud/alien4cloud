@@ -1,18 +1,5 @@
 package alien4cloud.component;
 
-import java.util.*;
-
-import javax.annotation.Resource;
-
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.FetchContext;
@@ -22,8 +9,18 @@ import alien4cloud.model.components.Csar;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.utils.CollectionUtils;
 import alien4cloud.utils.VersionUtil;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -103,7 +100,7 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
         T element = getElementInDependencies(elementClass, elementId, dependencies);
         if (element == null) {
             throw new NotFoundException(
-                    "Element elementId: <" + elementId + "> of type <" + elementClass.getSimpleName() + "> cannot be found in dependencies " + dependencies);
+                    "Element elementId (" + elementId + ") of type (" + elementClass.getSimpleName() + ") cannot be found in dependencies " + dependencies);
         }
         return element;
     }

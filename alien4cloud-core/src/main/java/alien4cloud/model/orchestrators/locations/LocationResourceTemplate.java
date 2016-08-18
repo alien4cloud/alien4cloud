@@ -1,8 +1,11 @@
 package alien4cloud.model.orchestrators.locations;
 
-import java.util.List;
-import java.util.Map;
-
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.topology.NodeTemplate;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import lombok.Getter;
+import lombok.Setter;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.ObjectField;
@@ -11,13 +14,8 @@ import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 import org.hibernate.validator.constraints.NotBlank;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.topology.NodeTemplate;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A Location resource template is a location resource that has been defined and can be matched against nodes in a topology.

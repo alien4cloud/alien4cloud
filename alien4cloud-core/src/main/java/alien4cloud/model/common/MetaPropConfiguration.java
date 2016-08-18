@@ -1,19 +1,5 @@
 package alien4cloud.model.common;
 
-import javax.validation.constraints.NotNull;
-
-import org.elasticsearch.annotation.ESObject;
-import org.elasticsearch.annotation.Id;
-import org.elasticsearch.annotation.ObjectField;
-import org.elasticsearch.annotation.StringField;
-import org.elasticsearch.annotation.query.TermFilter;
-import org.elasticsearch.annotation.query.TermsFacet;
-import org.elasticsearch.mapping.IndexType;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.PropertyValue;
@@ -25,9 +11,21 @@ import alien4cloud.ui.form.annotation.FormLabel;
 import alien4cloud.ui.form.annotation.FormProperties;
 import alien4cloud.ui.form.annotation.FormPropertyDefinition;
 import alien4cloud.ui.form.annotation.FormValidValues;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.elasticsearch.annotation.ESObject;
+import org.elasticsearch.annotation.Id;
+import org.elasticsearch.annotation.ObjectField;
+import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.annotation.query.TermFilter;
+import org.elasticsearch.annotation.query.TermsFacet;
+import org.elasticsearch.mapping.IndexType;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * Predefined configuration for tag edit

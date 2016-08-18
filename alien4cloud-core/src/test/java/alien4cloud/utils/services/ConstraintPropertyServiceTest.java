@@ -1,15 +1,14 @@
 package alien4cloud.utils.services;
 
-import java.util.ArrayList;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.constraints.LengthConstraint;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.ArrayList;
 
 public class ConstraintPropertyServiceTest {
 

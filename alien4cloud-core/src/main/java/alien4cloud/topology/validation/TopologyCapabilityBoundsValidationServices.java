@@ -1,10 +1,12 @@
 package alien4cloud.topology.validation;
 
 import alien4cloud.component.CSARRepositorySearchService;
+import alien4cloud.component.IToscaElementFinder;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.CapabilityDefinition;
 import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
@@ -29,12 +31,22 @@ public class TopologyCapabilityBoundsValidationServices {
 
     //
     public boolean isCapabilityUpperBoundReachedForTarget(String nodeTemplateName, Map<String, NodeTemplate> nodeTemplates, String capabilityName,
-            Set<CSARDependency> dependencies) {
+            final Set<CSARDependency> dependencies) {
+        return isCapabilityUpperBoundReachedForTarget(nodeTemplateName, nodeTemplates, capabilityName, new IToscaElementFinder() {
+
+            @Override
+            public <T extends IndexedToscaElement> T findElement(Class<T> elementClass, String elementId) {
+                return csarRepoSearchService.getRequiredElementInDependencies(elementClass, elementId, dependencies);
+            }
+        });
+    }
+
+    public boolean isCapabilityUpperBoundReachedForTarget(String nodeTemplateName, Map<String, NodeTemplate> nodeTemplates, String capabilityName,
+            IToscaElementFinder finder) {
         NodeTemplate nodeTemplate = nodeTemplates.get(nodeTemplateName);
-        IndexedNodeType relatedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
-                dependencies);
         chekCapability(nodeTemplateName, capabilityName, nodeTemplate);
 
+        IndexedNodeType relatedIndexedNodeType = finder.findElement(IndexedNodeType.class, nodeTemplate.getType());
         CapabilityDefinition capabilityDefinition = getCapabilityDefinition(relatedIndexedNodeType.getCapabilities(), capabilityName);
         if (capabilityDefinition.getUpperBound() == Integer.MAX_VALUE) {
             return false;

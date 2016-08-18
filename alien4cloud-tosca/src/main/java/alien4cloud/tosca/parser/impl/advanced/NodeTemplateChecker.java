@@ -11,15 +11,16 @@ import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ToscaParsingUtil;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.topology.NodeTemplateBuilder;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
+
+import javax.annotation.Resource;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 @Slf4j
 @Component

@@ -1,21 +1,19 @@
 package alien4cloud.component.dao;
 
-import static org.junit.Assert.*;
-import static org.springframework.util.Assert.isNull;
-import static org.springframework.util.Assert.isTrue;
-
-import java.beans.IntrospectionException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-import javax.annotation.Resource;
-
+import alien4cloud.dao.ElasticSearchDAO;
+import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.FetchContext;
+import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.model.application.Application;
+import alien4cloud.model.common.Tag;
+import alien4cloud.model.components.*;
+import alien4cloud.rest.utils.JsonUtil;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
@@ -29,24 +27,18 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.dao.ElasticSearchDAO;
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.dao.model.FetchContext;
-import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.model.application.Application;
-import alien4cloud.model.common.Tag;
-import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.RequirementDefinition;
-import alien4cloud.rest.utils.JsonUtil;
+import javax.annotation.Resource;
+import java.beans.IntrospectionException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
+import static org.junit.Assert.*;
+import static org.springframework.util.Assert.isNull;
+import static org.springframework.util.Assert.isTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:application-context-test.xml")

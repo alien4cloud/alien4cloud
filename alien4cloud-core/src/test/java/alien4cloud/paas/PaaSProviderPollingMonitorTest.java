@@ -1,14 +1,11 @@
 package alien4cloud.paas;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.Date;
-
-import javax.annotation.Resource;
-
+import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
+import alien4cloud.paas.model.PaaSMessageMonitorEvent;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.mapping.ElasticSearchClient;
 import org.junit.Before;
@@ -17,14 +14,13 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.paas.PaaSProviderPollingMonitor;
-import alien4cloud.paas.model.DeploymentStatus;
-import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
-import alien4cloud.paas.model.PaaSMessageMonitorEvent;
+import javax.annotation.Resource;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Date;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test monitoring events recovery

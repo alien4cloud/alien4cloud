@@ -1,9 +1,9 @@
 package alien4cloud.utils;
 
-import java.util.regex.Pattern;
-
 import alien4cloud.utils.version.InvalidVersionException;
 import alien4cloud.utils.version.Version;
+
+import java.util.regex.Pattern;
 
 public final class VersionUtil {
 

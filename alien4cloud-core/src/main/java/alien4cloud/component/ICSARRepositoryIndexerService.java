@@ -1,11 +1,11 @@
 package alien4cloud.component;
 
-import java.util.Collection;
-import java.util.Map;
-
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedToscaElement;
+
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * Service responsible for indexing TOSCA elements.

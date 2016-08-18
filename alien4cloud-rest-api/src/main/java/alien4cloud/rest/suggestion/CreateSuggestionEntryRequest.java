@@ -1,15 +1,14 @@
 package alien4cloud.rest.suggestion;
 
-import java.util.Set;
-
-import javax.validation.constraints.NotNull;
-
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+
+import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 @Getter
 @Setter

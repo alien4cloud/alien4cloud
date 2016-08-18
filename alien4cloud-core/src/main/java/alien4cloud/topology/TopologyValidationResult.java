@@ -1,21 +1,18 @@
 package alien4cloud.topology;
 
-import java.util.List;
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import org.apache.commons.collections4.CollectionUtils;
-
 import alien4cloud.json.deserializer.TaskDeserializer;
 import alien4cloud.topology.task.AbstractTask;
 import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.Lists;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.apache.commons.collections4.CollectionUtils;
+
+import java.util.List;
 
 /**
  * Validation result that contains a boolean determining if a topology is valid for deployment.

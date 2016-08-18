@@ -1,19 +1,7 @@
 package alien4cloud.topology;
 
-import java.util.*;
-import java.util.Map.Entry;
-
-import javax.annotation.Resource;
-
-import org.elasticsearch.common.collect.Lists;
-import org.elasticsearch.common.collect.Sets;
-import org.springframework.stereotype.Service;
-
-import com.google.common.collect.Maps;
-
 import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.component.IToscaElementFinder;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -25,7 +13,15 @@ import alien4cloud.model.topology.*;
 import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.tosca.topology.NodeTemplateBuilder;
 import alien4cloud.utils.MapUtil;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.common.collect.Lists;
+import org.elasticsearch.common.collect.Sets;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.*;
+import java.util.Map.Entry;
 
 @Service
 @Slf4j

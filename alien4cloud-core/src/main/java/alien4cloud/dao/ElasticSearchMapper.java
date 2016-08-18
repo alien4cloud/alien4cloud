@@ -1,17 +1,16 @@
 package alien4cloud.dao;
 
-import java.beans.IntrospectionException;
-import java.io.IOException;
-
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-
 import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
 import alien4cloud.json.serializer.BoundSerializer;
 import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.utils.jackson.ConditionalAttributes;
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import lombok.extern.slf4j.Slf4j;
+
+import java.beans.IntrospectionException;
+import java.io.IOException;
 
 @Slf4j
 public class ElasticSearchMapper extends ObjectMapper {

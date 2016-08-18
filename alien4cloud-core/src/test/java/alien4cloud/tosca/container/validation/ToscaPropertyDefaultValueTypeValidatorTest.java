@@ -1,18 +1,16 @@
 package alien4cloud.tosca.container.validation;
 
-import java.util.Set;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.tosca.normative.ToscaType;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
-import alien4cloud.tosca.normative.ToscaType;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import java.util.Set;
 
 @Ignore
 public class ToscaPropertyDefaultValueTypeValidatorTest {

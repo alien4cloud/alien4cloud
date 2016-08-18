@@ -1,17 +1,15 @@
 package alien4cloud.utils;
 
+import alien4cloud.exception.InvalidArgumentException;
+import alien4cloud.rest.utils.JsonUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-
-import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.rest.utils.JsonUtil;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Maps;
 
 /**
  * Utility class to ease map manipulation.

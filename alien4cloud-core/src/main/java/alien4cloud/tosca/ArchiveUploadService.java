@@ -1,19 +1,9 @@
 package alien4cloud.tosca;
 
-import java.nio.file.Path;
-import java.util.Map;
-import java.util.Set;
-
-import javax.inject.Inject;
-
-import alien4cloud.model.components.CSARSource;
-import alien4cloud.tosca.context.ToscaContextual;
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.stereotype.Component;
-
+import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.CSARSource;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.git.CsarDependenciesBean;
 import alien4cloud.security.AuthorizationUtil;
@@ -21,14 +11,20 @@ import alien4cloud.security.model.Role;
 import alien4cloud.suggestions.services.SuggestionService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyTemplateVersionService;
+import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContext;
-import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
-
 import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import java.nio.file.Path;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 @Slf4j
@@ -53,9 +49,10 @@ public class ArchiveUploadService {
      * @return The Csar object from the parsing.
      * @throws ParsingException
      * @throws CSARVersionAlreadyExistsException
+     * @throws CSARUsedInActiveDeployment
      */
     @ToscaContextual
-    public ParsingResult<Csar> upload(Path path, CSARSource csarSource) throws ParsingException, CSARVersionAlreadyExistsException {
+    public ParsingResult<Csar> upload(Path path, CSARSource csarSource) throws ParsingException, CSARVersionAlreadyExistsException, CSARUsedInActiveDeployment {
         // parse the archive.
         ParsingResult<ArchiveRoot> parsingResult = parser.parse(path);
 

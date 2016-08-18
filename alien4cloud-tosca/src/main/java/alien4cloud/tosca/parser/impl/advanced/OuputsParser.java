@@ -1,19 +1,5 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.nodes.MappingNode;
-import org.yaml.snakeyaml.nodes.Node;
-import org.yaml.snakeyaml.nodes.NodeTuple;
-import org.yaml.snakeyaml.nodes.ScalarNode;
-
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.tosca.parser.INodeParser;
@@ -22,6 +8,14 @@ import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.mapping.DefaultDeferredParser;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.nodes.MappingNode;
+import org.yaml.snakeyaml.nodes.Node;
+import org.yaml.snakeyaml.nodes.NodeTuple;
+import org.yaml.snakeyaml.nodes.ScalarNode;
+
+import java.util.*;
 
 @Component
 @Slf4j

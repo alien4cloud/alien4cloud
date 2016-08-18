@@ -1,16 +1,5 @@
 package alien4cloud.rest.topology;
 
-import java.util.Map;
-
-import javax.annotation.Resource;
-
-import org.hibernate.validator.constraints.NotBlank;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
-
-import com.google.common.collect.Maps;
-
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.csar.services.CsarService;
@@ -35,9 +24,17 @@ import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyTemplateVersionService;
+import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.util.Map;
 
 @Slf4j
 @RestController

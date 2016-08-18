@@ -1,19 +1,9 @@
 package alien4cloud.json.deserializer;
 
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.io.IOException;
-import java.lang.reflect.Modifier;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
 import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.components.constraints.InRangeConstraint;
 import alien4cloud.tosca.properties.constraints.exception.InvalidPropertyConstraintImplementationException;
 import alien4cloud.utils.TypeScanner;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -23,6 +13,15 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy.PropertyNamingStrat
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Maps;
+
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.io.IOException;
+import java.lang.reflect.Modifier;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 public class PropertyConstraintDeserializer extends StdDeserializer<PropertyConstraint> {
 

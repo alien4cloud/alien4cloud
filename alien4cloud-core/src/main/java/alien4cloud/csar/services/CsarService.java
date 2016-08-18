@@ -1,21 +1,5 @@
 package alien4cloud.csar.services;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import alien4cloud.application.ApplicationService;
 import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.component.repository.CsarFileRepository;
@@ -27,11 +11,25 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
+import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.topology.TopologyService;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Manages cloud services archives and their dependencies.
@@ -41,6 +39,9 @@ import lombok.extern.slf4j.Slf4j;
 public class CsarService implements ICsarDependencyLoader {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO csarDAO;
+
+    @Resource(name = "alien-monitor-es-dao")
+    private IGenericSearchDAO alienMonitorDao;
 
     @Resource
     private ICSARRepositoryIndexerService indexerService;
@@ -107,6 +108,19 @@ public class CsarService implements ICsarDependencyLoader {
         FilterBuilder filter = FilterBuilders.nestedFilter("dependencies", FilterBuilders.boolFilter()
                 .must(FilterBuilders.termFilter("dependencies.name", name)).must(FilterBuilders.termFilter("dependencies.version", version)));
         GetMultipleDataResult<Location> result = csarDAO.search(Location.class, null, null, filter, null, 0, Integer.MAX_VALUE);
+        return result.getData();
+    }
+
+    /**
+     *
+     * @param name
+     * @param version
+     * @return an array of <code>DeploymentTopology</code>s that depend on this name:version.
+     */
+    public DeploymentTopology[] getDependentDeploymentTopology(String name, String version) {
+        FilterBuilder filter = FilterBuilders.nestedFilter("dependencies", FilterBuilders.boolFilter()
+                .must(FilterBuilders.termFilter("dependencies.name", name)).must(FilterBuilders.termFilter("dependencies.version", version)));
+        GetMultipleDataResult<DeploymentTopology> result = alienMonitorDao.search(DeploymentTopology.class, null, null, filter, null, 0, Integer.MAX_VALUE);
         return result.getData();
     }
 

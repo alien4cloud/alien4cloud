@@ -1,24 +1,13 @@
 package alien4cloud.application;
 
-import java.util.*;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
-import alien4cloud.deployment.DeploymentService;
-import alien4cloud.events.DeleteEnvironmentEvent;
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Service;
-
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
+import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.DeploymentTopologyService;
+import alien4cloud.events.DeleteEnvironmentEvent;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteDeployedException;
-import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -32,11 +21,17 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.utils.MapUtil;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.SettableFuture;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.util.*;
 
 @Slf4j
 @Service

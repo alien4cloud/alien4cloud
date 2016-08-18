@@ -1,18 +1,5 @@
 package alien4cloud.it.topology;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import org.elasticsearch.common.collect.Maps;
-import org.junit.Assert;
-
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.Entry;
@@ -31,6 +18,18 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.elasticsearch.common.collect.Maps;
+import org.junit.Assert;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class TopologyTemplateStepDefinitions {
 
@@ -64,7 +63,11 @@ public class TopologyTemplateStepDefinitions {
     @Then("^I can get and register the topology for the last version of the registered topology template$")
     public void I_can_get_the_last_version_for_the_registered_topology_template() throws Throwable {
         TopologyTemplate topologyTemplate = Context.getInstance().getTopologyTemplate();
-        TopologyTemplateVersion ttv = getLatestTopologyTemplateVersion(topologyTemplate.getId());
+        registerTopologyId(topologyTemplate.getId());
+    }
+
+    private void registerTopologyId(String topologyTemplateId) throws IOException {
+        TopologyTemplateVersion ttv = getLatestTopologyTemplateVersion(topologyTemplateId);
         assertNotNull(ttv);
         assertNotNull(ttv.getTopologyId());
         Context.getInstance().registerTopologyId(ttv.getTopologyId());
@@ -220,6 +223,12 @@ public class TopologyTemplateStepDefinitions {
         nvps.add(new BasicNameValuePair("newRequirementId", newName));
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postUrlEncoded("/rest/v1/topologies/" + topologyId + "/substitutions/requirements/" + requirementName, nvps));
+    }
+
+    @When("^I get the topology related to the template with name \"([^\"]*)\"$")
+    public void I_get_the_topology_related_to_the_template_with_name(String topoTemplateName) throws Throwable {
+        String topoTemplateId = getTopologyTemplateIdFromName(topoTemplateName);
+        registerTopologyId(topoTemplateId);
     }
 
 }
