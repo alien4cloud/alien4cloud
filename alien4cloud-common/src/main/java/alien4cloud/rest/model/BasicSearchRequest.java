@@ -16,7 +16,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class BasicSearchRequest {
     /* The component type to query */
     private String query;

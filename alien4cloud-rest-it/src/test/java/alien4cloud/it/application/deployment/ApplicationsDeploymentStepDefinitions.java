@@ -453,7 +453,7 @@ public class ApplicationsDeploymentStepDefinitions {
 
     private static final long WAIT_TIME = 30;
 
-    @And("^I should receive \"([^\"]*)\" events that containing$")
+    @And("^I should receive \"([^\"]*)\" events that contains$")
     public void I_should_receive_events_that_containing(String eventTopic, List<String> expectedEvents) throws Throwable {
         Assert.assertTrue(this.stompDataFutures.containsKey(eventTopic));
         List<String> actualEvents = Lists.newArrayList();

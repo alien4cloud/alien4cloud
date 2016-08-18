@@ -15,7 +15,7 @@ import org.elasticsearch.annotation.ObjectField;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @ESObject
 public class OrchestratorConfiguration {

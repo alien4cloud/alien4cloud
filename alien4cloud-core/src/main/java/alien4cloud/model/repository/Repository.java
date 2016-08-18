@@ -18,7 +18,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @ESObject
 public class Repository {

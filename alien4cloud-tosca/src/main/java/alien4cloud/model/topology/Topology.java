@@ -32,7 +32,7 @@ import lombok.Setter;
 @Setter
 @ESObject
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Topology implements IManagedSecuredResource {

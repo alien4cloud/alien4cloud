@@ -53,6 +53,7 @@ public class AuthenticationStepDefinitions {
         CreateUserRequest request = new CreateUserRequest();
         request.setUsername(username);
         request.setPassword(password);
+        request.setEmail(username + "@alien4cloud.org");
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/users/", JsonUtil.toString(request)));
     }
 

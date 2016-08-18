@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 
 import org.yaml.snakeyaml.nodes.Node;
 
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class YamlSimpleParser<T> extends YamlParser<T> {
     private INodeParser<T> nodeParser;
 

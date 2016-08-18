@@ -22,10 +22,15 @@ import gherkin.formatter.model.DataTableRow;
  */
 public class EditorStepDefinitions {
     // Keep a local context for topology dto
-    private static TopologyDTO TOPOLOGY_DTO = null;
+    public static TopologyDTO TOPOLOGY_DTO = null;
 
-    @Given("^I get the topology")
-    public void i_get_the_topology() throws Throwable {
+    @Given("^I get the current topology$")
+    public void i_get_the_current_topology() throws Throwable {
+        // Call the rest controller to get the topology DTO and register it
+        do_i_get_the_current_topology();
+    }
+
+    public static void do_i_get_the_current_topology() throws Throwable {
         // Call the rest controller to get the topology DTO and register it
         String topologyId = Context.getInstance().getTopologyId();
 
@@ -35,12 +40,16 @@ public class EditorStepDefinitions {
 
     @Given("^I execute the operation$")
     public void i_execute_the_operation(DataTable operationDT) throws Throwable {
-        String topologyId = Context.getInstance().getTopologyId();
-
         Map<String, String> operationMap = Maps.newHashMap();
         for (DataTableRow row : operationDT.getGherkinRows()) {
             operationMap.put(row.getCells().get(0), row.getCells().get(1));
         }
+
+        do_i_execute_the_operation(operationMap);
+    }
+
+    public static void do_i_execute_the_operation(Map<String, String> operationMap) throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
 
         Class operationClass = Class.forName(operationMap.get("type"));
         AbstractEditorOperation operation = (AbstractEditorOperation) operationClass.newInstance();
@@ -61,11 +70,26 @@ public class EditorStepDefinitions {
         }
 
         // Call execute rest service and set the topology DTO to the context
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v2/editor/" + topologyId + "/execute"));
+        Context.getInstance()
+                .registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v2/editor/" + topologyId + "/execute", JsonUtil.toString(operation)));
         trySetTopologyDto();
     }
 
-    private void trySetTopologyDto() {
+    @Given("^I save the topology$")
+    public void i_save_the_topology() throws Throwable {
+        do_i_save_the_topology();
+    }
+
+    public static void do_i_save_the_topology() throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        String lastOperationId = TOPOLOGY_DTO.getOperations().get(TOPOLOGY_DTO.getLastOperationIndex()).getId();
+
+        Context.getInstance()
+                .registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v2/editor/" + topologyId + "?lastOperationId=" + lastOperationId, ""));
+        trySetTopologyDto();
+    }
+
+    private static void trySetTopologyDto() {
         try {
             TOPOLOGY_DTO = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class, Context.getJsonMapper()).getData();
         } catch (Exception e) {

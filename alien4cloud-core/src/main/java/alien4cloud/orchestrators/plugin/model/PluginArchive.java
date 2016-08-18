@@ -14,7 +14,7 @@ import java.nio.file.Path;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class PluginArchive {
     /** The TOSCA archive - it may be parsed from a file or just generated from the plugin code. */
     private ArchiveRoot archive;

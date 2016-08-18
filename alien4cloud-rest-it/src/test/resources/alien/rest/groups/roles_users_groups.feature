@@ -6,19 +6,19 @@ Feature: Creating a new group
     And There is a "sauron" user in the system
     And There is a "gandalf" user in the system
   @reset
-  Scenario: Adding a role to a group should succeed.
+  Scenario: Adding a role to a group should succeed
     When I add the role "COMPONENTS_BROWSER" to the group "lordOfRing"
     Then I should receive a RestResponse with no error
     And the group "lordOfRing" should have the following roles
       | COMPONENTS_BROWSER |
 
   @reset
-  Scenario: Adding a wrong role to a group should fail.
+  Scenario: Adding a wrong role to a group should fail
     When I add the role "COMPONENTS_BROWSERRRR" to the group "lordOfRing"
     Then I should receive a RestResponse with an error code 504
 
   @reset
-  Scenario: Removing a role from a group should succeed.
+  Scenario: Removing a role from a group should succeed
     Given I have added to the group "lordOfRing" roles
       | COMPONENTS_BROWSER |
       | COMPONENTS_MANAGER |
@@ -28,14 +28,14 @@ Feature: Creating a new group
       | COMPONENTS_MANAGER |
 
   @reset
-  Scenario: Adding a user to a group should succeed.
+  Scenario: Adding a user to a group should succeed
     When I add the user "sauron" to the group "lordOfRing"
     Then I should receive a RestResponse with no error
     And the group "lordOfRing" should have the following users
       | sauron |
 
   @reset
-  Scenario: Removing a user from a group should succeed.
+  Scenario: Removing a user from a group should succeed
     Given I have added to the group "lordOfRing" users
       | sauron  |
       | gandalf |
@@ -45,7 +45,7 @@ Feature: Creating a new group
       | sauron |
 
   @reset
-  Scenario: Add a user to a group, remove the user and removing the group should succeed.
+  Scenario: Add a user to a group, remove the user and removing the group should succeed
     Given I have added to the group "lordOfRing" users
       | sauron  |
     When I delete the user "sauron"
@@ -54,7 +54,7 @@ Feature: Creating a new group
       Then I should receive a RestResponse with no error
 
   @reset
-  Scenario: Adding a role to a group should succeed and update all the related users grouproles.
+  Scenario: Adding a role to a group should succeed and update all the related users grouproles
     Given I have added to the group "lordOfRing" users
       | sauron |
     When I add the role "COMPONENTS_BROWSER" to the group "lordOfRing"
@@ -65,7 +65,7 @@ Feature: Creating a new group
       | COMPONENTS_BROWSER |
 
   @reset
-  Scenario: Adding a user to a group should succeed and update the related user's grouproles.
+  Scenario: Adding a user to a group should succeed and update the related user's grouproles
     Given I have added to the group "lordOfRing" roles
       | COMPONENTS_BROWSER |
       | COMPONENTS_MANAGER |
@@ -80,7 +80,7 @@ Feature: Creating a new group
       | COMPONENTS_MANAGER |
 
   @reset
-  Scenario: removing a role from a group should succeed and update all the related users grouproles.
+  Scenario: removing a role from a group should succeed and update all the related users grouproles
     Given I have added to the group "lordOfRing" users
       | sauron |
     And I have added to the group "lordOfRing" roles
@@ -94,7 +94,7 @@ Feature: Creating a new group
       | COMPONENTS_MANAGER |
 
   @reset
-  Scenario: Removing a user from a group should succeed and update the related user's grouproles.
+  Scenario: Removing a user from a group should succeed and update the related user's grouproles
     Given I have added to the group "lordOfRing" users
       | sauron |
     And I have added to the group "lordOfRing" roles
@@ -107,7 +107,7 @@ Feature: Creating a new group
     And the user "sauron" should not have any group roles
 
   @reset
-  Scenario: Managing a user in two different groups.
+  Scenario: Managing a user in two different groups
     Given There is a "theHobbit" group in the system
     And I have added to the group "theHobbit" roles
       | COMPONENTS_MANAGER |

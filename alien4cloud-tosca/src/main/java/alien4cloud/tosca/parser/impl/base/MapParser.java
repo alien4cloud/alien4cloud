@@ -18,7 +18,7 @@ import alien4cloud.tosca.parser.mapping.DefaultParser;
 
 import com.google.common.collect.Maps;
 
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class MapParser<T> extends DefaultParser<Map<String, T>> {
     private INodeParser<T> valueParser;
     /** The tosca type of the map. */

@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class DeploymentSourceDTO implements IDeploymentSource {
     private String id;
     private String name;

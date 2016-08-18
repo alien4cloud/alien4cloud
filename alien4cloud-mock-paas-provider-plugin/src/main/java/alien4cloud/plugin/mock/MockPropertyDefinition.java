@@ -32,6 +32,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @ToString
 public class MockPropertyDefinition extends PropertyDefinition {
 
+
+
     @JsonProperty("default")
     @JsonDeserialize(using = PropertyValueDeserializer.class)
     @Getter(AccessLevel.NONE)

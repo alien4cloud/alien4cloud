@@ -16,7 +16,7 @@ import alien4cloud.model.topology.Topology;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class AbstractTopologyDTO<T extends Topology> {
     private T topology;
     private Map<String, IndexedNodeType> nodeTypes;

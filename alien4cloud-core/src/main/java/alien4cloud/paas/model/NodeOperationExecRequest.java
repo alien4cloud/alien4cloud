@@ -17,7 +17,7 @@ import org.hibernate.validator.constraints.NotBlank;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class NodeOperationExecRequest {
     @NotBlank
     String nodeTemplateName;

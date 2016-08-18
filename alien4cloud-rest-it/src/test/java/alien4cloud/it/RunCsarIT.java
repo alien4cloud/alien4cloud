@@ -16,6 +16,6 @@ import org.junit.runner.RunWith;
         // "classpath:alien/rest/csars/upload_rights.feature",
         // "classpath:alien/rest/csars/git.feature"
 }, format = { "pretty", "html:target/cucumber/csars", "json:target/cucumber/cucumber-csars.json" })
-//@Ignore
+// @Ignore
 public class RunCsarIT {
 }

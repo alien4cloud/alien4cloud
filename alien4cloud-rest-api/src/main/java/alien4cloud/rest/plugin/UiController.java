@@ -58,7 +58,7 @@ public class UiController {
 
     @Getter
     @Setter
-    @AllArgsConstructor
+    @AllArgsConstructor(suppressConstructorProperties = true)
     public class PluginInfo {
         private String entryPoint;
         private String base;

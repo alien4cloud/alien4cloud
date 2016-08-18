@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class RequirementsTask extends TopologyTask {
     // list of requirements for which to satisfy lowerbound
     private List<RequirementToSatisfy> requirementsToImplement;

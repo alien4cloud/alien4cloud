@@ -39,7 +39,7 @@ public class LocationResourceGeneratorService {
     @Getter
     @Setter
     @NoArgsConstructor
-    @AllArgsConstructor
+    @AllArgsConstructor(suppressConstructorProperties = true)
     public static class ImageFlavorContext {
         private List<LocationResourceTemplate> templates;
         private String idPropertyName;
@@ -49,7 +49,7 @@ public class LocationResourceGeneratorService {
     @Getter
     @Setter
     @NoArgsConstructor
-    @AllArgsConstructor
+    @AllArgsConstructor(suppressConstructorProperties = true)
     public static class ComputeContext {
         private List<IndexedNodeType> nodeTypes = Lists.newArrayList();
         private String generatedNamePrefix;

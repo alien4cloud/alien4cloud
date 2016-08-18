@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class PropertiesTask extends TopologyTask {
     // list of required properties not set
     private Map<TaskLevel, List<String>> properties;

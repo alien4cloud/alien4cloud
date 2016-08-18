@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class UnavailableLocationTask extends LocationPolicyTask {
     private String locationName;
     private String orchestratorName;

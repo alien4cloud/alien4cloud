@@ -10,7 +10,7 @@ import org.hibernate.validator.constraints.NotBlank;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class CreateTopologyTemplateRequest {
     @NotBlank
     private String name;

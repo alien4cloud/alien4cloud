@@ -16,7 +16,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class PaaSTopology {
     private List<PaaSNodeTemplate> computes;
     private List<PaaSNodeTemplate> networks;
