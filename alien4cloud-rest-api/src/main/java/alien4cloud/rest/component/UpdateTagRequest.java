@@ -16,7 +16,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class UpdateTagRequest {
     // custom tag to update
     private String tagKey;

@@ -2,7 +2,6 @@
 @import "alien-variables";
 
 .topology-editor {
-  margin-top: -10px;
   overflow: hidden !important;
 }
 
@@ -40,19 +39,35 @@
 
 .topology-column-menu {
   position: absolute;
-  left: 0px;
   top: 0px;
   width: 20px;
   height: inherit;
   overflow-x: hidden;
   overflow-y: auto;
   background-color: $gray-lighter;
-  border-left: solid 1px #cccccc;
   text-align: center;
+}
+
+.topology-column-menu-left {
+  left: 0px;
+  border-left: solid 1px #cccccc;
+}
+
+.topology-column-menu-right {
+  right: 0px;
+  border-right: solid 1px #cccccc;
 }
 
 .topology-column-content {
   padding-left: 20px;
+  height: inherit;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.topology-column-content-left {
+  padding-right: 20px;
   height: inherit;
   width: 100%;
   overflow-x: hidden;
@@ -123,12 +138,16 @@ h4 .editable-error {
   margin-top: 0px;
 }
 
-#topology #env-version-select {
-  min-width: 140px;
-  float: left;
+#editor-head-menu .ui-select-placeholder {
+  display: none;
 }
 
-#topology #env-version-select span {
+#editor-env-version-select {
+  min-width: 140px;
+  display: inline-block;
+}
+
+#editor-env-version-select span {
   height: 22px;
   outline: 0px none;
   padding: 0px;
@@ -136,18 +155,23 @@ h4 .editable-error {
   padding-top: 1px;
 }
 
-#topology #env-version-select span i {
+#editor-env-version-select span i {
   left: 92%;
 }
+
+#editor-env-version-select input {
+  height: 22px;
+  outline: 0px none;
+  padding: 0px;
+  font-size: 12px;
+  padding-top: 1px;
+}
+
 /*
   Vertical menu
 */
 .close-btn-panel {
   border-color: white;
-}
-
-#topology-control-button {
-  margin-top: -22px;
 }
 
 .close-panel {

@@ -162,6 +162,8 @@ define(function (require) {
           return _.camelCase(this.simpleName(type)) + _.capitalize(_.camelCase(targetName));
         },
 
+        nodeTemplatePattern: /^\w+$/,
+        nodeTemplateReplacePattern: /\W/g,
         /**
         * Generate a unique node template name from the given node type name and based on a map of existing node templates.
         * @param type The name of the node type.
@@ -169,6 +171,8 @@ define(function (require) {
         */
         generateNodeTemplateName: function(type, nodeTemplates) {
           var baseName = this.simpleName(type);
+          // First we have to normalize the node template name as a4c restrict special character usage
+          baseName = this.nodeTemplatePattern.test(baseName) ? baseName : baseName.replace(this.nodeTemplateReplacePattern, '_');
           var i = 1;
           var tempName = baseName;
           if(_.defined(nodeTemplates)) {

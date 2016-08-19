@@ -28,19 +28,21 @@ require.config({
     'angular-ui-select': 'bower_components/angular-ui-select/dist/select',
     'angular-tree-control': 'bower_components/angular-tree-control/angular-tree-control',
     'ng-table': 'bower_components/ng-table/dist/ng-table',
+    'autofill-event': 'bower_components/autofill-event/src/autofill-event',
     'toaster': 'bower_components/angularjs-toaster/toaster',
     'hopscotch': 'bower_components/hopscotch/dist/js/hopscotch',
     'angular-file-upload-shim': 'bower_components/ng-file-upload/angular-file-upload-shim',
     'angular-file-upload': 'bower_components/ng-file-upload/angular-file-upload',
     'angular-ui-ace': 'bower_components/angular-ui-ace/ui-ace',
+    'angular-hotkeys': 'bower_components/angular-hotkeys/build/hotkeys.min',
     'ace': 'bower_components/ace-builds/src-min-noconflict/ace',
     'sockjs': 'bower_components/sockjs/sockjs',
     'stomp': 'bower_components/stomp-websocket/lib/stomp',
     'd3': 'bower_components/d3/d3',
     'd3-tip': 'bower_components/d3-tip/index',
-    'graphlib': 'bower_components/graphlib/dist/graphlib.core',
+    'd3-pie': 'bower_components/d3pie/d3pie/d3pie',
     'dagre': 'bower_components/dagre/dist/dagre.core',
-    'd3-pie': 'bower_components/d3pie/d3pie/d3pie'
+    'graphlib': 'bower_components/graphlib/dist/graphlib.core'
   },
   shim: {
     'angular': {
@@ -55,6 +57,7 @@ require.config({
     'angular-ui-router': { deps: ['angular'] },
     'angular-translate-base': { deps: ['angular'] },
     'angular-translate': { deps: ['angular-translate-base'] },
+    'angular-hotkeys': { deps: ['angular'] },
     'angular-all': { deps: ['angular-cookies', 'angular-translate', 'angular-ui-router', 'angular-sanitize', 'angular-resource', 'angular-bootstrap', 'angular-bootstrap-datetimepicker', 'angular-cookies'] },
     'ng-table': { deps: ['angular'] },
     'toaster': { deps: ['angular-animate'] },

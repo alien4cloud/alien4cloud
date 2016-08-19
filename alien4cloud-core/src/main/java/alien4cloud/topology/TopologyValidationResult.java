@@ -26,7 +26,7 @@ import com.google.common.collect.Lists;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class TopologyValidationResult {
 
     private boolean isValid;

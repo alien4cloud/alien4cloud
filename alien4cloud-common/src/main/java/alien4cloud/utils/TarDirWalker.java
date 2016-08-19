@@ -13,7 +13,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 
 import com.google.common.io.Closeables;
 
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class TarDirWalker extends SimpleFileVisitor<Path> {
 
     private Path basePath;

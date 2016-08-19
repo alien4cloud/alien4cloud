@@ -121,6 +121,7 @@ public class TopologyServiceCore {
 
     public Map<String, IndexedNodeType> getIndexedNodeTypesFromDependencies(Map<String, NodeTemplate> nodeTemplates, Set<CSARDependency> dependencies,
             boolean abstractOnly, boolean useTemplateNameAsKey) {
+
         Map<String, IndexedNodeType> nodeTypes = Maps.newHashMap();
         if (nodeTemplates == null) {
             return nodeTypes;

@@ -13,8 +13,6 @@ import alien4cloud.topology.TopologyUtils;
 import java.util.HashMap;
 import java.util.Map;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:application-context-test.xml")
 public class TopologyServiceTest {
 
     @Test
@@ -31,7 +29,7 @@ public class TopologyServiceTest {
     @Test
     public void normalizeAllNodeTemplateName() {
         Topology topology = new Topology();
-        Map<String,NodeTemplate> nodeTemplates = new HashMap<>();
+        Map<String, NodeTemplate> nodeTemplates = new HashMap<>();
         nodeTemplates.put("Computé", new NodeTemplate());
         nodeTemplates.put("Compute-2", new NodeTemplate());
         nodeTemplates.put("Compute.2", new NodeTemplate());

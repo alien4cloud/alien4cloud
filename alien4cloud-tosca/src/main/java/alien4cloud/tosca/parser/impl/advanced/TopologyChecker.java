@@ -31,7 +31,6 @@ import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.services.ConstraintPropertyService;
-import alien4cloud.utils.services.DependencyService.ArchiveDependencyContext;
 
 @Component
 public class TopologyChecker implements IChecker<Topology> {
@@ -149,8 +148,7 @@ public class TopologyChecker implements IChecker<Topology> {
                         }
                     } else if (propertyValue instanceof PropertyValue<?>) {
                         try {
-                            constraintPropertyService.checkPropertyConstraint(propertyName, ((PropertyValue<?>) propertyValue).getValue(), propertyDefinition,
-                                    new ArchiveDependencyContext(archiveRoot));
+                            constraintPropertyService.checkPropertyConstraint(propertyName, ((PropertyValue<?>) propertyValue).getValue(), propertyDefinition);
                         } catch (ConstraintValueDoNotMatchPropertyTypeException | ConstraintViolationException e) {
                             StringBuilder problem = new StringBuilder("Validation issue ");
                             if (e.getConstraintInformation() != null) {

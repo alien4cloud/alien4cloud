@@ -1,0 +1,19 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+template_name: invalid-node-name-template
+template_version: 1.0.0-SNAPSHOT
+template_author: tests
+
+imports:
+  - tosca-normative-types:1.0.0-SNAPSHOT
+
+topology_template:
+  node_templates:
+    Data-base:
+      type: tosca.nodes.Database
+      requirements:
+        - host:
+            node: Computé
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    Computé:
+      type: tosca.nodes.Compute

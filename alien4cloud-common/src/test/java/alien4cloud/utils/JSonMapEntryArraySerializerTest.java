@@ -76,7 +76,7 @@ public class JSonMapEntryArraySerializerTest {
     @Setter
     @EqualsAndHashCode
     @NoArgsConstructor
-    @AllArgsConstructor
+    @AllArgsConstructor(suppressConstructorProperties = true)
     public static class InnerObject {
         private String str;
         private Integer integer;

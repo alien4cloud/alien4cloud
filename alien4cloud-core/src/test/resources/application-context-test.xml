@@ -27,11 +27,13 @@
 		alien4cloud.orchestrators,
 		alien4cloud.paas,
 		alien4cloud.paas.plan,
+		alien4cloud.repository.*,
 		alien4cloud.tosca,
 		alien4cloud.suggestions,
 		alien4cloud.cloud,
 		alien4cloud.plugin,
-		alien4cloud.utils.services">
+		alien4cloud.utils.services,
+        org.alien4cloud.tosca.editor">
     <context:exclude-filter type="regex"
                             expression="alien4cloud.orchestrators.services.OrchestratorSecurityService"/>
     <context:exclude-filter type="regex" expression="alien4cloud.configuration.ApplicationBootstrap"/>

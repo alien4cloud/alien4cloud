@@ -14,7 +14,7 @@ import alien4cloud.tosca.parser.impl.ErrorCode;
  * Parser implementation that delegates parsing to a parser referenced in the parser registry based on the type key.
  */
 @Slf4j
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class ReferencedParser<T> implements INodeParser<T> {
 
     private String typeName;

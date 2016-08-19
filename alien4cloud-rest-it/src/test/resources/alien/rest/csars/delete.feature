@@ -16,10 +16,19 @@ Feature: CSAR delete
   @reset
   Scenario: Try do delete a CSAR that is used in a topology
   	Given I am authenticated with "APPLICATIONS_MANAGER" role
-    And I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
-    And I add a node template "Compute" related to the "tosca.nodes.Compute:1.0" node type
-    And I add a node template "Java" related to the "fastconnect.nodes.Java:2.0-SNAPSHOT" node type
-    And I have added a relationship "hostedOnCompute" of type "tosca.relationships.HostedOn" defined in archive "tosca-base-types" version "1.0" with source "Java" and target "Compute" for requirement "host" of type "tosca.capabilities.Container" and target capability "compute"
+    And I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring." and node templates
+      | Compute | tosca.nodes.Compute:1.0 |
+      | Java | fastconnect.nodes.Java:2.0-SNAPSHOT |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | Java                                                                                  |
+      | relationshipName       | hostedOnCompute                                                                        |
+      | relationshipType       | tosca.relationships.HostedOn                                                          |
+      | relationshipVersion    | 1.0                                                                                   |
+      | requirementName        | host                                                                                  |
+      | target                 | Compute                                                                               |
+      | targetedCapabilityName | host                                                                                  |
+    And I save the topology
     When I delete a CSAR with id "topology-test:2.0-SNAPSHOT"
     Then I should receive a RestResponse with an error code 507
     And I should have a delete csar response with "1" related resources

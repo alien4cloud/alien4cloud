@@ -19,9 +19,9 @@ import com.google.common.collect.Sets;
 @Setter
 @Slf4j
 public class ToscaTypeLoader {
-
+    /** Map of type names per archives. */
     private Map<CSARDependency, Set<String>> dependenciesMap = Maps.newHashMap();
-
+    /** Count the usage of a given type in the current context. */
     private Map<String, Integer> typeUsagesMap = Maps.newHashMap();
 
     private ICsarDependencyLoader dependencyLoader;
@@ -65,10 +65,11 @@ public class ToscaTypeLoader {
                 // Still used
                 typeUsagesMap.put(type, currentUsageCount - 1);
             }
-        } else {
-            log.error("Unload a type which is not used [" + type + "]");
-            throw new NotFoundException("Remove a type which is not used [" + type + "]");
         }
+//        else {
+//            log.error("Unload a type which is not used [" + type + "]");
+//            throw new NotFoundException("Remove a type which is not used [" + type + "]");
+//        }
         if (log.isDebugEnabled()) {
             log.debug("Type usage [" + typeUsagesMap + "]");
             log.debug("Dependencies usage [" + dependenciesMap + "]");
@@ -102,8 +103,7 @@ public class ToscaTypeLoader {
             log.warn("Version conflicting for archive [" + dependency.getName() + "] override current version [" + currentDependency.getVersion() + "] with ["
                     + dependency.getVersion() + "]");
         } else {
-            log.warn("Version conflicting for archive [" + dependency.getName() + "] do not override and use current version ["
-                    + currentDependency.getVersion()
+            log.warn("Version conflicting for archive [" + dependency.getName() + "] do not override and use current version [" + currentDependency.getVersion()
                     + "] ignore old version [" + dependency.getVersion() + "]");
             dependenciesMap.get(currentDependency).add(type);
         }

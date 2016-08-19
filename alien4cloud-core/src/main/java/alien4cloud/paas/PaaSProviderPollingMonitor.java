@@ -5,9 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -16,9 +17,8 @@ import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.TypeScanner;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Monitor service to watch a deployed topologies for a given PaaS provider.
@@ -27,6 +27,9 @@ import com.google.common.collect.Sets;
 @Slf4j
 public class PaaSProviderPollingMonitor implements Runnable {
     private static final int MAX_POLLED_EVENTS = 500;
+    private static final int MAX_LISTENER_RETRY = 3;
+    private static final long LISTENER_FAIL_RETRY_SLEEP_MS = 10;
+
     private final IGenericSearchDAO dao;
     private final IGenericSearchDAO monitorDAO;
     private final IPaaSProvider paaSProvider;
@@ -54,8 +57,10 @@ public class PaaSProviderPollingMonitor implements Runnable {
         Set<Class<?>> eventClasses = Sets.newHashSet();
         try {
             eventClasses = TypeScanner.scanTypes("alien4cloud.paas.model", AbstractMonitorEvent.class);
-            /** FIXME below is true for our own cloudify 3 provider implementation but this is not documented and orchestrators may not implement it that way.
-                We should do that in a different fashion in cloudify 3 provider probably and not impact alien that way **/
+            /**
+             * FIXME below is true for our own cloudify 3 provider implementation but this is not documented and orchestrators may not implement it that way.
+             * We should do that in a different fashion in cloudify 3 provider probably and not impact alien that way
+             **/
             // The PaaSDeploymentStatusMonitorEvent is an internal generated event and so do not take into account
             eventClasses.remove(PaaSDeploymentStatusMonitorEvent.class);
         } catch (ClassNotFoundException e) {
@@ -82,7 +87,6 @@ public class PaaSProviderPollingMonitor implements Runnable {
     }
 
     private class PaaSEventsCallback implements IPaaSCallback<AbstractMonitorEvent[]> {
-
         @Override
         public void onSuccess(AbstractMonitorEvent[] auditEvents) {
             synchronized (PaaSProviderPollingMonitor.this) {
@@ -96,24 +100,27 @@ public class PaaSProviderPollingMonitor implements Runnable {
                     }
                 }
                 if (auditEvents != null && auditEvents.length > 0) {
+                    Date lastEventDate = lastPollingDate;
                     for (AbstractMonitorEvent event : auditEvents) {
                         // Enrich event with cloud id before saving them
                         event.setOrchestratorId(orchestratorId);
-                    }
-                    for (IPaasEventListener listener : listeners) {
-                        for (AbstractMonitorEvent event : auditEvents) {
-                            if (listener.canHandle(event)) {
-                                listener.eventHappened(event);
-                            }
-                            if (event.getDate() > 0) {
-                                Date eventDate = new Date(event.getDate());
-                                lastPollingDate = eventDate.after(lastPollingDate) ? eventDate : lastPollingDate;
-                            } else {
-                                event.setDate(System.currentTimeMillis());
-                            }
+                        // If not set initialize a date for event or update the last event date (last polling)
+                        if (event.getDate() > 0) {
+                            Date eventDate = new Date(event.getDate());
+                            lastEventDate = eventDate.after(lastEventDate) ? eventDate : lastEventDate;
+                        } else {
+                            event.setDate(System.currentTimeMillis());
+                        }
+
+                        // dispatch the event to all listeners
+                        for (IPaasEventListener listener : listeners) {
+                            dispatchEvent(listener, event);
                         }
                     }
                     monitorDAO.save(auditEvents);
+                    if (lastEventDate != null) {
+                        lastPollingDate = lastEventDate;
+                    }
                 }
                 getEventsInProgress = false;
             }
@@ -127,6 +134,39 @@ public class PaaSProviderPollingMonitor implements Runnable {
                 // If the PaaS is down, there might be a chance that the deployment has been marked as failed
                 hasDeployments = false;
                 log.error("Error happened while trying to retrieve events from PaaS provider", throwable);
+            }
+        }
+    }
+
+    /**
+     * Dispatch an event to the registered listener.
+     *
+     * @param listener The listener to which to send the event.
+     * @param event The event to dispatch.
+     */
+    private void dispatchEvent(IPaasEventListener listener, AbstractMonitorEvent event) {
+        dispatchEvent(listener, event, 0);
+    }
+
+    /**
+     * Dispatch an event to the registered listener.
+     * 
+     * @param listener The listener to which to send the event.
+     * @param event The event to dispatch.
+     * @param retry The current retry index (0 for first dispatch)
+     */
+    @SneakyThrows
+    private void dispatchEvent(IPaasEventListener listener, AbstractMonitorEvent event, int retry) {
+        try {
+            if (listener.canHandle(event)) {
+                listener.eventHappened(event);
+            }
+        } catch (RuntimeException e) {
+            log.error("Failed to dispatch event {} to listener {} retry {} on {}.", event.toString(), listener.toString(), retry, MAX_LISTENER_RETRY, e);
+            // Even if that fails
+            if (retry < MAX_LISTENER_RETRY) {
+                Thread.sleep(LISTENER_FAIL_RETRY_SLEEP_MS);
+                dispatchEvent(listener, event, retry + 1);
             }
         }
     }

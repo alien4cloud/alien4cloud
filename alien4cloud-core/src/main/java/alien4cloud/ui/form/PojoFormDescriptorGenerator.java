@@ -1,6 +1,25 @@
 package alien4cloud.ui.form;
 
-import static alien4cloud.ui.form.GenericFormConstants.*;
+import static alien4cloud.ui.form.GenericFormConstants.ABSTRACT_TYPE;
+import static alien4cloud.ui.form.GenericFormConstants.ARRAY_TYPE;
+import static alien4cloud.ui.form.GenericFormConstants.BOOLEAN_TYPE;
+import static alien4cloud.ui.form.GenericFormConstants.COMPLEX_TYPE;
+import static alien4cloud.ui.form.GenericFormConstants.CONTENT_TYPE_KEY;
+import static alien4cloud.ui.form.GenericFormConstants.DATE_TYPE;
+import static alien4cloud.ui.form.GenericFormConstants.IMPLEMENTATIONS_KEY;
+import static alien4cloud.ui.form.GenericFormConstants.IS_PASSWORD_KEY;
+import static alien4cloud.ui.form.GenericFormConstants.LABEL_KEY;
+import static alien4cloud.ui.form.GenericFormConstants.MAP_TYPE;
+import static alien4cloud.ui.form.GenericFormConstants.NOT_NULL_KEY;
+import static alien4cloud.ui.form.GenericFormConstants.NUMBER_TYPE;
+import static alien4cloud.ui.form.GenericFormConstants.ORDER_KEY;
+import static alien4cloud.ui.form.GenericFormConstants.PROPERTY_TYPE_KEY;
+import static alien4cloud.ui.form.GenericFormConstants.STRING_TYPE;
+import static alien4cloud.ui.form.GenericFormConstants.SUGGESTION_KEY;
+import static alien4cloud.ui.form.GenericFormConstants.TOSCA_DEFINITION_KEY;
+import static alien4cloud.ui.form.GenericFormConstants.TOSCA_TYPE;
+import static alien4cloud.ui.form.GenericFormConstants.TYPE_KEY;
+import static alien4cloud.ui.form.GenericFormConstants.VALID_VALUES_KEY;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.ParameterizedType;
@@ -13,15 +32,16 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.ui.form.annotation.FormContentTypes;
 import alien4cloud.ui.form.annotation.FormCustomType;
 import alien4cloud.ui.form.annotation.FormLabel;
+import alien4cloud.ui.form.annotation.FormPassword;
 import alien4cloud.ui.form.annotation.FormProperties;
 import alien4cloud.ui.form.annotation.FormPropertyDefinition;
 import alien4cloud.ui.form.annotation.FormSuggestion;
@@ -30,9 +50,8 @@ import alien4cloud.ui.form.annotation.FormTypes;
 import alien4cloud.ui.form.annotation.FormValidValues;
 import alien4cloud.ui.form.exception.FormDescriptorGenerationException;
 import alien4cloud.utils.ReflectionUtil;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -58,8 +77,8 @@ public class PojoFormDescriptorGenerator {
     }
 
     private boolean isPrimitive(Class<?> clazz) {
-        return (clazz.isPrimitive() || Number.class.isAssignableFrom(clazz) || Boolean.class == clazz || String.class == clazz || Date.class
-                .isAssignableFrom(clazz));
+        return (clazz.isPrimitive() || Number.class.isAssignableFrom(clazz) || Boolean.class == clazz || String.class == clazz
+                || Date.class.isAssignableFrom(clazz));
     }
 
     private Map<String, Object> buildSimpleTypeDescriptor(Class<?> clazz) {
@@ -96,11 +115,14 @@ public class PojoFormDescriptorGenerator {
         if (isPrimitive(contentType)) {
             type.put(CONTENT_TYPE_KEY, buildSimpleTypeDescriptor(contentType));
         } else if (Map.class.isAssignableFrom(contentType)) {
-            throw new FormDescriptorGenerationException("Cannot generate meta data for field of type set of set, set of array, array of array, map of set ... ");
+            throw new FormDescriptorGenerationException(
+                    "Cannot generate meta data for field of type set of set, set of array, array of array, map of set ... ");
         } else if (List.class.isAssignableFrom(contentType) || Set.class.isAssignableFrom(contentType)) {
-            throw new FormDescriptorGenerationException("Cannot generate meta data for field of type set of set, set of array, array of array, map of set ... ");
+            throw new FormDescriptorGenerationException(
+                    "Cannot generate meta data for field of type set of set, set of array, array of array, map of set ... ");
         } else if (contentType.isArray()) {
-            throw new FormDescriptorGenerationException("Cannot generate meta data for field of type set of set, set of array, array of array, map of set ... ");
+            throw new FormDescriptorGenerationException(
+                    "Cannot generate meta data for field of type set of set, set of array, array of array, map of set ... ");
         } else {
             type.put(CONTENT_TYPE_KEY, buildComplexTypeDescriptor(contentType));
         }
@@ -228,6 +250,9 @@ public class PojoFormDescriptorGenerator {
             if (isNotNull(clazz, property)) {
                 type.put(NOT_NULL_KEY, true);
             }
+            if (isPassword(clazz, property)) {
+                type.put(IS_PASSWORD_KEY, true);
+            }
             if (label != null) {
                 type.put(LABEL_KEY, label);
             }
@@ -309,4 +334,7 @@ public class PojoFormDescriptorGenerator {
         return ReflectionUtil.getAnnotation(clazz, NotNull.class, property) != null;
     }
 
+    private boolean isPassword(Class<?> clazz, PropertyDescriptor property) {
+        return ReflectionUtil.getAnnotation(clazz, FormPassword.class, property) != null;
+    }
 }

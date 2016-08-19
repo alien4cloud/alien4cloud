@@ -75,7 +75,7 @@ public class PluginController {
         Path pluginPath = null;
         try {
             // save the plugin archive in the temp directory
-            pluginPath = Files.createTempFile(tempDirPath, null, ".zip");
+            pluginPath =  Files.createTempFile(tempDirPath, null, ".zip");
             FileUploadUtil.safeTransferTo(pluginPath, pluginArchive);
             // upload the plugin archive
             Plugin plugin = pluginManager.uploadPlugin(pluginPath);

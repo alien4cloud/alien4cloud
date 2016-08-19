@@ -5,7 +5,7 @@
 - property_value: alien4cloud.tosca.parser.impl.advanced.PropertyValueParser
 - import_definition: alien4cloud.tosca.parser.impl.advanced.ImportParser
 - occurrences: alien4cloud.tosca.parser.impl.advanced.OccurrencesParser
-- implementation_artifact: alien4cloud.tosca.parser.impl.advanced.ImplementationArtifactParser
+- implementation_artifact: alien4cloud.tosca.parser.impl.v12.advanced.ImplementationArtifactParser
 - derived_from_node_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromNodeTypeParser
 - derived_from_relationship_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromRelationshipTypeParser
 - derived_from_artifact_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromArtifactTypeParser

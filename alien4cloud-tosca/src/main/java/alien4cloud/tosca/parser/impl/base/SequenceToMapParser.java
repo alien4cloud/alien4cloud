@@ -14,7 +14,7 @@ import org.yaml.snakeyaml.nodes.*;
  *
  * @param <T> The type of the values of the map.
  */
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class SequenceToMapParser<T> implements INodeParser<Map<String, T>> {
     private INodeParser<T> valueParser;
     /** The tosca type of the map. */

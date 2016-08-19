@@ -8,23 +8,27 @@ import javax.validation.Valid;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.orchestrators.services.OrchestratorConfigurationService;
 import alien4cloud.plugin.PluginManager;
+import alien4cloud.repository.services.RepositoryService;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.ui.form.PojoFormDescriptorGenerator;
 import alien4cloud.ui.form.ToscaPropertyFormDescriptorGenerator;
-
 import springfox.documentation.annotations.ApiIgnore;
 
 @ApiIgnore
 @Component
 @RestController
-@RequestMapping({"/rest/formdescriptor", "/rest/v1/formdescriptor", "/rest/latest/formdescriptor"})
+@RequestMapping({ "/rest/formdescriptor", "/rest/v1/formdescriptor", "/rest/latest/formdescriptor" })
 public class FormDescriptorController {
     @Resource
     private PojoFormDescriptorGenerator pojoFormDescriptorGenerator;
@@ -34,6 +38,8 @@ public class FormDescriptorController {
     private PluginManager pluginManager;
     @Resource
     private OrchestratorConfigurationService orchestratorConfigurationService;
+    @Resource
+    private RepositoryService repositoryService;
 
     @ApiIgnore
     @RequestMapping(value = "/nodetype", method = RequestMethod.GET, produces = "application/json")
@@ -70,6 +76,16 @@ public class FormDescriptorController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<Map<String, Object>> getOrchestratorConfigurationFormDescriptor(@PathVariable String orchestratorId) throws IntrospectionException {
         Class<?> configurationClass = orchestratorConfigurationService.getConfigurationType(orchestratorId);
+        if (configurationClass != null) {
+            return RestResponseBuilder.<Map<String, Object>> builder().data(pojoFormDescriptorGenerator.generateDescriptor(configurationClass)).build();
+        }
+        return RestResponseBuilder.<Map<String, Object>> builder().build();
+    }
+
+    @RequestMapping(value = "/repositoryConfig/{pluginId:.+}", method = RequestMethod.GET, produces = "application/json")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
+    public RestResponse<Map<String, Object>> getRepositoryConfigurationFormDescriptor(@PathVariable String pluginId) throws IntrospectionException {
+        Class<?> configurationClass = repositoryService.getRepositoryConfigurationType(pluginId);
         if (configurationClass != null) {
             return RestResponseBuilder.<Map<String, Object>> builder().data(pojoFormDescriptorGenerator.generateDescriptor(configurationClass)).build();
         }

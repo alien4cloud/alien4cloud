@@ -7,10 +7,12 @@ define(function(require) {
   var _ = require('lodash');
   var angular = require('angular');
 
+  require('autofill-event');
   require('angular-cookies');
   require('angular-resource');
   require('angular-sanitize');
   require('angular-bootstrap');
+  require('angular-hotkeys');
   require('moment');
   require('angular-bootstrap-datetimepicker');
   require('angular-ui-router');

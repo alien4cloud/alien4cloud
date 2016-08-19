@@ -6,25 +6,22 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import alien4cloud.component.repository.exception.CSARDirectoryCreationFailureException;
 import alien4cloud.component.repository.exception.CSARStorageFailureException;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
-import alien4cloud.model.components.Csar;
-import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.DirectoryJSonWalker;
 import alien4cloud.utils.FileUtil;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * CSAR Repository implementation<br/>
@@ -51,26 +48,6 @@ public class CsarFileRepository implements ICsarRepositry {
 
     public CsarFileRepository(String rootPathString) {
         this(Paths.get(rootPathString));
-    }
-
-    @Override
-    public void storeParsingResults(String name, String version, ParsingResult<Csar> parsingResult) {
-        Path csarDirectoryPath = rootPath.resolve(name).resolve(version);
-
-        try {
-            Files.createDirectories(csarDirectoryPath);
-        } catch (IOException e) {
-            throw new CSARDirectoryCreationFailureException(
-                    "Error while trying to create the CSAR directory <" + csarDirectoryPath.toString() + ">. " + e.getMessage(), e);
-        }
-
-        try {
-            // save the parsing result as a json file
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.writeValue(csarDirectoryPath.resolve("parsingresult.json").toFile(), parsingResult);
-        } catch (IOException e) {
-            throw new CSARDirectoryCreationFailureException("Error while saving parsing results", e);
-        }
     }
 
     @Override
@@ -124,6 +101,16 @@ public class CsarFileRepository implements ICsarRepositry {
             }
         }
 
+        throw new CSARVersionNotFoundException("CSAR: " + name + ", Version: " + version + " not found in the repository.");
+    }
+
+    @Override
+    public Path getExpandedCSAR(String name, String version) throws CSARVersionNotFoundException {
+        Path csarDir = rootPath.resolve(name).resolve(version);
+        Path expandedPath = csarDir.resolve("expanded");
+        if (Files.exists(expandedPath)) {
+            return expandedPath;
+        }
         throw new CSARVersionNotFoundException("CSAR: " + name + ", Version: " + version + " not found in the repository.");
     }
 

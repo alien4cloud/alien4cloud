@@ -9,13 +9,22 @@
             ng-if="deploymentContext.selectedEnvironment.status === 'UNDEPLOYED'">
       <i class="fa" ng-class="{'fa-play': !isDeploying, 'fa-spinner fa-spin': isDeploying}"></i> {{'APPLICATIONS.DEPLOY' | translate}}
     </button>
-    <button id="btn-undeploy"
-            type="button"
-            class="btn btn-danger application-deploy-button"
-            ng-disabled="deploymentContext.selectedEnvironment.status === 'UNDEPLOYMENT_IN_PROGRESS' || deploymentContext.selectedEnvironment.status === 'INIT_DEPLOYMENT'"
-            ng-click="undeploy()"
-            ng-if="deploymentContext.selectedEnvironment.status !== 'UNDEPLOYED' ">
-      <i class="fa" ng-class="{'fa-stop': !isUnDeploying, 'fa-spinner fa-spin': isUnDeploying}"></i> {{'APPLICATIONS.UNDEPLOY' | translate}}
-    </button>
+  </div>
+  <div class="col-md-12">
+    <!--  Workflow tasks  -->
+    <div ng-if="(wfTasks = deploymentContext.deploymentTopologyDTO.validation.taskList['WORKFLOW_INVALID']).length>0">
+      <h4 class="clickable" ng-init="isWorkflowsCollapsed = false" ng-click="isWorkflowsCollapsed = !isWorkflowsCollapsed">
+        <i class="fa" ng-class="{'fa-caret-down' : !isWorkflowsCollapsed, 'fa-caret-right': isWorkflowsCollapsed}"></i>
+        <span>{{'APPLICATIONS.TOPOLOGY.TASK.WORKFLOWS.TITLE' | translate}}</span>
+      </h4>
+
+      <div collapse="isWorkflowsCollapsed" class="topology-level">
+        <ul>
+          <li ng-repeat="wfTask in wfTasks">
+            {{'APPLICATIONS.TOPOLOGY.TASK.WORKFLOWS.HAS_ERROR' | translate:wfTask}}
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
 </div>

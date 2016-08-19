@@ -8,7 +8,9 @@ Feature: Create topology template versions
     And I should receive a RestResponse with no error
     And There is a "node type" with element name "tosca.nodes.Compute" and archive version "1.0"
     And There is a "node type" with element name "fastconnect.nodes.Java" and archive version "1.0"
-    And I am authenticated with "ARCHITECT" role
+    And There is a "mairon" user in the system
+    And I add a role "ARCHITECT" to user "mairon"
+    And I am authenticated with user named "mairon"
 
   @reset
   Scenario: Create an first topology template with default version number
@@ -19,7 +21,7 @@ Feature: Create topology template versions
   @reset
   Scenario: Create an new topology template version
     Given I create a new topology template with name "topology_template" and description "My topology template description1" and node templates
-        | NodeTemplateCompute | tosca.nodes.Compute:1.0    |
+      | NodeTemplateCompute | tosca.nodes.Compute:1.0 |
     Then I should receive a RestResponse with no error
     When I create a new topology template version named "0.2.0-SNAPSHOT"
     Then If I search for topology templates I can find one with the name "topology_template" version "0.2.0-SNAPSHOT" and store the related topology as a SPEL context
@@ -28,13 +30,17 @@ Feature: Create topology template versions
   @reset
   Scenario: Create an new topology template version based on another
     Given I create a new topology template with name "topology_template" and description "My topology template description1" and node templates
-        | NodeTemplateCompute | tosca.nodes.Compute:1.0    |
+      | NodeTemplateCompute | tosca.nodes.Compute:1.0 |
     Then I should receive a RestResponse with no error
     When I create a new topology template version named "0.2.0-SNAPSHOT" based on the current version
     Then the topology template named "topology_template" should have 2 versions
     And If I search for topology templates I can find one with the name "topology_template" version "0.2.0-SNAPSHOT" and store the related topology as a SPEL context
     And The SPEL int expression "nodeTemplates.size()" should return 1
-    When I add a node template "NodeTemplateJava" related to the "fastconnect.nodes.Java:1.0" node type
+    When I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | NodeTemplateJava                                                      |
+      | indexedNodeTypeId | fastconnect.nodes.Java:1.0                                            |
+    And I save the topology
     Then If I search for topology templates I can find one with the name "topology_template" version "0.2.0-SNAPSHOT" and store the related topology as a SPEL context
     And The SPEL int expression "nodeTemplates.size()" should return 2
     And If I search for topology templates I can find one with the name "topology_template" version "0.1.0-SNAPSHOT" and store the related topology as a SPEL context
@@ -43,7 +49,7 @@ Feature: Create topology template versions
   @reset
   Scenario: Delete a topology template version
     Given I create a new topology template with name "topology_template" and description "My topology template description1" and node templates
-        | NodeTemplateCompute | tosca.nodes.Compute:1.0    |
+      | NodeTemplateCompute | tosca.nodes.Compute:1.0 |
     Then I should receive a RestResponse with no error
     And I create a new topology template version named "0.2.0-SNAPSHOT" based on the current version
     When I delete the topology template named "topology_template" version "0.1.0-SNAPSHOT"
@@ -59,14 +65,25 @@ Feature: Create topology template versions
   @reset
   Scenario: Can not update a versionned template
     Given I create a new topology template with name "topology_template" and description "My topology template description1" and node templates
-        | NodeTemplateCompute | tosca.nodes.Compute:1.0    |
+      | NodeTemplateCompute | tosca.nodes.Compute:1.0 |
     Then I should receive a RestResponse with no error
     And I create a new topology template version named "0.1.0" based on the current version
-    When I add a node template "NodeTemplateJava" related to the "fastconnect.nodes.Java:1.0" node type
+    When I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | NodeTemplateJava                                                      |
+      | indexedNodeTypeId | fastconnect.nodes.Java:1.0                                            |
     Then I should receive a RestResponse with an error code 807
-    When I define the property "disk_size" of the node "NodeTemplateCompute" of typeId "tosca.nodes.Compute:1.0" as input property
+    When I execute the operation
+      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
+      | inputName               | disk_size                                                        |
+      | propertyDefinition.type | integer                                                          |
     Then I should receive a RestResponse with an error code 807
-    When I expose the template as type "tosca.nodes.Root"
+    When I execute the operation
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Root                                                                  |
     Then I should receive a RestResponse with an error code 807
-    When I add the node "NodeTemplateCompute" to the group "HA_group"
+    When I execute the operation
+      | type      | org.alien4cloud.tosca.editor.operations.groups.AddGroupMemberOperation |
+      | nodeName  | NodeTemplateCompute                                                    |
+      | groupName | HA_group                                                               |
     Then I should receive a RestResponse with an error code 807

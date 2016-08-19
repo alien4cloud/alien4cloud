@@ -1,6 +1,7 @@
 package alien4cloud.component.repository;
 
 import java.io.InputStream;
+import java.nio.file.Path;
 
 /**
  * A contract for an internal file system. It enables store file and retrieve file.
@@ -50,4 +51,20 @@ public interface IFileRepository {
      * @return an {@link InputStream} which contain the file data
      */
     InputStream getFile(String id);
+
+    /**
+     * Retrieve the path to access a given file based on it's id.
+     * 
+     * @param id The id of the file to retrieve.
+     * @return a path to the file.
+     */
+    Path resolveFile(String id);
+
+    /**
+     * Retrieve the lenght of the content of the file with given id from the file repository.
+     *
+     * @param id the UID of the file for which to get length
+     * @return the length of the file.
+     */
+    long getFileLength(String id);
 }

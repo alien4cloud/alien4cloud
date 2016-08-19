@@ -4,6 +4,10 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+import alien4cloud.json.deserializer.PropertyValueDeserializer;
+import alien4cloud.model.components.PropertyValue;
+import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.ObjectField;
 import org.elasticsearch.annotation.StringField;
@@ -16,6 +20,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
@@ -82,7 +87,8 @@ public class DeploymentTopology extends Topology {
     private Map<String, String> providerDeploymentProperties;
     /** Values of the input properties as configured by the user. */
     @ObjectField(enabled = false)
-    private Map<String, String> inputProperties;
+    @JsonDeserialize(contentUsing = PropertyValueDeserializer.class)
+    private Map<String, PropertyValue> inputProperties;
     // TODO add also the input artifacts here. /-> Note that they should/could be repository based.
 
     /**

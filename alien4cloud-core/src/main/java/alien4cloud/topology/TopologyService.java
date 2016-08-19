@@ -2,17 +2,11 @@ package alien4cloud.topology;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
-
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -20,6 +14,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.mapping.FilterValuesStrategy;
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
@@ -32,16 +29,7 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedDataType;
-import alien4cloud.model.components.IndexedInheritableToscaElement;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.PrimitiveIndexedDataType;
-import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.*;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.AbstractTopologyVersion;
@@ -57,13 +45,13 @@ import alien4cloud.topology.exception.UpdateTopologyException;
 import alien4cloud.topology.task.SuggestionsTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.tosca.container.ToscaTypeLoader;
+import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.serializer.VelocityUtil;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -93,7 +81,8 @@ public class TopologyService {
     @Resource
     private WorkflowsBuilderService workflowBuilderService;
 
-    public static final String NODE_NAME_REGEX = "^\\w+$";
+    public static final Pattern NODE_NAME_PATTERN = Pattern.compile("^\\w+$");
+    public static final Pattern NODE_NAME_REPLACE_PATTERN = Pattern.compile("\\W");
 
     private ToscaTypeLoader initializeTypeLoader(Topology topology) {
         ToscaTypeLoader loader = new ToscaTypeLoader(csarService);
@@ -294,6 +283,7 @@ public class TopologyService {
      * @param topology The topology for which to create a DTO.
      * @return The {@link TopologyDTO} that contains the given topology
      */
+    @Deprecated
     public TopologyDTO buildTopologyDTO(Topology topology) {
         Map<String, IndexedNodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false);
         Map<String, IndexedRelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology);
@@ -399,8 +389,12 @@ public class TopologyService {
                 element = csarRepoSearchService.getElementInDependencies((Class<T>) element.getClass(), element.getElementId(), topology.getDependencies());
             }
         }
+        // FIXME Transitive dependencies could change here and thus types be affected ?
         ToscaTypeLoader typeLoader = initializeTypeLoader(topology);
         typeLoader.loadType(type, new CSARDependency(element.getArchiveName(), element.getArchiveVersion()));
+        for (CSARDependency updatedDependency : typeLoader.getLoadedDependencies()) {
+            ToscaContext.get().updateDependency(updatedDependency);
+        }
         topology.setDependencies(typeLoader.getLoadedDependencies());
         return element;
     }
@@ -409,6 +403,10 @@ public class TopologyService {
         ToscaTypeLoader typeLoader = initializeTypeLoader(topology);
         for (String type : types) {
             typeLoader.unloadType(type);
+        }
+        // FIXME if a dependency is just removed don't add it back
+        for (CSARDependency updatedDependency : typeLoader.getLoadedDependencies()) {
+            ToscaContext.get().updateDependency(updatedDependency);
         }
         topology.setDependencies(typeLoader.getLoadedDependencies());
     }
@@ -500,21 +498,12 @@ public class TopologyService {
 
     }
 
-    public void isUniqueNodeTemplateName(String topologyId, String newNodeTemplateName, Map<String, NodeTemplate> nodeTemplates) {
-        if (nodeTemplates.containsKey(newNodeTemplateName)) {
+    public void isUniqueNodeTemplateName(Topology topology, String newNodeTemplateName) {
+        if (topology.getNodeTemplates() != null && topology.getNodeTemplates().containsKey(newNodeTemplateName)) {
             log.debug("Add Node Template <{}> impossible (already exists)", newNodeTemplateName);
             // a node template already exist with the given name.
-            throw new AlreadyExistException("A node template with the given name " + newNodeTemplateName + " already exists in the topology " + topologyId
-                    + ".");
+            throw new AlreadyExistException(
+                    "A node template with the given name " + newNodeTemplateName + " already exists in the topology " + topology.getId() + ".");
         }
     }
-
-    public void isUniqueRelationshipName(String topologyId, String nodeTemplateName, String newName, Set<String> relationshipNames) {
-        if (relationshipNames.contains(newName)) {
-            // a relation already exist with the given name.
-            throw new AlreadyExistException("A relationship with the given name " + newName + " already exists in the node template " + nodeTemplateName
-                    + " of topology " + topologyId + ".");
-        }
-    }
-
 }

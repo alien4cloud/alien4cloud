@@ -2,7 +2,7 @@ package alien4cloud.model.topology;
 
 import lombok.*;
 
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @NoArgsConstructor
 @Getter
 @Setter

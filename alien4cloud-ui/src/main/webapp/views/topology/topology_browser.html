@@ -1,0 +1,54 @@
+<div id="editor-explorer" class="topology-editor" style="height: {{dimensions.height}}px; width: {{dimensions.width}}px;">
+  <div class="topology-row" style="height: {{dimensions.height}}px;">
+    <div id="tree-box" class="topology-column" style="width: {{displays.tree.size}}px;">
+      <div class="topology-column-box">
+        <div class="topology-column-content-left" style="padding-top: 10px;">
+          <treecontrol class="tree-classic" tree-model="treedata" options="opts" on-selection="showSelected(node)" on-node-toggle="onToggled(node)" selected-node="selected" expanded-nodes="expandedNodes">
+            {{node.name}}
+          </treecontrol>
+          <div style="margin: 10px;">
+            <form name="formAddFile" ng-submit="addFile(filePath)">
+              <div class="input-group">
+                <input type="text" class="form-control" id="file-path" name="path" ng-model="filePath"/>
+                <div class="input-group-btn">
+                  <button type="submit" class="btn btn-danger" id="delete-file" ng-disabled="filePath.length === 0 || !exists(false)" ng-click="deleteFile()">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                  <button type="submit" class="btn btn-primary" id="create-file" ng-disabled="!isNewFile()" ng-click="createFile()">
+                    <i class="fa fa-plus-circle"></i>
+                  </button>
+                  <button type="button" class="fileUploadBtn btn btn-primary" id="upload-file">
+                    <i class="fa fa-upload"></i>
+                    <input id="fileUpload" type="file"
+                      class="upload"
+                      ng-file-drop-available="dropSupported=true"
+                      ng-file-select="onFileSelect($files)"
+                      multiple>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="topology-column-menu topology-column-menu-right">
+          <i id="tree-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-e resizable-bar"></i>
+        </div>
+      </div>
+    </div>
+    <div id="file-content" class="topology-column">
+      <div ng-if="!isImage" style="margin-top:10px;">
+        <div style="margin-left: 10px;">
+          <button class="btn btn-default btn-sm" id="save-file"
+            ng-disabled="!aceFilePath"
+            ng-click="saveFile()">
+            <i class="fa fa-save"></i> {{'EDITOR.SAVE' | translate}}
+          </button>
+          <span class="text-info">{{aceFilePath}}<span>
+        </div>
+        <div ng-model="editorContent"  ui-ace="{mode: mode, useWrapMode: true, readonly: released, onLoad : aceLoaded}" style="margin-top:10px; height: {{dimensions.height - 58}}px;">
+        </div>
+      </div>
+      <div ng-if="isImage" style="margin-top:10px;" class="well"><img ng-src="{{imageUrl}}" /></div>
+    </div>
+  </div>
+</div>

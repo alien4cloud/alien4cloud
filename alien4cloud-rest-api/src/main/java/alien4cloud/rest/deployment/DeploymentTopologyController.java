@@ -1,5 +1,11 @@
 package alien4cloud.rest.deployment;
 
+import static alien4cloud.utils.AlienUtils.safe;
+import alien4cloud.deployment.OrchestratorPropertiesValidationService;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.utils.services.PropertyService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -43,8 +49,12 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationExc
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.RestConstraintValidator;
 
+import java.util.Map;
+
 @RestController
-@RequestMapping({"/rest/applications/{appId}/environments/{environmentId}/deployment-topology", "/rest/v1/applications/{appId}/environments/{environmentId}/deployment-topology", "/rest/latest/applications/{appId}/environments/{environmentId}/deployment-topology"})
+@RequestMapping({ "/rest/applications/{appId}/environments/{environmentId}/deployment-topology",
+        "/rest/v1/applications/{appId}/environments/{environmentId}/deployment-topology",
+        "/rest/latest/applications/{appId}/environments/{environmentId}/deployment-topology" })
 @Api(value = "", description = "Prepare a topology to be deployed on a specific environment (location matching, node matching and inputs configuration).")
 public class DeploymentTopologyController {
     @Inject
@@ -57,6 +67,10 @@ public class DeploymentTopologyController {
     private DeploymentTopologyValidationService deploymentTopologyValidationService;
     @Inject
     public IDeploymentTopologyHelper deploymentTopologyHelper;
+    @Inject
+    public PropertyService propertyService;
+    @Inject
+    private OrchestratorPropertiesValidationService orchestratorPropertiesValidationService;
 
     /**
      * Get the deployment topology of an application given an environment
@@ -137,8 +151,7 @@ public class DeploymentTopologyController {
     @RequestMapping(value = "/location-policies", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @Audit
     @PreAuthorize("isAuthenticated()")
-    public RestResponse<DeploymentTopologyDTO> setLocationPolicies(
-            @ApiParam(value = "Id of the application.", required = true) @PathVariable String appId, 
+    public RestResponse<DeploymentTopologyDTO> setLocationPolicies(@ApiParam(value = "Id of the application.", required = true) @PathVariable String appId,
             @ApiParam(value = "Id of the environment on which to set the location policies.", required = true) @PathVariable String environmentId,
             @ApiParam(value = "Location policies request body.", required = true) @RequestBody SetLocationPoliciesRequest request) {
         checkAuthorizations(appId, environmentId);
@@ -148,8 +161,7 @@ public class DeploymentTopologyController {
     }
 
     /**
-     *
-     *
+     * 
      * @param appId The application id
      * @param environmentId Id of the environment we want to update
      * @param updateRequest an {@link UpdateDeploymentTopologyRequest} object
@@ -170,18 +182,37 @@ public class DeploymentTopologyController {
 
         DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
-        ReflectionUtil.mergeObject(updateRequest, deploymentTopology);
-        // If someone modified the input properties, must validate them
+
         try {
-            deploymentTopologyValidationService.checkPropertiesContraints(deploymentTopology);
+            ToscaContext.init(deploymentTopology.getDependencies());
+            // update topology inputs
+            for (Map.Entry<String, Object> inputPropertyValue : safe(updateRequest.getInputProperties()).entrySet()) {
+                if (deploymentTopology.getInputs() == null || deploymentTopology.getInputs().get(inputPropertyValue.getKey()) == null) {
+                    throw new NotFoundException("Input", inputPropertyValue.getKey(), "Input <" + inputPropertyValue.getKey()
+                            + "> cannot be found on topology for application <" + appId + "> environement <" + environmentId + ">");
+                }
+                propertyService.setPropertyValue(deploymentTopology.getInputProperties(), deploymentTopology.getInputs().get(inputPropertyValue.getKey()),
+                        inputPropertyValue.getKey(), inputPropertyValue.getValue());
+            }
+
+            // update
+            if (updateRequest.getProviderDeploymentProperties() != null && !updateRequest.getProviderDeploymentProperties().isEmpty()) {
+                deploymentTopology.getProviderDeploymentProperties().putAll(updateRequest.getProviderDeploymentProperties());
+                orchestratorPropertiesValidationService.checkConstraints(deploymentTopology.getOrchestratorId(),
+                        updateRequest.getProviderDeploymentProperties());
+            }
+
+            deploymentTopologyService.updateDeploymentTopologyInputsAndSave(deploymentTopology);
         } catch (ConstraintViolationException e) {
             return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().data(e.getConstraintInformation())
                     .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
         } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
             return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().data(e.getConstraintInformation())
                     .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
+        } finally {
+            ToscaContext.destroy();
         }
-        deploymentTopologyService.updateDeploymentTopologyInputsAndSave(deploymentTopology);
+
         return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(deploymentTopologyHelper.buildDeploymentTopologyDTO(deploymentConfiguration)).build();
     }
 

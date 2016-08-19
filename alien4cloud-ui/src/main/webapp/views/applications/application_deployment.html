@@ -5,7 +5,7 @@
               ng-change="onEnvironmentChange()"></select>
     </div>
     <!--  Environment status -->
-    <div class="col-md-2">
+    <div class="col-md-3">
       <i class="fa fa-2x vertical-center" tooltip="{{'DEPLOYMENT.STATUS.' + deploymentContext.selectedEnvironment.status | translate }}"
          tooltip-append-to-body="true" ng-class="{
             'fa-circle text-success' : deploymentContext.selectedEnvironment.status === 'DEPLOYED',
@@ -20,10 +20,42 @@
       <h4 style="display:inline; padding-left:5px; vertical-align:middle;">{{'DEPLOYMENT.STATUS.' + deploymentContext.selectedEnvironment.status | translate}}</h4>
     </div>
 
-    <div class="col-md-7">
+    <div class="col-md-6">
+      <button id="btn-undeploy"
+              type="button"
+              class="btn btn-danger application-deploy-button"
+              ng-disabled="deploymentContext.selectedEnvironment.status === 'UNDEPLOYMENT_IN_PROGRESS' || deploymentContext.selectedEnvironment.status === 'INIT_DEPLOYMENT'"
+              ng-click="undeploy()"
+              ng-if="deploymentContext.selectedEnvironment.status !== 'UNDEPLOYED' ">
+        <i class="fa" ng-class="{'fa-stop': !isUnDeploying, 'fa-spinner fa-spin': isUnDeploying}"></i> {{'APPLICATIONS.UNDEPLOY' | translate}}
+      </button>
+    </div>
+  </div>
+  <hr class="separator-h">
+  <!-- DEPLOYMENT CONFIGURATION -->
+  <div class="row" style="margin-top: 10px"
+    ng-if="deploymentContext.selectedEnvironment && validTopologyDTO.valid">
+    <div class="col-md-12">
+      <ul class="nav nav-tabs">
+        <li role="presentation" ng-repeat="menuItem in menu" ui-sref-active="active"
+            ng-class="{'disabled' : menuItem.disabled}">
+          <a id="{{menuItem.id}}"
+             ng-click="onItemClick($event, menuItem)"
+             ui-sref="{{menuItem.state}}">
+            <i class="{{menuItem.icon}}" ng-show="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i> {{menuItem.key | translate}}
+            <i class="fa fa-exclamation-triangle" ng-if="showStatusIcon(menuItem)" ng-class="{'text-danger': menuItem.step.status==='ERROR',
+                                                             'text-warning': menuItem.step.status==='WARNING'}"></i>
+          </a>
+        </li>
+      </ul>
+      <div class="tab-pane" ui-view></div>
+    </div>
+  </div>
+  <!-- If there is validation issues they are displayed here. -->
+  <div class="row" style="margin-top: 10px">
+    <div class="col-md-12">
       <!--  Task list -->
       <div class="row" ng-if="showTodoList()">
-        <!--       <div class="row"> -->
         <div id="deploymentTodoList" class="col-md-12">
           <h3 class="text-danger"><i class="fa fa-exclamation-triangle"></i> {{'APPLICATIONS.TOPOLOGY.TASK.LABEL' | translate}}</h3>
 
@@ -87,7 +119,6 @@
 
             <!--HA warning list -->
             <div ng-if="tasks.length>0" ng-switch-when="HA_INVALID">
-
               <h4 class="clickable" ng-init="isHAGroupWarningsCollapsed = false"
                    ng-click="isHAGroupWarningsCollapsed = !isHAGroupWarningsCollapsed">
                 <i class="fa" ng-class="{'fa-caret-down' : !isHAGroupWarningsCollapsed , 'fa-caret-right': isHAGroupWarningsCollapsed }"></i>
@@ -109,13 +140,11 @@
                   </tbody>
                 </table>
               </div>
-
             </div>
             <!-- End : HA warning -->
 
             <!-- Properties warning list -->
             <div ng-if="tasks.length>0" ng-switch-when="PROPERTIES">
-
               <h4 class="clickable" ng-init="isPropertiesGroupWarningsCollapsed = false"
                    ng-click="isPropertiesGroupWarningsCollapsed = !isPropertiesGroupWarningsCollapsed">
                 <i class="fa"
@@ -145,53 +174,6 @@
           </div>
           <!-- End : warning list display -->
         </div>
-      </div>
-
-      <!-- DEPLOYMENT TOPO CONFIGURATION ERRORS -->
-      <div id="configurationsErrors" class="row" ng-if="validTopologyDTO.valid">
-        <div class="col-md-12" ng-if="showConfgurationsErrors()">
-          <h3 class="text-danger"><i class="fa fa-exclamation-triangle"></i> {{'APPLICATIONS.TOPOLOGY.TASK.ERRORS_LABEL' | translate}}</h3>
-
-         <div class="task-list-box">
-           <!-- NODE FILTERS-->
-           <node-filters-errors-display
-             tasks = "deploymentContext.deploymentTopologyDTO.validation.taskList['NODE_FILTER_INVALID']"
-             input-column=true>
-          </node-filters-errors-display>
-
-          <!-- SCALABILITY ERRORS -->
-          <scalability-errors-display
-            tasks="deploymentContext.deploymentTopologyDTO.validation.taskList['SCALABLE_CAPABILITY_INVALID']">
-          </scalability-errors-display>
-
-          <!--  Required properties tasks  -->
-          <properties-errors-display
-            tasks = "deploymentContext.deploymentTopologyDTO.validation.taskList['PROPERTIES']">
-          </properties-errors-display>
-         </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <hr class="separator-h">
-
-  <!-- DEPLOYMENT CONFIGURATION -->
-  <div ng-if="deploymentContext.selectedEnvironment &&  (validTopologyDTO.valid || deploymentContext.selectedEnvironment.status !== 'UNDEPLOYED')">
-    <div class="row" style="margin-top: 10px">
-      <div class="col-md-12">
-        <ul class="nav nav-tabs">
-          <li role="presentation" ng-repeat="menuItem in menu" ui-sref-active="active"
-              ng-class="{'disabled' : menuItem.disabled}">
-            <a id="{{menuItem.id}}"
-               ng-click="onItemClick($event, menuItem)"
-               ui-sref="{{menuItem.state}}">
-              <i class="{{menuItem.icon}}" ng-show="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i> {{menuItem.key | translate}}
-              <i class="fa fa-exclamation-triangle" ng-if="showStatusIcon(menuItem)" ng-class="{'text-danger': menuItem.step.status==='ERROR',
-                                                               'text-warning': menuItem.step.status==='WARNING'}"></i>
-            </a>
-          </li>
-        </ul>
-        <div class="tab-pane" ui-view></div>
       </div>
     </div>
   </div>

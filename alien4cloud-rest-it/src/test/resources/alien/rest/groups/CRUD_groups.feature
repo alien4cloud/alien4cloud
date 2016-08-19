@@ -38,20 +38,20 @@ Feature: Creating a new group
     Then I should receive a RestResponse with an error code 504
 
   @reset
-  Scenario: Getting a group from its name should succeed.
+  Scenario: Getting a group from its name should succeed
     Given There is a "lordOfRing" group in the system
     When I get the "lordOfRing" group
     Then I should receive a RestResponse with no error
     And The RestResponse should contain a group with name "lordOfRing"
 
   @reset
-  Scenario: Getting a group that doesnt exists should return null.
+  Scenario: Getting a group that doesnt exists should return null
     When I get the "lordOfRing" group
     Then I should receive a RestResponse with no error
     And I should receive a RestResponse with no data
 
   @reset
-  Scenario: Mass getting of groups.
+  Scenario: Mass getting of groups
     Given There is a "lordOfRing1" group in the system
     And There is a "lordOfRing2" group in the system
     And There is a "lordOfRing1_lordOfRing2" group in the system
@@ -64,14 +64,14 @@ Feature: Creating a new group
       | lordOfRing2 |
 
   @reset
-  Scenario: Deleting a group.
+  Scenario: Deleting a group
     Given There is a "lordOfRing" group in the system
     When I delete the "lordOfRing" group
     Then I should receive a RestResponse with no error
     And There should not be a group "lordOfRing" in the system
 
   @reset
-  Scenario: Deleting a group that doesnt exists.
+  Scenario: Deleting a group that doesnt exists
     When I delete the "lordOfRing" group
     Then I should receive a RestResponse with an error code 504
     And There should not be a group "lordOfRing" in the system
@@ -101,7 +101,7 @@ Feature: Creating a new group
     And the user "sauron" should not have any group
 
   @reset
-  Scenario: Updating a group.
+  Scenario: Updating a group
     Given There is a "lordOfRing" group in the system
     When I update the "lordOfRing" group's name to "lordOfRingRenamed"
     Then I should receive a RestResponse with no error

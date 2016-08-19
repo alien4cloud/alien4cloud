@@ -13,7 +13,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 @Getter
 @Setter
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @NoArgsConstructor
 @ApiModel("Creation request for a suggestion.")
 public class CreateSuggestionEntryRequest {

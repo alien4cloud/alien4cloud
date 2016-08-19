@@ -3,8 +3,8 @@ package alien4cloud.rest.deployment;
 import java.util.Map;
 import java.util.Set;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.google.common.collect.Maps;
+
 import alien4cloud.deployment.model.DeploymentSubstitutionConfiguration;
 import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedDataType;
@@ -14,8 +14,8 @@ import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.topology.AbstractTopologyDTO;
 import alien4cloud.topology.TopologyValidationResult;
-
-import com.google.common.collect.Maps;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -43,7 +43,7 @@ public class DeploymentTopologyDTO extends AbstractTopologyDTO<DeploymentTopolog
     public DeploymentTopologyDTO(DeploymentTopology topology, Map<String, IndexedNodeType> nodeTypes, Map<String, IndexedRelationshipType> relationshipTypes,
             Map<String, IndexedCapabilityType> capabilityTypes, Map<String, Map<String, Set<String>>> outputCapabilityProperties,
             Map<String, IndexedDataType> dataTypes) {
-        super(topology, nodeTypes, relationshipTypes, capabilityTypes, outputCapabilityProperties, dataTypes);
+        super(topology, nodeTypes, relationshipTypes, capabilityTypes, dataTypes, outputCapabilityProperties);
     }
 
     public DeploymentTopologyDTO() {

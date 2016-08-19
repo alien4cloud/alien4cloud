@@ -13,6 +13,7 @@ import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.model.components.IndexedDataType;
 import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.normative.IPropertyType;
 import alien4cloud.tosca.normative.ToscaType;
@@ -22,8 +23,6 @@ import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.utils.services.DependencyService;
-import alien4cloud.utils.services.DependencyService.ArchiveDependencyContext;
 
 @Component
 public class PropertyDefinitionChecker implements IChecker<PropertyDefinition> {
@@ -32,9 +31,6 @@ public class PropertyDefinitionChecker implements IChecker<PropertyDefinition> {
 
     @Resource
     private ICSARRepositorySearchService searchService;
-
-    @Resource
-    private DependencyService dependencyService;
 
     @Override
     public String getName() {
@@ -77,7 +73,7 @@ public class PropertyDefinitionChecker implements IChecker<PropertyDefinition> {
                 // It's data type
                 ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
                 if (!archiveRoot.getDataTypes().containsKey(propertyType)) {
-                    IndexedDataType dataType = dependencyService.getDataType(propertyType, new ArchiveDependencyContext(archiveRoot));
+                    IndexedDataType dataType = ToscaContext.get(IndexedDataType.class, propertyType);
                     if (dataType == null) {
                         context.getParsingErrors().add(new ParsingError(ErrorCode.TYPE_NOT_FOUND, "ToscaPropertyType", node.getStartMark(),
                                 "Type " + propertyType + " is not found.", node.getEndMark(), "type"));

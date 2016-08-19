@@ -6,21 +6,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import javax.inject.Inject;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Maps;
+
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
-
-import com.google.common.collect.Maps;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Manages the paas providers currently used by an enabled Cloud in ALIEN.
@@ -37,6 +38,8 @@ public class OrchestratorPluginService implements IPaasEventService {
     /** Interval in milliseconds on which to retrieve monitoring events from a PaaS provider. */
     @Value("${paas_monitor.monitor_interval_ms}")
     private long monitorIntervalMs = 1000 * 30;
+    @Inject
+    private DeploymentStatusEventHandler deploymentStatusEventHandler;
 
     private Map<String, Registration> monitorRegistrations = Maps.newHashMap();
 
@@ -50,6 +53,12 @@ public class OrchestratorPluginService implements IPaasEventService {
     @Override
     public void addListener(IPaasEventListener<?> listener) {
         listeners.add(listener);
+    }
+
+    @PostConstruct
+    public void init() {
+        // Deployment status event handler should be the first handler has quite important.
+        listeners.add(0, deploymentStatusEventHandler);
     }
 
     /**
@@ -114,7 +123,7 @@ public class OrchestratorPluginService implements IPaasEventService {
     /**
      * A registration for a paasProvider and the associated monitoring registration.
      */
-    @AllArgsConstructor
+    @AllArgsConstructor(suppressConstructorProperties = true)
     private class Registration {
         private IOrchestratorPlugin instance;
         private ScheduledFuture<?> registration;

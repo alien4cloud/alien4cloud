@@ -9,31 +9,31 @@ Feature: CRUD operations on application version
 
   @reset
   Scenario: Create an application version with failure
-    Given I have an application with name "ALIEN"
+    Given I create a new application with name "ALIEN" and description "Test application"
     And I create an application version with version "0.3..0-SNAPSHOT-SHOULD-FAILED"
     Then I should receive a RestResponse with an error code 605
 
   @reset
   Scenario: Create an application version with the same name version raise a conflict
-    Given I have an application with name "ALIEN"
+    Given I create a new application with name "ALIEN" and description "Test application"
     And I create an application version with version "0.1.0-SNAPSHOT"
     Then I should receive a RestResponse with an error code 502
 
   @reset
   Scenario: Create an application version with success
-    Given I have an application with name "ALIEN"
+    Given I create a new application with name "ALIEN" and description "Test application"
     And I create an application version with version "0.3.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
 
   @reset
   Scenario: Delete an application version when it' the last should failled
-    Given I have an application with name "ALIEN"
+    Given I create a new application with name "ALIEN" and description "Test application"
     And I delete an application version with name "0.1.0-SNAPSHOT"
     Then I should receive a RestResponse with an error code 610
 
   @reset
   Scenario: Delete an application version with failure
-    Given I have an application with name "ALIEN"
+    Given I create a new application with name "ALIEN" and description "Test application"
     And I delete an application version with name "0.2.0-SNAPSHOT"
     Then I should receive a RestResponse with an error code 504
 
@@ -54,7 +54,8 @@ Feature: CRUD operations on application version
       | managementUrl | http://cloudifyurl:8099 |
       | numberBackup  | 1                       |
       | managerEmail  | admin@alien.fr          |
-    Given I have an application "ALIEN" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0-SNAPSHOT"
+    And I create a new application with name "ALIEN" and description "" and node templates
+      | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     When I deploy it
     And I delete an application version with name "0.1.0-SNAPSHOT"
@@ -62,7 +63,7 @@ Feature: CRUD operations on application version
 
   @reset
   Scenario: Delete an application version with success
-    Given I have an application with name "ALIEN"
+    Given I create a new application with name "ALIEN" and description "Test application"
     And I create an application version with version "0.2.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
     And I delete an application version with name "0.2.0-SNAPSHOT"
@@ -70,7 +71,7 @@ Feature: CRUD operations on application version
 
   @reset
   Scenario: Search for application versions
-    Given I have an application with name "ALIEN"
+    Given I create a new application with name "ALIEN" and description "Test application"
     And I create an application version with version "0.3.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
     When I search for application versions
@@ -78,7 +79,7 @@ Feature: CRUD operations on application version
 
   @reset
   Scenario: Update an application version with success
-    Given I have an application with name "ALIEN"
+    Given I create a new application with name "ALIEN" and description "Test application"
     And I create an application version with version "0.2.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
     And I update an application version with version "0.2.0-SNAPSHOT" to "0.4.0-SNAPSHOT"
@@ -86,7 +87,7 @@ Feature: CRUD operations on application version
 
   @reset
   Scenario: Update an application version with an existing name should be failed
-    Given I have an application with name "ALIEN"
+    Given I create a new application with name "ALIEN" and description "Test application"
     And I create an application version with version "0.2.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
     And I update an application version with version "0.1.0-SNAPSHOT" to "0.2.0-SNAPSHOT"
@@ -94,7 +95,7 @@ Feature: CRUD operations on application version
 
   @reset
   Scenario: Update a released application version should be failed
-    Given I have an application with name "ALIEN"
+    Given I create a new application with name "ALIEN" and description "Test application"
     And I create an application version with version "0.2.0"
     Then I should receive a RestResponse with no error
     And I update an application version with version "0.2.0" to "0.2.1"

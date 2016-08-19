@@ -9,7 +9,7 @@ import lombok.Setter;
  * Contains information on location support by an orchestrator.
  */
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @Getter
 @Setter
 public class LocationSupport {

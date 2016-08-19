@@ -18,7 +18,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @FormProperties({ "function", "parameters" })
 public class FunctionPropertyValue extends AbstractPropertyValue {
     private String function;

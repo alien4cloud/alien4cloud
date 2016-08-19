@@ -5,12 +5,10 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.alien4cloud.test.setup.TestDataRegistry;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
-import alien4cloud.it.setup.TestDataRegistry;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.rest.csar.CsarUploadResult;
 import alien4cloud.rest.model.RestResponse;
@@ -18,6 +16,7 @@ import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.parser.ParsingError;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class UploadCSARSStepDefinition {

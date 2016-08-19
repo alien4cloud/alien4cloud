@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApplicationEnvironmentDTO {
     private String id;

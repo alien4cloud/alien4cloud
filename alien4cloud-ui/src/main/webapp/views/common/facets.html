@@ -1,0 +1,37 @@
+<!-- Displaying active filters -->
+<div ng-show="facetFilters.length>0" class="filter-category">
+    <div>
+        {{ filterPrefix + 'ACTIVE_FILTERS' | translate }} <span class="badge">{{facetFilters.length}}</span>
+        <button type="button" class="btn btn-default btn-xs" ng-click="reset()">
+            <i class="fa fa-trash-o"></i>
+        </button>
+    </div>
+    <div class="facet-choice" collapse="isFacetCollapsed">
+        <ul class="nav facet-choice">
+            <li ng-repeat="filter in facetFilters">
+                <a href="" ng-click="removeFilter(filter)">{{filterPrefix + (filter.term | uppercase) |
+                    translate}}: <span class="label label-primary">{{ filter.facet || 'N/A' }}</span>
+                    <i class="fa fa-times"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- Displaying all terms and its facets -->
+<div ng-repeat="(term, termFacets) in facets">
+    <div ng-click="isFacetCollapsed = !isFacetCollapsed" class="facet-category">
+        <span>{{filterPrefix + (term | uppercase) | translate}}</span>
+        <i class="pull-right fa"
+           ng-class="{'fa-caret-down' : !isFacetCollapsed, 'fa-caret-right': isFacetCollapsed}"></i>
+    </div>
+    <div class="facet-option" collapse="isFacetCollapsed">
+        <ul class="nav facet-option">
+            <li ng-repeat="facet in termFacets">
+                <a href="" ng-click="addFilter(term,facet.facetValue)">{{ facet.facetValue || 'N/A' }} <span
+                        class="badge">{{facet.count}}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

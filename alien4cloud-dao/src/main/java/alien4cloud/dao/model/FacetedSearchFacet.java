@@ -15,7 +15,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @ToString
 public class FacetedSearchFacet implements Serializable {
     private static final long serialVersionUID = 1L;

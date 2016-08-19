@@ -1,16 +1,29 @@
 package alien4cloud.it.application;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.google.common.collect.Lists;
+import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
+import org.elasticsearch.common.collect.Maps;
+import org.junit.Assert;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Sets;
 
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.security.AuthenticationStepDefinitions;
+import alien4cloud.it.topology.EditorStepDefinitions;
 import alien4cloud.it.topology.TopologyStepDefinitions;
 import alien4cloud.it.topology.TopologyTemplateStepDefinitions;
 import alien4cloud.model.application.Application;
@@ -31,23 +44,12 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.utils.ReflectionUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Sets;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.common.collect.Maps;
-import org.junit.Assert;
 
 @Slf4j
 public class ApplicationStepDefinitions {
@@ -64,24 +66,6 @@ public class ApplicationStepDefinitions {
         String applicationVersionJson = Context.getRestClientInstance().get("/rest/v1/applications/" + appId + "/versions");
         RestResponse<ApplicationVersion> appVersion = JsonUtil.read(applicationVersionJson, ApplicationVersion.class);
         Context.getInstance().registerApplicationVersionId(appVersion.getData().getVersion(), appVersion.getData().getId());
-    }
-
-    @SuppressWarnings("rawtypes")
-    @When("^I check if an application environment of \"([^\"]*)\" do not have cloudId$")
-    public void checkIfAnApplicationEnvironmentDoNotHaveCloudId(String applicationName) throws JsonProcessingException, IOException {
-        String applicationId = Context.getInstance().getApplicationId(applicationName);
-        SearchRequest request = new SearchRequest();
-        request.setFrom(0);
-        request.setSize(10);
-        String applicationEnvironmentsJson = Context.getRestClientInstance().postJSon("/rest/v1/applications/" + applicationId + "/environments/search",
-                JsonUtil.toString(request));
-        RestResponse<GetMultipleDataResult> restResponse = JsonUtil.read(applicationEnvironmentsJson, GetMultipleDataResult.class);
-        GetMultipleDataResult searchResp = restResponse.getData();
-        assertNotNull(searchResp);
-        ApplicationEnvironmentDTO appEnvDTO = JsonUtil.readObject(JsonUtil.toString(searchResp.getData()[0]), ApplicationEnvironmentDTO.class);
-        assertNotNull(appEnvDTO);
-        // assertNull(appEnvDTO.getCloudId());
-        Assert.fail("Fix test");
     }
 
     @SuppressWarnings("rawtypes")
@@ -338,16 +322,25 @@ public class ApplicationStepDefinitions {
         assertNotNull(app.getImageId());
     }
 
-    @Given("^I have an application with name \"([^\"]*)\"$")
-    public void I_have_an_application_with_name(String appName) throws Throwable {
-        I_create_a_new_application_with_name_and_description(appName, "Default application description...");
-    }
+    @Given("^I create a new application with name \"([^\"]*)\" and description \"([^\"]*)\" and node templates$")
+    public void I_create_a_new_application_with_name_and_description_and_node_templates(String applicationName, String applicationDescription,
+            DataTable nodeTemplates) throws Throwable {
+        // create the topology
+        I_create_a_new_application_with_name_and_description(applicationName, applicationDescription);
 
-    @Given("^I have an application \"([^\"]*)\" with a topology containing a nodeTemplate \"([^\"]*)\" related to \"([^\"]*)\"$")
-    public void I_have_an_application_with_a_topology_containing_a_nodeTemplate_related_to(String applicationName, String nodeTemplateName, String nodeTypeId)
-            throws Throwable {
-        I_have_an_application_with_name(applicationName);
-        topoSteps.I_have_added_a_node_template_related_to_the_node_type(nodeTemplateName, nodeTypeId);
+        EditorStepDefinitions.do_i_get_the_current_topology();
+
+        // add all specified node template to a specific topology (from Application or Topology template)
+        for (List<String> row : nodeTemplates.raw()) {
+            Map<String, String> operationMap = Maps.newHashMap();
+            operationMap.put("type", AddNodeOperation.class.getName());
+            operationMap.put("nodeName", row.get(0));
+            operationMap.put("indexedNodeTypeId", row.get(1));
+
+            EditorStepDefinitions.do_i_execute_the_operation(operationMap);
+        }
+        // Save the topology
+        EditorStepDefinitions.do_i_save_the_topology();
     }
 
     @When("^I add a role \"([^\"]*)\" to user \"([^\"]*)\" on the application \"([^\"]*)\"$")
@@ -459,10 +452,16 @@ public class ApplicationStepDefinitions {
     public void I_have_applications_with_names_and_description_containing_nodetemplate(String nodeName, String componentType,
             Map<String, String> applicationRequests) throws Throwable {
         CURRENT_APPLICATIONS.clear();
+
+        // Prepare a cucumber data table using the node infos.
+        List<String> nodeData = Lists.newArrayList(nodeName, componentType);
+        List<List<String>> raw = Lists.newArrayList();
+        raw.add(nodeData);
+        DataTable dataTable = DataTable.create(raw);
+
         // Create each application and store in CURRENT_APPS
         for (java.util.Map.Entry<String, String> request : applicationRequests.entrySet()) {
-            I_create_a_new_application_with_name_and_description_without_errors(request.getKey(), request.getValue());
-            topoSteps.I_have_added_a_node_template_related_to_the_node_type(nodeName, componentType);
+            I_create_a_new_application_with_name_and_description_and_node_templates(request.getKey(), request.getValue(), dataTable);
             CURRENT_APPLICATIONS.put(request.getKey(), CURRENT_APPLICATION);
         }
 
@@ -546,8 +545,8 @@ public class ApplicationStepDefinitions {
     public void I_set_the_of_this_application_to(String fieldName, String fieldValue) throws Throwable {
         Map<String, Object> request = Maps.newHashMap();
         request.put(fieldName, fieldValue);
-        Context.getInstance()
-                .registerRestResponse(Context.getRestClientInstance().putJSon("/rest/v1/applications/" + CURRENT_APPLICATION.getId(), JsonUtil.toString(request)));
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().putJSon("/rest/v1/applications/" + CURRENT_APPLICATION.getId(), JsonUtil.toString(request)));
         ReflectionUtil.setPropertyValue(CURRENT_APPLICATION, fieldName, fieldValue);
     }
 
@@ -632,8 +631,8 @@ public class ApplicationStepDefinitions {
 
     @When("^I delete the registered application environment named \"([^\"]*)\" from its id$")
     public void I_delete_the_registered_application_environment_named_from_its_id(String applicationEnvironmentName) throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/v1/applications/" + CURRENT_APPLICATION.getId() + "/environments/"
-                + Context.getInstance().getApplicationEnvironmentId(CURRENT_APPLICATION.getName(), applicationEnvironmentName)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/v1/applications/" + CURRENT_APPLICATION.getId()
+                + "/environments/" + Context.getInstance().getApplicationEnvironmentId(CURRENT_APPLICATION.getName(), applicationEnvironmentName)));
         RestResponse<Boolean> appEnvironment = JsonUtil.read(Context.getInstance().getRestResponse(), Boolean.class);
         Assert.assertNotNull(appEnvironment.getData());
     }

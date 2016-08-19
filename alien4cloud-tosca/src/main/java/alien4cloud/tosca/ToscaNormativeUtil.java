@@ -6,7 +6,10 @@ import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 /**
  * Utility to work with normative constants.
  */
-public class ToscaNormativeUtil {
+public final class ToscaNormativeUtil {
+
+    private ToscaNormativeUtil() {
+    };
 
     /**
      * Convert a short-named normative interface name to a long one.

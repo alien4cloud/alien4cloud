@@ -26,6 +26,6 @@ import org.junit.runner.RunWith;
         // "classpath:alien/rest/topology/workflow_edition.feature"
         //
 }, format = { "pretty", "html:target/cucumber/topology", "json:target/cucumber/cucumber-topology.json" })
-//@Ignore
+// @Ignore
 public class RunTopologyIT {
 }

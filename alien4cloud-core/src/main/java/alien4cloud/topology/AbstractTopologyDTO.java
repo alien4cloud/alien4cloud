@@ -16,12 +16,14 @@ import alien4cloud.model.topology.Topology;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class AbstractTopologyDTO<T extends Topology> {
     private T topology;
     private Map<String, IndexedNodeType> nodeTypes;
     private Map<String, IndexedRelationshipType> relationshipTypes;
     private Map<String, IndexedCapabilityType> capabilityTypes;
-    private Map<String, Map<String, Set<String>>> outputCapabilityProperties;
     private Map<String, IndexedDataType> dataTypes;
+
+    // FIXME this is already in the topology, let's just remove that from the DTO as it create heavier and useless json
+    private Map<String, Map<String, Set<String>>> outputCapabilityProperties;
 }

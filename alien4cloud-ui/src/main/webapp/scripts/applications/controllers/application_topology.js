@@ -5,7 +5,8 @@ define(function(require) {
 
   states.state('applications.detail.topology', {
     url: '/topology',
-    template: '<ui-view></ui-view>',
+    templateUrl: 'views/topology/topology_editor_layout.html',
+    controller: 'TopologyEditorCtrl',
     resolve: {
       context: function() { return {}; },
     },

@@ -1,0 +1,57 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+template_name: deployment-artifact
+template_author: FC
+template_version: 1.0.0-SNAPSHOT
+
+repositories:
+
+  maven_repo:
+    url: https://fastconnect.org/maven/content/repositories/fastconnect
+    credentials: good_user:real_secured_password
+    type: maven
+
+artifact_types:
+
+  tosca.artifacts.Deployment.War:
+    description: A web application archive
+    file_ext: [ war ]
+
+node_types:
+
+  my.maven.component:
+    artifacts:
+      - simple_war: binary/myWar.war
+      - remote_war:
+          file: alien4cloud:alien4cloud-ui:1.3.0-SM3
+          type: tosca.artifacts.Deployment.War
+          repository: maven_repo
+
+relationship_types:
+
+  my.maven.relationship:
+    artifacts:
+      - simple_war: binary/myWar.war
+      - remote_war:
+          file: alien4cloud:alien4cloud-ui:1.3.0-SM3
+          type: tosca.artifacts.Deployment.War
+          repository: maven_repo
+
+topology_template:
+
+  input_artifacts:
+    simple_war: binary/myWar.war
+    remote_war:
+      file: alien4cloud:alien4cloud-ui:1.3.0-SM3
+      type: tosca.artifacts.Deployment.War
+      repository: maven_repo
+
+  node_templates:
+    my_node:
+      type: my.maven.component
+      artifacts:
+        simple_war: binary/myWar.war
+        remote_war:
+          file: alien4cloud:alien4cloud-ui:1.3.0-SM3
+          type: tosca.artifacts.Deployment.War
+          repository: maven_repo

@@ -1,10 +1,7 @@
 package alien4cloud.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -83,6 +80,15 @@ public final class CollectionUtils {
         }
 
         return merged;
+    }
+
+    /**
+     * Remove all elements from a collection starting from a given index.
+     *
+     * @param from The index from which to remove elements.
+     */
+    public static void clearFrom(List list, int from) {
+        list.subList(from, list.size()).clear();
     }
 
     /**

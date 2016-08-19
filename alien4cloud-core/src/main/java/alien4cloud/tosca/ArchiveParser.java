@@ -33,7 +33,19 @@ public class ArchiveParser {
      * @throws ParsingException
      */
     public ParsingResult<ArchiveRoot> parse(Path archiveFile) throws ParsingException {
-        return postProcessor.process(toscaArchiveParser.parse(archiveFile));
+        return postProcessor.process(archiveFile, toscaArchiveParser.parse(archiveFile));
+    }
+
+    /**
+     * Parse an archive file from a zip or from a single yaml file (if allowYamlFile is true).
+     *
+     * @param archiveFile The archive file currently zipped.
+     * @param allowYamlFile If true the archive parser will accept single Yaml template rather than archive.
+     * @return A parsing result that contains the Archive Root and eventual errors and/or warnings.
+     * @throws ParsingException
+     */
+    public ParsingResult<ArchiveRoot> parse(Path archiveFile, boolean allowYamlFile) throws ParsingException {
+        return postProcessor.process(archiveFile, toscaArchiveParser.parse(archiveFile, allowYamlFile));
     }
 
     /**
@@ -44,6 +56,6 @@ public class ArchiveParser {
      * @throws ParsingException
      */
     public ParsingResult<ArchiveRoot> parseDir(Path archiveDir) throws ParsingException {
-        return postProcessor.process(toscaArchiveParser.parseDir(archiveDir));
+        return postProcessor.process(archiveDir, toscaArchiveParser.parseDir(archiveDir));
     }
 }

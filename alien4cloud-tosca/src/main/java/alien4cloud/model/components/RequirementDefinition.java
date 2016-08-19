@@ -1,18 +1,15 @@
 package alien4cloud.model.components;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.elasticsearch.annotation.ObjectField;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import alien4cloud.json.deserializer.BoundDeserializer;
 import alien4cloud.json.serializer.BoundSerializer;
 import alien4cloud.ui.form.annotation.FormProperties;
 import alien4cloud.ui.form.annotation.FormSuggestion;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.elasticsearch.annotation.ObjectField;
+import lombok.*;
 
 /**
  * Specifies the requirements that the Node Type exposes.
@@ -20,7 +17,7 @@ import org.elasticsearch.annotation.ObjectField;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @EqualsAndHashCode(of = { "id" })
 @FormProperties({ "type", "lowerBound", "upperBound" })
 public class RequirementDefinition implements LowerBoundedDefinition, UpperBoundedDefinition {

@@ -11,7 +11,6 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.model.components.CSARSource;
 import org.eclipse.jgit.api.Git;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +24,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.GitException;
 import alien4cloud.git.RepositoryManager;
 import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.CSARSource;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.git.CsarDependenciesBean;
 import alien4cloud.model.git.CsarGitCheckoutLocation;
@@ -86,7 +86,7 @@ public class CsarGitService {
 
         List<ParsingResult<Csar>> results = Lists.newArrayList();
         try {
-            // Iterate over locations to be imported within the CsarGitRepository
+            // Iterate over locations (branches, folders etc.) and process the import
             for (CsarGitCheckoutLocation csarGitCheckoutLocation : csarGitRepository.getImportLocations()) {
                 List<ParsingResult<Csar>> result = doImport(csarGitRepository, csarGitCheckoutLocation);
                 if (result != null) {
@@ -133,9 +133,7 @@ public class CsarGitService {
             // TODO best would be to provide with a better result to show that we didn't retried import
             return results;
         } finally {
-            if (git != null) {
-                git.close();
-            }
+            RepositoryManager.close(git);
         }
     }
 

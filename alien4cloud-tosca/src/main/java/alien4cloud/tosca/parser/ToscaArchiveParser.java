@@ -10,6 +10,7 @@ import javax.validation.Validator;
 
 import org.springframework.stereotype.Component;
 
+import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.model.ToscaMeta;
 import alien4cloud.tosca.parser.impl.ErrorCode;
@@ -36,6 +37,11 @@ public class ToscaArchiveParser {
     @Resource
     private TemplatePostProcessor postProcessor;
 
+    @ToscaContextual(requiresNew = true)
+    public ParsingResult<ArchiveRoot> parse(Path archiveFile) throws ParsingException {
+        return parse(archiveFile, false);
+    }
+
     /**
      * Parse an archive file from a zip.
      *
@@ -43,24 +49,28 @@ public class ToscaArchiveParser {
      * @return A parsing result that contains the Archive Root and eventual errors and/or warnings.
      * @throws ParsingException
      */
-    public ParsingResult<ArchiveRoot> parse(Path archiveFile) throws ParsingException {
-        FileSystem csarFS;
-        try {
-            csarFS = FileSystems.newFileSystem(archiveFile, null);
+    @ToscaContextual(requiresNew = true)
+    public ParsingResult<ArchiveRoot> parse(Path archiveFile, boolean allowYamlFile) throws ParsingException {
+        try (FileSystem csarFS = FileSystems.newFileSystem(archiveFile, null)) {
+            if (Files.exists(csarFS.getPath(TOSCA_META_FILE_LOCATION))) {
+                return postProcessor.process(parseFromToscaMeta(csarFS));
+            }
+            return postProcessor.process(parseFromRootDefinitions(csarFS));
         } catch (IOException e) {
             log.error("Unable to read uploaded archive [" + archiveFile + "]", e);
             throw new ParsingException("Archive",
                     new ParsingError(ErrorCode.FAILED_TO_READ_FILE, "Problem happened while accessing file", null, null, null, archiveFile.toString()));
         } catch (ProviderNotFoundException e) {
-            log.warn("Failed to import archive", e);
-            throw new ParsingException("Archive", new ParsingError(ErrorCode.ERRONEOUS_ARCHIVE_FILE, "File is not in good format, only zip file is supported ",
-                    null, e.getMessage(), null, null));
+            if (allowYamlFile) {
+                // the file may be a yaml so let's parse
+                log.debug("File is not a tosca archive, try to parse it as tosca template. ", e);
+                return postProcessor.process(toscaParser.parseFile(archiveFile));
+            } else {
+                log.warn("Failed to import archive", e);
+                throw new ParsingException("Archive", new ParsingError(ErrorCode.ERRONEOUS_ARCHIVE_FILE,
+                        "File is not in good format, only zip file is supported ", null, e.getMessage(), null, null));
+            }
         }
-
-        if (Files.exists(csarFS.getPath(TOSCA_META_FILE_LOCATION))) {
-            return postProcessor.process(parseFromToscaMeta(csarFS));
-        }
-        return postProcessor.process(parseFromRootDefinitions(csarFS));
     }
 
     // TODO Find a proper way to refactor avoid code duplication with parsing methods from file system
@@ -72,6 +82,7 @@ public class ToscaArchiveParser {
      * @return the parsing result
      * @throws ParsingException
      */
+    @ToscaContextual(requiresNew = true)
     public ParsingResult<ArchiveRoot> parseDir(Path archiveDir) throws ParsingException {
         Path toscaMetaFile = archiveDir.resolve(TOSCA_META_FILE_LOCATION);
         if (Files.exists(toscaMetaFile)) {

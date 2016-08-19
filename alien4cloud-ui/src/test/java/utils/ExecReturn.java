@@ -7,7 +7,7 @@ import lombok.ToString;
 
 @Getter
 @Setter
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @ToString
 public class ExecReturn {
     private String[] resultLines = null;

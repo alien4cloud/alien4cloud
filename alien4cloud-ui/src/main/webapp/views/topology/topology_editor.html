@@ -3,34 +3,18 @@
     <!-- TOPOLOGY display -->
     <div id="topology" class="topology-column">
       <div class="topology topology-column-box" alien-droppable drag-data="" drag-on-drop="nodes.onDragged(data)" ng-init="visual = true;">
-        <div class="btn-toolbar">
-          <div class="btn-group">
-            <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; display.set('catalog', true)">{{'APPLICATIONS.TOPOLOGY.VISUAL_DETAILED' | translate}}</a>
-            <a class="btn btn-default btn-xs" ng-click="yaml.display()">{{'APPLICATIONS.TOPOLOGY.YAML' | translate}}</a>
-            <a class="btn btn-default btn-xs" ng-click="view = 'PLAN'; display.set('workflows', true)" id="btn-app-topology-plan">{{'APPLICATIONS.TOPOLOGY.PLAN' | translate}}</a>
-            <ui-select id="env-version-select" ng-if="appVersions != null" ng-model="selectedVersion" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="versions.change(selectedVersion, appVersions)" reset-search-input="true" close-on-select="true">
-              <ui-select-match placeholder="Select or search a version...">{{$select.selected.version | limitTo: 20}}{{$select.selected.version.length > 20 ? '...' : ''}}</ui-select-match>
-              <ui-select-choices repeat="appVersion in appVersions | filter: $select.search">
-                <span ng-bind-html="appVersion.version | limitTo: 20 | highlight: $select.search"></span>
-                {{appVersion.version.length > 20 ? '...' : ''}}
-              </ui-select-choices>
-            </ui-select>
-          </div>
-        </div>
-        <div ng-if="view === 'YAML'" ng-model="yaml.content" ui-ace="{onLoad: aceLoaded, mode: 'yaml'}" style="height: {{visualDimensions.height}}px;"></div>
-        <topology-rendering ng-if="view === 'RENDERED' && topology" dimensions="visualDimensions" topology="topology"
+        <topology-rendering ng-if="topology" dimensions="visualDimensions" topology="topology"
                             trigger-refresh="triggerTopologyRefresh"
                             select-callback="editorCallback.selectNodeTemplate(newSelectedName, oldSelectedName)"
                             add-relationship-callback="editorCallback.addRelationship(sourceId, requirementName, requirementType, targetId, capabilityName, relationship)"
                             runtime="false"></topology-rendering>
-        <topology-plan ng-if="view === 'PLAN' && topology"  id="plan-graph-container"></topology-plan>
       </div>
     </div>
 
     <!-- NodeTemplate details -->
-    <div id="nodetemplate-details" ng-show="view === 'RENDERED' && selectedNodeTemplate && displays.component.active" class="topology-column" style="width: {{displays.component.size}}px;">
+    <div id="nodetemplate-box" ng-show="selectedNodeTemplate && displays.nodetemplate.active" class="topology-column" style="width: {{displays.nodetemplate.size}}px;">
       <div class="topology-column-box">
-        <div class="topology-column-menu">
+        <div class="topology-column-menu topology-column-menu-left">
           <i id="nodetemplate-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
         </div>
         <div class="topology-column-content">
@@ -38,7 +22,7 @@
             <span>
               <i class="fa fa-info-circle"></i> {{'APPLICATIONS.TOPOLOGY.NODE_INFO' | translate}}
             </span>
-            <span id='closeNodeTemplateDetails' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.set('component', false)">
+            <span id='closeNodeTemplateDetails' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.set('nodetemplate', false)">
               <i class="fa fa-remove close-panel"></i>
             </span>
           </div>
@@ -244,12 +228,12 @@
             </div>
             <div id="node-details-capabilities-panel" collapse="isCapabilitiesCollapsed" class="topology-level">
               <div id="node-details-capabilities-{{capabilityEntry.key}}-block" ng-repeat="capabilityEntry in selectedNodeTemplate.capabilities"
-                   ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(capabilityEntry.value.properties)">
-                <div ng-class="{'clickable' : !emptyProps}"
-                     ng-click="!emptyProps && (isReqPropsCollapsed[capabilityEntry.key] = !isReqPropsCollapsed[capabilityEntry.key])">
+                   ng-init="isReqPropsCollapsed = {};">
+                <div class="clickable"
+                     ng-click="(isReqPropsCollapsed[capabilityEntry.key] = !isReqPropsCollapsed[capabilityEntry.key])">
                   <div class="row">
                     <div class="col-md-4">
-                      <i ng-if="!emptyProps" class=" fa"
+                      <i class="fa"
                          ng-class="{'fa-caret-down' : !isReqPropsCollapsed[capabilityEntry.key], 'fa-caret-right': isReqPropsCollapsed[capabilityEntry.key]}">
                       </i>
                       <span tooltip="{{capabilityEntry.key}}" tooltip-append-to-body="true"><strong>{{capabilityEntry.key | truncate:20}}</strong></span>
@@ -266,7 +250,7 @@
                             {{capabilityEntry.value.upperBound | replaceAll:'unbounded':'&infin;' }}
                             ({{capabilityEntry.value.canAddRel.remaining | replaceAll:'unbounded':'&infin;' }})
                         </span>
-                        <simple-modal title="{{ 'MODAL.TITLE.CAPABILITY' | translate}}" content="{{capaComp.data.description}}" key="{{capabilityEntry.value.type}}"> </simple-modal>
+                        <simple-modal ng-if="capaComp.data.description" title="{{ 'MODAL.TITLE.CAPABILITY' | translate}}" content="{{capaComp.data.description}}" key="{{capabilityEntry.value.type}}"> </simple-modal>
                         <button id="btn-expose-{{capabilityEntry.value.type}}"
                                 ng-if="isTopologyTemplate && topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType"
                                 ng-click="substitution.exposeCapability(capabilityEntry.key); $event.stopPropagation()"
@@ -291,7 +275,7 @@
                            tooltip-append-to-body="true">
                           <i class="fa fa-sign-in"></i>
                         </a>
-                        <a id="p_output_cap_{{propertyEntry.key}}" ng-click="outputs.toggleCapabilityOutput(capabilityEntry.key, propertyEntry.key)" class="btn btn-default btn-xs"
+                        <a id="p_output_cap_{{propertyEntry.key}}" ng-click="outputs.toggleOutputCapabilityProperty(capabilityEntry.key, propertyEntry.key)" class="btn btn-default btn-xs"
                            ng-class="{'active' : properties.isOutputCapabilityProperty(capabilityEntry.key, propertyEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
                            tooltip-append-to-body="true">
                           <i class="fa fa-sign-out"></i>
@@ -550,60 +534,65 @@
                    ng-repeat="(artifactId, artifact) in selectedNodeTemplate.artifacts">
                 <div class="clickable"
                      ng-click="isArtifactCollapsed = !isArtifactCollapsed">
-                  <i class=" fa"
+                  <i class="fa"
                      ng-class="{'fa-caret-down' : !isArtifactCollapsed, 'fa-caret-right': isArtifactCollapsed}"></i>
-                  <span>{{artifactId}}</span>
-                  <span id='reset-artifact-{{artifactId}}' class="btn btn-xs" ng-click="artifacts.reset(artifactId); $event.stopPropagation();">
-                    <i class="fa fa-undo text-default" tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
-                  </span>
-                  <span class="pull-right btn-group" data-toggle="buttons">
-                    <a id="p_input_art_{{artifactId}}"
-                       ng-click="$event.stopPropagation(); inputs.getCandidatesForArtifact(artifactId); "
-                       class="btn btn-default btn-xs dropdown-toggle"
-                       ng-class="{'active' : inputs.isInputArtifact(artifactId)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.ARTIFACTS.ADDINPUT' | translate}}"
-                       tooltip-append-to-body="true">
-                      <i class="fa fa-file"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-left" role="menu">
-                      <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.INPUTS' | translate }}</li>
-                      <li>
-                        <a id="addToInputBtn_art_{{artifactId}}" ng-click="$event.stopPropagation(); inputs.createFromArtifact(artifactId)">
-                          <strong>{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.ADDINPUT' | translate }} <i class="fa fa-plus"></i></strong>
-                        </a>
-                      </li>
-                      <!-- TODO Maybe improve the isArtifactAssociatedToInput  -->
-                      <li ng-repeat="inputArtifactId in currentInputCandidatesForArtifact | orderBy:'toString()'">
-                        <a id="{{selectedNodeTemplate.name}}_{{artifactId}}_toAssociate_{{inputArtifactId}}" ng-click="$event.stopPropagation(); inputs.toggleArtifact(artifactId, inputArtifactId)">
-                          <i class="fa fa-fw"
-                             ng-class="inputs.isArtifactAssociatedToInput(artifactId, inputArtifactId) ? 'fa-check-square-o' : 'fa-square-o'"></i>
-                          {{inputArtifactId}}
-                        </a>
-                      </li>
-                    </ul>
-                  </span>
+                  {{artifactId}}
                 </div>
                 <div class="topology-level" collapse="isArtifactCollapsed">
                   <div class="row">
+                    <div class="col-md-1 dropup">
+                      <a id="p_input_art_{{artifactId}}"
+                         ng-click="$event.stopPropagation(); inputs.getCandidatesForArtifact(artifact); "
+                         class="btn btn-default btn-xs dropdown-toggle"
+                         ng-class="{'active' : inputs.isInputArtifact(artifactId)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.ARTIFACTS.ADDINPUT' | translate}}"
+                         tooltip-append-to-body="true">
+                        <i class="fa fa-file"></i>
+                      </a>
+                      <ul class="dropdown-menu dropdown-menu-top" role="menu">
+                        <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.INPUTS' | translate }}</li>
+                        <li>
+                          <a id="addToInputBtn_art_{{artifactId}}" ng-click="$event.stopPropagation(); inputs.createFromArtifact(artifactId)">
+                            <strong>{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.ADDINPUT' | translate }} <i class="fa fa-plus"></i></strong>
+                          </a>
+                        </li>
+                        <!-- TODO Maybe improve the isArtifactAssociatedToInput  -->
+                        <li ng-repeat="inputArtifactId in currentInputCandidatesForArtifact | orderBy:'toString()'">
+                          <a id="{{selectedNodeTemplate.name}}_{{artifactId}}_toAssociate_{{inputArtifactId}}" ng-click="$event.stopPropagation(); inputs.toggleArtifact(artifactId, inputArtifactId)">
+                            <i class="fa fa-fw"
+                               ng-class="inputs.isArtifactAssociatedToInput(artifactId, inputArtifactId) ? 'fa-check-square-o' : 'fa-square-o'"></i>
+                            {{inputArtifactId}}
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
                     <div class="col-md-3">{{'COMMON.TYPE' | translate}}</div>
-                    <div class="col-md-9">{{artifact.artifactType}}</div>
+                    <div class="col-md-8">{{artifact.artifactType}}</div>
                   </div>
                   <div class="row">
+                    <div class="col-md-1"></div>
                     <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.REFERENCE' | translate}}</div>
-                    <div class="col-md-9">
-                      <div ng-if="!uploads[artifactId].isUploading">
-                        <span id="{{artifactId}}-artifactName" tooltip="{{artifact.artifactName}}" tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[artifact.artifactName.length > 20]}}">{{artifact.artifactName | truncate:20}}</span>
-
-                        <div ng-if="!inputs.isInputArtifact(artifactId)" class="fileUploadImg btn" tooltip="{{'APPLICATIONS.TOPOLOGY.UPDATE_ARTIFACT' | translate}}">
-                          <span>
-                            <i class="fa fa-upload text-primary"></i>
-                          </span>
-                            <input type="file" class="upload" ng-file-select="artifacts.onSelected($files, artifactId)">
-                        </div>
-
-
-                      </div>
-                      <progressbar ng-if="uploads[artifactId].isUploading" class="progress-striped active" value="uploads[artifactId].uploadProgress"
-                                   type="{{uploads[artifactId].type}}" />
+                    <div class="col-md-8">
+                      <span id="{{artifactId}}-artifactRef" tooltip="{{artifact.artifactRef}}" tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[artifact.artifactRef.length > 40]}}">
+                        {{artifact.artifactRef | truncate:40}}
+                      </span>
+                      <span class="pull-right btn-group">
+                        <a id="addToInputBtn_art_{{artifactId}}" class="btn btn-default btn-xs"
+                          ng-click="$event.stopPropagation(); artifacts.onSelect(artifactId)">
+                          <i class="fa fa-file" tooltip="{{ 'EDITOR.ARTIFACTS.SELECT' | translate }}"></i>
+                        </a>
+                        <a id='reset-artifact-{{artifactId}}' class="btn btn-default btn-xs" ng-click="artifacts.reset(artifactId); $event.stopPropagation();">
+                          <i class="fa fa-undo text-default" tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
+                        </a>
+                      </span>
+                    </div>
+                  </div>
+                  <div class="row" ng-if="artifact.artifactRepository">
+                    <div class="col-md-1"></div>
+                    <div class="col-md-3">{{'EDITOR.ARTIFACTS.REPOSITORY' | translate}}</div>
+                    <div class="col-md-8">
+                      <span id="{{artifactId}}-artifactRepository" tooltip="{{artifact.artifactRepository}}" tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[artifact.artifactRepository.length > 40]}}">
+                        {{artifact.artifactRepository | truncate:40}}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -615,9 +604,9 @@
     </div>
 
     <!-- Components search -->
-    <div id="catalog-box" ng-show="view === 'RENDERED' && displays.catalog.active" class="topology-column" style="width: {{displays.catalog.size}}px;">
+    <div id="catalog-box" ng-show="displays.catalog.active" class="topology-column" style="width: {{displays.catalog.size}}px;">
       <div class="topology-column-box">
-        <div class="topology-column-menu">
+        <div class="topology-column-menu topology-column-menu-left">
           <i id="catalog-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
         </div>
         <div class="topology-column-content">
@@ -634,7 +623,9 @@
             <alien-search-node-type refresh="refresh"
               display-detail-pannel="false"
               drag-and-drop-enabled="true"
-              height-info="dimensions">
+              default-filters="defaultFilters"
+              height-info="dimensions"
+              badges="badges">
             </alien-search-node-type>
           </div>
         </div>
@@ -642,9 +633,9 @@
     </div>
 
     <!-- Dependencies -->
-    <div id="dependencies-box" ng-show="view === 'RENDERED' && displays.dependencies.active" class="topology-column" style="width: {{displays.dependencies.size}}px;">
+    <div id="dependencies-box" ng-show="displays.dependencies.active" class="topology-column" style="width: {{displays.dependencies.size}}px;">
       <div class="topology-column-box">
-        <div class="topology-column-menu">
+        <div class="topology-column-menu topology-column-menu-left">
           <i id="dependencies-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
         </div>
         <div class="topology-column-content">
@@ -676,9 +667,9 @@
     </div>
 
     <!-- Inputs -->
-    <div id="inputs-box" ng-show="view === 'RENDERED' && displays.inputs.active" class="topology-column ui-resizable" style="width: {{displays.inputs.size}}px;">
+    <div id="inputs-box" ng-show="displays.inputs.active" class="topology-column ui-resizable" style="width: {{displays.inputs.size}}px;">
       <div class="topology-column-box">
-        <div class="topology-column-menu">
+        <div class="topology-column-menu topology-column-menu-left">
           <i id="inputs-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
         </div>
         <div class="topology-column-content">
@@ -722,9 +713,9 @@
     </div>
 
     <!-- Node Groups -->
-    <div id="groups-box" ng-show="view === 'RENDERED' && displays.groups.active" class="topology-column ui-resizable" style="width: {{displays.groups.size}}px;">
+    <div id="groups-box" ng-show="displays.groups.active" class="topology-column ui-resizable" style="width: {{displays.groups.size}}px;">
       <div class="topology-column-box">
-        <div class="topology-column-menu">
+        <div class="topology-column-menu topology-column-menu-left">
           <i id="groups-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
         </div>
         <div class="topology-column-content">
@@ -789,9 +780,9 @@
     </div>
 
     <!-- Input Artifacts -->
-    <div id="artifacts-box" ng-show="view === 'RENDERED' && displays.artifacts.active" class="topology-column ui-resizable" style="width: {{displays.artifacts.size}}px;">
+    <div id="artifacts-box" ng-show="displays.artifacts.active" class="topology-column ui-resizable" style="width: {{displays.artifacts.size}}px;">
       <div class="topology-column-box">
-        <div class="topology-column-menu">
+        <div class="topology-column-menu topology-column-menu-left">
           <i id="artifacts-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
         </div>
         <div class="topology-column-content">
@@ -832,9 +823,9 @@
     </div>
 
     <!-- Substitution -->
-    <div id="substitutions-box" ng-show="view === 'RENDERED' && isTopologyTemplate && displays.substitutions.active" class="topology-column ui-resizable" style="width: {{displays.substitutions.size}}px;">
+    <div id="substitutions-box" ng-show="isTopologyTemplate && displays.substitutions.active" class="topology-column ui-resizable" style="width: {{displays.substitutions.size}}px;">
       <div class="topology-column-box">
-        <div class="topology-column-menu">
+        <div class="topology-column-menu topology-column-menu-left">
           <i id="substitutions-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
         </div>
         <div class="topology-column-content">
@@ -930,310 +921,35 @@
       </div>
     </div>
 
-    <!-- Workflows -->
-    <div id="workflows-box" ng-show="view === 'PLAN'" class="topology-column ui-resizable" style="width: {{displays.workflows.size}}px;">
-      <div class="topology-column-box">
-        <div class="topology-column-menu">
-          <i id="workflows-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
-        </div>
-        <div class="topology-column-content">
-          <div class="topology-column-content-head">
-            <span>
-              <i class="fa fa-power-off"></i> {{'APPLICATIONS.WF.title' | translate}}
-            </span>
-          </div>
-          <!-- The workflow selection box -->
-          <div class="well wfbox">
-            <div class="row">
-              <div class="col-md-10">
-                <select name="wf-select" id="wf-select" ng-model="currentWorkflowName" ng-change="workflows.setCurrentWorkflowName(currentWorkflowName)">
-                 <option ng-repeat="w in topology.topology.workflows" value="{{w.name}}" ng-selected="w.name === currentWorkflowName">{{w.name}}</option>
-                </select>
-              </div>
-              <div class="col-md-2" style="margin-top: 6px;">
-                <div class="pull-right">
-                    <a id="wfUnpinStep"
-                       class="btn btn-primary btn-sm"
-                       tooltip="{{ 'APPLICATIONS.WF.addWorkflow' | translate}}"
-                       tooltip-append-to-body="true" ng-click="workflows.createWorkflow()">
-                      <i class="fa fa-plus-square"></i>
-                    </a>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- The error box -->
-          <div class="well wfbox" ng-if="currentWorkflowName && topology.topology.workflows[currentWorkflowName].errors">
-            <div id="wf-errors-header" class="clickable text-danger"
-                 ng-click="isWfErrorsCollapsed = !isWfErrorsCollapsed">
-              <h5>
-                <i class=" fa" ng-class="{'fa-caret-down' : !isWfErrorsCollapsed, 'fa-caret-right': isWfErrorsCollapsed}"></i>
-                {{topology.topology.workflows[currentWorkflowName].errors.length}} {{'APPLICATIONS.WF.hasErrors' | translate}}
-              </h5>
-            </div>
-            <div id="wf-errors-panel" collapse="isWfErrorsCollapsed" class="topology-level">
-              <span class="label label-danger wfLabelError" ng-repeat="error in topology.topology.workflows[currentWorkflowName].errors" ng-init="errorType = workflows.getErrorType(error)">
-                {{'APPLICATIONS.WF.errors.' + errorType | translate:error}}
-              </span>
-            </div>
-          </div>
-          <!-- The workflow edition box -->
-          <div class="well wfbox" ng-if="currentWorkflowName">
-            <div class="row">
-              <div class="col-md-8">
-                <h4 class="pull-left">
-                  <span editable-text="workflows.workflowName" buttons="no" e-required onbeforesave="workflows.renameWorkflow($data)" blur="submit" ng-if="!topology.topology.workflows[currentWorkflowName].standard">
-                    {{ currentWorkflowName }}
-                    <i class="fa fa-pencil-square-o"></i>
-                  </span>
-                  <span ng-if="topology.topology.workflows[currentWorkflowName].standard">{{ currentWorkflowName }}</span>
-                </h4>
-              </div>
-              <div class="col-md-4" style="margin-top: 6px;">
-                <div>
-                  <delete-confirm
-                    class="pull-right"
-                    ng-if="!topology.topology.workflows[currentWorkflowName].standard"
-                    id="btn-delete-wf" func="workflows.removeWorkflow()"
-                    position="left" bssize="btn-sm" fastyle="fa-trash-o">
-                  </delete-confirm>
-                  <a id="wfViewMode"
-                     class="btn btn-default btn-sm pull-right"
-                     ng-class="{'active' : wfViewMode === 'full'}"
-                     tooltip="{{ 'APPLICATIONS.WF.changeViewMode' | translate}}"
-                     tooltip-append-to-body="true" ng-click="workflows.switchViewMode()">
-                    <i class="fa fa-binoculars"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div ng-if="topology.topology.workflows[currentWorkflowName].standard">
-              <a class="btn btn-default btn-md"
-                confirm="{{'CONFIRM_MESSAGE' | translate}}"
-                confirm-title="{{'CONFIRM' | translate }}"
-                confirm-handler="workflows.reinitWorkflow()"
-                confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.reinit' | translate}}</a>
-            </div>
-            <div>
-              <a class="btn btn-default btn-md"
-                ng-mouseover="workflows.addStepPreview()"
-                ng-mouseleave="workflows.resetPreview()"
-                ng-click="workflows.addOperation()">{{'APPLICATIONS.WF.addOperationActivity' | translate}}</a>
-            </div>
-            <div>
-              <a class="btn btn-default btn-md"
-                ng-mouseover="workflows.addStepPreview()"
-                ng-mouseleave="workflows.resetPreview()"
-                ng-click="workflows.addState()">{{'APPLICATIONS.WF.addStateActivity' | translate}}</a>
-            </div>
-          </div>
-          <!-- The displayed step -->
-          <div class="well wfbox" ng-if="previewWorkflowStep">
-            <h4 class="pull-left">{{previewWorkflowStep.name}}</h4>
-            <i class="fa pull-right">{{workflows.getStepActivityTypeIcon(previewWorkflowStep)}}</i>
-            <span class="clearfix"></span>
-            <div class="row">
-             <div class="col-md-3">
-               <img ng-src="img?id={{workflows.getStepNodeIcon(previewWorkflowStep)}}&quality=QUALITY_64" />
-             </div>
-              <div class="col-md-9">
-                {{'COMMON.NODE' | translate}}: <b>{{previewWorkflowStep.nodeId}}</b><br>
-               {{'APPLICATIONS.WF.host' | translate}}: <b>{{previewWorkflowStep.hostId}}</b><br>
-               {{'APPLICATIONS.WF.activity' | translate}}: <b>{{ 'APPLICATIONS.WF.' + workflows.getStepActivityType(previewWorkflowStep) | translate}}</b><br>
-             </div>
-           </div>
-           <div class="row" ng-repeat="(k,v) in workflows.getStepActivityDetails(previewWorkflowStep)">
-             <div class="col-md-3">{{'APPLICATIONS.WF.' + k | translate}}: </div>
-             <div class="col-md-9 wfActivityDetail"><b>{{v}}</b></div>
-           </div>
-          </div>
-          <!-- The current selection -->
-          <div class="well wfbox" ng-if="workflowCurrentStepSelection.length > 0">
-            <h4>{{'APPLICATIONS.WF.currentSelection' | translate}}</h4>
-            <ul>
-              <li ng-repeat="wfStep in workflowCurrentStepSelection">
-                <a href="" id="wfRemoveStepSelection_{{wfStep}}" ng-click="workflows.unselectStep(wfStep)" >
-                  <span>{{wfStep}}</span>&nbsp;
-                  <i class="fa fa-times"></i>
-                </a>
-              </li>
-            </ul>
-          </div>
-          <!-- The pinned edge to be edited -->
-          <div class="well wfbox" ng-if="wfPinnedEdge">
-            <div class="row">
-              <div class="col-md-10">
-                {{ wfPinnedEdge.from }} - {{ wfPinnedEdge.to }}
-              </div>
-              <div class="col-md-2" style="margin-top: 6px;">
-                <div class="pull-right">
-                    <a id="wfUnpinStep"
-                       class="btn btn-default btn-sm"
-                       tooltip="{{ 'APPLICATIONS.WF.unpin' | translate}}"
-                       tooltip-append-to-body="true" ng-click="workflows.unPinCurrentEdge()">
-                      <i class="fa fa-unlock"></i>
-                    </a>
-                </div>
-              </div>
-            </div>
-              <div>
-                <a class="btn btn-default btn-md"
-                  ng-mouseover="workflows.removeEdgePreview(wfPinnedEdge.from, wfPinnedEdge.to)"
-                  ng-mouseleave="workflows.resetPreview()"
-                  confirm="{{'CONFIRM_MESSAGE' | translate}}"
-                  confirm-title="{{'CONFIRM' | translate }}"
-                  confirm-handler="workflows.removeEdge(wfPinnedEdge.from, wfPinnedEdge.to)"
-                  confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.disconnect' | translate}}</a>
-              </div>
-          </div>
-          <!-- The pinned step to be edited -->
-          <div class="well wfbox" ng-if="pinnedWorkflowStep">
-            <div class="row">
-              <div class="col-md-10">
-                <h4 class="pull-left">
-                 <span editable-text="pinnedWorkflowStep.name" buttons="no" e-required onbeforesave="workflows.renameStep(pinnedWorkflowStep.name, $data)" blur="submit">
-                    {{ pinnedWorkflowStep.name }}
-                    <i class="fa fa-pencil-square-o"></i>
-                  </span>
-                </h4>
-              </div>
-              <div class="col-md-2" style="margin-top: 6px;">
-                <div class="pull-right">
-                    <a id="wfUnpinStep"
-                       class="btn btn-default btn-sm"
-                       tooltip="{{ 'APPLICATIONS.WF.unpin' | translate}}"
-                       tooltip-append-to-body="true" ng-click="workflows.unpinCurrent()">
-                      <i class="fa fa-unlock"></i>
-                    </a>
-                </div>
-              </div>
-            </div>
-
-              <div
-                ng-repeat="precedingNodeId in pinnedWorkflowStep.precedingSteps">
-                <a class="btn btn-default btn-md"
-                  ng-mouseover="workflows.removeEdgePreview(precedingNodeId, pinnedWorkflowStep.name)"
-                  ng-mouseleave="workflows.resetPreview()"
-                  confirm="{{'CONFIRM_MESSAGE' | translate}}"
-                  confirm-title="{{'CONFIRM' | translate }}"
-                  confirm-handler="workflows.removeEdge(precedingNodeId, pinnedWorkflowStep.name)"
-                  confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.disconnectFrom' | translate}} {{precedingNodeId}}</a>
-              </div>
-              <div
-                ng-repeat="followingNodeId in pinnedWorkflowStep.followingSteps">
-                <a class="btn btn-default btn-md"
-                  ng-mouseover="workflows.removeEdgePreview(pinnedWorkflowStep.name, followingNodeId)"
-                  ng-mouseleave="workflows.resetPreview()"
-                  confirm="{{'CONFIRM_MESSAGE' | translate}}"
-                  confirm-title="{{'CONFIRM' | translate }}"
-                  confirm-handler="workflows.removeEdge(pinnedWorkflowStep.name, followingNodeId)"
-                  confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.disconnectTo' | translate}} {{followingNodeId}}</a>
-              </div>
-              <div ng-if="workflowCurrentStepSelection.length > 0">
-                <a class="btn btn-default btn-md"
-                  ng-mouseover="workflows.connectFromPreview()"
-                  ng-mouseleave="workflows.resetPreview()"
-                  confirm="{{'CONFIRM_MESSAGE' | translate}}"
-                  confirm-title="{{'CONFIRM' | translate }}"
-                  confirm-handler="workflows.connectFrom()"
-                  confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.connectFromSelection' | translate}}</a>
-              </div>
-              <div ng-if="workflowCurrentStepSelection.length > 0">
-                <a class="btn btn-default btn-md"
-                  ng-mouseover="workflows.connectToPreview()"
-                  ng-mouseleave="workflows.resetPreview()"
-                  confirm="{{'CONFIRM_MESSAGE' | translate}}"
-                  confirm-title="{{'CONFIRM' | translate }}"
-                  confirm-handler="workflows.connectTo()"
-                  confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.connectToSelection' | translate}}</a>
-              </div>
-              <div
-                ng-repeat="precedingNodeId in pinnedWorkflowStep.precedingSteps">
-                <a class="btn btn-default btn-md"
-                  ng-mouseover="workflows.swapPreview(precedingNodeId, pinnedWorkflowStep.name)"
-                  ng-mouseleave="workflows.resetPreview()"
-                  confirm="{{'CONFIRM_MESSAGE' | translate}}"
-                  confirm-title="{{'CONFIRM' | translate }}"
-                  confirm-handler="workflows.swap(precedingNodeId, pinnedWorkflowStep.name)"
-                  confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.swapLeft' | translate}} ({{precedingNodeId}})</a>
-              </div>
-              <div
-                ng-repeat="followingNodeId in pinnedWorkflowStep.followingSteps">
-                <a class="btn btn-default btn-md"
-                  ng-mouseover="workflows.swapPreview(pinnedWorkflowStep.name, followingNodeId)"
-                  ng-mouseleave="workflows.resetPreview()"
-                  confirm="{{'CONFIRM_MESSAGE' | translate}}"
-                  confirm-title="{{'CONFIRM' | translate }}"
-                  confirm-handler="workflows.swap(pinnedWorkflowStep.name, followingNodeId)"
-                  confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.swapRigth' | translate}} ({{followingNodeId}})</a>
-              </div>
-              <div>
-                <a class="btn btn-default btn-md"
-                  ng-mouseover="workflows.removeStepPreview(pinnedWorkflowStep.name)"
-                  ng-mouseleave="workflows.resetPreview()"
-                  confirm="{{'DELETE_CONFIRM' | translate}}"
-                  confirm-title="{{'DELETE' | translate }}"
-                  confirm-handler="workflows.removeStep(pinnedWorkflowStep.name)"
-                  confirm-placement="top" ng-click="$event.stopPropagation();">{{'APPLICATIONS.WF.removeStep' | translate}}</a>
-              </div>
-              <div>
-                <a class="btn btn-default btn-md"
-                  ng-mouseover="workflows.insertStepPreview(pinnedWorkflowStep.name)"
-                  ng-mouseleave="workflows.resetPreview()"
-                  ng-click="workflows.insertOperation(pinnedWorkflowStep.name)">{{'APPLICATIONS.WF.insertOperationActivity' | translate}}</a>
-              </div>
-              <div>
-                <a class="btn btn-default btn-md"
-                  ng-mouseover="workflows.appendStepPreview(pinnedWorkflowStep.name)"
-                  ng-mouseleave="workflows.resetPreview()"
-                  ng-click="workflows.appendOperation(pinnedWorkflowStep.name)">{{'APPLICATIONS.WF.appendOperationActivity' | translate}}</a>
-              </div>
-              <div>
-                <a class="btn btn-default btn-md"
-                  ng-mouseover="workflows.insertStepPreview(pinnedWorkflowStep.name)"
-                  ng-mouseleave="workflows.resetPreview()"
-                  ng-click="workflows.insertState(pinnedWorkflowStep.name)">{{'APPLICATIONS.WF.insertStateActivity' | translate}}</a>
-              </div>
-              <div>
-                <a class="btn btn-default btn-md"
-                  ng-mouseover="workflows.appendStepPreview(pinnedWorkflowStep.name)"
-                  ng-mouseleave="workflows.resetPreview()"
-                  ng-click="workflows.appendState(pinnedWorkflowStep.name)">{{'APPLICATIONS.WF.appendStateActivity' | translate}}</a>
-              </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Right vertical menu -->
     <div id="topology-vertical-menu" class="topology-column">
       <ul>
-        <li ng-show="view === 'RENDERED' && !displays.catalog.active">
+        <li ng-show="!displays.catalog.active">
           <span id="topology-components-search" ng-click="display.toggle('catalog')">
             <i class="fa fa-plus"></i> {{'APPLICATIONS.TOPOLOGY.ADD_NODETEMPLATE' | translate}}
           </span>
         </li>
-        <li ng-show="view === 'RENDERED' && !displays.dependencies.active">
+        <li ng-show="!displays.dependencies.active">
           <span id="topology-dependencies" ng-click="display.toggle('dependencies')">
             <i class="fa fa-archive"></i> {{'APPLICATIONS.TOPOLOGY.DEPENDENCY' | translate}}
           </span>
         </li>
-        <li ng-show="view === 'RENDERED' && !displays.inputs.active">
+        <li ng-show="!displays.inputs.active">
           <span id="topology-inputs" ng-click="display.toggle('inputs')">
             <i class="fa fa-sign-in"></i> Inputs
           </span>
         </li>
-        <li ng-show="view === 'RENDERED' && !displays.groups.active" ng-click="display.toggle('groups')">
+        <li ng-show="!displays.groups.active" ng-click="display.toggle('groups')">
           <span id="topology-groups" >
             <i class="fa fa-list-alt"></i> {{'COMMON.GROUPS' | translate}}
           </span>
         </li>
-        <li ng-show="view === 'RENDERED' && !displays.artifacts.active" ng-click="display.toggle('artifacts')">
+        <li ng-show="!displays.artifacts.active" ng-click="display.toggle('artifacts')">
           <span id="topology-artifacts" >
             <i class="fa fa-file"></i> {{'APPLICATIONS.TOPOLOGY.ARTIFACTS.TITLE' | translate}}
           </span>
         </li>
-        <li ng-show="view === 'RENDERED' && isTopologyTemplate && !displays.substitutions.active" ng-click="display.toggle('substitutions')">
+        <li ng-show="isTopologyTemplate && !displays.substitutions.active" ng-click="display.toggle('substitutions')">
           <span id="topology-substitutions" >
             <i class="fa fa-recycle"></i> {{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.TITLE' | translate}}
           </span>

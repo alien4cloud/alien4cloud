@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class NodeFiltersTask extends TopologyTask {
     // list of node filter with not satisfy
     private List<NodeFilterToSatisfy> nodeFiltersToSatisfy;

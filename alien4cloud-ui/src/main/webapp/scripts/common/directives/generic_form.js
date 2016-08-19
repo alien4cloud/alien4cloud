@@ -921,6 +921,18 @@ define(function(require) {
     FORMS.initPath(formName, scope);
     FORMS.logDirectiveOperation(scope, 'Create');
     // Watch path to see if property name might change
+    var listenOnInputValueChange = function() {
+      var inputValuePathFromRoot = FORMS.getPathAsText('rootObject', scope.path);
+      scope.inputValueChangeListener = scope.$watch(inputValuePathFromRoot, function(newValue) {
+        if (scope.input.value !== newValue && _.defined(scope.inputValueChangeListener)) {
+          scope.input.value = newValue;
+          FORMS.applyMultiplierToInput(scope);
+          if (angular.isDefined(scope.validateInput)) {
+            scope.validateInput();
+          }
+        }
+      });
+    };
     scope.$watchCollection('path', function(newPath, oldPath) {
       if (!_.isEqual(newPath, oldPath)) {
         FORMS.logDirectiveOperation(scope, 'Path begins to change as new path is [' + newPath + '] and old one is [' + oldPath + ']');
@@ -944,19 +956,6 @@ define(function(require) {
         FORMS.logDirectiveOperation(scope, 'Path has changed');
       }
     });
-    var listenOnInputValueChange = function() {
-      var inputValuePathFromRoot = FORMS.getPathAsText('rootObject', scope.path);
-      scope.inputValueChangeListener = scope.$watch(inputValuePathFromRoot, function(newValue) {
-        if (scope.input.value !== newValue && _.defined(scope.inputValueChangeListener)) {
-          scope.input.value = newValue;
-          FORMS.applyMultiplierToInput(scope);
-          if (angular.isDefined(scope.validateInput)) {
-            scope.validateInput();
-          }
-        }
-      });
-    };
-
     listenOnInputValueChange();
     FORMS.initOnDestroy(scope, element);
     FORMS.initFormSaveAction(scope, scope.saveAction);

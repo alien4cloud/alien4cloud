@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public abstract class ScalarUnit<T extends Unit> implements Comparable<ScalarUnit<T>> {
 
     private double value;

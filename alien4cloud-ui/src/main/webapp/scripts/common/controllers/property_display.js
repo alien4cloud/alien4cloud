@@ -120,8 +120,7 @@ define(function(require) {
         delete $scope.unitError;
         if (_.isBoolean(data)) {
           data = data.toString();
-        } else if (_.undefined(data)) {
-          // WHY DO THIS _.isEmpty instead of _.undefined ???
+        } else if (_.isEmpty(data)) {
           data = null;
         }
 

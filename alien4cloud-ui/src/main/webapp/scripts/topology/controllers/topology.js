@@ -16,7 +16,6 @@ define(function (require) {
   require('scripts/components/services/component_services');
   require('scripts/tosca/services/tosca_service');
   require('scripts/tosca/services/node_template_service');
-  require('scripts/tosca/services/tosca_cardinalities_service');
 
   require('scripts/topology/controllers/topology_editor_artifacts');
   require('scripts/topology/controllers/topology_editor_display');
@@ -28,21 +27,15 @@ define(function (require) {
   require('scripts/topology/controllers/topology_editor_properties');
   require('scripts/topology/controllers/topology_editor_relationships');
   require('scripts/topology/controllers/topology_editor_substitution');
-  require('scripts/topology/controllers/topology_editor_versions');
-  require('scripts/topology/controllers/topology_editor_workflows');
   require('scripts/topology/controllers/topology_editor_yaml');
 
   require('scripts/topology/controllers/search_relationship');
-  require('scripts/topology/services/topology_json_processor');
-  require('scripts/topology/services/topology_services');
-  require('scripts/topology/directives/workflow_rendering');
-  require('scripts/topology/directives/topology_rendering');
-  require('scripts/topology/controllers/workflow_operation_selector');
-  require('scripts/topology/controllers/workflow_state_selector');
-  require('scripts/topology/services/workflow_services');
+
+  require('scripts/topology/services/topology_editor_events_services');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles']).controller('TopologyCtrl',
-    ['$scope', '$modal', '$timeout', 'topologyJsonProcessor', 'topologyServices', 'componentService', 'nodeTemplateService', 'appVersions', 'context', 'toscaService', 'toscaCardinalitiesService', 'workflowServices',
+    ['$scope', '$modal', '$timeout', 'componentService', 'nodeTemplateService', 'toscaService',
+    'defaultFilters',
     'topoEditArtifacts',
     'topoEditDisplay',
     'topoEditGroups',
@@ -53,10 +46,9 @@ define(function (require) {
     'topoEditProperties',
     'topoEditRelationships',
     'topoEditSubstitution',
-    'topoEditVersions',
-    'topoEditWf',
     'topoEditYaml',
-    function($scope, $modal, $timeout, topologyJsonProcessor, topologyServices, componentService, nodeTemplateService, appVersions, context, toscaService, toscaCardinalitiesService, workflowServices,
+    function($scope, $modal, $timeout, componentService, nodeTemplateService, toscaService,
+    defaultFilters,
     topoEditArtifacts,
     topoEditDisplay,
     topoEditGroups,
@@ -67,16 +59,31 @@ define(function (require) {
     topoEditProperties,
     topoEditRelationships,
     topoEditSubstitution,
-    topoEditVersions,
-    topoEditWf,
     topoEditYaml) {
+      $scope.defaultFilters = defaultFilters;
       $scope.isRuntime = false;
-      // wire version context and versions to the scope
-      $scope.versionContext = context;
-      $scope.appVersions = appVersions.data;
 
+      $scope.isNodeTemplateCollapsed = false;
+      $scope.isPropertiesCollapsed = false;
+      $scope.isRelationshipsCollapsed = false;
+      $scope.isRelationshipCollapsed = false;
+      $scope.isArtifactsCollapsed = false;
+      $scope.isArtifactCollapsed = false;
+      $scope.isRequirementsCollapsed = false;
+      $scope.isCapabilitiesCollapsed = false;
+      $scope.displays = {
+        catalog: { active: true, size: 500, selector: '#catalog-box', only: ['topology', 'catalog'] },
+        dependencies: { active: false, size: 400, selector: '#dependencies-box', only: ['topology', 'dependencies'] },
+        inputs: { active: false, size: 400, selector: '#inputs-box', only: ['topology', 'inputs'], keep: ['nodetemplate'] },
+        artifacts: { active: false, size: 400, selector: '#artifacts-box', only: ['topology', 'artifacts'], keep: ['nodetemplate'] },
+        groups: { active: false, size: 400, selector: '#groups-box', only: ['topology', 'groups'], keep: ['nodetemplate'] },
+        substitutions: { active: false, size: 400, selector: '#substitutions-box', only: ['topology', 'substitutions'], keep: ['nodetemplate'] },
+        nodetemplate: { active: false, size: 500, selector: '#nodetemplate-box', only: ['topology', 'nodetemplate'], keep: ['inputs'] },
+        workflows: { active: false, size: 400, selector: '#workflows-box', only:['workflows'] }
+      };
+
+      topoEditDisplay($scope, '#topology-editor');
       topoEditArtifacts($scope);
-      topoEditDisplay($scope);
       topoEditGroups($scope);
       topoEditInputs($scope);
       topoEditNodes($scope);
@@ -85,35 +92,18 @@ define(function (require) {
       topoEditProperties($scope);
       topoEditRelationships($scope);
       topoEditSubstitution($scope);
-      topoEditVersions($scope);
-      topoEditWf($scope);
       topoEditYaml($scope);
 
-      $scope.workflows.setCurrentWorkflowName('install');
-
-      $scope.refreshTopology = function(topologyDTO, selectedNodeTemplate) {
-        for (var nodeId in topologyDTO.topology.nodeTemplates) {
-          if (topologyDTO.topology.nodeTemplates.hasOwnProperty(nodeId)) {
-            topologyDTO.topology.nodeTemplates[nodeId].name = nodeId;
-          }
+      var refresh = function(selectedNodeTemplate) {
+        if(_.undefined($scope.groupCollapsed)) { // we perform this only at init time.
+          $scope.groupCollapsed = {};
+          _.each($scope.topology.topology.groups, function(value, key) {
+            $scope.groupCollapsed[key] = { main: false, members: true, policies: true };
+          });
         }
-        $scope.topology = topologyDTO;
-        $scope.isTopologyTemplate = ($scope.topology.topology.delegateType === 'topologytemplate');
 
-        // enrich objects to add maps for the fields that are currently mapped as array of map entries.
-        topologyJsonProcessor.process($scope.topology);
-
-        fillBounds($scope.topology.topology);
         $scope.outputs.init($scope.topology.topology);
-        var topologyInputs = $scope.topology.topology.inputs;
-        if (_.defined(topologyInputs)) {
-          for (var inputId in topologyInputs) {
-            if (topologyInputs.hasOwnProperty(inputId)) {
-              topologyInputs[inputId].inputId = inputId;
-            }
-          }
-        }
-        $scope.yaml.update($scope.topology.yaml);
+        // TODO trigger yaml update ?
 
         function reselectNodeTemplate(name) {
           $scope.selectedNodeTemplate = $scope.topology.topology.nodeTemplates[name];
@@ -145,18 +135,14 @@ define(function (require) {
         $scope.substitution.refresh();
       };
 
-      // Topology can comes from application OR topology template
-      topologyServices.dao.get({
-        topologyId: $scope.topologyId
-      }, function(successResult) {
-        $scope.refreshTopology(successResult.data);
-        // init the group collapse indicators
-        $scope.groupCollapsed = {};
-        angular.forEach($scope.topology.topology.groups, function(value, key) {
-          $scope.groupCollapsed[key] = { main: false, members: true, policies: true };
-        });
-
+      $scope.$on('topologyRefreshedEvent', function(event, param) {
+        var selectedNodeTemplate = param.selectedNodeTemplate;
+        refresh(selectedNodeTemplate);
       });
+
+      if(_.defined($scope.topology)) {
+        refresh();
+      }
 
       $scope.checkMapSize = function(map) {
         return angular.isDefined(map) && map !== null && Object.keys(map).length > 0;
@@ -212,7 +198,6 @@ define(function (require) {
       };
 
       $scope.getIcon = toscaService.getIcon;
-      $scope.getShortName = toscaService.simpleName;
       // check if compute type
       $scope.isComputeType = function(nodeTemplate) {
         if (_.undefined($scope.topology) || _.undefined(nodeTemplate)) {
@@ -275,7 +260,7 @@ define(function (require) {
           }
         },
         selectNodeTemplate: function(newSelectedName) {
-          $scope.display.set('component', true);
+          $scope.display.set('nodetemplate', true);
           if (_.defined($scope.selectedNodeTemplate)) {
             var oldSelected = $scope.topology.topology.nodeTemplates[$scope.selectedNodeTemplate.name];
             if (oldSelected) {

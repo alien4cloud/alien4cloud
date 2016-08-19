@@ -18,7 +18,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LocationMatch implements ILocationMatch {
     /** Matched location */

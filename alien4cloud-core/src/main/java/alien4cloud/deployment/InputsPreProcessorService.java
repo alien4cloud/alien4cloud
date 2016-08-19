@@ -5,10 +5,11 @@ import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
+import alien4cloud.model.components.PropertyValue;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Maps;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.TopologyCompositionService;
@@ -30,8 +31,7 @@ import alien4cloud.model.topology.Topology;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import alien4cloud.utils.TagUtil;
-
-import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Inputs pre processor service manages pre-processing of inputs parameters in a Topology.
@@ -66,7 +66,7 @@ public class InputsPreProcessorService {
      */
     public void processGetInput(DeploymentTopology deploymentTopology, ApplicationEnvironment environment, Topology topology) {
         topologyCompositionService.processTopologyComposition(topology);
-        Map<String, String> inputs = getInputs(deploymentTopology, environment);
+        Map<String, PropertyValue> inputs = getInputs(deploymentTopology, environment);
         if (deploymentTopology.getNodeTemplates() != null) {
             for (Entry<String, NodeTemplate> entry : deploymentTopology.getNodeTemplates().entrySet()) {
                 NodeTemplate nodeTemplate = entry.getValue();
@@ -160,9 +160,9 @@ public class InputsPreProcessorService {
      * @return A unified map of input for the topology containing the inputs from the deployment setup as well as the ones coming from location or application
      *         meta-properties.
      */
-    private Map<String, String> getInputs(DeploymentTopology deploymentTopology, ApplicationEnvironment environment) {
+    private Map<String, PropertyValue> getInputs(DeploymentTopology deploymentTopology, ApplicationEnvironment environment) {
         // initialize a map with input from the deployment setup
-        Map<String, String> inputs = MapUtils.isEmpty(deploymentTopology.getInputProperties()) ? Maps.<String, String> newHashMap()
+        Map<String, PropertyValue> inputs = MapUtils.isEmpty(deploymentTopology.getInputProperties()) ? Maps.newHashMap()
                 : deploymentTopology.getInputProperties();
 
         // Map id -> value of meta properties from cloud or application.
@@ -205,7 +205,7 @@ public class InputsPreProcessorService {
      * @param prefix The prefix to be added to the context inputs.
      * @param contextInputs The map of inputs from context elements (cloud, application, environment).
      */
-    private void prefixAndAddContextInput(Map<String, String> inputs, String prefix, Map<String, String> contextInputs, boolean isMeta) {
+    private void prefixAndAddContextInput(Map<String, PropertyValue> inputs, String prefix, Map<String, String> contextInputs, boolean isMeta) {
         if (contextInputs == null || contextInputs.isEmpty()) {
             return; // no inputs to add.
         }
@@ -217,26 +217,26 @@ public class InputsPreProcessorService {
             }
             Map<String, MetaPropConfiguration> configurationMap = metaPropertiesService.getByIds(ids);
             for (Map.Entry<String, String> contextInputEntry : contextInputs.entrySet()) {
-                inputs.put(prefix + configurationMap.get(contextInputEntry.getKey()).getName(), contextInputEntry.getValue());
+                inputs.put(prefix + configurationMap.get(contextInputEntry.getKey()).getName(), new ScalarPropertyValue(contextInputEntry.getValue()));
             }
         } else {
             for (Map.Entry<String, String> contextInputEntry : contextInputs.entrySet()) {
-                inputs.put(prefix + contextInputEntry.getKey(), contextInputEntry.getValue());
+                inputs.put(prefix + contextInputEntry.getKey(), new ScalarPropertyValue(contextInputEntry.getValue()));
             }
         }
     }
 
-    private void processGetInput(Map<String, String> inputs, Map<String, AbstractPropertyValue> properties) {
+    private void processGetInput(Map<String, PropertyValue> inputs, Map<String, AbstractPropertyValue> properties) {
         if (properties != null) {
             for (Map.Entry<String, AbstractPropertyValue> propEntry : properties.entrySet()) {
                 if (propEntry.getValue() instanceof FunctionPropertyValue) {
                     FunctionPropertyValue function = (FunctionPropertyValue) propEntry.getValue();
                     if (ToscaFunctionConstants.GET_INPUT.equals(function.getFunction())) {
                         String inputName = function.getParameters().get(0);
-                        String value = inputs.get(inputName);
+                        PropertyValue value = inputs.get(inputName);
                         // if not null, replace the input value. Otherwise, let it as a function for validation purpose later
                         if (value != null) {
-                            propEntry.setValue(new ScalarPropertyValue(value));
+                            propEntry.setValue(value);
                         }
                     } else {
                         log.warn("Function <{}> detected for property <{}> while only <get_input> should be authorized.", function.getFunction(),

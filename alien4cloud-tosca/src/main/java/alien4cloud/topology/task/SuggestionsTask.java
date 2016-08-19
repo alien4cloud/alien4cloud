@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class SuggestionsTask extends TopologyTask {
     // Array of suggested non abstract node types
     private IndexedNodeType[] suggestedNodeTypes;

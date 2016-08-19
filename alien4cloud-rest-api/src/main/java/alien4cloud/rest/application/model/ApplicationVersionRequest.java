@@ -14,7 +14,7 @@ import io.swagger.annotations.ApiModelProperty;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class ApplicationVersionRequest {
     @ApiModelProperty(required = true)
     private String version;

@@ -8,6 +8,10 @@ define(function (require) {
     url: '/editor/:version',
     templateUrl: 'views/topology/topology_editor.html',
     controller: 'TopologyCtrl',
+    resolve: {
+      defaultFilters: [function(){return {};}],
+      badges: [function(){return[];}]
+    },
     menu: {
       id: 'am.topologytemplate.detail.topology.editor',
       state: 'topologytemplates.detail.topology.editor',

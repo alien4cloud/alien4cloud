@@ -12,7 +12,7 @@ import alien4cloud.model.components.Csar;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class CsarInfoDTO {
     private Csar csar;
     private List<Usage> relatedResources;

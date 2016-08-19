@@ -118,7 +118,7 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
         return constraint;
     }
 
-    @AllArgsConstructor
+    @AllArgsConstructor(suppressConstructorProperties = true)
     private class ConstraintParsingInfo {
         private Class<? extends PropertyConstraint> constraintClass;
         private String expressionPropertyName;

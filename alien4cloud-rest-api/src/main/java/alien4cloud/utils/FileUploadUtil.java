@@ -1,62 +1,33 @@
 package alien4cloud.utils;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
-import org.apache.commons.io.IOUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public final class FileUploadUtil {
     private FileUploadUtil() {
     }
 
     /**
-     * Some implementations of Transfer to may fails silently (jetty) under some OS.
-     * This methods ensure that the transfer worked well and workaround it if not.
-     * 
+     * Implementation of transferTo of the multipart file is not reliable as relative to configured folder (by default system tmp folder).
+     * This method uses the input stream to copy the file to the right location.
+     *
      * @throws IOException In case we fail to copy the file (in case the transfer to failed).
      */
     public static void safeTransferTo(Path targetPath, MultipartFile multipartFile) throws IOException {
-        File targetFile = targetPath.toFile();
-
-        multipartFile.transferTo(targetFile);
-
-        if (targetFile.exists()) {
-            if (targetFile.length() == 0) {
-                copyMultiPart(targetPath, multipartFile);
-            }
-        } else {
-            copyMultiPart(targetPath, multipartFile);
+        if (multipartFile.isEmpty()) {
+            log.debug("Uploaded file is empty.");
+            return;
         }
-    }
-
-    private static void copyMultiPart(Path targetPath, MultipartFile multipartFile) throws IOException {
-        InputStream in = null;
-        BufferedOutputStream out = null;
-        try {
-            in = multipartFile.getInputStream();
-            out = new BufferedOutputStream(new FileOutputStream(targetPath.toFile()));
-            IOUtils.copy(in, out);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
+        try (InputStream fileStream = multipartFile.getInputStream()) {
+            Files.copy(fileStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
         }
-
     }
 }
