@@ -83,6 +83,7 @@
     <junit.version>4.12</junit.version>
     <mockito.version>1.9.0</mockito.version>
     <springockito.version>1.0.4</springockito.version>
+    <cucumber.version>1.2.2</cucumber.version>
 
     <!-- Build tools -->
     <java.version>1.8</java.version>
@@ -162,12 +163,6 @@
       <dependency>
         <groupId>org.eclipse.jetty.websocket</groupId>
         <artifactId>websocket-server</artifactId>
-        <version>${jetty.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.jetty.orbit</groupId>
-        <artifactId>javax.servlet.jsp</artifactId>
         <version>${jetty.version}</version>
         <scope>provided</scope>
       </dependency>
