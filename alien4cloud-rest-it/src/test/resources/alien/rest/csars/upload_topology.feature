@@ -410,14 +410,12 @@ Feature: CSAR upload with topology
     Then I should receive a RestResponse with 2 alerts in 1 files : 2 errors 0 warnings and 0 infos
 
   @reset
-  Scenario: Upload a topology template with invalid node template name should rename rename it and throw informations
+  Scenario: Upload a topology template with invalid node template name should rename it and throw informations
     Given I am authenticated with "ADMIN" role
     And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
     And I should receive a RestResponse with no error
-    And I upload the archive "samples mysql"
-    And I should receive a RestResponse with no error
     And I upload the archive "topology-invalid-node-name"
     Then I should receive a RestResponse with 3 alerts in 1 files : 0 errors 2 warnings and 1 infos
-    And If I search for topology templates I can find one with the name "net.sample.MysqlSubsystem" and store the related topology as a SPEL context
+    And If I search for topology templates I can find one with the name "invalid-node-name-template" and store the related topology as a SPEL context
     And The SPEL expression "nodeTemplates['Compute'].type" should return "tosca.nodes.Compute"
-    And The SPEL expression "nodeTemplates['Mysql_DB'].type" should return "alien.nodes.Mysql"
+    And The SPEL expression "nodeTemplates['Data_base'].type" should return "tosca.nodes.Database"
