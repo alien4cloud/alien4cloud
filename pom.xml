@@ -27,7 +27,7 @@
     <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
     <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
     <sonar.jacoco.reportPath>${project.basedir}/target/jacoco.exec</sonar.jacoco.reportPath>
-    <sonar.jacoco.itReportPath>${project.basedir}/target/jacoco.exec</sonar.jacoco.itReportPath>
+    <sonar.jacoco.itReportPath>${project.basedir}/target/jacoco-it.exec</sonar.jacoco.itReportPath>
 
     <!-- Utilities -->
     <lombok.version>1.14.4</lombok.version>

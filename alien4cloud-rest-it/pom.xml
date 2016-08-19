@@ -13,9 +13,10 @@
     <description>Integration tests for Alien's REST API.</description>
 
     <properties>
-        <sonar.language>java</sonar.language>
-        <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
-        <jclouds.version>1.9.1</jclouds.version>
+      <sonar.language>java</sonar.language>
+      <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
+      <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
+      <jclouds.version>1.9.1</jclouds.version>
     </properties>
 
     <dependencies>

@@ -10,8 +10,7 @@
   <packaging>war</packaging>
 
   <name>Alien 4 Cloud UI</name>
-  <description>UI project for Alien. Alien 4 Cloud UI is an AngularJS Application and contains multiple UI modules.
-  </description>
+  <description>UI project for Alien. Alien 4 Cloud UI is an AngularJS Application and contains multiple UI modules.</description>
 
   <properties>
     <sonar.language>js</sonar.language>

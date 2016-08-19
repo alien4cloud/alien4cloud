@@ -31,6 +31,7 @@ module.exports = function (grunt) {
               'hopscotch',
               'angular-file-upload',
               'angular-ui-ace',
+              'angular-hotkeys',
               'ace',
               'sockjs',
               'stomp',
