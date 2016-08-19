@@ -1,11 +1,5 @@
 package alien4cloud.model.topology;
 
-import java.util.Map;
-import java.util.Set;
-
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.DeploymentArtifact;
@@ -15,13 +9,17 @@ import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;
 import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
 import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.elasticsearch.annotation.MapKeyValue;
-import org.elasticsearch.annotation.ObjectField;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Specifies a kind of a component making up the cloud application.
@@ -32,10 +30,6 @@ import org.elasticsearch.annotation.ObjectField;
 @Setter
 @NoArgsConstructor
 public class NodeTemplate extends AbstractTemplate {
-    /**
-     * Id in the map is name.replaceAll(" ", "").toLowerCase();
-     */
-    private String name;
 
     /**
      * The requirement that this node template defines

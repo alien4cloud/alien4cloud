@@ -134,6 +134,7 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
         if (map.containsKey(key)) {
             addRelationshipTemplateToMap(map, name, relationshipTemplate, ++attempCount);
         } else {
+            relationshipTemplate.setName(key);
             map.put(key, relationshipTemplate);
         }
     }
