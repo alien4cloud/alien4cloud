@@ -10,8 +10,8 @@ Feature: Topology editor: add input
       | inputName               | simple_input                                                     |
       | propertyDefinition.type | string                                                           |
     Then No exception should be thrown
-    And The SPEL int expression "inputs.size()" should return 1
-    And The SPEL expression "inputs['simple_input'].type" should return "string"
+    And The topology SPEL int expression "inputs.size()" should return 1
+    And The topology SPEL expression "inputs['simple_input'].type" should return "string"
 
   Scenario: Adding an input that already exists should fail
     Given I execute the operation

@@ -14,9 +14,9 @@ Feature: Topology editor: add group member operation
       | nodeName  | Compute                                                                |
       | groupName | simple_group                                                           |
     Then No exception should be thrown
-    And The SPEL int expression "groups.size()" should return 1
-    And The SPEL expression "groups['simple_group'].members[0]" should return "Compute"
-    And The SPEL expression "nodeTemplates['Compute'].groups[0]" should return "simple_group"
+    And The topology SPEL int expression "groups.size()" should return 1
+    And The topology SPEL expression "groups['simple_group'].members[0]" should return "Compute"
+    And The topology SPEL expression "nodeTemplates['Compute'].groups[0]" should return "simple_group"
 
   Scenario: Adding a node that doesn't exists to a group should fail
     When I execute the operation

@@ -22,7 +22,7 @@ Feature: Topology editor: requirement substitution
       | nodeTemplateName          | Compute                                                                                      |
       | requirementId             | network                                                                                      |
       | substitutionRequirementId | network                                                                                      |
-    And The SPEL expression "substitutionMapping.requirements['network'].nodeTemplateName" should return "Compute"
+    And The topology SPEL expression "substitutionMapping.requirements['network'].nodeTemplateName" should return "Compute"
 
   Scenario: Add a non existing requirement as requirement substitution should failed
     When I execute the operation
@@ -104,11 +104,11 @@ Feature: Topology editor: requirement substitution
       | nodeTemplateName          | Compute                                                                                      |
       | requirementId             | network                                                                                      |
       | substitutionRequirementId | network                                                                                      |
-    And The SPEL expression "substitutionMapping.requirements['network'].nodeTemplateName" should return "Compute"
+    And The topology SPEL expression "substitutionMapping.requirements['network'].nodeTemplateName" should return "Compute"
     When I execute the operation
       | type                      | org.alien4cloud.tosca.editor.operations.substitution.RemoveRequirementSubstitutionTypeOperation |
       | substitutionRequirementId | network                                                                                         |
-    And The SPEL expression "substitutionMapping.requirements['network']" should return "null"
+    And The topology SPEL expression "substitutionMapping.requirements['network']" should return "null"
 
   Scenario: Remove a non existing requirement substitution should failed
     When I execute the operation
@@ -161,12 +161,12 @@ Feature: Topology editor: requirement substitution
       | nodeTemplateName          | Compute                                                                                      |
       | requirementId             | network                                                                                      |
       | substitutionRequirementId | network                                                                                      |
-    And The SPEL expression "substitutionMapping.requirements['network'].nodeTemplateName" should return "Compute"
+    And The topology SPEL expression "substitutionMapping.requirements['network'].nodeTemplateName" should return "Compute"
     When I execute the operation
       | type                      | org.alien4cloud.tosca.editor.operations.substitution.UpdateRequirementSubstitutionTypeOperation |
       | substitutionRequirementId | network                                                                                         |
       | newRequirementId          | network_bis                                                                                     |
-    And The SPEL expression "substitutionMapping.requirements['network_bis'].nodeTemplateName" should return "Compute"
+    And The topology SPEL expression "substitutionMapping.requirements['network_bis'].nodeTemplateName" should return "Compute"
 
   Scenario: Update a non existing requirement substitution when the topology is not an substitute should failed
     When I execute the operation

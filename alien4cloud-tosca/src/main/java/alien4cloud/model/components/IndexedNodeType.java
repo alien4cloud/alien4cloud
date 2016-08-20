@@ -1,29 +1,25 @@
 package alien4cloud.model.components;
 
-import static alien4cloud.dao.model.FetchContext.QUICK_SEARCH;
-import static alien4cloud.dao.model.FetchContext.TAG_SUGGESTION;
-
-import java.util.List;
-import java.util.Map;
-
+import alien4cloud.component.portability.ESPortabilityPropertiesPathsGenerator;
+import alien4cloud.json.deserializer.PropertyValueDeserializer;
+import alien4cloud.utils.jackson.ConditionalAttributes;
+import alien4cloud.utils.jackson.ConditionalOnAttribute;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.NumberField;
-import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.annotation.query.TermsFacet;
 import org.elasticsearch.mapping.IndexType;
 
-import alien4cloud.component.portability.ESPortabilityPropertiesPathsGenerator;
-import alien4cloud.json.deserializer.PropertyValueDeserializer;
-import alien4cloud.utils.jackson.ConditionalAttributes;
-import alien4cloud.utils.jackson.ConditionalOnAttribute;
+import java.util.List;
+import java.util.Map;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import static alien4cloud.dao.model.FetchContext.QUICK_SEARCH;
+import static alien4cloud.dao.model.FetchContext.TAG_SUGGESTION;
 
 @Getter
 @Setter

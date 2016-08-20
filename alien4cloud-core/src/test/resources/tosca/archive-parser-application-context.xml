@@ -15,7 +15,6 @@
   <context:component-scan
       base-package="alien4cloud.topology, alien4cloud.tosca.context, alien4cloud.tosca.parser, alien4cloud.tosca.parser.*, alien4cloud.repository.*, alien4cloud.utils.services, alien4cloud.plugin, alien4cloud.paas.wf">
     <context:exclude-filter type="regex" expression="alien4cloud.topology.TopologyService"/>
-    <context:exclude-filter type="regex" expression="alien4cloud.topology.TopologyRecoveryService"/>
     <context:exclude-filter type="regex" expression="alien4cloud.topology.TopologyValidationService"/>
     <context:exclude-filter type="regex" expression="alien4cloud.topology.TopologyTemplateVersionService"/>
     <context:exclude-filter type="regex" expression="alien4cloud.topology.validation.*"/>

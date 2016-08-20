@@ -23,8 +23,8 @@ Feature: Topology editor: unset node property as input
       | nodeName     | software_component                                                                            |
       | propertyName | component_version                                                                             |
     Then No exception should be thrown
-    And The SPEL int expression "inputs.size()" should return 1
-    And The SPEL expression "nodeTemplates['software_component'].properties['component_version']" should return "null"
+    And The topology SPEL int expression "inputs.size()" should return 1
+    And The topology SPEL expression "nodeTemplates['software_component'].properties['component_version']" should return "null"
 
   Scenario: Unset a node property as input should fail if the property is not set as input
     Given I execute the operation

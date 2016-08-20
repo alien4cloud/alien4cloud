@@ -1,17 +1,5 @@
 package alien4cloud.deployment;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.inject.Inject;
-
-import org.apache.commons.collections4.MapUtils;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-
 import alien4cloud.common.AlienConstants;
 import alien4cloud.deployment.matching.services.nodes.NodeMatcherService;
 import alien4cloud.model.components.AbstractPropertyValue;
@@ -26,10 +14,19 @@ import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.PropertyUtil;
-
 import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.commons.collections4.MapUtils;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 @Service
 public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstitutionService {
@@ -51,7 +48,7 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
      */
     private Map<String, List<LocationResourceTemplate>> getAvailableSubstitutions(Map<String, NodeTemplate> nodeTemplates, Set<CSARDependency> dependencies,
             Map<String, NodeGroup> locationGroups) {
-        Map<String, IndexedNodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromDependencies(nodeTemplates, dependencies, false, false);
+        Map<String, IndexedNodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromDependencies(nodeTemplates, dependencies, false, false, true);
         Map<String, List<LocationResourceTemplate>> availableSubstitutions = Maps.newHashMap();
         for (final Map.Entry<String, NodeGroup> locationGroupEntry : locationGroups.entrySet()) {
             String groupName = locationGroupEntry.getKey();

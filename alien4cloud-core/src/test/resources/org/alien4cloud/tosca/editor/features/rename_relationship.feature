@@ -28,10 +28,10 @@ Feature: Topology editor: rename relationship
       | relationshipName    | MyRelationship                                                                           |
       | newRelationshipName | MyRenamedRelationship                                                                    |
     Then No exception should be thrown
-    And The SPEL int expression "nodeTemplates.size()" should return 2
-    And The SPEL int expression "nodeTemplates['Java'].relationships.size()" should return 1
-    And The SPEL expression "nodeTemplates['Java'].relationships['MyRelationship']" should return "null"
-    And The SPEL expression "nodeTemplates['Java'].relationships['MyRenamedRelationship'].type" should return "tosca.relationships.HostedOn"
+    And The topology SPEL int expression "nodeTemplates.size()" should return 2
+    And The topology SPEL int expression "nodeTemplates['Java'].relationships.size()" should return 1
+    And The topology SPEL expression "nodeTemplates['Java'].relationships['MyRelationship']" should return "null"
+    And The topology SPEL expression "nodeTemplates['Java'].relationships['MyRenamedRelationship'].type" should return "tosca.relationships.HostedOn"
 
   Scenario: Rename a non existing relationship template in an empty topology should fail
     When I execute the operation

@@ -16,7 +16,7 @@ Feature: Topology editor: update node capability property value
       | propertyName   | num_cpus                                                                                    |
       | propertyValue  | 10                                                                                          |
     Then No exception should be thrown
-    And The SPEL expression "nodeTemplates['compute'].capabilities['host'].properties['num_cpus'].value" should return "10"
+    And The topology SPEL expression "nodeTemplates['compute'].capabilities['host'].properties['num_cpus'].value" should return "10"
 
   Scenario: Updating a scalar property value of capability of wrong type should fail
     Given I execute the operation

@@ -27,8 +27,8 @@ Feature: Topology editor: delete relationship
       | nodeName         | Java                                                                                     |
       | relationshipName | MyRelationship                                                                           |
     Then No exception should be thrown
-    And The SPEL int expression "nodeTemplates.size()" should return 2
-    And The SPEL int expression "nodeTemplates['Java'].relationships.size()" should return 0
+    And The topology SPEL int expression "nodeTemplates.size()" should return 2
+    And The topology SPEL int expression "nodeTemplates['Java'].relationships.size()" should return 0
 
   Scenario: Deleting a relationship that does not exits should fail
     Given I execute the operation

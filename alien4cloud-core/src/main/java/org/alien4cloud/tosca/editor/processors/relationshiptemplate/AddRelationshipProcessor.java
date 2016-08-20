@@ -62,6 +62,7 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
         TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getTarget(), nodeTemplates);
 
         String relationshipId = operation.getRelationshipType() + ":" + operation.getRelationshipVersion();
+        // FIXME why not use ToscaContext ??
         IndexedRelationshipType indexedRelationshipType = alienDAO.findById(IndexedRelationshipType.class, relationshipId);
         if (indexedRelationshipType == null) {
             throw new NotFoundException(IndexedRelationshipType.class.getName(), relationshipId,

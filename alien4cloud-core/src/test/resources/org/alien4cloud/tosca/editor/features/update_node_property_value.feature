@@ -15,7 +15,7 @@ Feature: Topology editor: update node property value
       | propertyName  | component_version                                                                     |
       | propertyValue | 1.2.0                                                                                 |
     Then No exception should be thrown
-    And The SPEL expression "nodeTemplates['software_component'].properties['component_version'].value" should return "1.2.0"
+    And The topology SPEL expression "nodeTemplates['software_component'].properties['component_version'].value" should return "1.2.0"
 
   Scenario: Updating a property value for a property that does not exists should fail
     Given I execute the operation

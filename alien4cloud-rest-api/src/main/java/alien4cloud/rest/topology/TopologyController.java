@@ -1,27 +1,5 @@
 package alien4cloud.rest.topology;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-import java.util.Map.Entry;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import javax.validation.Valid;
-
-import org.alien4cloud.tosca.editor.TopologyDTOBuilder;
-import org.alien4cloud.tosca.editor.EditionContextManager;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.common.io.Closeables;
-
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.TopologyCompositionService;
 import alien4cloud.component.CSARRepositorySearchService;
@@ -53,8 +31,27 @@ import alien4cloud.tosca.topology.NodeTemplateBuilder;
 import alien4cloud.utils.InputArtifactUtil;
 import alien4cloud.utils.RestConstraintValidator;
 import alien4cloud.utils.services.PropertyService;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.io.Closeables;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.editor.EditionContextManager;
+import org.alien4cloud.tosca.editor.EditorTopologyRecoveryHelperService;
+import org.alien4cloud.tosca.editor.TopologyDTOBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.validation.Valid;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.Map.Entry;
 
 @Slf4j
 @RestController
@@ -105,8 +102,12 @@ public class TopologyController {
 
     @Resource
     private EditionContextManager topologyEditionContextManager;
+
     @Inject
     private TopologyDTOBuilder dtoBuilder;
+
+    @Inject
+    private EditorTopologyRecoveryHelperService topologyRecoveryHelperService;
 
     /**
      * Retrieve an existing {@link alien4cloud.model.topology.Topology}
@@ -455,7 +456,7 @@ public class TopologyController {
         String propertyName = updatePropertyRequest.getPropertyName();
         Object propertyValue = updatePropertyRequest.getPropertyValue();
         String relationshipType = updatePropertyRequest.getType();
-        Map<String, IndexedRelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology);
+        Map<String, IndexedRelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology, true);
 
         if (!relationshipTypes.get(relationshipType).getProperties().containsKey(propertyName)) {
             throw new NotFoundException(
@@ -947,5 +948,28 @@ public class TopologyController {
             throw new NotFoundException("No version found for topology " + topologyId);
         }
         return RestResponseBuilder.<AbstractTopologyVersion> builder().data(version).build();
+    }
+
+    /**
+     * Retrieve csar dependencies of a given topology have been updated since they were added into the topology.
+     *
+     * @param topologyId The id of the topology to check.
+     * @return {@link RestResponse}<{@link Set}<{@link CSARDependency}>> containing the dependencies that have been updated.
+     *
+     */
+    @ApiOperation(value = "Retrieve csar dependencies of a given topology have been updated since they were added into the topology.", notes = "Returns a set of dependencies that have been updated. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyId}/updatedDependencies", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<Set<CSARDependency>> getUpdatedDependencies(@PathVariable String topologyId) {
+
+        try {
+            topologyEditionContextManager.init(topologyId);
+            topologyService.checkAuthorizations(EditionContextManager.getTopology(), ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS,
+                    ApplicationRole.APPLICATION_USER);
+            return RestResponseBuilder.<Set<CSARDependency>> builder()
+                    .data(topologyRecoveryHelperService.getUpdatedDependencies(EditionContextManager.getTopology())).build();
+        } finally {
+            topologyEditionContextManager.destroy();
+        }
     }
 }

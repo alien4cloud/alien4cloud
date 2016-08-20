@@ -16,8 +16,8 @@ Feature: Workflow editor: reinitialize workflow
       | workflowName | uninstall                                                                      |
     Then No exception should be thrown
     ## TODO: WHAT SHOULD WE TEST HERE ?
-#    And The SPEL int expression "workflows.size()" should return 3
-#    And The SPEL expression "workflows['wf1_renamed'].name" should return "wf1_renamed"
+#    And The topology SPEL int expression "workflows.size()" should return 3
+#    And The topology SPEL expression "workflows['wf1_renamed'].name" should return "wf1_renamed"
 
 
   Scenario: reinitializing a non standard workflow should fail

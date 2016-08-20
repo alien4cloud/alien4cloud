@@ -33,9 +33,9 @@ Feature: Topology editor: set node relationship property as input
       | propertyName     | fake_password                                                                                               |
       | inputName        | password                                                                                                    |
     Then No exception should be thrown
-    And The SPEL int expression "inputs.size()" should return 1
-    And The SPEL expression "nodeTemplates['Java'].relationships['MyRelationship'].properties['fake_password'].function" should return "get_input"
-    And The SPEL expression "nodeTemplates['Java'].relationships['MyRelationship'].properties['fake_password'].parameters[0]" should return "password"
+    And The topology SPEL int expression "inputs.size()" should return 1
+    And The topology SPEL expression "nodeTemplates['Java'].relationships['MyRelationship'].properties['fake_password'].function" should return "get_input"
+    And The topology SPEL expression "nodeTemplates['Java'].relationships['MyRelationship'].properties['fake_password'].parameters[0]" should return "password"
 
   Scenario: Set a node relationship property to an input that does not exists should fail
     Given I execute the operation
@@ -62,7 +62,7 @@ Feature: Topology editor: set node relationship property as input
       | propertyName     | fake_password                                                                                               |
       | inputName        | password                                                                                                    |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
-    And The SPEL expression "nodeTemplates['Java'].relationships['MyRelationship'].properties['fake_password']" should return "null"
+    And The topology SPEL expression "nodeTemplates['Java'].relationships['MyRelationship'].properties['fake_password']" should return "null"
 
   Scenario: Set a node relationship property to a relationship property that does not exists should fail
     Given I execute the operation
@@ -93,7 +93,7 @@ Feature: Topology editor: set node relationship property as input
       | propertyName     | does_not_exists                                                                                               |
       | inputName        | password                                                                                                    |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
-    And The SPEL expression "nodeTemplates['Java'].relationships['MyRelationship'].properties['fake_password']" should return "null"
+    And The topology SPEL expression "nodeTemplates['Java'].relationships['MyRelationship'].properties['fake_password']" should return "null"
 
   Scenario: Set a node relationship property to a relationship that does not exists should fail
     Given I execute the operation
@@ -124,7 +124,7 @@ Feature: Topology editor: set node relationship property as input
       | propertyName     | fake_password                                                                                               |
       | inputName        | password                                                                                                    |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
-    And The SPEL expression "nodeTemplates['Java'].relationships['MyRelationship'].properties['fake_password']" should return "null"
+    And The topology SPEL expression "nodeTemplates['Java'].relationships['MyRelationship'].properties['fake_password']" should return "null"
 
   Scenario: Set a node relationship property to a node that does not exists should fail
     Given I execute the operation
@@ -155,4 +155,4 @@ Feature: Topology editor: set node relationship property as input
       | propertyName     | fake_password                                                                                               |
       | inputName        | password                                                                                                    |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
-    And The SPEL expression "nodeTemplates['Java'].relationships['MyRelationship'].properties['fake_password']" should return "null"
+    And The topology SPEL expression "nodeTemplates['Java'].relationships['MyRelationship'].properties['fake_password']" should return "null"

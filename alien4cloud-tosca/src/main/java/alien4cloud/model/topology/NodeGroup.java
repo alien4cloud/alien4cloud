@@ -1,14 +1,13 @@
 package alien4cloud.model.topology;
 
-import java.util.List;
-import java.util.Set;
-
+import alien4cloud.json.deserializer.PolicyDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import alien4cloud.json.deserializer.PolicyDeserializer;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.List;
+import java.util.Set;
 
 /**
  * A node group is a group of nodes in a topology. All members share the same policies.

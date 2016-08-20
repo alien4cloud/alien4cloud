@@ -1,16 +1,16 @@
 package org.alien4cloud.tosca.editor;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.git.SimpleGitHistoryEntry;
+import alien4cloud.model.topology.Topology;
+import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.topology.TopologyDTO;
+import alien4cloud.topology.TopologyService;
+import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.utils.CollectionUtils;
+import alien4cloud.utils.ReflectionUtil;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
 import org.alien4cloud.tosca.editor.exception.EditorIOException;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
@@ -21,18 +21,15 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Service;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.git.SimpleGitHistoryEntry;
-import alien4cloud.model.topology.Topology;
-import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.topology.TopologyDTO;
-import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.utils.CollectionUtils;
-import alien4cloud.utils.ReflectionUtil;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * This service manages command execution on the TOSCA topology template editor.
@@ -146,8 +143,7 @@ public class EditorService {
             operation.setAuthor(AuthorizationUtil.getCurrentUser().getUserId());
 
             // attach the topology tosca context and process the operation
-            IEditorOperationProcessor<T> processor = (IEditorOperationProcessor<T>) processorMap.get(operation.getClass());
-            processor.process(operation);
+            process(operation);
 
             List<AbstractEditorOperation> operations = EditionContextManager.get().getOperations();
             if (EditionContextManager.get().getLastOperationIndex() == operations.size() - 1) {
@@ -164,6 +160,17 @@ public class EditorService {
             EditionContextManager.get().setCurrentOperation(null);
             editionContextManager.destroy();
         }
+    }
+
+    /**
+     * Finds the proper processor and process an operation
+     *
+     * @param operation The operation to process
+     * @param <T> Type of the operation to process
+     */
+    public <T extends AbstractEditorOperation> void process(T operation) {
+        IEditorOperationProcessor<T> processor = (IEditorOperationProcessor<T>) processorMap.get(operation.getClass());
+        processor.process(operation);
     }
 
     /**

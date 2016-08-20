@@ -29,7 +29,7 @@ public class ToscaTypeLoader {
     }
 
     public Set<CSARDependency> getLoadedDependencies() {
-        return dependenciesMap.keySet();
+        return Sets.newHashSet(dependenciesMap.keySet());
     }
 
     /**
@@ -128,7 +128,7 @@ public class ToscaTypeLoader {
         typeUsagesMap.put(type, currentUsageCount + 1);
         if (typesLoadedByDependency != null) {
             typesLoadedByDependency.add(type);
-            // make sure we replace the key it because the Equals on CSARDependency is only based on the name and the version
+            // make sure we replace the key because the Equals on CSARDependency is only based on the name and the version
             dependenciesMap.remove(directDependency);
             dependenciesMap.put(directDependency, typesLoadedByDependency);
         } else {

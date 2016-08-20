@@ -14,9 +14,9 @@ Feature: Topology editor: rename node
       | nodeName | Template1                                                                |
       | newName  | Template2                                                                |
     Then No exception should be thrown
-    And The SPEL int expression "nodeTemplates.size()" should return 1
-    And The SPEL expression "nodeTemplates['Template1']" should return "null"
-    And The SPEL expression "nodeTemplates['Template2'].type" should return "tosca.nodes.Compute"
+    And The topology SPEL int expression "nodeTemplates.size()" should return 1
+    And The topology SPEL expression "nodeTemplates['Template1']" should return "null"
+    And The topology SPEL expression "nodeTemplates['Template2'].type" should return "tosca.nodes.Compute"
 
   Scenario: Rename a non existing node template in an empty topology should fail
     When I execute the operation
@@ -46,5 +46,5 @@ Feature: Topology editor: rename node
       | nodeName | Template1                                                                |
       | newName  | Template1!!!                                                             |
     Then an exception of type "alien4cloud.exception.InvalidNodeNameException" should be thrown
-    And The SPEL int expression "nodeTemplates.size()" should return 1
-    And The SPEL expression "nodeTemplates['Template1'].type" should return "tosca.nodes.Compute"
+    And The topology SPEL int expression "nodeTemplates.size()" should return 1
+    And The topology SPEL expression "nodeTemplates['Template1'].type" should return "tosca.nodes.Compute"

@@ -29,7 +29,7 @@ Feature: Topology editor: update node relationship property value
       | propertyName     | password                                                                                              |
       | propertyValue    | validpass                                                                                             |
     Then No exception should be thrown
-    And The SPEL expression "nodeTemplates['Java'].relationships['MyRelationship'].properties['password'].value" should return "validpass"
+    And The topology SPEL expression "nodeTemplates['Java'].relationships['MyRelationship'].properties['password'].value" should return "validpass"
 
   Scenario: Updating a scalar property value of relationship with an unmatched constraint should fail
     Given I execute the operation

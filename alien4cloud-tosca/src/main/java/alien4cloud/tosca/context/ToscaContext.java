@@ -1,18 +1,17 @@
 package alien4cloud.tosca.context;
 
+import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.model.components.*;
+import alien4cloud.tosca.model.ArchiveRoot;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.model.components.*;
-import alien4cloud.tosca.model.ArchiveRoot;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Manage thread-local tosca contexts.
@@ -165,6 +164,7 @@ public class ToscaContext {
          */
         public void updateDependency(CSARDependency dependency) {
             // Do not update dependency if the version hasn't changed
+            // FIXME Not sure what we try to do here... but if we ever want not to update in a case, make sure to take into account the dependency hash
             if (!hasDependency(dependency)) {
                 log.debug("Dependency already exist in context.");
             }

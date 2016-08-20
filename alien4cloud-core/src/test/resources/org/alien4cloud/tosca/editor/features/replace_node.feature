@@ -14,5 +14,5 @@ Feature: Topology editor: replace nodes templates
       | nodeName  | compute                                                                   |
       | newTypeId | tosca.nodes.WebApplication:1.0.0-SNAPSHOT                                 |
     Then No exception should be thrown
-    And The SPEL int expression "nodeTemplates.size()" should return 1
-    And The SPEL expression "nodeTemplates['compute'].type" should return "tosca.nodes.WebApplication"
+    And The topology SPEL int expression "nodeTemplates.size()" should return 1
+    And The topology SPEL expression "nodeTemplates['compute'].type" should return "tosca.nodes.WebApplication"

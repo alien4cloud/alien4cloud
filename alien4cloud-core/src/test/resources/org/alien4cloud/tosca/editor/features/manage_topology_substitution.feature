@@ -9,7 +9,7 @@ Feature: Topology editor: add substitution
       | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
       | elementId   | tosca.nodes.Compute                                                               |
     Then No exception should be thrown
-    And The SPEL expression "substitutionMapping.substitutionType.elementId" should return "tosca.nodes.Compute"
+    And The topology SPEL expression "substitutionMapping.substitutionType.elementId" should return "tosca.nodes.Compute"
 
   Scenario: Set a topology as substitute should failed
     When I create an empty topology
@@ -23,11 +23,11 @@ Feature: Topology editor: add substitution
       | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
       | elementId   | tosca.nodes.Compute                                                               |
     Then No exception should be thrown
-    And The SPEL expression "substitutionMapping.substitutionType.elementId" should return "tosca.nodes.Compute"
+    And The topology SPEL expression "substitutionMapping.substitutionType.elementId" should return "tosca.nodes.Compute"
     When I execute the operation
       | type        | org.alien4cloud.tosca.editor.operations.substitution.RemoveSubstitutionTypeOperation |
     Then No exception should be thrown
-    And The SPEL expression "substitutionMapping" should return "null"
+    And The topology SPEL expression "substitutionMapping" should return "null"
 
   Scenario: Remove the substitute value of a non substitutable topology template should failed
     When I execute the operation
@@ -39,7 +39,7 @@ Feature: Topology editor: add substitution
       | type        | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
       | elementId   | tosca.nodes.Compute                                                               |
     Then No exception should be thrown
-    And The SPEL expression "substitutionMapping.substitutionType.elementId" should return "tosca.nodes.Compute"
+    And The topology SPEL expression "substitutionMapping.substitutionType.elementId" should return "tosca.nodes.Compute"
     And I save the topology
     Then I create an empty topology
     When I execute the operation

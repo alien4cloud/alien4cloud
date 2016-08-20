@@ -16,7 +16,7 @@ Feature: Topology editor: set deployment artifact
       | artifactName      | war                                                                                        |
       | artifactReference | upload_file.feature                                                                        |
     Then No exception should be thrown
-    And The SPEL expression "nodeTemplates['war_node'].artifacts['war'].artifactRef" should return "upload_file.feature"
+    And The topology SPEL expression "nodeTemplates['war_node'].artifacts['war'].artifactRef" should return "upload_file.feature"
 
   Scenario: Setting an artifact to a temporary file from an archive directory should succeed
     Given I execute the operation

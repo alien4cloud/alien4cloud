@@ -79,7 +79,7 @@ public class PluginArchiveIndexer {
         // index archive here if not already indexed
         for (PluginArchive pluginArchive : pluginArchives) {
             ArchiveRoot archive = pluginArchive.getArchive();
-            Csar csar = csarService.getIfExists(archive.getArchive().getName(), archive.getArchive().getVersion());
+            Csar csar = csarService.get(archive.getArchive().getName(), archive.getArchive().getVersion());
             String lastParsedHash = null;
 
             if (csar == null) {

@@ -20,9 +20,9 @@ Feature: Topology editor: set node capability property as input
       | propertyName   | max_instances                                                                                         |
       | inputName      | max_instances                                                                                         |
     Then No exception should be thrown
-    And The SPEL int expression "inputs.size()" should return 1
-    And The SPEL expression "nodeTemplates['compute_node'].capabilities['scalable'].properties['max_instances'].function" should return "get_input"
-    And The SPEL expression "nodeTemplates['compute_node'].capabilities['scalable'].properties['max_instances'].parameters[0]" should return "max_instances"
+    And The topology SPEL int expression "inputs.size()" should return 1
+    And The topology SPEL expression "nodeTemplates['compute_node'].capabilities['scalable'].properties['max_instances'].function" should return "get_input"
+    And The topology SPEL expression "nodeTemplates['compute_node'].capabilities['scalable'].properties['max_instances'].parameters[0]" should return "max_instances"
 
   Scenario: Set a node capability property to an input that does not exists should fail
     Given I execute the operation
@@ -36,7 +36,7 @@ Feature: Topology editor: set node capability property as input
       | propertyName   | max_instances                                                                                         |
       | inputName      | do_not_exist                                                                                          |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
-    And The SPEL expression "nodeTemplates['compute_node'].capabilities['scalable'].properties['max_instances'].value" should return "1"
+    And The topology SPEL expression "nodeTemplates['compute_node'].capabilities['scalable'].properties['max_instances'].value" should return "1"
 
   Scenario: Set a node capability property to a capability property that does not exists should fail
     Given I execute the operation
@@ -54,7 +54,7 @@ Feature: Topology editor: set node capability property as input
       | propertyName   | do_not_exist                                                                                          |
       | inputName      | max_instances                                                                                         |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
-    And The SPEL expression "nodeTemplates['compute_node'].capabilities['scalable'].properties['max_instances'].value" should return "1"
+    And The topology SPEL expression "nodeTemplates['compute_node'].capabilities['scalable'].properties['max_instances'].value" should return "1"
 
   Scenario: Set a node capability property to a capability that does not exists should fail
     Given I execute the operation
@@ -72,4 +72,4 @@ Feature: Topology editor: set node capability property as input
       | propertyName   | max_instances                                                                                         |
       | inputName      | max_instances                                                                                         |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
-    And The SPEL expression "nodeTemplates['compute_node'].capabilities['scalable'].properties['max_instances'].value" should return "1"
+    And The topology SPEL expression "nodeTemplates['compute_node'].capabilities['scalable'].properties['max_instances'].value" should return "1"

@@ -13,8 +13,8 @@ Feature: Workflow editor: rename workflow
       | workflowName | wf1                                                                      |
       | newName      | wf1_renamed                                                              |
     Then No exception should be thrown
-    And The SPEL int expression "workflows.size()" should return 3
-    And The SPEL expression "workflows['wf1_renamed'].name" should return "wf1_renamed"
+    And The topology SPEL int expression "workflows.size()" should return 3
+    And The topology SPEL expression "workflows['wf1_renamed'].name" should return "wf1_renamed"
 
   Scenario: Renaming a workflow giving an existing workflow name should fail
     When I execute the operation
@@ -29,8 +29,8 @@ Feature: Workflow editor: rename workflow
       | newName      | wf2                                                                      |
     Then an exception of type "alien4cloud.exception.AlreadyExistException" should be thrown
     When I get the edited topology
-    Then The SPEL expression "workflows['wf1'].name" should return "wf1"
-    And The SPEL expression "workflows['wf2'].name" should return "wf2"
+    Then The topology SPEL expression "workflows['wf1'].name" should return "wf1"
+    And The topology SPEL expression "workflows['wf2'].name" should return "wf2"
 
   Scenario: Renaming a standard workflow should fail
     When I execute the operation
@@ -39,11 +39,11 @@ Feature: Workflow editor: rename workflow
       | newName      | should_fail                                                              |
     Then an exception of type "alien4cloud.paas.wf.exception.BadWorkflowOperationException" should be thrown
     When I get the edited topology
-    Then The SPEL expression "workflows['install'].name" should return "install"
+    Then The topology SPEL expression "workflows['install'].name" should return "install"
     When I execute the operation
       | type         | org.alien4cloud.tosca.editor.operations.workflow.RenameWorkflowOperation |
       | workflowName | uninstall                                                                |
       | newName      | should_fail                                                              |
     Then an exception of type "alien4cloud.paas.wf.exception.BadWorkflowOperationException" should be thrown
     When I get the edited topology
-    Then The SPEL expression "workflows['uninstall'].name" should return "uninstall"
+    Then The topology SPEL expression "workflows['uninstall'].name" should return "uninstall"

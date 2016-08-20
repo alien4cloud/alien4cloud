@@ -12,8 +12,8 @@ Feature: Workflow editor: remove workflow
       | type         | org.alien4cloud.tosca.editor.operations.workflow.RemoveWorkflowOperation |
       | workflowName | wf1                                                                      |
     Then No exception should be thrown
-    And The SPEL int expression "workflows.size()" should return 2
-    And The SPEL expression "workflows['wf1']" should return "null"
+    And The topology SPEL int expression "workflows.size()" should return 2
+    And The topology SPEL expression "workflows['wf1']" should return "null"
 
   Scenario: Removing a standard workflow should fail
     When I execute the operation
@@ -21,10 +21,10 @@ Feature: Workflow editor: remove workflow
       | workflowName | install                                                                  |
     Then an exception of type "alien4cloud.paas.wf.exception.BadWorkflowOperationException" should be thrown
     When I get the edited topology
-    Then The SPEL expression "workflows['install'].name" should return "install"
+    Then The topology SPEL expression "workflows['install'].name" should return "install"
     When I execute the operation
       | type         | org.alien4cloud.tosca.editor.operations.workflow.RemoveWorkflowOperation |
       | workflowName | uninstall                                                                |
     Then an exception of type "alien4cloud.paas.wf.exception.BadWorkflowOperationException" should be thrown
     When I get the edited topology
-    Then The SPEL expression "workflows['uninstall'].name" should return "uninstall"
+    Then The topology SPEL expression "workflows['uninstall'].name" should return "uninstall"

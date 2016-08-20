@@ -13,7 +13,7 @@ Feature: Topology editor: delete node template
       | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation |
       | nodeName | Template1                                                                |
     Then No exception should be thrown
-    And The SPEL int expression "nodeTemplates.size()" should return 0
+    And The topology SPEL int expression "nodeTemplates.size()" should return 0
 
   Scenario: Remove a non existing node template from an empty topology should fail
     When I execute the operation
@@ -72,5 +72,5 @@ Feature: Topology editor: delete node template
       | type     | org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation |
       | nodeName | Compute                                                                  |
     Then No exception should be thrown
-    And The SPEL int expression "groups.size()" should return 1
-    And The SPEL int expression "nodeTemplates.size()" should return 0
+    And The topology SPEL int expression "groups.size()" should return 1
+    And The topology SPEL int expression "nodeTemplates.size()" should return 0

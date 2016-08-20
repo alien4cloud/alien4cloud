@@ -68,7 +68,7 @@ public class ArchiveIndexer {
             throws CSARVersionAlreadyExistsException, CSARUsedInActiveDeployment {
         String archiveName = archiveRoot.getArchive().getName();
         String archiveVersion = archiveRoot.getArchive().getVersion();
-        Csar archive = csarService.getIfExists(archiveName, archiveVersion);
+        Csar archive = csarService.get(archiveName, archiveVersion);
         // Cannot override RELEASED CSAR .
         // FIXME Or RELEASED Topology Template
         checkNotReleased(archive);

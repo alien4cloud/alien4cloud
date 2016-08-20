@@ -151,7 +151,7 @@ public class CsarGitService {
             List<CsarDependenciesBean> sorted = sort(csarDependenciesBeans);
             for (CsarDependenciesBean csarBean : sorted) {
                 if (csarGitCheckoutLocation.getLastImportedHash() != null && csarGitCheckoutLocation.getLastImportedHash().equals(gitHash)) {
-                    if (csarService.getIfExists(csarBean.getSelf().getName(), csarBean.getSelf().getVersion()) != null) {
+                    if (csarService.get(csarBean.getSelf().getName(), csarBean.getSelf().getVersion()) != null) {
                         // no commit since last import and the archive still exist in the repo, so do not import
                         // TODO notify the user that the archive has already been imported
                         continue;

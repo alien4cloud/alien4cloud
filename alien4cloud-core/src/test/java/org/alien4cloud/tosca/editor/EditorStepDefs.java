@@ -1,19 +1,23 @@
 package org.alien4cloud.tosca.editor;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
-import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
-import alien4cloud.tosca.parser.ParsingException;
-import alien4cloud.utils.FileUtil;
-import cucumber.api.java.en.When;
+import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.model.components.*;
 import alien4cloud.model.templates.TopologyTemplate;
+import alien4cloud.model.topology.Topology;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.security.model.User;
+import alien4cloud.topology.TopologyDTO;
+import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.tosca.ArchiveUploadService;
+import alien4cloud.utils.FileUtil;
+import com.google.common.collect.Maps;
+import cucumber.api.DataTable;
+import cucumber.api.java.Before;
+import cucumber.api.java.en.Given;
+import cucumber.api.java.en.Then;
+import cucumber.api.java.en.When;
+import gherkin.formatter.model.DataTableRow;
+import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -31,22 +35,13 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 
-import com.google.common.collect.Maps;
-
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.model.components.*;
-import alien4cloud.model.topology.Topology;
-import alien4cloud.paas.wf.WorkflowsBuilderService;
-import alien4cloud.security.model.User;
-import alien4cloud.topology.TopologyDTO;
-import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.tosca.ArchiveUploadService;
-import cucumber.api.DataTable;
-import cucumber.api.java.Before;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import gherkin.formatter.model.DataTableRow;
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 
 @ContextConfiguration("classpath:org/alien4cloud/tosca/editor/application-context-test.xml")
 @Slf4j
@@ -66,6 +61,9 @@ public class EditorStepDefs {
     @Resource
     private WorkflowsBuilderService workflowBuilderService;
 
+    @Resource
+    private EditorTopologyRecoveryHelperService recoveryHelper;
+
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
 
@@ -73,12 +71,14 @@ public class EditorStepDefs {
 
     private EvaluationContext topologyEvaluationContext;
     private EvaluationContext dtoEvaluationContext;
+    private EvaluationContext commonEvaluationContext;
 
     private Exception thrownException;
 
     private Map<String, String> topologyIdToLastOperationId = new HashMap<>();
 
     private List<Class> typesToClean = new ArrayList<Class>();
+    public static final Path CSAR_TARGET_PATH = Paths.get("target/csars");
 
 
     // @Required
@@ -121,6 +121,21 @@ public class EditorStepDefs {
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
+    @When("^I upload unzipped CSAR from path \"(.*?)\"$")
+    public void i_upload_unzipped_CSAR_From_path(String path) throws Throwable {
+        Path source = Paths.get(path);
+        Path csarTargetPath = CSAR_TARGET_PATH.resolve(source.getFileName() + ".csar");
+        FileUtil.zip(source, csarTargetPath);
+        uploadCsarFromPath(csarTargetPath);
+    }
+
+    @When("^I get the topology related to the template with name \"(.*?)\"$")
+    public void iGetTheTopologyRelatedToTheTemplateWithName(String templateName) throws Throwable {
+        TopologyTemplate topologyTeplate = topologyServiceCore.searchTopologyTemplateByName(templateName);
+        Topology topology = alienDAO.customFind(Topology.class, QueryBuilders.matchQuery("delegateId", topologyTeplate.getId()));
+        topologyIds.addLast(topology.getId());
+    }
+
     private static class TestAuth extends UsernamePasswordAuthenticationToken {
 
         Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
@@ -145,8 +160,12 @@ public class EditorStepDefs {
     }
 
     @Given("^I upload CSAR from path \"(.*?)\"$")
-    public void i_upload_CSAR_from_path(String arg1) throws Throwable {
-        csarUploadService.upload(Paths.get(arg1), CSARSource.UPLOAD);
+    public void i_upload_CSAR_from_path(String path) throws Throwable {
+        uploadCsarFromPath(Paths.get(path));
+    }
+
+    private void uploadCsarFromPath(Path path) throws Throwable {
+        csarUploadService.upload(path, CSARSource.UPLOAD);
     }
 
     @Given("^I create an empty topology$")
@@ -218,13 +237,13 @@ public class EditorStepDefs {
         doExecuteOperation(operation, topologyIds.getLast());
     }
 
-    @Then("^The SPEL boolean expression \"([^\"]*)\" should return true$")
-    public void evaluateSpelBooleanExpressionUsingCurrentContext(String spelExpression) {
-        Boolean result = (Boolean) evaluateExpression(spelExpression);
+    @Then("^The topology SPEL boolean expression \"([^\"]*)\" should return true$")
+    public void evaluateSpelBooleanExpressionUsingCurrentTopologyContext(String spelExpression) {
+        Boolean result = (Boolean) evaluateExpressionForTopology(spelExpression);
         Assert.assertTrue(String.format("The SPEL expression [%s] should return true as a result", spelExpression), result.booleanValue());
     }
 
-    private Object evaluateExpression(String spelExpression) {
+    private Object evaluateExpressionForTopology(String spelExpression) {
         return evaluateExpression(topologyEvaluationContext, spelExpression);
     }
 
@@ -234,9 +253,15 @@ public class EditorStepDefs {
         return exp.getValue(context);
     }
 
+    @Then("^The topology SPEL expression \"([^\"]*)\" should return \"([^\"]*)\"$")
+    public void evaluateSpelExpressionUsingCurrentTopologyContext(String spelExpression, String expected) {
+        Object result = evaluateExpressionForTopology(spelExpression);
+        assertSpelResult(expected, result, spelExpression);
+    }
+
     @Then("^The SPEL expression \"([^\"]*)\" should return \"([^\"]*)\"$")
-    public void evaluateSpelExpressionUsingCurrentContext(String spelExpression, String expected) {
-        Object result = evaluateExpression(spelExpression);
+    public void evaluateSpelExpressionUsingCurrentCommonContext(String spelExpression, String expected) {
+        Object result = evaluateExpression(commonEvaluationContext, spelExpression);
         assertSpelResult(expected, result, spelExpression);
     }
 
@@ -255,9 +280,15 @@ public class EditorStepDefs {
         }
     }
 
+    @Then("^The topology SPEL int expression \"([^\"]*)\" should return (\\d+)$")
+    public void The_topology_SPEL_int_expression_should_return(String spelExpression, int expected) throws Throwable {
+        Integer actual = (Integer) evaluateExpressionForTopology(spelExpression);
+        Assert.assertEquals(String.format("The SPEL expression [%s] should return [%d]", spelExpression, expected), expected, actual.intValue());
+    }
+
     @Then("^The SPEL int expression \"([^\"]*)\" should return (\\d+)$")
     public void The_SPEL_int_expression_should_return(String spelExpression, int expected) throws Throwable {
-        Integer actual = (Integer) evaluateExpression(spelExpression);
+        Integer actual = (Integer) evaluateExpression(commonEvaluationContext, spelExpression);
         Assert.assertEquals(String.format("The SPEL expression [%s] should return [%d]", spelExpression, expected), expected, actual.intValue());
     }
 
@@ -287,6 +318,13 @@ public class EditorStepDefs {
         } finally {
             editionContextManager.destroy();
         }
+    }
+
+    @When("^I ask for updated dependencies from the registered topology$")
+    public void iAskForUpdatedDependenciesFromTheRegisteredTopology() throws Throwable {
+        I_get_the_edited_topology();
+        commonEvaluationContext = new StandardEvaluationContext(
+                recoveryHelper.getUpdatedDependencies((Topology) topologyEvaluationContext.getRootObject().getValue()));
     }
 
 }

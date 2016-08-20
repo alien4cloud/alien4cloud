@@ -22,7 +22,7 @@ Feature: Topology editor: capability substitution
       | nodeTemplateName         | Compute                                                                                     |
       | capabilityId             | host                                                                                        |
       | substitutionCapabilityId | host                                                                                        |
-    And The SPEL expression "substitutionMapping.capabilities['host'].nodeTemplateName" should return "Compute"
+    And The topology SPEL expression "substitutionMapping.capabilities['host'].nodeTemplateName" should return "Compute"
 
   Scenario: Add a capability substitution on a wrong node should failed
     When I execute the operation
@@ -104,11 +104,11 @@ Feature: Topology editor: capability substitution
       | nodeTemplateName         | Compute                                                                                     |
       | capabilityId             | host                                                                                        |
       | substitutionCapabilityId | host                                                                                        |
-    And The SPEL expression "substitutionMapping.capabilities['host'].nodeTemplateName" should return "Compute"
+    And The topology SPEL expression "substitutionMapping.capabilities['host'].nodeTemplateName" should return "Compute"
     When I execute the operation
       | type                     | org.alien4cloud.tosca.editor.operations.substitution.RemoveCapabilitySubstitutionTypeOperation |
       | substitutionCapabilityId | host                                                                                           |
-    And The SPEL expression "substitutionMapping.capabilities['host']" should return "null"
+    And The topology SPEL expression "substitutionMapping.capabilities['host']" should return "null"
 
   Scenario: Remove a non existing capability substitution when the topology is not an substitute should failed
     When I execute the operation
@@ -161,12 +161,12 @@ Feature: Topology editor: capability substitution
       | nodeTemplateName         | Compute                                                                                     |
       | capabilityId             | host                                                                                        |
       | substitutionCapabilityId | host                                                                                        |
-    And The SPEL expression "substitutionMapping.capabilities['host'].nodeTemplateName" should return "Compute"
+    And The topology SPEL expression "substitutionMapping.capabilities['host'].nodeTemplateName" should return "Compute"
     When I execute the operation
       | type                     | org.alien4cloud.tosca.editor.operations.substitution.UpdateCapabilitySubstitutionTypeOperation |
       | substitutionCapabilityId | host                                                                                           |
       | newCapabilityId          | host_bis                                                                                       |
-    And The SPEL expression "substitutionMapping.capabilities['host_bis'].nodeTemplateName" should return "Compute"
+    And The topology SPEL expression "substitutionMapping.capabilities['host_bis'].nodeTemplateName" should return "Compute"
 
   Scenario: Update a non existing capability substitution when the topology is not an substitute should failed
     When I execute the operation

@@ -1,21 +1,5 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.nodes.Node;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.model.components.*;
 import alien4cloud.model.topology.NodeGroup;
@@ -31,6 +15,19 @@ import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.services.ConstraintPropertyService;
+import com.google.common.base.Objects;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.nodes.Node;
+
+import javax.annotation.Resource;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 @Component
 public class TopologyChecker implements IChecker<Topology> {
@@ -75,11 +72,15 @@ public class TopologyChecker implements IChecker<Topology> {
 
     @Override
     public void check(final Topology instance, ParsingContextExecution context, Node node) {
+
         if (instance.isEmpty()) {
             // if the topology doesn't contains any node template it won't be imported so add a warning.
             context.getParsingErrors()
                     .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.EMPTY_TOPOLOGY, null, node.getStartMark(), null, node.getEndMark(), ""));
         }
+
+        //fill in the node template names
+        fillInNodeNames(instance);
 
         final ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
         Set<CSARDependency> dependencies = archiveRoot.getArchive().getDependencies();
@@ -178,6 +179,17 @@ public class TopologyChecker implements IChecker<Topology> {
         finalizeParsedWorkflows(topologyContext, context, node);
         // workflowBuilderService.initWorkflows(topologyContext);
 
+    }
+
+    /**
+     * fill in the nodeTemplates names
+     *
+     * @param instance
+     */
+    private void fillInNodeNames(Topology instance) {
+        for (Entry<String, NodeTemplate> entry : instance.getNodeTemplates().entrySet()) {
+            entry.getValue().setName(entry.getKey());
+        }
     }
 
     /**
