@@ -1,4 +1,4 @@
-package alien4cloud.rest.exception;
+package org.alien4cloud.exception.rest;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

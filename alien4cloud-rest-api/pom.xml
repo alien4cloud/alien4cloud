@@ -121,6 +121,12 @@
       <artifactId>springfox-swagger2</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.orbitz.consul</groupId>
+      <artifactId>consul-client</artifactId>
+      <version>0.12.3</version>
+    </dependency>
+    
     <!-- tests -->
     <dependency>
       <groupId>junit</groupId>

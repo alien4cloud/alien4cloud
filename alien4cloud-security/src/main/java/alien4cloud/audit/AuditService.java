@@ -49,6 +49,7 @@ public class AuditService {
         return this.auditConfiguration;
     }
 
+
     public synchronized void saveAuditConfiguration(AuditConfiguration auditConfiguration) {
         alienDAO.save(auditConfiguration);
         this.auditConfiguration = auditConfiguration;
@@ -137,4 +138,5 @@ public class AuditService {
         }
         return audit;
     }
+
 }

@@ -2,7 +2,11 @@ package alien4cloud.dao;
 
 import java.beans.IntrospectionException;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import javax.annotation.Resource;
@@ -90,9 +94,14 @@ public abstract class ESIndexMapper {
                 String mapping = jsonMapper.writeValueAsString(typesMap);
                 createIndexRequestBuilder.addMapping(typeName, mapping);
             }
-            final CreateIndexResponse createResponse = createIndexRequestBuilder.execute().actionGet();
-            if (!createResponse.isAcknowledged()) {
-                throw new IndexingServiceException("Failed to create index <" + indexName + ">");
+            // TODO: fixme !!!
+            try {
+                final CreateIndexResponse createResponse = createIndexRequestBuilder.execute().actionGet();
+                if (!createResponse.isAcknowledged()) {
+                    throw new IndexingServiceException("Failed to create index <" + indexName + ">");
+                }
+            } catch (Exception e) {
+                log.warn("Not able to init indice for index {}, maybe it has been created elsewhere", indexName);
             }
         }
     }
@@ -228,4 +237,5 @@ public abstract class ESIndexMapper {
     public static org.slf4j.Logger getLog() {
         return log;
     }
+
 }

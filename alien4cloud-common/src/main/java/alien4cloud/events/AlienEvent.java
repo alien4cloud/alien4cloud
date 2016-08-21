@@ -4,13 +4,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
-import alien4cloud.plugin.aop.ChildContextAspectsManager;
-
 /**
  * Events that can be published through {@link ApplicationContext} and consumed by {@link ApplicationListener}s.
  * <p>
- * If published through main application context, they are broadcasted to child contexts (plugins) by {@link ChildContextAspectsManager}. When published by
- * child context components, they are naturally broadcasted to main context by spring.
+ * If published through main application context, they are broadcasted to child contexts (plugins) by ChildContextAspectsManager. When published by child
+ * context components, they are naturally broadcasted to main context by spring.
  */
 public abstract class AlienEvent extends ApplicationEvent {
 

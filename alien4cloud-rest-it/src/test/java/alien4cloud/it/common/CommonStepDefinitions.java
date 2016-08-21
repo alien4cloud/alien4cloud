@@ -33,7 +33,7 @@ import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.model.PaaSDeploymentLog;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.model.PluginConfiguration;
-import alien4cloud.rest.exception.FieldErrorDTO;
+import org.alien4cloud.exception.rest.FieldErrorDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.security.model.Group;

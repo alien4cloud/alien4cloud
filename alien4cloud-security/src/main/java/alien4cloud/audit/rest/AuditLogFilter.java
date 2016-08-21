@@ -3,6 +3,7 @@ package alien4cloud.audit.rest;
 import io.swagger.annotations.ApiOperation;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,6 +12,8 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
@@ -36,9 +39,15 @@ import com.google.common.base.Strings;
  * This filter is used to intercept all rest call that need to be audited
  */
 @Component
+@Slf4j
 public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
 
-    private static final Pattern VERSION_DETECTION_PATTERN = Pattern.compile("/rest/(latest|[v|V]\\d+)/.+");
+    private static final ThreadLocal<Pattern> VERSION_DETECTION_PATTERN = new ThreadLocal<Pattern>() {
+        @Override
+        protected Pattern initialValue() {
+            return Pattern.compile("/rest/(latest|[v|V]\\d+)/.+");
+        }
+    };
 
     private static final String A4C_UI_HEADER = "A4C-Agent";
 
@@ -46,12 +55,13 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
     private AuditService auditService;
 
     @Resource
-    private HandlerMapping mapping;
+    private List<HandlerMapping> handlerMappings;
 
     private HandlerMethod getHandlerMethod(HttpServletRequest request) {
         HandlerExecutionChain handlerChain;
         try {
-            handlerChain = mapping.getHandler(request);
+
+            handlerChain = getHandler(request);
         } catch (Exception e) {
             logger.warn("Unable to get handler method", e);
             return null;
@@ -64,6 +74,20 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
         }
         HandlerMethod handlerMethod = (HandlerMethod) handlerChain.getHandler();
         return handlerMethod;
+    }
+
+    private HandlerExecutionChain getHandler(HttpServletRequest request) {
+        for (HandlerMapping handlerMapping : handlerMappings) {
+            try {
+                HandlerExecutionChain handlerChain = handlerMapping.getHandler(request);
+                if (handlerChain != null) {
+                    return handlerChain;
+                }
+            } catch (Exception e) {
+                log.debug("Unable to get handler method", e);
+            }
+        }
+        return null;
     }
 
     private ApiOperation getApiDoc(HandlerMethod method) {
@@ -114,7 +138,7 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
     }
 
     private String getApiVersion(String uri) {
-        Matcher matcher = VERSION_DETECTION_PATTERN.matcher(uri);
+        Matcher matcher = VERSION_DETECTION_PATTERN.get().matcher(uri);
         String version = null;
         if (matcher.matches()) {
             version = matcher.group(1);
