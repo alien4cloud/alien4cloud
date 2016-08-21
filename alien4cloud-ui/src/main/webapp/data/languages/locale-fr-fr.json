@@ -877,5 +877,15 @@
       "DEFAULT_VALUE_NOT_MATCH_CONSTRAINTS": "La valeur par défaut n'est pas valide par rapport aux contraintes déclarées dans le type",
       "DUPLICATED_CONSTRAINT": "Contraintes de même type ont été détectées dans la propriété"
     }
+  },
+  "REPOSITORY": {
+  "ACTIVE_FILTERS" : "Filtres actifs",
+  "TITLE": "Dépôts",
+  "ADD": "Nouveau dépôt",
+  "NAME": "Nom",
+  "TYPE": "Type",
+  "PLUGINS_NOT_FOUND": "Aucun plugin résolveur n'as été trouvé",
+  "CONFIGURATION": "Configuration",
+  "REPOSITORYTYPE": "Type"
   }
 }
