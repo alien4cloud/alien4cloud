@@ -8,7 +8,7 @@ import lombok.*;
 @Setter
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class SortConfiguration {
     @NotNull
     private String sortBy;

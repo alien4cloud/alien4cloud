@@ -10,8 +10,10 @@ import cucumber.api.junit.Cucumber;
 @CucumberOptions(features = {
         //
         // "classpath:alien/rest/runtime"
-        "classpath:alien/rest/runtime/custom_command.feature" }, format = { "pretty", "html:target/cucumber/runtime",
-                "json:target/cucumber/cucumber-runtime.json" })
+        "classpath:alien/rest/runtime/runtime_topology.feature"
+        // "classpath:alien/rest/runtime/custom_command.feature"
+        //
+}, format = { "pretty", "html:target/cucumber/runtime", "json:target/cucumber/cucumber-runtime.json" })
 // @Ignore
 public class RunRuntimeIT {
 }

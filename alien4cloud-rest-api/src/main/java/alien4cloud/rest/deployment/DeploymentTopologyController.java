@@ -2,6 +2,7 @@ package alien4cloud.rest.deployment;
 
 import static alien4cloud.utils.AlienUtils.safe;
 import alien4cloud.deployment.OrchestratorPropertiesValidationService;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.services.PropertyService;
@@ -165,7 +166,7 @@ public class DeploymentTopologyController {
      * @param environmentId Id of the environment we want to update
      * @param updateRequest an {@link UpdateDeploymentTopologyRequest} object
      * @return a {@link RestResponse} with:<br>
-     *         the {@link DeploymentTopologyDTO} if everithing went well, the <br>
+     *         the {@link DeploymentTopologyDTO} if everything went well, the <br>
      *         Error if not
      *
      * @throws OrchestratorDisabledException
@@ -186,6 +187,10 @@ public class DeploymentTopologyController {
             ToscaContext.init(deploymentTopology.getDependencies());
             // update topology inputs
             for (Map.Entry<String, Object> inputPropertyValue : safe(updateRequest.getInputProperties()).entrySet()) {
+                if (deploymentTopology.getInputs() == null || deploymentTopology.getInputs().get(inputPropertyValue.getKey()) == null) {
+                    throw new NotFoundException("Input", inputPropertyValue.getKey(), "Input <" + inputPropertyValue.getKey()
+                            + "> cannot be found on topology for application <" + appId + "> environement <" + environmentId + ">");
+                }
                 propertyService.setPropertyValue(deploymentTopology.getInputProperties(), deploymentTopology.getInputs().get(inputPropertyValue.getKey()),
                         inputPropertyValue.getKey(), inputPropertyValue.getValue());
             }

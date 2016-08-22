@@ -79,7 +79,7 @@ public class EditorRepositoryService {
         User user = auth == null ? null : (User) auth.getPrincipal();
         if (user != null) {
             username = user.getUsername();
-            useremail = user.getEmail();
+            useremail = user.getEmail() == null ? username + "@undefined.org" : user.getEmail();
         }
         RepositoryManager.commitAll(topologyGitPath, username, useremail, message);
     }

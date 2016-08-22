@@ -13,7 +13,7 @@ import lombok.AllArgsConstructor;
  * Location match filter that will filter on pluginId.
  *
  */
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class MockLocationMatchOrchestratorFilter implements ILocationMatchFilter {
 
     private ManagedPlugin selfContext;

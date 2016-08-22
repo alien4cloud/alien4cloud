@@ -3,15 +3,13 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>1.3.0-SM3-SNAPSHOT</version>
+    <version>1.3.0-SM4-SNAPSHOT</version>
   </parent>
   <artifactId>alien4cloud-rest-api</artifactId>
   <name>Alien 4 Cloud rest API</name>
   <description>This is the rest api for alien4cloud project.</description>
 
   <properties>
-    <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-    <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
     <sonar.language>java</sonar.language>
     <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
     <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>

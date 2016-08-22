@@ -14,7 +14,7 @@ import alien4cloud.model.deployment.DeploymentTopology;
 @Getter
 @Setter
 @ToString
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @NoArgsConstructor
 public class PaaSDeploymentContext {
 

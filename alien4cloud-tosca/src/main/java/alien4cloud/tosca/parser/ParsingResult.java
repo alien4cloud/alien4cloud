@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class ParsingResult<T> {
     private T result;
     private ParsingContext context;

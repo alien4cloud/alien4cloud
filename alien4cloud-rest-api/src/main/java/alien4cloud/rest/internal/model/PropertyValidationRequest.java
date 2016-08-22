@@ -12,7 +12,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @ApiModel("Request to validate that a property value is matching a given definition.")
 public class PropertyValidationRequest {
     @NotEmpty

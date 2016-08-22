@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
 
 import com.google.common.io.Closeables;
 
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class ZipDirWalker extends SimpleFileVisitor<Path> {
 
     private Path inputPath;

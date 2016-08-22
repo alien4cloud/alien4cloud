@@ -13,7 +13,7 @@ import org.elasticsearch.mapping.IndexType;
 @Setter
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @EqualsAndHashCode(of = "name")
 public class Tag {
     @StringField(indexType = IndexType.not_analyzed)

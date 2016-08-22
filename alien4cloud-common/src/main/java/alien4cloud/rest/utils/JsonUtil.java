@@ -2,6 +2,8 @@ package alien4cloud.rest.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.TypeVariable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +16,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import alien4cloud.rest.model.RestResponse;
+import com.fasterxml.jackson.databind.type.ArrayType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.LRUMap;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -67,8 +72,32 @@ public final class JsonUtil {
      * @throws IOException In case of an IO error.
      */
     public static <T> RestResponse<T> read(String responseAsString, Class<T> dataType, ObjectMapper mapper) throws IOException {
-        JavaType restResponseType = mapper.getTypeFactory().constructParametricType(RestResponse.class, dataType);
+        JavaType innerType = constructType(dataType, mapper.getTypeFactory());
+        JavaType restResponseType = mapper.getTypeFactory().constructParametricType(RestResponse.class, innerType);
         return mapper.readValue(responseAsString, restResponseType);
+    }
+
+    private static <T> JavaType constructType(Class<T> dataType, TypeFactory typeFactory) {
+        if (dataType == String.class || dataType == Boolean.TYPE || dataType == Integer.TYPE || dataType == Long.TYPE) {
+            return typeFactory.constructSimpleType(dataType, null);
+        }
+        if (dataType.isArray()) {
+            return typeFactory.constructArrayType(dataType.getComponentType());
+        } else if (dataType.isEnum()) {
+            return typeFactory.constructSimpleType(dataType, new JavaType[0]);
+        } else if (Map.class.isAssignableFrom(dataType)) {
+            return typeFactory.constructRawMapType((Class<? extends Map>) dataType);
+        } else if (Collection.class.isAssignableFrom(dataType)) {
+            return typeFactory.constructRawCollectionType((Class<? extends Collection>) dataType);
+        }
+
+        TypeVariable<Class<T>>[] types = dataType.getTypeParameters();
+        JavaType[] javaTypes = new JavaType[types.length];
+        for (int i = 0; i < javaTypes.length; i++) {
+            javaTypes[i] = TypeFactory.unknownType();
+        }
+
+        return typeFactory.constructSimpleType(dataType, javaTypes);
     }
 
     /**

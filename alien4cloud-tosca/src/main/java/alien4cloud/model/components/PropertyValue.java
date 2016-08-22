@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @NoArgsConstructor
 @EqualsAndHashCode
 public abstract class PropertyValue<T> extends AbstractPropertyValue {

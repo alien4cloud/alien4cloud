@@ -12,7 +12,7 @@ import alien4cloud.model.application.EnvironmentType;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class UpdateApplicationEnvironmentRequest {
     private EnvironmentType environmentType;
     private String name;

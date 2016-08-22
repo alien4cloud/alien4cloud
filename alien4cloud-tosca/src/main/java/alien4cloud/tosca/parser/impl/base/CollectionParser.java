@@ -18,7 +18,7 @@ import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.mapping.DefaultParser;
 
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @Setter
 public abstract class CollectionParser<T> extends DefaultParser<Collection<T>> {
     private INodeParser<T> valueParser;

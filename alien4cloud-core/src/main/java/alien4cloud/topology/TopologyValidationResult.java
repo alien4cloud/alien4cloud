@@ -23,7 +23,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class TopologyValidationResult {
 
     private boolean isValid;

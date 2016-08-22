@@ -245,7 +245,7 @@ public class DeploymentTopologyStepDefinitions {
     }
 
     @Getter
-    @AllArgsConstructor
+    @AllArgsConstructor(suppressConstructorProperties = true)
     private static class LocationPolicySetting {
         String groupName;
         String orchestratorName;
@@ -253,7 +253,7 @@ public class DeploymentTopologyStepDefinitions {
     }
 
     @Getter
-    @AllArgsConstructor
+    @AllArgsConstructor(suppressConstructorProperties = true)
     private static class NodeSubstitutionSetting {
         String nodeName;
         String resourceName;

@@ -90,17 +90,22 @@ public class ArchivePostProcessor {
         }
     }
 
-    private void processLocalArtifact(ArchivePathResolver archivePathResolver, AbstractArtifact artifact, ParsingContext context) {
+    private void processLocalArtifact(ArchivePathResolver archivePathResolver, AbstractArtifact artifact, ParsingResult<ArchiveRoot> parsedArchive) {
         if (artifact.getArtifactRef() == null || artifact.getArtifactRef().isEmpty()) {
             return; // Artifact may not be specified and may be set in alien4cloud.
         }
         if (!Files.exists(archivePathResolver.resolve(artifact.getArtifactRef()))) {
-            context.getParsingErrors().add(new ParsingError(ErrorCode.INVALID_ARTIFACT_REFERENCE, "Invalid artifact reference", null,
+            parsedArchive.getContext().getParsingErrors().add(new ParsingError(ErrorCode.INVALID_ARTIFACT_REFERENCE, "Invalid artifact reference", null,
                     "CSAR's artifact does not exist", null, artifact.getArtifactRef()));
         }
     }
 
-    private void processArtifact(ArchivePathResolver archivePathResolver, AbstractArtifact artifact, ParsingContext context) {
+    private void processArtifact(ArchivePathResolver archivePathResolver, AbstractArtifact artifact, ParsingResult<ArchiveRoot> parsedArchive) {
+        if (!(parsedArchive.getResult().getArchive().getName().equals(artifact.getArchiveName())
+                && parsedArchive.getResult().getArchive().getVersion().equals(artifact.getArchiveVersion()))) {
+            // if the artifact is not defined in the current archive then we don't have to perform validation.
+            return;
+        }
         URL artifactURL = null;
         if (artifact.getRepositoryName() == null) {
             // Short notation
@@ -112,7 +117,7 @@ public class ArchivePostProcessor {
                     log.debug("Archive artifact validation - Processing local artifact {}", artifact);
                 }
                 // Not a URL then must be a relative path to a file inside the csar
-                processLocalArtifact(archivePathResolver, artifact, context);
+                processLocalArtifact(archivePathResolver, artifact, parsedArchive);
                 return;
             }
         }
@@ -125,23 +130,23 @@ public class ArchivePostProcessor {
                 try (InputStream ignored = artifactURL.openStream()) {
                     // In a best effort try in a generic manner to obtain the artifact
                 } catch (IOException e) {
-                    context.getParsingErrors().add(new ParsingError(ErrorCode.INVALID_ARTIFACT_REFERENCE, "Invalid artifact reference", null,
+                    parsedArchive.getContext().getParsingErrors().add(new ParsingError(ErrorCode.INVALID_ARTIFACT_REFERENCE, "Invalid artifact reference", null,
                             "Artifact's reference " + artifact.getArtifactRef() + " is not valid", null, artifact.getArtifactRef()));
                 }
             } else {
-                context.getParsingErrors().add(new ParsingError(ErrorCode.UNRESOLVED_ARTIFACT, "Unresolved artifact", null,
+                parsedArchive.getContext().getParsingErrors().add(new ParsingError(ErrorCode.UNRESOLVED_ARTIFACT, "Unresolved artifact", null,
                         "Artifact " + artifact.getArtifactRef() + " cannot be resolved", null, artifact.getArtifactRef()));
             }
         }
     }
 
-    private void processInterfaces(ArchivePathResolver archivePathResolver, Map<String, Interface> interfaceMap, ParsingContext context) {
+    private void processInterfaces(ArchivePathResolver archivePathResolver, Map<String, Interface> interfaceMap, ParsingResult<ArchiveRoot> parsedArchive) {
         if (interfaceMap != null) {
             for (Interface interfazz : interfaceMap.values()) {
                 if (interfazz.getOperations() != null) {
                     for (Operation operation : interfazz.getOperations().values()) {
                         if (operation.getImplementationArtifact() != null) {
-                            processArtifact(archivePathResolver, operation.getImplementationArtifact(), context);
+                            processArtifact(archivePathResolver, operation.getImplementationArtifact(), parsedArchive);
                         }
                     }
                 }
@@ -149,30 +154,31 @@ public class ArchivePostProcessor {
         }
     }
 
-    private <T extends IndexedArtifactToscaElement> void processTypes(ArchivePathResolver archivePathResolver, Map<String, T> types, ParsingContext context) {
+    private <T extends IndexedArtifactToscaElement> void processTypes(ArchivePathResolver archivePathResolver, Map<String, T> types,
+            ParsingResult<ArchiveRoot> parsedArchive) {
         if (types != null) {
             for (T type : types.values()) {
                 if (type.getArtifacts() != null) {
                     for (DeploymentArtifact artifact : type.getArtifacts().values()) {
                         if (artifact != null) {
-                            processArtifact(archivePathResolver, artifact, context);
+                            processArtifact(archivePathResolver, artifact, parsedArchive);
                         }
                     }
                 }
-                processInterfaces(archivePathResolver, type.getInterfaces(), context);
+                processInterfaces(archivePathResolver, type.getInterfaces(), parsedArchive);
             }
         }
     }
 
-    private <T extends AbstractTemplate> void processTemplate(ArchivePathResolver archivePathResolver, T template, ParsingContext context) {
+    private <T extends AbstractTemplate> void processTemplate(ArchivePathResolver archivePathResolver, T template, ParsingResult<ArchiveRoot> parsedArchive) {
         if (template.getArtifacts() != null) {
             for (DeploymentArtifact artifact : template.getArtifacts().values()) {
                 if (artifact != null) {
-                    processArtifact(archivePathResolver, artifact, context);
+                    processArtifact(archivePathResolver, artifact, parsedArchive);
                 }
             }
         }
-        processInterfaces(archivePathResolver, template.getInterfaces(), context);
+        processInterfaces(archivePathResolver, template.getInterfaces(), parsedArchive);
     }
 
     private void processArtifacts(final Path archive, ParsingResult<ArchiveRoot> parsedArchive) {
@@ -187,18 +193,17 @@ public class ArchivePostProcessor {
             archivePathResolver = new DirArchivePathResolver(archive);
         }
         try {
-            ParsingContext context = parsedArchive.getContext();
             // Process deployment artifact / implementation artifact for types
-            processTypes(archivePathResolver, parsedArchive.getResult().getNodeTypes(), context);
-            processTypes(archivePathResolver, parsedArchive.getResult().getRelationshipTypes(), parsedArchive.getContext());
+            processTypes(archivePathResolver, parsedArchive.getResult().getNodeTypes(), parsedArchive);
+            processTypes(archivePathResolver, parsedArchive.getResult().getRelationshipTypes(), parsedArchive);
             // Process topology
             Topology topology = parsedArchive.getResult().getTopology();
             if (topology != null && topology.getNodeTemplates() != null) {
                 for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
-                    processTemplate(archivePathResolver, nodeTemplate, context);
+                    processTemplate(archivePathResolver, nodeTemplate, parsedArchive);
                     if (nodeTemplate.getRelationships() != null) {
                         for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
-                            processTemplate(archivePathResolver, relationshipTemplate, context);
+                            processTemplate(archivePathResolver, relationshipTemplate, parsedArchive);
                         }
                     }
                 }

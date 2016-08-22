@@ -12,7 +12,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @ApiModel("Request to update or check the value of a property.")
 public class PropertyRequest {
     @NotEmpty

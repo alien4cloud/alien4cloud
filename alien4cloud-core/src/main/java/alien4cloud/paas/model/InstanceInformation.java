@@ -9,7 +9,7 @@ import lombok.Setter;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @NoArgsConstructor
 @Getter
 @Setter

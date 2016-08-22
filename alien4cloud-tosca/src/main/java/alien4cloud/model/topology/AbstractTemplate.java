@@ -29,7 +29,7 @@ import java.util.Map;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public abstract class AbstractTemplate {
 
     /**

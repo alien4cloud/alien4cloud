@@ -24,7 +24,7 @@ import com.google.common.collect.Maps;
  */
 @Getter
 @Setter
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @NoArgsConstructor
 @JsonInclude(Include.NON_NULL)
 @ESObject

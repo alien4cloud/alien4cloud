@@ -3,59 +3,146 @@ Feature: Topology composition
 
   Background:
     Given I am authenticated with "ADMIN" role
-      And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
-      And I upload a plugin
-      And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
-      And I enable the orchestrator "Mount doom orchestrator"
-      And I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
-      And I create a resource of type "alien.nodes.mock.openstack.Flavor" named "Small" related to the location "Mount doom orchestrator"/"Thark location"
-      And I update the property "id" to "1" for the resource named "Small" related to the location "Mount doom orchestrator"/"Thark location"
-      And I create a resource of type "alien.nodes.mock.openstack.Image" named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
-      And I update the property "id" to "img1" for the resource named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
-      And I autogenerate the on-demand resources for the location "Mount doom orchestrator"/"Thark location"
-      And I upload the archive "samples apache"
-      And I upload the archive "samples mysql"
-      And I upload the archive "samples php"
-      And I upload the archive "samples wordpress"
-    Given I create a new topology template with name "net.sample.LAMP" and description "A Linux Apache Mysql PHP stack as a embedable topology template"
-      And The RestResponse should contain a topology template id
-      And I can get and register the topology for the last version of the registered topology template
-    Given I add a node template "MyCompute" related to the "tosca.nodes.Compute:1.0.0-SNAPSHOT" node type
-      And I define the capability "os" property "architecture" of the node "MyCompute" as input property
-      And I rename the input "architecture" to "os_arch"
-      And I set the property "architecture" of capability "os" the node "MyCompute" as input property name "os_arch"
-      And I define the capability "os" property "type" of the node "MyCompute" as input property
-      And I rename the input "type" to "os_type"
-      And I set the property "type" of capability "os" the node "MyCompute" as input property name "os_type"
-      And I add a node template "MyApache" related to the "alien.nodes.Apache:2.0.0-SNAPSHOT" node type
-      And I add a node template "MyMysql" related to the "alien.nodes.Mysql:2.0.0-SNAPSHOT" node type
-      And I define the property "port" of the node "MyMysql" of typeId "alien.nodes.Mysql:2.0.0-SNAPSHOT" as input property
-      And I rename the input "port" to "db_port"
-      And I associate the property "port" of a node template "MyMysql" to the input "db_port"
-      And I define the property "name" of the node "MyMysql" of typeId "alien.nodes.Mysql:2.0.0-SNAPSHOT" as input property
-	  And I rename the input "name" to "db_name"
-      And I associate the property "name" of a node template "MyMysql" to the input "db_name"
-      And I define the property "db_user" of the node "MyMysql" of typeId "alien.nodes.Mysql:2.0.0-SNAPSHOT" as input property
-      And I associate the property "db_user" of a node template "MyMysql" to the input "db_user"
-      And I define the property "db_password" of the node "MyMysql" of typeId "alien.nodes.Mysql:2.0.0-SNAPSHOT" as input property
-      And I associate the property "db_password" of a node template "MyMysql" to the input "db_password"
-# 	   FIXME when it will be possible to expose two properties with the same name but in different node templates
-#      And I define the property "port" of the node "MyMysql" as output property
-      And I add a node template "MyPHP" related to the "alien.nodes.PHP:2.0.0-SNAPSHOT" node type
-      And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MyMysql" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
-      And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MyApache" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
-      And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MyPHP" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
-      And I pre register orchestrator properties
-        | managementUrl | http://cloudifyurl:8099 |
-        | numberBackup  | 1                       |
-        | managerEmail  | admin@alien.fr          |
+    And I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
+    And I upload a plugin
+    And I create an orchestrator named "Mount doom orchestrator" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-orchestrator-factory"
+    And I enable the orchestrator "Mount doom orchestrator"
+    And I create a location named "Thark location" and infrastructure type "OpenStack" to the orchestrator "Mount doom orchestrator"
+    And I create a resource of type "alien.nodes.mock.openstack.Flavor" named "Small" related to the location "Mount doom orchestrator"/"Thark location"
+    And I update the property "id" to "1" for the resource named "Small" related to the location "Mount doom orchestrator"/"Thark location"
+    And I create a resource of type "alien.nodes.mock.openstack.Image" named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+    And I update the property "id" to "img1" for the resource named "Ubuntu" related to the location "Mount doom orchestrator"/"Thark location"
+    And I autogenerate the on-demand resources for the location "Mount doom orchestrator"/"Thark location"
+    And I upload the archive "samples apache"
+    And I upload the archive "samples mysql"
+    And I upload the archive "samples php"
+    And I upload the archive "samples wordpress"
+    And I create a new topology template with name "net.sample.LAMP" and description "A Linux Apache Mysql PHP stack as a embedable topology template"
+    And The RestResponse should contain a topology template id
+    And I can get and register the topology for the last version of the registered topology template
+    And I get the current topology
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | MyCompute                                                             |
+      | indexedNodeTypeId | tosca.nodes.Compute:1.0.0-SNAPSHOT                                    |
+    And I execute the operation
+      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
+      | inputName               | os_arch                                                          |
+      | propertyDefinition.type | string                                                           |
+    And I execute the operation
+      | type           | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodeCapabilityPropertyAsInputOperation |
+      | nodeName       | MyCompute                                                                                             |
+      | capabilityName | os                                                                                                    |
+      | propertyName   | architecture                                                                                          |
+      | inputName      | os_arch                                                                                               |
+    And I execute the operation
+      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
+      | inputName               | os_type                                                          |
+      | propertyDefinition.type | string                                                           |
+    And I execute the operation
+      | type           | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodeCapabilityPropertyAsInputOperation |
+      | nodeName       | MyCompute                                                                                             |
+      | capabilityName | os                                                                                                    |
+      | propertyName   | architecture                                                                                          |
+      | inputName      | os_type                                                                                               |
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | MyApache                                                              |
+      | indexedNodeTypeId | alien.nodes.Apache:2.0.0-SNAPSHOT                                     |
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | MyMysql                                                               |
+      | indexedNodeTypeId | alien.nodes.Mysql:2.0.0-SNAPSHOT                                      |
+    And I execute the operation
+      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
+      | inputName               | db_port                                                          |
+      | propertyDefinition.type | integer                                                          |
+    And I execute the operation
+      | type         | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodePropertyAsInputOperation |
+      | nodeName     | MyMysql                                                                                     |
+      | propertyName | port                                                                                        |
+      | inputName    | db_port                                                                                     |
+    And I execute the operation
+      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
+      | inputName               | db_name                                                          |
+      | propertyDefinition.type | string                                                           |
+    And I execute the operation
+      | type         | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodePropertyAsInputOperation |
+      | nodeName     | MyMysql                                                                                     |
+      | propertyName | name                                                                                        |
+      | inputName    | db_name                                                                                     |
+    And I execute the operation
+      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
+      | inputName               | db_user                                                          |
+      | propertyDefinition.type | string                                                           |
+    And I execute the operation
+      | type         | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodePropertyAsInputOperation |
+      | nodeName     | MyMysql                                                                                     |
+      | propertyName | db_user                                                                                     |
+      | inputName    | db_user                                                                                     |
+    And I execute the operation
+      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
+      | inputName               | db_password                                                      |
+      | propertyDefinition.type | string                                                           |
+    And I execute the operation
+      | type         | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodePropertyAsInputOperation |
+      | nodeName     | MyMysql                                                                                     |
+      | propertyName | db_password                                                                                 |
+      | inputName    | db_password                                                                                 |
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | MyPHP                                                                 |
+      | indexedNodeTypeId | alien.nodes.PHP:2.0.0-SNAPSHOT                                        |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | MyMysql                                                                               |
+      | relationshipName       | MyRelationship                                                                        |
+      | relationshipType       | tosca.relationships.HostedOn                                                          |
+      | relationshipVersion    | 1.0.0-SNAPSHOT                                                                        |
+      | requirementName        | host                                                                                  |
+      | target                 | MyCompute                                                                             |
+      | targetedCapabilityName | host                                                                                  |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | MyApache                                                                              |
+      | relationshipName       | MyRelationship                                                                        |
+      | relationshipType       | tosca.relationships.HostedOn                                                          |
+      | relationshipVersion    | 1.0.0-SNAPSHOT                                                                        |
+      | requirementName        | host                                                                                  |
+      | target                 | MyCompute                                                                             |
+      | targetedCapabilityName | host                                                                                  |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | MyPHP                                                                                 |
+      | relationshipName       | MyRelationship                                                                        |
+      | relationshipType       | tosca.relationships.HostedOn                                                          |
+      | relationshipVersion    | 1.0.0-SNAPSHOT                                                                        |
+      | requirementName        | host                                                                                  |
+      | target                 | MyCompute                                                                             |
+      | targetedCapabilityName | host                                                                                  |
+    And I save the topology
+    And I pre register orchestrator properties
+      | managementUrl | http://cloudifyurl:8099 |
+      | numberBackup  | 1                       |
+      | managerEmail  | admin@alien.fr          |
 
   @reset
   Scenario: Expose the template as a type and check type properties and attributes
-    Given I expose the template as type "tosca.nodes.Root"
+    And I get the current topology
+    Given I execute the operation
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Root                                                                  |
     Then I should receive a RestResponse with no error
-    Given I define the attribute "ip_address" of the node "MyCompute" as output attribute
-    And I define the property "port" of the capability "data_endpoint" of the node "MyApache" as output property
+    When I execute the operation
+      | type          | org.alien4cloud.tosca.editor.operations.nodetemplate.outputs.SetNodeAttributeAsOutputOperation |
+      | nodeName      | MyCompute                                                                                      |
+      | attributeName | ip_address                                                                                     |
+    And I execute the operation
+      | type           | org.alien4cloud.tosca.editor.operations.nodetemplate.outputs.SetNodeCapabilityPropertyAsOutputOperation |
+      | nodeName       | MyApache                                                                                                |
+      | capabilityName | data_endpoint                                                                                           |
+      | propertyName   | port                                                                                                    |
+    And I save the topology
     When I try to get a component with id "net.sample.LAMP:0.1.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
     And I should have a component with id "net.sample.LAMP:0.1.0-SNAPSHOT"
@@ -72,18 +159,38 @@ Feature: Topology composition
     And The SPEL boolean expression "properties.containsKey('db_user')" should return true
     And The SPEL boolean expression "properties.containsKey('db_password')" should return true
     And The SPEL boolean expression "attributes.containsKey('ip_address')" should return true
-#FIXME when it will be possible to expose two properties with the same name but in different node templates
-#    And The SPEL boolean expression "attributes.containsKey('db_port')" should return true
     And The SPEL boolean expression "attributes.containsKey('port')" should return true
 
   @reset
   Scenario: Expose capabilities and check type capabilities
-    Given I expose the template as type "tosca.nodes.Root"
-    And I expose the capability "database_endpoint" for the node "MyMysql"
-    And I rename the exposed capability "database_endpoint" to "hostMysql"
-    And I expose the capability "host" for the node "MyApache"
-    And I rename the exposed capability "host" to "hostApache"
-    And I expose the capability "attachWebsite" for the node "MyPHP"
+    And I get the current topology
+    Given I execute the operation
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Root                                                                  |
+    And I execute the operation
+      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
+      | nodeTemplateName         | MyMysql                                                                                     |
+      | substitutionCapabilityId | database_endpoint                                                                           |
+      | capabilityId             | database_endpoint                                                                           |
+    And I execute the operation
+      | type                     | org.alien4cloud.tosca.editor.operations.substitution.UpdateCapabilitySubstitutionTypeOperation |
+      | substitutionCapabilityId | database_endpoint                                                                              |
+      | newCapabilityId          | hostMysql                                                                                      |
+    And I execute the operation
+      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
+      | nodeTemplateName         | MyApache                                                                                    |
+      | substitutionCapabilityId | host                                                                                        |
+      | capabilityId             | host                                                                                        |
+    And I execute the operation
+      | type                     | org.alien4cloud.tosca.editor.operations.substitution.UpdateCapabilitySubstitutionTypeOperation |
+      | substitutionCapabilityId | host                                                                                           |
+      | newCapabilityId          | hostApache                                                                                     |
+    And I execute the operation
+      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
+      | nodeTemplateName         | MyPHP                                                                                       |
+      | substitutionCapabilityId | attachWebsite                                                                               |
+      | capabilityId             | attachWebsite                                                                               |
+    And I save the topology
     When I try to get a component with id "net.sample.LAMP:0.1.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
     And I should have a component with id "net.sample.LAMP:0.1.0-SNAPSHOT"
@@ -94,25 +201,111 @@ Feature: Topology composition
 
   @reset
   Scenario: Expose capabilities and use it in a topology
-    Given I expose the template as type "tosca.nodes.Root"
-    And I expose the capability "database_endpoint" for the node "MyMysql"
-    And I expose the capability "host" for the node "MyApache"
-    And I rename the exposed capability "host" to "hostApache"
-    And I expose the capability "attachWebsite" for the node "MyPHP"
-    And I define the attribute "ip_address" of the node "MyCompute" as output attribute
-    And I define the property "port" of the capability "data_endpoint" of the node "MyApache" as output property
+    And I get the current topology
+    Given I execute the operation
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Root                                                                  |
+    And I execute the operation
+      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
+      | nodeTemplateName         | MyMysql                                                                                     |
+      | substitutionCapabilityId | database_endpoint                                                                           |
+      | capabilityId             | database_endpoint                                                                           |
+    And I execute the operation
+      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
+      | nodeTemplateName         | MyApache                                                                                    |
+      | substitutionCapabilityId | hostApache                                                                                  |
+      | capabilityId             | host                                                                                        |
+    And I execute the operation
+      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
+      | nodeTemplateName         | MyPHP                                                                                       |
+      | substitutionCapabilityId | attachWebsite                                                                               |
+      | capabilityId             | attachWebsite                                                                               |
+    And I execute the operation
+      | type          | org.alien4cloud.tosca.editor.operations.nodetemplate.outputs.SetNodeAttributeAsOutputOperation |
+      | nodeName      | MyCompute                                                                                      |
+      | attributeName | ip_address                                                                                     |
+    And I execute the operation
+      | type           | org.alien4cloud.tosca.editor.operations.nodetemplate.outputs.SetNodeCapabilityPropertyAsOutputOperation |
+      | nodeName       | MyApache                                                                                                |
+      | capabilityName | data_endpoint                                                                                           |
+      | propertyName   | port                                                                                                    |
+    And I save the topology
     Given I create a new application with name "myWebapp" and description "A webapp that use an embeded topology."
-    And I add a node template "myLAMP" related to the "net.sample.LAMP:0.1.0-SNAPSHOT" node type
-    And I add a node template "myWordpress" related to the "alien.nodes.Wordpress:2.0.0-SNAPSHOT" node type
-    And I add a relationship of type "alien.relationships.WordpressHostedOnApache" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "host" of type "alien.capabilities.ApacheContainer" and target capability "hostApache"
-    And I add a relationship of type "alien.relationships.WordpressConnectToMysql" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "database" of type "alien.capabilities.MysqlDatabaseEndpoint" and target capability "database_endpoint"
-    And I add a relationship of type "alien.relationships.WordpressConnectToPHP" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "php" of type "alien.capabilities.PHPModule" and target capability "attachWebsite"
-    And I update the node template "myLAMP"'s property "os_arch" to "x86_64"
-    And I update the node template "myLAMP"'s property "os_type" to "linux"
-    And I define the attribute "ip_address" of the node "myLAMP" as output attribute
-#FIXME when it will be possible to expose two properties with the same name but in different node templates
-#    And I define the attribute "db_port" of the node "myLAMP" as output attribute
-    And I define the attribute "port" of the node "myLAMP" as output attribute
+    And I get the current topology
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | myLAMP                                                                |
+      | indexedNodeTypeId | net.sample.LAMP:0.1.0-SNAPSHOT                                        |
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | myWordpress                                                           |
+      | indexedNodeTypeId | alien.nodes.Wordpress:2.0.0-SNAPSHOT                                  |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | myWordpress                                                                           |
+      | relationshipName       | hostOnApache                                                                          |
+      | relationshipType       | alien.relationships.WordpressHostedOnApache                                           |
+      | relationshipVersion    | 2.0.0-SNAPSHOT                                                                        |
+      | requirementName        | host                                                                                  |
+      | target                 | myLAMP                                                                                |
+      | targetedCapabilityName | hostApache                                                                            |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | myWordpress                                                                           |
+      | relationshipName       | connectToDb                                                                           |
+      | relationshipType       | alien.relationships.WordpressConnectToMysql                                           |
+      | relationshipVersion    | 2.0.0-SNAPSHOT                                                                        |
+      | requirementName        | database                                                                              |
+      | target                 | myLAMP                                                                                |
+      | targetedCapabilityName | database_endpoint                                                                     |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | myWordpress                                                                           |
+      | relationshipName       | connectToPhp                                                                          |
+      | relationshipType       | alien.relationships.WordpressConnectToPHP                                             |
+      | relationshipVersion    | 2.0.0-SNAPSHOT                                                                        |
+      | requirementName        | php                                                                                   |
+      | target                 | myLAMP                                                                                |
+      | targetedCapabilityName | attachWebsite                                                                         |
+    And I execute the operation
+      | type          | org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePropertyValueOperation |
+      | nodeName      | myLAMP                                                                                |
+      | propertyName  | os_arch                                                                               |
+      | propertyValue | x86_64                                                                                |
+    And I execute the operation
+      | type          | org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePropertyValueOperation |
+      | nodeName      | myLAMP                                                                                |
+      | propertyName  | os_type                                                                               |
+      | propertyValue | linux                                                                                 |
+    And I execute the operation
+      | type          | org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePropertyValueOperation |
+      | nodeName      | myLAMP                                                                                |
+      | propertyName  | db_name                                                                               |
+      | propertyValue | name                                                                                  |
+    And I execute the operation
+      | type          | org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePropertyValueOperation |
+      | nodeName      | myLAMP                                                                                |
+      | propertyName  | db_user                                                                               |
+      | propertyValue | user                                                                                  |
+    And I execute the operation
+      | type          | org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePropertyValueOperation |
+      | nodeName      | myLAMP                                                                                |
+      | propertyName  | db_port                                                                               |
+      | propertyValue | 3660                                                                                  |
+    And I execute the operation
+      | type          | org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePropertyValueOperation |
+      | nodeName      | myLAMP                                                                                |
+      | propertyName  | db_password                                                                           |
+      | propertyValue | password                                                                              |
+    And I execute the operation
+      | type          | org.alien4cloud.tosca.editor.operations.nodetemplate.outputs.SetNodeAttributeAsOutputOperation |
+      | nodeName      | myLAMP                                                                                         |
+      | attributeName | ip_address                                                                                     |
+    And I execute the operation
+      | type          | org.alien4cloud.tosca.editor.operations.nodetemplate.outputs.SetNodeAttributeAsOutputOperation |
+      | nodeName      | myLAMP                                                                                         |
+      | attributeName | port                                                                                           |
+    And I save the topology
     Given I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     When I deploy it
     Then I should receive a RestResponse with no error
@@ -147,66 +340,231 @@ Feature: Topology composition
     And I should receive a RestResponse with no error
     And The RestResponse should contain a topology template id
     And I can get and register the topology for the last version of the registered topology template
-    And I add a node template "MyCompute" related to the "tosca.nodes.Compute:1.0.0-SNAPSHOT" node type
-    And I define the capability "os" property "architecture" of the node "MyCompute" as input property
-    And I rename the input "architecture" to "db_arch"
-    And I set the property "architecture" of capability "os" the node "MyCompute" as input property name "db_arch"
-    And I define the capability "os" property "type" of the node "MyCompute" as input property
-    And I rename the input "type" to "db_type"
-    And I set the property "type" of capability "os" the node "MyCompute" as input property name "db_type"
-    And I add a node template "MyMysql" related to the "alien.nodes.Mysql:2.0.0-SNAPSHOT" node type
-    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MyMysql" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
-    And I expose the template as type "alien.nodes.Mysql"
-    And I expose the capability "database_endpoint" for the node "MyMysql"
+    And I get the current topology
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | MyCompute                                                             |
+      | indexedNodeTypeId | tosca.nodes.Compute:1.0.0-SNAPSHOT                                    |
+    And I execute the operation
+      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
+      | inputName               | db_arch                                                          |
+      | propertyDefinition.type | string                                                           |
+    And I execute the operation
+      | type           | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodeCapabilityPropertyAsInputOperation |
+      | nodeName       | MyCompute                                                                                             |
+      | capabilityName | os                                                                                                    |
+      | propertyName   | architecture                                                                                          |
+      | inputName      | db_arch                                                                                               |
+    And I execute the operation
+      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
+      | inputName               | db_type                                                          |
+      | propertyDefinition.type | string                                                           |
+    And I execute the operation
+      | type           | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodeCapabilityPropertyAsInputOperation |
+      | nodeName       | MyCompute                                                                                             |
+      | capabilityName | os                                                                                                    |
+      | propertyName   | type                                                                                                  |
+      | inputName      | db_type                                                                                               |
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | MyMysql                                                               |
+      | indexedNodeTypeId | alien.nodes.Mysql:2.0.0-SNAPSHOT                                      |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | MyMysql                                                                               |
+      | relationshipName       | MyMysqlHostedOn                                                                       |
+      | relationshipType       | tosca.relationships.HostedOn                                                          |
+      | relationshipVersion    | 1.0.0-SNAPSHOT                                                                        |
+      | requirementName        | host                                                                                  |
+      | target                 | MyCompute                                                                             |
+      | targetedCapabilityName | host                                                                                  |
+    Given I execute the operation
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | alien.nodes.Mysql                                                                 |
+    And I execute the operation
+      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
+      | nodeTemplateName         | MyMysql                                                                                     |
+      | substitutionCapabilityId | database_endpoint                                                                           |
+      | capabilityId             | database_endpoint                                                                           |
+    And I save the topology
     # The second topology template containing a Apache + PHP + Compute
     Given I create a new topology template with name "net.sample.MyApacheSubsystem" and description "A Linux Apache PHP stack as a embedable topology template"
     And I should receive a RestResponse with no error
     And The RestResponse should contain a topology template id
     And I can get and register the topology for the last version of the registered topology template
-    And I add a node template "MyCompute" related to the "tosca.nodes.Compute:1.0.0-SNAPSHOT" node type
-    And I define the capability "os" property "architecture" of the node "MyCompute" as input property
-    And I rename the input "architecture" to "www_arch"
-    And I set the property "architecture" of capability "os" the node "MyCompute" as input property name "www_arch"
-    And I define the capability "os" property "type" of the node "MyCompute" as input property
-    And I rename the input "type" to "www_type"
-    And I set the property "type" of capability "os" the node "MyCompute" as input property name "www_type"
-    And I add a node template "MyApache" related to the "alien.nodes.Apache:2.0.0-SNAPSHOT" node type
-    And I add a node template "MyPHP" related to the "alien.nodes.PHP:2.0.0-SNAPSHOT" node type
-    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MyApache" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
-    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MyPHP" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
-    And I expose the template as type "tosca.nodes.Root"
-    And I expose the capability "host" for the node "MyApache"
-    And I rename the exposed capability "host" to "hostApache"
-    And I expose the capability "attachWebsite" for the node "MyPHP"
+    And I get the current topology
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | MyCompute                                                             |
+      | indexedNodeTypeId | tosca.nodes.Compute:1.0.0-SNAPSHOT                                    |
+    And I execute the operation
+      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
+      | inputName               | www_arch                                                         |
+      | propertyDefinition.type | string                                                           |
+    And I execute the operation
+      | type           | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodeCapabilityPropertyAsInputOperation |
+      | nodeName       | MyCompute                                                                                             |
+      | capabilityName | os                                                                                                    |
+      | propertyName   | architecture                                                                                          |
+      | inputName      | www_arch                                                                                              |
+    And I execute the operation
+      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
+      | inputName               | www_type                                                         |
+      | propertyDefinition.type | string                                                           |
+    And I execute the operation
+      | type           | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodeCapabilityPropertyAsInputOperation |
+      | nodeName       | MyCompute                                                                                             |
+      | capabilityName | os                                                                                                    |
+      | propertyName   | type                                                                                                  |
+      | inputName      | www_type                                                                                              |
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | MyApache                                                              |
+      | indexedNodeTypeId | alien.nodes.Apache:2.0.0-SNAPSHOT                                     |
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | MyPHP                                                                 |
+      | indexedNodeTypeId | alien.nodes.PHP:2.0.0-SNAPSHOT                                        |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | MyApache                                                                              |
+      | relationshipName       | MyRelationship                                                                        |
+      | relationshipType       | tosca.relationships.HostedOn                                                          |
+      | relationshipVersion    | 1.0.0-SNAPSHOT                                                                        |
+      | requirementName        | host                                                                                  |
+      | target                 | MyCompute                                                                             |
+      | targetedCapabilityName | host                                                                                  |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | MyPHP                                                                                 |
+      | relationshipName       | MyRelationship                                                                        |
+      | relationshipType       | tosca.relationships.HostedOn                                                          |
+      | relationshipVersion    | 1.0.0-SNAPSHOT                                                                        |
+      | requirementName        | host                                                                                  |
+      | target                 | MyCompute                                                                             |
+      | targetedCapabilityName | host                                                                                  |
+    Given I execute the operation
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Root                                                                  |
+    And I execute the operation
+      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
+      | nodeTemplateName         | MyApache                                                                                    |
+      | substitutionCapabilityId | hostApache                                                                                  |
+      | capabilityId             | host                                                                                        |
+    And I execute the operation
+      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
+      | nodeTemplateName         | MyPHP                                                                                       |
+      | substitutionCapabilityId | attachWebsite                                                                               |
+      | capabilityId             | attachWebsite                                                                               |
+    And I save the topology
     # The third topology template combining the 2 others
     Given I create a new topology template with name "net.sample.LAMP2" and description "A Linux Apache Mysql PHP stack as a embedable topology template"
     And I should receive a RestResponse with no error
     And The RestResponse should contain a topology template id
     And I can get and register the topology for the last version of the registered topology template
-    And I add a node template "WWW" related to the "net.sample.MyApacheSubsystem:0.1.0-SNAPSHOT" node type
-    And I define the property "www_arch" of the node "WWW" of typeId "net.sample.MyApacheSubsystem:0.1.0-SNAPSHOT" as input property
-    And I rename the input "www_arch" to "sys_arch"
-    And I associate the property "www_arch" of a node template "WWW" to the input "sys_arch"
-    And I define the property "www_type" of the node "WWW" of typeId "net.sample.MyApacheSubsystem:0.1.0-SNAPSHOT" as input property
-    And I rename the input "www_type" to "sys_type"
-    And I associate the property "www_type" of a node template "WWW" to the input "sys_type"
-    And I add a node template "DB" related to the "net.sample.MySqlSubsystem:0.1.0-SNAPSHOT" node type
-    And I associate the property "db_arch" of a node template "DB" to the input "sys_arch"
-    And I associate the property "db_type" of a node template "DB" to the input "sys_type"
-    And I expose the template as type "tosca.nodes.Root"
-    And I expose the capability "database_endpoint" for the node "DB"
-    And I rename the exposed capability "database_endpoint" to "hostMysql"
-    And I expose the capability "hostApache" for the node "WWW"
-    And I expose the capability "attachWebsite" for the node "WWW"
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | WWW                                                                   |
+      | indexedNodeTypeId | net.sample.MyApacheSubsystem:0.1.0-SNAPSHOT                           |
+    And I execute the operation
+      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
+      | inputName               | sys_arch                                                         |
+      | propertyDefinition.type | string                                                           |
+    And I execute the operation
+      | type         | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodePropertyAsInputOperation |
+      | nodeName     | WWW                                                                                         |
+      | propertyName | www_arch                                                                                    |
+      | inputName    | sys_arch                                                                                    |
+    And I execute the operation
+      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
+      | inputName               | sys_type                                                         |
+      | propertyDefinition.type | string                                                           |
+    And I execute the operation
+      | type         | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodePropertyAsInputOperation |
+      | nodeName     | WWW                                                                                         |
+      | propertyName | www_type                                                                                    |
+      | inputName    | sys_type                                                                                    |
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | DB                                                                    |
+      | indexedNodeTypeId | net.sample.MySqlSubsystem:0.1.0-SNAPSHOT                              |
+    And I execute the operation
+      | type         | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodePropertyAsInputOperation |
+      | nodeName     | DB                                                                                          |
+      | propertyName | db_arch                                                                                     |
+      | inputName    | sys_arch                                                                                    |
+    And I execute the operation
+      | type         | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodePropertyAsInputOperation |
+      | nodeName     | DB                                                                                          |
+      | propertyName | db_type                                                                                     |
+      | inputName    | sys_type                                                                                    |
+    Given I execute the operation
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Root                                                                  |
+    And I execute the operation
+      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
+      | nodeTemplateName         | DB                                                                                          |
+      | substitutionCapabilityId | hostMysql                                                                                   |
+      | capabilityId             | database_endpoint                                                                           |
+    And I execute the operation
+      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
+      | nodeTemplateName         | WWW                                                                                         |
+      | substitutionCapabilityId | hostApache                                                                                  |
+      | capabilityId             | hostApache                                                                                  |
+    And I execute the operation
+      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
+      | nodeTemplateName         | WWW                                                                                         |
+      | substitutionCapabilityId | attachWebsite                                                                               |
+      | capabilityId             | attachWebsite                                                                               |
+    And I save the topology
     # Now create the application that use this LAMP to deploy a wordpress
     Given I create a new application with name "myWebapp2" and description "A webapp that use 2 embeded topology."
-    And I add a node template "myLAMP" related to the "net.sample.LAMP2:0.1.0-SNAPSHOT" node type
-    And I add a node template "myWordpress" related to the "alien.nodes.Wordpress:2.0.0-SNAPSHOT" node type
-    And I add a relationship of type "alien.relationships.WordpressHostedOnApache" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "host" of type "alien.capabilities.ApacheContainer" and target capability "hostApache"
-    And I add a relationship of type "alien.relationships.WordpressConnectToMysql" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "database" of type "alien.capabilities.MysqlDatabaseEndpoint" and target capability "hostMysql"
-    And I add a relationship of type "alien.relationships.WordpressConnectToPHP" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "php" of type "alien.capabilities.PHPModule" and target capability "attachWebsite"
-    And I update the node template "myLAMP"'s property "sys_arch" to "x86_64"
-    And I update the node template "myLAMP"'s property "sys_type" to "linux"
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | myLAMP                                                                |
+      | indexedNodeTypeId | net.sample.LAMP2:0.1.0-SNAPSHOT                                       |
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | myWordpress                                                           |
+      | indexedNodeTypeId | alien.nodes.Wordpress:2.0.0-SNAPSHOT                                  |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | myWordpress                                                                           |
+      | relationshipName       | hostOnApache                                                                          |
+      | relationshipType       | alien.relationships.WordpressHostedOnApache                                           |
+      | relationshipVersion    | 2.0.0-SNAPSHOT                                                                        |
+      | requirementName        | host                                                                                  |
+      | target                 | myLAMP                                                                                |
+      | targetedCapabilityName | hostApache                                                                            |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | myWordpress                                                                           |
+      | relationshipName       | connectToDb                                                                           |
+      | relationshipType       | alien.relationships.WordpressConnectToMysql                                           |
+      | relationshipVersion    | 2.0.0-SNAPSHOT                                                                        |
+      | requirementName        | database                                                                              |
+      | target                 | myLAMP                                                                                |
+      | targetedCapabilityName | hostMysql                                                                             |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | myWordpress                                                                           |
+      | relationshipName       | connectToPhp                                                                          |
+      | relationshipType       | alien.relationships.WordpressConnectToPHP                                             |
+      | relationshipVersion    | 2.0.0-SNAPSHOT                                                                        |
+      | requirementName        | php                                                                                   |
+      | target                 | myLAMP                                                                                |
+      | targetedCapabilityName | attachWebsite                                                                         |
+    And I execute the operation
+      | type          | org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePropertyValueOperation |
+      | nodeName      | myLAMP                                                                                |
+      | propertyName  | sys_arch                                                                              |
+      | propertyValue | x86_64                                                                                |
+    And I execute the operation
+      | type          | org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePropertyValueOperation |
+      | nodeName      | myLAMP                                                                                |
+      | propertyName  | sys_type                                                                              |
+      | propertyValue | linux                                                                                 |
+    And I save the topology
     Given I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     When I deploy it
     Then I should receive a RestResponse with no error
@@ -237,59 +595,209 @@ Feature: Topology composition
     And I should receive a RestResponse with no error
     And The RestResponse should contain a topology template id
     And I can get and register the topology for the last version of the registered topology template
-    And I add a node template "MyMysql" related to the "alien.nodes.Mysql:2.0.0-SNAPSHOT" node type
-    And I expose the template as type "alien.nodes.Mysql"
-    And I expose the capability "database_endpoint" for the node "MyMysql"
-    And I expose the requirement "host" for the node "MyMysql"
+    And I get the current topology
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | MyMysql                                                               |
+      | indexedNodeTypeId | alien.nodes.Mysql:2.0.0-SNAPSHOT                                      |
+    Given I execute the operation
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | alien.nodes.Mysql                                                                 |
+    And I execute the operation
+      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
+      | nodeTemplateName         | MyMysql                                                                                     |
+      | substitutionCapabilityId | database_endpoint                                                                           |
+      | capabilityId             | database_endpoint                                                                           |
+    And I execute the operation
+      | type                      | org.alien4cloud.tosca.editor.operations.substitution.AddRequirementSubstitutionTypeOperation |
+      | nodeTemplateName          | MyMysql                                                                                      |
+      | substitutionRequirementId | host                                                                                         |
+      | requirementId             | host                                                                                         |
+    And I save the topology
     # The second topology template containing a Apache + PHP + Compute
     Given I create a new topology template with name "net.sample.MyApacheSubsystem" and description "A Linux Apache PHP stack as a embedable topology template"
     And I should receive a RestResponse with no error
     And The RestResponse should contain a topology template id
     And I can get and register the topology for the last version of the registered topology template
-    And I add a node template "MyCompute" related to the "tosca.nodes.Compute:1.0.0-SNAPSHOT" node type
-    And I define the capability "os" property "architecture" of the node "MyCompute" as input property
-    And I rename the input "architecture" to "www_arch"
-    And I set the property "architecture" of capability "os" the node "MyCompute" as input property name "www_arch"
-    And I define the capability "os" property "type" of the node "MyCompute" as input property
-    And I rename the input "type" to "www_type"
-    And I set the property "type" of capability "os" the node "MyCompute" as input property name "www_type"
-    And I add a node template "MyApache" related to the "alien.nodes.Apache:2.0.0-SNAPSHOT" node type
-    And I add a node template "MyPHP" related to the "alien.nodes.PHP:2.0.0-SNAPSHOT" node type
-    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MyApache" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
-    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MyPHP" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
-    And I expose the template as type "tosca.nodes.Root"
-    And I expose the capability "host" for the node "MyApache"
-    And I rename the exposed capability "host" to "hostApache"
-    And I expose the capability "host" for the node "MyCompute"
-    And I expose the capability "attachWebsite" for the node "MyPHP"
+    And I get the current topology
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | MyCompute                                                             |
+      | indexedNodeTypeId | tosca.nodes.Compute:1.0.0-SNAPSHOT                                    |
+    And I execute the operation
+      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
+      | inputName               | www_arch                                                         |
+      | propertyDefinition.type | string                                                           |
+    And I execute the operation
+      | type           | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodeCapabilityPropertyAsInputOperation |
+      | nodeName       | MyCompute                                                                                             |
+      | capabilityName | os                                                                                                    |
+      | propertyName   | architecture                                                                                          |
+      | inputName      | www_arch                                                                                              |
+    And I execute the operation
+      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
+      | inputName               | www_type                                                         |
+      | propertyDefinition.type | string                                                           |
+    And I execute the operation
+      | type           | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodeCapabilityPropertyAsInputOperation |
+      | nodeName       | MyCompute                                                                                             |
+      | capabilityName | os                                                                                                    |
+      | propertyName   | type                                                                                                  |
+      | inputName      | www_type                                                                                              |
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | MyApache                                                              |
+      | indexedNodeTypeId | alien.nodes.Apache:2.0.0-SNAPSHOT                                     |
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | MyPHP                                                                 |
+      | indexedNodeTypeId | alien.nodes.PHP:2.0.0-SNAPSHOT                                        |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | MyApache                                                                              |
+      | relationshipName       | MyRelationship                                                                        |
+      | relationshipType       | tosca.relationships.HostedOn                                                          |
+      | relationshipVersion    | 1.0.0-SNAPSHOT                                                                        |
+      | requirementName        | host                                                                                  |
+      | target                 | MyCompute                                                                             |
+      | targetedCapabilityName | host                                                                                  |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | MyPHP                                                                                 |
+      | relationshipName       | MyRelationship                                                                        |
+      | relationshipType       | tosca.relationships.HostedOn                                                          |
+      | relationshipVersion    | 1.0.0-SNAPSHOT                                                                        |
+      | requirementName        | host                                                                                  |
+      | target                 | MyCompute                                                                             |
+      | targetedCapabilityName | host                                                                                  |
+    And I execute the operation
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Root                                                                  |
+    And I execute the operation
+      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
+      | nodeTemplateName         | MyApache                                                                                    |
+      | substitutionCapabilityId | hostApache                                                                                  |
+      | capabilityId             | host                                                                                        |
+    And I execute the operation
+      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
+      | nodeTemplateName         | MyCompute                                                                                   |
+      | substitutionCapabilityId | host                                                                                        |
+      | capabilityId             | host                                                                                        |
+    And I execute the operation
+      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
+      | nodeTemplateName         | MyPHP                                                                                       |
+      | substitutionCapabilityId | attachWebsite                                                                               |
+      | capabilityId             | attachWebsite                                                                               |
+    And I save the topology
     # The third topology template combining the 2 others
     Given I create a new topology template with name "net.sample.LAMP2" and description "A Linux Apache Mysql PHP stack as a embedable topology template"
     And I should receive a RestResponse with no error
     And The RestResponse should contain a topology template id
     And I can get and register the topology for the last version of the registered topology template
-    And I add a node template "WWW" related to the "net.sample.MyApacheSubsystem:0.1.0-SNAPSHOT" node type
-    And I define the property "www_arch" of the node "WWW" of typeId "net.sample.MyApacheSubsystem:0.1.0-SNAPSHOT" as input property
-    And I rename the input "www_arch" to "sys_arch"
-    And I associate the property "www_arch" of a node template "WWW" to the input "sys_arch"
-    And I define the property "www_type" of the node "WWW" of typeId "net.sample.MyApacheSubsystem:0.1.0-SNAPSHOT" as input property
-    And I rename the input "www_type" to "sys_type"
-    And I associate the property "www_type" of a node template "WWW" to the input "sys_type"
-    And I add a node template "DB" related to the "net.sample.MySqlSubsystem:0.1.0-SNAPSHOT" node type
-    And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "DB" and target "WWW" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
-    And I expose the template as type "tosca.nodes.Root"
-    And I expose the capability "database_endpoint" for the node "DB"
-    And I rename the exposed capability "database_endpoint" to "hostMysql"
-    And I expose the capability "hostApache" for the node "WWW"
-    And I expose the capability "attachWebsite" for the node "WWW"
+    And I get the current topology
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | WWW                                                                   |
+      | indexedNodeTypeId | net.sample.MyApacheSubsystem:0.1.0-SNAPSHOT                           |
+    And I execute the operation
+      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
+      | inputName               | sys_arch                                                         |
+      | propertyDefinition.type | string                                                           |
+    And I execute the operation
+      | type         | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodePropertyAsInputOperation |
+      | nodeName     | WWW                                                                                         |
+      | propertyName | www_arch                                                                                    |
+      | inputName    | sys_arch                                                                                    |
+    And I execute the operation
+      | type                    | org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation |
+      | inputName               | sys_type                                                         |
+      | propertyDefinition.type | string                                                           |
+    And I execute the operation
+      | type         | org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodePropertyAsInputOperation |
+      | nodeName     | WWW                                                                                         |
+      | propertyName | www_type                                                                                    |
+      | inputName    | sys_type                                                                                    |
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | DB                                                                    |
+      | indexedNodeTypeId | net.sample.MySqlSubsystem:0.1.0-SNAPSHOT                              |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | DB                                                                                    |
+      | relationshipName       | MyRelationship                                                                        |
+      | relationshipType       | tosca.relationships.HostedOn                                                          |
+      | relationshipVersion    | 1.0.0-SNAPSHOT                                                                        |
+      | requirementName        | host                                                                                  |
+      | target                 | WWW                                                                                   |
+      | targetedCapabilityName | host                                                                                  |
+    And I execute the operation
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Root                                                                  |
+    And I execute the operation
+      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
+      | nodeTemplateName         | DB                                                                                          |
+      | substitutionCapabilityId | hostMysql                                                                                   |
+      | capabilityId             | database_endpoint                                                                           |
+    And I execute the operation
+      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
+      | nodeTemplateName         | WWW                                                                                         |
+      | substitutionCapabilityId | hostApache                                                                                  |
+      | capabilityId             | hostApache                                                                                  |
+    And I execute the operation
+      | type                     | org.alien4cloud.tosca.editor.operations.substitution.AddCapabilitySubstitutionTypeOperation |
+      | nodeTemplateName         | WWW                                                                                         |
+      | substitutionCapabilityId | attachWebsite                                                                               |
+      | capabilityId             | attachWebsite                                                                               |
+    And I save the topology
     # Now create the application that use this LAMP to deploy a wordpress
     Given I create a new application with name "myWebapp2" and description "A webapp that use 2 embeded topology."
-    And I add a node template "myLAMP" related to the "net.sample.LAMP2:0.1.0-SNAPSHOT" node type
-    And I add a node template "myWordpress" related to the "alien.nodes.Wordpress:2.0.0-SNAPSHOT" node type
-    And I add a relationship of type "alien.relationships.WordpressHostedOnApache" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "host" of type "alien.capabilities.ApacheContainer" and target capability "hostApache"
-    And I add a relationship of type "alien.relationships.WordpressConnectToMysql" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "database" of type "alien.capabilities.MysqlDatabaseEndpoint" and target capability "hostMysql"
-    And I add a relationship of type "alien.relationships.WordpressConnectToPHP" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "php" of type "alien.capabilities.PHPModule" and target capability "attachWebsite"
-    And I update the node template "myLAMP"'s property "sys_arch" to "x86_64"
-    And I update the node template "myLAMP"'s property "sys_type" to "linux"
+    And I get the current topology
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | myLAMP                                                                |
+      | indexedNodeTypeId | net.sample.LAMP2:0.1.0-SNAPSHOT                                       |
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | myWordpress                                                           |
+      | indexedNodeTypeId | alien.nodes.Wordpress:2.0.0-SNAPSHOT                                  |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | myWordpress                                                                           |
+      | relationshipName       | hostOnApache                                                                          |
+      | relationshipType       | alien.relationships.WordpressHostedOnApache                                           |
+      | relationshipVersion    | 2.0.0-SNAPSHOT                                                                        |
+      | requirementName        | host                                                                                  |
+      | target                 | myLAMP                                                                                |
+      | targetedCapabilityName | hostApache                                                                            |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | myWordpress                                                                           |
+      | relationshipName       | connectToDb                                                                           |
+      | relationshipType       | alien.relationships.WordpressConnectToMysql                                           |
+      | relationshipVersion    | 2.0.0-SNAPSHOT                                                                        |
+      | requirementName        | database                                                                              |
+      | target                 | myLAMP                                                                                |
+      | targetedCapabilityName | hostMysql                                                                             |
+    And I execute the operation
+      | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |
+      | nodeName               | myWordpress                                                                           |
+      | relationshipName       | connectToPhp                                                                          |
+      | relationshipType       | alien.relationships.WordpressConnectToPHP                                             |
+      | relationshipVersion    | 2.0.0-SNAPSHOT                                                                        |
+      | requirementName        | php                                                                                   |
+      | target                 | myLAMP                                                                                |
+      | targetedCapabilityName | attachWebsite                                                                         |
+    And I execute the operation
+      | type          | org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePropertyValueOperation |
+      | nodeName      | myLAMP                                                                                |
+      | propertyName  | sys_arch                                                                              |
+      | propertyValue | x86_64                                                                                |
+    And I execute the operation
+      | type          | org.alien4cloud.tosca.editor.operations.nodetemplate.UpdateNodePropertyValueOperation |
+      | nodeName      | myLAMP                                                                                |
+      | propertyName  | sys_type                                                                              |
+      | propertyValue | linux                                                                                 |
+    And I save the topology
     Given I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     When I deploy it
     Then I should receive a RestResponse with no error
@@ -309,13 +817,20 @@ Feature: Topology composition
     # the mysql should be connected to the compute
     And The SPEL expression "topology.nodeTemplates['myLAMP_DB_MyMysql'].relationships.^[value.type == 'tosca.relationships.HostedOn'].values().iterator().next().target" should return "myLAMP_WWW_MyCompute"
 
+
   @reset
   Scenario: Cyclic reference
 # When a topology template is exposed as a type, we forbid the use of this type in the same topology template
 # (since it will cause endless recursive calls). Here we test this limitation.
-    Given I expose the template as type "tosca.nodes.Root"
+    Given I execute the operation
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Root                                                                  |
+    And I save the topology
     Then I should receive a RestResponse with no error
-    When I add a node template "MyLampNode" related to the "net.sample.LAMP:0.1.0-SNAPSHOT" node type
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | MyLampNode                                                            |
+      | indexedNodeTypeId | net.sample.LAMP:0.1.0-SNAPSHOT                                        |
     Then I should receive a RestResponse with an error code 820
 
   @reset
@@ -325,25 +840,46 @@ Feature: Topology composition
 # - I cretae a template net.sample.LAMP2 that uses the type net.sample.LAMP and is exposed itself as a type
 # - I try to add a node of type net.sample.LAMP2 in the topo net.sample.LAMP
 # This is not allowed since it cause cyclic reference (LAMP -> LAMP2 -> LAMP)
-    Given I expose the template as type "tosca.nodes.Root"
+    Given I execute the operation
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Root                                                                  |
+    And I save the topology
     Then I should receive a RestResponse with no error
     Given I create a new topology template with name "net.sample.LAMP2" and description "A Linux Apache Mysql PHP stack as a embedable topology template"
     And I should receive a RestResponse with no error
     And The RestResponse should contain a topology template id
     And I can get and register the topology for the last version of the registered topology template
-    And I add a node template "Lamp" related to the "net.sample.LAMP:0.1.0-SNAPSHOT" node type
-    And I expose the template as type "tosca.nodes.Root"
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | MyLampNode                                                            |
+      | indexedNodeTypeId | net.sample.LAMP:0.1.0-SNAPSHOT                                        |
+    And I execute the operation
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Root                                                                  |
+    And I save the topology
     When If I search for topology templates I can find one with the name "net.sample.LAMP" version "0.1.0-SNAPSHOT" and store the related topology as a SPEL context
-    And I add a node template "Lamp2" related to the "net.sample.LAMP2:0.1.0-SNAPSHOT" node type
+    And I get the current topology
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | Lamp2                                                                 |
+      | indexedNodeTypeId | net.sample.LAMP2:0.1.0-SNAPSHOT                                       |
     Then I should receive a RestResponse with an error code 820
 
   @reset
   Scenario: Delete referenced topology template
 # A topology template that is exposed as a type and used in another topology can not be deleted
-    Given I expose the template as type "tosca.nodes.Root"
+    Given I execute the operation
+      | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
+      | elementId | tosca.nodes.Root                                                                  |
+    And I save the topology
     And I create a new topology template version named "0.2.0-SNAPSHOT" based on the current version
     And I create a new application with name "myWebapp" and description "A webapp that use an embeded topology."
-    And I add a node template "myLAMP" related to the "net.sample.LAMP:0.1.0-SNAPSHOT" node type
+    And I get the current topology
+    And I execute the operation
+      | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
+      | nodeName          | myLAMP                                                                |
+      | indexedNodeTypeId | net.sample.LAMP:0.1.0-SNAPSHOT                                        |
+    And I save the topology
     When I delete the topology template named "net.sample.LAMP"
     Then I should receive a RestResponse with an error code 507
     When I delete the topology template named "net.sample.LAMP" version "0.1.0-SNAPSHOT"

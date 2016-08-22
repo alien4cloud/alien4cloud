@@ -3,15 +3,13 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>1.3.0-SM3-SNAPSHOT</version>
+    <version>1.3.0-SM4-SNAPSHOT</version>
   </parent>
   <artifactId>alien4cloud-dao</artifactId>
   <name>Alien 4 Cloud Dao</name>
   <description>Contains ElasticSearch classes for alien4cloud.</description>
 
   <properties>
-    <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-    <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
     <sonar.language>java</sonar.language>
     <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
     <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>

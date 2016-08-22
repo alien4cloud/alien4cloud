@@ -12,7 +12,6 @@ Feature: Create an application an testing application roles on it
 
   @reset
   Scenario: I can read an application with at least one application role on it - APPLICATION_MANAGER
-    #Given I add a role "APPLICATION_MANAGER" to user "appManager" on the application "mordor"
     Given I add a role "APPLICATION_MANAGER" to user "appManager" on the resource type "APPLICATION" named "mordor"
     And I am authenticated with "APP_MANAGER" role
     And I retrieve the newly created application
@@ -20,7 +19,6 @@ Feature: Create an application an testing application roles on it
 
   @reset
   Scenario: I can read an application with at least one application role on it - APPLICATION_DEVOPS
-    #Given I add a role "APPLICATION_DEVOPS" to user "appManager" on the application "mordor"
     Given I add a role "APPLICATION_DEVOPS" to user "appManager" on the resource type "APPLICATION" named "mordor"
     And I am authenticated with "APP_MANAGER" role
     And I retrieve the newly created application

@@ -16,7 +16,7 @@ import io.swagger.annotations.ApiModelProperty;
 @Setter
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class UpdateIndexedTypePropertyRequest {
     @ApiModelProperty(required = true)
     private String propertyName;

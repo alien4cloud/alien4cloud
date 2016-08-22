@@ -17,7 +17,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class RecommendationRequest {
     /**
      * The Id of the component to be recommended as default for a capability

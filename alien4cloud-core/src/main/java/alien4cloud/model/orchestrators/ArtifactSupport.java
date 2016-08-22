@@ -9,7 +9,7 @@ import lombok.Setter;
  * Contains information on artifacts supported by an orchestrator.
  */
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @Getter
 @Setter
 public class ArtifactSupport {

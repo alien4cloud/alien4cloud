@@ -10,7 +10,7 @@ import org.elasticsearch.annotation.ESObject;
 @Getter
 @Setter
 @ESObject
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 @NoArgsConstructor
 @ToString
 public class PaaSInstancePersistentResourceMonitorEvent extends AbstractMonitorEvent {

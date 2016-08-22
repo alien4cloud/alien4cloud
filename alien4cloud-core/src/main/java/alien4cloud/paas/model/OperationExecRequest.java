@@ -15,7 +15,7 @@ import org.hibernate.validator.constraints.NotBlank;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(suppressConstructorProperties = true)
 public class OperationExecRequest extends NodeOperationExecRequest {
     @NotBlank
     String applicationEnvironmentId;

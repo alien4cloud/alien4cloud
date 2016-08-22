@@ -40,9 +40,9 @@ require.config({
     'stomp': 'bower_components/stomp-websocket/lib/stomp',
     'd3': 'bower_components/d3/d3',
     'd3-tip': 'bower_components/d3-tip/index',
-    'graphlib': 'bower_components/graphlib/dist/graphlib.core',
+    'd3-pie': 'bower_components/d3pie/d3pie/d3pie',
     'dagre': 'bower_components/dagre/dist/dagre.core',
-    'd3-pie': 'bower_components/d3pie/d3pie/d3pie'
+    'graphlib': 'bower_components/graphlib/dist/graphlib.core'
   },
   shim: {
     'angular': {
