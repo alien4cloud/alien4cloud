@@ -20,12 +20,6 @@ public class TopologyRecoveryStepDefinitions {
 
     private CommonStepDefinitions commonSteps = new CommonStepDefinitions();
 
-    @When("^I ask for updated dependencies from the registered topology$")
-    public void I_ask_for_updated_dependencies_from_the_registered_topology() throws Throwable {
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().get("/rest/v1/topologies/" + Context.getInstance().getTopologyId() + "/updatedDependencies"));
-    }
-
     @When("^I trigger the recovery of the topology$")
     public void I_trigger_the_recovery_of_the_topology() throws Throwable {
         RestResponse<?> response = JsonUtil.read(Context.getInstance().getRestResponse());
@@ -38,13 +32,6 @@ public class TopologyRecoveryStepDefinitions {
     public void I_reset_the_topology() throws Throwable {
         Context.getInstance()
                 .registerRestResponse(Context.getRestClientInstance().put("/rest/v1/topologies/" + Context.getInstance().getTopologyId() + "/reset"));
-    }
-
-    @Then("^The Response should contain the folowwing dependencies$")
-    public void I_ask_for_updated_dependencies_from_the_registered_topology(List<CSARDependency> expectedDependencies) throws Throwable {
-        RestResponse<?> response = JsonUtil.read(Context.getInstance().getRestResponse());
-        List<CSARDependency> dependencies = JsonUtil.toList(JsonUtil.toString(response.getData()), CSARDependency.class);
-        Assert.assertTrue(dependencies.containsAll(expectedDependencies));
     }
 
     @Then("^the topology dto should contain (\\d+) nodetemplates$")

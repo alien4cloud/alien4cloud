@@ -1,24 +1,5 @@
 package alien4cloud.rest.exception;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.alien4cloud.tosca.editor.exception.*;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.springframework.expression.ExpressionException;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
-import com.google.common.collect.Lists;
-
 import alien4cloud.component.repository.exception.RepositoryTechnicalException;
 import alien4cloud.deployment.exceptions.InvalidDeploymentSetupException;
 import alien4cloud.exception.*;
@@ -39,7 +20,24 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationExc
 import alien4cloud.utils.RestConstraintValidator;
 import alien4cloud.utils.version.InvalidVersionException;
 import alien4cloud.utils.version.UpdateApplicationVersionException;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.editor.exception.*;
+import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.springframework.expression.ExpressionException;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * All technical (runtime) exception handler goes here. It's unexpected exception and is in general back-end exception or bug in our code
@@ -439,5 +437,14 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> handleEditionConcurrencyException(RequirementBoundException e) {
         return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.UPPER_BOUND_REACHED).message(e.getMessage()).build()).build();
+    }
+
+    @ExceptionHandler(value = RecoverTopologyException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<RecoverTopologyOperation> handleTopologyRecoveryException(RecoverTopologyException e) {
+        return RestResponseBuilder.<RecoverTopologyOperation> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.RECOVER_TOPOLOGY).message(e.getMessage()).build()).data(e.getOperation()).build();
+
     }
 }

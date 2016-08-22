@@ -2,7 +2,6 @@ package alien4cloud.rest.topology;
 
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.AbstractTopologyVersion;
@@ -14,7 +13,7 @@ import alien4cloud.topology.*;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.editor.EditionContextManager;
-import org.alien4cloud.tosca.editor.EditorTopologyRecoveryHelperService;
+import org.alien4cloud.tosca.editor.EditorService;
 import org.alien4cloud.tosca.editor.TopologyDTOBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
-import java.util.Set;
 
 @Slf4j
 @RestController
@@ -48,8 +46,7 @@ public class TopologyController {
     private TopologyDTOBuilder dtoBuilder;
 
     @Inject
-    private EditorTopologyRecoveryHelperService topologyRecoveryHelperService;
-
+    private EditorService editorService;
     /**
      * Retrieve an existing {@link alien4cloud.model.topology.Topology}
      *
@@ -66,6 +63,7 @@ public class TopologyController {
                 ApplicationRole.APPLICATION_USER);
         try {
             topologyEditionContextManager.init(topologyId);
+            editorService.checkTopologyRecovery();
             return RestResponseBuilder.<TopologyDTO> builder().data(dtoBuilder.buildTopologyDTO(EditionContextManager.get())).build();
         } finally {
             topologyEditionContextManager.destroy();
@@ -123,28 +121,5 @@ public class TopologyController {
             throw new NotFoundException("No version found for topology " + topologyId);
         }
         return RestResponseBuilder.<AbstractTopologyVersion> builder().data(version).build();
-    }
-
-    /**
-     * Retrieve csar dependencies of a given topology have been updated since they were added into the topology.
-     *
-     * @param topologyId The id of the topology to check.
-     * @return {@link RestResponse}<{@link Set}<{@link CSARDependency}>> containing the dependencies that have been updated.
-     *
-     */
-    @ApiOperation(value = "Retrieve from a topology, csar dependencies that have been updated since they were added into the topology.", notes = "Returns a set of dependencies that have been updated. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS | APPLICATION_USER ]")
-    @RequestMapping(value = "/{topologyId}/updatedDependencies", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<Set<CSARDependency>> getUpdatedDependencies(@PathVariable String topologyId) {
-
-        try {
-            topologyEditionContextManager.init(topologyId);
-            topologyService.checkAuthorizations(EditionContextManager.getTopology(), ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS,
-                    ApplicationRole.APPLICATION_USER);
-            return RestResponseBuilder.<Set<CSARDependency>> builder()
-                    .data(topologyRecoveryHelperService.getUpdatedDependencies(EditionContextManager.getTopology())).build();
-        } finally {
-            topologyEditionContextManager.destroy();
-        }
     }
 }

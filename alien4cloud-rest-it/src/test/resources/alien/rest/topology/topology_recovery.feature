@@ -11,8 +11,3 @@ Feature: Get updated dependencies of a topology
 
   @reset
   Scenario: Delete a node type from archive and get the updated dependencies
-    Given I upload the local archive "data/csars/topology_recovery_test/test-recovery-nodetype-deleted-types.yml"
-  	When I ask for updated dependencies from the registered topology
-  	Then The Response should contain the folowwing dependencies
-  		|name                    |version|
-  		|test-topo-recovery-types|0.1-SNAPSHOT|

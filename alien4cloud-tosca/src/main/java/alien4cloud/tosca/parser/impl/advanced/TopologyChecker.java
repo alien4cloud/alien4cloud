@@ -187,6 +187,9 @@ public class TopologyChecker implements IChecker<Topology> {
      * @param instance
      */
     private void fillInNodeNames(Topology instance) {
+        if (instance.isEmpty()) {
+            return;
+        }
         for (Entry<String, NodeTemplate> entry : instance.getNodeTemplates().entrySet()) {
             entry.getValue().setName(entry.getKey());
         }

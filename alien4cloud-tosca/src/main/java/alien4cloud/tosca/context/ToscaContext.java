@@ -8,10 +8,7 @@ import com.google.common.collect.Maps;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Manage thread-local tosca contexts.
@@ -164,9 +161,9 @@ public class ToscaContext {
          */
         public void updateDependency(CSARDependency dependency) {
             // Do not update dependency if the version hasn't changed
-            // FIXME Not sure what we try to do here... but if we ever want not to update in a case, make sure to take into account the dependency hash
-            if (!hasDependency(dependency)) {
+            if (hasDependency(dependency)) {
                 log.debug("Dependency already exist in context.");
+                return;
             }
             removeDependency(dependency);
             addDependency(dependency);
@@ -175,7 +172,7 @@ public class ToscaContext {
         private boolean hasDependency(CSARDependency dependency) {
             for (CSARDependency existDependency : this.dependencies) {
                 if (existDependency.getName().equals(dependency.getName())) {
-                    return existDependency.getVersion().equals(dependency.getVersion());
+                    return existDependency.getVersion().equals(dependency.getVersion()) && Objects.equals(existDependency.getHash(), dependency.getHash());
                 }
             }
             return false;

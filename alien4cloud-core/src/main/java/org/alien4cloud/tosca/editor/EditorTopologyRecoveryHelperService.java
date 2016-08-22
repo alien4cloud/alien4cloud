@@ -13,10 +13,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
+import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.RebuildNodeOperation;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.DeleteRelationshipOperation;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.RebuildRelationshipOperation;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -39,21 +41,33 @@ public class EditorTopologyRecoveryHelperService {
     private EditorService editorService;
 
     /**
-     * In case of dependencies updates, analyse a given topology and build a list of {@link AbstractEditorOperation} to apply to the topology to make it synch
+     * analyse a given topology and build a {@link RecoverTopologyOperation} to apply to the topology to make it synch
+     * with the dependencies present in the repository
+     * 
+     * @param topology
+     * @return a {@link RecoverTopologyOperation}
+     */
+    @ToscaContextual(requiresNew = true)
+    public RecoverTopologyOperation buildRecoveryOperation(Topology topology) {
+        RecoverTopologyOperation operation = new RecoverTopologyOperation();
+        buildRecoveryOperation(topology, operation);
+        return CollectionUtils.isNotEmpty(operation.getUpdatedDependencies()) ? operation : null;
+    }
+
+    /**
+     * analyse a given topology and fill in a {@link RecoverTopologyOperation} to apply to the topology to make it synch
      * with the dependencies present in the repository
      *
-     * @param topologyId The Id of the topology we want to recover
-     * @return a list of {@link AbstractEditorOperation} representing the operations to perform on the topology for recovery
+     * @param topology
+     * @param operation
      */
-    public List<AbstractEditorOperation> buildRecoveryOperations(String topologyId) {
-        try {
-            editionContextManager.init(topologyId);
-            Set<CSARDependency> updatedDependencies = getUpdatedDependencies(EditionContextManager.getTopology());
-            return buildRecoveryOperations(EditionContextManager.getTopology(), updatedDependencies);
-        } finally {
-            editionContextManager.destroy();
-        }
+    @ToscaContextual(requiresNew = true)
+    public void buildRecoveryOperation(Topology topology, RecoverTopologyOperation operation) {
+        Set<CSARDependency> updatedDependencies = getUpdatedDependencies(topology);
+        operation.setUpdatedDependencies(updatedDependencies);
+        operation.setRecoveringOperations(buildRecoveryOperations(topology, updatedDependencies));
     }
+
 
     /**
      * Given a set of dependencies, analyse a given topology and build a list of {@link AbstractEditorOperation} to apply to the topology to make it synch
@@ -63,8 +77,7 @@ public class EditorTopologyRecoveryHelperService {
      * @param updatedDependencies The updated dependencies within the topology
      * @return a list of {@link AbstractEditorOperation} representing the operations to perform on the topology for recovery
      */
-    @ToscaContextual(requiresNew = true)
-    public List<AbstractEditorOperation> buildRecoveryOperations(Topology topology, Set<CSARDependency> updatedDependencies) {
+    private List<AbstractEditorOperation> buildRecoveryOperations(Topology topology, Set<CSARDependency> updatedDependencies) {
         List<AbstractEditorOperation> recoveryOperations = Lists.newArrayList();
         for (CSARDependency updatedDependency : AlienUtils.safe(updatedDependencies)) {
             buildNodesRecoveryOperations(topology, updatedDependency, recoveryOperations);
@@ -220,26 +233,37 @@ public class EditorTopologyRecoveryHelperService {
     }
 
     /**
-     * Return a Set of {@link CSARDependency} that have changed since last added in a given topology
+     * Return a Set of updated {@link CSARDependency} that have changed since last added in a given topology
      *
      * @param topology
      * @return
      */
     public Set<CSARDependency> getUpdatedDependencies(Topology topology) {
         Set<CSARDependency> dependencies = topology.getDependencies();
-        Set<CSARDependency> modifiedDependencies = Sets.newHashSet();
+        Set<CSARDependency> updatedDependencies = Sets.newHashSet();
         for (CSARDependency csarDependency : dependencies) {
-            if (hasChangedSinceLastAddedIntoTopology(csarDependency)) {
-                modifiedDependencies.add(csarDependency);
+            CSARDependency updatedDependency = getUpdatedDependencyIfNeeded(csarDependency);
+            if (updatedDependency != null) {
+                updatedDependencies.add(updatedDependency);
             }
         }
-        return modifiedDependencies;
+        return updatedDependencies;
     }
 
-    private boolean hasChangedSinceLastAddedIntoTopology(CSARDependency dependency) {
-        Csar csar = csarService.getOrFail(dependency.getName(), dependency.getVersion());
-        return (StringUtils.isNotBlank(dependency.getHash()) || StringUtils.isNotBlank(csar.getHash()))
-                && !Objects.equals(dependency.getHash(), csar.getHash());
+    /**
+     * Update a dependency according to what is currently in the repository
+     *
+     * @param initialDependency
+     * @return
+     */
+    private CSARDependency getUpdatedDependencyIfNeeded(CSARDependency initialDependency) {
+        CSARDependency updatedDependency = null;
+        Csar csar = csarService.getOrFail(initialDependency.getName(), initialDependency.getVersion());
+        if ((StringUtils.isNotBlank(initialDependency.getHash()) || StringUtils.isNotBlank(csar.getHash()))
+                && !Objects.equals(initialDependency.getHash(), csar.getHash())) {
+            updatedDependency = new CSARDependency(csar.getName(), csar.getVersion(), csar.getHash());
+        }
+        return updatedDependency;
     }
 
     private boolean isFrom(IndexedToscaElement element, CSARDependency dependency) {

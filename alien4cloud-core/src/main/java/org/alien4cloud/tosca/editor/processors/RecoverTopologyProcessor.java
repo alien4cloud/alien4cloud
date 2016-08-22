@@ -4,13 +4,14 @@ import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.utils.AlienUtils;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.EditorTopologyRecoveryHelperService;
 import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
-import java.util.Set;
 
 /**
  * process {@link RecoverTopologyOperation}
@@ -21,27 +22,38 @@ import java.util.Set;
 public class RecoverTopologyProcessor implements IEditorOperationProcessor<RecoverTopologyOperation> {
 
     @Inject
-    private EditorTopologyRecoveryHelperService editorTopologyRecoveryHelperService;
+    private EditorTopologyRecoveryHelperService recoveryHelperService;
     @Inject
     private TopologyService topologyService;
 
     @Override
     public void process(RecoverTopologyOperation operation) {
         Topology topology = EditionContextManager.getTopology();
-        // FIXME cache the updated dependencies / recovery operations and reuse it here
-        Set<CSARDependency> updatedDependencies = editorTopologyRecoveryHelperService.getUpdatedDependencies(topology);
-        operation.setRecoveringOperations(editorTopologyRecoveryHelperService.buildRecoveryOperations(topology, updatedDependencies));
+
+        checkOperation(operation, topology);
 
         // process every recovery operation
         // we need a new context here, as we want to have fresh types from elasticsearch
-        editorTopologyRecoveryHelperService.processRecoveryOperations(topology, operation.getRecoveringOperations());
+        recoveryHelperService.processRecoveryOperations(topology, operation.getRecoveringOperations());
 
         // make sure we also synch the dependencies and the caches types
-        for (CSARDependency updatedDependency : updatedDependencies) {
+        for (CSARDependency updatedDependency : AlienUtils.safe(operation.getUpdatedDependencies())) {
             ToscaContext.get().updateDependency(updatedDependency);
         }
 
-        // FIXME passing to this function the processRecoveryOperations ToscaContext should help reducing ES requests
+        // TODO passing to this function the processRecoveryOperations ToscaContext should help reducing ES requests
         topologyService.rebuildDependencies(topology);
+    }
+
+    /**
+     * If the operation is "empty", then try to fill it
+     * 
+     * @param operation
+     * @param topology
+     */
+    private void checkOperation(RecoverTopologyOperation operation, Topology topology) {
+        if (CollectionUtils.isEmpty(operation.getUpdatedDependencies())) {
+            recoveryHelperService.buildRecoveryOperation(topology, operation);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package org.alien4cloud.tosca.editor.operations;
 
+import alien4cloud.model.components.CSARDependency;
 import alien4cloud.utils.AlienUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Recover the topology when dependencies have changed.
@@ -15,11 +17,18 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class RecoverTopologyOperation extends AbstractEditorOperation {
+
+    /**
+     * dependencies that have changed since last added in a given topology
+     */
+    Set<CSARDependency> updatedDependencies;
+
     /**
      * List of the operations generated to recover the topology
      *
      */
     List<AbstractEditorOperation> recoveringOperations;
+
 
     @Override
     public String commitMessage() {

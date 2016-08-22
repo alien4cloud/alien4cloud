@@ -2,8 +2,6 @@ package alien4cloud.dao;
 
 import java.util.List;
 
-import org.elasticsearch.index.query.QueryBuilder;
-
 /**
  * A DAO that allows accessing data by Id or / and multiple Ids.
  * 

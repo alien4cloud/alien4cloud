@@ -9,6 +9,8 @@ import alien4cloud.security.model.User;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.ArchiveUploadService;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
 import com.google.common.collect.Maps;
 import cucumber.api.DataTable;
@@ -126,7 +128,7 @@ public class EditorStepDefs {
         Path source = Paths.get(path);
         Path csarTargetPath = CSAR_TARGET_PATH.resolve(source.getFileName() + ".csar");
         FileUtil.zip(source, csarTargetPath);
-        uploadCsarFromPath(csarTargetPath);
+        checkUploadError(uploadCsarFromPath(csarTargetPath));
     }
 
     @When("^I get the topology related to the template with name \"(.*?)\"$")
@@ -161,11 +163,16 @@ public class EditorStepDefs {
 
     @Given("^I upload CSAR from path \"(.*?)\"$")
     public void i_upload_CSAR_from_path(String path) throws Throwable {
-        uploadCsarFromPath(Paths.get(path));
+        checkUploadError(uploadCsarFromPath(Paths.get(path)));
     }
 
-    private void uploadCsarFromPath(Path path) throws Throwable {
-        csarUploadService.upload(path, CSARSource.UPLOAD);
+    private void checkUploadError(ParsingResult<Csar> csarParsingResult) {
+        System.out.println(csarParsingResult.getContext().getParsingErrors());
+        Assert.assertFalse(csarParsingResult.hasError(ParsingErrorLevel.ERROR));
+    }
+
+    private ParsingResult<Csar> uploadCsarFromPath(Path path) throws Throwable {
+        return csarUploadService.upload(path, CSARSource.UPLOAD);
     }
 
     @Given("^I create an empty topology$")
@@ -228,8 +235,9 @@ public class EditorStepDefs {
             topologyEvaluationContext = new StandardEvaluationContext(topologyDTO.getTopology());
             dtoEvaluationContext = new StandardEvaluationContext(topologyDTO);
         } catch (Exception e) {
-            log.error("Exception occured while executing operation", e);
+            log.error("Exception occurred while executing operation", e);
             thrownException = e;
+            commonEvaluationContext = new StandardEvaluationContext(e);
         }
     }
 
@@ -311,20 +319,55 @@ public class EditorStepDefs {
 
     @When("^I get the edited topology$")
     public void I_get_the_edited_topology() {
+        thrownException = null;
         try {
             editionContextManager.init(topologyIds.getLast());
             Topology topology = editionContextManager.getTopology();
             topologyEvaluationContext = new StandardEvaluationContext(topology);
+        } catch (Exception e) {
+            log.error("Exception ocrured while getting the topology", e);
+            thrownException = e;
+            commonEvaluationContext = new StandardEvaluationContext(e);
         } finally {
             editionContextManager.destroy();
         }
     }
 
-    @When("^I ask for updated dependencies from the registered topology$")
+    // @When("^I ask for updated dependencies from the registered topology$")
     public void iAskForUpdatedDependenciesFromTheRegisteredTopology() throws Throwable {
         I_get_the_edited_topology();
         commonEvaluationContext = new StandardEvaluationContext(
                 recoveryHelper.getUpdatedDependencies((Topology) topologyEvaluationContext.getRootObject().getValue()));
+    }
+
+    @When("^I recover the topology$")
+    public void i_Recover_The_Topology() throws Throwable {
+        thrownException = null;
+        try {
+            TopologyDTO dto = editorService.recover(topologyIds.getLast(), topologyIdToLastOperationId.get(topologyIds.getLast()));
+            topologyIdToLastOperationId.put(topologyIds.getLast(), null);
+            dtoEvaluationContext = new StandardEvaluationContext(dto);
+            topologyEvaluationContext = new StandardEvaluationContext(dto.getTopology());
+        } catch (Exception e) {
+            log.error("Error occurred when recovering the topology", e);
+            thrownException = e;
+            commonEvaluationContext = new StandardEvaluationContext(e);
+        }
+    }
+
+    @When("^I reset the topology$")
+    public void iResetTheTopology() throws Throwable {
+        thrownException = null;
+        try {
+            TopologyDTO dto = editorService.reset(topologyIds.getLast(), topologyIdToLastOperationId.get(topologyIds.getLast()));
+            topologyIdToLastOperationId.put(topologyIds.getLast(), null);
+            dtoEvaluationContext = new StandardEvaluationContext(dto);
+            topologyEvaluationContext = new StandardEvaluationContext(dto.getTopology());
+        } catch (Exception e) {
+            log.error("Error occurred when resetting the topology", e);
+            thrownException = e;
+            commonEvaluationContext = new StandardEvaluationContext(e);
+        }
     }
 
 }

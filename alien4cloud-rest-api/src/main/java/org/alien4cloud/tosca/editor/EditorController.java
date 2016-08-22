@@ -1,13 +1,11 @@
 package org.alien4cloud.tosca.editor;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import javax.validation.Valid;
-
+import alien4cloud.component.repository.IFileRepository;
+import alien4cloud.git.SimpleGitHistoryEntry;
+import alien4cloud.rest.model.RestResponse;
+import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.topology.TopologyDTO;
+import io.swagger.annotations.ApiOperation;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.springframework.core.io.InputStreamResource;
@@ -18,12 +16,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import alien4cloud.component.repository.IFileRepository;
-import alien4cloud.git.SimpleGitHistoryEntry;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.topology.TopologyDTO;
-import io.swagger.annotations.ApiOperation;
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.validation.Valid;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
 /**
  * Controller endpoint for topology edition.
@@ -143,4 +141,32 @@ public class EditorController {
         List<SimpleGitHistoryEntry> historyEntries = editorService.history(topologyId, from, count);
         return RestResponseBuilder.<List<SimpleGitHistoryEntry>> builder().data(historyEntries).build();
     }
+
+    /**
+     * Recovers the topology after a dependency have change. This will apply the registered recovery operations and save the topology
+     *
+     * @param topologyId The id of the topology/archive under edition to save.
+     * @return A topology DTO with the updated topology.
+     */
+    @ApiOperation(value = "Recovers the topology after a dependency have change. This will apply the registered recovery operations and save the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId}/recover", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> recover(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId) {
+        TopologyDTO topologyDTO = editorService.recover(topologyId, lastOperationId);
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
+    }
+
+    /**
+     * Reset a topology. This will delete everything inside the topology, leaving it as if it is just created now.
+     *
+     * @param topologyId The id of the topology/archive under edition to save.
+     * @return A topology DTO with the updated topology.
+     */
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId}/reset", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> reset(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId) {
+        TopologyDTO topologyDTO = editorService.reset(topologyId, lastOperationId);
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
+    }
+
 }
