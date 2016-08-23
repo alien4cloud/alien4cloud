@@ -110,6 +110,21 @@
       "PLAN" : "Workflow",
       "PROPERTIES_INPUTS" : "プロパティの入力",
       "PROPERTIES_OUTPUTS" : "プロパティ出力",
+      "RECOVERY": {
+        "TITLE": "Topology recevory",
+        "DISMISS": "Dismiss",
+        "DESCRIPTION": "The following topology's dependencies have been updated:",
+        "CHOICE_ASK": "What would you like to do with the topology ?",
+        "RECOVER": {
+          "TITLE": "Recover",
+          "DESCRIPTION": "Try to recover the topology, by synchronizing it with the exisiting dependencies."
+        },
+        "RESET": {
+          "TITLE": "Reset",
+          "DESCRIPTION": "Delete everything from the topology, leaving it completely empty."
+        },
+        "SUCCESS_MSGE": "Topology updated successfuly!"
+      },
       "REFERENCE" : "参照",
       "RELATIONSHIPS" : "関連定義",
       "REPLACE_NODETEMPLATE" : "置換",
@@ -378,6 +393,7 @@
       "353" : "The META-INF/plugin.yml file is missing in your plugin.",
       "ALIEN_MAPPING_ERROR" : "An internal error caused the import to fail. Please submit an issue with the stacktrace and archive.",
       "CSAR_ALREADY_EXISTS" : "A released archive with the same name and version already exists in Alien repository. In order to ensure stability for user using it, Alien doesn't allow override of released archives. It is however possible to override a SNAPSHOT archive.",
+      "CSAR_USED_IN_ACTIVE_DEPLOYMENT": "A topology having a dependency from an archive with the same name and version is deployed. In order to ensure stability for the runtime processing, Alien doesn't allow the overriding.",
       "DUPLICATED_ELEMENT_DECLARATION" : "The element [ {{note}} ] has already be defined in this definition file.",
       "ENTRY_DEFINITION_NOT_FOUND" : "Entry definition file has not been found. Please put a valid definition file at the root of the archive.",
       "ERRONEOUS_ARCHIVE_FILE" : "Cannot load the archive file. Please check that the file is a valid zip.",

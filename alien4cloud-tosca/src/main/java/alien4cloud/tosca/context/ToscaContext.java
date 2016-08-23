@@ -148,6 +148,10 @@ public class ToscaContext {
                     }
                     toRemove.clear();
                 }
+
+                //alse clean the archive cache
+                Csar csar = new Csar(removedDependency.getName(), removedDependency.getVersion());
+                archivesMap.remove(csar.getId());
                 log.debug("Removed dependency {} from the TOSCA context.", removedDependency);
             } else {
                 log.debug("Cannot remove dependency {} from the TOSCA context as it wasn't found in the dependencies.", removedDependency);

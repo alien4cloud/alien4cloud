@@ -152,6 +152,9 @@ public class EditorController {
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(value = "/{topologyId}/recover", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> recover(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId) {
+        if (lastOperationId != null && "null".equals(lastOperationId)) {
+            lastOperationId = null;
+        }
         TopologyDTO topologyDTO = editorService.recover(topologyId, lastOperationId);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
     }
@@ -165,6 +168,9 @@ public class EditorController {
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(value = "/{topologyId}/reset", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> reset(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId) {
+        if (lastOperationId != null && "null".equals(lastOperationId)) {
+            lastOperationId = null;
+        }
         TopologyDTO topologyDTO = editorService.reset(topologyId, lastOperationId);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
     }

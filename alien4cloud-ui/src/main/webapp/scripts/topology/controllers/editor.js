@@ -15,6 +15,7 @@ define(function (require) {
 
   require('scripts/tosca/services/tosca_cardinalities_service');
   require('scripts/topology/services/topology_json_processor');
+  require('scripts/topology/services/topology_recovery_service');
   require('scripts/topology/services/topology_services');
   require('scripts/topology/controllers/topology_editor_versions');
 
@@ -23,8 +24,8 @@ define(function (require) {
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles', 'cfp.hotkeys']).controller('TopologyEditorCtrl',
     ['$scope', 'menu', 'layoutService', 'appVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',
-    'hotkeys',// 'topologyEditorEventFactory',
-    function($scope, menu, layoutService, appVersions, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys) {// , topologyEditorEventFactory) {
+    'hotkeys','topologyRecoveryServices',// 'topologyEditorEventFactory',
+    function($scope, menu, layoutService, appVersions, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys, topologyRecoveryServices) {// , topologyEditorEventFactory) {
       // register for websockets events
       // var registration = topologyEditorEventFactory($scope.topologyId, function(event) {
       //   console.log('received event', event);
@@ -85,7 +86,7 @@ define(function (require) {
       };
 
       $scope.getLastOperationId = function(nullAsString) {
-        if($scope.topology.lastOperationIndex >= 0) {
+        if(_.get($scope.topology, 'lastOperationIndex')>= 0) {
           return $scope.topology.operations[$scope.topology.lastOperationIndex].id;
         }
         return _.defined(nullAsString) && nullAsString ? 'null' : null;
@@ -100,10 +101,24 @@ define(function (require) {
         }, angular.toJson(operation), function(result) {
             if(_.undefined(result.error)) {
               $scope.refreshTopology(result.data, selectedNodeTemplate);
+              if(_.defined(successCallback)) {
+                successCallback(result);
+              }
+              return;
             }
-            if(_.defined(successCallback)) {
-              successCallback(result);
-            }
+
+            //case there actually is an error
+            topologyRecoveryServices.handleTopologyRecovery(result.data, $scope.topologyId, $scope.getLastOperationId(true)).then(function(recoveryResult){
+              if(_.definedPath(recoveryResult, 'data')){
+                $scope.refreshTopology(recoveryResult.data, selectedNodeTemplate);
+                if(_.defined(successCallback)) {
+                  successCallback(recoveryResult);
+                }
+                return;
+              }
+            });
+
+
         }, function(error) {
           if(_.defined(errorCallback)) {
             errorCallback(error);
@@ -137,7 +152,17 @@ define(function (require) {
         }, null, function(result) {
           if(_.undefined(result.error)) {
             $scope.refreshTopology(result.data);
+            return;
           }
+
+          //case there actually is an error
+          topologyRecoveryServices.handleTopologyRecovery(result.data, $scope.topologyId, $scope.getLastOperationId(true)).then(function(recoveryResult){
+            if(_.definedPath(recoveryResult, 'data')){
+              $scope.refreshTopology(recoveryResult.data);
+              return;
+            }
+          });
+
         });
       }
       $scope.undo = function() {
@@ -196,8 +221,19 @@ define(function (require) {
 
       // Initial load of the topology
       topologyServices.dao.get({ topologyId: $scope.topologyId },
-        function(successResult) {
-          $scope.refreshTopology(successResult.data, null, true);
+        function(result) {
+          if(_.undefined(result.error)){
+            $scope.refreshTopology(result.data, null, true);
+            return;
+          }
+          //case there actually is an error
+          topologyRecoveryServices.handleTopologyRecovery(result.data, $scope.topologyId, $scope.getLastOperationId(true)).then(function(recoveryResult){
+            if(_.definedPath(recoveryResult, 'data')){
+              $scope.refreshTopology(recoveryResult.data, null, true);
+              return;
+            }
+          });
+
         });
     }
   ]);
