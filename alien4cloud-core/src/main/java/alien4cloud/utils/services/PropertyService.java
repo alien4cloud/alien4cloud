@@ -2,6 +2,7 @@ package alien4cloud.utils.services;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -10,9 +11,15 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Maps;
 
 import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.model.components.*;
+import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.ComplexPropertyValue;
+import alien4cloud.model.components.ListPropertyValue;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 
@@ -60,6 +67,21 @@ public class PropertyService {
             nodeTemplate.setProperties(Maps.<String, AbstractPropertyValue> newHashMap());
         }
         setPropertyValue(nodeTemplate.getProperties(), propertyDefinition, propertyName, propertyValue);
+    }
+
+    /**
+     * Set value for a property
+     * 
+     * @param dependencies all tosca dependencies for current operation
+     * @param nodeTemplate the node template
+     * @param propertyDefinition the definition of the property to be set
+     * @param propertyName the name of the property to set
+     * @param propertyValue the value to be set
+     */
+    @ToscaContextual
+    public void setPropertyValue(Set<CSARDependency> dependencies, NodeTemplate nodeTemplate, PropertyDefinition propertyDefinition, String propertyName,
+            Object propertyValue) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+        setPropertyValue(nodeTemplate, propertyDefinition, propertyName, propertyValue);
     }
 
     /**
