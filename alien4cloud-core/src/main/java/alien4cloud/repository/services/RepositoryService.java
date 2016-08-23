@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -100,14 +101,14 @@ public class RepositoryService {
     public boolean canResolveArtifact(String artifactReference, String repositoryURL, String repositoryType, String credentials) {
         for (IConfigurableArtifactResolver configurableArtifactResolver : registeredResolvers.values()) {
             ValidationResult validationResult = configurableArtifactResolver.canHandleArtifact(artifactReference, repositoryURL, repositoryType, credentials);
-            if (validationResult == ValidationResult.SUCCESS) {
+            if (validationResult.equals(ValidationResult.SUCCESS)) {
                 return true;
             }
         }
         for (Map<String, IArtifactResolver> resolverMap : resolverRegistry.getInstancesByPlugins().values()) {
             for (IArtifactResolver resolver : resolverMap.values()) {
                 ValidationResult validationResult = resolver.canHandleArtifact(artifactReference, repositoryURL, repositoryType, credentials);
-                if (validationResult == ValidationResult.SUCCESS) {
+                if (validationResult.equals(ValidationResult.SUCCESS)) {
                     return true;
                 }
             }
@@ -123,10 +124,9 @@ public class RepositoryService {
     public List<RepositoryPluginComponent> listPluginComponents() {
         List<RepositoryPluginComponent> repositoryPluginComponents = new ArrayList<>();
         List<PluginComponent> pluginComponents = pluginManager.getPluginComponents(IArtifactResolver.class.getSimpleName());
-        for (PluginComponent pluginComponent : pluginComponents) {
-            repositoryPluginComponents
-                    .add(new RepositoryPluginComponent(pluginComponent, getResolverFactoryOrFail(pluginComponent.getPluginId()).getResolverType()));
-        }
+        repositoryPluginComponents.addAll(pluginComponents.stream().map(
+                pluginComponent -> new RepositoryPluginComponent(pluginComponent, getResolverFactoryOrFail(pluginComponent.getPluginId()).getResolverType()))
+                .collect(Collectors.toList()));
         return repositoryPluginComponents;
     }
 
@@ -136,14 +136,6 @@ public class RepositoryService {
             throw new NotFoundException("Plugin " + pluginId + " is not found or is not enabled");
         }
         return configurableArtifactResolverFactory;
-    }
-
-    private IArtifactResolver getResolverOrFail(String pluginId) {
-        IArtifactResolver artifactResolver = resolverRegistry.getSinglePluginBean(pluginId);
-        if (artifactResolver == null) {
-            throw new NotFoundException("Plugin " + pluginId + " is not found or is not enabled");
-        }
-        return artifactResolver;
     }
 
     public Class<?> getRepositoryConfigurationType(String pluginId) {
