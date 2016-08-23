@@ -87,6 +87,7 @@ public class CloudServiceArchiveController {
     public RestResponse<CsarUploadResult> uploadCSAR(@RequestParam("file") MultipartFile csar) throws IOException {
         Path csarPath = null;
         try {
+
             log.info("Serving file upload with name [" + csar.getOriginalFilename() + "]");
             csarPath = Files.createTempFile(tempDirPath, null, '.' + CsarFileRepository.CSAR_EXTENSION);
             // save the archive in the temp directory
@@ -116,11 +117,11 @@ public class CloudServiceArchiveController {
         } finally {
             if (csarPath != null) {
                 // Clean up
-                // try {
-                // FileUtil.delete(csarPath);
-                // } catch (IOException e) {
-                // // The repository might just move the file instead of copying to save IO disk access
-                // }
+                try {
+                    FileUtil.delete(csarPath);
+                } catch (IOException e) {
+                    // The repository might just move the file instead of copying to save IO disk access
+                }
             }
         }
     }

@@ -9,20 +9,11 @@ import java.util.TreeSet;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
-import org.alien4cloud.tosca.editor.exception.EditorToscaYamlUpdateException;
 import org.alien4cloud.tosca.editor.exception.InvalidPathException;
 import org.alien4cloud.tosca.editor.operations.AbstractUpdateFileOperation;
+import org.alien4cloud.tosca.editor.services.EditorTopologyUploadService;
 
 import alien4cloud.component.repository.IFileRepository;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.topology.Topology;
-import alien4cloud.paas.wf.WorkflowsBuilderService;
-import alien4cloud.tosca.ArchiveParser;
-import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.ParsingException;
-import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.TreeNode;
 import lombok.SneakyThrows;
 
@@ -34,9 +25,7 @@ public abstract class AbstractUpdateFileProcessor<T extends AbstractUpdateFileOp
     @Inject
     private IFileRepository artifactRepository;
     @Inject
-    private ArchiveParser archiveParser;
-    @Inject
-    private WorkflowsBuilderService workflowBuilderService;
+    private EditorTopologyUploadService editorTopologyUploadService;
 
     @Override
     public void process(T operation) {
@@ -84,7 +73,7 @@ public abstract class AbstractUpdateFileProcessor<T extends AbstractUpdateFileOp
             try {
                 if (EditionContextManager.getTopology().getYamlFilePath().equals(operation.getPath())) {
                     // the operation updates the topology file, we have to parse it and override the topology data out of it.
-                    processTopology(operation, artifactFileId);
+                    editorTopologyUploadService.processTopology(artifactRepository.resolveFile(artifactFileId));
                 }
             } catch (RuntimeException e) {
                 // remove the file from the temp repository if the topology cannot be parsed
@@ -109,64 +98,5 @@ public abstract class AbstractUpdateFileProcessor<T extends AbstractUpdateFileOp
         }
         FileProcessorHelper.getFileTreeNode(operation.getPath()).setArtifactId(null);
         artifactRepository.deleteFile(operation.getTempFileId());
-    }
-
-    /**
-     * Process the topology uploaded from the given file in the local repository.
-     *
-     * @param operation The operation that triggered the topology refresh.
-     * @param artifactFileId The
-     */
-    private void processTopology(T operation, String artifactFileId) {
-        // parse the archive.
-        try {
-            ParsingResult<ArchiveRoot> parsingResult = archiveParser.parse(artifactRepository.resolveFile(artifactFileId), true);
-
-            // check if any blocker error has been found during parsing process.
-            if (parsingResult.hasError(ParsingErrorLevel.ERROR)) {
-                // do not save anything if any blocker error has been found during import.
-
-                throw new EditorToscaYamlUpdateException("Uploaded yaml files is not a valid tosca template", parsingResult.getContext().getParsingErrors());
-            }
-            if (parsingResult.getResult().hasToscaTypes()) {
-                throw new EditorToscaYamlUpdateException("Tosca types are currently not supported in the topology editor context.");
-            }
-            if (!parsingResult.getResult().hasToscaTopologyTemplate()) {
-                throw new EditorToscaYamlUpdateException("A topology template is required in the topology edition context.");
-            }
-
-            Topology currentTopology = EditionContextManager.getTopology();
-            Topology parsedTopology = parsingResult.getResult().getTopology();
-
-            // Copy static elements from the topology
-            parsedTopology.setId(currentTopology.getId());
-            parsedTopology.setYamlFilePath(currentTopology.getYamlFilePath());
-            parsedTopology.setDelegateId(currentTopology.getDelegateId());
-            parsedTopology.setDelegateType(currentTopology.getDelegateType());
-
-            // Update editor tosca context
-            ToscaContext.get().updateDependencies(parsedTopology.getDependencies());
-
-            // init the workflows for the topology based on the yaml
-            WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService
-                    .buildCachedTopologyContext(new WorkflowsBuilderService.TopologyContext() {
-                        @Override
-                        public Topology getTopology() {
-                            return parsedTopology;
-                        }
-
-                        @Override
-                        public <T extends IndexedToscaElement> T findElement(Class<T> clazz, String id) {
-                            return ToscaContext.get(clazz, id);
-                        }
-                    });
-            workflowBuilderService.initWorkflows(topologyContext);
-
-            // update the topology in the edition context with the new one
-            EditionContextManager.get().setTopology(parsingResult.getResult().getTopology());
-        } catch (ParsingException e) {
-            // Manage parsing error and dispatch them in the right editor exception
-            throw new EditorToscaYamlUpdateException("The uploaded file to override the topology yaml is not a valid Tosca Yaml.");
-        }
     }
 }
