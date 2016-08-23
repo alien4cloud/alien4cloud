@@ -78,15 +78,15 @@ public class NodeTemplateBuilder {
         }
         for (CapabilityDefinition capa : elements) {
             Capability toAddCapa = MapUtils.getObject(mapToMerge, capa.getId());
+            IndexedCapabilityType indexedCapa = ToscaContext.get(IndexedCapabilityType.class, capa.getType());
             if (toAddCapa == null) {
                 toAddCapa = new Capability();
                 toAddCapa.setType(capa.getType());
-                IndexedCapabilityType indexedCapa = ToscaContext.get(IndexedCapabilityType.class, capa.getType());
-                if (indexedCapa != null && indexedCapa.getProperties() != null) {
-                    toAddCapa.setProperties(PropertyUtil.getDefaultPropertyValuesFromPropertyDefinitions(indexedCapa.getProperties()));
-                }
             }
-            // FIXME we should check and merge properties
+
+            Map<String, AbstractPropertyValue> properties = Maps.newLinkedHashMap();
+            fillProperties(properties, indexedCapa.getProperties(), toAddCapa.getProperties());
+            toAddCapa.setProperties(properties);
             map.put(capa.getId(), toAddCapa);
         }
     }
@@ -97,15 +97,15 @@ public class NodeTemplateBuilder {
         }
         for (RequirementDefinition requirement : elements) {
             Requirement toAddRequirement = MapUtils.getObject(mapToMerge, requirement.getId());
+            IndexedCapabilityType indexedReq = ToscaContext.get(IndexedCapabilityType.class, requirement.getType());
             if (toAddRequirement == null) {
                 toAddRequirement = new Requirement();
                 toAddRequirement.setType(requirement.getType());
-                IndexedCapabilityType indexedReq = ToscaContext.get(IndexedCapabilityType.class, requirement.getType());
-                if (indexedReq != null && indexedReq.getProperties() != null) {
-                    toAddRequirement.setProperties(PropertyUtil.getDefaultPropertyValuesFromPropertyDefinitions(indexedReq.getProperties()));
-                }
             }
-            // FIXME we should check and merge properties
+
+            Map<String, AbstractPropertyValue> properties = Maps.newLinkedHashMap();
+            fillProperties(properties, indexedReq.getProperties(), toAddRequirement.getProperties());
+            toAddRequirement.setProperties(properties);
             map.put(requirement.getId(), toAddRequirement);
         }
     }
