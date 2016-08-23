@@ -209,10 +209,11 @@ public class EditorService {
     public TopologyDTO undoRedo(String topologyId, int at, String lastOperationId) {
         try {
             initContext(topologyId, lastOperationId);
-
             if (-1 > at || at > EditionContextManager.get().getOperations().size()) {
                 throw new NotFoundException("Unable to find the requested index for undo/redo");
             }
+
+            checkTopologyRecovery();
 
             if (at == EditionContextManager.get().getLastOperationIndex()) {
                 // nothing to change.

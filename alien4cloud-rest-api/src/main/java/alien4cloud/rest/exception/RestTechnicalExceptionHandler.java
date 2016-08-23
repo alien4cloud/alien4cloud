@@ -440,7 +440,7 @@ public class RestTechnicalExceptionHandler {
     }
 
     @ExceptionHandler(value = RecoverTopologyException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public RestResponse<RecoverTopologyOperation> handleTopologyRecoveryException(RecoverTopologyException e) {
         return RestResponseBuilder.<RecoverTopologyOperation> builder()

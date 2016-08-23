@@ -79,9 +79,11 @@ public class EditorTopologyRecoveryHelperService {
      */
     private List<AbstractEditorOperation> buildRecoveryOperations(Topology topology, Set<CSARDependency> updatedDependencies) {
         List<AbstractEditorOperation> recoveryOperations = Lists.newArrayList();
-        for (CSARDependency updatedDependency : AlienUtils.safe(updatedDependencies)) {
-            buildNodesRecoveryOperations(topology, updatedDependency, recoveryOperations);
-            buildRelationshipsRecoveryOperations(topology, updatedDependency, recoveryOperations);
+        if (!topology.isEmpty()) {
+            for (CSARDependency updatedDependency : AlienUtils.safe(updatedDependencies)) {
+                buildNodesRecoveryOperations(topology, updatedDependency, recoveryOperations);
+                buildRelationshipsRecoveryOperations(topology, updatedDependency, recoveryOperations);
+            }
         }
         return recoveryOperations;
     }

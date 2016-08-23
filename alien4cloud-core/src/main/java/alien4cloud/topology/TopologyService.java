@@ -413,7 +413,14 @@ public class TopologyService {
         return element;
     }
 
-    private CSARDependency buildDependencyBean(String name, String version) {
+    /**
+     * Build a {@link CSARDependency} bean given an archive name and version. This will also fill in the dependency hash.
+     * 
+     * @param name The name of the dependendy
+     * @param version The version of the dependency
+     * @return
+     */
+    public CSARDependency buildDependencyBean(String name, String version) {
         CSARDependency newDependency = new CSARDependency(name, version);
         Csar csar = ToscaContext.get().getArchive(name, version);
         if (csar != null) {

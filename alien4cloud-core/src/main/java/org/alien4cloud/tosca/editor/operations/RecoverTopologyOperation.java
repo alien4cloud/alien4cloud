@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.editor.operations;
 
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.utils.AlienUtils;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -31,6 +32,7 @@ public class RecoverTopologyOperation extends AbstractEditorOperation {
 
 
     @Override
+    @JsonProperty(value = "resume", access = JsonProperty.Access.READ_ONLY)
     public String commitMessage() {
         StringBuilder commitMessage = new StringBuilder("Topology recovering: ");
         if (CollectionUtils.isEmpty(recoveringOperations)) {
