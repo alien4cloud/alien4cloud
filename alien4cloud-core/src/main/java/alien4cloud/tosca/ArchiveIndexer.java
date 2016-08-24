@@ -97,7 +97,8 @@ public class ArchiveIndexer {
         if (topology != null && !topology.isEmpty()) {
             if (archiveRoot.hasToscaTypes()) {
                 // The archive contains types, we assume those types are used in the embedded topology so we add the dependency to this CSAR
-                CSARDependency selfDependency = new CSARDependency(archiveRoot.getArchive().getName(), archiveRoot.getArchive().getVersion());
+                CSARDependency selfDependency = new CSARDependency(archiveRoot.getArchive().getName(), archiveRoot.getArchive().getVersion(),
+                        archiveRoot.getArchive().getHash());
                 topology.getDependencies().add(selfDependency);
             }
 

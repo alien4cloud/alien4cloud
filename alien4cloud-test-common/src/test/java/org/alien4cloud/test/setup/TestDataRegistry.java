@@ -1,11 +1,12 @@
 package org.alien4cloud.test.setup;
 
 import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
 public class TestDataRegistry {
@@ -122,8 +123,8 @@ public class TestDataRegistry {
 
         // Artifact
         addConditionFolder("artifact java types 1.0", "src/test/resources/data/csars/artifact/java-types-1.0-artifact");
-        addConditionFolder("artifact java types 1.0 wrong type", "src/test/resources/data/artifact/sample/java-types-1.0-artifact-wrong-type");
-        addConditionFolder("artifact java types 1.0 wrong path", "src/test/resources/artifact/csars/sample/java-types-1.0-artifact-wrong-path");
+        addConditionFolder("artifact java types 1.0 wrong type", "src/test/resources/data/csars/artifact/java-types-1.0-artifact-wrong-type");
+        addConditionFolder("artifact java types 1.0 wrong path", "src/test/resources/data/csars/artifact/java-types-1.0-artifact-wrong-path");
 
         // Runtime archive
         addConditionFolder("custom-interface-mock-types", "src/test/resources/data/csars/custom-interface-mock-types");

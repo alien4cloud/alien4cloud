@@ -659,6 +659,10 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
                 repositorySearchService.getElementInDependencies(Mockito.eq(IndexedRelationshipType.class), Mockito.eq("tosca.relationships.HostedOn"),
                         Mockito.any(List.class))).thenReturn(hostedOn);
 
+        IndexedCapabilityType capaOn = new IndexedCapabilityType();
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(IndexedCapabilityType.class), Mockito.anyString(), Mockito.any(List.class)))
+                .thenReturn(capaOn);
+
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(),
                 "tosca-topology-template-node-from-derived-type-from-import.yml"));
 

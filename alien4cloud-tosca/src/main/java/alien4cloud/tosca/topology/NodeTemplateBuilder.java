@@ -85,7 +85,7 @@ public class NodeTemplateBuilder {
             }
 
             Map<String, AbstractPropertyValue> properties = Maps.newLinkedHashMap();
-            fillProperties(properties, indexedCapa.getProperties(), toAddCapa.getProperties());
+            fillProperties(properties, indexedCapa != null ? indexedCapa.getProperties() : null, toAddCapa.getProperties());
             toAddCapa.setProperties(properties);
             map.put(capa.getId(), toAddCapa);
         }
@@ -104,7 +104,7 @@ public class NodeTemplateBuilder {
             }
 
             Map<String, AbstractPropertyValue> properties = Maps.newLinkedHashMap();
-            fillProperties(properties, indexedReq.getProperties(), toAddRequirement.getProperties());
+            fillProperties(properties, indexedReq != null ? indexedReq.getProperties() : null, toAddRequirement.getProperties());
             toAddRequirement.setProperties(properties);
             map.put(requirement.getId(), toAddRequirement);
         }
