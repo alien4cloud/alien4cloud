@@ -47,6 +47,7 @@ public class NodeTypeScoreService implements Runnable {
     public void refreshBoostCompute() {
         long frequencyMs = frequencyH * 1000 * 60 * 60;
         Date date = new Date(System.currentTimeMillis() + frequencyMs);
+        log.info("Type score is scheduled with {} ms frequency", frequencyMs);
         scheduler.scheduleAtFixedRate(this, date, frequencyMs);
     }
 
@@ -66,6 +67,9 @@ public class NodeTypeScoreService implements Runnable {
 
     private void processNodeTypes(IndexedNodeType[] indexedNodeTypes) {
         for (IndexedNodeType nodeType : indexedNodeTypes) {
+            if (log.isDebugEnabled()) {
+                log.debug("Processing node score for type {}", nodeType.getId());
+            }
             Map<String, String[]> usedNodeFiler = Maps.newHashMap();
             usedNodeFiler.put("nodeTemplates.value.type", new String[] { nodeType.getElementId() });
             // count the applications that uses the node-type

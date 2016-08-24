@@ -1,10 +1,11 @@
 package alien4cloud.security.spring;
 
-import alien4cloud.security.AuthorizationUtil;
-import com.google.common.collect.Lists;
 import java.util.List;
+
 import javax.annotation.Resource;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -25,6 +26,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.social.security.SpringSocialConfigurer;
+
+import alien4cloud.security.AuthorizationUtil;
+
+import com.google.common.collect.Lists;
 
 @Slf4j
 @Configuration
@@ -95,6 +100,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) throws Exception {
         log.debug("Configure ignore path");
         web.ignoring().antMatchers("/api-doc/**", "/api-docs/**", "/data/**", "/bower_components/**", "/images/**", "/js-lib/**", "/scripts/**", "/styles/**",
-                "/views/**");
+                "/views/**", "/rest/admin/health");
     }
+
 }

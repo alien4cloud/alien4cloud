@@ -120,6 +120,10 @@ public class TestDataRegistry {
         addConditionFolder("topology-groups-unknown-member", "src/test/resources/data/csars/topology_template/topology-groups-unknown-member");
         addConditionFolder("topology-invalid-node-name", "src/test/resources/data/csars/topology_template/topology-invalid-node-name");
 
+        // Artifact
+        addConditionFolder("artifact java types 1.0", "src/test/resources/data/csars/artifact/java-types-1.0-artifact");
+        addConditionFolder("artifact java types 1.0 wrong type", "src/test/resources/data/artifact/sample/java-types-1.0-artifact-wrong-type");
+        addConditionFolder("artifact java types 1.0 wrong path", "src/test/resources/artifact/csars/sample/java-types-1.0-artifact-wrong-path");
 
         // Runtime archive
         addConditionFolder("custom-interface-mock-types", "src/test/resources/data/csars/custom-interface-mock-types");

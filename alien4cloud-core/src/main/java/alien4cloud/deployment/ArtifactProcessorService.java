@@ -20,10 +20,7 @@ import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
 import alien4cloud.deployment.exceptions.UnresolvableArtifactException;
 import alien4cloud.model.components.AbstractArtifact;
-import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.Interface;
-import alien4cloud.model.components.Operation;
-import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
@@ -90,12 +87,10 @@ public class ArtifactProcessorService {
         Path artifactPath = resolveArtifact(artifact);
         if (artifactPath == null) {
             if (artifactURL != null) {
-                try {
+                try (InputStream artifactStream = artifactURL.openStream()) {
                     // In a best effort try in a generic manner to obtain the artifact
-                    try (InputStream artifactStream = artifactURL.openStream()) {
-                        artifactPath = Files.createTempFile(tempDir, "url-artifact", FilenameUtils.getExtension(artifact.getArtifactRef()));
-                        Files.copy(artifactStream, artifactPath, StandardCopyOption.REPLACE_EXISTING);
-                    }
+                    artifactPath = Files.createTempFile(tempDir, "url-artifact", FilenameUtils.getExtension(artifact.getArtifactRef()));
+                    Files.copy(artifactStream, artifactPath, StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException e) {
                     throw new UnresolvableArtifactException("Artifact could not be found " + artifact, e);
                 }
@@ -112,15 +107,10 @@ public class ArtifactProcessorService {
 
     private void processInterfaces(Map<String, Interface> interfaceMap) {
         if (interfaceMap != null) {
-            for (Interface interfazz : interfaceMap.values()) {
-                if (interfazz.getOperations() != null) {
-                    for (Operation operation : interfazz.getOperations().values()) {
-                        if (operation.getImplementationArtifact() != null) {
-                            processArtifact(operation.getImplementationArtifact());
-                        }
-                    }
-                }
-            }
+            interfaceMap.values().stream().filter(interfazz -> interfazz.getOperations() != null).forEach(interfazz -> interfazz.getOperations().values()
+                    .stream().filter(operation -> operation.getImplementationArtifact() != null).forEach(operation -> {
+                        processArtifact(operation.getImplementationArtifact());
+                    }));
         }
     }
 
@@ -139,13 +129,8 @@ public class ArtifactProcessorService {
 
     private void processDeploymentArtifacts(PaaSTopologyDeploymentContext deploymentContext) {
         if (deploymentContext.getDeploymentTopology().getNodeTemplates() != null) {
-            for (NodeTemplate nodeTemplate : deploymentContext.getDeploymentTopology().getNodeTemplates().values()) {
-                if (nodeTemplate.getArtifacts() != null) {
-                    for (DeploymentArtifact artifact : nodeTemplate.getArtifacts().values()) {
-                        processArtifact(artifact);
-                    }
-                }
-            }
+            deploymentContext.getDeploymentTopology().getNodeTemplates().values().stream().filter(nodeTemplate -> nodeTemplate.getArtifacts() != null)
+                    .forEach(nodeTemplate -> nodeTemplate.getArtifacts().values().forEach(this::processArtifact));
         }
     }
 

@@ -32,4 +32,5 @@ public class AuditESDAO extends ESGenericSearchDAO {
         initIndices(ALIEN_AUDIT_INDEX, auditTtl, AuditTrace.class, AuditConfiguration.class);
         initCompleted();
     }
+
 }

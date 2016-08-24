@@ -1,4 +1,4 @@
-package alien4cloud.rest.exception;
+package org.alien4cloud.exception.rest;
 
 import alien4cloud.component.repository.exception.RepositoryTechnicalException;
 import alien4cloud.deployment.exceptions.InvalidDeploymentSetupException;

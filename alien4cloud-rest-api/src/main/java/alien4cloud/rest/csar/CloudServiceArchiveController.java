@@ -1,29 +1,5 @@
 package alien4cloud.rest.csar;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.validation.Valid;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.elasticsearch.common.collect.Maps;
-import org.elasticsearch.common.collect.Sets;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.springframework.beans.factory.annotation.Required;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.google.common.collect.Lists;
-
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.component.repository.CsarFileRepository;
@@ -50,9 +26,30 @@ import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.FileUploadUtil;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.VersionUtil;
+import com.google.common.collect.Lists;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.elasticsearch.common.collect.Maps;
+import org.elasticsearch.common.collect.Sets;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.beans.factory.annotation.Required;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
+
+import javax.annotation.Resource;
+import javax.validation.Valid;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping({ "/rest/csars", "/rest/v1/csars", "/rest/latest/csars" })
@@ -112,11 +109,11 @@ public class CloudServiceArchiveController {
         } finally {
             if (csarPath != null) {
                 // Clean up
-                try {
-                    FileUtil.delete(csarPath);
-                } catch (IOException e) {
-                    // The repository might just move the file instead of copying to save IO disk access
-                }
+                // try {
+                // FileUtil.delete(csarPath);
+                // } catch (IOException e) {
+                // // The repository might just move the file instead of copying to save IO disk access
+                // }
             }
         }
     }

@@ -41,7 +41,7 @@ public class AuditLogStepsDefinitions {
         String jSon = JsonUtil.toString(req);
         String restResponse = Context.getRestClientInstance().postJSon("/rest/v1/audit/search", jSon);
         FacetedSearchResult searchResult = JsonUtil.read(restResponse, FacetedSearchResult.class).getData();
-        Assert.assertTrue(searchResult.getTotalResults() == numberOfResult);
+        Assert.assertEquals(numberOfResult, searchResult.getTotalResults());
         Object[] searchData = searchResult.getData();
         List<AuditTrace> actualTraces = Lists.newArrayList();
         for (int i = 0; i < searchData.length; i++) {
