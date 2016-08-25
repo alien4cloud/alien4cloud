@@ -9,7 +9,21 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import alien4cloud.model.components.*;
+import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.ComplexPropertyValue;
+import alien4cloud.model.components.DeploymentArtifact;
+import alien4cloud.model.components.ImplementationArtifact;
+import alien4cloud.model.components.IndexedArtifactToscaElement;
+import alien4cloud.model.components.IndexedDataType;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
+import alien4cloud.model.components.Interface;
+import alien4cloud.model.components.ListPropertyValue;
+import alien4cloud.model.components.Operation;
+import alien4cloud.model.components.PrimitiveIndexedDataType;
+import alien4cloud.model.components.PropertyConstraint;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.topology.AbstractTemplate;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
@@ -23,8 +37,6 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationExc
 
 @Component
 public class TemplatePostProcessor {
-
-
 
     /**
      * Post process the archive: For every definition of the model it fills the id fields in the TOSCA elements from the key of the elements map.
@@ -250,9 +262,11 @@ public class TemplatePostProcessor {
 
     private void postProcessNodeTemplate(String archiveName, String archiveVersion, ParsingResult<ArchiveRoot> parsedArchive, NodeTemplate nodeTemplate,
             Map<String, String> globalElementsMap) {
+        postProcessDeploymentArtifacts(parsedArchive.getResult(), nodeTemplate);
         postProcessInterfaces(parsedArchive.getResult(), nodeTemplate.getInterfaces());
         if (nodeTemplate.getRelationships() != null) {
             for (RelationshipTemplate relationship : nodeTemplate.getRelationships().values()) {
+                postProcessDeploymentArtifacts(parsedArchive.getResult(), relationship);
                 postProcessInterfaces(parsedArchive.getResult(), relationship.getInterfaces());
             }
         }
@@ -286,6 +300,16 @@ public class TemplatePostProcessor {
     }
 
     private void postProcessDeploymentArtifacts(ArchiveRoot archive, IndexedArtifactToscaElement element) {
+        if (element.getArtifacts() == null) {
+            return;
+        }
+
+        for (DeploymentArtifact artifact : element.getArtifacts().values()) {
+            postProcessDeploymentArtifact(archive, artifact);
+        }
+    }
+
+    private void postProcessDeploymentArtifacts(ArchiveRoot archive, AbstractTemplate element) {
         if (element.getArtifacts() == null) {
             return;
         }
