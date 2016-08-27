@@ -27,50 +27,6 @@ public final class IndexedModelUtils {
     private IndexedModelUtils() {
     }
 
-    /**
-     * This utility method returns an ordered {@link alien4cloud.model.components.IndexedInheritableToscaElement} collection. The parent elements will be before
-     * the children elements
-     * This utility method returns an ordered {@link IndexedInheritableToscaElement} collection. The parent elements will be before the children elements
-     *
-     * @param elementsByIdMap map of {@link IndexedInheritableToscaElement} by id
-     * @return
-     */
-    public static <T extends IndexedInheritableToscaElement> List<T> orderByDerivedFromHierarchy(final Map<String, T> elementsByIdMap) {
-        if (elementsByIdMap == null) {
-            return null;
-        }
-        List<T> orderedElements = new ArrayList<T>(elementsByIdMap.values());
-        final Map<String, Integer> elementsLevelMap = Maps.newHashMap();
-        for (IndexedInheritableToscaElement element : orderedElements) {
-            IndexedInheritableToscaElement parent = element;
-            int levelCount = 0;
-            while (true) {
-                if (parent.getDerivedFrom() == null || parent.getDerivedFrom().isEmpty()) {
-                    break;
-                }
-                IndexedInheritableToscaElement oldParent = parent;
-                parent = elementsByIdMap.get(parent.getDerivedFrom().get(0));
-                if (parent == null) {
-                    break;
-                }
-                if (oldParent.equals(parent)) {
-                    // this elements is inheriting from it-self --> error
-                    // This error must have been normally detected in the validation phase and so here it means that it's a bug in our code of validation
-                    throw new IndexingServiceException(parent.getElementId() + " is parent of it-self, bug in csar validation service");
-                }
-                levelCount++;
-            }
-            elementsLevelMap.put(element.getElementId(), levelCount);
-        }
-        Collections.sort(orderedElements, new Comparator<IndexedInheritableToscaElement>() {
-            @Override
-            public int compare(IndexedInheritableToscaElement left, IndexedInheritableToscaElement right) {
-                return elementsLevelMap.get(left.getElementId()).compareTo(elementsLevelMap.get(right.getElementId()));
-            }
-        });
-        return orderedElements;
-    }
-
     public static void mergeInheritableIndex(IndexedInheritableToscaElement from, IndexedInheritableToscaElement to) {
         if (from.getDerivedFrom() != null) {
             // use a linked HashSet so we don't add multiple elements more than once.

@@ -3,7 +3,7 @@ package alien4cloud.tosca.parser.impl.advanced;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
@@ -19,12 +19,15 @@ import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.tosca.parser.impl.base.BaseParserFactory;
 import alien4cloud.tosca.parser.impl.base.MapParser;
-import alien4cloud.tosca.parser.mapping.DefaultDeferredParser;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-public class NodeTemplateCapabilitiesParser extends DefaultDeferredParser<Void> {
+public class NodeTemplateCapabilitiesParser implements INodeParser<Void> {
+    @Resource
+    private BaseParserFactory baseParserFactory;
 
     @Override
     public Void parse(Node node, ParsingContextExecution context) {
@@ -46,9 +49,8 @@ public class NodeTemplateCapabilitiesParser extends DefaultDeferredParser<Void> 
             // first of all, we need to get the key (the capability name)
             Node keyNode = nodeTuple.getKeyNode();
             if (!(keyNode instanceof ScalarNode)) {
-                context.getParsingErrors().add(
-                        new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.YAML_SCALAR_NODE_EXPECTED, null, keyNode.getStartMark(), null, keyNode
-                                .getEndMark(), null));
+                context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.YAML_SCALAR_NODE_EXPECTED, null, keyNode.getStartMark(),
+                        null, keyNode.getEndMark(), null));
                 continue;
             }
             String key = ((ScalarNode) keyNode).getValue();
@@ -56,9 +58,8 @@ public class NodeTemplateCapabilitiesParser extends DefaultDeferredParser<Void> 
             Capability capability;
             if (capabilities == null || (capability = capabilities.get(key)) == null) {
                 // add a warning, we will ignore this property since it does not fit to an existing capa
-                context.getParsingErrors()
-                        .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNKNOWN_CAPABILITY, null, keyNode.getStartMark(), null,
-                                keyNode.getEndMark(), key));
+                context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNKNOWN_CAPABILITY, null, keyNode.getStartMark(), null,
+                        keyNode.getEndMark(), key));
                 continue;
             }
             Map<String, AbstractPropertyValue> capabilitiesProperties = capability.getProperties();
@@ -79,7 +80,7 @@ public class NodeTemplateCapabilitiesParser extends DefaultDeferredParser<Void> 
 
                     // parse the 'properties'
                     INodeParser<AbstractPropertyValue> propertyValueParser = context.getRegistry().get("node_template_property");
-                    MapParser<AbstractPropertyValue> mapParser = new MapParser<AbstractPropertyValue>(propertyValueParser, "node_template_property");
+                    MapParser<AbstractPropertyValue> mapParser = baseParserFactory.getMapParser(propertyValueParser, "node_template_property");
                     Map<String, AbstractPropertyValue> parsedCapabilitiesProperties = mapParser.parse(propertiesValueNode, context);
 
                     // now merge the capability properties
@@ -93,9 +94,8 @@ public class NodeTemplateCapabilitiesParser extends DefaultDeferredParser<Void> 
                     // now just iterate over remaining parsed entry to raise warns
                     for (String notFoundKey : parsedCapabilitiesProperties.keySet()) {
                         // add warning
-                        context.getParsingErrors().add(
-                                new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNRECOGNIZED_PROPERTY, null, propertiesValueNode.getStartMark(), null,
-                                        propertiesValueNode.getEndMark(), notFoundKey));
+                        context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNRECOGNIZED_PROPERTY, null,
+                                propertiesValueNode.getStartMark(), null, propertiesValueNode.getEndMark(), notFoundKey));
                     }
                 }
             }

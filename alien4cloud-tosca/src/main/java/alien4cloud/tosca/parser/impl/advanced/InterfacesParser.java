@@ -2,6 +2,9 @@ package alien4cloud.tosca.parser.impl.advanced;
 
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
 import org.elasticsearch.common.collect.Maps;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
@@ -9,18 +12,24 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 import org.yaml.snakeyaml.nodes.SequenceNode;
 
-import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
-import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 import alien4cloud.model.components.Interface;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.impl.base.BaseParserFactory;
 import alien4cloud.tosca.parser.impl.base.MapParser;
-import alien4cloud.tosca.parser.impl.base.ReferencedParser;
 
 @Component
 public class InterfacesParser extends MapParser<Interface> {
+    @Resource
+    private BaseParserFactory baseParserFactory;
+
     public InterfacesParser() {
-        super(new ReferencedParser("interface"), "Interfaces");
+        super(null, "Interfaces");
+    }
+
+    @PostConstruct
+    public void init() {
+        super.setValueParser(baseParserFactory.getReferencedParser("interface"));
     }
 
     @Override

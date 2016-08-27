@@ -56,7 +56,7 @@ public final class FileUtil {
         }
     }
 
-    private static void putZipEntry(ZipOutputStream zipOutputStream, ZipEntry zipEntry, Path file) throws IOException {
+    protected static void putZipEntry(ZipOutputStream zipOutputStream, ZipEntry zipEntry, Path file) throws IOException {
         zipOutputStream.putNextEntry(zipEntry);
         InputStream input = new BufferedInputStream(Files.newInputStream(file));
         try {
@@ -67,7 +67,7 @@ public final class FileUtil {
         }
     }
 
-    private static void putTarEntry(TarArchiveOutputStream tarOutputStream, TarArchiveEntry tarEntry, Path file) throws IOException {
+    protected static void putTarEntry(TarArchiveOutputStream tarOutputStream, TarArchiveEntry tarEntry, Path file) throws IOException {
         tarEntry.setSize(Files.size(file));
         tarOutputStream.putArchiveEntry(tarEntry);
         InputStream input = new BufferedInputStream(Files.newInputStream(file));

@@ -94,24 +94,25 @@ public class ToscaArchiveParser {
     private ParsingResult<ArchiveRoot> parseFromToscaMeta(Path csarPath) throws ParsingException {
         YamlSimpleParser<ToscaMeta> parser = new YamlSimpleParser<ToscaMeta>(toscaMetaMapping.getParser());
         ParsingResult<ToscaMeta> parsingResult = parser.parseFile(csarPath.resolve(TOSCA_META_FILE_LOCATION));
-        ParsingResult<ArchiveRoot> archiveResult = parseFromToscaMeta(csarPath, parsingResult.getResult(), TOSCA_META_FILE_LOCATION, null);
-        return mergeWithToscaMeta(archiveResult, parsingResult);
+        ArchiveRoot archiveRoot = initFromToscaMeta(parsingResult);
+        return parseFromToscaMeta(csarPath, parsingResult.getResult(), TOSCA_META_FILE_LOCATION, archiveRoot);
     }
 
     private ParsingResult<ArchiveRoot> parseFromToscaMeta(FileSystem csarFS) throws ParsingException {
         YamlSimpleParser<ToscaMeta> parser = new YamlSimpleParser<ToscaMeta>(toscaMetaMapping.getParser());
         ParsingResult<ToscaMeta> parsingResult = parser.parseFile(csarFS.getPath(TOSCA_META_FILE_LOCATION));
-        ParsingResult<ArchiveRoot> archiveResult = parseFromToscaMeta(csarFS, parsingResult.getResult(), TOSCA_META_FILE_LOCATION, null);
-        return mergeWithToscaMeta(archiveResult, parsingResult);
+        ArchiveRoot archiveRoot = initFromToscaMeta(parsingResult);
+        return parseFromToscaMeta(csarFS, parsingResult.getResult(), TOSCA_META_FILE_LOCATION, archiveRoot);
     }
 
-    private ParsingResult<ArchiveRoot> mergeWithToscaMeta(ParsingResult<ArchiveRoot> archiveResult, ParsingResult<ToscaMeta> toscaResult) {
-        archiveResult.getResult().getArchive().setName(toscaResult.getResult().getName());
-        archiveResult.getResult().getArchive().setVersion(toscaResult.getResult().getVersion());
-        if (toscaResult.getResult().getCreatedBy() != null) {
-            archiveResult.getResult().getArchive().setTemplateAuthor(toscaResult.getResult().getCreatedBy());
+    private ArchiveRoot initFromToscaMeta(ParsingResult<ToscaMeta> toscaMeta) {
+        ArchiveRoot archiveRoot = new ArchiveRoot();
+        archiveRoot.getArchive().setName(toscaMeta.getResult().getName());
+        archiveRoot.getArchive().setVersion(toscaMeta.getResult().getVersion());
+        if (toscaMeta.getResult().getCreatedBy() != null) {
+            archiveRoot.getArchive().setTemplateAuthor(toscaMeta.getResult().getCreatedBy());
         }
-        return archiveResult;
+        return archiveRoot;
     }
 
     private ParsingResult<ArchiveRoot> parseFromToscaMeta(Path csarPath, ToscaMeta toscaMeta, String metaFileName, ArchiveRoot instance)

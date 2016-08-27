@@ -4,6 +4,7 @@ import java.beans.IntrospectionException;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.exception.InvalidArgumentException;
@@ -50,6 +51,9 @@ public class ConstraintPropertyService {
                 checkSimplePropertyConstraint(propertyName, (String) propertyValue, propertyDefinition);
             } else if (isTypeDerivedFromPrimitive) {
                 checkComplexPropertyDerivedFromPrimitiveTypeConstraints(propertyName, (String) propertyValue, propertyDefinition, dataType);
+            } else {
+                throw new ConstraintValueDoNotMatchPropertyTypeException(
+                        "Property value is a String while the expected data type is a complex type " + propertyValue.getClass().getName());
             }
         } else if (propertyValue instanceof Map) {
             checkComplexPropertyConstraint(propertyName, (Map<String, Object>) propertyValue, propertyDefinition);
@@ -70,13 +74,16 @@ public class ConstraintPropertyService {
      * @throws ConstraintViolationException
      * @throws ConstraintValueDoNotMatchPropertyTypeException
      */
-    // FIXME check type first, and constraint after
     public void checkSimplePropertyConstraint(final String propertyName, final String stringValue, final PropertyDefinition propertyDefinition)
             throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         ConstraintInformation consInformation = null;
+
+        // check any property definition without constraints (type/value)
+        checkBasicType(propertyName, propertyDefinition.getType(), stringValue);
+
         if (propertyDefinition.getConstraints() != null && !propertyDefinition.getConstraints().isEmpty()) {
+            IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(propertyDefinition.getType());
             for (PropertyConstraint constraint : propertyDefinition.getConstraints()) {
-                IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(propertyDefinition.getType());
                 try {
                     consInformation = ConstraintUtil.getConstraintInformation(constraint);
                     consInformation.setPath(propertyName + ".constraints[" + consInformation.getName() + "]");
@@ -90,9 +97,6 @@ public class ConstraintPropertyService {
                     throw new ConstraintTechnicalException("Constraint introspection error for property <" + propertyName + "> value <" + stringValue + ">", e);
                 }
             }
-        } else {
-            // check any property definition without constraints (type/value)
-            checkBasicType(propertyName, propertyDefinition.getType(), stringValue);
         }
     }
 
@@ -110,16 +114,15 @@ public class ConstraintPropertyService {
             hasTypeConstraints = true;
         }
         String derivedFromPrimitiveType = dataType.getDerivedFrom().get(0);
-        if (hasDefinitionConstraints || hasTypeConstraints) {
+        // Check the type of the property even if there is no constraints.
+        checkBasicType(propertyName, derivedFromPrimitiveType, stringValue);
+        if (hasDefinitionConstraints || hasTypeConstraints) { // check the constraints if there is any defined
             if (hasDefinitionConstraints) {
                 checkConstraints(propertyName, stringValue, derivedFromPrimitiveType, propertyDefinition.getConstraints());
             }
             if (hasTypeConstraints) {
                 checkConstraints(propertyName, stringValue, derivedFromPrimitiveType, ((PrimitiveIndexedDataType) dataType).getConstraints());
             }
-        } else {
-            // check any property definition without constraints (type/value)
-            checkBasicType(propertyName, derivedFromPrimitiveType, stringValue);
         }
     }
 

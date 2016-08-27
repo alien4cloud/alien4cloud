@@ -2,18 +2,23 @@ package alien4cloud.tosca.parser.impl.base;
 
 import java.util.Map;
 
+import org.elasticsearch.common.collect.Maps;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.nodes.*;
+
 import alien4cloud.tosca.parser.*;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import lombok.AllArgsConstructor;
-
-import org.elasticsearch.common.collect.Maps;
-import org.yaml.snakeyaml.nodes.*;
 
 /**
  * Parse a yaml sequence into a {@link Map}
  *
  * @param <T> The type of the values of the map.
  */
+@Component
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @AllArgsConstructor(suppressConstructorProperties = true)
 public class SequenceToMapParser<T> implements INodeParser<Map<String, T>> {
     private INodeParser<T> valueParser;
@@ -62,22 +67,11 @@ public class SequenceToMapParser<T> implements INodeParser<Map<String, T>> {
             // some properties are ignored.
             for (int i = 1; i < mappingNode.getValue().size(); i++) {
                 NodeTuple entry = mappingNode.getValue().get(i);
-                ParsingError err = new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNRECOGNIZED_PROPERTY, "Parsing a MappingNode as a Map", entry
-                        .getKeyNode().getStartMark(), "The value of this tuple should be a scalar", entry.getValueNode().getEndMark(),
+                ParsingError err = new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNRECOGNIZED_PROPERTY, "Parsing a MappingNode as a Map",
+                        entry.getKeyNode().getStartMark(), "The value of this tuple should be a scalar", entry.getValueNode().getEndMark(),
                         ((ScalarNode) entry.getKeyNode()).getValue());
                 context.getParsingErrors().add(err);
             }
         }
     }
-
-    @Override
-    public boolean isDeferred(ParsingContextExecution context) {
-        return valueParser.isDeferred(context);
-    }
-
-    @Override
-    public int getDeferredOrder(ParsingContextExecution context) {
-        return valueParser.getDeferredOrder(context);
-    }
-
 }

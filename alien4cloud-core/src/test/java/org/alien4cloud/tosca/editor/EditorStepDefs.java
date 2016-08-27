@@ -10,7 +10,9 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
+import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingException;
+import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
 import cucumber.api.java.en.When;
 import alien4cloud.model.templates.TopologyTemplate;
@@ -80,7 +82,6 @@ public class EditorStepDefs {
 
     private List<Class> typesToClean = new ArrayList<Class>();
 
-
     // @Required
     // @Value("${directories.alien}")
     // public void setAlienDirectory(String alienDirectory) {
@@ -108,7 +109,8 @@ public class EditorStepDefs {
     @Given("^I save the topology$")
     public void i_save_the_topology() throws Throwable {
         editorService.save(topologyIds.getLast(), topologyIdToLastOperationId.get(topologyIds.getLast()));
-        topologyIdToLastOperationId.put(topologyIds.getLast(), null);    }
+        topologyIdToLastOperationId.put(topologyIds.getLast(), null);
+    }
 
     @Given("^I am authenticated with \"(.*?)\" role$")
     public void i_am_authenticated_with_role(String role) throws Throwable {
@@ -146,7 +148,8 @@ public class EditorStepDefs {
 
     @Given("^I upload CSAR from path \"(.*?)\"$")
     public void i_upload_CSAR_from_path(String arg1) throws Throwable {
-        csarUploadService.upload(Paths.get(arg1), CSARSource.UPLOAD);
+        ParsingResult<Csar> result = csarUploadService.upload(Paths.get(arg1), CSARSource.UPLOAD);
+        System.out.println(result);
     }
 
     @Given("^I create an empty topology$")

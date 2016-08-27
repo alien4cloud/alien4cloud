@@ -34,6 +34,8 @@ public enum ErrorCode {
     DUPLICATED_ELEMENT_DECLARATION,
     /** A referenced TOSCA type is missing. */
     TYPE_NOT_FOUND,
+    /** A TOSCA type defines a derived from on a type that also derives from it. */
+    CYCLIC_DERIVED_FROM,
     /** The icon format is not supported. */
     INVALID_ICON_FORMAT,
     /** Error in Alien Mapping */
@@ -51,7 +53,7 @@ public enum ErrorCode {
     /** Detect a potential bad property value based on precedent inserted values **/
     POTENTIAL_BAD_PROPERTY_VALUE,
     /** Implementation artifact is unknown. */
-    UNKNOWN_ARTIFACT, UNKNOWN_ARTIFACT_KEY, UNKNOWN_REPOSITORY, INVALID_ARTIFACT_REFERENCE, UNRESOLVED_ARTIFACT,
+    UNKNOWN_ARTIFACT_KEY, UNKNOWN_REPOSITORY, INVALID_ARTIFACT_REFERENCE, UNRESOLVED_ARTIFACT,
     /** A topology has been detected. */
     TOPOLOGY_DETECTED, TOPOLOGY_UPDATED,
     /** A property defined as get_input has an issue */

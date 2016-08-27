@@ -1,12 +1,6 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.*;
 
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
@@ -21,24 +15,18 @@ import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
-import alien4cloud.tosca.parser.mapping.DefaultDeferredParser;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-public class OuputsParser extends DefaultDeferredParser<Void> {
-
+public class OuputsParser implements INodeParser<Void> {
     @Override
     public Void parse(Node node, ParsingContextExecution context) {
-        Object parent = context.getParent();
-        if (!(parent instanceof Topology)) {
-            // TODO: throw ex
-        }
-        Topology topology = (Topology) parent;
+        Topology topology = (Topology) context.getParent();
 
         if (!(node instanceof MappingNode)) {
-            context.getParsingErrors()
-                    .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.YAML_MAPPING_NODE_EXPECTED, null, node.getStartMark(), null, node.getEndMark(),
-                            null));
+            context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.YAML_MAPPING_NODE_EXPECTED, null, node.getStartMark(), null,
+                    node.getEndMark(), null));
             return null;
         }
         MappingNode mappingNode = (MappingNode) node;
@@ -76,9 +64,8 @@ public class OuputsParser extends DefaultDeferredParser<Void> {
                             outputProperties = addToMapOfSet(nodeTemplateName, nodeTemplatePropertyOrAttributeName, outputProperties);
                             break;
                         default:
-                            context.getParsingErrors().add(
-                                    new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.OUTPUTS_UNKNOWN_FUNCTION, null, outputValueNode.getStartMark(), null,
-                                            outputValueNode.getEndMark(), functionName));
+                            context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.OUTPUTS_UNKNOWN_FUNCTION, null,
+                                    outputValueNode.getStartMark(), null, outputValueNode.getEndMark(), functionName));
                         }
                     } else if (params.size() == 3 && functionName.equals("get_property")) {
                         // in case of 3 parameters we only manage capabilities outputs for the moment
@@ -87,9 +74,8 @@ public class OuputsParser extends DefaultDeferredParser<Void> {
                         String propertyName = params.get(2);
                         ouputCapabilityProperties = addToMapOfMapOfSet(nodeTemplateName, capabilityName, propertyName, ouputCapabilityProperties);
                     } else {
-                        context.getParsingErrors().add(
-                                new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.OUTPUTS_BAD_PARAMS_COUNT, null, outputValueNode.getStartMark(), null,
-                                        outputValueNode.getEndMark(), null));
+                        context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.OUTPUTS_BAD_PARAMS_COUNT, null,
+                                outputValueNode.getStartMark(), null, outputValueNode.getEndMark(), null));
                     }
 
                 }

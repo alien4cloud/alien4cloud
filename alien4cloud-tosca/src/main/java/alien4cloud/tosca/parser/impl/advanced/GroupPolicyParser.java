@@ -1,28 +1,26 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
-import alien4cloud.model.topology.AbstractPolicy;
-import alien4cloud.model.topology.GenericPolicy;
-import alien4cloud.model.topology.HaPolicy;
-import alien4cloud.model.topology.LocationPlacementPolicy;
-import alien4cloud.tosca.parser.ParserUtils;
-import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.ParsingError;
-import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.impl.ErrorCode;
-import alien4cloud.tosca.parser.impl.base.ScalarParser;
-import alien4cloud.tosca.parser.mapping.DefaultParser;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.annotation.Resource;
+
 import org.elasticsearch.common.collect.Maps;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import javax.annotation.Resource;
-import java.util.Map;
-import java.util.Map.Entry;
+import alien4cloud.model.topology.AbstractPolicy;
+import alien4cloud.model.topology.GenericPolicy;
+import alien4cloud.model.topology.HaPolicy;
+import alien4cloud.model.topology.LocationPlacementPolicy;
+import alien4cloud.tosca.parser.*;
+import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.tosca.parser.impl.base.ScalarParser;
 
 @Component
-public class GroupPolicyParser extends DefaultParser<AbstractPolicy> {
+public class GroupPolicyParser implements INodeParser<AbstractPolicy> {
 
     @Resource
     private ScalarParser scalarParser;
@@ -64,7 +62,7 @@ public class GroupPolicyParser extends DefaultParser<AbstractPolicy> {
         Object typeO = (Object) nodeMap.get(TYPE);
 
         if (nodeMap.size() == 1 && nameO == null && typeO == null) {
-            // short notation '<key>: <value>' where (in priority order) 
+            // short notation '<key>: <value>' where (in priority order)
             // - <value> is a map and <key> matches a known pre-defined type, then <value> is a map of data passed to the type
             // - <value> matches a known pre-defined type, then <key> is taken as a name
             // - else taken as a generic policy with name <key>, with <value> set as the map (if it's a map) or as a `value` in the map (if it's not a map)
@@ -91,13 +89,13 @@ public class GroupPolicyParser extends DefaultParser<AbstractPolicy> {
             }
         } else {
             if (!(nameO instanceof String)) {
-                context.getParsingErrors()
-                        .add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.SYNTAX_ERROR, null, node.getStartMark(), null, node.getEndMark(), nameO.toString()));
+                context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.SYNTAX_ERROR, null, node.getStartMark(), null,
+                        node.getEndMark(), nameO.toString()));
                 return null;
             }
             if (!(typeO instanceof String)) {
-                context.getParsingErrors()
-                        .add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.SYNTAX_ERROR, null, node.getStartMark(), null, node.getEndMark(), nameO.toString()));
+                context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.SYNTAX_ERROR, null, node.getStartMark(), null,
+                        node.getEndMark(), nameO.toString()));
                 return null;
             }
         }
@@ -111,21 +109,20 @@ public class GroupPolicyParser extends DefaultParser<AbstractPolicy> {
 
         if (type != null) {
             switch (type) {
-                case HaPolicy.HA_POLICY:
+            case HaPolicy.HA_POLICY:
 
-
-                    result = new HaPolicy(nodeMap);
-                    break;
-                case LocationPlacementPolicy.LOCATION_PLACEMENT_POLICY:
-                    Object locationO = nodeMap.get(LocationPlacementPolicy.LOCATION_ID_PROPERTY);
-                    if (locationO instanceof String) {
-                        result = new LocationPlacementPolicy();
-                    } else {
-                        context.getParsingErrors()
-                                .add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.SYNTAX_ERROR, null, node.getStartMark(), "Location id should be a string.", node.getEndMark(), locationO.toString()));
-                        return null;
-                    }
-                    break;
+                result = new HaPolicy(nodeMap);
+                break;
+            case LocationPlacementPolicy.LOCATION_PLACEMENT_POLICY:
+                Object locationO = nodeMap.get(LocationPlacementPolicy.LOCATION_ID_PROPERTY);
+                if (locationO instanceof String) {
+                    result = new LocationPlacementPolicy();
+                } else {
+                    context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.SYNTAX_ERROR, null, node.getStartMark(),
+                            "Location id should be a string.", node.getEndMark(), locationO.toString()));
+                    return null;
+                }
+                break;
             }
         }
         if (result == null) {
