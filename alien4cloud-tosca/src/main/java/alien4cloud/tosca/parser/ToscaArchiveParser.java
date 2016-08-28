@@ -34,8 +34,6 @@ public class ToscaArchiveParser {
     private ToscaParser toscaParser;
     @Resource
     private Validator validator;
-    @Resource
-    private TemplatePostProcessor postProcessor;
 
     @ToscaContextual(requiresNew = true)
     public ParsingResult<ArchiveRoot> parse(Path archiveFile) throws ParsingException {
@@ -53,9 +51,9 @@ public class ToscaArchiveParser {
     public ParsingResult<ArchiveRoot> parse(Path archiveFile, boolean allowYamlFile) throws ParsingException {
         try (FileSystem csarFS = FileSystems.newFileSystem(archiveFile, null)) {
             if (Files.exists(csarFS.getPath(TOSCA_META_FILE_LOCATION))) {
-                return postProcessor.process(parseFromToscaMeta(csarFS));
+                return parseFromToscaMeta(csarFS);
             }
-            return postProcessor.process(parseFromRootDefinitions(csarFS));
+            return parseFromRootDefinitions(csarFS);
         } catch (IOException e) {
             log.error("Unable to read uploaded archive [" + archiveFile + "]", e);
             throw new ParsingException("Archive",
@@ -64,7 +62,7 @@ public class ToscaArchiveParser {
             if (allowYamlFile) {
                 // the file may be a yaml so let's parse
                 log.debug("File is not a tosca archive, try to parse it as tosca template. ", e);
-                return postProcessor.process(toscaParser.parseFile(archiveFile));
+                return toscaParser.parseFile(archiveFile);
             } else {
                 log.warn("Failed to import archive", e);
                 throw new ParsingException("Archive", new ParsingError(ErrorCode.ERRONEOUS_ARCHIVE_FILE,
@@ -86,9 +84,9 @@ public class ToscaArchiveParser {
     public ParsingResult<ArchiveRoot> parseDir(Path archiveDir) throws ParsingException {
         Path toscaMetaFile = archiveDir.resolve(TOSCA_META_FILE_LOCATION);
         if (Files.exists(toscaMetaFile)) {
-            return postProcessor.process(parseFromToscaMeta(archiveDir));
+            return parseFromToscaMeta(archiveDir);
         }
-        return postProcessor.process(parseFromRootDefinitions(archiveDir));
+        return parseFromRootDefinitions(archiveDir);
     }
 
     private ParsingResult<ArchiveRoot> parseFromToscaMeta(Path csarPath) throws ParsingException {

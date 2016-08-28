@@ -65,7 +65,10 @@ public class PropertyValueChecker {
                 }
             } else if (propertyValue instanceof PropertyValue<?>) {
                 try {
-                    constraintPropertyService.checkPropertyConstraint(propertyName, ((PropertyValue<?>) propertyValue).getValue(), propertyDefinition);
+                    constraintPropertyService.checkPropertyConstraint(propertyName, ((PropertyValue<?>) propertyValue).getValue(), propertyDefinition,
+                            s -> ParsingContextExecution.getParsingErrors()
+                                    .add(new ParsingError(ErrorCode.VALIDATION_ERROR, "A value is required but was not found for property " + s, null,
+                                            "A value is required but was not found for property " + s, null, "constraints")));
                 } catch (ConstraintValueDoNotMatchPropertyTypeException | ConstraintViolationException e) {
                     StringBuilder problem = new StringBuilder("Validation issue ");
                     if (e.getConstraintInformation() != null) {

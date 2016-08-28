@@ -4,6 +4,7 @@ import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.annotation.Resource;
 
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.Interface;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
@@ -32,6 +34,8 @@ public class NodeTemplatePostProcessor implements IPostProcessor<NodeTemplate> {
     private RequirementPostProcessor requirementPostProcessor;
     @Resource
     private PropertyValueChecker propertyValueChecker;
+    @Resource
+    private ArtifactPostProcessor artifactPostProcessor;
 
     @Override
     public void process(final NodeTemplate instance) {
@@ -44,12 +48,14 @@ public class NodeTemplatePostProcessor implements IPostProcessor<NodeTemplate> {
         if (nodeType == null) {
             return; // error managed by the reference post processor.
         }
-        propertyValueChecker.checkProperties(nodeType, instance.getProperties(), instance.getName());
 
-        instance.getArtifacts();
-        // any validation on attributes ?
-        instance.getInterfaces();
-        // FIXME CHECK ARTIFACT TYPES.
+        // FIXME we should check that the artifact is defined at the tempalte level.
+        safe(instance.getArtifacts()).values().stream().forEach(artifactPostProcessor);
+        // TODO Manage interfaces inputs to copy them to all operations.
+        for (Interface anInterface : safe(instance.getInterfaces()).values()) {
+            safe(anInterface.getOperations()).values().stream().map(operation -> operation.getImplementationArtifact()).filter(Objects::nonNull)
+                    .forEach(artifactPostProcessor);
+        }
 
         // TODO check logic below out of of NodeTemplateChecker
         // check which overidded deployment artifact exists in the node type
@@ -65,6 +71,8 @@ public class NodeTemplatePostProcessor implements IPostProcessor<NodeTemplate> {
         instance.setRequirements(tempObject.getRequirements());
         instance.setArtifacts(tempObject.getArtifacts());
         instance.setInterfaces(tempObject.getInterfaces());
+
+        propertyValueChecker.checkProperties(nodeType, instance.getProperties(), instance.getName());
     }
 
     private void checkDeploymentArtifacts(IndexedNodeType indexedNodeType, NodeTemplate instance) {
