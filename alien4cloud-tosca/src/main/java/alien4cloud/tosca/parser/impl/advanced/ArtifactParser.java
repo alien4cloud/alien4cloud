@@ -21,7 +21,9 @@ import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import alien4cloud.tosca.parser.mapping.DefaultDeferredParser;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 public abstract class ArtifactParser<T extends AbstractArtifact> extends DefaultDeferredParser<T> {
 
     @Resource
@@ -32,6 +34,12 @@ public abstract class ArtifactParser<T extends AbstractArtifact> extends Default
 
     @Resource
     private ArtifactReferenceParser artifactReferenceParser;
+
+    private boolean mandatoryArtifactReference = true;
+
+    public ArtifactParser(boolean mandatoryArtifactReference) {
+        this.mandatoryArtifactReference = mandatoryArtifactReference;
+    }
 
     private INodeParser<String> getValueParser(String key) {
         if ("file".equals(key)) {
@@ -110,9 +118,9 @@ public abstract class ArtifactParser<T extends AbstractArtifact> extends Default
                             "Unrecognized key while parsing implementation artifact", node.getEndMark(), key));
                 }
             }
-            if (artifact.getArtifactRef() == null) {
+            if (artifact.getArtifactRef() == null && mandatoryArtifactReference) {
                 context.getParsingErrors()
-                        .add(new ParsingError(ErrorCode.SYNTAX_ERROR, "Implementation artifact", node.getStartMark(),
+                        .add(new ParsingError(ErrorCode.SYNTAX_ERROR, "Artifact's reference", node.getStartMark(),
                                 "No artifact reference is defined, 'file' is mandatory in a long notation implementation artifact definition",
                                 node.getEndMark(), null));
             } else if (artifact.getArtifactType() == null) {

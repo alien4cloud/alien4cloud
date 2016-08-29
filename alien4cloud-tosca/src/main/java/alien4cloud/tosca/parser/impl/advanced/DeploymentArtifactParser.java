@@ -8,6 +8,15 @@ import alien4cloud.tosca.parser.ParsingContextExecution;
 
 @Component
 public class DeploymentArtifactParser extends ArtifactParser<DeploymentArtifact> {
+
+    public DeploymentArtifactParser() {
+        super();
+    }
+
+    public DeploymentArtifactParser(boolean mandatoryArtifactReference) {
+        super(mandatoryArtifactReference);
+    }
+
     @Override
     public DeploymentArtifact parse(Node node, ParsingContextExecution context) {
         return doParse(new DeploymentArtifact(), node, context);

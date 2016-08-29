@@ -8,6 +8,7 @@
 - occurrences: alien4cloud.tosca.parser.impl.advanced.OccurrencesParser
 - implementation_artifact: alien4cloud.tosca.parser.impl.advanced.ImplementationArtifactParser
 - deployment_artifact: alien4cloud.tosca.parser.impl.advanced.DeploymentArtifactParser
+- input_artifact: alien4cloud.tosca.parser.impl.advanced.InputArtifactParser
 - derived_from_node_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromNodeTypeParser
 - derived_from_relationship_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromRelationshipTypeParser
 - derived_from_artifact_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromArtifactTypeParser
@@ -79,7 +80,7 @@
     type: non_deferred_property_definition
   input_artifacts:
     map: inputArtifacts
-    type: deployment_artifact
+    type: input_artifact
   substitution_mappings:
     reference: substitutionMapping
     type: sustitution_mapping_parser
