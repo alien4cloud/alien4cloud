@@ -12,14 +12,13 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.deployment.exceptions.UnresolvableArtifactException;
 import alien4cloud.model.components.AbstractArtifact;
-import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.IndexedArtifactToscaElement;
 import alien4cloud.model.components.Interface;
-import alien4cloud.model.components.Operation;
 import alien4cloud.model.topology.AbstractTemplate;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
@@ -27,10 +26,10 @@ import alien4cloud.model.topology.Topology;
 import alien4cloud.repository.services.RepositoryService;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.ParsingContext;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.utils.InputArtifactUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
@@ -40,8 +39,11 @@ public class ArchivePostProcessor {
     @Resource
     private RepositoryService repositoryService;
 
-    private interface ArchivePathResolver {
+    private interface ArchivePathResolver extends AutoCloseable {
+
         Path resolve(String artifactReference);
+
+        void close();
     }
 
     private class ZipArchivePathResolver implements ArchivePathResolver {
@@ -56,6 +58,15 @@ public class ArchivePostProcessor {
         public Path resolve(String artifactReference) {
             return fileSystem.getPath(artifactReference);
         }
+
+        @Override
+        public void close() {
+            try {
+                fileSystem.close();
+            } catch (Exception e) {
+                // Ignored
+            }
+        }
     }
 
     private class DirArchivePathResolver implements ArchivePathResolver {
@@ -69,6 +80,11 @@ public class ArchivePostProcessor {
         @Override
         public Path resolve(String artifactReference) {
             return archive.resolve(artifactReference);
+        }
+
+        @Override
+        public void close() {
+            // Do nothing
         }
     }
 
@@ -100,10 +116,22 @@ public class ArchivePostProcessor {
         }
     }
 
+    private boolean hasInputArtifacts(ParsingResult<ArchiveRoot> parsedArchive) {
+        return parsedArchive.getResult().getTopology() != null && parsedArchive.getResult().getTopology().getInputArtifacts() != null;
+    }
+
     private void processArtifact(ArchivePathResolver archivePathResolver, AbstractArtifact artifact, ParsingResult<ArchiveRoot> parsedArchive) {
         if (!(parsedArchive.getResult().getArchive().getName().equals(artifact.getArchiveName())
                 && parsedArchive.getResult().getArchive().getVersion().equals(artifact.getArchiveVersion()))) {
             // if the artifact is not defined in the current archive then we don't have to perform validation.
+            return;
+        }
+        String inputArtifactId = InputArtifactUtil.getInputArtifactId(artifact);
+        if (StringUtils.isNotBlank(inputArtifactId) && hasInputArtifacts(parsedArchive)
+                && !parsedArchive.getResult().getTopology().getInputArtifacts().containsKey(inputArtifactId)) {
+            // The input artifact id does not exist in the topology's definition
+            parsedArchive.getContext().getParsingErrors().add(new ParsingError(ErrorCode.INVALID_ARTIFACT_REFERENCE, "Invalid artifact reference", null,
+                    "Artifact's reference " + artifact.getArtifactRef() + " is not valid", null, artifact.getArtifactRef()));
             return;
         }
         URL artifactURL = null;
@@ -142,15 +170,9 @@ public class ArchivePostProcessor {
 
     private void processInterfaces(ArchivePathResolver archivePathResolver, Map<String, Interface> interfaceMap, ParsingResult<ArchiveRoot> parsedArchive) {
         if (interfaceMap != null) {
-            for (Interface interfazz : interfaceMap.values()) {
-                if (interfazz.getOperations() != null) {
-                    for (Operation operation : interfazz.getOperations().values()) {
-                        if (operation.getImplementationArtifact() != null) {
-                            processArtifact(archivePathResolver, operation.getImplementationArtifact(), parsedArchive);
-                        }
-                    }
-                }
-            }
+            interfaceMap.values().stream().filter(interfazz -> interfazz.getOperations() != null)
+                    .forEach(interfazz -> interfazz.getOperations().values().stream().filter(operation -> operation.getImplementationArtifact() != null)
+                            .forEach(operation -> processArtifact(archivePathResolver, operation.getImplementationArtifact(), parsedArchive)));
         }
     }
 
@@ -159,11 +181,8 @@ public class ArchivePostProcessor {
         if (types != null) {
             for (T type : types.values()) {
                 if (type.getArtifacts() != null) {
-                    for (DeploymentArtifact artifact : type.getArtifacts().values()) {
-                        if (artifact != null) {
-                            processArtifact(archivePathResolver, artifact, parsedArchive);
-                        }
-                    }
+                    type.getArtifacts().values().stream().filter(artifact -> artifact != null)
+                            .forEach(artifact -> processArtifact(archivePathResolver, artifact, parsedArchive));
                 }
                 processInterfaces(archivePathResolver, type.getInterfaces(), parsedArchive);
             }
@@ -172,27 +191,35 @@ public class ArchivePostProcessor {
 
     private <T extends AbstractTemplate> void processTemplate(ArchivePathResolver archivePathResolver, T template, ParsingResult<ArchiveRoot> parsedArchive) {
         if (template.getArtifacts() != null) {
-            for (DeploymentArtifact artifact : template.getArtifacts().values()) {
-                if (artifact != null) {
-                    processArtifact(archivePathResolver, artifact, parsedArchive);
-                }
-            }
+            template.getArtifacts().values().stream().filter(artifact -> artifact != null)
+                    .forEach(artifact -> processArtifact(archivePathResolver, artifact, parsedArchive));
         }
         processInterfaces(archivePathResolver, template.getInterfaces(), parsedArchive);
     }
 
-    private void processArtifacts(final Path archive, ParsingResult<ArchiveRoot> parsedArchive) {
-        ArchivePathResolver archivePathResolver;
+    private ArchivePathResolver createPathResolver(Path archive) {
         if (Files.isRegularFile(archive)) {
             try {
-                archivePathResolver = new ZipArchivePathResolver(archive);
+                return new ZipArchivePathResolver(archive);
             } catch (Exception e) {
                 throw new UnresolvableArtifactException("Csar's temporary file is not accessible as a Zip", e);
             }
         } else {
-            archivePathResolver = new DirArchivePathResolver(archive);
+            return new DirArchivePathResolver(archive);
         }
-        try {
+    }
+
+    private void processInputArtifact(ArchivePathResolver archivePathResolver, ParsingResult<ArchiveRoot> parsedArchive) {
+        if (hasInputArtifacts(parsedArchive)) {
+            parsedArchive.getResult().getTopology().getInputArtifacts().values()
+                    .forEach(inputArtifact -> this.processArtifact(archivePathResolver, inputArtifact, parsedArchive));
+        }
+    }
+
+    private void processArtifacts(final Path archive, ParsingResult<ArchiveRoot> parsedArchive) {
+        try (ArchivePathResolver archivePathResolver = createPathResolver(archive)) {
+            // Check if input artifacts are correctly set
+            processInputArtifact(archivePathResolver, parsedArchive);
             // Process deployment artifact / implementation artifact for types
             processTypes(archivePathResolver, parsedArchive.getResult().getNodeTypes(), parsedArchive);
             processTypes(archivePathResolver, parsedArchive.getResult().getRelationshipTypes(), parsedArchive);
@@ -208,14 +235,6 @@ public class ArchivePostProcessor {
                     }
                 }
             }
-        } finally {
-            if (archivePathResolver instanceof ZipArchivePathResolver) {
-                try {
-                    ((ZipArchivePathResolver) archivePathResolver).fileSystem.close();
-                } catch (IOException ignored) {
-                }
-            }
         }
-
     }
 }

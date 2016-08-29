@@ -1,6 +1,11 @@
 package alien4cloud.component.dao.model.indexed;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -9,11 +14,19 @@ import java.util.Map;
 import org.elasticsearch.common.collect.Maps;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
-
 import alien4cloud.model.common.Tag;
-import alien4cloud.model.components.*;
+import alien4cloud.model.components.AttributeDefinition;
+import alien4cloud.model.components.IValue;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
+import alien4cloud.model.components.IndexedModelUtils;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.Interface;
+import alien4cloud.model.components.Operation;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.utils.MapUtil;
+
+import com.google.common.collect.Lists;
 
 public class IndexedModelTest {
 
@@ -78,6 +91,20 @@ public class IndexedModelTest {
         fabricElement(elementsByIdMap, "orphan3", "tata", null);
         fabricElement(elementsByIdMap, "orphan4", "titi", null);
 
+    }
+
+    @Test
+    public void testOrderInheritableElements() {
+        List<IndexedInheritableToscaElement> sorted = IndexedModelUtils.orderByDerivedFromHierarchy(elementsByIdMap);
+
+        for (IndexedInheritableToscaElement el : sorted) {
+            System.out.println(el.getElementId() + " " + el.getDerivedFrom());
+        }
+
+        assertTrue(sorted.indexOf(root) < sorted.indexOf(child1));
+        assertTrue(sorted.indexOf(root) < sorted.indexOf(child2));
+        assertTrue(sorted.indexOf(child1) < sorted.indexOf(grandChild1));
+        assertTrue(sorted.indexOf(child1) < sorted.indexOf(grandChild2));
     }
 
     @Test

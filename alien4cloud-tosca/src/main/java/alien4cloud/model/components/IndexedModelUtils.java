@@ -1,13 +1,16 @@
 package alien4cloud.model.components;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
+import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.common.Tag;
 import alien4cloud.utils.CollectionUtils;
 
@@ -20,6 +23,45 @@ public final class IndexedModelUtils {
 
     // make sure this class is not instantiated
     private IndexedModelUtils() {
+    }
+
+    /**
+     * This utility method returns an ordered {@link alien4cloud.model.components.IndexedInheritableToscaElement} collection. The parent elements will be before
+     * the children elements
+     * This utility method returns an ordered {@link IndexedInheritableToscaElement} collection. The parent elements will be before the children elements
+     *
+     * @param elementsByIdMap map of {@link IndexedInheritableToscaElement} by id
+     * @return
+     */
+    public static <T extends IndexedInheritableToscaElement> List<T> orderByDerivedFromHierarchy(final Map<String, T> elementsByIdMap) {
+        if (elementsByIdMap == null) {
+            return null;
+        }
+        List<T> orderedElements = new ArrayList<T>(elementsByIdMap.values());
+        final Map<String, Integer> elementsLevelMap = Maps.newHashMap();
+        for (IndexedInheritableToscaElement element : orderedElements) {
+            IndexedInheritableToscaElement parent = element;
+            int levelCount = 0;
+            while (true) {
+                if (parent.getDerivedFrom() == null || parent.getDerivedFrom().isEmpty()) {
+                    break;
+                }
+                IndexedInheritableToscaElement oldParent = parent;
+                parent = elementsByIdMap.get(parent.getDerivedFrom().get(0));
+                if (parent == null) {
+                    break;
+                }
+                if (oldParent.equals(parent)) {
+                    // this elements is inheriting from it-self --> error
+                    // This error must have been normally detected in the validation phase and so here it means that it's a bug in our code of validation
+                    throw new IndexingServiceException(parent.getElementId() + " is parent of it-self, bug in csar validation service");
+                }
+                levelCount++;
+            }
+            elementsLevelMap.put(element.getElementId(), levelCount);
+        }
+        Collections.sort(orderedElements, (left, right) -> elementsLevelMap.get(left.getElementId()).compareTo(elementsLevelMap.get(right.getElementId())));
+        return orderedElements;
     }
 
     public static void mergeInheritableIndex(IndexedInheritableToscaElement from, IndexedInheritableToscaElement to) {

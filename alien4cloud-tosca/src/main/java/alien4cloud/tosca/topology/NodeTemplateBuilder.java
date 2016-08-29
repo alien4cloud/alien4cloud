@@ -1,5 +1,13 @@
 package alien4cloud.tosca.topology;
 
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang.StringUtils;
+
+import com.google.common.collect.Maps;
+
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.CapabilityDefinition;
 import alien4cloud.model.components.DeploymentArtifact;
@@ -11,13 +19,10 @@ import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Requirement;
 import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.PropertyUtil;
-import com.google.common.collect.Maps;
-import java.util.List;
-import java.util.Map;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.MapUtils;
 
 /**
  * Utility to create a Node Template by merging Node Type and Node Template data.
@@ -83,12 +88,23 @@ public class NodeTemplateBuilder {
         }
         for (CapabilityDefinition capa : elements) {
             Capability toAddCapa = MapUtils.getObject(mapToMerge, capa.getId());
+            Map<String, AbstractPropertyValue> capaProperties = null;
+            IndexedCapabilityType indexedCapa = ToscaContext.get(IndexedCapabilityType.class, capa.getType());
+            if (indexedCapa != null && indexedCapa.getProperties() != null) {
+                capaProperties = PropertyUtil.getDefaultPropertyValuesFromPropertyDefinitions(indexedCapa.getProperties());
+            }
             if (toAddCapa == null) {
                 toAddCapa = new Capability();
                 toAddCapa.setType(capa.getType());
-                IndexedCapabilityType indexedCapa = ToscaContext.get(IndexedCapabilityType.class, capa.getType());
-                if (indexedCapa != null && indexedCapa.getProperties() != null) {
-                    toAddCapa.setProperties(PropertyUtil.getDefaultPropertyValuesFromPropertyDefinitions(indexedCapa.getProperties()));
+                toAddCapa.setProperties(capaProperties);
+            } else {
+                if (StringUtils.isBlank(toAddCapa.getType())) {
+                    toAddCapa.setType(capa.getType());
+                }
+                if (MapUtils.isNotEmpty(capaProperties)) {
+                    Map<String, AbstractPropertyValue> nodeCapaProperties = AlienUtils.safe(toAddCapa.getProperties());
+                    capaProperties.putAll(nodeCapaProperties);
+                    toAddCapa.setProperties(capaProperties);
                 }
             }
             map.put(capa.getId(), toAddCapa);

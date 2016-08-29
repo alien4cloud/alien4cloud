@@ -9,7 +9,6 @@
 - tag: alien4cloud.tosca.parser.impl.advanced.TagParser
 - interface: alien4cloud.tosca.parser.impl.advanced.InterfaceParser
 - interfaces: alien4cloud.tosca.parser.impl.advanced.InterfacesParser
-- nodetemplate_capabilities_type: alien4cloud.tosca.parser.impl.advanced.NodeTemplateCapabilitiesParser
 - outputs_type: alien4cloud.tosca.parser.impl.advanced.OuputsParser
 - group_policy_parser: alien4cloud.tosca.parser.impl.advanced.GroupPolicyParser
 - artifact_ref_parser: alien4cloud.tosca.parser.impl.advanced.ArtifactReferenceParser
@@ -139,14 +138,20 @@
     sequence_to_map: relationships
     type: relationship_template
   capabilities:
-    reference: void
-    type: nodetemplate_capabilities_type
+    map: capabilities
+    type: node_template_capability_definition
   interfaces:
     reference: interfaces
     type: interfaces
   artifacts:
     map: artifacts
     type: template_deployment_artifact
+
+- node_template_capability_definition: alien4cloud.model.topology.Capability
+  type: type
+  properties:
+    map: properties
+    type: node_template_property
 
 - attribute_definition: alien4cloud.model.components.AttributeDefinition
   description: description

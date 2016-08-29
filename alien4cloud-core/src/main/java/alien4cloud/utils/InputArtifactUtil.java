@@ -3,6 +3,7 @@ package alien4cloud.utils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import alien4cloud.model.components.AbstractArtifact;
 import alien4cloud.model.components.DeploymentArtifact;
 
 public class InputArtifactUtil {
@@ -33,9 +34,10 @@ public class InputArtifactUtil {
     }
 
     /**
-     * @return the id of the related input artifact or null if this {@link DeploymentArtifact} is not related to an input artifact.
+     * @return the id of the related input artifact or null if this {@link AbstractArtifact} (can be deployment or implementation artifact) is not related to an
+     *         input artifact.
      */
-    public static String getInputArtifactId(DeploymentArtifact dArtifact) {
+    public static String getInputArtifactId(AbstractArtifact dArtifact) {
         Matcher m = P.matcher(dArtifact.getArtifactRef());
         if (m.matches()) {
             return m.group(1);
