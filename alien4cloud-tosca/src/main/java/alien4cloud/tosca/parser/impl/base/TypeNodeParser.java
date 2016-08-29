@@ -4,31 +4,27 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import alien4cloud.tosca.parser.AbstractTypeNodeParser;
-import alien4cloud.tosca.parser.DefferedParsingValueExecutor;
-import alien4cloud.tosca.parser.INodeParser;
-import alien4cloud.tosca.parser.MappingTarget;
-import alien4cloud.tosca.parser.ParserUtils;
-import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.ParsingError;
-import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.ParsingTechnicalException;
-import alien4cloud.tosca.parser.impl.ErrorCode;
-
 import com.google.common.collect.Maps;
+
+import alien4cloud.tosca.parser.*;
+import alien4cloud.tosca.parser.impl.ErrorCode;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Getter
+@Component
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodeParser<T> {
     private final Class<T> type;
     private final Map<String, MappingTarget> yamlToObjectMapping;
@@ -39,16 +35,6 @@ public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodePa
         this.type = type;
         yamlToObjectMapping = Maps.newLinkedHashMap();
         yamlOrderedToObjectMapping = Maps.newLinkedHashMap();
-    }
-
-    @Override
-    public boolean isDeferred(ParsingContextExecution context) {
-        return false;
-    }
-
-    @Override
-    public int getDeferredOrder(ParsingContextExecution context) {
-        return 0;
     }
 
     @Override
@@ -138,12 +124,7 @@ public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodePa
         } else {
             // set the value to the required path
             BeanWrapper targetBean = target.isRootPath() ? context.getRoot() : instance;
-            if (target.getParser().isDeferred(context)) {
-                context.addDeferredParser(new DefferedParsingValueExecutor(key, targetBean, context, target, nodeTuple.getValueNode(),
-                        target.getParser().getDeferredOrder(context)));
-            } else {
-                parseAndSetValue(targetBean, key, nodeTuple.getValueNode(), context, target);
-            }
+            parseAndSetValue(targetBean, key, nodeTuple.getValueNode(), context, target);
         }
     }
 

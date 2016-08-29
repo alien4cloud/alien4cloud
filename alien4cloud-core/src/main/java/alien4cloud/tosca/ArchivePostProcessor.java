@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.deployment.exceptions.UnresolvableArtifactException;
@@ -28,6 +29,7 @@ import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.utils.InputArtifactUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
@@ -114,10 +116,22 @@ public class ArchivePostProcessor {
         }
     }
 
+    private boolean hasInputArtifacts(ParsingResult<ArchiveRoot> parsedArchive) {
+        return parsedArchive.getResult().getTopology() != null && parsedArchive.getResult().getTopology().getInputArtifacts() != null;
+    }
+
     private void processArtifact(ArchivePathResolver archivePathResolver, AbstractArtifact artifact, ParsingResult<ArchiveRoot> parsedArchive) {
         if (!(parsedArchive.getResult().getArchive().getName().equals(artifact.getArchiveName())
                 && parsedArchive.getResult().getArchive().getVersion().equals(artifact.getArchiveVersion()))) {
             // if the artifact is not defined in the current archive then we don't have to perform validation.
+            return;
+        }
+        String inputArtifactId = InputArtifactUtil.getInputArtifactId(artifact);
+        if (StringUtils.isNotBlank(inputArtifactId) && hasInputArtifacts(parsedArchive)
+                && !parsedArchive.getResult().getTopology().getInputArtifacts().containsKey(inputArtifactId)) {
+            // The input artifact id does not exist in the topology's definition
+            parsedArchive.getContext().getParsingErrors().add(new ParsingError(ErrorCode.INVALID_ARTIFACT_REFERENCE, "Invalid artifact reference", null,
+                    "Artifact's reference " + artifact.getArtifactRef() + " is not valid", null, artifact.getArtifactRef()));
             return;
         }
         URL artifactURL = null;
@@ -195,8 +209,17 @@ public class ArchivePostProcessor {
         }
     }
 
+    private void processInputArtifact(ArchivePathResolver archivePathResolver, ParsingResult<ArchiveRoot> parsedArchive) {
+        if (hasInputArtifacts(parsedArchive)) {
+            parsedArchive.getResult().getTopology().getInputArtifacts().values()
+                    .forEach(inputArtifact -> this.processArtifact(archivePathResolver, inputArtifact, parsedArchive));
+        }
+    }
+
     private void processArtifacts(final Path archive, ParsingResult<ArchiveRoot> parsedArchive) {
         try (ArchivePathResolver archivePathResolver = createPathResolver(archive)) {
+            // Check if input artifacts are correctly set
+            processInputArtifact(archivePathResolver, parsedArchive);
             // Process deployment artifact / implementation artifact for types
             processTypes(archivePathResolver, parsedArchive.getResult().getNodeTypes(), parsedArchive);
             processTypes(archivePathResolver, parsedArchive.getResult().getRelationshipTypes(), parsedArchive);

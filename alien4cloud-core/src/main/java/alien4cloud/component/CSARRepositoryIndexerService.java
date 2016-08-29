@@ -38,6 +38,8 @@ import alien4cloud.utils.VersionUtil;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 @Component
 public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerService {
     @Resource(name = "alien-es-dao")
@@ -58,10 +60,8 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
 
     @Override
     public <T extends IndexedToscaElement> Map<String, T> getArchiveElements(String archiveName, String archiveVersion, Class<T> type) {
-        GetMultipleDataResult<T> elements = alienDAO.find(
-                type,
-                MapUtil.newHashMap(new String[] { "archiveName", "archiveVersion" }, new String[][] { new String[] { archiveName },
-                        new String[] { archiveVersion } }), Integer.MAX_VALUE);
+        GetMultipleDataResult<T> elements = alienDAO.find(type, MapUtil.newHashMap(new String[]{"archiveName", "archiveVersion"},
+                new String[][]{new String[]{archiveName}, new String[]{archiveVersion}}), Integer.MAX_VALUE);
 
         Map<String, T> elementsByIds = Maps.newHashMap();
         if (elements == null) {
@@ -73,7 +73,7 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
         }
         return elementsByIds;
     }
-    
+
     @Override
     public void deleteElements(String archiveName, String archiveVersion) {
 
@@ -91,19 +91,19 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
 
     @Override
     public void indexInheritableElements(String archiveName, String archiveVersion, Map<String, ? extends IndexedInheritableToscaElement> archiveElements,
-            Collection<CSARDependency> dependencies) {
-        if (archiveElements == null) {
-            return;
-        }
-        List<? extends IndexedInheritableToscaElement> orderedElements = IndexedModelUtils.orderByDerivedFromHierarchy(archiveElements);
-        for (IndexedInheritableToscaElement element : orderedElements) {
-            indexInheritableElement(archiveName, archiveVersion, element, dependencies);
+                                         Collection<CSARDependency> dependencies) {
+        for (IndexedInheritableToscaElement element : safe(archiveElements).values()) {
+            element.setLastUpdateDate(new Date());
+            Date creationDate = element.getCreationDate() == null ? element.getLastUpdateDate() : element.getCreationDate();
+            element.setCreationDate(creationDate);
+            saveAndUpdateHighestVersion(element);
         }
     }
 
     @Override
     public void indexInheritableElement(String archiveName, String archiveVersion, IndexedInheritableToscaElement element,
-            Collection<CSARDependency> dependencies) {
+                                        Collection<CSARDependency> dependencies) {
+        // FIXME do we need all the merge in case of substitution ?
         element.setLastUpdateDate(new Date());
         Date creationDate = element.getCreationDate() == null ? element.getLastUpdateDate() : element.getCreationDate();
         element.setCreationDate(creationDate);
@@ -133,7 +133,7 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
         }
         saveAndUpdateHighestVersion(element);
     }
-    
+
     /**
      * Delete this indexed element and ensure that the <code>highestVersion<code> and <code>olderVersions</code> properties
      * are up to date for the remaining ones.

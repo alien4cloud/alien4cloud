@@ -7,15 +7,15 @@ import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 
-import alien4cloud.model.common.Tag;
-import alien4cloud.tosca.parser.ParserUtils;
-import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.mapping.DefaultParser;
-
 import com.google.common.collect.Lists;
 
+import alien4cloud.model.common.Tag;
+import alien4cloud.tosca.parser.INodeParser;
+import alien4cloud.tosca.parser.ParserUtils;
+import alien4cloud.tosca.parser.ParsingContextExecution;
+
 @Component
-public class TagParser extends DefaultParser<List<Tag>> {
+public class TagParser implements INodeParser<List<Tag>> {
 
     @Override
     public List<Tag> parse(Node node, ParsingContextExecution context) {

@@ -2,40 +2,24 @@ package alien4cloud.tosca.parser.impl.base;
 
 import java.util.Collection;
 
-import lombok.AllArgsConstructor;
-import lombok.Setter;
-
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
-import org.yaml.snakeyaml.nodes.MappingNode;
-import org.yaml.snakeyaml.nodes.Node;
-import org.yaml.snakeyaml.nodes.NodeTuple;
-import org.yaml.snakeyaml.nodes.ScalarNode;
-import org.yaml.snakeyaml.nodes.SequenceNode;
+import org.yaml.snakeyaml.nodes.*;
 
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.mapping.DefaultParser;
+import lombok.AllArgsConstructor;
+import lombok.Setter;
 
 @AllArgsConstructor(suppressConstructorProperties = true)
 @Setter
-public abstract class CollectionParser<T> extends DefaultParser<Collection<T>> {
+public abstract class CollectionParser<T> implements INodeParser<Collection<T>> {
     private INodeParser<T> valueParser;
     /** The tosca type of the list. */
     private String toscaType;
     /** In case the list is created from a map, optional value to inject the key into the value object. */
     private String keyPath;
-
-    @Override
-    public boolean isDeferred(ParsingContextExecution context) {
-        return valueParser.isDeferred(context);
-    }
-
-    @Override
-    public int getDeferredOrder(ParsingContextExecution context) {
-        return valueParser.getDeferredOrder(context);
-    }
 
     @Override
     public Collection<T> parse(Node node, ParsingContextExecution context) {

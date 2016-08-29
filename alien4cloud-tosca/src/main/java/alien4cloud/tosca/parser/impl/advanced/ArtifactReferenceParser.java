@@ -7,17 +7,18 @@ import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
+import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
-import alien4cloud.tosca.parser.mapping.DefaultParser;
 
 @Component
-public class ArtifactReferenceParser extends DefaultParser<String> {
+public class ArtifactReferenceParser implements INodeParser<String> {
     @Resource
     private ScalarParser scalarParser;
 
     @Override
     public String parse(Node node, ParsingContextExecution context) {
+        // FIXME this is to support artifact as inputs (using get_input), maybe we should do something better here and support a PropertyValue in the artifact.
         if (node instanceof ScalarNode) {
             return ((ScalarNode) node).getValue();
         } else if (node instanceof MappingNode) {
@@ -28,5 +29,4 @@ public class ArtifactReferenceParser extends DefaultParser<String> {
         }
         return null;
     }
-
 }

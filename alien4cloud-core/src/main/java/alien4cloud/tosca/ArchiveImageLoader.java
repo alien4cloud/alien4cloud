@@ -2,6 +2,7 @@ package alien4cloud.tosca;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -37,13 +38,15 @@ public class ArchiveImageLoader {
      * @param parsingErrors The list of parsing error in which to add errors in case there are (format error, file not found etc.)
      */
     public void importImages(Path archiveFile, ArchiveRoot archiveRoot, List<ParsingError> parsingErrors) {
-        importImages(archiveFile, archiveRoot.getNodeTypes(), parsingErrors);
-        importImages(archiveFile, archiveRoot.getRelationshipTypes(), parsingErrors);
-        importImages(archiveFile, archiveRoot.getCapabilityTypes(), parsingErrors);
-        importImages(archiveFile, archiveRoot.getArtifactTypes(), parsingErrors);
+        IdentityHashMap<Tag, Tag> processed = new IdentityHashMap<>();
+        importImages(processed, archiveFile, archiveRoot.getNodeTypes(), parsingErrors);
+        importImages(processed, archiveFile, archiveRoot.getRelationshipTypes(), parsingErrors);
+        importImages(processed, archiveFile, archiveRoot.getCapabilityTypes(), parsingErrors);
+        importImages(processed, archiveFile, archiveRoot.getArtifactTypes(), parsingErrors);
     }
 
-    private void importImages(Path archiveFile, Map<String, ? extends IndexedInheritableToscaElement> toscaInheritableElement, List<ParsingError> parsingErrors) {
+    private void importImages(IdentityHashMap<Tag, Tag> processed, Path archiveFile,
+            Map<String, ? extends IndexedInheritableToscaElement> toscaInheritableElement, List<ParsingError> parsingErrors) {
         if (toscaInheritableElement == null) {
             return;
         }
@@ -51,8 +54,9 @@ public class ArchiveImageLoader {
             if (element.getValue().getTags() != null) {
                 List<Tag> tags = element.getValue().getTags();
                 Tag iconTag = ArchiveImageLoader.getIconTag(tags);
-                if (iconTag != null) {
+                if (iconTag != null && !processed.containsKey(iconTag)) {
                     importImage(archiveFile, parsingErrors, iconTag);
+                    processed.put(iconTag, iconTag);
                 }
             }
         }
@@ -79,11 +83,11 @@ public class ArchiveImageLoader {
                         "Invalid icon format at path <" + iconPath + ">", null, iconPath.toString()));
             }
         } catch (NoSuchFileException | InvalidPathException e) {
-            parsingErrors.add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.MISSING_FILE, "Icon loading", null, "No icon file found at path <"
-                    + iconPath + ">", null, iconPath.toString()));
+            parsingErrors.add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.MISSING_FILE, "Icon loading", null,
+                    "No icon file found at path <" + iconPath + ">", null, iconPath.toString()));
         } catch (ImageUploadException e) {
-            parsingErrors.add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_ICON_FORMAT, "Icon loading", null, "Invalid icon format at path <"
-                    + iconPath + ">", null, iconPath.toString()));
+            parsingErrors.add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_ICON_FORMAT, "Icon loading", null,
+                    "Invalid icon format at path <" + iconPath + ">", null, iconPath.toString()));
         } catch (IOException e) {
             parsingErrors.add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.FAILED_TO_READ_FILE, "Icon loading", null,
                     "IO error while loading icon at path <" + iconPath + ">", null, iconPath.toString()));

@@ -5,7 +5,6 @@ import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
-import alien4cloud.model.components.PropertyValue;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
 
@@ -14,13 +13,13 @@ import com.google.common.collect.Maps;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.TopologyCompositionService;
 import alien4cloud.common.MetaPropertiesService;
-import alien4cloud.common.TagService;
 import alien4cloud.deployment.matching.services.location.TopologyLocationUtils;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
+import alien4cloud.model.components.PropertyValue;
 import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
@@ -49,8 +48,6 @@ public class InputsPreProcessorService {
     private LocationService locationService;
     @Resource
     private ApplicationService applicationService;
-    @Resource
-    private TagService tagService;
     @Resource
     private MetaPropertiesService metaPropertiesService;
     @Resource

@@ -8,7 +8,6 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.springframework.aop.framework.Advised;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.FileSystemResource;
@@ -17,13 +16,11 @@ import org.yaml.snakeyaml.nodes.*;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.*;
 import alien4cloud.tosca.parser.impl.ErrorCode;
-import alien4cloud.tosca.parser.impl.base.CheckedTypeNodeParser;
+import alien4cloud.tosca.parser.impl.base.BaseParserFactory;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import alien4cloud.tosca.parser.impl.base.TypeNodeParser;
-import alien4cloud.tosca.parser.mapping.DefaultParser;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -31,17 +28,18 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class MappingGenerator extends DefaultParser<Map<String, INodeParser>> {
+public class MappingGenerator implements INodeParser<Map<String, INodeParser>> {
     @Resource
     private ApplicationContext applicationContext;
+    @Resource
+    private BaseParserFactory baseParserFactory;
 
     private Map<String, INodeParser> parsers = Maps.newHashMap();
     private Map<String, IMappingBuilder> mappingBuilders = Maps.newHashMap();
-    private Map<String, IChecker> checkers = Maps.newHashMap();
 
     @PostConstruct
     public void initialize() {
-        Map<String, INodeParser> contextParsers = applicationContext.getBeansOfType(INodeParser.class);
+        Map<String, INodeParser> contextParsers = applicationContext.getBeansOfType(INodeParser.class, false, true);
         // register parsers based on their class name.
         for (INodeParser parser : contextParsers.values()) {
             String className;
@@ -55,10 +53,6 @@ public class MappingGenerator extends DefaultParser<Map<String, INodeParser>> {
         Map<String, IMappingBuilder> contextMappingBuilders = applicationContext.getBeansOfType(IMappingBuilder.class);
         for (IMappingBuilder mappingBuilder : contextMappingBuilders.values()) {
             mappingBuilders.put(mappingBuilder.getKey(), mappingBuilder);
-        }
-        Map<String, IChecker> contextCheckers = applicationContext.getBeansOfType(IChecker.class);
-        for (IChecker checker : contextCheckers.values()) {
-            checkers.put(checker.getName(), checker);
         }
     }
 
@@ -169,25 +163,10 @@ public class MappingGenerator extends DefaultParser<Map<String, INodeParser>> {
 
     private TypeNodeParser<?> buildTypeNodeParser(String yamlType, String javaType) throws ClassNotFoundException {
         String realJavaType = javaType;
-        IChecker checker = null;
-        if (javaType.contains("|")) { // | key allows to define a checker (validator) class in addition to the actual parser.
-            realJavaType = javaType.substring(0, javaType.indexOf("|"));
-            String checkerName = javaType.substring(javaType.indexOf("|") + 1);
-            log.debug(String.format("After parsing <%s>, realJavaType is <%s>, checkerName is <%s>", javaType, realJavaType, checkerName));
-            checker = checkers.get(checkerName);
-            if (checker == null) {
-                log.warn(String.format("Can not find checker <%s>, using a standard TypeNodeParser", checkerName));
-            }
-        }
+
         Class<?> javaClass = Class.forName(realJavaType);
-        if (checker == null) {
-            log.debug("Mapping yaml type <" + yamlType + "> to class <" + realJavaType + ">");
-            return new TypeNodeParser<>(javaClass, yamlType);
-        } else {
-            // TODO check that the type are compatible
-            log.debug("Mapping yaml type <" + yamlType + "> to class <" + realJavaType + "> using checker " + checker.toString());
-            return new CheckedTypeNodeParser<>(javaClass, yamlType, checker);
-        }
+        log.debug("Mapping yaml type <" + yamlType + "> to class <" + realJavaType + ">");
+        return baseParserFactory.getTypeNodeParser(javaClass, yamlType);
     }
 
     private INodeParser<?> getWrapperParser(String wrapperKey, MappingNode mapping, ParsingContextExecution context) {

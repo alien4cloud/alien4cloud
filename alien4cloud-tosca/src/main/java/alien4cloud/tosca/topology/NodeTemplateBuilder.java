@@ -1,5 +1,13 @@
 package alien4cloud.tosca.topology;
 
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang.StringUtils;
+
+import com.google.common.collect.Maps;
+
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.CapabilityDefinition;
 import alien4cloud.model.components.DeploymentArtifact;
@@ -12,12 +20,8 @@ import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Requirement;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.PropertyUtil;
-import com.google.common.collect.Maps;
-import java.util.List;
-import java.util.Map;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.MapUtils;
 
 /**
  * Utility to create a Node Template by merging Node Type and Node Template data.
@@ -90,6 +94,8 @@ public class NodeTemplateBuilder {
                 if (indexedCapa != null && indexedCapa.getProperties() != null) {
                     toAddCapa.setProperties(PropertyUtil.getDefaultPropertyValuesFromPropertyDefinitions(indexedCapa.getProperties()));
                 }
+            } else if (StringUtils.isBlank(toAddCapa.getType())) {
+                toAddCapa.setType(capa.getType());
             }
             map.put(capa.getId(), toAddCapa);
         }

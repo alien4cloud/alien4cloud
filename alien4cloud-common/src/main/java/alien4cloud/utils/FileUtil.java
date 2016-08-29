@@ -1,11 +1,6 @@
 package alien4cloud.utils;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.CopyOption;
 import java.nio.file.FileSystem;
@@ -41,7 +36,27 @@ public final class FileUtil {
     private FileUtil() {
     }
 
-    static void putZipEntry(ZipOutputStream zipOutputStream, ZipEntry zipEntry, Path file) throws IOException {
+    /**
+     * Check if the file matching the given path is a zip file or not.
+     * 
+     * @param path The patch to check.
+     */
+    public static boolean isZipFile(Path path) {
+        File f = path.toFile();
+        if (f.isDirectory() || f.length() < 4) {
+            return false;
+        }
+
+        try (DataInputStream inputStream = new DataInputStream(new FileInputStream(f))) {
+            return inputStream.readInt() == 0x504b0304;
+        } catch (FileNotFoundException e) {
+            return false;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    protected static void putZipEntry(ZipOutputStream zipOutputStream, ZipEntry zipEntry, Path file) throws IOException {
         zipOutputStream.putNextEntry(zipEntry);
         InputStream input = new BufferedInputStream(Files.newInputStream(file));
         try {
@@ -52,7 +67,7 @@ public final class FileUtil {
         }
     }
 
-    static void putTarEntry(TarArchiveOutputStream tarOutputStream, TarArchiveEntry tarEntry, Path file) throws IOException {
+    protected static void putTarEntry(TarArchiveOutputStream tarOutputStream, TarArchiveEntry tarEntry, Path file) throws IOException {
         tarEntry.setSize(Files.size(file));
         tarOutputStream.putArchiveEntry(tarEntry);
         InputStream input = new BufferedInputStream(Files.newInputStream(file));
@@ -191,16 +206,43 @@ public final class FileUtil {
     }
 
     private static class EraserWalker extends SimpleFileVisitor<Path> {
+        private Path[] keepPath;
+
+        private EraserWalker(Path... keepPath) {
+            this.keepPath = keepPath;
+        }
+
+        private boolean isKeepPath(Path path) {
+            for (Path keep : keepPath) {
+                if (path.equals(keep)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+            if (isKeepPath(dir)) {
+                return FileVisitResult.SKIP_SUBTREE;
+            }
+            return super.preVisitDirectory(dir, attrs);
+        }
+
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            file.toFile().delete();
+            if (!isKeepPath(file)) {
+                file.toFile().delete();
+            }
             return FileVisitResult.CONTINUE;
         }
 
         @Override
         public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
             if (exc == null) {
-                dir.toFile().delete();
+                if (!isKeepPath(dir)) {
+                    dir.toFile().delete();
+                }
                 return FileVisitResult.CONTINUE;
             }
             throw exc;
@@ -208,12 +250,13 @@ public final class FileUtil {
     }
 
     /**
-     * Recursively delete file and directory
+     * Recursively delete file and directory but the specified paths
      *
      * @param deletePath file path can be directory
+     * @param keepPath paths not to be deleted.
      * @throws IOException when IO error happened
      */
-    public static void delete(Path deletePath) throws IOException {
+    public static void delete(Path deletePath, Path... keepPath) throws IOException {
         if (!Files.isDirectory(deletePath)) {
             deletePath.toFile().delete();
             return;

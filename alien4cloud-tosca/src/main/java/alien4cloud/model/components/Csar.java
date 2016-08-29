@@ -7,6 +7,8 @@ import alien4cloud.model.common.Tag;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+
+import alien4cloud.tosca.parser.ParsingContextExecution;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -96,5 +98,38 @@ public class Csar {
 
     public void setDependencies(Set<CSARDependency> dependencies) {
         this.dependencies = dependencies;
+    }
+
+    /**
+     * In the context of parsing you can not override name when already provided (in case of tosca meta).
+     * 
+     * @param name The new name of the archive.
+     */
+    public void setName(String name) {
+        if (this.name == null || !ParsingContextExecution.exist()) {
+            this.name = name;
+        }
+    }
+
+    /**
+     * In the context of parsing you can not override version when already provided (in case of tosca meta).
+     *
+     * @param version The new version of the archive.
+     */
+    public void setVersion(String version) {
+        if (this.version == null || !ParsingContextExecution.exist()) {
+            this.version = version;
+        }
+    }
+
+    /**
+     * In the context of parsing you can not override template author when already provided (in case of tosca meta).
+     *
+     * @param templateAuthor The new template author of the archive.
+     */
+    public void setTemplateAuthor(String templateAuthor) {
+        if (this.templateAuthor == null || !ParsingContextExecution.exist()) {
+            this.templateAuthor = templateAuthor;
+        }
     }
 }

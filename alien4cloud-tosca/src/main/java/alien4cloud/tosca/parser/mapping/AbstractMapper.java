@@ -3,14 +3,14 @@ package alien4cloud.tosca.parser.mapping;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy.PropertyNamingStrategyBase;
+
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.MappingTarget;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import alien4cloud.tosca.parser.impl.base.TypeNodeParser;
-
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy.PropertyNamingStrategyBase;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class AbstractMapper<T> {

@@ -5,8 +5,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.yaml.snakeyaml.composer.Composer;
 import org.yaml.snakeyaml.error.Mark;
 import org.yaml.snakeyaml.error.MarkedYAMLException;
@@ -18,6 +16,7 @@ import org.yaml.snakeyaml.resolver.Resolver;
 
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.TypeNodeParser;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Parser to process Yaml files.
@@ -99,22 +98,29 @@ public abstract class YamlParser<T> {
     }
 
     private ParsingResult<T> doParsing(String fileName, Node rootNode, T instance) throws ParsingException {
-        ParsingContextExecution context = new ParsingContextExecution(fileName);
+        try {
+            ParsingContextExecution.init();
+            ParsingContextExecution.setFileName(fileName);
 
-        INodeParser<T> nodeParser = getParser(rootNode, context);
+            ParsingContextExecution fake = new ParsingContextExecution();
 
-        T parsedObject;
-        if (nodeParser instanceof TypeNodeParser) {
-            parsedObject = ((TypeNodeParser<T>) nodeParser).parse(rootNode, context, instance);
-        } else {
-            // let's start the parsing using the version related parsers
-            parsedObject = nodeParser.parse(rootNode, context);
+            INodeParser<T> nodeParser = getParser(rootNode, fake);
+
+            T parsedObject;
+            if (nodeParser instanceof TypeNodeParser) {
+                parsedObject = ((TypeNodeParser<T>) nodeParser).parse(rootNode, fake, instance);
+            } else {
+                // let's start the parsing using the version related parsers
+                parsedObject = nodeParser.parse(rootNode, fake);
+            }
+
+            postParsing(parsedObject);
+
+            return new ParsingResult<T>(parsedObject, ParsingContextExecution.getParsingContext());
+
+        } finally {
+            ParsingContextExecution.destroy();
         }
-
-        // process deferred parsing
-        context.runDefferedParsers();
-
-        return new ParsingResult<T>(parsedObject, context.getParsingContext());
     }
 
     /**
@@ -125,4 +131,13 @@ public abstract class YamlParser<T> {
      * @return The parser to use.
      */
     protected abstract INodeParser<T> getParser(Node rootNode, ParsingContextExecution context) throws ParsingException;
+
+    /**
+     * Perform any required post-processing validations.
+     *
+     * @param result The object resulting of the parsing.
+     */
+    protected void postParsing(T result) {
+        // no post parsing by default.
+    };
 }

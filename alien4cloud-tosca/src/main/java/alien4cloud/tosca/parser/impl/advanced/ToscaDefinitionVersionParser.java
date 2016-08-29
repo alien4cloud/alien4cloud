@@ -9,12 +9,12 @@ import org.yaml.snakeyaml.nodes.Node;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.normative.ToscaNormativeImports;
+import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.mapping.DefaultParser;
 
 @Component
-public class ToscaDefinitionVersionParser extends DefaultParser<String> {
+public class ToscaDefinitionVersionParser implements INodeParser<String> {
     @Override
     public String parse(Node node, ParsingContextExecution context) {
         ArchiveRoot archiveRoot = (ArchiveRoot) context.getParent();

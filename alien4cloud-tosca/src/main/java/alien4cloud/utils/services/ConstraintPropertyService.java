@@ -1,8 +1,11 @@
 package alien4cloud.utils.services;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.beans.IntrospectionException;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.springframework.stereotype.Service;
 
@@ -30,8 +33,34 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class ConstraintPropertyService {
 
+    /**
+     * Check the constraints on an unwrapped property value (basically a string, map or list).
+     * 
+     * @param propertyName The name of the property.
+     * @param propertyValue The value of the property to check.
+     * @param propertyDefinition The property definition that defines the property to check.
+     * @throws ConstraintValueDoNotMatchPropertyTypeException In case the value type doesn't match the type of the property as defined.
+     * @throws ConstraintViolationException In case the value doesn't match one of the constraints defined on the property.
+     */
     public void checkPropertyConstraint(String propertyName, Object propertyValue, PropertyDefinition propertyDefinition)
             throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+        checkPropertyConstraint(propertyName, propertyValue, propertyDefinition, null);
+    }
+
+    /**
+     * Check the constraints on an unwrapped property value (basically a string, map or list) and get events through the given consumer parameter when missing
+     * properties on complex data type are found.
+     * Note that the property value cannot be null and the required characteristic of the initial property definition will NOT be checked.
+     *
+     * @param propertyName The name of the property.
+     * @param propertyValue The value of the property to check.
+     * @param propertyDefinition The property definition that defines the property to check.
+     * @param missingPropertyConsumer A consumer to receive events when a required property is not defined on a complex type sub-field.
+     * @throws ConstraintValueDoNotMatchPropertyTypeException In case the value type doesn't match the type of the property as defined.
+     * @throws ConstraintViolationException In case the value doesn't match one of the constraints defined on the property.
+     */
+    public void checkPropertyConstraint(String propertyName, Object propertyValue, PropertyDefinition propertyDefinition,
+            Consumer<String> missingPropertyConsumer) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         boolean isPrimitiveType = false;
         boolean isTypeDerivedFromPrimitive = false;
         IndexedDataType dataType = null;
@@ -50,11 +79,14 @@ public class ConstraintPropertyService {
                 checkSimplePropertyConstraint(propertyName, (String) propertyValue, propertyDefinition);
             } else if (isTypeDerivedFromPrimitive) {
                 checkComplexPropertyDerivedFromPrimitiveTypeConstraints(propertyName, (String) propertyValue, propertyDefinition, dataType);
+            } else {
+                throw new ConstraintValueDoNotMatchPropertyTypeException(
+                        "Property value is a String while the expected data type is a complex type " + propertyValue.getClass().getName());
             }
         } else if (propertyValue instanceof Map) {
-            checkComplexPropertyConstraint(propertyName, (Map<String, Object>) propertyValue, propertyDefinition);
+            checkComplexPropertyConstraint(propertyName, (Map<String, Object>) propertyValue, propertyDefinition, missingPropertyConsumer);
         } else if (propertyValue instanceof List) {
-            checkListPropertyConstraint(propertyName, (List<Object>) propertyValue, propertyDefinition);
+            checkListPropertyConstraint(propertyName, (List<Object>) propertyValue, propertyDefinition, missingPropertyConsumer);
         } else {
             throw new InvalidArgumentException(
                     "Not expecting to receive constraint validation for other types than String, Map or List as " + propertyValue.getClass().getName());
@@ -70,13 +102,16 @@ public class ConstraintPropertyService {
      * @throws ConstraintViolationException
      * @throws ConstraintValueDoNotMatchPropertyTypeException
      */
-    // FIXME check type first, and constraint after
     public void checkSimplePropertyConstraint(final String propertyName, final String stringValue, final PropertyDefinition propertyDefinition)
             throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         ConstraintInformation consInformation = null;
+
+        // check any property definition without constraints (type/value)
+        checkBasicType(propertyName, propertyDefinition.getType(), stringValue);
+
         if (propertyDefinition.getConstraints() != null && !propertyDefinition.getConstraints().isEmpty()) {
+            IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(propertyDefinition.getType());
             for (PropertyConstraint constraint : propertyDefinition.getConstraints()) {
-                IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(propertyDefinition.getType());
                 try {
                     consInformation = ConstraintUtil.getConstraintInformation(constraint);
                     consInformation.setPath(propertyName + ".constraints[" + consInformation.getName() + "]");
@@ -90,16 +125,13 @@ public class ConstraintPropertyService {
                     throw new ConstraintTechnicalException("Constraint introspection error for property <" + propertyName + "> value <" + stringValue + ">", e);
                 }
             }
-        } else {
-            // check any property definition without constraints (type/value)
-            checkBasicType(propertyName, propertyDefinition.getType(), stringValue);
         }
     }
 
     /**
      * Check constraints defined on a property which has a type derived from a primitive.
      */
-    public void checkComplexPropertyDerivedFromPrimitiveTypeConstraints(final String propertyName, final String stringValue,
+    private void checkComplexPropertyDerivedFromPrimitiveTypeConstraints(final String propertyName, final String stringValue,
             final PropertyDefinition propertyDefinition, final IndexedDataType dataType)
             throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         ConstraintInformation consInformation = null;
@@ -110,16 +142,15 @@ public class ConstraintPropertyService {
             hasTypeConstraints = true;
         }
         String derivedFromPrimitiveType = dataType.getDerivedFrom().get(0);
-        if (hasDefinitionConstraints || hasTypeConstraints) {
+        // Check the type of the property even if there is no constraints.
+        checkBasicType(propertyName, derivedFromPrimitiveType, stringValue);
+        if (hasDefinitionConstraints || hasTypeConstraints) { // check the constraints if there is any defined
             if (hasDefinitionConstraints) {
                 checkConstraints(propertyName, stringValue, derivedFromPrimitiveType, propertyDefinition.getConstraints());
             }
             if (hasTypeConstraints) {
                 checkConstraints(propertyName, stringValue, derivedFromPrimitiveType, ((PrimitiveIndexedDataType) dataType).getConstraints());
             }
-        } else {
-            // check any property definition without constraints (type/value)
-            checkBasicType(propertyName, derivedFromPrimitiveType, stringValue);
         }
     }
 
@@ -143,38 +174,50 @@ public class ConstraintPropertyService {
         }
     }
 
-    public void checkDataTypePropertyConstraint(String propertyName, Map<String, Object> complexPropertyValue, PropertyDefinition propertyDefinition)
-            throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
+    private void checkDataTypePropertyConstraint(String propertyName, Map<String, Object> complexPropertyValue, PropertyDefinition propertyDefinition,
+            Consumer<String> missingPropertyConsumer) throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         IndexedDataType dataType = ToscaContext.get(IndexedDataType.class, propertyDefinition.getType());
         if (dataType == null) {
             throw new ConstraintViolationException(
                     "Complex type " + propertyDefinition.getType() + " is not complex or it cannot be found in the archive nor in Alien");
         }
         for (Map.Entry<String, Object> complexPropertyValueEntry : complexPropertyValue.entrySet()) {
-            if (dataType.getProperties() == null || !dataType.getProperties().containsKey(complexPropertyValueEntry.getKey())) {
+            if (!safe(dataType.getProperties()).containsKey(complexPropertyValueEntry.getKey())) {
                 throw new ConstraintViolationException("Complex type " + propertyDefinition.getType() + " do not have nested property with name "
                         + complexPropertyValueEntry.getKey() + " for property " + propertyName);
             } else {
                 Object nestedPropertyValue = complexPropertyValueEntry.getValue();
                 PropertyDefinition nestedPropertyDefinition = dataType.getProperties().get(complexPropertyValueEntry.getKey());
-                checkPropertyConstraint(propertyName + "." + complexPropertyValueEntry.getKey(), nestedPropertyValue, nestedPropertyDefinition);
+                checkPropertyConstraint(propertyName + "." + complexPropertyValueEntry.getKey(), nestedPropertyValue, nestedPropertyDefinition,
+                        missingPropertyConsumer);
+            }
+        }
+        // check if the data type has required missing properties
+        if (missingPropertyConsumer != null) {
+            for (Map.Entry<String, PropertyDefinition> dataTypeDefinition : safe(dataType.getProperties()).entrySet()) {
+                if (dataTypeDefinition.getValue().isRequired() && !complexPropertyValue.containsKey(dataTypeDefinition.getKey())) {
+                    // A required property is missing
+                    String missingPropertyName = propertyName + "." + dataTypeDefinition.getKey();
+                    missingPropertyConsumer.accept(missingPropertyName);
+                }
             }
         }
     }
 
-    public void checkListPropertyConstraint(String propertyName, List<Object> listPropertyValue, PropertyDefinition propertyDefinition)
-            throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+    private void checkListPropertyConstraint(String propertyName, List<Object> listPropertyValue, PropertyDefinition propertyDefinition,
+            Consumer<String> missingPropertyConsumer) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         PropertyDefinition entrySchema = propertyDefinition.getEntrySchema();
         for (int i = 0; i < listPropertyValue.size(); i++) {
-            checkPropertyConstraint(propertyName + "[" + String.valueOf(i) + "]", listPropertyValue.get(i), entrySchema);
+            checkPropertyConstraint(propertyName + "[" + String.valueOf(i) + "]", listPropertyValue.get(i), entrySchema, missingPropertyConsumer);
         }
     }
 
-    public void checkMapPropertyConstraint(String propertyName, Map<String, Object> complexPropertyValue, PropertyDefinition propertyDefinition)
-            throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
+    private void checkMapPropertyConstraint(String propertyName, Map<String, Object> complexPropertyValue, PropertyDefinition propertyDefinition,
+            Consumer<String> missingPropertyConsumer) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         PropertyDefinition entrySchema = propertyDefinition.getEntrySchema();
         for (Map.Entry<String, Object> complexPropertyValueEntry : complexPropertyValue.entrySet()) {
-            checkPropertyConstraint(propertyName + "." + complexPropertyValueEntry.getKey(), complexPropertyValueEntry.getValue(), entrySchema);
+            checkPropertyConstraint(propertyName + "." + complexPropertyValueEntry.getKey(), complexPropertyValueEntry.getValue(), entrySchema,
+                    missingPropertyConsumer);
         }
     }
 
@@ -187,12 +230,12 @@ public class ConstraintPropertyService {
      * @throws ConstraintViolationException
      * @throws ConstraintValueDoNotMatchPropertyTypeException
      */
-    public void checkComplexPropertyConstraint(String propertyName, Map<String, Object> complexPropertyValue, PropertyDefinition propertyDefinition)
-            throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
+    private void checkComplexPropertyConstraint(String propertyName, Map<String, Object> complexPropertyValue, PropertyDefinition propertyDefinition,
+            Consumer<String> missingPropertyConsumer) throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         if (ToscaType.MAP.equals(propertyDefinition.getType())) {
-            checkMapPropertyConstraint(propertyName, complexPropertyValue, propertyDefinition);
+            checkMapPropertyConstraint(propertyName, complexPropertyValue, propertyDefinition, missingPropertyConsumer);
         } else {
-            checkDataTypePropertyConstraint(propertyName, complexPropertyValue, propertyDefinition);
+            checkDataTypePropertyConstraint(propertyName, complexPropertyValue, propertyDefinition, missingPropertyConsumer);
         }
     }
 

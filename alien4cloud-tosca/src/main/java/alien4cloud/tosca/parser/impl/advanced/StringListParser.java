@@ -5,17 +5,19 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import alien4cloud.tosca.parser.impl.base.BaseParserFactory;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
+import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.impl.base.ListParser;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
-import alien4cloud.tosca.parser.mapping.DefaultParser;
 
 @Component
-public class StringListParser extends DefaultParser<List<String>> {
-
+public class StringListParser implements INodeParser<List<String>> {
+    @Resource
+    private BaseParserFactory baseParserFactory;
     @Resource
     private ScalarParser scalarParser;
 
@@ -23,7 +25,7 @@ public class StringListParser extends DefaultParser<List<String>> {
 
     @PostConstruct
     public void init() {
-        listParser = new ListParser<String>(scalarParser, "string");
+        listParser = baseParserFactory.getListParser(scalarParser, "string");
     }
 
     @Override

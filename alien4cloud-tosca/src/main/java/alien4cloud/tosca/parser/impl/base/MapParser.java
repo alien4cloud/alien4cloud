@@ -2,24 +2,29 @@ package alien4cloud.tosca.parser.impl.base;
 
 import java.util.Map;
 
-import lombok.AllArgsConstructor;
-
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
+import com.google.common.collect.Maps;
+
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.mapping.DefaultParser;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Setter;
 
-import com.google.common.collect.Maps;
-
+@Component
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @AllArgsConstructor(suppressConstructorProperties = true)
-public class MapParser<T> extends DefaultParser<Map<String, T>> {
+public class MapParser<T> implements INodeParser<Map<String, T>> {
     private INodeParser<T> valueParser;
     /** The tosca type of the map. */
     private String toscaType;
@@ -30,14 +35,8 @@ public class MapParser<T> extends DefaultParser<Map<String, T>> {
         this(valueParser, toscaType, null);
     }
 
-    @Override
-    public boolean isDeferred(ParsingContextExecution context) {
-        return valueParser.isDeferred(context);
-    }
-
-    @Override
-    public int getDeferredOrder(ParsingContextExecution context) {
-        return valueParser.getDeferredOrder(context);
+    protected void setValueParser(INodeParser<T> valueParser) {
+        this.valueParser = valueParser;
     }
 
     @Override
@@ -71,5 +70,4 @@ public class MapParser<T> extends DefaultParser<Map<String, T>> {
         }
         return map;
     }
-
 }

@@ -1,25 +1,27 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
-import alien4cloud.model.common.Tag;
-import alien4cloud.model.components.Csar;
-import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.ParserUtils;
-import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.mapping.DefaultParser;
-import alien4cloud.utils.VersionUtil;
-import com.google.common.collect.Lists;
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 
-import java.util.List;
+import com.google.common.collect.Lists;
+
+import alien4cloud.model.common.Tag;
+import alien4cloud.model.components.Csar;
+import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.INodeParser;
+import alien4cloud.tosca.parser.ParserUtils;
+import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.utils.VersionUtil;
 
 /**
  * Specific parser to enrich the Csar archive object with meta-data
  */
 @Component
-public class MetaDataParser extends DefaultParser<Csar> {
+public class MetaDataParser implements INodeParser<Csar> {
     private static final String TEMPLATE_NAME = "template_name";
     private static final String TEMPLATE_AUTHOR = "template_author";
     private static final String TEMPLATE_VERSION = "template_version";
