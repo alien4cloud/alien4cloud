@@ -278,7 +278,7 @@ define(function(require) {
             return $scope.definitionObject;
           }
           if (constraints[i].hasOwnProperty('inRange')) {
-            $scope.definitionObject.uiName = 'range';
+            $scope.definitionObject.uiName = 'string';
             $scope.definitionObject.uiValue = shownValue;
             $scope.definitionObject.uiValueMax = constraints[i].rangeMaxValue;
             $scope.definitionObject.uiValueMin = constraints[i].rangeMinValue;
