@@ -19,7 +19,7 @@ topology_template:
       requirements:
         # in such short notation, the requirement's name is expected to match the capability's name
         - host: compute
-              
+
 node_types:
   custom.nodes.MyCompute:
     derived_from: tosca.nodes.Root
@@ -35,11 +35,11 @@ node_types:
       host: 
         type: custom.capabilities.MyCapability
         relationship_type: custom.relationships.MyRelationType
-      
+
 capability_types:
   custom.capabilities.MyCapability:
     derived_from: tosca.capabilities.Root
-      
+
 relationship_types:
   custom.relationships.MyRelationType:
     derived_from: tosca.relationships.Root
@@ -51,5 +51,4 @@ relationship_types:
           - min_length: 1
       prop2:
         type: string
-        required: false      
-        
+        required: false

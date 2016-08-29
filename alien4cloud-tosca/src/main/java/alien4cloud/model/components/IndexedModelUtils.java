@@ -2,19 +2,17 @@ package alien4cloud.model.components;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.elasticsearch.common.collect.Maps;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.common.Tag;
 import alien4cloud.utils.CollectionUtils;
-
-import com.google.common.collect.Lists;
 
 /**
  * Utils class for Indexed(DAO Object Types) Model.
@@ -62,12 +60,7 @@ public final class IndexedModelUtils {
             }
             elementsLevelMap.put(element.getElementId(), levelCount);
         }
-        Collections.sort(orderedElements, new Comparator<IndexedInheritableToscaElement>() {
-            @Override
-            public int compare(IndexedInheritableToscaElement left, IndexedInheritableToscaElement right) {
-                return elementsLevelMap.get(left.getElementId()).compareTo(elementsLevelMap.get(right.getElementId()));
-            }
-        });
+        Collections.sort(orderedElements, (left, right) -> elementsLevelMap.get(left.getElementId()).compareTo(elementsLevelMap.get(right.getElementId())));
         return orderedElements;
     }
 
