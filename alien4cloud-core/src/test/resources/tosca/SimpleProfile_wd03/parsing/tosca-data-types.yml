@@ -48,26 +48,31 @@ data_types:
         type: string
       address:
         type: alien.test.Address
+        required: false
       friends:
         type: list
         entry_schema:
           type: alien.test.Person
+        required: false
       emails:
         type: list
         entry_schema:
           type: string
           constraints:
             - pattern: ".+@.+"
+        required: false
       misc:
         type: map
         entry_schema:
           type: string
           constraints:
             - min_length: 10
+        required: false
       hierarchy:
         type: map
         entry_schema:
           type: alien.test.Person
+        required: false
 
   alien.test.Client:
     derived_from: alien.test.Person
