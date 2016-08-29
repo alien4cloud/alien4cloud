@@ -2,18 +2,19 @@ package alien4cloud.tosca.parser.mapping.generator;
 
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.NodeTuple;
+
+import com.google.common.collect.Maps;
 
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.MappingTarget;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.impl.base.KeyDiscriminatorParser;
-import alien4cloud.tosca.parser.impl.base.ReferencedParser;
-
-import com.google.common.collect.Maps;
+import alien4cloud.tosca.parser.impl.base.BaseParserFactory;
 
 /**
  * Build Mapping target for map.
@@ -23,6 +24,9 @@ public class DiscriminatorMappingBuilder implements IMappingBuilder {
     private static final String DISCRIMINATOR = "discriminator";
     private static final String KEYS = "keys";
     private static final String DEFAULT = "default";
+
+    @Resource
+    private BaseParserFactory baseParserFactory;
 
     @Override
     public String getKey() {
@@ -43,13 +47,13 @@ public class DiscriminatorMappingBuilder implements IMappingBuilder {
                 MappingNode keys = (MappingNode) tuple.getValueNode();
                 for (NodeTuple keyMappingTuple : keys.getValue()) {
                     parsersByKey.put(ParserUtils.getScalar(keyMappingTuple.getKeyNode(), context),
-                            new ReferencedParser<>(ParserUtils.getScalar(keyMappingTuple.getValueNode(), context)));
+                            baseParserFactory.getReferencedParser(ParserUtils.getScalar(keyMappingTuple.getValueNode(), context)));
                 }
             } else if (DEFAULT.equals(tupleKey)) {
-                fallbackParser = new ReferencedParser<>(ParserUtils.getScalar(tuple.getValueNode(), context));
+                fallbackParser = baseParserFactory.getReferencedParser(ParserUtils.getScalar(tuple.getValueNode(), context));
             }
         }
 
-        return new MappingTarget(mappingTarget, new KeyDiscriminatorParser(parsersByKey, fallbackParser));
+        return new MappingTarget(mappingTarget, baseParserFactory.getKeyDiscriminatorParser(parsersByKey, fallbackParser));
     }
 }

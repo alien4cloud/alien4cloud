@@ -4,7 +4,7 @@ template_name: test-data-types
 template_author: TOSCA TC
 template_version: 1.0.0.alien120
 
-description: Contains the normative types definition.
+description: Invalid template as the default value for a complex data type does not match the required field settings.
 
 data_types:
   sample.datatypes.Address:

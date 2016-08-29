@@ -1,37 +1,35 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
 import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.tosca.parser.DefferedParsingValueExecutor;
-import alien4cloud.tosca.parser.MappingTarget;
+import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.impl.base.BaseParserFactory;
 import alien4cloud.tosca.parser.impl.base.ReferencedParser;
-import alien4cloud.tosca.parser.mapping.DefaultParser;
 
 @Component
-public class CapabilityDefinitionParser extends DefaultParser<CapabilityDefinition> {
+public class CapabilityDefinitionParser implements INodeParser<CapabilityDefinition> {
     @Resource
-    private ReferencedCapabilityTypeParser referencedCapabilityTypeParser;
-    private final ReferencedParser<CapabilityDefinition> capabilityDefinitionParser;
+    private BaseParserFactory baseParserFactory;
 
-    public CapabilityDefinitionParser() {
-        this.capabilityDefinitionParser = new ReferencedParser("capability_definition_detailed");
+    private ReferencedParser<CapabilityDefinition> capabilityDefinitionParser;
+
+    @PostConstruct
+    public void init() {
+        this.capabilityDefinitionParser = baseParserFactory.getReferencedParser("capability_definition_detailed");
     }
 
     @Override
     public CapabilityDefinition parse(Node node, ParsingContextExecution context) {
         if (node instanceof ScalarNode) {
             CapabilityDefinition definition = new CapabilityDefinition();
-            BeanWrapper instanceWrapper = new BeanWrapperImpl(definition);
-            context.addDeferredParser(new DefferedParsingValueExecutor(null, instanceWrapper, context,
-                    new MappingTarget("type", referencedCapabilityTypeParser), node));
+            definition.setType(((ScalarNode) node).getValue());
             return definition;
         }
 

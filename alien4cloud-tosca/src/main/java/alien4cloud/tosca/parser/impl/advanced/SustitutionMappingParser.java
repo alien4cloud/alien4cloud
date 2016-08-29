@@ -6,55 +6,47 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import alien4cloud.tosca.parser.impl.base.BaseParserFactory;
 import org.elasticsearch.common.collect.Maps;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 
-import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.topology.SubstitutionMapping;
 import alien4cloud.model.topology.SubstitutionTarget;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.ListParser;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
-import alien4cloud.tosca.parser.mapping.DefaultDeferredParser;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-public class SustitutionMappingParser extends DefaultDeferredParser<SubstitutionMapping> {
-
+public class SustitutionMappingParser implements INodeParser<SubstitutionMapping> {
     private static final String NODE_TYPE = "node_type";
-
     private static final String CAPABILITIES = "capabilities";
-
     private static final String REQUIREMENTS = "requirements";
 
     @Resource
-    private ScalarParser scalarParser;
-
+    private BaseParserFactory baseParserFactory;
     @Resource
-    private ICSARRepositorySearchService searchService;
+    private ScalarParser scalarParser;
 
     private ListParser<String> stringListParser;
 
     @PostConstruct
     public void init() {
-        stringListParser = new ListParser<String>(scalarParser, "string");
+        stringListParser = baseParserFactory.getListParser(scalarParser, "string");
     }
 
     @Override
     public SubstitutionMapping parse(Node node, ParsingContextExecution context) {
-        Object parent = context.getParent();
-        if (!(parent instanceof Topology)) {
-            // TODO: throw ex
-        }
-        Topology topology = (Topology) parent;
+        Topology topology = (Topology) context.getParent();
 
         if (!(node instanceof MappingNode)) {
             // we expect a MappingNode
@@ -70,12 +62,8 @@ public class SustitutionMappingParser extends DefaultDeferredParser<Substitution
             switch (key) {
             case NODE_TYPE:
                 String nodeTypeName = scalarParser.parse(valueNode, context);
-                IndexedNodeType nodeType = searchService.getElementInDependencies(IndexedNodeType.class, nodeTypeName, topology.getDependencies());
-                if (nodeType == null) {
-                    context.getParsingErrors()
-                            .add(new ParsingError(ErrorCode.TYPE_NOT_FOUND, null, valueNode.getStartMark(), null, valueNode.getEndMark(), nodeTypeName));
-                    return null;
-                }
+                IndexedNodeType nodeType = new IndexedNodeType();
+                nodeType.setElementId(nodeTypeName);
                 result.setSubstitutionType(nodeType);
                 break;
             case CAPABILITIES:
@@ -85,7 +73,7 @@ public class SustitutionMappingParser extends DefaultDeferredParser<Substitution
                 result.setRequirements(parseSubstitutionTargets(valueNode, context));
                 break;
             default:
-                // TODO add a warning
+                // FIXME add a warning
             }
         }
         return result;
@@ -114,7 +102,7 @@ public class SustitutionMappingParser extends DefaultDeferredParser<Substitution
     private SubstitutionTarget parseSubstitutionTarget(Node valueNode, ParsingContextExecution context) {
         List<String> values = (List<String>) stringListParser.parse(valueNode, context);
         if (values.size() != 2) {
-            // TODO: throw ex
+            // FIXME: throw ex
             return null;
         }
         return new SubstitutionTarget(values.get(0), values.get(1));

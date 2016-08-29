@@ -2,7 +2,6 @@ package alien4cloud.tosca.parser.impl.advanced;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
@@ -10,16 +9,17 @@ import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
 import alien4cloud.paas.exception.NotSupportedException;
 import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
-import alien4cloud.tosca.parser.mapping.DefaultParser;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class ImportParser extends DefaultParser<CSARDependency> {
+public class ImportParser implements INodeParser<CSARDependency> {
     @Resource
     private ScalarParser scalarParser;
 

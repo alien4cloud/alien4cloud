@@ -45,7 +45,23 @@ public class ParsingError {
         this(ParsingErrorLevel.ERROR, errorCode, context, startMark, problem, endMark, note);
     }
 
+    /**
+     * Create a new parsing error that is the same as the given parsing error but with a new level.
+     * 
+     * @param errorLevel The error level for the new error.
+     * @param from The parsing error to clone.
+     */
+    public ParsingError(ParsingErrorLevel errorLevel, ParsingError from) {
+        this.errorLevel = errorLevel;
+        this.errorCode = from.errorCode;
+        this.context = from.context;
+        this.startMark = from.startMark;
+        this.problem = from.problem;
+        this.endMark = from.endMark;
+        this.note = from.note;
+    }
+
     public ParsingError(ErrorCode errorCode, MarkedYAMLException cause) {
-        this(ParsingErrorLevel.ERROR, errorCode, cause.getContext(), cause.getContextMark(), cause.getProblem(), cause.getProblemMark(), null);
+        this(ParsingErrorLevel.ERROR, errorCode, cause.getContext(), cause.getProblemMark(), cause.getProblem(), cause.getContextMark(), null);
     }
 }

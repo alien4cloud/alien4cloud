@@ -21,7 +21,7 @@ public final class CollectionUtils {
      * @return The target Set with addition of source Set elements, or a new Set (including content of source set) if target was null.
      */
     public static <T> Set<T> merge(Set<T> source, Set<T> target) {
-        Set<T> merged = Sets.newHashSet();
+        Set<T> merged = Sets.newLinkedHashSet();
         if (target != null) {
             merged.addAll(target);
         }
@@ -46,7 +46,7 @@ public final class CollectionUtils {
      */
     public static <T, V> Map<T, V> merge(Map<T, ? extends V> source, Map<T, V> target, boolean override) {
         if (target == null) {
-            target = Maps.newHashMap();
+            target = Maps.newLinkedHashMap();
         }
 
         if (source != null) {
@@ -102,5 +102,4 @@ public final class CollectionUtils {
         value.clear();
         value.addAll(set);
     }
-
 }

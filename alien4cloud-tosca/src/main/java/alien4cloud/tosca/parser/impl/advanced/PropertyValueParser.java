@@ -12,19 +12,19 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 import org.yaml.snakeyaml.nodes.SequenceNode;
 
+import com.google.common.collect.Lists;
+
+import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.impl.ErrorCode;
-import alien4cloud.tosca.parser.mapping.DefaultParser;
-
-import com.google.common.collect.Lists;
 
 /**
  * Parse a tosca Scalar unit field.
  */
 @Component
-public class PropertyValueParser extends DefaultParser<Object> {
+public class PropertyValueParser implements INodeParser<Object> {
     private static final Map<String, Double> factorMap = new HashMap<String, Double>(5);
     private static final Pattern scalarUnitPattern = Pattern.compile("([0-9.]+)\\s*([a-zA-Z]+)");
     static {
@@ -63,9 +63,8 @@ public class PropertyValueParser extends DefaultParser<Object> {
 
                 Double unitFactor = factorMap.get(unitValue);
                 if (unitFactor == null) {
-                    context.getParsingErrors().add(
-                            new ParsingError(ErrorCode.INVALID_SCALAR_UNIT, "Unable to parse Tosca scalar-unit.", node.getStartMark(),
-                                    "Unit is not a valid tosca unit, should be one of (B, kB, MB, GB, TB).", node.getEndMark(), scalarValue));
+                    context.getParsingErrors().add(new ParsingError(ErrorCode.INVALID_SCALAR_UNIT, "Unable to parse Tosca scalar-unit.", node.getStartMark(),
+                            "Unit is not a valid tosca unit, should be one of (B, kB, MB, GB, TB).", node.getEndMark(), scalarValue));
                     return null;
                 }
 
@@ -81,9 +80,8 @@ public class PropertyValueParser extends DefaultParser<Object> {
             }
             return valueList;
         } else if (node instanceof MappingNode) {
-            context.getParsingErrors().add(
-                    new ParsingError(ErrorCode.ALIEN_MAPPING_ERROR, "Alien is currently not able to manage complex objects as property values.", node
-                            .getStartMark(), "", node.getEndMark(), ""));
+            context.getParsingErrors().add(new ParsingError(ErrorCode.ALIEN_MAPPING_ERROR,
+                    "Alien is currently not able to manage complex objects as property values.", node.getStartMark(), "", node.getEndMark(), ""));
         }
         return null;
     }
