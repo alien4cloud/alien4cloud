@@ -9,13 +9,33 @@ import org.yaml.snakeyaml.nodes.ScalarNode;
 
 import alien4cloud.model.components.AbstractArtifact;
 import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.*;
+import alien4cloud.tosca.parser.INodeParser;
+import alien4cloud.tosca.parser.ParserUtils;
+import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
 
 public abstract class ArtifactParser<T extends AbstractArtifact> implements INodeParser<T> {
     @Resource
     private ScalarParser scalarParser;
+    @Resource
+    private ArtifactReferenceParser artifactReferenceParser;
+
+    private boolean artifactReferenceIsMandatory;
+
+    public ArtifactParser(boolean artifactReferenceIsMandatory) {
+        this.artifactReferenceIsMandatory = artifactReferenceIsMandatory;
+    }
+
+    public ArtifactParser() {
+        this.artifactReferenceIsMandatory = true;
+    }
+
+    private INodeParser<String> getValueParser(String key) {
+        return "file".equals(key) ? artifactReferenceParser : scalarParser;
+    }
 
     /**
      * Method to be called by implementations providing an instance of the artifact to parse.
@@ -35,7 +55,7 @@ public abstract class ArtifactParser<T extends AbstractArtifact> implements INod
             MappingNode mappingNode = (MappingNode) node;
             for (NodeTuple nodeTuple : mappingNode.getValue()) {
                 String key = scalarParser.parse(nodeTuple.getKeyNode(), context);
-                String value = scalarParser.parse(nodeTuple.getValueNode(), context);
+                String value = getValueParser(key).parse(nodeTuple.getValueNode(), context);
                 switch (key) {
                 case "file":
                     artifact.setArtifactRef(value);
@@ -51,11 +71,9 @@ public abstract class ArtifactParser<T extends AbstractArtifact> implements INod
                             "Unrecognized key while parsing implementation artifact", node.getEndMark(), key));
                 }
             }
-            if (artifact.getArtifactRef() == null) {
-                context.getParsingErrors()
-                        .add(new ParsingError(ErrorCode.SYNTAX_ERROR, "Implementation artifact", node.getStartMark(),
-                                "No artifact reference is defined, 'file' is mandatory in a long notation implementation artifact definition",
-                                node.getEndMark(), null));
+            if (artifact.getArtifactRef() == null && artifactReferenceIsMandatory) {
+                context.getParsingErrors().add(new ParsingError(ErrorCode.SYNTAX_ERROR, "Implementation artifact", node.getStartMark(),
+                        "No artifact reference is defined, 'file' is mandatory in a long notation artifact definition", node.getEndMark(), null));
             }
             return artifact;
         } else {
