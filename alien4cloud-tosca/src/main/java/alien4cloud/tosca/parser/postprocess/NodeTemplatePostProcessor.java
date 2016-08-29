@@ -41,9 +41,6 @@ public class NodeTemplatePostProcessor implements IPostProcessor<NodeTemplate> {
     public void process(final NodeTemplate instance) {
         // ensure type exists
         referencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance.getType(), IndexedNodeType.class));
-        // apply post processor to capabilities defined locally on the element (no need to post-processed the one merged)
-        safe(instance.getCapabilities()).entrySet().stream().forEach(capabilityPostProcessor);
-        safe(instance.getRequirements()).entrySet().stream().forEach(requirementPostProcessor);
         final IndexedNodeType nodeType = ToscaContext.get(IndexedNodeType.class, instance.getType());
         if (nodeType == null) {
             return; // error managed by the reference post processor.
@@ -71,6 +68,10 @@ public class NodeTemplatePostProcessor implements IPostProcessor<NodeTemplate> {
         instance.setRequirements(tempObject.getRequirements());
         instance.setArtifacts(tempObject.getArtifacts());
         instance.setInterfaces(tempObject.getInterfaces());
+
+        // apply post processor to capabilities defined locally on the element (no need to post-processed the one merged)
+        safe(instance.getCapabilities()).entrySet().stream().forEach(capabilityPostProcessor);
+        safe(instance.getRequirements()).entrySet().stream().forEach(requirementPostProcessor);
 
         propertyValueChecker.checkProperties(nodeType, instance.getProperties(), instance.getName());
     }
