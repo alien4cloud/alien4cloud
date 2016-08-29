@@ -42,7 +42,7 @@ Feature: CSAR upload with topology
     And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].requirementType" should return "tosca.capabilities.Container"
     And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].targetedCapabilityName" should return "compute"
     And The SPEL int expression "nodeTemplates['apache'].relationships['hostedOnCompute'].properties.size()" should return 2
-    And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].properties['password'].value" should return "unfuckingbelievable"
+    And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].properties['password'].value" should return "password"
     # this node has inherited capabilities
     And The SPEL int expression "nodeTemplates['apache'].capabilities.size()" should return 2
 

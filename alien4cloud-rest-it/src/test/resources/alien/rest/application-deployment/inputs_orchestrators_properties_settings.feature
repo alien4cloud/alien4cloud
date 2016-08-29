@@ -86,7 +86,7 @@ Feature: inputs and orchestrator proerties settings in deployment topology
     Given I am authenticated with user named "frodon"
     When I set the following orchestrator properties
       | numberBackup | not an integer |
-    Then I should receive a RestResponse with an error code 800
+    Then I should receive a RestResponse with an error code 804
     When I set the following orchestrator properties
       | numberBackup | 0 |
     Then I should receive a RestResponse with an error code 800
