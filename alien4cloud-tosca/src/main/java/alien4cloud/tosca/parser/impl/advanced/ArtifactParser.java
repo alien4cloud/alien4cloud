@@ -13,6 +13,7 @@ import alien4cloud.model.components.AbstractArtifact;
 import alien4cloud.model.components.IndexedArtifactType;
 import alien4cloud.model.components.RepositoryDefinition;
 import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
@@ -28,6 +29,17 @@ public abstract class ArtifactParser<T extends AbstractArtifact> extends Default
 
     @Resource
     private ScalarParser scalarParser;
+
+    @Resource
+    private ArtifactReferenceParser artifactReferenceParser;
+
+    private INodeParser<String> getValueParser(String key) {
+        if ("file".equals(key)) {
+            return artifactReferenceParser;
+        } else {
+            return scalarParser;
+        }
+    }
 
     private String getArtifactTypeByExtension(Node node, String artifactReference, ArchiveRoot archiveRoot, ParsingContextExecution context) {
         int dotIndex = artifactReference.lastIndexOf('.');
@@ -62,7 +74,7 @@ public abstract class ArtifactParser<T extends AbstractArtifact> extends Default
             MappingNode mappingNode = (MappingNode) node;
             for (NodeTuple nodeTuple : mappingNode.getValue()) {
                 String key = scalarParser.parse(nodeTuple.getKeyNode(), context);
-                String value = scalarParser.parse(nodeTuple.getValueNode(), context);
+                String value = getValueParser(key).parse(nodeTuple.getValueNode(), context);
                 switch (key) {
                 case "file":
                     artifact.setArtifactRef(value);
@@ -86,16 +98,16 @@ public abstract class ArtifactParser<T extends AbstractArtifact> extends Default
                                 archiveRoot.getArchive().getDependencies());
                     }
                     if (artifactType == null) {
-                        context.getParsingErrors().add(new ParsingError(ErrorCode.UNKNOWN_ARTIFACT, "Implementation artifact",
-                                node.getStartMark(), "No artifact type in the repository references the artifact's type", node.getEndMark(), value));
+                        context.getParsingErrors().add(new ParsingError(ErrorCode.UNKNOWN_ARTIFACT, "Implementation artifact", node.getStartMark(),
+                                "No artifact type in the repository references the artifact's type", node.getEndMark(), value));
                         artifact.setArtifactType("unknown");
                     } else {
                         artifact.setArtifactType(artifactType.getElementId());
                     }
                     break;
                 default:
-                    context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNKNOWN_ARTIFACT_KEY, null,
-                            node.getStartMark(), "Unrecognized key while parsing implementation artifact", node.getEndMark(), key));
+                    context.getParsingErrors().add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNKNOWN_ARTIFACT_KEY, null, node.getStartMark(),
+                            "Unrecognized key while parsing implementation artifact", node.getEndMark(), key));
                 }
             }
             if (artifact.getArtifactRef() == null) {

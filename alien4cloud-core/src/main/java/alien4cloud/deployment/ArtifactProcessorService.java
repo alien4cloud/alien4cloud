@@ -107,10 +107,9 @@ public class ArtifactProcessorService {
 
     private void processInterfaces(Map<String, Interface> interfaceMap) {
         if (interfaceMap != null) {
-            interfaceMap.values().stream().filter(interfazz -> interfazz.getOperations() != null).forEach(interfazz -> interfazz.getOperations().values()
-                    .stream().filter(operation -> operation.getImplementationArtifact() != null).forEach(operation -> {
-                        processArtifact(operation.getImplementationArtifact());
-                    }));
+            interfaceMap.values().stream().filter(interfazz -> interfazz.getOperations() != null)
+                    .forEach(interfazz -> interfazz.getOperations().values().stream().filter(operation -> operation.getImplementationArtifact() != null)
+                            .forEach(operation -> processArtifact(operation.getImplementationArtifact())));
         }
     }
 
