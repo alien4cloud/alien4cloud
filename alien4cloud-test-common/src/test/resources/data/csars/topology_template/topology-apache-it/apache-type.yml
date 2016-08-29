@@ -22,12 +22,12 @@ topology_template:
         port: 8080
         document_root: "/var/www"
       requirements:
-        - host: 
+        - host:
             node: compute
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
             properties:
-              password: unfuckingbelievable
+              password: mypassword
 
 node_types:
   alien.nodes.Apache:
