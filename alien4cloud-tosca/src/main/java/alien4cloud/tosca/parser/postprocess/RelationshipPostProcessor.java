@@ -1,6 +1,9 @@
 package alien4cloud.tosca.parser.postprocess;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.util.Map;
+import java.util.Objects;
 
 import javax.annotation.Resource;
 
@@ -9,10 +12,7 @@ import org.yaml.snakeyaml.nodes.Node;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.RequirementDefinition;
+import alien4cloud.model.components.*;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
@@ -29,6 +29,8 @@ public class RelationshipPostProcessor {
     private ReferencePostProcessor referencePostProcessor;
     @Resource
     private PropertyValueChecker propertyValueChecker;
+    @Resource
+    private ArtifactPostProcessor artifactPostProcessor;
 
     public void process(IndexedNodeType nodeTemplateType, Map.Entry<String, RelationshipTemplate> instance) {
         RelationshipTemplate relationshipTemplate = instance.getValue();
@@ -106,6 +108,14 @@ public class RelationshipPostProcessor {
         NodeTemplateBuilder.fillProperties(properties, indexedRelationshipType.getProperties(), relationshipTemplate.getProperties());
         relationshipTemplate.setProperties(properties);
         relationshipTemplate.setAttributes(indexedRelationshipType.getAttributes());
+
+        // FIXME we should check that the artifact is defined at the type level.
+        safe(instance.getValue().getArtifacts()).values().stream().forEach(artifactPostProcessor);
+        // TODO Manage interfaces inputs to copy them to all operations.
+        for (Interface anInterface : safe(instance.getValue().getInterfaces()).values()) {
+            safe(anInterface.getOperations()).values().stream().map(operation -> operation.getImplementationArtifact()).filter(Objects::nonNull)
+                    .forEach(artifactPostProcessor);
+        }
     }
 
     private Map.Entry<String, Capability> getCapabilityByType(NodeTemplate nodeTemplate, String type) {

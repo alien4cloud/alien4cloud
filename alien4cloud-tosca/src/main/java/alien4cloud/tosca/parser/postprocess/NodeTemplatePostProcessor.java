@@ -49,7 +49,7 @@ public class NodeTemplatePostProcessor implements IPostProcessor<NodeTemplate> {
             return; // error managed by the reference post processor.
         }
 
-        // FIXME we should check that the artifact is defined at the tempalte level.
+        // FIXME we should check that the artifact is defined at the type level.
         safe(instance.getArtifacts()).values().stream().forEach(artifactPostProcessor);
         // TODO Manage interfaces inputs to copy them to all operations.
         for (Interface anInterface : safe(instance.getInterfaces()).values()) {

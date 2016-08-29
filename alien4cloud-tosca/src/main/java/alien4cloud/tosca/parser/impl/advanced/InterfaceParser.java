@@ -70,9 +70,7 @@ public class InterfaceParser implements INodeParser<Interface> {
                 if (entry.getValueNode() instanceof ScalarNode) {
                     Operation operation = new Operation();
                     // implementation artifact parsing should be done using a deferred parser as we need to look for artifact types.
-                    BeanWrapper targetBean = new BeanWrapperImpl(operation);
-                    MappingTarget target = new MappingTarget("implementationArtifact", implementationArtifactParser);
-                    implementationArtifactParser.parse(entry.getValueNode(), context);
+                    operation.setImplementationArtifact(implementationArtifactParser.parse(entry.getValueNode(), context));
                     operations.put(key, operation);
                 } else {
                     operations.put(key, operationParser.parse(entry.getValueNode(), context));

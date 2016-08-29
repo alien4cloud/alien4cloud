@@ -40,6 +40,8 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
     private WorkflowsBuilderService workflowBuilderService;
     @Resource
     private PropertyDefinitionPostProcessor propertyDefinitionPostProcessor;
+    @Resource
+    private ArtifactPostProcessor artifactPostProcessor;
 
     @Override
     public void process(Topology instance) {
@@ -60,6 +62,7 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
 
         // Inputs validation
         safe(instance.getInputs()).entrySet().stream().forEach(propertyDefinitionPostProcessor);
+        safe(instance.getInputArtifacts()).values().stream().forEach(artifactPostProcessor);
 
         int groupIndex = 0;
         // Groups validation

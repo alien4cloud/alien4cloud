@@ -2,20 +2,12 @@ package org.alien4cloud.tosca.editor;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
-import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.ParsingException;
-import alien4cloud.tosca.parser.ParsingResult;
-import alien4cloud.utils.FileUtil;
-import cucumber.api.java.en.When;
-import alien4cloud.model.templates.TopologyTemplate;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -37,16 +29,19 @@ import com.google.common.collect.Maps;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.components.*;
+import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.security.model.User;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.ArchiveUploadService;
+import alien4cloud.tosca.parser.ParsingResult;
 import cucumber.api.DataTable;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
+import cucumber.api.java.en.When;
 import gherkin.formatter.model.DataTableRow;
 import lombok.extern.slf4j.Slf4j;
 
@@ -212,7 +207,7 @@ public class EditorStepDefs {
             topologyEvaluationContext = new StandardEvaluationContext(topologyDTO.getTopology());
             dtoEvaluationContext = new StandardEvaluationContext(topologyDTO);
         } catch (Exception e) {
-            log.error("Exception occured while executing operation", e);
+            log.debug("Exception occured while executing operation", e);
             thrownException = e;
         }
     }

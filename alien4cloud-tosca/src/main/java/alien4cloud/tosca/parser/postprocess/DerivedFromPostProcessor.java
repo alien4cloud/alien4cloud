@@ -6,6 +6,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+import alien4cloud.tosca.normative.ToscaType;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
@@ -51,39 +52,40 @@ public class DerivedFromPostProcessor implements IPostProcessor<Map<String, ? ex
             processing.remove(instance);
             return;
         }
-        processing.put(instance, null);
 
         List<String> derivedFrom = instance.getDerivedFrom();
         if (derivedFrom == null || derivedFrom.isEmpty() || derivedFrom.size() > 1) {
             // Either the type has no parents, either it has been already processed.
-            processing.remove(instance);
             return;
         }
+
         String parentElementType = derivedFrom.get(0);
+
+        // Merge the type with it's parent except for primitive data types.
+        if (instance instanceof PrimitiveIndexedDataType && ToscaType.isSimple(parentElementType)) {
+            log.debug("Do not merge data type instance with parent as it extends from a primitive type.");
+            return;
+        }
+
         IndexedInheritableToscaElement parent = instances.get(parentElementType);
         if (parent == null) {
             parent = ToscaContext.get(instance.getClass(), parentElementType);
         } else {
             // first process the parent type
+            processing.put(instance, null);
             process(processed, processing, parent, instances);
+            processing.remove(instance);
         }
         if (parent == null) {
             Node node = ParsingContextExecution.getObjectToNodeMap().get(derivedFrom);
             ParsingContextExecution.getParsingErrors().add(new ParsingError(ErrorCode.TYPE_NOT_FOUND, "Derived_from type not found", node.getStartMark(),
                     "The type specified as parent is not found neither in the archive or its dependencies.", node.getEndMark(), parentElementType));
-            processing.remove(instance);
             return;
         }
 
-        // Merge the type with it's parent except for primitive data types.
-        if (instance instanceof PrimitiveIndexedDataType) {
-            log.debug("Do not merge data type instance with parent as it extends from a primitive type.");
-        } else {
-            // Merge with parent type
-            IndexedModelUtils.mergeInheritableIndex(parent, instance);
-        }
+        // Merge with parent type
+        IndexedModelUtils.mergeInheritableIndex(parent, instance);
 
-        processing.remove(instance);
         processed.put(instance, null);
     }
 }
