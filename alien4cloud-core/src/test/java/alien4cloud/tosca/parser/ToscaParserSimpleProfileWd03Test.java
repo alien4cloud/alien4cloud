@@ -624,14 +624,17 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
 
         IndexedNodeType mockedCompute = Mockito.mock(IndexedNodeType.class);
         IndexedNodeType mockedSoftware = Mockito.mock(IndexedNodeType.class);
+        IndexedCapabilityType mockedContainer  = Mockito.mock(IndexedCapabilityType.class);
         RequirementDefinition hostRequirement = new RequirementDefinition("host", "tosca.capabilities.Container", "", "tosca.relationships.HostedOn", "host", 1,
                 Integer.MAX_VALUE, null);
         Mockito.when(mockedSoftware.getRequirements()).thenReturn(Lists.<RequirementDefinition> newArrayList(hostRequirement));
         Mockito.when(mockedSoftware.getElementId()).thenReturn("tosca.nodes.SoftwareComponent");
         CapabilityDefinition capabilityDefinition = new CapabilityDefinition("host", "tosca.capabilities.Container", Integer.MAX_VALUE);
-        Mockito.when(mockedCompute.getCapabilities()).thenReturn(Lists.<CapabilityDefinition> newArrayList(capabilityDefinition));
+        Mockito.when(mockedCompute.getCapabilities()).thenReturn(Lists.newArrayList(capabilityDefinition));
         Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
                 Mockito.any(List.class))).thenReturn(mockedSoftware);
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(IndexedCapabilityType.class), Mockito.eq("tosca.capabilities.Container"),
+                Mockito.any(List.class))).thenReturn(mockedContainer);
         Mockito.when(
                 repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(List.class)))
                 .thenReturn(mockedCompute);
