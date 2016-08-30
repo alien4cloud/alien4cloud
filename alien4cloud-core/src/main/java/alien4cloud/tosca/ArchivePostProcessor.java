@@ -121,6 +121,11 @@ public class ArchivePostProcessor {
     }
 
     private void processArtifact(ArchivePathResolver archivePathResolver, AbstractArtifact artifact, ParsingResult<ArchiveRoot> parsedArchive) {
+        if (StringUtils.isBlank(artifact.getArtifactRef())) {
+            parsedArchive.getContext().getParsingErrors().add(new ParsingError(ErrorCode.INVALID_ARTIFACT_REFERENCE, "Empty artifact reference", null,
+                    "Artifact's reference " + artifact.getArtifactRef() + " is empty", null, artifact.getArtifactRef()));
+            return;
+        }
         if (!(parsedArchive.getResult().getArchive().getName().equals(artifact.getArchiveName())
                 && parsedArchive.getResult().getArchive().getVersion().equals(artifact.getArchiveVersion()))) {
             // if the artifact is not defined in the current archive then we don't have to perform validation.
@@ -211,7 +216,9 @@ public class ArchivePostProcessor {
 
     private void processInputArtifact(ArchivePathResolver archivePathResolver, ParsingResult<ArchiveRoot> parsedArchive) {
         if (hasInputArtifacts(parsedArchive)) {
-            parsedArchive.getResult().getTopology().getInputArtifacts().values()
+            parsedArchive.getResult().getTopology().getInputArtifacts().values().stream()
+                    // If artifact reference is null it means it's to be uploaded with the GUI
+                    .filter(inputArtifact -> StringUtils.isNotBlank(inputArtifact.getArtifactRef()))
                     .forEach(inputArtifact -> this.processArtifact(archivePathResolver, inputArtifact, parsedArchive));
         }
     }

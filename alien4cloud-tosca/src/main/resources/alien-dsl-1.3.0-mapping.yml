@@ -7,6 +7,7 @@
 - occurrences: alien4cloud.tosca.parser.impl.advanced.OccurrencesParser
 - implementation_artifact: alien4cloud.tosca.parser.impl.advanced.ImplementationArtifactParser
 - deployment_artifact: alien4cloud.tosca.parser.impl.advanced.DeploymentArtifactParser
+- input_artifact: alien4cloud.tosca.parser.impl.advanced.InputArtifactParser
 - tag: alien4cloud.tosca.parser.impl.advanced.TagParser
 - interface: alien4cloud.tosca.parser.impl.advanced.InterfaceParser
 - interfaces: alien4cloud.tosca.parser.impl.advanced.InterfacesParser
@@ -68,7 +69,7 @@
     type: property_definition
   input_artifacts:
     map: inputArtifacts
-    type: deployment_artifact
+    type: input_artifact
   substitution_mappings:
     reference: substitutionMapping
     type: sustitution_mapping_parser
