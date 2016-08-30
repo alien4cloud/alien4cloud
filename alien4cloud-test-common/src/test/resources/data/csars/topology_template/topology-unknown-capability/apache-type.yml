@@ -23,7 +23,7 @@ topology_template:
             capability: _custom.capabilities.MyCapability
             relationship: tosca.relationships.HostedOn
             properties:
-              password: unfuckingbelievable
+              password: mypassword
               
 node_types:
   custom.nodes.MyCompute:

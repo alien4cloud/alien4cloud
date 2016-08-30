@@ -84,7 +84,7 @@ Feature: CSAR upload with topology
   Scenario: Upload CSAR containing cutom types and embeded topology template using short notation for requirements
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology custom types"
-    Then I should receive a RestResponse with 3 alerts in 1 files : 0 errors 2 warnings and 1 infos
+    Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
     And If I search for topology templates I can find one with the name "AllInclusiveArchive" and store the related topology as a SPEL context
     And The SPEL expression "dependencies.^[name == 'AllInclusiveArchive'].version" should return "1.0.0-SNAPSHOT"
     And The SPEL expression "dependencies.^[name == 'tosca-base-types'].version" should return "1.0"
@@ -117,7 +117,7 @@ Feature: CSAR upload with topology
     Given I upload the archive "tosca base types 1.0"
     And I upload the archive "topology custom types"
     When I upload the archive "topology custom types"
-    Then I should receive a RestResponse with 3 alerts in 1 files : 0 errors 2 warnings and 1 infos
+    Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
     And If I search for topology templates I can find one with the name "AllInclusiveArchive" and store the related topology as a SPEL context
     And If I search for topology templates I can find one with the name "AllInclusiveArchive" and store the related topology as a SPEL context
 
@@ -125,37 +125,37 @@ Feature: CSAR upload with topology
   Scenario: Upload a CSAR containing topology with a node referencing a unexisting type
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology-error-missingtype"
-    Then I should receive a RestResponse with 2 alerts in 1 files : 1 errors 1 warnings and 0 infos
+    Then I should receive a RestResponse with 1 alerts in 1 files : 1 errors 0 warnings and 0 infos
 
   @reset
   Scenario: Upload a CSAR containing topology with an unkown capability
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology-unknown-capability"
-    Then I should receive a RestResponse with 2 alerts in 1 files : 1 errors 1 warnings and 0 infos
+    Then I should receive a RestResponse with 1 alerts in 1 files : 1 errors 0 warnings and 0 infos
 
   @reset
   Scenario: Upload a CSAR containing topology with an unkown capability, short requirement notation
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology-unknown-capability-short-notation"
-    Then I should receive a RestResponse with 2 alerts in 1 files : 1 errors 1 warnings and 0 infos
+    Then I should receive a RestResponse with 1 alerts in 1 files : 1 errors 0 warnings and 0 infos
 
   @reset
   Scenario: Upload a CSAR containing topology with an unkown relationship type
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology-unknown-relationshiptype"
-    Then I should receive a RestResponse with 2 alerts in 1 files : 1 errors 1 warnings and 0 infos
+    Then I should receive a RestResponse with 1 alerts in 1 files : 1 errors 0 warnings and 0 infos
 
   @reset
   Scenario: Upload a CSAR containing topology with an unknown requirement target
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology-unknown-reqtarget"
-    Then I should receive a RestResponse with 2 alerts in 1 files : 1 errors 1 warnings and 0 infos
+    Then I should receive a RestResponse with 1 alerts in 1 files : 1 errors 0 warnings and 0 infos
 
   @reset
   Scenario: Upload a CSAR containing topology with an incorrect requirement name
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology-unknown-req"
-    Then I should receive a RestResponse with 2 alerts in 1 files : 1 errors 1 warnings and 0 infos
+    Then I should receive a RestResponse with 1 alerts in 1 files : 1 errors 0 warnings and 0 infos
 
   @reset
   Scenario: Upload CSAR containing embeded topology template with inputs
@@ -248,8 +248,7 @@ Feature: CSAR upload with topology
   Scenario: Upload CSAR containing embeded topology template with unknown capabilities property
     Given I upload the archive "tosca base types 1.0"
     When I upload the archive "topology-capacility-prop-unkown"
-    Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos
-    And If I search for topology templates I can find one with the name "topology-capacility-prop-unkown" and store the related topology as a SPEL context
+    Then I should receive a RestResponse with 1 alerts in 1 files : 1 errors 0 warnings and 0 infos
 
   @reset
   Scenario: Upload CSAR containing embeded topology template with relationship property using get_input
@@ -329,6 +328,8 @@ Feature: CSAR upload with topology
     And The SPEL expression "nodeTemplates['apache'].artifacts['scripts'].artifactType" should return "fastconnect.artifacts.ResourceDirectory"
     And The SPEL expression "nodeTemplates['apache'].artifacts['scripts'].artifactRef" should return "scripts"
 
+  # COMMENTED FOR REAL BEFORE... !!!!!!!!!
+
   #Scenario: Upload CSAR containing embeded topology template with groups and HA policies
   #  Given I upload the archive "tosca-normative-types"
   #  And I upload the archive "topology-groups"
@@ -402,6 +403,9 @@ Feature: CSAR upload with topology
   #  And The SPEL int expression "groups['compute_scaling_group'].policies.size()" should return 1
   #  And The SPEL expression "groups['compute_scaling_group'].policies[0].name" should return "my_scaling_ha_policy"
   #  And The SPEL expression "groups['compute_scaling_group'].policies[0].type" should return "tosca.policy.ha"
+
+
+  ## BACKKKKK
 
   @reset
   Scenario: Upload CSAR containing embedded topology template with missing referenced inputs

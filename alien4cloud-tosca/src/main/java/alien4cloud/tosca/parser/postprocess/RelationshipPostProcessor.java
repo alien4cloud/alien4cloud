@@ -96,12 +96,7 @@ public class RelationshipPostProcessor {
 
         IndexedRelationshipType indexedRelationshipType = ToscaContext.get(IndexedRelationshipType.class, relationshipTemplate.getType());
         if (indexedRelationshipType == null) {
-            Node node = ParsingContextExecution.getObjectToNodeMap().get(relationshipTemplate.getType());
-            if (node == null) {
-                node = ParsingContextExecution.getObjectToNodeMap().get(relationshipTemplate);
-            }
-            ParsingContextExecution.getParsingErrors()
-                    .add(new ParsingError(ErrorCode.TYPE_NOT_FOUND, null, node.getStartMark(), null, node.getEndMark(), relationshipTemplate.getType()));
+            // Error managed by the reference post processor.
             return;
         }
         Map<String, AbstractPropertyValue> properties = Maps.newLinkedHashMap();

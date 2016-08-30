@@ -3,11 +3,16 @@ package alien4cloud.tosca.parser.postprocess;
 import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import javax.annotation.Resource;
 
+import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.impl.ErrorCode;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -20,6 +25,7 @@ import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.topology.NodeTemplateBuilder;
+import org.yaml.snakeyaml.nodes.Node;
 
 /**
  * Post process a node template
@@ -62,6 +68,13 @@ public class NodeTemplatePostProcessor implements IPostProcessor<NodeTemplate> {
 
         // Merge the node template with data coming from the type (default values etc.).
         NodeTemplate tempObject = NodeTemplateBuilder.buildNodeTemplate(nodeType, instance);
+        safe(instance.getCapabilities()).keySet().stream().forEach(s -> {
+            if (!safe(tempObject.getCapabilities()).containsKey(s)) {
+                Node node = ParsingContextExecution.getObjectToNodeMap().get(s);
+                ParsingContextExecution.getParsingErrors()
+                        .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNKNOWN_CAPABILITY, null, node.getStartMark(), null, node.getEndMark(), s));
+            }
+        });
         instance.setAttributes(tempObject.getAttributes());
         instance.setCapabilities(tempObject.getCapabilities());
         instance.setProperties(tempObject.getProperties());

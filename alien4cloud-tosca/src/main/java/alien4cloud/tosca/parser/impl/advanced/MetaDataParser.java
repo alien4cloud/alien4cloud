@@ -2,6 +2,8 @@ package alien4cloud.tosca.parser.impl.advanced;
 
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
@@ -15,6 +17,7 @@ import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import alien4cloud.utils.VersionUtil;
 
 /**
@@ -26,6 +29,9 @@ public class MetaDataParser implements INodeParser<Csar> {
     private static final String TEMPLATE_AUTHOR = "template_author";
     private static final String TEMPLATE_VERSION = "template_version";
 
+    @Resource
+    private ScalarParser scalarParser;
+
     @Override
     public Csar parse(Node node, ParsingContextExecution context) {
         ArchiveRoot parent = (ArchiveRoot) context.getParent();
@@ -35,8 +41,8 @@ public class MetaDataParser implements INodeParser<Csar> {
         if (node instanceof MappingNode) {
             MappingNode mapNode = (MappingNode) node;
             for (NodeTuple entry : mapNode.getValue()) {
-                String key = ParserUtils.getScalar(entry.getKeyNode(), context);
-                String value = ParserUtils.getScalar(entry.getValueNode(), context);
+                String key = scalarParser.parse(entry.getKeyNode(), context);
+                String value = scalarParser.parse(entry.getValueNode(), context);
                 if (TEMPLATE_NAME.equals(key)) {
                     csar.setName(value);
                 } else if (TEMPLATE_AUTHOR.equals(key)) {

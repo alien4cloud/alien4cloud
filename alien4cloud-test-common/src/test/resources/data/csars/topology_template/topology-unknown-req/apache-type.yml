@@ -28,7 +28,7 @@ topology_template:
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
             properties:
-              password: unfuckingbelievable
+              password: mypassword
 
 node_types:
   alien.nodes.Apache:

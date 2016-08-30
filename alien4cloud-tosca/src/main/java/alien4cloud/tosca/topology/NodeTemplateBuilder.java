@@ -29,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class NodeTemplateBuilder {
-
     /**
      * Build a node template. Note that a Tosca Context is required.
      *
