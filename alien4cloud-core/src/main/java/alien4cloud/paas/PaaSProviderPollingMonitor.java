@@ -161,7 +161,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
             if (listener.canHandle(event)) {
                 listener.eventHappened(event);
             }
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             log.error("Failed to dispatch event {} to listener {} retry {} on {}.", event.toString(), listener.toString(), retry, MAX_LISTENER_RETRY, e);
             // Even if that fails
             if (retry < MAX_LISTENER_RETRY) {
