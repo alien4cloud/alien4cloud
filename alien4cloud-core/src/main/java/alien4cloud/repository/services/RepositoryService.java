@@ -58,7 +58,12 @@ public class RepositoryService {
             for (Repository repository : repositories) {
                 Plugin plugin = alienDAO.findById(Plugin.class, repository.getPluginId());
                 if (plugin.isEnabled()) {
-                    createConfiguredResolver(repository.getId(), repository.getConfiguration(), repository.getPluginId());
+                    try {
+                        createConfiguredResolver(repository.getId(), repository.getConfiguration(), repository.getPluginId());
+                    } catch (Exception e) {
+                        log.error("Could not enable repository " + repository.getName() + " of type " + repository.getRepositoryType() + " for plugin "
+                                + repository.getPluginId(), e);
+                    }
                 } else {
                     // TODO Later when the user has re-enabled the plugin must re-initialize this
                     log.info("Don't enable resolver as the plugin {} with name {} is not enabled ", plugin.getId(), plugin.getDescriptor().getName());
@@ -80,7 +85,7 @@ public class RepositoryService {
      * @param credentials the credentials to retrieve the artifact
      * @return the artifact's path downloaded locally, null if artifact cannot be resolved
      */
-    public Path resolveArtifact(String artifactReference, String repositoryURL, String repositoryType, String credentials) {
+    public Path resolveArtifact(String artifactReference, String repositoryURL, String repositoryType, Map<String, Object> credentials) {
         for (IConfigurableArtifactResolver configurableArtifactResolver : registeredResolvers.values()) {
             Path resolvedArtifact = configurableArtifactResolver.resolveArtifact(artifactReference, repositoryURL, repositoryType, credentials);
             if (resolvedArtifact != null) {
@@ -98,7 +103,7 @@ public class RepositoryService {
         return null;
     }
 
-    public boolean canResolveArtifact(String artifactReference, String repositoryURL, String repositoryType, String credentials) {
+    public boolean canResolveArtifact(String artifactReference, String repositoryURL, String repositoryType, Map<String, Object> credentials) {
         for (IConfigurableArtifactResolver configurableArtifactResolver : registeredResolvers.values()) {
             ValidationResult validationResult = configurableArtifactResolver.canHandleArtifact(artifactReference, repositoryURL, repositoryType, credentials);
             if (validationResult.equals(ValidationResult.SUCCESS)) {
@@ -152,8 +157,8 @@ public class RepositoryService {
     public String createRepositoryConfiguration(String name, String pluginId, Object configuration) {
         String id = UUID.randomUUID().toString();
         Repository repository = new Repository(id, name, pluginId, getResolverFactoryOrFail(pluginId).getResolverType(), configuration);
-        ensureNameUnicityAndSave(repository, null);
         createConfiguredResolver(id, configuration, pluginId);
+        ensureNameUnicityAndSave(repository, null);
         return id;
     }
 

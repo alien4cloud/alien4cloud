@@ -2,16 +2,10 @@ package alien4cloud.model.components;
 
 import static alien4cloud.dao.model.FetchContext.SUMMARY;
 
-import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.model.common.Tag;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import alien4cloud.tosca.parser.ParsingContextExecution;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.NestedObject;
@@ -19,6 +13,13 @@ import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
+
+import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.model.common.Tag;
+import alien4cloud.tosca.parser.ParsingContextExecution;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -104,8 +105,9 @@ public class Csar {
     public void setDependencies(Set<CSARDependency> dependencies) {
         if (this.dependencies == null) {
             this.dependencies = dependencies;
+        } else {
+            this.dependencies.addAll(dependencies);
         }
-        this.dependencies.addAll(dependencies);
     }
 
     /**

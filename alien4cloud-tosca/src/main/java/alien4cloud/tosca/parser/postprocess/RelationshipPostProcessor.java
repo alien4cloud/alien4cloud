@@ -12,7 +12,13 @@ import org.yaml.snakeyaml.nodes.Node;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.model.components.*;
+import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.DeploymentArtifact;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.Interface;
+import alien4cloud.model.components.Operation;
+import alien4cloud.model.components.RequirementDefinition;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
@@ -105,10 +111,14 @@ public class RelationshipPostProcessor {
         relationshipTemplate.setAttributes(indexedRelationshipType.getAttributes());
 
         // FIXME we should check that the artifact is defined at the type level.
-        safe(instance.getValue().getArtifacts()).values().stream().forEach(artifactPostProcessor);
+        safe(instance.getValue().getArtifacts()).values().forEach(artifactPostProcessor);
+        Map<String, DeploymentArtifact> mergedArtifacts = safe(instance.getValue().getArtifacts());
+        mergedArtifacts.putAll(safe(indexedRelationshipType.getArtifacts()));
+        relationshipTemplate.setArtifacts(mergedArtifacts);
+
         // TODO Manage interfaces inputs to copy them to all operations.
         for (Interface anInterface : safe(instance.getValue().getInterfaces()).values()) {
-            safe(anInterface.getOperations()).values().stream().map(operation -> operation.getImplementationArtifact()).filter(Objects::nonNull)
+            safe(anInterface.getOperations()).values().stream().map(Operation::getImplementationArtifact).filter(Objects::nonNull)
                     .forEach(artifactPostProcessor);
         }
     }

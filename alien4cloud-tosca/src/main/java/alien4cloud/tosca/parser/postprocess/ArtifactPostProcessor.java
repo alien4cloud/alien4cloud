@@ -2,6 +2,7 @@ package alien4cloud.tosca.parser.postprocess;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
@@ -31,8 +32,12 @@ public class ArtifactPostProcessor implements IPostProcessor<AbstractArtifact> {
     @Override
     public void process(AbstractArtifact instance) {
         ArchiveRoot archiveRoot = ParsingContextExecution.getRootObj();
-        instance.setArchiveName(archiveRoot.getArchive().getName());
-        instance.setArchiveVersion(archiveRoot.getArchive().getVersion());
+        // The artifact is in the archive only and only if an artifact reference is defined
+        // Without artifact reference, it means that Alien's user will upload later the binary
+        if (StringUtils.isNotBlank(instance.getArtifactRef())) {
+            instance.setArchiveName(archiveRoot.getArchive().getName());
+            instance.setArchiveVersion(archiveRoot.getArchive().getVersion());
+        }
         Node node = ParsingContextExecution.getObjectToNodeMap().get(instance);
         if (instance.getArtifactType() == null) {
             // try to get type from extension
@@ -48,7 +53,7 @@ public class ArtifactPostProcessor implements IPostProcessor<AbstractArtifact> {
                         "Repository definition not found", node.getEndMark(), instance.getArtifactRepository()));
             } else {
                 instance.setRepositoryURL(repositoryDefinition.getUrl());
-                instance.setRepositoryCredentials(repositoryDefinition.getCredentials());
+                instance.setRepositoryCredential(repositoryDefinition.getCredential() != null ? repositoryDefinition.getCredential().getValue() : null);
                 instance.setRepositoryName(repositoryDefinition.getId());
                 instance.setArtifactRepository(repositoryDefinition.getType());
             }

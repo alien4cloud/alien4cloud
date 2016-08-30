@@ -34,6 +34,10 @@ public class EditorRepositoryService {
         localGitRepositoryPath = Paths.get(pathStr).resolve("editor");
     }
 
+    public Path resolveArtifact(String topologyId, String artifactReference) {
+        return localGitRepositoryPath.resolve(topologyId).resolve(artifactReference);
+    }
+
     /**
      * Create a local git repository for the given topology.
      *

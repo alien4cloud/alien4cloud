@@ -1,6 +1,7 @@
 package alien4cloud.model.components;
 
 import java.nio.file.Path;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -30,7 +31,7 @@ public abstract class AbstractArtifact implements IArtifact {
 
     private String repositoryURL;
 
-    private String repositoryCredentials;
+    private Map<String, Object> repositoryCredential;
 
     private String repositoryName;
 
@@ -42,15 +43,8 @@ public abstract class AbstractArtifact implements IArtifact {
 
     @Override
     public String toString() {
-        return "AbstractArtifact{" +
-                "artifactType='" + artifactType + '\'' +
-                ", artifactRef='" + artifactRef + '\'' +
-                ", artifactRepository='" + artifactRepository + '\'' +
-                ", archiveName='" + archiveName + '\'' +
-                ", archiveVersion='" + archiveVersion + '\'' +
-                ", repositoryURL='" + repositoryURL + '\'' +
-                ", repositoryName='" + repositoryName + '\'' +
-                ", artifactPath=" + artifactPath +
-                '}';
+        return "AbstractArtifact{" + "artifactType='" + artifactType + '\'' + ", artifactRef='" + artifactRef + '\'' + ", artifactRepository='"
+                + artifactRepository + '\'' + ", archiveName='" + archiveName + '\'' + ", archiveVersion='" + archiveVersion + '\'' + ", repositoryURL='"
+                + repositoryURL + '\'' + ", repositoryName='" + repositoryName + '\'' + ", artifactPath=" + artifactPath + '}';
     }
 }

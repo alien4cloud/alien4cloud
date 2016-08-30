@@ -6,7 +6,8 @@
 - import_definition: alien4cloud.tosca.parser.impl.advanced.ImportParser
 - occurrences: alien4cloud.tosca.parser.impl.advanced.OccurrencesParser
 - implementation_artifact: alien4cloud.tosca.parser.impl.advanced.ImplementationArtifactParser
-- deployment_artifact: alien4cloud.tosca.parser.impl.advanced.DeploymentArtifactParser
+- node_deployment_artifact: alien4cloud.tosca.parser.impl.advanced.NodeDeploymentArtifactParser
+- type_deployment_artifact: alien4cloud.tosca.parser.impl.advanced.TypeDeploymentArtifactParser
 - input_artifact: alien4cloud.tosca.parser.impl.advanced.InputArtifactParser
 - tag: alien4cloud.tosca.parser.impl.advanced.TagParser
 - interface: alien4cloud.tosca.parser.impl.advanced.InterfaceParser
@@ -144,7 +145,7 @@
     type: interfaces
   artifacts:
     map: artifacts
-    type: deployment_artifact
+    type: node_deployment_artifact
 
 - node_template_capability_definition: alien4cloud.model.topology.Capability
   type: type
@@ -316,7 +317,7 @@
   artifacts:
     sequence_to_map: artifacts
     node_is_value: false
-    type: deployment_artifact
+    type: type_deployment_artifact
   portability:
     map: portability
     type: node_template_property
@@ -389,7 +390,7 @@
   artifacts:
     sequence_to_map: artifacts
     node_is_value: false
-    type: deployment_artifact
+    type: type_deployment_artifact
   valid_target_types:
     list: validTargets
     type: scalar
@@ -414,5 +415,7 @@
 - repository_definition: alien4cloud.model.components.RepositoryDefinition
   description: description
   url: url
-  credentials: credentials
+  credential:
+    reference: credential
+    type: abstract_property_value
   type: type

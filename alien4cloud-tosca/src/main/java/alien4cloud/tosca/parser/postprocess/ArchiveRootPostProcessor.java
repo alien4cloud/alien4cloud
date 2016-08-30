@@ -2,13 +2,24 @@ package alien4cloud.tosca.parser.postprocess;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
+import java.util.Map;
+
 import javax.annotation.Resource;
 
+import org.apache.commons.collections.MapUtils;
 import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.nodes.Node;
 
+import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.IndexedDataType;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.PropertyValue;
+import alien4cloud.model.components.RepositoryDefinition;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.normative.NormativeCredentialConstant;
 import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.utils.PropertyUtil;
 
 /**
  * Performs validation and post processing of a TOSCA archive.
@@ -23,6 +34,8 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
     private ToscaArtifactTypePostProcessor toscaArtifactTypePostProcessor;
     @Resource
     private TopologyPostProcessor topologyPostProcessor;
+    @Resource
+    private PropertyValueChecker propertyValueChecker;
 
     /**
      * Perform validation of a Tosca archive.
@@ -60,6 +73,31 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
 
         // Then process the topology
         topologyPostProcessor.process(archiveRoot.getTopology());
+        processRepositoriesDefinitions(archiveRoot.getRepositories());
+    }
+
+    private void processRepositoriesDefinitions(Map<String, RepositoryDefinition> repositories) {
+        if (MapUtils.isNotEmpty(repositories)) {
+            IndexedDataType credentialType = ToscaContext.get(IndexedDataType.class, NormativeCredentialConstant.DATA_TYPE);
+            repositories.values().forEach(repositoryDefinition -> {
+                if (repositoryDefinition.getCredential() != null) {
+                    credentialType.getProperties().forEach((propertyName, propertyDefinition) -> {
+                        // Fill with default value
+                        if (!repositoryDefinition.getCredential().getValue().containsKey(propertyName)) {
+                            AbstractPropertyValue defaultValue = PropertyUtil.getDefaultPropertyValueFromPropertyDefinition(propertyDefinition);
+                            if (defaultValue instanceof PropertyValue) {
+                                repositoryDefinition.getCredential().getValue().put(propertyName, ((PropertyValue) defaultValue).getValue());
+                            }
+                        }
+                    });
+                    Node credentialNode = ParsingContextExecution.getObjectToNodeMap().get(repositoryDefinition.getCredential());
+                    PropertyDefinition propertyDefinition = new PropertyDefinition();
+                    propertyDefinition.setType(NormativeCredentialConstant.DATA_TYPE);
+                    propertyValueChecker.checkProperty("credential", credentialNode, repositoryDefinition.getCredential(), propertyDefinition,
+                            repositoryDefinition.getId());
+                }
+            });
+        }
     }
 
     private void processTypes(ArchiveRoot archiveRoot) {

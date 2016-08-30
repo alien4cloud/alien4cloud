@@ -1,6 +1,7 @@
 package alien4cloud.model.components;
 
 import java.nio.file.Path;
+import java.util.Map;
 
 /**
  * Shared interface for Implementation and Deployment artifact.
@@ -42,5 +43,5 @@ public interface IArtifact {
      * 
      * @return Credentials of the repository
      */
-    String getRepositoryCredentials();
+    Map<String, Object> getRepositoryCredential();
 }

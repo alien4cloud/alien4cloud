@@ -8,7 +8,6 @@ import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
 import alien4cloud.model.components.AbstractArtifact;
-import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
@@ -23,18 +22,40 @@ public abstract class ArtifactParser<T extends AbstractArtifact> implements INod
     @Resource
     private ArtifactReferenceParser artifactReferenceParser;
 
-    private boolean artifactReferenceIsMandatory;
+    private ArtifactReferenceMissingMode artifactReferenceMissingMode;
 
-    public ArtifactParser(boolean artifactReferenceIsMandatory) {
-        this.artifactReferenceIsMandatory = artifactReferenceIsMandatory;
+    public enum ArtifactReferenceMissingMode {
+        RAISE_WARNING, RAISE_ERROR, NONE
+    }
+
+    public ArtifactParser(ArtifactReferenceMissingMode artifactReferenceMissingMode) {
+        this.artifactReferenceMissingMode = artifactReferenceMissingMode;
     }
 
     public ArtifactParser() {
-        this.artifactReferenceIsMandatory = true;
+        this.artifactReferenceMissingMode = ArtifactReferenceMissingMode.RAISE_ERROR;
     }
 
     private INodeParser<String> getValueParser(String key) {
         return "file".equals(key) ? artifactReferenceParser : scalarParser;
+    }
+
+    private void checkArtifactReference(AbstractArtifact artifact, Node node, ParsingContextExecution context) {
+        if (artifact.getArtifactRef() == null) {
+            switch (artifactReferenceMissingMode) {
+            case RAISE_ERROR:
+                context.getParsingErrors().add(new ParsingError(ErrorCode.SYNTAX_ERROR, "Implementation artifact", node.getStartMark(),
+                        "No artifact reference is defined, 'file' is mandatory in a long notation artifact definition", node.getEndMark(), null));
+                break;
+            case RAISE_WARNING:
+                context.getParsingErrors()
+                        .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNRESOLVED_ARTIFACT, "Deployment artifact", node.getStartMark(),
+                                "No artifact reference is defined, user will have to define / override in order to make ", node.getEndMark(), null));
+                break;
+            default:
+                break;
+            }
+        }
     }
 
     /**
@@ -46,10 +67,10 @@ public abstract class ArtifactParser<T extends AbstractArtifact> implements INod
      * @return The parsed artifact.
      */
     protected T doParse(T artifact, Node node, ParsingContextExecution context) {
-        ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
         if (node instanceof ScalarNode) {
             String artifactReference = ((ScalarNode) node).getValue();
             artifact.setArtifactRef(artifactReference);
+            checkArtifactReference(artifact, node, context);
             return artifact;
         } else if (node instanceof MappingNode) {
             MappingNode mappingNode = (MappingNode) node;
@@ -71,10 +92,7 @@ public abstract class ArtifactParser<T extends AbstractArtifact> implements INod
                             "Unrecognized key while parsing implementation artifact", node.getEndMark(), key));
                 }
             }
-            if (artifact.getArtifactRef() == null && artifactReferenceIsMandatory) {
-                context.getParsingErrors().add(new ParsingError(ErrorCode.SYNTAX_ERROR, "Implementation artifact", node.getStartMark(),
-                        "No artifact reference is defined, 'file' is mandatory in a long notation artifact definition", node.getEndMark(), null));
-            }
+            checkArtifactReference(artifact, node, context);
             return artifact;
         } else {
             ParserUtils.addTypeError(node, context.getParsingErrors(), "Artifact definition");

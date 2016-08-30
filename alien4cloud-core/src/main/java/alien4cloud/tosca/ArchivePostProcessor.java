@@ -121,22 +121,18 @@ public class ArchivePostProcessor {
     }
 
     private void processArtifact(ArchivePathResolver archivePathResolver, AbstractArtifact artifact, ParsingResult<ArchiveRoot> parsedArchive) {
-        if (StringUtils.isBlank(artifact.getArtifactRef())) {
-            parsedArchive.getContext().getParsingErrors().add(new ParsingError(ErrorCode.INVALID_ARTIFACT_REFERENCE, "Empty artifact reference", null,
-                    "Artifact's reference " + artifact.getArtifactRef() + " is empty", null, artifact.getArtifactRef()));
-            return;
-        }
         if (!(parsedArchive.getResult().getArchive().getName().equals(artifact.getArchiveName())
                 && parsedArchive.getResult().getArchive().getVersion().equals(artifact.getArchiveVersion()))) {
             // if the artifact is not defined in the current archive then we don't have to perform validation.
             return;
         }
         String inputArtifactId = InputArtifactUtil.getInputArtifactId(artifact);
-        if (StringUtils.isNotBlank(inputArtifactId) && hasInputArtifacts(parsedArchive)
-                && !parsedArchive.getResult().getTopology().getInputArtifacts().containsKey(inputArtifactId)) {
-            // The input artifact id does not exist in the topology's definition
-            parsedArchive.getContext().getParsingErrors().add(new ParsingError(ErrorCode.INVALID_ARTIFACT_REFERENCE, "Invalid artifact reference", null,
-                    "Artifact's reference " + artifact.getArtifactRef() + " is not valid", null, artifact.getArtifactRef()));
+        if (StringUtils.isNotBlank(inputArtifactId) && hasInputArtifacts(parsedArchive)) {
+            if (!parsedArchive.getResult().getTopology().getInputArtifacts().containsKey(inputArtifactId)) {
+                // The input artifact id does not exist in the topology's definition
+                parsedArchive.getContext().getParsingErrors().add(new ParsingError(ErrorCode.INVALID_ARTIFACT_REFERENCE, "Invalid artifact reference", null,
+                        "Artifact's reference " + artifact.getArtifactRef() + " is not valid", null, artifact.getArtifactRef()));
+            }
             return;
         }
         URL artifactURL = null;
@@ -158,7 +154,7 @@ public class ArchivePostProcessor {
             log.debug("Archive artifact validation - Processing remote artifact {}", artifact);
         }
         if (!repositoryService.canResolveArtifact(artifact.getArtifactRef(), artifact.getRepositoryURL(), artifact.getArtifactRepository(),
-                artifact.getRepositoryCredentials())) {
+                artifact.getRepositoryCredential())) {
             if (artifactURL != null) {
                 try (InputStream ignored = artifactURL.openStream()) {
                     // In a best effort try in a generic manner to obtain the artifact

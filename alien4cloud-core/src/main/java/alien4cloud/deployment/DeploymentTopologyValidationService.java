@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.model.components.PropertyValue;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
@@ -17,12 +16,8 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import alien4cloud.application.ApplicationEnvironmentService;
-import alien4cloud.application.ApplicationService;
-import alien4cloud.common.MetaPropertiesService;
-import alien4cloud.common.TagService;
-import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.PropertyValue;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyValidationResult;
@@ -34,24 +29,12 @@ import alien4cloud.topology.validation.LocationPolicyValidationService;
 import alien4cloud.topology.validation.NodeFilterValidationService;
 import alien4cloud.topology.validation.TopologyAbstractNodeValidationService;
 import alien4cloud.topology.validation.TopologyPropertiesValidationService;
-import alien4cloud.utils.services.ConstraintPropertyService;
 
 /**
  * Perform validation of a topology before deployment.
  */
 @Service
 public class DeploymentTopologyValidationService {
-
-    @Resource
-    private ApplicationEnvironmentService applicationEnvironmentService;
-    @Resource
-    private MetaPropertiesService metaPropertiesService;
-    @Resource
-    private ApplicationService applicationService;
-    @Resource
-    private TagService tagService;
-    @Resource
-    private ConstraintPropertyService constraintPropertyService;
     @Resource
     private TopologyPropertiesValidationService topologyPropertiesValidationService;
     @Resource
@@ -66,6 +49,8 @@ public class DeploymentTopologyValidationService {
     private DeploymentNodeSubstitutionValidationService substitutionValidationServices;
     @Inject
     private NodeFilterValidationService nodeFilterValidationService;
+    @Inject
+    private DeploymentInputArtifactValidationService deploymentInputArtifactValidationService;
 
     /**
      * Perform validation of a deployment topology.
@@ -100,6 +85,8 @@ public class DeploymentTopologyValidationService {
 
         // validate inputs properties
         dto.addTask(validateInputProperties(deploymentTopology));
+
+        dto.addTasks(deploymentInputArtifactValidationService.validate(deploymentTopology));
 
         // validate required properties (properties of NodeTemplate, Relationship and Capability)
         // check also location / ENVIRONMENT meta properties

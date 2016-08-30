@@ -1,5 +1,6 @@
 package alien4cloud.tosca.topology;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -68,14 +69,15 @@ public class NodeTemplateBuilder {
     private static void fillDeploymentArtifactsMap(Map<String, DeploymentArtifact> deploymentArtifacts, Map<String, DeploymentArtifact> fromTypeArtifacts,
             Map<String, DeploymentArtifact> mapToMerge) {
         if (MapUtils.isEmpty(fromTypeArtifacts)) {
-            return;
+            fromTypeArtifacts = new HashMap<>();
         }
-
         deploymentArtifacts.putAll(fromTypeArtifacts);
         if (mapToMerge != null) {
             for (Map.Entry<String, DeploymentArtifact> entryArtifact : mapToMerge.entrySet()) {
-                if (deploymentArtifacts.containsKey(entryArtifact.getKey())) {
-                    deploymentArtifacts.put(entryArtifact.getKey(), entryArtifact.getValue());
+                deploymentArtifacts.put(entryArtifact.getKey(), entryArtifact.getValue());
+                DeploymentArtifact artifactFromType = deploymentArtifacts.get(entryArtifact.getKey());
+                if (artifactFromType != null && StringUtils.isBlank(entryArtifact.getValue().getArtifactType())) {
+                    entryArtifact.getValue().setArtifactType(artifactFromType.getArtifactType());
                 }
             }
         }

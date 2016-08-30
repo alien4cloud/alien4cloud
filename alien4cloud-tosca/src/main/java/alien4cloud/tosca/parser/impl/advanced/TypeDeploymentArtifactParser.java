@@ -3,9 +3,9 @@ package alien4cloud.tosca.parser.impl.advanced;
 import org.springframework.stereotype.Component;
 
 @Component
-public class InputArtifactParser extends DeploymentArtifactParser {
+public class TypeDeploymentArtifactParser extends DeploymentArtifactParser {
 
-    public InputArtifactParser() {
+    public TypeDeploymentArtifactParser() {
         super(ArtifactReferenceMissingMode.NONE);
     }
 }

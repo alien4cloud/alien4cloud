@@ -167,6 +167,17 @@
         "WORKFLOWS" : {
           "HAS_ERROR" : "Workflow '{{workflowName}}' is not valid : {{errorCount}} error(s)",
           "TITLE" : "Workflows"
+        },
+        "INPUT_ARTIFACT": {
+          "LABEL": "Input artifact"
+        },
+        "ARTIFACT": {
+          "LABEL": "Artifact",
+          "NODE": "Node",
+          "ERROR": "Error",
+          "ERRORS": {
+            "MISSING": "Missing"
+          }
         }
       },
       "TEMPLATE_BASE" : "Topology template",

@@ -90,6 +90,11 @@
               tasks="validTopologyDTO.taskList['SCALABLE_CAPABILITY_INVALID']" >
             </scalability-errors-display>
 
+            <!-- Artifact tasks  -->
+            <artifacts-errors-display
+              tasks = "validTopologyDTO.taskList['ARTIFACT_INVALID']">
+            </artifacts-errors-display>
+
             <!--  Workflow tasks  -->
             <div ng-if="(wfTasks = validTopologyDTO.taskList['WORKFLOW_INVALID']).length>0">
               <h4 class="clickable" ng-init="isWorkflowsCollapsed = false" ng-click="isWorkflowsCollapsed = !isWorkflowsCollapsed">

@@ -19,5 +19,9 @@ public class RepositoryDefinition {
     private String type;
     private String description;
     private String url;
-    private String credentials;
+    private ComplexPropertyValue credential;
+
+    public RepositoryDefinition(String url) {
+        this.url = url;
+    }
 }
