@@ -15,7 +15,7 @@ public final class ToscaNormativeImports {
 
     static {
         IMPORTS = Maps.newHashMap();
-        IMPORTS.put("tosca_simple_yaml_1_0", new CSARDependency("tosca-normative-types", "1.0.0-SNAPSHOT"));
-        IMPORTS.put("http://docs.oasis-open.org/tosca/ns/simple/yaml/1.0", new CSARDependency("tosca-normative-types", "1.0.0-SNAPSHOT"));
+        IMPORTS.put("tosca_simple_yaml_1_0", new CSARDependency("tosca-normative-types", "1.0.0"));
+        IMPORTS.put("http://docs.oasis-open.org/tosca/ns/simple/yaml/1.0", new CSARDependency("tosca-normative-types", "1.0.0"));
     }
 }

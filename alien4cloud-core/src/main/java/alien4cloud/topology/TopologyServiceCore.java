@@ -314,7 +314,7 @@ public class TopologyServiceCore {
             csar = new Csar(archiveName, archiveVersion);
             csar.setSubstitutionTopologyId(topology.getId());
         }
-        csar.setDependencies(inheritanceDependencies);
+        csar.setDependencies(inheritanceDependencies, true);
         csar.getDependencies().addAll(topology.getDependencies());
         csar.setImportSource(CSARSource.TOPOLOGY_SUBSTITUTION.name());
         csarService.save(csar);

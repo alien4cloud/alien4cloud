@@ -16,6 +16,7 @@ import alien4cloud.model.components.Csar;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.tosca.parser.ToscaArchiveParser;
 import lombok.Getter;
@@ -26,7 +27,6 @@ import lombok.SneakyThrows;
  * Manages a file-based local archive repository.
  *
  * Note: You should always access this class through the ToscaContext.
- * FIXME implementation.
  */
 @Getter
 @Setter
@@ -39,9 +39,17 @@ public class LocalRepositoryImpl implements ICSARRepositorySearchService {
     /** Path of the local repository. */
     private Path localRepositoryPath = Paths.get("target/repository");
 
+    public void setPath(String path) {
+        localRepositoryPath = Paths.get(path);
+    }
+
     @Override
     public Csar getArchive(String id) {
-        return null;
+        // name, version
+        String[] split = id.split(":");
+        CSARDependency dependency = new CSARDependency(split[0], split[1]);
+        ArchiveRoot root = parse(dependency).getResult();
+        return root == null ? null : root.getArchive();
     }
 
     @Override
@@ -89,12 +97,26 @@ public class LocalRepositoryImpl implements ICSARRepositorySearchService {
 
     @SneakyThrows
     private void parseAndRegister(CSARDependency dependency) {
+        // parse and load archive.
+        ParsingResult<ArchiveRoot> result = parse(dependency);
+        ToscaContext.Context context = ToscaContext.get();
+        context.register(result.getResult());
+    }
+
+    @SneakyThrows
+    private ParsingResult<ArchiveRoot> parse(CSARDependency dependency) {
         String archiveFileName = dependency.getName().concat("-").concat(dependency.getVersion()).concat(".csar");
         Path archivePath = localRepositoryPath.resolve(dependency.getName()).resolve(dependency.getVersion()).resolve(archiveFileName);
 
-        // parse and load archive.
-        ParsingResult<ArchiveRoot> result = toscaArchiveParser.parse(archivePath);
-        ToscaContext.Context context = ToscaContext.get();
-        context.register(result.getResult());
+        ParsingContextExecution.Context previousContext = ParsingContextExecution.get();
+        try {
+            ParsingContextExecution.init();
+            return toscaArchiveParser.parse(archivePath);
+        } finally {
+            ParsingContextExecution.destroy();
+            if (previousContext != null) {
+                ParsingContextExecution.set(previousContext);
+            }
+        }
     }
 }

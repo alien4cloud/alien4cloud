@@ -129,7 +129,7 @@ public class CsarService implements ICsarDependencyLoader {
                 }
             }
         }
-        csar.setDependencies(mergedDependencies);
+        csar.setDependencies(mergedDependencies, true);
 
         this.csarDAO.save(csar);
     }

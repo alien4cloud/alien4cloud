@@ -3,15 +3,16 @@ package alien4cloud.tosca.parser.impl.advanced;
 import java.util.HashSet;
 import java.util.Set;
 
+import alien4cloud.model.components.Csar;
+import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.tosca.parser.*;
+import alien4cloud.tosca.parser.impl.ErrorCode;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.normative.ToscaNormativeImports;
-import alien4cloud.tosca.parser.INodeParser;
-import alien4cloud.tosca.parser.ParserUtils;
-import alien4cloud.tosca.parser.ParsingContextExecution;
 
 @Component
 public class ToscaDefinitionVersionParser implements INodeParser<String> {
@@ -27,6 +28,9 @@ public class ToscaDefinitionVersionParser implements INodeParser<String> {
                     dependencies = new HashSet<>();
                     archiveRoot.getArchive().setDependencies(dependencies);
                 }
+
+                // Normative imports are automatically injected and supposed to be accessible, no specific validation is performed here.
+                ToscaContext.get().addDependency(dependency);
                 dependencies.add(dependency);
             }
         }

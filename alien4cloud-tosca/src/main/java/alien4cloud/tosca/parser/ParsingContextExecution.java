@@ -32,6 +32,24 @@ public class ParsingContextExecution {
     }
 
     /**
+     * Get the current context.
+     * 
+     * @return The current context.
+     */
+    public static Context get() {
+        return CONTEXT_THREAD_LOCAL.get();
+    }
+
+    /**
+     * Set an existing context.
+     * 
+     * @param context The context to set.
+     */
+    public static void set(Context context) {
+        CONTEXT_THREAD_LOCAL.set(context);
+    }
+
+    /**
      * Set the registry of parsers to use for the parsing.
      *
      * @param registry the registry of parsers to use for the parsing.

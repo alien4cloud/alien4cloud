@@ -98,8 +98,11 @@ public abstract class YamlParser<T> {
     }
 
     private ParsingResult<T> doParsing(String fileName, Node rootNode, T instance) throws ParsingException {
+        boolean createContext = !ParsingContextExecution.exist();
         try {
-            ParsingContextExecution.init();
+            if (createContext) { // parser can reuse an existing context if provided.
+                ParsingContextExecution.init();
+            }
             ParsingContextExecution.setFileName(fileName);
 
             ParsingContextExecution fake = new ParsingContextExecution();
@@ -119,7 +122,9 @@ public abstract class YamlParser<T> {
             return new ParsingResult<T>(parsedObject, ParsingContextExecution.getParsingContext());
 
         } finally {
-            ParsingContextExecution.destroy();
+            if (createContext) {
+                ParsingContextExecution.destroy();
+            }
         }
     }
 
