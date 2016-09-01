@@ -11,7 +11,6 @@ import javax.annotation.Resource;
 
 import lombok.SneakyThrows;
 
-import org.apache.commons.collections4.map.HashedMap;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -464,7 +463,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
         if ( internalAggregationsList != null && internalAggregationsList.size() > 0) {
 
-            Map<String, FacetedSearchFacet[]> finalResults = new HashedMap();
+            Map<String, FacetedSearchFacet[]> finalResults = new HashMap();
 
             for (Aggregation termsAgg : internalAggregationsList) {
                 InternalTerms internalTerms = (InternalTerms) termsAgg;
