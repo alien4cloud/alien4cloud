@@ -28,9 +28,12 @@ import org.elasticsearch.mapping.QueryBuilderAdapter;
 import org.elasticsearch.mapping.QueryHelper;
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
 import org.elasticsearch.mapping.SourceFetchContext;
-import org.elasticsearch.search.facet.Facet;
-import org.elasticsearch.search.facet.Facets;
-import org.elasticsearch.search.facet.terms.TermsFacet;
+import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
+import org.elasticsearch.search.aggregations.bucket.global.Global;
+import org.elasticsearch.search.aggregations.bucket.terms.InternalTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -248,7 +251,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
         fillMultipleDataResult(clazz, searchResponse, finalResponse, from, true);
 
-        finalResponse.setFacets(parseFacets(searchResponse.getFacets()));
+        finalResponse.setFacets(parseAggregationCounts(searchResponse));
 
         return finalResponse;
     }
@@ -371,36 +374,6 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         return true;
     }
 
-    private Map<String, FacetedSearchFacet[]> parseFacets(Facets facets) {
-        if (facets == null || facets.getFacets().size() == 0) {
-            return null;
-        }
-
-        Map<String, FacetedSearchFacet[]> toReturnMap = new HashMap<>();
-        List<FacetedSearchFacet> fsf = null;
-
-        for (Facet facet : facets) {
-            fsf = null;
-            if (facet instanceof TermsFacet) {
-                TermsFacet termFacet = (TermsFacet) facet;
-                fsf = Lists.newArrayList();
-                for (TermsFacet.Entry entry : termFacet.getEntries()) {
-                    fsf.add(new FacetedSearchFacet(entry.getTerm().string(), entry.getCount()));
-                }
-
-                // add the missing count as a facet with null value.
-                // This will help filtering on null values of a facet
-                // TODO: wrap the Map<String, FacetedSearchFacet[]> with an object adding a missingCout field
-                if (termFacet.getMissingCount() > 0) {
-                    fsf.add(new FacetedSearchFacet(null, termFacet.getMissingCount()));
-                }
-            }
-            toReturnMap.put(facet.getName(), fsf.toArray(new FacetedSearchFacet[fsf.size()]));
-        }
-
-        return toReturnMap;
-    }
-
     @Override
     public <T> List<T> findByIdsWithContext(Class<T> clazz, String fetchContext, String... ids) {
 
@@ -465,6 +438,49 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     @Override
     public QueryHelper getQueryHelper() {
         return this.queryHelper;
+    }
+
+
+    // Parse aggregation and extract their results into an array of FacetedSearchFacets
+    private Map<String, FacetedSearchFacet[]> parseAggregationCounts(SearchResponse searchResponse) {
+
+        List<Aggregation> internalAggregationsList = null;
+
+        if ( searchResponse.getAggregations() == null)
+            return null;
+
+        if( searchResponse.getAggregations().get("filter_aggregation") != null ) {
+            MultiBucketsAggregation aggregation = searchResponse.getAggregations().get("filter_aggregation");
+            Aggregations internalAggregations = aggregation.getBuckets().iterator().next().getAggregations();
+            internalAggregationsList = internalAggregations.asList();
+        }
+
+        if( searchResponse.getAggregations().get("global_aggregation") != null) {
+            Global globalAggregation = searchResponse.getAggregations().get("global_aggregation");
+            Aggregations aggregations = globalAggregation.getAggregations();
+            internalAggregationsList = aggregations.asList();
+        }
+
+        if ( internalAggregationsList != null && internalAggregationsList.size() > 0) {
+
+            Map<String, FacetedSearchFacet[]> finalResults = new HashMap();
+
+            for (Aggregation termsAgg : internalAggregationsList) {
+                InternalTerms internalTerms = (InternalTerms) termsAgg;
+
+                List<FacetedSearchFacet> facetedSearchFacets = new ArrayList<>();
+
+                for (Terms.Bucket entry : internalTerms.getBuckets()) {
+                    facetedSearchFacets.add(new FacetedSearchFacet(entry.getKey(), entry.getDocCount()));
+                }
+
+                finalResults.put(internalTerms.getName(), facetedSearchFacets.toArray(new FacetedSearchFacet[facetedSearchFacets.size()]));
+            }
+            return finalResults;
+        }
+
+        return null;
+
     }
 
 }
