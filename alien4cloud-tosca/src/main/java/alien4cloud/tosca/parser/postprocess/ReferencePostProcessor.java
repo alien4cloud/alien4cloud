@@ -10,11 +10,13 @@ import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Post processor that performs validation of references in a tosca template.
  */
 @Component
+@Slf4j
 public class ReferencePostProcessor implements IPostProcessor<ReferencePostProcessor.TypeReference> {
 
     @Override
@@ -26,8 +28,12 @@ public class ReferencePostProcessor implements IPostProcessor<ReferencePostProce
             }
         }
         Node node = ParsingContextExecution.getObjectToNodeMap().get(typeReference.getKey());
-        ParsingContextExecution.getParsingErrors().add(new ParsingError(ErrorCode.TYPE_NOT_FOUND, "Type not found", node.getStartMark(),
-                "The referenced type is not found neither in the archive or it's dependencies.", node.getEndMark(), typeReference.getKey()));
+        if (node == null) {
+            log.info("Node not found, probably it's from an transitive dependency archive");
+        } else {
+            ParsingContextExecution.getParsingErrors().add(new ParsingError(ErrorCode.TYPE_NOT_FOUND, "Type not found", node.getStartMark(),
+                    "The referenced type is not found neither in the archive or it's dependencies.", node.getEndMark(), typeReference.getKey()));
+        }
     }
 
     @Getter
