@@ -446,17 +446,12 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
         List<Aggregation> internalAggregationsList = null;
 
-        if ( searchResponse.getAggregations() == null)
+        if ( searchResponse.getAggregations() == null) {
             return null;
-
-        if( searchResponse.getAggregations().get("filter_aggregation") != null ) {
-            MultiBucketsAggregation aggregation = searchResponse.getAggregations().get("filter_aggregation");
-            Aggregations internalAggregations = aggregation.getBuckets().iterator().next().getAggregations();
-            internalAggregationsList = internalAggregations.asList();
         }
 
-        if( searchResponse.getAggregations().get("global_aggregation") != null) {
-            Global globalAggregation = searchResponse.getAggregations().get("global_aggregation");
+        if( searchResponse.getAggregations().get("facet_aggregation") != null) {
+            Global globalAggregation = searchResponse.getAggregations().get("facet_aggregation");
             Aggregations aggregations = globalAggregation.getAggregations();
             internalAggregationsList = aggregations.asList();
         }
@@ -478,9 +473,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
             }
             return finalResults;
         }
-
         return null;
-
     }
 
 }
