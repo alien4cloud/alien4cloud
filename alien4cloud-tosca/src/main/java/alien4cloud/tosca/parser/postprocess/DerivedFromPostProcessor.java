@@ -6,6 +6,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+import alien4cloud.model.components.IndexedDataType;
 import alien4cloud.tosca.normative.ToscaType;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
@@ -62,8 +63,16 @@ public class DerivedFromPostProcessor implements IPostProcessor<Map<String, ? ex
         String parentElementType = derivedFrom.get(0);
 
         // Merge the type with it's parent except for primitive data types.
-        if (instance instanceof PrimitiveIndexedDataType && ToscaType.isSimple(parentElementType)) {
-            log.debug("Do not merge data type instance with parent as it extends from a primitive type.");
+        if (instance instanceof IndexedDataType && ToscaType.isSimple(parentElementType)) {
+            if (instance instanceof PrimitiveIndexedDataType) {
+                log.debug("Do not merge data type instance with parent as it extends from a primitive type.");
+            } else {
+                Node node = ParsingContextExecution.getObjectToNodeMap().get(instance);
+                // type has not been parsed as primitive because it has some properties
+                ParsingContextExecution.getParsingErrors()
+                        .add(new ParsingError(ErrorCode.SYNTAX_ERROR, "Primitive types cannot define properties.", node.getStartMark(),
+                                "The defined type inherit from a primitive type but defines some properties.", node.getEndMark(), parentElementType));
+            }
             return;
         }
 

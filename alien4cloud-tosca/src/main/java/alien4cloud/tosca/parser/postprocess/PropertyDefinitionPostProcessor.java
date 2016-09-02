@@ -84,8 +84,9 @@ public class PropertyDefinitionPostProcessor implements IPostProcessor<Map.Entry
                     Node node = ParsingContextExecution.getObjectToNodeMap().get(propertyDefinition);
                     ParsingContextExecution.getParsingErrors().add(new ParsingError(ErrorCode.VALIDATION_ERROR, "ToscaPropertyType", node.getStartMark(),
                             "Type " + propertyType + " must define entry schema", node.getEndMark(), "type"));
+                } else {
+                    validateType(entrySchema);
                 }
-                // No need to perform type validation as the entry_schema is already a property definition hence validated
             } else {
                 // It's data type
                 ArchiveRoot archiveRoot = ParsingContextExecution.getRootObj();
