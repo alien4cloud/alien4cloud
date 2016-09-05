@@ -6,12 +6,11 @@ import java.util.Objects;
 
 import javax.annotation.Resource;
 
-import alien4cloud.model.components.Operation;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
 import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.Interface;
+import alien4cloud.model.components.Operation;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.parser.ParsingContextExecution;
@@ -48,10 +47,8 @@ public class NodeTemplatePostProcessor implements IPostProcessor<NodeTemplate> {
         // FIXME we should check that the artifact is defined at the type level.
         safe(instance.getArtifacts()).values().forEach(artifactPostProcessor);
         // TODO Manage interfaces inputs to copy them to all operations.
-        for (Interface anInterface : safe(instance.getInterfaces()).values()) {
-            safe(anInterface.getOperations()).values().stream().map(Operation::getImplementationArtifact).filter(Objects::nonNull)
-                    .forEach(artifactPostProcessor);
-        }
+        safe(instance.getInterfaces()).values().stream().flatMap(anInterface -> safe(anInterface.getOperations()).values().stream())
+                .map(Operation::getImplementationArtifact).filter(Objects::nonNull).forEach(artifactPostProcessor);
 
         // Merge the node template with data coming from the type (default values etc.).
         NodeTemplate tempObject = NodeTemplateBuilder.buildNodeTemplate(nodeType, instance);

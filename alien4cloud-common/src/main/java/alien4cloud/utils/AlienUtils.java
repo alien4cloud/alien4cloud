@@ -7,15 +7,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import alien4cloud.exception.NotFoundException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.helpers.FormattingTuple;
+import org.slf4j.helpers.MessageFormatter;
 
 import com.google.common.collect.Maps;
 
+import alien4cloud.exception.NotFoundException;
 import lombok.SneakyThrows;
-import org.slf4j.helpers.FormattingTuple;
-import org.slf4j.helpers.MessageFormatter;
 
 public final class AlienUtils {
 
@@ -29,6 +29,9 @@ public final class AlienUtils {
     /**
      * Utility method to iterate over a list that can be null<br>
      * for(T element : safe(list)) {}
+     * <br>
+     * <br>
+     * ATTENTION: Use this method for readonly operation only
      * 
      * @param collection The list that may be null.
      * @param <T> The type of list inner elements
@@ -41,7 +44,10 @@ public final class AlienUtils {
     /**
      * Utility method to iterate over a map that can be null<br>
      * for(T element : safe(list)) {}
-     *
+     * <br>
+     * <br>
+     * ATTENTION: Use this method for readonly operation only
+     * 
      * @param map The list that may be null.
      * @param <K> The type of map keys
      * @param <K> The type of map values

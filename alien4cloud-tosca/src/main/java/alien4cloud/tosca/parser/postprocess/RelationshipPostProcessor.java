@@ -2,6 +2,7 @@ package alien4cloud.tosca.parser.postprocess;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -112,7 +113,10 @@ public class RelationshipPostProcessor {
 
         // FIXME we should check that the artifact is defined at the type level.
         safe(instance.getValue().getArtifacts()).values().forEach(artifactPostProcessor);
-        Map<String, DeploymentArtifact> mergedArtifacts = safe(instance.getValue().getArtifacts());
+        Map<String, DeploymentArtifact> mergedArtifacts = instance.getValue().getArtifacts();
+        if(mergedArtifacts == null) {
+            mergedArtifacts = new HashMap<>();
+        }
         mergedArtifacts.putAll(safe(indexedRelationshipType.getArtifacts()));
         relationshipTemplate.setArtifacts(mergedArtifacts);
 
