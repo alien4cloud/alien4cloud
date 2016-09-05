@@ -138,18 +138,22 @@ public class ArtifactProcessorService {
         }
     }
 
-    private Stream<DeploymentArtifact> getArtifactStream(PaaSTopologyDeploymentContext deploymentContext) {
-        return safe(deploymentContext.getDeploymentTopology().getNodeTemplates()).values().stream()
-                .flatMap(nodeTemplate -> safe(nodeTemplate.getArtifacts()).values().stream());
+    private Stream<DeploymentArtifact> getDeploymentArtifactStream(PaaSTopologyDeploymentContext deploymentContext) {
+        return Stream.concat(
+                safe(deploymentContext.getDeploymentTopology().getNodeTemplates()).values().stream()
+                        .flatMap(nodeTemplate -> safe(nodeTemplate.getArtifacts()).values().stream()),
+                safe(deploymentContext.getDeploymentTopology().getNodeTemplates()).values().stream()
+                        .flatMap(nodeTemplate -> safe(nodeTemplate.getRelationships()).values().stream())
+                        .flatMap(relationship -> safe(relationship.getArtifacts()).values().stream()));
     }
 
     private void processDeploymentArtifacts(PaaSTopologyDeploymentContext deploymentContext) {
         if (deploymentContext.getDeploymentTopology().getNodeTemplates() != null) {
             // Artifact which comes from the archive
-            getArtifactStream(deploymentContext).filter(deploymentArtifact -> StringUtils.isNotBlank(deploymentArtifact.getArchiveName()))
+            getDeploymentArtifactStream(deploymentContext).filter(deploymentArtifact -> StringUtils.isNotBlank(deploymentArtifact.getArchiveName()))
                     .forEach(this::processArtifact);
             // Artifact which does not come from the archive, which comes from topology's edition
-            getArtifactStream(deploymentContext).filter(deploymentArtifact -> StringUtils.isBlank(deploymentArtifact.getArchiveName()))
+            getDeploymentArtifactStream(deploymentContext).filter(deploymentArtifact -> StringUtils.isBlank(deploymentArtifact.getArchiveName()))
                     .forEach(deploymentArtifact -> {
                         Path artifactPath = editorRepositoryService.resolveArtifact(deploymentContext.getDeploymentTopology().getInitialTopologyId(),
                                 deploymentArtifact.getArtifactRef());
