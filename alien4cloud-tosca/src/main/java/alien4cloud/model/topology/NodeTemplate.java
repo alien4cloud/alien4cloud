@@ -33,11 +33,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class NodeTemplate extends AbstractTemplate {
     /**
-     * Id in the map is name.replaceAll(" ", "").toLowerCase();
-     */
-    private String name;
-
-    /**
      * The requirement that this node template defines
      */
     @MapKeyValue

@@ -13,9 +13,11 @@ import org.springframework.stereotype.Component;
 import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.component.repository.ICsarRepositry;
+import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
 import alien4cloud.csar.services.CsarService;
+import alien4cloud.deployment.DeploymentService;
 import alien4cloud.model.components.*;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
@@ -52,6 +54,8 @@ public class ArchiveIndexer {
     private ICSARRepositorySearchService searchService;
     @Inject
     private EditorRepositoryService repositoryService;
+    @Inject
+    private DeploymentService deploymentService;
 
     /**
      * Import a pre-parsed archive to alien 4 cloud indexed catalog.
@@ -61,17 +65,17 @@ public class ArchiveIndexer {
      * @param archivePath The optional path of the archive (should be null if the archive has been java-generated and not parsed).
      * @param parsingErrors The non-null list of parsing errors in which to add errors.
      * @throws CSARVersionAlreadyExistsException
+     * @throws CSARUsedInActiveDeployment
      */
     public void importArchive(final ArchiveRoot archiveRoot, CSARSource source, Path archivePath, List<ParsingError> parsingErrors)
-            throws CSARVersionAlreadyExistsException {
+            throws CSARVersionAlreadyExistsException, CSARUsedInActiveDeployment {
         String archiveName = archiveRoot.getArchive().getName();
         String archiveVersion = archiveRoot.getArchive().getVersion();
-        Csar archive = csarService.getIfExists(archiveName, archiveVersion);
-
-        // Cannot override RELEASED CSAR. FIXME Or RELEASED Topology Template
-        if (archive != null && !VersionUtil.isSnapshot(archive.getVersion())) {
-            throw new CSARVersionAlreadyExistsException("CSAR: " + archiveName + ", Version: " + archiveVersion + " already exists in the repository.");
-        }
+        Csar archive = csarService.get(archiveName, archiveVersion);
+        // Cannot override RELEASED CSAR .
+        checkNotReleased(archive);
+        // Cannot override a CSAR used in an active deployment
+        checkNotUsedInActiveDeployment(archive);
 
         // save the archive (before we index and save other data so we can cleanup if anything goes wrong).
         if (source == null) {
@@ -95,7 +99,8 @@ public class ArchiveIndexer {
         if (topology != null && !topology.isEmpty()) {
             if (archiveRoot.hasToscaTypes()) {
                 // The archive contains types, we assume those types are used in the embedded topology so we add the dependency to this CSAR
-                CSARDependency selfDependency = new CSARDependency(archiveRoot.getArchive().getName(), archiveRoot.getArchive().getVersion());
+                CSARDependency selfDependency = new CSARDependency(archiveRoot.getArchive().getName(), archiveRoot.getArchive().getVersion(),
+                        archiveRoot.getArchive().getHash());
                 topology.getDependencies().add(selfDependency);
             }
 
@@ -147,10 +152,22 @@ public class ArchiveIndexer {
                     repositoryService.copyFrom(topologyId, archiveRepositry.getExpandedCSAR(archiveName, archiveVersion));
                 } catch (CSARVersionNotFoundException | IOException e) {
                     log.error("Failed to initialize the topology repository", e);
-                    // FIXME we should cleanup everything or actually do that before indexing all data.
                 }
             }
             topologyServiceCore.updateSubstitutionType(topology);
+        }
+    }
+
+    private void checkNotUsedInActiveDeployment(Csar csar) throws CSARUsedInActiveDeployment {
+        if (csar != null && deploymentService.isArchiveDeployed(csar.getName(), csar.getVersion())) {
+            throw new CSARUsedInActiveDeployment("CSAR: " + csar.getName() + ", Version: " + csar.getVersion() + " is used in an active deployment.");
+        }
+    }
+
+    private void checkNotReleased(Csar archive) throws CSARVersionAlreadyExistsException {
+        if (archive != null && !VersionUtil.isSnapshot(archive.getVersion())) {
+            throw new CSARVersionAlreadyExistsException(
+                    "CSAR: " + archive.getName() + ", Version: " + archive.getVersion() + " already exists in the repository.");
         }
     }
 

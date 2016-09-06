@@ -1,9 +1,9 @@
 package alien4cloud.deployment;
 
+import java.util.Date;
+
 import javax.annotation.Resource;
 import javax.inject.Inject;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -15,8 +15,7 @@ import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.model.PaaSDeploymentContext;
-
-import java.util.Date;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Manages topology un-deployment.
@@ -70,8 +69,7 @@ public class UndeployService {
         orchestratorPlugin.undeploy(deploymentContext, new IPaaSCallback<ResponseEntity>() {
             @Override
             public void onSuccess(ResponseEntity data) {
-                deployment.setEndDate(new Date()); // Set the deployment end date.
-                alienDao.save(deployment);
+                deploymentService.markUndeployed(deployment);
                 log.info("Un-deployed deployment [{}] on cloud [{}]", deployment.getId(), deployment.getOrchestratorId());
             }
 

@@ -8,6 +8,7 @@ import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import alien4cloud.model.components.PropertyValue;
 import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.elasticsearch.annotation.BooleanField;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.ObjectField;
 import org.elasticsearch.annotation.StringField;
@@ -44,6 +45,10 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DeploymentTopology extends Topology {
+    /** This flag is used to prevent update of a deployed archive as this may have consequences. */
+    @TermFilter
+    @BooleanField
+    private boolean isDeployed = false;
     @TermFilter
     @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
     private String versionId;

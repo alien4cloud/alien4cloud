@@ -130,10 +130,11 @@ public class BaseParserFactory {
      * @param valueParser The parser to use to parse map values.
      * @param toscaType The tosca type of the map.
      * @param nodeIsValue If the sequence element mapping node is also the node of the value (both key and value).
+     * @param allowDuplicate Allow duplicate flag to know the the sequence to map parser should trigger errors in case of duplicated elements.
      * @param <T> The type of the map values.
      * @return a new instance of the SequenceToMapParser
      */
-    public <T> SequenceToMapParser getSequenceToMapParser(INodeParser<T> valueParser, String toscaType, Boolean nodeIsValue) {
-        return applicationContext.getBean(SequenceToMapParser.class, valueParser, toscaType, nodeIsValue);
+    public <T> SequenceToMapParser getSequenceToMapParser(INodeParser<T> valueParser, String toscaType, Boolean nodeIsValue, Boolean allowDuplicate) {
+        return applicationContext.getBean(SequenceToMapParser.class, valueParser, toscaType, nodeIsValue, allowDuplicate);
     }
 }

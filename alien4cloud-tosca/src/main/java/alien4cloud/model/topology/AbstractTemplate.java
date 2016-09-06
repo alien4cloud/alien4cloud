@@ -33,6 +33,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor(suppressConstructorProperties = true)
 public abstract class AbstractTemplate {
+
+    /**
+     * Name of the template
+     */
+    private String name;
+
     /**
      * The QName value of this attribute refers to the Node Type providing the type of the Node Template.
      *

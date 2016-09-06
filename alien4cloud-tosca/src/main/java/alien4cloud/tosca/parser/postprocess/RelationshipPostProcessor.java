@@ -107,14 +107,14 @@ public class RelationshipPostProcessor {
             return;
         }
         Map<String, AbstractPropertyValue> properties = Maps.newLinkedHashMap();
-        NodeTemplateBuilder.fillProperties(properties, indexedRelationshipType.getProperties(), relationshipTemplate.getProperties());
+        NodeTemplateBuilder.fillProperties(properties, indexedRelationshipType.getProperties(), relationshipTemplate.getProperties(), false);
         relationshipTemplate.setProperties(properties);
         relationshipTemplate.setAttributes(indexedRelationshipType.getAttributes());
 
         // FIXME we should check that the artifact is defined at the type level.
         safe(instance.getValue().getArtifacts()).values().forEach(artifactPostProcessor);
         Map<String, DeploymentArtifact> mergedArtifacts = instance.getValue().getArtifacts();
-        if(mergedArtifacts == null) {
+        if (mergedArtifacts == null) {
             mergedArtifacts = new HashMap<>();
         }
         mergedArtifacts.putAll(safe(indexedRelationshipType.getArtifacts()));

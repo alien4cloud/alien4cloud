@@ -103,8 +103,7 @@ public class DeploymentRuntimeStateService {
             @Override
             public void onSuccess(DeploymentStatus data) {
                 if (data == DeploymentStatus.UNDEPLOYED) {
-                    deployment.setEndDate(new Date());
-                    alienDao.save(deployment);
+                    deploymentService.markUndeployed(deployment);
                 }
                 callback.onSuccess(data);
             }

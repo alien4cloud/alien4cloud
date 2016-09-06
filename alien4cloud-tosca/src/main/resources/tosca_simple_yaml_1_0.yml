@@ -139,6 +139,7 @@
   requirements:
     sequence_to_map: relationships
     type: relationship_template
+    allow_duplicate: true
   capabilities:
     map: capabilities
     type: node_template_capability_definition

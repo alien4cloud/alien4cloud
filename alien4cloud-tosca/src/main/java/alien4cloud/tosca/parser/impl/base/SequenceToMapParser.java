@@ -26,6 +26,8 @@ public class SequenceToMapParser<T> implements INodeParser<Map<String, T>> {
     private String toscaType;
     /** If the sequence element mapping node is also the */
     private Boolean nodeIsValue;
+    /** If we should generate keys for duplicated elements or trigger errors. */
+    private Boolean allowDuplicate;
 
     @Override
     public Map<String, T> parse(Node node, ParsingContextExecution context) {
@@ -43,7 +45,16 @@ public class SequenceToMapParser<T> implements INodeParser<Map<String, T>> {
                         value = valueParser.parse(mappingNode.getValue().get(0).getValueNode(), context);
                         checkMappingNodeSingleProperty(mappingNode, context);
                     }
-                    sequenceMap.put(key, value);
+                    if (allowDuplicate) {
+                        sequenceMap.put(getUniqueKey(sequenceMap, key), value);
+                    } else if (sequenceMap.containsKey(key)) {
+                        ParsingError err = new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.DUPLICATED_ELEMENT_DECLARATION,
+                                "Key in the sequence must be unique.", node.getStartMark(), "The value of this tuple should be a scalar", node.getEndMark(),
+                                key);
+                        context.getParsingErrors().add(err);
+                    } else {
+                        sequenceMap.put(key, value);
+                    }
                 } else {
                     ParserUtils.addTypeError(node, context.getParsingErrors(), toscaType);
                 }
@@ -54,6 +65,16 @@ public class SequenceToMapParser<T> implements INodeParser<Map<String, T>> {
 
         ParserUtils.addTypeError(node, context.getParsingErrors(), toscaType);
         return null;
+    }
+
+    private String getUniqueKey(Map<String, T> sequenceMap, String key) {
+        int increment = 0;
+        String uniqueKey = key;
+        while (sequenceMap.containsKey(uniqueKey)) {
+            uniqueKey = key + "_" + increment;
+            increment++;
+        }
+        return uniqueKey;
     }
 
     /**

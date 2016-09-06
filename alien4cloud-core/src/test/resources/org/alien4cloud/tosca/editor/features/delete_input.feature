@@ -13,7 +13,7 @@ Feature: Topology editor: delete input
       | type      | org.alien4cloud.tosca.editor.operations.inputs.DeleteInputOperation |
       | inputName | simple_input                                                        |
     Then No exception should be thrown
-    And The SPEL int expression "inputs.size()" should return 0
+    And The SPEL expression "inputs.size()" should return 0
 
   Scenario: Remove an input that does not exists while there is no inputs should fail
     When I execute the operation
@@ -49,7 +49,7 @@ Feature: Topology editor: delete input
       | type      | org.alien4cloud.tosca.editor.operations.inputs.DeleteInputOperation |
       | inputName | component_version                                                   |
     Then No exception should be thrown
-    And The SPEL int expression "inputs.size()" should return 0
+    And The SPEL expression "inputs.size()" should return 0
     And The SPEL expression "nodeTemplates['software_component'].properties['component_version']" should return "null"
 
   Scenario: Remove an input that is associated to a node capability property should remove the association

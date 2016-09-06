@@ -122,6 +122,7 @@ public class DeployService {
         // save the topology as a deployed topology.
         // change the Id before saving
         deploymentTopology.setId(deployment.getId());
+        deploymentTopology.setDeployed(true);
         alienMonitorDao.save(deploymentTopology);
         // put back the old Id for deployment
         deploymentTopology.setId(deploymentTopologyId);

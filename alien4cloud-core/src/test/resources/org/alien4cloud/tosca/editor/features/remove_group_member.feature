@@ -18,8 +18,8 @@ Feature: Topology editor: remove group member operation
       | nodeName  | Compute                                                                   |
       | groupName | simple_group                                                              |
     Then No exception should be thrown
-    And The SPEL int expression "groups.size()" should return 1
-    And The SPEL expression "nodeTemplates['Compute'].groups.size()" should return "0"
+    And The SPEL expression "groups.size()" should return 1
+    And The SPEL expression "nodeTemplates['Compute'].groups.size()" should return 0
 
   Scenario: Removing a node from a group that has other member should succeed
     Given I execute the operation
@@ -43,9 +43,9 @@ Feature: Topology editor: remove group member operation
       | nodeName  | Compute                                                                   |
       | groupName | simple_group                                                              |
     Then No exception should be thrown
-    And The SPEL int expression "groups.size()" should return 1
+    And The SPEL expression "groups.size()" should return 1
     And The SPEL expression "groups['simple_group'].members[0]" should return "Compute_2"
-    And The SPEL expression "nodeTemplates['Compute'].groups.size()" should return "0"
+    And The SPEL expression "nodeTemplates['Compute'].groups.size()" should return 0
     And The SPEL expression "nodeTemplates['Compute_2'].groups[0]" should return "simple_group"
 
   Scenario: Removing a node from a group when the node is not a member should fail

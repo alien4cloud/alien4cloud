@@ -33,7 +33,9 @@ public class NodeTemplateRelationshipPostProcessor implements IPostProcessor<Nod
         Map<String, RelationshipTemplate> updated = Maps.newLinkedHashMap();
         safe(instance.getRelationships()).entrySet().stream().forEach(entry -> {
             relationshipPostProcessor.process(nodeType, entry);
-            updated.put(buildRelationShipTemplateName(entry.getValue()), entry.getValue());
+            String relationshipTemplateName = buildRelationShipTemplateName(entry.getValue());
+            updated.put(getUniqueKey(updated, relationshipTemplateName), entry.getValue());
+            entry.getValue().setName(relationshipTemplateName);
         });
         instance.setRelationships(updated);
     }
@@ -46,5 +48,15 @@ public class NodeTemplateRelationshipPostProcessor implements IPostProcessor<Nod
         value = StringUtils.uncapitalize(value);
         value = value + StringUtils.capitalize(relationshipTemplate.getTarget());
         return value;
+    }
+
+    private String getUniqueKey(Map<String, ?> map, String key) {
+        int increment = 0;
+        String uniqueKey = key;
+        while (map.containsKey(uniqueKey)) {
+            uniqueKey = key + "_" + increment;
+            increment++;
+        }
+        return uniqueKey;
     }
 }

@@ -51,7 +51,7 @@ public class NodeTemplatePostProcessor implements IPostProcessor<NodeTemplate> {
                 .map(Operation::getImplementationArtifact).filter(Objects::nonNull).forEach(artifactPostProcessor);
 
         // Merge the node template with data coming from the type (default values etc.).
-        NodeTemplate tempObject = NodeTemplateBuilder.buildNodeTemplate(nodeType, instance);
+        NodeTemplate tempObject = NodeTemplateBuilder.buildNodeTemplate(nodeType, instance, false);
         safe(instance.getCapabilities()).keySet().forEach(s -> {
             if (!safe(tempObject.getCapabilities()).containsKey(s)) {
                 Node node = ParsingContextExecution.getObjectToNodeMap().get(s);

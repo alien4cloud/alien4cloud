@@ -22,6 +22,7 @@ public class SequenceToMapMappingBuilder implements IMappingBuilder {
     // true if the node from the sequence contains both the key of the map (from first tuple key) and the value of the map (based on mapping node parsing)
     // false if the node from the sequence contains only the key of the map and the value of the map should be parsed from the value of the first tuple.
     private static final String NODE_IS_VALUE = "node_is_value";
+    private static final String ALLOW_DUPLICATE = "allow_duplicate";
 
     @Resource
     private BaseParserFactory baseParserFactory;
@@ -37,7 +38,10 @@ public class SequenceToMapMappingBuilder implements IMappingBuilder {
         if (map.get(NODE_IS_VALUE) == null) {
             map.put(NODE_IS_VALUE, "true");
         }
+        if (map.get(ALLOW_DUPLICATE) == null) {
+            map.put(ALLOW_DUPLICATE, "false");
+        }
         return new MappingTarget(map.get(SEQUENCE_TO_MAP), baseParserFactory.getSequenceToMapParser(baseParserFactory.getReferencedParser(map.get(TYPE)),
-                map.get(TYPE), Boolean.parseBoolean(map.get(NODE_IS_VALUE))));
+                map.get(TYPE), Boolean.parseBoolean(map.get(NODE_IS_VALUE)), Boolean.parseBoolean(map.get(ALLOW_DUPLICATE))));
     }
 }

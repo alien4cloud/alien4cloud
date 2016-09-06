@@ -1,6 +1,5 @@
 package org.alien4cloud.tosca.editor;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -159,5 +158,38 @@ public class EditorController {
             editorService.override(topologyId, inputStream);
         }
         return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * Recovers the topology after a dependency have change. This will apply the registered recovery operations and save the topology
+     *
+     * @param topologyId The id of the topology/archive under edition to save.
+     * @return A topology DTO with the updated topology.
+     */
+    @ApiOperation(value = "Recovers the topology after a dependency have change. This will apply the registered recovery operations and save the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId}/recover", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> recover(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId) {
+        if (lastOperationId != null && "null".equals(lastOperationId)) {
+            lastOperationId = null;
+        }
+        TopologyDTO topologyDTO = editorService.recover(topologyId, lastOperationId);
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
+    }
+
+    /**
+     * Reset a topology. This will delete everything inside the topology, leaving it as if it is just created now.
+     *
+     * @param topologyId The id of the topology/archive under edition to save.
+     * @return A topology DTO with the updated topology.
+     */
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId}/reset", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> reset(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId) {
+        if (lastOperationId != null && "null".equals(lastOperationId)) {
+            lastOperationId = null;
+        }
+        TopologyDTO topologyDTO = editorService.reset(topologyId, lastOperationId);
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
     }
 }

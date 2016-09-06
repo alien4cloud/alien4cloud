@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.editor;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -25,6 +26,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -36,7 +38,9 @@ import alien4cloud.security.model.User;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.ArchiveUploadService;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingResult;
+import alien4cloud.utils.FileUtil;
 import cucumber.api.DataTable;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
@@ -63,6 +67,9 @@ public class EditorStepDefs {
     @Resource
     private WorkflowsBuilderService workflowBuilderService;
 
+    @Resource
+    private EditorTopologyRecoveryHelperService recoveryHelper;
+
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
 
@@ -70,18 +77,14 @@ public class EditorStepDefs {
 
     private EvaluationContext topologyEvaluationContext;
     private EvaluationContext dtoEvaluationContext;
+    private EvaluationContext exceptionEvaluationContext;
 
     private Exception thrownException;
 
     private Map<String, String> topologyIdToLastOperationId = new HashMap<>();
 
-    private List<Class> typesToClean = new ArrayList<Class>();
-
-    // @Required
-    // @Value("${directories.alien}")
-    // public void setAlienDirectory(String alienDirectory) {
-    // this.alienDirectory = alienDirectory;
-    // }
+    private List<Class> typesToClean = Lists.newArrayList();
+    public static final Path CSAR_TARGET_PATH = Paths.get("target/csars");
 
     public EditorStepDefs() {
         super();
@@ -101,12 +104,6 @@ public class EditorStepDefs {
         thrownException = null;
     }
 
-    @Given("^I save the topology$")
-    public void i_save_the_topology() throws Throwable {
-        editorService.save(topologyIds.getLast(), topologyIdToLastOperationId.get(topologyIds.getLast()));
-        topologyIdToLastOperationId.put(topologyIds.getLast(), null);
-    }
-
     @Given("^I am authenticated with \"(.*?)\" role$")
     public void i_am_authenticated_with_role(String role) throws Throwable {
         User user = new User();
@@ -119,7 +116,6 @@ public class EditorStepDefs {
     }
 
     private static class TestAuth extends UsernamePasswordAuthenticationToken {
-
         Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 
         public TestAuth(User user, String role) {
@@ -131,7 +127,27 @@ public class EditorStepDefs {
         public Collection<GrantedAuthority> getAuthorities() {
             return authorities;
         }
+    }
 
+    @Given("^I upload CSAR from path \"(.*?)\"$")
+    public void i_upload_CSAR_from_path(String path) throws Throwable {
+        uploadCsar(Paths.get(path));
+    }
+
+    @When("^I upload unzipped CSAR from path \"(.*?)\"$")
+    public void i_upload_unzipped_CSAR_From_path(String path) throws Throwable {
+        Path source = Paths.get(path);
+        Path csarTargetPath = CSAR_TARGET_PATH.resolve(source.getFileName() + ".csar");
+        FileUtil.zip(source, csarTargetPath);
+        uploadCsar(csarTargetPath);
+    }
+
+    private void uploadCsar(Path path) throws Throwable {
+        ParsingResult<Csar> result = csarUploadService.upload(path, CSARSource.UPLOAD);
+        Assert.assertFalse(result.hasError(ParsingErrorLevel.ERROR));
+        if (result.getContext().getParsingErrors().size() > 0) {
+            System.out.println(result);
+        }
     }
 
     @Given("^I cleanup archives$")
@@ -141,10 +157,27 @@ public class EditorStepDefs {
         }
     }
 
-    @Given("^I upload CSAR from path \"(.*?)\"$")
-    public void i_upload_CSAR_from_path(String arg1) throws Throwable {
-        ParsingResult<Csar> result = csarUploadService.upload(Paths.get(arg1), CSARSource.UPLOAD);
-        System.out.println(result);
+    @When("^I get the topology related to the template with name \"(.*?)\"$")
+    public void iGetTheTopologyRelatedToTheTemplateWithName(String templateName) throws Throwable {
+        TopologyTemplate topologyTeplate = topologyServiceCore.searchTopologyTemplateByName(templateName);
+        Topology topology = alienDAO.customFind(Topology.class, QueryBuilders.matchQuery("delegateId", topologyTeplate.getId()));
+        topologyIds.addLast(topology.getId());
+    }
+
+    @When("^I get the edited topology$")
+    public void I_get_the_edited_topology() {
+        thrownException = null;
+        try {
+            editionContextManager.init(topologyIds.getLast());
+            Topology topology = editionContextManager.getTopology();
+            topologyEvaluationContext = new StandardEvaluationContext(topology);
+        } catch (Exception e) {
+            log.error("Exception ocrured while getting the topology", e);
+            thrownException = e;
+            exceptionEvaluationContext = new StandardEvaluationContext(e);
+        } finally {
+            editionContextManager.destroy();
+        }
     }
 
     @Given("^I create an empty topology$")
@@ -191,6 +224,12 @@ public class EditorStepDefs {
         i_execute_the_operation_on_topology_number(topologyIds.size() - 1, operationDT);
     }
 
+    @Given("^I save the topology$")
+    public void i_save_the_topology() throws Throwable {
+        editorService.save(topologyIds.getLast(), topologyIdToLastOperationId.get(topologyIds.getLast()));
+        topologyIdToLastOperationId.put(topologyIds.getLast(), null);
+    }
+
     @Given("^I upload a file located at \"(.*?)\" to the archive path \"(.*?)\"$")
     public void i_upload_a_file_located_at_to_the_archive_path(String filePath, String archiveTargetPath) throws Throwable {
         UpdateFileOperation updateFileOperation = new UpdateFileOperation(archiveTargetPath, Files.newInputStream(Paths.get(filePath)));
@@ -207,23 +246,14 @@ public class EditorStepDefs {
             topologyEvaluationContext = new StandardEvaluationContext(topologyDTO.getTopology());
             dtoEvaluationContext = new StandardEvaluationContext(topologyDTO);
         } catch (Exception e) {
-            log.debug("Exception occured while executing operation", e);
+            log.error("Exception occurred while executing operation", e);
             thrownException = e;
+            exceptionEvaluationContext = new StandardEvaluationContext(e);
         }
     }
 
     private void doExecuteOperation(AbstractEditorOperation operation) {
         doExecuteOperation(operation, topologyIds.getLast());
-    }
-
-    @Then("^The SPEL boolean expression \"([^\"]*)\" should return true$")
-    public void evaluateSpelBooleanExpressionUsingCurrentContext(String spelExpression) {
-        Boolean result = (Boolean) evaluateExpression(spelExpression);
-        Assert.assertTrue(String.format("The SPEL expression [%s] should return true as a result", spelExpression), result.booleanValue());
-    }
-
-    private Object evaluateExpression(String spelExpression) {
-        return evaluateExpression(topologyEvaluationContext, spelExpression);
     }
 
     private Object evaluateExpression(EvaluationContext context, String spelExpression) {
@@ -233,8 +263,20 @@ public class EditorStepDefs {
     }
 
     @Then("^The SPEL expression \"([^\"]*)\" should return \"([^\"]*)\"$")
-    public void evaluateSpelExpressionUsingCurrentContext(String spelExpression, String expected) {
-        Object result = evaluateExpression(spelExpression);
+    public void evaluateSpelExpressionUsingCurrentTopologyContext(String spelExpression, String expected) {
+        Object result = evaluateExpression(topologyEvaluationContext, spelExpression);
+        assertSpelResult(expected, result, spelExpression);
+    }
+
+    @Then("^The SPEL expression \"([^\"]*)\" should return (true|false)$")
+    public void evaluateSpelExpressionUsingCurrentTopologyContext(String spelExpression, Boolean expected) {
+        Object result = evaluateExpression(topologyEvaluationContext, spelExpression);
+        assertSpelResult(expected, result, spelExpression);
+    }
+
+    @Then("^The SPEL expression \"([^\"]*)\" should return (\\d+)$")
+    public void evaluateSpelExpressionUsingCurrentTopologyContext(String spelExpression, Integer expected) {
+        Object result = evaluateExpression(topologyEvaluationContext, spelExpression);
         assertSpelResult(expected, result, spelExpression);
     }
 
@@ -244,19 +286,43 @@ public class EditorStepDefs {
         assertSpelResult(expected, result, spelExpression);
     }
 
-    private void assertSpelResult(String expected, Object result, String spelExpression) {
+    @Then("^The dto SPEL expression \"([^\"]*)\" should return (true|false)$")
+    public void evaluateSpelExpressionUsingCurrentDTOContext(String spelExpression, Boolean expected) {
+        Object result = evaluateExpression(dtoEvaluationContext, spelExpression);
+        assertSpelResult(expected, result, spelExpression);
+    }
+
+    @Then("^The dto SPEL expression \"([^\"]*)\" should return (\\d+)$")
+    public void evaluateSpelExpressionUsingCurrentDTOContext(String spelExpression, Integer expected) {
+        Object result = evaluateExpression(dtoEvaluationContext, spelExpression);
+        assertSpelResult(expected, result, spelExpression);
+    }
+
+    @Then("^The exception SPEL expression \"([^\"]*)\" should return \"([^\"]*)\"$")
+    public void evaluateSpelExpressionUsingCurrentExceptionContext(String spelExpression, String expected) {
+        Object result = evaluateExpression(exceptionEvaluationContext, spelExpression);
+        assertSpelResult(expected, result, spelExpression);
+    }
+
+    @Then("^The exception SPEL expression \"([^\"]*)\" should return (true|false)$")
+    public void evaluateSpelExpressionUsingCurrentExceptionContext(String spelExpression, Boolean expected) {
+        Object result = evaluateExpression(exceptionEvaluationContext, spelExpression);
+        assertSpelResult(expected, result, spelExpression);
+    }
+
+    @Then("^The exception SPEL expression \"([^\"]*)\" should return (\\d+)$")
+    public void evaluateSpelExpressionUsingCurrentExceptionContext(String spelExpression, Integer expected) {
+        Object result = evaluateExpression(exceptionEvaluationContext, spelExpression);
+        assertSpelResult(expected, result, spelExpression);
+    }
+
+    private void assertSpelResult(Object expected, Object result, String spelExpression) {
         if ("null".equals(expected)) {
             Assert.assertNull(String.format("The SPEL expression [%s] result should be null", spelExpression), result);
         } else {
             Assert.assertNotNull(String.format("The SPEL expression [%s] result should not be null", spelExpression), result);
-            Assert.assertEquals(String.format("The SPEL expression [%s] should return [%s]", spelExpression, expected), expected, result.toString());
+            Assert.assertEquals(String.format("The SPEL expression [%s] should return [%s]", spelExpression, expected), expected, result);
         }
-    }
-
-    @Then("^The SPEL int expression \"([^\"]*)\" should return (\\d+)$")
-    public void The_SPEL_int_expression_should_return(String spelExpression, int expected) throws Throwable {
-        Integer actual = (Integer) evaluateExpression(spelExpression);
-        Assert.assertEquals(String.format("The SPEL expression [%s] should return [%d]", spelExpression, expected), expected, actual.intValue());
     }
 
     @Then("^No exception should be thrown$")
@@ -276,15 +342,40 @@ public class EditorStepDefs {
         }
     }
 
-    @When("^I get the edited topology$")
-    public void I_get_the_edited_topology() {
+    // @When("^I ask for updated dependencies from the registered topology$")
+    // public void iAskForUpdatedDependenciesFromTheRegisteredTopology() throws Throwable {
+    // I_get_the_edited_topology();
+    // commonEvaluationContext = new StandardEvaluationContext(
+    // recoveryHelper.getUpdatedDependencies((Topology) topologyEvaluationContext.getRootObject().getValue()));
+    // }
+
+    @When("^I recover the topology$")
+    public void i_Recover_The_Topology() throws Throwable {
+        thrownException = null;
         try {
-            editionContextManager.init(topologyIds.getLast());
-            Topology topology = editionContextManager.getTopology();
-            topologyEvaluationContext = new StandardEvaluationContext(topology);
-        } finally {
-            editionContextManager.destroy();
+            TopologyDTO dto = editorService.recover(topologyIds.getLast(), topologyIdToLastOperationId.get(topologyIds.getLast()));
+            topologyIdToLastOperationId.put(topologyIds.getLast(), null);
+            dtoEvaluationContext = new StandardEvaluationContext(dto);
+            topologyEvaluationContext = new StandardEvaluationContext(dto.getTopology());
+        } catch (Exception e) {
+            log.error("Error occurred when recovering the topology", e);
+            thrownException = e;
+            exceptionEvaluationContext = new StandardEvaluationContext(e);
         }
     }
 
+    @When("^I reset the topology$")
+    public void iResetTheTopology() throws Throwable {
+        thrownException = null;
+        try {
+            TopologyDTO dto = editorService.reset(topologyIds.getLast(), topologyIdToLastOperationId.get(topologyIds.getLast()));
+            topologyIdToLastOperationId.put(topologyIds.getLast(), null);
+            dtoEvaluationContext = new StandardEvaluationContext(dto);
+            topologyEvaluationContext = new StandardEvaluationContext(dto.getTopology());
+        } catch (Exception e) {
+            log.error("Error occurred when resetting the topology", e);
+            thrownException = e;
+            exceptionEvaluationContext = new StandardEvaluationContext(e);
+        }
+    }
 }

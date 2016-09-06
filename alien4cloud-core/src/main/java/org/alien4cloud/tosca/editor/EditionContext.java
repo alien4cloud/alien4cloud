@@ -1,20 +1,19 @@
 package org.alien4cloud.tosca.editor;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.List;
-
-import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
-
-import com.google.common.collect.Lists;
-
 import alien4cloud.model.topology.Topology;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.DirectoryJSonWalker;
 import alien4cloud.utils.TreeNode;
+import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
+import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.List;
 
 /**
  * Topology edition context is related to a specific topology that is currently under edition.
@@ -42,6 +41,8 @@ public class EditionContext {
     private List<AbstractEditorOperation> operations = Lists.newArrayList();
     /** Root of the file hierarchy. */
     private TreeNode archiveContentTree;
+    /** List of the operations generated to recover the topology */
+    private RecoverTopologyOperation recoveryOperation;
 
     /**
      * Create a new instance of a topology edition context from an existing topology.

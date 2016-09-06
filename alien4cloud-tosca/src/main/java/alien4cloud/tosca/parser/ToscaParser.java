@@ -22,6 +22,7 @@ import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.mapping.generator.MappingGenerator;
 import alien4cloud.tosca.parser.postprocess.ArchiveRootPostProcessor;
+import alien4cloud.utils.FileUtil;
 
 /**
  * Main entry point for TOSCA template parsing.
@@ -69,7 +70,9 @@ public class ToscaParser extends YamlParser<ArchiveRoot> {
     @Override
     @ToscaContextual
     public ParsingResult<ArchiveRoot> parseFile(Path yamlPath, ArchiveRoot instance) throws ParsingException {
-        return super.parseFile(yamlPath, instance);
+        ParsingResult<ArchiveRoot> result = super.parseFile(yamlPath, instance);
+        result.getResult().getArchive().setHash(FileUtil.getSHA1Checksum(yamlPath));
+        return result;
     }
 
     @Override

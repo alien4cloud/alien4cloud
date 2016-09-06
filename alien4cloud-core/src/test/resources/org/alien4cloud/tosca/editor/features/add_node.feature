@@ -10,7 +10,7 @@ Feature: Topology editor: add node template
       | nodeName          | Template1                                                             |
       | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
     Then No exception should be thrown
-    And The SPEL int expression "nodeTemplates.size()" should return 1
+    And The SPEL expression "nodeTemplates.size()" should return 1
     And The SPEL expression "nodeTemplates['Template1'].type" should return "tosca.nodes.Compute"
 
   Scenario: Add a node that does not exists in the repository should succeed
@@ -38,4 +38,3 @@ Feature: Topology editor: add node template
       | nodeName          | Template1                                                             |
       | indexedNodeTypeId | tosca.nodes.Compute:1.0                                               |
     Then an exception of type "alien4cloud.exception.AlreadyExistException" should be thrown
-    

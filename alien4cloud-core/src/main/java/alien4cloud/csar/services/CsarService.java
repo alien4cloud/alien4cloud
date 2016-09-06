@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import alien4cloud.model.deployment.DeploymentTopology;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -42,6 +43,9 @@ public class CsarService implements ICsarDependencyLoader {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO csarDAO;
 
+    @Resource(name = "alien-monitor-es-dao")
+    private IGenericSearchDAO alienMonitorDao;
+
     @Resource
     private ICSARRepositoryIndexerService indexerService;
 
@@ -60,17 +64,24 @@ public class CsarService implements ICsarDependencyLoader {
      * @param version The version of the archive.
      * @return The {@link Csar Cloud Service Archive} if found in the repository or null.
      */
-    public Csar getIfExists(String name, String version) {
-        Csar csar = new Csar();
-        csar.setName(name);
-        csar.setVersion(version);
-        csar = csarDAO.findById(Csar.class, csar.getId());
-        return csar;
+    public Csar get(String name, String version) {
+        return get(new Csar(name, version).getId());
+    }
+
+    /**
+     *
+     * Get a cloud service archive.
+     *
+     * @param id The id of the archive to retrieve
+     * @return
+     */
+    public Csar get(String id) {
+        return csarDAO.findById(Csar.class, id);
     }
 
     @Override
     public Set<CSARDependency> getDependencies(String name, String version) {
-        Csar csar = getIfExists(name, version);
+        Csar csar = get(name, version);
         if (csar == null) {
             throw new NotFoundException("Csar with name [" + name + "] and version [" + version + "] cannot be found");
         }
@@ -123,7 +134,7 @@ public class CsarService implements ICsarDependencyLoader {
         if (csar.getDependencies() != null) {
             mergedDependencies = Sets.newHashSet(csar.getDependencies());
             for (CSARDependency dependency : csar.getDependencies()) {
-                Csar dependencyCsar = getIfExists(dependency.getName(), dependency.getVersion());
+                Csar dependencyCsar = get(dependency.getName(), dependency.getVersion());
                 if (dependencyCsar != null && dependencyCsar.getDependencies() != null) {
                     mergedDependencies.addAll(dependencyCsar.getDependencies());
                 }
@@ -143,13 +154,30 @@ public class CsarService implements ICsarDependencyLoader {
         return csarMap;
     }
 
-    public Csar getOrFail(String csarId) {
-        Csar csar = csarDAO.findById(Csar.class, csarId);
+    /**
+     *
+     * Get a cloud service archive, or fail if not found
+     *
+     * @param id The id of the archive to retrieve
+     * @return The {@link Csar Cloud Service Archive} if found in the repository
+     */
+    public Csar getOrFail(String id) {
+        Csar csar = get(id);
         if (csar == null) {
-            throw new NotFoundException("Csar with id [" + csarId + "] do not exist");
-        } else {
-            return csar;
+            throw new NotFoundException("Csar with id [" + id + "] do not exist");
         }
+        return csar;
+    }
+
+    /**
+     * Get a cloud service archive, or fail with {@link NotFoundException} if not found
+     *
+     * @param name The name of the archive.
+     * @param version The version of the archive.
+     * @return The {@link Csar Cloud Service Archive} if found in the repository.
+     */
+    public Csar getOrFail(String name, String version) {
+        return getOrFail(new Csar(name, version).getId());
     }
 
     public void deleteCsar(String name, String version) {

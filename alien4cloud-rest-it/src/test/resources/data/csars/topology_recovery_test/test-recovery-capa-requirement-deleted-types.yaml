@@ -1,0 +1,63 @@
+tosca_definitions_version: alien_dsl_1_2_0
+
+template_name: test-topo-recovery-types
+template_author: alien
+template_version: 0.1-SNAPSHOT
+description: Contains the normative types definition.
+
+imports:
+  - "tosca-normative-types:1.0.0-SNAPSHOT"
+
+node_types:
+  alien.test.nodes.TestComponentSource:
+    derived_from: tosca.nodes.SoftwareComponent
+    requirements:
+      - connect: alien.test.capabilities.TestComponentConnects
+        type: alien.test.relationships.TestComponentConnectsTo
+        occurrences: [1, 1]
+      - capa_upperbound_test: alien.test.capabilities.CapaUpperBoundTest
+        type: alien.test.relationships.CapaUpperBoundTest
+        occurrences: [1, 2]
+      - req_upperbound_test: alien.test.capabilities.ReqUpperBoundTest
+        type: alien.test.relationships.ReqUpperBoundTest
+        occurrences: [1, 2]
+      - capa_to_be_deleted: alien.test.capabilities.CapaToBeDeleted
+        type: alien.test.relationships.CapaToBeDeleted
+
+  alien.test.nodes.TestComponent:
+    derived_from: tosca.nodes.SoftwareComponent
+    capabilities:
+      connectivity:
+        type: alien.test.capabilities.TestComponentConnects
+      capa_upperbound_test:
+        type: alien.test.capabilities.CapaUpperBoundTest
+        occurrences: [1, 2]
+      req_upperbound_test:
+        type: alien.test.capabilities.ReqUpperBoundTest
+        occurrences: [1, 2]
+      req_to_be_deleted:
+        type: alien.test.capabilities.ReqToBeDeleted
+
+capability_types:
+  alien.test.capabilities.TestComponentConnects:
+    derived_from: tosca.capabilities.Node
+  alien.test.capabilities.CapaUpperBoundTest:
+    derived_from: tosca.capabilities.Node
+  alien.test.capabilities.ReqUpperBoundTest:
+    derived_from: tosca.capabilities.Node
+  alien.test.capabilities.ReqToBeDeleted:
+    derived_from: tosca.capabilities.Node
+  alien.test.capabilities.CapaToBeDeleted:
+    derived_from: tosca.capabilities.Node
+
+relationship_types:
+  alien.test.relationships.TestComponentConnectsTo:
+    derived_from: tosca.relationships.DependsOn
+  alien.test.relationships.CapaUpperBoundTest:
+    derived_from: tosca.relationships.DependsOn
+  alien.test.relationships.ReqUpperBoundTest:
+    derived_from: tosca.relationships.DependsOn
+  alien.test.relationships.ReqToBeDeleted:
+    derived_from: tosca.relationships.DependsOn
+  alien.test.relationships.CapaToBeDeleted:
+    derived_from: tosca.relationships.DependsOn

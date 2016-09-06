@@ -2,22 +2,14 @@ package alien4cloud.utils;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.nio.file.CopyOption;
+import java.nio.file.*;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.MessageDigest;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -27,6 +19,9 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
+
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public final class FileUtil {
@@ -342,5 +337,33 @@ public final class FileUtil {
             }
         });
         return files;
+    }
+
+    @SneakyThrows({ Exception.class })
+    public static String getSHA1Checksum(Path path) {
+        if (!Files.exists(path)) {
+            throw new FileNotFoundException("File not found in hash processor" + path);
+        }
+        byte[] b = createSHA1Checksum(path);
+        String result = "";
+        for (int i = 0; i < b.length; i++) {
+            result += Integer.toString((b[i] & 0xff) + 0x100, 16).substring(1);
+        }
+        return result;
+    }
+
+    private static byte[] createSHA1Checksum(Path path) throws Exception {
+        try (InputStream fis = Files.newInputStream(path)) {
+            byte[] buffer = new byte[1024];
+            MessageDigest complete = MessageDigest.getInstance("SHA1");
+            int numRead;
+            do {
+                numRead = fis.read(buffer);
+                if (numRead > 0) {
+                    complete.update(buffer, 0, numRead);
+                }
+            } while (numRead != -1);
+            return complete.digest();
+        }
     }
 }

@@ -1,19 +1,17 @@
 package alien4cloud.tosca.container;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
+import alien4cloud.csar.services.ICsarDependencyLoader;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.utils.VersionUtil;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import alien4cloud.csar.services.ICsarDependencyLoader;
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.utils.VersionUtil;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -31,7 +29,7 @@ public class ToscaTypeLoader {
     }
 
     public Set<CSARDependency> getLoadedDependencies() {
-        return dependenciesMap.keySet();
+        return Sets.newHashSet(dependenciesMap.keySet());
     }
 
     /**
@@ -66,10 +64,7 @@ public class ToscaTypeLoader {
                 typeUsagesMap.put(type, currentUsageCount - 1);
             }
         }
-//        else {
-//            log.error("Unload a type which is not used [" + type + "]");
-//            throw new NotFoundException("Remove a type which is not used [" + type + "]");
-//        }
+
         if (log.isDebugEnabled()) {
             log.debug("Type usage [" + typeUsagesMap + "]");
             log.debug("Dependencies usage [" + dependenciesMap + "]");
@@ -130,6 +125,9 @@ public class ToscaTypeLoader {
         typeUsagesMap.put(type, currentUsageCount + 1);
         if (typesLoadedByDependency != null) {
             typesLoadedByDependency.add(type);
+            // make sure we replace the key because the Equals on CSARDependency is only based on the name and the version
+            dependenciesMap.remove(directDependency);
+            dependenciesMap.put(directDependency, typesLoadedByDependency);
         } else {
             addNewDependency(directDependency, type);
         }

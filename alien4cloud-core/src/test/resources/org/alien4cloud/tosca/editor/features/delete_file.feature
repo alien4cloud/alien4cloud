@@ -10,7 +10,7 @@ Feature: Topology editor: delete file
       | type | org.alien4cloud.tosca.editor.operations.DeleteFileOperation |
       | path | upload_file.feature                                         |
     Then No exception should be thrown
-    And The dto SPEL expression "archiveContentTree.children[0].children.size()" should return "3"
+    And The dto SPEL expression "archiveContentTree.children[0].children.size()" should return 3
 
   Scenario: Delete a file in a folder of the archive should succeed
     When I upload a file located at "src/test/resources/org/alien4cloud/tosca/editor/features/upload_file.feature" to the archive path "new_folder/upload_file.feature"
@@ -18,8 +18,8 @@ Feature: Topology editor: delete file
       | type | org.alien4cloud.tosca.editor.operations.DeleteFileOperation |
       | path | new_folder/upload_file.feature                              |
     Then No exception should be thrown
-    And The dto SPEL expression "archiveContentTree.children[0].children.size()" should return "4"
-    And The dto SPEL expression "archiveContentTree.children[0].children[1].children.size()" should return "0"
+    And The dto SPEL expression "archiveContentTree.children[0].children.size()" should return 4
+    And The dto SPEL expression "archiveContentTree.children[0].children[1].children.size()" should return 0
 
   Scenario: Delete a folder should succeed
     When I upload a file located at "src/test/resources/org/alien4cloud/tosca/editor/features/upload_file.feature" to the archive path "new_folder/upload_file.feature"
@@ -27,7 +27,7 @@ Feature: Topology editor: delete file
       | type | org.alien4cloud.tosca.editor.operations.DeleteFileOperation |
       | path | new_folder                                                  |
     Then No exception should be thrown
-    And The dto SPEL expression "archiveContentTree.children[0].children.size()" should return "3"
+    And The dto SPEL expression "archiveContentTree.children[0].children.size()" should return 3
 
   Scenario: Delete a folder path ending by slash should succeed
     When I upload a file located at "src/test/resources/org/alien4cloud/tosca/editor/features/upload_file.feature" to the archive path "new_folder/upload_file.feature"
@@ -35,7 +35,7 @@ Feature: Topology editor: delete file
       | type | org.alien4cloud.tosca.editor.operations.DeleteFileOperation |
       | path | new_folder/                                                 |
     Then No exception should be thrown
-    And The dto SPEL expression "archiveContentTree.children[0].children.size()" should return "3"
+    And The dto SPEL expression "archiveContentTree.children[0].children.size()" should return 3
 
   Scenario: Delete the yaml file should fail
     When I execute the operation

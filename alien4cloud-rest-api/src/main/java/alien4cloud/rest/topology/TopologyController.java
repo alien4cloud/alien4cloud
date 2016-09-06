@@ -8,14 +8,11 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
+import org.alien4cloud.tosca.editor.EditorService;
 import org.alien4cloud.tosca.editor.TopologyDTOBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.application.ApplicationVersionService;
@@ -30,12 +27,7 @@ import alien4cloud.model.topology.Topology;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.topology.TopologyDTO;
-import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.topology.TopologyTemplateVersionService;
-import alien4cloud.topology.TopologyValidationResult;
-import alien4cloud.topology.TopologyValidationService;
+import alien4cloud.topology.*;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,10 +50,14 @@ public class TopologyController {
 
     @Resource
     private EditionContextManager topologyEditionContextManager;
+
     @Inject
     private TopologyDTOBuilder dtoBuilder;
     @Resource
     private IFileRepository artifactRepository;
+
+    @Inject
+    private EditorService editorService;
 
     /**
      * Retrieve an existing {@link alien4cloud.model.topology.Topology}
@@ -79,6 +75,7 @@ public class TopologyController {
                 ApplicationRole.APPLICATION_USER);
         try {
             topologyEditionContextManager.init(topologyId);
+            editorService.checkTopologyRecovery();
             return RestResponseBuilder.<TopologyDTO> builder().data(dtoBuilder.buildTopologyDTO(EditionContextManager.get())).build();
         } finally {
             topologyEditionContextManager.destroy();

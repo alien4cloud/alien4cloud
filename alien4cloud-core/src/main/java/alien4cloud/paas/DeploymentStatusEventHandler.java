@@ -1,7 +1,5 @@
 package alien4cloud.paas;
 
-import java.util.Date;
-
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
@@ -37,8 +35,7 @@ public class DeploymentStatusEventHandler implements IPaasEventListener<Abstract
                         event.getDeploymentStatus());
                 return;
             }
-            deployment.setEndDate(new Date(event.getDate()));
-            alienDAO.save(deployment);
+            deploymentService.markUndeployed(deployment);
             log.debug("Deployment {} end date has been updated to {} based on received UNDEPLOYED status event", event.getDeploymentId(),
                     deployment.getEndDate());
         }

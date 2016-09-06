@@ -20,7 +20,7 @@ Feature: Topology editor: set node capability property as input
       | propertyName   | max_instances                                                                                         |
       | inputName      | max_instances                                                                                         |
     Then No exception should be thrown
-    And The SPEL int expression "inputs.size()" should return 1
+    And The SPEL expression "inputs.size()" should return 1
     And The SPEL expression "nodeTemplates['compute_node'].capabilities['scalable'].properties['max_instances'].function" should return "get_input"
     And The SPEL expression "nodeTemplates['compute_node'].capabilities['scalable'].properties['max_instances'].parameters[0]" should return "max_instances"
 
