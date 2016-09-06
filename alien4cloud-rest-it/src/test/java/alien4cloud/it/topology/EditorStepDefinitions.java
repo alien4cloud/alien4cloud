@@ -1,8 +1,12 @@
 package alien4cloud.it.topology;
 
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
+import org.elasticsearch.common.collect.ImmutableMap;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -15,6 +19,7 @@ import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.Given;
+import cucumber.api.java.en.When;
 import gherkin.formatter.model.DataTableRow;
 
 /**
@@ -61,18 +66,21 @@ public class EditorStepDefinitions {
                 parser.parseRaw(operationEntry.getKey()).setValue(operationContext, operationEntry.getValue());
             }
         }
-
-        if (TOPOLOGY_DTO == null || TOPOLOGY_DTO.getLastOperationIndex() == -1) {
-            // no previous operations
-            operation.setPreviousOperationId(null);
-        } else {
-            operation.setPreviousOperationId(TOPOLOGY_DTO.getOperations().get(TOPOLOGY_DTO.getLastOperationIndex()).getId());
-        }
-
+        operation.setPreviousOperationId(getLastOperationId());
         // Call execute rest service and set the topology DTO to the context
         Context.getInstance()
                 .registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v2/editor/" + topologyId + "/execute", JsonUtil.toString(operation)));
         trySetTopologyDto();
+    }
+
+    private static String getLastOperationId() {
+
+        if (TOPOLOGY_DTO == null || TOPOLOGY_DTO.getLastOperationIndex() == -1) {
+            // no previous operations
+            return null;
+        } else {
+            return TOPOLOGY_DTO.getOperations().get(TOPOLOGY_DTO.getLastOperationIndex()).getId();
+        }
     }
 
     @Given("^I save the topology$")
@@ -95,5 +103,16 @@ public class EditorStepDefinitions {
         } catch (Exception e) {
             // This may fail as the latest rest call may fail based on test scenario but this is a shortcut for all successfull scenario.
         }
+    }
+
+    @When("^I upload a file located at \"([^\"]*)\" to the archive path \"([^\"]*)\"$")
+    public void iUploadAFileLocatedAtToTheArchivePath(String localFile, String archivePath) throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        String url = "/rest/v2/editor/" + topologyId + "/upload";
+        InputStream artifactStream = Files.newInputStream(Paths.get(localFile));
+        Context.getInstance()
+                .registerRestResponse(Context.getRestClientInstance().postMultipart(url, Paths.get(localFile).getFileName().toString(), artifactStream,
+                        ImmutableMap.<String, String> builder().put("path", archivePath).put("lastOperationId", String.valueOf(getLastOperationId())).build()));
+        trySetTopologyDto();
     }
 }
