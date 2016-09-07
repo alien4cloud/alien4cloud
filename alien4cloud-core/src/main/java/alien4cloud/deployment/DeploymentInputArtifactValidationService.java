@@ -17,7 +17,8 @@ public class DeploymentInputArtifactValidationService {
 
     public List<InputArtifactTask> validate(DeploymentTopology deploymentTopology) {
         return safe(deploymentTopology.getInputArtifacts()).entrySet().stream()
-                .filter(deploymentArtifactEntry -> StringUtils.isBlank(deploymentArtifactEntry.getValue().getArtifactRef()))
+                .filter(deploymentArtifactEntry -> StringUtils.isBlank(deploymentArtifactEntry.getValue().getArtifactRef())
+                        && !safe(deploymentTopology.getUploadedInputArtifacts()).containsKey(deploymentArtifactEntry.getKey()))
                 .map(deploymentArtifactEntry -> new InputArtifactTask(deploymentArtifactEntry.getKey(), ArtifactTaskCode.MISSING)).collect(Collectors.toList());
     }
 }

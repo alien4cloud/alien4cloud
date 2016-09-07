@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.topology.task.AbstractRelationshipTask;
 import alien4cloud.topology.task.AbstractTask;
 import alien4cloud.topology.task.ArtifactTask;
 import alien4cloud.topology.task.InputArtifactTask;
@@ -116,7 +117,8 @@ public class TopologyValidationService {
         for (AbstractTask task : taskList) {
             // checking some required tasks
             if (task instanceof SuggestionsTask || task instanceof RequirementsTask || task instanceof PropertiesTask || task instanceof NodeFiltersTask
-                    || task instanceof WorkflowTask || task instanceof ArtifactTask || task instanceof InputArtifactTask) {
+                    || task instanceof WorkflowTask || task instanceof ArtifactTask || task instanceof InputArtifactTask
+                    || task instanceof AbstractRelationshipTask) {
                 return false;
             }
         }

@@ -1,4 +1,4 @@
-define(function(require) {
+define(function (require) {
   'use strict';
 
   var modules = require('modules');
@@ -25,112 +25,100 @@ define(function(require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentSetupCtrl',
-    ['$scope', '$upload', 'applicationServices', '$http', '$filter', 'deploymentTopologyServices', '$state',
-      function($scope, $upload, applicationServices, $http, $filter, deploymentTopologyServices) {
+      ['$scope', '$upload', 'applicationServices', '$http', '$filter', 'deploymentTopologyServices', '$state',
+        function ($scope, $upload, applicationServices, $http, $filter, deploymentTopologyServices) {
 
-        $scope._=_;
-        $scope.isAllowedInputDeployment = function() {
-          return !_.isEmpty($filter('allowedInputs')($scope.deploymentContext.deploymentTopologyDTO.topology.inputs));
-        };
-
-        /* Handle properties inputs */
-        $scope.updateInputValue = function(definition, inputValue, inputId) {
-          // No update if it's the same value
-          var updatedProperties = {};
-          updatedProperties[inputId] = inputValue;
-          return deploymentTopologyServices.updateInputProperties({
-            appId: $scope.application.id,
-            envId: $scope.deploymentContext.selectedEnvironment.id
-          }, angular.toJson({
-            inputProperties: updatedProperties
-          }), function(result){
-            if(!result.error) {
-              $scope.updateScopeDeploymentTopologyDTO(result.data);
-            }
-          }).$promise;
-        };
-
-        // Artifact upload handler
-        $scope.doUploadArtifact = function(file, artifactName) {
-          if (_.undefined($scope.uploads)) {
-            $scope.uploads = {};
-          }
-          $scope.uploads[artifactName] = {
-            'isUploading': true,
-            'type': 'info'
+          $scope._ = _;
+          $scope.isAllowedInputDeployment = function () {
+            return !_.isEmpty($filter('allowedInputs')($scope.deploymentContext.deploymentTopologyDTO.topology.inputs));
           };
-          $upload.upload({
-            url: 'rest/latest/topologies/' + $scope.topologyDTO.topology.id + '/inputArtifacts/' + artifactName + '/upload',
-            file: file
-          }).progress(function(evt) {
-            $scope.uploads[artifactName].uploadProgress = parseInt(100.0 * evt.loaded / evt.total);
-          }).success(function(success) {
-            $scope.deploymentContext.deploymentTopologyDTO.topology.inputArtifacts[artifactName].artifactRef = success.data.topology.inputArtifacts[artifactName].artifactRef;
-            $scope.deploymentContext.deploymentTopologyDTO.topology.inputArtifacts[artifactName].artifactName = success.data.topology.inputArtifacts[artifactName].artifactName;
-            $scope.uploads[artifactName].isUploading = false;
-            $scope.uploads[artifactName].type = 'success';
-            if(_.definedPath($scope.deploymentContext.deploymentTopologyDTO, 'validation.taskList.INPUT_ARTIFACT_INVALID')) {
-              _.remove($scope.deploymentContext.deploymentTopologyDTO.validation.taskList.INPUT_ARTIFACT_INVALID, function (task) {
-                return task.inputArtifactName === artifactName;
-              });
-              if($scope.deploymentContext.deploymentTopologyDTO.validation.taskList.INPUT_ARTIFACT_INVALID.length === 0) {
-                delete $scope.deploymentContext.deploymentTopologyDTO.validation.taskList.INPUT_ARTIFACT_INVALID;
-                if(Object.keys($scope.deploymentContext.deploymentTopologyDTO.validation.taskList).length === 0) {
-                  $scope.deploymentContext.deploymentTopologyDTO.validation.valid = true;
-                }
+
+          /* Handle properties inputs */
+          $scope.updateInputValue = function (definition, inputValue, inputId) {
+            // No update if it's the same value
+            var updatedProperties = {};
+            updatedProperties[inputId] = inputValue;
+            return deploymentTopologyServices.updateInputProperties({
+              appId: $scope.application.id,
+              envId: $scope.deploymentContext.selectedEnvironment.id
+            }, angular.toJson({
+              inputProperties: updatedProperties
+            }), function (result) {
+              if (!result.error) {
+                $scope.updateScopeDeploymentTopologyDTO(result.data);
               }
-            }
-          }).error(function(data, status) {
-            $scope.uploads[artifactName].type = 'error';
-            $scope.uploads[artifactName].error = {};
-            $scope.uploads[artifactName].error.code = status;
-            $scope.uploads[artifactName].error.message = 'An Error has occurred on the server!';
-          });
-        };
-
-        $scope.onArtifactSelected = function($files, artifactName) {
-          var file = $files[0];
-          $scope.doUploadArtifact(file, artifactName);
-        };
-
-        $scope.refreshOrchestratorDeploymentPropertyDefinitions = function() {
-          return $http.get('rest/latest/orchestrators/' + $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId + '/deployment-property-definitions').success(function(result) {
-            if (result.data) {
-              $scope.deploymentContext.orchestratorDeploymentPropertyDefinitions = result.data;
-            }
-          });
-        };
-        $scope.refreshOrchestratorDeploymentPropertyDefinitions();
-
-        $scope.updateDeploymentProperty = function(propertyDefinition, propertyName, propertyValue) {
-          if (propertyValue === $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyName]) {
-            return; // no change
-          }
-          var deploymentPropertyObject = {
-            'definitionId': propertyName,
-            'value': propertyValue
+            }).$promise;
           };
 
-          return applicationServices.checkProperty({
-            orchestratorId: $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId
-          }, angular.toJson(deploymentPropertyObject), function(data) {
-            if (data.error === null) {
-              $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyName] = propertyValue;
-              // Update deployment setup when properties change
-              deploymentTopologyServices.updateInputProperties({
-                  appId: $scope.application.id,
-                  envId: $scope.deploymentContext.selectedEnvironment.id
-                }, angular.toJson({
-                  providerDeploymentProperties: $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties
-                }), function(result){
-                    if(!result.error) {
-                      $scope.updateScopeDeploymentTopologyDTO(result.data);
-                    }
-                  }
-                );
+          // Artifact upload handler
+          $scope.doUploadArtifact = function (file, artifactName) {
+            if (_.undefined($scope.uploads)) {
+              $scope.uploads = {};
             }
-          }).$promise;
-        };
-      }
-    ]); //controller
+            $scope.uploads[artifactName] = {
+              'isUploading': true,
+              'type': 'info'
+            };
+            $upload.upload({
+              url: 'rest/latest/applications/' + $scope.application.id + '/environments/' + $scope.deploymentContext.selectedEnvironment.id + '/inputArtifacts/' + artifactName + '/upload',
+              file: file
+            }).progress(function (evt) {
+              $scope.uploads[artifactName].uploadProgress = parseInt(100.0 * evt.loaded / evt.total);
+            }).success(function (success) {
+              $scope.uploads[artifactName].isUploading = false;
+              $scope.uploads[artifactName].type = 'success';
+              $scope.updateScopeDeploymentTopologyDTO(success.data);
+            }).error(function (data, status) {
+              $scope.uploads[artifactName].type = 'error';
+              $scope.uploads[artifactName].error = {};
+              $scope.uploads[artifactName].error.code = status;
+              $scope.uploads[artifactName].error.message = 'An Error has occurred on the server!';
+            });
+          };
+
+          $scope.onArtifactSelected = function ($files, artifactName) {
+            var file = $files[0];
+            $scope.doUploadArtifact(file, artifactName);
+          };
+
+          $scope.refreshOrchestratorDeploymentPropertyDefinitions = function () {
+            return $http.get('rest/latest/orchestrators/' + $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId + '/deployment-property-definitions').success(function (result) {
+              if (result.data) {
+                $scope.deploymentContext.orchestratorDeploymentPropertyDefinitions = result.data;
+              }
+            });
+          };
+          $scope.refreshOrchestratorDeploymentPropertyDefinitions();
+
+          $scope.updateDeploymentProperty = function (propertyDefinition, propertyName, propertyValue) {
+            if (propertyValue === $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyName]) {
+              return; // no change
+            }
+            var deploymentPropertyObject = {
+              'definitionId': propertyName,
+              'value': propertyValue
+            };
+
+            return applicationServices.checkProperty({
+              orchestratorId: $scope.deploymentContext.deploymentTopologyDTO.topology.orchestratorId
+            }, angular.toJson(deploymentPropertyObject), function (data) {
+              if (data.error === null) {
+                $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyName] = propertyValue;
+                // Update deployment setup when properties change
+                deploymentTopologyServices.updateInputProperties({
+                      appId: $scope.application.id,
+                      envId: $scope.deploymentContext.selectedEnvironment.id
+                    }, angular.toJson({
+                      providerDeploymentProperties: $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties
+                    }), function (result) {
+                      if (!result.error) {
+                        $scope.updateScopeDeploymentTopologyDTO(result.data);
+                      }
+                    }
+                );
+              }
+            }).$promise;
+          };
+        }
+      ]); //controller
 }); //Define

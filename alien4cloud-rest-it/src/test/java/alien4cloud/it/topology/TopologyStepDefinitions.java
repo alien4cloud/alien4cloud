@@ -1,6 +1,11 @@
 package alien4cloud.it.topology;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +36,13 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.components.AddCommponentDefinitionSteps;
-import alien4cloud.model.components.*;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.DeploymentArtifact;
+import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
@@ -43,6 +54,9 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyUtils;
+import alien4cloud.topology.TopologyValidationResult;
+import alien4cloud.topology.task.AbstractTask;
+import alien4cloud.topology.task.ArtifactTask;
 import alien4cloud.topology.task.RequirementToSatisfy;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.TaskLevel;
@@ -229,7 +243,7 @@ public class TopologyStepDefinitions {
 
     @Then("^I should have (\\d+) relationship with source \"([^\"]*)\" and target \"([^\"]*)\" for type \"([^\"]*)\" with requirement \"([^\"]*)\" of type \"([^\"]*)\"$")
     public void I_should_have_relationship_with_source_for_requirement_of_type(int relationshipCount, String source, String target, String relType,
-            String requirementName, String requirementType) throws Throwable {
+                                                                               String requirementName, String requirementType) throws Throwable {
         String topologyJson = Context.getRestClientInstance().get("/rest/v1/topologies/" + Context.getInstance().getTopologyId());
         RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyJson, TopologyDTO.class, Context.getJsonMapper());
         NodeTemplate sourceNode = topologyResponse.getData().getTopology().getNodeTemplates().get(source);
@@ -296,7 +310,7 @@ public class TopologyStepDefinitions {
 
     @Given("^i create a relationshiptype \"([^\"]*)\" in an archive name \"([^\"]*)\" version \"([^\"]*)\" with properties$")
     public void i_create_a_relationshiptype_in_an_archive_name_version_with_properties(String elementId, String archiveName, String archiveVersion,
-            DataTable properties) throws Throwable {
+                                                                                       DataTable properties) throws Throwable {
         IndexedRelationshipType relationship = new IndexedRelationshipType();
         relationship.setArchiveName(archiveName);
         relationship.setArchiveVersion(archiveVersion);
@@ -409,7 +423,7 @@ public class TopologyStepDefinitions {
 
     @Then("^The topology should contain a nodetemplate named \"([^\"]*)\" with an artifact \"([^\"]*)\" with the specified UID and name \"([^\"]*)\"$")
     public void The_topology_should_contain_a_nodetemplate_named_with_an_artifact_with_the_specified_UID(String nodeTemplateName, String artifactId,
-            String artifactName) throws Throwable {
+                                                                                                         String artifactName) throws Throwable {
         The_topology_should_contain_a_nodetemplate_named(nodeTemplateName);
 
         String topologyResponseText = Context.getInstance().getRestResponse();
@@ -485,7 +499,7 @@ public class TopologyStepDefinitions {
 
     @Then("^the scaling policy of the node \"([^\"]*)\" should match max instances equals to (\\d+), initial instances equals to (\\d+) and min instances equals to (\\d+)$")
     public void the_scaling_policy_of_the_node_should_match_max_instances_equals_to_initial_instances_equals_to_and_min_instances_equals_to(String nodeName,
-            int maxInstances, int initialInstances, int minInstances) throws Throwable {
+                                                                                                                                            int maxInstances, int initialInstances, int minInstances) throws Throwable {
         I_try_to_retrieve_the_created_topology();
         String topologyResponseText = Context.getInstance().getRestResponse();
         RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, TopologyDTO.class, Context.getJsonMapper());
@@ -661,4 +675,25 @@ public class TopologyStepDefinitions {
         }
     }
 
+    private boolean missingArtifactsContain(List<AbstractTask> taskList, String nodeName, String artifactName) {
+        for (AbstractTask task : taskList) {
+            if (task instanceof ArtifactTask) {
+                ArtifactTask artifactTask = (ArtifactTask) task;
+                if (artifactTask.getArtifactName().equals(artifactName) && artifactTask.getNodeTemplateName().equals(nodeName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @And("^the nodes with missing artifacts should be$")
+    public void theNodesWithMissingArtifactsShouldBe(DataTable expectedMissingArtifacts) throws Throwable {
+        RestResponse<TopologyValidationResult> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyValidationResult.class, Context.getJsonMapper());
+        assertNotNull(restResponse.getData());
+        List<AbstractTask> taskList = restResponse.getData().getTaskList();
+        for (List<String> expected : expectedMissingArtifacts.raw()) {
+            assertTrue("Task list does not contain [" + expected.get(0) + " , " + expected.get(1) + "]", missingArtifactsContain(taskList, expected.get(0), expected.get(1)));
+        }
+    }
 }

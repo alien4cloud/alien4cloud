@@ -2,6 +2,7 @@ package alien4cloud.topology.task;
 
 public enum TaskCode {
     IMPLEMENT,
+    IMPLEMENT_RELATIONSHIP,
     REPLACE,
     SATISFY_LOWER_BOUND,
     PROPERTIES,

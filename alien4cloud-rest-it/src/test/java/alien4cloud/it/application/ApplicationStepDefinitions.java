@@ -1,6 +1,10 @@
 package alien4cloud.it.application;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,13 +13,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.Lists;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
 import org.elasticsearch.common.collect.Maps;
 import org.junit.Assert;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import alien4cloud.dao.model.FacetedSearchResult;
@@ -135,6 +139,7 @@ public class ApplicationStepDefinitions {
         Context.getInstance().registerApplication(application);
         Context.getInstance().registerApplicationId(name, application.getId());
         setAppEnvironmentIdToContext(application.getName());
+        setAppVersionIdToContext(application.getId());
         String topologyId = getTopologyIdFromApplication(application.getName());
         assertNotNull(topologyId);
         Context.getInstance().registerTopologyId(topologyId);

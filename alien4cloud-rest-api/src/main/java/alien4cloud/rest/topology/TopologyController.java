@@ -1,9 +1,5 @@
 package alien4cloud.rest.topology;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
-
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
@@ -12,14 +8,14 @@ import org.alien4cloud.tosca.editor.EditorService;
 import org.alien4cloud.tosca.editor.TopologyDTOBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.application.ApplicationVersionService;
-import alien4cloud.component.repository.ArtifactRepositoryConstants;
-import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.AbstractTopologyVersion;
@@ -27,7 +23,12 @@ import alien4cloud.model.topology.Topology;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.topology.*;
+import alien4cloud.topology.TopologyDTO;
+import alien4cloud.topology.TopologyService;
+import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.topology.TopologyTemplateVersionService;
+import alien4cloud.topology.TopologyValidationResult;
+import alien4cloud.topology.TopologyValidationService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,27 +36,20 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping({ "/rest/topologies", "/rest/v1/topologies", "/rest/latest/topologies" })
 public class TopologyController {
-
     @Resource
     private TopologyService topologyService;
     @Resource
     private TopologyServiceCore topologyServiceCore;
     @Resource
     private TopologyValidationService topologyValidationService;
-
     @Resource
     private ApplicationVersionService applicationVersionService;
     @Resource
     private TopologyTemplateVersionService topologyTemplateVersionService;
-
     @Resource
     private EditionContextManager topologyEditionContextManager;
-
     @Inject
     private TopologyDTOBuilder dtoBuilder;
-    @Resource
-    private IFileRepository artifactRepository;
-
     @Inject
     private EditorService editorService;
 
@@ -133,46 +127,5 @@ public class TopologyController {
             throw new NotFoundException("No version found for topology " + topologyId);
         }
         return RestResponseBuilder.<AbstractTopologyVersion> builder().data(version).build();
-    }
-
-    /**
-     * Update application's input artifact.
-     *
-     * @param topologyId The topology's id
-     * @param inputArtifactId artifact's id
-     * @return nothing if success, error will be handled in global exception strategy
-     * @throws IOException
-     */
-    @ApiOperation(value = "Updates the deployment artifact of the node template.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyId:.+}/inputArtifacts/{inputArtifactId}/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<TopologyDTO> updateDeploymentInputArtifact(@PathVariable String topologyId, @PathVariable String inputArtifactId,
-            @RequestParam("file") MultipartFile artifactFile) throws IOException {
-        // Perform check that authorization's ok
-        Topology topology = topologyServiceCore.getOrFail(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
-        topologyService.throwsErrorIfReleased(topology);
-
-        // Get the artifact to update
-        Map<String, DeploymentArtifact> artifacts = topology.getInputArtifacts();
-        if (artifacts == null) {
-            throw new NotFoundException("Artifact with key [" + inputArtifactId + "] do not exist");
-        }
-        DeploymentArtifact artifact = artifacts.get(inputArtifactId);
-        if (artifact == null) {
-            throw new NotFoundException("Artifact with key [" + inputArtifactId + "] do not exist");
-        }
-        String oldArtifactId = artifact.getArtifactRef();
-        if (ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY.equals(artifact.getArtifactRepository())) {
-            artifactRepository.deleteFile(oldArtifactId);
-        }
-        try (InputStream artifactStream = artifactFile.getInputStream()) {
-            String artifactFileId = artifactRepository.storeFile(artifactStream);
-            artifact.setArtifactName(artifactFile.getOriginalFilename());
-            artifact.setArtifactRef(artifactFileId);
-            artifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY);
-            topologyServiceCore.save(topology);
-            return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-        }
     }
 }

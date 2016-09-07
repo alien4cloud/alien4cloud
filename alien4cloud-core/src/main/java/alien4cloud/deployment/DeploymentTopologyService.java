@@ -1,8 +1,13 @@
 package alien4cloud.deployment;
 
 import java.beans.IntrospectionException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -35,7 +40,12 @@ import alien4cloud.model.components.constraints.EqualConstraint;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import alien4cloud.model.topology.*;
+import alien4cloud.model.topology.AbstractPolicy;
+import alien4cloud.model.topology.Capability;
+import alien4cloud.model.topology.LocationPlacementPolicy;
+import alien4cloud.model.topology.NodeGroup;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.security.AuthorizationUtil;
@@ -228,7 +238,6 @@ public class DeploymentTopologyService {
         topologyCompositionService.processTopologyComposition(deploymentTopology);
         deploymentInputService.processInputProperties(deploymentTopology);
         inputsPreProcessorService.processGetInput(deploymentTopology, environment, topology);
-        deploymentInputService.processInputArtifacts(deploymentTopology);
         deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
         deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology, previousNodeTemplates);
         save(deploymentTopology);
@@ -244,7 +253,6 @@ public class DeploymentTopologyService {
         Topology topology = topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId());
         deploymentInputService.processInputProperties(deploymentTopology);
         inputsPreProcessorService.processGetInput(deploymentTopology, environment, topology);
-        deploymentInputService.processInputArtifacts(deploymentTopology);
         deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
         save(deploymentTopology);
     }

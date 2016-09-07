@@ -77,6 +77,8 @@ public class DeployService {
     private DeploymentTopologyValidationService deploymentTopologyValidationService;
     @Inject
     private ArtifactProcessorService artifactProcessorService;
+    @Inject
+    private DeploymentInputService deploymentInputService;
 
     /**
      * Deploy a topology and return the deployment ID.
@@ -126,6 +128,8 @@ public class DeployService {
         alienMonitorDao.save(deploymentTopology);
         // put back the old Id for deployment
         deploymentTopology.setId(deploymentTopologyId);
+        // Process all input artifact, replace all artifact inside the topology with input artifact
+        deploymentInputService.processInputArtifacts(deploymentTopology);
         PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(deployment, locations, deploymentTopology);
         // Download and process all remote artifacts before deployment
         artifactProcessorService.processArtifacts(deploymentContext);
