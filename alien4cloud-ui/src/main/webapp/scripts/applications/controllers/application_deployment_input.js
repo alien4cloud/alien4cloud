@@ -26,7 +26,7 @@ define(function(require) {
 
   modules.get('a4c-applications').controller('ApplicationDeploymentSetupCtrl',
     ['$scope', '$upload', 'applicationServices', '$http', '$filter', 'deploymentTopologyServices', '$state',
-      function($scope, $upload, applicationServices, $http, $filter, deploymentTopologyServices, $state) {
+      function($scope, $upload, applicationServices, $http, $filter, deploymentTopologyServices) {
 
         $scope._=_;
         $scope.isAllowedInputDeployment = function() {

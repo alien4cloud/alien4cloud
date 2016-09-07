@@ -30,11 +30,12 @@ define(function(require) {
           processSubstitutionResources: function(substitutionResources) {
             var availableSubstitutionsIds = substitutionResources.availableSubstitutions;
             substitutionResources.availableSubstitutions = {};
-            for (var nodeId in availableSubstitutionsIds) {
-              if (availableSubstitutionsIds.hasOwnProperty(nodeId)) {
-                substitutionResources.availableSubstitutions[nodeId] = _.map(availableSubstitutionsIds[nodeId], function(resourceId) {
-                  return substitutionResources.substitutionsTemplates[resourceId];
-                });
+            function mapTemplates(resourceId) {
+              return substitutionResources.substitutionsTemplates[resourceId];
+            }
+            for (var nodeTemplateId in availableSubstitutionsIds) {
+              if (availableSubstitutionsIds.hasOwnProperty(nodeTemplateId)) {
+                substitutionResources.availableSubstitutions[nodeTemplateId] = _.map(availableSubstitutionsIds[nodeTemplateId], mapTemplates);
               }
             }
             listToMapService.processMap(substitutionResources.substitutionTypes.nodeTypes, 'properties');

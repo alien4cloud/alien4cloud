@@ -99,26 +99,23 @@ define(function (require) {
         return editorResource.create({
           topologyId: $scope.topologyId,
         }, angular.toJson(operation), function(result) {
-            if(_.undefined(result.error)) {
-              $scope.refreshTopology(result.data, selectedNodeTemplate);
+          if(_.undefined(result.error)) {
+            $scope.refreshTopology(result.data, selectedNodeTemplate);
+            if(_.defined(successCallback)) {
+              successCallback(result);
+            }
+            return;
+          }
+          //case there actually is an error
+          topologyRecoveryServices.handleTopologyRecovery(result.data, $scope.topologyId, $scope.getLastOperationId(true)).then(function(recoveryResult) {
+            if(_.definedPath(recoveryResult, 'data')) {
+              $scope.refreshTopology(recoveryResult.data, selectedNodeTemplate);
               if(_.defined(successCallback)) {
-                successCallback(result);
+                successCallback(recoveryResult);
               }
               return;
             }
-
-            //case there actually is an error
-            topologyRecoveryServices.handleTopologyRecovery(result.data, $scope.topologyId, $scope.getLastOperationId(true)).then(function(recoveryResult){
-              if(_.definedPath(recoveryResult, 'data')){
-                $scope.refreshTopology(recoveryResult.data, selectedNodeTemplate);
-                if(_.defined(successCallback)) {
-                  successCallback(recoveryResult);
-                }
-                return;
-              }
-            });
-
-
+          });
         }, function(error) {
           if(_.defined(errorCallback)) {
             errorCallback(error);

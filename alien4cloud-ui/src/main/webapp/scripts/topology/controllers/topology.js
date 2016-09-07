@@ -155,48 +155,6 @@ define(function (require) {
         $scope.selectionabstract = $scope.topology.nodeTypes[nodeTemplate.type].abstract;
       }
 
-      $scope.updateInputArtifactList = function(artifactName) {
-        var nodeTemplateName = $scope.selectedNodeTemplate.name;
-        var topology = $scope.topology.topology;
-        var inputIndex = topology.inputArtifacts[nodeTemplateName].indexOf(artifactName);
-        var artifactInput = {
-          topologyId: $scope.topology.topology.id,
-          nodeTemplateName: nodeTemplateName,
-          artifactName: artifactName
-        };
-
-        if (inputIndex < 0) {
-          // add input artifact
-          topologyServices.nodeTemplate.artifactInput.add(
-            artifactInput,
-            function(successResult) {
-              if (!successResult.error) {
-                $scope.refreshTopology(successResult.data);
-              }
-            },
-            function(errorResult) {
-              console.debug(errorResult);
-            }
-          );
-        } else {
-          // remove input artifact
-          topologyServices.nodeTemplate.artifactInput.remove(
-            artifactInput,
-            function(successResult) {
-              if (!successResult.error) {
-                $scope.refreshTopology(successResult.data);
-              } else {
-                console.debug(successResult.error);
-              }
-            },
-            function(errorResult) {
-              console.debug(errorResult);
-            }
-          );
-        }
-
-      };
-
       $scope.getIcon = toscaService.getIcon;
       // check if compute type
       $scope.isComputeType = function(nodeTemplate) {
@@ -205,18 +163,6 @@ define(function (require) {
         }
         return toscaService.isComputeType(nodeTemplate.type, $scope.topology.nodeTypes);
       };
-
-      var fillBounds = function(topology) {
-        if (!topology.nodeTemplates) {
-          return;
-        }
-        Object.keys(topology.nodeTemplates).forEach(function(nodeTemplateName) {
-          var nodeTemplate = topology.nodeTemplates[nodeTemplateName];
-          toscaCardinalitiesService.fillRequirementBounds($scope.topology.nodeTypes, nodeTemplate);
-          toscaCardinalitiesService.fillCapabilityBounds($scope.topology.nodeTypes, $scope.topology.topology.nodeTemplates, nodeTemplate);
-        });
-      };
-
 
       /**
        * Capabilities and Requirements docs

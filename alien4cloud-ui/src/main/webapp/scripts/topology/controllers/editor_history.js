@@ -27,5 +27,6 @@ define(function (require) {
           $scope.gitCommits = result.data;
         });
       };
-  }]);
+    }
+  ]);
 });
