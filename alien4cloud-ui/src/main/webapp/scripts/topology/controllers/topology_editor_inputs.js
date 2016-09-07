@@ -149,7 +149,7 @@ define(function (require) {
           var scope = this.scope;
           if (!this.isRelationshipPropertyAssociatedToInput(relationshipName, propertyName, inputId)) {
             this.scope.execute({
-              type: 'org.alien4cloud.tosca.editor.operations.relationshiptemplate.SetRelationshipPropertyAsInputOperation',
+              type: 'org.alien4cloud.tosca.editor.operations.relationshiptemplate.inputs.SetRelationshipPropertyAsInputOperation',
               nodeName: scope.selectedNodeTemplate.name,
               relationshipName: relationshipName,
               propertyName: propertyName,
@@ -157,7 +157,7 @@ define(function (require) {
             });
           } else {
             this.scope.execute({
-              type: 'org.alien4cloud.tosca.editor.operations.relationshiptemplate.UnsetRelationshipPropertyAsInputOperation',
+              type: 'org.alien4cloud.tosca.editor.operations.relationshiptemplate.inputs.UnsetRelationshipPropertyAsInputOperation',
               nodeName: scope.selectedNodeTemplate.name,
               relationshipName: relationshipName,
               propertyName: propertyName,

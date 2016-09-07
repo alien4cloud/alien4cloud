@@ -97,7 +97,9 @@ define(function(require) {
 
       /* method private to factorise all call to the serve and trigge errors */
       var callSaveService = function(propertyRequest) {
+        console.log('call save');
         var saveResult = $scope.onSave(propertyRequest);
+        console.log('receive save', saveResult);
 
         // If the callback return a promise
         if (_.defined(saveResult) && _.defined(saveResult.then)) {
@@ -136,7 +138,6 @@ define(function(require) {
           propertyDefinition: $scope.definition,
           propertyValue: data
         };
-
         if (_.defined($scope.definition.suggestionId) && _.defined(data) && data !== null) {
           return propertySuggestionServices.get({
             input: data,

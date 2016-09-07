@@ -93,7 +93,7 @@ define(function (require) {
       };
 
       var editorResource = $alresource('rest/latest/editor/:topologyId/execute');
-      $scope.execute = function(operation, successCallback, errorCallback, selectedNodeTemplate) {
+      $scope.execute = function(operation, successCallback, errorCallback, selectedNodeTemplate, isPropertyEdit) {
         operation.previousOperationId = $scope.getLastOperationId();
         // execute operations, create is a post
         return editorResource.create({
@@ -110,14 +110,22 @@ define(function (require) {
                 return;
               }
             });
+            return result;
           }
 
           if(_.undefined(result.error)) {
-            $scope.refreshTopology(result.data, selectedNodeTemplate);
+            if(_.defined(isPropertyEdit)) {
+              // If the call is related to a property value edition this may be a complex one and we should not perform full topology override.
+              $scope.topology.operations = result.data.operations;
+              $scope.topology.lastOperationIndex = result.data.lastOperationIndex;
+            } else {
+              $scope.refreshTopology(result.data, selectedNodeTemplate);
+            }
           }
           if(_.defined(successCallback)) {
             successCallback(result);
           }
+          return result;
         }, function(error) {
           if(_.defined(errorCallback)) {
             errorCallback(error);

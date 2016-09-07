@@ -97,12 +97,21 @@ define(function (require) {
         updateRelationshipProperty: function(propertyDefinition, propertyName, propertyValue, relationshipType, relationshipName) {
           var scope = this.scope;
           return scope.execute({
-            type: 'org.alien4cloud.tosca.editor.operations.relationshiptemplate.UpdateRelationshipPropertyValueOperation',
-            nodeName: scope.selectedNodeTemplate.name,
-            relationshipName: relationshipName,
-            propertyName: propertyName,
-            propertyValue: propertyValue
-          }, null, null).$promise;
+              type: 'org.alien4cloud.tosca.editor.operations.relationshiptemplate.UpdateRelationshipPropertyValueOperation',
+              nodeName: scope.selectedNodeTemplate.name,
+              relationshipName: relationshipName,
+              propertyName: propertyName,
+              propertyValue: propertyValue
+            },
+            function(result) {
+              if (_.undefined(result.error)) {
+                scope.topology.topology.nodeTemplates[scope.selectedNodeTemplate.name].relationshipsMap[relationshipName].value.propertiesMap[propertyName].value = { value: propertyValue, definition: false };
+              }
+            },
+            null,
+            scope.selectedNodeTemplate,
+            true
+          );
         },
 
         remove: function(relationshipName, selectedNodeTemplate) {

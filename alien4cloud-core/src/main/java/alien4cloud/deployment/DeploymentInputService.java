@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import alien4cloud.tosca.context.ToscaContextual;
 import org.elasticsearch.common.collect.Lists;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +38,7 @@ public class DeploymentInputService {
      *
      * @param topology The deployment topology to impact.
      */
+    @ToscaContextual
     public void processInputProperties(DeploymentTopology topology) {
         Map<String, PropertyValue> inputProperties = topology.getInputProperties();
         Map<String, PropertyDefinition> inputDefinitions = topology.getInputs();
