@@ -2,7 +2,7 @@
 define(function (require) {
   'use strict';
   var modules = require('modules');
-  var angular = require('angular');
+  var _ = require('lodash');
 
   modules.get('a4c-topology-editor').factory('topoEditWf', [ '$modal', '$interval', '$filter', 'listToMapService',
     function($modal, $interval, $filter, listToMapService) {
@@ -239,7 +239,7 @@ define(function (require) {
           this.scope.execute({
               type: 'org.alien4cloud.tosca.editor.operations.workflow.RemoveWorkflowOperation',
               workflowName: scope.currentWorkflowName
-            },          
+            },
             function(successResult) {
               if (!successResult.error) {
                 instance.setCurrentWorkflowName(undefined);
@@ -259,7 +259,7 @@ define(function (require) {
               type: 'org.alien4cloud.tosca.editor.operations.workflow.RenameWorkflowOperation',
               workflowName: scope.currentWorkflowName,
               newName: newName
-            },           
+            },
             function(successResult) {
               if (!successResult.error) {
                 instance.setCurrentWorkflowName(newName);
@@ -280,7 +280,7 @@ define(function (require) {
           this.scope.execute({
               type: 'org.alien4cloud.tosca.editor.operations.workflow.ReinitializeWorkflowOperation',
               workflowName: scope.currentWorkflowName
-            },           
+            },
             function(successResult) {
               if (!successResult.error) {
                 instance.refreshGraph(true, true);
@@ -328,7 +328,7 @@ define(function (require) {
               fromStepId: from,
               toStepId: to,
               workflowName: scope.currentWorkflowName
-            },          
+            },
             function(successResult) {
               if (!successResult.error) {
                 if (scope.pinnedWorkflowStep) {
@@ -355,7 +355,7 @@ define(function (require) {
               type: 'org.alien4cloud.tosca.editor.operations.workflow.RemoveStepOperation',
               stepId: stepId,
               workflowName: scope.currentWorkflowName
-            },          
+            },
             function(successResult) {
               if (!successResult.error) {
                 instance.clearSelection();
@@ -382,7 +382,7 @@ define(function (require) {
               toStepId: scope.pinnedWorkflowStep.name,
               workflowName: scope.currentWorkflowName,
               fromStepIds: connectFromCandidate
-            },            
+            },
             function(successResult) {
               if (!successResult.error) {
                 if (scope.pinnedWorkflowStep) {
@@ -436,7 +436,7 @@ define(function (require) {
               stepId: from,
               workflowName: scope.currentWorkflowName,
               targetStepId: to
-            },          
+            },
             function(successResult) {
               if (!successResult.error) {
                 instance.refreshGraph(true, true);
@@ -494,10 +494,9 @@ define(function (require) {
           var scope = this.scope;
           var instance = this;
 
-          this.scope.execute(activityRequest, 
+          this.scope.execute(activityRequest,
             function(successResult) {
               if (!successResult.error) {
-                var wf = successResult.data;
                 if (scope.pinnedWorkflowStep) {
                   instance.setPinnedWorkflowStep(scope.pinnedWorkflowStep.name, scope.topology.topology.workflows[scope.currentWorkflowName].steps[scope.pinnedWorkflowStep.name]);
                 }

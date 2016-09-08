@@ -3,24 +3,28 @@ package alien4cloud.tosca.parser.impl.base;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.impl.ErrorCode;
-import alien4cloud.tosca.parser.mapping.DefaultParser;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 /**
  * Map using a child parser based on a discriminator key (valid only for MappingNode).
  */
-public class KeyDiscriminatorParser<T> extends DefaultParser<T> {
+@Component
+@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+public class KeyDiscriminatorParser<T> implements INodeParser<T> {
     private static final String MAPPING_NODE_FALLBACK_KEY = "__";
 
     private Map<String, INodeParser<T>> parserByExistKey;
@@ -73,5 +77,4 @@ public class KeyDiscriminatorParser<T> extends DefaultParser<T> {
         }
         return null;
     }
-
 }

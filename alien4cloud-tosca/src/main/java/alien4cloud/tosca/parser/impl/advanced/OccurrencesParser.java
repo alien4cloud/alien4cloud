@@ -5,20 +5,22 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import alien4cloud.tosca.parser.impl.base.BaseParserFactory;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
 import alien4cloud.model.components.LowerBoundedDefinition;
 import alien4cloud.model.components.UpperBoundedDefinition;
+import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.ListParser;
-import alien4cloud.tosca.parser.mapping.DefaultParser;
 
 @Component
-public class OccurrencesParser extends DefaultParser<List<String>> {
-
+public class OccurrencesParser implements INodeParser<List<String>> {
+    @Resource
+    private BaseParserFactory baseParserFactory;
     @Resource
     private BoundParser boundParser;
 
@@ -26,7 +28,7 @@ public class OccurrencesParser extends DefaultParser<List<String>> {
 
     @PostConstruct
     public void init() {
-        listParser = new ListParser<String>(boundParser, "string");
+        listParser = baseParserFactory.getListParser(boundParser, "string");
     }
 
     @Override

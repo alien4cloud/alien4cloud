@@ -131,6 +131,21 @@
         "REQUIREMENTS" : "Pré-requis",
         "TITLE" : "Substitutions"
       },
+      "RECOVERY": {
+        "TITLE": "Dépendences de topologie modifées",
+        "DISMISS": "Abandonner",
+        "DESCRIPTION": "Les dépendences suivantes de la topologie ont été modifiées:",
+        "CHOICE_ASK": "Que souhaitez vous faire de la topologie ?",
+        "RECOVER": {
+          "TITLE": "Réparation de topology",
+          "DESCRIPTION": "Essayer de réparer la topologie en applicquant les opérations ci dessous. Notez que la topologie sera sauvegardée."
+        },
+        "RESET": {
+          "TITLE": "Réinitialiser",
+          "DESCRIPTION": "Tout supprimer de la topologie, la laissant vide."
+        },
+        "SUCCESS_MSGE": "Topologie mise à jour!!"
+      },
       "TASK" : {
         "CREATE_TOPOLOGY_MESSAGE" : "Pas de topologie trouvée! Créez en une et ajoutez y des noeuds",
         "EMPTY_TOPOLOGY_MESSAGE" : "La topologie actuelle est vide. Ajoutez y des noeuds",
@@ -379,6 +394,7 @@
       "353" : "Votre plugin doit nécessairement avoir le fichier META-INF/plugin.yml.",
       "ALIEN_MAPPING_ERROR" : "Une erreur interne a fait échouer l'import de l'archive. Merci de nous remonter le problème.",
       "CSAR_ALREADY_EXISTS" : "Une archive releasé ayant ce nom et cette version existe déjà dans le dépot. Afin de garantir la stabilité des projets les utilisants, les archives releasé ne peuvent pas être modifiées. Seule les archives SNAPSHOT peuvent être mise à jour.",
+      "CSAR_USED_IN_ACTIVE_DEPLOYMENT": "Une topologie ayant une dépendence vers une archive de ce nom et cette version est déployée. Afin de garantir la stabilité des déploiements, cette archive ne peut être modifiée.",
       "DUPLICATED_ELEMENT_DECLARATION" : "L'Element [ {{note}} ] a déjà été déclaré ce fichier de définition",
       "ENTRY_DEFINITION_NOT_FOUND" : "Le fichier de définitions n'a pas été trouvé. Le fichier de définitions yaml doit se trouver à la racine de l'archive",
       "ERRONEOUS_ARCHIVE_FILE" : "L'Archive n'est pas parsable, merci de vérifier qu'il est de format zip",

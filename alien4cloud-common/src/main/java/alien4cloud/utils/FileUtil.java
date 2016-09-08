@@ -1,28 +1,15 @@
 package alien4cloud.utils;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.Charset;
-import java.nio.file.CopyOption;
+import java.nio.file.*;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.MessageDigest;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -33,6 +20,9 @@ import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
 
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 public final class FileUtil {
     /**
@@ -41,7 +31,27 @@ public final class FileUtil {
     private FileUtil() {
     }
 
-    static void putZipEntry(ZipOutputStream zipOutputStream, ZipEntry zipEntry, Path file) throws IOException {
+    /**
+     * Check if the file matching the given path is a zip file or not.
+     * 
+     * @param path The patch to check.
+     */
+    public static boolean isZipFile(Path path) {
+        File f = path.toFile();
+        if (f.isDirectory() || f.length() < 4) {
+            return false;
+        }
+
+        try (DataInputStream inputStream = new DataInputStream(new FileInputStream(f))) {
+            return inputStream.readInt() == 0x504b0304;
+        } catch (FileNotFoundException e) {
+            return false;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    protected static void putZipEntry(ZipOutputStream zipOutputStream, ZipEntry zipEntry, Path file) throws IOException {
         zipOutputStream.putNextEntry(zipEntry);
         InputStream input = new BufferedInputStream(Files.newInputStream(file));
         try {
@@ -52,7 +62,7 @@ public final class FileUtil {
         }
     }
 
-    static void putTarEntry(TarArchiveOutputStream tarOutputStream, TarArchiveEntry tarEntry, Path file) throws IOException {
+    protected static void putTarEntry(TarArchiveOutputStream tarOutputStream, TarArchiveEntry tarEntry, Path file) throws IOException {
         tarEntry.setSize(Files.size(file));
         tarOutputStream.putArchiveEntry(tarEntry);
         InputStream input = new BufferedInputStream(Files.newInputStream(file));
@@ -191,16 +201,43 @@ public final class FileUtil {
     }
 
     private static class EraserWalker extends SimpleFileVisitor<Path> {
+        private Path[] keepPath;
+
+        private EraserWalker(Path... keepPath) {
+            this.keepPath = keepPath;
+        }
+
+        private boolean isKeepPath(Path path) {
+            for (Path keep : keepPath) {
+                if (path.equals(keep)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+            if (isKeepPath(dir)) {
+                return FileVisitResult.SKIP_SUBTREE;
+            }
+            return super.preVisitDirectory(dir, attrs);
+        }
+
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            file.toFile().delete();
+            if (!isKeepPath(file)) {
+                file.toFile().delete();
+            }
             return FileVisitResult.CONTINUE;
         }
 
         @Override
         public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
             if (exc == null) {
-                dir.toFile().delete();
+                if (!isKeepPath(dir)) {
+                    dir.toFile().delete();
+                }
                 return FileVisitResult.CONTINUE;
             }
             throw exc;
@@ -208,12 +245,13 @@ public final class FileUtil {
     }
 
     /**
-     * Recursively delete file and directory
+     * Recursively delete file and directory but the specified paths
      *
      * @param deletePath file path can be directory
+     * @param keepPath paths not to be deleted.
      * @throws IOException when IO error happened
      */
-    public static void delete(Path deletePath) throws IOException {
+    public static void delete(Path deletePath, Path... keepPath) throws IOException {
         if (!Files.isDirectory(deletePath)) {
             deletePath.toFile().delete();
             return;
@@ -299,5 +337,33 @@ public final class FileUtil {
             }
         });
         return files;
+    }
+
+    @SneakyThrows({ Exception.class })
+    public static String getSHA1Checksum(Path path) {
+        if (!Files.exists(path)) {
+            throw new FileNotFoundException("File not found in hash processor" + path);
+        }
+        byte[] b = createSHA1Checksum(path);
+        String result = "";
+        for (int i = 0; i < b.length; i++) {
+            result += Integer.toString((b[i] & 0xff) + 0x100, 16).substring(1);
+        }
+        return result;
+    }
+
+    private static byte[] createSHA1Checksum(Path path) throws Exception {
+        try (InputStream fis = Files.newInputStream(path)) {
+            byte[] buffer = new byte[1024];
+            MessageDigest complete = MessageDigest.getInstance("SHA1");
+            int numRead;
+            do {
+                numRead = fis.read(buffer);
+                if (numRead > 0) {
+                    complete.update(buffer, 0, numRead);
+                }
+            } while (numRead != -1);
+            return complete.digest();
+        }
     }
 }

@@ -25,7 +25,7 @@ define(function(require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentSetupCtrl',
-    ['$scope', '$upload', 'applicationServices', '$http', '$filter', 'deploymentTopologyServices',
+    ['$scope', '$upload', 'applicationServices', '$http', '$filter', 'deploymentTopologyServices', '$state',
       function($scope, $upload, applicationServices, $http, $filter, deploymentTopologyServices) {
 
         $scope._=_;
@@ -69,6 +69,17 @@ define(function(require) {
             $scope.deploymentContext.deploymentTopologyDTO.topology.inputArtifacts[artifactName].artifactName = success.data.topology.inputArtifacts[artifactName].artifactName;
             $scope.uploads[artifactName].isUploading = false;
             $scope.uploads[artifactName].type = 'success';
+            if(_.definedPath($scope.deploymentContext.deploymentTopologyDTO, 'validation.taskList.INPUT_ARTIFACT_INVALID')) {
+              _.remove($scope.deploymentContext.deploymentTopologyDTO.validation.taskList.INPUT_ARTIFACT_INVALID, function (task) {
+                return task.inputArtifactName === artifactName;
+              });
+              if($scope.deploymentContext.deploymentTopologyDTO.validation.taskList.INPUT_ARTIFACT_INVALID.length === 0) {
+                delete $scope.deploymentContext.deploymentTopologyDTO.validation.taskList.INPUT_ARTIFACT_INVALID;
+                if(Object.keys($scope.deploymentContext.deploymentTopologyDTO.validation.taskList).length === 0) {
+                  $scope.deploymentContext.deploymentTopologyDTO.validation.valid = true;
+                }
+              }
+            }
           }).error(function(data, status) {
             $scope.uploads[artifactName].type = 'error';
             $scope.uploads[artifactName].error = {};

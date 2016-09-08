@@ -4,8 +4,8 @@ define(function (require) {
   var modules = require('modules');
   var _ = require('lodash');
 
-  modules.get('a4c-topology-editor').factory('topoEditVersions', [ 'topologyServices',
-    function(topologyServices) {
+  modules.get('a4c-topology-editor').factory('topoEditVersions', [ 'topologyServices', 'topologyRecoveryServices',
+    function(topologyServices, topologyRecoveryServices) {
       var TopologyEditorMixin = function(scope) {
         this.scope = scope;
 
@@ -43,7 +43,18 @@ define(function (require) {
           topologyServices.dao.get({
             topologyId: instance.scope.topologyId
           }, function(successResult) {
-            instance.scope.refreshTopology(successResult.data);
+            if(_.undefined(successResult.error)){
+              instance.scope.refreshTopology(successResult.data);
+              return;
+            }
+
+            //case there actually is an error
+            topologyRecoveryServices.handleTopologyRecovery(successResult.data, instance.scope.topologyId, instance.scope.getLastOperationId(true)).then(function(recoveryResult){
+              if(_.definedPath(recoveryResult, 'data')){
+                instance.scope.refreshTopology(recoveryResult.data);
+              }
+            });
+
           });
         }
       };

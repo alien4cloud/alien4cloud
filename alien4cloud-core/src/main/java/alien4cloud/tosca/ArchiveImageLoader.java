@@ -5,6 +5,7 @@ import java.nio.file.*;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -26,6 +27,8 @@ import alien4cloud.tosca.parser.impl.ErrorCode;
 @Component
 public class ArchiveImageLoader {
     private static final String ALIEN_ICON_TAG = "icon";
+    private static final Pattern UUID_PATTERN = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+
     @Inject
     private IImageDAO imageDAO;
 
@@ -43,7 +46,8 @@ public class ArchiveImageLoader {
         importImages(archiveFile, archiveRoot.getArtifactTypes(), parsingErrors);
     }
 
-    private void importImages(Path archiveFile, Map<String, ? extends IndexedInheritableToscaElement> toscaInheritableElement, List<ParsingError> parsingErrors) {
+    private void importImages(Path archiveFile, Map<String, ? extends IndexedInheritableToscaElement> toscaInheritableElement,
+            List<ParsingError> parsingErrors) {
         if (toscaInheritableElement == null) {
             return;
         }
@@ -51,7 +55,7 @@ public class ArchiveImageLoader {
             if (element.getValue().getTags() != null) {
                 List<Tag> tags = element.getValue().getTags();
                 Tag iconTag = ArchiveImageLoader.getIconTag(tags);
-                if (iconTag != null) {
+                if (iconTag != null && !UUID_PATTERN.matcher(iconTag.getValue()).matches()) {
                     importImage(archiveFile, parsingErrors, iconTag);
                 }
             }
@@ -79,11 +83,11 @@ public class ArchiveImageLoader {
                         "Invalid icon format at path <" + iconPath + ">", null, iconPath.toString()));
             }
         } catch (NoSuchFileException | InvalidPathException e) {
-            parsingErrors.add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.MISSING_FILE, "Icon loading", null, "No icon file found at path <"
-                    + iconPath + ">", null, iconPath.toString()));
+            parsingErrors.add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.MISSING_FILE, "Icon loading", null,
+                    "No icon file found at path <" + iconPath + ">", null, iconPath.toString()));
         } catch (ImageUploadException e) {
-            parsingErrors.add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_ICON_FORMAT, "Icon loading", null, "Invalid icon format at path <"
-                    + iconPath + ">", null, iconPath.toString()));
+            parsingErrors.add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_ICON_FORMAT, "Icon loading", null,
+                    "Invalid icon format at path <" + iconPath + ">", null, iconPath.toString()));
         } catch (IOException e) {
             parsingErrors.add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.FAILED_TO_READ_FILE, "Icon loading", null,
                     "IO error while loading icon at path <" + iconPath + ">", null, iconPath.toString()));

@@ -1097,7 +1097,7 @@ define(function(require) {
       if (angular.isNumber(path[i])) {
         pathText += '[' + path[i] + ']';
       } else {
-        pathText += '.' + path[i];
+        pathText += '["' + path[i]+ '"]';
       }
     }
     return pathText;

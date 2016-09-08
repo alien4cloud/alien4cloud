@@ -2,7 +2,7 @@
   <div id="configurationsErrors" class="col-md-6" ng-if="validTopologyDTO.valid && showConfgurationsErrors()">
     <!-- DEPLOYMENT TOPO CONFIGURATION ERRORS -->
     <h4 class="text-danger"><i class="fa fa-exclamation-triangle"></i> {{'APPLICATIONS.TOPOLOGY.TASK.ERRORS_LABEL' | translate}}</h4>
-    
+
     <div class="task-list-box">
       <!-- NODE FILTERS-->
       <node-filters-errors-display
@@ -19,6 +19,12 @@
       <properties-errors-display
         tasks = "deploymentContext.deploymentTopologyDTO.validation.taskList['PROPERTIES']">
       </properties-errors-display>
+
+      <!--  Input artifact tasks  -->
+      <input-artifacts-errors-display
+              tasks = "deploymentContext.deploymentTopologyDTO.validation.taskList['INPUT_ARTIFACT_INVALID']">
+      </input-artifacts-errors-display>
+
     </div>
   </div>
   <!-- Input properties  -->

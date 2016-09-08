@@ -7,6 +7,8 @@ import javax.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,8 @@ import com.google.common.collect.Maps;
 public class DeploymentService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDao;
+    @Resource(name = "alien-monitor-es-dao")
+    private IGenericSearchDAO alienMonitorDao;
     @Inject
     private DeploymentRuntimeStateService deploymentRuntimeStateService;
     @Inject
@@ -104,10 +108,11 @@ public class DeploymentService {
     public Deployment getDeployment(String applicationEnvironmentId) {
         Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "environmentId" },
                 new String[][] { new String[] { applicationEnvironmentId } });
-        GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, null, null, 0, Integer.MAX_VALUE, "endDate", true);
+        GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, null, null, 0, Integer.MAX_VALUE,
+                "endDate", true);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
-            if (dataResult.getData()[dataResult.getData().length -1].getEndDate() == null) {
-                return dataResult.getData()[dataResult.getData().length -1];
+            if (dataResult.getData()[dataResult.getData().length - 1].getEndDate() == null) {
+                return dataResult.getData()[dataResult.getData().length - 1];
             } else {
                 return dataResult.getData()[0];
             }
@@ -175,7 +180,7 @@ public class DeploymentService {
     public boolean isActiveDeployment(String orchestratorId, String orchestratorDeploymentId) {
         Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "orchestratorId", "orchestratorDeploymentId", "endDate" },
                 new String[][] { new String[] { orchestratorId }, new String[] { orchestratorDeploymentId }, new String[] { null } });
-        GetMultipleDataResult<Deployment> dataResult = alienDao.find(Deployment.class, activeDeploymentFilters, Integer.MAX_VALUE);
+        GetMultipleDataResult<Deployment> dataResult = alienDao.find(Deployment.class, activeDeploymentFilters, 1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             return true;
         }
@@ -194,8 +199,8 @@ public class DeploymentService {
     }
 
     private Deployment[] getOrchestratorActiveDeployments(String orchestratorId) {
-        Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[]{"orchestratorId", "endDate"},
-                new String[][]{new String[]{orchestratorId}, new String[]{null}});
+        Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "orchestratorId", "endDate" },
+                new String[][] { new String[] { orchestratorId }, new String[] { null } });
         GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, 1);
         return dataResult.getData();
     }
@@ -203,7 +208,7 @@ public class DeploymentService {
     public Map<String, Set<String>> getAllOrchestratorIdsAndOrchestratorDeploymentId(String applicationEnvironmentId) {
         Map<String, Set<String>> result = new HashMap<>();
         Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "environmentId" },
-                new String[][] { new String[] { applicationEnvironmentId }});
+                new String[][] { new String[] { applicationEnvironmentId } });
         GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, Integer.MAX_VALUE);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             for (Deployment deployment : dataResult.getData()) {
@@ -214,5 +219,37 @@ public class DeploymentService {
             }
         }
         return result;
+    }
+
+    /**
+     * Switch a deployment to undeployed.
+     * 
+     * @param deployment the deployment to switch.
+     */
+    public void markUndeployed(Deployment deployment) {
+        if (deployment.getEndDate() == null) {
+            deployment.setEndDate(new Date());
+            alienDao.save(deployment);
+            // Switch the deployed field of the Deployment topology to false
+            DeploymentTopology deploymentTopology = alienMonitorDao.findById(DeploymentTopology.class, deployment.getId());
+            deploymentTopology.setDeployed(false);
+            alienMonitorDao.save(deploymentTopology);
+        } else {
+            log.info("Deployment <" + deployment.getId() + "> is already marked as undeployed.");
+        }
+    }
+
+    /**
+     * Check if a CSAR is currently deployed through dependencies in a topology.
+     *
+     * @return True if the archive is used in a deployment, false if not.
+     */
+    public boolean isArchiveDeployed(String archiveName, String archiveVersion) {
+        FilterBuilder filter = FilterBuilders.boolFilter().must(FilterBuilders.termFilter("isDeployed", true))
+                .must(FilterBuilders.nestedFilter("dependencies", FilterBuilders.boolFilter().must(FilterBuilders.termFilter("dependencies.name", archiveName))
+                        .must(FilterBuilders.termFilter("dependencies.version", archiveVersion))));
+        // Look if there is 1 matching element.
+        GetMultipleDataResult<DeploymentTopology> result = alienMonitorDao.search(DeploymentTopology.class, null, null, filter, null, 0, 1);
+        return result.getData() != null && result.getData().length > 0;
     }
 }

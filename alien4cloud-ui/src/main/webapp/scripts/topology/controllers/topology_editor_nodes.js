@@ -96,7 +96,10 @@ define(function (require) {
               if (_.undefined(result.error)) {
                 updatedNodeTemplate.propertiesMap[propertyName].value = {value: propertyValue, definition: false};
               }
-            }
+            },
+            null,
+            scope.selectedNodeTemplate,
+            true
           );
         }
       };

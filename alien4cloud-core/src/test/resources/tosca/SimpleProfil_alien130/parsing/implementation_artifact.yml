@@ -8,10 +8,43 @@ repositories:
 
   script_repo:
     url: https://myCompany/script
-    credentials: good_user:real_secured_password
+    credential:
+      user: good_user
+      token: real_secured_password
   git_repo:
     url: https://github.com/myId/myRepo.git
     type: git
+  short_notation: https://github.com/myId/myRepo.git
+
+data_types:
+
+  tosca.datatypes.Root:
+    description: The TOSCA root Data Type all other TOSCA base Data Types derive from.
+  tosca.datatypes.Credential:
+    derived_from: tosca.datatypes.Root
+    description: The Credential type is a complex TOSCA data Type used when describing authorization credentials used to access network accessible resources.
+    properties:
+      protocol:
+        type: string
+        description: The optional protocol name.
+        required: false
+      token_type:
+        type: string
+        description: The required token type.
+        default: password
+      token:
+        type: string
+        description: The required token used as a credential for authorization or access to a networked resource.
+      keys:
+        type: map
+        description: The optional list of protocol-specific keys or assertions.
+        required: false
+        entry_schema:
+          type: string
+      user:
+        type: string
+        description: The optional user (name or ID) used for non-token based credentials.
+        required: false
 
 artifact_types:
 

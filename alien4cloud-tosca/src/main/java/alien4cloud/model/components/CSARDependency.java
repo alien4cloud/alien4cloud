@@ -14,7 +14,7 @@ import lombok.*;
 @AllArgsConstructor(suppressConstructorProperties = true)
 @RequiredArgsConstructor(suppressConstructorProperties = true)
 @EqualsAndHashCode(of = { "name", "version" })
-@ToString
+@ToString(exclude = "hash")
 public class CSARDependency {
     @NonNull
     @StringField(indexType = IndexType.not_analyzed)

@@ -25,17 +25,17 @@ Feature: Topology editor: unset node capability's property as output
       | capabilityName     	| scalable                                                                   |
       | propertyName 		| max_instances                                                                    |
     Then No exception should be thrown
-    And The SPEL int expression "outputCapabilityProperties.size()" should return 1
-    And The SPEL int expression "outputCapabilityProperties['compute'].size()" should return 1
-    And The SPEL int expression "outputCapabilityProperties['compute']['scalable'].size()" should return 1
-    And The SPEL int expression "outputCapabilityProperties['compute']['scalable'].?[#this == 'max_instances'].size()" should return 0
+    And The SPEL expression "outputCapabilityProperties.size()" should return 1
+    And The SPEL expression "outputCapabilityProperties['compute'].size()" should return 1
+    And The SPEL expression "outputCapabilityProperties['compute']['scalable'].size()" should return 1
+    And The SPEL expression "outputCapabilityProperties['compute']['scalable'].?[#this == 'max_instances'].size()" should return 0
     When I execute the operation
       | type         		| org.alien4cloud.tosca.editor.operations.nodetemplate.outputs.UnSetNodeCapabilityPropertyAsOutputOperation |
       | nodeName     		| compute                                                                   |
       | capabilityName     	| scalable                                                                   |
       | propertyName 		| min_instances                                                                    |
     Then No exception should be thrown
-    And The SPEL int expression "outputCapabilityProperties.size()" should return 0
+    And The SPEL expression "outputCapabilityProperties.size()" should return 0
 
   Scenario: UnSet as output a node capability's property that is not one output should fail
     Given I execute the operation
@@ -53,7 +53,7 @@ Feature: Topology editor: unset node capability's property as output
       | capabilityName     	| scalable                                                                   |
       | propertyName 		| min_instances                                                                    |
     Then an exception of type "alien4cloud.exception.NotFoundException" should be thrown
-    And The SPEL int expression "outputCapabilityProperties['compute']['scalable'].size()" should return 1
+    And The SPEL expression "outputCapabilityProperties['compute']['scalable'].size()" should return 1
 
   Scenario: UnSet as output a property of a node capability that doesn't exists should fail
     Given I execute the operation

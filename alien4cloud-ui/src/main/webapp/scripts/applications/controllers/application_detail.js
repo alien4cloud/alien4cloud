@@ -286,60 +286,69 @@ define(function (require) {
         });
       };
 
+      var doProcessTopologyInfos = function(result){
+        $scope.topologyDTO = result.data;
+        topologyJsonProcessor.process($scope.topologyDTO);
+        // initialize compute and network icons from the actual tosca types (to match topology representation).
+        if (_.defined($scope.topologyDTO.nodeTypes['tosca.nodes.Compute']) &&
+          _.isNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags)) {
+          $scope.computeImage = toscaService.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags);
+        }
+        if (_.defined($scope.topologyDTO.nodeTypes['tosca.nodes.Network']) &&
+          _.isNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags)) {
+          $scope.networkImage = toscaService.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags);
+        }
+        if (_.defined($scope.topologyDTO.nodeTypes['tosca.nodes.BlockStorage']) &&
+          _.isNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.BlockStorage'].tags)) {
+          $scope.storageImage = toscaService.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.BlockStorage'].tags);
+        }
+        // process topology data
+        $scope.inputs = result.data.topology.inputs;
+        $scope.outputProperties = result.data.topology.outputProperties;
+        $scope.outputCapabilityProperties = result.data.topology.outputCapabilityProperties;
+        $scope.outputAttributes = result.data.topology.outputAttributes;
+        $scope.inputArtifacts = result.data.topology.inputArtifacts;
+        $scope.nodeTemplates = $scope.topologyDTO.topology.nodeTemplates;
+        $scope.nodeTypes = $scope.topologyDTO.nodeTypes;
+        $scope.outputNodes = [];
+        $scope.inputsSize = 0;
+        $scope.outputPropertiesSize = 0;
+        $scope.outputAttributesSize = 0;
+        $scope.inputArtifactsSize = 0;
+
+        if (angular.isDefined(result.data.topology.inputs)) {
+          $scope.inputsSize = Object.keys(result.data.topology.inputs).length;
+        }
+        if (angular.isDefined($scope.outputProperties)) {
+          $scope.outputNodes = Object.keys($scope.outputProperties);
+          $scope.outputPropertiesSize = Object.keys($scope.outputProperties).length;
+          refreshOutputProperties();
+        }
+        if (angular.isDefined($scope.outputCapabilityProperties)) {
+          $scope.outputNodes = _.union($scope.outputNodes, Object.keys($scope.outputCapabilityProperties));
+          refreshOutputProperties();
+        }
+        if (angular.isDefined($scope.outputAttributes)) {
+          $scope.outputNodes = _.union($scope.outputNodes, Object.keys($scope.outputAttributes));
+          $scope.outputAttributesSize = Object.keys($scope.outputAttributes).length;
+        }
+        if (angular.isDefined(result.data.topology.inputArtifacts)) {
+          $scope.inputArtifactsSize = Object.keys(result.data.topology.inputArtifacts).length;
+        }
+      };
+
       // fetch the topology to display intput/output properties and matching data
       $scope.processTopologyInformations = function processTopologyInformations(topologyId) {
 
         return topologyServices.dao.get({
           topologyId: topologyId
         }, function(result) {
-          $scope.topologyDTO = result.data;
-          topologyJsonProcessor.process($scope.topologyDTO);
-          // initialize compute and network icons from the actual tosca types (to match topology representation).
-          if (_.defined($scope.topologyDTO.nodeTypes['tosca.nodes.Compute']) &&
-            _.isNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags)) {
-            $scope.computeImage = toscaService.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags);
+          if(_.undefined(result.error)){
+            doProcessTopologyInfos(result);
+            return;
           }
-          if (_.defined($scope.topologyDTO.nodeTypes['tosca.nodes.Network']) &&
-            _.isNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags)) {
-            $scope.networkImage = toscaService.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags);
-          }
-          if (_.defined($scope.topologyDTO.nodeTypes['tosca.nodes.BlockStorage']) &&
-            _.isNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.BlockStorage'].tags)) {
-            $scope.storageImage = toscaService.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.BlockStorage'].tags);
-          }
-          // process topology data
-          $scope.inputs = result.data.topology.inputs;
-          $scope.outputProperties = result.data.topology.outputProperties;
-          $scope.outputCapabilityProperties = result.data.topology.outputCapabilityProperties;
-          $scope.outputAttributes = result.data.topology.outputAttributes;
-          $scope.inputArtifacts = result.data.topology.inputArtifacts;
-          $scope.nodeTemplates = $scope.topologyDTO.topology.nodeTemplates;
-          $scope.nodeTypes = $scope.topologyDTO.nodeTypes;
-          $scope.outputNodes = [];
-          $scope.inputsSize = 0;
-          $scope.outputPropertiesSize = 0;
-          $scope.outputAttributesSize = 0;
-          $scope.inputArtifactsSize = 0;
-
-          if (angular.isDefined(result.data.topology.inputs)) {
-            $scope.inputsSize = Object.keys(result.data.topology.inputs).length;
-          }
-          if (angular.isDefined($scope.outputProperties)) {
-            $scope.outputNodes = Object.keys($scope.outputProperties);
-            $scope.outputPropertiesSize = Object.keys($scope.outputProperties).length;
-            refreshOutputProperties();
-          }
-          if (angular.isDefined($scope.outputCapabilityProperties)) {
-            $scope.outputNodes = _.union($scope.outputNodes, Object.keys($scope.outputCapabilityProperties));
-            refreshOutputProperties();
-          }
-          if (angular.isDefined($scope.outputAttributes)) {
-            $scope.outputNodes = _.union($scope.outputNodes, Object.keys($scope.outputAttributes));
-            $scope.outputAttributesSize = Object.keys($scope.outputAttributes).length;
-          }
-          if (angular.isDefined(result.data.topology.inputArtifacts)) {
-            $scope.inputArtifactsSize = Object.keys(result.data.topology.inputArtifacts).length;
-          }
+          //case there actually is an error
+          //TODO what should we do here? redirect to the editor view ? in that case make sure the user has the correct rights
 
         });
 

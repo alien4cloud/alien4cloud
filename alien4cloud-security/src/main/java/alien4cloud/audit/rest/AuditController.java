@@ -1,24 +1,21 @@
 package alien4cloud.audit.rest;
 
-import io.swagger.annotations.ApiOperation;
-
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
+import com.google.common.collect.Sets;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import alien4cloud.audit.AuditService;
 import alien4cloud.audit.annotation.Audit;
@@ -31,12 +28,11 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.rest.model.FilteredSearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping({"/rest/audit", "/rest/v1/audit", "/rest/latest/audit"})
+@RequestMapping({ "/rest/audit", "/rest/v1/audit", "/rest/latest/audit" })
 @Slf4j
 public class AuditController {
 
@@ -46,42 +42,36 @@ public class AuditController {
     @Resource
     private RequestMappingHandlerMapping requestMappingHandlerMapping;
 
+    // Some mapping are registered from child context in a dynamic fashion (Alien main context, plugins).
+    private Set<RequestMappingHandlerMapping> registeredRequestMappingHandlerMapping = Sets.newHashSet();
+
     @PostConstruct
     private void postConstruct() {
         AuditConfiguration auditConfiguration = auditService.getAuditConfiguration();
-        Map<Method, Boolean> allAvailableMethodsForAudit = getAllAvailableMethodsForAudit();
+        Map<Method, Boolean> allAvailableMethodsForAudit = getAllAvailableMethodsForAudit(requestMappingHandlerMapping);
         if (auditConfiguration == null) {
             log.info("Generate default configuration for audit");
             auditConfiguration = new AuditConfiguration();
         } else {
             log.info("Try to merge with existing audit configuration");
             Map<Method, Boolean> existingMethodsMap = auditConfiguration.getAuditedMethodsMap();
-            for (Map.Entry<Method, Boolean> methodEntry : allAvailableMethodsForAudit.entrySet()) {
-                Boolean existingMethodEnabled = existingMethodsMap.get(methodEntry.getKey());
-                if (existingMethodEnabled != null) {
-                    methodEntry.setValue(existingMethodEnabled);
-                }
-            }
+            allAvailableMethodsForAudit.putAll(existingMethodsMap);
         }
         auditConfiguration.setAuditedMethodsMap(allAvailableMethodsForAudit);
         auditService.saveAuditConfiguration(auditConfiguration);
     }
 
-    private static interface IAuditedMethodFactory<T extends Method> {
+    private interface IAuditedMethodFactory<T extends Method> {
         T buildAuditedMethod(Method auditedMethod, HandlerMethod method);
     }
 
-    private Map<Method, Boolean> getAllAvailableMethodsForAudit() {
-        return getAllAvailableMethodsForAudit(new IAuditedMethodFactory<Method>() {
-            @Override
-            public Method buildAuditedMethod(Method auditedMethod, HandlerMethod method) {
-                return auditedMethod;
-            }
-        });
+    private Map<Method, Boolean> getAllAvailableMethodsForAudit(RequestMappingHandlerMapping requestMappingHandlerMapping) {
+        return getAllAvailableMethodsForAudit(requestMappingHandlerMapping, (auditedMethod, method) -> auditedMethod);
     }
 
-    private <T extends Method> Map<T, Boolean> getAllAvailableMethodsForAudit(IAuditedMethodFactory<T> methodFactory) {
-        Map<RequestMappingInfo, HandlerMethod> handlerMethods = this.requestMappingHandlerMapping.getHandlerMethods();
+    private <T extends Method> Map<T, Boolean> getAllAvailableMethodsForAudit(RequestMappingHandlerMapping requestMappingHandlerMapping,
+            IAuditedMethodFactory<T> methodFactory) {
+        Map<RequestMappingInfo, HandlerMethod> handlerMethods = requestMappingHandlerMapping.getHandlerMethods();
         Map<T, Boolean> allMethods = Maps.newHashMap();
         for (Map.Entry<RequestMappingInfo, HandlerMethod> handlerMethodEntry : handlerMethods.entrySet()) {
             HandlerMethod method = handlerMethodEntry.getValue();
@@ -93,6 +83,32 @@ public class AuditController {
             }
         }
         return allMethods;
+    }
+
+    /**
+     * Register a dynamic RequestMappingHandlerMapping in the audit management system.
+     * 
+     * @param requestMappingHandlerMapping The dynamic RequestMappingHandlerMapping to handle for audit.
+     */
+    public void register(RequestMappingHandlerMapping requestMappingHandlerMapping) {
+        registeredRequestMappingHandlerMapping.add(requestMappingHandlerMapping);
+        // update configuration to inclure methods from plugin or context
+        Map<Method, Boolean> allAvailableMethodsForAudit = getAllAvailableMethodsForAudit(requestMappingHandlerMapping);
+        AuditConfiguration configuration = auditService.getAuditConfiguration();
+        // Put all in new map to not override existing user settings if some methods are already defined.
+        allAvailableMethodsForAudit.putAll(configuration.getAuditedMethodsMap());
+        configuration.setAuditedMethodsMap(allAvailableMethodsForAudit);
+        auditService.saveAuditConfiguration(configuration);
+    }
+
+    /**
+     * Unregister a dynamic RequestMappingHandlerMapping
+     * 
+     * @param requestMappingHandlerMapping the dynamic RequestMappingHandlerMapping to unregister.
+     */
+    public void unRegister(RequestMappingHandlerMapping requestMappingHandlerMapping) {
+        registeredRequestMappingHandlerMapping.remove(requestMappingHandlerMapping);
+        // TODO we should cleanup configuration when a plugin is removed.
     }
 
     /**
@@ -116,7 +132,10 @@ public class AuditController {
     @RequestMapping(value = "/configuration/reset", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<AuditConfigurationDTO> generateDefaultConfiguration() {
         AuditConfiguration auditConfiguration = new AuditConfiguration();
-        Map<Method, Boolean> allAvailableMethodsForAudit = getAllAvailableMethodsForAudit();
+        Map<Method, Boolean> allAvailableMethodsForAudit = getAllAvailableMethodsForAudit(requestMappingHandlerMapping);
+        for (RequestMappingHandlerMapping registeredHandlerMapping : this.registeredRequestMappingHandlerMapping) {
+            allAvailableMethodsForAudit.putAll(getAllAvailableMethodsForAudit(registeredHandlerMapping));
+        }
         auditConfiguration.setAuditedMethodsMap(allAvailableMethodsForAudit);
         auditService.saveAuditConfiguration(auditConfiguration);
         return getAuditConfiguration();

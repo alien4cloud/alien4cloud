@@ -36,9 +36,9 @@ define(function (require) {
       _editor.commands.addCommand({
         name: 'save',
         bindKey: {win: 'Ctrl-S', mac: 'Command-S'},
-          exec: function() {
-            $scope.saveFile();
-          }
+        exec: function() {
+          $scope.saveFile();
+        }
       });
     };
 

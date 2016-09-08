@@ -14,7 +14,6 @@ import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.utils.TreeNode;
 
 /**
  * Process an {@link UpdateNodeDeploymentArtifactOperation}.
@@ -43,5 +42,9 @@ public class UpdateNodeDeploymentArtifactProcessor implements IEditorOperationPr
 
         artifact.setArtifactRef(operation.getArtifactReference());
         artifact.setArtifactRepository(operation.getArtifactRepository());
+        // Mark this artifact as it does not belong to any archive as it's using a file uploaded inside the topology
+        // FIXME Not very understandable as logic
+        artifact.setArchiveName(null);
+        artifact.setArchiveVersion(null);
     }
 }

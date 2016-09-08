@@ -9,12 +9,12 @@ import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.ComplexPropertyValue;
 import alien4cloud.model.components.ListPropertyValue;
+import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.mapping.DefaultParser;
 
 @Component
-public class ComplexPropertyValueParser extends DefaultParser<AbstractPropertyValue> {
+public class ComplexPropertyValueParser implements INodeParser<AbstractPropertyValue> {
 
     @Override
     public AbstractPropertyValue parse(Node node, ParsingContextExecution context) {

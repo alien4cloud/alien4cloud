@@ -75,7 +75,6 @@ public class RepositoryManager {
                 }
             }
         } catch (GitAPIException | IOException e) {
-            log.error("Error while creating git repository", e);
             throw new GitException("Error while creating git repository ", e);
         } finally {
             close(repository);
@@ -94,7 +93,6 @@ public class RepositoryManager {
             repository.add().addFilepattern(".").call();
             repository.commit().setCommitter(userName, userEmail).setMessage(commitMessage).call();
         } catch (GitAPIException | IOException e) {
-            log.error("Error while trying to commit to git repository", e);
             throw new GitException("Unable to commit to the git repository ", e);
         } finally {
             close(repository);
@@ -147,7 +145,6 @@ public class RepositoryManager {
             }
             return repository;
         } catch (IOException e) {
-            log.error("Error while creating target directory ", e);
             throw new GitException("Error while creating target directory ", e);
         }
     }
@@ -169,7 +166,6 @@ public class RepositoryManager {
                 checkoutCommand.call();
             }
         } catch (GitAPIException e) {
-            log.error("Failed to pull git repository ", e);
             throw new GitException("Failed to pull git repository", e);
         }
     }
@@ -186,7 +182,6 @@ public class RepositoryManager {
         } catch (GitAPIException e) {
             // if the import fails then we should try to remove the created directory
             FileUtil.delete(targetPath);
-            log.error("Failed to clone git repository.", e);
             throw new GitException("Failed to clone git repository", e);
         }
     }
@@ -211,7 +206,6 @@ public class RepositoryManager {
             }
             return true;
         } catch (GitAPIException e) {
-            log.error("Failed to pull git repository ", e);
             throw new GitException("Failed to pull git repository", e);
         }
     }
@@ -229,7 +223,6 @@ public class RepositoryManager {
                 return revCommitIterator.next().getName();
             }
         } catch (GitAPIException e) {
-            log.error("Failed to log git repository ", e);
             throw new GitException("Failed to log git repository", e);
         }
         return null;
@@ -261,7 +254,6 @@ public class RepositoryManager {
             }
             return historyEntries;
         } catch (GitAPIException | IOException e) {
-            log.error("Error while trying to commit to git repository", e);
             throw new GitException("Unable to commit to the git repository ", e);
         } finally {
             close(repository);

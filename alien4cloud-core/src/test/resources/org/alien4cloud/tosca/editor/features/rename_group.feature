@@ -18,7 +18,7 @@ Feature: Topology editor: rename group operation
       | groupName    | simple_group                                                        |
       | newGroupName | new_simple_group                                                    |
     Then No exception should be thrown
-    And The SPEL int expression "groups.size()" should return 1
+    And The SPEL expression "groups.size()" should return 1
     And The SPEL expression "groups['new_simple_group'].members[0]" should return "Compute"
     And The SPEL expression "nodeTemplates['Compute'].groups[0]" should return "new_simple_group"
 
@@ -40,8 +40,8 @@ Feature: Topology editor: rename group operation
       | groupName    | simple_group                                                        |
       | newGroupName | new_simple_group                                                    |
     Then No exception should be thrown
-    And The SPEL int expression "groups.size()" should return 1
-    And The SPEL expression "groups['new_simple_group'].members.size()" should return "0"
+    And The SPEL expression "groups.size()" should return 1
+    And The SPEL expression "groups['new_simple_group'].members.size()" should return 0
 
   Scenario: Renaming a group when no groups exists should fail
     When I execute the operation

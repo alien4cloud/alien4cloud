@@ -8,13 +8,13 @@ import cucumber.api.junit.Cucumber;
 @RunWith(Cucumber.class)
 @CucumberOptions(format = "pretty", tags = { "~@Ignore" }, features = {
         //
-        "src/test/resources/org/alien4cloud/tosca/editor/features/"
+        "src/test/resources/org/alien4cloud/tosca/editor/features/",
         // "src/test/resources/org/alien4cloud/tosca/editor/features/_initialize_archives.feature",
         // "src/test/resources/org/alien4cloud/tosca/editor/features/add_group_member.feature",
         // "src/test/resources/org/alien4cloud/tosca/editor/features/add_input.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/add_node.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/add_relationship.feature"
-        // "src/test/resources/org/alien4cloud/tosca/editor/features/manage_capability_substitution.feature"
+        // "src/test/resources/org/alien4cloud/tosca/editor/features/manage_capability_substitution.feature",
         // "src/test/resources/org/alien4cloud/tosca/editor/features/manage_requirement_substitution.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/manage_topology_substitution.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/delete_file.feature"
@@ -45,6 +45,7 @@ import cucumber.api.junit.Cucumber;
         // "src/test/resources/org/alien4cloud/tosca/editor/features/workflow/remove_workflow.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/workflow/rename_workflow.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/workflow/reinitialize_workflow.feature"
+        // "src/test/resources/org/alien4cloud/tosca/editor/features/topology_recovery/topology_recovery.feature"
 })
 public class EditorTest {
 }

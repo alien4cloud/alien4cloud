@@ -103,7 +103,7 @@ public class ApplicationEnvironmentService {
      */
     public ApplicationEnvironment[] getByApplicationId(String applicationId) {
         GetMultipleDataResult<ApplicationEnvironment> result = alienDAO.find(ApplicationEnvironment.class,
-                MapUtil.newHashMap(new String[]{"applicationId"}, new String[][]{new String[]{applicationId}}), Integer.MAX_VALUE);
+                MapUtil.newHashMap(new String[] { "applicationId" }, new String[][] { new String[] { applicationId } }), Integer.MAX_VALUE);
         return result.getData();
     }
 
@@ -115,7 +115,7 @@ public class ApplicationEnvironmentService {
      */
     public ApplicationEnvironment[] getByVersionId(String versionId) {
         GetMultipleDataResult<ApplicationEnvironment> result = alienDAO.find(ApplicationEnvironment.class,
-                MapUtil.newHashMap(new String[]{"currentVersionId"}, new String[][]{new String[]{versionId}}), Integer.MAX_VALUE);
+                MapUtil.newHashMap(new String[] { "currentVersionId" }, new String[][] { new String[] { versionId } }), Integer.MAX_VALUE);
         return result.getData();
     }
 
@@ -135,7 +135,8 @@ public class ApplicationEnvironmentService {
         deploymentTopologyService.deleteByEnvironmentId(id);
         alienDAO.delete(ApplicationEnvironment.class, id);
 
-        applicationContext.publishEvent(new DeleteEnvironmentEvent(this, environmentToDelete, deploymentService.getAllOrchestratorIdsAndOrchestratorDeploymentId(id)));
+        applicationContext
+                .publishEvent(new DeleteEnvironmentEvent(this, environmentToDelete, deploymentService.getAllOrchestratorIdsAndOrchestratorDeploymentId(id)));
         return true;
     }
 
@@ -170,8 +171,9 @@ public class ApplicationEnvironmentService {
      * @return The deployment associated with the environment.
      */
     public Deployment getActiveDeployment(String appEnvironmentId) {
-        GetMultipleDataResult<Deployment> dataResult = alienDAO.search(Deployment.class, null, MapUtil.newHashMap(
-                new String[] { "environmentId", "endDate" }, new String[][] { new String[] { appEnvironmentId }, new String[] { null } }), 1);
+        GetMultipleDataResult<Deployment> dataResult = alienDAO.search(Deployment.class, null,
+                MapUtil.newHashMap(new String[] { "environmentId", "endDate" }, new String[][] { new String[] { appEnvironmentId }, new String[] { null } }),
+                1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             return dataResult.getData()[0];
         }
@@ -263,8 +265,7 @@ public class ApplicationEnvironmentService {
         });
         DeploymentStatus currentStatus = statusSettableFuture.get();
         if (DeploymentStatus.UNDEPLOYED.equals(currentStatus)) {
-            deployment.setEndDate(new Date());
-            alienDAO.save(deployment);
+            deploymentService.markUndeployed(deployment);
         }
         return currentStatus;
     }

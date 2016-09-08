@@ -5,11 +5,11 @@ import java.util.Set;
 
 import org.apache.commons.collections4.MapUtils;
 
+import com.google.common.collect.Maps;
+
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.ScalarPropertyValue;
-
-import com.google.common.collect.Maps;
 
 public final class PropertyUtil {
     private PropertyUtil() {
@@ -30,7 +30,7 @@ public final class PropertyUtil {
             return null;
         }
 
-        Map<String, AbstractPropertyValue> defaultPropertyValues = Maps.newHashMap();
+        Map<String, AbstractPropertyValue> defaultPropertyValues = Maps.newLinkedHashMap();
 
         for (Map.Entry<String, PropertyDefinition> entry : propertyDefinitions.entrySet()) {
             defaultPropertyValues.put(entry.getKey(), getDefaultPropertyValueFromPropertyDefinition(entry.getValue()));

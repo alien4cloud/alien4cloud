@@ -118,8 +118,8 @@ define(function (require) {
           // artifact filtering is based only on type, no need to reuse java code for constraints so process client side.
           var self = this;
           this.scope.currentInputCandidatesForArtifact = [];
-          if(_.isDefined(this.scope.topology.inputArtifacts)) {
-            _.each(this.scope.topology.inputArtifacts, function(inputArtifact, inputArtifactId) {
+          if(_.defined(this.scope.topology.topology.inputArtifacts)) {
+            _.each(this.scope.topology.topology.inputArtifacts, function(inputArtifact, inputArtifactId) {
               if(artifact.artifactType === inputArtifact.artifactType) {
                 self.scope.currentInputCandidatesForArtifact.push(inputArtifactId);
               }
@@ -149,7 +149,7 @@ define(function (require) {
           var scope = this.scope;
           if (!this.isRelationshipPropertyAssociatedToInput(relationshipName, propertyName, inputId)) {
             this.scope.execute({
-              type: 'org.alien4cloud.tosca.editor.operations.relationshiptemplate.SetRelationshipPropertyAsInputOperation',
+              type: 'org.alien4cloud.tosca.editor.operations.relationshiptemplate.inputs.SetRelationshipPropertyAsInputOperation',
               nodeName: scope.selectedNodeTemplate.name,
               relationshipName: relationshipName,
               propertyName: propertyName,
@@ -157,7 +157,7 @@ define(function (require) {
             });
           } else {
             this.scope.execute({
-              type: 'org.alien4cloud.tosca.editor.operations.relationshiptemplate.UnsetRelationshipPropertyAsInputOperation',
+              type: 'org.alien4cloud.tosca.editor.operations.relationshiptemplate.inputs.UnsetRelationshipPropertyAsInputOperation',
               nodeName: scope.selectedNodeTemplate.name,
               relationshipName: relationshipName,
               propertyName: propertyName,
@@ -259,7 +259,7 @@ define(function (require) {
         createFromArtifact: function(artifactId) {
           var scope = this.scope;
           scope.execute({
-            type: 'org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation',
+            type: 'org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodeArtifactAsInputOperation',
             nodeName: scope.selectedNodeTemplate.name,
             inputName: artifactId,
             artifactName: artifactId

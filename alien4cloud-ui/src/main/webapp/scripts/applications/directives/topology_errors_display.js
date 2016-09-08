@@ -51,4 +51,26 @@ define(function(require) {
       }
     };
   });
+  appModule.directive('inputArtifactsErrorsDisplay', function() {
+    return {
+      templateUrl: 'views/applications/directives/input_artifacts_errors_display.html',
+      restrict: 'E',
+      scope: {
+        'tasks': '='
+      },
+      link: function (){
+      }
+    };
+  });
+  appModule.directive('artifactsErrorsDisplay', function() {
+    return {
+      templateUrl: 'views/applications/directives/artifacts_errors_display.html',
+      restrict: 'E',
+      scope: {
+        'tasks': '='
+      },
+      link: function (){
+      }
+    };
+  });
 });

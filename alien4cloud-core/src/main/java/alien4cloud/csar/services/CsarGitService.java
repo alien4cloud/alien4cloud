@@ -19,6 +19,7 @@ import org.springframework.util.FileSystemUtils;
 
 import com.google.common.collect.Lists;
 
+import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.GitException;
@@ -150,7 +151,7 @@ public class CsarGitService {
             List<CsarDependenciesBean> sorted = sort(csarDependenciesBeans);
             for (CsarDependenciesBean csarBean : sorted) {
                 if (csarGitCheckoutLocation.getLastImportedHash() != null && csarGitCheckoutLocation.getLastImportedHash().equals(gitHash)) {
-                    if (csarService.getIfExists(csarBean.getSelf().getName(), csarBean.getSelf().getVersion()) != null) {
+                    if (csarService.get(csarBean.getSelf().getName(), csarBean.getSelf().getVersion()) != null) {
                         // no commit since last import and the archive still exist in the repo, so do not import
                         // TODO notify the user that the archive has already been imported
                         continue;
@@ -164,6 +165,9 @@ public class CsarGitService {
             // TODO Actually add a parsing result with error.
             throw new GitException("Failed to import archive from git as it cannot be parsed", e);
         } catch (CSARVersionAlreadyExistsException e) {
+            return parsingResult;
+        } catch (CSARUsedInActiveDeployment e) {
+            // TODO Actually add a parsing result with error.
             return parsingResult;
         }
     }

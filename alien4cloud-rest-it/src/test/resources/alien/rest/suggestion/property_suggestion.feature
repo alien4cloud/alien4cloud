@@ -116,7 +116,7 @@ Feature: suggestion on a value backed by a property definition
     Given I create suggestion for property "install_dir" of "relationship" "alien.test.SoftwareHostedOnCompute" with initial values "/opt/software1"
     When I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
     And I upload the archive "topology with wrong relationship property value"
-    Then I should receive a RestResponse with 3 alerts in 1 files : 0 errors 2 warnings and 1 infos
+    Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos
     When I get suggestions for text "/opt/software1" for property "install_dir" of "relationship" "alien.test.SoftwareHostedOnCompute"
     Then I should receive a RestResponse with no error
     And The RestResponse should contain 1 element(s) in this order:
@@ -128,7 +128,7 @@ Feature: suggestion on a value backed by a property definition
     Given I create suggestion for property "install_dir" of "relationship" "alien.test.SoftwareHostedOnCompute" with initial values "/opt/software1"
     When I upload the archive "tosca-normative-types-1.0.0-SNAPSHOT"
     And I upload the archive "topology with similar relationship property value"
-    Then I should receive a RestResponse with 3 alerts in 1 files : 0 errors 1 warnings and 2 infos
+    Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 0 warnings and 2 infos
     When I get suggestions for text "/opt/software1" for property "install_dir" of "relationship" "alien.test.SoftwareHostedOnCompute"
     Then I should receive a RestResponse with no error
     And The RestResponse should contain 2 element(s) in this order:

@@ -253,7 +253,7 @@ public class TopologyCompositionService {
         for (Entry<String, NodeTemplate> nodeEntry : topology.getNodeTemplates().entrySet()) {
             String nodeName = nodeEntry.getKey();
             String type = nodeEntry.getValue().getType();
-            IndexedNodeType nodeType = csarRepoSearchService.getElementInDependencies(IndexedNodeType.class, type, topology.getDependencies());
+            IndexedNodeType nodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, type, topology.getDependencies());
             if (nodeType.getSubstitutionTopologyId() != null) {
                 // this node type is a proxy for a topology template
                 Topology child = topologyServiceCore.getOrFail(nodeType.getSubstitutionTopologyId());

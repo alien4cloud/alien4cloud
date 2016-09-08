@@ -24,6 +24,7 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.topology.TopologyDTO;
 import io.swagger.annotations.ApiOperation;
+import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * Controller endpoint for topology edition.
@@ -43,7 +44,7 @@ public class EditorController {
      * @param topologyId The id of the topology/archive under edition.
      * @param operation The operation to execute
      */
-    @ApiOperation(value = "Updates the deployment artifact of the node template.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @ApiIgnore
     @RequestMapping(value = "/{topologyId}/execute", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<TopologyDTO> execute(@PathVariable String topologyId, @RequestBody @Valid AbstractEditorOperation operation) {
@@ -59,6 +60,7 @@ public class EditorController {
      * @param lastOperationId The id of the last operation from editor client point of view (for optimistic locking).
      * @return A topology DTO with the updated topology.
      */
+    @ApiIgnore
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(value = "/{topologyId}/undo", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> undoRedo(@PathVariable String topologyId, @RequestParam("at") int at,
@@ -79,6 +81,7 @@ public class EditorController {
      * @param path The path in which to save/override the file in the archive.
      * @param file The file to save in the archive.
      */
+    @ApiIgnore
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(value = "/{topologyId}/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> upload(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId,
@@ -102,6 +105,7 @@ public class EditorController {
      * @param artifactId The id of the temporary artifact.
      * @return The response entity with the input stream of the file.
      */
+    @ApiIgnore
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(value = "/{topologyId}/file/{artifactId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<InputStreamResource> downloadTempFile(@PathVariable String topologyId, @PathVariable String artifactId) {
@@ -125,6 +129,7 @@ public class EditorController {
      * @param lastOperationId The id of the last operation from editor client point of view (for optimistic locking).
      * @return A topology DTO with the updated topology.
      */
+    @ApiIgnore
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(value = "/{topologyId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> save(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId) {
@@ -136,11 +141,55 @@ public class EditorController {
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
     }
 
+    @ApiIgnore
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(value = "/{topologyId}/history", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<List<SimpleGitHistoryEntry>> history(@PathVariable String topologyId, @RequestParam("from") int from,
             @RequestParam("count") int count) {
         List<SimpleGitHistoryEntry> historyEntries = editorService.history(topologyId, from, count);
         return RestResponseBuilder.<List<SimpleGitHistoryEntry>> builder().data(historyEntries).build();
+    }
+
+    @ApiOperation(value = "Override the topology archive with the one provided as a parameter.", notes = "This operation will fail if the topology is under edition (meaning a context with some operations exists). The topology will be fully overriden with the new archive content (if valid) and a local commit will be dispatched.")
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId}/override", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> updateTopologyArchive(@PathVariable String topologyId, @RequestParam(value = "file") MultipartFile file) throws IOException {
+        try (InputStream inputStream = file.getInputStream()) {
+            editorService.override(topologyId, inputStream);
+        }
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * Recovers the topology after a dependency have change. This will apply the registered recovery operations and save the topology
+     *
+     * @param topologyId The id of the topology/archive under edition to save.
+     * @return A topology DTO with the updated topology.
+     */
+    @ApiOperation(value = "Recovers the topology after a dependency have change. This will apply the registered recovery operations and save the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId}/recover", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> recover(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId) {
+        if (lastOperationId != null && "null".equals(lastOperationId)) {
+            lastOperationId = null;
+        }
+        TopologyDTO topologyDTO = editorService.recover(topologyId, lastOperationId);
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
+    }
+
+    /**
+     * Reset a topology. This will delete everything inside the topology, leaving it as if it is just created now.
+     *
+     * @param topologyId The id of the topology/archive under edition to save.
+     * @return A topology DTO with the updated topology.
+     */
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId}/reset", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> reset(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId) {
+        if (lastOperationId != null && "null".equals(lastOperationId)) {
+            lastOperationId = null;
+        }
+        TopologyDTO topologyDTO = editorService.reset(topologyId, lastOperationId);
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
     }
 }

@@ -1,9 +1,6 @@
 package alien4cloud.tosca.context;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -128,6 +125,11 @@ public class ToscaContext {
          */
         public void addDependency(CSARDependency dependency) {
             log.debug("Add dependency to context", dependency);
+            if (dependency.getHash() == null) {
+                // we should try to get the hash from the repository
+                Csar csar = getArchive(dependency.getName(), dependency.getVersion());
+                dependency.setHash(csar.getHash());
+            }
             dependencies.add(dependency);
         }
 
@@ -152,6 +154,10 @@ public class ToscaContext {
                     }
                     toRemove.clear();
                 }
+
+                // alse clean the archive cache
+                Csar csar = new Csar(removedDependency.getName(), removedDependency.getVersion());
+                archivesMap.remove(csar.getId());
                 log.debug("Removed dependency {} from the TOSCA context.", removedDependency);
             } else {
                 log.debug("Cannot remove dependency {} from the TOSCA context as it wasn't found in the dependencies.", removedDependency);
@@ -165,8 +171,9 @@ public class ToscaContext {
          */
         public void updateDependency(CSARDependency dependency) {
             // Do not update dependency if the version hasn't changed
-            if (!hasDependency(dependency)) {
+            if (hasDependency(dependency)) {
                 log.debug("Dependency already exist in context.");
+                return;
             }
             removeDependency(dependency);
             addDependency(dependency);
@@ -175,7 +182,7 @@ public class ToscaContext {
         private boolean hasDependency(CSARDependency dependency) {
             for (CSARDependency existDependency : this.dependencies) {
                 if (existDependency.getName().equals(dependency.getName())) {
-                    return existDependency.getVersion().equals(dependency.getVersion());
+                    return existDependency.getVersion().equals(dependency.getVersion()) && Objects.equals(existDependency.getHash(), dependency.getHash());
                 }
             }
             return false;

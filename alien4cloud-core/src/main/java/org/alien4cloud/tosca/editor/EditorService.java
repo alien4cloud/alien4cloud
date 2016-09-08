@@ -1,9 +1,13 @@
 package org.alien4cloud.tosca.editor;
 
+import static alien4cloud.utils.FileUtil.isZipFile;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -13,9 +17,14 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
 import org.alien4cloud.tosca.editor.exception.EditorIOException;
+import org.alien4cloud.tosca.editor.exception.RecoverTopologyException;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
+import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
+import org.alien4cloud.tosca.editor.operations.ResetTopologyOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.editor.services.EditorTopologyUploadService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -32,6 +41,7 @@ import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.CollectionUtils;
+import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.ReflectionUtil;
 
 /**
@@ -51,6 +61,12 @@ public class EditorService {
     private TopologyDTOBuilder dtoBuilder;
     @Inject
     private EditorRepositoryService repositoryService;
+    @Inject
+    private EditorTopologyUploadService topologyUploadService;
+    @Inject
+    private EditorTopologyRecoveryHelperService recoveryHelperService;
+    @Value("${directories.alien}/${directories.upload_temp}")
+    private String tempUploadDir;
 
     /** Processors map by type. */
     private Map<Class<?>, IEditorOperationProcessor<? extends AbstractEditorOperation>> processorMap = Maps.newHashMap();
@@ -143,20 +159,11 @@ public class EditorService {
         // get the topology context.
         try {
             initContext(topologyId, operation);
-            operation.setAuthor(AuthorizationUtil.getCurrentUser().getUserId());
 
-            // attach the topology tosca context and process the operation
-            IEditorOperationProcessor<T> processor = (IEditorOperationProcessor<T>) processorMap.get(operation.getClass());
-            processor.process(operation);
+            // check for topology potential recovery
+            checkTopologyRecovery();
 
-            List<AbstractEditorOperation> operations = EditionContextManager.get().getOperations();
-            if (EditionContextManager.get().getLastOperationIndex() == operations.size() - 1) {
-                // Clear the operations to 'redo'.
-                CollectionUtils.clearFrom(operations, EditionContextManager.get().getLastOperationIndex() + 1);
-            }
-            // update the last operation and index
-            EditionContextManager.get().getOperations().add(operation);
-            EditionContextManager.get().setLastOperationIndex(EditionContextManager.get().getOperations().size() - 1);
+            doExecute(operation);
 
             // return the topology context
             return dtoBuilder.buildTopologyDTO(EditionContextManager.get());
@@ -164,6 +171,34 @@ public class EditorService {
             EditionContextManager.get().setCurrentOperation(null);
             editionContextManager.destroy();
         }
+    }
+
+    private <T extends AbstractEditorOperation> void doExecute(T operation) {
+        operation.setAuthor(AuthorizationUtil.getCurrentUser().getUserId());
+
+        // attach the topology tosca context and process the operation
+        process(operation);
+
+        List<AbstractEditorOperation> operations = EditionContextManager.get().getOperations();
+        if (EditionContextManager.get().getLastOperationIndex() == operations.size() - 1) {
+            // Clear the operations to 'redo'.
+            CollectionUtils.clearFrom(operations, EditionContextManager.get().getLastOperationIndex() + 1);
+        }
+        // update the last operation and index
+        EditionContextManager.get().getOperations().add(operation);
+        EditionContextManager.get().setLastOperationIndex(EditionContextManager.get().getOperations().size() - 1);
+    }
+
+    /**
+     * FIXME there is a cyclic dependency on beans here.
+     * Finds the proper processor and process an operation
+     *
+     * @param operation The operation to process
+     * @param <T> Type of the operation to process
+     */
+    public <T extends AbstractEditorOperation> void process(T operation) {
+        IEditorOperationProcessor<T> processor = (IEditorOperationProcessor<T>) processorMap.get(operation.getClass());
+        processor.process(operation);
     }
 
     /**
@@ -181,6 +216,8 @@ public class EditorService {
             if (-1 > at || at > EditionContextManager.get().getOperations().size()) {
                 throw new NotFoundException("Unable to find the requested index for undo/redo");
             }
+
+            checkTopologyRecovery();
 
             if (at == EditionContextManager.get().getLastOperationIndex()) {
                 // nothing to change.
@@ -218,36 +255,7 @@ public class EditorService {
         try {
             initContext(topologyId, lastOperationId);
 
-            EditionContext context = EditionContextManager.get();
-            if (context.getLastOperationIndex() <= context.getLastSavedOperationIndex()) {
-                // nothing to save..
-                return dtoBuilder.buildTopologyDTO(EditionContextManager.get());
-            }
-
-            StringBuilder commitMessage = new StringBuilder();
-            // copy and cleanup all temporary files from the executed operations.
-            for (int i = context.getLastSavedOperationIndex() + 1; i <= context.getLastOperationIndex(); i++) {
-                AbstractEditorOperation operation = context.getOperations().get(i);
-                IEditorOperationProcessor<?> processor = (IEditorOperationProcessor) processorMap.get(operation.getClass());
-                if (processor instanceof IEditorCommitableProcessor) {
-                    ((IEditorCommitableProcessor) processor).beforeCommit(operation);
-                }
-                commitMessage.append(operation.getAuthor()).append(": ").append(operation.commitMessage()).append("\n");
-            }
-
-            saveYamlFile();
-
-            Topology topology = EditionContextManager.getTopology();
-            // Save the topology in elastic search
-            topologyServiceCore.save(topology);
-            topologyServiceCore.updateSubstitutionType(topology);
-
-            // Local git commit
-            repositoryService.commit(topologyId, commitMessage.toString());
-
-            // TODO add support for undo even after save, this require ability to rollback files to git state, we need file rollback support for that..
-            context.setOperations(Lists.newArrayList(context.getOperations().subList(context.getLastOperationIndex() + 1, context.getOperations().size())));
-            context.setLastOperationIndex(-1);
+            doSave();
 
             return dtoBuilder.buildTopologyDTO(EditionContextManager.get());
         } catch (IOException e) {
@@ -258,6 +266,39 @@ public class EditorService {
             EditionContextManager.get().setCurrentOperation(null);
             editionContextManager.destroy();
         }
+    }
+
+    private void doSave() throws IOException {
+        EditionContext context = EditionContextManager.get();
+        if (context.getLastOperationIndex() <= context.getLastSavedOperationIndex()) {
+            // nothing to save..
+            return;
+        }
+
+        StringBuilder commitMessage = new StringBuilder();
+        // copy and cleanup all temporary files from the executed operations.
+        for (int i = context.getLastSavedOperationIndex() + 1; i <= context.getLastOperationIndex(); i++) {
+            AbstractEditorOperation operation = context.getOperations().get(i);
+            IEditorOperationProcessor<?> processor = (IEditorOperationProcessor) processorMap.get(operation.getClass());
+            if (processor instanceof IEditorCommitableProcessor) {
+                ((IEditorCommitableProcessor) processor).beforeCommit(operation);
+            }
+            commitMessage.append(operation.getAuthor()).append(": ").append(operation.commitMessage()).append("\n");
+        }
+
+        saveYamlFile();
+
+        Topology topology = EditionContextManager.getTopology();
+        // Save the topology in elastic search
+        topologyServiceCore.save(topology);
+        topologyServiceCore.updateSubstitutionType(topology);
+
+        // Local git commit
+        repositoryService.commit(topology.getId(), commitMessage.toString());
+
+        // TODO add support for undo even after save, this require ability to rollback files to git state, we need file rollback support for that..
+        context.setOperations(Lists.newArrayList(context.getOperations().subList(context.getLastOperationIndex() + 1, context.getOperations().size())));
+        context.setLastOperationIndex(-1);
     }
 
     private void saveYamlFile() throws IOException {
@@ -300,5 +341,131 @@ public class EditorService {
      */
     public List<SimpleGitHistoryEntry> history(String topologyId, int from, int count) {
         return repositoryService.getHistory(topologyId, from, count);
+    }
+
+    /**
+     * Override the content of an archive from a full exising archive.
+     * 
+     * @param topologyId The if of the topology to process.
+     * @param inputStream The input stream of the file that contains the archive.
+     */
+    public void override(String topologyId, InputStream inputStream) throws IOException {
+        Path tempPath = null;
+        try {
+            // Initialize the editon context, null last operation id means that we just accept a context with no pending operations
+            initContext(topologyId, (String) null);
+
+            // first we need to copy the content to a temporary location, unzip and parse the archive
+            tempPath = Files.createTempFile(tempUploadDir, null, null);
+            Files.copy(inputStream, tempPath, StandardCopyOption.REPLACE_EXISTING);
+            // This throws an exception if not successful
+            topologyUploadService.processTopology(tempPath);
+
+            // meaning the topology is well imported in the editor context: override all the content of the git repository
+            // erase all content but .git directory
+            FileUtil.delete(EditionContextManager.get().getLocalGitPath(), EditionContextManager.get().getLocalGitPath().resolve(".git"));
+            // copy the archive content
+            if (isZipFile(tempPath)) {
+                // unzip the content
+                FileUtil.unzip(tempPath, EditionContextManager.get().getLocalGitPath());
+            } else {
+                // just copy the file
+                Path targetPath = EditionContextManager.get().getLocalGitPath().resolve(tempPath.getFileName());
+                Files.copy(tempPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            // and finally save and commit
+            Topology topology = EditionContextManager.getTopology();
+            String commitMessage = AuthorizationUtil.getCurrentUser().getUserId() + ": Override all content of the topology archive from REST API.";
+            topologyServiceCore.save(topology);
+            topologyServiceCore.updateSubstitutionType(topology);
+
+            // Local git commit
+            repositoryService.commit(topologyId, commitMessage);
+        } finally {
+            EditionContextManager.get().setCurrentOperation(null);
+            editionContextManager.destroy();
+        }
+    }
+
+    /**
+     * Checks if the topology needs to be recovered and eventually throws an error.
+     * The {@link RecoverTopologyOperation} is cache for later use in recovering process
+     */
+    public void checkTopologyRecovery() {
+        Topology topology = EditionContextManager.getTopology();
+        EditionContext context = EditionContextManager.get();
+        context.setRecoveryOperation(recoveryHelperService.buildRecoveryOperation(topology));
+        if (context.getRecoveryOperation() != null) {
+            throw new RecoverTopologyException("The topology needs to be recovered.", context.getRecoveryOperation());
+        }
+    }
+
+    /**
+     * Execute an operation and directly trigger the save process
+     *
+     * @param topologyId The id of the topology.
+     * @param operation The operation to execute.
+     * @param <T>
+     * @return a {@link TopologyDTO}
+     */
+    private <T extends AbstractEditorOperation> TopologyDTO executeAndSave(String topologyId, T operation) {
+        try {
+            // init the context.
+            initContext(topologyId, operation);
+            // execute the operation
+            doExecute(operation);
+            // save the context
+            doSave();
+            // return the topology DTO
+            return dtoBuilder.buildTopologyDTO(EditionContextManager.get());
+        } catch (IOException e) {
+            // when there is a failure in file copy to the local repo.
+            // FIXME git revert to put back the local files state in the initial state.
+            throw new EditorIOException("Error while saving files state in local repository", e);
+        } finally {
+            EditionContextManager.get().setCurrentOperation(null);
+            editionContextManager.destroy();
+        }
+
+    }
+
+    /**
+     * Recovers a topology
+     *
+     * @param topologyId The id of the topology.
+     * @param lastOperationId
+     * @return
+     */
+    public TopologyDTO recover(String topologyId, String lastOperationId) {
+        // The recovering process is done via operation so that we can have it in the history
+        RecoverTopologyOperation operation = getRecoverTopologyOperation(topologyId);
+        operation.setPreviousOperationId(lastOperationId);
+        return executeAndSave(topologyId, operation);
+    }
+
+    private RecoverTopologyOperation getRecoverTopologyOperation(String topologyId) {
+        try {
+            editionContextManager.init(topologyId);
+            RecoverTopologyOperation operation = EditionContextManager.get().getRecoveryOperation();
+            EditionContextManager.get().setRecoveryOperation(null);
+            return operation != null ? operation : new RecoverTopologyOperation();
+        } finally {
+            editionContextManager.destroy();
+        }
+    }
+
+    /**
+     * Reset and save a topology
+     *
+     * @param topologyId The id of the topology.
+     * @param lastOperationId
+     * @return
+     */
+    public TopologyDTO reset(String topologyId, String lastOperationId) {
+        // The resetting process is done via operation so that we can have it in the history
+        ResetTopologyOperation operation = new ResetTopologyOperation();
+        operation.setPreviousOperationId(lastOperationId);
+        return executeAndSave(topologyId, operation);
     }
 }

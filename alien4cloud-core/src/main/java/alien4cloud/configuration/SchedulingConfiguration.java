@@ -13,6 +13,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @EnableAsync
 @EnableScheduling
 public class SchedulingConfiguration {
+
     @Value("${paas_monitor.threadpool_size}")
     private int paasMonitorThreadPoolSize;
 
@@ -31,4 +32,5 @@ public class SchedulingConfiguration {
         threadPoolTaskScheduler.setThreadNamePrefix("node-type-score-");
         return threadPoolTaskScheduler;
     }
+
 }

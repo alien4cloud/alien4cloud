@@ -53,7 +53,7 @@ public class RenameInputProcessor extends AbstractInputProcessor<RenameInputOper
         if (operation.getInputName().equals(operation.getNewInputName())) {
             return; // nothing has changed.
         }
-        if (!operation.getNewInputName().matches("\\w+")) {
+        if (operation.getNewInputName() == null || operation.getNewInputName().isEmpty() || !operation.getNewInputName().matches("\\w+")) {
             throw new InvalidNameException("newInputName", operation.getNewInputName(), "\\w+");
         }
         if (inputs.containsKey(operation.getNewInputName())) {

@@ -10,9 +10,6 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import alien4cloud.security.model.Role;
-import alien4cloud.security.model.User;
-import alien4cloud.security.users.rest.UpdateUserRequest;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCrypt;
@@ -21,8 +18,11 @@ import org.springframework.stereotype.Component;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.security.model.Group;
 import alien4cloud.security.groups.IAlienGroupDao;
+import alien4cloud.security.model.Group;
+import alien4cloud.security.model.Role;
+import alien4cloud.security.model.User;
+import alien4cloud.security.users.rest.UpdateUserRequest;
 import alien4cloud.utils.ReflectionUtil;
 
 import com.google.common.collect.Sets;
@@ -255,4 +255,5 @@ public class UserService {
         ArrayList<String> roles = new ArrayList(Arrays.asList(user.getRoles()));
         return roles.contains("ADMIN");
     }
+
 }

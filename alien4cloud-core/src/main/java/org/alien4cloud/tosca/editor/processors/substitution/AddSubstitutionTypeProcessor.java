@@ -1,24 +1,22 @@
 package org.alien4cloud.tosca.editor.processors.substitution;
 
-import java.util.Map;
-
-import javax.annotation.Resource;
-
+import alien4cloud.component.CSARRepositorySearchService;
+import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.exception.InvalidArgumentException;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.templates.TopologyTemplate;
+import alien4cloud.model.topology.SubstitutionMapping;
+import alien4cloud.model.topology.Topology;
+import alien4cloud.topology.TopologyService;
+import com.google.common.collect.Maps;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Maps;
-
-import alien4cloud.component.CSARRepositorySearchService;
-import alien4cloud.dao.model.FacetedSearchResult;
-import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.templates.TopologyTemplate;
-import alien4cloud.model.topology.SubstitutionMapping;
-import alien4cloud.model.topology.Topology;
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.util.Map;
 
 /**
  * Process the creation of topology template as substitute.
@@ -28,6 +26,8 @@ public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<A
 
     @Resource
     private CSARRepositorySearchService csarRepoSearchService;
+    @Inject
+    private TopologyService topologyService;
 
 
     @Override
@@ -53,7 +53,7 @@ public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<A
                 nodeType = (IndexedNodeType) result.getData()[0];
             }
             // add in dependencies
-            topology.getDependencies().add(new CSARDependency(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
+            topology.getDependencies().add(topologyService.buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
         }
         topology.getSubstitutionMapping().setSubstitutionType(nodeType);
     }

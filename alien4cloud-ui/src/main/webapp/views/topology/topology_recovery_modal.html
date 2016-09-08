@@ -1,0 +1,50 @@
+<form name="topologyRecoveryChoice" class="form-horizontal" role="form" novalidate>
+  <div class="modal-header">
+    <h3>{{'APPLICATIONS.TOPOLOGY.RECOVERY.TITLE' | translate}}</h3>
+  </div>
+  <div class="modal-body">
+    <div>
+      {{'APPLICATIONS.TOPOLOGY.RECOVERY.DESCRIPTION' | translate}}
+        <div class=" radio row">
+          <div class="col-md-12">
+            <ul>
+              <li ng-repeat="csarDependency in recoveryOperation.updatedDependencies">
+                <b>{{csarDependency.name}}</b> : <em>{{csarDependency.version}}</em>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </br>
+      <span>{{'APPLICATIONS.TOPOLOGY.RECOVERY.CHOICE_ASK' | translate}}</span>
+      <!-- What would you like to do? -->
+        <div class="row">
+          <div class="col-md-12">
+            <!-- Recovery choice -->
+            <div class="radio">
+              <label><input type="radio" name="syncChoice" ng-model="choice.code" ng-value="1" required><b>{{'APPLICATIONS.TOPOLOGY.RECOVERY.RECOVER.TITLE' | translate}} </b>: {{'APPLICATIONS.TOPOLOGY.RECOVERY.RECOVER.DESCRIPTION' | translate}}</label>
+              <pre style="tab-size: 3;">{{recoveryOperation.resume}}</pre>
+            </div>
+
+            <!-- Reset choice -->
+            <div class="radio">
+              <label><input type="radio" name="syncChoice" ng-model="choice.code" ng-value="2" required><b>{{'APPLICATIONS.TOPOLOGY.RECOVERY.RESET.TITLE' | translate}} </b>: {{'APPLICATIONS.TOPOLOGY.RECOVERY.RESET.DESCRIPTION' | translate}}</label>
+            </div>
+            <!-- <span ng-repeat="possibleAction in possibleActions">
+              <div class="radio">
+                <label><input type="radio" name="syncChoice" ng-model="choice.code" ng-value="possibleAction.code" required><b>{{possibleAction.name | translate}} </b>: {{possibleAction.description||'' | translate}}</label>
+              </div>
+            </span> -->
+          </div>
+        </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button id="btn-ok" class="btn btn-primary" ng-disabled="topologyRecoveryChoice.$invalid"
+      confirm-title="{{'CONFIRM' | translate }}"
+      confirm="{{'CONFIRM_MESSAGE' | translate }}"
+      confirm-placement="left"
+      confirm-handler="choose(choice.code)"
+      ng-click="$event.stopPropagation()">{{'OK' | translate}}</button>
+    <button id="btn-cancel" class="btn btn-default" ng-click="cancel();$event.stopPropagation();">{{'APPLICATIONS.TOPOLOGY.RECOVERY.DISMISS' | translate}}</button>
+  </div>
+</form>

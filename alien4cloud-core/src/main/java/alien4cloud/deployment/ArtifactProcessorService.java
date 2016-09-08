@@ -1,5 +1,7 @@
 package alien4cloud.deployment;
 
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -8,22 +10,24 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.tosca.editor.EditorRepositoryService;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.component.repository.CsarFileRepository;
+import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
 import alien4cloud.deployment.exceptions.UnresolvableArtifactException;
 import alien4cloud.model.components.AbstractArtifact;
 import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.Interface;
-import alien4cloud.model.components.Operation;
-import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
@@ -44,11 +48,17 @@ public class ArtifactProcessorService {
     @Resource
     private CsarFileRepository repository;
 
+    @Resource
+    private EditorRepositoryService editorRepositoryService;
+
+    @Resource
+    private IFileRepository artifactRepository;
+
     private Path tempDir;
 
     private Path resolveArtifact(AbstractArtifact artifact) {
         return repositoryService.resolveArtifact(artifact.getArtifactRef(), artifact.getRepositoryURL(), artifact.getArtifactRepository(),
-                artifact.getRepositoryCredentials());
+                artifact.getRepositoryCredential());
     }
 
     private void processLocalArtifact(AbstractArtifact artifact) {
@@ -65,8 +75,7 @@ public class ArtifactProcessorService {
 
     private void processArtifact(AbstractArtifact artifact) {
         if (ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY.equals(artifact.getArtifactRepository())) {
-            // Overridden / Uploaded from Alien UI do not process
-            // TODO this should be done on Alien's side, the orchestrator plugin does not have responsibility to retrieve artifact it-self
+            artifact.setArtifactPath(artifactRepository.resolveFile(artifact.getArtifactRef()));
             return;
         }
         URL artifactURL = null;
@@ -90,12 +99,10 @@ public class ArtifactProcessorService {
         Path artifactPath = resolveArtifact(artifact);
         if (artifactPath == null) {
             if (artifactURL != null) {
-                try {
+                try (InputStream artifactStream = artifactURL.openStream()) {
                     // In a best effort try in a generic manner to obtain the artifact
-                    try (InputStream artifactStream = artifactURL.openStream()) {
-                        artifactPath = Files.createTempFile(tempDir, "url-artifact", FilenameUtils.getExtension(artifact.getArtifactRef()));
-                        Files.copy(artifactStream, artifactPath, StandardCopyOption.REPLACE_EXISTING);
-                    }
+                    artifactPath = Files.createTempFile(tempDir, "url-artifact", FilenameUtils.getExtension(artifact.getArtifactRef()));
+                    Files.copy(artifactStream, artifactPath, StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException e) {
                     throw new UnresolvableArtifactException("Artifact could not be found " + artifact, e);
                 }
@@ -112,15 +119,9 @@ public class ArtifactProcessorService {
 
     private void processInterfaces(Map<String, Interface> interfaceMap) {
         if (interfaceMap != null) {
-            for (Interface interfazz : interfaceMap.values()) {
-                if (interfazz.getOperations() != null) {
-                    for (Operation operation : interfazz.getOperations().values()) {
-                        if (operation.getImplementationArtifact() != null) {
-                            processArtifact(operation.getImplementationArtifact());
-                        }
-                    }
-                }
-            }
+            interfaceMap.values().stream().filter(interfazz -> interfazz.getOperations() != null)
+                    .forEach(interfazz -> interfazz.getOperations().values().stream().filter(operation -> operation.getImplementationArtifact() != null)
+                            .forEach(operation -> processArtifact(operation.getImplementationArtifact())));
         }
     }
 
@@ -137,15 +138,27 @@ public class ArtifactProcessorService {
         }
     }
 
+    private Stream<DeploymentArtifact> getDeploymentArtifactStream(PaaSTopologyDeploymentContext deploymentContext) {
+        return Stream.concat(
+                safe(deploymentContext.getDeploymentTopology().getNodeTemplates()).values().stream()
+                        .flatMap(nodeTemplate -> safe(nodeTemplate.getArtifacts()).values().stream()),
+                safe(deploymentContext.getDeploymentTopology().getNodeTemplates()).values().stream()
+                        .flatMap(nodeTemplate -> safe(nodeTemplate.getRelationships()).values().stream())
+                        .flatMap(relationship -> safe(relationship.getArtifacts()).values().stream()));
+    }
+
     private void processDeploymentArtifacts(PaaSTopologyDeploymentContext deploymentContext) {
         if (deploymentContext.getDeploymentTopology().getNodeTemplates() != null) {
-            for (NodeTemplate nodeTemplate : deploymentContext.getDeploymentTopology().getNodeTemplates().values()) {
-                if (nodeTemplate.getArtifacts() != null) {
-                    for (DeploymentArtifact artifact : nodeTemplate.getArtifacts().values()) {
-                        processArtifact(artifact);
-                    }
-                }
-            }
+            // Artifact which comes from the archive
+            getDeploymentArtifactStream(deploymentContext).filter(deploymentArtifact -> StringUtils.isNotBlank(deploymentArtifact.getArchiveName()))
+                    .forEach(this::processArtifact);
+            // Artifact which does not come from the archive, which comes from topology's edition
+            getDeploymentArtifactStream(deploymentContext).filter(deploymentArtifact -> StringUtils.isBlank(deploymentArtifact.getArchiveName()))
+                    .forEach(deploymentArtifact -> {
+                        Path artifactPath = editorRepositoryService.resolveArtifact(deploymentContext.getDeploymentTopology().getInitialTopologyId(),
+                                deploymentArtifact.getArtifactRef());
+                        deploymentArtifact.setArtifactPath(artifactPath);
+                    });
         }
     }
 

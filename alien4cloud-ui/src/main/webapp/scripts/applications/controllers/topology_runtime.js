@@ -80,13 +80,13 @@ define(function (require) {
         $scope.runtimeEnvironments = appEnvironments.deployEnvironments;
         //maybe the state request was made to open the view on a specific environment
         if(_.defined($state.params.openOnEnvironment) && appEnvironments.selected.id !== $state.params.openOnEnvironment){
-         appEnvironments.select($state.params.openOnEnvironment, function(){
-           if(appEnvironments.selected.status !== 'UNDEPLOYED'){
-             $scope.selectedEnvironment = appEnvironments.selected;
-           }
-         });
-       } else if (_.defined(appEnvironments.selected) && appEnvironments.selected.status !== 'UNDEPLOYED') {
-           // select current environment
+          appEnvironments.select($state.params.openOnEnvironment, function() {
+            if(appEnvironments.selected.status !== 'UNDEPLOYED') {
+              $scope.selectedEnvironment = appEnvironments.selected;
+            }
+          });
+        } else if (_.defined(appEnvironments.selected) && appEnvironments.selected.status !== 'UNDEPLOYED') {
+          // select current environment
           $scope.selectedEnvironment = appEnvironments.selected;
         } else {
           //otherwise, just select the first deployed envionment

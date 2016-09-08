@@ -21,7 +21,6 @@ import alien4cloud.tosca.normative.ToscaType;
  */
 @Service
 public class TopologyDTOBuilder {
-
     /**
      * Build a topology dto (topology and all used types) out of a topology.
      * 
@@ -64,6 +63,7 @@ public class TopologyDTOBuilder {
 
     private <T extends Topology> Map<String, IndexedCapabilityType> getCapabilityTypes(AbstractTopologyDTO<T> topologyDTO) {
         Map<String, IndexedCapabilityType> types = Maps.newHashMap();
+        Map<String, IndexedNodeType> delayedNodeTypeAddMap = Maps.newHashMap();
         for (IndexedNodeType nodeType : topologyDTO.getNodeTypes().values()) {
             for (CapabilityDefinition capabilityDefinition : nodeType.getCapabilities()) {
                 types.put(capabilityDefinition.getType(), ToscaContext.get(IndexedCapabilityType.class, capabilityDefinition.getType()));
@@ -76,9 +76,12 @@ public class TopologyDTOBuilder {
                     // requirements are authorized to be a node type rather than a capability type TODO is it still possible in TOSCA ?
                     IndexedNodeType indexedNodeType = ToscaContext.get(IndexedNodeType.class, requirementDefinition.getType());
                     // add it to the actual node types map
-                    topologyDTO.getNodeTypes().put(requirementDefinition.getType(), indexedNodeType);
+                    delayedNodeTypeAddMap.put(requirementDefinition.getType(), indexedNodeType);
                 }
             }
+        }
+        for (Map.Entry<String, IndexedNodeType> delayedNodeType : delayedNodeTypeAddMap.entrySet()) {
+            topologyDTO.getNodeTypes().put(delayedNodeType.getKey(), delayedNodeType.getValue());
         }
         return types;
     }

@@ -2,14 +2,15 @@ package alien4cloud.tosca.parser.mapping.generator;
 
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
 
 import alien4cloud.tosca.parser.MappingTarget;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.impl.base.ReferencedParser;
-import alien4cloud.tosca.parser.impl.base.SequenceToMapParser;
+import alien4cloud.tosca.parser.impl.base.BaseParserFactory;
 
 /**
  * Build Mapping target for map.
@@ -21,6 +22,10 @@ public class SequenceToMapMappingBuilder implements IMappingBuilder {
     // true if the node from the sequence contains both the key of the map (from first tuple key) and the value of the map (based on mapping node parsing)
     // false if the node from the sequence contains only the key of the map and the value of the map should be parsed from the value of the first tuple.
     private static final String NODE_IS_VALUE = "node_is_value";
+    private static final String ALLOW_DUPLICATE = "allow_duplicate";
+
+    @Resource
+    private BaseParserFactory baseParserFactory;
 
     @Override
     public String getKey() {
@@ -33,7 +38,10 @@ public class SequenceToMapMappingBuilder implements IMappingBuilder {
         if (map.get(NODE_IS_VALUE) == null) {
             map.put(NODE_IS_VALUE, "true");
         }
-        return new MappingTarget(map.get(SEQUENCE_TO_MAP), new SequenceToMapParser<>(new ReferencedParser(map.get(TYPE)), map.get(TYPE),
-                Boolean.parseBoolean(map.get(NODE_IS_VALUE))));
+        if (map.get(ALLOW_DUPLICATE) == null) {
+            map.put(ALLOW_DUPLICATE, "false");
+        }
+        return new MappingTarget(map.get(SEQUENCE_TO_MAP), baseParserFactory.getSequenceToMapParser(baseParserFactory.getReferencedParser(map.get(TYPE)),
+                map.get(TYPE), Boolean.parseBoolean(map.get(NODE_IS_VALUE)), Boolean.parseBoolean(map.get(ALLOW_DUPLICATE))));
     }
 }

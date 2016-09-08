@@ -6,16 +6,15 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import alien4cloud.model.components.PropertyValue;
+import alien4cloud.tosca.context.ToscaContextual;
 import org.elasticsearch.common.collect.Lists;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.component.repository.ArtifactRepositoryConstants;
-import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.PropertyValue;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.orchestrators.services.OrchestratorDeploymentService;
@@ -39,6 +38,7 @@ public class DeploymentInputService {
      *
      * @param topology The deployment topology to impact.
      */
+    @ToscaContextual
     public void processInputProperties(DeploymentTopology topology) {
         Map<String, PropertyValue> inputProperties = topology.getInputProperties();
         Map<String, PropertyDefinition> inputDefinitions = topology.getInputs();
@@ -110,7 +110,10 @@ public class DeploymentInputService {
                     for (DeploymentArtifact nodeArtifact : nodeArtifacts) {
                         nodeArtifact.setArtifactRef(e.getValue().getArtifactRef());
                         nodeArtifact.setArtifactName(e.getValue().getArtifactName());
-                        nodeArtifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY);
+                        nodeArtifact.setArtifactRepository(e.getValue().getArtifactRepository());
+                        nodeArtifact.setRepositoryName(e.getValue().getRepositoryName());
+                        nodeArtifact.setRepositoryCredential(e.getValue().getRepositoryCredential());
+                        nodeArtifact.setRepositoryURL(e.getValue().getRepositoryURL());
                     }
                 }
             }

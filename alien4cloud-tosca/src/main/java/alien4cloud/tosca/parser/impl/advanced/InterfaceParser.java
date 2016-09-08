@@ -2,10 +2,9 @@ package alien4cloud.tosca.parser.impl.advanced;
 
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
@@ -18,22 +17,31 @@ import alien4cloud.model.components.Interface;
 import alien4cloud.model.components.Operation;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
-import alien4cloud.tosca.parser.DefferedParsingValueExecutor;
-import alien4cloud.tosca.parser.MappingTarget;
+import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.impl.base.BaseParserFactory;
 import alien4cloud.tosca.parser.impl.base.ReferencedParser;
-import alien4cloud.tosca.parser.mapping.DefaultParser;
+import alien4cloud.tosca.parser.impl.base.ScalarParser;
 
 @Component
-public class InterfaceParser extends DefaultParser<Interface> {
+public class InterfaceParser implements INodeParser<Interface> {
     private static final String INPUTS_KEY = "inputs";
     private static final String TYPE_KEY = "type";
     private static final String DESCRIPTION_KEY = "description";
 
     @Resource
+    private ScalarParser scalarParser;
+    @Resource
     private ImplementationArtifactParser implementationArtifactParser;
-    private ReferencedParser<Operation> operationParser = new ReferencedParser<>("operation_definition");
+    @Resource
+    private BaseParserFactory baseParserFactory;
+    private ReferencedParser<Operation> operationParser;
+
+    @PostConstruct
+    public void init() {
+        operationParser = baseParserFactory.getReferencedParser("operation_definition");
+    }
 
     @Override
     public Interface parse(Node node, ParsingContextExecution context) {
@@ -51,20 +59,18 @@ public class InterfaceParser extends DefaultParser<Interface> {
         interfaz.setOperations(operations);
 
         for (NodeTuple entry : node.getValue()) {
-            String key = ParserUtils.getScalar(entry.getKeyNode(), context);
+            String key = scalarParser.parse(entry.getKeyNode(), context);
             if (INPUTS_KEY.equals(key)) {
                 // FIXME process inputs.
             } else if (DESCRIPTION_KEY.equals(key)) {
-                interfaz.setDescription(ParserUtils.getScalar(entry.getValueNode(), context));
+                interfaz.setDescription(scalarParser.parse(entry.getValueNode(), context));
             } else if (TYPE_KEY.equals(key)) {
-                interfaz.setType(getInterfaceType(ParserUtils.getScalar(entry.getValueNode(), context)));
+                interfaz.setType(getInterfaceType(scalarParser.parse(entry.getValueNode(), context)));
             } else {
                 if (entry.getValueNode() instanceof ScalarNode) {
                     Operation operation = new Operation();
                     // implementation artifact parsing should be done using a deferred parser as we need to look for artifact types.
-                    BeanWrapper targetBean = new BeanWrapperImpl(operation);
-                    MappingTarget target = new MappingTarget("implementationArtifact", implementationArtifactParser);
-                    context.addDeferredParser(new DefferedParsingValueExecutor(key, targetBean, context, target, entry.getValueNode()));
+                    operation.setImplementationArtifact(implementationArtifactParser.parse(entry.getValueNode(), context));
                     operations.put(key, operation);
                 } else {
                     operations.put(key, operationParser.parse(entry.getValueNode(), context));

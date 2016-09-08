@@ -84,15 +84,15 @@ define(function(require) {
             },
             function(result) {
               if (_.undefined(result.error)) {
-                scope.topology.topology.nodeTemplates[scope.selectedNodeTemplate.name].capabilitiesMap[capabilityId].value.propertiesMap[propertyName].value = {
-                  value: propertyValue,
-                  definition: false
-                };
+                scope.topology.topology.nodeTemplates[scope.selectedNodeTemplate.name].capabilitiesMap[capabilityId].value.propertiesMap[propertyName].value = { value: propertyValue, definition: false };
                 if (capabilityType === 'tosca.capabilities.Scalable') {
                   scope.triggerTopologyRefresh = {};
                 }
               }
-            }
+            },
+            null,
+            scope.selectedNodeTemplate,
+            true
           );
         }
       };

@@ -39,8 +39,8 @@ public class AddInputProcessor extends AbstractInputProcessor<AddInputOperation>
 
     @Override
     protected void processInputOperation(AddInputOperation operation, Map<String, PropertyDefinition> inputs) {
-        if (!operation.getInputName().matches("\\w+")) {
-            throw new InvalidNameException("inputName", operation.getInputName(), "\\w+");
+        if (operation.getInputName() == null || operation.getInputName().isEmpty() || !operation.getInputName().matches("\\w+")) {
+            throw new InvalidNameException("newInputName", operation.getInputName(), "\\w+");
         }
 
         Topology topology = EditionContextManager.getTopology();

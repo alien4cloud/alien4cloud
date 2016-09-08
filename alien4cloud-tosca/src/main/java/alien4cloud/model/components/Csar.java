@@ -2,14 +2,10 @@ package alien4cloud.model.components;
 
 import static alien4cloud.dao.model.FetchContext.SUMMARY;
 
-import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.model.common.Tag;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.NestedObject;
@@ -17,6 +13,13 @@ import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
+
+import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.model.common.Tag;
+import alien4cloud.tosca.parser.ParsingContextExecution;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -94,7 +97,62 @@ public class Csar {
         // Not authorized to set id as it's auto-generated from name and version
     }
 
+    /**
+     * Merge the given dependencies with the current ones.
+     * 
+     * @param dependencies
+     */
     public void setDependencies(Set<CSARDependency> dependencies) {
-        this.dependencies = dependencies;
+        if (this.dependencies == null) {
+            this.dependencies = dependencies;
+        } else {
+            this.dependencies.addAll(dependencies);
+        }
+    }
+
+    /**
+     * Merge the given dependencies with the current ones.
+     *
+     * @param dependencies
+     */
+    public void setDependencies(Set<CSARDependency> dependencies, boolean override) {
+        if (override) {
+            this.dependencies = dependencies;
+        } else {
+            setDependencies(dependencies);
+        }
+    }
+
+    /**
+     * In the context of parsing you can not override name when already provided (in case of tosca meta).
+     * 
+     * @param name The new name of the archive.
+     */
+    public void setName(String name) {
+        if (this.name == null || !ParsingContextExecution.exist()) {
+            this.name = name;
+        }
+    }
+
+    /**
+     * In the context of parsing you can not override version when already provided (in case of tosca meta).
+     *
+     * @param version The new version of the archive.
+     */
+    public void setVersion(String version) {
+        if (this.version == null || !ParsingContextExecution.exist()) {
+            this.version = version;
+        }
+    }
+
+    /**
+     * In the context of parsing you can not override template author when already provided (in case of tosca meta).
+     *
+     * @param templateAuthor The new template author of the archive.
+     */
+    public void setTemplateAuthor(String templateAuthor) {
+        if (this.templateAuthor == null || !ParsingContextExecution.exist()) {
+            this.templateAuthor = templateAuthor;
+        }
     }
 }

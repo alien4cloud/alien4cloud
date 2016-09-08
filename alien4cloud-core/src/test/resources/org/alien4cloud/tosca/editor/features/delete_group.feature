@@ -17,8 +17,8 @@ Feature: Topology editor: delete group operation
       | type      | org.alien4cloud.tosca.editor.operations.groups.DeleteGroupOperation |
       | groupName | simple_group                                                        |
     Then No exception should be thrown
-    And The SPEL int expression "groups.size()" should return 0
-    And The SPEL int expression "nodeTemplates['Compute'].groups.size()" should return 0
+    And The SPEL expression "groups.size()" should return 0
+    And The SPEL expression "nodeTemplates['Compute'].groups.size()" should return 0
 
   Scenario: Deleting a group that does not exist should
     When I execute the operation
