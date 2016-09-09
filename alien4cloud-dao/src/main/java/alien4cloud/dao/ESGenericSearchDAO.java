@@ -233,7 +233,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     @SneakyThrows({ IOException.class })
     public <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
             String fetchContext, int from, int maxElements, String fieldSort, boolean sortOrder, AggregationBuilder aggregationBuilder) {
-        SearchResponse searchResponse = doSearch(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, true, fieldSort, sortOrder, null);
+        SearchResponse searchResponse = doSearch(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, true, fieldSort, sortOrder, aggregationBuilder);
 
         // check something found
         // return an empty object if nothing found

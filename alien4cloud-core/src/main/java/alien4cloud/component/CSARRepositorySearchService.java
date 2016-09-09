@@ -8,6 +8,10 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
@@ -120,8 +124,14 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
     @Override
     public FacetedSearchResult search(Class<? extends IndexedToscaElement> classNameToQuery, String query, Integer size, Map<String, String[]> filters) {
 
-        FacetedSearchResult searchResult = searchDAO.facetedSearch(classNameToQuery, query, filters, null, FetchContext.SUMMARY, 0, 0, null, null, aggregation);
-        
+        AggregationBuilder aggregation = AggregationBuilders.terms("sort").field("elementId").subAggregation(AggregationBuilders.topHits("nestedVersion").setSize(1)
+                .addSort(new FieldSortBuilder("majorVersion").order(SortOrder.DESC))
+                .addSort(new FieldSortBuilder("minorVersion").order(SortOrder.DESC))
+                .addSort(new FieldSortBuilder("incrementalVersion").order(SortOrder.DESC))
+                .addSort(new FieldSortBuilder("qualifier").order(SortOrder.DESC).missing("_first")));
+
+        FacetedSearchResult searchResult = searchDAO.facetedSearch(classNameToQuery, query, filters, null, FetchContext.SUMMARY, 0, 0, null, false, aggregation);
+
         return searchResult;
     }
 }

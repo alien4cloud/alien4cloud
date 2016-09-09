@@ -96,8 +96,8 @@ public class ComponentController {
     public RestResponse<FacetedSearchResult> search(@RequestBody SearchRequest searchRequest, @RequestParam(defaultValue = "false") boolean queryAllVersions) {
         Class<? extends IndexedToscaElement> classNameToQuery = searchRequest.getType() == null ? IndexedToscaElement.class
                 : searchRequest.getType().getIndexedToscaElementClass();
-        FacetedSearchResult searchResult = searchService.search(classNameToQuery, searchRequest.getQuery(), searchRequest.getFrom(), searchRequest.getSize(),
-                searchRequest.getFilters(), queryAllVersions);
+        FacetedSearchResult searchResult = searchService.search(classNameToQuery, searchRequest.getQuery(), searchRequest.getSize(),
+                searchRequest.getFilters());
         return RestResponseBuilder.<FacetedSearchResult> builder().data(searchResult).build();
     }
 
