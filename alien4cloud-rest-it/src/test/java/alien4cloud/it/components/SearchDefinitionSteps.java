@@ -235,7 +235,7 @@ public class SearchDefinitionSteps {
             String elementId = baseName + "_" + i;
             componentTemplate.setElementId(elementId);
             componentTemplate.setArchiveVersion(DEFAULT_ARCHIVE_VERSION);
-            componentTemplate.setHighestVersion(true);
+
             if (property != null && remaining > 0) {
                 if (type.equalsIgnoreCase("node types")) {
                     switch (property) {
