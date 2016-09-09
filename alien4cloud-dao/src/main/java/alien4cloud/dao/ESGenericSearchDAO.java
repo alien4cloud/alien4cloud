@@ -22,6 +22,7 @@ import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.mapping.*;
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
 import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.InternalTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.sort.SortBuilder;
@@ -45,7 +46,6 @@ import lombok.SneakyThrows;
  * @author luc boutier
  */
 public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearchDAO {
-    // private static final String SCORE_SCRIPT = "_score * ((doc.containsKey('alienScore') && !doc['alienScore'].empty) ? doc['alienScore'].value : 1)";
     @Resource
     private ElasticSearchClient esClient;
     @Resource
@@ -187,7 +187,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     @Override
     public <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
             String fetchContext, int from, int maxElements, String fieldSort, boolean sortOrder) {
-        SearchResponse searchResponse = doSearch(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, false, fieldSort, sortOrder);
+        SearchResponse searchResponse = doSearch(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, false, fieldSort, sortOrder, null);
         return toGetMultipleDataResult(clazz, searchResponse, from);
     }
 
@@ -222,12 +222,18 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         return facetedSearch(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, null, false);
     }
 
+    @Override
+    public <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
+            String fetchContext, int from, int maxElements, String fieldSort, boolean sortOrder) {
+        return facetedSearch(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, fieldSort, sortOrder, null);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     @SneakyThrows({ IOException.class })
     public <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
-            String fetchContext, int from, int maxElements, String fieldSort, boolean sortOrder) {
-        SearchResponse searchResponse = doSearch(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, true, fieldSort, sortOrder);
+            String fetchContext, int from, int maxElements, String fieldSort, boolean sortOrder, AggregationBuilder aggregationBuilder) {
+        SearchResponse searchResponse = doSearch(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, true, fieldSort, sortOrder, null);
 
         // check something found
         // return an empty object if nothing found
@@ -337,26 +343,26 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     }
 
     private <T> SearchResponse doSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter, String fetchContext,
-            int from, int maxElements, boolean enableFacets, String fieldSort, boolean sortOrder) {
+            int from, int maxElements, boolean enableFacets, String fieldSort, boolean sortOrder, AggregationBuilder aggregationBuilder) {
         String[] searchIndexes = clazz == null ? getAllIndexes() : new String[] { getIndexForType(clazz) };
         Class<?>[] requestedTypes = getRequestedTypes(clazz);
         String[] esTypes = getTypesStrings(requestedTypes);
 
         SearchQueryHelperBuilder query = this.queryHelper.buildSearchQuery(searchIndexes, searchText).types(requestedTypes).fetchContext(fetchContext)
-                .filters(filters).customFilter(customFilter).facets(enableFacets);
-        if (fieldSort != null) {
-            query.fieldSort(fieldSort, sortOrder);
+                .filters(filters).customFilter(customFilter).facets(enableFacets).fieldSort(fieldSort, sortOrder);
+
+        SearchRequestBuilder searchRequestBuilder = query.generate(from, maxElements, queryBuilderAdapter()).setTypes(esTypes);
+
+        if (aggregationBuilder != null) {
+            searchRequestBuilder.addAggregation(aggregationBuilder);
         }
 
-        SearchRequestBuilder searchRequestBuilder = query.generate(from, maxElements, new QueryBuilderAdapter() {
-            @Override
-            public QueryBuilder adapt(QueryBuilder queryBuilder) {
-                return QueryBuilders.functionScoreQuery(queryBuilder).scoreMode("multiply").boostMode(CombineFunction.MULT)
-                        .add(ScoreFunctionBuilders.fieldValueFactorFunction("alienScore").missing(1));
-            }
-        });
-        searchRequestBuilder.setTypes(esTypes);
         return searchRequestBuilder.execute().actionGet();
+    }
+
+    private <T> QueryBuilderAdapter queryBuilderAdapter() {
+        return queryBuilder -> QueryBuilders.functionScoreQuery(queryBuilder).scoreMode("multiply").boostMode(CombineFunction.MULT)
+                .add(ScoreFunctionBuilders.fieldValueFactorFunction("alienScore").missing(1));
     }
 
     private boolean somethingFound(final SearchResponse searchResponse) {

@@ -81,7 +81,7 @@ define(function (require) {
           isFiltered = false;
         }
       };
-      
+
       var search = function(from, additionalBody) {
         if (!from) {
           pagination.reset();

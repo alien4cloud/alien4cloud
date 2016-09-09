@@ -117,12 +117,9 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
     }
 
     @Override
-    public FacetedSearchResult search(Class<? extends IndexedToscaElement> classNameToQuery, String query, Integer from, Integer size,
-            Map<String, String[]> filters, boolean queryAllVersions) {
-        if (!queryAllVersions) {
-            // TODO Apply sort aggregation to query last version elements only
-        }
-        FacetedSearchResult searchResult = searchDAO.facetedSearch(classNameToQuery, query, filters, FetchContext.SUMMARY, from, size);
+    public FacetedSearchResult search(Class<? extends IndexedToscaElement> classNameToQuery, String query, Integer size, Map<String, String[]> filters) {
+
+        FacetedSearchResult searchResult = searchDAO.facetedSearch(classNameToQuery, query, filters, FetchContext.SUMMARY, 0, 0, aggregation);
         return searchResult;
     }
 }
