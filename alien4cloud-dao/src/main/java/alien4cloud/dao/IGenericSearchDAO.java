@@ -288,7 +288,7 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      * @return
      */
     <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
-                                          String fetchContext, int from, int maxElements, String fieldSort, boolean sortOrder, AggregationBuilder aggregationBuilder)
+                                          String fetchContext, int from, int maxElements, String fieldSort, boolean sortOrder, AggregationBuilder aggregationBuilder);
 
     /**
      * Perform a suggestion search on a specific field.
