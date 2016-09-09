@@ -183,7 +183,7 @@ public class ArchiveIndexer {
         if (update) {
             // get element from the archive so we get the creation date.
             Map<String, IndexedToscaElement> previousElements = indexerService.getArchiveElements(archiveName, archiveVersion);
-            prepareForUpdate(archiveName, archiveVersion, root, previousElements);
+            prepareForUpdate(root, previousElements);
             // delete all previous elements and their images
             indexerService.deleteElements(previousElements.values());
         }
@@ -191,7 +191,7 @@ public class ArchiveIndexer {
         performIndexing(archiveName, archiveVersion, root);
     }
 
-    private void prepareForUpdate(String archiveName, String archiveVersion, ArchiveRoot root, Map<String, IndexedToscaElement> previousElements) {
+    private void prepareForUpdate(ArchiveRoot root, Map<String, IndexedToscaElement> previousElements) {
         updateCreationDates(root.getArtifactTypes(), previousElements);
         updateCreationDates(root.getCapabilityTypes(), previousElements);
         updateCreationDates(root.getNodeTypes(), previousElements);
@@ -200,7 +200,7 @@ public class ArchiveIndexer {
 
         if (root.getLocalImports() != null) {
             for (ArchiveRoot child : root.getLocalImports()) {
-                prepareForUpdate(archiveName, archiveVersion, child, previousElements);
+                prepareForUpdate(child, previousElements);
             }
         }
     }

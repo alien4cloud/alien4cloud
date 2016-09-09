@@ -1,5 +1,8 @@
 package alien4cloud.tosca;
 
+import static alien4cloud.common.AlienConstants.GLOBAL_WORKSPACE_ID;
+import static alien4cloud.utils.AlienUtils.safe;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -15,9 +18,12 @@ import javax.annotation.Resource;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Sets;
+
 import alien4cloud.deployment.exceptions.UnresolvableArtifactException;
 import alien4cloud.model.components.AbstractArtifact;
 import alien4cloud.model.components.IndexedArtifactToscaElement;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.Interface;
 import alien4cloud.model.topology.AbstractTemplate;
 import alien4cloud.model.topology.NodeTemplate;
@@ -29,6 +35,7 @@ import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.InputArtifactUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -94,9 +101,37 @@ public class ArchivePostProcessor {
      * @param parsedArchive The archive to post process
      */
     public ParsingResult<ArchiveRoot> process(Path archive, ParsingResult<ArchiveRoot> parsedArchive) {
+        String hash = FileUtil.getSHA1Checksum(archive);
+        parsedArchive.getResult().getArchive().setHash(hash);
+        parsedArchive.getResult().getArchive().setWorkspaces(Sets.newHashSet(GLOBAL_WORKSPACE_ID));
+
+        // FIXME how should we manage hash for the topology tempalte ?
         processTopology(parsedArchive);
+        // Injext archive hash in every indexed node type.
+        processTypes(parsedArchive.getResult(), hash);
         processArtifacts(archive, parsedArchive);
         return parsedArchive;
+    }
+
+    /**
+     * Inject the archive hash in indexed elements.
+     * 
+     * @param archiveRoot The archive out of parsing
+     * @param hash The computed hash to inject.
+     */
+    private void processTypes(ArchiveRoot archiveRoot, String hash) {
+        processTypes(archiveRoot.getArtifactTypes(), hash);
+        processTypes(archiveRoot.getCapabilityTypes(), hash);
+        processTypes(archiveRoot.getDataTypes(), hash);
+        processTypes(archiveRoot.getNodeTypes(), hash);
+        processTypes(archiveRoot.getRelationshipTypes(), hash);
+    }
+
+    private void processTypes(Map<String, ? extends IndexedToscaElement> elements, String hash) {
+        for (IndexedToscaElement element : safe(elements).values()) {
+            element.setArchiveHash(hash);
+            element.setWorkspaces(Sets.newHashSet(GLOBAL_WORKSPACE_ID));
+        }
     }
 
     private void processTopology(ParsingResult<ArchiveRoot> parsedArchive) {
