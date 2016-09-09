@@ -12,6 +12,7 @@ import org.elasticsearch.annotation.NestedObject;
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
+import org.elasticsearch.annotation.query.TermsFacet;
 import org.elasticsearch.mapping.IndexType;
 
 import alien4cloud.exception.IndexingServiceException;
@@ -70,6 +71,11 @@ public class Csar {
     @FetchContext(contexts = { SUMMARY }, include = { true })
     private String hash;
 
+    /* List of workspaces where the CSAR belongs */
+    @TermFilter
+    @TermsFacet
+    private Set<String> workspaces;
+
     /** Default constructor */
     public Csar() {
     }
@@ -90,7 +96,10 @@ public class Csar {
         if (version == null) {
             throw new IndexingServiceException("Csar version is mandatory");
         }
-        return name + ":" + version;
+        if (hash == null) {
+            throw new IndexingServiceException("Csar hash is mandatory");
+        }
+        return name + ":" + version + ":" + hash;
     }
 
     public void setId(String id) {

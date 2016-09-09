@@ -17,6 +17,7 @@ import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
+import org.elasticsearch.annotation.query.TermsFacet;
 import org.elasticsearch.mapping.IndexType;
 
 import alien4cloud.exception.IndexingServiceException;
@@ -46,13 +47,6 @@ public abstract class IndexedToscaElement {
     @TermFilter
     private String archiveVersion;
 
-    @BooleanField
-    @TermFilter
-    private boolean isHighestVersion;
-
-    @StringField(indexType = IndexType.not_analyzed)
-    private Set<String> olderVersions;
-
     @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
     @DateField(includeInAll = false, index = IndexType.no)
     private Date creationDate;
@@ -69,6 +63,17 @@ public abstract class IndexedToscaElement {
     /* DSL extension */
     private List<Tag> tags;
 
+    /* List of workspaces where the element belongs */
+    @TermFilter
+    @TermsFacet
+    private Set<String> workspaces;
+
+
+    @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
+    @StringField(indexType = IndexType.not_analyzed)
+    @TermFilter
+    private String archiveHash;
+
     @Id
     public String getId() {
         if (elementId == null) {
@@ -77,7 +82,10 @@ public abstract class IndexedToscaElement {
         if (archiveVersion == null) {
             throw new IndexingServiceException("Archive version is mandatory");
         }
-        return elementId + ":" + archiveVersion;
+        if (archiveHash == null) {
+            throw new IndexingServiceException("Archive hash is mandatory");
+        }
+        return elementId + ":" + archiveVersion + ":" + archiveHash;
     }
 
     public void setId(String id) {
