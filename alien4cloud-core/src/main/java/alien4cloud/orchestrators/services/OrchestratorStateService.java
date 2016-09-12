@@ -205,12 +205,11 @@ public class OrchestratorStateService {
      */
     public synchronized List<Usage> disable(Orchestrator orchestrator, boolean force) {
         if (!force) {
-            QueryHelper.SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper.buildSearchQuery(alienDAO.getIndexForType(Deployment.class))
-                    .types(Deployment.class).filters(MapUtil.newHashMap(new String[] { "orchestratorId", "endDate" },
-                            new String[][] { new String[] { orchestrator.getId() }, new String[] { null } }))
-                    .fieldSort("_timestamp", true);
             // If there is at least one active deployment.
-            GetMultipleDataResult<Object> result = alienDAO.search(searchQueryHelperBuilder, 0, 1);
+            GetMultipleDataResult<Object> result = alienDAO.buildQuery(Deployment.class)
+                    .setFilters(MapUtil.newHashMap(new String[] { "orchestratorId", "endDate" },
+                            new String[][] { new String[] { orchestrator.getId() }, new String[] { null } }))
+                    .prepareSearch().setFieldSort("_timestamp", true).search(0, 1);
 
             // TODO place a lock to avoid deployments during the disabling of the orchestrator.
             if (result.getData().length > 0) {

@@ -1,0 +1,114 @@
+ /**
+     *
+     * @return
+     */
+    public <T> IESQueryBuilderHelper<T, IESQueryBuilderHelper> buildQuery(Class<T> clazz) {
+        return new EsQueryBuilderHelper((QueryHelper.QueryBuilderHelper) queryHelper.buildQuery(), clazz);
+    }
+
+    /**
+     * Extends the QueryBuilderHelper to provide class based indices and types.
+     */
+    public class EsQueryBuilderHelper<T> extends QueryHelper.QueryBuilderHelper implements IESSearchQueryBuilderHelper {
+        private Class<T> clazz;
+        private String[] indices;
+        private Class<?>[] requestedTypes;
+        private String[] esTypes;
+
+        protected EsQueryBuilderHelper(QueryHelper.QueryBuilderHelper from, Class<T> clazz) {
+            super(from);
+            this.clazz = clazz;
+            this.indices = clazz == null ? getAllIndexes() : new String[] { getIndexForType(clazz) };
+            this.requestedTypes = getRequestedTypes(clazz);
+            this.esTypes = getTypesStrings(requestedTypes);
+        }
+
+        /**
+         * Perform a count request based on the given class.
+         *
+         * @return The count response.
+         */
+        public long count() {
+            return super.count(indices, esTypes).getCount();
+        }
+
+        @Override
+        public IESSearchQueryBuilderHelper prepareSearch() {
+            super.prepareSearch(indices);
+            return this;
+        }
+
+        public GetMultipleDataResult<T> search(int from, int size) {
+            toGetMultipleDataResult(clazz, super.execute(from, size), from);
+        }
+
+        @Override
+        public FacetedSearchResult facetedSearch(int from, int size) {
+            return toFacetedSearchResult(clazz, from, super.execute(from, size));
+        }
+
+        @Override
+        public Object setScriptFunction(String functionScore) {
+            return super.scriptFunction(functionScore);
+        }
+
+        @Override
+        public Object setFilters(FilterBuilder... customFilter) {
+            return super.filters(customFilter);
+        }
+
+        @Override
+        public Object setFilters(Map filters, Map filterStrategies, FilterBuilder... customFilters) {
+            return super.filters(filters, customFilters);
+        }
+
+        @Override
+        public Object setFilters(Map filters, FilterBuilder... customFilters) {
+            return super.filters(filters, customFilters);
+        }
+
+        @Override
+        public Object alterQueryBuilder(Consumer consumer) {
+            return super.alterQuery(consumer);
+        }
+
+        @Override
+        public Object setFieldSort(String fieldName, boolean desc) {
+            return super.fieldSort(fieldName, desc);
+        }
+
+        @Override
+        public Object setFetchContext(String fetchContext) {
+            return super.fetchContext(fetchContext);
+        }
+
+        @Override
+        public Object alterSearchRequestBuilder(Consumer consumer) {
+            return super.alterSearchRequest(consumer);
+        }
+    }
+
+
+
+
+     @SneakyThrows({ IOException.class })
+        private <T> FacetedSearchResult<T> toFacetedSearchResult(Class<T> clazz, int from, SearchResponse searchResponse) {
+            // check something found
+            // return an empty object if nothing found
+            if (!somethingFound(searchResponse)) {
+                T[] resultData = (T[]) Array.newInstance(clazz, 0);
+                FacetedSearchResult toReturn = new FacetedSearchResult(from, 0, 0, 0, new String[0], resultData, new HashMap<String, FacetedSearchFacet[]>());
+                if (searchResponse != null) {
+                    toReturn.setQueryDuration(searchResponse.getTookInMillis());
+                }
+                return toReturn;
+            }
+
+            FacetedSearchResult facetedSearchResult = new FacetedSearchResult();
+
+            fillMultipleDataResult(clazz, searchResponse, facetedSearchResult, from, true);
+
+            facetedSearchResult.setFacets(parseAggregationCounts(searchResponse));
+
+            return facetedSearchResult;
+        }

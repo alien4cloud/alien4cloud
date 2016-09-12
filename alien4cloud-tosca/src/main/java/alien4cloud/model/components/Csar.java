@@ -97,7 +97,7 @@ public class Csar {
             throw new IndexingServiceException("Csar version is mandatory");
         }
         if (hash == null) {
-            throw new IndexingServiceException("Csar hash is mandatory");
+            return name + ":" + version; // hash is optional in archive id
         }
         return name + ":" + version + ":" + hash;
     }

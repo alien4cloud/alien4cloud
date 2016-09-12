@@ -1,5 +1,8 @@
 package alien4cloud.application;
 
+import static alien4cloud.utils.AlienUtils.arOfArray;
+import static alien4cloud.utils.AlienUtils.array;
+
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -7,7 +10,6 @@ import javax.annotation.Resource;
 
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.QueryHelper;
-import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -158,12 +160,9 @@ public class ApplicationService {
      */
     public boolean delete(String applicationId) throws OrchestratorDisabledException {
         // ensure that there is no active deployment(s).
-        String index = alienDAO.getIndexForType(Deployment.class);
-        SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper.buildSearchQuery(index).types(Deployment.class)
-                .filters(MapUtil.newHashMap(new String[] { "sourceId", "endDate" }, new String[][] { new String[] { applicationId }, new String[] { null } }))
-                .fieldSort("_timestamp", true);
+        GetMultipleDataResult<Object> result = alienDAO.buildQuery(Deployment.class)
+                .setFilters(MapUtil.newHashMap(array("sourceId", "endDate"), arOfArray(array(applicationId), array(null)))).prepareSearch().search(0, 1);
 
-        GetMultipleDataResult<Object> result = alienDAO.search(searchQueryHelperBuilder, 0, 1);
         if (result.getData().length > 0) {
             return false;
         }

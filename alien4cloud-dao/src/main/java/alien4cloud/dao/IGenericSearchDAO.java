@@ -7,7 +7,6 @@ import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.mapping.FilterValuesStrategy;
 import org.elasticsearch.mapping.QueryHelper;
-import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
@@ -102,14 +101,14 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
     <T> List<T> customFindAll(Class<T> clazz, QueryBuilder query, SortBuilder sortBuilder);
 
     /**
-     * Run a query build from a {@link SearchQueryHelperBuilder}.
+     * Run a query build from a {@link QueryHelper.ISearchQueryBuilderHelper}.
      *
      * @param queryHelperBuilder The query builder that contains the query to run.
      * @param from Offset from the first result you want to fetch.
      * @param maxElements The maximum number of elements to return.
      * @return A {@link GetMultipleDataResult} that contains the search response.
      */
-    GetMultipleDataResult<Object> search(SearchQueryHelperBuilder queryHelperBuilder, int from, int maxElements);
+    GetMultipleDataResult<Object> search(QueryHelper.ISearchQueryBuilderHelper queryHelperBuilder, int from, int maxElements);
 
     /**
      * Search for data.
@@ -225,7 +224,7 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
     <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, int maxElements);
 
     /**
-     * Same as {@link IGenericSearchDAO#facetedSearch(String, String, Map, int)}, but with pagination supported.
+     * Same as {@link IGenericSearchDAO#facetedSearch(Class, String, Map, int)}, but with pagination supported.
      *
      * @param clazz The type of data to query.
      * @param searchText The search text if any.
@@ -234,12 +233,12 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      * @param from Offset from the first result you want to fetch.
      * @param maxElements The maximum number of elements to return.
      * @return A {@link FacetedSearchResult} instance that contains the result data and associated facets. Empty instance if no data found.
-     * @see IGenericSearchDAO#facetedSearch(String, String, Map, int)
+     * @see IGenericSearchDAO#facetedSearch(Class, String, Map, int)
      */
     <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, String fetchContext, int from, int maxElements);
 
     /**
-     * Same as {@link IGenericSearchDAO#facetedSearch(String, String, Map, int)}, but with pagination supported.
+     * Same as {@link IGenericSearchDAO#facetedSearch(Class, String, Map, int)}, but with pagination supported.
      *
      * @param clazz The type of data to query.
      * @param searchText The search text if any.
@@ -249,13 +248,13 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      * @param from Offset from the first result you want to fetch.
      * @param maxElements The maximum number of elements to return.
      * @return A {@link FacetedSearchResult} instance that contains the result data and associated facets. Empty instance if no data found.
-     * @see IGenericSearchDAO#facetedSearch(String, String, Map, int)
+     * @see IGenericSearchDAO#facetedSearch(Class, String, Map, int)
      */
     <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter, String fetchContext,
             int from, int maxElements);
 
     /**
-     * Same as {@link IGenericSearchDAO#facetedSearch(String, String, Map, int)}, but with pagination supported.
+     * Same as {@link IGenericSearchDAO#facetedSearch(Class, String, Map, int)}, but with pagination supported.
      *
      * @param clazz The type of data to query.
      * @param searchText The search text if any.
@@ -267,13 +266,14 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      * @param fieldSort field to sort on
      * @param sortOrder order for the sort (false = ascending or true = descending)
      * @return A {@link FacetedSearchResult} instance that contains the result data and associated facets. Empty instance if no data found.
-     * @see IGenericSearchDAO#facetedSearch(String, String, Map, int)
+     * @see IGenericSearchDAO#facetedSearch(Class, String, Map, int)
      */
     <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter, String fetchContext,
             int from, int maxElements, String fieldSort, boolean sortOrder);
 
     /**
      * TODO javadoc.
+     * 
      * @param clazz
      * @param searchText
      * @param filters
@@ -287,8 +287,8 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      * @param <T>
      * @return
      */
-    <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
-                                          String fetchContext, int from, int maxElements, String fieldSort, boolean sortOrder, AggregationBuilder aggregationBuilder);
+    <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter, String fetchContext,
+            int from, int maxElements, String fieldSort, boolean sortOrder, AggregationBuilder aggregationBuilder);
 
     /**
      * Perform a suggestion search on a specific field.
@@ -316,14 +316,14 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
     <T> GetMultipleDataResult<T> find(Class<T> clazz, Map<String, String[]> filters, int maxElements);
 
     /**
-     * Same as {@link IGenericSearchDAO#find(String, Map, int)}, but with pagination supported.
+     * Same as {@link IGenericSearchDAO#find(Class, Map, int)}, but with pagination supported.
      *
      * @param clazz The type of data to query.
      * @param filters The filters for the search or null if no filters.
      * @param from Offset from the first result you want to fetch.
      * @param maxElements The maximum number of elements to return.
      * @return A {@link GetMultipleDataResult} instance that contains the result data.
-     * @see IGenericSearchDAO#find(String, Map, int)
+     * @see IGenericSearchDAO#find(Class, Map, int)
      */
     <T> GetMultipleDataResult<T> find(Class<T> clazz, Map<String, String[]> filters, int from, int maxElements);
 
@@ -391,4 +391,25 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      * @return the list of value for the path
      */
     String[] selectPath(String index, String[] types, QueryBuilder queryBuilder, SortOrder sortOrder, String path, int from, int size);
+
+    /**
+     * Create a query builder for the given class based on a match all query.
+     *
+     * @return an instance of IESQueryBuilderHelper for the given class.
+     */
+    public <T> IESQueryBuilderHelper<T> buildQuery(Class<T> clazz);
+
+    /**
+     * Create a query builder for the given class.
+     *
+     * @return an instance of IESQueryBuilderHelper for the given class.
+     */
+    public <T> IESQueryBuilderHelper<T> buildSearchQuery(Class<T> clazz, String searchQuery);
+
+    /**
+     * Create a query builder for the given class.
+     *
+     * @return an instance of IESQueryBuilderHelper for the given class.
+     */
+    public <T> IESQueryBuilderHelper<T> buildSuggestionQuery(Class<T> clazz, String prefixField, String searchQuery);
 }

@@ -5,13 +5,11 @@ import java.util.*;
 import javax.annotation.Resource;
 
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -119,9 +117,8 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
 
     @Override
     public FacetedSearchResult search(Class<? extends IndexedToscaElement> classNameToQuery, String query, Integer size, Map<String, String[]> filters) {
-
         FacetedSearchResult searchResult = searchDAO.facetedSearch(classNameToQuery, query, filters, null, FetchContext.SUMMARY, 0, 0, null, null, aggregation);
-        
+
         return searchResult;
     }
 }
