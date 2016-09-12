@@ -141,7 +141,6 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
 
         FacetedSearchResult<? extends IndexedToscaElement> searchResult = searchDAO.buildSearchQuery(clazz, query).setFilters(filters).prepareSearch()
                 .setFetchContext(FetchContext.SUMMARY, topHitAggregation).facetedSearch(new IAggregationQueryManager() {
-
                     @Override
                     public AggregationBuilder getQueryAggregation() {
                         return aggregation;

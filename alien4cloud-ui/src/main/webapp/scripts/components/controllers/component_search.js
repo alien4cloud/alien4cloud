@@ -8,6 +8,14 @@ define(function (require) {
   require('scripts/tosca/services/tosca_service');
   require('scripts/common/services/search_service_factory');
 
+  modules.get('a4c-components').factory('searchContext', [function() {
+    //The search context var
+    var searchContext = {};
+    searchContext.query = ''; // search query keyword: empty for the begining
+    searchContext.facetFilters = []; //facets filters
+    return searchContext;
+  }]);
+
   modules.get('a4c-components', ['a4c-tosca', 'a4c-search']).controller('alienSearchComponentCtrl', ['$scope', '$filter', 'searchContext', '$resource', 'toscaService', 'searchServiceFactory', '$state', '$translate',
    function($scope, $filter, searchContext, $resource, toscaService, searchServiceFactory, $state, $translate) {
     var alienInternalTags = ['icon'];

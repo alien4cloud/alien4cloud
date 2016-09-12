@@ -492,6 +492,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
             this.indices = clazz == null ? getAllIndexes() : new String[] { getIndexForType(clazz) };
             this.requestedTypes = getRequestedTypes(clazz);
             this.esTypes = getTypesStrings(requestedTypes);
+            super.types(requestedTypes);
         }
 
         /**
