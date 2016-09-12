@@ -3,7 +3,7 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>1.3.0-SM4-SNAPSHOT</version>
+    <version>1.3.0-RC1-SNAPSHOT</version>
   </parent>
   <artifactId>alien4cloud-ui</artifactId>
   <packaging>war</packaging>
@@ -51,10 +51,6 @@
       <resource>
         <directory>src/main/resources</directory>
       </resource>
-      <resource>
-        <directory>target/webapp</directory>
-        <targetPath>static</targetPath>
-      </resource>
     </resources>
     <plugins>
       <plugin>
@@ -80,15 +76,13 @@
         <version>2.3</version>
         <configuration>
           <failOnMissingWebXml>false</failOnMissingWebXml>
+          <warSourceDirectory>target/webapp</warSourceDirectory> <!-- Include the directory after grunt processing. -->
           <webappDirectory>${project.build.directory}/alien4cloud-ui-war</webappDirectory>
           <webResources>
             <!-- Add the yeoman dist directory to the war file -->
             <resource>
               <directory>version</directory>
               <filtering>true</filtering>
-            </resource>
-            <resource>
-              <directory>target/webapp</directory>
             </resource>
           </webResources>
         </configuration>
