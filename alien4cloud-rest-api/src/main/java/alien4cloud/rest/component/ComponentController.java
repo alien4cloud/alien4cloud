@@ -102,6 +102,20 @@ public class ComponentController {
     }
 
     /**
+     * Get all versions of a given component.
+     *
+     * @param elementId unique id of the component for which to get all other versions.
+     * @return A {@link RestResponse} that contains an {@link IndexedToscaElement} .
+     */
+    @ApiOperation(value = "Get details for a component (tosca type).")
+    @RequestMapping(value = "/{elementId:.+}/versions", method = RequestMethod.GET)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
+    public RestResponse<String[]> getComponentVersions(@PathVariable String elementId) {
+        String[] versions = new String[] { "1.0.0", "1.1.1", "2.0.134" };
+        return RestResponseBuilder.<String[]> builder().data(versions).build();
+    }
+
+    /**
      * Get the component recommended as default for a capability
      *
      * @param capability

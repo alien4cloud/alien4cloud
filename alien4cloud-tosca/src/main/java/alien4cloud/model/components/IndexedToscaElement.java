@@ -62,7 +62,6 @@ public abstract class IndexedToscaElement {
 
     /* List of workspaces where the element belongs */
     @TermFilter
-    @TermsFacet
     @StringField(indexType = IndexType.not_analyzed)
     private Set<String> workspaces;
 
