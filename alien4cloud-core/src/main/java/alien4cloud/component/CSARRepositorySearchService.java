@@ -1,21 +1,31 @@
 package alien4cloud.component;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
 
 import javax.annotation.Resource;
 
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHits;
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import alien4cloud.dao.IAggregationQueryManager;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.FetchContext;
@@ -26,6 +36,7 @@ import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.utils.CollectionUtils;
 import alien4cloud.utils.VersionUtil;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -121,15 +132,43 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
 
     @Override
     public FacetedSearchResult search(Class<? extends IndexedToscaElement> clazz, String query, Integer size, Map<String, String[]> filters) {
-        AggregationBuilder aggregation = AggregationBuilders.terms("query_aggregation").field("elementId").size(size)
-                .subAggregation(AggregationBuilders.topHits("nestedVersion").setSize(1).addSort(new FieldSortBuilder("majorVersion").order(SortOrder.DESC))
-                        .addSort(new FieldSortBuilder("minorVersion").order(SortOrder.DESC))
-                        .addSort(new FieldSortBuilder("incrementalVersion").order(SortOrder.DESC))
-                        .addSort(new FieldSortBuilder("qualifier").order(SortOrder.DESC).missing("_first")));
+        TopHitsBuilder topHitAggregation = AggregationBuilders.topHits("highest_version").setSize(1)
+                .addSort(new FieldSortBuilder("majorVersion").order(SortOrder.DESC)).addSort(new FieldSortBuilder("minorVersion").order(SortOrder.DESC))
+                .addSort(new FieldSortBuilder("incrementalVersion").order(SortOrder.DESC))
+                .addSort(new FieldSortBuilder("qualifier").order(SortOrder.DESC).missing("_first"));
+
+        AggregationBuilder aggregation = AggregationBuilders.terms("query_aggregation").field("elementId").size(size).subAggregation(topHitAggregation);
 
         FacetedSearchResult<? extends IndexedToscaElement> searchResult = searchDAO.buildSearchQuery(clazz, query).setFilters(filters).prepareSearch()
-                .setFetchContext(FetchContext.SUMMARY).alterSearchRequestBuilder(searchRequestBuilder -> searchRequestBuilder.addAggregation(aggregation))
-                .facetedSearch(0, 0);
+                .setFetchContext(FetchContext.SUMMARY, topHitAggregation).facetedSearch(new IAggregationQueryManager() {
+
+                    @Override
+                    public AggregationBuilder getQueryAggregation() {
+                        return aggregation;
+                    }
+
+                    @Override
+                    @SneakyThrows({ IOException.class })
+                    public void setData(ObjectMapper objectMapper, Function getClassFromType, FacetedSearchResult result, Aggregation aggregation) {
+                        List<Object> resultData = Lists.newArrayList();
+                        List<String> resultTypes = Lists.newArrayList();
+                        if (aggregation == null) {
+                            result.setData(new IndexedToscaElement[0]);
+                            result.setTypes(new String[0]);
+                        }
+                        for (Terms.Bucket bucket : ((Terms) aggregation).getBuckets()) {
+                            TopHits topHits = bucket.getAggregations().get("highest_version");
+                            for (SearchHit hit : topHits.getHits()) {
+                                resultTypes.add(hit.getType());
+                                resultData.add(
+                                        objectMapper.readValue(hit.getSourceAsString(), ((Function<String, Class>) getClassFromType).apply(hit.getType())));
+                            }
+                        }
+
+                        result.setData(resultData.toArray(new IndexedToscaElement[resultData.size()]));
+                        result.setTypes(resultTypes.toArray(new String[resultTypes.size()]));
+                    }
+                });
 
         return searchResult;
     }

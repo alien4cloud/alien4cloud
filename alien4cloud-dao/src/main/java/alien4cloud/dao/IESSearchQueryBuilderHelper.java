@@ -1,16 +1,15 @@
 package alien4cloud.dao;
 
 import java.util.Map;
-import java.util.function.Consumer;
 
-import alien4cloud.dao.model.FacetedSearchResult;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.mapping.FilterValuesStrategy;
 import org.elasticsearch.mapping.ISearchBuilderAdapter;
 import org.elasticsearch.mapping.QueryBuilderAdapter;
-import org.elasticsearch.mapping.QueryHelper;
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
 
+import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 
 /**
@@ -32,6 +31,15 @@ public interface IESSearchQueryBuilderHelper<T> extends IESQueryBuilderHelper<T>
      * @param size The maximum number of elements to return.
      */
     FacetedSearchResult<T> facetedSearch(int from, int size);
+
+    /**
+     * Execute a search query using the defined query with facets (aggregations) and use the provided IAggregationQueryManager to fetch data from an aggregation
+     * rather than query result.
+     * 
+     * @param aggregationQueryManager The aggregation query manager that manages the query through aggregation.
+     * @return The facet search result that contains data from the aggregation as well as other facets.
+     */
+    FacetedSearchResult facetedSearch(IAggregationQueryManager aggregationQueryManager);
 
     /**
      * Get the underlying search request builder.
@@ -62,6 +70,15 @@ public interface IESSearchQueryBuilderHelper<T> extends IESQueryBuilderHelper<T>
      * @param fetchContext The fetch context to add to the query.
      */
     IESSearchQueryBuilderHelper setFetchContext(String fetchContext);
+
+    /**
+     * Apply the fetch context to the given aggregation (BUT DOES NOT add it to the query).
+     *
+     * @param fetchContext The fetch context to add to the aggregation.
+     * @param topHitsBuilder The top hits aggregation builder on which to add fetch context include and excludes.
+     * @return The search query builder helper with the top
+     */
+    IESSearchQueryBuilderHelper setFetchContext(String fetchContext, TopHitsBuilder topHitsBuilder);
 
     @Override
     IESSearchQueryBuilderHelper alterQueryBuilder(QueryBuilderAdapter queryBuilderAdapter);

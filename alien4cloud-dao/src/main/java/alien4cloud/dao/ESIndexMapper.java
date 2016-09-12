@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutionException;
 
 import javax.annotation.Resource;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;

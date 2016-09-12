@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import javax.annotation.Resource;
 
@@ -23,6 +24,7 @@ import org.elasticsearch.mapping.*;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.InternalTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -413,29 +415,34 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         }
 
         FacetedSearchResult facetedSearchResult = new FacetedSearchResult();
-
-        fillMultipleDataResult(clazz, searchResponse, facetedSearchResult, from, true);
-
-        facetedSearchResult.setFacets(parseAggregationCounts(searchResponse));
-
+        fillMultipleDataResult(clazz, searchResponse, facetedSearchResult, from, true); // set data from the query
+        parseAggregations(searchResponse, facetedSearchResult, null); // set aggregations
         return facetedSearchResult;
     }
 
-    // Parse aggregation and extract their results into an array of FacetedSearchFacets
-    private Map<String, FacetedSearchFacet[]> parseAggregationCounts(SearchResponse searchResponse) {
+    /**
+     * Parse aggregations and set facets to the given non null FacetedSearchResult instance.
+     * 
+     * @param searchResponse The search response that contains aggregation results.
+     * @param facetedSearchResult The instance in which to set facets.
+     * @param aggregationQueryManager If not null the data of the FacetedSearchResult will be processed from an aggregation based on the given manager.
+     */
+    private void parseAggregations(SearchResponse searchResponse, FacetedSearchResult facetedSearchResult, IAggregationQueryManager aggregationQueryManager) {
         if (searchResponse.getAggregations() == null) {
-            return null;
+            return;
         }
 
         List<Aggregation> internalAggregationsList = searchResponse.getAggregations().asList();
         if (internalAggregationsList.size() == 0) {
-            return null;
+            return;
         }
 
-        Map<String, FacetedSearchFacet[]> finalResults = Maps.newHashMap();
+        Map<String, FacetedSearchFacet[]> facetMap = Maps.newHashMap();
 
         for (Aggregation aggregation : internalAggregationsList) {
-            if (aggregation instanceof InternalTerms) {
+            if (aggregation.getName().equals(aggregationQueryManager.getQueryAggregation().getName())) {
+                aggregationQueryManager.setData(getJsonMapper(), getClassFromTypeFunc(), facetedSearchResult, aggregation);
+            } else if (aggregation instanceof InternalTerms) {
                 InternalTerms internalTerms = (InternalTerms) aggregation;
 
                 FacetedSearchFacet[] facets = new FacetedSearchFacet[internalTerms.getBuckets().size()];
@@ -443,12 +450,16 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
                     Terms.Bucket bucket = internalTerms.getBuckets().get(i);
                     facets[i] = new FacetedSearchFacet(bucket.getKey(), bucket.getDocCount());
                 }
-                finalResults.put(internalTerms.getName(), facets);
+                facetMap.put(internalTerms.getName(), facets);
             } else {
                 log.debug("Aggregation is not a facet aggregation (terms) ignore. Name: {} ,Type: {}", aggregation.getName(), aggregation.getClass().getName());
             }
         }
-        return finalResults;
+        facetedSearchResult.setFacets(facetMap);
+    }
+
+    private Function<String, Class> getClassFromTypeFunc() {
+        return s -> getClassFromType(s);
     }
 
     @Override
@@ -508,6 +519,17 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         }
 
         @Override
+        public FacetedSearchResult facetedSearch(IAggregationQueryManager aggregationQueryManager) {
+            searchRequestBuilder.setSearchType(SearchType.COUNT);
+            searchRequestBuilder.addAggregation(aggregationQueryManager.getQueryAggregation());
+            SearchResponse searchResponse = super.execute(0, 0);
+
+            FacetedSearchResult facetedSearchResult = new FacetedSearchResult();
+            parseAggregations(searchResponse, facetedSearchResult, aggregationQueryManager);
+            return facetedSearchResult;
+        }
+
+        @Override
         public EsQueryBuilderHelper setScriptFunction(String functionScore) {
             super.scriptFunction(functionScore);
             return this;
@@ -546,6 +568,12 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         @Override
         public EsQueryBuilderHelper setFetchContext(String fetchContext) {
             super.fetchContext(fetchContext);
+            return this;
+        }
+
+        @Override
+        public IESSearchQueryBuilderHelper setFetchContext(String fetchContext, TopHitsBuilder topHitsBuilder) {
+            super.fetchContext(fetchContext, topHitsBuilder);
             return this;
         }
 
