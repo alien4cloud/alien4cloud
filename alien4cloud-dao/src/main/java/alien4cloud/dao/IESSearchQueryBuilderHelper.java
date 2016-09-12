@@ -7,6 +7,7 @@ import alien4cloud.dao.model.FacetedSearchResult;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.mapping.FilterValuesStrategy;
+import org.elasticsearch.mapping.ISearchBuilderAdapter;
 import org.elasticsearch.mapping.QueryBuilderAdapter;
 import org.elasticsearch.mapping.QueryHelper;
 
@@ -42,9 +43,9 @@ public interface IESSearchQueryBuilderHelper<T> extends IESQueryBuilderHelper<T>
     /**
      * Execute the given consumer to alter the search request builder.
      *
-     * @param searchRequestBuilderConsumer the search request builder consumer to alter the search request.
+     * @param searchBuilderAdapter the search request builder adapter to alter the search request.
      */
-    IESSearchQueryBuilderHelper alterSearchRequestBuilder(Consumer<SearchRequestBuilder> searchRequestBuilderConsumer);
+    IESSearchQueryBuilderHelper alterSearchRequestBuilder(ISearchBuilderAdapter searchBuilderAdapter);
 
     /**
      * Allows to define a sort field.

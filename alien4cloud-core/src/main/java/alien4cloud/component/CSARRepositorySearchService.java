@@ -1,11 +1,9 @@
 package alien4cloud.component;
 
 import java.util.*;
-import java.util.function.Consumer;
 
 import javax.annotation.Resource;
 
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -129,13 +127,10 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
                         .addSort(new FieldSortBuilder("incrementalVersion").order(SortOrder.DESC))
                         .addSort(new FieldSortBuilder("qualifier").order(SortOrder.DESC).missing("_first")));
 
-        FacetedSearchResult searchResult = searchDAO.buildSearchQuery(clazz, query).setFilters(filters).prepareSearch().setFetchContext(FetchContext.SUMMARY)
-                .alterSearchRequestBuilder(aggregation(aggregation)).facetedSearch(0, 0);
+        FacetedSearchResult<? extends IndexedToscaElement> searchResult = searchDAO.buildSearchQuery(clazz, query).setFilters(filters).prepareSearch()
+                .setFetchContext(FetchContext.SUMMARY).alterSearchRequestBuilder(searchRequestBuilder -> searchRequestBuilder.addAggregation(aggregation))
+                .facetedSearch(0, 0);
 
         return searchResult;
-    }
-
-    private Consumer<SearchRequestBuilder> aggregation(AggregationBuilder aggregation) {
-        return searchRequestBuilder -> searchRequestBuilder.addAggregation(aggregation);
     }
 }

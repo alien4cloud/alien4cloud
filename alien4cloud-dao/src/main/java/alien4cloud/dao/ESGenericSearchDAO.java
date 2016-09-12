@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import javax.annotation.Resource;
 
@@ -551,8 +550,8 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         }
 
         @Override
-        public EsQueryBuilderHelper alterSearchRequestBuilder(Consumer consumer) {
-            super.alterSearchRequest(consumer);
+        public EsQueryBuilderHelper alterSearchRequestBuilder(ISearchBuilderAdapter adapter) {
+            super.alterSearchRequest(adapter);
             return this;
         }
     }

@@ -175,8 +175,8 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
     }
 
     private void testSimpleSearchWellPaginated(int maxElement, int size, Map<String, String[]> filters) throws IOException {
-        List<IndexedNodeType> expectedDataList = filters != null && filterContainsValue(filters, "jndi") ? new ArrayList<>(jndiTestDataList) : new ArrayList<>(
-                testDataList);
+        List<IndexedNodeType> expectedDataList = filters != null && filterContainsValue(filters, "jndi") ? new ArrayList<>(jndiTestDataList)
+                : new ArrayList<>(testDataList);
         GetMultipleDataResult<IndexedNodeType> searchResp;
         int expectedSize;
         for (int from = 0; from < maxElement; from += size) {
@@ -207,7 +207,7 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
         String facetNameToCheck;
         String factetValueToCheck;
         long expectedFacetCount = 0;
-        FacetedSearchResult searchResp;
+        FacetedSearchResult<?> searchResp;
         int expectedSize = 0;
         boolean facetToCheckExist = false;
         for (int from = 0; from < maxElement; from += size) {
