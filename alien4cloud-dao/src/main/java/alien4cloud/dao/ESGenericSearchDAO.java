@@ -10,7 +10,6 @@ import java.util.function.Consumer;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -23,7 +22,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.mapping.*;
 import org.elasticsearch.search.aggregations.Aggregation;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.InternalTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.sort.SortBuilder;
@@ -40,6 +38,7 @@ import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.ElasticSearchUtil;
 import alien4cloud.utils.MapUtil;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Elastic search dao that manages search operations.
@@ -187,7 +186,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     public <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
             String fetchContext, int from, int maxElements, String fieldSort, boolean sortOrder) {
         IESSearchQueryBuilderHelper<T> searchQueryBuilderHelper = getSearchBuilderHelper(clazz, searchText, filters, customFilter, fetchContext, fieldSort,
-                sortOrder, null);
+                sortOrder);
         return searchQueryBuilderHelper.search(from, maxElements);
     }
 
@@ -226,15 +225,8 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     @Override
     public <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
             String fetchContext, int from, int maxElements, String fieldSort, boolean sortOrder) {
-        return facetedSearch(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, fieldSort, sortOrder, null);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
-            String fetchContext, int from, int maxElements, String fieldSort, boolean sortOrder, AggregationBuilder aggregationBuilder) {
         IESSearchQueryBuilderHelper<T> searchQueryBuilderHelper = getSearchBuilderHelper(clazz, searchText, filters, customFilter, fetchContext, fieldSort,
-                sortOrder, null);
+                sortOrder);
         return searchQueryBuilderHelper.facetedSearch(from, maxElements);
     }
 
@@ -320,15 +312,11 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     }
 
     private <T> IESSearchQueryBuilderHelper<T> getSearchBuilderHelper(Class<T> clazz, String searchText, Map<String, String[]> filters,
-            FilterBuilder customFilter, String fetchContext, String fieldSort, boolean sortOrder, AggregationBuilder aggregationBuilder) {
+            FilterBuilder customFilter, String fetchContext, String fieldSort, boolean sortOrder) {
         IESSearchQueryBuilderHelper<T> builderHelper = buildSearchQuery(clazz, searchText).setFilters(filters, customFilter)
                 .alterQueryBuilder(queryBuilder -> QueryBuilders.functionScoreQuery(queryBuilder).scoreMode("multiply").boostMode(CombineFunction.MULT)
                         .add(ScoreFunctionBuilders.fieldValueFactorFunction("alienScore").missing(1)))
                 .prepareSearch().setFetchContext(fetchContext).setFieldSort(fieldSort, sortOrder);
-
-        if (aggregationBuilder != null) {
-            builderHelper.getSearchRequestBuilder().addAggregation(aggregationBuilder);
-        }
 
         return builderHelper;
     }

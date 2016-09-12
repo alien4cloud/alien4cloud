@@ -272,25 +272,6 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
             int from, int maxElements, String fieldSort, boolean sortOrder);
 
     /**
-     * TODO javadoc.
-     * 
-     * @param clazz
-     * @param searchText
-     * @param filters
-     * @param customFilter
-     * @param fetchContext
-     * @param from
-     * @param maxElements
-     * @param fieldSort
-     * @param sortOrder
-     * @param aggregationBuilder
-     * @param <T>
-     * @return
-     */
-    <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter, String fetchContext,
-            int from, int maxElements, String fieldSort, boolean sortOrder, AggregationBuilder aggregationBuilder);
-
-    /**
      * Perform a suggestion search on a specific field.
      *
      * @param searchIndices The indices to search for.
