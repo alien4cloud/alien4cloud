@@ -7,4 +7,4 @@ module.exports = {
   options: {
     assetsDirs: ['<%= yeoman.dist %>']
   }
-}
+};
