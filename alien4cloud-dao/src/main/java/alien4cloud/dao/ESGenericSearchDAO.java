@@ -440,7 +440,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         Map<String, FacetedSearchFacet[]> facetMap = Maps.newHashMap();
 
         for (Aggregation aggregation : internalAggregationsList) {
-            if (aggregation.getName().equals(aggregationQueryManager.getQueryAggregation().getName())) {
+            if (aggregationQueryManager != null && aggregation.getName().equals(aggregationQueryManager.getQueryAggregation().getName())) {
                 aggregationQueryManager.setData(getJsonMapper(), getClassFromTypeFunc(), facetedSearchResult, aggregation);
             } else if (aggregation instanceof InternalTerms) {
                 InternalTerms internalTerms = (InternalTerms) aggregation;
@@ -507,6 +507,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         @Override
         public IESSearchQueryBuilderHelper prepareSearch() {
             super.prepareSearch(indices);
+            super.searchRequestBuilder.setTypes(esTypes);
             return this;
         }
 
@@ -516,6 +517,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
         @Override
         public FacetedSearchResult facetedSearch(int from, int size) {
+            super.facets();
             return toFacetedSearchResult(clazz, from, super.execute(from, size));
         }
 
@@ -523,6 +525,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         public FacetedSearchResult facetedSearch(IAggregationQueryManager aggregationQueryManager) {
             searchRequestBuilder.setSearchType(SearchType.COUNT);
             searchRequestBuilder.addAggregation(aggregationQueryManager.getQueryAggregation());
+            super.facets();
             SearchResponse searchResponse = super.execute(0, 0);
 
             FacetedSearchResult facetedSearchResult = new FacetedSearchResult();

@@ -133,9 +133,10 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
     @Override
     public FacetedSearchResult search(Class<? extends IndexedToscaElement> clazz, String query, Integer size, Map<String, String[]> filters) {
         TopHitsBuilder topHitAggregation = AggregationBuilders.topHits("highest_version").setSize(1)
-                .addSort(new FieldSortBuilder("majorVersion").order(SortOrder.DESC)).addSort(new FieldSortBuilder("minorVersion").order(SortOrder.DESC))
-                .addSort(new FieldSortBuilder("incrementalVersion").order(SortOrder.DESC))
-                .addSort(new FieldSortBuilder("qualifier").order(SortOrder.DESC).missing("_first"));
+                .addSort(new FieldSortBuilder("nestedVersion.majorVersion").order(SortOrder.DESC))
+                .addSort(new FieldSortBuilder("nestedVersion.minorVersion").order(SortOrder.DESC))
+                .addSort(new FieldSortBuilder("nestedVersion.incrementalVersion").order(SortOrder.DESC))
+                .addSort(new FieldSortBuilder("nestedVersion.qualifier").order(SortOrder.DESC).missing("_first"));
 
         AggregationBuilder aggregation = AggregationBuilders.terms("query_aggregation").field("elementId").size(size).subAggregation(topHitAggregation);
 

@@ -66,7 +66,9 @@ public abstract class IndexedToscaElement {
     @StringField(indexType = IndexType.not_analyzed)
     private Set<String> workspaces;
 
-    @TermFilter
+    @ObjectField(enabled = true)
+    @TermFilter(paths = { "majorVersion", "minorVersion", "incrementalVersion", "buildNumber", "qualifier" })
+    // @NestedObject(nestedClass = Version.class)
     private Version nestedVersion;
 
     @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })

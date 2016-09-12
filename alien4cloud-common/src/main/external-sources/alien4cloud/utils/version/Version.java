@@ -22,33 +22,35 @@ package alien4cloud.utils.version;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.NoArgsConstructor;
-import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.NumberField;
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.mapping.IndexType;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Default implementation of artifact versioning.
  * 
  * @author <a href="mailto:brett@apache.org">Brett Porter</a>
  */
-@ESObject
+@Setter
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Version implements Comparable<Version> {
-    @NumberField
+    @NumberField(index = IndexType.not_analyzed)
     private Integer majorVersion;
 
-    @NumberField
+    @NumberField(index = IndexType.not_analyzed)
     private Integer minorVersion;
 
-    @NumberField
+    @NumberField(index = IndexType.not_analyzed)
     private Integer incrementalVersion;
 
-    @NumberField
+    @NumberField(index = IndexType.not_analyzed)
     private Integer buildNumber;
 
     @StringField(indexType = IndexType.not_analyzed)
@@ -87,20 +89,20 @@ public class Version implements Comparable<Version> {
         }
     }
 
-    public int getMajorVersion() {
-        return majorVersion != null ? majorVersion : 0;
+    public Integer getMajorVersion() {
+        return majorVersion != null ? majorVersion : Integer.valueOf(0);
     }
 
-    public int getMinorVersion() {
-        return minorVersion != null ? minorVersion : 0;
+    public Integer getMinorVersion() {
+        return minorVersion != null ? minorVersion : Integer.valueOf(0);
     }
 
-    public int getIncrementalVersion() {
-        return incrementalVersion != null ? incrementalVersion : 0;
+    public Integer getIncrementalVersion() {
+        return incrementalVersion != null ? incrementalVersion : Integer.valueOf(0);
     }
 
-    public int getBuildNumber() {
-        return buildNumber != null ? buildNumber : 0;
+    public Integer getBuildNumber() {
+        return buildNumber != null ? buildNumber : Integer.valueOf(0);
     }
 
     public String getQualifier() {
