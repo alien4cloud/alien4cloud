@@ -48,7 +48,7 @@ public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<A
             // we need to find the latest version of this component and use it as default
             Map<String, String[]> filters = Maps.newHashMap();
             filters.put("elementId", new String[] { operation.getElementId() });
-            FacetedSearchResult result = csarRepoSearchService.search(IndexedNodeType.class, null, 0, 1, filters, false);
+            FacetedSearchResult result = csarRepoSearchService.search(IndexedNodeType.class, null, 1, filters);
             if (result.getTotalResults() > 0) {
                 nodeType = (IndexedNodeType) result.getData()[0];
             }
