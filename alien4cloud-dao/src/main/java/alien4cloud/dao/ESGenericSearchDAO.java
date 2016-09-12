@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 
 import javax.annotation.Resource;
 
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -45,6 +46,7 @@ import lombok.SneakyThrows;
  *
  * @author luc boutier
  */
+@Slf4j
 public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearchDAO {
     @Resource
     private ElasticSearchClient esClient;
@@ -445,16 +447,19 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
         Map<String, FacetedSearchFacet[]> finalResults = Maps.newHashMap();
 
-        for (Aggregation termsAgg : internalAggregationsList) {
-            InternalTerms internalTerms = (InternalTerms) termsAgg;
+        for (Aggregation aggregation : internalAggregationsList) {
+            if (aggregation instanceof InternalTerms) {
+                InternalTerms internalTerms = (InternalTerms) aggregation;
 
-            List<FacetedSearchFacet> facetedSearchFacets = Lists.newArrayList();
-
-            for (Terms.Bucket entry : internalTerms.getBuckets()) {
-                facetedSearchFacets.add(new FacetedSearchFacet(entry.getKey(), entry.getDocCount()));
+                FacetedSearchFacet[] facets = new FacetedSearchFacet[internalTerms.getBuckets().size()];
+                for (int i = 0; i < internalTerms.getBuckets().size(); i++) {
+                    Terms.Bucket bucket = internalTerms.getBuckets().get(i);
+                    facets[i] = new FacetedSearchFacet(bucket.getKey(), bucket.getDocCount());
+                }
+                finalResults.put(internalTerms.getName(), facets);
+            } else {
+                log.debug("Aggregation is not a facet aggregation (terms) ignore. Name: {} ,Type: {}", aggregation.getName(), aggregation.getClass().getName());
             }
-
-            finalResults.put(internalTerms.getName(), facetedSearchFacets.toArray(new FacetedSearchFacet[facetedSearchFacets.size()]));
         }
         return finalResults;
     }

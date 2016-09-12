@@ -367,7 +367,7 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
     private IndexedRelationshipType getRelationshipType(String typeName) {
         Map<String, String[]> filters = Maps.newHashMap();
         filters.put("elementId", new String[] { typeName });
-        return (IndexedRelationshipType) csarRepoSearchService.search(IndexedRelationshipType.class, null, 0, 1, filters, false).getData()[0];
+        return (IndexedRelationshipType) csarRepoSearchService.search(IndexedRelationshipType.class, null, 1, filters).getData()[0];
     }
 
     private void doScaledUpNode(ScalingVisitor scalingVisitor, String nodeTemplateId, Map<String, NodeTemplate> nodeTemplates) {

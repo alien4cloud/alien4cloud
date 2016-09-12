@@ -6,15 +6,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import alien4cloud.utils.version.Version;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.elasticsearch.annotation.BooleanField;
-import org.elasticsearch.annotation.DateField;
-import org.elasticsearch.annotation.ESAll;
-import org.elasticsearch.annotation.Id;
-import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.annotation.*;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.annotation.query.TermsFacet;
@@ -66,8 +63,11 @@ public abstract class IndexedToscaElement {
     /* List of workspaces where the element belongs */
     @TermFilter
     @TermsFacet
+    @StringField(indexType = IndexType.not_analyzed)
     private Set<String> workspaces;
 
+    @TermFilter
+    private Version nestedVersion;
 
     @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
     @StringField(indexType = IndexType.not_analyzed)
@@ -90,5 +90,10 @@ public abstract class IndexedToscaElement {
 
     public void setId(String id) {
         // Not authorized to set id as it's auto-generated
+    }
+
+    public void setArchiveVersion(String version) {
+        this.archiveVersion = version;
+        this.nestedVersion = new Version(version);
     }
 }

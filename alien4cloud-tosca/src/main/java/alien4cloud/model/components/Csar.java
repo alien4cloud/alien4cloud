@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import alien4cloud.utils.version.Version;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.NestedObject;
@@ -68,13 +69,18 @@ public class Csar {
     /**
      * Hash of the main yaml file included in the csar
      */
+    @StringField(indexType = IndexType.not_analyzed)
     @FetchContext(contexts = { SUMMARY }, include = { true })
     private String hash;
 
     /* List of workspaces where the CSAR belongs */
     @TermFilter
     @TermsFacet
+    @StringField(indexType = IndexType.not_analyzed)
     private Set<String> workspaces;
+
+    @TermFilter
+    private Version nestedVersion;
 
     /** Default constructor */
     public Csar() {
@@ -151,6 +157,7 @@ public class Csar {
     public void setVersion(String version) {
         if (this.version == null || !ParsingContextExecution.exist()) {
             this.version = version;
+            this.nestedVersion = new Version(version);
         }
     }
 

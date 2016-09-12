@@ -22,25 +22,39 @@ package alien4cloud.utils.version;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.NoArgsConstructor;
+import org.elasticsearch.annotation.ESObject;
+import org.elasticsearch.annotation.NumberField;
+import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.mapping.IndexType;
 
 /**
  * Default implementation of artifact versioning.
  * 
  * @author <a href="mailto:brett@apache.org">Brett Porter</a>
  */
+@ESObject
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Version implements Comparable<Version> {
+    @NumberField
     private Integer majorVersion;
 
+    @NumberField
     private Integer minorVersion;
 
+    @NumberField
     private Integer incrementalVersion;
 
+    @NumberField
     private Integer buildNumber;
 
+    @StringField(indexType = IndexType.not_analyzed)
     private String qualifier;
 
+    @JsonIgnore
     private ComparableVersion comparable;
 
     public Version(String version) {
