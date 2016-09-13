@@ -60,7 +60,7 @@ define(function (require) {
               'type': 'info'
             };
             $upload.upload({
-              url: 'rest/latest/applications/' + $scope.application.id + '/environments/' + $scope.deploymentContext.selectedEnvironment.id + '/inputArtifacts/' + artifactName + '/upload',
+              url: 'rest/latest/applications/' + $scope.application.id + '/environments/' + $scope.deploymentContext.selectedEnvironment.id + '/deployment-topology/inputArtifacts/' + artifactName + '/upload',
               file: file
             }).progress(function (evt) {
               $scope.uploads[artifactName].uploadProgress = parseInt(100.0 * evt.loaded / evt.total);
