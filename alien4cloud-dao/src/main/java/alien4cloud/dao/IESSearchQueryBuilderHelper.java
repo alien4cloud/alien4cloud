@@ -63,7 +63,7 @@ public interface IESSearchQueryBuilderHelper<T> extends IESQueryBuilderHelper<T>
      *
      * @param searchBuilderAdapter the search request builder adapter to alter the search request.
      */
-    IESSearchQueryBuilderHelper alterSearchRequestBuilder(ISearchBuilderAdapter searchBuilderAdapter);
+    IESSearchQueryBuilderHelper<T> alterSearchRequestBuilder(ISearchBuilderAdapter searchBuilderAdapter);
 
     /**
      * Allows to define a sort field.
@@ -72,14 +72,14 @@ public interface IESSearchQueryBuilderHelper<T> extends IESQueryBuilderHelper<T>
      * @param desc Descending or Ascending
      * @return this
      */
-    IESSearchQueryBuilderHelper setFieldSort(String fieldName, boolean desc);
+    IESSearchQueryBuilderHelper<T> setFieldSort(String fieldName, boolean desc);
 
     /**
      * Add a fetch context to the query.
      *
      * @param fetchContext The fetch context to add to the query.
      */
-    IESSearchQueryBuilderHelper setFetchContext(String fetchContext);
+    IESSearchQueryBuilderHelper<T> setFetchContext(String fetchContext);
 
     /**
      * Apply the fetch context to the given aggregation (BUT DOES NOT add it to the query).
@@ -88,21 +88,22 @@ public interface IESSearchQueryBuilderHelper<T> extends IESQueryBuilderHelper<T>
      * @param topHitsBuilder The top hits aggregation builder on which to add fetch context include and excludes.
      * @return The search query builder helper with the top
      */
-    IESSearchQueryBuilderHelper setFetchContext(String fetchContext, TopHitsBuilder topHitsBuilder);
+    IESSearchQueryBuilderHelper<T> setFetchContext(String fetchContext, TopHitsBuilder topHitsBuilder);
 
     @Override
-    IESSearchQueryBuilderHelper alterQueryBuilder(QueryBuilderAdapter queryBuilderAdapter);
+    IESSearchQueryBuilderHelper<T> alterQueryBuilder(QueryBuilderAdapter queryBuilderAdapter);
 
     @Override
-    IESSearchQueryBuilderHelper setScriptFunction(String functionScore);
+    IESSearchQueryBuilderHelper<T> setScriptFunction(String functionScore);
 
     @Override
-    IESSearchQueryBuilderHelper setFilters(FilterBuilder... customFilter);
+    IESSearchQueryBuilderHelper<T> setFilters(FilterBuilder... customFilter);
 
     @Override
-    IESSearchQueryBuilderHelper setFilters(Map<String, String[]> filters, FilterBuilder... customFilters);
+    IESSearchQueryBuilderHelper<T> setFilters(Map<String, String[]> filters, FilterBuilder... customFilters);
 
     @Override
-    IESSearchQueryBuilderHelper setFilters(Map<String, String[]> filters, Map<String, FilterValuesStrategy> filterStrategies, FilterBuilder... customFilters);
+    IESSearchQueryBuilderHelper<T> setFilters(Map<String, String[]> filters, Map<String, FilterValuesStrategy> filterStrategies,
+            FilterBuilder... customFilters);
 
 }

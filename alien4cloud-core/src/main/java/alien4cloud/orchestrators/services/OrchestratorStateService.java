@@ -206,7 +206,7 @@ public class OrchestratorStateService {
     public synchronized List<Usage> disable(Orchestrator orchestrator, boolean force) {
         if (!force) {
             // If there is at least one active deployment.
-            GetMultipleDataResult<Object> result = alienDAO.buildQuery(Deployment.class)
+            GetMultipleDataResult<Deployment> result = alienDAO.buildQuery(Deployment.class)
                     .setFilters(MapUtil.newHashMap(new String[] { "orchestratorId", "endDate" },
                             new String[][] { new String[] { orchestrator.getId() }, new String[] { null } }))
                     .prepareSearch().setFieldSort("_timestamp", true).search(0, 1);
@@ -236,10 +236,9 @@ public class OrchestratorStateService {
         return null;
     }
 
-    private List<Usage> generateDeploymentUsages(Object[] data) {
+    private List<Usage> generateDeploymentUsages(Deployment[] data) {
         List<Usage> usages = Lists.newArrayList();
-        for (Object object : data) {
-            Deployment deployment = (Deployment) object;
+        for (Deployment deployment : data) {
             usages.add(new Usage(deployment.getSourceName(), deployment.getSourceType().getSourceType().getSimpleName(), deployment.getSourceId()));
         }
         return usages;

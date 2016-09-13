@@ -68,7 +68,7 @@ public class ArtifactPostProcessor implements IPostProcessor<AbstractArtifact> {
         IndexedArtifactType indexedType = getFromArchiveRootWithExtension(archiveRoot, extension);
         if (indexedType == null) {
             IndexedArtifactType artifactType = repositorySearchService.getElementInDependencies(IndexedArtifactType.class,
-                    QueryBuilders.termQuery("fileExt", extension), archiveRoot.getArchive().getDependencies());
+                    archiveRoot.getArchive().getDependencies(), "fileExt", extension);
             if (artifactType != null) {
                 type = artifactType.getElementId();
             }

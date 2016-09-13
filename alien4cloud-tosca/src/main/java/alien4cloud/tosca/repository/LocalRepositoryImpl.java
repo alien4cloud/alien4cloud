@@ -3,10 +3,13 @@ package alien4cloud.tosca.repository;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
 import org.elasticsearch.index.query.QueryBuilder;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.ICSARRepositorySearchService;
@@ -53,12 +56,32 @@ public class LocalRepositoryImpl implements ICSARRepositorySearchService {
     }
 
     @Override
-    public boolean isElementExistInDependencies(Class<? extends IndexedToscaElement> elementClass, String elementId, Collection<CSARDependency> dependencies) {
+    public boolean isElementExistInDependencies(Class<? extends IndexedToscaElement> elementClass, String elementId, Set<CSARDependency> dependencies) {
         return getElementInDependencies(elementClass, elementId, dependencies) != null;
     }
 
     @Override
-    public <T extends IndexedToscaElement> T getRequiredElementInDependencies(Class<T> elementClass, String elementId, Collection<CSARDependency> dependencies)
+    public <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, Set<CSARDependency> dependencies, String... keyValueFilters) {
+        return (T) ToscaContext.get().getElement(elementClass, element -> {
+            if (!dependencies.contains(new CSARDependency(element.getArchiveName(), element.getArchiveVersion()))) {
+                return false;
+            }
+
+            EvaluationContext context = new StandardEvaluationContext(element);
+
+            for (int i = 0; i < keyValueFilters.length; i += 2) {
+                String field = keyValueFilters[0];
+                String value = keyValueFilters[1];
+                if (!value.equals(context.lookupVariable(field).toString())) {
+                    return false;
+                }
+            }
+            return true;
+        }).orElse(null);
+    }
+
+    @Override
+    public <T extends IndexedToscaElement> T getRequiredElementInDependencies(Class<T> elementClass, String elementId, Set<CSARDependency> dependencies)
             throws NotFoundException {
         T element = getElementInDependencies(elementClass, elementId, dependencies);
         if (element == null) {
@@ -69,7 +92,7 @@ public class LocalRepositoryImpl implements ICSARRepositorySearchService {
     }
 
     @Override
-    public <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, String elementId, Collection<CSARDependency> dependencies) {
+    public <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, String elementId, Set<CSARDependency> dependencies) {
         if (recursiveCall.get() == null) {
             recursiveCall.set(true);
         } else {
@@ -83,16 +106,6 @@ public class LocalRepositoryImpl implements ICSARRepositorySearchService {
         T element = ToscaContext.get(elementClass, elementId);
         recursiveCall.remove();
         return element;
-    }
-
-    @Override
-    public <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, QueryBuilder query, Collection<CSARDependency> dependencies) {
-        return null;
-    }
-
-    @Override
-    public <T extends IndexedToscaElement> T getParentOfElement(Class<T> elementClass, T indexedToscaElement, String parentElementId) {
-        return null;
     }
 
     @SneakyThrows

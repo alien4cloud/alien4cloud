@@ -6,19 +6,18 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import alien4cloud.utils.version.Version;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.NestedObject;
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
-import org.elasticsearch.annotation.query.TermsFacet;
 import org.elasticsearch.mapping.IndexType;
 
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.common.Tag;
 import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.utils.version.Version;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,6 +36,14 @@ public class Csar {
     @StringField(indexType = IndexType.not_analyzed)
     @FetchContext(contexts = { SUMMARY }, include = { true })
     private String version;
+
+    /** Hash of the full csar file. */
+    @StringField(indexType = IndexType.not_analyzed)
+    @FetchContext(contexts = { SUMMARY }, include = { true })
+    private String hash;
+
+    @TermFilter
+    private Version nestedVersion;
 
     private String toscaDefinitionsVersion;
 
@@ -60,6 +67,7 @@ public class Csar {
     private List<Tag> tags;
 
     private String importSource;
+
     private Date importDate;
 
     /**
@@ -69,20 +77,10 @@ public class Csar {
     @StringField(indexType = IndexType.not_analyzed)
     private String substitutionTopologyId;
 
-    /**
-     * Hash of the main yaml file included in the csar
-     */
-    @StringField(indexType = IndexType.not_analyzed)
-    @FetchContext(contexts = { SUMMARY }, include = { true })
-    private String hash;
-
     /* List of workspaces where the CSAR belongs */
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
     private Set<String> workspaces;
-
-    @TermFilter
-    private Version nestedVersion;
 
     /** Default constructor */
     public Csar() {
@@ -105,7 +103,7 @@ public class Csar {
             throw new IndexingServiceException("Csar version is mandatory");
         }
         if (hash == null) {
-            return name + ":" + version; // hash is optional in archive id
+            return name + ":" + version; // hash is optional in id
         }
         return name + ":" + version + ":" + hash;
     }

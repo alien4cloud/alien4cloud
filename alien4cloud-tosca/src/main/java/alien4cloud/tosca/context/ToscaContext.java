@@ -1,6 +1,8 @@
 package alien4cloud.tosca.context;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -10,6 +12,8 @@ import alien4cloud.model.components.*;
 import alien4cloud.tosca.model.ArchiveRoot;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
+import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * Manage thread-local tosca contexts.
@@ -87,7 +91,7 @@ public class ToscaContext {
         private final Set<CSARDependency> dependencies;
         /** Context archives. */
         private final Map<String, Csar> archivesMap = Maps.newHashMap();
-        /** Cached types in the context. */
+        /** Cached types in the context. <ElementType, <ElementId, Element>> */
         private final Map<String, Map<String, IndexedToscaElement>> toscaTypesCache = Maps.newHashMap();
 
         public Context(Set<CSARDependency> dependencies) {
@@ -264,6 +268,12 @@ public class ToscaContext {
             }
             log.debug("Retrieve element {} {}", element, dependencies);
             return element;
+        }
+
+        public <T extends IndexedToscaElement> Optional<IndexedToscaElement> getElement(Class<T> elementClass, Predicate<IndexedToscaElement> filter) {
+            String elementType = elementClass.getSimpleName();
+            Map<String, IndexedToscaElement> typeElements = toscaTypesCache.get(elementType);
+            return safe(typeElements).values().stream().filter(filter).findFirst();
         }
     }
 }

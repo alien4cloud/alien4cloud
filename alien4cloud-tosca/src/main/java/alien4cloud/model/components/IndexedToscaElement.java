@@ -45,6 +45,15 @@ public abstract class IndexedToscaElement {
     private String archiveVersion;
 
     @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
+    @StringField(indexType = IndexType.not_analyzed)
+    @TermFilter
+    private String archiveHash;
+
+    @ObjectField
+    @TermFilter(paths = { "majorVersion", "minorVersion", "incrementalVersion", "buildNumber", "qualifier" })
+    private Version nestedVersion;
+
+    @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
     @DateField(includeInAll = false, index = IndexType.no)
     private Date creationDate;
 
@@ -65,16 +74,6 @@ public abstract class IndexedToscaElement {
     @StringField(indexType = IndexType.not_analyzed)
     private Set<String> workspaces;
 
-    @ObjectField(enabled = true)
-    @TermFilter(paths = { "majorVersion", "minorVersion", "incrementalVersion", "buildNumber", "qualifier" })
-    // @NestedObject(nestedClass = Version.class)
-    private Version nestedVersion;
-
-    @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
-    @StringField(indexType = IndexType.not_analyzed)
-    @TermFilter
-    private String archiveHash;
-
     @Id
     public String getId() {
         if (elementId == null) {
@@ -83,8 +82,9 @@ public abstract class IndexedToscaElement {
         if (archiveVersion == null) {
             throw new IndexingServiceException("Archive version is mandatory");
         }
+
         if (archiveHash == null) {
-            throw new IndexingServiceException("Archive hash is mandatory");
+            return elementId + ":" + archiveVersion; // hash is optional in id
         }
         return elementId + ":" + archiveVersion + ":" + archiveHash;
     }

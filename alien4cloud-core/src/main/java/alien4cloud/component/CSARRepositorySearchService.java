@@ -1,6 +1,5 @@
 package alien4cloud.component;
 
-import static alien4cloud.dao.FilterUtil.kvCouples;
 import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
 import java.io.IOException;
@@ -65,31 +64,43 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
         return searchDAO.buildQuery(elementType).setFilters(singleKeyFilter("elementId", elementId)).prepareSearch().search(0, Integer.MAX_VALUE).getData();
     }
 
+    /**
+     * Build an elasticsearch query to get data tosca elements based on a set of dependencies.
+     *
+     * @param dependencies The set of dependencies.
+     * @param keyValueFilters List of key1, value1, key2, value2 to add term filters to the query for each dependency.
+     * @return
+     */
+    private BoolQueryBuilder getDependencyQuery(Set<CSARDependency> dependencies, String... keyValueFilters) {
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        for (CSARDependency dependency : dependencies) {
+            BoolQueryBuilder dependencyQuery = QueryBuilders.boolQuery();
+            dependencyQuery.must(QueryBuilders.termQuery("archiveName", dependency.getName()))
+                    .must(QueryBuilders.termQuery("archiveVersion", dependency.getVersion()));
+            if (keyValueFilters != null) {
+                for (int i = 0; i < keyValueFilters.length; i += 2) {
+                    dependencyQuery.must(QueryBuilders.termQuery(keyValueFilters[i], keyValueFilters[i + 1]));
+                }
+            }
+            boolQueryBuilder.should(dependencyQuery);
+        }
+        return boolQueryBuilder;
+    }
+
     @Override
     public boolean isElementExistInDependencies(@NonNull Class<? extends IndexedToscaElement> elementClass, @NonNull String elementId,
-            Collection<CSARDependency> dependencies) {
+            Set<CSARDependency> dependencies) {
         if (dependencies == null || dependencies.isEmpty()) {
             return false;
         }
-        // The query match element id of all defined dependencies' version from defined dependencies' archive name
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        for (CSARDependency dependency : dependencies) {
-            QueryBuilder idQueryBuilder = QueryBuilders.idsQuery().addIds(elementId + ":" + dependency.getVersion());
-            QueryBuilder matchArchiveNameQueryBuilder = QueryBuilders.termQuery("archiveName", dependency.getName());
-            boolQueryBuilder.should(QueryBuilders.boolQuery().must(idQueryBuilder).must(matchArchiveNameQueryBuilder));
-        }
-        return searchDAO.count(elementClass, boolQueryBuilder) > 0;
+        return searchDAO.count(elementClass, getDependencyQuery(dependencies, "elementId", elementId)) > 0;
     }
 
     private <T extends IndexedToscaElement> T getLatestVersionOfElement(Class<T> elementClass, QueryBuilder queryBuilder) {
         List<T> elements = searchDAO.customFindAll(elementClass, queryBuilder);
         if (elements != null && !elements.isEmpty()) {
-            Collections.sort(elements, new Comparator<T>() {
-                @Override
-                public int compare(T left, T right) {
-                    return VersionUtil.parseVersion(left.getArchiveVersion()).compareTo(VersionUtil.parseVersion(right.getArchiveVersion()));
-                }
-            });
+            Collections.sort(elements,
+                    (left, right) -> VersionUtil.parseVersion(left.getArchiveVersion()).compareTo(VersionUtil.parseVersion(right.getArchiveVersion())));
             return elements.get(elements.size() - 1);
         } else {
             return null;
@@ -97,7 +108,16 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
     }
 
     @Override
-    public <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, String elementId, Collection<CSARDependency> dependencies) {
+    public <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, Set<CSARDependency> dependencies, String... keyValues) {
+        if (dependencies == null || dependencies.isEmpty()) {
+            return null;
+        }
+        BoolQueryBuilder boolQueryBuilder = getDependencyQuery(dependencies, keyValues);
+        return getLatestVersionOfElement(elementClass, boolQueryBuilder);
+    }
+
+    @Override
+    public <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, String elementId, Set<CSARDependency> dependencies) {
         if (dependencies == null || dependencies.isEmpty()) {
             return null;
         }
@@ -111,22 +131,8 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
         return getLatestVersionOfElement(elementClass, boolQueryBuilder);
     }
 
-    public <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, QueryBuilder query, Collection<CSARDependency> dependencies) {
-        if (dependencies == null || dependencies.isEmpty()) {
-            return null;
-        }
-        // The query match element id of all defined dependencies' version from defined dependencies' archive name
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        for (CSARDependency dependency : dependencies) {
-            QueryBuilder matchArchiveNameQueryBuilder = QueryBuilders.termQuery("archiveName", dependency.getName());
-            QueryBuilder matchArchiveVersionQueryBuilder = QueryBuilders.termQuery("archiveVersion", dependency.getVersion());
-            boolQueryBuilder.should(QueryBuilders.boolQuery().must(query).must(matchArchiveNameQueryBuilder).must(matchArchiveVersionQueryBuilder));
-        }
-        return getLatestVersionOfElement(elementClass, boolQueryBuilder);
-    }
-
     @Override
-    public <T extends IndexedToscaElement> T getRequiredElementInDependencies(Class<T> elementClass, String elementId, Collection<CSARDependency> dependencies)
+    public <T extends IndexedToscaElement> T getRequiredElementInDependencies(Class<T> elementClass, String elementId, Set<CSARDependency> dependencies)
             throws NotFoundException {
         T element = getElementInDependencies(elementClass, elementId, dependencies);
         if (element == null) {
@@ -134,14 +140,6 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
                     "Element elementId: <" + elementId + "> of type <" + elementClass.getSimpleName() + "> cannot be found in dependencies " + dependencies);
         }
         return element;
-    }
-
-    @Override
-    public <T extends IndexedToscaElement> T getParentOfElement(Class<T> elementClass, T indexedToscaElement, String parentElementId) {
-        Csar csar = searchDAO.findById(Csar.class, indexedToscaElement.getArchiveName() + ":" + indexedToscaElement.getArchiveVersion());
-        Set<CSARDependency> dependencies = Sets.newHashSet(new CSARDependency(csar.getName(), csar.getVersion()));
-        dependencies = CollectionUtils.merge(csar.getDependencies(), dependencies);
-        return getRequiredElementInDependencies(elementClass, parentElementId, CollectionUtils.merge(csar.getDependencies(), dependencies));
     }
 
     @Override

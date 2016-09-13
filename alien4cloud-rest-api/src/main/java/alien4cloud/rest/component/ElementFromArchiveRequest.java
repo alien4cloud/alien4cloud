@@ -1,6 +1,7 @@
 package alien4cloud.rest.component;
 
 import java.util.Collection;
+import java.util.Set;
 
 import alien4cloud.model.components.CSARDependency;
 import lombok.AllArgsConstructor;
@@ -15,5 +16,5 @@ import lombok.Setter;
 public class ElementFromArchiveRequest {
     private String elementName;
     private QueryComponentType componentType;
-    private Collection<CSARDependency> dependencies;
+    private Set<CSARDependency> dependencies;
 }

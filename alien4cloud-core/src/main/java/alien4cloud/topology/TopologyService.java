@@ -101,7 +101,7 @@ public class TopologyService {
                         // just load found types.
                         // the type might be null when failOnTypeNotFound is set to false.
                         if (relationshipType != null) {
-                        loader.loadType(relationshipTemplate.getType(),
+                            loader.loadType(relationshipTemplate.getType(),
                                     buildDependencyBean(relationshipType.getArchiveName(), relationshipType.getArchiveVersion()));
                         }
                     }
@@ -110,8 +110,7 @@ public class TopologyService {
         }
         if (topology.getSubstitutionMapping() != null && topology.getSubstitutionMapping().getSubstitutionType() != null) {
             IndexedNodeType substitutionType = topology.getSubstitutionMapping().getSubstitutionType();
-            loader.loadType(substitutionType.getElementId(),
-                    buildDependencyBean(substitutionType.getArchiveName(), substitutionType.getArchiveVersion()));
+            loader.loadType(substitutionType.getElementId(), buildDependencyBean(substitutionType.getArchiveName(), substitutionType.getArchiveVersion()));
         }
         return loader;
     }
@@ -123,7 +122,7 @@ public class TopologyService {
      * @param dependencies The dependencies in which to look for capabilities.
      * @return A map of capability types defined in the given node types.
      */
-    public Map<String, IndexedCapabilityType> getIndexedCapabilityTypes(Collection<IndexedNodeType> nodeTypes, Collection<CSARDependency> dependencies) {
+    public Map<String, IndexedCapabilityType> getIndexedCapabilityTypes(Collection<IndexedNodeType> nodeTypes, Set<CSARDependency> dependencies) {
         Map<String, IndexedCapabilityType> capabilityTypes = Maps.newHashMap();
         for (IndexedNodeType nodeType : nodeTypes) {
             if (nodeType.getCapabilities() != null) {
