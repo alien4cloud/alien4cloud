@@ -28,10 +28,13 @@ import lombok.Setter;
 @EqualsAndHashCode(of = { "name", "version" })
 @ESObject
 public class Csar {
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed)
     @FetchContext(contexts = { SUMMARY }, include = { true })
     private String name;
 
     @TermFilter
+    @StringField(indexType = IndexType.not_analyzed)
     @FetchContext(contexts = { SUMMARY }, include = { true })
     private String version;
 
@@ -75,7 +78,6 @@ public class Csar {
 
     /* List of workspaces where the CSAR belongs */
     @TermFilter
-    @TermsFacet
     @StringField(indexType = IndexType.not_analyzed)
     private Set<String> workspaces;
 
