@@ -69,7 +69,7 @@ public class ComponentController {
     public RestResponse<ComponentVersionsResult[]> getComponentVersions(@PathVariable String elementId,
             @RequestBody(required = false) QueryComponentType componentType) {
         Class<? extends IndexedToscaElement> queryClass = componentType == null ? IndexedToscaElement.class : componentType.getIndexedToscaElementClass();
-        Object array = searchService.findByElementId(queryClass, elementId);
+        Object array = searchService.findAll(queryClass, elementId);
         if (array != null) {
             int length = Array.getLength(array);
             ComponentVersionsResult[] versions = new ComponentVersionsResult[length];

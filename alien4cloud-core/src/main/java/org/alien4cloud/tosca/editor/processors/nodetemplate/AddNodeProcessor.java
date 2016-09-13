@@ -2,7 +2,7 @@ package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
 import java.util.HashMap;
 
-import javax.annotation.Resource;
+import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
@@ -10,7 +10,7 @@ import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.application.TopologyCompositionService;
-import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.exception.CyclicReferenceException;
 import alien4cloud.exception.InvalidNodeNameException;
 import alien4cloud.exception.NotFoundException;
@@ -29,13 +29,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperation> {
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
-    @Resource
+    @Inject
+    private CSARRepositorySearchService searchService;
+    @Inject
     private TopologyService topologyService;
-    @Resource
+    @Inject
     private TopologyCompositionService topologyCompositionService;
-    @Resource
+    @Inject
     private WorkflowsBuilderService workflowBuilderService;
 
     @Override
@@ -48,7 +48,8 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
 
         topologyService.isUniqueNodeTemplateName(topology, operation.getNodeName());
 
-        IndexedNodeType indexedNodeType = alienDAO.findById(IndexedNodeType.class, operation.getIndexedNodeTypeId());
+        String[] splittedId = operation.getIndexedNodeTypeId().split(":");
+        IndexedNodeType indexedNodeType = searchService.find(IndexedNodeType.class, splittedId[0], splittedId[1]);
         if (indexedNodeType == null) {
             throw new NotFoundException(IndexedNodeType.class.getName(), operation.getIndexedNodeTypeId(),
                     "Unable to find node type to create template in topology.");

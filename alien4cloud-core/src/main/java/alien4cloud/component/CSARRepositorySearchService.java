@@ -62,7 +62,18 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
      * @param elementId The element id.
      * @return Return the matching
      */
-    public <T extends IndexedToscaElement> T[] findByElementId(Class<T> elementType, String elementId) {
+    public <T extends IndexedToscaElement> T find(Class<T> elementType, String elementId, String version) {
+        return searchDAO.buildQuery(elementType).setFilters(kvCouples("rawElementId", elementId, "archiveVersion", version)).prepareSearch().find();
+    }
+
+    /**
+     * Find an element based on it's type and id.
+     *
+     * @param elementType The element type.
+     * @param elementId The element id.
+     * @return Return the matching
+     */
+    public <T extends IndexedToscaElement> T[] findAll(Class<T> elementType, String elementId) {
         return searchDAO.buildQuery(elementType).setFilters(singleKeyFilter("rawElementId", elementId)).prepareSearch().search(0, Integer.MAX_VALUE).getData();
     }
 

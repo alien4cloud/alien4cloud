@@ -3,12 +3,14 @@ package org.alien4cloud.tosca.editor.processors.nodetemplate;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.annotation.Resource;
+import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.ReplaceNodeOperation;
+import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.springframework.stereotype.Component;
 
-import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.SubstitutionTarget;
@@ -17,8 +19,6 @@ import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import lombok.extern.slf4j.Slf4j;
-import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
-import org.springframework.stereotype.Component;
 
 /**
  * Replace the type of a node template by another compatible type (inherited or that fulfills the same used capabilities and requirements).
@@ -26,11 +26,11 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNodeOperation> {
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
-    @Resource
+    @Inject
+    private CSARRepositorySearchService searchService;
+    @Inject
     private TopologyService topologyService;
-    @Resource
+    @Inject
     private WorkflowsBuilderService workflowBuilderService;
 
     @Override
@@ -41,7 +41,8 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
         Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
         NodeTemplate oldNodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
 
-        IndexedNodeType newType = alienDAO.findById(IndexedNodeType.class, operation.getNewTypeId());
+        String[] splittedId = operation.getNewTypeId().split(":");
+        IndexedNodeType newType = searchService.find(IndexedNodeType.class, splittedId[0], splittedId[1]);
         // Load the new type to the topology in order to update its dependencies
         newType = topologyService.loadType(topology, newType);
 
