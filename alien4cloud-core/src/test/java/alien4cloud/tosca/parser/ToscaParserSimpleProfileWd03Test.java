@@ -140,7 +140,7 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-import-dependency.yml"));
 
-        Mockito.verify(repositorySearchService).getArchive(csar.getId());
+        Mockito.verify(repositorySearchService).getArchive(csar.getName(), csar.getVersion());
 
         assertNoBlocker(parsingResult);
         ArchiveRoot archiveRoot = parsingResult.getResult();
@@ -158,7 +158,7 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-import-dependency.yml"));
 
-        Mockito.verify(repositorySearchService).getArchive(csar.getId());
+        Mockito.verify(repositorySearchService).getArchive(csar.getName(), csar.getVersion());
 
         assertNoBlocker(parsingResult);
         ArchiveRoot archiveRoot = parsingResult.getResult();
@@ -371,7 +371,7 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-node-type-inputs.yml"));
 
-        Mockito.verify(repositorySearchService).getArchive(csar.getId());
+        Mockito.verify(repositorySearchService).getArchive(csar.getName(), csar.getVersion());
 
         assertNoBlocker(parsingResult);
         ArchiveRoot archiveRoot = parsingResult.getResult();
@@ -448,7 +448,7 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-functions.yml"));
 
-        Mockito.verify(repositorySearchService).getArchive(csar.getId());
+        Mockito.verify(repositorySearchService).getArchive(csar.getName(), csar.getVersion());
 
         assertNoBlocker(parsingResult);
         ArchiveRoot archiveRoot = parsingResult.getResult();
@@ -510,7 +510,7 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
         // parse the node define with node_filter
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-node-type-nodefilter.yml"));
 
-        Mockito.verify(repositorySearchService).getArchive(csar.getId());
+        Mockito.verify(repositorySearchService).getArchive(csar.getName(), csar.getVersion());
 
         // check the node_filter parsing
         IndexedNodeType nodeType = parsingResult.getResult().getNodeTypes().get("my_company.my_types.MyAppNodeType");
@@ -646,7 +646,7 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
         ParsingResult<ArchiveRoot> parsingResult = parser
                 .parseFile(Paths.get(getRootDirectory(), "tosca-topology-template-node-from-derived-type-from-import.yml"));
 
-        Mockito.verify(repositorySearchService).getArchive(csar.getId());
+        Mockito.verify(repositorySearchService).getArchive(csar.getName(), csar.getVersion());
 
         assertNoBlocker(parsingResult);
     }

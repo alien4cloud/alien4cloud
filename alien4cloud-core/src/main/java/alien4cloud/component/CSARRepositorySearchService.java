@@ -1,9 +1,13 @@
 package alien4cloud.component;
 
+import static alien4cloud.dao.FilterUtil.kvCouples;
 import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import javax.annotation.Resource;
@@ -25,7 +29,6 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import alien4cloud.dao.IAggregationQueryManager;
 import alien4cloud.dao.IGenericSearchDAO;
@@ -35,7 +38,6 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.utils.CollectionUtils;
 import alien4cloud.utils.VersionUtil;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -49,8 +51,8 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
     private IGenericSearchDAO searchDAO;
 
     @Override
-    public Csar getArchive(String id) {
-        return searchDAO.findById(Csar.class, id);
+    public Csar getArchive(String archiveName, String archiveVersion) {
+        return searchDAO.buildQuery(Csar.class).prepareSearch().setFilters(kvCouples("name", archiveName, "version", archiveVersion)).find();
     }
 
     /**
@@ -61,7 +63,7 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
      * @return Return the matching
      */
     public <T extends IndexedToscaElement> T[] findByElementId(Class<T> elementType, String elementId) {
-        return searchDAO.buildQuery(elementType).setFilters(singleKeyFilter("elementId", elementId)).prepareSearch().search(0, Integer.MAX_VALUE).getData();
+        return searchDAO.buildQuery(elementType).setFilters(singleKeyFilter("rawElementId", elementId)).prepareSearch().search(0, Integer.MAX_VALUE).getData();
     }
 
     /**
@@ -93,7 +95,7 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
         if (dependencies == null || dependencies.isEmpty()) {
             return false;
         }
-        return searchDAO.count(elementClass, getDependencyQuery(dependencies, "elementId", elementId)) > 0;
+        return searchDAO.count(elementClass, getDependencyQuery(dependencies, "rawElementId", elementId)) > 0;
     }
 
     private <T extends IndexedToscaElement> T getLatestVersionOfElement(Class<T> elementClass, QueryBuilder queryBuilder) {
@@ -121,7 +123,7 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
         if (dependencies == null || dependencies.isEmpty()) {
             return null;
         }
-        BoolQueryBuilder boolQueryBuilder = getDependencyQuery(dependencies, "elementId", elementId);
+        BoolQueryBuilder boolQueryBuilder = getDependencyQuery(dependencies, "rawElementId", elementId);
         return getLatestVersionOfElement(elementClass, boolQueryBuilder);
     }
 

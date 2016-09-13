@@ -230,9 +230,9 @@ public class ToscaContext {
         public Csar getArchive(String name, String version) {
             String id = new Csar(name, version).getId();
             Csar archive = archivesMap.get(id);
-            log.debug("get archive from map {} {}", id, archive);
+            log.debug("get archive from map {} {} {}", id, archive);
             if (archive == null) {
-                archive = csarSearchService.getArchive(id);
+                archive = csarSearchService.getArchive(name, version);
                 log.debug("get archive from repo {} {} {}", id, archive, csarSearchService.getClass().getName());
                 archivesMap.put(id, archive);
             }

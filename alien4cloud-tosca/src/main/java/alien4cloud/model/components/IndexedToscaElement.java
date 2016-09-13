@@ -30,7 +30,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @ESAll(analyser = "simple")
 public abstract class IndexedToscaElement {
     @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
-    @StringField(indexType = IndexType.analyzed)
+    @StringFieldMulti(main = @StringField(indexType = IndexType.analyzed), multiNames = "rawElementId", multi = @StringField(includeInAll = false, indexType = IndexType.not_analyzed))
     @TermFilter
     private String elementId;
 

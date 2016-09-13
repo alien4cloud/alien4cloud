@@ -15,10 +15,11 @@ public interface ICSARRepositorySearchService {
     /**
      * Get an archive from it's id.
      *
-     * @param id The id of the archive.
+     * @param archiveName The name of the archive.
+     * @param archiveVersion The version of the archive.
      * @return The cloud service archive matching the given id.
      */
-    Csar getArchive(String id);
+    Csar getArchive(String archiveName, String archiveVersion);
 
     /**
      * Check if an element exists in the given dependencies.
