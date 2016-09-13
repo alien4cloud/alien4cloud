@@ -1,5 +1,8 @@
 package alien4cloud.component;
 
+import static alien4cloud.dao.FilterUtil.kvCouples;
+import static alien4cloud.dao.FilterUtil.singleKeyFilter;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
@@ -49,6 +52,30 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
     @Override
     public Csar getArchive(String id) {
         return searchDAO.findById(Csar.class, id);
+    }
+
+    /**
+     * Find an element based on it's type and id and archive version. Note that alien does not allow for a same type to exists in multiple archives.
+     *
+     * @param elementType The element type.
+     * @param elementId The element id.
+     * @param archiveVersion The archive version.
+     * @return Return the matching
+     */
+    public <T extends IndexedToscaElement> T findByNoHashId(Class<T> elementType, String elementId, String archiveVersion) {
+        // the object id my have the archive hash, here we want to query based on the element type, id and version.
+        return searchDAO.buildQuery(elementType).setFilters(kvCouples("elementId", elementId, "archiveVersion", archiveVersion)).prepareSearch().find();
+    }
+
+    /**
+     * Find an element based on it's type and id.
+     *
+     * @param elementType The element type.
+     * @param elementId The element id.
+     * @return Return the matching
+     */
+    public <T extends IndexedToscaElement> T[] findByElementId(Class<T> elementType, String elementId) {
+        return searchDAO.buildQuery(elementType).setFilters(singleKeyFilter("elementId", elementId)).prepareSearch().search(0, Integer.MAX_VALUE).getData();
     }
 
     @Override
@@ -172,4 +199,5 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
 
         return searchResult;
     }
+
 }

@@ -511,6 +511,15 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
             return this;
         }
 
+        @Override
+        public T find() {
+            GetMultipleDataResult<T> result = search(0, 1);
+            if (result.getData() == null || result.getData().length == 0) {
+                return null;
+            }
+            return result.getData()[0];
+        }
+
         public GetMultipleDataResult<T> search(int from, int size) {
             return toGetMultipleDataResult(clazz, super.execute(from, size), from);
         }

@@ -16,6 +16,16 @@ import alien4cloud.dao.model.GetMultipleDataResult;
  * 
  */
 public interface IESSearchQueryBuilderHelper<T> extends IESQueryBuilderHelper<T> {
+
+    /**
+     * Execute a search query and get a single element or null if no elements can be found.
+     * Note that the query may have multiple valid results but only a single one will be returned. Based on the query syntax and sort parameters different
+     * results may be returned every time.
+     * 
+     * @return the first matching instance or null if none can be found.
+     */
+    T find();
+
     /**
      * Execute a search query using the defined query.
      *

@@ -32,7 +32,7 @@ public interface IESQueryBuilderHelper<T> {
      * @param queryBuilderAdapter the query builder adapter to alter the query.
      * @return current builder instance.
      */
-    IESQueryBuilderHelper alterQueryBuilder(QueryBuilderAdapter queryBuilderAdapter);
+    IESQueryBuilderHelper<T> alterQueryBuilder(QueryBuilderAdapter queryBuilderAdapter);
 
     /**
      * Set a script function to use for scoring
@@ -40,7 +40,7 @@ public interface IESQueryBuilderHelper<T> {
      * @param functionScore The function to use for scoring.
      * @return current builder instance.
      */
-    IESQueryBuilderHelper setScriptFunction(String functionScore);
+    IESQueryBuilderHelper<T> setScriptFunction(String functionScore);
 
     /**
      * Set filters from user provided filters.
@@ -48,7 +48,7 @@ public interface IESQueryBuilderHelper<T> {
      * @param customFilter user provided filters.
      * @return current instance.
      */
-    IESQueryBuilderHelper setFilters(FilterBuilder... customFilter);
+    IESQueryBuilderHelper<T> setFilters(FilterBuilder... customFilter);
 
     /**
      * Add filters to the current query.
@@ -57,7 +57,7 @@ public interface IESQueryBuilderHelper<T> {
      * @param customFilters user provided filters to add (using and clause) to the annotation based filters.
      * @return current instance.
      */
-    IESQueryBuilderHelper setFilters(Map<String, String[]> filters, FilterBuilder... customFilters);
+    IESQueryBuilderHelper<T> setFilters(Map<String, String[]> filters, FilterBuilder... customFilters);
 
     /**
      * Add filters to the current query.
@@ -67,5 +67,5 @@ public interface IESQueryBuilderHelper<T> {
      * @param customFilters user provided filters to add (using and clause) to the annotation based filters.
      * @return current instance.
      */
-    IESQueryBuilderHelper setFilters(Map<String, String[]> filters, Map<String, FilterValuesStrategy> filterStrategies, FilterBuilder... customFilters);
+    IESQueryBuilderHelper<T> setFilters(Map<String, String[]> filters, Map<String, FilterValuesStrategy> filterStrategies, FilterBuilder... customFilters);
 }

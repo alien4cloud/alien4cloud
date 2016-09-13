@@ -160,7 +160,7 @@ public class ApplicationService {
      */
     public boolean delete(String applicationId) throws OrchestratorDisabledException {
         // ensure that there is no active deployment(s).
-        GetMultipleDataResult<Object> result = alienDAO.buildQuery(Deployment.class)
+        GetMultipleDataResult<Deployment> result = alienDAO.buildQuery(Deployment.class)
                 .setFilters(MapUtil.newHashMap(array("sourceId", "endDate"), arOfArray(array(applicationId), array(null)))).prepareSearch().search(0, 1);
 
         if (result.getData().length > 0) {

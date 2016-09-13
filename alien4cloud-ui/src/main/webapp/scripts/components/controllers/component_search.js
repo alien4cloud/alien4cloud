@@ -16,8 +16,8 @@ define(function (require) {
     return searchContext;
   }]);
 
-  modules.get('a4c-components', ['a4c-tosca', 'a4c-search']).controller('alienSearchComponentCtrl', ['$scope', '$filter', 'searchContext', '$resource', 'toscaService', 'searchServiceFactory', '$state', '$translate',
-   function($scope, $filter, searchContext, $resource, toscaService, searchServiceFactory, $state, $translate) {
+  modules.get('a4c-components', ['a4c-tosca', 'a4c-search']).controller('alienSearchComponentCtrl', ['$scope', '$filter', 'searchContext', '$alresource', '$resource', 'toscaService', 'searchServiceFactory', '$state', '$translate',
+   function($scope, $filter, searchContext, $alresource, $resource, toscaService, searchServiceFactory, $state, $translate) {
     var alienInternalTags = ['icon'];
     $scope.searchService = searchServiceFactory('rest/latest/components/search', false, $scope, 20, 10);
     $scope.searchService.filtered(true);
@@ -164,16 +164,26 @@ define(function (require) {
         // inject selecte version for each result
         _.each(searchResult.data.data, function(component){
           component.selectedVersion = component.archiveVersion;
-          if(_.undefined(component.olderVersions)) {
-            component.olderVersions = [];
-          }
-          component.olderVersions.splice(0, 0, component.archiveVersion);
         });
         $scope.searchResult = searchResult.data;
         $scope.detailComponent = null;
       } else {
         console.log('error when searching...', searchResult.error);
       }
+    };
+
+    var versionFetchResource = $alresource('rest/latest/components/el/:elementId/versions');
+    $scope.fetchElementVersion = function(component) {
+      if(_.defined(component.olderVersions)) {
+        return;
+      }
+      versionFetchResource.get({elementId: component.elementId}, function(result) {
+        if(_.defined(result.error)) {
+          console.error('Encountered error while fetching element versions', component.elementId, result.error);
+        } else {
+          component.olderVersions = result.data;
+        }
+      });
     };
 
     // Getting full search result from /data folder
@@ -242,13 +252,7 @@ define(function (require) {
     //get the icon
     $scope.getIcon = toscaService.getIcon;
 
-    var componentResource = $resource('rest/latest/components/:componentId', {}, {
-      method: 'GET',
-      isArray: false,
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8'
-      }
-    });
+    var componentResource = $alresource('rest/latest/components/el/:elementId/v/:version');
 
     $scope.selectOtherComponentVersion = function(component, newVersion, index, event) {
       if (event) {
@@ -258,8 +262,10 @@ define(function (require) {
       if (component.archiveVersion !== newVersion) {
         // Retrieve the other version
         componentResource.get({
-          componentId: component.elementId + ':' + newVersion
+          elementId: component.elementId,
+          version: newVersion
         }, function(successResult) {
+          console.log(successResult.data);
           // override the component with the retrieved version
           var selectedVersionComponent = successResult.data;
           selectedVersionComponent.olderVersions = component.olderVersions;
