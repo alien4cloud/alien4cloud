@@ -2,25 +2,19 @@ package alien4cloud.suggestions.services;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Set;
+import java.lang.reflect.Array;
+import java.util.*;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Sets;
+
+import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FetchContext;
@@ -30,18 +24,7 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.common.AbstractSuggestionEntry;
 import alien4cloud.model.common.SimpleSuggestionEntry;
 import alien4cloud.model.common.SuggestionEntry;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.FilterDefinition;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedInheritableToscaElement;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.NodeFilter;
-import alien4cloud.model.components.PropertyConstraint;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.RequirementDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.components.*;
 import alien4cloud.model.components.constraints.EqualConstraint;
 import alien4cloud.model.components.constraints.ValidValuesConstraint;
 import alien4cloud.model.topology.Capability;
@@ -56,9 +39,7 @@ import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.YamlParserUtil;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -66,6 +47,8 @@ public class SuggestionService {
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
+
+    private CSARRepositorySearchService searchService;
 
     /* The Levenshtein distance is a string metric for measuring the difference between two sequences. */
     private static final double MIN_JAROWINKLER = 0.0;
@@ -299,13 +282,14 @@ public class SuggestionService {
      * @param suggestionEntry entry of suggestion
      */
     public void setSuggestionIdOnPropertyDefinition(SuggestionEntry suggestionEntry) {
-        Map<String, String[]> filters = Maps.newHashMap();
-        filters.put("elementId", new String[] { suggestionEntry.getTargetElementId() });
         Class<? extends IndexedInheritableToscaElement> targetClass = (Class<? extends IndexedInheritableToscaElement>) alienDAO.getTypesToClasses()
                 .get(suggestionEntry.getEsType());
-        GetMultipleDataResult<? extends IndexedInheritableToscaElement> result = alienDAO.find(targetClass, filters, Integer.MAX_VALUE);
-        if (result.getData() != null && result.getData().length > 0) {
-            for (IndexedInheritableToscaElement targetElement : result.getData()) {
+
+        Object array = searchService.findAll(targetClass, suggestionEntry.getTargetElementId());
+        if (array != null) {
+            int length = Array.getLength(array);
+            for (int i = 0; i < length; i++) {
+                IndexedInheritableToscaElement targetElement = ((IndexedInheritableToscaElement) Array.get(array, i));
                 PropertyDefinition propertyDefinition = targetElement.getProperties().get(suggestionEntry.getTargetProperty());
                 if (propertyDefinition == null) {
                     throw new NotFoundException(

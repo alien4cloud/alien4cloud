@@ -1,22 +1,20 @@
 package org.alien4cloud.tosca.editor.processors.substitution;
 
+import javax.annotation.Resource;
+import javax.inject.Inject;
+
+import org.alien4cloud.tosca.editor.EditionContextManager;
+import org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation;
+import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.springframework.stereotype.Component;
+
 import alien4cloud.component.CSARRepositorySearchService;
-import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.SubstitutionMapping;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.topology.TopologyService;
-import com.google.common.collect.Maps;
-import org.alien4cloud.tosca.editor.EditionContextManager;
-import org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation;
-import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import java.util.Map;
 
 /**
  * Process the creation of topology template as substitute.
@@ -28,7 +26,6 @@ public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<A
     private CSARRepositorySearchService csarRepoSearchService;
     @Inject
     private TopologyService topologyService;
-
 
     @Override
     public void process(AddSubstitutionTypeOperation operation) {
@@ -46,13 +43,8 @@ public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<A
         if (nodeType == null) {
             // the node type does'nt exist in this topology dependencies
             // we need to find the latest version of this component and use it as default
-            Map<String, String[]> filters = Maps.newHashMap();
-            filters.put("elementId", new String[] { operation.getElementId() });
-            FacetedSearchResult result = csarRepoSearchService.search(IndexedNodeType.class, null, 1, filters);
-            if (result.getTotalResults() > 0) {
-                nodeType = (IndexedNodeType) result.getData()[0];
-            }
-            // add in dependencies
+            nodeType = csarRepoSearchService.findMostRecent(IndexedNodeType.class, operation.getElementId());
+            // FIXME we should use type loader here to avoid conflicts
             topology.getDependencies().add(topologyService.buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
         }
         topology.getSubstitutionMapping().setSubstitutionType(nodeType);

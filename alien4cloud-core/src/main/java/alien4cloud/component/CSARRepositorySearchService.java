@@ -56,14 +56,32 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
     }
 
     /**
-     * Find an element based on it's type and id.
+     * Find an element based on it's type, id and version.
+     *
+     * @param elementType The element type.
+     * @param elementId The element id.
+     * @param version The element version (version of the archive that defines the element).
+     * @return Return the matching
+     */
+    public <T extends IndexedToscaElement> T find(Class<T> elementType, String elementId, String version) {
+        return searchDAO.buildQuery(elementType).setFilters(kvCouples("rawElementId", elementId, "archiveVersion", version)).prepareSearch().find();
+    }
+
+    /**
+     * Find the most recent element from a given id.
      *
      * @param elementType The element type.
      * @param elementId The element id.
      * @return Return the matching
      */
-    public <T extends IndexedToscaElement> T find(Class<T> elementType, String elementId, String version) {
-        return searchDAO.buildQuery(elementType).setFilters(kvCouples("rawElementId", elementId, "archiveVersion", version)).prepareSearch().find();
+    public <T extends IndexedToscaElement> T findMostRecent(Class<T> elementType, String elementId) {
+        return searchDAO.buildQuery(elementType).setFilters(kvCouples("rawElementId", elementId)).prepareSearch()
+                .alterSearchRequestBuilder(
+                        searchRequestBuilder -> searchRequestBuilder.addSort(new FieldSortBuilder("nestedVersion.majorVersion").order(SortOrder.DESC))
+                                .addSort(new FieldSortBuilder("nestedVersion.minorVersion").order(SortOrder.DESC))
+                                .addSort(new FieldSortBuilder("nestedVersion.incrementalVersion").order(SortOrder.DESC))
+                                .addSort(new FieldSortBuilder("nestedVersion.qualifier").order(SortOrder.DESC).missing("_first")))
+                .find();
     }
 
     /**
