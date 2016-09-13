@@ -1,5 +1,7 @@
 package alien4cloud.csar.services;
 
+import static alien4cloud.dao.FilterUtil.kvCouples;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -7,7 +9,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import alien4cloud.model.deployment.DeploymentTopology;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -65,7 +66,7 @@ public class CsarService implements ICsarDependencyLoader {
      * @return The {@link Csar Cloud Service Archive} if found in the repository or null.
      */
     public Csar get(String name, String version) {
-        return get(new Csar(name, version).getId());
+        return csarDAO.buildQuery(Csar.class).setFilters(kvCouples("name", name, "version", version)).prepareSearch().find();
     }
 
     /**

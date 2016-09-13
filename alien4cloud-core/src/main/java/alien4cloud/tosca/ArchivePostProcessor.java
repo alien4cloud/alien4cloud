@@ -42,19 +42,16 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class ArchivePostProcessor {
-
     @Resource
     private RepositoryService repositoryService;
 
     private interface ArchivePathResolver extends AutoCloseable {
-
         Path resolve(String artifactReference);
 
         void close();
     }
 
     private class ZipArchivePathResolver implements ArchivePathResolver {
-
         private FileSystem fileSystem;
 
         private ZipArchivePathResolver(Path archive) throws IOException {
@@ -77,7 +74,6 @@ public class ArchivePostProcessor {
     }
 
     private class DirArchivePathResolver implements ArchivePathResolver {
-
         private Path archive;
 
         private DirArchivePathResolver(Path archive) {

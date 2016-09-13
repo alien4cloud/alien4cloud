@@ -39,7 +39,7 @@
                   <li class="option-selected"><i class="fa fa-spin fa-spinner"></i> Loading</li>
                 </ul>
                 <ul ng-if="component.olderVersions" class="dropdown-menu dropdown-menu-right" role="menu" ng-init="itemIdex = $index">
-                  <li ng-repeat="olderVersion in component.olderVersions" class="option-selected"><a id="{{component.id}}_version_{{olderVersion}}" ng-click="selectOtherComponentVersion(component, olderVersion, itemIdex, $event)">{{olderVersion}}</a></li>
+                  <li ng-repeat="olderVersion in component.olderVersions" class="option-selected"><a id="{{component.id}}_version_{{olderVersion}}" ng-click="selectOtherComponentVersion(component, olderVersion, itemIdex, $event)">{{olderVersion.version}}</a></li>
                 </ul>
               </div>
             </div>

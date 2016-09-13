@@ -252,8 +252,7 @@ define(function (require) {
     //get the icon
     $scope.getIcon = toscaService.getIcon;
 
-    var componentResource = $alresource('rest/latest/components/el/:elementId/v/:version');
-
+    var componentResource = $alresource('rest/latest/components/:id');
     $scope.selectOtherComponentVersion = function(component, newVersion, index, event) {
       if (event) {
         event.stopPropagation();
@@ -262,14 +261,12 @@ define(function (require) {
       if (component.archiveVersion !== newVersion) {
         // Retrieve the other version
         componentResource.get({
-          elementId: component.elementId,
-          version: newVersion
+          id: newVersion.id
         }, function(successResult) {
-          console.log(successResult.data);
           // override the component with the retrieved version
           var selectedVersionComponent = successResult.data;
           selectedVersionComponent.olderVersions = component.olderVersions;
-          selectedVersionComponent.selectedVersion = newVersion;
+          selectedVersionComponent.selectedVersion = newVersion.version;
           $scope.searchResult.data[index] = selectedVersionComponent;
         });
       }

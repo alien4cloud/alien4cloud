@@ -55,19 +55,6 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
     }
 
     /**
-     * Find an element based on it's type and id and archive version. Note that alien does not allow for a same type to exists in multiple archives.
-     *
-     * @param elementType The element type.
-     * @param elementId The element id.
-     * @param archiveVersion The archive version.
-     * @return Return the matching
-     */
-    public <T extends IndexedToscaElement> T findByNoHashId(Class<T> elementType, String elementId, String archiveVersion) {
-        // the object id my have the archive hash, here we want to query based on the element type, id and version.
-        return searchDAO.buildQuery(elementType).setFilters(kvCouples("elementId", elementId, "archiveVersion", archiveVersion)).prepareSearch().find();
-    }
-
-    /**
      * Find an element based on it's type and id.
      *
      * @param elementType The element type.

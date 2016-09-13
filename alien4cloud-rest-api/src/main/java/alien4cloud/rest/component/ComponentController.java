@@ -58,23 +58,6 @@ public class ComponentController {
     }
 
     /**
-     * Get details for a component.
-     *
-     * @param elementId the element if of the tosca element (as typed in yaml).
-     * @param version the version of the tosca element.
-     * @return A {@link RestResponse} that contains an {@link IndexedToscaElement} .
-     */
-    @ApiOperation(value = "Get details for a component (tosca type) from it's elementId (tosca name of the component as defined in archive) and version (archive version).")
-    @RequestMapping(value = "/el/{elementId:.+}/v/{version:.+}", method = RequestMethod.GET)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
-    public RestResponse<IndexedToscaElement> getComponent(@PathVariable String elementId, @PathVariable String version,
-            @RequestBody(required = false) QueryComponentType componentType) {
-        Class<? extends IndexedToscaElement> queryClass = componentType == null ? IndexedToscaElement.class : componentType.getIndexedToscaElementClass();
-        IndexedToscaElement component = searchService.findByNoHashId(queryClass, elementId, version);
-        return RestResponseBuilder.<IndexedToscaElement> builder().data(component).build();
-    }
-
-    /**
      * Get all versions of a given component.
      *
      * @param elementId unique id of the component for which to get all other versions.
@@ -83,18 +66,20 @@ public class ComponentController {
     @ApiOperation(value = "Get details for a component (tosca type).")
     @RequestMapping(value = "el/{elementId:.+}/versions", method = RequestMethod.GET)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
-    public RestResponse<String[]> getComponentVersions(@PathVariable String elementId, @RequestBody(required = false) QueryComponentType componentType) {
+    public RestResponse<ComponentVersionsResult[]> getComponentVersions(@PathVariable String elementId,
+            @RequestBody(required = false) QueryComponentType componentType) {
         Class<? extends IndexedToscaElement> queryClass = componentType == null ? IndexedToscaElement.class : componentType.getIndexedToscaElementClass();
         Object array = searchService.findByElementId(queryClass, elementId);
         if (array != null) {
             int length = Array.getLength(array);
-            String[] versions = new String[length];
+            ComponentVersionsResult[] versions = new ComponentVersionsResult[length];
             for (int i = 0; i < length; i++) {
-                versions[i] = ((IndexedToscaElement) Array.get(array, i)).getArchiveVersion();
+                IndexedToscaElement element = ((IndexedToscaElement) Array.get(array, i));
+                versions[i] = new ComponentVersionsResult(element.getId(), element.getArchiveVersion());
             }
-            return RestResponseBuilder.<String[]> builder().data(versions).build();
+            return RestResponseBuilder.<ComponentVersionsResult[]> builder().data(versions).build();
         }
-        return RestResponseBuilder.<String[]> builder().data(new String[0]).build();
+        return RestResponseBuilder.<ComponentVersionsResult[]> builder().data(new ComponentVersionsResult[0]).build();
     }
 
     @ApiOperation(value = "Get details for a component (tosca type).")

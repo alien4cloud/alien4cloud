@@ -25,7 +25,8 @@ public class CSARDependency {
     private String version;
 
     /**
-     * Hash of the main yaml file included in the csar
+     * Hash of the main yaml file included in the csar.
+     * This is used here to spot when a dependency has changed to provide update of templates as types may have changed.
      */
     private String hash;
 }
