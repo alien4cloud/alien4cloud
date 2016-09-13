@@ -342,13 +342,6 @@ public class EditorStepDefs {
         }
     }
 
-    // @When("^I ask for updated dependencies from the registered topology$")
-    // public void iAskForUpdatedDependenciesFromTheRegisteredTopology() throws Throwable {
-    // I_get_the_edited_topology();
-    // commonEvaluationContext = new StandardEvaluationContext(
-    // recoveryHelper.getUpdatedDependencies((Topology) topologyEvaluationContext.getRootObject().getValue()));
-    // }
-
     @When("^I recover the topology$")
     public void i_Recover_The_Topology() throws Throwable {
         thrownException = null;

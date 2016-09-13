@@ -1,6 +1,21 @@
 package org.alien4cloud.tosca.editor.processors.relationshiptemplate;
 
-import alien4cloud.dao.IGenericSearchDAO;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+
+import org.alien4cloud.tosca.editor.EditionContextManager;
+import org.alien4cloud.tosca.editor.exception.CapabilityBoundException;
+import org.alien4cloud.tosca.editor.exception.RequirementBoundException;
+import org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation;
+import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
+import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Maps;
+
+import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidNameException;
 import alien4cloud.exception.NotFoundException;
@@ -15,18 +30,7 @@ import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.validation.TopologyCapabilityBoundsValidationServices;
 import alien4cloud.topology.validation.TopologyRequirementBoundsValidationServices;
 import alien4cloud.tosca.topology.NodeTemplateBuilder;
-import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-import org.alien4cloud.tosca.editor.EditionContextManager;
-import org.alien4cloud.tosca.editor.exception.CapabilityBoundException;
-import org.alien4cloud.tosca.editor.exception.RequirementBoundException;
-import org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation;
-import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  *
@@ -34,8 +38,8 @@ import java.util.Map;
 @Slf4j
 @Component
 public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelationshipOperation> {
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
+    @Inject
+    private CSARRepositorySearchService searchService;
     @Resource
     private TopologyService topologyService;
     @Resource
@@ -61,11 +65,11 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
         // ensure that the target node exists
         TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getTarget(), nodeTemplates);
 
-        String relationshipId = operation.getRelationshipType() + ":" + operation.getRelationshipVersion();
-        // FIXME why not use ToscaContext ??
-        IndexedRelationshipType indexedRelationshipType = alienDAO.findById(IndexedRelationshipType.class, relationshipId);
+        // We don't use the tosca context as the relationship type may not be in dependencies yet (that's why we use the load type below).
+        IndexedRelationshipType indexedRelationshipType = searchService.find(IndexedRelationshipType.class, operation.getRelationshipType(),
+                operation.getRelationshipVersion());
         if (indexedRelationshipType == null) {
-            throw new NotFoundException(IndexedRelationshipType.class.getName(), relationshipId,
+            throw new NotFoundException(IndexedRelationshipType.class.getName(), operation.getRelationshipType() + ":" + operation.getRelationshipVersion(),
                     "Unable to find relationship type to create template in topology.");
         }
 

@@ -190,6 +190,9 @@ public class Version implements Comparable<Version> {
 
     @Override
     public String toString() {
-        return comparable.toString();
+        if (qualifier == null) {
+            return getMajorVersion() + "." + getMinorVersion() + "." + getIncrementalVersion() + "-" + getBuildNumber();
+        }
+        return getMajorVersion() + "." + getMinorVersion() + "." + getIncrementalVersion() + "-" + getBuildNumber() + "-" + getQualifier();
     }
 }

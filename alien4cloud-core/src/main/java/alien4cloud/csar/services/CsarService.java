@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
@@ -19,6 +20,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationService;
+import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.dao.IGenericSearchDAO;
@@ -46,6 +48,9 @@ public class CsarService implements ICsarDependencyLoader {
 
     @Resource(name = "alien-monitor-es-dao")
     private IGenericSearchDAO alienMonitorDao;
+
+    @Inject
+    private CSARRepositorySearchService searchService;
 
     @Resource
     private ICSARRepositoryIndexerService indexerService;
@@ -178,7 +183,11 @@ public class CsarService implements ICsarDependencyLoader {
      * @return The {@link Csar Cloud Service Archive} if found in the repository.
      */
     public Csar getOrFail(String name, String version) {
-        return getOrFail(new Csar(name, version).getId());
+        Csar csar = searchService.getArchive(name, version);
+        if (csar == null) {
+            throw new NotFoundException("Csar with name [" + name + "] and version [" + version + "] do not exist");
+        }
+        return csar;
     }
 
     public void deleteCsar(String name, String version) {

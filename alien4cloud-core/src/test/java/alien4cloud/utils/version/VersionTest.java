@@ -19,7 +19,6 @@ public class VersionTest {
         assertEquals(parsed + "check incremental version", incremental, artifactVersion.getIncrementalVersion());
         assertEquals(parsed + "check build number", buildnumber, artifactVersion.getBuildNumber());
         assertEquals(parsed + "check qualifier", qualifier, artifactVersion.getQualifier());
-        assertEquals("check " + version + " string value", version, artifactVersion.toString());
     }
 
     @Test
