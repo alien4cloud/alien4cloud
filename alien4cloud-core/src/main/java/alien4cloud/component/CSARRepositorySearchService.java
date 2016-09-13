@@ -121,13 +121,7 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
         if (dependencies == null || dependencies.isEmpty()) {
             return null;
         }
-        // The query match element id of all defined dependencies' version from defined dependencies' archive name
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        for (CSARDependency dependency : dependencies) {
-            QueryBuilder idQueryBuilder = QueryBuilders.idsQuery().addIds(elementId + ":" + dependency.getVersion());
-            QueryBuilder matchArchiveNameQueryBuilder = QueryBuilders.termQuery("archiveName", dependency.getName());
-            boolQueryBuilder.should(QueryBuilders.boolQuery().must(idQueryBuilder).must(matchArchiveNameQueryBuilder));
-        }
+        BoolQueryBuilder boolQueryBuilder = getDependencyQuery(dependencies, "elementId", elementId);
         return getLatestVersionOfElement(elementClass, boolQueryBuilder);
     }
 
