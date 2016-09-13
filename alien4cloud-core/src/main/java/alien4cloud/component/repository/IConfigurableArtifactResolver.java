@@ -1,6 +1,5 @@
 package alien4cloud.component.repository;
 
-import java.nio.file.Path;
 import java.util.Map;
 
 import alien4cloud.repository.model.ValidationResult;
@@ -34,7 +33,7 @@ public interface IConfigurableArtifactResolver<T> {
      * @param credentials the credentials to connect to the repository
      * @return the path to the downloaded artifact
      */
-    Path resolveArtifact(String artifactReference, String repositoryURL, String repositoryType, Map<String, Object> credentials);
+    String resolveArtifact(String artifactReference, String repositoryURL, String repositoryType, Map<String, Object> credentials);
 
     /**
      * Get the configuration of the artifact resolver

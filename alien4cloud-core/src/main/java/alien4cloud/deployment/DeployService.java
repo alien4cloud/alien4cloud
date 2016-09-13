@@ -62,8 +62,6 @@ public class DeployService {
     @Inject
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Inject
-    private LocationService locationService;
-    @Inject
     private OrchestratorService orchestratorService;
     @Inject
     private DeploymentService deploymentService;
@@ -184,13 +182,11 @@ public class DeployService {
         Expression exp = parser.parseExpression(namePattern);
         String orchestratorDeploymentId = (String) exp
                 .getValue(new OrchestratorIdContext(env, applicationService.getOrFail(env.getApplicationId()), namePattern.contains("metaProperties[")));
-        orchestratorDeploymentId = orchestratorDeploymentId.trim().replaceAll(" ", "_");
-
+        orchestratorDeploymentId = orchestratorDeploymentId.replaceAll("\\W", "_");
         // ensure that the id is not used by another deployment.
         if (deploymentService.isActiveDeployment(orchestratorId, orchestratorDeploymentId)) {
             throw new OrchestratorDeploymentIdConflictException("Conflict detected with the generated paasId <" + orchestratorDeploymentId + ">.");
         }
-
         return orchestratorDeploymentId;
     }
 

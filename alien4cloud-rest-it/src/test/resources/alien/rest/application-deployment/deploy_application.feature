@@ -97,8 +97,8 @@ Feature: Deploy an application
       | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
     And I deploy the application "App_Test" on the location "Mount doom orchestrator"/"Thark location" without waiting for the end of deployment
     Then I should receive a RestResponse with an error code 613
-    And I create a new application with name "App-Test" and description "" and node templates
+    And I create a new application with name "App(Test" and description "" and node templates
       | Compute | tosca.nodes.Compute:1.0.0-SNAPSHOT |
     And I Set a unique location policy to "Mount doom orchestrator"/"Thark location" for all nodes
     When I deploy it
-    Then I should receive a RestResponse with no error
+    Then I should receive a RestResponse with an error code 613

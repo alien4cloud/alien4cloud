@@ -1,6 +1,5 @@
 package alien4cloud.model.components;
 
-import java.nio.file.Path;
 import java.util.Map;
 
 /**
@@ -22,7 +21,7 @@ public interface IArtifact {
      * 
      * @return local path to the artifact
      */
-    Path getArtifactPath();
+    String getArtifactPath();
 
     /**
      * Name of the repository as defined in the YAML for the artifact

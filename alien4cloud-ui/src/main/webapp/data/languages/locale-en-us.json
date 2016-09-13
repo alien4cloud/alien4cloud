@@ -196,6 +196,7 @@
         }
       },
       "TEMPLATE_BASE" : "Topology template",
+      "TEMPLATE_VERSION" : "Template version",
       "TEMPLATE_SELECT" : "-- Select a topology template --",
       "TEMPLATE_SELECT_VERSION" : "-- Select a template version --",
       "UPDATE_ARTIFACT" : "Update artifact",

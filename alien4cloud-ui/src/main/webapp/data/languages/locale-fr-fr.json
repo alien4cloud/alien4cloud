@@ -182,6 +182,7 @@
         }
       },
       "TEMPLATE_BASE" : "Modèle de template",
+      "TEMPLATE_VERSION" : "Version de template",
       "TEMPLATE_SELECT" : "-- Sélectionner un modèle de topologie --",
       "TEMPLATE_SELECT_VERSION" : "-- Sélectionner une version de modèle --",
       "UPDATE_ARTIFACT" : "Mettre à jour l'artefact",

@@ -11,16 +11,16 @@ define(function (require) {
 
   modules.get('a4c-common').factory('pieChartService', function () {
     return {
-      render: function (appName, data) {
+      render: function (appId, data) {
         // Empty old content if any before rendering new content
-        $('#pieChart-' + appName).empty();
+        $('#pieChart-' + appId).empty();
         if (data.length > 0) {
           var tip = d3Tip().attr('class', 'd3-tip').html(function (node) {
             return node.data.name;
           });
 
           // Ignored: A constructor name should start with an uppercase letter.
-          var pie = new d3pie('pieChart-' + appName, { // jshint ignore:line
+          var pie = new d3pie('pieChart-' + appId, { // jshint ignore:line
             'size': {
               'canvasWidth': 60,
               'canvasHeight': 60

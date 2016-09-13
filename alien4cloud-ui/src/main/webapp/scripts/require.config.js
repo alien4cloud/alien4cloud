@@ -70,6 +70,7 @@ require.config({
     'stomp':  { deps: ['sockjs'] },
     'graphlib': { deps: ['lodash-base'] },
     'dagre': { deps: ['graphlib'] },
-    'd3-pie': { deps: ['d3'] }
+    'd3-pie': { deps: ['d3'] },
+    'autofill-event': { deps: ['angular'] }
   }
 });

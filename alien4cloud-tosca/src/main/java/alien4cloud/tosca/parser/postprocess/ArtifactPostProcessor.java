@@ -32,10 +32,8 @@ public class ArtifactPostProcessor implements IPostProcessor<AbstractArtifact> {
     @Override
     public void process(AbstractArtifact instance) {
         ArchiveRoot archiveRoot = ParsingContextExecution.getRootObj();
-        // The artifact is in the archive only and only if an artifact reference is defined
-        // Without artifact reference, it means that Alien's user will upload later the binary
         // If archive name is already defined (by the type for example then don't override it)
-        if (StringUtils.isNotBlank(instance.getArtifactRef()) && StringUtils.isBlank(instance.getArchiveName())) {
+        if (StringUtils.isBlank(instance.getArchiveName())) {
             instance.setArchiveName(archiveRoot.getArchive().getName());
             instance.setArchiveVersion(archiveRoot.getArchive().getVersion());
         }

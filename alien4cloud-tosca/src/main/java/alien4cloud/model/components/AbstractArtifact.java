@@ -1,6 +1,5 @@
 package alien4cloud.model.components;
 
-import java.nio.file.Path;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -39,7 +38,7 @@ public abstract class AbstractArtifact implements IArtifact {
      * The local path to retrieve the artifact. Attention this is normally set before deployment so that the plugin knows where to get artifact.
      */
     @JsonIgnore
-    private Path artifactPath;
+    private String artifactPath;
 
     @Override
     public String toString() {
