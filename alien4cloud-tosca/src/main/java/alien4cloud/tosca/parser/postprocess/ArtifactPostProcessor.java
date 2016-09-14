@@ -46,7 +46,8 @@ public class ArtifactPostProcessor implements IPostProcessor<AbstractArtifact> {
             referencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance.getArtifactType(), IndexedArtifactType.class));
         }
         if (instance.getArtifactRepository() != null) {
-            RepositoryDefinition repositoryDefinition = archiveRoot.getRepositories().get(instance.getArtifactRepository());
+            RepositoryDefinition repositoryDefinition = archiveRoot.getRepositories() != null
+                    ? archiveRoot.getRepositories().get(instance.getArtifactRepository()) : null;
             if (repositoryDefinition == null) {
                 ParsingContextExecution.getParsingErrors().add(new ParsingError(ErrorCode.UNKNOWN_REPOSITORY, "Implementation artifact", node.getStartMark(),
                         "Repository definition not found", node.getEndMark(), instance.getArtifactRepository()));
