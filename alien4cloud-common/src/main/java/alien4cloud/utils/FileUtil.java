@@ -5,7 +5,9 @@ import java.nio.charset.Charset;
 import java.nio.file.*;
 import java.nio.file.FileSystem;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.DigestInputStream;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -22,6 +24,8 @@ import com.google.common.io.Closeables;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+
+import javax.xml.bind.DatatypeConverter;
 
 @Slf4j
 public final class FileUtil {
@@ -339,31 +343,61 @@ public final class FileUtil {
         return files;
     }
 
+    /**
+     * Computes a SHA-1 checksum on a single file.
+     * 
+     * @param path The path of the file for which to compute the SHA-1 hash.
+     * @return The SHA-1 hash string.
+     */
     @SneakyThrows({ Exception.class })
     public static String getSHA1Checksum(Path path) {
         if (!Files.exists(path)) {
             throw new FileNotFoundException("File not found in hash processor" + path);
         }
-        byte[] b = createSHA1Checksum(path);
-        String result = "";
-        for (int i = 0; i < b.length; i++) {
-            result += Integer.toString((b[i] & 0xff) + 0x100, 16).substring(1);
-        }
-        return result;
+        MessageDigest digest = MessageDigest.getInstance("SHA1");
+        addFileToDigest(digest, path);
+        return DatatypeConverter.printHexBinary(digest.digest());
     }
 
-    private static byte[] createSHA1Checksum(Path path) throws Exception {
-        try (InputStream fis = Files.newInputStream(path)) {
-            byte[] buffer = new byte[1024];
-            MessageDigest complete = MessageDigest.getInstance("SHA1");
-            int numRead;
-            do {
-                numRead = fis.read(buffer);
-                if (numRead > 0) {
-                    complete.update(buffer, 0, numRead);
-                }
-            } while (numRead != -1);
-            return complete.digest();
+    /**
+     * Computes a SHA-1 checksum on a directory. The checksum ignores hidden files.
+     *
+     * @param rootPath The root path for which to compute SHA-1 on every sub files and folders.
+     * @return The SHA-1 hash string.
+     */
+    @SneakyThrows({ IOException.class })
+    public static String deepSHA1(Path rootPath) {
+        if (isZipFile(rootPath)) {
+            try (FileSystem csarFS = FileSystems.newFileSystem(rootPath, null)) {
+                Path innerZipPath = csarFS.getPath(FileSystems.getDefault().getSeparator());
+                return computeDirectoryHash(innerZipPath);
+            }
+        } else if (Files.isRegularFile(rootPath)) {
+            return getSHA1Checksum(rootPath);
+        } else if (Files.isDirectory(rootPath)) {
+            return computeDirectoryHash(rootPath);
         }
+        throw new FileNotFoundException("Unable to compute hash for file " + rootPath);
+    }
+
+    @SneakyThrows({ IOException.class, NoSuchAlgorithmException.class })
+    private static String computeDirectoryHash(Path rootPath) {
+        MessageDigest digest = MessageDigest.getInstance("SHA1");
+        Files.walk(rootPath).filter(FileUtil::isNotHidden).filter(Files::isRegularFile).forEach(path -> addFileToDigest(digest, path));
+        return DatatypeConverter.printHexBinary(digest.digest());
+
+    }
+
+    @SneakyThrows({ IOException.class })
+    private static void addFileToDigest(MessageDigest digest, Path path) {
+        try (InputStream digestInputStream = new DigestInputStream(new BufferedInputStream(Files.newInputStream(path)), digest)) {
+            while (digestInputStream.read() != -1) {
+            }
+        }
+    }
+
+    @SneakyThrows({ IOException.class })
+    private static boolean isNotHidden(Path path) {
+        return !Files.isHidden(path);
     }
 }

@@ -97,7 +97,7 @@ public class ArchivePostProcessor {
      * @param parsedArchive The archive to post process
      */
     public ParsingResult<ArchiveRoot> process(Path archive, ParsingResult<ArchiveRoot> parsedArchive) {
-        String hash = FileUtil.getSHA1Checksum(archive);
+        String hash = FileUtil.deepSHA1(archive);
         parsedArchive.getResult().getArchive().setHash(hash);
         parsedArchive.getResult().getArchive().setWorkspaces(Sets.newHashSet(GLOBAL_WORKSPACE_ID));
 
