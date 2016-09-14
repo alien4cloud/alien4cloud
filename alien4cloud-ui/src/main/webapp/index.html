@@ -34,16 +34,35 @@
       <script src="bower_components/json3/lib/json3.min.js"></script>
     <![endif]-->
 
-    <alien-nav-bar>Loading </alien-nav-bar>
+    <alien-nav-bar></alien-nav-bar>
 
     <!-- Display events (errors etc.) -->
     <toaster-container toaster-options="{'position-class': 'toast-top-right', 'close-button':true}"></toaster-container>
 
-    <div class="main-view" ui-view></div>
+    <div class="main-view" ui-view>
+      <div id="alien-loading-box">
+        <div class="lead"><span>Loading alien4cloud: </span><span id="alien-loading-file">RequireJS and main CSS</span></div>
+        <div class="progress">
+          <div id="alien-loading-bar" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%">
+          </div>
+        </div>
+      </div>
+      <div id="alien-plugins-loading-box" hidden="true">
+        <div class="lead"><span>Loading alien4cloud plugins:</span><span id="alien-plugins-loading-file"></span></div>
+        <div class="progress">
+          <div id="alien-plugins-loading-bar" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%">
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script src="bower_components/requirejs/require.js"></script>
     <script src="scripts/require.config.js"></script>
     <script>
+      window.alienLoadingBar = document.getElementById("alien-loading-bar");
+      window.alienLoadingCount = 1;
+      window.alienLoadingExpected = 35; // Number of files in the packaged version (plus 1 as we don't start at 0).
+      window.alienLoadingFile = document.getElementById("alien-loading-file");
       require(['a4c-bootstrap'], function(bootstrap) {
         bootstrap.startup();
       });

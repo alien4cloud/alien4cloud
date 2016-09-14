@@ -45,7 +45,7 @@
     "load-grunt-config": "~0.7.0",
     "load-grunt-tasks": "~0.2.0",
     "protractor": "~3.1.1",
-    "requirejs": "~2.1.10",
+    "requirejs": "~2.1.19",
     "rjs-build-analysis": "~0.0.3",
     "time-grunt": "~0.2.1"
   },
