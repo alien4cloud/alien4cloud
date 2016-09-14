@@ -25,8 +25,9 @@ public interface ICSARRepositoryIndexerService {
      * 
      * @param archiveName The name of the archive to delete.
      * @param archiveVersion The version of the archive to delete.
+     * @param archiveHash The hash of the archive to delete.
      */
-    void deleteElements(String archiveName, String archiveVersion);
+    void deleteElements(String archiveName, String archiveVersion, String archiveHash);
 
     /**
      * Index multiple elements into the repository.

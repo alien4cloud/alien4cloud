@@ -204,6 +204,14 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
 
                         result.setData(resultData.toArray(new IndexedToscaElement[resultData.size()]));
                         result.setTypes(resultTypes.toArray(new String[resultTypes.size()]));
+                        result.setFrom(0);
+                        result.setTo(resultData.size());
+                        if (size == Integer.MAX_VALUE || resultData.size() < size) {
+                            result.setTotalResults(resultData.size());
+                        } else {
+                            // just to show that there is more results to fetch but iteration is not possible through aggregations.
+                            result.setTotalResults(size + 1);
+                        }
                     }
                 });
 

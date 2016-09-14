@@ -92,7 +92,7 @@ public class ArchiveIndexer {
         } // TODO What if else ? should we generate the YAML ?
 
         // index the archive content in elastic-search
-        indexArchiveTypes(archiveName, archiveVersion, archiveRoot, archive != null);
+        indexArchiveTypes(archiveName, archiveVersion, archiveRoot, archive);
 
         final Topology topology = archiveRoot.getTopology();
         // if a topology has been added we want to notify the user
@@ -177,15 +177,16 @@ public class ArchiveIndexer {
      * @param archiveName The name of the archive.
      * @param archiveVersion The version of the archive.
      * @param root The archive root.
-     * @param update true if the archive is updated, false if the archive is just indexed.
+     * @param archive The previous archive that must be replaced if any.
      */
-    private void indexArchiveTypes(String archiveName, String archiveVersion, ArchiveRoot root, boolean update) {
-        if (update) {
+    private void indexArchiveTypes(String archiveName, String archiveVersion, ArchiveRoot root, Csar archive) {
+        if (archive != null) {
             // get element from the archive so we get the creation date.
             Map<String, IndexedToscaElement> previousElements = indexerService.getArchiveElements(archiveName, archiveVersion);
             prepareForUpdate(root, previousElements);
-            // delete all previous elements and their images
-            indexerService.deleteElements(previousElements.values());
+
+            // delete the previous archive including all types etc.
+            csarService.forceDeleteCsar(archive.getId());
         }
 
         performIndexing(archiveName, archiveVersion, root);

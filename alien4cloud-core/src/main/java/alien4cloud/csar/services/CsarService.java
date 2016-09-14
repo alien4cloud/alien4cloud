@@ -211,8 +211,23 @@ public class CsarService implements ICsarDependencyLoader {
         return false;
     }
 
+    /**
+     * Delete an archive if no topology depends from it.
+     * 
+     * @param csarId The id of the archive to delete.
+     */
     public void deleteCsar(String csarId) {
         deleteCsar(csarId, false);
+    }
+
+    /**
+     * Delete an archive if no topology depends from it.
+     *
+     * @param csarId The id of the archive to delete.
+     */
+    public void forceDeleteCsar(String csarId) {
+        Csar csar = getOrFail(csarId);
+        deleteCsar(csar, false);
     }
 
     public void deleteCsar(String csarId, boolean ignoreSubtisutionTopology) {
@@ -222,24 +237,27 @@ public class CsarService implements ICsarDependencyLoader {
             throw new DeleteReferencedObjectException("This csar can not be deleted since it's a dependencie for others");
         }
 
+        deleteCsar(csar, ignoreSubtisutionTopology);
+    }
+
+    private void deleteCsar(Csar csar, boolean ignoreSubtisutionTopology) {
         // here we check that the csar is not a csar created by a topology template (substitution).
         if (!ignoreSubtisutionTopology && csar.getSubstitutionTopologyId() != null) {
             String linkedTopologyId = csar.getSubstitutionTopologyId();
             Topology topology = csarDAO.findById(Topology.class, linkedTopologyId);
             if (topology != null) {
-                throw new DeleteReferencedObjectException("The CSAR with id <" + csarId
+                throw new DeleteReferencedObjectException("The CSAR with id <" + csar.getId()
                         + "> is linked to a topology template (substitution) and can not be deleted by this way. The archive can be deleted by deleting the related topology template version.");
             }
         }
 
         // latest version indicator will be recomputed to match this new reality
-        indexerService.deleteElements(csar.getName(), csar.getVersion());
+        indexerService.deleteElements(csar.getName(), csar.getVersion(), csar.getHash());
 
-        csarDAO.delete(Csar.class, csarId);
+        csarDAO.delete(Csar.class, csar.getId());
 
         // physically delete files
         alienRepository.removeCSAR(csar.getName(), csar.getVersion());
-
     }
 
     /**
@@ -253,7 +271,7 @@ public class CsarService implements ICsarDependencyLoader {
         List<Usage> relatedResourceList = getCsarRelatedResourceList(csar);
         if (relatedResourceList.isEmpty()) {
             // latest version indicator will be recomputed to match this new reality
-            indexerService.deleteElements(csar.getName(), csar.getVersion());
+            indexerService.deleteElements(csar.getName(), csar.getVersion(), csar.getHash());
             csarDAO.delete(Csar.class, csar.getId());
 
             // physically delete files

@@ -41,7 +41,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping({"/rest/templates/{topologyTemplateId:.+}/versions", "/rest/v1/templates/{topologyTemplateId:.+}/versions", "/rest/latest/templates/{topologyTemplateId:.+}/versions"})
+@RequestMapping({ "/rest/templates/{topologyTemplateId:.+}/versions", "/rest/v1/templates/{topologyTemplateId:.+}/versions",
+        "/rest/latest/templates/{topologyTemplateId:.+}/versions" })
 @Api(value = "", description = "Manages templates's versions")
 public class TopologyTemplateVersionController {
 
@@ -78,7 +79,8 @@ public class TopologyTemplateVersionController {
      */
     @ApiOperation(value = "Search topology template versions", notes = "Returns a search result with that contains application versions matching the request.")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<GetMultipleDataResult<TopologyTemplateVersion>> search(@PathVariable String topologyTemplateId, @RequestBody SearchRequest searchRequest) {
+    public RestResponse<GetMultipleDataResult<TopologyTemplateVersion>> search(@PathVariable String topologyTemplateId,
+            @RequestBody SearchRequest searchRequest) {
         GetMultipleDataResult<TopologyTemplateVersion> searchResult = alienDAO.search(TopologyTemplateVersion.class, null,
                 versionService.getVersionsFilters(topologyTemplateId, searchRequest.getQuery()), searchRequest.getFrom(), searchRequest.getSize());
         searchResult.setData(versionService.sortArrayOfVersion(searchResult.getData()));
@@ -144,7 +146,8 @@ public class TopologyTemplateVersionController {
                 csar = csarService.getTopologySubstitutionCsar(topology.getId());
                 // will fail if the stuff is used in a topology
                 if (csar != null && csarService.isDependency(csar.getName(), csar.getVersion())) {
-                    throw new VersionRenameNotPossibleException("This topology template version can not be renamed since it's associated type is already used.");
+                    throw new VersionRenameNotPossibleException(
+                            "This topology template version can not be renamed since it's associated type is already used.");
                 }
             }
 
@@ -159,8 +162,8 @@ public class TopologyTemplateVersionController {
                 try {
                     csarService.deleteCsar(csar.getId(), true);
                 } catch (DeleteReferencedObjectException droe) {
-                    throw new VersionRenameNotPossibleException(
-                            "This topology template version can not be renamed since it's associated type is already used.", droe);
+                    throw new VersionRenameNotPossibleException("This topology template version can not be renamed since it's associated type is already used.",
+                            droe);
                 }
             }
         }
@@ -187,8 +190,8 @@ public class TopologyTemplateVersionController {
         AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
         TopologyTemplateVersion ttv = versionService.getOrFail(versionId);
         if (versionService.getByDelegateId(topologyTemplateId).length == 1) {
-            throw new DeleteLastApplicationVersionException("Topology Template version <" + ttv.getVersion()
-                    + "> can't be be deleted beacause it's the last application version.");
+            throw new DeleteLastApplicationVersionException(
+                    "Topology Template version <" + ttv.getVersion() + "> can't be be deleted beacause it's the last application version.");
         }
         versionService.delete(versionId);
         return RestResponseBuilder.<Boolean> builder().data(true).build();

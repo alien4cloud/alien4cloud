@@ -75,7 +75,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
                 .fieldSort("date", true);
 
         // the first one is the one with the latest date
-        GetMultipleDataResult lastestEventResult = monitorDAO.search(searchQueryHelperBuilder, 0, 1);
+        GetMultipleDataResult lastestEventResult = monitorDAO.search(searchQueryHelperBuilder, 0, 10);
         if (lastestEventResult.getData().length > 0) {
             AbstractMonitorEvent lastEvent = (AbstractMonitorEvent) lastestEventResult.getData()[0];
             Date lastEventDate = new Date(lastEvent.getDate());
