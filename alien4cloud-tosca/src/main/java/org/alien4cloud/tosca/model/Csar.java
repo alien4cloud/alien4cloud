@@ -6,16 +6,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import org.elasticsearch.annotation.ESObject;
-import org.elasticsearch.annotation.Id;
-import org.elasticsearch.annotation.NestedObject;
-import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.annotation.*;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.common.Tag;
+import alien4cloud.security.IManagedSecuredResource;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.utils.version.Version;
 import lombok.EqualsAndHashCode;
@@ -26,7 +24,7 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode(of = { "name", "version" })
 @ESObject
-public class Csar {
+public class Csar implements IManagedSecuredResource {
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
     @FetchContext(contexts = { SUMMARY }, include = { true })
@@ -37,13 +35,25 @@ public class Csar {
     @FetchContext(contexts = { SUMMARY }, include = { true })
     private String version;
 
-    /** Hash of the full csar file. */
+    @ObjectField
+    @TermFilter(paths = { "majorVersion", "minorVersion", "incrementalVersion", "buildNumber", "qualifier" })
+    private Version nestedVersion;
+
     @StringField(indexType = IndexType.not_analyzed)
     @FetchContext(contexts = { SUMMARY }, include = { true })
     private String hash;
 
     @TermFilter
-    private Version nestedVersion;
+    @StringField(indexType = IndexType.not_analyzed)
+    private Set<String> workspaces;
+
+    /** Eventually the id of the application. */
+    private String delegateId;
+    /** Type of delegate if the archive is an application archive. */
+    private String delegateType;
+
+    /** Path of the yaml file in the archive (relative to the root). */
+    private String yamlFilePath;
 
     private String toscaDefinitionsVersion;
 
@@ -57,17 +67,14 @@ public class Csar {
     @NestedObject(nestedClass = CSARDependency.class)
     private Set<CSARDependency> dependencies;
 
-    private String topologyId;
-
-    private String cloudId;
-
     private String license;
 
     /** Archive metadata. */
     private List<Tag> tags;
 
+    /** Alien 4 Cloud meta-data to know how the archive has been imported. */
     private String importSource;
-
+    /** Date on which the archive has been imported or updated in alien4cloud. */
     private Date importDate;
 
     /**
@@ -76,11 +83,6 @@ public class Csar {
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
     private String substitutionTopologyId;
-
-    /* List of workspaces where the CSAR belongs */
-    @TermFilter
-    @StringField(indexType = IndexType.not_analyzed)
-    private Set<String> workspaces;
 
     /** Default constructor */
     public Csar() {

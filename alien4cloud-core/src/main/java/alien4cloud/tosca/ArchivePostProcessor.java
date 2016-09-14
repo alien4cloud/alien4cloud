@@ -133,6 +133,9 @@ public class ArchivePostProcessor {
     private void processTopology(ParsingResult<ArchiveRoot> parsedArchive) {
         Topology topology = parsedArchive.getResult().getTopology();
         if (topology != null) {
+            topology.setArchiveName(parsedArchive.getResult().getArchive().getName());
+            topology.setArchiveVersion(parsedArchive.getResult().getArchive().getVersion());
+            topology.setArchiveHash(parsedArchive.getResult().getArchive().getHash());
             TopologyUtils.normalizeAllNodeTemplateName(topology, parsedArchive);
         }
     }
@@ -209,7 +212,7 @@ public class ArchivePostProcessor {
     }
 
     private <T extends AbstractInstantiableToscaType> void processTypes(ArchivePathResolver archivePathResolver, Map<String, T> types,
-                                                                        ParsingResult<ArchiveRoot> parsedArchive) {
+            ParsingResult<ArchiveRoot> parsedArchive) {
         if (types != null) {
             for (T type : types.values()) {
                 if (type.getArtifacts() != null) {

@@ -1,11 +1,19 @@
 package org.alien4cloud.tosca.model.templates;
 
+import static alien4cloud.dao.model.FetchContext.SUMMARY;
+import static alien4cloud.dao.model.FetchContext.TAG_SUGGESTION;
+
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.elasticsearch.annotation.*;
+import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
+import org.elasticsearch.mapping.IndexType;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -14,15 +22,13 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.Sets;
 
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.paas.wf.Workflow;
-import alien4cloud.security.IManagedSecuredResource;
 import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;
 import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
 import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
+import alien4cloud.utils.version.Version;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,19 +41,32 @@ import lombok.Setter;
 @AllArgsConstructor(suppressConstructorProperties = true)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Topology implements IManagedSecuredResource {
-    @Id
-    private String id;
+public class Topology {
+    @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
+    @StringField(indexType = IndexType.not_analyzed)
+    @TermFilter
+    private String archiveName;
 
-    /** Id of the application or topology template. */
-    private String delegateId;
-    /** Type of the delegate (application or topology template) */
-    private String delegateType;
+    @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
+    @StringField(indexType = IndexType.not_analyzed)
+    @TermFilter
+    private String archiveVersion;
+
+    @ObjectField
+    @TermFilter(paths = { "majorVersion", "minorVersion", "incrementalVersion", "buildNumber", "qualifier" })
+    private Version nestedVersion;
+
+    @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
+    @StringField(indexType = IndexType.not_analyzed)
+    @TermFilter
+    private String archiveHash;
+
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed)
+    private Set<String> workspaces;
+
     /** Last update date of the topology to verify if the topology has been changed **/
     private Date lastUpdateDate = new Date();
-
-    /** Path of the yaml file in the archive (relative to the root). */
-    private String yamlFilePath;
 
     /** The list of dependencies of this topology. */
     @TermFilter(paths = { "name", "version" })
@@ -113,6 +132,25 @@ public class Topology implements IManagedSecuredResource {
      */
     @ObjectField(enabled = false)
     private Map<String, Workflow> workflows;
+
+    @Id
+    @FetchContext(contexts = { SUMMARY }, include = { true })
+    public String getId() {
+        if (archiveName == null) {
+            throw new IndexingServiceException("Csar name is mandatory");
+        }
+        if (archiveVersion == null) {
+            throw new IndexingServiceException("Csar version is mandatory");
+        }
+        if (archiveHash == null) {
+            throw new IndexingServiceException("Csar hash is mandatory");
+        }
+        return archiveName + ":" + archiveVersion + ":" + archiveHash;
+    }
+
+    public void setId(String id) {
+        // Not authorized to set id as it's auto-generated from name and version
+    }
 
     /**
      * /**

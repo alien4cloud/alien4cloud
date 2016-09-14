@@ -63,8 +63,6 @@ public class ApplicationController {
     @Resource
     private ApplicationVersionService applicationVersionService;
     @Resource
-    private TopologyTemplateVersionService topologyTemplateVersionService;
-    @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
 
     /**

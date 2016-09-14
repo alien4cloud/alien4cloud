@@ -283,7 +283,7 @@ public class WorkflowsBuilderService {
         return wf;
     }
 
-    public static interface TopologyContext {
+    public interface TopologyContext {
         Topology getTopology();
 
         <T extends AbstractToscaType> T findElement(Class<T> clazz, String id);

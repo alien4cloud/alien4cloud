@@ -13,6 +13,7 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.ReleaseReferencingSnapshotException;
+import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.model.CSARDependency;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import org.alien4cloud.tosca.model.templates.AbstractTopologyVersion;
@@ -42,19 +43,9 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
 
     protected abstract Class<V> getVersionImplemClass();
 
-    protected abstract Class<?> getDelegateClass();
+    protected abstract ArchiveDelegateType getDelegateType();
 
     protected abstract String getDelegatePropertyName();
-
-    /**
-     * Create a new version for an application/topology template based on an existing topology with the default version name.
-     *
-     * @param delegateId The id of the application for which to create the version.
-     * @param topologyId The id of the topology to clone for the version's topology.
-     */
-    public V createVersion(String delegateId, String topologyToCloneId, Topology topology) {
-        return createVersion(delegateId, topologyToCloneId, DEFAULT_VERSION_NAME, null, topology);
-    }
 
     /**
      * Create a new version for an application/topology template based on an existing topology.
@@ -63,7 +54,7 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
      * @param topologyToCloneId The id of the topology to clone for the version's topology.
      * @param version The number version of the new application version.
      */
-    public V createVersion(String delegateId, String topologyToCloneId, String version, String desc, Topology providedTopology) {
+    public V createVersion(String delegateId, String topologyToCloneId, String version, String description, Topology providedTopology) {
         if (isVersionNameExist(delegateId, version)) {
             throw new AlreadyExistException("An version " + version + " already exists.");
         }
@@ -76,7 +67,7 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
         appVersion.setLatest(true);
         appVersion.setSnapshot(VersionUtil.isSnapshot(version));
         appVersion.setReleased(!VersionUtil.isSnapshot(version));
-        appVersion.setDescription(desc);
+        appVersion.setDescription(description);
 
         Topology topology = null;
         if (providedTopology != null) {
@@ -125,7 +116,7 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
     /**
      * Get all versions for a given delegate.
      *
-     * @param applicationId The id of the application for which to get environments.
+     * @param delegateId The id of the application for which to get environments.
      * @return An array of the applications versions for the requested application id.
      */
     public V[] getByDelegateId(String delegateId) {
@@ -153,10 +144,8 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
      * @return An array of the applications/topology templates versions snapshot for the requested application id.
      */
     public V[] getSnapshotByDelegateId(String delegateId) {
-        GetMultipleDataResult<V> result = alienDAO.find(getVersionImplemClass(),
-                MapUtil.newHashMap(new String[] { getDelegatePropertyName(), "isSnapshot" }, new String[][] { new String[] { delegateId },
-                        new String[] { "true" } }),
-                Integer.MAX_VALUE);
+        GetMultipleDataResult<V> result = alienDAO.find(getVersionImplemClass(), MapUtil.newHashMap(new String[] { getDelegatePropertyName(), "isSnapshot" },
+                new String[][] { new String[] { delegateId }, new String[] { "true" } }), Integer.MAX_VALUE);
         return result.getData();
     }
 
@@ -195,11 +184,8 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
      * @return a boolean indicating if the version exists.
      */
     public boolean isVersionNameExist(String delegateId, String versionName) {
-        GetMultipleDataResult<V> dataResult = alienDAO.search(
-                getVersionImplemClass(),
-                null,
-                MapUtil.newHashMap(new String[] { getDelegatePropertyName(), "version" }, new String[][] { new String[] { delegateId },
-                        new String[] { versionName } }), 1);
+        GetMultipleDataResult<V> dataResult = alienDAO.search(getVersionImplemClass(), null, MapUtil.newHashMap(
+                new String[] { getDelegatePropertyName(), "version" }, new String[][] { new String[] { delegateId }, new String[] { versionName } }), 1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             return true;
         }
@@ -228,24 +214,6 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
      */
     public V get(String id) {
         return alienDAO.findById(getVersionImplemClass(), id);
-    }
-
-    /**
-     * Get a version for an application/topology template (returns the default if not found).
-     * 
-     * @param delegateId
-     * @param versionId
-     * @return
-     */
-    public V getVersionByIdOrDefault(String delegateId, String versionId) {
-        V version = null;
-        if (versionId == null) {
-            V[] versions = getByDelegateId(delegateId);
-            version = versions[0];
-        } else {
-            version = getOrFail(versionId);
-        }
-        return version;
     }
 
     /**
@@ -287,20 +255,4 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
         }
         return MapUtil.newHashMap(filterKeys.toArray(new String[filterKeys.size()]), filterValues.toArray(new String[filterValues.size()][]));
     }
-
-    public V searchByDelegateAndVersion(String delegateId, String version) {
-        GetMultipleDataResult<V> result = alienDAO.find(getVersionImplemClass(), getVersionsFilters(delegateId, version), Integer.MAX_VALUE);
-        if (result.getTotalResults() > 0) {
-            return result.getData()[0];
-        }
-        return null;
-    }
-
-    public void changeTopology(TopologyTemplateVersion topologyTemplateVersion, String topologyId) {
-        String oldTopologyId = topologyTemplateVersion.getTopologyId();
-        topologyTemplateVersion.setTopologyId(topologyId);
-        alienDAO.save(topologyTemplateVersion);
-        alienDAO.delete(Topology.class, oldTopologyId);
-    }
-
 }

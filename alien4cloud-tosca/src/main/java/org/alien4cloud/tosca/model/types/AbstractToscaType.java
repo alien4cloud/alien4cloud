@@ -30,11 +30,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @ESAll(analyser = "simple")
 public abstract class AbstractToscaType {
     @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
-    @StringFieldMulti(main = @StringField(indexType = IndexType.analyzed), multiNames = "rawElementId", multi = @StringField(includeInAll = false, indexType = IndexType.not_analyzed))
-    @TermFilter
-    private String elementId;
-
-    @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
     @StringField(indexType = IndexType.not_analyzed)
     @TermFilter
     private String archiveName;
@@ -44,14 +39,23 @@ public abstract class AbstractToscaType {
     @TermFilter
     private String archiveVersion;
 
+    @ObjectField
+    @TermFilter(paths = { "majorVersion", "minorVersion", "incrementalVersion", "buildNumber", "qualifier" })
+    private Version nestedVersion;
+
     @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
     @StringField(indexType = IndexType.not_analyzed)
     @TermFilter
     private String archiveHash;
 
-    @ObjectField
-    @TermFilter(paths = { "majorVersion", "minorVersion", "incrementalVersion", "buildNumber", "qualifier" })
-    private Version nestedVersion;
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed)
+    private Set<String> workspaces;
+
+    @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
+    @StringFieldMulti(main = @StringField(indexType = IndexType.analyzed), multiNames = "rawElementId", multi = @StringField(includeInAll = false, indexType = IndexType.not_analyzed))
+    @TermFilter
+    private String elementId;
 
     @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
     @DateField(includeInAll = false, index = IndexType.no)
@@ -68,11 +72,6 @@ public abstract class AbstractToscaType {
 
     /* DSL extension */
     private List<Tag> tags;
-
-    /* List of workspaces where the element belongs */
-    @TermFilter
-    @StringField(indexType = IndexType.not_analyzed)
-    private Set<String> workspaces;
 
     @Id
     public String getId() {

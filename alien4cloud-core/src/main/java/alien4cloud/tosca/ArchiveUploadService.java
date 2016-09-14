@@ -6,21 +6,20 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
 
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
-import org.alien4cloud.tosca.model.CSARDependency;
 import alien4cloud.model.components.CSARSource;
-import org.alien4cloud.tosca.model.Csar;
 import alien4cloud.model.git.CsarDependenciesBean;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.Role;
 import alien4cloud.suggestions.services.SuggestionService;
 import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.topology.TopologyTemplateVersionService;
 import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContext;
@@ -32,15 +31,10 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class ArchiveUploadService {
-
     @Inject
     private ArchiveParser parser;
     @Inject
     private ArchiveIndexer archiveIndexer;
-    @Inject
-    TopologyServiceCore topologyServiceCore;
-    @Inject
-    TopologyTemplateVersionService topologyTemplateVersionService;
     @Inject
     private SuggestionService suggestionService;
 

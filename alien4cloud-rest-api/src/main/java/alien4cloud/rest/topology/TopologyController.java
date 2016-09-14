@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.EditorService;
 import org.alien4cloud.tosca.editor.TopologyDTOBuilder;
@@ -36,27 +37,20 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping({ "/rest/topologies", "/rest/v1/topologies", "/rest/latest/topologies" })
 public class TopologyController {
-
     @Resource
     private TopologyService topologyService;
     @Resource
     private TopologyServiceCore topologyServiceCore;
     @Resource
     private TopologyValidationService topologyValidationService;
-
     @Resource
     private ApplicationVersionService applicationVersionService;
     @Resource
-    private TopologyTemplateVersionService topologyTemplateVersionService;
-
-    @Resource
     private EditionContextManager topologyEditionContextManager;
-
     @Inject
     private TopologyDTOBuilder dtoBuilder;
     @Resource
     private IFileRepository artifactRepository;
-
     @Inject
     private EditorService editorService;
 
@@ -125,11 +119,13 @@ public class TopologyController {
             throw new NotFoundException("No topology found for " + topologyId);
         }
         AbstractTopologyVersion version = null;
-        if (topology.getDelegateType().equalsIgnoreCase(TopologyTemplate.class.getSimpleName())) {
-            version = topologyTemplateVersionService.getByTopologyId(topologyId);
-        } else {
-            version = applicationVersionService.getByTopologyId(topologyId);
-        }
+
+        if (ArchiveDelegateType.APPLICATION.equals(ArchiveDelegateType.valueOf()))
+            if (topology.getDelegateType().equalsIgnoreCase(TopologyTemplate.class.getSimpleName())) {
+                version = topologyTemplateVersionService.getByTopologyId(topologyId);
+            } else {
+                version = applicationVersionService.getByTopologyId(topologyId);
+            }
         if (version == null) {
             throw new NotFoundException("No version found for topology " + topologyId);
         }

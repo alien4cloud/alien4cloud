@@ -10,7 +10,10 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.topology.TopologyTemplateService;
+import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -30,11 +33,7 @@ import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.Usage;
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.Csar;
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.model.templates.TopologyTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -53,8 +52,6 @@ public class CsarService implements ICsarDependencyLoader {
     private ICSARRepositoryIndexerService indexerService;
     @Inject
     private CsarFileRepository alienRepository;
-    @Inject
-    private TopologyTemplateService topologyTemplateService;
     @Inject
     private ApplicationService applicationService;
 
@@ -288,10 +285,10 @@ public class CsarService implements ICsarDependencyLoader {
     }
 
     /**
-     * Get resources related to a Csar
-     *
-     * @param csar
-     * @return
+     * Get the list of resources that are using the given archive.
+     * 
+     * @param csar The archive for which to get usage.
+     * @return The list of usage of the archive.
      */
     public List<Usage> getCsarRelatedResourceList(Csar csar) {
         List<Usage> relatedResourceList = Lists.newArrayList();
@@ -301,16 +298,13 @@ public class CsarService implements ICsarDependencyLoader {
             return relatedResourceList;
         }
 
+        // TODO improve usage infos to add the version of csar/application that uses the given archive.
+
         // a csar that is a dependency of another csar can not be deleted
+        // FIXME WORKSPACE HANDLING REQUIRED
         Csar[] relatedCsars = getDependantCsars(csar.getName(), csar.getVersion());
         if (relatedCsars != null && relatedCsars.length > 0) {
             relatedResourceList.addAll(generateCsarsInfo(relatedCsars));
-        }
-
-        // check if some of the nodes are used in topologies.
-        Topology[] topologies = getDependantTopologies(csar.getName(), csar.getVersion());
-        if (topologies != null && topologies.length > 0) {
-            relatedResourceList.addAll(generateTopologiesInfo(topologies));
         }
 
         // a csar that is a dependency of location can not be deleted
@@ -333,47 +327,17 @@ public class CsarService implements ICsarDependencyLoader {
         String resourceId = null;
         List<Usage> resourceList = Lists.newArrayList();
         for (Csar csar : csars) {
-            resourceName = csar.getName();
-            resourceId = csar.getId();
+            if (ArchiveDelegateType.APPLICATION.toString().equals(csar.getDelegateType())) {
+                Application application = applicationService.checkAndGetApplication(csar.getDelegateId());
+                resourceName = application.getName();
+                resourceId = csar.getDelegateId();
+            } else {
+                resourceName = csar.getName();
+                resourceId = csar.getId();
+            }
+
             Usage temp = new Usage(resourceName, Csar.class.getSimpleName().toLowerCase(), resourceId);
             resourceList.add(temp);
-        }
-        return resourceList;
-    }
-
-    /**
-     * Generate resources (application or template) related to a topology list
-     *
-     * @param topologies
-     * @return
-     */
-    private List<Usage> generateTopologiesInfo(Topology[] topologies) {
-        String resourceName = null;
-        String resourceId = null;
-        boolean typeHandled = true;
-        List<Usage> resourceList = Lists.newArrayList();
-        for (Topology topology : topologies) {
-            String delegateType = topology.getDelegateType();
-            if (delegateType.equals("application")) {
-                // get the related application
-                Application application = applicationService.checkAndGetApplication(topology.getDelegateId());
-                resourceName = application.getName();
-            } else if (delegateType.equals("topologytemplate")) {
-                // get the related template
-                TopologyTemplate template = topologyTemplateService.getOrFailTopologyTemplate(topology.getDelegateId());
-                resourceName = template.getName();
-            } else {
-                typeHandled = false;
-                log.info("The topology <" + topology.getId() + "> of type <" + delegateType + " is not yet handled.");
-            }
-
-            if (typeHandled) {
-                resourceId = topology.getDelegateId();
-                Usage temp = new Usage(resourceName, delegateType, resourceId);
-                resourceList.add(temp);
-            } else {
-                typeHandled = true;
-            }
         }
         return resourceList;
     }
@@ -396,5 +360,4 @@ public class CsarService implements ICsarDependencyLoader {
         }
         return resourceList;
     }
-
 }
