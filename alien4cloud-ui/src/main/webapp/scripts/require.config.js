@@ -82,9 +82,5 @@ require.config({
       window.alienLoadingBar.style.width = window.alienLoadingCount * 100 / window.alienLoadingExpected + '%';
       window.alienLoadingFile.innerHTML = url;
     }
-
-    node.addEventListener('load', function() {
-      console.log('module ' + moduleName + ' has been loaded', window.alienLoadingCount);
-    });
   },
 });

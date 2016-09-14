@@ -12,6 +12,7 @@ define(function (require) {
     startup: function() {
       //some common directives directives
       require(mods.nativeModules , function() {
+        window.alienLoadingBar.className = 'progress-bar progress-bar-success';
         window.alienLoadingBar = undefined;
         window.alienLoadingFile = undefined;
 

@@ -20,7 +20,11 @@ define(function (require) {
       var loadingBar = document.getElementById('alien-plugins-loading-bar');
       var loadingName = document.getElementById('alien-plugins-loading-file');
 
-      $.ajax({ url: '/rest/latest/modules' }).then(function(data) {
+      $.ajax({ url: '/rest/latest/modules', dataType : 'jsonp', timeout : 10000, }).error(function(xhr, error) {
+        loadingName.innerHTML = 'Failed to request plugins from server: ' + error;
+        loadingBar.className = 'progress-bar progress-bar-danger';
+        loadingBar.style.width = '100%';
+      }).then(function(data) {
         self.plugins = data;
         // init returns the list of entry points for the plugins.
         var entryPoints = [];
