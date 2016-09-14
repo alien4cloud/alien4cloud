@@ -18,11 +18,11 @@ import org.elasticsearch.mapping.MappingBuilder;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
-import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.RequirementDefinition;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 import alien4cloud.rest.component.QueryComponentType;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
@@ -42,8 +42,8 @@ public class SearchDefinitionSteps {
     private static final Map<String, QueryComponentType> QUERY_TYPES;
     private Map<String, String> indexedComponentTypes = Maps.newHashMap();
     private final ObjectMapper jsonMapper = new ObjectMapper();
-    List<IndexedNodeType> testDataList = new ArrayList<>();
-    List<IndexedNodeType> notYetSearchedDataList = null;
+    List<NodeType> testDataList = new ArrayList<>();
+    List<NodeType> notYetSearchedDataList = null;
 
     private final Client esClient = Context.getEsClientInstance();
 
@@ -153,7 +153,7 @@ public class SearchDefinitionSteps {
         List<Object> resultData = Lists.newArrayList(searchResp.getData());
         if (searchedComponentType.equalsIgnoreCase("node types")) {
             for (Object object : resultData) {
-                IndexedNodeType idnt = jsonMapper.readValue(jsonMapper.writeValueAsString(object), IndexedNodeType.class);
+                NodeType idnt = jsonMapper.readValue(jsonMapper.writeValueAsString(object), NodeType.class);
                 switch (property) {
                 case "capability":
                     assertNotNull(idnt.getCapabilities());
@@ -169,7 +169,7 @@ public class SearchDefinitionSteps {
             }
         } else if (searchedComponentType.equalsIgnoreCase("relationship types")) {
             for (Object object : resultData) {
-                IndexedRelationshipType idrt = jsonMapper.readValue(jsonMapper.writeValueAsString(object), IndexedRelationshipType.class);
+                RelationshipType idrt = jsonMapper.readValue(jsonMapper.writeValueAsString(object), RelationshipType.class);
                 switch (property) {
                 case "validSource":
                     assertNotNull(idrt.getValidSources());
@@ -203,7 +203,7 @@ public class SearchDefinitionSteps {
     }
 
     private void checkPaginatedResult(int expectedSize, RestResponse<FacetedSearchResult> restResponse) throws IOException {
-        List<IndexedNodeType> toCheckInDataList = notYetSearchedDataList == null ? new ArrayList<>(testDataList) : notYetSearchedDataList;
+        List<NodeType> toCheckInDataList = notYetSearchedDataList == null ? new ArrayList<>(testDataList) : notYetSearchedDataList;
         assertTrue(" The size of data to check (" + toCheckInDataList.size() + ") is less than the expected size (" + expectedSize + ") of search result ",
                 toCheckInDataList.size() >= expectedSize);
         FacetedSearchResult searchResp;
@@ -217,7 +217,7 @@ public class SearchDefinitionSteps {
         // testing the pertinence of returned data
         Object[] data = searchResp.getData();
         for (int i = 0; i < data.length; i++) {
-            IndexedNodeType nt = jsonMapper.readValue(jsonMapper.writeValueAsString(data[i]), IndexedNodeType.class);
+            NodeType nt = jsonMapper.readValue(jsonMapper.writeValueAsString(data[i]), NodeType.class);
             assertTrue(toCheckInDataList.contains(nt));
             toCheckInDataList.remove(nt);
         }
@@ -231,7 +231,7 @@ public class SearchDefinitionSteps {
         int remaining = countHavingProperty;
         baseName = baseName == null || baseName.isEmpty() ? type : baseName;
         for (int i = 0; i < count; i++) {
-            IndexedToscaElement componentTemplate = (IndexedToscaElement) clazz.newInstance();
+            AbstractToscaType componentTemplate = (AbstractToscaType) clazz.newInstance();
             String elementId = baseName + "_" + i;
             componentTemplate.setElementId(elementId);
             componentTemplate.setArchiveVersion(DEFAULT_ARCHIVE_VERSION);
@@ -240,23 +240,23 @@ public class SearchDefinitionSteps {
                 if (type.equalsIgnoreCase("node types")) {
                     switch (property) {
                     case "capability":
-                        ((IndexedNodeType) componentTemplate).setCapabilities(Lists.newArrayList(new CapabilityDefinition(propertyValue, propertyValue, 1)));
+                        ((NodeType) componentTemplate).setCapabilities(Lists.newArrayList(new CapabilityDefinition(propertyValue, propertyValue, 1)));
                         break;
                     case "requirement":
-                        ((IndexedNodeType) componentTemplate).setRequirements((Lists.newArrayList(new RequirementDefinition(propertyValue, propertyValue))));
+                        ((NodeType) componentTemplate).setRequirements((Lists.newArrayList(new RequirementDefinition(propertyValue, propertyValue))));
                         break;
                     case "default capability":
-                        ((IndexedNodeType) componentTemplate).setDefaultCapabilities((Lists.newArrayList(propertyValue)));
+                        ((NodeType) componentTemplate).setDefaultCapabilities((Lists.newArrayList(propertyValue)));
                         break;
                     case "elementId":
-                        ((IndexedNodeType) componentTemplate).setElementId(propertyValue);
+                        ((NodeType) componentTemplate).setElementId(propertyValue);
                         break;
 
                     default:
                         break;
                     }
                 } else if (type.equalsIgnoreCase("relationship types")) {
-                    ((IndexedRelationshipType) componentTemplate).setValidSources(new String[] { propertyValue });
+                    ((RelationshipType) componentTemplate).setValidSources(new String[] { propertyValue });
                 }
                 remaining -= 1;
             }
@@ -265,8 +265,8 @@ public class SearchDefinitionSteps {
             log.debug("Saving in ES: " + serializeDatum);
             esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(serializeDatum).setRefresh(true).execute().actionGet();
 
-            if (componentTemplate instanceof IndexedNodeType) {
-                testDataList.add((IndexedNodeType) (componentTemplate));
+            if (componentTemplate instanceof NodeType) {
+                testDataList.add((NodeType) (componentTemplate));
             }
         }
 

@@ -5,8 +5,8 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.Csar;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
 import alien4cloud.paas.exception.NotSupportedException;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.parser.INodeParser;

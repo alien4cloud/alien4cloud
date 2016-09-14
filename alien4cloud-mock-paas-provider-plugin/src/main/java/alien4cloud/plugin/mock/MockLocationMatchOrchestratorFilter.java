@@ -5,7 +5,7 @@ import java.util.List;
 
 import alien4cloud.deployment.matching.services.location.ILocationMatchFilter;
 import alien4cloud.model.deployment.matching.ILocationMatch;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.plugin.model.ManagedPlugin;
 import lombok.AllArgsConstructor;
 

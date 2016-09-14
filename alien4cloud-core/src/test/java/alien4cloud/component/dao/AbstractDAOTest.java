@@ -12,7 +12,7 @@ import org.junit.Before;
 
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.model.application.Application;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Topology;
 
 public abstract class AbstractDAOTest {
 

@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.Csar;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.topology.TopologyService;
 
 /**
@@ -35,7 +35,7 @@ public class RemoveSubstitutionTypeProcessor implements IEditorOperationProcesso
             throw new NotFoundException("No substitution type has been found");
         }
 
-        IndexedNodeType substitutionType = topology.getSubstitutionMapping().getSubstitutionType();
+        NodeType substitutionType = topology.getSubstitutionMapping().getSubstitutionType();
 
         Csar csar = csarService.getTopologySubstitutionCsar(topology.getId());
         if (csar != null) {

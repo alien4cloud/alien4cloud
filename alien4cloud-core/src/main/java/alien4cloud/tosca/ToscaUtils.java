@@ -3,11 +3,9 @@ package alien4cloud.tosca;
 import java.util.List;
 
 import alien4cloud.common.AlienConstants;
-import alien4cloud.model.components.IndexedInheritableToscaElement;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.model.PaaSNodeTemplate;
-import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
-import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
 import alien4cloud.utils.AlienUtils;
 
@@ -19,13 +17,13 @@ public class ToscaUtils {
     }
 
     /**
-     * Verify that the given {@link IndexedInheritableToscaElement} is from the given type.
+     * Verify that the given {@link AbstractInheritableToscaType} is from the given type.
      *
-     * @param indexedInheritableToscaElement The {@link IndexedInheritableToscaElement} to verify.
+     * @param indexedInheritableToscaElement The {@link AbstractInheritableToscaType} to verify.
      * @param type The type to match
-     * @return <code>true</code> if the {@link IndexedInheritableToscaElement} is from the given type.
+     * @return <code>true</code> if the {@link AbstractInheritableToscaType} is from the given type.
      */
-    public static boolean isFromType(String type, IndexedInheritableToscaElement indexedInheritableToscaElement) {
+    public static boolean isFromType(String type, AbstractInheritableToscaType indexedInheritableToscaElement) {
         return isFromType(type, indexedInheritableToscaElement.getElementId(), indexedInheritableToscaElement.getDerivedFrom());
     }
 

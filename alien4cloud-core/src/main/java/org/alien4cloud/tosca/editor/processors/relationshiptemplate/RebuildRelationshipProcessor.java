@@ -1,10 +1,10 @@
 package org.alien4cloud.tosca.editor.processors.relationshiptemplate;
 
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.tosca.context.ToscaContext;
@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * Process a {@link RebuildRelationshipOperation}.
  *
- * Rebuild a relationship template, synching it with the {@link alien4cloud.model.components.IndexedRelationshipType}
+ * Rebuild a relationship template, synching it with the {@link RelationshipType}
  * present at the moment in the repository
  */
 @Slf4j
@@ -38,7 +38,7 @@ public class RebuildRelationshipProcessor extends AbstractRelationshipProcessor<
         // rebuild a relationship template based on the current relationship type
         log.debug("Rebuilding the relationship <{}> in the node template <{}> of topology <{}> .", operation.getRelationshipName(), operation.getNodeName(),
                 topology.getId());
-        IndexedRelationshipType relType = ToscaContext.getOrFail(IndexedRelationshipType.class, relationshipTemplate.getType());
+        RelationshipType relType = ToscaContext.getOrFail(RelationshipType.class, relationshipTemplate.getType());
         Map<String, AbstractPropertyValue> properties = Maps.newHashMap();
         NodeTemplateBuilder.fillProperties(properties, relType.getProperties(), relationshipTemplate.getProperties());
         relationshipTemplate.setProperties(properties);

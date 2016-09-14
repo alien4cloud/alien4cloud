@@ -1,6 +1,6 @@
 package org.alien4cloud.tosca.editor;
 
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.DirectoryJSonWalker;
 import alien4cloud.utils.TreeNode;

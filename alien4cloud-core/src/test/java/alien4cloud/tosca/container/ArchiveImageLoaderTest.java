@@ -21,10 +21,9 @@ import alien4cloud.dao.IGenericIdDAO;
 import alien4cloud.images.IImageDAO;
 import alien4cloud.images.ImageData;
 import alien4cloud.model.common.Tag;
-import alien4cloud.model.components.IndexedInheritableToscaElement;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import alien4cloud.tosca.ArchiveImageLoader;
 import alien4cloud.tosca.ArchiveParser;
-import alien4cloud.tosca.ArchiveUploadService;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
@@ -81,13 +80,13 @@ public class ArchiveImageLoaderTest {
         checkImages(result.getResult().getNodeTypes());
     }
 
-    private void checkImages(Map<String, ? extends IndexedInheritableToscaElement> elements) {
+    private void checkImages(Map<String, ? extends AbstractInheritableToscaType> elements) {
         boolean elementHasTags = false;
         String currentUUID = null;
         ImageData image = null;
         Tag iconTag = new Tag("icon", "");
 
-        for (Map.Entry<String, ? extends IndexedInheritableToscaElement> toscaInheritableElement : elements.entrySet()) {
+        for (Map.Entry<String, ? extends AbstractInheritableToscaType> toscaInheritableElement : elements.entrySet()) {
             elementHasTags = toscaInheritableElement.getValue().getTags() != null;
             if (elementHasTags) {
                 int indexOfIcon = toscaInheritableElement.getValue().getTags().indexOf(iconTag);

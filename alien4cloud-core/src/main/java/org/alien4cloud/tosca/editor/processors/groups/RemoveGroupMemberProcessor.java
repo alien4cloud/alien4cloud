@@ -6,9 +6,9 @@ import org.alien4cloud.tosca.editor.operations.groups.RemoveGroupMemberOperation
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.topology.NodeGroup;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.NodeGroup;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 
 /**
  * Remove a node from a group.

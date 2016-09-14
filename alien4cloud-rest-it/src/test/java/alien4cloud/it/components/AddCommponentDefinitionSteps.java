@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 import alien4cloud.dao.ElasticSearchMapper;
 import alien4cloud.it.Context;
 import alien4cloud.it.csars.CrudCSARSStepDefinition;
-import alien4cloud.model.components.IndexedNodeType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.FileUtil;
 import cucumber.api.java.en.Given;
@@ -35,7 +35,7 @@ public class AddCommponentDefinitionSteps {
     public static String uploadComponent(String csarId, String componentName) throws IOException {
         String componentJson = FileUtil.readTextFile(Paths.get(COMPONENT_TEST_DATA_PACKAGE + componentName + ".json"));
         // parse the json using an ES mapper
-        IndexedNodeType nodeType = ElasticSearchMapper.getInstance().readValue(componentJson, IndexedNodeType.class);
+        NodeType nodeType = ElasticSearchMapper.getInstance().readValue(componentJson, NodeType.class);
         nodeType.setArchiveVersion("1.0");
         // and send it to rest API through the REST mapper
         componentJson = Context.getInstance().getJsonMapper().writeValueAsString(nodeType);

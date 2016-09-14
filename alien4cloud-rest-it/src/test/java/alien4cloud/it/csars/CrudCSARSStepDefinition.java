@@ -10,8 +10,7 @@ import org.junit.Assert;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.model.common.Usage;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.deployment.Deployment;
+import org.alien4cloud.tosca.model.CSARDependency;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.csar.CreateCsarRequest;
 import alien4cloud.rest.csar.CsarInfoDTO;
@@ -20,7 +19,6 @@ import alien4cloud.rest.utils.JsonUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;

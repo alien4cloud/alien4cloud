@@ -35,8 +35,8 @@ import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.IndexedNodeType;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.types.NodeType;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -56,8 +56,8 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
     @Resource(name = "alien-es-dao")
     IGenericSearchDAO dao;
 
-    List<IndexedNodeType> testDataList = new ArrayList<>();
-    List<IndexedNodeType> jndiTestDataList = new ArrayList<>();
+    List<NodeType> testDataList = new ArrayList<>();
+    List<NodeType> jndiTestDataList = new ArrayList<>();
 
     @Override
     @Before
@@ -117,7 +117,7 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
         searchText = "pacpac";
         maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("_all", searchText).maxExpansions(10));
         assertEquals(0, maxElement);
-        GetMultipleDataResult<IndexedNodeType> searchResp = dao.search(IndexedNodeType.class, searchText, null, 0, size);
+        GetMultipleDataResult<NodeType> searchResp = dao.search(NodeType.class, searchText, null, 0, size);
         assertNotNull(searchResp);
         assertNotNull(searchResp.getData());
         assertNotNull(searchResp.getTypes());
@@ -154,7 +154,7 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
         searchText = "pacpac";
         maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("_all", searchText).maxExpansions(10));
         assertEquals(0, maxElement);
-        GetMultipleDataResult<IndexedNodeType> searchResp = dao.facetedSearch(IndexedNodeType.class, searchText, null, null, 0, size);
+        GetMultipleDataResult<NodeType> searchResp = dao.facetedSearch(NodeType.class, searchText, null, null, 0, size);
         assertNotNull(searchResp);
         assertNotNull(searchResp.getData());
         assertNotNull(searchResp.getTypes());
@@ -175,13 +175,13 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
     }
 
     private void testSimpleSearchWellPaginated(int maxElement, int size, Map<String, String[]> filters) throws IOException {
-        List<IndexedNodeType> expectedDataList = filters != null && filterContainsValue(filters, "jndi") ? new ArrayList<>(jndiTestDataList)
+        List<NodeType> expectedDataList = filters != null && filterContainsValue(filters, "jndi") ? new ArrayList<>(jndiTestDataList)
                 : new ArrayList<>(testDataList);
-        GetMultipleDataResult<IndexedNodeType> searchResp;
+        GetMultipleDataResult<NodeType> searchResp;
         int expectedSize;
         for (int from = 0; from < maxElement; from += size) {
             expectedSize = (maxElement - from) > size ? size : maxElement - from;
-            searchResp = dao.find(IndexedNodeType.class, filters, from, size);
+            searchResp = dao.find(NodeType.class, filters, from, size);
             assertNotNull(searchResp);
             assertNotNull(searchResp.getTypes());
             assertNotNull(searchResp.getData());
@@ -191,7 +191,7 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
             // testing the pertinence of returned data
             Object[] data = searchResp.getData();
             for (Object element : data) {
-                IndexedNodeType nt = jsonMapper.readValue(jsonMapper.writeValueAsString(element), IndexedNodeType.class);
+                NodeType nt = jsonMapper.readValue(jsonMapper.writeValueAsString(element), NodeType.class);
                 assertTrue(expectedDataList.contains(nt));
                 expectedDataList.remove(nt);
             }
@@ -203,7 +203,7 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
 
     private void testFacetedSearchWellPaginated(int maxElement, int size, String searchText, Map<String, String[]> filters, String fetchContext)
             throws IOException {
-        List<IndexedNodeType> expectedDataList = new ArrayList<>(jndiTestDataList);
+        List<NodeType> expectedDataList = new ArrayList<>(jndiTestDataList);
         String facetNameToCheck;
         String factetValueToCheck;
         long expectedFacetCount = 0;
@@ -212,7 +212,7 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
         boolean facetToCheckExist = false;
         for (int from = 0; from < maxElement; from += size) {
             expectedSize = (maxElement - from) > size ? size : maxElement - from;
-            searchResp = dao.facetedSearch(IndexedNodeType.class, searchText, filters, fetchContext, from, size);
+            searchResp = dao.facetedSearch(NodeType.class, searchText, filters, fetchContext, from, size);
             assertNotNull(searchResp);
             assertNotNull(searchResp.getTypes());
             assertNotNull(searchResp.getData());
@@ -222,7 +222,7 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
             // testing the pertinence of returned data
             Object[] data = searchResp.getData();
             for (Object element : data) {
-                IndexedNodeType nt = jsonMapper.readValue(jsonMapper.writeValueAsString(element), IndexedNodeType.class);
+                NodeType nt = jsonMapper.readValue(jsonMapper.writeValueAsString(element), NodeType.class);
 
                 // TODO assert fetch context result.
                 assertTrue(expectedDataList.contains(nt));
@@ -262,12 +262,12 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
     }
 
     private void testTextBasedSearchWellPaginated(int maxElement, int size, String searchText, Map<String, String[]> filters) throws IOException {
-        List<IndexedNodeType> expectedDataList = new ArrayList<>(jndiTestDataList);
+        List<NodeType> expectedDataList = new ArrayList<>(jndiTestDataList);
         GetMultipleDataResult searchResp;
         int expectedSize;
         for (int from = 0; from < maxElement; from += size) {
             expectedSize = (maxElement - from) > size ? size : maxElement - from;
-            searchResp = dao.search(IndexedNodeType.class, searchText, filters, from, size);
+            searchResp = dao.search(NodeType.class, searchText, filters, from, size);
             assertNotNull(searchResp);
             assertNotNull(searchResp.getTypes());
             assertNotNull(searchResp.getData());
@@ -277,7 +277,7 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
             // testing the pertinence of returned data
             Object[] data = searchResp.getData();
             for (Object element : data) {
-                IndexedNodeType nt = jsonMapper.readValue(jsonMapper.writeValueAsString(element), IndexedNodeType.class);
+                NodeType nt = jsonMapper.readValue(jsonMapper.writeValueAsString(element), NodeType.class);
                 assertTrue(expectedDataList.contains(nt));
                 expectedDataList.remove(nt);
             }
@@ -288,7 +288,7 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
     }
 
     private int getCount(QueryBuilder queryBuilder) {
-        return (int) nodeClient.prepareCount(ElasticSearchDAO.TOSCA_ELEMENT_INDEX).setTypes(MappingBuilder.indexTypeFromClass(IndexedNodeType.class))
+        return (int) nodeClient.prepareCount(ElasticSearchDAO.TOSCA_ELEMENT_INDEX).setTypes(MappingBuilder.indexTypeFromClass(NodeType.class))
                 .setQuery(queryBuilder).execute().actionGet().getCount();
     }
 
@@ -300,8 +300,8 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
         Object[] data = res.getData();
         for (Object element : data) {
             String serializeDatum = jsonMapper.writeValueAsString(element);
-            IndexedNodeType indexedNodeType = jsonMapper.readValue(serializeDatum, IndexedNodeType.class);
-            String typeName = MappingBuilder.indexTypeFromClass(IndexedNodeType.class);
+            NodeType indexedNodeType = jsonMapper.readValue(serializeDatum, NodeType.class);
+            String typeName = MappingBuilder.indexTypeFromClass(NodeType.class);
             dao.save(indexedNodeType);
             assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, indexedNodeType.getId(), true);
             testDataList.add(indexedNodeType);

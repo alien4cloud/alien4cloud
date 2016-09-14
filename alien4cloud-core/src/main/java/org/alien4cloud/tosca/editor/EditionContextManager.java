@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.cache.*;
 
 import alien4cloud.component.repository.IFileRepository;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;

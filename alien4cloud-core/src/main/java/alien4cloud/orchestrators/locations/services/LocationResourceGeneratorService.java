@@ -16,11 +16,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.IndexedNodeType;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import alien4cloud.topology.TopologyServiceCore;
 
@@ -51,7 +51,7 @@ public class LocationResourceGeneratorService {
     @NoArgsConstructor
     @AllArgsConstructor(suppressConstructorProperties = true)
     public static class ComputeContext {
-        private List<IndexedNodeType> nodeTypes = Lists.newArrayList();
+        private List<NodeType> nodeTypes = Lists.newArrayList();
         private String generatedNamePrefix;
         private String imageIdPropertyName;
         private String flavorIdPropertyName;
@@ -79,7 +79,7 @@ public class LocationResourceGeneratorService {
             for (LocationResourceTemplate flavor : flavors) {
                 String defaultComputeName = generateDefaultName(image, flavor);
                 int count = 0;
-                for (IndexedNodeType indexedNodeType : computeContext.getNodeTypes()) {
+                for (NodeType indexedNodeType : computeContext.getNodeTypes()) {
                     String name = StringUtils.isNotBlank(computeContext.getGeneratedNamePrefix()) ? computeContext.getGeneratedNamePrefix()
                             : defaultComputeName;
                     if (count > 0) {
@@ -149,7 +149,7 @@ public class LocationResourceGeneratorService {
         context.setImageIdPropertyName(imageIdPropertyName);
         context.setGeneratedNamePrefix(namePefix);
         try {
-            IndexedNodeType nodeType = resourceAccessor.getIndexedToscaElement(elementType);
+            NodeType nodeType = resourceAccessor.getIndexedToscaElement(elementType);
             context.getNodeTypes().add(nodeType);
         } catch (NotFoundException e) {
             log.warn("No compute found with the element id: " + elementType, e);

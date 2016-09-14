@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import alien4cloud.model.components.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import alien4cloud.ui.form.annotation.FormContentTypes;
 import alien4cloud.ui.form.annotation.FormCustomType;
 import alien4cloud.ui.form.annotation.FormLabel;

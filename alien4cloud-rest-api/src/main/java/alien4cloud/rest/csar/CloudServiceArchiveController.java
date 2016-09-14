@@ -35,10 +35,10 @@ import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.common.Usage;
-import alien4cloud.model.components.CSARDependency;
+import org.alien4cloud.tosca.model.CSARDependency;
 import alien4cloud.model.components.CSARSource;
-import alien4cloud.model.components.Csar;
-import alien4cloud.model.components.IndexedNodeType;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.*;
 import alien4cloud.tosca.ArchiveUploadService;
@@ -226,7 +226,7 @@ public class CloudServiceArchiveController {
     @RequestMapping(value = "/{csarId:.+?}/nodetypes", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     @Audit
-    public RestResponse<Void> saveNodeType(@PathVariable String csarId, @RequestBody IndexedNodeType nodeType) {
+    public RestResponse<Void> saveNodeType(@PathVariable String csarId, @RequestBody NodeType nodeType) {
         Csar csar = csarService.getOrFail(csarId);
         // check that the csar version is snapshot.
         if (VersionUtil.isSnapshot(csar.getVersion())) {

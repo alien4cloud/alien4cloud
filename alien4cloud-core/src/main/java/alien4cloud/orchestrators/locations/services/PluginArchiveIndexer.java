@@ -6,6 +6,10 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -145,14 +149,14 @@ public class PluginArchiveIndexer {
         publishLocationTypeIndexedEvent(archive.getNodeTypes().values(), orchestrator, location);
     }
 
-    private void publishLocationTypeIndexedEvent(Collection<IndexedNodeType> collection, Orchestrator orchestrator, Location location) {
+    private void publishLocationTypeIndexedEvent(Collection<NodeType> collection, Orchestrator orchestrator, Location location) {
         IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestrator);
         publishLocationTypeIndexedEvent(collection, orchestratorFactory, location);
     }
 
-    private void publishLocationTypeIndexedEvent(Collection<IndexedNodeType> collection, IOrchestratorPluginFactory orchestratorFactory, Location location) {
+    private void publishLocationTypeIndexedEvent(Collection<NodeType> collection, IOrchestratorPluginFactory orchestratorFactory, Location location) {
         if (CollectionUtils.isNotEmpty(collection)) {
-            for (IndexedNodeType nodeType : collection) {
+            for (NodeType nodeType : collection) {
                 LocationTypeIndexed event = new LocationTypeIndexed(this);
                 event.setNodeType(nodeType);
                 event.setLocation(location);
@@ -162,8 +166,8 @@ public class PluginArchiveIndexer {
         }
     }
 
-    private void injectWorkSpace(Collection<? extends IndexedToscaElement> elements, Orchestrator orchestrator, Location location) {
-        for (IndexedToscaElement element : elements) {
+    private void injectWorkSpace(Collection<? extends AbstractToscaType> elements, Orchestrator orchestrator, Location location) {
+        for (AbstractToscaType element : elements) {
             if (element.getTags() == null) {
                 element.setTags(new ArrayList<Tag>());
             }

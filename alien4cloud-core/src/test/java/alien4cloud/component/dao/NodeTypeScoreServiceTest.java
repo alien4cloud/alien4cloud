@@ -15,9 +15,9 @@ import alien4cloud.Constants;
 import alien4cloud.component.NodeTypeScoreService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.utils.MapUtil;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -32,7 +32,7 @@ public class NodeTypeScoreServiceTest {
     @Test
     public void testScoreService() throws InterruptedException {
         // Initialize test data
-        IndexedNodeType indexedNodeType = new IndexedNodeType();
+        NodeType indexedNodeType = new NodeType();
         indexedNodeType.setElementId("mordor");
         indexedNodeType.setArchiveName("middleEarth");
         indexedNodeType.setArchiveVersion("1.0.0");
@@ -77,16 +77,16 @@ public class NodeTypeScoreServiceTest {
         scoreService.run();
 
         // check that order on query is correct
-        GetMultipleDataResult data = dao.search(IndexedNodeType.class, "", null, Constants.DEFAULT_ES_SEARCH_SIZE);
+        GetMultipleDataResult data = dao.search(NodeType.class, "", null, Constants.DEFAULT_ES_SEARCH_SIZE);
         Assert.assertEquals(4, data.getData().length);
-        Assert.assertEquals(isengard100Id, ((IndexedNodeType) data.getData()[0]).getId());
-        Assert.assertEquals(1011, ((IndexedNodeType) data.getData()[0]).getAlienScore());
-        Assert.assertEquals(mordor101Id, ((IndexedNodeType) data.getData()[1]).getId());
-        Assert.assertEquals(1010, ((IndexedNodeType) data.getData()[1]).getAlienScore());
-        Assert.assertEquals(osgiliath100Id, ((IndexedNodeType) data.getData()[2]).getId());
-        Assert.assertEquals(1000, ((IndexedNodeType) data.getData()[2]).getAlienScore());
-        Assert.assertEquals(mordor100Id, ((IndexedNodeType) data.getData()[3]).getId());
-        Assert.assertEquals(10, ((IndexedNodeType) data.getData()[3]).getAlienScore());
+        Assert.assertEquals(isengard100Id, ((NodeType) data.getData()[0]).getId());
+        Assert.assertEquals(1011, ((NodeType) data.getData()[0]).getAlienScore());
+        Assert.assertEquals(mordor101Id, ((NodeType) data.getData()[1]).getId());
+        Assert.assertEquals(1010, ((NodeType) data.getData()[1]).getAlienScore());
+        Assert.assertEquals(osgiliath100Id, ((NodeType) data.getData()[2]).getId());
+        Assert.assertEquals(1000, ((NodeType) data.getData()[2]).getAlienScore());
+        Assert.assertEquals(mordor100Id, ((NodeType) data.getData()[3]).getId());
+        Assert.assertEquals(10, ((NodeType) data.getData()[3]).getAlienScore());
     }
 
 }

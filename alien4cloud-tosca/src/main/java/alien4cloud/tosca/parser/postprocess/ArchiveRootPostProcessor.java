@@ -10,11 +10,11 @@ import org.apache.commons.collections.MapUtils;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.IndexedDataType;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.PropertyValue;
-import alien4cloud.model.components.RepositoryDefinition;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.types.DataType;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.RepositoryDefinition;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.normative.NormativeCredentialConstant;
@@ -78,7 +78,7 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
 
     private void processRepositoriesDefinitions(Map<String, RepositoryDefinition> repositories) {
         if (MapUtils.isNotEmpty(repositories)) {
-            IndexedDataType credentialType = ToscaContext.get(IndexedDataType.class, NormativeCredentialConstant.DATA_TYPE);
+            DataType credentialType = ToscaContext.get(DataType.class, NormativeCredentialConstant.DATA_TYPE);
             repositories.values().forEach(repositoryDefinition -> {
                 if (repositoryDefinition.getCredential() != null) {
                     credentialType.getProperties().forEach((propertyName, propertyDefinition) -> {

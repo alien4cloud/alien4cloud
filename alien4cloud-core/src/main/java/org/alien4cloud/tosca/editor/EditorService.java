@@ -35,7 +35,7 @@ import com.google.common.collect.Maps;
 
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.git.SimpleGitHistoryEntry;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyService;

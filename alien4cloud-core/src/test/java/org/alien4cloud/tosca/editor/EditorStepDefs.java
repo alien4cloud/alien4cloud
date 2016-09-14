@@ -9,10 +9,11 @@ import java.util.*;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.csar.services.CsarService;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.types.*;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Assert;
 import org.springframework.expression.EvaluationContext;
@@ -34,7 +35,7 @@ import com.google.common.collect.Maps;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.components.*;
 import alien4cloud.model.templates.TopologyTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.security.model.User;
 import alien4cloud.topology.TopologyDTO;
@@ -89,14 +90,14 @@ public class EditorStepDefs {
 
     public EditorStepDefs() {
         super();
-        typesToClean.add(IndexedArtifactToscaElement.class);
-        typesToClean.add(IndexedToscaElement.class);
-        typesToClean.add(IndexedCapabilityType.class);
-        typesToClean.add(IndexedArtifactType.class);
-        typesToClean.add(IndexedRelationshipType.class);
-        typesToClean.add(IndexedNodeType.class);
-        typesToClean.add(IndexedDataType.class);
-        typesToClean.add(PrimitiveIndexedDataType.class);
+        typesToClean.add(AbstractInstantiableToscaType.class);
+        typesToClean.add(AbstractToscaType.class);
+        typesToClean.add(CapabilityType.class);
+        typesToClean.add(ArtifactType.class);
+        typesToClean.add(RelationshipType.class);
+        typesToClean.add(NodeType.class);
+        typesToClean.add(DataType.class);
+        typesToClean.add(PrimitiveDataType.class);
         typesToClean.add(Csar.class);
     }
 

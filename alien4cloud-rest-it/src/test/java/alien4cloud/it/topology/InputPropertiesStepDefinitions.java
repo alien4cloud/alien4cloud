@@ -1,11 +1,11 @@
 package alien4cloud.it.topology;
 
 import alien4cloud.it.Context;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
@@ -53,7 +53,7 @@ public class InputPropertiesStepDefinitions {
         TopologyDTO topologyDTO = JsonUtil.read(response, TopologyDTO.class, Context.getJsonMapper()).getData();
         NodeTemplate template = MapUtils.getObject(topologyDTO.getTopology().getNodeTemplates(), nodeName);
         if (template != null) {
-            IndexedNodeType nodeType = MapUtils.getObject(topologyDTO.getNodeTypes(), template.getType());
+            NodeType nodeType = MapUtils.getObject(topologyDTO.getNodeTypes(), template.getType());
             if (nodeType != null) {
                 propDef = MapUtils.getObject(nodeType.getProperties(), propertyName);
             }
@@ -74,7 +74,7 @@ public class InputPropertiesStepDefinitions {
         NodeTemplate template = MapUtils.getObject(topologyDTO.getTopology().getNodeTemplates(), nodeName);
         Capability capability = template.getCapabilities().get(capabilityName);
 
-        IndexedCapabilityType capabilityType = topologyDTO.getCapabilityTypes().get(capability.getType());
+        CapabilityType capabilityType = topologyDTO.getCapabilityTypes().get(capability.getType());
         PropertyDefinition propertyDefinition = capabilityType.getProperties().get(propertyName);
 
         String fullUrl = String.format("/rest/v1/topologies/%s/inputs/%s", Context.getInstance().getTopologyId(), propertyName);
@@ -86,7 +86,7 @@ public class InputPropertiesStepDefinitions {
     public void I_define_the_property_of_the_node_as_of_typeId_as_input_property(String inputId, String nodeName, String typeId) throws Throwable {
         // get the component to use the right property definition
         String componentResponse = Context.getRestClientInstance().get("/rest/v1/components/" + typeId);
-        RestResponse<IndexedNodeType> componentResult = JsonUtil.read(componentResponse, IndexedNodeType.class, Context.getJsonMapper());
+        RestResponse<NodeType> componentResult = JsonUtil.read(componentResponse, NodeType.class, Context.getJsonMapper());
         PropertyDefinition propertyDefinition = componentResult.getData().getProperties().get(inputId);
         String fullUrl = String.format("/rest/v1/topologies/%s/inputs/%s", Context.getInstance().getTopologyId(), inputId);
         String json = JsonUtil.toString(propertyDefinition);

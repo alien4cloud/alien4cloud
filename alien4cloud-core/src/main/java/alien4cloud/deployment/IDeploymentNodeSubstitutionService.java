@@ -5,7 +5,7 @@ import java.util.Map;
 
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import alien4cloud.model.topology.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import alien4cloud.plugin.aop.Overridable;
 
 public interface IDeploymentNodeSubstitutionService {

@@ -19,9 +19,9 @@ import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.ElasticSearchMapper;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.IndexedToscaElement;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import alien4cloud.rest.component.QueryComponentType;
 import alien4cloud.rest.model.BasicSearchRequest;
 import alien4cloud.rest.model.RestResponse;
@@ -42,8 +42,8 @@ public class QuickSearchDefinitionsSteps {
 
     private static final String DEFAULT_ARCHIVE_VERSION = "1.0";
     private static Map<String, String> indexedTypes = Maps.newHashMap();
-    List<IndexedNodeType> testDataList = new ArrayList<>();
-    List<IndexedNodeType> notYetSearchedDataList = null;
+    List<NodeType> testDataList = new ArrayList<>();
+    List<NodeType> notYetSearchedDataList = null;
     private static final Map<String, QueryComponentType> QUERY_TYPES;
 
     private final Client esClient = Context.getEsClientInstance();
@@ -133,7 +133,7 @@ public class QuickSearchDefinitionsSteps {
         String typeName = MappingBuilder.indexTypeFromClass(clazz);
         int remaining = countHavingProperty;
         for (int i = 0; i < count; i++) {
-            IndexedToscaElement componentTemplate = (IndexedToscaElement) clazz.newInstance();
+            AbstractToscaType componentTemplate = (AbstractToscaType) clazz.newInstance();
             componentTemplate.setElementId(type + "_" + i);
             componentTemplate.setArchiveVersion(DEFAULT_ARCHIVE_VERSION);
 
@@ -141,14 +141,14 @@ public class QuickSearchDefinitionsSteps {
                 if (type.equalsIgnoreCase("node types")) {
                     switch (property) {
                     case "elementId":
-                        ((IndexedNodeType) componentTemplate).setElementId(propertyValue + "_" + remaining);
+                        ((NodeType) componentTemplate).setElementId(propertyValue + "_" + remaining);
                         break;
 
                     default:
                         break;
                     }
                 } else if (type.equalsIgnoreCase("relationship types")) {
-                    ((IndexedRelationshipType) componentTemplate).setValidSources(new String[] { propertyValue });
+                    ((RelationshipType) componentTemplate).setValidSources(new String[] { propertyValue });
                 }
                 remaining -= 1;
             }
@@ -157,8 +157,8 @@ public class QuickSearchDefinitionsSteps {
             log.debug("Saving in ES: " + serializeDatum);
             esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(serializeDatum).setRefresh(true).execute().actionGet();
 
-            if (componentTemplate instanceof IndexedNodeType) {
-                testDataList.add((IndexedNodeType) (componentTemplate));
+            if (componentTemplate instanceof NodeType) {
+                testDataList.add((NodeType) (componentTemplate));
             }
         }
         indexedTypes.put(type, typeName);

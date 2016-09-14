@@ -3,7 +3,6 @@ package alien4cloud.rest.deployment;
 import static alien4cloud.utils.AlienUtils.safe;
 import alien4cloud.deployment.OrchestratorPropertiesValidationService;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.services.PropertyService;
 import io.swagger.annotations.Api;
@@ -46,7 +45,6 @@ import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
-import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.RestConstraintValidator;
 
 import java.util.Map;

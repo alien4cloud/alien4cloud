@@ -1,7 +1,7 @@
 package alien4cloud.json.deserializer;
 
-import alien4cloud.model.components.*;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
+import org.alien4cloud.tosca.model.definitions.*;
 
 /**
  * Custom deserializer to handle multiple operation parameters types.

@@ -8,8 +8,8 @@ import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.exception.EditorToscaYamlUpdateException;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.tosca.ArchiveParser;
 import alien4cloud.tosca.context.ToscaContext;
@@ -72,7 +72,7 @@ public class EditorTopologyUploadService {
                         }
 
                         @Override
-                        public <T extends IndexedToscaElement> T findElement(Class<T> clazz, String id) {
+                        public <T extends AbstractToscaType> T findElement(Class<T> clazz, String id) {
                             return ToscaContext.get(clazz, id);
                         }
                     });

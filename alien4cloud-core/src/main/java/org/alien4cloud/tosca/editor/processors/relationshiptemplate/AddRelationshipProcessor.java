@@ -19,11 +19,11 @@ import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidNameException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
@@ -66,10 +66,10 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
         TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getTarget(), nodeTemplates);
 
         // We don't use the tosca context as the relationship type may not be in dependencies yet (that's why we use the load type below).
-        IndexedRelationshipType indexedRelationshipType = searchService.find(IndexedRelationshipType.class, operation.getRelationshipType(),
+        RelationshipType indexedRelationshipType = searchService.find(RelationshipType.class, operation.getRelationshipType(),
                 operation.getRelationshipVersion());
         if (indexedRelationshipType == null) {
-            throw new NotFoundException(IndexedRelationshipType.class.getName(), operation.getRelationshipType() + ":" + operation.getRelationshipVersion(),
+            throw new NotFoundException(RelationshipType.class.getName(), operation.getRelationshipType() + ":" + operation.getRelationshipVersion(),
                     "Unable to find relationship type to create template in topology.");
         }
 

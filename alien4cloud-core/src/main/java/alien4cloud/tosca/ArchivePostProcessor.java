@@ -21,14 +21,14 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Sets;
 
 import alien4cloud.deployment.exceptions.UnresolvableArtifactException;
-import alien4cloud.model.components.AbstractArtifact;
-import alien4cloud.model.components.IndexedArtifactToscaElement;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.Interface;
-import alien4cloud.model.topology.AbstractTemplate;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.definitions.AbstractArtifact;
+import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.definitions.Interface;
+import org.alien4cloud.tosca.model.templates.AbstractTemplate;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.repository.services.RepositoryService;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.model.ArchiveRoot;
@@ -123,8 +123,8 @@ public class ArchivePostProcessor {
         processTypes(archiveRoot.getRelationshipTypes(), hash);
     }
 
-    private void processTypes(Map<String, ? extends IndexedToscaElement> elements, String hash) {
-        for (IndexedToscaElement element : safe(elements).values()) {
+    private void processTypes(Map<String, ? extends AbstractToscaType> elements, String hash) {
+        for (AbstractToscaType element : safe(elements).values()) {
             element.setArchiveHash(hash);
             element.setWorkspaces(Sets.newHashSet(GLOBAL_WORKSPACE_ID));
         }
@@ -208,8 +208,8 @@ public class ArchivePostProcessor {
         }
     }
 
-    private <T extends IndexedArtifactToscaElement> void processTypes(ArchivePathResolver archivePathResolver, Map<String, T> types,
-            ParsingResult<ArchiveRoot> parsedArchive) {
+    private <T extends AbstractInstantiableToscaType> void processTypes(ArchivePathResolver archivePathResolver, Map<String, T> types,
+                                                                        ParsingResult<ArchiveRoot> parsedArchive) {
         if (types != null) {
             for (T type : types.values()) {
                 if (type.getArtifacts() != null) {

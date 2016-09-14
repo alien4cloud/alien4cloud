@@ -1,8 +1,6 @@
 package alien4cloud.rest.runtime;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -12,6 +10,11 @@ import javax.validation.Valid;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.alien4cloud.tosca.model.definitions.IValue;
+import org.alien4cloud.tosca.model.definitions.Interface;
+import org.alien4cloud.tosca.model.definitions.Operation;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,13 +34,12 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.components.*;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.paas.model.OperationExecRequest;
-import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
 import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorCode;
@@ -154,7 +156,7 @@ public class RuntimeController {
      * @param applicationId application id for which to get the topology
      * @param applicationEnvironmentId application environment for which to get the topology through the version
      * @return {@link RestResponse}<{@link TopologyDTO}> containing the requested runtime {@link Topology} and the
-     *         {@link alien4cloud.model.components.IndexedNodeType} related to his {@link NodeTemplate}s
+     *         {@link NodeType} related to his {@link NodeTemplate}s
      */
     @ApiOperation(value = "Get runtime (deployed) topology of an application on a specific cloud.")
     @RequestMapping(value = "/{applicationId:.+?}/environment/{applicationEnvironmentId:.+?}/topology", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -180,7 +182,7 @@ public class RuntimeController {
     private void validateCommand(OperationExecRequest operationRequest, Topology topology) throws ConstraintFunctionalException {
         NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operationRequest.getNodeTemplateName(),
                 TopologyServiceCore.getNodeTemplates(topology));
-        IndexedNodeType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
+        NodeType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(),
                 topology.getDependencies());
 
         Map<String, Interface> interfaces = IndexedModelUtils.mergeInterfaces(indexedNodeType.getInterfaces(), nodeTemplate.getInterfaces());

@@ -3,7 +3,7 @@ package alien4cloud.model.deployment;
 import lombok.Getter;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
-import alien4cloud.model.components.Csar;
+import org.alien4cloud.tosca.model.Csar;
 
 /**
  * The type of resource which is at the origin of the deployment

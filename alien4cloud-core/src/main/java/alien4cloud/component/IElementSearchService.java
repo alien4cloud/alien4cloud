@@ -3,7 +3,7 @@ package alien4cloud.component;
 import java.util.Map;
 
 import alien4cloud.dao.model.FacetedSearchResult;
-import alien4cloud.model.components.IndexedToscaElement;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 
 /**
  * Service to search for elements.
@@ -18,5 +18,5 @@ public interface IElementSearchService {
      * @param filters Filters.
      * @return A faceted search result that contains both the search results and the facets to help user improve the query.
      */
-    FacetedSearchResult search(Class<? extends IndexedToscaElement> classNameToQuery, String query, Integer size, Map<String, String[]> filters);
+    FacetedSearchResult search(Class<? extends AbstractToscaType> classNameToQuery, String query, Integer size, Map<String, String[]> filters);
 }

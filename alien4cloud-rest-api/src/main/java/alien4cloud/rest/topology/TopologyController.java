@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.EditorService;
 import org.alien4cloud.tosca.editor.TopologyDTOBuilder;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +20,11 @@ import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.DeploymentArtifact;
-import alien4cloud.model.components.IndexedNodeType;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.model.templates.TopologyTemplate;
-import alien4cloud.model.topology.AbstractTopologyVersion;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.AbstractTopologyVersion;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.model.ApplicationRole;
@@ -60,11 +61,11 @@ public class TopologyController {
     private EditorService editorService;
 
     /**
-     * Retrieve an existing {@link alien4cloud.model.topology.Topology}
+     * Retrieve an existing {@link Topology}
      *
      * @param topologyId The id of the topology to retrieve.
-     * @return {@link RestResponse}<{@link TopologyDTO}> containing the {@link alien4cloud.model.topology.Topology} and the {@link IndexedNodeType} related
-     *         to his {@link alien4cloud.model.topology.NodeTemplate}s
+     * @return {@link RestResponse}<{@link TopologyDTO}> containing the {@link Topology} and the {@link NodeType} related
+     *         to his {@link NodeTemplate}s
      */
     @ApiOperation(value = "Retrieve a topology from it's id.", notes = "Returns a topology with it's details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -100,7 +101,7 @@ public class TopologyController {
     }
 
     /**
-     * Retrieve an existing {@link alien4cloud.model.topology.Topology} as YAML
+     * Retrieve an existing {@link Topology} as YAML
      *
      * @param topologyId The id of the topology to retrieve.
      * @return {@link RestResponse}<{@link String}> containing the topology as YAML

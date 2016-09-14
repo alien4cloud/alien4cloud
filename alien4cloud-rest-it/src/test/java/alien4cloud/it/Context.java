@@ -31,10 +31,10 @@ import alien4cloud.it.provider.util.OpenStackClient;
 import alien4cloud.json.deserializer.*;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.MetaPropConfiguration;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.IValue;
-import alien4cloud.model.components.IndexedInheritableToscaElement;
-import alien4cloud.model.components.PropertyConstraint;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.IValue;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.rest.utils.RestClient;
 import alien4cloud.rest.utils.RestMapper;
@@ -143,7 +143,7 @@ public class Context {
             // task deserializers
             module = new SimpleModule("taskDeser", new Version(1, 0, 0, null, null, null));
             module.addDeserializer(AbstractTask.class, new TaskDeserializer());
-            module.addDeserializer(IndexedInheritableToscaElement.class, new TaskIndexedInheritableToscaElementDeserializer());
+            module.addDeserializer(AbstractInheritableToscaType.class, new TaskIndexedInheritableToscaElementDeserializer());
             JSON_MAPPER.registerModule(module);
 
         }

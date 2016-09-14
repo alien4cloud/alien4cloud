@@ -8,8 +8,8 @@ import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.topology.SubstitutionTarget;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
+import org.alien4cloud.tosca.model.templates.Topology;
 
 /**
  * Delete a group from a topology.

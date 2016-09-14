@@ -7,11 +7,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedDataType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.DataType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.templates.Topology;
 
 @Getter
 @Setter
@@ -19,10 +19,10 @@ import alien4cloud.model.topology.Topology;
 @AllArgsConstructor(suppressConstructorProperties = true)
 public class AbstractTopologyDTO<T extends Topology> {
     private T topology;
-    private Map<String, IndexedNodeType> nodeTypes;
-    private Map<String, IndexedRelationshipType> relationshipTypes;
-    private Map<String, IndexedCapabilityType> capabilityTypes;
-    private Map<String, IndexedDataType> dataTypes;
+    private Map<String, NodeType> nodeTypes;
+    private Map<String, RelationshipType> relationshipTypes;
+    private Map<String, CapabilityType> capabilityTypes;
+    private Map<String, DataType> dataTypes;
 
     // FIXME this is already in the topology, let's just remove that from the DTO as it create heavier and useless json
     private Map<String, Map<String, Set<String>>> outputCapabilityProperties;

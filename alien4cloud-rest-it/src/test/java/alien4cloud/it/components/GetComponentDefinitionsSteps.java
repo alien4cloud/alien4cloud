@@ -20,7 +20,7 @@ import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.ElasticSearchMapper;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.it.Context;
-import alien4cloud.model.components.IndexedNodeType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.MapUtil;
@@ -48,7 +48,7 @@ public class GetComponentDefinitionsSteps {
 
     @Then("^I should retrieve a component detail with list of it's properties and interfaces.$")
     public void I_should_retrieve_a_component_detail_with_list_of_it_s_properties_and_interfaces() throws Throwable {
-        IndexedNodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), IndexedNodeType.class).getData();
+        NodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), NodeType.class).getData();
         assertNotNull(idnt);
         assertNotNull(idnt.getProperties());
         assertTrue(!idnt.getProperties().isEmpty());
@@ -80,13 +80,13 @@ public class GetComponentDefinitionsSteps {
         String samplePathString = "src/test/resources/data/components/indexed_nodetypes.json";
         Path path = Paths.get(samplePathString);
         List<Object> tempList = jsonMapper.readValue(path.toFile(), ArrayList.class);
-        List<IndexedNodeType> idntList = new ArrayList<>();
+        List<NodeType> idntList = new ArrayList<>();
         for (Object ob : tempList) {
-            idntList.add(jsonMapper.readValue(jsonMapper.writeValueAsString(ob), IndexedNodeType.class));
+            idntList.add(jsonMapper.readValue(jsonMapper.writeValueAsString(ob), NodeType.class));
         }
-        String typeName = MappingBuilder.indexTypeFromClass(IndexedNodeType.class);
+        String typeName = MappingBuilder.indexTypeFromClass(NodeType.class);
         if (componentId != null && !componentId.trim().isEmpty()) {
-            for (IndexedNodeType indexedNodeType : idntList) {
+            for (NodeType indexedNodeType : idntList) {
                 if (indexedNodeType.getId().equalsIgnoreCase(componentId)) {
                     String serializeDatum = jsonMapper.writeValueAsString(indexedNodeType);
                     esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(serializeDatum).setRefresh(refresh).execute().actionGet();
@@ -95,7 +95,7 @@ public class GetComponentDefinitionsSteps {
             }
             fail("No component with id <" + componentId + "> found in the sample file <" + samplePathString + ">.");
         } else {
-            for (IndexedNodeType indexedNodeType : idntList) {
+            for (NodeType indexedNodeType : idntList) {
                 String serializeDatum = jsonMapper.writeValueAsString(indexedNodeType);
                 esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(serializeDatum).setRefresh(refresh).execute().actionGet();
             }

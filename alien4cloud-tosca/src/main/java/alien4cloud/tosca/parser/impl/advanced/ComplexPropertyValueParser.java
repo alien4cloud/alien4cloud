@@ -6,9 +6,9 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.SequenceNode;
 
 import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.ComplexPropertyValue;
-import alien4cloud.model.components.ListPropertyValue;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
+import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;

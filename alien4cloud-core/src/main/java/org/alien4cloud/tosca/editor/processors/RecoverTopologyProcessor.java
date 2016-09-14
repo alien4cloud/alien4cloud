@@ -1,7 +1,7 @@
 package org.alien4cloud.tosca.editor.processors;
 
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.AlienUtils;

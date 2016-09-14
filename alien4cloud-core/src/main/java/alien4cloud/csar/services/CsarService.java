@@ -30,11 +30,11 @@ import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.Usage;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.Csar;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.templates.TopologyTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Topology;
 import lombok.extern.slf4j.Slf4j;
 
 /**

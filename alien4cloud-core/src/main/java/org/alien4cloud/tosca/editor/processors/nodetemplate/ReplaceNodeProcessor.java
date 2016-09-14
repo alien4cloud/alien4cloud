@@ -11,10 +11,10 @@ import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.CSARRepositorySearchService;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.SubstitutionTarget;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
@@ -42,7 +42,7 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
         NodeTemplate oldNodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
 
         String[] splittedId = operation.getNewTypeId().split(":");
-        IndexedNodeType newType = searchService.find(IndexedNodeType.class, splittedId[0], splittedId[1]);
+        NodeType newType = searchService.find(NodeType.class, splittedId[0], splittedId[1]);
         // Load the new type to the topology in order to update its dependencies
         newType = topologyService.loadType(topology, newType);
 

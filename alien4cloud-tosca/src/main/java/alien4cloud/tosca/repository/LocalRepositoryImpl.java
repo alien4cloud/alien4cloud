@@ -2,21 +2,19 @@ package alien4cloud.tosca.repository;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.elasticsearch.index.query.QueryBuilder;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.Csar;
-import alien4cloud.model.components.IndexedToscaElement;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContextExecution;
@@ -54,12 +52,12 @@ public class LocalRepositoryImpl implements ICSARRepositorySearchService {
     }
 
     @Override
-    public boolean isElementExistInDependencies(Class<? extends IndexedToscaElement> elementClass, String elementId, Set<CSARDependency> dependencies) {
+    public boolean isElementExistInDependencies(Class<? extends AbstractToscaType> elementClass, String elementId, Set<CSARDependency> dependencies) {
         return getElementInDependencies(elementClass, elementId, dependencies) != null;
     }
 
     @Override
-    public <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, Set<CSARDependency> dependencies, String... keyValueFilters) {
+    public <T extends AbstractToscaType> T getElementInDependencies(Class<T> elementClass, Set<CSARDependency> dependencies, String... keyValueFilters) {
         return (T) ToscaContext.get().getElement(elementClass, element -> {
             if (!dependencies.contains(new CSARDependency(element.getArchiveName(), element.getArchiveVersion()))) {
                 return false;
@@ -79,7 +77,7 @@ public class LocalRepositoryImpl implements ICSARRepositorySearchService {
     }
 
     @Override
-    public <T extends IndexedToscaElement> T getRequiredElementInDependencies(Class<T> elementClass, String elementId, Set<CSARDependency> dependencies)
+    public <T extends AbstractToscaType> T getRequiredElementInDependencies(Class<T> elementClass, String elementId, Set<CSARDependency> dependencies)
             throws NotFoundException {
         T element = getElementInDependencies(elementClass, elementId, dependencies);
         if (element == null) {
@@ -90,7 +88,7 @@ public class LocalRepositoryImpl implements ICSARRepositorySearchService {
     }
 
     @Override
-    public <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, String elementId, Set<CSARDependency> dependencies) {
+    public <T extends AbstractToscaType> T getElementInDependencies(Class<T> elementClass, String elementId, Set<CSARDependency> dependencies) {
         if (recursiveCall.get() == null) {
             recursiveCall.set(true);
         } else {

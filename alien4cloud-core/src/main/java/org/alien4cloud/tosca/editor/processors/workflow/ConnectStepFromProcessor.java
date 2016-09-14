@@ -5,7 +5,7 @@ import org.alien4cloud.tosca.editor.operations.workflow.ConnectStepFromOperation
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.wf.Workflow;
 import lombok.extern.slf4j.Slf4j;
 

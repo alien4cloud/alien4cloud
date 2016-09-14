@@ -9,12 +9,12 @@ import org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodeCapabi
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +35,7 @@ public class SetNodeCapabilityPropertyAsInputProcessor extends AbstractNodeProce
         PropertyDefinition inputPropertyDefinition = getOrFail(topology.getInputs(), operation.getInputName(), "Input {} not found in topology",
                 operation.getInputName());
 
-        IndexedCapabilityType capabilityType = ToscaContext.get(IndexedCapabilityType.class, capabilityTemplate.getType());
+        CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, capabilityTemplate.getType());
         PropertyDefinition capabilityPropertyDefinition = getOrFail(capabilityType.getProperties(), operation.getPropertyName(),
                 "Property {} do not exist for capability {} of node {}", operation.getPropertyName(), operation.getCapabilityName(), operation.getNodeName());
 

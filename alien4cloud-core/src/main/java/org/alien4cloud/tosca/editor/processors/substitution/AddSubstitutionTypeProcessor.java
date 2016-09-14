@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.model.components.IndexedNodeType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.model.templates.TopologyTemplate;
-import alien4cloud.model.topology.SubstitutionMapping;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.SubstitutionMapping;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.topology.TopologyService;
 
 /**
@@ -38,12 +38,12 @@ public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<A
             topology.setSubstitutionMapping(new SubstitutionMapping());
         }
 
-        IndexedNodeType nodeType = csarRepoSearchService.getElementInDependencies(IndexedNodeType.class, operation.getElementId(), topology.getDependencies());
+        NodeType nodeType = csarRepoSearchService.getElementInDependencies(NodeType.class, operation.getElementId(), topology.getDependencies());
         // if not null the node type exists in the dependencies, there is no choices for this type version
         if (nodeType == null) {
             // the node type does'nt exist in this topology dependencies
             // we need to find the latest version of this component and use it as default
-            nodeType = csarRepoSearchService.findMostRecent(IndexedNodeType.class, operation.getElementId());
+            nodeType = csarRepoSearchService.findMostRecent(NodeType.class, operation.getElementId());
             // FIXME we should use type loader here to avoid conflicts
             topology.getDependencies().add(topologyService.buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
         }

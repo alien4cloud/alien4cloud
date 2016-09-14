@@ -10,10 +10,10 @@ import java.util.function.Consumer;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.model.components.IndexedDataType;
-import alien4cloud.model.components.PrimitiveIndexedDataType;
-import alien4cloud.model.components.PropertyConstraint;
-import alien4cloud.model.components.PropertyDefinition;
+import org.alien4cloud.tosca.model.types.DataType;
+import org.alien4cloud.tosca.model.types.PrimitiveDataType;
+import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.normative.IPropertyType;
 import alien4cloud.tosca.normative.ToscaType;
@@ -63,13 +63,13 @@ public class ConstraintPropertyService {
             Consumer<String> missingPropertyConsumer) throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         boolean isPrimitiveType = false;
         boolean isTypeDerivedFromPrimitive = false;
-        IndexedDataType dataType = null;
+        DataType dataType = null;
         String typeName = propertyDefinition.getType();
         if (ToscaType.isPrimitive(typeName)) {
             isPrimitiveType = true;
         } else {
-            dataType = ToscaContext.get(IndexedDataType.class, typeName);
-            if (dataType instanceof PrimitiveIndexedDataType) {
+            dataType = ToscaContext.get(DataType.class, typeName);
+            if (dataType instanceof PrimitiveDataType) {
                 // the type is derived from a primitive type
                 isTypeDerivedFromPrimitive = true;
             }
@@ -132,13 +132,13 @@ public class ConstraintPropertyService {
      * Check constraints defined on a property which has a type derived from a primitive.
      */
     private void checkComplexPropertyDerivedFromPrimitiveTypeConstraints(final String propertyName, final String stringValue,
-            final PropertyDefinition propertyDefinition, final IndexedDataType dataType)
+            final PropertyDefinition propertyDefinition, final DataType dataType)
             throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         ConstraintInformation consInformation = null;
         boolean hasDefinitionConstraints = propertyDefinition.getConstraints() != null && !propertyDefinition.getConstraints().isEmpty();
         boolean hasTypeConstraints = false;
-        if (dataType instanceof PrimitiveIndexedDataType && ((PrimitiveIndexedDataType) dataType).getConstraints() != null
-                && !((PrimitiveIndexedDataType) dataType).getConstraints().isEmpty()) {
+        if (dataType instanceof PrimitiveDataType && ((PrimitiveDataType) dataType).getConstraints() != null
+                && !((PrimitiveDataType) dataType).getConstraints().isEmpty()) {
             hasTypeConstraints = true;
         }
         String derivedFromPrimitiveType = dataType.getDerivedFrom().get(0);
@@ -149,7 +149,7 @@ public class ConstraintPropertyService {
                 checkConstraints(propertyName, stringValue, derivedFromPrimitiveType, propertyDefinition.getConstraints());
             }
             if (hasTypeConstraints) {
-                checkConstraints(propertyName, stringValue, derivedFromPrimitiveType, ((PrimitiveIndexedDataType) dataType).getConstraints());
+                checkConstraints(propertyName, stringValue, derivedFromPrimitiveType, ((PrimitiveDataType) dataType).getConstraints());
             }
         }
     }
@@ -176,7 +176,7 @@ public class ConstraintPropertyService {
 
     private void checkDataTypePropertyConstraint(String propertyName, Map<String, Object> complexPropertyValue, PropertyDefinition propertyDefinition,
             Consumer<String> missingPropertyConsumer) throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
-        IndexedDataType dataType = ToscaContext.get(IndexedDataType.class, propertyDefinition.getType());
+        DataType dataType = ToscaContext.get(DataType.class, propertyDefinition.getType());
         if (dataType == null) {
             throw new ConstraintViolationException(
                     "Complex type " + propertyDefinition.getType() + " is not complex or it cannot be found in the archive nor in Alien");

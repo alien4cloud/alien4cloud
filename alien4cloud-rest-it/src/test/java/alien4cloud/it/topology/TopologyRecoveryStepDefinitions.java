@@ -2,8 +2,8 @@ package alien4cloud.it.topology;
 
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.topology.NodeTemplate;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;

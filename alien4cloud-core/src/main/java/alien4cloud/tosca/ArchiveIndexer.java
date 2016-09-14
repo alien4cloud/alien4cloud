@@ -9,6 +9,10 @@ import javax.inject.Inject;
 
 import alien4cloud.topology.TopologyTemplateService;
 import org.alien4cloud.tosca.editor.EditorRepositoryService;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.ICSARRepositoryIndexerService;
@@ -22,7 +26,7 @@ import alien4cloud.deployment.DeploymentService;
 import alien4cloud.model.components.*;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyTemplateVersionService;
@@ -125,7 +129,7 @@ public class ArchiveIndexer {
                         }
 
                         @Override
-                        public <T extends IndexedToscaElement> T findElement(Class<T> clazz, String id) {
+                        public <T extends AbstractToscaType> T findElement(Class<T> clazz, String id) {
                             return ToscaParsingUtil.getElementFromArchiveOrDependencies(clazz, id, archiveRoot, searchService);
                         }
                     });
@@ -194,7 +198,7 @@ public class ArchiveIndexer {
     private void indexArchiveTypes(String archiveName, String archiveVersion, ArchiveRoot root, Csar archive) {
         if (archive != null) {
             // get element from the archive so we get the creation date.
-            Map<String, IndexedToscaElement> previousElements = indexerService.getArchiveElements(archiveName, archiveVersion);
+            Map<String, AbstractToscaType> previousElements = indexerService.getArchiveElements(archiveName, archiveVersion);
             prepareForUpdate(root, previousElements);
 
             // delete the previous archive including all types etc.
@@ -204,7 +208,7 @@ public class ArchiveIndexer {
         performIndexing(archiveName, archiveVersion, root);
     }
 
-    private void prepareForUpdate(ArchiveRoot root, Map<String, IndexedToscaElement> previousElements) {
+    private void prepareForUpdate(ArchiveRoot root, Map<String, AbstractToscaType> previousElements) {
         updateCreationDates(root.getArtifactTypes(), previousElements);
         updateCreationDates(root.getCapabilityTypes(), previousElements);
         updateCreationDates(root.getNodeTypes(), previousElements);
@@ -218,12 +222,12 @@ public class ArchiveIndexer {
         }
     }
 
-    private void updateCreationDates(Map<String, ? extends IndexedInheritableToscaElement> newElements, Map<String, IndexedToscaElement> previousElements) {
+    private void updateCreationDates(Map<String, ? extends AbstractInheritableToscaType> newElements, Map<String, AbstractToscaType> previousElements) {
         if (newElements == null) {
             return;
         }
-        for (IndexedInheritableToscaElement newElement : newElements.values()) {
-            IndexedToscaElement previousElement = previousElements.get(newElement.getId());
+        for (AbstractInheritableToscaType newElement : newElements.values()) {
+            AbstractToscaType previousElement = previousElements.get(newElement.getId());
             if (previousElement != null) {
                 newElement.setCreationDate(previousElement.getCreationDate());
             }

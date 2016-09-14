@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.tosca.model.templates.*;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
@@ -15,10 +16,9 @@ import com.google.common.collect.Sets;
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.CyclicReferenceException;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.topology.*;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.paas.wf.Workflow;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
@@ -253,7 +253,7 @@ public class TopologyCompositionService {
         for (Entry<String, NodeTemplate> nodeEntry : topology.getNodeTemplates().entrySet()) {
             String nodeName = nodeEntry.getKey();
             String type = nodeEntry.getValue().getType();
-            IndexedNodeType nodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, type, topology.getDependencies());
+            NodeType nodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, type, topology.getDependencies());
             if (nodeType.getSubstitutionTopologyId() != null) {
                 // this node type is a proxy for a topology template
                 Topology child = topologyServiceCore.getOrFail(nodeType.getSubstitutionTopologyId());
@@ -344,7 +344,7 @@ public class TopologyCompositionService {
         }
         for (Entry<String, NodeTemplate> nodeEntry : child.getNodeTemplates().entrySet()) {
             String type = nodeEntry.getValue().getType();
-            IndexedNodeType nodeType = csarRepoSearchService.getElementInDependencies(IndexedNodeType.class, type, child.getDependencies());
+            NodeType nodeType = csarRepoSearchService.getElementInDependencies(NodeType.class, type, child.getDependencies());
             if (nodeType.getSubstitutionTopologyId() != null) {
                 if (nodeType.getSubstitutionTopologyId().equals(mainTopologyId)) {
                     throw new CyclicReferenceException("Cyclic reference : a topology template can not reference itself (even indirectly)");

@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.templates.Topology;
 
 /**
  * This aspect executes for ToscaContextual methods and ensure that a ToscaContext is defined (or creates one if not).

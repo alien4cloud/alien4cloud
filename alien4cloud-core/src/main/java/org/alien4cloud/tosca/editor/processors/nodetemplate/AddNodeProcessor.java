@@ -14,10 +14,10 @@ import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.exception.CyclicReferenceException;
 import alien4cloud.exception.InvalidNodeNameException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.IndexedNodeType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.model.templates.TopologyTemplate;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyUtils;
@@ -49,9 +49,9 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
         topologyService.isUniqueNodeTemplateName(topology, operation.getNodeName());
 
         String[] splittedId = operation.getIndexedNodeTypeId().split(":");
-        IndexedNodeType indexedNodeType = searchService.find(IndexedNodeType.class, splittedId[0], splittedId[1]);
+        NodeType indexedNodeType = searchService.find(NodeType.class, splittedId[0], splittedId[1]);
         if (indexedNodeType == null) {
-            throw new NotFoundException(IndexedNodeType.class.getName(), operation.getIndexedNodeTypeId(),
+            throw new NotFoundException(NodeType.class.getName(), operation.getIndexedNodeTypeId(),
                     "Unable to find node type to create template in topology.");
         }
 

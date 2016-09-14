@@ -14,11 +14,11 @@ import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.CSARRepositorySearchService;
-import alien4cloud.model.components.IndexedToscaElement;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import alien4cloud.model.deployment.matching.ILocationMatch;
 import alien4cloud.model.orchestrators.ArtifactSupport;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import alien4cloud.orchestrators.services.OrchestratorService;
 
@@ -56,7 +56,7 @@ public class LocationMatchNodeFilter extends AbstractLocationMatchFilterWithElec
      */
     @Getter
     public class NodeMatchContext {
-        private Map<String, Map<String, IndexedToscaElement>> toscaTypesCache = Maps.newHashMap();
+        private Map<String, Map<String, AbstractToscaType>> toscaTypesCache = Maps.newHashMap();
         private Topology topology;
         private NodeTemplate template;
         private ILocationMatch locationMatch;
@@ -69,9 +69,9 @@ public class LocationMatchNodeFilter extends AbstractLocationMatchFilterWithElec
          * @param <T> The type of element.
          * @return The requested element.
          */
-        public <T extends IndexedToscaElement> T getElement(Class<T> elementClass, String elementId) {
+        public <T extends AbstractToscaType> T getElement(Class<T> elementClass, String elementId) {
             String elementType = elementClass.getSimpleName();
-            Map<String, IndexedToscaElement> typeElements = toscaTypesCache.get(elementType);
+            Map<String, AbstractToscaType> typeElements = toscaTypesCache.get(elementType);
             if (typeElements == null) {
                 typeElements = new HashMap<>();
                 toscaTypesCache.put(elementType, typeElements);

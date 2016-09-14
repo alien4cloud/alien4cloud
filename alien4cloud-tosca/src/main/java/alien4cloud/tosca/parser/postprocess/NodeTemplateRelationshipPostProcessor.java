@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import alien4cloud.tosca.context.ToscaContext;
 
 /**
@@ -26,7 +26,7 @@ public class NodeTemplateRelationshipPostProcessor implements IPostProcessor<Nod
 
     @Override
     public void process(NodeTemplate instance) {
-        final IndexedNodeType nodeType = ToscaContext.get(IndexedNodeType.class, instance.getType());
+        final NodeType nodeType = ToscaContext.get(NodeType.class, instance.getType());
         if (nodeType == null) {
             return; // error managed by the reference post processor.
         }

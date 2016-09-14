@@ -15,7 +15,7 @@ import alien4cloud.images.IImageDAO;
 import alien4cloud.images.ImageData;
 import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.common.Tag;
-import alien4cloud.model.components.IndexedInheritableToscaElement;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
@@ -46,12 +46,12 @@ public class ArchiveImageLoader {
         importImages(archiveFile, archiveRoot.getArtifactTypes(), parsingErrors);
     }
 
-    private void importImages(Path archiveFile, Map<String, ? extends IndexedInheritableToscaElement> toscaInheritableElement,
+    private void importImages(Path archiveFile, Map<String, ? extends AbstractInheritableToscaType> toscaInheritableElement,
             List<ParsingError> parsingErrors) {
         if (toscaInheritableElement == null) {
             return;
         }
-        for (Map.Entry<String, ? extends IndexedInheritableToscaElement> element : toscaInheritableElement.entrySet()) {
+        for (Map.Entry<String, ? extends AbstractInheritableToscaType> element : toscaInheritableElement.entrySet()) {
             if (element.getValue().getTags() != null) {
                 List<Tag> tags = element.getValue().getTags();
                 Tag iconTag = ArchiveImageLoader.getIconTag(tags);

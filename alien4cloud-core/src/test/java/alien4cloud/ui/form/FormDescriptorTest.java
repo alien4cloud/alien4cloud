@@ -10,7 +10,7 @@ import org.junit.Test;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.test.utils.YamlJsonAssert;
 import alien4cloud.test.utils.YamlJsonAssert.DocumentType;
-import alien4cloud.model.components.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import alien4cloud.utils.FileUtil;
 
 public class FormDescriptorTest {

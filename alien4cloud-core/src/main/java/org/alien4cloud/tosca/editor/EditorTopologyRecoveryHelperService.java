@@ -2,10 +2,12 @@ package org.alien4cloud.tosca.editor;
 
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.*;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.utils.AlienUtils;
@@ -18,6 +20,10 @@ import org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.RebuildNodeOperation;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.DeleteRelationshipOperation;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.RebuildRelationshipOperation;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -109,7 +115,7 @@ public class EditorTopologyRecoveryHelperService {
                     continue;
                 }
 
-                IndexedRelationshipType relationshipType = ToscaContext.get(IndexedRelationshipType.class, relationshipTemplate.getType());
+                RelationshipType relationshipType = ToscaContext.get(RelationshipType.class, relationshipTemplate.getType());
 
                 // this means the type has been deleted. then we should delete the template from the topology
                 if (relationshipType == null) {
@@ -158,7 +164,7 @@ public class EditorTopologyRecoveryHelperService {
      */
     private void checkRequirement(String requirementName, NodeTemplate nodeTemplate) {
         // This call should never throw a NotFoundException
-        IndexedNodeType indexedNodeType = ToscaContext.getOrFail(IndexedNodeType.class, nodeTemplate.getType());
+        NodeType indexedNodeType = ToscaContext.getOrFail(NodeType.class, nodeTemplate.getType());
         Map<String, RequirementDefinition> requirementMap = AlienUtils.fromListToMap(indexedNodeType.getRequirements(), "id", true);
         if (!AlienUtils.safe(requirementMap).containsKey(requirementName)) {
             throw new NotFoundException("A requirement with name [" + requirementName + "] cannot be found in the node [" + nodeTemplate.getName() + "].");
@@ -173,7 +179,7 @@ public class EditorTopologyRecoveryHelperService {
      */
     private void checkCapability(String capabilityName, NodeTemplate nodeTemplate) {
         // This call should never throw a NotFoundException
-        IndexedNodeType indexedNodeType = ToscaContext.getOrFail(IndexedNodeType.class, nodeTemplate.getType());
+        NodeType indexedNodeType = ToscaContext.getOrFail(NodeType.class, nodeTemplate.getType());
         Map<String, CapabilityDefinition> capabilitiesMap = AlienUtils.fromListToMap(indexedNodeType.getCapabilities(), "id", true);
         if (!AlienUtils.safe(capabilitiesMap).containsKey(capabilityName)) {
             throw new NotFoundException("A capability with name [" + capabilityName + "] cannot be found in the node [" + nodeTemplate.getName() + "].");
@@ -189,7 +195,7 @@ public class EditorTopologyRecoveryHelperService {
      */
     private void buildNodesRecoveryOperations(Topology topology, CSARDependency updatedDependency, List<AbstractEditorOperation> recoveryOperations) {
         for (NodeTemplate template : topology.getNodeTemplates().values()) {
-            IndexedNodeType nodeType = ToscaContext.get(IndexedNodeType.class, template.getType());
+            NodeType nodeType = ToscaContext.get(NodeType.class, template.getType());
 
             // this means the type has been deleted. then we should delete the template from the topology
             if (nodeType == null) {
@@ -267,7 +273,7 @@ public class EditorTopologyRecoveryHelperService {
         return updatedDependency;
     }
 
-    private boolean isFrom(IndexedToscaElement element, CSARDependency dependency) {
+    private boolean isFrom(AbstractToscaType element, CSARDependency dependency) {
         return Objects.equals(element.getArchiveName(), dependency.getName()) && Objects.equals(element.getArchiveVersion(), dependency.getVersion());
     }
 

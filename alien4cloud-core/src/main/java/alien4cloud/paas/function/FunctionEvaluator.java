@@ -3,6 +3,9 @@ package alien4cloud.paas.function;
 import java.util.List;
 import java.util.Map;
 
+import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -10,11 +13,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.common.AlienConstants;
-import alien4cloud.model.components.*;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Requirement;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Requirement;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.IPaaSTemplate;
 import alien4cloud.paas.exception.NotSupportedException;
 import alien4cloud.paas.model.InstanceInformation;
@@ -86,8 +88,8 @@ public final class FunctionEvaluator {
      * @return
      */
     public static String parseAttribute(String attributeId, IValue attributeValue, Topology topology,
-            Map<String, Map<String, InstanceInformation>> runtimeInformations, String currentInstance,
-            IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate, Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
+                                        Map<String, Map<String, InstanceInformation>> runtimeInformations, String currentInstance,
+                                        IPaaSTemplate<? extends AbstractToscaType> basePaaSTemplate, Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
 
         if (attributeValue == null) {
             return null;
@@ -253,8 +255,8 @@ public final class FunctionEvaluator {
      * @param builtPaaSTemplates
      * @return a list of PaaSTemplate(relationship or node) resulting from the evaluation
      */
-    public static List<? extends IPaaSTemplate> getPaaSTemplatesFromKeyword(IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate, String keyword,
-            Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
+    public static List<? extends IPaaSTemplate> getPaaSTemplatesFromKeyword(IPaaSTemplate<? extends AbstractToscaType> basePaaSTemplate, String keyword,
+                                                                            Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         switch (keyword) {
         case ToscaFunctionConstants.SELF:
             return Lists.<IPaaSTemplate> newArrayList(basePaaSTemplate);
@@ -280,7 +282,7 @@ public final class FunctionEvaluator {
      * @return the String result of the function evalutation
      */
     public static String evaluateGetPropertyFunction(FunctionPropertyValue functionParam,
-            IPaaSTemplate<? extends IndexedInheritableToscaElement> basePaaSTemplate, Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
+                                                     IPaaSTemplate<? extends AbstractInheritableToscaType> basePaaSTemplate, Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         List<? extends IPaaSTemplate> paaSTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionParam.getTemplateName(), builtPaaSTemplates);
         for (IPaaSTemplate paaSTemplate : paaSTemplates) {
             String propertyValue = getPropertyFromTemplateOrCapability(paaSTemplate, functionParam.getCapabilityOrRequirementName(),
@@ -365,7 +367,7 @@ public final class FunctionEvaluator {
      * @param elementName
      * @return
      */
-    private static String getPropertyFromTemplateOrCapability(IPaaSTemplate<? extends IndexedInheritableToscaElement> paaSTemplate,
+    private static String getPropertyFromTemplateOrCapability(IPaaSTemplate<? extends AbstractInheritableToscaType> paaSTemplate,
             String capabilityOrRequirementName, String elementName) {
 
         // if no capability or requirement provided, return the value from the template property
@@ -415,7 +417,7 @@ public final class FunctionEvaluator {
         return toReturn;
     }
 
-    private static PaaSNodeTemplate getHostNode(IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate) {
+    private static PaaSNodeTemplate getHostNode(IPaaSTemplate<? extends AbstractToscaType> basePaaSTemplate) {
         if (basePaaSTemplate instanceof PaaSNodeTemplate) {
             // TODO Must review this management of host
             PaaSNodeTemplate template = (PaaSNodeTemplate) basePaaSTemplate;
@@ -425,7 +427,7 @@ public final class FunctionEvaluator {
                 + basePaaSTemplate.getId() + ">");
     }
 
-    private static PaaSNodeTemplate getSourceNode(IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate,
+    private static PaaSNodeTemplate getSourceNode(IPaaSTemplate<? extends AbstractToscaType> basePaaSTemplate,
             Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         if (basePaaSTemplate instanceof PaaSRelationshipTemplate) {
             return getPaaSNodeOrFail(((PaaSRelationshipTemplate) basePaaSTemplate).getSource(), builtPaaSTemplates);
@@ -434,7 +436,7 @@ public final class FunctionEvaluator {
                 + basePaaSTemplate.getId() + ">");
     }
 
-    private static PaaSNodeTemplate getTargetNode(IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate,
+    private static PaaSNodeTemplate getTargetNode(IPaaSTemplate<? extends AbstractToscaType> basePaaSTemplate,
             Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         if (basePaaSTemplate instanceof PaaSRelationshipTemplate) {
             return getPaaSNodeOrFail(((PaaSRelationshipTemplate) basePaaSTemplate).getRelationshipTemplate().getTarget(), builtPaaSTemplates);

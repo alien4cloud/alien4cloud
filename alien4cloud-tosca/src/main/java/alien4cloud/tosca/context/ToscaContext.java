@@ -1,17 +1,18 @@
 package alien4cloud.tosca.context;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.model.components.*;
 import alien4cloud.tosca.model.ArchiveRoot;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.types.*;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
@@ -60,7 +61,7 @@ public class ToscaContext {
      * @param <T> The type of element.
      * @return The requested element.
      */
-    public static <T extends IndexedToscaElement> T get(Class<T> elementClass, String elementId) {
+    public static <T extends AbstractToscaType> T get(Class<T> elementClass, String elementId) {
         return contextThreadLocal.get().getElement(elementClass, elementId, false);
     }
 
@@ -72,7 +73,7 @@ public class ToscaContext {
      * @param <T> The type of element.
      * @return The requested element.
      */
-    public static <T extends IndexedToscaElement> T getOrFail(Class<T> elementClass, String elementId) {
+    public static <T extends AbstractToscaType> T getOrFail(Class<T> elementClass, String elementId) {
         return contextThreadLocal.get().getElement(elementClass, elementId, true);
     }
 
@@ -92,7 +93,7 @@ public class ToscaContext {
         /** Context archives. */
         private final Map<String, Csar> archivesMap = Maps.newHashMap();
         /** Cached types in the context. <ElementType, <ElementId, Element>> */
-        private final Map<String, Map<String, IndexedToscaElement>> toscaTypesCache = Maps.newHashMap();
+        private final Map<String, Map<String, AbstractToscaType>> toscaTypesCache = Maps.newHashMap();
 
         public Context(Set<CSARDependency> dependencies) {
             this.dependencies = dependencies;
@@ -146,8 +147,8 @@ public class ToscaContext {
             if (dependencies.remove(removedDependency)) {
                 List<String> toRemove = Lists.newArrayList();
                 // unload all types from this dependency
-                for (Map<String, IndexedToscaElement> elementMap : toscaTypesCache.values()) {
-                    for (Map.Entry<String, IndexedToscaElement> entry : elementMap.entrySet()) {
+                for (Map<String, AbstractToscaType> elementMap : toscaTypesCache.values()) {
+                    for (Map.Entry<String, AbstractToscaType> entry : elementMap.entrySet()) {
                         if (entry.getValue().getArchiveName().equals(removedDependency.getName())
                                 && entry.getValue().getArchiveVersion().equals(removedDependency.getVersion())) {
                             toRemove.add(entry.getKey());
@@ -200,16 +201,16 @@ public class ToscaContext {
         public void register(ArchiveRoot root) {
             log.debug("Register archive {}", root);
             archivesMap.put(root.getArchive().getId(), root.getArchive());
-            register(IndexedArtifactType.class, root.getArtifactTypes());
-            register(IndexedCapabilityType.class, root.getCapabilityTypes());
-            register(IndexedDataType.class, root.getDataTypes());
-            register(IndexedNodeType.class, root.getNodeTypes());
-            register(IndexedRelationshipType.class, root.getRelationshipTypes());
+            register(ArtifactType.class, root.getArtifactTypes());
+            register(CapabilityType.class, root.getCapabilityTypes());
+            register(DataType.class, root.getDataTypes());
+            register(NodeType.class, root.getNodeTypes());
+            register(RelationshipType.class, root.getRelationshipTypes());
         }
 
-        private <T extends IndexedToscaElement> void register(Class<T> elementClass, Map<String, T> elementMap) {
+        private <T extends AbstractToscaType> void register(Class<T> elementClass, Map<String, T> elementMap) {
             String elementType = elementClass.getSimpleName();
-            Map<String, IndexedToscaElement> typeElements = toscaTypesCache.get(elementType);
+            Map<String, AbstractToscaType> typeElements = toscaTypesCache.get(elementType);
             if (typeElements == null) {
                 typeElements = new HashMap<>();
                 toscaTypesCache.put(elementType, typeElements);
@@ -247,9 +248,9 @@ public class ToscaContext {
          * @param <T> The type of element.
          * @return The requested element.
          */
-        public <T extends IndexedToscaElement> T getElement(Class<T> elementClass, String elementId, boolean required) {
+        public <T extends AbstractToscaType> T getElement(Class<T> elementClass, String elementId, boolean required) {
             String elementType = elementClass.getSimpleName();
-            Map<String, IndexedToscaElement> typeElements = toscaTypesCache.get(elementType);
+            Map<String, AbstractToscaType> typeElements = toscaTypesCache.get(elementType);
             if (typeElements == null) {
                 typeElements = new HashMap<>();
                 toscaTypesCache.put(elementType, typeElements);
@@ -270,9 +271,9 @@ public class ToscaContext {
             return element;
         }
 
-        public <T extends IndexedToscaElement> Optional<IndexedToscaElement> getElement(Class<T> elementClass, Predicate<IndexedToscaElement> filter) {
+        public <T extends AbstractToscaType> Optional<AbstractToscaType> getElement(Class<T> elementClass, Predicate<AbstractToscaType> filter) {
             String elementType = elementClass.getSimpleName();
-            Map<String, IndexedToscaElement> typeElements = toscaTypesCache.get(elementType);
+            Map<String, AbstractToscaType> typeElements = toscaTypesCache.get(elementType);
             return safe(typeElements).values().stream().filter(filter).findFirst();
         }
     }

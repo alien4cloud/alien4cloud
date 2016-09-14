@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import alien4cloud.json.deserializer.TaskIndexedInheritableToscaElementDeserializer;
-import alien4cloud.model.components.IndexedInheritableToscaElement;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;
 
@@ -28,5 +28,5 @@ public class TopologyTask extends AbstractTask {
     // related component
     @ConditionalOnAttribute(ConditionalAttributes.REST)
     @JsonDeserialize(using = TaskIndexedInheritableToscaElementDeserializer.class)
-    private IndexedInheritableToscaElement component;
+    private AbstractInheritableToscaType component;
 }

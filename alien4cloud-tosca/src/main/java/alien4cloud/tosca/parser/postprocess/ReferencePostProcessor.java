@@ -3,7 +3,7 @@ package alien4cloud.tosca.parser.postprocess;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
-import alien4cloud.model.components.IndexedInheritableToscaElement;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
@@ -21,8 +21,8 @@ public class ReferencePostProcessor implements IPostProcessor<ReferencePostProce
 
     @Override
     public void process(TypeReference typeReference) {
-        for (Class<? extends IndexedInheritableToscaElement> clazz : typeReference.classes) {
-            IndexedInheritableToscaElement reference = ToscaContext.get(clazz, typeReference.getKey());
+        for (Class<? extends AbstractInheritableToscaType> clazz : typeReference.classes) {
+            AbstractInheritableToscaType reference = ToscaContext.get(clazz, typeReference.getKey());
             if (reference != null) {
                 return;
             }
@@ -39,10 +39,10 @@ public class ReferencePostProcessor implements IPostProcessor<ReferencePostProce
     @Getter
     @Setter
     public static class TypeReference {
-        private Class<? extends IndexedInheritableToscaElement>[] classes;
+        private Class<? extends AbstractInheritableToscaType>[] classes;
         private String key;
 
-        public TypeReference(String key, Class<? extends IndexedInheritableToscaElement>... classes) {
+        public TypeReference(String key, Class<? extends AbstractInheritableToscaType>... classes) {
             this.key = key;
             this.classes = classes;
         }

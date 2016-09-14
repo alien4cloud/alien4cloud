@@ -24,11 +24,11 @@ import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.Tag;
-import alien4cloud.model.components.IndexedArtifactType;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.IndexedToscaElement;
+import org.alien4cloud.tosca.model.types.ArtifactType;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 
@@ -45,8 +45,8 @@ public class SuggestionController {
     private static final int SUGGESTION_COUNT = 10;
     private static final String TAG_FIELD = "tags";
     private static final String[] INDEXES = new String[] { ElasticSearchDAO.TOSCA_ELEMENT_INDEX, Application.class.getSimpleName().toLowerCase() };
-    private static final Class<?>[] CLASSES = new Class<?>[] { Application.class, IndexedNodeType.class, IndexedArtifactType.class,
-            IndexedCapabilityType.class, IndexedRelationshipType.class };
+    private static final Class<?>[] CLASSES = new Class<?>[] { Application.class, NodeType.class, ArtifactType.class,
+            CapabilityType.class, RelationshipType.class };
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO dao;
@@ -73,7 +73,7 @@ public class SuggestionController {
                 Application app = (Application) searchResult.getData()[i];
                 tags = app.getTags();
             } else {
-                IndexedToscaElement indexedToscaElement = (IndexedToscaElement) searchResult.getData()[i];
+                AbstractToscaType indexedToscaElement = (AbstractToscaType) searchResult.getData()[i];
                 tags = indexedToscaElement.getTags();
             }
             addSuggestedTag(tags, tagName, searchPrefix, tagsSuggestions);

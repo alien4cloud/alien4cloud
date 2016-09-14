@@ -6,8 +6,8 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.topology.Requirement;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.templates.Requirement;
 import alien4cloud.tosca.context.ToscaContext;
 
 /**
@@ -30,7 +30,7 @@ public class RequirementPostProcessor implements IPostProcessor<Map.Entry<String
         // In latest versions we process the capability only.
         capabilityReferencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance.getValue().getType()));
 
-        IndexedCapabilityType capabilityType = ToscaContext.get(IndexedCapabilityType.class, instance.getValue().getType());
+        CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, instance.getValue().getType());
         propertyValueChecker.checkProperties(capabilityType, instance.getValue().getProperties(), instance.getKey());
     }
 }

@@ -2,12 +2,12 @@ package alien4cloud.topology.validation;
 
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import alien4cloud.topology.TopologyServiceCore;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +31,7 @@ public class TopologyCapabilityBoundsValidationServices {
     public boolean isCapabilityUpperBoundReachedForTarget(String nodeTemplateName, Map<String, NodeTemplate> nodeTemplates, String capabilityName,
             Set<CSARDependency> dependencies) {
         NodeTemplate nodeTemplate = nodeTemplates.get(nodeTemplateName);
-        IndexedNodeType relatedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
+        NodeType relatedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(),
                 dependencies);
         chekCapability(nodeTemplateName, capabilityName, nodeTemplate);
 

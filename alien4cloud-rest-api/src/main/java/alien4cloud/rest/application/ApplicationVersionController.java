@@ -24,7 +24,7 @@ import alien4cloud.exception.DeleteLastApplicationVersionException;
 import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;

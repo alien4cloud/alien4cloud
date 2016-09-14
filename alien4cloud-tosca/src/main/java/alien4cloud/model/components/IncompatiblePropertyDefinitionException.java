@@ -13,13 +13,4 @@ public class IncompatiblePropertyDefinitionException extends TechnicalException 
     public IncompatiblePropertyDefinitionException() {
         super("The two PropertyDefinition are incompatible.");
     }
-
-    public IncompatiblePropertyDefinitionException(String message) {
-        super(message);
-    }
-
-    public IncompatiblePropertyDefinitionException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
 }

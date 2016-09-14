@@ -7,10 +7,10 @@ import org.springframework.stereotype.Service;
 import alien4cloud.common.AbtractVersionService;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.exception.DeleteReferencedObjectException;
-import alien4cloud.model.components.Csar;
+import org.alien4cloud.tosca.model.Csar;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Topology;
 
 @Service
 public class TopologyTemplateVersionService extends AbtractVersionService<TopologyTemplateVersion> {

@@ -3,9 +3,9 @@ package alien4cloud.tosca.container.validation;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.PropertyValue;
-import alien4cloud.model.components.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import alien4cloud.tosca.normative.IPropertyType;
 import alien4cloud.tosca.normative.InvalidPropertyValueException;
 import alien4cloud.tosca.normative.ToscaType;

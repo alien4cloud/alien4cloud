@@ -12,7 +12,7 @@ import org.alien4cloud.test.setup.TestDataRegistry;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
-import alien4cloud.model.components.IndexedNodeType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.rest.csar.CsarUploadResult;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
@@ -98,13 +98,13 @@ public class UploadCSARSStepDefinition {
 
     @Then("^I should have last update date greater than creation date$")
     public void I_should_have_last_update_date_greater_than_creation_date() throws Throwable {
-        IndexedNodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), IndexedNodeType.class).getData();
+        NodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), NodeType.class).getData();
         Assert.assertTrue(idnt.getLastUpdateDate().after(idnt.getCreationDate()));
     }
 
     @Then("^I should have last update date equals to creation date$")
     public void I_should_have_last_update_date_equals_to_creation_date() throws Throwable {
-        IndexedNodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), IndexedNodeType.class).getData();
+        NodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), NodeType.class).getData();
         Assert.assertTrue(idnt.getLastUpdateDate().equals(idnt.getCreationDate()));
     }
 }

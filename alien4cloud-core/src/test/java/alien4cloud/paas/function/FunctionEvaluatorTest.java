@@ -14,18 +14,21 @@ import javax.annotation.Resource;
 
 import alien4cloud.model.components.*;
 import alien4cloud.tosca.parser.ParsingError;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import alien4cloud.git.RepositoryManager;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.IPaaSTemplate;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.PaaSNodeTemplate;
@@ -233,7 +236,7 @@ public class FunctionEvaluatorTest {
         Assert.assertEquals(null, FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
     }
 
-    private String getPropertyValue(IPaaSTemplate<? extends IndexedToscaElement> paaSTemplate, String propertyName) {
+    private String getPropertyValue(IPaaSTemplate<? extends AbstractToscaType> paaSTemplate, String propertyName) {
         return ((ScalarPropertyValue) paaSTemplate.getTemplate().getProperties().get(propertyName)).getValue();
     }
 
@@ -276,7 +279,7 @@ public class FunctionEvaluatorTest {
         PaaSNodeTemplate computePaaS = builtPaaSNodeTemplates.get(computeName);
 
         // check if outputs referenced in get_operation_outputs on attributes are well registered on the related operation
-        IndexedArtifactToscaElement tocaElement = computePaaS.getIndexedToscaElement();
+        AbstractInstantiableToscaType tocaElement = computePaaS.getIndexedToscaElement();
         IValue oldHostNameAttr = tocaElement.getAttributes().get("old_hostname");
         IValue newHostNameAttr = tocaElement.getAttributes().get("new_hostname");
         Operation createOp = computePaaS.getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations().get(ToscaNodeLifecycleConstants.CREATE);

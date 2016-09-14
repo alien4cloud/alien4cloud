@@ -1,7 +1,6 @@
 package alien4cloud.model.deployment.matching;
 
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import alien4cloud.model.topology.NodeTemplate;
 
 import java.util.List;
 

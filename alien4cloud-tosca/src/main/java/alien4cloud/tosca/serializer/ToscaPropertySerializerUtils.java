@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.PropertyValue;
-import alien4cloud.model.components.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import alien4cloud.paas.exception.NotSupportedException;
 
 public class ToscaPropertySerializerUtils {

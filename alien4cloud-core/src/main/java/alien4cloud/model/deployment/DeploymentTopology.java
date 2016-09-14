@@ -5,8 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import alien4cloud.json.deserializer.PropertyValueDeserializer;
-import alien4cloud.model.components.PropertyValue;
-import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.elasticsearch.annotation.BooleanField;
 import org.elasticsearch.annotation.ESObject;
@@ -21,11 +20,10 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.topology.NodeGroup;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.templates.NodeGroup;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

@@ -26,13 +26,13 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.model.components.IndexedNodeType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.rest.model.RestResponse;
-import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.RequirementDefinition;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,12 +53,12 @@ public class SearchTest {
     @Resource
     ComponentController componentController;
 
-    List<IndexedNodeType> dataTest = new ArrayList<>();
+    List<NodeType> dataTest = new ArrayList<>();
 
-    IndexedNodeType indexedNodeTypeTest = null;
-    IndexedNodeType indexedNodeTypeTest2 = null;
-    IndexedNodeType indexedNodeTypeTest3 = null;
-    IndexedNodeType indexedNodeTypeTest4 = null;
+    NodeType indexedNodeTypeTest = null;
+    NodeType indexedNodeTypeTest2 = null;
+    NodeType indexedNodeTypeTest3 = null;
+    NodeType indexedNodeTypeTest4 = null;
     private static final int NUMBER_ELEMENT = 10;
 
     @Before
@@ -88,7 +88,7 @@ public class SearchTest {
         ids = new String[] { indexedNodeTypeTest.getId(), indexedNodeTypeTest4.getId() };
 
         for (int i = 0; i < data.getData().length; i++) {
-            IndexedNodeType idnt = (IndexedNodeType) data.getData()[i];
+            NodeType idnt = (NodeType) data.getData()[i];
             assertElementIn(idnt.getId(), ids);
         }
 
@@ -104,7 +104,7 @@ public class SearchTest {
         assertEquals(1, data.getTotalResults());
         assertEquals(1, data.getTypes().length);
         assertEquals(1, data.getData().length);
-        IndexedNodeType idnt = (IndexedNodeType) data.getData()[0];
+        NodeType idnt = (NodeType) data.getData()[0];
         assertElementIn(idnt.getId(), new String[] { indexedNodeTypeTest.getId() });
 
         // test nothing found
@@ -160,7 +160,7 @@ public class SearchTest {
     }
 
     private void saveDataToES(boolean refresh) throws JsonProcessingException {
-        for (IndexedNodeType datum : dataTest) {
+        for (NodeType datum : dataTest) {
             String json = jsonMapper.writeValueAsString(datum);
             String typeName = MappingBuilder.indexTypeFromClass(datum.getClass());
             nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(json).setRefresh(refresh).execute().actionGet();
@@ -179,12 +179,12 @@ public class SearchTest {
 
     @After
     public void cleanup() throws InterruptedException {
-        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, IndexedNodeType.class);
+        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, NodeType.class);
     }
 
-    private static IndexedNodeType createIndexedNodeType(String id, String archiveName, String archiveVersion, String description,
-            List<CapabilityDefinition> capabilities, List<RequirementDefinition> requirements, List<String> derivedFroms, List<String> defaultCapabilities) {
-        IndexedNodeType nodeType = new IndexedNodeType();
+    private static NodeType createIndexedNodeType(String id, String archiveName, String archiveVersion, String description,
+                                                  List<CapabilityDefinition> capabilities, List<RequirementDefinition> requirements, List<String> derivedFroms, List<String> defaultCapabilities) {
+        NodeType nodeType = new NodeType();
         nodeType.setElementId(id);
         nodeType.setArchiveName(archiveName);
         nodeType.setArchiveVersion(archiveVersion);

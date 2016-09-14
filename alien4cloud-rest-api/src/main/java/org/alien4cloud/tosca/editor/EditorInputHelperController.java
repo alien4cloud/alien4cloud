@@ -8,11 +8,11 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.RelationshipTemplate;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.tosca.context.ToscaContext;
@@ -40,7 +40,7 @@ public class EditorInputHelperController {
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @RequestParam(value = "nodeTemplateName") final String nodeTemplateName,
             @ApiParam(value = "The property id.", required = true) @NotBlank @RequestParam("propertyId") final String propertyId) {
         List<String> inputCandidates = editorService.getInputCandidates(topologyId, nodeTemplateName,
-                nodeTemplate -> ToscaContext.get(IndexedNodeType.class, nodeTemplate.getType()).getProperties().get(propertyId));
+                nodeTemplate -> ToscaContext.get(NodeType.class, nodeTemplate.getType()).getProperties().get(propertyId));
         return RestResponseBuilder.<List<String>> builder().data(inputCandidates).build();
     }
 
@@ -56,7 +56,7 @@ public class EditorInputHelperController {
             @ApiParam(value = "The capability template id.", required = true) @NotBlank @RequestParam(value = "capabilityId") final String capabilityId) {
         List<String> inputCandidates = editorService.getInputCandidates(topologyId, nodeTemplateName, nodeTemplate -> {
             Capability capabilityTemplate = nodeTemplate.getCapabilities().get(capabilityId);
-            return ToscaContext.get(IndexedCapabilityType.class, capabilityTemplate.getType()).getProperties().get(propertyId);
+            return ToscaContext.get(CapabilityType.class, capabilityTemplate.getType()).getProperties().get(propertyId);
         });
         return RestResponseBuilder.<List<String>> builder().data(inputCandidates).build();
     }
@@ -73,7 +73,7 @@ public class EditorInputHelperController {
             @ApiParam(value = "The relationship template id.", required = true) @NotBlank @RequestParam(value = "relationshipId") final String relationshipId) {
         List<String> inputCandidates = editorService.getInputCandidates(topologyId, nodeTemplateName, nodeTemplate -> {
             RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(relationshipId);
-            return ToscaContext.get(IndexedRelationshipType.class, relationshipTemplate.getType()).getProperties().get(propertyId);
+            return ToscaContext.get(RelationshipType.class, relationshipTemplate.getType()).getProperties().get(propertyId);
         });
         return RestResponseBuilder.<List<String>> builder().data(inputCandidates).build();
     }

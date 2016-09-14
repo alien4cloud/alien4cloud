@@ -35,9 +35,9 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.FetchContext;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.Csar;
-import alien4cloud.model.components.IndexedToscaElement;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import alien4cloud.utils.VersionUtil;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -63,7 +63,7 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
      * @param version The element version (version of the archive that defines the element).
      * @return Return the matching
      */
-    public <T extends IndexedToscaElement> T find(Class<T> elementType, String elementId, String version) {
+    public <T extends AbstractToscaType> T find(Class<T> elementType, String elementId, String version) {
         return searchDAO.buildQuery(elementType).setFilters(fromKeyValueCouples("rawElementId", elementId, "archiveVersion", version)).prepareSearch().find();
     }
 
@@ -74,7 +74,7 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
      * @param elementId The element id.
      * @return Return the matching
      */
-    public <T extends IndexedToscaElement> T findMostRecent(Class<T> elementType, String elementId) {
+    public <T extends AbstractToscaType> T findMostRecent(Class<T> elementType, String elementId) {
         return searchDAO.buildQuery(elementType).setFilters(fromKeyValueCouples("rawElementId", elementId)).prepareSearch()
                 .alterSearchRequestBuilder(
                         searchRequestBuilder -> searchRequestBuilder.addSort(new FieldSortBuilder("nestedVersion.majorVersion").order(SortOrder.DESC))
@@ -91,7 +91,7 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
      * @param elementId The element id.
      * @return Return the matching
      */
-    public <T extends IndexedToscaElement> T[] findAll(Class<T> elementType, String elementId) {
+    public <T extends AbstractToscaType> T[] findAll(Class<T> elementType, String elementId) {
         return searchDAO.buildQuery(elementType).setFilters(singleKeyFilter("rawElementId", elementId)).prepareSearch().search(0, Integer.MAX_VALUE).getData();
     }
 
@@ -119,15 +119,15 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
     }
 
     @Override
-    public boolean isElementExistInDependencies(@NonNull Class<? extends IndexedToscaElement> elementClass, @NonNull String elementId,
-            Set<CSARDependency> dependencies) {
+    public boolean isElementExistInDependencies(@NonNull Class<? extends AbstractToscaType> elementClass, @NonNull String elementId,
+                                                Set<CSARDependency> dependencies) {
         if (dependencies == null || dependencies.isEmpty()) {
             return false;
         }
         return searchDAO.count(elementClass, getDependencyQuery(dependencies, "rawElementId", elementId)) > 0;
     }
 
-    private <T extends IndexedToscaElement> T getLatestVersionOfElement(Class<T> elementClass, QueryBuilder queryBuilder) {
+    private <T extends AbstractToscaType> T getLatestVersionOfElement(Class<T> elementClass, QueryBuilder queryBuilder) {
         List<T> elements = searchDAO.customFindAll(elementClass, queryBuilder);
         if (elements != null && !elements.isEmpty()) {
             Collections.sort(elements,
@@ -139,7 +139,7 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
     }
 
     @Override
-    public <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, Set<CSARDependency> dependencies, String... keyValues) {
+    public <T extends AbstractToscaType> T getElementInDependencies(Class<T> elementClass, Set<CSARDependency> dependencies, String... keyValues) {
         if (dependencies == null || dependencies.isEmpty()) {
             return null;
         }
@@ -148,7 +148,7 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
     }
 
     @Override
-    public <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, String elementId, Set<CSARDependency> dependencies) {
+    public <T extends AbstractToscaType> T getElementInDependencies(Class<T> elementClass, String elementId, Set<CSARDependency> dependencies) {
         if (dependencies == null || dependencies.isEmpty()) {
             return null;
         }
@@ -157,7 +157,7 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
     }
 
     @Override
-    public <T extends IndexedToscaElement> T getRequiredElementInDependencies(Class<T> elementClass, String elementId, Set<CSARDependency> dependencies)
+    public <T extends AbstractToscaType> T getRequiredElementInDependencies(Class<T> elementClass, String elementId, Set<CSARDependency> dependencies)
             throws NotFoundException {
         T element = getElementInDependencies(elementClass, elementId, dependencies);
         if (element == null) {
@@ -168,7 +168,7 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
     }
 
     @Override
-    public FacetedSearchResult search(Class<? extends IndexedToscaElement> clazz, String query, Integer size, Map<String, String[]> filters) {
+    public FacetedSearchResult search(Class<? extends AbstractToscaType> clazz, String query, Integer size, Map<String, String[]> filters) {
         TopHitsBuilder topHitAggregation = AggregationBuilders.topHits("highest_version").setSize(1)
                 .addSort(new FieldSortBuilder("nestedVersion.majorVersion").order(SortOrder.DESC))
                 .addSort(new FieldSortBuilder("nestedVersion.minorVersion").order(SortOrder.DESC))
@@ -177,7 +177,7 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
 
         AggregationBuilder aggregation = AggregationBuilders.terms("query_aggregation").field("elementId").size(size).subAggregation(topHitAggregation);
 
-        FacetedSearchResult<? extends IndexedToscaElement> searchResult = searchDAO.buildSearchQuery(clazz, query).setFilters(filters).prepareSearch()
+        FacetedSearchResult<? extends AbstractToscaType> searchResult = searchDAO.buildSearchQuery(clazz, query).setFilters(filters).prepareSearch()
                 .setFetchContext(FetchContext.SUMMARY, topHitAggregation).facetedSearch(new IAggregationQueryManager() {
                     @Override
                     public AggregationBuilder getQueryAggregation() {
@@ -190,7 +190,7 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
                         List<Object> resultData = Lists.newArrayList();
                         List<String> resultTypes = Lists.newArrayList();
                         if (aggregation == null) {
-                            result.setData(new IndexedToscaElement[0]);
+                            result.setData(new AbstractToscaType[0]);
                             result.setTypes(new String[0]);
                         }
                         for (Terms.Bucket bucket : ((Terms) aggregation).getBuckets()) {
@@ -202,7 +202,7 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
                             }
                         }
 
-                        result.setData(resultData.toArray(new IndexedToscaElement[resultData.size()]));
+                        result.setData(resultData.toArray(new AbstractToscaType[resultData.size()]));
                         result.setTypes(resultTypes.toArray(new String[resultTypes.size()]));
                         result.setFrom(0);
                         result.setTo(resultData.size());

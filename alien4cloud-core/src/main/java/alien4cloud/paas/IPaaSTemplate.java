@@ -4,9 +4,9 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.Interface;
-import alien4cloud.model.topology.AbstractTemplate;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.definitions.Interface;
+import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 
@@ -15,7 +15,7 @@ import alien4cloud.paas.model.PaaSRelationshipTemplate;
  *
  * @author luc boutier
  */
-public interface IPaaSTemplate<V extends IndexedToscaElement> {
+public interface IPaaSTemplate<V extends AbstractToscaType> {
 
     /**
      * Get the unique Id of the PaaSTemplate

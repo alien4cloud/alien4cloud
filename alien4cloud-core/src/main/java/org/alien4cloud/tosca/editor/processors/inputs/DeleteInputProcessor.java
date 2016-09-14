@@ -8,17 +8,22 @@ import javax.inject.Inject;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.inputs.DeleteInputOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.*;
 import alien4cloud.model.deployment.DeploymentTopology;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
@@ -52,17 +57,17 @@ public class DeleteInputProcessor extends AbstractInputProcessor<DeleteInputOper
         }
 
         for (NodeTemplate nodeTemplate : nodeTemplates.values()) {
-            IndexedNodeType nodeType = ToscaContext.get(IndexedNodeType.class, nodeTemplate.getType());
+            NodeType nodeType = ToscaContext.get(NodeType.class, nodeTemplate.getType());
             removeInputIdInProperties(nodeTemplate.getProperties(), nodeType.getProperties(), operation.getInputName());
             if (nodeTemplate.getRelationships() != null) {
                 for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
-                    IndexedRelationshipType relationshipType = ToscaContext.get(IndexedRelationshipType.class, relationshipTemplate.getType());
+                    RelationshipType relationshipType = ToscaContext.get(RelationshipType.class, relationshipTemplate.getType());
                     removeInputIdInProperties(relationshipTemplate.getProperties(), relationshipType.getProperties(), operation.getInputName());
                 }
             }
             if (nodeTemplate.getCapabilities() != null) {
                 for (Capability capability : nodeTemplate.getCapabilities().values()) {
-                    IndexedCapabilityType capabilityType = ToscaContext.get(IndexedCapabilityType.class, capability.getType());
+                    CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, capability.getType());
                     removeInputIdInProperties(capability.getProperties(), capabilityType.getProperties(), operation.getInputName());
                 }
             }
@@ -79,7 +84,7 @@ public class DeleteInputProcessor extends AbstractInputProcessor<DeleteInputOper
      * @param inputId The id of the input to remove.
      */
     private void removeInputIdInProperties(final Map<String, AbstractPropertyValue> properties, final Map<String, PropertyDefinition> propertyDefinitions,
-            final String inputId) {
+                                           final String inputId) {
         if (properties == null) {
             return;
         }

@@ -1,6 +1,6 @@
 package org.alien4cloud.tosca.editor.operations;
 
-import alien4cloud.model.components.CSARDependency;
+import org.alien4cloud.tosca.model.CSARDependency;
 import alien4cloud.utils.AlienUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

@@ -9,8 +9,8 @@ import alien4cloud.tosca.parser.impl.base.BaseParserFactory;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
-import alien4cloud.model.components.LowerBoundedDefinition;
-import alien4cloud.model.components.UpperBoundedDefinition;
+import org.alien4cloud.tosca.model.definitions.LowerBoundedDefinition;
+import org.alien4cloud.tosca.model.definitions.UpperBoundedDefinition;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;

@@ -3,9 +3,9 @@ package alien4cloud.component;
 import java.util.Set;
 
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.Csar;
-import alien4cloud.model.components.IndexedToscaElement;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 
 /**
  * Service interface to search elements in CSARs.
@@ -29,7 +29,7 @@ public interface ICSARRepositorySearchService {
      * @param dependencies A list of CSAR in which the element may be defined.
      * @return True if the element is found, false if not.
      */
-    boolean isElementExistInDependencies(Class<? extends IndexedToscaElement> elementClass, String elementId, Set<CSARDependency> dependencies);
+    boolean isElementExistInDependencies(Class<? extends AbstractToscaType> elementClass, String elementId, Set<CSARDependency> dependencies);
 
     /**
      * Get an element from defined dependencies.
@@ -39,7 +39,7 @@ public interface ICSARRepositorySearchService {
      * @param keyValueFilters List of key1, value1, key2, value2 to add term filters to the query for each dependency.
      * @return The requested element or null if the element is not found.
      */
-    <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, Set<CSARDependency> dependencies, String... keyValueFilters);
+    <T extends AbstractToscaType> T getElementInDependencies(Class<T> elementClass, Set<CSARDependency> dependencies, String... keyValueFilters);
 
     /**
      * Get an element from defined dependencies.
@@ -49,7 +49,7 @@ public interface ICSARRepositorySearchService {
      * @param dependencies A list of CSAR in which the element may be defined.
      * @return The requested element or null if the element is not found.
      */
-    <T extends IndexedToscaElement> T getElementInDependencies(Class<T> elementClass, String elementId, Set<CSARDependency> dependencies);
+    <T extends AbstractToscaType> T getElementInDependencies(Class<T> elementClass, String elementId, Set<CSARDependency> dependencies);
 
     /**
      * Get an element from defined dependencies.
@@ -60,7 +60,7 @@ public interface ICSARRepositorySearchService {
      * @return The requested element. The method must throw an {@link NotFoundException}.
      * @throws NotFoundException in case the element cannot be found.
      */
-    <T extends IndexedToscaElement> T getRequiredElementInDependencies(Class<T> elementClass, String elementId, Set<CSARDependency> dependencies)
+    <T extends AbstractToscaType> T getRequiredElementInDependencies(Class<T> elementClass, String elementId, Set<CSARDependency> dependencies)
             throws NotFoundException;
 
 }

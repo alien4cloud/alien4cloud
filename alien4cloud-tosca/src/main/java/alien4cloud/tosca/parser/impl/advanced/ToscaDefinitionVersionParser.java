@@ -3,14 +3,12 @@ package alien4cloud.tosca.parser.impl.advanced;
 import java.util.HashSet;
 import java.util.Set;
 
-import alien4cloud.model.components.Csar;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.parser.*;
-import alien4cloud.tosca.parser.impl.ErrorCode;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
-import alien4cloud.model.components.CSARDependency;
+import org.alien4cloud.tosca.model.CSARDependency;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.normative.ToscaNormativeImports;
 

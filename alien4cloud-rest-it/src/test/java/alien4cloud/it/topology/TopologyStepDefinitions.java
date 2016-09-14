@@ -14,6 +14,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.alien4cloud.test.setup.TestDataRegistry;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.types.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.client.Client;
@@ -31,12 +34,11 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.components.AddCommponentDefinitionSteps;
-import alien4cloud.model.components.*;
 import alien4cloud.model.templates.TopologyTemplateVersion;
-import alien4cloud.model.topology.NodeGroup;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.ScalingPolicy;
+import org.alien4cloud.tosca.model.templates.NodeGroup;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.ScalingPolicy;
 import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
@@ -59,7 +61,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class TopologyStepDefinitions {
-    private final static Map<String, Class<? extends IndexedToscaElement>> WORDS_TO_CLASSES;
+    private final static Map<String, Class<? extends AbstractToscaType>> WORDS_TO_CLASSES;
     private final ObjectMapper jsonMapper = new ObjectMapper();
     private final Client esClient = Context.getEsClientInstance();
 
@@ -67,9 +69,9 @@ public class TopologyStepDefinitions {
 
     static {
         WORDS_TO_CLASSES = Maps.newHashMap();
-        WORDS_TO_CLASSES.put("node type", IndexedNodeType.class);
-        WORDS_TO_CLASSES.put("relationship type", IndexedRelationshipType.class);
-        WORDS_TO_CLASSES.put("node types", IndexedNodeType.class);
+        WORDS_TO_CLASSES.put("node type", NodeType.class);
+        WORDS_TO_CLASSES.put("relationship type", RelationshipType.class);
+        WORDS_TO_CLASSES.put("node types", NodeType.class);
     }
 
     @When("^I retrieve the newly created topology$")
@@ -111,7 +113,7 @@ public class TopologyStepDefinitions {
     public void There_is_a_with_element_name_and_archive_version(String elementType, String elementId, String archiveVersion) throws Throwable {
         String componentId = elementId.concat(":").concat(archiveVersion);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/components/" + componentId));
-        IndexedToscaElement idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), WORDS_TO_CLASSES.get(elementType), Context.getJsonMapper())
+        AbstractToscaType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), WORDS_TO_CLASSES.get(elementType), Context.getJsonMapper())
                 .getData();
         assertNotNull(idnt);
         assertEquals(componentId, idnt.getId());
@@ -122,7 +124,7 @@ public class TopologyStepDefinitions {
             throws Throwable {
         String componentId = elementId.concat(":").concat(archiveVersion);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/components/" + componentId));
-        IndexedToscaElement idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), WORDS_TO_CLASSES.get(elementType), Context.getJsonMapper())
+        AbstractToscaType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), WORDS_TO_CLASSES.get(elementType), Context.getJsonMapper())
                 .getData();
         assertNotNull(idnt);
         assertEquals(componentId, idnt.getId());
@@ -297,7 +299,7 @@ public class TopologyStepDefinitions {
     @Given("^i create a relationshiptype \"([^\"]*)\" in an archive name \"([^\"]*)\" version \"([^\"]*)\" with properties$")
     public void i_create_a_relationshiptype_in_an_archive_name_version_with_properties(String elementId, String archiveName, String archiveVersion,
             DataTable properties) throws Throwable {
-        IndexedRelationshipType relationship = new IndexedRelationshipType();
+        RelationshipType relationship = new RelationshipType();
         relationship.setArchiveName(archiveName);
         relationship.setArchiveVersion(archiveVersion);
         relationship.setElementId(elementId);
@@ -311,20 +313,20 @@ public class TopologyStepDefinitions {
             }
         }
 
-        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(IndexedRelationshipType.class))
+        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(RelationshipType.class))
                 .setSource(JsonUtil.toString(relationship)).setRefresh(true).execute().actionGet();
     }
 
     @Given("^I create a \"([^\"]*)\" \"([^\"]*)\" in an archive name \"([^\"]*)\" version \"([^\"]*)\"$")
     public void I_create_a_in_an_archive_name_version(String componentType, String elementId, String archiveName, String archiveVersion) throws Throwable {
-        IndexedInheritableToscaElement element = new IndexedInheritableToscaElement();
+        AbstractInheritableToscaType element = new AbstractInheritableToscaType();
         element.setAbstract(false);
         element.setElementId(elementId);
         element.setArchiveName(archiveName);
         element.setArchiveVersion(archiveVersion);
         Class<?> clazz = null;
         if (componentType.equals("capability") || componentType.equals("capabilities")) {
-            clazz = IndexedCapabilityType.class;
+            clazz = CapabilityType.class;
         } else {
             throw new PendingException("creation of Type " + componentType + "not supported!");
         }
@@ -364,12 +366,12 @@ public class TopologyStepDefinitions {
         assertNull(getSuggestedNodesFor(nodeTemplateName, tasklist));
     }
 
-    private IndexedNodeType[] getSuggestedNodesFor(String nodeTemplateName, Object taskList) throws IOException {
+    private NodeType[] getSuggestedNodesFor(String nodeTemplateName, Object taskList) throws IOException {
         for (Map<String, Object> task : (List<Map<String, Object>>) taskList) {
             String nodeTemp = (String) MapUtil.get(task, "nodeTemplateName");
             List<Object> suggestedNodeTypes = (List<Object>) MapUtil.get(task, "suggestedNodeTypes");
             if (nodeTemp.equals(nodeTemplateName) && suggestedNodeTypes != null) {
-                return JsonUtil.toArray(Context.getInstance().getJsonMapper().writeValueAsString(suggestedNodeTypes), IndexedNodeType.class,
+                return JsonUtil.toArray(Context.getInstance().getJsonMapper().writeValueAsString(suggestedNodeTypes), NodeType.class,
                         Context.getJsonMapper());
             }
         }
@@ -386,7 +388,7 @@ public class TopologyStepDefinitions {
         assertNotNull(tasklist);
         for (List<String> expected : expectedSuggestedElemntIds.raw()) {
             String[] expectedElementIds = expected.get(1).split(",");
-            IndexedNodeType[] indexedNodeTypes = getSuggestedNodesFor(expected.get(0), tasklist);
+            NodeType[] indexedNodeTypes = getSuggestedNodesFor(expected.get(0), tasklist);
             assertNotNull(indexedNodeTypes);
             String[] suggestedElementIds = getElementsId(indexedNodeTypes);
             assertNotNull(suggestedElementIds);
@@ -454,9 +456,9 @@ public class TopologyStepDefinitions {
         return null;
     }
 
-    public String[] getElementsId(IndexedNodeType... indexedNodeTypes) {
+    public String[] getElementsId(NodeType... indexedNodeTypes) {
         String[] toReturn = null;
-        for (IndexedNodeType indexedNodeType : indexedNodeTypes) {
+        for (NodeType indexedNodeType : indexedNodeTypes) {
             toReturn = ArrayUtils.add(toReturn, indexedNodeType.getElementId());
         }
         return toReturn;

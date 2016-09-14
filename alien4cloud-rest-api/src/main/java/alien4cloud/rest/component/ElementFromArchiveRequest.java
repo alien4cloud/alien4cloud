@@ -1,9 +1,8 @@
 package alien4cloud.rest.component;
 
-import java.util.Collection;
 import java.util.Set;
 
-import alien4cloud.model.components.CSARDependency;
+import org.alien4cloud.tosca.model.CSARDependency;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

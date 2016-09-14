@@ -12,9 +12,9 @@ import com.google.common.collect.Maps;
 
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
-import alien4cloud.model.components.CSARDependency;
+import org.alien4cloud.tosca.model.CSARDependency;
 import alien4cloud.model.components.CSARSource;
-import alien4cloud.model.components.Csar;
+import org.alien4cloud.tosca.model.Csar;
 import alien4cloud.model.git.CsarDependenciesBean;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.Role;

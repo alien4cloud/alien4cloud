@@ -9,10 +9,10 @@ import javax.inject.Inject;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
 
-import alien4cloud.model.components.IndexedNodeType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import alien4cloud.model.topology.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
 import alien4cloud.topology.task.AbstractTask;
@@ -61,7 +61,7 @@ public class DeploymentNodeSubstitutionValidationService {
 
     private void addTask(String nodeTemplateName, TopologyContext topologyContext, List<AbstractTask> tasks) {
         NodeTemplate nodeTemplate = topologyContext.getTopology().getNodeTemplates().get(nodeTemplateName);
-        IndexedNodeType nodeType = topologyContext.findElement(IndexedNodeType.class, nodeTemplate.getType());
+        NodeType nodeType = topologyContext.findElement(NodeType.class, nodeTemplate.getType());
         TopologyTask task = new TopologyTask(nodeTemplateName, nodeType);
         task.setCode(TaskCode.NODE_NOT_SUBSTITUTED);
         tasks.add(task);

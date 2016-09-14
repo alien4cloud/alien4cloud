@@ -5,8 +5,8 @@ import lombok.*;
 import org.elasticsearch.annotation.ObjectField;
 
 import alien4cloud.json.deserializer.PropertyValueDeserializer;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import alien4cloud.tosca.container.validation.ToscaPropertyConstraint;
 import alien4cloud.tosca.container.validation.ToscaPropertyDefaultValueConstraints;
 import alien4cloud.tosca.container.validation.ToscaPropertyDefaultValueType;

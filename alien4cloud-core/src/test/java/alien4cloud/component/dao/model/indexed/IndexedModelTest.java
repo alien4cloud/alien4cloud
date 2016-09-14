@@ -15,15 +15,15 @@ import org.elasticsearch.common.collect.Maps;
 import org.junit.Test;
 
 import alien4cloud.model.common.Tag;
-import alien4cloud.model.components.AttributeDefinition;
-import alien4cloud.model.components.IValue;
-import alien4cloud.model.components.IndexedInheritableToscaElement;
+import org.alien4cloud.tosca.model.definitions.AttributeDefinition;
+import org.alien4cloud.tosca.model.definitions.IValue;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import alien4cloud.model.components.IndexedModelUtils;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.Interface;
-import alien4cloud.model.components.Operation;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.definitions.Interface;
+import org.alien4cloud.tosca.model.definitions.Operation;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;
@@ -37,12 +37,12 @@ public class IndexedModelTest {
     // |
     // orphan
     // The sort should give me [root,orphan],[child1,child2],[grandChild1,grandChild2]
-    static Map<String, IndexedInheritableToscaElement> elementsByIdMap = Maps.newHashMap();
+    static Map<String, AbstractInheritableToscaType> elementsByIdMap = Maps.newHashMap();
 
-    static IndexedInheritableToscaElement root, child1, child2, grandChild1, grandChild2;
+    static AbstractInheritableToscaType root, child1, child2, grandChild1, grandChild2;
     static List<Tag> rootTags, childTags;
 
-    static IndexedNodeType parent, sonWith3Tags, sonWithoutTags;
+    static NodeType parent, sonWith3Tags, sonWithoutTags;
 
     static {
 
@@ -56,7 +56,7 @@ public class IndexedModelTest {
         childTags.add(new Tag("prodChild", "Bad deployment"));
         childTags.add(new Tag("another-tag", "<pathed the 22th...>"));
 
-        parent = new IndexedNodeType();
+        parent = new NodeType();
         parent.setElementId("1");
         parent.setArchiveName("tosca.nodes.Root");
         parent.setArchiveVersion("1.0");
@@ -64,7 +64,7 @@ public class IndexedModelTest {
         parent.setDescription("Root description...");
         parent.setTags(rootTags);
 
-        sonWith3Tags = new IndexedNodeType();
+        sonWith3Tags = new NodeType();
         sonWith3Tags.setElementId("2");
         sonWith3Tags.setArchiveName("tosca.nodes.Compute");
         sonWith3Tags.setArchiveVersion("1.0");
@@ -72,7 +72,7 @@ public class IndexedModelTest {
         sonWith3Tags.setDescription("Child description...");
         sonWith3Tags.setTags(childTags);
 
-        sonWithoutTags = new IndexedNodeType();
+        sonWithoutTags = new NodeType();
         sonWithoutTags.setElementId("3");
         sonWithoutTags.setArchiveName("tosca.nodes.Network");
         sonWithoutTags.setArchiveVersion("1.2");
@@ -95,9 +95,9 @@ public class IndexedModelTest {
 
     @Test
     public void testOrderInheritableElements() {
-        List<IndexedInheritableToscaElement> sorted = IndexedModelUtils.orderByDerivedFromHierarchy(elementsByIdMap);
+        List<AbstractInheritableToscaType> sorted = IndexedModelUtils.orderByDerivedFromHierarchy(elementsByIdMap);
 
-        for (IndexedInheritableToscaElement el : sorted) {
+        for (AbstractInheritableToscaType el : sorted) {
             System.out.println(el.getElementId() + " " + el.getDerivedFrom());
         }
 
@@ -135,7 +135,7 @@ public class IndexedModelTest {
 
     @Test
     public void mergeInheritableIndexMaps() {
-        IndexedNodeType son = new IndexedNodeType();
+        NodeType son = new NodeType();
         son.setElementId("son");
         son.setArchiveVersion("1");
 
@@ -199,9 +199,9 @@ public class IndexedModelTest {
 
     }
 
-    private static IndexedInheritableToscaElement fabricElement(Map<String, IndexedInheritableToscaElement> map, String elementId, String derivedFrom,
-            List<Tag> tags) {
-        IndexedInheritableToscaElement element = new IndexedInheritableToscaElement();
+    private static AbstractInheritableToscaType fabricElement(Map<String, AbstractInheritableToscaType> map, String elementId, String derivedFrom,
+                                                              List<Tag> tags) {
+        AbstractInheritableToscaType element = new AbstractInheritableToscaType();
         element.setElementId(elementId);
         element.setArchiveVersion("1.0");
         element.setDerivedFrom(Arrays.asList(derivedFrom));

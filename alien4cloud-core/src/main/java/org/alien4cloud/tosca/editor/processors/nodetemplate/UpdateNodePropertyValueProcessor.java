@@ -11,10 +11,10 @@ import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
@@ -39,7 +39,7 @@ public class UpdateNodePropertyValueProcessor implements IEditorOperationProcess
         String propertyName = operation.getPropertyName();
         Object propertyValue = operation.getPropertyValue();
 
-        IndexedNodeType node = ToscaContext.getOrFail(IndexedNodeType.class, nodeTemp.getType());
+        NodeType node = ToscaContext.getOrFail(NodeType.class, nodeTemp.getType());
 
         PropertyDefinition propertyDefinition = node.getProperties().get(propertyName);
         if (propertyDefinition == null) {

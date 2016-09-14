@@ -16,7 +16,7 @@ import alien4cloud.model.deployment.matching.ILocationMatch;
 import alien4cloud.model.deployment.matching.LocationMatch;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.exception.LocationMatchingException;

@@ -6,14 +6,14 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
-import alien4cloud.model.components.IndexedDataType;
+import org.alien4cloud.tosca.model.types.DataType;
 import alien4cloud.tosca.normative.ToscaType;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
-import alien4cloud.model.components.IndexedInheritableToscaElement;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import alien4cloud.model.components.IndexedModelUtils;
-import alien4cloud.model.components.PrimitiveIndexedDataType;
+import org.alien4cloud.tosca.model.types.PrimitiveDataType;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
@@ -25,20 +25,20 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class DerivedFromPostProcessor implements IPostProcessor<Map<String, ? extends IndexedInheritableToscaElement>> {
+public class DerivedFromPostProcessor implements IPostProcessor<Map<String, ? extends AbstractInheritableToscaType>> {
     @Override
-    public void process(Map<String, ? extends IndexedInheritableToscaElement> instances) {
+    public void process(Map<String, ? extends AbstractInheritableToscaType> instances) {
         // Detect cyclic derived from
-        Map<IndexedInheritableToscaElement, String> processed = new IdentityHashMap<>();
-        Map<IndexedInheritableToscaElement, String> processing = new IdentityHashMap<>();
+        Map<AbstractInheritableToscaType, String> processed = new IdentityHashMap<>();
+        Map<AbstractInheritableToscaType, String> processing = new IdentityHashMap<>();
         // Then process to get the list of derived from and merge instances
-        for (IndexedInheritableToscaElement instance : safe(instances).values()) {
+        for (AbstractInheritableToscaType instance : safe(instances).values()) {
             process(processed, processing, instance, instances);
         }
     }
 
-    private void process(Map<IndexedInheritableToscaElement, String> processed, Map<IndexedInheritableToscaElement, String> processing,
-            IndexedInheritableToscaElement instance, Map<String, ? extends IndexedInheritableToscaElement> instances) {
+    private void process(Map<AbstractInheritableToscaType, String> processed, Map<AbstractInheritableToscaType, String> processing,
+                         AbstractInheritableToscaType instance, Map<String, ? extends AbstractInheritableToscaType> instances) {
         if (processed.containsKey(instance)) {
             // Already processed
             return;
@@ -63,8 +63,8 @@ public class DerivedFromPostProcessor implements IPostProcessor<Map<String, ? ex
         String parentElementType = derivedFrom.get(0);
 
         // Merge the type with it's parent except for primitive data types.
-        if (instance instanceof IndexedDataType && ToscaType.isSimple(parentElementType)) {
-            if (instance instanceof PrimitiveIndexedDataType) {
+        if (instance instanceof DataType && ToscaType.isSimple(parentElementType)) {
+            if (instance instanceof PrimitiveDataType) {
                 log.debug("Do not merge data type instance with parent as it extends from a primitive type.");
             } else {
                 Node node = ParsingContextExecution.getObjectToNodeMap().get(instance);
@@ -76,7 +76,7 @@ public class DerivedFromPostProcessor implements IPostProcessor<Map<String, ? ex
             return;
         }
 
-        IndexedInheritableToscaElement parent = instances.get(parentElementType);
+        AbstractInheritableToscaType parent = instances.get(parentElementType);
         if (parent == null) {
             parent = ToscaContext.get(instance.getClass(), parentElementType);
         } else {

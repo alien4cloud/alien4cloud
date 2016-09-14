@@ -1,7 +1,7 @@
 package alien4cloud.utils.services;
 
 import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.model.components.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import alien4cloud.paas.exception.NotSupportedException;
 import alien4cloud.tosca.normative.IPropertyType;
 import alien4cloud.tosca.normative.InvalidPropertyValueException;

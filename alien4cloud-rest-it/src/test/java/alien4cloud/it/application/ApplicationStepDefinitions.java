@@ -33,7 +33,7 @@ import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
-import alien4cloud.model.topology.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import alien4cloud.rest.application.model.ApplicationEnvironmentDTO;
 import alien4cloud.rest.application.model.ApplicationEnvironmentRequest;
 import alien4cloud.rest.application.model.CreateApplicationRequest;

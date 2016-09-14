@@ -2,7 +2,7 @@ package alien4cloud.events;
 
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.model.components.IndexedNodeType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 
 /**
@@ -14,7 +14,7 @@ public class LocationTemplateCreated extends LocationResourceEvent {
 
     private static final long serialVersionUID = 4523559660777770642L;
 
-    private IndexedNodeType nodeType;
+    private NodeType nodeType;
 
     private LocationResourceTemplate template;
 

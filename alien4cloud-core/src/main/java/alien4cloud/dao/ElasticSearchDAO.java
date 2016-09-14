@@ -15,15 +15,15 @@ import alien4cloud.model.common.AbstractSuggestionEntry;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.common.SimpleSuggestionEntry;
 import alien4cloud.model.common.SuggestionEntry;
-import alien4cloud.model.components.Csar;
-import alien4cloud.model.components.IndexedArtifactToscaElement;
-import alien4cloud.model.components.IndexedArtifactType;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedDataType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.PrimitiveIndexedDataType;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
+import org.alien4cloud.tosca.model.types.ArtifactType;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.DataType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.types.PrimitiveDataType;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.git.CsarGitRepository;
@@ -34,7 +34,7 @@ import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.repository.Repository;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.model.PluginConfiguration;
 import lombok.extern.slf4j.Slf4j;
@@ -67,9 +67,9 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         // init indices and mapped classes
         setJsonMapper(ElasticSearchMapper.getInstance());
 
-        initIndices(TOSCA_ELEMENT_INDEX, null, IndexedCapabilityType.class, IndexedArtifactType.class, IndexedRelationshipType.class, IndexedNodeType.class,
-                IndexedDataType.class, PrimitiveIndexedDataType.class);
-        initIndices(TOSCA_ELEMENT_INDEX, null, IndexedArtifactToscaElement.class, IndexedToscaElement.class);
+        initIndices(TOSCA_ELEMENT_INDEX, null, CapabilityType.class, ArtifactType.class, RelationshipType.class, NodeType.class,
+                DataType.class, PrimitiveDataType.class);
+        initIndices(TOSCA_ELEMENT_INDEX, null, AbstractInstantiableToscaType.class, AbstractToscaType.class);
 
         initIndice(Application.class);
         initIndice(ApplicationVersion.class);

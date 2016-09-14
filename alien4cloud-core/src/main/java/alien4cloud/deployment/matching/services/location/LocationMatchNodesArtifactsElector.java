@@ -1,28 +1,17 @@
 package alien4cloud.deployment.matching.services.location;
 
-import java.util.Set;
-
 import alien4cloud.model.orchestrators.ArtifactSupport;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.google.common.collect.Sets;
-
-import alien4cloud.component.CSARRepositorySearchService;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.IndexedArtifactToscaElement;
-import alien4cloud.model.components.IndexedArtifactType;
-import alien4cloud.model.components.Interface;
-import alien4cloud.model.components.Operation;
-import alien4cloud.model.deployment.matching.ILocationMatch;
-import alien4cloud.model.topology.AbstractTemplate;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
-import alien4cloud.orchestrators.services.OrchestratorService;
+import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
+import org.alien4cloud.tosca.model.types.ArtifactType;
+import org.alien4cloud.tosca.model.definitions.Interface;
+import org.alien4cloud.tosca.model.definitions.Operation;
+import org.alien4cloud.tosca.model.templates.AbstractTemplate;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import alien4cloud.tosca.ToscaUtils;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 /**
@@ -67,7 +56,7 @@ public class LocationMatchNodesArtifactsElector {
         }
         String[] supportedArtifacts = artifactSupport.getTypes();
 
-        IndexedArtifactToscaElement indexedArtifactToscaElement = matchContext.getElement(IndexedArtifactToscaElement.class, template.getType());
+        AbstractInstantiableToscaType indexedArtifactToscaElement = matchContext.getElement(AbstractInstantiableToscaType.class, template.getType());
 
         if (MapUtils.isNotEmpty(indexedArtifactToscaElement.getInterfaces())) {
             for (Interface interfaz : indexedArtifactToscaElement.getInterfaces().values()) {
@@ -75,7 +64,7 @@ public class LocationMatchNodesArtifactsElector {
                     if (operation.getImplementationArtifact() != null) {
                         String artifactTypeString = operation.getImplementationArtifact().getArtifactType();
 
-                        IndexedArtifactType artifactType = matchContext.getElement(IndexedArtifactType.class, artifactTypeString);
+                        ArtifactType artifactType = matchContext.getElement(ArtifactType.class, artifactTypeString);
 
                         // stop the checking once one artifactType is not supported
                         if (!isFromOneOfTypes(supportedArtifacts, artifactType)) {
@@ -89,7 +78,7 @@ public class LocationMatchNodesArtifactsElector {
         return true;
     }
 
-    private boolean isFromOneOfTypes(String[] supportedArtifacts, IndexedArtifactType artifactType) {
+    private boolean isFromOneOfTypes(String[] supportedArtifacts, ArtifactType artifactType) {
         for (String supportedArtifact : supportedArtifacts) {
             if (ToscaUtils.isFromType(supportedArtifact, artifactType)) {
                 return true;

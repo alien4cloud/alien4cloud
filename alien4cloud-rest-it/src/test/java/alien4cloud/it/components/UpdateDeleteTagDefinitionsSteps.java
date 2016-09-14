@@ -16,7 +16,7 @@ import alien4cloud.dao.ElasticSearchMapper;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.it.Context;
 import alien4cloud.model.common.Tag;
-import alien4cloud.model.components.IndexedNodeType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.rest.component.UpdateTagRequest;
 import alien4cloud.rest.utils.JsonUtil;
 
@@ -36,7 +36,7 @@ public class UpdateDeleteTagDefinitionsSteps {
     @Given("^I have a component with id \"([^\"]*)\"$")
     public void I_have_a_component_with_id(String componentId) throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/components/" + componentId));
-        IndexedNodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), IndexedNodeType.class).getData();
+        NodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), NodeType.class).getData();
         assertNotNull(idnt);
         Context.getInstance().registerComponentId(idnt.getId());
     }
@@ -69,14 +69,14 @@ public class UpdateDeleteTagDefinitionsSteps {
     @Given("^I have a tag \"([^\"]*)\"$")
     public void I_have_a_tag(String tag) throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/components/" + Context.getInstance().getComponentId(0)));
-        IndexedNodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), IndexedNodeType.class).getData();
+        NodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), NodeType.class).getData();
         assertTrue(idnt.getTags().contains(new Tag(tag, null)));
     }
 
     @Then("^I should have tag \"([^\"]*)\" with value \"([^\"]*)\"$")
     public void I_should_have_tag_with_value(String tagKey, String tagValue) throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/components/" + Context.getInstance().getComponentId(0)));
-        IndexedNodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), IndexedNodeType.class).getData();
+        NodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), NodeType.class).getData();
         assertNotNull(idnt);
         int index = idnt.getTags().indexOf(new Tag(tagKey, null));
         assertEquals(idnt.getTags().get(index).getValue(), tagValue);
@@ -103,13 +103,13 @@ public class UpdateDeleteTagDefinitionsSteps {
         String samplePathString = "src/test/resources/data/components/indexed_nodetypes.json";
         Path path = Paths.get(samplePathString);
         List<Object> tempList = jsonMapper.readValue(path.toFile(), ArrayList.class);
-        List<IndexedNodeType> idntList = new ArrayList<>();
+        List<NodeType> idntList = new ArrayList<>();
         for (Object ob : tempList) {
-            idntList.add(jsonMapper.readValue(jsonMapper.writeValueAsString(ob), IndexedNodeType.class));
+            idntList.add(jsonMapper.readValue(jsonMapper.writeValueAsString(ob), NodeType.class));
         }
-        String typeName = MappingBuilder.indexTypeFromClass(IndexedNodeType.class);
+        String typeName = MappingBuilder.indexTypeFromClass(NodeType.class);
 
-        IndexedNodeType indexedNodeType = null;
+        NodeType indexedNodeType = null;
         // Save on nodeType with
         if (componentId != null && archiveVersion != null && !componentId.trim().isEmpty()) {
 

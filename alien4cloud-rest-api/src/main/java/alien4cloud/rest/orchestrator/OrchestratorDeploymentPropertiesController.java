@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import alien4cloud.model.components.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import alien4cloud.orchestrators.services.OrchestratorDeploymentService;
 import alien4cloud.rest.internal.model.PropertyRequest;
 import alien4cloud.rest.model.RestErrorBuilder;
