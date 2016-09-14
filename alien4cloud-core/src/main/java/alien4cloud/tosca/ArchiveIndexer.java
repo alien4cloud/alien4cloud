@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import alien4cloud.topology.TopologyTemplateService;
 import org.alien4cloud.tosca.editor.EditorRepositoryService;
 import org.springframework.stereotype.Component;
 
@@ -43,6 +44,8 @@ public class ArchiveIndexer {
     @Inject
     private CsarService csarService;
     @Inject
+    private TopologyTemplateService topologyTemplateService;
+    @Inject
     private TopologyServiceCore topologyServiceCore;
     @Inject
     private TopologyTemplateVersionService topologyTemplateVersionService;
@@ -71,11 +74,20 @@ public class ArchiveIndexer {
             throws CSARVersionAlreadyExistsException, CSARUsedInActiveDeployment {
         String archiveName = archiveRoot.getArchive().getName();
         String archiveVersion = archiveRoot.getArchive().getVersion();
-        Csar archive = csarService.get(archiveName, archiveVersion);
+        Csar currentIndexedArchive = csarService.get(archiveName, archiveVersion);
+        // if the archive has not changed do nothing.
+        if (currentIndexedArchive != null && currentIndexedArchive.getHash() != null
+                && currentIndexedArchive.getHash().equals(archiveRoot.getArchive().getHash())) {
+            parsingErrors.add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.CSAR_ALREADY_INDEXED, "", null,
+                    "The archive already exists in alien4cloud with an identical content (SHA-1 on archive content excluding hidden files is identical).", null,
+                    archiveName));
+            return;
+        }
+
         // Cannot override RELEASED CSAR .
-        checkNotReleased(archive);
+        checkNotReleased(currentIndexedArchive);
         // Cannot override a CSAR used in an active deployment
-        checkNotUsedInActiveDeployment(archive);
+        checkNotUsedInActiveDeployment(currentIndexedArchive);
 
         // save the archive (before we index and save other data so we can cleanup if anything goes wrong).
         if (source == null) {
@@ -92,7 +104,7 @@ public class ArchiveIndexer {
         } // TODO What if else ? should we generate the YAML ?
 
         // index the archive content in elastic-search
-        indexArchiveTypes(archiveName, archiveVersion, archiveRoot, archive);
+        indexArchiveTypes(archiveName, archiveVersion, archiveRoot, currentIndexedArchive);
 
         final Topology topology = archiveRoot.getTopology();
         // if a topology has been added we want to notify the user
@@ -121,7 +133,7 @@ public class ArchiveIndexer {
 
             // TODO: here we should update the topology if it already exists
             // TODO: the name should only contains the archiveName
-            TopologyTemplate existingTemplate = topologyServiceCore.searchTopologyTemplateByName(archiveRoot.getArchive().getName());
+            TopologyTemplate existingTemplate = topologyTemplateService.getTopologyTemplateByName(archiveRoot.getArchive().getName());
             String topologyId;
             if (existingTemplate != null) {
                 // the topology template already exists
@@ -142,7 +154,7 @@ public class ArchiveIndexer {
             } else {
                 parsingErrors.add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_DETECTED, "", null, "A topology template has been detected", null,
                         archiveName));
-                topologyServiceCore.createTopologyTemplate(topology, archiveName, archiveRoot.getTopologyTemplateDescription(), archiveVersion);
+                topologyTemplateService.createTopologyTemplate(topology, archiveName, archiveRoot.getTopologyTemplateDescription(), archiveVersion);
                 topologyId = topology.getId();
             }
             // store the archive for topology edition in case the version is snapshot

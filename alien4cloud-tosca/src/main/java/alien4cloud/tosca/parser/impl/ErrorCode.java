@@ -6,6 +6,8 @@ package alien4cloud.tosca.parser.impl;
 public enum ErrorCode {
     /** File does not respect YAML format. */
     INVALID_YAML,
+    /** The csar is already indexed in the repository with the exact same content. */
+    CSAR_ALREADY_INDEXED,
     /** The csar already exists (and the version is not a SNAPSHOT version). */
     CSAR_ALREADY_EXISTS,
     /** The csar is used in an active deployment (It cannot be overrided). */

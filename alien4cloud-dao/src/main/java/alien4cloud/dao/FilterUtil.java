@@ -30,7 +30,7 @@ public final class FilterUtil {
      * @param keyValues The list of key1, value1, key2, value2 etc.
      * @return The filters map.
      */
-    public static Map<String, String[]> kvCouples(String... keyValues) {
+    public static Map<String, String[]> fromKeyValueCouples(String... keyValues) {
         Map<String, String[]> filters = Maps.newHashMap();
         for (int i = 0; i < keyValues.length; i += 2) {
             filters.put(keyValues[i], new String[] { keyValues[i + 1] });

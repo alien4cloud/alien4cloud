@@ -2,7 +2,10 @@ Feature: Topology editor: Recover a topology after csar dependencies updates
 
   Background:
     Given I am authenticated with "ADMIN" role
+    # initialize or reset the types as defined in the initial archive
     And I upload unzipped CSAR from path "src/test/resources/data/csars/topology_recovery/test-topo-recovery-types.yml"
+    # initialize or reset the topology
+    And I delete the template with name "test-recovery-topology" and archive "test-recovery-topology" "0.1.0-SNAPSHOT" if any
     And I upload unzipped CSAR from path "src/test/resources/data/csars/topology_recovery/sample-topology-test-recovery.yml"
     And I get the topology related to the template with name "test-recovery-topology"
 
@@ -20,8 +23,8 @@ Feature: Topology editor: Recover a topology after csar dependencies updates
     Then No exception should be thrown
     And The SPEL expression "nodeTemplates.size()" should return 2
     And The SPEL expression "nodeTemplates['TestComponent']" should return "null"
-    Then The SPEL expression "nodeTemplates['TestComponentSource'].relationships.size()" should return 1
-    Then The SPEL expression "nodeTemplates['TestComponentSource'].relationships.values()[0].target" should return "Compute"
+    And The SPEL expression "nodeTemplates['TestComponentSource'].relationships.size()" should return 1
+    And The SPEL expression "nodeTemplates['TestComponentSource'].relationships.values()[0].target" should return "Compute"
 
   Scenario: Delete a relationship type from archive and recover the topology
     Given I upload unzipped CSAR from path "src/test/resources/data/csars/topology_recovery/test-recovery-reltype-deleted-types.yml"
@@ -36,8 +39,8 @@ Feature: Topology editor: Recover a topology after csar dependencies updates
     When I recover the topology
     Then No exception should be thrown
     And The SPEL expression "nodeTemplates.size()" should return 3
-    Then The SPEL expression "nodeTemplates['TestComponentSource'].relationships.size()" should return 7
-    Then The SPEL expression "nodeTemplates['TestComponentSource'].relationships.values().?[#this.type == 'alien.test.relationships.TestComponentConnectsTo'].size()" should return 0
+    And The SPEL expression "nodeTemplates['TestComponentSource'].relationships.size()" should return 7
+    And The SPEL expression "nodeTemplates['TestComponentSource'].relationships.values().?[#this.type == 'alien.test.relationships.TestComponentConnectsTo'].size()" should return 0
 
   Scenario: Delete a capability and a requirement from a type archive and recover the topology
     Given I upload unzipped CSAR from path "src/test/resources/data/csars/topology_recovery/test-recovery-capa-requirement-deleted-types.yml"
@@ -55,8 +58,8 @@ Feature: Topology editor: Recover a topology after csar dependencies updates
     And The SPEL expression "nodeTemplates['TestComponentSource'].requirements['req_to_be_deleted']" should return "null"
     And The SPEL expression "nodeTemplates['TestComponent'].capabilities['capa_to_be_deleted']" should return "null"
     And The SPEL expression "nodeTemplates['TestComponentSource'].relationships.size()" should return 6
-    Then The SPEL expression "nodeTemplates['TestComponentSource'].relationships.values().?[#this.type == 'alien.test.relationships.ReqToBeDeleted'].size()" should return 0
-    Then The SPEL expression "nodeTemplates['TestComponentSource'].relationships.values().?[#this.type == 'alien.test.relationships.CapaToBeDeleted'].size()" should return 0
+    And The SPEL expression "nodeTemplates['TestComponentSource'].relationships.values().?[#this.type == 'alien.test.relationships.ReqToBeDeleted'].size()" should return 0
+    And The SPEL expression "nodeTemplates['TestComponentSource'].relationships.values().?[#this.type == 'alien.test.relationships.CapaToBeDeleted'].size()" should return 0
 
 
   Scenario: During edition of the topology, delete a capability and a requirement from a type archive and recover the topology

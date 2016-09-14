@@ -172,7 +172,7 @@ define(function (require) {
       }
     };
 
-    var versionFetchResource = $alresource('rest/latest/components/el/:elementId/versions');
+    var versionFetchResource = $alresource('rest/latest/components/element/:elementId/versions');
     $scope.fetchElementVersion = function(component) {
       if(_.defined(component.olderVersions)) {
         return;

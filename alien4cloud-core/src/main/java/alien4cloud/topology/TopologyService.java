@@ -1,5 +1,24 @@
 package alien4cloud.topology;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.regex.Pattern;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.elasticsearch.common.collect.Lists;
+import org.elasticsearch.mapping.FilterValuesStrategy;
+import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.component.CSARRepositorySearchService;
@@ -32,51 +51,30 @@ import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.serializer.VelocityUtil;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.elasticsearch.common.collect.Lists;
-import org.elasticsearch.mapping.FilterValuesStrategy;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.regex.Pattern;
 
 @Slf4j
 @Service
 public class TopologyService {
-
     @Resource
     private CSARRepositorySearchService csarRepoSearchService;
-
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
-
     @Resource
     private ApplicationService appService;
-
     @Resource
     private CsarService csarService;
-
     @Resource
     private TopologyServiceCore topologyServiceCore;
-
     @Resource
     private ApplicationVersionService applicationVersionService;
-
     @Resource
     private TopologyTemplateVersionService topologyTemplateVersionService;
-
     @Resource
     private WorkflowsBuilderService workflowBuilderService;
+    @Inject
+    private TopologyTemplateService topologyTemplateService;
 
     public static final Pattern NODE_NAME_PATTERN = Pattern.compile("^\\w+$");
     public static final Pattern NODE_NAME_REPLACE_PATTERN = Pattern.compile("\\W");
@@ -475,21 +473,6 @@ public class TopologyService {
         return null;
     }
 
-    /**
-     * Retrieve the topology template from its id
-     *
-     * @param topologyTemplateId the topology template's id
-     * @return the required topology template
-     */
-    public TopologyTemplate getOrFailTopologyTemplate(String topologyTemplateId) {
-        TopologyTemplate topologyTemplate = alienDAO.findById(TopologyTemplate.class, topologyTemplateId);
-        if (topologyTemplate == null) {
-            log.debug("Failed to recover the topology template <{}>", topologyTemplateId);
-            throw new NotFoundException("Topology template with id [" + topologyTemplateId + "] cannot be found");
-        }
-        return topologyTemplate;
-    }
-
     public String getYaml(Topology topology) {
         Map<String, Object> velocityCtx = new HashMap<>();
         velocityCtx.put("topology", topology);
@@ -508,7 +491,7 @@ public class TopologyService {
             }
         } else if (TopologyTemplate.class.getSimpleName().toLowerCase().equals(topology.getDelegateType())) {
             String topologyTemplateId = topology.getDelegateId();
-            TopologyTemplate template = getOrFailTopologyTemplate(topologyTemplateId);
+            TopologyTemplate template = topologyTemplateService.getOrFailTopologyTemplate(topologyTemplateId);
             velocityCtx.put("template_name", template.getName());
             velocityCtx.put("application_description", template.getDescription());
             TopologyTemplateVersion version = topologyTemplateVersionService.getByTopologyId(topology.getId());

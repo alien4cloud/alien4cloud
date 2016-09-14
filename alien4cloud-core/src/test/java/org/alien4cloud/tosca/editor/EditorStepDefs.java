@@ -9,6 +9,8 @@ import java.util.*;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.component.CSARRepositorySearchService;
+import alien4cloud.csar.services.CsarService;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -37,6 +39,7 @@ import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.security.model.User;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.topology.TopologyTemplateService;
 import alien4cloud.tosca.ArchiveUploadService;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingResult;
@@ -52,26 +55,24 @@ import lombok.extern.slf4j.Slf4j;
 @ContextConfiguration("classpath:org/alien4cloud/tosca/editor/application-context-test.xml")
 @Slf4j
 public class EditorStepDefs {
-    @Resource
-    private ArchiveUploadService csarUploadService;
-
-    @Resource
-    private EditorService editorService;
-
-    @Inject
-    private EditionContextManager editionContextManager;
-
-    @Resource
-    private TopologyServiceCore topologyServiceCore;
-
-    @Resource
-    private WorkflowsBuilderService workflowBuilderService;
-
-    @Resource
-    private EditorTopologyRecoveryHelperService recoveryHelper;
-
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
+    @Inject
+    private ArchiveUploadService csarUploadService;
+    @Inject
+    private EditorService editorService;
+    @Inject
+    private EditionContextManager editionContextManager;
+    @Inject
+    private TopologyTemplateService topologyTemplateService;
+    @Inject
+    private TopologyServiceCore topologyServiceCore;
+    @Inject
+    private WorkflowsBuilderService workflowBuilderService;
+    @Inject
+    private EditorTopologyRecoveryHelperService recoveryHelper;
+    @Inject
+    private CsarService csarService;
 
     private LinkedList<String> topologyIds = new LinkedList();
 
@@ -159,9 +160,18 @@ public class EditorStepDefs {
 
     @When("^I get the topology related to the template with name \"(.*?)\"$")
     public void iGetTheTopologyRelatedToTheTemplateWithName(String templateName) throws Throwable {
-        TopologyTemplate topologyTeplate = topologyServiceCore.searchTopologyTemplateByName(templateName);
+        TopologyTemplate topologyTeplate = topologyTemplateService.getTopologyTemplateByName(templateName);
         Topology topology = alienDAO.customFind(Topology.class, QueryBuilders.matchQuery("delegateId", topologyTeplate.getId()));
         topologyIds.addLast(topology.getId());
+    }
+
+    @When("^I delete the template with name \"(.*?)\" and archive \"(.*?)\" \"(.*?)\" if any$")
+    public void iRemoveTheTemplateWithName(String templateName, String archiveName, String archiveVersion) throws Throwable {
+        TopologyTemplate topologyTemplate = topologyTemplateService.getTopologyTemplateByName(templateName);
+        if (topologyTemplate != null) {
+            topologyTemplateService.delete(topologyTemplate.getId());
+            csarService.deleteCsar(archiveName, archiveVersion);
+        }
     }
 
     @When("^I get the edited topology$")
@@ -193,7 +203,7 @@ public class EditorStepDefs {
         Topology topology = new Topology();
         topology.setDelegateType(TopologyTemplate.class.getSimpleName().toLowerCase());
         workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
-        TopologyTemplate topologyTemplate = topologyServiceCore.createTopologyTemplate(topology, topologyTemplateName, "", null);
+        TopologyTemplate topologyTemplate = topologyTemplateService.createTopologyTemplate(topology, topologyTemplateName, "", null);
         topology.setDelegateId(topologyTemplate.getId());
         topologyIds.addLast(topology.getId());
 

@@ -7,6 +7,7 @@ import java.util.*;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -47,7 +48,7 @@ public class SuggestionService {
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
-
+    @Inject
     private CSARRepositorySearchService searchService;
 
     /* The Levenshtein distance is a string metric for measuring the difference between two sequences. */

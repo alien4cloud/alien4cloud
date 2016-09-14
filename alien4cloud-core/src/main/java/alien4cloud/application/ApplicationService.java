@@ -1,5 +1,6 @@
 package alien4cloud.application;
 
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.utils.AlienUtils.arOfArray;
 import static alien4cloud.utils.AlienUtils.array;
 
@@ -8,6 +9,7 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
+import alien4cloud.dao.FilterUtil;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.QueryHelper;
 import org.springframework.stereotype.Service;
@@ -161,7 +163,7 @@ public class ApplicationService {
     public boolean delete(String applicationId) throws OrchestratorDisabledException {
         // ensure that there is no active deployment(s).
         GetMultipleDataResult<Deployment> result = alienDAO.buildQuery(Deployment.class)
-                .setFilters(MapUtil.newHashMap(array("sourceId", "endDate"), arOfArray(array(applicationId), array(null)))).prepareSearch().search(0, 1);
+                .setFilters(fromKeyValueCouples("sourceId", applicationId, "endDate", null)).prepareSearch().search(0, 1);
 
         if (result.getData().length > 0) {
             return false;

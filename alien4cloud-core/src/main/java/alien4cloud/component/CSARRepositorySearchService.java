@@ -1,6 +1,6 @@
 package alien4cloud.component;
 
-import static alien4cloud.dao.FilterUtil.kvCouples;
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
 import java.io.IOException;
@@ -52,7 +52,7 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
 
     @Override
     public Csar getArchive(String archiveName, String archiveVersion) {
-        return searchDAO.buildQuery(Csar.class).prepareSearch().setFilters(kvCouples("name", archiveName, "version", archiveVersion)).find();
+        return searchDAO.buildQuery(Csar.class).prepareSearch().setFilters(fromKeyValueCouples("name", archiveName, "version", archiveVersion)).find();
     }
 
     /**
@@ -64,7 +64,7 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
      * @return Return the matching
      */
     public <T extends IndexedToscaElement> T find(Class<T> elementType, String elementId, String version) {
-        return searchDAO.buildQuery(elementType).setFilters(kvCouples("rawElementId", elementId, "archiveVersion", version)).prepareSearch().find();
+        return searchDAO.buildQuery(elementType).setFilters(fromKeyValueCouples("rawElementId", elementId, "archiveVersion", version)).prepareSearch().find();
     }
 
     /**
@@ -75,7 +75,7 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
      * @return Return the matching
      */
     public <T extends IndexedToscaElement> T findMostRecent(Class<T> elementType, String elementId) {
-        return searchDAO.buildQuery(elementType).setFilters(kvCouples("rawElementId", elementId)).prepareSearch()
+        return searchDAO.buildQuery(elementType).setFilters(fromKeyValueCouples("rawElementId", elementId)).prepareSearch()
                 .alterSearchRequestBuilder(
                         searchRequestBuilder -> searchRequestBuilder.addSort(new FieldSortBuilder("nestedVersion.majorVersion").order(SortOrder.DESC))
                                 .addSort(new FieldSortBuilder("nestedVersion.minorVersion").order(SortOrder.DESC))

@@ -1,6 +1,6 @@
 package alien4cloud.csar.services;
 
-import static alien4cloud.dao.FilterUtil.kvCouples;
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
 import java.util.Date;
 import java.util.List;
@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.topology.TopologyTemplateService;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -34,7 +35,6 @@ import alien4cloud.model.components.Csar;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.topology.TopologyService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -45,22 +45,17 @@ import lombok.extern.slf4j.Slf4j;
 public class CsarService implements ICsarDependencyLoader {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO csarDAO;
-
     @Resource(name = "alien-monitor-es-dao")
     private IGenericSearchDAO alienMonitorDao;
-
     @Inject
     private CSARRepositorySearchService searchService;
-
-    @Resource
+    @Inject
     private ICSARRepositoryIndexerService indexerService;
-
-    @Resource
+    @Inject
     private CsarFileRepository alienRepository;
-
-    @Resource
-    private TopologyService topologyService;
-    @Resource
+    @Inject
+    private TopologyTemplateService topologyTemplateService;
+    @Inject
     private ApplicationService applicationService;
 
     /**
@@ -71,7 +66,7 @@ public class CsarService implements ICsarDependencyLoader {
      * @return The {@link Csar Cloud Service Archive} if found in the repository or null.
      */
     public Csar get(String name, String version) {
-        return csarDAO.buildQuery(Csar.class).setFilters(kvCouples("name", name, "version", version)).prepareSearch().find();
+        return csarDAO.buildQuery(Csar.class).setFilters(fromKeyValueCouples("name", name, "version", version)).prepareSearch().find();
     }
 
     /**
@@ -191,7 +186,10 @@ public class CsarService implements ICsarDependencyLoader {
     }
 
     public void deleteCsar(String name, String version) {
-        deleteCsar(new Csar(name, version).getId());
+        Csar csar = searchService.getArchive(name, version);
+        if (csar != null) {
+            deleteCsar(csar, false);
+        }
     }
 
     /**
@@ -362,7 +360,7 @@ public class CsarService implements ICsarDependencyLoader {
                 resourceName = application.getName();
             } else if (delegateType.equals("topologytemplate")) {
                 // get the related template
-                TopologyTemplate template = topologyService.getOrFailTopologyTemplate(topology.getDelegateId());
+                TopologyTemplate template = topologyTemplateService.getOrFailTopologyTemplate(topology.getDelegateId());
                 resourceName = template.getName();
             } else {
                 typeHandled = false;

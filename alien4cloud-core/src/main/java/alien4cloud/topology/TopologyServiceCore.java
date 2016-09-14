@@ -5,11 +5,14 @@ import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.*;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.*;
+import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.model.Role;
 import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.tosca.topology.NodeTemplateBuilder;
 import alien4cloud.utils.MapUtil;
@@ -210,31 +213,6 @@ public class TopologyServiceCore {
         return NodeTemplateBuilder.buildNodeTemplate(indexedNodeType, templateToMerge);
     }
 
-    public TopologyTemplate createTopologyTemplate(Topology topology, String name, String description, String version) {
-        String topologyId = UUID.randomUUID().toString();
-        topology.setId(topologyId);
-
-        String topologyTemplateId = UUID.randomUUID().toString();
-        TopologyTemplate topologyTemplate = new TopologyTemplate();
-        topologyTemplate.setId(topologyTemplateId);
-        topologyTemplate.setName(name);
-        topologyTemplate.setDescription(description);
-
-        topology.setDelegateId(topologyTemplateId);
-        topology.setDelegateType(TopologyTemplate.class.getSimpleName().toLowerCase());
-
-        save(topology);
-        this.alienDAO.save(topologyTemplate);
-        if (version == null) {
-            topologyTemplateVersionService.createVersion(topologyTemplateId, null, topology);
-        } else {
-            topologyTemplateVersionService.createVersion(topologyTemplateId, null, version, null, topology);
-        }
-
-        return topologyTemplate;
-
-    }
-
     /**
      *
      * Get all the relationships in which a given node template is a target
@@ -262,15 +240,6 @@ public class TopologyServiceCore {
         }
 
         return toReturn;
-    }
-
-    public TopologyTemplate searchTopologyTemplateByName(String name) {
-        Map<String, String[]> filters = MapUtil.newHashMap(new String[] { "name" }, new String[][] { new String[] { name } });
-        GetMultipleDataResult<TopologyTemplate> result = alienDAO.find(TopologyTemplate.class, filters, Integer.MAX_VALUE);
-        if (result.getTotalResults() > 0) {
-            return result.getData()[0];
-        }
-        return null;
     }
 
     /**

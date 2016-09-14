@@ -1,6 +1,6 @@
 package alien4cloud.component;
 
-import static alien4cloud.dao.FilterUtil.kvCouples;
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.utils.AlienUtils.safe;
 
 import java.util.Collection;
@@ -74,7 +74,7 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
     @Override
     public void deleteElements(String name, String version, String hash) {
         GetMultipleDataResult<IndexedToscaElement> result = alienDAO.buildQuery(IndexedToscaElement.class)
-                .setFilters(kvCouples("archiveName", name, "archiveVersion", version, "archiveHash", hash)).prepareSearch()
+                .setFilters(fromKeyValueCouples("archiveName", name, "archiveVersion", version, "archiveHash", hash)).prepareSearch()
                 .setFetchContext(FetchContext.SUMMARY).search(0, Integer.MAX_VALUE);
 
         IndexedToscaElement[] elements = result.getData();

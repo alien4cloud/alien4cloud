@@ -3,29 +3,23 @@ package alien4cloud.rest.template;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 import javax.validation.Valid;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import com.google.common.collect.Maps;
 
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.model.components.Csar;
 import alien4cloud.model.templates.TopologyTemplate;
-import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
@@ -34,26 +28,22 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.Role;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.topology.TopologyTemplateService;
 import alien4cloud.topology.TopologyTemplateVersionService;
 import alien4cloud.utils.ReflectionUtil;
-
-import com.google.common.collect.Maps;
-import springfox.documentation.annotations.ApiIgnore;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
+import lombok.extern.slf4j.Slf4j;
+import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * Handle topology templates
- *
- * @author mourouvi
- *
  */
 @Slf4j
 @RestController
-@RequestMapping({"/rest/templates", "/rest/v1/templates", "/rest/latest/templates"})
+@RequestMapping({ "/rest/templates", "/rest/v1/templates", "/rest/latest/templates" })
 public class TopologyTemplateController {
-
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource
@@ -64,6 +54,8 @@ public class TopologyTemplateController {
     private TopologyTemplateVersionService versionService;
     @Resource
     private CsarService csarService;
+    @Inject
+    private TopologyTemplateService topologyTemplateService;
 
     /**
      * Create a new {@link TopologyTemplate}
@@ -81,7 +73,7 @@ public class TopologyTemplateController {
         // Create the new topology linked to the topology template
         Topology topology = new Topology();
 
-        TopologyTemplate template = topologyServiceCore.createTopologyTemplate(topology, checkNameUnicity(createTopologyTemplateRequest.getName()),
+        TopologyTemplate template = topologyTemplateService.createTopologyTemplate(topology, checkNameUnicity(createTopologyTemplateRequest.getName()),
                 createTopologyTemplateRequest.getDescription(), null);
         log.info("Created topology template <{}>", template.getId());
 
@@ -110,7 +102,7 @@ public class TopologyTemplateController {
     public RestResponse<TopologyTemplate> get(@PathVariable String topologyTemplateId) {
 
         AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
-        TopologyTemplate template = topologyService.getOrFailTopologyTemplate(topologyTemplateId);
+        TopologyTemplate template = topologyTemplateService.getOrFailTopologyTemplate(topologyTemplateId);
         return RestResponseBuilder.<TopologyTemplate> builder().data(template).build();
     }
 
@@ -138,7 +130,6 @@ public class TopologyTemplateController {
      * Delete an existing {@link TopologyTemplate}
      *
      * @param topologyTemplateId
-     * 
      * @return
      */
     @ApiOperation(value = "Delete a topology template given an id. Alse delete the related topology", notes = "Role required [ Role.ARCHITECT ]")
@@ -146,28 +137,7 @@ public class TopologyTemplateController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'ARCHITECT')")
     @Audit
     public RestResponse<Void> delete(@PathVariable String topologyTemplateId) {
-        AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
-        TopologyTemplate topologyTemplate = topologyService.getOrFailTopologyTemplate(topologyTemplateId);
-        // here we check that the template is not used in a topology or template composition
-        for (TopologyTemplateVersion ttv : versionService.getByDelegateId(topologyTemplate.getId())) {
-            Topology topology = topologyServiceCore.getTopology(ttv.getTopologyId());
-            if (topology != null && topology.getSubstitutionMapping() != null && topology.getSubstitutionMapping().getSubstitutionType() != null) {
-                // this topology template expose some substitution stuffs
-                // we have to check that it is not used by another topology
-                Csar csar = csarService.getTopologySubstitutionCsar(topology.getId());
-                if (csar != null) {
-                    Topology[] dependentTopologies = csarService.getDependantTopologies(csar.getName(), csar.getVersion());
-                    if (dependentTopologies != null && dependentTopologies.length > 0) {
-                        throw new DeleteReferencedObjectException("This csar can not be deleted since it's a dependencie for others");
-                    }
-                }
-            }
-        }
-        // none of the version is used as embeded topology, we have to delete each version
-        for (TopologyTemplateVersion ttv : versionService.getByDelegateId(topologyTemplate.getId())) {
-            versionService.delete(ttv.getId());
-        }
-        alienDAO.delete(TopologyTemplate.class, topologyTemplate.getId());
+        topologyTemplateService.delete(topologyTemplateId);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -185,7 +155,7 @@ public class TopologyTemplateController {
     public RestResponse<Void> update(@ApiParam(value = " Id of the topology template", required = true) @PathVariable String topologyTemplateId,
             @ApiIgnore @RequestBody UpdateTopologyTemplateRequest updateTopologyTemplateRequest) {
         AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
-        TopologyTemplate topologyTemplate = topologyService.getOrFailTopologyTemplate(topologyTemplateId);
+        TopologyTemplate topologyTemplate = topologyTemplateService.getOrFailTopologyTemplate(topologyTemplateId);
         String currentTemplateName = topologyTemplate.getName();
         ReflectionUtil.mergeObject(updateTopologyTemplateRequest, topologyTemplate);
         if (topologyTemplate.getName() == null || topologyTemplate.getName().isEmpty()) {

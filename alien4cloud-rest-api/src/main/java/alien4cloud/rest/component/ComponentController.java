@@ -58,13 +58,30 @@ public class ComponentController {
     }
 
     /**
+     * Get details for a component based on it's name and version.
+     *
+     * @param elementId unique id of the component for which to get details.
+     * @param version unique id of the component for which to get details.
+     * @return A {@link RestResponse} that contains an {@link IndexedToscaElement} .
+     */
+    @ApiOperation(value = "Get details for a component (tosca type) from it's id (including archive hash).")
+    @RequestMapping(value = "/element/{elementId:.+}/version/{}", method = RequestMethod.GET)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
+    public RestResponse<IndexedToscaElement> getComponent(@PathVariable String elementId, @PathVariable String version,
+            @RequestBody(required = false) QueryComponentType componentType) {
+        Class<? extends IndexedToscaElement> queryClass = componentType == null ? IndexedToscaElement.class : componentType.getIndexedToscaElementClass();
+        IndexedToscaElement component = searchService.find(queryClass, elementId, version);
+        return RestResponseBuilder.<IndexedToscaElement> builder().data(component).build();
+    }
+
+    /**
      * Get all versions of a given component.
      *
      * @param elementId unique id of the component for which to get all other versions.
      * @return A {@link RestResponse} that contains an {@link IndexedToscaElement} .
      */
     @ApiOperation(value = "Get details for a component (tosca type).")
-    @RequestMapping(value = "el/{elementId:.+}/versions", method = RequestMethod.GET)
+    @RequestMapping(value = "/element/{elementId:.+}/versions", method = RequestMethod.GET)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
     public RestResponse<ComponentVersionsResult[]> getComponentVersions(@PathVariable String elementId,
             @RequestBody(required = false) QueryComponentType componentType) {
