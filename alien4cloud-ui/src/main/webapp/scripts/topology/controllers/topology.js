@@ -46,7 +46,6 @@ define(function (require) {
     'topoEditProperties',
     'topoEditRelationships',
     'topoEditSubstitution',
-    'topoEditYaml',
     function($scope, $modal, $timeout, componentService, nodeTemplateService, toscaService,
     defaultFilters,
     topoEditArtifacts,
@@ -58,8 +57,7 @@ define(function (require) {
     topoEditOutputs,
     topoEditProperties,
     topoEditRelationships,
-    topoEditSubstitution,
-    topoEditYaml) {
+    topoEditSubstitution) {
       $scope.defaultFilters = defaultFilters;
       $scope.isRuntime = false;
 
@@ -92,7 +90,6 @@ define(function (require) {
       topoEditProperties($scope);
       topoEditRelationships($scope);
       topoEditSubstitution($scope);
-      topoEditYaml($scope);
 
       var refresh = function(selectedNodeTemplate) {
         if(_.undefined($scope.groupCollapsed)) { // we perform this only at init time.
