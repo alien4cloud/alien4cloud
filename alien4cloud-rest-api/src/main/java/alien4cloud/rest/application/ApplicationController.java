@@ -28,7 +28,6 @@ import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.rest.application.model.CreateApplicationRequest;
 import alien4cloud.rest.application.model.UpdateApplicationRequest;
@@ -40,7 +39,6 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.Role;
-import alien4cloud.topology.TopologyTemplateVersionService;
 import alien4cloud.utils.ReflectionUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -83,8 +81,9 @@ public class ApplicationController {
         // check the topology template id to recover the related topology id
         String topologyId = null;
         if (request.getTopologyTemplateVersionId() != null) {
-            TopologyTemplateVersion ttv = topologyTemplateVersionService.getOrFail(request.getTopologyTemplateVersionId());
-            topologyId = ttv.getTopologyId();
+            // FIXME workspace
+            // TopologyTemplateVersion ttv = topologyTemplateVersionService.getOrFail(request.getTopologyTemplateVersionId());
+            // topologyId = ttv.getTopologyId();
         }
         // create the application with default environment and version
         String applicationId = applicationService.create(auth.getName(), request.getName(), request.getDescription());

@@ -260,13 +260,14 @@ public class TopologyService {
      * @param applicationRoles The roles required to edit the topology for an application.
      */
     public void checkAuthorizations(Topology topology, ApplicationRole... applicationRoles) {
-        if (topology.getDelegateType().equals(Application.class.getSimpleName().toLowerCase())) {
-            String applicationId = topology.getDelegateId();
-            Application application = appService.getOrFail(applicationId);
-            AuthorizationUtil.checkAuthorizationForApplication(application, applicationRoles);
-        } else {
-            AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
-        }
+        // FIXME check authorizations
+        // if (topology.getDelegateType().equals(Application.class.getSimpleName().toLowerCase())) {
+        // String applicationId = topology.getDelegateId();
+        // Application application = appService.getOrFail(applicationId);
+        // AuthorizationUtil.checkAuthorizationForApplication(application, applicationRoles);
+        // } else {
+        // AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
+        // }
     }
 
     /**
@@ -461,11 +462,12 @@ public class TopologyService {
      * @return The application version associated with the environment.
      */
     private AbstractTopologyVersion getApplicationVersion(Topology topology) {
-        if (topology.getDelegateType().equalsIgnoreCase(Application.class.getSimpleName())) {
-            return applicationVersionService.getByTopologyId(topology.getId());
-        } else if (topology.getDelegateType().equalsIgnoreCase(TopologyTemplate.class.getSimpleName())) {
-            return topologyTemplateVersionService.getByTopologyId(topology.getId());
-        }
+        // FIXME manage topology version get
+        // if (topology.getDelegateType().equalsIgnoreCase(Application.class.getSimpleName())) {
+        // return applicationVersionService.getByTopologyId(topology.getId());
+        // } else if (topology.getDelegateType().equalsIgnoreCase(TopologyTemplate.class.getSimpleName())) {
+        // return topologyTemplateVersionService.getByTopologyId(topology.getId());
+        // }
         return null;
     }
 

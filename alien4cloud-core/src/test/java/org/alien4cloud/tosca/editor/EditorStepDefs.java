@@ -9,10 +9,11 @@ import java.util.*;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.csar.services.CsarService;
+import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.*;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Assert;
@@ -32,16 +33,13 @@ import org.springframework.test.context.ContextConfiguration;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.model.components.*;
-import alien4cloud.model.templates.TopologyTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
+import alien4cloud.model.components.CSARSource;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.security.model.User;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.topology.TopologyTemplateService;
-import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
@@ -64,8 +62,6 @@ public class EditorStepDefs {
     private EditorService editorService;
     @Inject
     private EditionContextManager editionContextManager;
-    @Inject
-    private TopologyTemplateService topologyTemplateService;
     @Inject
     private TopologyServiceCore topologyServiceCore;
     @Inject
@@ -161,18 +157,18 @@ public class EditorStepDefs {
 
     @When("^I get the topology related to the template with name \"(.*?)\"$")
     public void iGetTheTopologyRelatedToTheTemplateWithName(String templateName) throws Throwable {
-        TopologyTemplate topologyTeplate = topologyTemplateService.getTopologyTemplateByName(templateName);
-        Topology topology = alienDAO.customFind(Topology.class, QueryBuilders.matchQuery("delegateId", topologyTeplate.getId()));
-        topologyIds.addLast(topology.getId());
+//        TopologyTemplate topologyTeplate = topologyTemplateService.getTopologyTemplateByName(templateName);
+//        Topology topology = alienDAO.customFind(Topology.class, QueryBuilders.matchQuery("delegateId", topologyTeplate.getId()));
+//        topologyIds.addLast(topology.getId());
     }
 
     @When("^I delete the template with name \"(.*?)\" and archive \"(.*?)\" \"(.*?)\" if any$")
     public void iRemoveTheTemplateWithName(String templateName, String archiveName, String archiveVersion) throws Throwable {
-        TopologyTemplate topologyTemplate = topologyTemplateService.getTopologyTemplateByName(templateName);
-        if (topologyTemplate != null) {
-            topologyTemplateService.delete(topologyTemplate.getId());
-            csarService.deleteCsar(archiveName, archiveVersion);
-        }
+//        TopologyTemplate topologyTemplate = topologyTemplateService.getTopologyTemplateByName(templateName);
+//        if (topologyTemplate != null) {
+//            topologyTemplateService.delete(topologyTemplate.getId());
+//            csarService.deleteCsar(archiveName, archiveVersion);
+//        }
     }
 
     @When("^I get the edited topology$")
@@ -193,20 +189,20 @@ public class EditorStepDefs {
 
     @Given("^I create an empty topology$")
     public void i_create_an_empty_topology() throws Throwable {
-        Topology topology = new Topology();
-        topology.setDelegateType(Topology.class.getSimpleName().toLowerCase());
-        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
-        topologyIds.addLast(topologyServiceCore.saveTopology(topology));
+//        Topology topology = new Topology();
+//        topology.setDelegateType(Topology.class.getSimpleName().toLowerCase());
+//        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
+//        topologyIds.addLast(topologyServiceCore.saveTopology(topology));
     }
 
     @Given("^I create an empty topology template \"(.*?)\"$")
     public void i_create_an_empty_topology_template(String topologyTemplateName) throws Throwable {
-        Topology topology = new Topology();
-        topology.setDelegateType(TopologyTemplate.class.getSimpleName().toLowerCase());
-        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
-        TopologyTemplate topologyTemplate = topologyTemplateService.createTopologyTemplate(topology, topologyTemplateName, "", null);
-        topology.setDelegateId(topologyTemplate.getId());
-        topologyIds.addLast(topology.getId());
+//        Topology topology = new Topology();
+//        topology.setDelegateType(TopologyTemplate.class.getSimpleName().toLowerCase());
+//        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
+//        TopologyTemplate topologyTemplate = topologyTemplateService.createTopologyTemplate(topology, topologyTemplateName, "", null);
+//        topology.setDelegateId(topologyTemplate.getId());
+//        topologyIds.addLast(topology.getId());
 
     }
 

@@ -7,11 +7,14 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.EditorService;
 import org.alien4cloud.tosca.editor.TopologyDTOBuilder;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.templates.AbstractTopologyVersion;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -21,11 +24,6 @@ import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.exception.NotFoundException;
-import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
-import org.alien4cloud.tosca.model.types.NodeType;
-import alien4cloud.model.templates.TopologyTemplate;
-import org.alien4cloud.tosca.model.templates.AbstractTopologyVersion;
-import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.model.ApplicationRole;
@@ -94,22 +92,6 @@ public class TopologyController {
         return RestResponseBuilder.<TopologyValidationResult> builder().data(dto).build();
     }
 
-    /**
-     * Retrieve an existing {@link Topology} as YAML
-     *
-     * @param topologyId The id of the topology to retrieve.
-     * @return {@link RestResponse}<{@link String}> containing the topology as YAML
-     */
-    @RequestMapping(value = "/{topologyId}/yaml", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    public RestResponse<String> getYaml(@PathVariable String topologyId) {
-        Topology topology = topologyServiceCore.getOrFail(topologyId);
-        topologyService.checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS,
-                ApplicationRole.APPLICATION_USER);
-        String yaml = topologyService.getYaml(topology);
-        return RestResponseBuilder.<String> builder().data(yaml).build();
-    }
-
     @ApiOperation(value = "Get the version of application or topology template related to this topology.")
     @RequestMapping(value = "/{topologyId:.+}/version", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
@@ -120,15 +102,16 @@ public class TopologyController {
         }
         AbstractTopologyVersion version = null;
 
-        if (ArchiveDelegateType.APPLICATION.equals(ArchiveDelegateType.valueOf()))
-            if (topology.getDelegateType().equalsIgnoreCase(TopologyTemplate.class.getSimpleName())) {
-                version = topologyTemplateVersionService.getByTopologyId(topologyId);
-            } else {
-                version = applicationVersionService.getByTopologyId(topologyId);
-            }
-        if (version == null) {
-            throw new NotFoundException("No version found for topology " + topologyId);
-        }
+        // FIXME workspace
+        // if (ArchiveDelegateType.APPLICATION.equals(ArchiveDelegateType.valueOf()))
+        // if (topology.getDelegateType().equalsIgnoreCase(TopologyTemplate.class.getSimpleName())) {
+        // version = topologyTemplateVersionService.getByTopologyId(topologyId);
+        // } else {
+        // version = applicationVersionService.getByTopologyId(topologyId);
+        // }
+        // if (version == null) {
+        // throw new NotFoundException("No version found for topology " + topologyId);
+        // }
         return RestResponseBuilder.<AbstractTopologyVersion> builder().data(version).build();
     }
 

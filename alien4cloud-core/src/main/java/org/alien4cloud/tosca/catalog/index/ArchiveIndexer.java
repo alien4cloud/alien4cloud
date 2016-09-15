@@ -129,6 +129,8 @@ public class ArchiveIndexer {
                 });
         workflowBuilderService.initWorkflows(topologyContext);
 
+        // FIXME query to check if a previous topology exist for this archive name/version/workspace.
+
         parsingErrors
                 .add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_UPDATED, "", null, "A topology template has been updated", null, archiveName));
 

@@ -31,7 +31,7 @@ public class DeleteFileProcessor implements IEditorCommitableProcessor<DeleteFil
     public void process(DeleteFileOperation operation) {
         Topology topology = EditionContextManager.get().getTopology();
 
-        if (topology.getYamlFilePath().equals(operation.getPath())) {
+        if (EditionContextManager.getCsar().getYamlFilePath().equals(operation.getPath())) {
             throw new InvalidPathException("Topology yaml file cannot be removed.");
         }
         TreeNode target = FileProcessorHelper.getFileTreeNode(operation.getPath());

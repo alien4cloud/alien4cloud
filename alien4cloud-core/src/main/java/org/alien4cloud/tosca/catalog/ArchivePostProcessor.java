@@ -15,20 +15,18 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Sets;
-
-import alien4cloud.deployment.exceptions.UnresolvableArtifactException;
 import org.alien4cloud.tosca.model.definitions.AbstractArtifact;
-import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.templates.AbstractTemplate;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Component;
+
+import alien4cloud.deployment.exceptions.UnresolvableArtifactException;
 import alien4cloud.repository.services.RepositoryService;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.model.ArchiveRoot;

@@ -71,7 +71,7 @@ public abstract class AbstractUpdateFileProcessor<T extends AbstractUpdateFileOp
             }
 
             try {
-                if (EditionContextManager.getTopology().getYamlFilePath().equals(operation.getPath())) {
+                if (EditionContextManager.getCsar().getYamlFilePath().equals(operation.getPath())) {
                     // the operation updates the topology file, we have to parse it and override the topology data out of it.
                     editorTopologyUploadService.processTopology(artifactRepository.resolveFile(artifactFileId));
                 }

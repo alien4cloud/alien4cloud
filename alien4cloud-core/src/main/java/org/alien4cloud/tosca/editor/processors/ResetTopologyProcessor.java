@@ -33,10 +33,7 @@ public class ResetTopologyProcessor implements IEditorOperationProcessor<ResetTo
     public void process(ResetTopologyOperation operation) {
         Topology topology = EditionContextManager.getTopology();
         Topology newTopology = new Topology();
-        newTopology.setDelegateId(topology.getDelegateId());
-        newTopology.setDelegateType(topology.getDelegateType());
         newTopology.setId(topology.getId());
-        newTopology.setYamlFilePath(topology.getYamlFilePath());
         workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(newTopology));
         try {
             EditionContextManager.get().reset(newTopology);

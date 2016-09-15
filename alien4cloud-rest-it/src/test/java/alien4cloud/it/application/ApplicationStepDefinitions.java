@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.Lists;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
 import org.elasticsearch.common.collect.Maps;
 import org.junit.Assert;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import alien4cloud.dao.model.FacetedSearchResult;
@@ -25,15 +25,11 @@ import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.security.AuthenticationStepDefinitions;
 import alien4cloud.it.topology.EditorStepDefinitions;
 import alien4cloud.it.topology.TopologyStepDefinitions;
-import alien4cloud.it.topology.TopologyTemplateStepDefinitions;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.common.Tag;
-import alien4cloud.model.templates.TopologyTemplate;
-import alien4cloud.model.templates.TopologyTemplateVersion;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import alien4cloud.rest.application.model.ApplicationEnvironmentDTO;
 import alien4cloud.rest.application.model.ApplicationEnvironmentRequest;
 import alien4cloud.rest.application.model.CreateApplicationRequest;
@@ -42,7 +38,6 @@ import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.component.UpdateTagRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.topology.TopologyDTO;
 import alien4cloud.utils.ReflectionUtil;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
@@ -138,45 +133,6 @@ public class ApplicationStepDefinitions {
         String topologyId = getTopologyIdFromApplication(application.getName());
         assertNotNull(topologyId);
         Context.getInstance().registerTopologyId(topologyId);
-    }
-
-    @When("^I create a new application with name \"([^\"]*)\" and description \"([^\"]*)\" based on this created template$")
-    public void I_create_a_new_application_with_name_and_description_based_this_created_template(String name, String description) throws Throwable {
-        // recover the created template
-        TopologyTemplate template = Context.getInstance().getTopologyTemplate();
-        assertNotNull(template);
-        String templateVersionJson = Context.getRestClientInstance().get("/rest/v1/templates/" + template.getId() + "/versions/");
-        TopologyTemplateVersion ttv = JsonUtil.read(templateVersionJson, TopologyTemplateVersion.class).getData();
-        createApplicationFromTemplateId(name, description, ttv.getId());
-    }
-
-    @Then("^The created application topology is the same as the one in the base topology template$")
-    public void The_created_application_topology_is_the_same_as_the_one_in_the_base_topology_template() throws Throwable {
-        // created topology
-        TopologyTemplate template = Context.getInstance().getTopologyTemplate();
-
-        String topologyId = getTopologyIdFromApplication(CURRENT_APPLICATION.getName());
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/topologies/" + topologyId));
-        TopologyDTO createdTopology = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class, Context.getJsonMapper()).getData();
-
-        // base topology template
-        authSteps.I_am_authenticated_with_role("ARCHITECT"); // quick win solution
-        String templateVersionJson = Context.getRestClientInstance().get("/rest/v1/templates/" + template.getId() + "/versions/");
-        TopologyTemplateVersion ttv = JsonUtil.read(templateVersionJson, TopologyTemplateVersion.class).getData();
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/topologies/" + ttv.getTopologyId()));
-        TopologyDTO topologyTemplateBase = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class, Context.getJsonMapper()).getData();
-
-        Map<String, NodeTemplate> nodeTemplates = topologyTemplateBase.getTopology().getNodeTemplates();
-
-        // node templates count test
-        assertEquals(createdTopology.getTopology().getNodeTemplates().keySet().size(), nodeTemplates.keySet().size());
-
-        // node templates name / type test
-        for (Map.Entry<String, NodeTemplate> entry : createdTopology.getTopology().getNodeTemplates().entrySet()) {
-            assertTrue(nodeTemplates.containsKey(entry.getKey()));
-            assertTrue(nodeTemplates.get(entry.getKey()).getType().equals(entry.getValue().getType()));
-        }
-
     }
 
     @When("^I create a new application with name \"([^\"]*)\" and description \"([^\"]*)\" without errors$")
@@ -643,14 +599,6 @@ public class ApplicationStepDefinitions {
         Assert.assertNotNull(appName);
         String environmentId = Context.getInstance().getApplicationEnvironmentId(appName, envName);
         Assert.assertNotNull(environmentId);
-    }
-
-    @Given("^I create a new application with name \"([^\"]*)\" and description \"([^\"]*)\" based on the template with name \"([^\"]*)\"$")
-    public void I_create_a_new_application_with_name_and_description_based_on_the_template_with_name(String name, String description, String templateName)
-            throws Throwable {
-        String topologyTemplateId = TopologyTemplateStepDefinitions.getTopologyTemplateIdFromName(templateName);
-        String topologyTemplateVersionId = TopologyTemplateStepDefinitions.getLatestTopologyTemplateVersion(topologyTemplateId).getId();
-        createApplicationFromTemplateId(name, description, topologyTemplateVersionId);
     }
 
     @Then("^The application update date has changed$")

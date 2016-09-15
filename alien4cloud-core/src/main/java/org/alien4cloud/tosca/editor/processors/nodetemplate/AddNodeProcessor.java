@@ -7,6 +7,9 @@ import javax.inject.Inject;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.application.TopologyCompositionService;
@@ -14,10 +17,6 @@ import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.exception.CyclicReferenceException;
 import alien4cloud.exception.InvalidNodeNameException;
 import alien4cloud.exception.NotFoundException;
-import org.alien4cloud.tosca.model.types.NodeType;
-import alien4cloud.model.templates.TopologyTemplate;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyUtils;
@@ -51,11 +50,10 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
         String[] splittedId = operation.getIndexedNodeTypeId().split(":");
         NodeType indexedNodeType = searchService.find(NodeType.class, splittedId[0], splittedId[1]);
         if (indexedNodeType == null) {
-            throw new NotFoundException(NodeType.class.getName(), operation.getIndexedNodeTypeId(),
-                    "Unable to find node type to create template in topology.");
+            throw new NotFoundException(NodeType.class.getName(), operation.getIndexedNodeTypeId(), "Unable to find node type to create template in topology.");
         }
 
-        if (indexedNodeType.getSubstitutionTopologyId() != null && topology.getDelegateType().equalsIgnoreCase(TopologyTemplate.class.getSimpleName())) {
+        if (indexedNodeType.getSubstitutionTopologyId() != null) {
             // TODO merge that in the topologyCompositionService.recursivelyDetectTopologyCompositionCyclicReference
             // it's a try to add this topology's type
             if (indexedNodeType.getSubstitutionTopologyId().equals(topology.getId())) {
@@ -71,9 +69,7 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
 
         log.debug("Create node template <{}>", operation.getNodeName());
 
-        // FIXME update the tosca context here.
         indexedNodeType = topologyService.loadType(topology, indexedNodeType);
-
         NodeTemplate nodeTemplate = topologyService.buildNodeTemplate(topology.getDependencies(), indexedNodeType, null);
         nodeTemplate.setName(operation.getNodeName());
         topology.getNodeTemplates().put(operation.getNodeName(), nodeTemplate);

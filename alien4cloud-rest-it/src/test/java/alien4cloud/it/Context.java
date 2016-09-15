@@ -6,6 +6,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.IValue;
+import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
@@ -31,11 +35,6 @@ import alien4cloud.it.provider.util.OpenStackClient;
 import alien4cloud.json.deserializer.*;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.MetaPropConfiguration;
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.definitions.IValue;
-import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
-import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
-import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.rest.utils.RestClient;
 import alien4cloud.rest.utils.RestMapper;
 import alien4cloud.topology.task.AbstractTask;
@@ -161,8 +160,6 @@ public class Context {
     private String topologyIdLocal;
 
     private String csarIdLocal;
-
-    private TopologyTemplate topologyTemplate;
 
     private String topologyTemplateVersionId;
 
@@ -457,21 +454,6 @@ public class Context {
         Application app = applicationLocal;
         applicationLocal = null;
         return app;
-    }
-
-    public TopologyTemplate getTopologyTemplate() {
-        return topologyTemplate;
-    }
-
-    public TopologyTemplate takeTopologyTemplate() {
-        TopologyTemplate ttId = topologyTemplate;
-        topologyTemplate = null;
-        return ttId;
-    }
-
-    public void registerTopologyTemplate(TopologyTemplate topologTemplate) {
-        log.debug("Registering topology template [" + topologTemplate + "] in the context");
-        topologyTemplate = topologTemplate;
     }
 
     public EvaluationContext getSpelEvaluationContext() {

@@ -6,14 +6,12 @@ import javax.inject.Inject;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.model.templates.SubstitutionMapping;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.CSARRepositorySearchService;
-import alien4cloud.exception.InvalidArgumentException;
-import org.alien4cloud.tosca.model.types.NodeType;
-import alien4cloud.model.templates.TopologyTemplate;
-import org.alien4cloud.tosca.model.templates.SubstitutionMapping;
-import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.topology.TopologyService;
 
 /**
@@ -30,9 +28,12 @@ public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<A
     @Override
     public void process(AddSubstitutionTypeOperation operation) {
         Topology topology = EditionContextManager.getTopology();
-        if (!topology.getDelegateType().equals(TopologyTemplate.class.getSimpleName().toLowerCase())) {
-            throw new InvalidArgumentException("This operation is only allowed for topology templates");
-        }
+
+        // FIXME we don't allow substitution for applications YET (this has to be changed as Application could become a service in the future and this would be
+        // done through substitution)
+        // if (!topology.getDelegateType().equals(TopologyTemplate.class.getSimpleName().toLowerCase())) {
+        // throw new InvalidArgumentException("This operation is only allowed for topology templates");
+        // }
 
         if (topology.getSubstitutionMapping() == null) {
             topology.setSubstitutionMapping(new SubstitutionMapping());
