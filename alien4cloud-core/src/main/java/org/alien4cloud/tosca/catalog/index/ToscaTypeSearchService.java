@@ -3,51 +3,34 @@ package org.alien4cloud.tosca.catalog.index;
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 
 import javax.annotation.Resource;
 
-import alien4cloud.component.ICSARRepositorySearchService;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.Aggregation;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.tophits.TopHits;
-import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
-
-import alien4cloud.dao.IAggregationQueryManager;
+import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.dao.model.FacetedSearchResult;
-import alien4cloud.dao.model.FetchContext;
 import alien4cloud.exception.NotFoundException;
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import alien4cloud.utils.VersionUtil;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
 @Primary
-public class ToscaTypeSearchService implements ICSARRepositorySearchService {
+public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<AbstractToscaType> implements ICSARRepositorySearchService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO searchDAO;
 
@@ -168,54 +151,8 @@ public class ToscaTypeSearchService implements ICSARRepositorySearchService {
         return element;
     }
 
-    public FacetedSearchResult search(Class<? extends AbstractToscaType> clazz, String query, Integer size, Map<String, String[]> filters) {
-        TopHitsBuilder topHitAggregation = AggregationBuilders.topHits("highest_version").setSize(1)
-                .addSort(new FieldSortBuilder("nestedVersion.majorVersion").order(SortOrder.DESC))
-                .addSort(new FieldSortBuilder("nestedVersion.minorVersion").order(SortOrder.DESC))
-                .addSort(new FieldSortBuilder("nestedVersion.incrementalVersion").order(SortOrder.DESC))
-                .addSort(new FieldSortBuilder("nestedVersion.qualifier").order(SortOrder.DESC).missing("_first"));
-
-        AggregationBuilder aggregation = AggregationBuilders.terms("query_aggregation").field("elementId").size(size).subAggregation(topHitAggregation);
-
-        FacetedSearchResult<? extends AbstractToscaType> searchResult = searchDAO.buildSearchQuery(clazz, query).setFilters(filters).prepareSearch()
-                .setFetchContext(FetchContext.SUMMARY, topHitAggregation).facetedSearch(new IAggregationQueryManager() {
-                    @Override
-                    public AggregationBuilder getQueryAggregation() {
-                        return aggregation;
-                    }
-
-                    @Override
-                    @SneakyThrows({ IOException.class })
-                    public void setData(ObjectMapper objectMapper, Function getClassFromType, FacetedSearchResult result, Aggregation aggregation) {
-                        List<Object> resultData = Lists.newArrayList();
-                        List<String> resultTypes = Lists.newArrayList();
-                        if (aggregation == null) {
-                            result.setData(new AbstractToscaType[0]);
-                            result.setTypes(new String[0]);
-                        }
-                        for (Terms.Bucket bucket : ((Terms) aggregation).getBuckets()) {
-                            TopHits topHits = bucket.getAggregations().get("highest_version");
-                            for (SearchHit hit : topHits.getHits()) {
-                                resultTypes.add(hit.getType());
-                                resultData.add(
-                                        objectMapper.readValue(hit.getSourceAsString(), ((Function<String, Class>) getClassFromType).apply(hit.getType())));
-                            }
-                        }
-
-                        result.setData(resultData.toArray(new AbstractToscaType[resultData.size()]));
-                        result.setTypes(resultTypes.toArray(new String[resultTypes.size()]));
-                        result.setFrom(0);
-                        result.setTo(resultData.size());
-                        if (size == Integer.MAX_VALUE || resultData.size() < size) {
-                            result.setTotalResults(resultData.size());
-                        } else {
-                            // just to show that there is more results to fetch but iteration is not possible through aggregations.
-                            result.setTotalResults(size + 1);
-                        }
-                    }
-                });
-
-        return searchResult;
+    @Override
+    protected AbstractToscaType[] getArray(int size) {
+        return new AbstractToscaType[size];
     }
-
 }

@@ -7,6 +7,9 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -15,13 +18,10 @@ import com.google.common.collect.Lists;
 
 import alien4cloud.Constants;
 import alien4cloud.audit.annotation.Audit;
-import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.common.Tag;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import alien4cloud.rest.model.*;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -68,7 +68,7 @@ public class ComponentController {
     @RequestMapping(value = "/element/{elementId:.+}/version/{}", method = RequestMethod.GET)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
     public RestResponse<AbstractToscaType> getComponent(@PathVariable String elementId, @PathVariable String version,
-                                                        @RequestBody(required = false) QueryComponentType componentType) {
+            @RequestBody(required = false) QueryComponentType componentType) {
         Class<? extends AbstractToscaType> queryClass = componentType == null ? AbstractToscaType.class : componentType.getIndexedToscaElementClass();
         AbstractToscaType component = searchService.find(queryClass, elementId, version);
         return RestResponseBuilder.<AbstractToscaType> builder().data(component).build();
@@ -137,11 +137,13 @@ public class ComponentController {
     @ApiOperation(value = "Search for components (tosca types) in alien.")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
-    public RestResponse<FacetedSearchResult> search(@RequestBody SearchRequest searchRequest, @RequestParam(defaultValue = "false") boolean queryAllVersions) {
+    public RestResponse<FacetedSearchResult<? extends AbstractToscaType>> search(@RequestBody SearchRequest searchRequest,
+            @RequestParam(defaultValue = "false") boolean queryAllVersions) {
         Class<? extends AbstractToscaType> queryClass = searchRequest.getType() == null ? AbstractToscaType.class
                 : searchRequest.getType().getIndexedToscaElementClass();
-        FacetedSearchResult searchResult = searchService.search(queryClass, searchRequest.getQuery(), searchRequest.getSize(), searchRequest.getFilters());
-        return RestResponseBuilder.<FacetedSearchResult> builder().data(searchResult).build();
+        FacetedSearchResult<? extends AbstractToscaType> searchResult = searchService.search(queryClass, searchRequest.getQuery(), searchRequest.getSize(),
+                searchRequest.getFilters());
+        return RestResponseBuilder.<FacetedSearchResult<? extends AbstractToscaType>> builder().data(searchResult).build();
     }
 
     /**
