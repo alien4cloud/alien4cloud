@@ -28,8 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Handle components
- *
- * @author mourouvi
  */
 @Slf4j
 @RestController

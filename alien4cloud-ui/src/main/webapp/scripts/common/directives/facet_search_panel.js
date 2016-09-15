@@ -13,7 +13,7 @@ define(function (require) {
       controller: 'FacetSearchPanelController',
       scope: {
         searchUrl: '@',
-        componentPrefix: '@',
+        filterPrefix: '@',
         onSearch: '&'
       }
     };
@@ -56,7 +56,7 @@ define(function (require) {
           }
         });
       } else {
-        console.log('error when searching...', searchResult.error);
+        console.error('error when searching...', searchResult.error);
       }
     };
 

@@ -44,8 +44,8 @@ define(function (require) {
   ];
 
   modules.get('a4c-topology-templates', ['ui.router', 'ui.bootstrap', 'a4c-auth', 'a4c-common']).controller('TopologyTemplateListCtrl',
-    ['$scope', '$modal', '$resource', '$state', 'authService', 'searchServiceFactory',
-    function($scope, $modal, $resource, $state, authService, searchServiceFactory) {
+    ['$scope', '$modal', '$resource', '$state', 'authService',
+    function($scope, $modal, $resource, $state, authService) {
 
       // API REST Definition
       var createTopologyTemplateResource = $resource('rest/latest/templates/topology', {}, {
@@ -55,18 +55,6 @@ define(function (require) {
           headers: {
             'Content-Type': 'application/json; charset=UTF-8'
           }
-        }
-      });
-
-      var topologyTemplateResource = $resource('rest/latest/templates/topology/:topologyTemplateId', {}, {
-        'get': {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8'
-          }
-        },
-        'remove': {
-          method: 'DELETE'
         }
       });
 
@@ -87,27 +75,9 @@ define(function (require) {
         });
       };
 
-      $scope.onSearchCompleted = function(searchResult) {
-        $scope.data = searchResult.data;
-      };
-
-      $scope.searchService = searchServiceFactory('rest/latest/templates/topology/search', false, $scope, 12);
-      $scope.searchService.search();
-
       $scope.openTopologyTemplate = function(topologyTemplateId) {
         $state.go('topologytemplates.detail.topology.editor', {
           id: topologyTemplateId
-        });
-      };
-
-      $scope.deleteTopologyTemplate = function(topologyTemplateId) {
-        topologyTemplateResource.remove({
-          topologyTemplateId: topologyTemplateId
-        }, function(response) {
-          // Response contains topology template id
-          if (response.data !== '') {
-            $scope.searchService.search();
-          }
         });
       };
 
