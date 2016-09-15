@@ -51,8 +51,6 @@ public class ArchiveIndexer {
     @Inject
     private WorkflowsBuilderService workflowBuilderService;
     @Inject
-    private ICSARRepositorySearchService searchService;
-    @Inject
     private EditorRepositoryService repositoryService;
     @Inject
     private DeploymentService deploymentService;

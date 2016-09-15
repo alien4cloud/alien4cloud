@@ -6,15 +6,15 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.RepositoryDefinition;
+import org.alien4cloud.tosca.model.types.DataType;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.types.DataType;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.definitions.PropertyValue;
-import org.alien4cloud.tosca.model.definitions.RepositoryDefinition;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.normative.NormativeCredentialConstant;
@@ -54,7 +54,7 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
         if (archiveVersion == null) {
             archiveRoot.getArchive().setVersion("undefined");
         }
-
+        archiveRoot.getArchive().setWorkspace("ALIEN_GLOBAL_WORKSPACE");
         // All type validation may require local archive types, so we need to register the current archive.
         ToscaContext.get().register(archiveRoot);
 

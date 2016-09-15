@@ -97,7 +97,6 @@ public class ArchivePostProcessor {
     public ParsingResult<ArchiveRoot> process(Path archive, ParsingResult<ArchiveRoot> parsedArchive) {
         String hash = FileUtil.deepSHA1(archive);
         parsedArchive.getResult().getArchive().setHash(hash);
-        parsedArchive.getResult().getArchive().setWorkspace(GLOBAL_WORKSPACE_ID);
 
         // FIXME how should we manage hash for the topology tempalte ?
         processTopology(parsedArchive);
