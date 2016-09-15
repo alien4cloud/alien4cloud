@@ -119,7 +119,7 @@ curl -X POST "http://localhost:9200/csar/_search?pretty=true" -d '
 }
 '
 
-curl -X POST "http://localhost:9200/toscaelement/indexednodetype/_search?pretty=true" -d '
+curl -X POST "http://localhost:9200/toscaelement/nodetype/_search?pretty=true" -d '
 {
     "query" : {
         "bool": {

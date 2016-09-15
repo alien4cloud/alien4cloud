@@ -26,7 +26,7 @@ import com.google.common.collect.Maps;
 
 public class PropertyConstraintDeserializer extends StdDeserializer<PropertyConstraint> {
 
-    private static final String CONSTRAINT_PACKAGE = "alien4cloud.model.components.constraints";
+    private static final String CONSTRAINT_PACKAGE = "org.alien4cloud.tosca.model.constraints";
 
     private static final long serialVersionUID = 1L;
 

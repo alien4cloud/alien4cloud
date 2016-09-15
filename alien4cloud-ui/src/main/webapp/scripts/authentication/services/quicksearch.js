@@ -46,7 +46,7 @@ define(function (require) {
           var formatedData=result.data.data;
           for (var i = 0; i < formatedData.length; i++) {
             formatedData[i].type = result.data.types[i];
-            if(formatedData[i].type ==='indexednodetype') {
+            if(formatedData[i].type ==='nodetype') {
               formatedData[i].icon = getComponentIcon(formatedData[i].tags);
             }
           }

@@ -1,6 +1,7 @@
 package org.alien4cloud.tosca.catalog;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -78,7 +79,7 @@ public class ArchiveUploadService {
     }
 
     @ToscaContextual
-    public Map<CSARDependency, CsarDependenciesBean> preParsing(Set<Path> paths) throws ParsingException {
+    public Map<CSARDependency, CsarDependenciesBean> preParsing(Set<Path> paths, List<ParsingResult<Csar>> parsingResults) {
         Map<CSARDependency, CsarDependenciesBean> csarDependenciesBeans = Maps.newHashMap();
         for (Path path : paths) {
             try {
@@ -89,7 +90,11 @@ public class ArchiveUploadService {
                         .setSelf(new CSARDependency(parsingResult.getResult().getArchive().getName(), parsingResult.getResult().getArchive().getVersion()));
                 csarDepContainer.setDependencies(parsingResult.getResult().getArchive().getDependencies());
                 csarDependenciesBeans.put(csarDepContainer.getSelf(), csarDepContainer);
-            } catch (Exception e) {
+            } catch (ParsingException e) {
+                ParsingResult<Csar> failedResult = new ParsingResult<>();
+                failedResult.setContext(new ParsingContext(path.getFileName().toString()));
+                failedResult.getContext().setParsingErrors(e.getParsingErrors());
+                parsingResults.add(failedResult);
                 // TODO: error should be returned in a way or another
                 log.debug("Not able to parse archive, ignoring it", e);
             }
