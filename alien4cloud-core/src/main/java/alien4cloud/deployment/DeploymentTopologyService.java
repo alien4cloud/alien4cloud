@@ -111,7 +111,7 @@ public class DeploymentTopologyService {
     public DeploymentTopology getDeploymentTopology(String environmentId) {
         ApplicationEnvironment environment = appEnvironmentServices.getOrFail(environmentId);
         ApplicationVersion version = applicationVersionService.getOrFail(environment.getCurrentVersionId());
-        return getOrCreateDeploymentTopology(environment, version.getTopologyId());
+        return getOrCreateDeploymentTopology(environment, version.getCsarId());
     }
 
     /**
@@ -388,7 +388,7 @@ public class DeploymentTopologyService {
             }
         }
 
-        Topology topology = topologyServiceCore.getOrFail(appVersion.getTopologyId());
+        Topology topology = topologyServiceCore.getOrFail(appVersion.getCsarId());
         generateDeploymentTopology(DeploymentTopology.generateId(appVersion.getId(), environmentId), environment, topology, deploymentTopology);
         return getDeploymentConfiguration(deploymentTopology);
     }
@@ -480,7 +480,7 @@ public class DeploymentTopologyService {
             ApplicationEnvironment[] environments = applicationEnvironmentService.getByVersionId(version.getId());
             if (environments != null && environments.length > 0) {
                 for (ApplicationEnvironment environment : environments) {
-                    deploymentTopologies.add(getOrCreateDeploymentTopology(environment, version.getTopologyId()));
+                    deploymentTopologies.add(getOrCreateDeploymentTopology(environment, version.getCsarId()));
                 }
             }
         }

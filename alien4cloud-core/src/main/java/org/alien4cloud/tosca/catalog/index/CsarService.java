@@ -180,13 +180,6 @@ public class CsarService implements ICsarDependencyLoader {
         return csar;
     }
 
-    public void deleteCsar(String name, String version) {
-        Csar csar = searchService.getArchive(name, version);
-        if (csar != null) {
-            deleteCsar(csar, false);
-        }
-    }
-
     /**
      * @return true if the CSar is a dependency for another or used in a topology.
      */
@@ -209,8 +202,9 @@ public class CsarService implements ICsarDependencyLoader {
      *
      * @param csarId The id of the archive to delete.
      */
-    public void deleteCsar(String csarId) {
-        deleteCsar(csarId, false);
+    public void forceDeleteCsar(String csarId) {
+        Csar csar = getOrFail(csarId);
+        deleteCsar(csar);
     }
 
     /**
@@ -218,37 +212,22 @@ public class CsarService implements ICsarDependencyLoader {
      *
      * @param csarId The id of the archive to delete.
      */
-    public void forceDeleteCsar(String csarId) {
-        Csar csar = getOrFail(csarId);
-        deleteCsar(csar, false);
-    }
-
-    public void deleteCsar(String csarId, boolean ignoreSubtisutionTopology) {
+    public void deleteCsar(String csarId) {
         Csar csar = getOrFail(csarId);
         // a csar that is a dependency of another csar can not be deleted
         if (isDependency(csar.getName(), csar.getVersion())) {
             throw new DeleteReferencedObjectException("This csar can not be deleted since it's a dependencie for others");
         }
 
-        deleteCsar(csar, ignoreSubtisutionTopology);
+        deleteCsar(csar);
     }
 
-    private void deleteCsar(Csar csar, boolean ignoreSubtisutionTopology) {
-        // here we check that the csar is not a csar created by a topology template (substitution).
-        if (!ignoreSubtisutionTopology && csar.getSubstitutionTopologyId() != null) {
-            String linkedTopologyId = csar.getSubstitutionTopologyId();
-            Topology topology = csarDAO.findById(Topology.class, linkedTopologyId);
-            if (topology != null) {
-                throw new DeleteReferencedObjectException("The CSAR with id <" + csar.getId()
-                        + "> is linked to a topology template (substitution) and can not be deleted by this way. The archive can be deleted by deleting the related topology template version.");
-            }
-        }
-
+    private void deleteCsar(Csar csar) {
+        // Delete the topology defined in this archive.
+        csarDAO.delete(Topology.class, csar.getId());
         // latest version indicator will be recomputed to match this new reality
         indexerService.deleteElements(csar.getName(), csar.getVersion(), csar.getWorkspace());
-
         csarDAO.delete(Csar.class, csar.getId());
-
         // physically delete files
         alienRepository.removeCSAR(csar.getName(), csar.getVersion());
     }

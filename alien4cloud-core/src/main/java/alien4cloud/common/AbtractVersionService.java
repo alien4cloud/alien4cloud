@@ -10,6 +10,7 @@ import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.AbstractTopologyVersion;
@@ -41,6 +42,8 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
 
     @Inject
     private ArchiveIndexer archiveIndexer;
+    @Inject
+    private CsarService csarService;
 
     protected abstract V buildVersionImplem();
 
@@ -163,7 +166,8 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
     }
 
     private void deleteVersion(V version) {
-        alienDAO.delete(Topology.class, version.getTopologyId());
+        // Call delete archive
+        csarService.deleteCsar(version.getCsarId());
         alienDAO.delete(getVersionImplemClass(), version.getId());
     }
 

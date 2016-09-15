@@ -83,13 +83,6 @@ public class Csar implements IManagedSecuredResource {
     /** Date on which the archive has been imported or updated in alien4cloud. */
     private Date importDate;
 
-    /**
-     * When the CSAR is created from a topology template (substitution), contains the topology id.
-     */
-    @TermFilter
-    @StringField(indexType = IndexType.not_analyzed)
-    private String substitutionTopologyId;
-
     /** Default constructor */
     public Csar() {
     }

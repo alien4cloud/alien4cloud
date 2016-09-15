@@ -52,7 +52,6 @@ public class RemoveSubstitutionTypeProcessor implements IEditorOperationProcesso
             if (dependantCsars != null && dependantCsars.length > 0) {
                 throw new DeleteReferencedObjectException("The substitution can not be removed since it's a dependency for another csar");
             }
-            csar.setSubstitutionTopologyId(null);
         }
         topologyService.unloadType(topology, new String[] { substitutionType.getElementId() });
         topology.setSubstitutionMapping(null);
