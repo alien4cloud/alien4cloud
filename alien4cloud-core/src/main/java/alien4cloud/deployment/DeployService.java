@@ -31,7 +31,6 @@ import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.deployment.IDeploymentSource;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.IPaaSCallback;
@@ -182,7 +181,6 @@ public class DeployService {
         Expression exp = parser.parseExpression(namePattern);
         String orchestratorDeploymentId = (String) exp
                 .getValue(new OrchestratorIdContext(env, applicationService.getOrFail(env.getApplicationId()), namePattern.contains("metaProperties[")));
-        orchestratorDeploymentId = orchestratorDeploymentId.replaceAll("\\W", "_");
         // ensure that the id is not used by another deployment.
         if (deploymentService.isActiveDeployment(orchestratorId, orchestratorDeploymentId)) {
             throw new OrchestratorDeploymentIdConflictException("Conflict detected with the generated paasId <" + orchestratorDeploymentId + ">.");

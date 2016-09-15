@@ -44,7 +44,7 @@ public class Orchestrator {
     private String pluginBean;
 
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
-    private String deploymentNamePattern = "application.name + '-' + environment.name";
+    private String deploymentNamePattern = "(application.name + '-' + environment.name).replaceAll('[^\\w\\-_]', '_')";
 
     /** Orchestrator's last known status . */
     @TermFilter
