@@ -38,7 +38,7 @@ import alien4cloud.orchestrators.plugin.model.PluginArchive;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
-import alien4cloud.tosca.ArchiveIndexer;
+import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
 import lombok.extern.slf4j.Slf4j;

@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.tosca.ArchiveParser;
+import org.alien4cloud.tosca.catalog.ArchiveParser;
 import alien4cloud.tosca.ArchiveParserTest;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.utils.FileUtil;

@@ -26,7 +26,7 @@ import com.google.common.collect.Sets;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.component.ICSARRepositoryIndexerService;
-import alien4cloud.component.repository.CsarFileRepository;
+import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.DeleteReferencedObjectException;
@@ -247,7 +247,7 @@ public class CsarService implements ICsarDependencyLoader {
         }
 
         // latest version indicator will be recomputed to match this new reality
-        indexerService.deleteElements(csar.getName(), csar.getVersion(), csar.getHash());
+        indexerService.deleteElements(csar.getName(), csar.getVersion(), csar.getWorkspace());
 
         csarDAO.delete(Csar.class, csar.getId());
 

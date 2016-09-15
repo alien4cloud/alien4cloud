@@ -28,7 +28,7 @@ import alien4cloud.plugin.PluginManager;
 import alien4cloud.plugin.exception.MissingPlugingDescriptorFileException;
 import alien4cloud.plugin.exception.PluginLoadingException;
 import alien4cloud.security.model.Role;
-import alien4cloud.tosca.ArchiveUploadService;
+import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import alien4cloud.tosca.context.ToscaContextInjector;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.utils.FileUtil;

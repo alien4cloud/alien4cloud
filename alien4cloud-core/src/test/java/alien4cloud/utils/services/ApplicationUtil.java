@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import org.alien4cloud.tosca.model.templates.Topology;
-import alien4cloud.tosca.ArchiveParser;
+import org.alien4cloud.tosca.catalog.ArchiveParser;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;

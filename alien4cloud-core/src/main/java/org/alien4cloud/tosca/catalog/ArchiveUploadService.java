@@ -1,4 +1,4 @@
-package alien4cloud.tosca;
+package org.alien4cloud.tosca.catalog;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.springframework.stereotype.Component;
@@ -19,7 +20,6 @@ import alien4cloud.model.git.CsarDependenciesBean;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.Role;
 import alien4cloud.suggestions.services.SuggestionService;
-import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContext;

@@ -1,4 +1,4 @@
-package alien4cloud.component.repository;
+package org.alien4cloud.tosca.catalog.repository;
 
 import java.nio.file.Path;
 

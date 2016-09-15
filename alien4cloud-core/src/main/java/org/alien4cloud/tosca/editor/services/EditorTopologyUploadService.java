@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
-import alien4cloud.tosca.ArchiveParser;
+import org.alien4cloud.tosca.catalog.ArchiveParser;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
@@ -50,16 +50,13 @@ public class EditorTopologyUploadService {
             if (!parsingResult.getResult().hasToscaTopologyTemplate()) {
                 throw new EditorToscaYamlUpdateException("A topology template is required in the topology edition context.");
             }
+            // FIXME CHECK IF USER TRIED TO CHANGE CSAR ELEMENTS (name/version etc.) and throw exception (you cannot do that from the editor).
 
             Topology currentTopology = EditionContextManager.getTopology();
             Topology parsedTopology = parsingResult.getResult().getTopology();
 
             // Copy static elements from the topology
             parsedTopology.setId(currentTopology.getId());
-            parsedTopology.setYamlFilePath(currentTopology.getYamlFilePath());
-            parsedTopology.setDelegateId(currentTopology.getDelegateId());
-            parsedTopology.setDelegateType(currentTopology.getDelegateType());
-
             // Update editor tosca context
             ToscaContext.get().updateDependencies(parsedTopology.getDependencies());
 

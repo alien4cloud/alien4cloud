@@ -41,7 +41,7 @@ import alien4cloud.security.model.User;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyTemplateService;
-import alien4cloud.tosca.ArchiveUploadService;
+import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;

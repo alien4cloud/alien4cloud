@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.tosca.catalog.ArchiveParser;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

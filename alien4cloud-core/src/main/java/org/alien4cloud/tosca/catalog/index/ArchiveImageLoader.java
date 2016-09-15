@@ -1,4 +1,4 @@
-package alien4cloud.tosca;
+package org.alien4cloud.tosca.catalog.index;
 
 import java.io.IOException;
 import java.nio.file.*;

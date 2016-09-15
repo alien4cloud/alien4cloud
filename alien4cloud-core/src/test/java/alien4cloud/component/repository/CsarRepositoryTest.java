@@ -13,13 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.component.repository.CsarFileRepository;
-import alien4cloud.component.repository.ICsarRepositry;
+import org.alien4cloud.tosca.catalog.repository.ICsarRepositry;
 import alien4cloud.component.repository.exception.CSARStorageFailureException;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;

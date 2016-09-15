@@ -18,7 +18,7 @@ import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import alien4cloud.orchestrators.plugin.model.PluginArchive;
 import alien4cloud.plugin.PluginManager;
 import alien4cloud.plugin.model.ManagedPlugin;
-import alien4cloud.tosca.ArchiveParser;
+import org.alien4cloud.tosca.catalog.ArchiveParser;
 
 /**
  * Component that creates location configurer for a mock openstack cloud.

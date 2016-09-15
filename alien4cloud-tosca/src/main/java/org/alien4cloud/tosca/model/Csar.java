@@ -39,13 +39,19 @@ public class Csar implements IManagedSecuredResource {
     @TermFilter(paths = { "majorVersion", "minorVersion", "incrementalVersion", "buildNumber", "qualifier" })
     private Version nestedVersion;
 
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed)
+    private String workspace;
+
+    /** This is the hashcode of all files in the archive. */
     @StringField(indexType = IndexType.not_analyzed)
     @FetchContext(contexts = { SUMMARY }, include = { true })
     private String hash;
 
-    @TermFilter
+    /** This is the hashcode of the definition file only (yaml). */
     @StringField(indexType = IndexType.not_analyzed)
-    private Set<String> workspaces;
+    @FetchContext(contexts = { SUMMARY }, include = { true })
+    private String definitionHash;
 
     /** Eventually the id of the application. */
     private String delegateId;
@@ -104,10 +110,10 @@ public class Csar implements IManagedSecuredResource {
         if (version == null) {
             throw new IndexingServiceException("Csar version is mandatory");
         }
-        if (hash == null) {
-            return name + ":" + version; // hash is optional in id
+        if (workspace == null) {
+            throw new IndexingServiceException("Workspace version is mandatory");
         }
-        return name + ":" + version + ":" + hash;
+        return name + ":" + version + ":" + workspace;
     }
 
     public void setId(String id) {

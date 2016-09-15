@@ -26,7 +26,7 @@ import com.google.common.collect.Lists;
 
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.component.ICSARRepositoryIndexerService;
-import alien4cloud.component.repository.CsarFileRepository;
+import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.csar.services.CsarService;
@@ -41,7 +41,7 @@ import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.*;
-import alien4cloud.tosca.ArchiveUploadService;
+import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;

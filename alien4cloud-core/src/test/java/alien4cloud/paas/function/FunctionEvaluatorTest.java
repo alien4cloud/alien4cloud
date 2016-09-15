@@ -38,7 +38,7 @@ import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 import alien4cloud.security.model.Role;
 import alien4cloud.test.utils.SecurityTestUtils;
-import alien4cloud.tosca.ArchiveUploadService;
+import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.MapUtil;

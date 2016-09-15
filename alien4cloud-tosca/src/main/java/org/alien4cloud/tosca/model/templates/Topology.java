@@ -1,8 +1,5 @@
 package org.alien4cloud.tosca.model.templates;
 
-import static alien4cloud.dao.model.FetchContext.SUMMARY;
-import static alien4cloud.dao.model.FetchContext.TAG_SUGGESTION;
-
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -11,7 +8,6 @@ import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.elasticsearch.annotation.*;
-import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
@@ -42,12 +38,10 @@ import lombok.Setter;
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Topology {
-    @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
     @StringField(indexType = IndexType.not_analyzed)
     @TermFilter
     private String archiveName;
 
-    @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
     @StringField(indexType = IndexType.not_analyzed)
     @TermFilter
     private String archiveVersion;
@@ -56,14 +50,9 @@ public class Topology {
     @TermFilter(paths = { "majorVersion", "minorVersion", "incrementalVersion", "buildNumber", "qualifier" })
     private Version nestedVersion;
 
-    @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
-    @StringField(indexType = IndexType.not_analyzed)
-    @TermFilter
-    private String archiveHash;
-
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
-    private Set<String> workspaces;
+    private String workspace;
 
     /** Last update date of the topology to verify if the topology has been changed **/
     private Date lastUpdateDate = new Date();
@@ -134,18 +123,17 @@ public class Topology {
     private Map<String, Workflow> workflows;
 
     @Id
-    @FetchContext(contexts = { SUMMARY }, include = { true })
     public String getId() {
         if (archiveName == null) {
-            throw new IndexingServiceException("Csar name is mandatory");
+            throw new IndexingServiceException("Archive name is mandatory");
         }
         if (archiveVersion == null) {
-            throw new IndexingServiceException("Csar version is mandatory");
+            throw new IndexingServiceException("Archive version is mandatory");
         }
-        if (archiveHash == null) {
-            throw new IndexingServiceException("Csar hash is mandatory");
+        if (workspace == null) {
+            throw new IndexingServiceException("Archive workspace is mandatory");
         }
-        return archiveName + ":" + archiveVersion + ":" + archiveHash;
+        return archiveName + ":" + archiveVersion + ":" + workspace;
     }
 
     public void setId(String id) {

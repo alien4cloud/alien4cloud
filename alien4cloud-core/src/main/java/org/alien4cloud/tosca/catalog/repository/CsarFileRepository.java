@@ -1,4 +1,4 @@
-package alien4cloud.component.repository;
+package org.alien4cloud.tosca.catalog.repository;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,8 +10,6 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import alien4cloud.component.repository.exception.CSARDirectoryCreationFailureException;
 import alien4cloud.component.repository.exception.CSARStorageFailureException;

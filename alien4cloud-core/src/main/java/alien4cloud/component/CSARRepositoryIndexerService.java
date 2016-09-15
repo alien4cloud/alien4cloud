@@ -12,9 +12,6 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import com.google.common.collect.Sets;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.ElasticSearchClient;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +28,7 @@ import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import alien4cloud.model.components.IndexedModelUtils;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
-import alien4cloud.tosca.ArchiveImageLoader;
+import org.alien4cloud.tosca.catalog.index.ArchiveImageLoader;
 import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.utils.MapUtil;
 
@@ -72,9 +69,9 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
     }
 
     @Override
-    public void deleteElements(String name, String version, String hash) {
+    public void deleteElements(String name, String version, String workspace) {
         GetMultipleDataResult<AbstractToscaType> result = alienDAO.buildQuery(AbstractToscaType.class)
-                .setFilters(fromKeyValueCouples("archiveName", name, "archiveVersion", version, "archiveHash", hash)).prepareSearch()
+                .setFilters(fromKeyValueCouples("archiveName", name, "archiveVersion", version, "workspace", workspace)).prepareSearch()
                 .setFetchContext(FetchContext.SUMMARY).search(0, Integer.MAX_VALUE);
 
         AbstractToscaType[] elements = result.getData();
@@ -122,12 +119,6 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
             }
         }
         alienDAO.save(element);
-    }
-
-    private static void addArchiveToQuery(BoolQueryBuilder boolQueryBuilder, String elementId, String archiveName, String archiveVersion) {
-        QueryBuilder matchIdQueryBuilder = QueryBuilders.idsQuery().addIds(elementId + ":" + archiveVersion);
-        QueryBuilder matchArchiveNameQueryBuilder = QueryBuilders.termQuery("archiveName", archiveName);
-        boolQueryBuilder.should(QueryBuilders.boolQuery().must(matchIdQueryBuilder).must(matchArchiveNameQueryBuilder));
     }
 
     private void deleteElement(AbstractToscaType element) {

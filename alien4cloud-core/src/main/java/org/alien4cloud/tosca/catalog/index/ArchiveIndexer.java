@@ -1,4 +1,4 @@
-package alien4cloud.tosca;
+package org.alien4cloud.tosca.catalog.index;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.component.repository.ICsarRepositry;
+import org.alien4cloud.tosca.catalog.repository.ICsarRepositry;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;

@@ -19,7 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.CSARRepositorySearchService;
-import alien4cloud.component.repository.CsarFileRepository;
+import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.*;

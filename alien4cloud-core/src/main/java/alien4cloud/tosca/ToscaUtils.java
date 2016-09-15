@@ -63,32 +63,7 @@ public class ToscaUtils {
         return null;
     }
 
-    /**
-     * Returns the ordered nodeTemplate hierarchy for a given nodeTemplate
-     *
-     * @param paaSNodeTemplate
-     * @return ordered nodeTemplate map
-     */
-    public static List<PaaSNodeTemplate> getParents(final PaaSNodeTemplate paaSNodeTemplate) {
-        PaaSNodeTemplate parent = paaSNodeTemplate;
-        List<PaaSNodeTemplate> templateList = Lists.newArrayList();
-        while (parent != null) {
-            parent = parent.getParent();
-            if (parent != null) {
-                templateList.add(parent);
-            }
-        }
-        if (templateList.isEmpty()) {
-            // youy nodeTemplate must be a compute => there is no host
-            throw new PaaSTechnicalException("The node template <" + paaSNodeTemplate.getId() + "> is not declared as hosted on a compute.");
-        }
-        return templateList;
-    }
-
-
-
     public static String formatedOperationOutputName(String nodeName, String interfaceName, String operationName, String output) {
         return AlienUtils.prefixWith(AlienConstants.OPERATION_NAME_SEPARATOR, output, new String[] { nodeName, interfaceName, operationName });
     }
-
 }

@@ -1,10 +1,10 @@
 package alien4cloud.application;
 
+import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.common.AbtractVersionService;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.utils.MapUtil;
@@ -28,8 +28,8 @@ public class ApplicationVersionService extends AbtractVersionService<Application
     }
 
     @Override
-    protected Class<?> getDelegateClass() {
-        return Application.class;
+    protected ArchiveDelegateType getDelegateType() {
+        return ArchiveDelegateType.APPLICATION;
     }
 
     @Override
@@ -68,7 +68,6 @@ public class ApplicationVersionService extends AbtractVersionService<Application
         return getByDelegateId(applicationId);
     }
 
-
     /**
      * Get all application versions snapshot for a given application
      *
@@ -96,11 +95,9 @@ public class ApplicationVersionService extends AbtractVersionService<Application
      */
     public boolean isApplicationVersionDeployed(String applicationVersionId) {
 
-        GetMultipleDataResult<Deployment> dataResult = alienDAO.search(
-                Deployment.class,
-                null,
-                MapUtil.newHashMap(new String[] { "versionId", "endDate" }, new String[][] { new String[] { applicationVersionId },
-                        new String[] { null } }), 1);
+        GetMultipleDataResult<Deployment> dataResult = alienDAO.search(Deployment.class, null,
+                MapUtil.newHashMap(new String[] { "versionId", "endDate" }, new String[][] { new String[] { applicationVersionId }, new String[] { null } }),
+                1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             return true;
         }

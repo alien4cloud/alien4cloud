@@ -1,4 +1,4 @@
-package alien4cloud.tosca;
+package org.alien4cloud.tosca.catalog;
 
 import static alien4cloud.common.AlienConstants.GLOBAL_WORKSPACE_ID;
 import static alien4cloud.utils.AlienUtils.safe;
@@ -99,34 +99,32 @@ public class ArchivePostProcessor {
     public ParsingResult<ArchiveRoot> process(Path archive, ParsingResult<ArchiveRoot> parsedArchive) {
         String hash = FileUtil.deepSHA1(archive);
         parsedArchive.getResult().getArchive().setHash(hash);
-        parsedArchive.getResult().getArchive().setWorkspaces(Sets.newHashSet(GLOBAL_WORKSPACE_ID));
+        parsedArchive.getResult().getArchive().setWorkspace(GLOBAL_WORKSPACE_ID);
 
         // FIXME how should we manage hash for the topology tempalte ?
         processTopology(parsedArchive);
         // Injext archive hash in every indexed node type.
-        processTypes(parsedArchive.getResult(), hash);
+        processTypes(parsedArchive.getResult());
         processArtifacts(archive, parsedArchive);
         return parsedArchive;
     }
 
     /**
-     * Inject the archive hash in indexed elements.
+     * Inject the workspace in indexed elements.
      * 
      * @param archiveRoot The archive out of parsing
-     * @param hash The computed hash to inject.
      */
-    private void processTypes(ArchiveRoot archiveRoot, String hash) {
-        processTypes(archiveRoot.getArtifactTypes(), hash);
-        processTypes(archiveRoot.getCapabilityTypes(), hash);
-        processTypes(archiveRoot.getDataTypes(), hash);
-        processTypes(archiveRoot.getNodeTypes(), hash);
-        processTypes(archiveRoot.getRelationshipTypes(), hash);
+    private void processTypes(ArchiveRoot archiveRoot) {
+        processTypes(archiveRoot.getArtifactTypes());
+        processTypes(archiveRoot.getCapabilityTypes());
+        processTypes(archiveRoot.getDataTypes());
+        processTypes(archiveRoot.getNodeTypes());
+        processTypes(archiveRoot.getRelationshipTypes());
     }
 
-    private void processTypes(Map<String, ? extends AbstractToscaType> elements, String hash) {
+    private void processTypes(Map<String, ? extends AbstractToscaType> elements) {
         for (AbstractToscaType element : safe(elements).values()) {
-            element.setArchiveHash(hash);
-            element.setWorkspaces(Sets.newHashSet(GLOBAL_WORKSPACE_ID));
+            element.setWorkspace(GLOBAL_WORKSPACE_ID);
         }
     }
 
@@ -135,7 +133,7 @@ public class ArchivePostProcessor {
         if (topology != null) {
             topology.setArchiveName(parsedArchive.getResult().getArchive().getName());
             topology.setArchiveVersion(parsedArchive.getResult().getArchive().getVersion());
-            topology.setArchiveHash(parsedArchive.getResult().getArchive().getHash());
+            topology.setWorkspace(GLOBAL_WORKSPACE_ID);
             TopologyUtils.normalizeAllNodeTemplateName(topology, parsedArchive);
         }
     }

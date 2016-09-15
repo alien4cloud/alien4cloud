@@ -24,6 +24,8 @@ import org.alien4cloud.tosca.editor.operations.ResetTopologyOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.alien4cloud.tosca.editor.services.EditorTopologyUploadService;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -35,7 +37,6 @@ import com.google.common.collect.Maps;
 
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.git.SimpleGitHistoryEntry;
-import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyService;
@@ -302,9 +303,9 @@ public class EditorService {
     }
 
     private void saveYamlFile() throws IOException {
-        Topology topology = EditionContextManager.getTopology();
-        Path targetPath = EditionContextManager.get().getLocalGitPath().resolve(topology.getYamlFilePath());
-        String yaml = topologyService.getYaml(topology);
+        Csar csar = EditionContextManager.getCsar();
+        Path targetPath = EditionContextManager.get().getLocalGitPath().resolve(csar.getYamlFilePath());
+        String yaml = topologyService.getYaml(csar, EditionContextManager.getTopology());
         try (BufferedWriter writer = Files.newBufferedWriter(targetPath)) {
             writer.write(yaml);
         }
