@@ -18,7 +18,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.component.CSARRepositorySearchService;
+import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
 import alien4cloud.exception.NotFoundException;
@@ -50,7 +50,7 @@ public class TopologyTreeBuilderService {
     @Resource
     private CsarFileRepository repository;
     @Resource
-    private CSARRepositorySearchService csarSearchService;
+    private ToscaTypeSearchService csarSearchService;
 
     public Map<String, PaaSNodeTemplate> buildPaaSNodeTemplates(Topology topology) {
         // cache IndexedToscaElements, CloudServiceArchive and ToscaElements to limit queries.

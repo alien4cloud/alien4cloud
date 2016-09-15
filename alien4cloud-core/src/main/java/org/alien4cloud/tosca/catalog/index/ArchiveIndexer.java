@@ -7,20 +7,19 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.repository.ICsarRepositry;
 import org.alien4cloud.tosca.editor.EditorRepositoryService;
+import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.component.ICSARRepositorySearchService;
-import org.alien4cloud.tosca.catalog.repository.ICsarRepositry;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
-import alien4cloud.csar.services.CsarService;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.model.components.CSARSource;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
@@ -33,6 +32,9 @@ import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.VersionUtil;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Perform indexing of a cloud service archive and splits it's different components to update index.
+ */
 @Slf4j
 @Component
 public class ArchiveIndexer {
@@ -45,7 +47,7 @@ public class ArchiveIndexer {
     @Inject
     private TopologyServiceCore topologyServiceCore;
     @Inject
-    private ICSARRepositoryIndexerService indexerService;
+    private IToscaTypeIndexerService indexerService;
     @Inject
     private WorkflowsBuilderService workflowBuilderService;
     @Inject
@@ -100,19 +102,20 @@ public class ArchiveIndexer {
 
         // index the archive content in elastic-search
         indexArchiveTypes(archiveName, archiveVersion, archiveRoot, currentIndexedArchive);
-        indexTopology(parsingErrors, archiveRoot.getTopology(), archiveName, archiveVersion);
+        indexTopology(archiveRoot, parsingErrors, archiveName, archiveVersion);
     }
 
-    private void indexTopology(List<ParsingError> parsingErrors, Topology topology, String archiveName, String archiveVersion) {
+    private void indexTopology(final ArchiveRoot archiveRoot, List<ParsingError> parsingErrors, String archiveName, String archiveVersion) {
+        Topology topology = archiveRoot.getTopology();
         if (topology == null || topology.isEmpty()) {
-
+            return;
         }
-        // if (archiveRoot.hasToscaTypes()) {
-        // // The archive contains types, we assume those types are used in the embedded topology so we add the dependency to this CSAR
-        // CSARDependency selfDependency = new CSARDependency(archiveRoot.getArchive().getName(), archiveRoot.getArchive().getVersion(),
-        // archiveRoot.getArchive().getHash());
-        // topology.getDependencies().add(selfDependency);
-        // }
+        if (archiveRoot.hasToscaTypes()) {
+            // The archive contains types, we assume those types are used in the embedded topology so we add the dependency to this CSAR
+            CSARDependency selfDependency = new CSARDependency(archiveRoot.getArchive().getName(), archiveRoot.getArchive().getVersion(),
+                    archiveRoot.getArchive().getHash());
+            topology.getDependencies().add(selfDependency);
+        }
 
         // init the workflows
         WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService

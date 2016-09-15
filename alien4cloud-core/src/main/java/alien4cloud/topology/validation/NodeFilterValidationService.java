@@ -1,6 +1,6 @@
 package alien4cloud.topology.validation;
 
-import alien4cloud.component.CSARRepositorySearchService;
+import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import org.alien4cloud.tosca.model.definitions.*;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
@@ -33,7 +33,7 @@ import java.util.Map;
 @Component
 public class NodeFilterValidationService {
     @Resource
-    private CSARRepositorySearchService csarRepoSearchService;
+    private ToscaTypeSearchService csarRepoSearchService;
     @Resource
     private TopologyServiceCore topologyServiceCore;
 

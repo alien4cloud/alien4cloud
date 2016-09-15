@@ -11,7 +11,7 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.component.CSARRepositorySearchService;
+import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import alien4cloud.topology.TopologyService;
 
 /**
@@ -21,7 +21,7 @@ import alien4cloud.topology.TopologyService;
 public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<AddSubstitutionTypeOperation> {
 
     @Resource
-    private CSARRepositorySearchService csarRepoSearchService;
+    private ToscaTypeSearchService csarRepoSearchService;
     @Inject
     private TopologyService topologyService;
 

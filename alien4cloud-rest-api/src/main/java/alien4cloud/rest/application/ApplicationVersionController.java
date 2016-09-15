@@ -41,7 +41,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping({"/rest/applications/{applicationId:.+}/versions", "/rest/v1/applications/{applicationId:.+}/versions", "/rest/latest/applications/{applicationId:.+}/versions"})
+@RequestMapping({ "/rest/applications/{applicationId:.+}/versions", "/rest/v1/applications/{applicationId:.+}/versions",
+        "/rest/latest/applications/{applicationId:.+}/versions" })
 @Api(value = "", description = "Manages application's versions")
 public class ApplicationVersionController {
 
@@ -125,8 +126,8 @@ public class ApplicationVersionController {
         AuthorizationUtil.checkHasOneRoleIn(Role.APPLICATIONS_MANAGER);
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        ApplicationVersion appVersion = appVersionService.createApplicationVersion(applicationId, request.getTopologyId(), request.getVersion(),
-                request.getDescription());
+        ApplicationVersion appVersion = appVersionService.createApplicationVersion(applicationId, request.getTopologyId(), application.getName(),
+                request.getVersion(), request.getDescription());
         return RestResponseBuilder.<String> builder().data(appVersion.getId()).build();
     }
 
@@ -187,8 +188,8 @@ public class ApplicationVersionController {
         if (appVersionService.isApplicationVersionDeployed(applicationVersionId)) {
             throw new DeleteReferencedObjectException("Application version with id <" + applicationVersionId + "> could not be deleted beacause it's used");
         } else if (appVersionService.getByApplicationId(applicationId).length == 1) {
-            throw new DeleteLastApplicationVersionException("Application version with id <" + applicationVersionId
-                    + "> can't be be deleted beacause it's the last application version.");
+            throw new DeleteLastApplicationVersionException(
+                    "Application version with id <" + applicationVersionId + "> can't be be deleted beacause it's the last application version.");
         }
         appVersionService.delete(applicationVersionId);
         return RestResponseBuilder.<Boolean> builder().data(true).build();

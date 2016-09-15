@@ -1,11 +1,17 @@
 package alien4cloud.common;
 
+import java.nio.file.Path;
 import java.util.*;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
+import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.ParsingError;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
+import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
 import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.AbstractTopologyVersion;
 import org.alien4cloud.tosca.model.templates.Topology;
 
@@ -27,11 +33,14 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
     @Resource(name = "alien-es-dao")
     protected IGenericSearchDAO alienDAO;
 
-    @Resource
+    @Inject
     private TopologyServiceCore topologyServiceCore;
 
-    @Resource
+    @Inject
     private WorkflowsBuilderService workflowBuilderService;
+
+    @Inject
+    private ArchiveIndexer archiveIndexer;
 
     protected abstract V buildVersionImplem();
 
@@ -48,9 +57,11 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
      *
      * @param delegateId The id of the application/topology template for which to create the version.
      * @param topologyToCloneId The id of the topology to clone for the version's topology.
-     * @param version The number version of the new application version.
+     * @param archiveName The name of the archive for which to create a version.
+     * @param version The new version.
+     * @param description The description.
      */
-    public V createVersion(String delegateId, String topologyToCloneId, String version, String description, Topology providedTopology) {
+    public V createVersion(String delegateId, String topologyToCloneId, String archiveName, String version, String description, Topology providedTopology) {
         if (isVersionNameExist(delegateId, version)) {
             throw new AlreadyExistException("An version " + version + " already exists.");
         }
@@ -65,7 +76,14 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
         appVersion.setReleased(!VersionUtil.isSnapshot(version));
         appVersion.setDescription(description);
 
-        Topology topology = null;
+        // Every version of an application has a Cloud Service Archive
+        String delegateType = ArchiveDelegateType.APPLICATION.toString();
+        Csar csar = new Csar(archiveName, version);
+        csar.setWorkspace("A4C-" + delegateType + ":" + delegateId);
+        csar.setDelegateId(delegateId);
+        csar.setDelegateType(delegateType);
+
+        Topology topology;
         if (providedTopology != null) {
             topology = providedTopology;
         } else {
@@ -76,9 +94,6 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
             }
             topology.setId(UUID.randomUUID().toString());
         }
-        // FIXME WE MUST CREATE A CSAR HERE.
-        // topology.setDelegateId(delegateId);
-        // topology.setDelegateType(getDelegateClass().getSimpleName().toLowerCase());
         workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
         // first of all, if the new version is a release, we have to ensure that all dependencies are released
         if (!VersionUtil.isSnapshot(version)) {
@@ -87,7 +102,8 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
 
         topologyServiceCore.save(topology);
 
-        appVersion.setTopologyId(topology.getId());
+        appVersion.setCsarId(csar.getId());
+
         alienDAO.save(appVersion);
         return appVersion;
     }
@@ -96,7 +112,7 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
      * Check that the topology can be associated to a release version, actually : check that the topology doesn't reference SNAPSHOT
      * dependencies.
      * 
-     * @throws a @{@link ReleaseReferencingSnapshotException} if the topology references SNAPSHOT dependencies
+     * @throws @{@link ReleaseReferencingSnapshotException} if the topology references SNAPSHOT dependencies
      *             version.
      */
     public void checkTopologyReleasable(Topology topology) {

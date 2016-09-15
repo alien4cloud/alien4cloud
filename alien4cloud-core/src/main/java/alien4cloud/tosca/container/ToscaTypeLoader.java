@@ -1,6 +1,6 @@
 package alien4cloud.tosca.container;
 
-import alien4cloud.csar.services.ICsarDependencyLoader;
+import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.model.CSARDependency;
 import alien4cloud.utils.VersionUtil;
 import com.google.common.collect.Maps;

@@ -7,7 +7,7 @@ import org.alien4cloud.tosca.editor.operations.substitution.RemoveSubstitutionTy
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.csar.services.CsarService;
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.NotFoundException;
 import org.alien4cloud.tosca.model.Csar;

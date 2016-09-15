@@ -18,8 +18,8 @@
     <bean id="matchingConfigurationsParser" class="alien4cloud.deployment.matching.services.nodes.MatchingConfigurationsParser"/>
 
     <mockito:mock id="alien-es-dao" class="alien4cloud.dao.IGenericSearchDAO"/>
-    <mockito:mock id="csar-service" class="alien4cloud.csar.services.CsarService"/>
+    <mockito:mock id="csar-service" class="org.alien4cloud.tosca.catalog.index.CsarService"/>
     <mockito:mock id="csar-search-service" class="alien4cloud.component.ICSARRepositorySearchService"/>
-    <mockito:mock id="csar-indexer-service" class="alien4cloud.component.ICSARRepositoryIndexerService"/>
+    <mockito:mock id="csar-indexer-service" class="org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService"/>
     <mockito:mock id="TopologyTemplateVersionService" class="alien4cloud.topology.TopologyTemplateVersionService"/>
 </beans>

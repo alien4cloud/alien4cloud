@@ -33,7 +33,7 @@ import org.springframework.test.context.ContextConfiguration;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import alien4cloud.csar.services.CsarService;
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.components.CSARSource;
 import alien4cloud.paas.wf.WorkflowsBuilderService;

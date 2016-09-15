@@ -1,4 +1,4 @@
-package alien4cloud.csar.services;
+package org.alien4cloud.tosca.catalog.index;
 
 import java.util.Set;
 

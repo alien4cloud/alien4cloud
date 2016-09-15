@@ -1,6 +1,6 @@
 package alien4cloud.topology.validation;
 
-import alien4cloud.component.CSARRepositorySearchService;
+import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
 import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
@@ -44,7 +44,7 @@ import static alien4cloud.utils.AlienUtils.safe;
 @Slf4j
 public class TopologyPropertiesValidationService {
     @Resource
-    private CSARRepositorySearchService csarRepoSearchService;
+    private ToscaTypeSearchService csarRepoSearchService;
 
     /**
      * Validate that the properties values in the topology are matching the property definitions (required & constraints).

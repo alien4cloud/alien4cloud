@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
-import alien4cloud.component.CSARRepositorySearchService;
+import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FetchContext;
@@ -50,7 +50,7 @@ public class SuggestionService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject
-    private CSARRepositorySearchService searchService;
+    private ToscaTypeSearchService searchService;
 
     /* The Levenshtein distance is a string metric for measuring the difference between two sequences. */
     private static final double MIN_JAROWINKLER = 0.0;

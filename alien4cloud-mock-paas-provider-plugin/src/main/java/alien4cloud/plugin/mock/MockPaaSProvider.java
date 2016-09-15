@@ -14,7 +14,7 @@ import org.elasticsearch.common.collect.Maps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import alien4cloud.component.CSARRepositorySearchService;
+import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import alien4cloud.dao.MonitorESDAO;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
@@ -48,7 +48,7 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
     private final List<AbstractMonitorEvent> toBeDeliveredEvents = Collections.synchronizedList(new ArrayList<AbstractMonitorEvent>());
 
     @Resource
-    private CSARRepositorySearchService csarRepoSearchService;
+    private ToscaTypeSearchService csarRepoSearchService;
 
     @Resource(name = "alien-monitor-es-dao")
     private MonitorESDAO alienMonitorDao;

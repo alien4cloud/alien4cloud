@@ -1,4 +1,4 @@
-package alien4cloud.component;
+package org.alien4cloud.tosca.catalog.index;
 
 import java.util.Collection;
 import java.util.Map;
@@ -10,7 +10,7 @@ import org.alien4cloud.tosca.model.types.AbstractToscaType;
 /**
  * Service responsible for indexing TOSCA elements.
  */
-public interface ICSARRepositoryIndexerService {
+public interface IToscaTypeIndexerService {
     /**
      * Get all {@link AbstractToscaType} from a given archive.
      * 

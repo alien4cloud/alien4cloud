@@ -1,6 +1,6 @@
 package alien4cloud.topology.validation;
 
-import alien4cloud.component.CSARRepositorySearchService;
+import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import alien4cloud.exception.NotFoundException;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
@@ -25,7 +25,7 @@ import java.util.Set;
 @Component
 public class TopologyAbstractRelationshipValidationService {
     @Resource
-    private CSARRepositorySearchService csarRepoSearchService;
+    private ToscaTypeSearchService csarRepoSearchService;
 
     /**
      * Checks that no relationships in a topology are abstract (and cannot be instanciated).

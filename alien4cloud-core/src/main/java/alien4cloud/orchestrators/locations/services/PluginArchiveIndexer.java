@@ -20,9 +20,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import alien4cloud.component.ICSARRepositoryIndexerService;
+import org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
-import alien4cloud.csar.services.CsarService;
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.events.LocationArchiveDeleteRequested;
 import alien4cloud.events.LocationTypeIndexed;
@@ -63,7 +63,7 @@ public class PluginArchiveIndexer {
     @Inject
     private ApplicationContext applicationContext;
     @Inject
-    private ICSARRepositoryIndexerService csarRepositoryIndexerService;
+    private IToscaTypeIndexerService csarRepositoryIndexerService;
 
     /**
      * Ensure that location archives are indexed.

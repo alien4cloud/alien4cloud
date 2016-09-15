@@ -22,7 +22,7 @@ public abstract class AbstractTopologyVersion implements IManagedSecuredResource
     private String description;
     @TermFilter
     @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
-    private String topologyId;
+    private String csarId;
     @BooleanField(index = IndexType.not_analyzed)
     private boolean released;
     @BooleanField(index = IndexType.not_analyzed)

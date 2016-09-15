@@ -30,8 +30,8 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
-import alien4cloud.component.CSARRepositorySearchService;
-import alien4cloud.csar.services.CsarService;
+import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
@@ -41,7 +41,6 @@ import alien4cloud.model.application.Application;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.security.model.Role;
 import alien4cloud.security.model.User;
 import alien4cloud.topology.exception.UpdateTopologyException;
 import alien4cloud.topology.task.SuggestionsTask;
@@ -59,7 +58,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class TopologyService {
     @Resource
-    private CSARRepositorySearchService csarRepoSearchService;
+    private ToscaTypeSearchService csarRepoSearchService;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource

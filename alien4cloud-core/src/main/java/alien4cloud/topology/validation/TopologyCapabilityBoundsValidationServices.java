@@ -1,6 +1,6 @@
 package alien4cloud.topology.validation;
 
-import alien4cloud.component.CSARRepositorySearchService;
+import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import alien4cloud.exception.NotFoundException;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
@@ -23,7 +23,7 @@ import java.util.Set;
 @Component
 public class TopologyCapabilityBoundsValidationServices {
     @Resource
-    private CSARRepositorySearchService csarRepoSearchService;
+    private ToscaTypeSearchService csarRepoSearchService;
     @Resource
     private TopologyServiceCore topologyServiceCore;
 

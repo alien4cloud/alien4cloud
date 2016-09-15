@@ -10,7 +10,7 @@ import org.alien4cloud.tosca.editor.operations.nodetemplate.ReplaceNodeOperation
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.component.CSARRepositorySearchService;
+import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNodeOperation> {
     @Inject
-    private CSARRepositorySearchService searchService;
+    private ToscaTypeSearchService searchService;
     @Inject
     private TopologyService topologyService;
     @Inject

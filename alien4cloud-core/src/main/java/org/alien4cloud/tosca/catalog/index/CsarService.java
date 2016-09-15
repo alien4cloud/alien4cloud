@@ -1,4 +1,4 @@
-package alien4cloud.csar.services;
+package org.alien4cloud.tosca.catalog.index;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
@@ -11,6 +11,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
+import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -24,9 +25,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationService;
-import alien4cloud.component.CSARRepositorySearchService;
-import alien4cloud.component.ICSARRepositoryIndexerService;
-import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.DeleteReferencedObjectException;
@@ -47,9 +45,9 @@ public class CsarService implements ICsarDependencyLoader {
     @Resource(name = "alien-monitor-es-dao")
     private IGenericSearchDAO alienMonitorDao;
     @Inject
-    private CSARRepositorySearchService searchService;
+    private ToscaTypeSearchService searchService;
     @Inject
-    private ICSARRepositoryIndexerService indexerService;
+    private IToscaTypeIndexerService indexerService;
     @Inject
     private CsarFileRepository alienRepository;
     @Inject
@@ -208,7 +206,7 @@ public class CsarService implements ICsarDependencyLoader {
 
     /**
      * Delete an archive if no topology depends from it.
-     * 
+     *
      * @param csarId The id of the archive to delete.
      */
     public void deleteCsar(String csarId) {

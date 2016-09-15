@@ -25,11 +25,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.google.common.collect.Lists;
 
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.component.ICSARRepositoryIndexerService;
+import org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService;
 import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
-import alien4cloud.csar.services.CsarService;
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.AlreadyExistException;
@@ -64,7 +64,7 @@ public class CloudServiceArchiveController {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO csarDAO;
     @Resource
-    private ICSARRepositoryIndexerService indexerService;
+    private IToscaTypeIndexerService indexerService;
     private Path tempDirPath;
     @Resource
     private CsarService csarService;

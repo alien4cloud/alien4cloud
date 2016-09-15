@@ -13,7 +13,7 @@ import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.application.TopologyCompositionService;
-import alien4cloud.component.CSARRepositorySearchService;
+import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import alien4cloud.exception.CyclicReferenceException;
 import alien4cloud.exception.InvalidNodeNameException;
 import alien4cloud.exception.NotFoundException;
@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperation> {
     @Inject
-    private CSARRepositorySearchService searchService;
+    private ToscaTypeSearchService searchService;
     @Inject
     private TopologyService topologyService;
     @Inject

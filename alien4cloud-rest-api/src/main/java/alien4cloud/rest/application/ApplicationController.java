@@ -87,7 +87,7 @@ public class ApplicationController {
         }
         // create the application with default environment and version
         String applicationId = applicationService.create(auth.getName(), request.getName(), request.getDescription());
-        ApplicationVersion version = applicationVersionService.createApplicationVersion(applicationId, topologyId);
+        ApplicationVersion version = applicationVersionService.createApplicationVersion(applicationId, topologyId, request.getName());
         ApplicationEnvironment environment = applicationEnvironmentService.createApplicationEnvironment(auth.getName(), applicationId, version.getId());
         return RestResponseBuilder.<String> builder().data(applicationId).build();
     }

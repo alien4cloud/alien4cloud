@@ -17,9 +17,9 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.component.ICSARRepositoryIndexerService;
+import org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService;
 import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.csar.services.CsarService;
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.tosca.context.ToscaContextual;
@@ -36,7 +36,7 @@ public class TopologyServiceCore {
     @Resource
     private CsarService csarService;
     @Resource
-    private ICSARRepositoryIndexerService indexerService;
+    private IToscaTypeIndexerService indexerService;
 
     /**
      * Get the Map of {@link NodeTemplate} from a topology

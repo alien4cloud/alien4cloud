@@ -1,4 +1,4 @@
-package alien4cloud.component;
+package org.alien4cloud.tosca.catalog.index;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.utils.AlienUtils.safe;
@@ -11,11 +11,14 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import com.google.common.collect.Sets;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.elasticsearch.mapping.ElasticSearchClient;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
@@ -24,24 +27,23 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.images.IImageDAO;
 import alien4cloud.model.common.Tag;
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import alien4cloud.model.components.IndexedModelUtils;
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
-import org.alien4cloud.tosca.catalog.index.ArchiveImageLoader;
 import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.utils.MapUtil;
 
-@Component
-public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerService {
+/**
+ * This service is responsible for indexing and searching tosca types.
+ */
+@Service
+public class ToscaTypeIndexerService implements IToscaTypeIndexerService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
-    @Resource
+    @Inject
     private ElasticSearchClient elasticSearchClient;
-    @Resource
+    @Inject
     private IImageDAO imageDAO;
     @Inject
-    private CSARRepositorySearchService searchService;
+    private ToscaTypeSearchService searchService;
 
     private void refreshIndexForSearching() {
         elasticSearchClient.getClient().admin().indices().prepareRefresh(ElasticSearchDAO.TOSCA_ELEMENT_INDEX).execute().actionGet();

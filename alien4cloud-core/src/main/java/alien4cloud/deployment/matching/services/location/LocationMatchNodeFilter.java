@@ -13,7 +13,7 @@ import lombok.Getter;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.component.CSARRepositorySearchService;
+import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import alien4cloud.model.deployment.matching.ILocationMatch;
 import alien4cloud.model.orchestrators.ArtifactSupport;
@@ -27,7 +27,7 @@ import com.google.common.collect.Maps;
 @Component
 public class LocationMatchNodeFilter extends AbstractLocationMatchFilterWithElector {
     @Resource
-    private CSARRepositorySearchService csarSearchService;
+    private ToscaTypeSearchService csarSearchService;
     @Resource
     private OrchestratorService orchestratorService;
     @Inject

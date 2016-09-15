@@ -1,6 +1,6 @@
 package org.alien4cloud.tosca.editor;
 
-import alien4cloud.csar.services.CsarService;
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import alien4cloud.exception.NotFoundException;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;

@@ -15,7 +15,7 @@ import com.google.common.collect.Lists;
 
 import alien4cloud.Constants;
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.component.CSARRepositorySearchService;
+import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -40,7 +40,7 @@ public class ComponentController {
     private IGenericSearchDAO dao;
 
     @Resource
-    private CSARRepositorySearchService searchService;
+    private ToscaTypeSearchService searchService;
 
     /**
      * Get details for a component.

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.component.CSARRepositorySearchService;
+import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidNameException;
 import alien4cloud.exception.NotFoundException;
@@ -39,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelationshipOperation> {
     @Inject
-    private CSARRepositorySearchService searchService;
+    private ToscaTypeSearchService searchService;
     @Resource
     private TopologyService topologyService;
     @Resource

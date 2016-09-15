@@ -1,4 +1,4 @@
-package alien4cloud.component;
+package org.alien4cloud.tosca.catalog.index;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import static alien4cloud.dao.FilterUtil.singleKeyFilter;
@@ -12,6 +12,7 @@ import java.util.function.Function;
 
 import javax.annotation.Resource;
 
+import alien4cloud.component.ICSARRepositorySearchService;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -46,7 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @Primary
-public class CSARRepositorySearchService implements ICSARRepositorySearchService, IElementSearchService {
+public class ToscaTypeSearchService implements ICSARRepositorySearchService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO searchDAO;
 
@@ -120,7 +121,7 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
 
     @Override
     public boolean isElementExistInDependencies(@NonNull Class<? extends AbstractToscaType> elementClass, @NonNull String elementId,
-                                                Set<CSARDependency> dependencies) {
+            Set<CSARDependency> dependencies) {
         if (dependencies == null || dependencies.isEmpty()) {
             return false;
         }
@@ -167,7 +168,6 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
         return element;
     }
 
-    @Override
     public FacetedSearchResult search(Class<? extends AbstractToscaType> clazz, String query, Integer size, Map<String, String[]> filters) {
         TopHitsBuilder topHitAggregation = AggregationBuilders.topHits("highest_version").setSize(1)
                 .addSort(new FieldSortBuilder("nestedVersion.majorVersion").order(SortOrder.DESC))
