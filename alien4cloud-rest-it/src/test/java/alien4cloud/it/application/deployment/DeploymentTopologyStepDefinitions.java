@@ -3,14 +3,21 @@ package alien4cloud.it.application.deployment;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.junit.Assert;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
@@ -19,11 +26,7 @@ import com.google.common.collect.Maps;
 import alien4cloud.common.AlienConstants;
 import alien4cloud.it.Context;
 import alien4cloud.model.application.Application;
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.rest.application.model.SetLocationPoliciesRequest;
 import alien4cloud.rest.application.model.UpdateDeploymentTopologyRequest;
@@ -31,8 +34,12 @@ import alien4cloud.rest.deployment.DeploymentTopologyDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.topology.TopologyValidationResult;
+import alien4cloud.topology.task.InputArtifactTask;
 import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.MapUtil;
+import cucumber.api.DataTable;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import lombok.AllArgsConstructor;
@@ -242,6 +249,45 @@ public class DeploymentTopologyStepDefinitions {
         for (Entry<String, AbstractPropertyValue> entry : expectedMap.entrySet()) {
             assertEquals(entry.getValue(), map.get(entry.getKey()));
         }
+    }
+
+    @When("^I check for the valid status of the deployment topology$")
+    public void iCheckForTheValidStatusOfTheDeploymentTopology() throws Throwable {
+        I_get_the_deployment_toology_for_the_current_application();
+    }
+
+    @Then("^the deployment topology should not be valid$")
+    public void theDeploymentTopologyShouldNotBeValid() throws Throwable {
+        Assert.assertFalse("the deployment topology is valid", JsonUtil
+                .read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class, Context.getJsonMapper()).getData().getValidation().isValid());
+    }
+
+    @Then("^the deployment topology should be valid$")
+    public void theDeploymentTopologyShouldBeValid() throws Throwable {
+        Assert.assertTrue("the deployment topology is not valid", JsonUtil
+                .read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class, Context.getJsonMapper()).getData().getValidation().isValid());
+    }
+
+    @And("^the missing inputs artifacts should be$")
+    public void theMissingInputsArtifactsShouldBe(DataTable expectedInputArtifactsTable) throws Throwable {
+        TopologyValidationResult topologyValidationResult = JsonUtil
+                .read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class, Context.getJsonMapper()).getData().getValidation();
+        for (List<String> expectedRow : expectedInputArtifactsTable.raw()) {
+            boolean missingFound = topologyValidationResult.getTaskList().stream()
+                    .filter(task -> task instanceof InputArtifactTask && ((InputArtifactTask) task).getInputArtifactName().equals(expectedRow.get(0)))
+                    .findFirst().isPresent();
+            Assert.assertTrue(expectedRow.get(0) + " does not appear in the task list for the deployment topology", missingFound);
+        }
+    }
+
+    @When("^I upload a file located at \"([^\"]*)\" for the input artifact \"([^\"]*)\"$")
+    public void iUploadAFileLocatedAtForTheInputArtifact(String localFile, String inputArtifactName) throws Throwable {
+        Application application = Context.getInstance().getApplication();
+        String envId = Context.getInstance().getDefaultApplicationEnvironmentId(application.getName());
+        String url = String.format("/rest/applications/%s/environments/%s/deployment-topology/inputArtifacts/%s/upload", application.getId(), envId,
+                inputArtifactName);
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postMultipart(url, Paths.get(localFile).getFileName().toString(), Files.newInputStream(Paths.get(localFile))));
     }
 
     @Getter

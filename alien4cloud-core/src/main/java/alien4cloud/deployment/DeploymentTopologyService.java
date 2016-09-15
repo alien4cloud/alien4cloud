@@ -7,7 +7,12 @@ import java.util.Map.Entry;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
 import org.alien4cloud.tosca.model.templates.*;
+import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.annotation.Lazy;
@@ -28,11 +33,6 @@ import alien4cloud.deployment.model.DeploymentSubstitutionConfiguration;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
-import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
-import org.alien4cloud.tosca.model.types.CapabilityType;
-import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
-import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
@@ -228,7 +228,6 @@ public class DeploymentTopologyService {
         topologyCompositionService.processTopologyComposition(deploymentTopology);
         deploymentInputService.processInputProperties(deploymentTopology);
         inputsPreProcessorService.processGetInput(deploymentTopology, environment, topology);
-        deploymentInputService.processInputArtifacts(deploymentTopology);
         deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
         deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology, previousNodeTemplates);
         save(deploymentTopology);
@@ -244,7 +243,6 @@ public class DeploymentTopologyService {
         Topology topology = topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId());
         deploymentInputService.processInputProperties(deploymentTopology);
         inputsPreProcessorService.processGetInput(deploymentTopology, environment, topology);
-        deploymentInputService.processInputArtifacts(deploymentTopology);
         deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
         save(deploymentTopology);
     }

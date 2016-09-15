@@ -196,7 +196,7 @@ define(function (require) {
                 applicationSearchResult.data[key] = app;
               }
               $scope.applicationStatuses[app.name] = data;
-              pieChartService.render(app.name, data);
+              pieChartService.render(app.id, data);
             });
           });
         }

@@ -182,6 +182,7 @@
         }
       },
       "TEMPLATE_BASE" : "トポロジテンプレート",
+      "TEMPLATE_VERSION" : "Template version",
       "TEMPLATE_SELECT" : "-- トポロジテンプレートの選択 --",
       "TEMPLATE_SELECT_VERSION" : "-- テンプレートバージョンの選択 --",
       "UPDATE_ARTIFACT" : "アーティファクトの更新",

@@ -48,7 +48,7 @@
             <div class="col-md-2" style="width: 130px;" ng-if="isManager" style="width: 115px;">
               <delete-confirm class="pull-right" id='delete-app_{{application.name}}' func="removeApplication(application.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
               </delete-confirm>
-              <span id="pieChart-{{application.name}}" class="pull-right" style="margin-top: -18px;"></span>
+              <span id="pieChart-{{application.id}}" class="pull-right" style="margin-top: -18px;"></span>
             </div>
           </div>
           <div class="row clickable-media" collapse="isEnvironmentsCollapsed"  ng-repeat="environment in applicationStatuses[application.name] | orderBy: '-indexToOrder'"  >
@@ -111,7 +111,7 @@
           <p class="col-lg-9">{{selectedTopologyTemplate.description}}</p>
         </div>
         <div class="form-group" ng-show="templateVersions">
-          <label for="templateVersionId" class="col-lg-3 control-label">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT_VERSION' | translate}}</label>
+          <label for="templateVersionId" class="col-lg-3 control-label">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_VERSION' | translate}}</label>
           <div class="col-lg-9">
             <select class="form-control" id="templateVersionId" ng-model="selectedTopologyTemplateVersion" ng-options="tv.version for tv in templateVersions" placeholder="{{'COMMON.DESCRIPTION' | translate}}">
               <option value="">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT_VERSION' | translate}}</option>

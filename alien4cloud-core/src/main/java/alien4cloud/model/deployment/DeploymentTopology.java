@@ -4,9 +4,12 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
-import alien4cloud.json.deserializer.PropertyValueDeserializer;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.PropertyValue;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.alien4cloud.tosca.model.templates.NodeGroup;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.elasticsearch.annotation.BooleanField;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.ObjectField;
@@ -16,14 +19,12 @@ import org.elasticsearch.mapping.IndexType;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.exception.IndexingServiceException;
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.templates.NodeGroup;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
+import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -92,7 +93,9 @@ public class DeploymentTopology extends Topology {
     @ObjectField(enabled = false)
     @JsonDeserialize(contentUsing = PropertyValueDeserializer.class)
     private Map<String, PropertyValue> inputProperties;
-    // TODO add also the input artifacts here. /-> Note that they should/could be repository based.
+
+    @ObjectField(enabled = false)
+    private Map<String, DeploymentArtifact> uploadedInputArtifacts;
 
     /**
      * Utility method to generate an id for a deployment topology by concatenating version id and environment id

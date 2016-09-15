@@ -1,0 +1,43 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+template_name: empty-deployment-artifact
+template_author: Alien4cloud
+template_version: 1.0.0-SNAPSHOT
+
+imports:
+  - tosca-normative-types:1.0.0-SNAPSHOT
+
+description: Empty artifacts test.
+
+artifact_types:
+
+  tosca.artifacts.Deployment.War:
+    description: A web application archive
+    file_ext: [ war ]
+
+node_types:
+
+  alien.nodes.InputArtifactDemo:
+    derived_from: tosca.nodes.SoftwareComponent
+    artifacts:
+      - nested_uploaded_war:
+          type: tosca.artifacts.Deployment.War
+
+topology_template:
+
+  node_templates:
+    Compute:
+      type: tosca.nodes.Compute
+
+    ArtifactDemo:
+      type: alien.nodes.InputArtifactDemo
+      requirements:
+        - host: Compute
+
+    ArtifactDemo2:
+      type: alien.nodes.InputArtifactDemo
+      requirements:
+        - host: Compute
+      artifacts:
+        nested_uploaded_war2:
+          type: tosca.artifacts.Deployment.War

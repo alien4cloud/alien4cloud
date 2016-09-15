@@ -1,6 +1,5 @@
 package alien4cloud.repository.services;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -85,16 +84,16 @@ public class RepositoryService {
      * @param credentials the credentials to retrieve the artifact
      * @return the artifact's path downloaded locally, null if artifact cannot be resolved
      */
-    public Path resolveArtifact(String artifactReference, String repositoryURL, String repositoryType, Map<String, Object> credentials) {
+    public String resolveArtifact(String artifactReference, String repositoryURL, String repositoryType, Map<String, Object> credentials) {
         for (IConfigurableArtifactResolver configurableArtifactResolver : registeredResolvers.values()) {
-            Path resolvedArtifact = configurableArtifactResolver.resolveArtifact(artifactReference, repositoryURL, repositoryType, credentials);
+            String resolvedArtifact = configurableArtifactResolver.resolveArtifact(artifactReference, repositoryURL, repositoryType, credentials);
             if (resolvedArtifact != null) {
                 return resolvedArtifact;
             }
         }
         for (Map<String, IArtifactResolver> resolverMap : resolverRegistry.getInstancesByPlugins().values()) {
             for (IArtifactResolver resolver : resolverMap.values()) {
-                Path resolvedArtifact = resolver.resolveArtifact(artifactReference, repositoryURL, repositoryType, credentials);
+                String resolvedArtifact = resolver.resolveArtifact(artifactReference, repositoryURL, repositoryType, credentials);
                 if (resolvedArtifact != null) {
                     return resolvedArtifact;
                 }

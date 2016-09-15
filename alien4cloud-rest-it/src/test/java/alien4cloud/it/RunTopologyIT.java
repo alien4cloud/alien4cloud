@@ -20,9 +20,10 @@ import org.junit.runner.RunWith;
         // "classpath:alien/rest/topology/replace_node_template.feature"
         // "classpath:alien/rest/topology/roles_on_topologies.feature"
         // "classpath:alien/rest/topology/scaling.feature"
-        // "classpath:alien/rest/topology/validate_topology.feature"
-        // "classpath:alien/rest/topology/validate_topology_with_meta_properties.feature"
-        "classpath:alien/rest/topology/topology_composition.feature"
+//         "classpath:alien/rest/topology/validate_topology.feature",
+//         "classpath:alien/rest/topology/validate_topology_with_meta_properties.feature",
+        "classpath:alien/rest/topology/validate_deployment_topology.feature",
+//        "classpath:alien/rest/topology/topology_composition.feature"
         // "classpath:alien/rest/topology/workflow_edition.feature"
         //
 }, format = { "pretty", "html:target/cucumber/topology", "json:target/cucumber/cucumber-topology.json" })

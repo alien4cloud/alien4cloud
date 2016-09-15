@@ -31,10 +31,8 @@ public class ArtifactPostProcessor implements IPostProcessor<AbstractArtifact> {
     @Override
     public void process(AbstractArtifact instance) {
         ArchiveRoot archiveRoot = ParsingContextExecution.getRootObj();
-        // The artifact is in the archive only and only if an artifact reference is defined
-        // Without artifact reference, it means that Alien's user will upload later the binary
         // If archive name is already defined (by the type for example then don't override it)
-        if (StringUtils.isNotBlank(instance.getArtifactRef()) && StringUtils.isBlank(instance.getArchiveName())) {
+        if (StringUtils.isBlank(instance.getArchiveName())) {
             instance.setArchiveName(archiveRoot.getArchive().getName());
             instance.setArchiveVersion(archiveRoot.getArchive().getVersion());
         }
@@ -47,7 +45,8 @@ public class ArtifactPostProcessor implements IPostProcessor<AbstractArtifact> {
             referencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance.getArtifactType(), ArtifactType.class));
         }
         if (instance.getArtifactRepository() != null) {
-            RepositoryDefinition repositoryDefinition = archiveRoot.getRepositories().get(instance.getArtifactRepository());
+            RepositoryDefinition repositoryDefinition = archiveRoot.getRepositories() != null
+                    ? archiveRoot.getRepositories().get(instance.getArtifactRepository()) : null;
             if (repositoryDefinition == null) {
                 ParsingContextExecution.getParsingErrors().add(new ParsingError(ErrorCode.UNKNOWN_REPOSITORY, "Implementation artifact", node.getStartMark(),
                         "Repository definition not found", node.getEndMark(), instance.getArtifactRepository()));

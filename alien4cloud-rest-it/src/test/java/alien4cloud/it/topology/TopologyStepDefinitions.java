@@ -36,9 +36,8 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyUtils;
-import alien4cloud.topology.task.RequirementToSatisfy;
-import alien4cloud.topology.task.TaskCode;
-import alien4cloud.topology.task.TaskLevel;
+import alien4cloud.topology.TopologyValidationResult;
+import alien4cloud.topology.task.*;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.utils.MapUtil;
 import cucumber.api.DataTable;
@@ -103,8 +102,7 @@ public class TopologyStepDefinitions {
     public void There_is_a_with_element_name_and_archive_version(String elementType, String elementId, String archiveVersion) throws Throwable {
         String componentId = elementId.concat(":").concat(archiveVersion);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/components/" + componentId));
-        AbstractToscaType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), WORDS_TO_CLASSES.get(elementType), Context.getJsonMapper())
-                .getData();
+        AbstractToscaType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), WORDS_TO_CLASSES.get(elementType), Context.getJsonMapper()).getData();
         assertNotNull(idnt);
         assertEquals(componentId, idnt.getId());
     }
@@ -114,8 +112,7 @@ public class TopologyStepDefinitions {
             throws Throwable {
         String componentId = elementId.concat(":").concat(archiveVersion);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/components/" + componentId));
-        AbstractToscaType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), WORDS_TO_CLASSES.get(elementType), Context.getJsonMapper())
-                .getData();
+        AbstractToscaType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), WORDS_TO_CLASSES.get(elementType), Context.getJsonMapper()).getData();
         assertNotNull(idnt);
         assertEquals(componentId, idnt.getId());
     }
@@ -290,6 +287,7 @@ public class TopologyStepDefinitions {
     public void i_create_a_relationshiptype_in_an_archive_name_version_with_properties(String elementId, String archiveName, String archiveVersion,
             DataTable properties) throws Throwable {
         RelationshipType relationship = new RelationshipType();
+
         relationship.setArchiveName(archiveName);
         relationship.setArchiveVersion(archiveVersion);
         relationship.setElementId(elementId);
@@ -361,8 +359,7 @@ public class TopologyStepDefinitions {
             String nodeTemp = (String) MapUtil.get(task, "nodeTemplateName");
             List<Object> suggestedNodeTypes = (List<Object>) MapUtil.get(task, "suggestedNodeTypes");
             if (nodeTemp.equals(nodeTemplateName) && suggestedNodeTypes != null) {
-                return JsonUtil.toArray(Context.getInstance().getJsonMapper().writeValueAsString(suggestedNodeTypes), NodeType.class,
-                        Context.getJsonMapper());
+                return JsonUtil.toArray(Context.getInstance().getJsonMapper().writeValueAsString(suggestedNodeTypes), NodeType.class, Context.getJsonMapper());
             }
         }
         return null;
@@ -574,4 +571,27 @@ public class TopologyStepDefinitions {
         }
     }
 
+    private boolean missingArtifactsContain(List<AbstractTask> taskList, String nodeName, String artifactName) {
+        for (AbstractTask task : taskList) {
+            if (task instanceof ArtifactTask) {
+                ArtifactTask artifactTask = (ArtifactTask) task;
+                if (artifactTask.getArtifactName().equals(artifactName) && artifactTask.getNodeTemplateName().equals(nodeName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @And("^the nodes with missing artifacts should be$")
+    public void theNodesWithMissingArtifactsShouldBe(DataTable expectedMissingArtifacts) throws Throwable {
+        RestResponse<TopologyValidationResult> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyValidationResult.class,
+                Context.getJsonMapper());
+        assertNotNull(restResponse.getData());
+        List<AbstractTask> taskList = restResponse.getData().getTaskList();
+        for (List<String> expected : expectedMissingArtifacts.raw()) {
+            assertTrue("Task list does not contain [" + expected.get(0) + " , " + expected.get(1) + "]",
+                    missingArtifactsContain(taskList, expected.get(0), expected.get(1)));
+        }
+    }
 }
