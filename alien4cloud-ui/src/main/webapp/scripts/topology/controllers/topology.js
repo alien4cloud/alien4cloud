@@ -27,7 +27,6 @@ define(function (require) {
   require('scripts/topology/controllers/topology_editor_properties');
   require('scripts/topology/controllers/topology_editor_relationships');
   require('scripts/topology/controllers/topology_editor_substitution');
-  require('scripts/topology/controllers/topology_editor_yaml');
 
   require('scripts/topology/controllers/search_relationship');
 

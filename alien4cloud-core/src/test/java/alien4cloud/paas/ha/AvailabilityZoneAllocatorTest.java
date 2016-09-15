@@ -13,8 +13,8 @@
 //import alien4cloud.model.cloud.AvailabilityZone;
 //import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 //import alien4cloud.model.components.AbstractPropertyValue;
-//import alien4cloud.model.components.ScalarPropertyValue;
-//import alien4cloud.model.topology.NodeTemplate;
+//import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+//import org.alien4cloud.tosca.model.templates.NodeTemplate;
 //import alien4cloud.paas.model.PaaSNodeTemplate;
 //import alien4cloud.paas.model.PaaSTopology;
 //import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
