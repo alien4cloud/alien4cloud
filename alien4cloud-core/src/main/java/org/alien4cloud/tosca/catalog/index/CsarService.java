@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.common.AlienConstants;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import org.alien4cloud.tosca.model.CSARDependency;
@@ -52,6 +53,29 @@ public class CsarService implements ICsarDependencyLoader {
     private CsarFileRepository alienRepository;
     @Inject
     private ApplicationService applicationService;
+
+    /**
+     * Get all topologies matching the given set of filters.
+     *
+     * @param filters The filters to query the topologies.
+     * @return Return the matching
+     */
+    public long count(Map<String, String[]> filters, String archiveName) {
+        return csarDAO.buildQuery(Csar.class)
+                .setFilters(fromKeyValueCouples(filters, "workspace", AlienConstants.GLOBAL_WORKSPACE_ID, "archiveName", archiveName)).count();
+    }
+
+    /**
+     * Get all topologies matching the given set of filters.
+     *
+     * @param filters The filters to query the topologies.
+     * @return Return the matching
+     */
+    public Csar[] getAll(Map<String, String[]> filters, String archiveName) {
+        return csarDAO.buildQuery(Csar.class)
+                .setFilters(fromKeyValueCouples(filters, "workspace", AlienConstants.GLOBAL_WORKSPACE_ID, "archiveName", archiveName)).prepareSearch()
+                .search(0, Integer.MAX_VALUE).getData();
+    }
 
     /**
      * Get a cloud service archive.
