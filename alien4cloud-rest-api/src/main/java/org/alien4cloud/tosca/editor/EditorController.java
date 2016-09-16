@@ -45,7 +45,7 @@ public class EditorController {
      * @param operation The operation to execute
      */
     @ApiIgnore
-    @RequestMapping(value = "/{topologyId}/execute", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/execute", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<TopologyDTO> execute(@PathVariable String topologyId, @RequestBody @Valid AbstractEditorOperation operation) {
         TopologyDTO topologyDTO = editorService.execute(topologyId, operation);
@@ -62,7 +62,7 @@ public class EditorController {
      */
     @ApiIgnore
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/{topologyId}/undo", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/undo", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> undoRedo(@PathVariable String topologyId, @RequestParam("at") int at,
             @RequestParam("lastOperationId") String lastOperationId) {
         if (lastOperationId != null && "null".equals(lastOperationId)) {
@@ -83,7 +83,7 @@ public class EditorController {
      */
     @ApiIgnore
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/{topologyId}/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> upload(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId,
             @RequestParam("path") String path, @RequestParam(value = "file") MultipartFile file) throws IOException {
         if (lastOperationId != null && "null".equals(lastOperationId)) {
@@ -107,7 +107,7 @@ public class EditorController {
      */
     @ApiIgnore
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/{topologyId}/file/{artifactId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/file/{artifactId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<InputStreamResource> downloadTempFile(@PathVariable String topologyId, @PathVariable String artifactId) {
         editorService.checkAuthorization(topologyId);
 
@@ -131,7 +131,7 @@ public class EditorController {
      */
     @ApiIgnore
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/{topologyId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> save(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId) {
         if (lastOperationId != null && "null".equals(lastOperationId)) {
             lastOperationId = null;
@@ -143,7 +143,7 @@ public class EditorController {
 
     @ApiIgnore
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/{topologyId}/history", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/history", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<List<SimpleGitHistoryEntry>> history(@PathVariable String topologyId, @RequestParam("from") int from,
             @RequestParam("count") int count) {
         List<SimpleGitHistoryEntry> historyEntries = editorService.history(topologyId, from, count);
@@ -152,7 +152,7 @@ public class EditorController {
 
     @ApiOperation(value = "Override the topology archive with the one provided as a parameter.", notes = "This operation will fail if the topology is under edition (meaning a context with some operations exists). The topology will be fully overriden with the new archive content (if valid) and a local commit will be dispatched.")
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/{topologyId}/override", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/override", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> updateTopologyArchive(@PathVariable String topologyId, @RequestParam(value = "file") MultipartFile file) throws IOException {
         try (InputStream inputStream = file.getInputStream()) {
             editorService.override(topologyId, inputStream);
@@ -168,7 +168,7 @@ public class EditorController {
      */
     @ApiOperation(value = "Recovers the topology after a dependency have change. This will apply the registered recovery operations and save the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/{topologyId}/recover", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/recover", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> recover(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId) {
         if (lastOperationId != null && "null".equals(lastOperationId)) {
             lastOperationId = null;
@@ -184,7 +184,7 @@ public class EditorController {
      * @return A topology DTO with the updated topology.
      */
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/{topologyId}/reset", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/reset", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> reset(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId) {
         if (lastOperationId != null && "null".equals(lastOperationId)) {
             lastOperationId = null;
