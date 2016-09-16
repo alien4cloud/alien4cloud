@@ -229,8 +229,7 @@ define(function (require) {
 
       // Initial load of the topology
       //
-      // topologyServices.dao.get({ topologyId: $scope.topologyId },
-      topologyServices.dao.get({ topologyId: 'Alien4Cloud:0.1.0-SNAPSHOT:ALIEN_GLOBAL_WORKSPACE' },
+       topologyServices.dao.get({ topologyId: $scope.topologyId },
         function(result) {
           if(_.undefined(result.error)){
             $scope.refreshTopology(result.data, null, true);

@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.catalog.index;
 
 import alien4cloud.common.AlienConstants;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.version.Version;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
@@ -24,6 +25,8 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
 
     @Inject
     private CsarService csarService;
+    @Inject
+    private WorkflowsBuilderService workflowBuilderService;
 
     @Override
     protected Topology[] getArray(int size) {
@@ -64,6 +67,7 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
         topology.setArchiveVersion(csar.getVersion());
         topology.setNestedVersion(new Version(topology.getArchiveVersion()));
         topology.setWorkspace(csar.getWorkspace());
+        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
 
         alienDAO.save(csar);
         alienDAO.save(topology);

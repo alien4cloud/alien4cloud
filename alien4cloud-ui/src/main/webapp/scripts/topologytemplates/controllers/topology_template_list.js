@@ -125,7 +125,14 @@ define(function (require) {
           createTopologyTemplateResource.create([], angular.toJson(topologyTemplate), function(response) {
             // Response contains topology id
             if (response.data !== '') {
-              $scope.openTopologyTemplate(response.data);
+            // the id is in form: archiveName:archiveVersion:workspace
+            //we only need archiveName and archiveVersion
+              var tokens = response.data.trim().split(':');
+              if (tokens.length > 1) {
+                var archiveName = tokens[0];
+                var archiveVersion = tokens[1];
+                $scope.openTopology(archiveName, archiveVersion);
+              }
             }
           });
         });
