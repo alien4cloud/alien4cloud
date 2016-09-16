@@ -3,7 +3,7 @@
   for="'NAVBAR.MENU_COMPONENTS'"
   data="searchResult.data">
 </empty-place-holder>
-<ul class="list-group" style="overflow: auto; margin-bottom: 0px; {{listHeight}}">
+<ul class="list-group" style="overflow: auto; margin-bottom: 0px; height: {{listHeight}}px;">
   <li class="list-group-item clickable-media overflowmedia" ng-repeat="component in searchResult.data">
     <div class="media" ng-mouseover="setComponent(component)" id="li_{{component.id}}" alien-draggable drag-enabled="dragAndDropEnabled" drag-data="component" ng-click="handleItemSelection(component)">
       <img class="pull-left" ng-src="img?id={{getIcon(component.tags)}}&quality=QUALITY_64" />

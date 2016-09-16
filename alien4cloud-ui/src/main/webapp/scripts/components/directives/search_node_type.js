@@ -23,8 +23,8 @@ define(function (require) {
         scope.queryComponentType = 'NODE_TYPE';
 
         function resize() {
-          var listHeight = scope.heightInfo.height - element.offset().top - 74;
-          scope.listHeight = scope.globalContext ? 'height: ' + listHeight + 'px' : '';
+          scope.searchHeight = scope.heightInfo.height - element.offset().top -2;
+          scope.listHeight = scope.searchHeight - 72;
         }
         scope.$watch('heightInfo', function() {
           resize();

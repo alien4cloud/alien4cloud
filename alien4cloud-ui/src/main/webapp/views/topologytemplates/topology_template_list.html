@@ -19,6 +19,9 @@
   <div class="row" style="margin-top: 10px;">
       <div class="col-md-3">
           <facet-search-panel search-url="rest/latest/catalog/topologies/search"
+                              page-size="20"
+                              max-page-count="10"
+                              is-paginated-api="false"
                               filter-prefix="TOPOLOGY."
                               on-search="onSearch(searchConfig)">
           </facet-search-panel>

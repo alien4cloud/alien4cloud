@@ -13,6 +13,9 @@ define(function (require) {
       controller: 'FacetSearchPanelController',
       scope: {
         searchUrl: '@',
+        isPaginatedApi: '@',
+        pageSize: '@',
+        maxPageCount: '@',
         filterPrefix: '@',
         onSearch: '&'
       }
@@ -65,9 +68,8 @@ define(function (require) {
       onSearchCompleted: onSearchCompleted
     };
 
-    $scope.searchService = searchServiceFactory($scope.searchUrl, false, $scope.queryProvider, 10, 10);
+    $scope.searchService = searchServiceFactory($scope.searchUrl, false, $scope.queryProvider, $scope.pageSize, $scope.maxPageCount, $scope.isPaginatedApi);
     $scope.searchService.filtered(true);
     $scope.doSearch();
-
   }]);
 });

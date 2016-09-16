@@ -19,7 +19,7 @@ define(function (require) {
   modules.get('a4c-components', ['a4c-tosca', 'a4c-search']).controller('alienSearchComponentCtrl', ['$scope', '$filter', 'searchContext', '$alresource', '$resource', 'toscaService', 'searchServiceFactory', '$state', '$translate',
    function($scope, $filter, searchContext, $alresource, $resource, toscaService, searchServiceFactory, $state, $translate) {
     var alienInternalTags = ['icon'];
-    $scope.searchService = searchServiceFactory('rest/latest/components/search', false, $scope, 20, 10);
+    $scope.searchService = searchServiceFactory('rest/latest/components/search', false, $scope, 20, 10, false);
     $scope.searchService.filtered(true);
 
     var badges = $scope.badges || [];
@@ -116,7 +116,7 @@ define(function (require) {
     }
 
     /*update a search*/
-    function updateSearch(filters) {
+    function updateSearch(filters, force) {
       /*
        Search api expect a json object matching the following pattern:
        {
@@ -145,17 +145,17 @@ define(function (require) {
         'type': $scope.queryComponentType
       };
       $scope.filters = objectFilters;
-      $scope.searchService.search(null, searchRequestObject);
+      $scope.searchService.search(null, searchRequestObject, !force);
     }
 
     /*trigger a new search, when params are changed*/
-    $scope.doSearch = function() {
+    $scope.doSearch = function(force) {
       var allFacetFilters = [];
       allFacetFilters.push.apply(allFacetFilters, $scope.facetFilters);
       if (angular.isDefined($scope.hiddenFilters)) {
         allFacetFilters.push.apply(allFacetFilters, $scope.hiddenFilters);
       }
-      updateSearch(allFacetFilters);
+      updateSearch(allFacetFilters, force);
     };
 
     //on search completed
@@ -197,10 +197,8 @@ define(function (require) {
 
     /*Remove a facet filter*/
     $scope.removeFilter = function(filterToRemove) {
-
       // Remove the selected filter
       _.remove($scope.facetFilters, filterToRemove);
-
       // Search update with new filters list
       $scope.doSearch();
     };
@@ -234,7 +232,7 @@ define(function (require) {
 
     //watch the bound data
     $scope.$watch('refresh', function() {
-      $scope.doSearch();
+      $scope.doSearch(true);
     });
 
     $scope.heightStyle = function() {
