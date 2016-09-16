@@ -1,6 +1,7 @@
 package org.alien4cloud.tosca.catalog.index;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
 import java.util.Date;
 import java.util.List;
@@ -11,6 +12,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import alien4cloud.common.AlienConstants;
+import alien4cloud.dao.FilterUtil;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import org.alien4cloud.tosca.model.CSARDependency;
@@ -62,7 +64,7 @@ public class CsarService implements ICsarDependencyLoader {
      */
     public long count(Map<String, String[]> filters, String archiveName) {
         return csarDAO.buildQuery(Csar.class)
-                .setFilters(fromKeyValueCouples(filters, "workspace", AlienConstants.GLOBAL_WORKSPACE_ID, "archiveName", archiveName)).count();
+                .setFilters(fromKeyValueCouples(filters, "workspace", AlienConstants.GLOBAL_WORKSPACE_ID, "name", archiveName)).count();
     }
 
     /**
@@ -73,7 +75,7 @@ public class CsarService implements ICsarDependencyLoader {
      */
     public Csar[] getAll(Map<String, String[]> filters, String archiveName) {
         return csarDAO.buildQuery(Csar.class)
-                .setFilters(fromKeyValueCouples(filters, "workspace", AlienConstants.GLOBAL_WORKSPACE_ID, "archiveName", archiveName)).prepareSearch()
+                .setFilters(fromKeyValueCouples(filters, "workspace", AlienConstants.GLOBAL_WORKSPACE_ID, "name", archiveName)).prepareSearch()
                 .search(0, Integer.MAX_VALUE).getData();
     }
 

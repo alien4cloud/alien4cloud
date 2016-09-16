@@ -51,7 +51,7 @@ public class TopologyController {
      *         to his {@link NodeTemplate}s
      */
     @ApiOperation(value = "Retrieve a topology from it's id.", notes = "Returns a topology with it's details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<TopologyDTO> get(@PathVariable String topologyId) {
         Topology topology = topologyServiceCore.getOrFail(topologyId);
