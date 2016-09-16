@@ -17,33 +17,62 @@
   </div>
 
   <div class="row" style="margin-top: 10px;">
-      <div class="col-md-3">
-          <facet-search-panel search-url="rest/latest/catalog/topologies/search"
-                              page-size="20"
-                              max-page-count="10"
-                              is-paginated-api="false"
-                              filter-prefix="TOPOLOGY."
-                              on-search="onSearch(searchConfig)">
-          </facet-search-panel>
-      </div>
-      <div class="col-md-9">
-          <div class="well">
-            <div ng-repeat="topologyTemplate in searchConfig.result.data" class="alien-table-row">
-              <div id="row_{{topologyTemplate.name}}" style="margin-top: -4px; padding-top: 8px;" class="row clickable-media" ng-click="openTopologyTemplate(topologyTemplate.id)">
-                <div class="col-md-4"><i class="pull-left media-object fa fa-sitemap fa-2x"></i>{{topologyTemplate.archiveName}}</div>
-                <div class="col-md-6" class="">{{topologyTemplate.description}}</div>
-                <div class="col-md-2" style="width: 130px;" ng-if="isArchitect" style="width: 115px;">
-                  FIXME: we don't want delete here but a link to csar detail (this is where to delete).
+    <div class="col-md-3">
+        <facet-search-panel search-url="rest/latest/catalog/topologies/search"
+                            page-size="20"
+                            max-page-count="10"
+                            is-paginated-api="false"
+                            filter-prefix="TOPOLOGY."
+                            on-search="onSearch(searchConfig)">
+        </facet-search-panel>
+    </div>
+    <div class="col-md-9">
+      <div class="table-responsive large-data-container" style="max-height:{{tableMaxHeight}}px; overflow-y:auto;" ng-if="searchConfig.result.data.length > 0">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th></th>
+              <th>{{ 'COMMON.NAME' | translate}}</th>
+              <th>{{ 'COMMON.VERSION' | translate}}</th>
+              <th>{{ 'COMMON.DESCRIPTION' | translate}}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="topology in searchConfig.result.data" ng-click="openTopology(csar.id)" id="topology_{{csar.id}}" class="clickable">
+              <td>
+                <i class="pull-left media-object fa fa-sitemap fa-2x"></i>
+              </td>
+              <td>{{topology.archiveName}}</td>
+              <td>
+                <div class="dropdown">
+                  <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" ng-click="fetchVersions(topology)">
+                     {{topology.archiveVersion}} <i class="fa fa-caret-down"></i>
+                  </button>
+                  <ul ng-if="!topology.allVersions" class="dropdown-menu" role="menu" ng-init="itemIdex = $index">
+                    <li class="option-selected"><i class="fa fa-spin fa-spinner"></i> Loading</li>
+                  </ul>
+                  <ul ng-if="topology.allVersions" class="dropdown-menu" role="menu">
+                    <li ng-repeat="version in topology.allVersions" class="option-selected"><a ng-click="selectVersion(topology, version, $event)">{{version.version}}</a></li>
+                  </ul>
                 </div>
-              </div>
-            </div>
+              </td>
+              <td>{{topology.description || '---' }}</td>
+              <td>
+                <button class="btn btn-default pull-right" ng-click="openCsar(topology.id, $event)" tooltip="{{'COMPONENTS.ARCHIVE' | translate}}">
+                  <i class="fa fa-archive"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
-            <empty-place-holder
-                    for="'TEMPLATE.BREADCRUMB.TEMPLATE_LIST'"
-                    data="searchConfig.result.data">
-            </empty-place-holder>
-          </div>
-          <pagination-directive pagination-info="searchConfig.service.pagination"/>
+        <empty-place-holder
+                for="'TEMPLATE.BREADCRUMB.TEMPLATE_LIST'"
+                data="searchConfig.result.data">
+        </empty-place-holder>
+        <pagination-directive pagination-info="searchConfig.service.pagination"/>
       </div>
+    </div>
   </div>
 </div>

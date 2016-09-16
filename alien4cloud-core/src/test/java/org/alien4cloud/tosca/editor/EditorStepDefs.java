@@ -2,10 +2,8 @@ package org.alien4cloud.tosca.editor;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.components.CSARSource;
-import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.security.model.User;
 import alien4cloud.topology.TopologyDTO;
-import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
@@ -61,12 +59,6 @@ public class EditorStepDefs {
     @Inject
     private EditionContextManager editionContextManager;
     @Inject
-    private TopologyServiceCore topologyServiceCore;
-    @Inject
-    private WorkflowsBuilderService workflowBuilderService;
-    @Inject
-    private EditorTopologyRecoveryHelperService recoveryHelper;
-    @Inject
     private CsarService csarService;
     @Inject
     private TopologyCatalogService catalogService;
@@ -76,6 +68,7 @@ public class EditorStepDefs {
     private EvaluationContext topologyEvaluationContext;
     private EvaluationContext dtoEvaluationContext;
     private EvaluationContext exceptionEvaluationContext;
+    private EvaluationContext csarEvaluationContext;
 
     private Exception thrownException;
 
@@ -111,6 +104,18 @@ public class EditorStepDefs {
         user.setEmail("user@fastco");
         Authentication auth = new TestAuth(user, role);
         SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+    @When("^I get the archive with name \"([^\"]*)\" and version \"([^\"]*)\"$")
+    public void i_Get_The_Archive_With_Name_And_Version(String name, String version) throws Throwable {
+        Csar csar = csarService.get(name, version);
+        csarEvaluationContext = new StandardEvaluationContext(csar);
+    }
+
+    @Then("^The csar SPEL expression \"([^\"]*)\" should return \"([^\"]*)\"$")
+    public void the_Csar_SPEL_Expression_Should_Return(String spelExpression, String expected) throws Throwable {
+        Object result = evaluateExpression(csarEvaluationContext, spelExpression);
+        assertSpelResult(expected, result, spelExpression);
     }
 
     private static class TestAuth extends UsernamePasswordAuthenticationToken {
@@ -204,6 +209,7 @@ public class EditorStepDefs {
     public void i_create_an_empty_topology_template_version(String topologyTemplateName, String version) throws Throwable {
         Topology topology = catalogService.createTopologyAsTemplate(topologyTemplateName, null, version);
         topologyIds.addLast(topology.getId());
+        topologyEvaluationContext = new StandardEvaluationContext(topology);
     }
 
     @Given("^I execute the operation on the topology number (\\d+)$")

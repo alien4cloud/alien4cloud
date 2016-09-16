@@ -32,8 +32,7 @@
               <div class="btn-group btn-group-xs">
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="{{component.id}}_vfetch"
                   ng-click="fetchElementVersion(component)">
-                  {{component.selectedVersion}}
-                  <span class="caret"></span>
+                  {{component.selectedVersion}} <i class="fa fa-caret-down"></i>
                 </button>
                 <ul ng-if="!component.olderVersions" class="dropdown-menu dropdown-menu-right" role="menu" ng-init="itemIdex = $index">
                   <li class="option-selected"><i class="fa fa-spin fa-spinner"></i> Loading</li>

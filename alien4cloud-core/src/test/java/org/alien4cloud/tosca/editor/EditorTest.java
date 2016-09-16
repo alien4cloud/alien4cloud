@@ -46,6 +46,8 @@ import cucumber.api.junit.Cucumber;
         // "src/test/resources/org/alien4cloud/tosca/editor/features/workflow/rename_workflow.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/workflow/reinitialize_workflow.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/topology_recovery/topology_recovery.feature"
+
+        "src/test/resources/org/alien4cloud/tosca/catalog/features/create_topology_template.feature"
         //
 })
 public class EditorTest {

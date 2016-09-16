@@ -177,7 +177,7 @@ define(function (require) {
       if(_.defined(component.olderVersions)) {
         return;
       }
-      versionFetchResource.get({elementId: component.elementId}, function(result) {
+      versionFetchResource.get({elementId: component.elementId, toscaType: $scope.queryComponentType},function(result) {
         if(_.defined(result.error)) {
           console.error('Encountered error while fetching element versions', component.elementId, result.error);
         } else {

@@ -1,5 +1,7 @@
 package org.alien4cloud.tosca.catalog.index;
 
+import alien4cloud.common.AlienConstants;
+import alien4cloud.dao.FilterUtil;
 import alien4cloud.dao.IAggregationQueryManager;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
@@ -37,9 +39,11 @@ public abstract class AbstractToscaIndexSearchService<T> {
                 .addSort(new FieldSortBuilder("nestedVersion.incrementalVersion").order(SortOrder.DESC))
                 .addSort(new FieldSortBuilder("nestedVersion.qualifier").order(SortOrder.DESC).missing("_first"));
 
-        AggregationBuilder aggregation = AggregationBuilders.terms("query_aggregation").field(getAggregationField()).size(size).subAggregation(topHitAggregation);
+        AggregationBuilder aggregation = AggregationBuilders.terms("query_aggregation").field(getAggregationField()).size(size)
+                .subAggregation(topHitAggregation);
 
-        FacetedSearchResult<? extends T> searchResult = alienDAO.buildSearchQuery(clazz, query).setFilters(filters).prepareSearch()
+        FacetedSearchResult<? extends T> searchResult = alienDAO.buildSearchQuery(clazz, query)
+                .setFilters(FilterUtil.singleKeyFilter(filters, "workspace", AlienConstants.GLOBAL_WORKSPACE_ID)).prepareSearch()
                 .setFetchContext(FetchContext.SUMMARY, topHitAggregation).facetedSearch(new IAggregationQueryManager() {
                     @Override
                     public AggregationBuilder getQueryAggregation() {
