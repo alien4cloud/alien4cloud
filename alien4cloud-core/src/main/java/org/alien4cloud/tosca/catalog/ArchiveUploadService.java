@@ -52,7 +52,7 @@ public class ArchiveUploadService {
     @ToscaContextual
     public ParsingResult<Csar> upload(Path path, CSARSource csarSource) throws ParsingException, CSARVersionAlreadyExistsException, CSARUsedInActiveDeployment {
         // parse the archive.
-        ParsingResult<ArchiveRoot> parsingResult = parser.parse(path);
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseWithExistingContext(path);
 
         final ArchiveRoot archiveRoot = parsingResult.getResult();
         if (archiveRoot.hasToscaTopologyTemplate()) {

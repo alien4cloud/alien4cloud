@@ -124,8 +124,8 @@ public class ArchiveIndexer {
                     }
 
                     @Override
-                    public <T extends AbstractToscaType> T findElement(Class<T> clazz, String id) {
-                        return ToscaContext.get(clazz, id);
+                    public <T extends AbstractToscaType> T findElement(Class<T> clazz, String elementId) {
+                        return ToscaContext.get(clazz, elementId);
                     }
                 });
         workflowBuilderService.initWorkflows(topologyContext);

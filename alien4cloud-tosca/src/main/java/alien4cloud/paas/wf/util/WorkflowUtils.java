@@ -34,8 +34,7 @@ public class WorkflowUtils {
         } else {
             if (nodeTemplate.getRelationships() != null) {
                 for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
-                    RelationshipType relationshipType = (RelationshipType) topologyContext.findElement(RelationshipType.class,
-                            relationshipTemplate.getType());
+                    RelationshipType relationshipType = (RelationshipType) topologyContext.findElement(RelationshipType.class, relationshipTemplate.getType());
                     if (isOfType(relationshipType, NormativeRelationshipConstants.HOSTED_ON)) {
                         return getRootHostNode(relationshipTemplate.getTarget(), topologyContext);
                     }
@@ -75,8 +74,7 @@ public class WorkflowUtils {
         NodeTemplate nodeTemplate = topologyContext.getTopology().getNodeTemplates().get(nodeId);
         if (nodeTemplate != null && nodeTemplate.getRelationships() != null) {
             for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
-                RelationshipType relationshipType = (RelationshipType) topologyContext.findElement(RelationshipType.class,
-                        relationshipTemplate.getType());
+                RelationshipType relationshipType = topologyContext.findElement(RelationshipType.class, relationshipTemplate.getType());
                 if (isOfType(relationshipType, NormativeRelationshipConstants.HOSTED_ON)) {
                     return relationshipTemplate.getTarget();
                 }
@@ -90,7 +88,7 @@ public class WorkflowUtils {
      *         FIXME: should we browse hierarchy ? what about order ?
      */
     public static Operation getOperation(String nodeTypeName, String interfaceName, String operationName, TopologyContext topologyContext) {
-        NodeType nodeType = (NodeType) topologyContext.findElement(NodeType.class, nodeTypeName);
+        NodeType nodeType = topologyContext.findElement(NodeType.class, nodeTypeName);
         if (nodeType == null) {
             return null;
         }
@@ -175,7 +173,7 @@ public class WorkflowUtils {
         if (nodeTemplate == null) {
             return false;
         }
-        NodeType nodeType = (NodeType) topologyContext.findElement(NodeType.class, nodeTemplate.getType());
+        NodeType nodeType = topologyContext.findElement(NodeType.class, nodeTemplate.getType());
         if (nodeType.isAbstract() || nodeType.getSubstitutionTopologyId() != null) {
             return true;
         }

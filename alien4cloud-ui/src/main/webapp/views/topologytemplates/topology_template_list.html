@@ -30,7 +30,7 @@
           <div class="well">
             <div ng-repeat="topologyTemplate in searchConfig.result.data" class="alien-table-row">
               <div id="row_{{topologyTemplate.name}}" style="margin-top: -4px; padding-top: 8px;" class="row clickable-media" ng-click="openTopologyTemplate(topologyTemplate.id)">
-                <div class="col-md-4"><i class="pull-left media-object fa fa-sitemap fa-2x"></i>{{topologyTemplate.name}}</div>
+                <div class="col-md-4"><i class="pull-left media-object fa fa-sitemap fa-2x"></i>{{topologyTemplate.archiveName}}</div>
                 <div class="col-md-6" class="">{{topologyTemplate.description}}</div>
                 <div class="col-md-2" style="width: 130px;" ng-if="isArchitect" style="width: 115px;">
                   FIXME: we don't want delete here but a link to csar detail (this is where to delete).

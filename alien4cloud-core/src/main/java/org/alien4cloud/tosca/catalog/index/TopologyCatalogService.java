@@ -13,4 +13,9 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
     protected Topology[] getArray(int size) {
         return new Topology[size];
     }
+
+    @Override
+    protected String getAggregationField() {
+        return "archiveName";
+    }
 }

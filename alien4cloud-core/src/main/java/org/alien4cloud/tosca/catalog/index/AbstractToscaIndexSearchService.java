@@ -40,7 +40,7 @@ public abstract class AbstractToscaIndexSearchService<T> {
                 .addSort(new FieldSortBuilder("nestedVersion.incrementalVersion").order(SortOrder.DESC))
                 .addSort(new FieldSortBuilder("nestedVersion.qualifier").order(SortOrder.DESC).missing("_first"));
 
-        AggregationBuilder aggregation = AggregationBuilders.terms("query_aggregation").field("elementId").size(size).subAggregation(topHitAggregation);
+        AggregationBuilder aggregation = AggregationBuilders.terms("query_aggregation").field(getAggregationField()).size(size).subAggregation(topHitAggregation);
 
         FacetedSearchResult<? extends T> searchResult = searchDAO.buildSearchQuery(clazz, query).setFilters(filters).prepareSearch()
                 .setFetchContext(FetchContext.SUMMARY, topHitAggregation).facetedSearch(new IAggregationQueryManager() {
@@ -82,6 +82,8 @@ public abstract class AbstractToscaIndexSearchService<T> {
 
         return searchResult;
     }
+
+    protected abstract String getAggregationField();
 
     protected abstract T[] getArray(int size);
 }

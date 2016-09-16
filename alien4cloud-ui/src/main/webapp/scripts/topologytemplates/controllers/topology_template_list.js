@@ -46,6 +46,10 @@ define(function (require) {
   modules.get('a4c-topology-templates', ['ui.router', 'ui.bootstrap', 'a4c-auth', 'a4c-common']).controller('TopologyTemplateListCtrl',
     ['$scope', '$modal', '$resource', '$state', 'authService',
     function($scope, $modal, $resource, $state, authService) {
+
+      $scope.onSearch = function (searchConfig) {
+        $scope.searchConfig = searchConfig;
+      };
       // API REST Definition
       var createTopologyTemplateResource = $resource('rest/latest/templates/topology', {}, {
         'create': {

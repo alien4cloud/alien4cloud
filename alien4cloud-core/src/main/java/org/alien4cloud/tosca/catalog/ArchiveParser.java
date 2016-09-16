@@ -26,11 +26,23 @@ public class ArchiveParser {
     private ArchivePostProcessor postProcessor;
 
     /**
+     * Parse a TOSCA archive and reuse an existing TOSCA Context. Other methods will create an independent context for the parsing.
+     * Note that a TOSCA Context MUST have been initialized in order to use this method.
+     *
+     * @param archiveFile The archive file to parse.
+     * @return A parsing result that contains the Archive Root and eventual errors and/or warnings.
+     * @throws ParsingException In case of a severe issue while parsing (incorrect yaml, no tosca file etc.)
+     */
+    public ParsingResult<ArchiveRoot> parseWithExistingContext(Path archiveFile) throws ParsingException {
+        return postProcessor.process(archiveFile, toscaArchiveParser.parseWithExistingContext(archiveFile));
+    }
+
+    /**
      * Parse an archive file from a zip.
      *
      * @param archiveFile The archive file currently zipped.
      * @return A parsing result that contains the Archive Root and eventual errors and/or warnings.
-     * @throws ParsingException
+     * @throws ParsingException In case of a severe issue while parsing (incorrect yaml, no tosca file etc.)
      */
     public ParsingResult<ArchiveRoot> parse(Path archiveFile) throws ParsingException {
         return postProcessor.process(archiveFile, toscaArchiveParser.parse(archiveFile));
@@ -42,7 +54,7 @@ public class ArchiveParser {
      * @param archiveFile The archive file currently zipped.
      * @param allowYamlFile If true the archive parser will accept single Yaml template rather than archive.
      * @return A parsing result that contains the Archive Root and eventual errors and/or warnings.
-     * @throws ParsingException
+     * @throws ParsingException In case of a severe issue while parsing (incorrect yaml, no tosca file etc.)
      */
     public ParsingResult<ArchiveRoot> parse(Path archiveFile, boolean allowYamlFile) throws ParsingException {
         return postProcessor.process(archiveFile, toscaArchiveParser.parse(archiveFile, allowYamlFile));
@@ -52,8 +64,8 @@ public class ArchiveParser {
      * Parse an archive from a directory, it's very convenient for internal use and test
      *
      * @param archiveDir the directory which contains the archive
-     * @return the parsing result
-     * @throws ParsingException
+     * @return A parsing result that contains the Archive Root and eventual errors and/or warnings.
+     * @throws ParsingException In case of a severe issue while parsing (incorrect yaml, no tosca file etc.)
      */
     public ParsingResult<ArchiveRoot> parseDir(Path archiveDir) throws ParsingException {
         return postProcessor.process(archiveDir, toscaArchiveParser.parseDir(archiveDir));

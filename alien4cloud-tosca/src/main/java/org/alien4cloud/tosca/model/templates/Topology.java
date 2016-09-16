@@ -140,6 +140,11 @@ public class Topology {
         // Not authorized to set id as it's auto-generated from name and version
     }
 
+    public void setArchiveVersion(String version) {
+        this.archiveVersion = version;
+        this.nestedVersion = new Version(version);
+    }
+
     /**
      * /**
      * Return true if the topology is an empty topology (won't be saved on import).

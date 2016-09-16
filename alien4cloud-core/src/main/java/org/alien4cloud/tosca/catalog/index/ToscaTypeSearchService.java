@@ -155,4 +155,9 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
     protected AbstractToscaType[] getArray(int size) {
         return new AbstractToscaType[size];
     }
+
+    @Override
+    protected String getAggregationField() {
+        return "elementId";
+    }
 }
