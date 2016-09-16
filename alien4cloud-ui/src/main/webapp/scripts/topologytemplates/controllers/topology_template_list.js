@@ -29,9 +29,11 @@ define(function (require) {
   });
   states.forward('topologytemplates', 'topologytemplates.list');
 
-  var NewTopologyTemplateCtrl = ['$scope', '$modalInstance',
-    function($scope, $modalInstance) {
+  var NewTopologyTemplateCtrl = ['$scope', '$modalInstance', 'applicationVersionServices',
+    function($scope, $modalInstance, applicationVersionServices) {
       $scope.topologytemplate = {};
+      $scope.topologytemplate.version = '0.1.0-SNAPSHOT';
+      $scope.versionPattern = applicationVersionServices.pattern;
       $scope.create = function(valid) {
         if (valid) {
           $modalInstance.close($scope.topologytemplate);
@@ -51,7 +53,7 @@ define(function (require) {
         $scope.searchConfig = searchConfig;
       };
       // API REST Definition
-      var createTopologyTemplateResource = $resource('rest/latest/templates/topology', {}, {
+      var createTopologyTemplateResource = $resource('/rest/latest/catalog/topologies/template', {}, {
         'create': {
           method: 'POST',
           isArray: false,
@@ -68,9 +70,9 @@ define(function (require) {
         });
 
         modalInstance.result.then(function(topologyTemplate) {
-          // create a new topologyTemplate from the given name and description.
+          // create a new topologyTemplate from the given name, version and description.
           createTopologyTemplateResource.create([], angular.toJson(topologyTemplate), function(response) {
-            // Response contains topology template id
+            // Response contains topology id
             if (response.data !== '') {
               $scope.openTopologyTemplate(response.data);
             }

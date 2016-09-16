@@ -1,6 +1,6 @@
 package alien4cloud.application;
 
-import alien4cloud.tosca.ToscaUtils;
+import alien4cloud.utils.VersionUtil;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +45,7 @@ public class ApplicationVersionService extends AbtractVersionService<Application
      * @param topologyId The id of the topology to clone for the version's topology.
      */
     public ApplicationVersion createApplicationVersion(String applicationId, String topologyId, String applicationName) {
-        return createVersion(applicationId, topologyId, applicationName, DEFAULT_VERSION_NAME, null, null);
+        return createVersion(applicationId, topologyId, applicationName, VersionUtil.DEFAULT_VERSION_NAME, null, null);
     }
 
     /**

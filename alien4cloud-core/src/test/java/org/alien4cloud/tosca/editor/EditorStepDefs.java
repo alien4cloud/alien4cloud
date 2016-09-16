@@ -1,15 +1,26 @@
 package org.alien4cloud.tosca.editor;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
+import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.model.components.CSARSource;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.security.model.User;
+import alien4cloud.topology.TopologyDTO;
+import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.ParsingResult;
+import alien4cloud.utils.FileUtil;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import cucumber.api.DataTable;
+import cucumber.api.java.Before;
+import cucumber.api.java.en.Given;
+import cucumber.api.java.en.Then;
+import cucumber.api.java.en.When;
+import gherkin.formatter.model.DataTableRow;
+import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
+import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.catalog.index.TopologyCatalogService;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.alien4cloud.tosca.model.Csar;
@@ -30,26 +41,13 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import org.alien4cloud.tosca.catalog.index.CsarService;
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.model.components.CSARSource;
-import alien4cloud.paas.wf.WorkflowsBuilderService;
-import alien4cloud.security.model.User;
-import alien4cloud.topology.TopologyDTO;
-import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.ParsingResult;
-import alien4cloud.utils.FileUtil;
-import cucumber.api.DataTable;
-import cucumber.api.java.Before;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
-import gherkin.formatter.model.DataTableRow;
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 
 @ContextConfiguration("classpath:org/alien4cloud/tosca/editor/application-context-test.xml")
 @Slf4j
@@ -70,6 +68,8 @@ public class EditorStepDefs {
     private EditorTopologyRecoveryHelperService recoveryHelper;
     @Inject
     private CsarService csarService;
+    @Inject
+    private TopologyCatalogService catalogService;
 
     private LinkedList<String> topologyIds = new LinkedList();
 
@@ -197,13 +197,13 @@ public class EditorStepDefs {
 
     @Given("^I create an empty topology template \"(.*?)\"$")
     public void i_create_an_empty_topology_template(String topologyTemplateName) throws Throwable {
-//        Topology topology = new Topology();
-//        topology.setDelegateType(TopologyTemplate.class.getSimpleName().toLowerCase());
-//        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
-//        TopologyTemplate topologyTemplate = topologyTemplateService.createTopologyTemplate(topology, topologyTemplateName, "", null);
-//        topology.setDelegateId(topologyTemplate.getId());
-//        topologyIds.addLast(topology.getId());
+        i_create_an_empty_topology_template_version(topologyTemplateName, null);
+    }
 
+    @Given("^I create an empty topology template \"(.*?)\" version \"(.*?)\"$")
+    public void i_create_an_empty_topology_template_version(String topologyTemplateName, String version) throws Throwable {
+        Topology topology = catalogService.createTopologyAsTemplate(topologyTemplateName, null, version);
+        topologyIds.addLast(topology.getId());
     }
 
     @Given("^I execute the operation on the topology number (\\d+)$")

@@ -4,12 +4,21 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.NotBlank;
 
+/**
+ *
+ * Request to create a new topology
+ */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor(suppressConstructorProperties = true)
 public class CreateTopologyRequest {
 
-    private String topologyId;
+    @NotBlank
+    private String name;
+    private String description;
+    private String version;
+
 }

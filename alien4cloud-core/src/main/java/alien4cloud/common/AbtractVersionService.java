@@ -1,23 +1,5 @@
 package alien4cloud.common;
 
-import java.nio.file.Path;
-import java.util.*;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
-import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.ParsingError;
-import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
-import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
-import org.alien4cloud.tosca.catalog.index.CsarService;
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.templates.AbstractTopologyVersion;
-import org.alien4cloud.tosca.model.templates.Topology;
-
-import com.google.common.collect.Lists;
-
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
@@ -27,9 +9,20 @@ import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
+import com.google.common.collect.Lists;
+import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
+import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
+import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.AbstractTopologyVersion;
+import org.alien4cloud.tosca.model.templates.Topology;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.util.*;
 
 public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
-    protected static final String DEFAULT_VERSION_NAME = "0.1.0-SNAPSHOT";
 
     @Resource(name = "alien-es-dao")
     protected IGenericSearchDAO alienDAO;
