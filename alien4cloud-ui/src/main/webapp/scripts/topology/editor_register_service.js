@@ -3,6 +3,8 @@ define(function (require) {
   'use strict';
   var states = require('states');
 
+  require('scripts/topology/controllers/editor');
+
   return function(prefix) {
     states.state(prefix + '.editor', {
       url: '/editor',

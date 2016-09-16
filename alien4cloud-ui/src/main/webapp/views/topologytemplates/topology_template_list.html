@@ -39,7 +39,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="topology in searchConfig.result.data" ng-click="openTopology(csar.id)" id="topology_{{csar.id}}" class="clickable">
+            <tr ng-repeat="topology in searchConfig.result.data" ng-click="openTopology(topology.archiveName, topology.archiveVersion)" id="topology_{{csar.id}}" class="clickable">
               <td>
                 <i class="pull-left media-object fa fa-sitemap fa-2x"></i>
               </td>

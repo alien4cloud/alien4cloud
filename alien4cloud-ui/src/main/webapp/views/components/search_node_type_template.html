@@ -3,7 +3,7 @@
   <div id="comp-search-side-panel"
     ng-class="{'search-columns search-filter-side':globalContext}">
     <!-- Search result column -->
-    <div style="overflow: auto; margin-bottom: 0px; height: {{searchHeight}}px;">
+    <div style="{{searchStyle}}">
       <div class="well">
         <div style="margin-bottom: 10px;">
           <form role="search" ng-submit="doSearch()">

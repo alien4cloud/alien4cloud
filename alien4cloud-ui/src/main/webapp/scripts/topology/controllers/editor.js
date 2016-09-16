@@ -9,6 +9,7 @@ define(function (require) {
   var _ = require('lodash');
   var angular = require('angular');
 
+  require('scripts/topology/controllers/topology');
   require('scripts/topology/controllers/editor_browser');
   require('scripts/topology/controllers/editor_workflow');
   require('scripts/topology/controllers/editor_history');
@@ -23,9 +24,9 @@ define(function (require) {
   require('scripts/topology/services/topology_editor_events_services');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles', 'cfp.hotkeys']).controller('TopologyEditorCtrl',
-    ['$scope', 'menu', 'layoutService', 'appVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',
+    ['$scope', 'menu', 'layoutService', 'archiveVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',
     'hotkeys','topologyRecoveryServices',// 'topologyEditorEventFactory',
-    function($scope, menu, layoutService, appVersions, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys, topologyRecoveryServices) {// , topologyEditorEventFactory) {
+    function($scope, menu, layoutService, archiveVersions, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys, topologyRecoveryServices) {// , topologyEditorEventFactory) {
       // register for websockets events
       // var registration = topologyEditorEventFactory($scope.topologyId, function(event) {
       //   console.log('received event', event);
@@ -44,7 +45,7 @@ define(function (require) {
       $scope.menu = menu;
       $scope.getShortName = toscaService.simpleName;
       // Manage topology version selection (version is provided as parameter from the template or application)
-      $scope.topologyVersions = appVersions.data;
+      $scope.topologyVersions = archiveVersions.data;
       $scope.versionContext = {};
       $scope.released = false; // this allow to avoid file edition in the ui-ace.
       topoEditVersions($scope);
@@ -227,7 +228,9 @@ define(function (require) {
         });
 
       // Initial load of the topology
-      topologyServices.dao.get({ topologyId: $scope.topologyId },
+      //
+      // topologyServices.dao.get({ topologyId: $scope.topologyId },
+      topologyServices.dao.get({ topologyId: 'Alien4Cloud:0.1.0-SNAPSHOT:ALIEN_GLOBAL_WORKSPACE' },
         function(result) {
           if(_.undefined(result.error)){
             $scope.refreshTopology(result.data, null, true);
@@ -240,7 +243,6 @@ define(function (require) {
               return;
             }
           });
-
         });
     }
   ]);

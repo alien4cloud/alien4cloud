@@ -7,27 +7,56 @@ define(function (require) {
   var angular = require('angular');
   var _ = require('lodash');
 
-  require('scripts/topologytemplates/controllers/topology_template');
-
   // register components root state
-  states.state('topologytemplates', {
-    url: '/topologytemplates',
+  states.state('topologycatalog', {
+    url: '/topologycatalog',
     template: '<ui-view/>',
     menu: {
-      id: 'menu.topologytemplates',
-      state: 'topologytemplates',
+      id: 'menu.topologycatalog',
+      state: 'topologycatalog',
       key: 'NAVBAR.MENU_TOPOLOGY_TEMPLATE',
       icon: 'fa fa-sitemap',
       priority: 20,
       roles: ['ARCHITECT']
     }
   });
-  states.state('topologytemplates.list', {
+  states.state('topologycatalog.list', {
     url: '/list',
     templateUrl: 'views/topologytemplates/topology_template_list.html',
     controller: 'TopologyTemplateListCtrl'
   });
-  states.forward('topologytemplates', 'topologytemplates.list');
+  states.forward('topologycatalog', 'topologycatalog.list');
+
+  // states.state('topologycatalog.csar', {
+  //   url: '/csar',
+  //   templateUrl: 'views/layout/vertical_menu_layout.html',
+  //   controller: 'LayoutCtrl',
+  // });
+
+  var registerService = require('scripts/topology/editor_register_service');
+  registerService('topologycatalog.csar');
+
+  states.state('topologycatalog.csar', {
+    url: '/topology/:archiveName/edit/:archiveVersion',
+    templateUrl: 'views/topology/topology_editor_layout.html',
+    controller: 'TopologyEditorCtrl',
+    resolve: {
+      archiveVersions: ['$alresource', '$stateParams',
+        function($alresource, $stateParams) {
+          // Get all versions of the archive.
+          return $alresource('rest/latest/catalog/topologies/:archiveName/versions')
+            .get({archiveName: $stateParams.archiveName}).$promise;
+        }
+      ],
+      context: ['$stateParams', function ($stateParams) {
+        var context = { topologyId: undefined };
+        if (!_.isEmpty($stateParams.archiveVersion)) {
+          context.versionName = $stateParams.archiveVersion;
+        }
+        return context;
+      }]
+    }
+  });
 
   var NewTopologyTemplateCtrl = ['$scope', '$modalInstance', 'applicationVersionServices',
     function($scope, $modalInstance, applicationVersionServices) {
@@ -56,6 +85,9 @@ define(function (require) {
           event.stopPropagation();
         }
         $state.go('components.csars.csardetail', { csarId: csarId });
+      };
+      $scope.openTopology = function(archiveName, archiveVersion) {
+        $state.go('topologycatalog.csar', { archiveName: archiveName, archiveVersion: archiveVersion });
       };
       var fetchVersionsResource = $alresource('rest/latest/catalog/topologies/:archiveName/versions');
       $scope.fetchVersions = function(topology) {
@@ -99,11 +131,6 @@ define(function (require) {
         });
       };
 
-      $scope.openTopology = function(topologyTemplateId) {
-        $state.go('topologytemplates.detail.topology.editor', {
-          id: topologyTemplateId
-        });
-      };
 
       var isArchitectPromise = authService.hasRole('ARCHITECT');
       if(_.isBoolean(isArchitectPromise)) {

@@ -54,7 +54,7 @@ public class CsarService implements ICsarDependencyLoader {
     /**
      * Get all archive matching the given set of filters.
      *
-     * @param filters The filters to query the topologies.
+     * @param filters The filters to query the archives.
      * @param name The name of the archive.
      * @return Return the matching
      */
@@ -65,7 +65,7 @@ public class CsarService implements ICsarDependencyLoader {
     /**
      * Get all archive matching the given set of filters.
      *
-     * @param filters The filters to query the topologies.
+     * @param filters The filters to query the archives.
      * @param name The name of the archive.
      * @return Return the matching
      */
