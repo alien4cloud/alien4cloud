@@ -200,16 +200,22 @@ public class EditorStepDefs {
 //        topologyIds.addLast(topologyServiceCore.saveTopology(topology));
     }
 
-    @Given("^I create an empty topology template \"(.*?)\"$")
+    @Given("^I create an empty topology template \"([^\"]*)\"$")
     public void i_create_an_empty_topology_template(String topologyTemplateName) throws Throwable {
         i_create_an_empty_topology_template_version(topologyTemplateName, null);
     }
 
-    @Given("^I create an empty topology template \"(.*?)\" version \"(.*?)\"$")
+    @Given("^I create an empty topology template \"([^\"]*)\" version \"([^\"]*)\"$")
     public void i_create_an_empty_topology_template_version(String topologyTemplateName, String version) throws Throwable {
-        Topology topology = catalogService.createTopologyAsTemplate(topologyTemplateName, null, version);
-        topologyIds.addLast(topology.getId());
-        topologyEvaluationContext = new StandardEvaluationContext(topology);
+        try {
+            Topology topology = catalogService.createTopologyAsTemplate(topologyTemplateName, null, version);
+            topologyIds.addLast(topology.getId());
+            topologyEvaluationContext = new StandardEvaluationContext(topology);
+        } catch (Exception e) {
+            log.error("Exception occurred while creating a topology template", e);
+            thrownException = e;
+            exceptionEvaluationContext = new StandardEvaluationContext(e);
+        }
     }
 
     @Given("^I execute the operation on the topology number (\\d+)$")

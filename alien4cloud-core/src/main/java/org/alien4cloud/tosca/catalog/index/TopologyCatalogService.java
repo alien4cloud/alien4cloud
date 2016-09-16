@@ -57,6 +57,7 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
         Csar csar = new Csar(name, StringUtils.isNotBlank(version) ? version : VersionUtil.DEFAULT_VERSION_NAME);
         csar.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
         csar.setDelegateType(ArchiveDelegateType.CATALOG.toString());
+        csar.setNestedVersion(new Version(csar.getVersion()));
         ensureUniqueness(csar.getName(), csar.getVersion());
 
         topology.setArchiveName(csar.getName());
