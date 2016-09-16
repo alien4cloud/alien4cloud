@@ -28,8 +28,7 @@ public class TopologyDTO extends AbstractTopologyDTO<Topology> {
     private List<AbstractEditorOperation> operations;
 
     public TopologyDTO(Topology topology, Map<String, NodeType> nodeTypes, Map<String, RelationshipType> relationshipTypes,
-                       Map<String, CapabilityType> capabilityTypes, Map<String, Map<String, Set<String>>> outputCapabilityProperties,
-                       Map<String, DataType> dataTypes) {
+            Map<String, CapabilityType> capabilityTypes, Map<String, Map<String, Set<String>>> outputCapabilityProperties, Map<String, DataType> dataTypes) {
         super(topology, nodeTypes, relationshipTypes, capabilityTypes, dataTypes, outputCapabilityProperties);
     }
 }

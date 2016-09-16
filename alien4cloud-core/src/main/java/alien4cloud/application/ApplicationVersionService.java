@@ -70,16 +70,6 @@ public class ApplicationVersionService extends AbtractVersionService<Application
     }
 
     /**
-     * Get all application versions snapshot for a given application
-     *
-     * @param applicationId The id of the application for which to get environments.
-     * @return An array of the applications versions snapshot for the requested application id.
-     */
-    public ApplicationVersion[] getSnapshotByApplicationId(String applicationId) {
-        return getSnapshotByDelegateId(applicationId);
-    }
-
-    /**
      * Delete all versions related to an application.
      *
      * @param applicationId The application id.

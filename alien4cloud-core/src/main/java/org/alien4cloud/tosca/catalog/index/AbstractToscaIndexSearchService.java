@@ -7,6 +7,8 @@ import java.util.function.Function;
 
 import javax.annotation.Resource;
 
+import alien4cloud.common.AlienConstants;
+import alien4cloud.dao.FilterUtil;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -31,7 +33,7 @@ import lombok.SneakyThrows;
  */
 public abstract class AbstractToscaIndexSearchService<T> {
     @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO searchDAO;
+    protected IGenericSearchDAO searchDAO;
 
     public FacetedSearchResult search(Class<? extends T> clazz, String query, Integer size, Map<String, String[]> filters) {
         TopHitsBuilder topHitAggregation = AggregationBuilders.topHits("highest_version").setSize(1)
@@ -40,9 +42,11 @@ public abstract class AbstractToscaIndexSearchService<T> {
                 .addSort(new FieldSortBuilder("nestedVersion.incrementalVersion").order(SortOrder.DESC))
                 .addSort(new FieldSortBuilder("nestedVersion.qualifier").order(SortOrder.DESC).missing("_first"));
 
-        AggregationBuilder aggregation = AggregationBuilders.terms("query_aggregation").field(getAggregationField()).size(size).subAggregation(topHitAggregation);
+        AggregationBuilder aggregation = AggregationBuilders.terms("query_aggregation").field(getAggregationField()).size(size)
+                .subAggregation(topHitAggregation);
 
-        FacetedSearchResult<? extends T> searchResult = searchDAO.buildSearchQuery(clazz, query).setFilters(filters).prepareSearch()
+        FacetedSearchResult<? extends T> searchResult = searchDAO.buildSearchQuery(clazz, query)
+                .setFilters(FilterUtil.singleKeyFilter(filters, "workspace", AlienConstants.GLOBAL_WORKSPACE_ID)).prepareSearch()
                 .setFetchContext(FetchContext.SUMMARY, topHitAggregation).facetedSearch(new IAggregationQueryManager() {
                     @Override
                     public AggregationBuilder getQueryAggregation() {

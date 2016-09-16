@@ -70,7 +70,7 @@ public class SearchTest {
         String[] ids;
         // without filters
         req = new SearchRequest(QueryComponentType.NODE_TYPE, query, 0, NUMBER_ELEMENT, null);
-        response = componentController.search(req, true);
+        response = componentController.search(req);
         assertNotNull(response);
         assertNotNull(response.getData());
         assertNull(response.getError());
@@ -89,7 +89,7 @@ public class SearchTest {
         Map<String, String[]> filters = new HashMap<String, String[]>();
         filters.put("capabilities.type", new String[] { "container", "banana" });
         req = new SearchRequest(QueryComponentType.NODE_TYPE, query, 0, NUMBER_ELEMENT, filters);
-        response = componentController.search(req, true);
+        response = componentController.search(req);
         assertNotNull(response);
         assertNotNull(response.getData());
         assertNull(response.getError());
@@ -103,7 +103,7 @@ public class SearchTest {
         // test nothing found
         query = "pacpac";
         req = new SearchRequest(QueryComponentType.NODE_TYPE, query, 0, NUMBER_ELEMENT, null);
-        response = componentController.search(req, true);
+        response = componentController.search(req);
         assertNotNull(response);
         assertNotNull(response.getData());
         assertNull(response.getError());

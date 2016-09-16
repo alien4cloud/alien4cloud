@@ -67,7 +67,7 @@ public class TopologyController {
     }
 
     /**
-     * check if a topology is valid or not.
+     * Check if a topology is valid or not.
      *
      * @param topologyId The id of the topology to check.
      * @return a boolean rest response that says if the topology is valid or not.

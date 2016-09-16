@@ -44,12 +44,31 @@ define(function (require) {
   ];
 
   modules.get('a4c-topology-templates', ['ui.router', 'ui.bootstrap', 'a4c-auth', 'a4c-common']).controller('TopologyTemplateListCtrl',
-    ['$scope', '$modal', '$resource', '$state', 'authService',
-    function($scope, $modal, $resource, $state, authService) {
-
+    ['$scope', '$modal', '$resource', '$state', 'authService', '$alresource',
+    function($scope, $modal, $resource, $state, authService, $alresource) {
       $scope.onSearch = function (searchConfig) {
         $scope.searchConfig = searchConfig;
       };
+      $scope.openCsar = function(csarId, event) {
+        if (_.defined(event)) {
+          event.stopPropagation();
+        }
+        $state.go('components.csars.csardetail', { csarId: csarId });
+      };
+      var fetchVersionsResource = $alresource('rest/latest/catalog/topologies/:archiveName/versions');
+      $scope.fetchVersions = function(topology) {
+        if(_.defined(topology.allVersions)) {
+          return;
+        }
+        fetchVersionsResource.get({archiveName: topology.archiveName},function(result) {
+          if(_.defined(result.error)) {
+            console.error('Encountered error while fetching element versions', topology.archiveName, result.error);
+          } else {
+            topology.allVersions = result.data;
+          }
+        });
+      };
+
       // API REST Definition
       var createTopologyTemplateResource = $resource('rest/latest/templates/topology', {}, {
         'create': {
@@ -78,7 +97,7 @@ define(function (require) {
         });
       };
 
-      $scope.openTopologyTemplate = function(topologyTemplateId) {
+      $scope.openTopology = function(topologyTemplateId) {
         $state.go('topologytemplates.detail.topology.editor', {
           id: topologyTemplateId
         });

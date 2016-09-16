@@ -26,6 +26,7 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode(of = { "elementId", "archiveName", "archiveVersion" })
 @JsonInclude(Include.NON_NULL)
+@ESObject
 @ESAll(analyser = "simple")
 public abstract class AbstractToscaType {
     @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
