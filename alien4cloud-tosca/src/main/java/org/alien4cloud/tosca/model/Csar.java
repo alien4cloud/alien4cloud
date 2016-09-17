@@ -91,6 +91,7 @@ public class Csar implements IManagedSecuredResource {
     public Csar(String name, String version) {
         this.name = name;
         this.version = version;
+        this.nestedVersion = new Version(version);
     }
 
     @Id

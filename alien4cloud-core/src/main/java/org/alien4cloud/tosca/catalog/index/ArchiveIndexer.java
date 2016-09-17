@@ -1,6 +1,7 @@
 package org.alien4cloud.tosca.catalog.index;
 
-import java.io.IOException;
+import static alien4cloud.dao.FilterUtil.singleKeyFilter;
+
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.repository.ICsarRepositry;
 import org.alien4cloud.tosca.editor.EditorRepositoryService;
+import org.alien4cloud.tosca.exporter.ArchiveExportService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -16,11 +18,9 @@ import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
-import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
-import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
 import alien4cloud.deployment.DeploymentService;
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.model.components.CSARSource;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyServiceCore;
@@ -33,11 +33,22 @@ import alien4cloud.utils.VersionUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Perform indexing of a cloud service archive and splits it's different components to update index.
+ * <p>
+ * Archive indexed is responsible for indexing a TOSCA Cloud Service Archive out of parsing or created from API.
+ * </p>
+ * <p>
+ * It will split the elements of the archive (Tosca Types, Topology, Csar - archive metadata) to multiple objects stored in various indexes.
+ * </p>
+ * <p>
+ * The archive indexer is also responsible for storing or initializing the file repository for the archive and eventually (if the archive is a SNAPSHOT) the
+ * local git for editor purpose.
+ * </p>
  */
 @Slf4j
 @Component
 public class ArchiveIndexer {
+    @Inject
+    private ArchiveExportService exportService;
     @Inject
     private ArchiveImageLoader imageLoader;
     @Inject
@@ -56,17 +67,62 @@ public class ArchiveIndexer {
     private DeploymentService deploymentService;
 
     /**
+     * Check that a CSAR name/version does not already exists in the repository and eventually throw an AlreadyExistException.
+     *
+     * @param name The name of the archive.
+     * @param version The version of the archive.
+     */
+    private void ensureUniqueness(String name, String version) {
+        long count = csarService.count(singleKeyFilter("version", version), name);
+        if (count > 0) {
+            throw new AlreadyExistException("CSAR: " + name + ", Version: " + version + " already exists in the repository.");
+        }
+    }
+
+    /**
+     * <p>
+     * Import a new empty archive with a topology.
+     * </p>
+     * <p>
+     * Note: this archive is not created from parsing but from alien4cloud API. This service will index the archive and topology as well as initialize the file
+     * repository and tosca yaml.
+     * </p>
+     * <p>
+     * This method cannot be used to override a topology, even a SNAPSHOT as any update to a topology from the API MUST be done through the editor.
+     * </p>
+     * 
+     * @param csar The archive to be imported.
+     * @param topology The topology to be part of the topology.
+     */
+    public synchronized void importNewArchive(Csar csar, Topology topology) {
+        // Ensure that the archive does not already exists
+        ensureUniqueness(csar.getName(), csar.getVersion());
+        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
+
+        // index the archive and topology
+        csarService.save(csar);
+        topologyServiceCore.save(topology);
+
+        // generate the initial yaml in a temporary directory
+        if (csar.getYamlFilePath() == null) {
+            csar.setYamlFilePath("topology.yml");
+        }
+        String yaml = exportService.getYaml(csar, topology);
+        // Initialize the file repository for the archive
+        archiveRepositry.storeCSAR(csar, yaml);
+    }
+
+    /**
      * Import a pre-parsed archive to alien 4 cloud indexed catalog.
      *
      * @param source the source of the archive (alien, orchestrator, upload, git).
      * @param archiveRoot The parsed archive object.
      * @param archivePath The optional path of the archive (should be null if the archive has been java-generated and not parsed).
      * @param parsingErrors The non-null list of parsing errors in which to add errors.
-     * @throws CSARVersionAlreadyExistsException
      * @throws CSARUsedInActiveDeployment
      */
-    public void importArchive(final ArchiveRoot archiveRoot, CSARSource source, Path archivePath, List<ParsingError> parsingErrors)
-            throws CSARVersionAlreadyExistsException, CSARUsedInActiveDeployment {
+    public synchronized void importArchive(final ArchiveRoot archiveRoot, CSARSource source, Path archivePath, List<ParsingError> parsingErrors)
+            throws CSARUsedInActiveDeployment {
         String archiveName = archiveRoot.getArchive().getName();
         String archiveVersion = archiveRoot.getArchive().getVersion();
         Csar currentIndexedArchive = csarService.get(archiveName, archiveVersion);
@@ -79,10 +135,13 @@ public class ArchiveIndexer {
             return;
         }
 
-        // Cannot override RELEASED CSAR
+        // Throw an exception if we are trying to override a released (non SNAPSHOT) version.
         checkNotReleased(currentIndexedArchive);
-        // Cannot override a CSAR used in an active deployment
+        // In the current version of alien4cloud we must prevent from overriding an archive that is used in a deployment as we still use catalog information at
+        // runtime.
         checkNotUsedInActiveDeployment(currentIndexedArchive);
+        // FIXME If the archive already exists but can be indexed we should actually call an editor operation to keep git tracking, or should we just prevent
+        // that ?
 
         // save the archive (before we index and save other data so we can cleanup if anything goes wrong).
         if (source == null) {
@@ -91,12 +150,11 @@ public class ArchiveIndexer {
         archiveRoot.getArchive().setImportSource(source.name());
         csarService.save(archiveRoot.getArchive());
         log.debug("Imported archive {}", archiveRoot.getArchive().getId());
-        if (archivePath != null) {
-            // save the archive in the repository
-            archiveRepositry.storeCSAR(archiveName, archiveVersion, archivePath);
-            // manage images before archive storage in the repository
-            imageLoader.importImages(archivePath, archiveRoot, parsingErrors);
-        } // TODO What if else ? should we generate the YAML ?
+
+        // save the archive in the repository
+        archiveRepositry.storeCSAR(archiveRoot.getArchive(), archivePath);
+        // manage images before archive storage in the repository
+        imageLoader.importImages(archivePath, archiveRoot, parsingErrors);
 
         // index the archive content in elastic-search
         indexArchiveTypes(archiveName, archiveVersion, archiveRoot, currentIndexedArchive);
@@ -138,16 +196,7 @@ public class ArchiveIndexer {
         parsingErrors.add(
                 new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_DETECTED, "", null, "A topology template has been detected", null, archiveName));
 
-        String topologyId = topologyServiceCore.saveTopology(topology);
-        // store the archive for topology edition in case the version is snapshot
-        if (VersionUtil.isSnapshot(archiveVersion)) {
-            // Copy files from the archive repository to the editor
-            try {
-                repositoryService.copyFrom(topologyId, archiveRepositry.getExpandedCSAR(archiveName, archiveVersion));
-            } catch (CSARVersionNotFoundException | IOException e) {
-                log.error("Failed to initialize the topology repository", e);
-            }
-        }
+        topologyServiceCore.saveTopology(topology);
         topologyServiceCore.updateSubstitutionType(topology);
     }
 
@@ -157,10 +206,9 @@ public class ArchiveIndexer {
         }
     }
 
-    private void checkNotReleased(Csar archive) throws CSARVersionAlreadyExistsException {
+    private void checkNotReleased(Csar archive) {
         if (archive != null && !VersionUtil.isSnapshot(archive.getVersion())) {
-            throw new CSARVersionAlreadyExistsException(
-                    "CSAR: " + archive.getName() + ", Version: " + archive.getVersion() + " already exists in the repository.");
+            throw new AlreadyExistException("CSAR: " + archive.getName() + ", Version: " + archive.getVersion() + " already exists in the repository.");
         }
     }
 

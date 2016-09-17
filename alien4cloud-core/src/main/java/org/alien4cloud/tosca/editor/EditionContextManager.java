@@ -1,14 +1,13 @@
 package org.alien4cloud.tosca.editor;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.alien4cloud.tosca.model.Csar;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Component;
 import com.google.common.cache.*;
 
 import alien4cloud.component.repository.IFileRepository;
-import org.alien4cloud.tosca.catalog.index.CsarService;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;
@@ -72,17 +70,7 @@ public class EditionContextManager {
                 Csar csar = csarService.getOrFail(csarId);
                 Topology topology = topologyServiceCore.getOrFail(csarId);
                 // check if the topology git repository has been created already
-                // FIXME we should use directly the folder from the archive repository
-                Path topologyGitPath = repositoryService.createGitDirectory(csarId);
-                if (csar.getYamlFilePath() == null) {
-                    csar.setYamlFilePath("topology.yml");
-                    // export the content of the topology in the yaml.
-                    Path targetPath = topologyGitPath.resolve(csar.getYamlFilePath());
-                    String yaml = topologyService.getYaml(csar, topology);
-                    try (BufferedWriter writer = Files.newBufferedWriter(targetPath)) {
-                        writer.write(yaml);
-                    }
-                }
+                Path topologyGitPath = repositoryService.createGitDirectory(csar);
                 log.debug("Edition context for archive {} loaded", csar);
                 return new EditionContext(csar, topology, topologyGitPath);
             }

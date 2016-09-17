@@ -2,43 +2,54 @@ package org.alien4cloud.tosca.catalog.repository;
 
 import java.nio.file.Path;
 
-import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
-import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
+import org.alien4cloud.tosca.model.Csar;
 
 /**
  * Interface for all CSAR repositories
  */
 public interface ICsarRepositry {
     /**
-     * Store an CSAR into the repository. This method will perform a move of the temporary file to save IO disk operations
-     * 
-     * @param name the name of the CSAR to store.
-     * @param version the version of the CSAR to store.
-     * @param tmpPath the path to the temporary directory where the CSAR is located. The file will be moved to its new location inside the repository.
-     * @throws CSARVersionAlreadyExistsException
+     * Store a new csar in the repository from the content of the TOSCA yaml file.
+     *
+     * @param csar The archive to store.
+     * @param yaml The content of the TOSCA yaml file.
      */
-    void storeCSAR(String name, String version, Path tmpPath) throws CSARVersionAlreadyExistsException;
+    void storeCSAR(Csar csar, String yaml);
+
+    /**
+     * Store an CSAR into the repository. This method will perform a move of the temporary file to save IO disk operations
+     *
+     * @param csar The archive to store.
+     * @param tmpPath the path to the temporary directory where the CSAR is located. The file will be moved to its new location inside the repository.
+     */
+    void storeCSAR(Csar csar, Path tmpPath);
 
     /**
      * Get a CSAR stored into the repository
      *
+     * @param workspace The workspace from which to get the expanded archive.
      * @param name The name of the csar.
      * @param version The version of the CSAR
      * @return The path to the zipped csar file.
-     * @throws CSARVersionNotFoundException
      */
-    Path getCSAR(String name, String version) throws CSARVersionNotFoundException;
+    Path getCSAR(String workspace, String name, String version);
 
     /**
      * Get the path of the expended directory in which the CSAR is stored.
-     * 
+     *
+     * @param workspace The workspace from which to get the expanded archive.
      * @param name The name of the csar.
      * @param version The version of the CSAR
      * @return The path to the expended csar file.
-     * @throws CSARVersionNotFoundException
      */
-    Path getExpandedCSAR(String name, String version) throws CSARVersionNotFoundException;
+    Path getExpandedCSAR(String workspace, String name, String version);
 
-    void removeCSAR(String name, String version);
-
+    /**
+     * Delete an archive from the local repository.
+     *
+     * @param workspace The workspace from which to delete the archive.
+     * @param name The archive to delete.
+     * @param version The version of the archive to delete.
+     */
+    void removeCSAR(String workspace, String name, String version);
 }

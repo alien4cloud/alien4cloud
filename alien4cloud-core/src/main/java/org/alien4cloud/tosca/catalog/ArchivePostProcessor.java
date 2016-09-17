@@ -156,6 +156,8 @@ public class ArchivePostProcessor {
             // if the artifact is not defined in the current archive then we don't have to perform validation.
             return;
         }
+        // Else also inject the workspace
+        artifact.setArchiveWorkspace(parsedArchive.getResult().getArchive().getWorkspace());
         String inputArtifactId = InputArtifactUtil.getInputArtifactId(artifact);
         if (StringUtils.isNotBlank(inputArtifactId) && hasInputArtifacts(parsedArchive)) {
             if (!parsedArchive.getResult().getTopology().getInputArtifacts().containsKey(inputArtifactId)) {

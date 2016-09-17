@@ -24,6 +24,7 @@ import org.alien4cloud.tosca.editor.operations.ResetTopologyOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.alien4cloud.tosca.editor.services.EditorTopologyUploadService;
+import org.alien4cloud.tosca.exporter.ArchiveExportService;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,6 +53,8 @@ import alien4cloud.utils.ReflectionUtil;
 public class EditorService {
     @Inject
     private ApplicationContext applicationContext;
+    @Inject
+    private ArchiveExportService exportService;
     @Inject
     private TopologyService topologyService;
     @Inject
@@ -295,7 +298,7 @@ public class EditorService {
         topologyServiceCore.updateSubstitutionType(topology);
 
         // Local git commit
-        repositoryService.commit(topology.getId(), commitMessage.toString());
+        repositoryService.commit(EditionContextManager.get().getCsar(), commitMessage.toString());
 
         // TODO add support for undo even after save, this require ability to rollback files to git state, we need file rollback support for that..
         context.setOperations(Lists.newArrayList(context.getOperations().subList(context.getLastOperationIndex() + 1, context.getOperations().size())));
@@ -305,7 +308,7 @@ public class EditorService {
     private void saveYamlFile() throws IOException {
         Csar csar = EditionContextManager.getCsar();
         Path targetPath = EditionContextManager.get().getLocalGitPath().resolve(csar.getYamlFilePath());
-        String yaml = topologyService.getYaml(csar, EditionContextManager.getTopology());
+        String yaml = exportService.getYaml(csar, EditionContextManager.getTopology());
         try (BufferedWriter writer = Files.newBufferedWriter(targetPath)) {
             writer.write(yaml);
         }
@@ -341,7 +344,15 @@ public class EditorService {
      * @return a list of simplified git commit entry.
      */
     public List<SimpleGitHistoryEntry> history(String topologyId, int from, int count) {
-        return repositoryService.getHistory(topologyId, from, count);
+        try { // No need to check current operation, we just want to get git history.
+            editionContextManager.init(topologyId);
+            // check authorization to update a topology
+            topologyService.checkEditionAuthorizations(EditionContextManager.getTopology());
+
+            return repositoryService.getHistory(EditionContextManager.getCsar(), from, count);
+        } finally {
+            editionContextManager.destroy();
+        }
     }
 
     /**
@@ -382,7 +393,7 @@ public class EditorService {
             topologyServiceCore.updateSubstitutionType(topology);
 
             // Local git commit
-            repositoryService.commit(topologyId, commitMessage);
+            repositoryService.commit(EditionContextManager.get().getCsar(), commitMessage);
         } finally {
             EditionContextManager.get().setCurrentOperation(null);
             editionContextManager.destroy();

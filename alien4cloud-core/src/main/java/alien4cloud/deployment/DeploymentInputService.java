@@ -132,6 +132,7 @@ public class DeploymentInputService {
                         nodeArtifact.setRepositoryName(inputArtifact.getValue().getRepositoryName());
                         nodeArtifact.setRepositoryCredential(inputArtifact.getValue().getRepositoryCredential());
                         nodeArtifact.setRepositoryURL(inputArtifact.getValue().getRepositoryURL());
+                        nodeArtifact.setArchiveName(inputArtifact.getValue().getArchiveWorkspace());
                         nodeArtifact.setArchiveName(inputArtifact.getValue().getArchiveName());
                         nodeArtifact.setArchiveVersion(inputArtifact.getValue().getArchiveVersion());
                     }

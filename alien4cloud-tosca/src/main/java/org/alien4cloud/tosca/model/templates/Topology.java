@@ -1,5 +1,7 @@
 package org.alien4cloud.tosca.model.templates;
 
+import static alien4cloud.dao.model.FetchContext.SUMMARY;
+
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -8,6 +10,7 @@ import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.elasticsearch.annotation.*;
+import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
@@ -54,12 +57,16 @@ public class Topology {
     @StringField(indexType = IndexType.not_analyzed)
     private String workspace;
 
+    @StringField(indexType = IndexType.no)
+    private String description;
+
     /** Last update date of the topology to verify if the topology has been changed **/
     private Date lastUpdateDate = new Date();
 
     /** The list of dependencies of this topology. */
     @TermFilter(paths = { "name", "version" })
     @NestedObject(nestedClass = CSARDependency.class)
+    @FetchContext(contexts = { SUMMARY }, include = { false })
     private Set<CSARDependency> dependencies = Sets.newHashSet();
 
     @MapKeyValue
@@ -67,9 +74,11 @@ public class Topology {
     @ConditionalOnAttribute(ConditionalAttributes.ES)
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
+    @FetchContext(contexts = { SUMMARY }, include = { false })
     private Map<String, NodeTemplate> nodeTemplates;
 
     @ObjectField(enabled = false)
+    @FetchContext(contexts = { SUMMARY }, include = { false })
     private Map<String, PropertyDefinition> inputs;
 
     /**
@@ -80,6 +89,7 @@ public class Topology {
      * </ul>
      */
     @ObjectField(enabled = false)
+    @FetchContext(contexts = { SUMMARY }, include = { false })
     private Map<String, Set<String>> outputProperties;
 
     /**
@@ -91,6 +101,7 @@ public class Topology {
      * </ul>
      */
     @ObjectField(enabled = false)
+    @FetchContext(contexts = { SUMMARY }, include = { false })
     private Map<String, Map<String, Set<String>>> outputCapabilityProperties;
 
     /**
@@ -101,25 +112,32 @@ public class Topology {
      * </ul>
      */
     @ObjectField(enabled = false)
+    @FetchContext(contexts = { SUMMARY }, include = { false })
     private Map<String, Set<String>> outputAttributes;
 
     /**
      * These artifacts will be given at deployment time and can be shared by several nodes.
      */
+    @ObjectField(enabled = false)
+    @FetchContext(contexts = { SUMMARY }, include = { false })
     private Map<String, DeploymentArtifact> inputArtifacts;
 
+    @ObjectField(enabled = false)
+    @FetchContext(contexts = { SUMMARY }, include = { false })
     private Map<String, NodeGroup> groups;
 
     /**
      * When not null, describe how this topology can be used to substitute a node type in another topology (topology composition).
      */
     @ObjectField(enabled = false)
+    @FetchContext(contexts = { SUMMARY }, include = { false })
     private SubstitutionMapping substitutionMapping;
 
     /**
      * All the workflows associated with this topology.
      */
     @ObjectField(enabled = false)
+    @FetchContext(contexts = { SUMMARY }, include = { false })
     private Map<String, Workflow> workflows;
 
     @Id

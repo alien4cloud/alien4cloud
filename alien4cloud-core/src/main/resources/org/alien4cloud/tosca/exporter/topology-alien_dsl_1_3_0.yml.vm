@@ -6,7 +6,7 @@
 ## - topology
 ## --------------------------------------------
 ## BEGINING OF DOCUMENT
-tosca_definitions_version: alien_dsl_1_2_0
+tosca_definitions_version: alien_dsl_1_3_0
 description: Alien4Cloud generated service template
 template_name: ${template_name}
 template_version: ${template_version}

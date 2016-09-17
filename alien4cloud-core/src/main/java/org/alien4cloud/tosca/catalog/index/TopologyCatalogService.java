@@ -1,32 +1,56 @@
 package org.alien4cloud.tosca.catalog.index;
 
-import alien4cloud.common.AlienConstants;
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.paas.wf.WorkflowsBuilderService;
-import alien4cloud.utils.VersionUtil;
-import alien4cloud.utils.version.Version;
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+import static alien4cloud.dao.model.FetchContext.SUMMARY;
+
+import java.util.Map;
+
+import javax.inject.Inject;
+
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
-import java.util.Map;
-
-import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
-import static alien4cloud.dao.FilterUtil.singleKeyFilter;
+import alien4cloud.common.AlienConstants;
+import alien4cloud.utils.VersionUtil;
+import alien4cloud.utils.version.Version;
 
 /**
  * Service responsible for indexing and updating topologies.
  */
 @Service
 public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topology> {
+    @Inject
+    private ArchiveIndexer archiveIndexer;
 
-    @Inject
-    private CsarService csarService;
-    @Inject
-    private WorkflowsBuilderService workflowBuilderService;
+    /**
+     * Creates a topology and register it as a template in the catalog
+     *
+     * @param name The name of the topology template
+     * @param description The description of the topology template
+     * @param version The version of the topology
+     * @return The @{@link Topology} newly created
+     */
+    public Topology createTopologyAsTemplate(String name, String description, String version) {
+        // Every version of a topology template has a Cloud Service Archive
+        Csar csar = new Csar(name, StringUtils.isNotBlank(version) ? version : VersionUtil.DEFAULT_VERSION_NAME);
+        csar.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
+        csar.setDelegateType(ArchiveDelegateType.CATALOG.toString());
+        csar.setDescription("Enclosing archive for topology: " + description);
+
+        Topology topology = new Topology();
+        topology.setDescription(description);
+        topology.setArchiveName(csar.getName());
+        topology.setArchiveVersion(csar.getVersion());
+        topology.setNestedVersion(new Version(topology.getArchiveVersion()));
+        topology.setWorkspace(csar.getWorkspace());
+
+        archiveIndexer.importNewArchive(csar, topology);
+
+        return topology;
+    }
 
     @Override
     protected Topology[] getArray(int size) {
@@ -36,43 +60,6 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
     @Override
     protected String getAggregationField() {
         return "archiveName";
-    }
-
-    private void ensureUniqueness(String archiveName, String version) {
-        long count = csarService.count(singleKeyFilter("version", version), archiveName);
-        if (count > 0) {
-            throw new AlreadyExistException("CSAR: " + archiveName + ", Version: " + version + " already exists in the repository.");
-        }
-    }
-
-    /**
-     * Creates a topology and register it as a template in the catalog
-     *
-     * @param name        The name of the topology template
-     * @param description The description of the topology template
-     * @param version     The version of the topology
-     * @return The @{@link Topology} newly created
-     */
-    public Topology createTopologyAsTemplate(String name, String description, String version) {
-        Topology topology = new Topology();
-
-        // Every version of a topology template has a Cloud Service Archive
-        Csar csar = new Csar(name, StringUtils.isNotBlank(version) ? version : VersionUtil.DEFAULT_VERSION_NAME);
-        csar.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
-        csar.setDelegateType(ArchiveDelegateType.CATALOG.toString());
-        csar.setNestedVersion(new Version(csar.getVersion()));
-        ensureUniqueness(csar.getName(), csar.getVersion());
-
-        topology.setArchiveName(csar.getName());
-        topology.setArchiveVersion(csar.getVersion());
-        topology.setNestedVersion(new Version(topology.getArchiveVersion()));
-        topology.setWorkspace(csar.getWorkspace());
-        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
-
-        alienDAO.save(csar);
-        alienDAO.save(topology);
-
-        return topology;
     }
 
     /**
@@ -85,6 +72,6 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
     public Topology[] getAll(Map<String, String[]> filters, String archiveName) {
         return alienDAO.buildQuery(Topology.class)
                 .setFilters(fromKeyValueCouples(filters, "workspace", AlienConstants.GLOBAL_WORKSPACE_ID, "archiveName", archiveName)).prepareSearch()
-                .search(0, Integer.MAX_VALUE).getData();
+                .setFetchContext(SUMMARY).search(0, Integer.MAX_VALUE).getData();
     }
 }

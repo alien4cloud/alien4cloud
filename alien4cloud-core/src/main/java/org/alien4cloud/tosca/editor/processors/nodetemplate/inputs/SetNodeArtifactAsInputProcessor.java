@@ -7,14 +7,14 @@ import java.util.Map;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.SetNodeArtifactAsInputOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
 
 import alien4cloud.exception.NotFoundException;
-import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.utils.InputArtifactUtil;
 
 /**
@@ -36,6 +36,7 @@ public class SetNodeArtifactAsInputProcessor extends AbstractNodeProcessor<SetNo
             DeploymentArtifact inputArtifact = new DeploymentArtifact();
             inputArtifact.setArchiveName(artifact.getArchiveName());
             inputArtifact.setArchiveVersion(artifact.getArchiveVersion());
+            inputArtifact.setArchiveWorkspace(artifact.getArchiveWorkspace());
             inputArtifact.setArtifactType(artifact.getArtifactType());
             Map<String, DeploymentArtifact> inputArtifacts = topology.getInputArtifacts();
             if (inputArtifacts == null) {

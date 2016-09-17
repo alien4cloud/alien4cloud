@@ -66,7 +66,7 @@
     type: topology_template_type
 
 - topology_template_type: org.alien4cloud.tosca.model.templates.Topology
-  description: .topologyTemplateDescription # mapped to a root's property
+  description: description
   inputs:
     map: inputs
     type: property_definition

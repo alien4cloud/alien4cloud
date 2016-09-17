@@ -78,7 +78,6 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
         csar.setWorkspace("app:" + delegateId);
         csar.setDelegateId(delegateId);
         csar.setDelegateType(delegateType);
-        alienDAO.save(csar);
 
         Topology topology;
         if (providedTopology != null) {
@@ -93,16 +92,17 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
         topology.setArchiveName(csar.getName());
         topology.setArchiveVersion(csar.getVersion());
         topology.setWorkspace(csar.getWorkspace());
-        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
+
         // first of all, if the new version is a release, we have to ensure that all dependencies are released
         if (!VersionUtil.isSnapshot(version)) {
             checkTopologyReleasable(topology);
         }
 
-        topologyServiceCore.save(topology);
+        // Import the created archive and topology
+        archiveIndexer.importNewArchive(csar, topology);
 
+        // Save the version object
         appVersion.setCsarId(csar.getId());
-
         alienDAO.save(appVersion);
         return appVersion;
     }
