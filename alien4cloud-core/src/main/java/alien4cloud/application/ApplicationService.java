@@ -113,16 +113,14 @@ public class ApplicationService {
     public void update(String applicationId, String newName, String newDescription) {
         Application application = getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        if (application.getName() == null || application.getName().isEmpty()) {
-            throw new InvalidArgumentException("Application's name cannot be set to null or empty");
-        }
 
-        if (!application.getName().equals(newName)) {
+        if (newName != null && !newName.isEmpty() && !application.getName().equals(newName)) {
             checkApplicationName(newName);
+            application.setName(newName);
         }
-
-        application.setName(newName);
-        application.setDescription(newDescription);
+        if (newDescription != null) {
+            application.setDescription(newDescription);
+        }
 
         // update updateDate
         application.setLastUpdateDate(new Date());
