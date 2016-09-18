@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.annotation.Resource;
 
+import alien4cloud.common.AlienConstants;
 import org.elasticsearch.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,6 +37,7 @@ public class NodeTypeScoreServiceTest {
         indexedNodeType.setElementId("mordor");
         indexedNodeType.setArchiveName("middleEarth");
         indexedNodeType.setArchiveVersion("1.0.0");
+        indexedNodeType.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
         indexedNodeType.setCreationDate(new Date());
         indexedNodeType.setLastUpdateDate(new Date());
         indexedNodeType.setDefaultCapabilities(Lists.newArrayList("very_evil"));
@@ -60,8 +62,11 @@ public class NodeTypeScoreServiceTest {
 
         Topology topology = new Topology();
         topology.setId("topology");
-        topology.setNodeTemplates(MapUtil.newHashMap(new String[] { "isengard" }, new NodeTemplate[] { new NodeTemplate(indexedNodeType.getId(), null, null,
-                null, null, null, null, null) }));
+        topology.setArchiveName("test-archive");
+        topology.setArchiveVersion("1.0.0");
+        topology.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
+        topology.setNodeTemplates(MapUtil.newHashMap(new String[] { "isengard" },
+                new NodeTemplate[] { new NodeTemplate(indexedNodeType.getId(), null, null, null, null, null, null, null) }));
         dao.save(topology);
 
         indexedNodeType.setElementId("osgiliath");

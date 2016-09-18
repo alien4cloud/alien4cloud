@@ -85,7 +85,7 @@ public class EsQuickSearchTest extends AbstractDAOTest {
         assertNotNull(searchResp.getData());
         assertEquals(2, searchResp.getTypes().length);
         assertEquals(2, searchResp.getData().length);
-        assertElementIn("indexednodetype", searchResp.getTypes());
+        assertElementIn("nodetype", searchResp.getTypes());
         assertElementIn("application", searchResp.getTypes());
     }
 

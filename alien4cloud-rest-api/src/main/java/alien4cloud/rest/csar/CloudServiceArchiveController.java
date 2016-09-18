@@ -10,6 +10,13 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import org.alien4cloud.tosca.catalog.ArchiveUploadService;
+import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService;
+import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.collect.Sets;
@@ -25,23 +32,15 @@ import org.springframework.web.multipart.MultipartFile;
 import com.google.common.collect.Lists;
 
 import alien4cloud.audit.annotation.Audit;
-import org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService;
-import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
-import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
-import org.alien4cloud.tosca.catalog.index.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.common.Usage;
-import org.alien4cloud.tosca.model.CSARDependency;
 import alien4cloud.model.components.CSARSource;
-import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.*;
-import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
@@ -96,7 +95,7 @@ public class CloudServiceArchiveController {
             uploadResult.getErrors().put(fileName, e.getParsingErrors());
             return RestResponseBuilder.<CsarUploadResult> builder().error(RestErrorBuilder.builder(RestErrorCode.CSAR_INVALID_ERROR).build()).data(uploadResult)
                     .build();
-        } catch (CSARVersionAlreadyExistsException e) {
+        } catch (AlreadyExistException e) {
             log.error("A CSAR with the same name and the same version already existed in the repository", e);
             CsarUploadResult uploadResult = new CsarUploadResult();
             uploadResult.getErrors().put(csar.getOriginalFilename(), Lists.newArrayList(new ParsingError(ErrorCode.CSAR_ALREADY_EXISTS, "CSAR already exists",

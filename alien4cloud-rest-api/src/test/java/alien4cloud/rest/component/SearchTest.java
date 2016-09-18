@@ -6,6 +6,7 @@ import java.util.*;
 
 import javax.annotation.Resource;
 
+import alien4cloud.common.AlienConstants;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
@@ -183,6 +184,7 @@ public class SearchTest {
         nodeType.setElementId(id);
         nodeType.setArchiveName(archiveName);
         nodeType.setArchiveVersion(archiveVersion);
+        nodeType.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
         nodeType.setCapabilities(capabilities);
         nodeType.setDescription(description);
         nodeType.setDefaultCapabilities(defaultCapabilities);

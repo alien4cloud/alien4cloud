@@ -14,6 +14,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import alien4cloud.common.AlienConstants;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.action.get.GetResponse;
@@ -63,7 +64,7 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
     @Before
     public void before() throws Exception {
         super.before();
-        saveDataToES(true);
+        saveDataToES();
     }
 
     @Test
@@ -292,7 +293,7 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
                 .setQuery(queryBuilder).execute().actionGet().getCount();
     }
 
-    private void saveDataToES(boolean refresh) throws IOException, IndexingServiceException {
+    private void saveDataToES() throws IOException, IndexingServiceException {
         testDataList.clear();
 
         Path path = Paths.get("src/test/resources/nodetypes-faceted-search-result.json");
@@ -301,6 +302,7 @@ public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
         for (Object element : data) {
             String serializeDatum = jsonMapper.writeValueAsString(element);
             NodeType indexedNodeType = jsonMapper.readValue(serializeDatum, NodeType.class);
+            indexedNodeType.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
             String typeName = MappingBuilder.indexTypeFromClass(NodeType.class);
             dao.save(indexedNodeType);
             assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, indexedNodeType.getId(), true);

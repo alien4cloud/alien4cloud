@@ -6,14 +6,18 @@ import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.definitions.constraints.GreaterThanConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.LessThanConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.MaxLengthConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.MinLengthConstraint;
 import org.alien4cloud.tosca.model.types.ArtifactType;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -28,11 +32,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.common.collect.Lists;
 
+import alien4cloud.common.AlienConstants;
 import alien4cloud.component.ICSARRepositorySearchService;
-import org.alien4cloud.tosca.model.definitions.constraints.GreaterThanConstraint;
-import org.alien4cloud.tosca.model.definitions.constraints.LessThanConstraint;
-import org.alien4cloud.tosca.model.definitions.constraints.MaxLengthConstraint;
-import org.alien4cloud.tosca.model.definitions.constraints.MinLengthConstraint;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.ArchiveParserTest;
@@ -178,8 +179,9 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
     public void testArtifactType() throws FileNotFoundException, ParsingException {
         Mockito.reset(repositorySearchService);
         ArtifactType mockedResult = Mockito.mock(ArtifactType.class);
-        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(ArtifactType.class), Mockito.eq("tosca.artifact.Root"),
-                Mockito.any(Set.class))).thenReturn(mockedResult);
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(ArtifactType.class), Mockito.eq("tosca.artifact.Root"), Mockito.any(Set.class)))
+                .thenReturn(mockedResult);
         List<String> derivedFromSet = Lists.newArrayList();
         Mockito.when(mockedResult.getDerivedFrom()).thenReturn(derivedFromSet);
 
@@ -229,12 +231,10 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
         Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
                 Mockito.any(Set.class))).thenReturn(mockedResult);
         Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.nodes.Root"));
-        Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
                 .thenReturn(mockedResult);
 
-        Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
                 .thenReturn(mockedResult);
         CapabilityType mockedCapabilityResult = Mockito.mock(CapabilityType.class);
         Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class),
@@ -315,12 +315,10 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
         Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
                 Mockito.any(Set.class))).thenReturn(mockedResult);
         Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.nodes.Root"));
-        Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
                 .thenReturn(mockedResult);
 
-        Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
                 .thenReturn(mockedResult);
         CapabilityType mockedCapabilityResult = Mockito.mock(CapabilityType.class);
         Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class),
@@ -370,8 +368,7 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
         // Mockito.when(repositorySearchService.getArchive(csar.getId())).thenReturn(csar);
 
         NodeType mockedResult = Mockito.mock(NodeType.class);
-        Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
                 .thenReturn(mockedResult);
         Mockito.when(mockedResult.getId()).thenReturn("tosca.nodes.Compute:1.0.0-SNAPSHOT-wd03");
 
@@ -388,7 +385,7 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
         Entry<String, NodeType> entry = archiveRoot.getNodeTypes().entrySet().iterator().next();
         Assert.assertEquals("alien.test.TestComputeConcat", entry.getKey());
         NodeType nodeType = entry.getValue();
-
+        nodeType.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
         Map<String, IValue> attributes = nodeType.getAttributes();
 
         IValue simpleDefinition = attributes.get("simple_definition");
@@ -433,12 +430,10 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
         Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
                 Mockito.any(Set.class))).thenReturn(mockedResult);
         Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.nodes.Root"));
-        Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
                 .thenReturn(mockedResult);
 
-        Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
                 .thenReturn(mockedResult);
         CapabilityType mockedCapabilityResult = Mockito.mock(CapabilityType.class);
         Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class),
@@ -498,13 +493,11 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
         NodeType mockedResult = Mockito.mock(NodeType.class);
         Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
                 Mockito.any(Set.class))).thenReturn(mockedResult);
-        Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
                 .thenReturn(mockedResult);
         Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.nodes.Root"));
 
-        Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
                 .thenReturn(mockedResult);
         CapabilityType mockedCapabilityResult = Mockito.mock(CapabilityType.class);
         Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Endpoint"),
@@ -642,8 +635,7 @@ public class ToscaParserSimpleProfileWd03Test extends AbstractToscaParserSimpleP
                 Mockito.any(Set.class))).thenReturn(mockedSoftware);
         Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Container"),
                 Mockito.any(Set.class))).thenReturn(mockedContainer);
-        Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
+        Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
                 .thenReturn(mockedCompute);
         RelationshipType hostedOn = new RelationshipType();
         Mockito.when(repositorySearchService.getElementInDependencies(Mockito.eq(RelationshipType.class), Mockito.eq("tosca.relationships.HostedOn"),

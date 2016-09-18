@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,14 +22,12 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Sets;
 
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
-import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.model.components.CSARSource;
 import alien4cloud.plugin.PluginManager;
 import alien4cloud.plugin.exception.MissingPlugingDescriptorFileException;
 import alien4cloud.plugin.exception.PluginLoadingException;
 import alien4cloud.security.model.Role;
-import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import alien4cloud.tosca.context.ToscaContextInjector;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.utils.FileUtil;
@@ -96,7 +95,7 @@ public class InitialLoader {
                 try {
                     log.debug("Initial load of archives from <{}>.", archive.toString());
                     csarUploadService.upload(archive, CSARSource.ALIEN);
-                } catch (CSARVersionAlreadyExistsException e) {
+                } catch (AlreadyExistException e) {
                     log.debug("Skipping initial upload of archive <{}>. Archive has already been loaded.", archive.toString(), e);
                 } catch (CSARUsedInActiveDeployment e) {
                     log.debug("Skipping initial upload of archive <{}>. Archive is used in an active depoyment, and then cannot be overrided.",

@@ -12,6 +12,7 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import alien4cloud.common.AlienConstants;
 import alien4cloud.model.components.*;
 import alien4cloud.tosca.parser.ParsingError;
 import org.alien4cloud.tosca.model.Csar;
@@ -49,7 +50,7 @@ import com.google.common.collect.Maps;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:function-application-context-test.xml")
 public class FunctionEvaluatorTest {
-
+    private static boolean INITIALIZED = false;
     @Resource
     private ArchiveUploadService archiveUploadService;
 
@@ -68,48 +69,51 @@ public class FunctionEvaluatorTest {
 
     @PostConstruct
     public void postConstruct() throws Throwable {
-
-        if (Files.exists(Paths.get(alienRepoDir))) {
-            try {
-                FileUtil.delete(Paths.get(alienRepoDir));
-            } catch (IOException e) {
-                e.printStackTrace();
+        if (!INITIALIZED) {
+            if (Files.exists(Paths.get(alienRepoDir))) {
+                try {
+                    FileUtil.delete(Paths.get(alienRepoDir));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+            SecurityTestUtils.setTestAuthentication(Role.ADMIN);
+
+            String normativeLocalName = "tosca-normative-types";
+            repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/tosca-normative-types.git", "master", normativeLocalName);
+            String sampleLocalName = "samples";
+            repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/samples.git", "master", sampleLocalName);
+            String extendedLocalName = "alien-extended-types";
+            repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/alien4cloud-extended-types.git", "master", extendedLocalName);
+
+            Path typesPath = artifactsDirectory.resolve(normativeLocalName);
+            Path typesZipPath = artifactsDirectory.resolve(normativeLocalName + ".zip");
+            FileUtil.zip(typesPath, typesZipPath);
+            ParsingResult<Csar> result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER);
+            for (ParsingError error : result.getContext().getParsingErrors()) {
+                System.out.println(error.getErrorLevel() + " " + error.getProblem());
+            }
+
+            typesPath = artifactsDirectory.resolve(extendedLocalName).resolve("alien-base-types");
+            typesZipPath = artifactsDirectory.resolve("alien-base-types.zip");
+            FileUtil.zip(typesPath, typesZipPath);
+            result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER);
+
+            typesPath = artifactsDirectory.resolve(sampleLocalName).resolve("tomcat-war");
+            typesZipPath = artifactsDirectory.resolve("tomcat_war.zip");
+            FileUtil.zip(typesPath, typesZipPath);
+            result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER);
+
+            typesPath = Paths.get("src/test/resources/alien/paas/function/csars/test-types");
+            typesZipPath = artifactsDirectory.resolve("target/test-types.zip");
+            FileUtil.zip(typesPath, typesZipPath);
+            result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER);
+
+            INITIALIZED = true;
         }
-        SecurityTestUtils.setTestAuthentication(Role.ADMIN);
-
-        String normativeLocalName = "tosca-normative-types";
-        repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/tosca-normative-types.git", "master", normativeLocalName);
-        String sampleLocalName = "samples";
-        repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/samples.git", "master", sampleLocalName);
-        String extendedLocalName = "alien-extended-types";
-        repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/alien4cloud-extended-types.git", "master", extendedLocalName);
-
-        Path typesPath = artifactsDirectory.resolve(normativeLocalName);
-        Path typesZipPath = artifactsDirectory.resolve(normativeLocalName + ".zip");
-        FileUtil.zip(typesPath, typesZipPath);
-        ParsingResult<Csar> result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER);
-        for (ParsingError error : result.getContext().getParsingErrors()) {
-            System.out.println(error.getErrorLevel() + " " + error.getProblem());
-        }
-
-        typesPath = artifactsDirectory.resolve(extendedLocalName).resolve("alien-base-types");
-        typesZipPath = artifactsDirectory.resolve("alien-base-types.zip");
-        FileUtil.zip(typesPath, typesZipPath);
-        result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER);
-
-        typesPath = artifactsDirectory.resolve(sampleLocalName).resolve("tomcat-war");
-        typesZipPath = artifactsDirectory.resolve("tomcat_war.zip");
-        FileUtil.zip(typesPath, typesZipPath);
-        result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER);
-
-        typesPath = Paths.get("src/test/resources/alien/paas/function/csars/test-types");
-        typesZipPath = artifactsDirectory.resolve("target/test-types.zip");
-        FileUtil.zip(typesPath, typesZipPath);
-        result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER);
-
         Topology topology = applicationUtil.parseYamlTopology("src/test/resources/alien/paas/function/topology/badFunctionsTomcatWar");
         topology.setId(UUID.randomUUID().toString());
+        topology.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
         builtPaaSNodeTemplates = treeBuilder.buildPaaSTopology(topology).getAllNodes();
     }
 

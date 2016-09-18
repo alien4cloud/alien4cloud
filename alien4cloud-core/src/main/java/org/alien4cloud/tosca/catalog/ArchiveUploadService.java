@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Maps;
 
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
-import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.model.components.CSARSource;
 import alien4cloud.model.git.CsarDependenciesBean;
 import alien4cloud.security.AuthorizationUtil;
@@ -46,11 +45,10 @@ public class ArchiveUploadService {
      * @param csarSource The source of the upload.
      * @return The Csar object from the parsing.
      * @throws ParsingException
-     * @throws CSARVersionAlreadyExistsException
      * @throws CSARUsedInActiveDeployment
      */
     @ToscaContextual
-    public ParsingResult<Csar> upload(Path path, CSARSource csarSource) throws ParsingException, CSARVersionAlreadyExistsException, CSARUsedInActiveDeployment {
+    public ParsingResult<Csar> upload(Path path, CSARSource csarSource) throws ParsingException, CSARUsedInActiveDeployment {
         // parse the archive.
         ParsingResult<ArchiveRoot> parsingResult = parser.parseWithExistingContext(path);
 

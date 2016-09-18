@@ -1,14 +1,15 @@
 package alien4cloud.utils.services;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.junit.Assert;
 import org.junit.Test;
 
+import alien4cloud.common.AlienConstants;
 import alien4cloud.topology.TopologyUtils;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class TopologyServiceTest {
 
@@ -26,6 +27,9 @@ public class TopologyServiceTest {
     @Test
     public void normalizeAllNodeTemplateName() {
         Topology topology = new Topology();
+        topology.setArchiveName("test-topology");
+        topology.setArchiveVersion("1.0.0");
+        topology.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
         Map<String, NodeTemplate> nodeTemplates = new HashMap<>();
         nodeTemplates.put("Computé", new NodeTemplate());
         nodeTemplates.put("Compute-2", new NodeTemplate());

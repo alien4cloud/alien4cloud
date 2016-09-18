@@ -14,6 +14,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import alien4cloud.common.AlienConstants;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.client.Client;
@@ -195,6 +196,7 @@ public class ComponentTest {
         indexedNodeType.setElementId("1");
         indexedNodeType.setArchiveName("tosca.nodes.Root");
         indexedNodeType.setArchiveVersion("3.0");
+        indexedNodeType.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
         indexedNodeType.setDerivedFrom(null);
         indexedNodeType.setDescription("Root description...");
         indexedNodeType.setTags(rootTags);
@@ -204,6 +206,7 @@ public class ComponentTest {
         indexedNodeType2.setElementId("2");
         indexedNodeType2.setArchiveName("tosca.nodes.Root");
         indexedNodeType2.setArchiveVersion("3.0");
+        indexedNodeType2.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
         indexedNodeType2.setDerivedFrom(null);
         indexedNodeType2.setDescription("Root description...");
         indexedNodeType2.setTags(rootTags);
@@ -216,6 +219,7 @@ public class ComponentTest {
         indexedNodeType3.setElementId("3");
         indexedNodeType3.setArchiveName("tosca.nodes.Root");
         indexedNodeType3.setArchiveVersion("3.0");
+        indexedNodeType3.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
         indexedNodeType3.setDerivedFrom(null);
         indexedNodeType3.setDescription("Root description...");
         indexedNodeType3.setTags(rootTags);

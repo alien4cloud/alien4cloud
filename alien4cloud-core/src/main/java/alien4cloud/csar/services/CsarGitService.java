@@ -11,7 +11,10 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
 import org.eclipse.jgit.api.Git;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,17 +24,14 @@ import org.springframework.util.FileSystemUtils;
 import com.google.common.collect.Lists;
 
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
-import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.GitException;
 import alien4cloud.git.RepositoryManager;
-import org.alien4cloud.tosca.model.CSARDependency;
 import alien4cloud.model.components.CSARSource;
-import org.alien4cloud.tosca.model.Csar;
 import alien4cloud.model.git.CsarDependenciesBean;
 import alien4cloud.model.git.CsarGitCheckoutLocation;
 import alien4cloud.model.git.CsarGitRepository;
-import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
@@ -165,7 +165,7 @@ public class CsarGitService {
         } catch (ParsingException e) {
             // TODO Actually add a parsing result with error.
             throw new GitException("Failed to import archive from git as it cannot be parsed", e);
-        } catch (CSARVersionAlreadyExistsException e) {
+        } catch (AlreadyExistException e) {
             return parsingResult;
         } catch (CSARUsedInActiveDeployment e) {
             // TODO Actually add a parsing result with error.

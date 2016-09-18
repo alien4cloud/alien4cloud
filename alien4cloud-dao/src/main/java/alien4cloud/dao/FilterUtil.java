@@ -33,6 +33,9 @@ public final class FilterUtil {
      * @return The filters map.
      */
     public static Map<String, String[]> singleKeyFilter(Map<String, String[]> filters, String key, String... values) {
+        if (filters == null) {
+            return singleKeyFilter(key, values);
+        }
         if (!filters.containsKey(key)) {
             filters.put(key, values);
         }
@@ -61,6 +64,9 @@ public final class FilterUtil {
      * @return The filters map.
      */
     public static Map<String, String[]> fromKeyValueCouples(Map<String, String[]> filters, String... keyValues) {
+        if(filters == null) {
+            return fromKeyValueCouples(keyValues);
+        }
         for (int i = 0; i < keyValues.length; i += 2) {
             singleKeyFilter(filters, keyValues[i], keyValues[i + 1]);
         }
