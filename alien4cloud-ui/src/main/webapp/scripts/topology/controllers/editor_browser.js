@@ -57,11 +57,13 @@ define(function (require) {
       $scope.filePath = dirName;
       var selectedUrl;
       if(_.defined(node.artifactId)) {
+        console.log('Topology ', $scope.topology.topology);
         // temp file under edition
-        selectedUrl = '/rest/latest/editor/'+$scope.topology.topology.id+'/file/' + node.artifactId;
+        selectedUrl = '/rest/latest/editor/' + $scope.topology.topology.id + '/file/' + node.artifactId;
       } else {
         // commited file
-        selectedUrl = '/static/editor/' + node.fullPath;
+        console.log('Node ', node.fullPath);
+        selectedUrl = '/static/tosca/' + $scope.topology.topology.id + node.fullPath;
       }
       _.isImage(selectedUrl).then(function(isImage) {
         if(isImage) {

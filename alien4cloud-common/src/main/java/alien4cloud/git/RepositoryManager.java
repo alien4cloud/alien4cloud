@@ -254,7 +254,7 @@ public class RepositoryManager {
             }
             return historyEntries;
         } catch (GitAPIException | IOException e) {
-            throw new GitException("Unable to commit to the git repository ", e);
+            throw new GitException("Unable to get history from the git repository ", e);
         } finally {
             close(repository);
         }

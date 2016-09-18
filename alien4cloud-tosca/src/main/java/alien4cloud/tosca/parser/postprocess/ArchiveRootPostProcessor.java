@@ -48,6 +48,7 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
         // them to avoid registration issue.
         String archiveName = archiveRoot.getArchive().getName();
         String archiveVersion = archiveRoot.getArchive().getVersion();
+        archiveRoot.getArchive().setYamlFilePath(ParsingContextExecution.getFileName());
         if (archiveName == null) {
             archiveRoot.getArchive().setName(ParsingContextExecution.getFileName());
         }

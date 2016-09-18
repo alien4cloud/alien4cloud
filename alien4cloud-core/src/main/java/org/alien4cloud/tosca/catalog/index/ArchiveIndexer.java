@@ -99,15 +99,15 @@ public class ArchiveIndexer {
         ensureUniqueness(csar.getName(), csar.getVersion());
         workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
 
-        // index the archive and topology
-        csarService.save(csar);
-        topologyServiceCore.save(topology);
-
         // generate the initial yaml in a temporary directory
         if (csar.getYamlFilePath() == null) {
             csar.setYamlFilePath("topology.yml");
         }
         String yaml = exportService.getYaml(csar, topology);
+
+        // index the archive and topology
+        csarService.save(csar);
+        topologyServiceCore.save(topology);
         // Initialize the file repository for the archive
         archiveRepositry.storeCSAR(csar, yaml);
     }
