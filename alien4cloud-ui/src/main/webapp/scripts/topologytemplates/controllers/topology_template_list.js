@@ -7,6 +7,8 @@ define(function (require) {
   var angular = require('angular');
   var _ = require('lodash');
 
+  require('scripts/topologytemplates/directives/topology_template_search');
+
   // register components root state
   states.state('topologycatalog', {
     url: '/topologycatalog',
@@ -26,12 +28,6 @@ define(function (require) {
     controller: 'TopologyTemplateListCtrl'
   });
   states.forward('topologycatalog', 'topologycatalog.list');
-
-  // states.state('topologycatalog.csar', {
-  //   url: '/csar',
-  //   templateUrl: 'views/layout/vertical_menu_layout.html',
-  //   controller: 'LayoutCtrl',
-  // });
 
   var registerService = require('scripts/topology/editor_register_service');
   registerService('topologycatalog.csar');
@@ -75,32 +71,14 @@ define(function (require) {
   ];
 
   modules.get('a4c-topology-templates', ['ui.router', 'ui.bootstrap', 'a4c-auth', 'a4c-common']).controller('TopologyTemplateListCtrl',
-    ['$scope', '$modal', '$resource', '$state', 'authService', '$alresource',
-    function($scope, $modal, $resource, $state, authService, $alresource) {
-      $scope.onSearch = function (searchConfig) {
-        $scope.searchConfig = searchConfig;
-      };
-      $scope.openCsar = function(csarId, event) {
-        if (_.defined(event)) {
-          event.stopPropagation();
-        }
-        $state.go('components.csars.csardetail', { csarId: csarId });
-      };
+    ['$scope', '$modal', '$resource', '$state', 'authService',
+    function($scope, $modal, $resource, $state, authService) {
       $scope.openTopology = function(archiveName, archiveVersion) {
         $state.go('topologycatalog.csar', { archiveName: archiveName, archiveVersion: archiveVersion });
       };
-      var fetchVersionsResource = $alresource('rest/latest/catalog/topologies/:archiveName/versions');
-      $scope.fetchVersions = function(topology) {
-        if(_.defined(topology.allVersions)) {
-          return;
-        }
-        fetchVersionsResource.get({archiveName: topology.archiveName},function(result) {
-          if(_.defined(result.error)) {
-            console.error('Encountered error while fetching element versions', topology.archiveName, result.error);
-          } else {
-            topology.allVersions = result.data;
-          }
-        });
+      $scope.onSelect = function(topology) {
+        console.log('topology: ', topology);
+        $scope.openTopology(topology.archiveName, topology.archiveVersion);
       };
 
       // API REST Definition
@@ -137,7 +115,6 @@ define(function (require) {
           });
         });
       };
-
 
       var isArchitectPromise = authService.hasRole('ARCHITECT');
       if(_.isBoolean(isArchitectPromise)) {

@@ -1,5 +1,25 @@
 package alien4cloud.common;
 
+import static alien4cloud.common.AlienConstants.APP_WORKSPACE_PREFIX;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+
+import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
+import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
+import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.AbstractTopologyVersion;
+import org.alien4cloud.tosca.model.templates.Topology;
+
+import com.google.common.collect.Lists;
+
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
@@ -9,18 +29,6 @@ import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
-import com.google.common.collect.Lists;
-import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
-import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
-import org.alien4cloud.tosca.catalog.index.CsarService;
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.templates.AbstractTopologyVersion;
-import org.alien4cloud.tosca.model.templates.Topology;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import java.util.*;
 
 public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
 
@@ -53,18 +61,16 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
      *
      * @param delegateId The id of the application/topology template for which to create the version.
      * @param topologyToCloneId The id of the topology to clone for the version's topology.
-     * @param archiveName The name of the archive for which to create a version.
      * @param version The new version.
      * @param description The description.
      */
-    public V createVersion(String delegateId, String topologyToCloneId, String archiveName, String version, String description, Topology providedTopology) {
+    public V createVersion(String delegateId, String topologyToCloneId, String version, String description, Topology providedTopology) {
         if (isVersionNameExist(delegateId, version)) {
             throw new AlreadyExistException("An version " + version + " already exists.");
         }
 
         VersionUtil.parseVersion(version);
         V appVersion = buildVersionImplem();
-        appVersion.setId(UUID.randomUUID().toString());
         appVersion.setDelegateId(delegateId);
         appVersion.setVersion(version);
         appVersion.setLatest(true);
@@ -74,8 +80,8 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
 
         // Every version of an application has a Cloud Service Archive
         String delegateType = ArchiveDelegateType.APPLICATION.toString();
-        Csar csar = new Csar(archiveName, version);
-        csar.setWorkspace("app:" + delegateId);
+        Csar csar = new Csar(delegateId, version);
+        csar.setWorkspace(APP_WORKSPACE_PREFIX + delegateId);
         csar.setDelegateId(delegateId);
         csar.setDelegateType(delegateType);
 
@@ -102,8 +108,9 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
         archiveIndexer.importNewArchive(csar, topology);
 
         // Save the version object
-        appVersion.setCsarId(csar.getId());
+        appVersion.setId(csar.getId());
         alienDAO.save(appVersion);
+
         return appVersion;
     }
 
@@ -163,7 +170,7 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
 
     private void deleteVersion(V version) {
         // Call delete archive
-        csarService.deleteCsar(version.getCsarId());
+        csarService.deleteCsar(version.getId());
         alienDAO.delete(getVersionImplemClass(), version.getId());
     }
 

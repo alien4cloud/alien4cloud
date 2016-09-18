@@ -54,10 +54,11 @@ public class Application implements ISecuredResource, IDeploymentSource, ITaggab
     private String id;
 
     @FetchContext(contexts = { SUMMARY }, include = { true })
-    @StringField(includeInAll = true, indexType = IndexType.not_analyzed)
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed)
     private String name;
 
-    @StringField(includeInAll = true, indexType = IndexType.analyzed)
+    @StringField(indexType = IndexType.analyzed)
     private String description;
 
     @DateField(includeInAll = false, index = IndexType.no)

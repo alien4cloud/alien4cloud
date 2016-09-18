@@ -1,8 +1,5 @@
 package org.alien4cloud.tosca.model.templates;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import org.elasticsearch.annotation.BooleanField;
 import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.StringField;
@@ -10,19 +7,18 @@ import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
 import alien4cloud.security.IManagedSecuredResource;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
 public abstract class AbstractTopologyVersion implements IManagedSecuredResource {
     @Id
-    private String id;
+    private String id; // Id is both the id of the version and of the archive that back this version.
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
     private String version;
     private String description;
-    @TermFilter
-    @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
-    private String csarId;
     @BooleanField(index = IndexType.not_analyzed)
     private boolean released;
     @BooleanField(index = IndexType.not_analyzed)

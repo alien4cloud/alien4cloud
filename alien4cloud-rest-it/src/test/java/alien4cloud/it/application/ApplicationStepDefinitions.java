@@ -83,7 +83,7 @@ public class ApplicationStepDefinitions {
 
     @When("^I create a new application with name \"([^\"]*)\" and description \"([^\"]*)\"$")
     public void I_create_a_new_application_with_name_and_description(String name, String description) throws Throwable {
-        CreateApplicationRequest request = new CreateApplicationRequest(name, description, null);
+        CreateApplicationRequest request = new CreateApplicationRequest(name, name, description, null);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/applications/", JsonUtil.toString(request)));
         RestResponse<String> reponse = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
         String applicationJson = Context.getRestClientInstance().get("/rest/v1/applications/" + reponse.getData());
@@ -121,7 +121,7 @@ public class ApplicationStepDefinitions {
 
     private void createApplicationFromTemplateId(String name, String description, String templateId) throws Throwable {
         // create the application linked to this template
-        CreateApplicationRequest request = new CreateApplicationRequest(name, description, templateId);
+        CreateApplicationRequest request = new CreateApplicationRequest(name, name, description, templateId);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/applications/", JsonUtil.toString(request)));
 
         // check the created application (topologyId)
@@ -188,7 +188,7 @@ public class ApplicationStepDefinitions {
     @Given("^There is a \"([^\"]*)\" application with tags:$")
     public void There_is_a_application_with_tags(String applicationName, DataTable tags) throws Throwable {
         // Create a new application with tags
-        CreateApplicationRequest request = new CreateApplicationRequest(applicationName, "", null);
+        CreateApplicationRequest request = new CreateApplicationRequest(applicationName, applicationName, "", null);
         String responseAsJson = Context.getRestClientInstance().postJSon("/rest/v1/applications/", JsonUtil.toString(request));
         String applicationId = JsonUtil.read(responseAsJson, String.class).getData();
         Context.getInstance().registerApplicationId(applicationName, applicationId);
@@ -395,7 +395,7 @@ public class ApplicationStepDefinitions {
         CURRENT_APPLICATIONS.clear();
         // Create each application and store in CURRENT_APPS
         for (List<String> app : applicationNames.raw()) {
-            CreateApplicationRequest request = new CreateApplicationRequest(app.get(0), app.get(1), null);
+            CreateApplicationRequest request = new CreateApplicationRequest(app.get(0), app.get(0), app.get(1), null);
             Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/applications/", JsonUtil.toString(request)));
             RestResponse<String> reponse = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
             String applicationJson = Context.getRestClientInstance().get("/rest/v1/applications/" + reponse.getData());

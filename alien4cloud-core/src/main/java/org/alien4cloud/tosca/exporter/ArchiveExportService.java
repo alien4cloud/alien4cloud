@@ -40,15 +40,16 @@ public class ArchiveExportService {
         velocityCtx.put("topology", topology);
         velocityCtx.put("template_name", csar.getName());
         velocityCtx.put("template_version", csar.getVersion());
+        velocityCtx.put("template_description", csar.getDescription());
         User loggedUser = AuthorizationUtil.getCurrentUser();
         velocityCtx.put("template_author", loggedUser != null ? loggedUser.getUsername() : null);
 
-        velocityCtx.put("application_description", csar.getDescription());
+        velocityCtx.put("topology_description", topology.getDescription());
 
-        if (csar.getDescription() == null && ArchiveDelegateType.APPLICATION.toString().equals(csar.getDelegateType())) {
+        if (topology.getDescription() == null && ArchiveDelegateType.APPLICATION.toString().equals(csar.getDelegateType())) {
             // if the archive has no description let's use the one of the application
             Application application = applicationService.getOrFail(csar.getDelegateId());
-            velocityCtx.put("application_description", application.getDescription());
+            velocityCtx.put("topology_description", application.getDescription());
         }
 
         try {

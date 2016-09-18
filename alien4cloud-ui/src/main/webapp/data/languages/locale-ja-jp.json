@@ -1,5 +1,7 @@
 {
   "APPLICATIONS" : {
+    "ARCHIVE_NAME": "Archive name (Id)",
+    "ARCHIVE_NAME_HELP": "The name of the TOSCA Cloud Service Archive related to the application. Also the unique and unmutable Id of the application.",
     "APPLICATION" : "アプリケーション",
     "APPLICATION_ROLES" : "アプリケーションロール",
     "DEPLOY" : "デプロイ",

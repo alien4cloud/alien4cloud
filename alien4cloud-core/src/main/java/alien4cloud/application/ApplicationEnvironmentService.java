@@ -280,7 +280,7 @@ public class ApplicationEnvironmentService {
     public String getTopologyId(String applicationEnvironmentId) {
         ApplicationEnvironment applicationEnvironment = getOrFail(applicationEnvironmentId);
         ApplicationVersion applicationVersion = applicationVersionService.get(applicationEnvironment.getCurrentVersionId());
-        return applicationVersion == null ? null : applicationVersion.getCsarId();
+        return applicationVersion == null ? null : applicationVersion.getId();
     }
 
     /**

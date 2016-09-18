@@ -1,16 +1,15 @@
 package alien4cloud.application;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
-import static alien4cloud.utils.AlienUtils.arOfArray;
-import static alien4cloud.utils.AlienUtils.array;
+import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
 import java.util.*;
 import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
-import alien4cloud.dao.FilterUtil;
-import org.elasticsearch.index.query.QueryBuilders;
+import alien4cloud.exception.InvalidArgumentException;
+import alien4cloud.utils.ReflectionUtil;
 import org.elasticsearch.mapping.QueryHelper;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +28,7 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.utils.MapUtil;
+import alien4cloud.topology.TopologyService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -53,18 +52,17 @@ public class ApplicationService {
      * Create a new application and return it's id
      *
      * @param user The user that is creating the application (will be APPLICATION_MANAGER)
+     * @param archiveName The unique archive name (and if for the application).
      * @param name The name of the new application.
      * @param description The description of the new application.
      * @return The id of the newly created application.
      */
-    public String create(String user, String name, String description) {
-        ensureNameIsValid(name);
-        ensureNameUnicity(name);
-
-        String id = UUID.randomUUID().toString();
+    public String create(String user, String archiveName, String name, String description) {
+        checkApplicationId(archiveName);
+        checkApplicationName(name);
 
         Application application = new Application();
-        application.setId(id);
+        application.setId(archiveName);
 
         Map<String, Set<String>> userRoles = Maps.newHashMap();
         userRoles.put(user, Sets.newHashSet(ApplicationRole.APPLICATION_MANAGER.toString()));
@@ -79,37 +77,56 @@ public class ApplicationService {
         application.setMetaProperties(Maps.<String, String> newHashMap());
 
         alienDAO.save(application);
-        return id;
+        return archiveName;
     }
 
-    /**
-     * Check the the name of the application is already used.
-     *
-     * @param name The name of the application.
-     * @return true if an application already use this name, false if not.
-     */
-    public void ensureNameUnicity(String name) {
-        if (alienDAO.count(Application.class, QueryBuilders.termQuery("name", name)) > 0) {
-            log.debug("Application name <{}> already exists.", name);
-            throw new AlreadyExistException("An application with the given name already exists.");
+    private void checkApplicationId(String applicationId) {
+        // Check that it matches the required pattern
+        if (!TopologyService.NODE_NAME_PATTERN.matcher(applicationId).matches()) {
+            // FIXME throw another exception ?
+            throw new InvalidApplicationNameException("Application id <" + applicationId + "> is not valid. It must not contains any special characters.");
+        }
+        // Check that it doesn't already exists
+        if (alienDAO.findById(Application.class, applicationId) != null) {
+            throw new AlreadyExistException("An application with the given id already exists.");
         }
     }
 
-    /**
-     * Check the the name of the application is valid.
-     *
-     * @param name The name of the application.
-     * @return throw an error if invalid.
-     */
-    public void ensureNameIsValid(String name) {
-        if (!isValidNodeName(name)) {
+    private void checkApplicationName(String name) {
+        if (alienDAO.buildQuery(Application.class).setFilters(singleKeyFilter("name", name)).count() > 0) {
+            log.debug("Application name <{}> already exists.", name);
+            throw new AlreadyExistException("An application with the given name already exists.");
+        }
+        if (!Pattern.matches(APPLICATION_NAME_REGEX, name)) {
             log.debug("Application name <{}> contains forbidden character.", name);
             throw new InvalidApplicationNameException("An application name should not contains slash or backslash.");
         }
     }
 
-    public static boolean isValidNodeName(String name) {
-        return Pattern.matches(APPLICATION_NAME_REGEX, name);
+    /**
+     * Update the name and description of an application.
+     * 
+     * @param applicationId The application id.
+     * @param newName The new name for the application.
+     * @param newDescription The new description for the application.
+     */
+    public void update(String applicationId, String newName, String newDescription) {
+        Application application = getOrFail(applicationId);
+        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
+        if (application.getName() == null || application.getName().isEmpty()) {
+            throw new InvalidArgumentException("Application's name cannot be set to null or empty");
+        }
+
+        if (!application.getName().equals(newName)) {
+            checkApplicationName(newName);
+        }
+
+        application.setName(newName);
+        application.setDescription(newDescription);
+
+        // update updateDate
+        application.setLastUpdateDate(new Date());
+        alienDAO.save(application);
     }
 
     /**

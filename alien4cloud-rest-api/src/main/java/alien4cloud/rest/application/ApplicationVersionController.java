@@ -120,8 +120,8 @@ public class ApplicationVersionController {
         AuthorizationUtil.checkHasOneRoleIn(Role.APPLICATIONS_MANAGER);
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        ApplicationVersion appVersion = appVersionService.createApplicationVersion(applicationId, request.getTopologyId(), application.getName(),
-                request.getVersion(), request.getDescription());
+        ApplicationVersion appVersion = appVersionService.createApplicationVersion(applicationId, request.getTopologyId(), request.getVersion(),
+                request.getDescription());
         return RestResponseBuilder.<String> builder().data(appVersion.getId()).build();
     }
 
@@ -154,7 +154,7 @@ public class ApplicationVersionController {
             if (!VersionUtil.isSnapshot(request.getVersion())) {
                 // we are changing a snapshot into a released version
                 // let's check that the dependencies are not snapshots
-                Topology topology = topologyServiceCore.getOrFail(appVersion.getCsarId());
+                Topology topology = topologyServiceCore.getOrFail(appVersion.getId());
                 appVersionService.checkTopologyReleasable(topology);
             }
         }
