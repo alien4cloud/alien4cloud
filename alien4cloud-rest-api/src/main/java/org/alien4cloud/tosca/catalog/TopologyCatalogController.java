@@ -83,4 +83,17 @@ public class TopologyCatalogController {
         }
         return RestResponseBuilder.<CatalogVersionResult[]> builder().data(new CatalogVersionResult[0]).build();
     }
+
+    /**
+     * Get a specific topology from it's id.
+     *
+     * @param id The name of the archive for which we want to get versions.
+     * @return A {@link RestResponse} that contains a of {@link Topology} .
+     */
+    @ApiOperation(value = "Get a specific topology from it's id.")
+    @RequestMapping(value = "/{id:.+}", method = RequestMethod.GET)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
+    public RestResponse<Topology> getTopology(@PathVariable String id) {
+        return RestResponseBuilder.<Topology> builder().data(catalogService.getOrFail(id)).build();
+    }
 }

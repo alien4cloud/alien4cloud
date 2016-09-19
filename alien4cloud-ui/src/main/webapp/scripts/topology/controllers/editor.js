@@ -24,9 +24,9 @@ define(function (require) {
   require('scripts/topology/services/topology_editor_events_services');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles', 'cfp.hotkeys']).controller('TopologyEditorCtrl',
-    ['$scope', 'menu', 'layoutService', 'archiveVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',
+    ['$scope', 'menu', 'layoutService', 'context', 'archiveVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',
     'hotkeys','topologyRecoveryServices',// 'topologyEditorEventFactory',
-    function($scope, menu, layoutService, archiveVersions, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys, topologyRecoveryServices) {// , topologyEditorEventFactory) {
+    function($scope, menu, layoutService, context, archiveVersions, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys, topologyRecoveryServices) {// , topologyEditorEventFactory) {
       // register for websockets events
       // var registration = topologyEditorEventFactory($scope.topologyId, function(event) {
       //   console.log('received event', event);
@@ -46,7 +46,7 @@ define(function (require) {
       $scope.getShortName = toscaService.simpleName;
       // Manage topology version selection (version is provided as parameter from the template or application)
       $scope.topologyVersions = archiveVersions.data;
-      $scope.versionContext = {};
+      $scope.versionContext = context;
       $scope.released = false; // this allow to avoid file edition in the ui-ace.
       topoEditVersions($scope);
 

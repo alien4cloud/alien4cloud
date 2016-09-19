@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.common.AlienConstants;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.version.Version;
 
@@ -73,5 +74,19 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
         return alienDAO.buildQuery(Topology.class)
                 .setFilters(fromKeyValueCouples(filters, "workspace", AlienConstants.GLOBAL_WORKSPACE_ID, "archiveName", archiveName)).prepareSearch()
                 .setFetchContext(SUMMARY).search(0, Integer.MAX_VALUE).getData();
+    }
+
+    /**
+     * Get a single topology from it's id or throw a NotFoundException.
+     * 
+     * @param id The id of the topology to look for.
+     * @return The topology matching the requested id.
+     */
+    public Topology getOrFail(String id) {
+        Topology topology = alienDAO.findById(Topology.class, id);
+        if (topology == null) {
+            throw new NotFoundException("Unable to find a topology with id <" + id + ">");
+        }
+        return topology;
     }
 }

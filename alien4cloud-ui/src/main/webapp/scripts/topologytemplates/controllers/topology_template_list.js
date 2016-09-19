@@ -77,7 +77,6 @@ define(function (require) {
         $state.go('topologycatalog.csar', { archiveName: archiveName, archiveVersion: archiveVersion });
       };
       $scope.onSelect = function(topology) {
-        console.log('topology: ', topology);
         $scope.openTopology(topology.archiveName, topology.archiveVersion);
       };
 

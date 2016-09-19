@@ -11,12 +11,14 @@ define(function (require) {
       $scope.onSearch = function (searchConfig) {
         $scope.searchConfig = searchConfig;
       };
+
       $scope.openCsar = function(csarId, event) {
         if (_.defined(event)) {
           event.stopPropagation();
         }
         $state.go('components.csars.csardetail', { csarId: csarId });
       };
+
       var fetchVersionsResource = $alresource('rest/latest/catalog/topologies/:archiveName/versions');
       $scope.fetchVersions = function(topology) {
         if(_.defined(topology.allVersions)) {
@@ -29,6 +31,21 @@ define(function (require) {
             topology.allVersions = result.data;
           }
         });
+      };
+
+      var topologyResource = $alresource('rest/latest/catalog/topologies/:id');
+      $scope.selectVersion = function(topology, version, index, event) {
+        if (_.defined(event)) {
+          event.stopPropagation();
+        }
+        if(topology.archiveVersion !== version.version) {
+          topologyResource.get({id: version.id},
+            function(response) {
+            console.log(response);
+            response.data.allVersions = topology.allVersions;
+            $scope.searchConfig.result.data[index] = response.data;
+          });
+        }
       };
     }
   ]); // controller

@@ -32,11 +32,11 @@
                 <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" ng-click="fetchVersions(topology)">
                    {{topology.archiveVersion}} <i class="fa fa-caret-down"></i>
                 </button>
-                <ul ng-if="!topology.allVersions" class="dropdown-menu" role="menu" ng-init="itemIdex = $index">
+                <ul ng-if="!topology.allVersions" class="dropdown-menu" role="menu">
                   <li class="option-selected"><i class="fa fa-spin fa-spinner"></i> Loading</li>
                 </ul>
-                <ul ng-if="topology.allVersions" class="dropdown-menu" role="menu">
-                  <li ng-repeat="version in topology.allVersions" class="option-selected"><a ng-click="selectVersion(topology, version, $event)">{{version.version}}</a></li>
+                <ul ng-if="topology.allVersions" class="dropdown-menu" role="menu" ng-init="itemIdex = $index">
+                  <li ng-repeat="version in topology.allVersions" class="option-selected"><a ng-click="selectVersion(topology, version, itemIdex, $event)">{{version.version}}</a></li>
                 </ul>
               </div>
             </td>
