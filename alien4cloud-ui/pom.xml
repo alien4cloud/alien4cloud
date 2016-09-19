@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>alien4cloud</groupId>
@@ -9,7 +10,8 @@
   <packaging>war</packaging>
 
   <name>Alien 4 Cloud UI</name>
-  <description>UI project for Alien. Alien 4 Cloud UI is an AngularJS Application and contains multiple UI modules.</description>
+  <description>UI project for Alien. Alien 4 Cloud UI is an AngularJS Application and contains multiple UI modules.
+  </description>
 
   <properties>
     <sonar.language>js</sonar.language>
@@ -87,22 +89,6 @@
           </webResources>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>${spring-boot.version}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>repackage</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <classifier>standalone</classifier>
-          <mainClass>alien4cloud.Application</mainClass>
-        </configuration>
-      </plugin>
       <!-- Configure the clean plugin in order to delete generated directories -->
       <plugin>
         <artifactId>maven-clean-plugin</artifactId>
@@ -147,7 +133,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore />
+                    <ignore/>
                   </action>
                 </pluginExecution>
               </pluginExecutions>
@@ -220,7 +206,7 @@
           <plugin>
             <groupId>fr.fastconnect</groupId>
             <artifactId>calm-yeoman-maven-plugin</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.3</version>
             <configuration>
               <gruntTestArgs>continuoustest --no-color</gruntTestArgs>
             </configuration>
@@ -260,7 +246,52 @@
         </plugins>
       </build>
     </profile>
-
+    <profile>
+      <id>nooptimizer</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>fr.fastconnect</groupId>
+            <artifactId>calm-yeoman-maven-plugin</artifactId>
+            <version>1.0.3</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>init</goal>
+                  <goal>build</goal>
+                  <goal>package</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <gruntBuildArgs>nooptimize</gruntBuildArgs>
+              <yeomanProjectDirectory>./</yeomanProjectDirectory>
+            </configuration>
+          </plugin>
+          <plugin>
+            <artifactId>maven-war-plugin</artifactId>
+            <version>2.3</version>
+            <configuration>
+              <classifier>nooptimizer</classifier>
+              <failOnMissingWebXml>false</failOnMissingWebXml>
+              <warSourceDirectory>target/webapp
+              </warSourceDirectory> <!-- Include the directory after grunt processing. -->
+              <webappDirectory>${project.build.directory}/alien4cloud-ui-war</webappDirectory>
+              <webResources>
+                <!-- Add the yeoman dist directory to the war file -->
+                <resource>
+                  <directory>version</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </webResources>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
     <profile>
       <id>UITest</id>
       <activation>
@@ -278,7 +309,7 @@
                 <configuration>
                   <tasks>
                     <delete includeemptydirs="true" failonerror="false">
-                      <fileset dir="${user.home}/.alien" includes="**/*" />
+                      <fileset dir="${user.home}/.alien" includes="**/*"/>
                     </delete>
                     <!-- COPY plugins and archives to have out of the box for tests. -->
                   </tasks>

@@ -22,7 +22,7 @@ module.exports = function(grunt) {
       test: 'src/test/webapp',
       tmp: 'target/tmp',
       dist: 'target/webapp'
-    },
+    }
   };
   grunt.config.merge(config);
 
