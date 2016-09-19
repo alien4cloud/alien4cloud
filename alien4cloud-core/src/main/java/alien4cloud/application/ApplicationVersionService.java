@@ -45,7 +45,7 @@ public class ApplicationVersionService extends AbtractVersionService<Application
      * @param topologyId The id of the topology to clone for the version's topology.
      */
     public ApplicationVersion createApplicationVersion(String applicationId, String topologyId) {
-        return createVersion(applicationId, topologyId, VersionUtil.DEFAULT_VERSION_NAME, null, null);
+        return createVersion(applicationId, topologyId, VersionUtil.DEFAULT_VERSION_NAME, null);
     }
 
     /**
@@ -56,7 +56,7 @@ public class ApplicationVersionService extends AbtractVersionService<Application
      * @param version The number version of the new application version.
      */
     public ApplicationVersion createApplicationVersion(String applicationId, String topologyId, String version, String desc) {
-        return createVersion(applicationId, topologyId, version, desc, null);
+        return createVersion(applicationId, topologyId, version, desc);
     }
 
     /**

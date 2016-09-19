@@ -58,7 +58,7 @@ public class TopologyCatalogController {
     @Audit
     public RestResponse<String> createAsTemplate(@RequestBody @Valid CreateTopologyRequest createTopologyRequest) {
         Topology topology = catalogService.createTopologyAsTemplate(createTopologyRequest.getName(), createTopologyRequest.getDescription(),
-                createTopologyRequest.getVersion());
+                createTopologyRequest.getVersion(), createTopologyRequest.getFromTopologyId());
         return RestResponseBuilder.<String> builder().data(topology.getId()).build();
     }
 

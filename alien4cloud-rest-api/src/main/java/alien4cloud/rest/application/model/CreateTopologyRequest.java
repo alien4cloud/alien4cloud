@@ -15,10 +15,10 @@ import org.hibernate.validator.constraints.NotBlank;
 @NoArgsConstructor
 @AllArgsConstructor(suppressConstructorProperties = true)
 public class CreateTopologyRequest {
-
     @NotBlank
     private String name;
-    private String description;
+    @NotBlank
     private String version;
-
+    private String description;
+    private String fromTopologyId;
 }

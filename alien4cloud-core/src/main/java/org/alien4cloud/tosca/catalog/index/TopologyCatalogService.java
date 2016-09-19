@@ -32,20 +32,25 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
      * @param name The name of the topology template
      * @param description The description of the topology template
      * @param version The version of the topology
+     * @param fromTopologyId The id of an existing topology to use to create the new topology.
      * @return The @{@link Topology} newly created
      */
-    public Topology createTopologyAsTemplate(String name, String description, String version) {
+    public Topology createTopologyAsTemplate(String name, String description, String version, String fromTopologyId) {
         // Every version of a topology template has a Cloud Service Archive
         Csar csar = new Csar(name, StringUtils.isNotBlank(version) ? version : VersionUtil.DEFAULT_VERSION_NAME);
         csar.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
         csar.setDelegateType(ArchiveDelegateType.CATALOG.toString());
         csar.setDescription("Enclosing archive for topology: " + description);
 
-        Topology topology = new Topology();
+        Topology topology;
+        if (fromTopologyId != null) { // "cloning" the topology
+            topology = alienDAO.findById(Topology.class, fromTopologyId);
+        } else {
+            topology = new Topology();
+        }
         topology.setDescription(description);
         topology.setArchiveName(csar.getName());
         topology.setArchiveVersion(csar.getVersion());
-        topology.setNestedVersion(new Version(topology.getArchiveVersion()));
         topology.setWorkspace(csar.getWorkspace());
 
         archiveIndexer.importNewArchive(csar, topology);

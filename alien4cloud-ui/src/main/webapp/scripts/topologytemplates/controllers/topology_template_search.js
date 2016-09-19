@@ -47,6 +47,13 @@ define(function (require) {
           });
         }
       };
+
+      $scope.clone= function(topology, event) {
+        if (_.defined(event)) {
+          event.stopPropagation();
+        }
+        $scope.onSelectForClone({topology: topology});
+      };
     }
   ]); // controller
 }); // define

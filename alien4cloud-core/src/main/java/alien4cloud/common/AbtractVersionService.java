@@ -64,7 +64,7 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
      * @param version The new version.
      * @param description The description.
      */
-    public V createVersion(String delegateId, String topologyToCloneId, String version, String description, Topology providedTopology) {
+    public V createVersion(String delegateId, String topologyToCloneId, String version, String description) {
         if (isVersionNameExist(delegateId, version)) {
             throw new AlreadyExistException("An version " + version + " already exists.");
         }
@@ -86,14 +86,10 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
         csar.setDelegateType(delegateType);
 
         Topology topology;
-        if (providedTopology != null) {
-            topology = providedTopology;
+        if (topologyToCloneId != null) { // "cloning" the topology
+            topology = alienDAO.findById(Topology.class, topologyToCloneId);
         } else {
-            if (topologyToCloneId != null) { // "cloning" the topology
-                topology = alienDAO.findById(Topology.class, topologyToCloneId);
-            } else {
-                topology = new Topology();
-            }
+            topology = new Topology();
         }
         topology.setArchiveName(csar.getName());
         topology.setArchiveVersion(csar.getVersion());

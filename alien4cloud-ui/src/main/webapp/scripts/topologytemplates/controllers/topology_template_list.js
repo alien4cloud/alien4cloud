@@ -54,13 +54,21 @@ define(function (require) {
     }
   });
 
-  var NewTopologyTemplateCtrl = ['$scope', '$modalInstance', 'applicationVersionServices',
-    function($scope, $modalInstance, applicationVersionServices) {
-      $scope.topologytemplate = {};
-      $scope.topologytemplate.version = '0.1.0-SNAPSHOT';
+  var NewTopologyTemplateCtrl = ['$scope', '$modalInstance', 'applicationVersionServices', 'topology',
+    function($scope, $modalInstance, applicationVersionServices, topology) {
+      $scope.topology = topology;
+      $scope.topologytemplate = {
+        version: '0.1.0-SNAPSHOT'
+      };
+      if(_.defined(topology)) {
+        $scope.topologytemplate.name = topology.archiveName;
+      }
       $scope.versionPattern = applicationVersionServices.pattern;
       $scope.create = function(valid) {
         if (valid) {
+          if(topology) {
+            $scope.topologytemplate.fromTopologyId = topology.id;
+          }
           $modalInstance.close($scope.topologytemplate);
         }
       };
@@ -91,11 +99,14 @@ define(function (require) {
         }
       });
 
-      $scope.openNewTopologyTemplate = function() {
-        var modalInstance = $modal.open({
+      $scope.openNewTopologyTemplate = function(topology) {
+        var modalConfiguration = {
           templateUrl: 'views/topologytemplates/topology_template_new.html',
-          controller: NewTopologyTemplateCtrl
-        });
+          controller: NewTopologyTemplateCtrl,
+          resolve: { topology: function() { return topology; } }
+        };
+
+        var modalInstance = $modal.open(modalConfiguration);
 
         modalInstance.result.then(function(topologyTemplate) {
           // create a new topologyTemplate from the given name, version and description.

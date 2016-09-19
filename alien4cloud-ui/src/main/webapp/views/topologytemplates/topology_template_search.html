@@ -41,9 +41,14 @@
               </div>
             </td>
             <td ng-if="archiveLink">
-              <button class="btn btn-default pull-right" ng-click="openCsar(topology.id, $event)" tooltip="{{'COMPONENTS.ARCHIVE' | translate}}">
-                <i class="fa fa-archive"></i>
-              </button>
+              <div class="pull-right">
+                <button class="btn btn-success" ng-click="clone(topology, $event)" tooltip="{{'COMPONENTS.ARCHIVE' | translate}}">
+                  <i class="fa fa-copy"></i>
+                </button>
+                <button class="btn btn-default" ng-click="openCsar(topology.id, $event)" tooltip="{{'COMPONENTS.ARCHIVE' | translate}}">
+                  <i class="fa fa-archive"></i>
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>

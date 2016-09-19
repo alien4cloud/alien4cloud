@@ -14,6 +14,7 @@ define(function (require) {
       controller: 'TopologyTemplateSearchCtrl',
       scope: {
         onSelect: '&',
+        onSelectForClone: '&',
         archiveLink: '@'
       }
     };

@@ -24,6 +24,16 @@
         <textarea class="form-control" id="topo-template-desc" rows="3" ng-model="topologytemplate.description" placeholder="{{'COMMON.DESCRIPTION' | translate}}"></textarea>
       </div>
     </div>
+    <div class="form-group" ng-if="topology">
+      <label for="templateId" class="col-lg-2 control-label">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_BASE' | translate}}</label>
+      <div class="col-lg-4">
+        <input readonly type="text" class="form-control" id="templateId" ng-model="topology.archiveName" name="templateId" placeholder="{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT' | translate}}">
+      </div>
+      <label for="templateVersionId" class="col-lg-2 control-label">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_VERSION' | translate}}</label>
+      <div class="col-lg-4">
+        <input readonly type="text" class="form-control" id="templateVersionId" ng-model="topology.archiveVersion" name="templateVersionId" placeholder="{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT_VERSION' | translate}}">
+      </div>
+    </div>
   </div>
   <div class="modal-footer">
     <button id="modal-create-button" ng-disabled="newTopologyTemplate.name.$invalid" class="btn btn-primary">{{'CREATE' | translate}}</button>
