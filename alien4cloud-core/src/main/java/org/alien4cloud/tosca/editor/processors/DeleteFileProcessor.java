@@ -57,7 +57,7 @@ public class DeleteFileProcessor implements IEditorCommitableProcessor<DeleteFil
     }
 
     private void resetRemovedArtifact(IArtifact artifact, String removedFilePath) {
-        if (artifact.getArtifactRepository() == null) {
+        if (artifact != null && artifact.getArtifactRepository() == null) {
             // this is an archive file, check if reference is good
             if (removedFilePath.equals(artifact.getArtifactRef())) {
                 // FIXME is that correct, should we get the default artifact from the node / interface type here ?
