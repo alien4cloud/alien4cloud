@@ -464,6 +464,10 @@
       "YAML_SEQUENCE_EXPECTED" : "A YAML sequence is expected.",
       "INVALID_ARTIFACT_REFERENCE": "Invalid artifact's reference {{note}}",
       "UNRESOLVED_ARTIFACT": "Artifact {{note}} cannot be resolved "
+    },
+    "WORKSPACES": {
+      "UPLOAD": "Upload to workspace",
+      "SEARCH": "Search in workspaces"
     }
   },
   "CONFIRM" : "Confirm",

@@ -8,16 +8,16 @@ import java.util.TreeSet;
 
 import javax.inject.Inject;
 
-import alien4cloud.exception.NotFoundException;
-import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.exception.InvalidPathException;
 import org.alien4cloud.tosca.editor.operations.AbstractUpdateFileOperation;
 import org.alien4cloud.tosca.editor.services.EditorTopologyUploadService;
 
 import alien4cloud.component.repository.IFileRepository;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.utils.TreeNode;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Process an operation that uploaded or updated a file.
@@ -76,7 +76,8 @@ public abstract class AbstractUpdateFileProcessor<T extends AbstractUpdateFileOp
             try {
                 if (EditionContextManager.getCsar().getYamlFilePath().equals(operation.getPath())) {
                     // the operation updates the topology file, we have to parse it and override the topology data out of it.
-                    editorTopologyUploadService.processTopology(artifactRepository.resolveFile(artifactFileId));
+                    editorTopologyUploadService.processTopology(artifactRepository.resolveFile(artifactFileId),
+                            EditionContextManager.getTopology().getWorkspace());
                 }
             } catch (RuntimeException e) {
                 // remove the file from the temp repository if the topology cannot be parsed

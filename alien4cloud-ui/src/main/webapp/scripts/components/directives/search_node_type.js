@@ -11,6 +11,7 @@ define(function (require) {
       restrict: 'E',
       scope: {
         'refresh': '=',
+        'workspaces': '=',
         'displayDetailPannel': '=',
         'onSelectItem': '&',
         'globalContext': '=',

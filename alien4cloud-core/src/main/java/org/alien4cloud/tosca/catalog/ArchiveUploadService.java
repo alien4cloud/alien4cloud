@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
 
+import alien4cloud.common.AlienConstants;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.model.components.CSARSource;
 import alien4cloud.model.git.CsarDependenciesBean;
@@ -48,9 +49,9 @@ public class ArchiveUploadService {
      * @throws CSARUsedInActiveDeployment
      */
     @ToscaContextual
-    public ParsingResult<Csar> upload(Path path, CSARSource csarSource) throws ParsingException, CSARUsedInActiveDeployment {
+    public ParsingResult<Csar> upload(Path path, CSARSource csarSource, String workspace) throws ParsingException, CSARUsedInActiveDeployment {
         // parse the archive.
-        ParsingResult<ArchiveRoot> parsingResult = parser.parseWithExistingContext(path);
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseWithExistingContext(path, workspace);
 
         final ArchiveRoot archiveRoot = parsingResult.getResult();
         if (archiveRoot.hasToscaTopologyTemplate()) {
@@ -81,7 +82,8 @@ public class ArchiveUploadService {
         Map<CSARDependency, CsarDependenciesBean> csarDependenciesBeans = Maps.newHashMap();
         for (Path path : paths) {
             try {
-                ParsingResult<ArchiveRoot> parsingResult = parser.parse(path);
+                // FIXME cleanup git import archives
+                ParsingResult<ArchiveRoot> parsingResult = parser.parse(path, AlienConstants.GLOBAL_WORKSPACE_ID);
                 CsarDependenciesBean csarDepContainer = new CsarDependenciesBean();
                 csarDepContainer.setPath(path);
                 csarDepContainer
@@ -114,7 +116,6 @@ public class ArchiveUploadService {
     private <T> ParsingResult<T> cleanup(ParsingResult<?> result) {
         ParsingContext context = new ParsingContext(result.getContext().getFileName());
         context.getParsingErrors().addAll(result.getContext().getParsingErrors());
-        ParsingResult<T> cleaned = new ParsingResult<T>(null, context);
-        return cleaned;
+        return new ParsingResult<T>(null, context);
     }
 }

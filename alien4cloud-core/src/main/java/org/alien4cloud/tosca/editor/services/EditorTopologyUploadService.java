@@ -4,14 +4,14 @@ import java.nio.file.Path;
 
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.ArchiveParser;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.exception.EditorToscaYamlUpdateException;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.springframework.stereotype.Component;
 
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
-import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
-import org.alien4cloud.tosca.catalog.ArchiveParser;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
@@ -33,10 +33,10 @@ public class EditorTopologyUploadService {
      *
      * @param archivePath The path of the yaml or archive.
      */
-    public void processTopology(Path archivePath) {
+    public void processTopology(Path archivePath, String workspace) {
         // parse the archive.
         try {
-            ParsingResult<ArchiveRoot> parsingResult = archiveParser.parse(archivePath, true);
+            ParsingResult<ArchiveRoot> parsingResult = archiveParser.parse(archivePath, true, workspace);
 
             // check if any blocker error has been found during parsing process.
             if (parsingResult.hasError(ParsingErrorLevel.ERROR)) {

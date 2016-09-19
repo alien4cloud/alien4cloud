@@ -26,7 +26,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.collect.Lists;
@@ -40,7 +46,11 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.CSARSource;
 import alien4cloud.rest.component.SearchRequest;
-import alien4cloud.rest.model.*;
+import alien4cloud.rest.model.RestError;
+import alien4cloud.rest.model.RestErrorBuilder;
+import alien4cloud.rest.model.RestErrorCode;
+import alien4cloud.rest.model.RestResponse;
+import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
@@ -72,7 +82,7 @@ public class CloudServiceArchiveController {
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
     @Audit
-    public RestResponse<CsarUploadResult> uploadCSAR(@RequestParam("file") MultipartFile csar) throws IOException {
+    public RestResponse<CsarUploadResult> uploadCSAR(@RequestParam String workspace, @RequestParam("file") MultipartFile csar) throws IOException {
         Path csarPath = null;
         try {
 
@@ -81,7 +91,7 @@ public class CloudServiceArchiveController {
             // save the archive in the temp directory
             FileUploadUtil.safeTransferTo(csarPath, csar);
             // load, parse the archive definitions and save on disk
-            ParsingResult<Csar> result = csarUploadService.upload(csarPath, CSARSource.UPLOAD);
+            ParsingResult<Csar> result = csarUploadService.upload(csarPath, CSARSource.UPLOAD, workspace);
             RestError error = null;
             if (result.hasError(ParsingErrorLevel.ERROR)) {
                 error = RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build();

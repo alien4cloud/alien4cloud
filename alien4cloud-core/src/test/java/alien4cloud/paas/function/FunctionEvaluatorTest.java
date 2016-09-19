@@ -12,11 +12,18 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import alien4cloud.common.AlienConstants;
-import alien4cloud.model.components.*;
-import alien4cloud.tosca.parser.ParsingError;
+import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.definitions.IValue;
+import org.alien4cloud.tosca.model.definitions.Operation;
+import org.alien4cloud.tosca.model.definitions.OperationOutput;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.junit.Assert;
@@ -26,10 +33,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.google.common.collect.Maps;
+
+import alien4cloud.common.AlienConstants;
 import alien4cloud.git.RepositoryManager;
-import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
+import alien4cloud.model.components.CSARSource;
 import alien4cloud.paas.IPaaSTemplate;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.PaaSNodeTemplate;
@@ -39,13 +47,11 @@ import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 import alien4cloud.security.model.Role;
 import alien4cloud.test.utils.SecurityTestUtils;
-import org.alien4cloud.tosca.catalog.ArchiveUploadService;
+import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.services.ApplicationUtil;
-
-import com.google.common.collect.Maps;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:function-application-context-test.xml")
@@ -89,7 +95,7 @@ public class FunctionEvaluatorTest {
             Path typesPath = artifactsDirectory.resolve(normativeLocalName);
             Path typesZipPath = artifactsDirectory.resolve(normativeLocalName + ".zip");
             FileUtil.zip(typesPath, typesZipPath);
-            ParsingResult<Csar> result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER);
+            ParsingResult<Csar> result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER, AlienConstants.GLOBAL_WORKSPACE_ID);
             for (ParsingError error : result.getContext().getParsingErrors()) {
                 System.out.println(error.getErrorLevel() + " " + error.getProblem());
             }
@@ -97,17 +103,17 @@ public class FunctionEvaluatorTest {
             typesPath = artifactsDirectory.resolve(extendedLocalName).resolve("alien-base-types");
             typesZipPath = artifactsDirectory.resolve("alien-base-types.zip");
             FileUtil.zip(typesPath, typesZipPath);
-            result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER);
+            result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER, AlienConstants.GLOBAL_WORKSPACE_ID);
 
             typesPath = artifactsDirectory.resolve(sampleLocalName).resolve("tomcat-war");
             typesZipPath = artifactsDirectory.resolve("tomcat_war.zip");
             FileUtil.zip(typesPath, typesZipPath);
-            result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER);
+            result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER, AlienConstants.GLOBAL_WORKSPACE_ID);
 
             typesPath = Paths.get("src/test/resources/alien/paas/function/csars/test-types");
             typesZipPath = artifactsDirectory.resolve("target/test-types.zip");
             FileUtil.zip(typesPath, typesZipPath);
-            result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER);
+            result = archiveUploadService.upload(typesZipPath, CSARSource.OTHER, AlienConstants.GLOBAL_WORKSPACE_ID);
 
             INITIALIZED = true;
         }

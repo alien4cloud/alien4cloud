@@ -1,10 +1,10 @@
 package org.alien4cloud.tosca.model.types;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.query.TermsFacet;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

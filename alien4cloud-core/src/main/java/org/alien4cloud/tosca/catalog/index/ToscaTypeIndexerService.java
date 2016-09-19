@@ -50,12 +50,12 @@ public class ToscaTypeIndexerService implements IToscaTypeIndexerService {
     }
 
     @Override
-    public Map<String, AbstractToscaType> getArchiveElements(String archiveName, String archiveVersion) {
-        return getArchiveElements(archiveName, archiveVersion, AbstractToscaType.class);
+    public Map<String, AbstractToscaType> getArchiveElements(String archiveName, String archiveVersion, String workspace) {
+        return getArchiveElements(archiveName, archiveVersion, workspace, AbstractToscaType.class);
     }
 
     @Override
-    public <T extends AbstractToscaType> Map<String, T> getArchiveElements(String archiveName, String archiveVersion, Class<T> type) {
+    public <T extends AbstractToscaType> Map<String, T> getArchiveElements(String archiveName, String archiveVersion, String workspaceId, Class<T> type) {
         GetMultipleDataResult<T> elements = alienDAO.find(type, MapUtil.newHashMap(new String[] { "archiveName", "archiveVersion" },
                 new String[][] { new String[] { archiveName }, new String[] { archiveVersion } }), Integer.MAX_VALUE);
 
@@ -85,12 +85,13 @@ public class ToscaTypeIndexerService implements IToscaTypeIndexerService {
     }
 
     @Override
-    public void indexInheritableElements(String archiveName, String archiveVersion, Map<String, ? extends AbstractInheritableToscaType> archiveElements,
-            Collection<CSARDependency> dependencies) {
+    public void indexInheritableElements(String archiveName, String archiveVersion, String workspace,
+            Map<String, ? extends AbstractInheritableToscaType> archiveElements, Collection<CSARDependency> dependencies) {
         for (AbstractInheritableToscaType element : safe(archiveElements).values()) {
             element.setLastUpdateDate(new Date());
             Date creationDate = element.getCreationDate() == null ? element.getLastUpdateDate() : element.getCreationDate();
             element.setCreationDate(creationDate);
+            element.setWorkspace(workspace);
             alienDAO.save(element);
         }
         refreshIndexForSearching();

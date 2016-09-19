@@ -157,7 +157,7 @@ public class ArchiveIndexer {
         imageLoader.importImages(archivePath, archiveRoot, parsingErrors);
 
         // index the archive content in elastic-search
-        indexArchiveTypes(archiveName, archiveVersion, archiveRoot, currentIndexedArchive);
+        indexArchiveTypes(archiveName, archiveVersion, archiveRoot.getArchive().getWorkspace(), archiveRoot, currentIndexedArchive);
         indexTopology(archiveRoot, parsingErrors, archiveName, archiveVersion);
     }
 
@@ -220,17 +220,17 @@ public class ArchiveIndexer {
      * @param root The archive root.
      * @param archive The previous archive that must be replaced if any.
      */
-    private void indexArchiveTypes(String archiveName, String archiveVersion, ArchiveRoot root, Csar archive) {
+    private void indexArchiveTypes(String archiveName, String archiveVersion, String workspace, ArchiveRoot root, Csar archive) {
         if (archive != null) {
             // get element from the archive so we get the creation date.
-            Map<String, AbstractToscaType> previousElements = indexerService.getArchiveElements(archiveName, archiveVersion);
+            Map<String, AbstractToscaType> previousElements = indexerService.getArchiveElements(archiveName, archiveVersion, workspace);
             prepareForUpdate(root, previousElements);
 
             // delete the previous archive including all types etc.
             csarService.forceDeleteCsar(archive.getId());
         }
 
-        performIndexing(archiveName, archiveVersion, root);
+        performIndexing(archiveName, archiveVersion, workspace, root);
     }
 
     private void prepareForUpdate(ArchiveRoot root, Map<String, AbstractToscaType> previousElements) {
@@ -259,16 +259,16 @@ public class ArchiveIndexer {
         }
     }
 
-    private void performIndexing(String archiveName, String archiveVersion, ArchiveRoot root) {
-        indexerService.indexInheritableElements(archiveName, archiveVersion, root.getArtifactTypes(), root.getArchive().getDependencies());
-        indexerService.indexInheritableElements(archiveName, archiveVersion, root.getCapabilityTypes(), root.getArchive().getDependencies());
-        indexerService.indexInheritableElements(archiveName, archiveVersion, root.getNodeTypes(), root.getArchive().getDependencies());
-        indexerService.indexInheritableElements(archiveName, archiveVersion, root.getRelationshipTypes(), root.getArchive().getDependencies());
-        indexerService.indexInheritableElements(archiveName, archiveVersion, root.getDataTypes(), root.getArchive().getDependencies());
+    private void performIndexing(String archiveName, String archiveVersion, String workspace, ArchiveRoot root) {
+        indexerService.indexInheritableElements(archiveName, archiveVersion, workspace, root.getArtifactTypes(), root.getArchive().getDependencies());
+        indexerService.indexInheritableElements(archiveName, archiveVersion, workspace, root.getCapabilityTypes(), root.getArchive().getDependencies());
+        indexerService.indexInheritableElements(archiveName, archiveVersion, workspace, root.getNodeTypes(), root.getArchive().getDependencies());
+        indexerService.indexInheritableElements(archiveName, archiveVersion, workspace, root.getRelationshipTypes(), root.getArchive().getDependencies());
+        indexerService.indexInheritableElements(archiveName, archiveVersion, workspace, root.getDataTypes(), root.getArchive().getDependencies());
 
         if (root.getLocalImports() != null) {
             for (ArchiveRoot child : root.getLocalImports()) {
-                performIndexing(archiveName, archiveVersion, child);
+                performIndexing(archiveName, archiveVersion, workspace, child);
             }
         }
     }

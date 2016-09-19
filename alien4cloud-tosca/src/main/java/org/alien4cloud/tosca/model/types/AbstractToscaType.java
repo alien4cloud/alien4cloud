@@ -1,13 +1,22 @@
 package org.alien4cloud.tosca.model.types;
 
-import static alien4cloud.dao.model.FetchContext.*;
+import static alien4cloud.dao.model.FetchContext.QUICK_SEARCH;
+import static alien4cloud.dao.model.FetchContext.SUMMARY;
+import static alien4cloud.dao.model.FetchContext.TAG_SUGGESTION;
 
 import java.util.Date;
 import java.util.List;
 
-import org.elasticsearch.annotation.*;
+import org.elasticsearch.annotation.DateField;
+import org.elasticsearch.annotation.ESAll;
+import org.elasticsearch.annotation.ESObject;
+import org.elasticsearch.annotation.Id;
+import org.elasticsearch.annotation.ObjectField;
+import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.annotation.StringFieldMulti;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
+import org.elasticsearch.annotation.query.TermsFacet;
 import org.elasticsearch.mapping.IndexType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -42,9 +51,10 @@ public abstract class AbstractToscaType {
     @FetchContext(contexts = { TAG_SUGGESTION, QUICK_SEARCH, SUMMARY }, include = { false, false, false })
     private Version nestedVersion;
 
-    @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
     @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
+    @TermsFacet
+    @TermFilter
     private String workspace;
 
     @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })

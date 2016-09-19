@@ -371,7 +371,7 @@ public class EditorService {
             tempPath = Files.createTempFile(tempUploadDir, null, null);
             Files.copy(inputStream, tempPath, StandardCopyOption.REPLACE_EXISTING);
             // This throws an exception if not successful
-            topologyUploadService.processTopology(tempPath);
+            topologyUploadService.processTopology(tempPath, EditionContextManager.get().getTopology().getWorkspace());
 
             // meaning the topology is well imported in the editor context: override all the content of the git repository
             // erase all content but .git directory

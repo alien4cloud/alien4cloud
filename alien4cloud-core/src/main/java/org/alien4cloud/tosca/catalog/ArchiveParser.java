@@ -33,8 +33,8 @@ public class ArchiveParser {
      * @return A parsing result that contains the Archive Root and eventual errors and/or warnings.
      * @throws ParsingException In case of a severe issue while parsing (incorrect yaml, no tosca file etc.)
      */
-    public ParsingResult<ArchiveRoot> parseWithExistingContext(Path archiveFile) throws ParsingException {
-        return postProcessor.process(archiveFile, toscaArchiveParser.parseWithExistingContext(archiveFile));
+    public ParsingResult<ArchiveRoot> parseWithExistingContext(Path archiveFile, String workspace) throws ParsingException {
+        return postProcessor.process(archiveFile, toscaArchiveParser.parseWithExistingContext(archiveFile), workspace);
     }
 
     /**
@@ -44,8 +44,8 @@ public class ArchiveParser {
      * @return A parsing result that contains the Archive Root and eventual errors and/or warnings.
      * @throws ParsingException In case of a severe issue while parsing (incorrect yaml, no tosca file etc.)
      */
-    public ParsingResult<ArchiveRoot> parse(Path archiveFile) throws ParsingException {
-        return postProcessor.process(archiveFile, toscaArchiveParser.parse(archiveFile));
+    public ParsingResult<ArchiveRoot> parse(Path archiveFile, String workspace) throws ParsingException {
+        return postProcessor.process(archiveFile, toscaArchiveParser.parse(archiveFile), workspace);
     }
 
     /**
@@ -56,8 +56,8 @@ public class ArchiveParser {
      * @return A parsing result that contains the Archive Root and eventual errors and/or warnings.
      * @throws ParsingException In case of a severe issue while parsing (incorrect yaml, no tosca file etc.)
      */
-    public ParsingResult<ArchiveRoot> parse(Path archiveFile, boolean allowYamlFile) throws ParsingException {
-        return postProcessor.process(archiveFile, toscaArchiveParser.parse(archiveFile, allowYamlFile));
+    public ParsingResult<ArchiveRoot> parse(Path archiveFile, boolean allowYamlFile, String workspace) throws ParsingException {
+        return postProcessor.process(archiveFile, toscaArchiveParser.parse(archiveFile, allowYamlFile), workspace);
     }
 
     /**
@@ -67,7 +67,7 @@ public class ArchiveParser {
      * @return A parsing result that contains the Archive Root and eventual errors and/or warnings.
      * @throws ParsingException In case of a severe issue while parsing (incorrect yaml, no tosca file etc.)
      */
-    public ParsingResult<ArchiveRoot> parseDir(Path archiveDir) throws ParsingException {
-        return postProcessor.process(archiveDir, toscaArchiveParser.parseDir(archiveDir));
+    public ParsingResult<ArchiveRoot> parseDir(Path archiveDir, String workspace) throws ParsingException {
+        return postProcessor.process(archiveDir, toscaArchiveParser.parseDir(archiveDir), workspace);
     }
 }

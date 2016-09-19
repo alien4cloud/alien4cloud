@@ -55,7 +55,6 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
         if (archiveVersion == null) {
             archiveRoot.getArchive().setVersion("undefined");
         }
-        archiveRoot.getArchive().setWorkspace("ALIEN_GLOBAL_WORKSPACE");
         // All type validation may require local archive types, so we need to register the current archive.
         ToscaContext.get().register(archiveRoot);
 

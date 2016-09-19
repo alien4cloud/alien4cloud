@@ -10,6 +10,9 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.tosca.catalog.ArchiveParser;
+import org.alien4cloud.tosca.catalog.index.ArchiveImageLoader;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,13 +20,11 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.IGenericIdDAO;
 import alien4cloud.images.IImageDAO;
 import alien4cloud.images.ImageData;
 import alien4cloud.model.common.Tag;
-import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
-import org.alien4cloud.tosca.catalog.index.ArchiveImageLoader;
-import org.alien4cloud.tosca.catalog.ArchiveParser;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
@@ -65,13 +66,13 @@ public class ArchiveImageLoaderTest {
         // Zip the csarSourceFolder and write it to csarFileForTesting
         FileUtil.zip(PATH_TOSCA_BASE_TYPES, csarFileForTesting);
 
-        Path imagesPath =Paths.get("target/alien/images");
+        Path imagesPath = Paths.get("target/alien/images");
         if (!Files.exists(imagesPath)) {
             Files.createDirectories(imagesPath);
         }
 
         // Parse the archive for definitions
-        ParsingResult<ArchiveRoot> result = parser.parse(csarFileForTesting);
+        ParsingResult<ArchiveRoot> result = parser.parse(csarFileForTesting, AlienConstants.GLOBAL_WORKSPACE_ID);
         imageLoader.importImages(csarFileForTesting, result.getResult(), result.getContext().getParsingErrors());
 
         Assert.assertFalse(result.hasError(ParsingErrorLevel.ERROR));
@@ -107,7 +108,7 @@ public class ArchiveImageLoaderTest {
         // Zip the csarSourceFolder and write it to csarFileForTesting
         FileUtil.zip(PATH_TOSCA_BASE_TYPES_ERROR, csarFileForTesting);
         // Parse the archive for definitions
-        ParsingResult<ArchiveRoot> result = parser.parse(csarFileForTesting);
+        ParsingResult<ArchiveRoot> result = parser.parse(csarFileForTesting, AlienConstants.GLOBAL_WORKSPACE_ID);
         imageLoader.importImages(csarFileForTesting, result.getResult(), result.getContext().getParsingErrors());
 
         // we expect to have warning issues due to missing files or invalid formats.

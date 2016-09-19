@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
+import alien4cloud.common.AlienConstants;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.model.components.CSARSource;
@@ -94,7 +95,7 @@ public class InitialLoader {
             for (Path archive : archives) {
                 try {
                     log.debug("Initial load of archives from <{}>.", archive.toString());
-                    csarUploadService.upload(archive, CSARSource.ALIEN);
+                    csarUploadService.upload(archive, CSARSource.ALIEN, AlienConstants.GLOBAL_WORKSPACE_ID);
                 } catch (AlreadyExistException e) {
                     log.debug("Skipping initial upload of archive <{}>. Archive has already been loaded.", archive.toString(), e);
                 } catch (CSARUsedInActiveDeployment e) {

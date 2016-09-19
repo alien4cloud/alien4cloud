@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import alien4cloud.common.AlienConstants;
 import alien4cloud.git.RepositoryManager;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
@@ -41,7 +42,7 @@ public class ArchiveParserTest {
         FileUtil.zip(normativeTypesPath, normativeTypesZipPath);
 
         // Path normativeTypesZipPath = Paths.get("../target/it-artifacts/zipped/apache-lb-types-0.1.csar");
-        ParsingResult<ArchiveRoot> parsingResult = archiveParser.parse(normativeTypesZipPath);
+        ParsingResult<ArchiveRoot> parsingResult = archiveParser.parse(normativeTypesZipPath, AlienConstants.GLOBAL_WORKSPACE_ID);
 
         displayErrors(parsingResult);
 

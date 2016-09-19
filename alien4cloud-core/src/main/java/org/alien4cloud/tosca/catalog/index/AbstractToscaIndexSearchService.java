@@ -43,7 +43,7 @@ public abstract class AbstractToscaIndexSearchService<T> {
                 .subAggregation(topHitAggregation);
 
         FacetedSearchResult<? extends T> searchResult = alienDAO.buildSearchQuery(clazz, query)
-                .setFilters(FilterUtil.singleKeyFilter(filters, "workspace", AlienConstants.GLOBAL_WORKSPACE_ID)).prepareSearch()
+                .setFilters(filters).prepareSearch()
                 .setFetchContext(FetchContext.SUMMARY, topHitAggregation).facetedSearch(new IAggregationQueryManager() {
                     @Override
                     public AggregationBuilder getQueryAggregation() {

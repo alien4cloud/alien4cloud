@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.common.AlienConstants;
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.model.CSARDependency;
@@ -158,7 +159,8 @@ public class CsarGitService {
                         continue;
                     }
                 }
-                ParsingResult<Csar> result = uploadService.upload(csarBean.getPath(), CSARSource.GIT);
+                // FIXME Add possibility to choose an workspace
+                ParsingResult<Csar> result = uploadService.upload(csarBean.getPath(), CSARSource.GIT, AlienConstants.GLOBAL_WORKSPACE_ID);
                 parsingResult.add(result);
             }
             return parsingResult;
