@@ -9,7 +9,6 @@ define(function (require) {
       var TopologyEditorMixin = function(scope) {
         this.scope = scope;
 
-        console.log(scope.topologyVersions);
         // initialize the version to be used.
         if(_.defined(scope.versionContext.versionName)) {
           this.setSelectedVersionByName(scope.versionContext.versionName);

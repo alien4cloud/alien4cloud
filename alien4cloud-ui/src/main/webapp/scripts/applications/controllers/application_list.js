@@ -29,14 +29,13 @@ define(function (require) {
   });
   states.forward('applications', 'applications.list');
 
-
-  var NewApplicationCtrl = ['$scope', '$modalInstance', 'toscaService',
-    function($scope, $modalInstance, toscaService) {
+  var NewApplicationCtrl = ['$scope', '$modalInstance',
+    function($scope, $modalInstance) {
       $scope.app = {};
       var autoGenArchiveName = true;
       $scope.nameChange= function() {
         if(autoGenArchiveName) {
-          $scope.app.archiveName = toscaService.getToscaName($scope.app.name);
+          $scope.app.archiveName = _.capitalize(_.camelCase($scope.app.name));
         }
       };
       $scope.archiveNameChange= function() {

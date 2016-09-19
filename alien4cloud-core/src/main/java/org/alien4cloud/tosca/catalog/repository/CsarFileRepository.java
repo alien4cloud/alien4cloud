@@ -162,9 +162,14 @@ public class CsarFileRepository implements ICsarRepositry {
 
     @Override
     public void removeCSAR(String workspace, String name, String version) {
-        Path csarDirectoryPath = rootPath.resolve(name).resolve(version);
+        Path csarDirectoryPath = rootPath.resolve(workspace).resolve(name).resolve(version);
         if (Files.isDirectory(csarDirectoryPath)) {
             FileSystemUtils.deleteRecursively(csarDirectoryPath.toFile());
         }
+    }
+
+    @Override
+    public void removeWorkspace(String workspace) {
+        FileSystemUtils.deleteRecursively(rootPath.resolve(workspace).toFile());
     }
 }

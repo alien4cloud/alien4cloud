@@ -52,4 +52,11 @@ public interface ICsarRepositry {
      * @param version The version of the archive to delete.
      */
     void removeCSAR(String workspace, String name, String version);
+
+    /**
+     * Remove the directory of the workspace with all it's content.
+     * 
+     * @param workspace The workspace to remove.
+     */
+    void removeWorkspace(String workspace);
 }

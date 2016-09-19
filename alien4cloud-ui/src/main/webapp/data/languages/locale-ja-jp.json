@@ -331,6 +331,7 @@
   "COMMON" : {
     "ADD" : "追加",
     "ATTRIBUTES" : "属性",
+    "AUTHOR" : "作成者",
     "CAPABILITIES" : "ケーパビリティ",
     "DATA": "Data",
     "DESCRIPTION" : "説明",
@@ -469,7 +470,6 @@
     "ACTIONS" : "Operations",
     "ARCHIVE" : "Archive's folder",
     "ARCHIVE_TO_IMPORT" : "Archive(s) to import",
-    "AUTHOR" : "作成者",
     "BRANCH" : "Branch",
     "BRANCHE_TO_IMPORT" : "On branch",
     "CREDENTIALS" : "Credentials",
@@ -538,6 +538,18 @@
     "EDIT_ROLE_HEADER_ENV" : "環境ロールの追加もしくは削除",
     "EDIT_ROLE_HEADER_RESOURCE" : "リソースロールの追加もしくは削除",
     "EDIT_ROLE_RESOURCE" : "リソースロールの編集"
+  },
+  "EDITOR": {
+    "SAVE": "Save",
+    "UNDO": "Undo",
+    "REDO": "Redo",
+    "OPERATION": "Operation",
+    "GIT_HISTORY": "Git history",
+    "MENU_TOPOLOGY": "Topology",
+    "MENU_WORKFLOW": "Workflows",
+    "MENU_FILES": "Archive content",
+    "MENU_VALIDATION": "Topology validation",
+    "MENU_HISTORY": "History"
   },
   "END_DATE" : "終了日",
   "ENVIRONMENT_TYPE" : {

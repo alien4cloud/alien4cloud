@@ -1,8 +1,6 @@
 package org.alien4cloud.tosca.model.types;
 
-import static alien4cloud.dao.model.FetchContext.QUICK_SEARCH;
-import static alien4cloud.dao.model.FetchContext.SUMMARY;
-import static alien4cloud.dao.model.FetchContext.TAG_SUGGESTION;
+import static alien4cloud.dao.model.FetchContext.*;
 
 import java.util.Date;
 import java.util.List;

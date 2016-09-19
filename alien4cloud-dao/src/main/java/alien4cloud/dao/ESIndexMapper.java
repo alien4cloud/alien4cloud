@@ -2,6 +2,7 @@ package alien4cloud.dao;
 
 import java.beans.IntrospectionException;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -86,6 +87,10 @@ public abstract class ESIndexMapper {
             CreateIndexRequestBuilder createIndexRequestBuilder = esClient.getClient().admin().indices().prepareCreate(indexName);
             for (Class<?> clazz : classes) {
                 String typeName = addToMappedClasses(indexName, clazz);
+
+                if (Modifier.isAbstract(clazz.getModifiers())) {
+                    continue; // no mapping to register for abstract classes.
+                }
                 String typeMapping = mappingBuilder.getMapping(clazz);
                 Map<String, Object> typesMap = JsonUtil.toMap(typeMapping);
 

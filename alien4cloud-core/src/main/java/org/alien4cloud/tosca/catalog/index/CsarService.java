@@ -1,6 +1,7 @@
 package org.alien4cloud.tosca.catalog.index;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
 import java.util.Date;
 import java.util.List;
@@ -253,7 +254,11 @@ public class CsarService implements ICsarDependencyLoader {
         indexerService.deleteElements(csar.getName(), csar.getVersion(), csar.getWorkspace());
         csarDAO.delete(Csar.class, csar.getId());
         // physically delete files
-        alienRepository.removeCSAR(csar.getWorkspace(), csar.getName(), csar.getVersion());
+        if (csarDAO.buildQuery(Csar.class).setFilters(singleKeyFilter("workspace", csar.getWorkspace())).count() == 0) {
+            alienRepository.removeWorkspace(csar.getWorkspace());
+        } else {
+            alienRepository.removeCSAR(csar.getWorkspace(), csar.getName(), csar.getVersion());
+        }
     }
 
     /**
@@ -266,12 +271,7 @@ public class CsarService implements ICsarDependencyLoader {
     public List<Usage> deleteCsarWithElements(Csar csar) {
         List<Usage> relatedResourceList = getCsarRelatedResourceList(csar);
         if (relatedResourceList.isEmpty()) {
-            // latest version indicator will be recomputed to match this new reality
-            indexerService.deleteElements(csar.getName(), csar.getVersion(), csar.getHash());
-            csarDAO.delete(Csar.class, csar.getId());
-
-            // physically delete files
-            alienRepository.removeCSAR(csar.getWorkspace(), csar.getName(), csar.getVersion());
+            deleteCsar(csar);
         }
         return relatedResourceList;
     }

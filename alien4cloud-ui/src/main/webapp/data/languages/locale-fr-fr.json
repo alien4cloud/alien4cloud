@@ -332,6 +332,7 @@
   "COMMON" : {
     "ADD" : "Ajouter",
     "ATTRIBUTES" : "Attributs",
+    "AUTHOR" : "Auteur",
     "CAPABILITIES" : "Capacités",
     "DATA": "Données",
     "DESCRIPTION" : "Description",
@@ -470,7 +471,6 @@
     "ACTIONS" : "Opérations",
     "ARCHIVE" : "Nom du dossier",
     "ARCHIVE_TO_IMPORT" : "Archive(s) à importer",
-    "AUTHOR" : "Auteur",
     "BRANCH" : "Branche",
     "BRANCHE_TO_IMPORT" : "Sur la branche",
     "CREDENTIALS" : "Authentification",
@@ -539,6 +539,18 @@
     "EDIT_ROLE_HEADER_ENV" : "Ajouter ou retirer des roles à l'environnement",
     "EDIT_ROLE_HEADER_RESOURCE" : "Ajouter ou retirer des roles à la ressource",
     "EDIT_ROLE_RESOURCE" : "Editer les roles sur la ressource"
+  },
+  "EDITOR": {
+    "SAVE": "Sauver",
+    "UNDO": "Annuler",
+    "REDO": "Rejouer",
+    "OPERATION": "Operation",
+    "GIT_HISTORY": "Historique git",
+    "MENU_TOPOLOGY": "Topologie",
+    "MENU_WORKFLOW": "Workflows",
+    "MENU_FILES": "Fichiers de l'archive",
+    "MENU_VALIDATION": "Validation de la topologie",
+    "MENU_HISTORY": "Historique"
   },
   "END_DATE" : "Date de fin",
   "ENVIRONMENT_TYPE" : {

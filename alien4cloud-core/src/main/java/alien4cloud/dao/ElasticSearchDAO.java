@@ -52,6 +52,7 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         try {
             getMappingBuilder().initialize("alien4cloud");
             getMappingBuilder().initialize("org.alien4cloud");
+            getMappingBuilder().parseClassMapping(AbstractToscaType.class, "");
         } catch (IntrospectionException | IOException e) {
             throw new IndexingServiceException("Could not initialize elastic search mapping builder", e);
         }
