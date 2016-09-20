@@ -155,15 +155,17 @@ define(function (require) {
         if (angular.isDefined($scope.hiddenFilters)) {
           allFacetFilters.push.apply(allFacetFilters, $scope.hiddenFilters);
         }
-        var workspaceIds = [];
-        for(var i = 0; i < $scope.workspaces.length; i++) {
-          workspaceIds.push($scope.workspaces[i].id);
+        if($scope.workspaces.length > 0) {
+          var workspaceIds = [];
+          for (var i = 0; i < $scope.workspaces.length; i++) {
+            workspaceIds.push($scope.workspaces[i].id);
+          }
+          var workspaceFilter = {
+            term: 'workspace',
+            facet: workspaceIds
+          };
+          allFacetFilters.push(workspaceFilter);
         }
-        var workspaceFilter = {
-          term: 'workspace',
-          facet: workspaceIds
-        };
-        allFacetFilters.push(workspaceFilter);
         updateSearch(allFacetFilters, force);
       };
 
@@ -244,7 +246,7 @@ define(function (require) {
         $scope.doSearch(true);
       });
 
-      $scope.$watch('workspaces', function() {
+      $scope.$watchCollection('workspaces', function() {
         $scope.doSearch(true);
       });
 
