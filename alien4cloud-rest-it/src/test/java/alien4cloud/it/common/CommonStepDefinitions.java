@@ -6,6 +6,7 @@ import java.util.List;
 import org.alien4cloud.exception.rest.FieldErrorDTO;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -235,5 +236,11 @@ public class CommonStepDefinitions {
     public void Response_should_contains_items(int count) throws Throwable {
         RestResponse<GetMultipleDataResult> response = JsonUtil.read(Context.getInstance().getRestResponse(), GetMultipleDataResult.class);
         Assert.assertEquals(count, response.getData().getTotalResults());
+    }
+
+    @Then("^I should receive a RestResponse with a non empty string data$")
+    public void i_Should_Receive_A_RestResponse_With_A_Non_Empty_String_Data() throws Throwable {
+        RestResponse<String> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
+        Assert.assertTrue(StringUtils.isNotBlank(restResponse.getData()));
     }
 }

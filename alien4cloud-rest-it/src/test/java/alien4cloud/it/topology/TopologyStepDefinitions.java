@@ -1,5 +1,6 @@
 package alien4cloud.it.topology;
 
+import static alien4cloud.it.utils.TestUtils.getFullId;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.alien4cloud.tosca.catalog.CatalogVersionResult;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.templates.NodeGroup;
@@ -100,7 +102,7 @@ public class TopologyStepDefinitions {
 
     @Given("^There is a \"([^\"]*)\" with element name \"([^\"]*)\" and archive version \"([^\"]*)\"$")
     public void There_is_a_with_element_name_and_archive_version(String elementType, String elementId, String archiveVersion) throws Throwable {
-        String componentId = elementId.concat(":").concat(archiveVersion);
+        String componentId = getFullId(elementId, archiveVersion);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/components/" + componentId));
         AbstractToscaType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), WORDS_TO_CLASSES.get(elementType), Context.getJsonMapper()).getData();
         assertNotNull(idnt);
@@ -110,7 +112,7 @@ public class TopologyStepDefinitions {
     @Given("^There are properties for \"([^\"]*)\" element \"([^\"]*)\" and archive version \"([^\"]*)\"$")
     public void There_are_properties_for_element_and_archive_version(String elementType, String elementId, String archiveVersion, DataTable properties)
             throws Throwable {
-        String componentId = elementId.concat(":").concat(archiveVersion);
+        String componentId = getFullId(elementId, archiveVersion);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/components/" + componentId));
         AbstractToscaType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), WORDS_TO_CLASSES.get(elementType), Context.getJsonMapper()).getData();
         assertNotNull(idnt);
@@ -593,5 +595,19 @@ public class TopologyStepDefinitions {
             assertTrue("Task list does not contain [" + expected.get(0) + " , " + expected.get(1) + "]",
                     missingArtifactsContain(taskList, expected.get(0), expected.get(1)));
         }
+    }
+
+    @And("^The registered topology should not exist$")
+    public void theRegisteredTopologyShouldNotExist() throws Throwable {
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/catalog/topologies/" + Context.getInstance().getTopologyId()));
+        commonStepDefinitions.I_should_receive_a_RestResponse_with_an_error_code(504);
+    }
+
+    @Then("^the topology named \"([^\"]*)\" should have (\\d+) versions$")
+    public void theTopologyNamedShouldHaveVersions(String name, int expectedVersionCount) throws Throwable {
+        String responseString = Context.getRestClientInstance().get("/rest/v1/catalog/topologies/" + name + "/versions");
+        RestResponse<?> response = JsonUtil.read(responseString);
+        List<CatalogVersionResult> versionResults = JsonUtil.toList(JsonUtil.toString(response.getData()), CatalogVersionResult.class);
+        assertEquals(expectedVersionCount, versionResults.size());
     }
 }

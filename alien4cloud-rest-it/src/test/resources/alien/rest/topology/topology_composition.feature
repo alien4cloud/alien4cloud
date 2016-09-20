@@ -857,7 +857,7 @@ Feature: Topology composition
       | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
       | elementId | tosca.nodes.Root                                                                  |
     And I save the topology
-    When If I search for topology templates I can find one with the name "net.sample.LAMP" version "0.1.0-SNAPSHOT" and store the related topology as a SPEL context
+    When I should be able to retrieve a topology with name "net.sample.LAMP" version "0.1.0-SNAPSHOT" and store it as a SPEL context
     And I get the current topology
     And I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |

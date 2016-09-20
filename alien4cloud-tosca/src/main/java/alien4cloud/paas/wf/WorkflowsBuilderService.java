@@ -5,23 +5,22 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.exception.NotFoundException;
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.paas.wf.validation.WorkflowValidator;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.WorkflowTask;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j

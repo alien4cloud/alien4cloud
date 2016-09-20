@@ -15,7 +15,6 @@ import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
-import org.alien4cloud.tosca.model.templates.AbstractTopologyVersion;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -450,24 +449,7 @@ public class TopologyService {
      * True when an topology is released.
      */
     public boolean isReleased(Topology topology) {
-        AbstractTopologyVersion appVersion = getApplicationVersion(topology);
-        return appVersion != null && appVersion.isReleased();
-    }
-
-    /**
-     * Get the delegates version of a topology.
-     *
-     * @param topology the topology
-     * @return The application version associated with the environment.
-     */
-    private AbstractTopologyVersion getApplicationVersion(Topology topology) {
-        // FIXME manage topology version get
-        // if (topology.getDelegateType().equalsIgnoreCase(Application.class.getSimpleName())) {
-        // return applicationVersionService.getByTopologyId(topology.getId());
-        // } else if (topology.getDelegateType().equalsIgnoreCase(TopologyTemplate.class.getSimpleName())) {
-        // return topologyTemplateVersionService.getByTopologyId(topology.getId());
-        // }
-        return null;
+        return !VersionUtil.isSnapshot(topology.getArchiveVersion());
     }
 
     public void isUniqueNodeTemplateName(Topology topology, String newNodeTemplateName) {

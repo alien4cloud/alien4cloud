@@ -53,7 +53,7 @@ Feature: CSAR upload with topology
 #    And I export the YAML from topology template named "apache-type" and build a test dataset named "apache-type-replay" changing the version from "1.1.0-SNAPSHOT" to "1.2.0-SNAPSHOT"
 #    When I upload the archive "apache-type-replay"
 #    Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
-#    And If I search for topology templates I can find one with the name "apache-type" version "1.2.0-SNAPSHOT" and store the related topology as a SPEL context
+#    And I should be able to retrieve a topology with name "apache-type" version "1.2.0-SNAPSHOT" and store it as a SPEL context
 #    And The SPEL expression "dependencies.^[name == 'tosca-base-types'].version" should return "1.0"
 #    And The SPEL int expression "nodeTemplates.size()" should return 2
 #    And The SPEL expression "nodeTemplates['compute'].type" should return "tosca.nodes.Compute"
@@ -102,7 +102,7 @@ Feature: CSAR upload with topology
 #    And I export the YAML from topology template named "AllInclusiveArchive" and build a test dataset named "AllInclusiveArchive-replay" changing the version from "1.0.0-SNAPSHOT" to "2.0.0-SNAPSHOT"
 #    When I upload the archive "AllInclusiveArchive-replay"
 #    Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
-#    And If I search for topology templates I can find one with the name "AllInclusiveArchive" version "2.0.0-SNAPSHOT" and store the related topology as a SPEL context
+#    And I should be able to retrieve a topology with name "AllInclusiveArchive" version "2.0.0-SNAPSHOT" and store it as a SPEL context
 #    And The SPEL expression "dependencies.^[name == 'AllInclusiveArchive'].version" should return "1.0.0-SNAPSHOT"
 #    And The SPEL expression "dependencies.^[name == 'tosca-base-types'].version" should return "1.0"
 #    And The SPEL int expression "nodeTemplates['software'].relationships.size()" should return 1
@@ -179,7 +179,7 @@ Feature: CSAR upload with topology
 #    And I export the YAML from topology template named "topology-inputs" and build a test dataset named "topology-inputs-replay" changing the version from "1.0.0-SNAPSHOT" to "2.0.0-SNAPSHOT"
 #    When I upload the archive "topology-inputs-replay"
 #    Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
-#    And If I search for topology templates I can find one with the name "topology-inputs" version "2.0.0-SNAPSHOT" and store the related topology as a SPEL context
+#    And I should be able to retrieve a topology with name "topology-inputs" version "2.0.0-SNAPSHOT" and store it as a SPEL context
 #    And The SPEL expression "inputs['os_type'].type" should return "string"
 #    And The SPEL int expression "inputs['os_type'].constraints[0].validValues.size()" should return 4
 #    And The SPEL expression "nodeTemplates['compute1'].properties['os_type'].function" should return "get_input"
@@ -207,7 +207,7 @@ Feature: CSAR upload with topology
 #    And I export the YAML from topology template named "topology-outputs" and build a test dataset named "topology-outputs-replay" changing the version from "1.0.0-SNAPSHOT" to "2.0.0-SNAPSHOT"
 #    Given I upload the archive "topology-outputs-replay"
 #    Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
-#    And If I search for topology templates I can find one with the name "topology-outputs" version "2.0.0-SNAPSHOT" and store the related topology as a SPEL context
+#    And I should be able to retrieve a topology with name "topology-outputs" version "2.0.0-SNAPSHOT" and store it as a SPEL context
 #    And The SPEL int expression "outputProperties['apache'].size()" should return 1
 #    And The SPEL expression "outputProperties['apache'][0]" should return "port"
 #    And The SPEL int expression "outputProperties['apache'].size()" should return 1
@@ -231,7 +231,7 @@ Feature: CSAR upload with topology
 #    And I export the YAML from topology template named "topology-capacility-prop" and build a test dataset named "topology-capacility-prop-replay" changing the version from "1.1.0-SNAPSHOT" to "1.2.0-SNAPSHOT"
 #    When I upload the archive "topology-capacility-prop-replay"
 #    Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
-#    And If I search for topology templates I can find one with the name "topology-capacility-prop" version "1.2.0-SNAPSHOT" and store the related topology as a SPEL context
+#    And I should be able to retrieve a topology with name "topology-capacility-prop" version "1.2.0-SNAPSHOT" and store it as a SPEL context
 #    And The SPEL expression "nodeTemplates['compute1'].capabilities['compute'].properties['containee_types'].value" should return "something"
 #    And The SPEL expression "nodeTemplates['compute2'].capabilities['compute'].properties['containee_types'].function" should return "get_input"
 #    And The SPEL int expression "nodeTemplates['compute2'].capabilities['compute'].properties['containee_types'].parameters.size()" should return 1
@@ -266,7 +266,7 @@ Feature: CSAR upload with topology
 #    And I export the YAML from topology template named "topology-template-relationship-funtionprop" and build a test dataset named "topology-template-relationship-funtionprop-replay" changing the version from "1.0.0-SNAPSHOT" to "1.0.1-SNAPSHOT"
 #    Given I upload the archive "topology-template-relationship-funtionprop-replay"
 #    Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
-#    And If I search for topology templates I can find one with the name "topology-template-relationship-funtionprop" version "1.0.1-SNAPSHOT" and store the related topology as a SPEL context
+#    And I should be able to retrieve a topology with name "topology-template-relationship-funtionprop" version "1.0.1-SNAPSHOT" and store it as a SPEL context
 #    And The SPEL expression "nodeTemplates['software'].relationships['hostedOnCompute'].properties['password'].function" should return "get_input"
 #    And The SPEL expression "nodeTemplates['software'].relationships['hostedOnCompute'].properties['password'].parameters[0]" should return "pwd"
 #
@@ -288,7 +288,7 @@ Feature: CSAR upload with topology
 #    And I export the YAML from topology template named "topology-capability-io" and build a test dataset named "topology-capability-io-replay" changing the version from "0.1.0-SNAPSHOT" to "0.2.0-SNAPSHOT"
 #    Given I upload the archive "topology-capability-io-replay"
 #    Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
-#    And If I search for topology templates I can find one with the name "topology-capability-io" version "0.2.0-SNAPSHOT" and store the related topology as a SPEL context
+#    And I should be able to retrieve a topology with name "topology-capability-io" version "0.2.0-SNAPSHOT" and store it as a SPEL context
 #    And The SPEL expression "outputCapabilityProperties['Compute']['host'][0]" should return "valid_node_types"
 #    And The SPEL expression "nodeTemplates['Compute'].capabilities['host'].properties['valid_node_types'].function" should return "get_input"
 #    And The SPEL int expression "nodeTemplates['Compute'].capabilities['host'].properties['valid_node_types'].parameters.size()" should return 1
@@ -363,7 +363,7 @@ Feature: CSAR upload with topology
   #  And I export the YAML from topology template named "topology-groups" and build a test dataset named "topology-groups-replay" changing the version from "1.0.0-SNAPSHOT" to "1.0.1-SNAPSHOT"
   #  Given I upload the archive "topology-groups-replay"
   #  Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
-  #  And If I search for topology templates I can find one with the name "topology-groups" version "1.0.1-SNAPSHOT" and store the related topology as a SPEL context
+  #  And I should be able to retrieve a topology with name "topology-groups" version "1.0.1-SNAPSHOT" and store it as a SPEL context
   #  And The SPEL int expression "groups.size()" should return 2
   #  And The SPEL expression "groups['compute_scaling_group'].name" should return "compute_scaling_group"
   #  And The SPEL int expression "groups['compute_scaling_group'].members.size()" should return 1
