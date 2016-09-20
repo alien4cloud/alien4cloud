@@ -1,70 +1,66 @@
 <div>
-    <div class="vertical-panel-shift" ui-view></div>
-    <div id="upload-csar" class="row" ng-if="workspacesForUpload.length > 0">
-        <upload-directive
-                target-url="'rest/v1/csars'"
-                request-data="selectedWorkspaceForUploadData"
-                drag-and-drop-message="'COMPONENTS.DRAG_DROP_UPLOAD'"
-                button-message="'COMPONENTS.UPLOAD'"
-                upload-success-callback="uploadSuccessCallback(data)">
-        </upload-directive>
+  <div class="vertical-panel-shift" ui-view></div>
+  <div id="upload-csar" class="row" ng-if="workspacesForUpload.length > 0">
+    <div class="col-md-8">
+      <upload-directive
+          target-url="'rest/v1/csars'"
+          request-data="selectedWorkspaceForUploadData"
+          drag-and-drop-message="'COMPONENTS.DRAG_DROP_UPLOAD'"
+          button-message="'COMPONENTS.UPLOAD'"
+          upload-success-callback="uploadSuccessCallback(data)">
+      </upload-directive>
     </div>
-    <div class="row" ng-if="workspacesForUpload.length > 1">
-        <div class="col-md-12">
-            <div class="well">
-                <div class="row">
-                    <div class="col-md-2">
-                        <h4><span class="label label-info">{{'COMPONENTS.WORKSPACES.UPLOAD' | translate}}</span></h4>
-                    </div>
-                    <div class="col-md-10">
-                        <div class="btn-group btn-group-xs" style="margin-top:10px;margin-bottom:10px;">
-                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                {{selectedWorkspaceForUpload.id}}
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                                <li ng-repeat="workspace in workspacesForUpload"
-                                    ng-if="workspace !== selectedWorkspaceForUpload"
-                                    class="option-selected">
-                                    <a ng-click="selectWorkspaceForUpload(workspace)">{{workspace.id}}</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="col-md-4">
+      <div class="well">
+        <div class="input-group">
+        <span class="input-group-addon">
+          <span translate><i>{{'COMPONENTS.WORKSPACES.UPLOAD' | translate}}</i></span>
+        </span>
+          <span class="form-control-noheightlimit">
+          <div class="btn-group btn-group-xs">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+              {{selectedWorkspaceForUpload.id}}
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right" role="menu" style="z-index: 2000;">
+              <li ng-repeat="workspace in workspacesForUpload"
+                  ng-if="workspace !== selectedWorkspaceForUpload"
+                  class="option-selected"
+                  style="z-index: 2000;">
+                <a ng-click="selectWorkspaceForUpload(workspace)">{{workspace.id}}</a>
+              </li>
+            </ul>
+          </div>
+        </span>
         </div>
-    </div>
-    <div class="row" ng-if="workspacesForSearch.length > 1" style="margin-top: 10px">
-        <div class="col-md-12">
-            <div class="well">
-                <div class="row">
-                    <div class="col-md-2">
-                        <h4><span class="label label-info">{{'COMPONENTS.WORKSPACES.SEARCH' | translate}}</span>
-                        </h4>
-                    </div>
-                    <div class="col-md-10">
-                        <div class="checkbox" ng-repeat="searchWorkspace in workspacesForSearch">
-                            <label>
-                                <input type="checkbox" ng-click="selectWorkspaceForSearch(searchWorkspace)" ng-checked="selectedWorkspacesForSearch.indexOf(searchWorkspace) >= 0"> {{searchWorkspace.id}}
-                            </label>
-                        </div>
-                    </div>
-                </div>
+        <div class="input-group" style="margin-top: 5px;">
+        <span class="input-group-addon">
+          <span translate><i>{{'COMPONENTS.WORKSPACES.UPLOAD' | translate}}</i></span>
+        </span>
+          <span class="form-control-noheightlimit">
+            <div class="checkbox" ng-repeat="searchWorkspace in workspacesForSearch">
+              <label>
+                <input type="checkbox" ng-click="selectWorkspaceForSearch(searchWorkspace)"
+                       ng-checked="selectedWorkspacesForSearch.indexOf(searchWorkspace) >= 0"> {{searchWorkspace.id}}
+              </label>
             </div>
+          </span>
         </div>
+      </div>
     </div>
-    <div class="row">
-        <alien-search-node-type
-                ng-if="selectedWorkspacesForSearch"
-                refresh="refresh"
-                workspaces="selectedWorkspacesForSearch"
-                display-detail-pannel="true"
-                on-select-item="openComponent(item)"
-                global-context="true"
-                height-info="heightInfo"
-                width-info="widthInfo"
-                default-filters="defaultFilters"
-                badges="badges"/>
-    </div>
+  </div>
+
+  <div class="row">
+    <alien-search-node-type
+        ng-if="selectedWorkspacesForSearch"
+        refresh="refresh"
+        workspaces="selectedWorkspacesForSearch"
+        display-detail-pannel="true"
+        on-select-item="openComponent(item)"
+        global-context="true"
+        height-info="heightInfo"
+        width-info="widthInfo"
+        default-filters="defaultFilters"
+        badges="badges"/>
+  </div>
 </div>
