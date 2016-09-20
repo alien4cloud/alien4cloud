@@ -152,6 +152,10 @@ define(function (require) {
         $scope.searchService.search(null, searchRequestObject, !force);
       }
 
+      $scope.forcedDoSearch= function() {
+        $scope.doSearch(true);
+      };
+
       /*trigger a new search, when params are changed*/
       $scope.doSearch = function(force) {
         var allFacetFilters = [];

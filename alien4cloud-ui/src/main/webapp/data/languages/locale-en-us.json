@@ -465,10 +465,7 @@
       "INVALID_ARTIFACT_REFERENCE": "Invalid artifact's reference {{note}}",
       "UNRESOLVED_ARTIFACT": "Artifact {{note}} cannot be resolved "
     },
-    "WORKSPACES": {
-      "UPLOAD": "Upload to workspace",
-      "SEARCH": "Search in workspaces"
-    }
+    "WORKSPACE": "Workspaces"
   },
   "CONFIRM" : "Confirm",
   "CONFIRM_MESSAGE" : "Do you really want to perform this action ?",
