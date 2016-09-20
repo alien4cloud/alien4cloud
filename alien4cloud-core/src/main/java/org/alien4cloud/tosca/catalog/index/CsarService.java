@@ -124,13 +124,27 @@ public class CsarService implements ICsarDependencyLoader {
     }
 
     /**
+     * Get teh topologies that depends on this csar.
+     * Do not return a topology if this csar is his own
+     * 
      * @return an array of <code>Topology</code>s that depend on this name:version.
      */
     public Topology[] getDependantTopologies(String name, String version) {
-        FilterBuilder filter = FilterBuilders.nestedFilter("dependencies", FilterBuilders.boolFilter()
-                .must(FilterBuilders.termFilter("dependencies.name", name)).must(FilterBuilders.termFilter("dependencies.version", version)));
+        FilterBuilder filter = FilterBuilders.boolFilter()
+                .mustNot(FilterBuilders.boolFilter().must(FilterBuilders.termFilter("archiveName", name))
+                        .must(FilterBuilders.termFilter("archiveVersion", version)))
+                .must(FilterBuilders.nestedFilter("dependencies", FilterBuilders.boolFilter().must(FilterBuilders.termFilter("dependencies.name", name))
+                        .must(FilterBuilders.termFilter("dependencies.version", version))));
         GetMultipleDataResult<Topology> result = csarDAO.search(Topology.class, null, null, filter, null, 0, Integer.MAX_VALUE);
         return result.getData();
+    }
+
+    public List<Csar> getTopologiesCsar(Topology... topologies) {
+        Set<String> ids = Sets.newHashSet();
+        for (Topology topology : topologies) {
+            ids.add(topology.getId());
+        }
+        return csarDAO.findByIds(Csar.class, ids.toArray(new String[ids.size()]));
     }
 
     /**
@@ -305,6 +319,12 @@ public class CsarService implements ICsarDependencyLoader {
             relatedResourceList.addAll(generateCsarsInfo(relatedCsars));
         }
 
+        // check if some of the nodes are used in topologies.
+        Topology[] topologies = getDependantTopologies(csar.getName(), csar.getVersion());
+        if (topologies != null && topologies.length > 0) {
+            relatedResourceList.addAll(generateTopologiesInfo(topologies));
+        }
+
         // a csar that is a dependency of location can not be deleted
         Location[] relatedLocations = getDependantLocations(csar.getName(), csar.getVersion());
         if (relatedLocations != null && relatedLocations.length > 0) {
@@ -388,6 +408,31 @@ public class CsarService implements ICsarDependencyLoader {
     private long countComponents(String name, String version, String workspace) {
         return csarDAO.buildQuery(AbstractToscaType.class)
                 .setFilters(fromKeyValueCouples("archiveName", name, "archiveVersion", version, "workspace", workspace)).count();
+    }
+
+    /**
+     * Generate resources (application or template) related to a topology list
+     *
+     * @param topologies
+     * @return
+     */
+    private List<Usage> generateTopologiesInfo(Topology[] topologies) {
+
+        List<Usage> resourceList = Lists.newArrayList();
+
+        List<Csar> topologiesCsar = getTopologiesCsar(topologies);
+        for (Csar csar : topologiesCsar) {
+            String delegateType = csar.getDelegateType();
+            if (Objects.equals(csar.getDelegateType(), ArchiveDelegateType.APPLICATION.toString())) {
+                // get the related application
+                Application application = applicationService.checkAndGetApplication(csar.getDelegateId());
+                resourceList.add(new Usage(application.getName(), csar.getDelegateType(), csar.getDelegateId()));
+                continue;
+            } else {
+                resourceList.add(new Usage(csar.getName() + "[" + csar.getVersion() + "]", "topologyTemplate", csar.getId()));
+            }
+        }
+        return resourceList;
     }
 
 }
