@@ -40,7 +40,7 @@ public class TopologyCatalogController {
      */
     @ApiOperation(value = "Search for components (tosca types) in alien.")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER', 'ARCHITECT')")
     public RestResponse<FacetedSearchResult<Topology>> search(@RequestBody FilteredSearchRequest searchRequest) {
         FacetedSearchResult<Topology> searchResult = catalogService.search(Topology.class, searchRequest.getQuery(), searchRequest.getSize(),
                 searchRequest.getFilters());
@@ -71,7 +71,7 @@ public class TopologyCatalogController {
      */
     @ApiOperation(value = "Get all the versions for a given archive (name)")
     @RequestMapping(value = "/{archiveName:.+}/versions", method = RequestMethod.GET)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER', 'ARCHITECT')")
     public RestResponse<CatalogVersionResult[]> getVersions(@PathVariable String archiveName) {
         Topology[] topologies = catalogService.getAll(fromKeyValueCouples(), archiveName);
         if (topologies != null) {

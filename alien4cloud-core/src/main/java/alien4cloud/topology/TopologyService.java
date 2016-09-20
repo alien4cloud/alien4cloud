@@ -46,6 +46,7 @@ import alien4cloud.topology.task.SuggestionsTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.tosca.container.ToscaTypeLoader;
 import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
@@ -256,6 +257,7 @@ public class TopologyService {
      * @param topology The topology for which to check roles.
      * @param applicationRoles The roles required to edit the topology for an application.
      */
+    @ToscaContextual
     public void checkAuthorizations(Topology topology, ApplicationRole... applicationRoles) {
         Csar relatedCsar = ToscaContext.get().getArchive(topology.getArchiveName(), topology.getArchiveVersion());
         if (Objects.equals(relatedCsar.getDelegateType(), ArchiveDelegateType.APPLICATION.toString())) {
@@ -467,7 +469,6 @@ public class TopologyService {
         // }
         return null;
     }
-
 
     public void isUniqueNodeTemplateName(Topology topology, String newNodeTemplateName) {
         if (topology.getNodeTemplates() != null && topology.getNodeTemplates().containsKey(newNodeTemplateName)) {
