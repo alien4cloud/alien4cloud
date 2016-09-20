@@ -41,7 +41,6 @@ define(function (require) {
         if(topology.archiveVersion !== version.version) {
           topologyResource.get({id: version.id},
             function(response) {
-            console.log(response);
             response.data.allVersions = topology.allVersions;
             $scope.searchConfig.result.data[index] = response.data;
           });

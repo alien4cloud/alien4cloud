@@ -82,13 +82,17 @@ define(function (require) {
         }
       }
 
-      function addFacetFilter(termId, facetId) {
+      function addFacetFilter(termId, facetValue) {
         // Test if the filter exists : [term:facet] and add it if not
         if (_.undefined(_.find($scope.facetFilters, {term: termId}))) {
           var facetSearchObject = {};
           facetSearchObject.term = termId;
-          facetSearchObject.facet = [];
-          facetSearchObject.facet.push(getFormatedFacetIdForES(termId, facetId));
+          if(_.isArray(facetValue)) {
+            facetSearchObject.facet = facetValue;
+          } else {
+            facetSearchObject.facet = [];
+            facetSearchObject.facet.push(getFormatedFacetIdForES(termId, facetValue));
+          }
           $scope.facetFilters.push(facetSearchObject);
         }
       }
@@ -109,7 +113,7 @@ define(function (require) {
         $scope.facetFilters = [];
       }
 
-      if($scope.defaultFilters) {
+      if(_.defined($scope.defaultFilters)) {
         _.each($scope.defaultFilters, function(value, key) {
           addFacetFilter(key, value);
         });
@@ -155,23 +159,19 @@ define(function (require) {
         if (angular.isDefined($scope.hiddenFilters)) {
           allFacetFilters.push.apply(allFacetFilters, $scope.hiddenFilters);
         }
-        if($scope.workspaces.length > 0) {
-          var workspaceIds = [];
-          for (var i = 0; i < $scope.workspaces.length; i++) {
-            workspaceIds.push($scope.workspaces[i].id);
-          }
-          var workspaceFilter = {
-            term: 'workspace',
-            facet: workspaceIds
-          };
-          allFacetFilters.push(workspaceFilter);
-        }
         updateSearch(allFacetFilters, force);
       };
 
       //on search completed
       $scope.onSearchCompleted = function(searchResult) {
         if(_.undefined(searchResult.error)) {
+          // inject static facets
+          if(_.defined($scope.staticFacets)) {
+            _.each($scope.staticFacets, function(facet, facetKey){
+              searchResult.data.facets[facetKey] = facet;
+            });
+          }
+
           // inject selecte version for each result
           _.each(searchResult.data.data, function(component){
             component.selectedVersion = component.archiveVersion;
@@ -179,7 +179,7 @@ define(function (require) {
           $scope.searchResult = searchResult.data;
           $scope.detailComponent = null;
         } else {
-          console.log('error when searching...', searchResult.error);
+          console.error('error when searching...', searchResult.error);
         }
       };
 
@@ -199,12 +199,6 @@ define(function (require) {
 
       // Getting full search result from /data folder
 
-      /* Add a facet Filters*/
-      $scope.addFilter = function(termId, facetId) {
-        addFacetFilter(termId, facetId);
-        // Search update with new filters list
-        $scope.doSearch();
-      };
 
       /*Remove a facet filter*/
       $scope.removeFilter = function(filterToRemove) {
@@ -243,10 +237,6 @@ define(function (require) {
 
       //watch the bound data
       $scope.$watch('refresh', function() {
-        $scope.doSearch(true);
-      });
-
-      $scope.$watchCollection('workspaces', function() {
         $scope.doSearch(true);
       });
 

@@ -26,12 +26,23 @@ define(function (require) {
 
     function addFacetFilter(termId, facetId) {
       // Test if the filter exists : [term:facet] and add it if not
-      if (_.undefined(_.find($scope.facetFilters, {term: termId}))) {
+      var filter = _.find($scope.facetFilters, {term: termId});
+      if (_.undefined(filter)) {
         var facetSearchObject = {};
         facetSearchObject.term = termId;
         facetSearchObject.facet = [];
         facetSearchObject.facet.push(facetId);
         $scope.facetFilters.push(facetSearchObject);
+      } else {
+        var index = _.indexOf(filter.facet, facetId);
+        if(index === -1) {
+          filter.facet.push(facetId);
+        } else {
+          _.pullAt(filter.facet, index);
+          if(filter.facet.length === 0) {
+            _.remove($scope.facetFilters, {term: termId});
+          }
+        }
       }
     }
 

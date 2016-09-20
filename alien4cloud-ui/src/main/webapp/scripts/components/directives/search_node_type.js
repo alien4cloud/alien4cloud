@@ -2,7 +2,6 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
-  var _ = require('lodash');
   require('scripts/components/controllers/component_search');
 
   modules.get('a4c-components').directive('alienSearchNodeType', ['$interval', function($interval) {
@@ -11,7 +10,6 @@ define(function (require) {
       restrict: 'E',
       scope: {
         'refresh': '=',
-        'workspaces': '=',
         'displayDetailPannel': '=',
         'onSelectItem': '&',
         'globalContext': '=',
@@ -19,6 +17,7 @@ define(function (require) {
         'heightInfo': '=',
         'widthInfo': '=',
         'defaultFilters': '=',
+        'staticFacets': '=',
         'badges': '='
       },
       link: function(scope, element) {
