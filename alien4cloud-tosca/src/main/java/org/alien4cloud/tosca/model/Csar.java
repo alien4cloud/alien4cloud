@@ -6,9 +6,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import org.elasticsearch.annotation.*;
+import org.elasticsearch.annotation.ESObject;
+import org.elasticsearch.annotation.Id;
+import org.elasticsearch.annotation.NestedObject;
+import org.elasticsearch.annotation.ObjectField;
+import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
+import org.elasticsearch.annotation.query.TermsFacet;
 import org.elasticsearch.mapping.IndexType;
 
 import alien4cloud.exception.IndexingServiceException;
@@ -41,6 +46,7 @@ public class Csar implements IManagedSecuredResource {
 
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
+    @TermsFacet
     private String workspace;
 
     /** This is the hashcode of all files in the archive. */
@@ -65,6 +71,8 @@ public class Csar implements IManagedSecuredResource {
 
     private String toscaDefaultNamespace;
 
+    @TermsFacet
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String templateAuthor;
 
     private String description;
