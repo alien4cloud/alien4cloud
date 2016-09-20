@@ -29,42 +29,11 @@
           <span ng-if="!collapseAdvancedSearch">{{'COMPONENTS.SEARCH.SIMPLE_SEARCH' | translate}}</span>
         </a>
         <div collapse="collapseAdvancedSearch && !globalContext">
-          <div ng-show="facetFilters.length>0" class="filter-category">
-            <div>
-              {{ 'COMPONENTS.ACTIVE_FILTERS' | translate }} <span
-                class="badge" ng-show="facetFilters.length>0">{{facetFilters.length}}</span>
-              <button type="button" class="btn btn-default btn-xs" ng-click="reset()"
-                  ng-disabled="facetFilters.length<=0">
-                  <i class="fa fa-trash-o"></i>
-              </button>
-            </div>
-            <div class="facet-choice" collapse="isFacetCollapsed">
-              <ul class="nav facet-choice">
-                <li ng-repeat="filter in facetFilters">
-                  <a href="" ng-click="removeFilter(filter)">{{translateKey(filter.term)}}: <span class="label label-primary">
-                    {{ getFormatedFacetValue(filter.term, filter.facet) }}</span><i class="fa fa-times"></i>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Displaying all terms and its facets -->
-          <div ng-repeat="(term, termFacets) in searchResult.facets">
-            <div ng-click="isFacetCollapsed = !isFacetCollapsed" class="facet-category">
-              <span>{{translateKey(term)}}</span>
-              <i class="pull-right fa" ng-class="{'fa-caret-down' : !isFacetCollapsed, 'fa-caret-right': isFacetCollapsed}"></i>
-            </div>
-            <div class="facet-option" collapse="isFacetCollapsed">
-              <ul class="nav facet-option">
-                <li ng-repeat="facet in termFacets">
-                  <a href="" ng-click="addFilter(term,facet.facetValue)">
-                    {{ getFormatedFacetValue(term, facet.facetValue) }} <span class="badge">{{facet.count}}</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
+          <facets facet-filters="facetFilters"
+                  facets="searchResult.facets"
+                  filter-prefix="COMPONENTS."
+                  do-search="doSearch()">
+          </facets>
         </div>
       </div>
     </div>

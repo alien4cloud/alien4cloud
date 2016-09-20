@@ -1,66 +1,21 @@
 <div>
   <div class="vertical-panel-shift" ui-view></div>
-  <div id="upload-csar" class="row" ng-if="workspacesForUpload.length > 0">
-    <div class="col-md-8">
-      <upload-directive
-          target-url="'rest/v1/csars'"
-          request-data="selectedWorkspaceForUploadData"
-          drag-and-drop-message="'COMPONENTS.DRAG_DROP_UPLOAD'"
-          button-message="'COMPONENTS.UPLOAD'"
-          upload-success-callback="uploadSuccessCallback(data)">
-      </upload-directive>
-    </div>
-    <div class="col-md-4">
-      <div class="well">
-        <div class="input-group">
-        <span class="input-group-addon">
-          <span translate><i>{{'COMPONENTS.WORKSPACES.UPLOAD' | translate}}</i></span>
-        </span>
-          <span class="form-control-noheightlimit">
-          <div class="btn-group btn-group-xs">
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-              {{selectedWorkspaceForUpload.id}}
-              <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-right" role="menu" style="z-index: 2000;">
-              <li ng-repeat="workspace in workspacesForUpload"
-                  ng-if="workspace !== selectedWorkspaceForUpload"
-                  class="option-selected"
-                  style="z-index: 2000;">
-                <a ng-click="selectWorkspaceForUpload(workspace)">{{workspace.id}}</a>
-              </li>
-            </ul>
-          </div>
-        </span>
-        </div>
-        <div class="input-group" style="margin-top: 5px;">
-        <span class="input-group-addon">
-          <span translate><i>{{'COMPONENTS.WORKSPACES.UPLOAD' | translate}}</i></span>
-        </span>
-          <span class="form-control-noheightlimit">
-            <div class="checkbox" ng-repeat="searchWorkspace in workspacesForSearch">
-              <label>
-                <input type="checkbox" ng-click="selectWorkspaceForSearch(searchWorkspace)"
-                       ng-checked="selectedWorkspacesForSearch.indexOf(searchWorkspace) >= 0"> {{searchWorkspace.id}}
-              </label>
-            </div>
-          </span>
-        </div>
-      </div>
-    </div>
+  <div id="upload-csar" class="row" ng-if="isComponentManager">
+    <upload-directive
+      target-url="'rest/v1/csars'"
+      drag-and-drop-message="'COMPONENTS.DRAG_DROP_UPLOAD'"
+      button-message="'COMPONENTS.UPLOAD'"
+      upload-success-callback="uploadSuccessCallback(data)" />
   </div>
-
   <div class="row">
     <alien-search-node-type
-        ng-if="selectedWorkspacesForSearch"
-        refresh="refresh"
-        workspaces="selectedWorkspacesForSearch"
-        display-detail-pannel="true"
-        on-select-item="openComponent(item)"
-        global-context="true"
-        height-info="heightInfo"
-        width-info="widthInfo"
-        default-filters="defaultFilters"
-        badges="badges"/>
+      refresh="refresh"
+      display-detail-pannel="true"
+      on-select-item="openComponent(item)"
+      global-context="true"
+      height-info="heightInfo"
+      width-info="widthInfo"
+      default-filters="defaultFilters"
+      badges = "badges"/>
   </div>
 </div>

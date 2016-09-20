@@ -77,7 +77,7 @@ define(function(require) {
                 height = 45;
               }
             } else { // Display an alert message as this should be considered as an error.
-              console.log('Unexpected activity type encountered', shortActivityType);
+              console.error('Unexpected activity type encountered', shortActivityType);
             }
             if(_.defined(width)) {
               g.setNode(stepName, {

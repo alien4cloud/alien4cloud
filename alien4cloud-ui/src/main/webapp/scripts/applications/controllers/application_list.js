@@ -42,7 +42,6 @@ define(function (require) {
         autoGenArchiveName = false;
       };
       $scope.selectTemplate= function(topology) {
-        console.log('topology', topology);
         $scope.app.topologyTemplateName = topology.archiveName;
         $scope.app.topologyTemplateVersion = topology.archiveVersion;
         $scope.app.topologyTemplateVersionId = topology.id;
@@ -74,7 +73,6 @@ define(function (require) {
           windowClass: 'new-app-modal'
         });
         modalInstance.result.then(function(application) {
-          console.log('JSON', application);
           // create a new application from the given name and description.
           applicationServices.create([], angular.toJson(application), function(successResponse) {
             $scope.openApplication(successResponse.data);

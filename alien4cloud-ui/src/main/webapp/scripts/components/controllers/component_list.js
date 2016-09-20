@@ -47,28 +47,6 @@ define(function (require) {
       //   onClick: callback for the click on the displayed badge. takes as param: the component, the $state object
       badges: [function () {
         return [];
-      }],
-      workspacesForUpload: ['authService', function (authService) {
-        if (authService.hasRole('COMPONENTS_MANAGER')) {
-          return [
-            {
-              scope: 'ALIEN_GLOBAL_WORKSPACE',
-              id: 'ALIEN_GLOBAL_WORKSPACE'
-            }];
-        } else {
-          return [];
-        }
-      }],
-      workspacesForSearch: ['authService', function (authService) {
-        if (authService.hasRole('COMPONENTS_BROWSER')) {
-          return [
-            {
-              scope: 'ALIEN_GLOBAL_WORKSPACE',
-              id: 'ALIEN_GLOBAL_WORKSPACE'
-            }];
-        } else {
-          return [];
-        }
       }]
     },
     menu: {
@@ -81,35 +59,11 @@ define(function (require) {
   });
   states.forward('components', 'components.list');
 
-  modules.get('a4c-components', ['ui.router', 'a4c-auth', 'a4c-common']).controller('SearchComponentCtrl', ['$scope', '$state', 'resizeServices', 'defaultFilters', 'badges', 'workspacesForUpload', 'workspacesForSearch',
-    function ($scope, $state, resizeServices, defaultFilters, badges, workspacesForUpload, workspacesForSearch) {
-      $scope.workspacesForUpload = workspacesForUpload;
-      $scope.workspacesForSearch = workspacesForSearch;
-
+  modules.get('a4c-components', ['ui.router', 'a4c-auth', 'a4c-common']).controller('SearchComponentCtrl', ['$scope', '$state', 'resizeServices', 'defaultFilters', 'badges',
+    function ($scope, $state, resizeServices, defaultFilters, badges) {
       $scope.defaultFilters = defaultFilters;
       $scope.badges = badges;
-
-      $scope.selectWorkspaceForUpload = function (workspace) {
-        $scope.selectedWorkspaceForUpload = workspace;
-        $scope.selectedWorkspaceForUploadData = {
-          workspace: $scope.selectedWorkspaceForUpload.id
-        };
-      };
-      $scope.selectWorkspaceForUpload($scope.workspacesForUpload[0]);
-
-      $scope.selectWorkspaceForSearch = function (workspace) {
-        var index = $scope.selectedWorkspacesForSearch.indexOf(workspace);
-        if (index < 0) {
-          $scope.selectedWorkspacesForSearch.push(workspace);
-        } else {
-          $scope.selectedWorkspacesForSearch.splice(index, 1);
-        }
-      };
-      $scope.selectedWorkspacesForSearch = [];
-      for(var i=0; i < $scope.workspacesForSearch.length; i++) {
-        $scope.selectWorkspaceForSearch($scope.workspacesForSearch[i]);
-      }
-
+      
       $scope.uploadSuccessCallback = function (data) {
         $scope.refresh = data;
       };

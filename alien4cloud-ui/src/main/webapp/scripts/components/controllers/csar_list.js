@@ -44,7 +44,7 @@ define(function (require) {
         if(_.undefined(searchResult.error)) {
           $scope.searchResult = searchResult.data;
         } else {
-          console.log('error when searching...', searchResult.error);
+          console.error('error when searching...', searchResult.error);
         }
       };
 
