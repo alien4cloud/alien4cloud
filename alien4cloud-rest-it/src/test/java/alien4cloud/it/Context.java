@@ -10,6 +10,7 @@ import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.IValue;
 import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
@@ -26,12 +27,14 @@ import org.springframework.util.PropertyPlaceholderHelper;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.it.exception.ITException;
 import alien4cloud.it.provider.util.AwsClient;
 import alien4cloud.it.provider.util.OpenStackClient;
+import alien4cloud.it.utils.TestUtils;
 import alien4cloud.json.deserializer.*;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.MetaPropConfiguration;
@@ -39,6 +42,7 @@ import alien4cloud.rest.utils.RestClient;
 import alien4cloud.rest.utils.RestMapper;
 import alien4cloud.topology.task.AbstractTask;
 import alien4cloud.utils.MapUtil;
+import alien4cloud.utils.VersionUtil;
 import cucumber.runtime.io.ClasspathResourceLoader;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -160,8 +164,8 @@ public class Context {
     private String topologyIdLocal;
 
     private String csarIdLocal;
-
-    private String topologyTemplateVersionId;
+    /*templateName -> templateVersion -> topologyId*/
+    private Map<String, Map<String, String>> topologyTemplateId = Maps.newHashMap();
 
     private EvaluationContext spelEvaluationContext;
 
@@ -581,12 +585,19 @@ public class Context {
         return this.applicationInfos.get(applicationName);
     }
 
-    public void registerTopologyTemplateVersionId(String versionId) {
-        topologyTemplateVersionId = versionId;
+    public void registerTopologyTemplateId(String topologyId) {
+        String name = TestUtils.getNameFromId(topologyId);
+        if (topologyTemplateId.get(name) == null) {
+            topologyTemplateId.put(name, Maps.newHashMap());
+        }
+        topologyTemplateId.get(name).put(TestUtils.getVersionFromId(topologyId), topologyId);
     }
 
-    public String getTopologyTemplateVersionId() {
-        return topologyTemplateVersionId;
+    public String getTopologyTemplateId(String name, String version) {
+        if (StringUtils.isBlank(version)) {
+            version = VersionUtil.DEFAULT_VERSION_NAME;
+        }
+        return (String) MapUtil.get(topologyTemplateId, Joiner.on(".").join(name, version).toString());
     }
 
     public OpenStackClient getOpenStackClient() {

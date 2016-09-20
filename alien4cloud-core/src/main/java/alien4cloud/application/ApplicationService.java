@@ -8,8 +8,6 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
-import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.utils.ReflectionUtil;
 import org.elasticsearch.mapping.QueryHelper;
 import org.springframework.stereotype.Service;
 
@@ -99,7 +97,7 @@ public class ApplicationService {
         }
         if (!Pattern.matches(APPLICATION_NAME_REGEX, name)) {
             log.debug("Application name <{}> contains forbidden character.", name);
-            throw new InvalidApplicationNameException("An application name should not contains slash or backslash.");
+            throw new InvalidApplicationNameException("Application name <" + name + "> contains forbidden character.");
         }
     }
 

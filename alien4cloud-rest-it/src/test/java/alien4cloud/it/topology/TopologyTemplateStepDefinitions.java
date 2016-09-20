@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.Maps;
 
@@ -22,7 +23,8 @@ import cucumber.api.java.en.When;
 public class TopologyTemplateStepDefinitions {
 
     CommonStepDefinitions commonStepDefinitions = new CommonStepDefinitions();
-    EditorStepDefinitions editorStepDefinitions = new EditorStepDefinitions();
+
+    public static String CURRENT_TOPOLOGY_TEMP_ID;
 
     @When("^I create a new topology template with name \"([^\"]*)\" and description \"([^\"]*)\"$")
     public void iCreateANewTopologyTemplateWithNameAndDescription(String name, String description) throws Throwable {
@@ -85,7 +87,11 @@ public class TopologyTemplateStepDefinitions {
                 .registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/catalog/topologies/template", JsonUtil.toString(request)));
         String topologyId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData();
 
-        Context.getInstance().registerTopologyId(topologyId);
+        if (StringUtils.isNotBlank(topologyId)) {
+            Context.getInstance().registerTopologyTemplateId(topologyId);
+            CURRENT_TOPOLOGY_TEMP_ID = topologyId;
+            Context.getInstance().registerTopologyId(topologyId);
+        }
     }
 
     @When("^I create a new topology template with name \"([^\"]*)\" version \"([^\"]*)\"$")
