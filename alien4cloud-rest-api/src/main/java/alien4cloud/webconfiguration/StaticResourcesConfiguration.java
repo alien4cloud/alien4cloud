@@ -67,7 +67,7 @@ public class StaticResourcesConfiguration extends WebMvcConfigurerAdapter {
                         }
                         // let the usual resolving
                         String[] splitted = csarId.split(":"); // id is name:version:workspace but it is stored as workspace/name/version
-                        return chain.resolveResource(request, splitted[2] + "/" + splitted[0] + "/" + splitted[1] + "/" + requestPath, locations);
+                        return chain.resolveResource(request, splitted[0] + "/" + splitted[1] + "/" + requestPath, locations);
                     }
 
                     @Override
