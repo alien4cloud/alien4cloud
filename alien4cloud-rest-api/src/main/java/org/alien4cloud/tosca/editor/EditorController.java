@@ -34,6 +34,8 @@ import springfox.documentation.annotations.ApiIgnore;
 public class EditorController {
     @Inject
     private EditorService editorService;
+    @Inject
+    private EditionContextManager editionContextManager;
     /** We use the artifact repository to store temporary files from the edition context. */
     @Resource
     private IFileRepository artifactRepository;
@@ -192,4 +194,20 @@ public class EditorController {
         TopologyDTO topologyDTO = editorService.reset(topologyId, lastOperationId);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
     }
+
+    /**
+     * Clear the edition cache.
+     * 
+     * @param force
+     * @return Void
+     */
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @RequestMapping(value = "/clearCache", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> clearCache(@RequestParam("force") Boolean force) {
+        if (force) {
+            editionContextManager.clearCache();
+        }
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
 }

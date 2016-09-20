@@ -132,4 +132,11 @@ public class EditionContextManager {
         contextThreadLocal.remove();
         ToscaContext.destroy();
     }
+
+    /**
+     * Invalidate all cached objects
+     */
+    public void clearCache() {
+        contextCache.invalidateAll();
+    }
 }
