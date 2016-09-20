@@ -160,7 +160,8 @@ define(function (require) {
           workspaceIds.push($scope.workspaces[i].id);
         }
         var workspaceFilter = {
-          'workspace': workspaceIds
+          term: 'workspace',
+          facet: workspaceIds
         };
         allFacetFilters.push(workspaceFilter);
         updateSearch(allFacetFilters, force);
