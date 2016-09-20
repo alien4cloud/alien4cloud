@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import alien4cloud.common.AlienConstants;
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService;
@@ -82,10 +83,13 @@ public class CloudServiceArchiveController {
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
     @Audit
-    public RestResponse<CsarUploadResult> uploadCSAR(@RequestParam String workspace, @RequestParam("file") MultipartFile csar) throws IOException {
+    public RestResponse<CsarUploadResult> uploadCSAR(@RequestParam(required = false) String workspace, @RequestParam("file") MultipartFile csar)
+            throws IOException {
         Path csarPath = null;
         try {
-
+            if (workspace == null) {
+                workspace = AlienConstants.GLOBAL_WORKSPACE_ID;
+            }
             log.info("Serving file upload with name [" + csar.getOriginalFilename() + "]");
             csarPath = Files.createTempFile(tempDirPath, null, '.' + CsarFileRepository.CSAR_EXTENSION);
             // save the archive in the temp directory
