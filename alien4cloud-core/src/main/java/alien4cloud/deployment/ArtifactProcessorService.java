@@ -62,7 +62,7 @@ public class ArtifactProcessorService {
 
     private void processLocalArtifact(AbstractArtifact artifact) {
         try {
-            Path csarPath = repository.getExpandedCSAR(artifact.getArchiveWorkspace(), artifact.getArchiveName(), artifact.getArchiveVersion());
+            Path csarPath = repository.getExpandedCSAR(artifact.getArchiveName(), artifact.getArchiveVersion());
             Path resolvedPath = csarPath.resolve(artifact.getArtifactRef());
             if (!Files.exists(resolvedPath)) {
                 throw new UnresolvableArtifactException("Artifact could not be accessed " + artifact);

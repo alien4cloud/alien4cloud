@@ -251,14 +251,10 @@ public class CsarService implements ICsarDependencyLoader {
         // Delete the topology defined in this archive.
         csarDAO.delete(Topology.class, csar.getId());
         // latest version indicator will be recomputed to match this new reality
-        indexerService.deleteElements(csar.getName(), csar.getVersion(), csar.getWorkspace());
+        indexerService.deleteElements(csar.getName(), csar.getVersion());
         csarDAO.delete(Csar.class, csar.getId());
         // physically delete files
-        if (csarDAO.buildQuery(Csar.class).setFilters(singleKeyFilter("workspace", csar.getWorkspace())).count() == 0) {
-            alienRepository.removeWorkspace(csar.getWorkspace());
-        } else {
-            alienRepository.removeCSAR(csar.getWorkspace(), csar.getName(), csar.getVersion());
-        }
+        alienRepository.removeCSAR(csar.getName(), csar.getVersion());
     }
 
     /**

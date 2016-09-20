@@ -23,8 +23,6 @@ public abstract class AbstractArtifact implements IArtifact {
     private String archiveName;
     /** The version of the archive in which the original artifact lies. */
     private String archiveVersion;
-    /** The workspace of the archive in which the original artifact lies. */
-    private String archiveWorkspace;
 
     private String repositoryURL;
 
@@ -41,8 +39,7 @@ public abstract class AbstractArtifact implements IArtifact {
     @Override
     public String toString() {
         return "AbstractArtifact{" + "artifactType='" + artifactType + '\'' + ", artifactRef='" + artifactRef + '\'' + ", artifactRepository='"
-                + artifactRepository + '\'' + ", archiveName='" + archiveName + '\'' + ", archiveVersion='" + archiveVersion + ", archiveWorkspace='"
-                + archiveWorkspace + '\'' + ", repositoryURL='" + repositoryURL + '\'' + ", repositoryName='" + repositoryName + '\'' + ", artifactPath="
-                + artifactPath + '}';
+                + artifactRepository + '\'' + ", archiveName='" + archiveName + '\'' + ", archiveVersion='" + archiveVersion + '\'' + ", repositoryURL='"
+                + repositoryURL + '\'' + ", repositoryName='" + repositoryName + '\'' + ", artifactPath=" + artifactPath + '}';
     }
 }

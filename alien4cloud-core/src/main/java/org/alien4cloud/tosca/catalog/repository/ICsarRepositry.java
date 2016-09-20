@@ -27,36 +27,26 @@ public interface ICsarRepositry {
     /**
      * Get a CSAR stored into the repository
      *
-     * @param workspace The workspace from which to get the expanded archive.
      * @param name The name of the csar.
      * @param version The version of the CSAR
      * @return The path to the zipped csar file.
      */
-    Path getCSAR(String workspace, String name, String version);
+    Path getCSAR(String name, String version);
 
     /**
      * Get the path of the expended directory in which the CSAR is stored.
      *
-     * @param workspace The workspace from which to get the expanded archive.
      * @param name The name of the csar.
      * @param version The version of the CSAR
      * @return The path to the expended csar file.
      */
-    Path getExpandedCSAR(String workspace, String name, String version);
+    Path getExpandedCSAR(String name, String version);
 
     /**
      * Delete an archive from the local repository.
      *
-     * @param workspace The workspace from which to delete the archive.
      * @param name The archive to delete.
      * @param version The version of the archive to delete.
      */
-    void removeCSAR(String workspace, String name, String version);
-
-    /**
-     * Remove the directory of the workspace with all it's content.
-     * 
-     * @param workspace The workspace to remove.
-     */
-    void removeWorkspace(String workspace);
+    void removeCSAR(String name, String version);
 }

@@ -104,11 +104,7 @@ public class Csar implements IManagedSecuredResource {
         if (version == null) {
             throw new IndexingServiceException("Csar version is mandatory");
         }
-        if (workspace == null) {
-            return name + ":" + version;
-            // throw new IndexingServiceException("Workspace version is mandatory");
-        }
-        return name + ":" + version + ":" + workspace;
+        return name + ":" + version;
     }
 
     public void setId(String id) {

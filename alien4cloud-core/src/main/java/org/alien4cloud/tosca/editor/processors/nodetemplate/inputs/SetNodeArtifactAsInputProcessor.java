@@ -36,7 +36,6 @@ public class SetNodeArtifactAsInputProcessor extends AbstractNodeProcessor<SetNo
             DeploymentArtifact inputArtifact = new DeploymentArtifact();
             inputArtifact.setArchiveName(artifact.getArchiveName());
             inputArtifact.setArchiveVersion(artifact.getArchiveVersion());
-            inputArtifact.setArchiveWorkspace(artifact.getArchiveWorkspace());
             inputArtifact.setArtifactType(artifact.getArtifactType());
             Map<String, DeploymentArtifact> inputArtifacts = topology.getInputArtifacts();
             if (inputArtifacts == null) {

@@ -156,7 +156,6 @@ public class ArchivePostProcessor {
             return;
         }
         // Else also inject the workspace
-        artifact.setArchiveWorkspace(parsedArchive.getResult().getArchive().getWorkspace());
         String inputArtifactId = InputArtifactUtil.getInputArtifactId(artifact);
         if (StringUtils.isNotBlank(inputArtifactId) && hasInputArtifacts(parsedArchive)) {
             if (!parsedArchive.getResult().getTopology().getInputArtifacts().containsKey(inputArtifactId)) {

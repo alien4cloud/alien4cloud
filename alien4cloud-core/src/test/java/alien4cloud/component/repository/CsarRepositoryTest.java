@@ -40,7 +40,7 @@ public class CsarRepositoryTest {
     @Test(expected = NotFoundException.class)
     public void CSARVersionNotFoundTest() {
         cleanup();
-        repo.getCSAR(AlienConstants.GLOBAL_WORKSPACE_ID, testFileName, "1.0");
+        repo.getCSAR(testFileName, "1.0");
     }
 
     @Test
@@ -84,7 +84,7 @@ public class CsarRepositoryTest {
     }
 
     public void testGetCSARSuccessul() {
-        Path path = repo.getCSAR(AlienConstants.GLOBAL_WORKSPACE_ID, testFileName, "1.0");
+        Path path = repo.getCSAR(testFileName, "1.0");
         assertNotNull(path);
         String[] splits = path.toString().split("[\\\\/]");
         String name = splits[splits.length - 1];

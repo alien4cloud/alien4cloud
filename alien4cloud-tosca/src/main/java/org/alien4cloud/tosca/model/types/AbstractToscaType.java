@@ -86,10 +86,7 @@ public abstract class AbstractToscaType {
         if (archiveVersion == null) {
             throw new IndexingServiceException("Archive version is mandatory");
         }
-        if (workspace == null) {
-            throw new IndexingServiceException("Archive workspace is mandatory");
-        }
-        return elementId + ":" + archiveVersion + ":" + workspace;
+        return elementId + ":" + archiveVersion;
     }
 
     public void setId(String id) {

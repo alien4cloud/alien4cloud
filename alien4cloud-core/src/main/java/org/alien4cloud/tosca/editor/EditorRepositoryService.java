@@ -32,7 +32,7 @@ public class EditorRepositoryService {
     public Path resolveArtifact(String csarId, String artifactReference) {
         // let just split archiveName, archiveVersion, archiveWorkspace
         String[] splittedId = csarId.split(":");
-        return csarRepositry.getExpandedCSAR(splittedId[2], splittedId[0], splittedId[1]);
+        return csarRepositry.getExpandedCSAR(splittedId[0], splittedId[1]);
     }
 
     /**
@@ -44,7 +44,7 @@ public class EditorRepositoryService {
      */
     public Path createGitDirectory(Csar csar) throws IOException {
         // FIXME we should use directly the folder from the archive repository
-        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getWorkspace(), csar.getName(), csar.getVersion());
+        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
         if (!RepositoryManager.isGitRepository(archiveGitPath)) {
             RepositoryManager.create(archiveGitPath, "TOSCA topology created by Alien4Cloud.");
             log.debug("Initializing topology local git repository at {}", archiveGitPath.toAbsolutePath());
@@ -61,7 +61,7 @@ public class EditorRepositoryService {
      * @param message The message to use for the commit.
      */
     public void commit(Csar csar, String message) {
-        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getWorkspace(), csar.getName(), csar.getVersion());
+        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = null;
         String useremail = null;
@@ -82,7 +82,7 @@ public class EditorRepositoryService {
      * @return A list of simplified history entries.
      */
     public List<SimpleGitHistoryEntry> getHistory(Csar csar, int from, int count) {
-        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getWorkspace(), csar.getName(), csar.getVersion());
+        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
         return RepositoryManager.getHistory(archiveGitPath, from, count);
     }
 }

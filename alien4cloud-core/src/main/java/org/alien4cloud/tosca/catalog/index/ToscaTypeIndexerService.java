@@ -29,7 +29,6 @@ import alien4cloud.images.IImageDAO;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.tosca.normative.ToscaType;
-import alien4cloud.utils.MapUtil;
 
 /**
  * This service is responsible for indexing and searching tosca types.
@@ -50,14 +49,14 @@ public class ToscaTypeIndexerService implements IToscaTypeIndexerService {
     }
 
     @Override
-    public Map<String, AbstractToscaType> getArchiveElements(String archiveName, String archiveVersion, String workspace) {
-        return getArchiveElements(archiveName, archiveVersion, workspace, AbstractToscaType.class);
+    public Map<String, AbstractToscaType> getArchiveElements(String archiveName, String archiveVersion) {
+        return getArchiveElements(archiveName, archiveVersion, AbstractToscaType.class);
     }
 
     @Override
-    public <T extends AbstractToscaType> Map<String, T> getArchiveElements(String archiveName, String archiveVersion, String workspaceId, Class<T> type) {
-        GetMultipleDataResult<T> elements = alienDAO.find(type, MapUtil.newHashMap(new String[] { "archiveName", "archiveVersion" },
-                new String[][] { new String[] { archiveName }, new String[] { archiveVersion } }), Integer.MAX_VALUE);
+    public <T extends AbstractToscaType> Map<String, T> getArchiveElements(String archiveName, String archiveVersion, Class<T> type) {
+        GetMultipleDataResult<T> elements = alienDAO.buildQuery(type)
+                .setFilters(fromKeyValueCouples("archiveName", archiveName, "archiveVersion", archiveVersion)).prepareSearch().search(0, Integer.MAX_VALUE);
 
         Map<String, T> elementsByIds = Maps.newHashMap();
         if (elements == null) {
@@ -71,10 +70,10 @@ public class ToscaTypeIndexerService implements IToscaTypeIndexerService {
     }
 
     @Override
-    public void deleteElements(String name, String version, String workspace) {
+    public void deleteElements(String name, String version) {
         GetMultipleDataResult<AbstractToscaType> result = alienDAO.buildQuery(AbstractToscaType.class)
-                .setFilters(fromKeyValueCouples("archiveName", name, "archiveVersion", version, "workspace", workspace)).prepareSearch()
-                .setFetchContext(FetchContext.SUMMARY).search(0, Integer.MAX_VALUE);
+                .setFilters(fromKeyValueCouples("archiveName", name, "archiveVersion", version)).prepareSearch().setFetchContext(FetchContext.SUMMARY)
+                .search(0, Integer.MAX_VALUE);
 
         AbstractToscaType[] elements = result.getData();
 
@@ -85,13 +84,12 @@ public class ToscaTypeIndexerService implements IToscaTypeIndexerService {
     }
 
     @Override
-    public void indexInheritableElements(String archiveName, String archiveVersion, String workspace,
-            Map<String, ? extends AbstractInheritableToscaType> archiveElements, Collection<CSARDependency> dependencies) {
+    public void indexInheritableElements(Map<String, ? extends AbstractInheritableToscaType> archiveElements,
+            Collection<CSARDependency> dependencies) {
         for (AbstractInheritableToscaType element : safe(archiveElements).values()) {
             element.setLastUpdateDate(new Date());
             Date creationDate = element.getCreationDate() == null ? element.getLastUpdateDate() : element.getCreationDate();
             element.setCreationDate(creationDate);
-            element.setWorkspace(workspace);
             alienDAO.save(element);
         }
         refreshIndexForSearching();

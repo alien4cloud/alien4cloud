@@ -327,7 +327,7 @@ public class TopologyTreeBuilderService {
         }
         paaSTemplate.setDerivedFroms(derivedFromTypes);
         try {
-            Path csarPath = repository.getCSAR(indexedToscaElement.getWorkspace(), indexedToscaElement.getArchiveName(),
+            Path csarPath = repository.getCSAR(indexedToscaElement.getArchiveName(),
                     indexedToscaElement.getArchiveVersion());
             paaSTemplate.setCsarPath(csarPath);
         } catch (AlreadyExistException e) {

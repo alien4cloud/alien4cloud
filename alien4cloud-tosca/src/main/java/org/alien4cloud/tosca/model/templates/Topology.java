@@ -148,10 +148,7 @@ public class Topology {
         if (archiveVersion == null) {
             throw new IndexingServiceException("Archive version is mandatory");
         }
-        if (workspace == null) {
-            throw new IndexingServiceException("Archive workspace is mandatory");
-        }
-        return archiveName + ":" + archiveVersion + ":" + workspace;
+        return archiveName + ":" + archiveVersion;
     }
 
     public void setId(String id) {

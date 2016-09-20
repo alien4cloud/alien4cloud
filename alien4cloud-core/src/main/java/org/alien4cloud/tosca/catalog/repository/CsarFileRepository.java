@@ -58,7 +58,7 @@ public class CsarFileRepository implements ICsarRepositry {
 
     @Override
     public synchronized void storeCSAR(Csar csar, String yaml) {
-        Path csarDirectoryPath = rootPath.resolve(csar.getWorkspace()).resolve(csar.getName()).resolve(csar.getVersion());
+        Path csarDirectoryPath = rootPath.resolve(csar.getName()).resolve(csar.getVersion());
         String realName = csar.getName().concat("-").concat(csar.getVersion()).concat("." + CSAR_EXTENSION);
         createCSARDirectory(csarDirectoryPath, realName);
 
@@ -83,7 +83,7 @@ public class CsarFileRepository implements ICsarRepositry {
             throw new CSARStorageFailureException("CSAR temp location <" + tmpPath.toString() + "> not found or not readable!");
         }
 
-        Path csarDirectoryPath = rootPath.resolve(csar.getWorkspace()).resolve(csar.getName()).resolve(csar.getVersion());
+        Path csarDirectoryPath = rootPath.resolve(csar.getName()).resolve(csar.getVersion());
         String realName = csar.getName().concat("-").concat(csar.getVersion()).concat("." + CSAR_EXTENSION);
 
         // create the storage directory
@@ -130,8 +130,8 @@ public class CsarFileRepository implements ICsarRepositry {
     }
 
     @Override
-    public Path getCSAR(String workspace, String name, String version) {
-        Path csarDir = rootPath.resolve(workspace).resolve(name).resolve(version);
+    public Path getCSAR(String name, String version) {
+        Path csarDir = rootPath.resolve(name).resolve(version);
         Path expandedPath = csarDir.resolve("expanded");
         Path zippedPath = csarDir.resolve(name.concat("-").concat(version).concat("." + CSAR_EXTENSION));
         if (Files.exists(zippedPath)) {
@@ -151,8 +151,8 @@ public class CsarFileRepository implements ICsarRepositry {
     }
 
     @Override
-    public Path getExpandedCSAR(String workspace, String name, String version) {
-        Path csarDir = rootPath.resolve(workspace).resolve(name).resolve(version);
+    public Path getExpandedCSAR(String name, String version) {
+        Path csarDir = rootPath.resolve(name).resolve(version);
         Path expandedPath = csarDir.resolve("expanded");
         if (Files.exists(expandedPath)) {
             return expandedPath;
@@ -161,15 +161,10 @@ public class CsarFileRepository implements ICsarRepositry {
     }
 
     @Override
-    public void removeCSAR(String workspace, String name, String version) {
-        Path csarDirectoryPath = rootPath.resolve(workspace).resolve(name).resolve(version);
+    public void removeCSAR(String name, String version) {
+        Path csarDirectoryPath = rootPath.resolve(name).resolve(version);
         if (Files.isDirectory(csarDirectoryPath)) {
             FileSystemUtils.deleteRecursively(csarDirectoryPath.toFile());
         }
-    }
-
-    @Override
-    public void removeWorkspace(String workspace) {
-        FileSystemUtils.deleteRecursively(rootPath.resolve(workspace).toFile());
     }
 }
