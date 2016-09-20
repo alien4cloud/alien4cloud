@@ -108,7 +108,7 @@
       "LOCATION_UNAUTHORIZED_MESSAGE" : "Vous n'avez plus l'authorisation de déployer sur la location précédament selectionnée pour cet environement (location: <{{locationName}}>, orchestrateur: <{{orchestratorName}}>). \n Veuillez contacter votre administrateur.",
       "NODE_INFO" : "Noeud sélectionné",
       "NO_OUTPUTS" : "Aucune propriété ou attribut en sortie",
-      "ORCHESTRATOR_PROPERTIES" : "Propriétés de l'orchestrator",
+      "ORCHESTRATOR_PROPERTIES" : "Propriétés de l'orchestrateur",
       "PLAN" : "Workflow",
       "PROPERTIES_INPUTS" : "Propriétés d'entrée",
       "PROPERTIES_OUTPUTS" : "Propriétés de sortie",
@@ -695,7 +695,7 @@
   "NAVADMIN" : {
     "MENU_AUDIT" : "Audit",
     "MENU_METRICS" : "Métriques",
-    "MENU_ORCHESTRATORS" : "Orchestrators",
+    "MENU_ORCHESTRATORS" : "Orchestrateurs",
     "MENU_PLUGINS" : "Plugins",
     "MENU_TAGS" : "Méta-propriétés",
     "MENU_USERS" : "Utilisateurs"
