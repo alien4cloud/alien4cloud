@@ -1,12 +1,8 @@
 package org.alien4cloud.tosca.catalog.index;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
-import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -16,6 +12,7 @@ import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -34,6 +31,8 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.model.Role;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -54,6 +53,8 @@ public class CsarService implements ICsarDependencyLoader {
     private CsarFileRepository alienRepository;
     @Inject
     private ApplicationService applicationService;
+    @Inject
+    private TopologyCatalogService catalogService;
 
     /**
      * Get all archive matching the given set of filters.
@@ -357,4 +358,36 @@ public class CsarService implements ICsarDependencyLoader {
         }
         return resourceList;
     }
+
+    /**
+     * Checks if a user has the proper rights to delete an archive, based on what it contents
+     * 
+     * @param csar The archive to delete
+     */
+    public void checkDeletionAuthorizations(Csar csar) {
+
+        // if the csar is binded to an application, what ot do?
+        if (Objects.equals(csar.getDelegateType(), ArchiveDelegateType.APPLICATION.toString())) {
+            throw new UnsupportedOperationException("Cannot delete an application csar from here ");
+        }
+
+        // if this csar has node types, check the COMPONENTS_MANAGER Role
+        long count = countComponents(csar.getName(), csar.getVersion(), csar.getWorkspace());
+        if (count > 0) {
+            AuthorizationUtil.checkHasOneRoleIn(Role.COMPONENTS_BROWSER);
+        }
+
+        // if the csar is binded to a topology, check the ARCHITECT Role
+        Topology topology = csarDAO.findById(Topology.class, csar.getId());
+        if (topology != null) {
+            AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
+        }
+
+    }
+
+    private long countComponents(String name, String version, String workspace) {
+        return csarDAO.buildQuery(AbstractToscaType.class)
+                .setFilters(fromKeyValueCouples("archiveName", name, "archiveVersion", version, "workspace", workspace)).count();
+    }
+
 }

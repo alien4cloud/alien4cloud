@@ -1,18 +1,17 @@
 package alien4cloud.tosca.context;
 
-import java.util.*;
-import java.util.function.Predicate;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.tosca.model.ArchiveRoot;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.types.*;
+
+import java.util.*;
+import java.util.function.Predicate;
 
 import static alien4cloud.utils.AlienUtils.safe;
 
@@ -230,7 +229,6 @@ public class ToscaContext {
          */
         public Csar getArchive(String name, String version) {
 
-            // FIXME DO NOT USE ID HERE
             String id = new Csar(name, version).getId();
             Csar archive = archivesMap.get(id);
             log.debug("get archive from map {} {} {}", id, archive);

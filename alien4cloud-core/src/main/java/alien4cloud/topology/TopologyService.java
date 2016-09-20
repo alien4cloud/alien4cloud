@@ -1,14 +1,16 @@
 package alien4cloud.topology;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
+import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
@@ -19,7 +21,6 @@ import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.*;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.mapping.FilterValuesStrategy;
@@ -30,8 +31,6 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
-import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
-import org.alien4cloud.tosca.catalog.index.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
@@ -41,14 +40,13 @@ import alien4cloud.model.application.Application;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.security.model.User;
+import alien4cloud.security.model.Role;
 import alien4cloud.topology.exception.UpdateTopologyException;
 import alien4cloud.topology.task.SuggestionsTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.tosca.container.ToscaTypeLoader;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.normative.ToscaType;
-import alien4cloud.tosca.serializer.VelocityUtil;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
 import lombok.SneakyThrows;
@@ -69,6 +67,8 @@ public class TopologyService {
     private ApplicationVersionService applicationVersionService;
     @Resource
     private WorkflowsBuilderService workflowBuilderService;
+    @Inject
+    private ApplicationService appService;
 
     public static final Pattern NODE_NAME_PATTERN = Pattern.compile("^\\w+$");
     public static final Pattern NODE_NAME_REPLACE_PATTERN = Pattern.compile("\\W");
@@ -257,14 +257,14 @@ public class TopologyService {
      * @param applicationRoles The roles required to edit the topology for an application.
      */
     public void checkAuthorizations(Topology topology, ApplicationRole... applicationRoles) {
-        // FIXME check authorizations
-        // if (topology.getDelegateType().equals(Application.class.getSimpleName().toLowerCase())) {
-        // String applicationId = topology.getDelegateId();
-        // Application application = appService.getOrFail(applicationId);
-        // AuthorizationUtil.checkAuthorizationForApplication(application, applicationRoles);
-        // } else {
-        // AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
-        // }
+        Csar relatedCsar = ToscaContext.get().getArchive(topology.getArchiveName(), topology.getArchiveVersion());
+        if (Objects.equals(relatedCsar.getDelegateType(), ArchiveDelegateType.APPLICATION.toString())) {
+            String applicationId = relatedCsar.getDelegateId();
+            Application application = appService.getOrFail(applicationId);
+            AuthorizationUtil.checkAuthorizationForApplication(application, applicationRoles);
+        } else {
+            AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
+        }
     }
 
     /**
