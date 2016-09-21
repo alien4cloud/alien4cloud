@@ -17,13 +17,14 @@ define(function (require) {
         pageSize: '@',
         maxPageCount: '@',
         filterPrefix: '@',
+        defaultFilters: '=',
+        staticFacets: '=',
         onSearch: '&'
       }
     };
   });
 
   modules.get('a4c-common', []).controller('FacetSearchPanelController', ['$scope', 'searchServiceFactory', function ($scope, searchServiceFactory) {
-
     $scope.facetFilters = [];
 
     /*update a search*/
@@ -52,6 +53,11 @@ define(function (require) {
     var onSearchCompleted = function (searchResult) {
       if (_.undefined(searchResult.error)) {
         $scope.facets = searchResult.data.facets;
+        if(_.defined($scope.staticFacets)) {
+          _.each($scope.staticFacets, function(facet, facetKey){
+            searchResult.data.facets[facetKey] = facet;
+          });
+        }
         $scope.onSearch({
           searchConfig: {
             result: searchResult.data,

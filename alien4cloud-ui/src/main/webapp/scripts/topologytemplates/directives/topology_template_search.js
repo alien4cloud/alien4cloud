@@ -15,7 +15,8 @@ define(function (require) {
       scope: {
         onSelect: '&',
         onSelectForClone: '&',
-        archiveLink: '@'
+        archiveLink: '@',
+        staticFacets: '='
       }
     };
   });

@@ -30,6 +30,8 @@
         </a>
         <div collapse="collapseAdvancedSearch && !globalContext">
           <facets facet-filters="facetFilters"
+                  default-filters="defaultFilters"
+                  facet-id-converter="facetIdConverter"
                   facets="searchResult.facets"
                   filter-prefix="COMPONENTS."
                   do-search="forcedDoSearch()">

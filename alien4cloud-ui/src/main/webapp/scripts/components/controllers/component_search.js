@@ -46,56 +46,24 @@ define(function (require) {
       };
 
       /** Used to display the correct text in UI */
-      $scope.getFormatedFacetValue = function(term, value) {
-        // Add other boolean term facet in the condition
-        if(_.isArray(value) ){
-          //process each value of the array
-          return _.transform(value, function(result, n){
-            result.push($scope.getFormatedFacetValue(term, n));
-          }, []);
-        } else {
-          if (term === 'abstract') {
-            if (value === 'F' || value === false) {
+      $scope.facetIdConverter = {
+        toFilter: function(termId, facetId) {
+          return facetId;
+        },
+        toDisplay: function(termId, facetId) {
+          if (termId === 'abstract') {
+            if (facetId === 'F') {
               return $filter('translate')('FALSE');
             } else {
               return $filter('translate')('TRUE');
             }
-          } else if ( _.undefined(value)) {
+          } else if (_.undefined(facetId)) {
             return $filter('translate')('N/A');
           } else {
-            return value;
+            return facetId;
           }
         }
       };
-
-      /** Used to send the correct request to ES */
-      function getFormatedFacetIdForES(term, facetId) {
-        // Add other boolean term facet in the condition
-        if (term === 'abstract') {
-          if (facetId === 'F') {
-            return false;
-          } else {
-            return true;
-          }
-        } else {
-          return facetId;
-        }
-      }
-
-      function addFacetFilter(termId, facetValue) {
-        // Test if the filter exists : [term:facet] and add it if not
-        if (_.undefined(_.find($scope.facetFilters, {term: termId}))) {
-          var facetSearchObject = {};
-          facetSearchObject.term = termId;
-          if(_.isArray(facetValue)) {
-            facetSearchObject.facet = facetValue;
-          } else {
-            facetSearchObject.facet = [];
-            facetSearchObject.facet.push(getFormatedFacetIdForES(termId, facetValue));
-          }
-          $scope.facetFilters.push(facetSearchObject);
-        }
-      }
 
       $scope.setComponent = function(component) {
         $scope.detailComponent = component;
@@ -111,12 +79,6 @@ define(function (require) {
       } else {
         $scope.query = '';
         $scope.facetFilters = [];
-      }
-
-      if(_.defined($scope.defaultFilters)) {
-        _.each($scope.defaultFilters, function(value, key) {
-          addFacetFilter(key, value);
-        });
       }
 
       /*update a search*/
