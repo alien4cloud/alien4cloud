@@ -1,6 +1,7 @@
 package org.alien4cloud.tosca.catalog.index;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 import static alien4cloud.dao.model.FetchContext.SUMMARY;
 
 import java.util.Map;
@@ -93,5 +94,15 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
             throw new NotFoundException("Unable to find a topology with id <" + id + ">");
         }
         return topology;
+    }
+
+    /**
+     * Return true if the given id exists.
+     *
+     * @param id The id to check.
+     * @return True if a topology with the given id exists, false if not.
+     */
+    public boolean exists(String id) {
+        return alienDAO.buildQuery(Topology.class).setFilters(singleKeyFilter("id", id)).count() > 0;
     }
 }
