@@ -40,6 +40,18 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
     }
 
     /**
+     * Return true if the archive contains Tosca Types.
+     * 
+     * @param archiveName The name of the archive.
+     * @param archiveVersion The version of the archive.
+     * @return True if the archive contains types.
+     */
+    public boolean hasTypes(String archiveName, String archiveVersion) {
+        return searchDAO.buildQuery(AbstractToscaType.class).setFilters(fromKeyValueCouples("archiveName", archiveName, "archiveVersion", archiveVersion))
+                .count() > 0;
+    }
+
+    /**
      * Find an element based on it's type, id and version.
      *
      * @param elementType The element type.
