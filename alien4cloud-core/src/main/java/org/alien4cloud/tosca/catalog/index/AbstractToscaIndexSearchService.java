@@ -1,14 +1,12 @@
 package org.alien4cloud.tosca.catalog.index;
 
-import alien4cloud.common.AlienConstants;
-import alien4cloud.dao.FilterUtil;
-import alien4cloud.dao.IAggregationQueryManager;
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.dao.model.FacetedSearchResult;
-import alien4cloud.dao.model.FetchContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
-import lombok.SneakyThrows;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
+import javax.annotation.Resource;
+
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -19,11 +17,16 @@ import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import javax.annotation.Resource;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
+
+import alien4cloud.common.AlienConstants;
+import alien4cloud.dao.FilterUtil;
+import alien4cloud.dao.IAggregationQueryManager;
+import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.dao.model.FetchContext;
+import lombok.SneakyThrows;
 
 /**
  * This abstract class allows to search tosca indexed elements (Csar, AbstractToscaType, Topology) as they all follow the same search query logic.

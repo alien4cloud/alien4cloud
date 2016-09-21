@@ -12,39 +12,39 @@ Feature: CSAR upload with topology
   # By this way, we ensure that the imported then exported topology contain the same items.
   # The scenari that test failure cases are not duplicated.
 
-#  @reset
-#  Scenario: Upload CSAR containing apache types and embeded topology template
-#    Given I upload the archive "tosca base types 1.0"
-#    When I upload the archive "topology apache"
-#    Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos
-#    And If I search for topology templates I can find one with the name "apache-type" and store the related topology as a SPEL context
-#    And The SPEL expression "dependencies.^[name == 'tosca-base-types'].version" should return "1.0"
-#    And The SPEL int expression "nodeTemplates.size()" should return 2
-#    And The SPEL expression "nodeTemplates['compute'].type" should return "tosca.nodes.Compute"
-#    And The SPEL int expression "nodeTemplates['compute'].properties.size()" should return 8
-#    And The SPEL expression "nodeTemplates['compute'].properties['os_distribution'].value" should return "ubuntu"
-#    And The SPEL expression "nodeTemplates['compute'].properties['os_type'].value" should return "linux"
-#    And The SPEL int expression "nodeTemplates['compute'].attributes.size()" should return 3
-#    And The SPEL boolean expression "nodeTemplates['compute'].attributes.containsKey('ip_address')" should return true
-#    And The SPEL boolean expression "nodeTemplates['compute'].attributes.containsKey('tosca_id')" should return true
-#    And The SPEL boolean expression "nodeTemplates['compute'].attributes.containsKey('tosca_name')" should return true
-#    And The SPEL int expression "nodeTemplates['compute'].capabilities.size()" should return 4
-#    And The SPEL boolean expression "nodeTemplates['compute'].capabilities.containsKey('feature')" should return true
-#    And The SPEL boolean expression "nodeTemplates['compute'].capabilities.containsKey('compute')" should return true
-#    And The SPEL boolean expression "nodeTemplates['compute'].capabilities.containsKey('scalable')" should return true
-#    And The SPEL int expression "nodeTemplates['compute'].requirements.size()" should return 2
-#    And The SPEL boolean expression "nodeTemplates['compute'].requirements.containsKey('dependency')" should return true
-#    And The SPEL boolean expression "nodeTemplates['compute'].requirements.containsKey('network')" should return true
-#    And The SPEL int expression "nodeTemplates['apache'].relationships.size()" should return 1
-#    And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].type" should return "tosca.relationships.HostedOn"
-#    And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].target" should return "compute"
-#    And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].requirementName" should return "host"
-#    And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].requirementType" should return "tosca.capabilities.Container"
-#    And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].targetedCapabilityName" should return "compute"
-#    And The SPEL int expression "nodeTemplates['apache'].relationships['hostedOnCompute'].properties.size()" should return 2
-#    And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].properties['password'].value" should return "mypassword"
-#    # this node has inherited capabilities
-#    And The SPEL int expression "nodeTemplates['apache'].capabilities.size()" should return 2
+  @reset
+  Scenario: Upload CSAR containing apache types and embeded topology template
+    Given I upload the archive "tosca base types 1.0"
+    When I upload the archive "topology apache"
+    Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos
+    And I should be able to retrieve a topology with name "apache-type" and store it as a SPEL context
+    And The SPEL expression "dependencies.^[name == 'tosca-base-types'].version" should return "1.0"
+    And The SPEL int expression "nodeTemplates.size()" should return 2
+    And The SPEL expression "nodeTemplates['compute'].type" should return "tosca.nodes.Compute"
+    And The SPEL int expression "nodeTemplates['compute'].properties.size()" should return 8
+    And The SPEL expression "nodeTemplates['compute'].properties['os_distribution'].value" should return "ubuntu"
+    And The SPEL expression "nodeTemplates['compute'].properties['os_type'].value" should return "linux"
+    And The SPEL int expression "nodeTemplates['compute'].attributes.size()" should return 3
+    And The SPEL boolean expression "nodeTemplates['compute'].attributes.containsKey('ip_address')" should return true
+    And The SPEL boolean expression "nodeTemplates['compute'].attributes.containsKey('tosca_id')" should return true
+    And The SPEL boolean expression "nodeTemplates['compute'].attributes.containsKey('tosca_name')" should return true
+    And The SPEL int expression "nodeTemplates['compute'].capabilities.size()" should return 4
+    And The SPEL boolean expression "nodeTemplates['compute'].capabilities.containsKey('feature')" should return true
+    And The SPEL boolean expression "nodeTemplates['compute'].capabilities.containsKey('compute')" should return true
+    And The SPEL boolean expression "nodeTemplates['compute'].capabilities.containsKey('scalable')" should return true
+    And The SPEL int expression "nodeTemplates['compute'].requirements.size()" should return 2
+    And The SPEL boolean expression "nodeTemplates['compute'].requirements.containsKey('dependency')" should return true
+    And The SPEL boolean expression "nodeTemplates['compute'].requirements.containsKey('network')" should return true
+    And The SPEL int expression "nodeTemplates['apache'].relationships.size()" should return 1
+    And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].type" should return "tosca.relationships.HostedOn"
+    And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].target" should return "compute"
+    And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].requirementName" should return "host"
+    And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].requirementType" should return "tosca.capabilities.Container"
+    And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].targetedCapabilityName" should return "compute"
+    And The SPEL int expression "nodeTemplates['apache'].relationships['hostedOnCompute'].properties.size()" should return 2
+    And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].properties['password'].value" should return "mypassword"
+    # this node has inherited capabilities
+    And The SPEL int expression "nodeTemplates['apache'].capabilities.size()" should return 2
 #
 #  @reset
 #  Scenario: Re-Upload CSAR containing apache types and embeded topology template
@@ -80,20 +80,20 @@ Feature: CSAR upload with topology
 #    And The SPEL int expression "nodeTemplates['apache'].relationships['hostedOnCompute'].properties.size()" should return 2
 #    And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].properties['password'].value" should return "mypassword"
 #
-#  @reset
-#  Scenario: Upload CSAR containing cutom types and embeded topology template using short notation for requirements
-#    Given I upload the archive "tosca base types 1.0"
-#    When I upload the archive "topology custom types"
-#    Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
-#    And If I search for topology templates I can find one with the name "AllInclusiveArchive" and store the related topology as a SPEL context
-#    And The SPEL expression "dependencies.^[name == 'AllInclusiveArchive'].version" should return "1.0.0-SNAPSHOT"
-#    And The SPEL expression "dependencies.^[name == 'tosca-base-types'].version" should return "1.0"
-#    And The SPEL int expression "nodeTemplates['software'].relationships.size()" should return 1
-#    And The SPEL expression "nodeTemplates['software'].relationships['myRelationTypeCompute'].type" should return "custom.relationships.MyRelationType"
-#    And The SPEL expression "nodeTemplates['software'].relationships['myRelationTypeCompute'].target" should return "compute"
-#    And The SPEL expression "nodeTemplates['software'].relationships['myRelationTypeCompute'].requirementName" should return "host"
-#    And The SPEL expression "nodeTemplates['software'].relationships['myRelationTypeCompute'].requirementType" should return "custom.capabilities.MyCapability"
-#    And The SPEL expression "nodeTemplates['software'].relationships['myRelationTypeCompute'].targetedCapabilityName" should return "host"
+  @reset
+  Scenario: Upload CSAR containing cutom types and embeded topology template using short notation for requirements
+    Given I upload the archive "tosca base types 1.0"
+    When I upload the archive "topology custom types"
+    Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
+    And I should be able to retrieve a topology with name "AllInclusiveArchive" and store it as a SPEL context
+    And The SPEL expression "dependencies.^[name == 'AllInclusiveArchive'].version" should return "1.0.0-SNAPSHOT"
+    And The SPEL expression "dependencies.^[name == 'tosca-base-types'].version" should return "1.0"
+    And The SPEL int expression "nodeTemplates['software'].relationships.size()" should return 1
+    And The SPEL expression "nodeTemplates['software'].relationships['myRelationTypeCompute'].type" should return "custom.relationships.MyRelationType"
+    And The SPEL expression "nodeTemplates['software'].relationships['myRelationTypeCompute'].target" should return "compute"
+    And The SPEL expression "nodeTemplates['software'].relationships['myRelationTypeCompute'].requirementName" should return "host"
+    And The SPEL expression "nodeTemplates['software'].relationships['myRelationTypeCompute'].requirementType" should return "custom.capabilities.MyCapability"
+    And The SPEL expression "nodeTemplates['software'].relationships['myRelationTypeCompute'].targetedCapabilityName" should return "host"
 #
 #  @reset
 #  Scenario: Re-Upload CSAR containing cutom types and embeded topology template using short notation for requirements
@@ -420,6 +420,6 @@ Feature: CSAR upload with topology
     And I should receive a RestResponse with no error
     And I upload the archive "topology-invalid-node-name"
     Then I should receive a RestResponse with 3 alerts in 1 files : 0 errors 2 warnings and 1 infos
-    And If I search for topology templates I can find one with the name "invalid-node-name-template" and store the related topology as a SPEL context
+    And I should be able to retrieve a topology with name "invalid-node-name-template" version "1.0.0-SNAPSHOT" and store it as a SPEL context
     And The SPEL expression "nodeTemplates['Compute'].type" should return "tosca.nodes.Compute"
     And The SPEL expression "nodeTemplates['Data_base'].type" should return "tosca.nodes.Database"

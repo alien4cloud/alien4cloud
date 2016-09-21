@@ -4,15 +4,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.alien4cloud.tosca.catalog.CatalogVersionResult;
+import org.apache.commons.collections4.CollectionUtils;
 import org.junit.Assert;
+
+import com.google.common.collect.Sets;
 
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
-
-import com.google.common.collect.Sets;
-
 import cucumber.api.java.en.Then;
 
 public class MixingComponentVersionsDefinitionsSteps {
@@ -29,13 +30,25 @@ public class MixingComponentVersionsDefinitionsSteps {
         for (int i = 0; i < expectedElementSize; i++) {
             Map<String, Object> element = (Map<String, Object>) elements[i];
             Assert.assertEquals(expectedVersion, element.get("archiveVersion"));
-            List<Object> actualOlderVersions = (List<Object>) element.get("olderVersions");
-            if (expectedOlderVersions == null || expectedOlderVersions.isEmpty()) {
-                Assert.assertTrue(actualOlderVersions == null || actualOlderVersions.isEmpty());
+            Set<String> actualOlderVersions = getComponentVersions((String) element.get("elementId"));
+            actualOlderVersions.remove(expectedVersion);
+            if (CollectionUtils.isEmpty(expectedOlderVersions)) {
+                Assert.assertTrue(actualOlderVersions.isEmpty());
             } else {
-                Assert.assertEquals(expectedOlderVersionsSet, Sets.newHashSet(actualOlderVersions));
+                Assert.assertEquals(expectedOlderVersionsSet, actualOlderVersions);
             }
         }
+    }
+
+    private Set<String> getComponentVersions(String elementId) throws Throwable {
+        Set<String> versions = Sets.newHashSet();
+        String responseString = Context.getRestClientInstance().get("/rest/v1/components/element/" + elementId + "/versions");
+        RestResponse<?> response = JsonUtil.read(responseString);
+        List<CatalogVersionResult> versionResults = JsonUtil.toList(JsonUtil.toString(response.getData()), CatalogVersionResult.class);
+        for (CatalogVersionResult versionResult : versionResults) {
+            versions.add(versionResult.getVersion());
+        }
+        return versions;
     }
 
     @Then("^The response should contains (\\d+) elements from various types of version \"([^\"]*)\"$")

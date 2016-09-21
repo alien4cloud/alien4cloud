@@ -119,6 +119,7 @@ public class ToscaArchiveParser {
     private ParsingResult<ArchiveRoot> parseFromToscaMeta(FileSystem csarFS) throws ParsingException {
         YamlSimpleParser<ToscaMeta> parser = new YamlSimpleParser<ToscaMeta>(toscaMetaMapping.getParser());
         ParsingResult<ToscaMeta> parsingResult = parser.parseFile(csarFS.getPath(TOSCA_META_FILE_LOCATION));
+        // FIXME shouldn't we check here if the meta parsing went well?
         ArchiveRoot archiveRoot = initFromToscaMeta(parsingResult);
         return parseFromToscaMeta(csarFS, parsingResult.getResult(), TOSCA_META_FILE_LOCATION, archiveRoot);
     }
@@ -126,7 +127,9 @@ public class ToscaArchiveParser {
     private ArchiveRoot initFromToscaMeta(ParsingResult<ToscaMeta> toscaMeta) {
         ArchiveRoot archiveRoot = new ArchiveRoot();
         archiveRoot.getArchive().setName(toscaMeta.getResult().getName());
-        archiveRoot.getArchive().setVersion(toscaMeta.getResult().getVersion());
+        if (toscaMeta.getResult().getVersion() != null) {
+            archiveRoot.getArchive().setVersion(toscaMeta.getResult().getVersion());
+        }
         if (toscaMeta.getResult().getCreatedBy() != null) {
             archiveRoot.getArchive().setTemplateAuthor(toscaMeta.getResult().getCreatedBy());
         }

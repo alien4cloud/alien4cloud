@@ -631,4 +631,11 @@ public class ApplicationStepDefinitions {
         }
 
     }
+
+    @And("^I create a new application with name \"([^\"]*)\" and description \"([^\"]*)\" based on the template with name \"([^\"]*)\"$")
+    public void iCreateANewApplicationWithNameAndDescriptionBasedOnTheTemplateWithName(String name, String description, String templateName) throws Throwable {
+        String topologyTemplateId = TopologyTemplateStepDefinitions.getTopologyTemplateIdFromName(templateName);
+        assertFalse(StringUtils.isBlank(topologyTemplateId));
+        createApplication(name, description, topologyTemplateId);
+    }
 }

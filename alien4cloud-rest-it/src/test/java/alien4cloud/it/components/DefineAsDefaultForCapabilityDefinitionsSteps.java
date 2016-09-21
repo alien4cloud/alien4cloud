@@ -5,20 +5,20 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.util.List;
 
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.mapping.MappingBuilder;
 
-import org.alien4cloud.tosca.model.types.NodeType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
+
+import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.it.Context;
 import alien4cloud.rest.component.RecommendationRequest;
 import alien4cloud.rest.utils.JsonUtil;
-import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
-
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -66,6 +66,7 @@ public class DefineAsDefaultForCapabilityDefinitionsSteps {
         indexedNodeType.setElementId(elementId);
         indexedNodeType.setArchiveVersion(archiveVersion);
         indexedNodeType.setCapabilities(capabilities);
+        indexedNodeType.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
 
         String typeName = MappingBuilder.indexTypeFromClass(NodeType.class);
         String serializeDatum = jsonMapper.writeValueAsString(indexedNodeType);

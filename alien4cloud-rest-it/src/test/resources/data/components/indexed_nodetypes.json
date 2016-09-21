@@ -47,7 +47,6 @@
   "alienScore" : 0,
   "abstract" : false,
   "id" : "javaNode:3.0",
-  "highestVersion" : false,
   "properties" : [ {
     "key" : "disk_size",
     "value" : {
@@ -104,7 +103,6 @@
   "alienScore" : 0,
   "abstract" : false,
   "id" : "whatever:3.0",
-  "highestVersion" : false,
   "properties" : [ {
     "key" : "os_distribution",
     "value" : {
@@ -173,6 +171,5 @@
   "defaultCapabilities" : [ "jar", "war" ],
   "alienScore" : 0,
   "abstract" : false,
-  "id" : "warNode:3.2",
-  "highestVersion" : false
+  "id": "warNode:3.2"
 } ]

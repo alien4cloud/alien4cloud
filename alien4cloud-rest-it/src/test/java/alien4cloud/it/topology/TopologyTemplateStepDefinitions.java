@@ -1,17 +1,26 @@
 package alien4cloud.it.topology;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
+import org.alien4cloud.tosca.catalog.CatalogVersionResult;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.Maps;
 
+import alien4cloud.dao.FilterUtil;
+import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.utils.TestUtils;
 import alien4cloud.rest.application.model.CreateTopologyRequest;
+import alien4cloud.rest.model.FilteredSearchRequest;
+import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.VersionUtil;
 import cucumber.api.java.en.And;
@@ -51,6 +60,25 @@ public class TopologyTemplateStepDefinitions {
         // register the retrieved topology as SPEL context
         Topology topology = JsonUtil.read(Context.getInstance().getRestResponse(), Topology.class, Context.getJsonMapper()).getData();
         Context.getInstance().buildEvaluationContext(topology);
+    }
+
+    @And("^I should be able to retrieve a topology with name \"([^\"]*)\" and store it as a SPEL context$")
+    public void i_Should_Be_Able_To_Retrieve_A_Topology_With_Name_And_Store_It_As_A_SPEL_Context(String name) throws Throwable {
+        CatalogVersionResult version = getOneTopologyVersion(name);
+        assertNotNull(version);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/catalog/topologies/" + version.getId()));
+        commonStepDefinitions.I_should_receive_a_RestResponse_with_no_error();
+
+        // register the retrieved topology as SPEL context
+        Topology topology = JsonUtil.read(Context.getInstance().getRestResponse(), Topology.class, Context.getJsonMapper()).getData();
+        Context.getInstance().buildEvaluationContext(topology);
+    }
+
+    private CatalogVersionResult getOneTopologyVersion(String name) throws Throwable {
+        String responseString = Context.getRestClientInstance().get("/rest/v1/catalog/topologies/" + name + "/versions");
+        RestResponse<?> response = JsonUtil.read(responseString);
+        List<CatalogVersionResult> versionResults = JsonUtil.toList(JsonUtil.toString(response.getData()), CatalogVersionResult.class);
+        return versionResults.get(0);
     }
 
     @Given("^I create a new topology template with name \"([^\"]*)\" and description \"([^\"]*)\" and node templates$")
@@ -103,4 +131,29 @@ public class TopologyTemplateStepDefinitions {
     public void iCreateANewTopologyWithNameVersionBasedOnTheVersion(String name, String version, String fromVersion) throws Throwable {
         createTopologyTemplate(name, null, version, TestUtils.getFullId(name, fromVersion));
     }
+
+    public static String getTopologyTemplateIdFromName(String topologyTemplateName) throws Throwable {
+
+        // first search from the context
+        String topologyId = Context.getInstance().getTopologyTemplateId(topologyTemplateName, null);
+        if (StringUtils.isNotBlank(topologyId)) {
+            return topologyId;
+        }
+
+        // if not found, then search from the repo
+        Topology topology = getTopologyFromName(topologyTemplateName);
+        return topology.getId();
+    }
+
+    private static Topology getTopologyFromName(String topologyTemplateName) throws IOException {
+        FilteredSearchRequest request = new FilteredSearchRequest();
+        request.setFilters(FilterUtil.singleKeyFilter("archiveName", topologyTemplateName));
+        request.setFrom(0);
+        request.setSize(1);
+        String response = Context.getRestClientInstance().postJSon("/rest/v1/catalog/topologies/search", JsonUtil.toString(request));
+        RestResponse<FacetedSearchResult> restResponse = JsonUtil.read(response, FacetedSearchResult.class);
+        assertEquals(1, restResponse.getData().getData().length);
+        return JsonUtil.readObject(JsonUtil.toString(restResponse.getData().getData()[0]), Topology.class);
+    }
+
 }

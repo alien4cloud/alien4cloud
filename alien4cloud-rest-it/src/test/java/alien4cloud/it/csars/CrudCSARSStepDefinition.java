@@ -5,20 +5,18 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 
+import org.alien4cloud.tosca.model.CSARDependency;
 import org.junit.Assert;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.model.common.Usage;
-import org.alien4cloud.tosca.model.CSARDependency;
 import alien4cloud.rest.component.SearchRequest;
-import alien4cloud.rest.csar.CreateCsarRequest;
 import alien4cloud.rest.csar.CsarInfoDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -33,19 +31,6 @@ public class CrudCSARSStepDefinition {
     public void I_have_CSAR_name_and_version(String csarName, String csarVersion) throws Throwable {
         CURRENT_CSAR_NAME = csarName;
         CURRENT_CSAR_VERSION = csarVersion;
-    }
-
-    @When("^I create a CSAR with name \"([^\"]*)\" and version \"([^\"]*)\"$")
-    public void I_create_a_CSAR_with_name_and_version(String csarName, String csarVersion) throws Throwable {
-        CreateCsarRequest request = new CreateCsarRequest(csarName, csarVersion, null);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/csars/", JsonUtil.toString(request)));
-        Context.getInstance().registerCsarId(JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData());
-    }
-
-    @When("^I create a CSAR$")
-    public void I_create_a_CSAR() throws Throwable {
-        CreateCsarRequest request = new CreateCsarRequest(CURRENT_CSAR_NAME, CURRENT_CSAR_VERSION, null);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/v1/csars/", JsonUtil.toString(request)));
     }
 
     @When("^I delete a CSAR with id \"([^\"]*)\"$")

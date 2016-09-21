@@ -1,40 +1,33 @@
 package alien4cloud.it.quicksearch;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.elasticsearch.client.Client;
-import org.elasticsearch.mapping.MappingBuilder;
-
-import alien4cloud.dao.ElasticSearchDAO;
-import alien4cloud.dao.ElasticSearchMapper;
-import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.it.Context;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
-import alien4cloud.rest.component.QueryComponentType;
-import alien4cloud.rest.model.BasicSearchRequest;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.utils.JsonUtil;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.mapping.MappingBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import alien4cloud.common.AlienConstants;
+import alien4cloud.dao.ElasticSearchDAO;
+import alien4cloud.dao.ElasticSearchMapper;
+import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.it.Context;
+import alien4cloud.rest.component.QueryComponentType;
+import alien4cloud.rest.model.BasicSearchRequest;
+import alien4cloud.rest.model.RestResponse;
+import alien4cloud.rest.utils.JsonUtil;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class QuickSearchDefinitionsSteps {
@@ -136,6 +129,7 @@ public class QuickSearchDefinitionsSteps {
             AbstractToscaType componentTemplate = (AbstractToscaType) clazz.newInstance();
             componentTemplate.setElementId(type + "_" + i);
             componentTemplate.setArchiveVersion(DEFAULT_ARCHIVE_VERSION);
+            componentTemplate.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
 
             if (property != null && remaining > 0) {
                 if (type.equalsIgnoreCase("node types")) {

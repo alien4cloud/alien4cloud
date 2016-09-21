@@ -12,7 +12,6 @@ import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -386,28 +385,21 @@ public class CsarService implements ICsarDependencyLoader {
      */
     public void checkDeletionAuthorizations(Csar csar) {
 
-        // if the csar is binded to an application, what ot do?
+        // if the csar is bound to an application, then do not alow the process
         if (Objects.equals(csar.getDelegateType(), ArchiveDelegateType.APPLICATION.toString())) {
             throw new UnsupportedOperationException("Cannot delete an application csar from here ");
         }
 
         // if this csar has node types, check the COMPONENTS_MANAGER Role
-        long count = countComponents(csar.getName(), csar.getVersion(), csar.getWorkspace());
-        if (count > 0) {
-            AuthorizationUtil.checkHasOneRoleIn(Role.COMPONENTS_BROWSER);
+        if (searchService.hasTypes(csar.getName(), csar.getVersion())) {
+            AuthorizationUtil.checkHasOneRoleIn(Role.COMPONENTS_MANAGER);
         }
 
-        // if the csar is binded to a topology, check the ARCHITECT Role
-        Topology topology = csarDAO.findById(Topology.class, csar.getId());
-        if (topology != null) {
+        // if the csar is bound to a topology, check the ARCHITECT Role
+        if (catalogService.exists(csar.getId())) {
             AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
         }
 
-    }
-
-    private long countComponents(String name, String version, String workspace) {
-        return csarDAO.buildQuery(AbstractToscaType.class)
-                .setFilters(fromKeyValueCouples("archiveName", name, "archiveVersion", version, "workspace", workspace)).count();
     }
 
     /**
