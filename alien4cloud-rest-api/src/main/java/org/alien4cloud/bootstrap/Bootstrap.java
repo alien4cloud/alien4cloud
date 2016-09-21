@@ -27,7 +27,7 @@ import alien4cloud.utils.AlienYamlPropertiesFactoryBeanFactory;
 @EnableAutoConfiguration(exclude = { HypermediaAutoConfiguration.class })
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @ComponentScan(basePackages = { "org.alien4cloud.bootstrap", "alien4cloud.audit", "alien4cloud.security", "alien4cloud.webconfiguration",
-        "org.alien4cloud.exception", "org.elasticsearch.mapping", "alien4cloud.dao", "alien4cloud.servlet", "alien4cloud.images", "org.alien4cloud.workspace" })
+        "org.alien4cloud.exception", "org.elasticsearch.mapping", "alien4cloud.dao", "alien4cloud.servlet", "alien4cloud.images" })
 public class Bootstrap {
 
     /**
