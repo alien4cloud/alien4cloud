@@ -11,6 +11,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -239,7 +240,7 @@ public class DeploymentTopologyController {
             }
 
             // update
-            if (updateRequest.getProviderDeploymentProperties() != null && !updateRequest.getProviderDeploymentProperties().isEmpty()) {
+            if (MapUtils.isNotEmpty(updateRequest.getProviderDeploymentProperties())) {
                 deploymentTopology.getProviderDeploymentProperties().putAll(updateRequest.getProviderDeploymentProperties());
                 orchestratorPropertiesValidationService.checkConstraints(deploymentTopology.getOrchestratorId(),
                         updateRequest.getProviderDeploymentProperties());
