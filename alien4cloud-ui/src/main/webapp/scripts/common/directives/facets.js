@@ -12,12 +12,16 @@ define(function (require) {
       scope: {
         // currently selected filters by user
         facetFilters: '=',
+        /** default filters if any */
+        defaultFilters: '=',
         // facet data, which can be updated vi doSearch()
         facets: '=',
         // the prefix for all label, it's useful for translation
         filterPrefix: '@',
         // trigger a query to refresh data
-        doSearch: '&'
+        doSearch: '&',
+        // a converter that has toFilter(termId, facetId) and toDisplay(termId, facetId) operations to convert the values.
+        facetIdConverter: '='
       }
     };
   });
@@ -25,6 +29,9 @@ define(function (require) {
   modules.get('a4c-common', []).controller('FacetsController', ['$scope', function ($scope) {
 
     function addFacetFilter(termId, facetId) {
+      if(_.defined($scope.facetIdConverter)) {
+        facetId = $scope.facetIdConverter.toFilter(termId, facetId);
+      }
       // Test if the filter exists : [term:facet] and add it if not
       var filter = _.find($scope.facetFilters, {term: termId});
       if (_.undefined(filter)) {
@@ -46,6 +53,21 @@ define(function (require) {
       }
     }
 
+    if(_.defined($scope.defaultFilters)) {
+      _.each($scope.defaultFilters, function(value, key) {
+        var filter = _.find($scope.facetFilters, {term: key});
+        if(_.undefined(filter)) {
+          if(_.isArray(value)) {
+            _.each(value, function(val) {
+              addFacetFilter(key, val);
+            });
+          } else {
+            addFacetFilter(key, value);
+          }
+        }
+      });
+    }
+
     // Getting full search result from /data folder
 
     /* Add a facet Filters*/
@@ -57,10 +79,8 @@ define(function (require) {
 
     /*Remove a facet filter*/
     $scope.removeFilter = function (filterToRemove) {
-
       // Remove the selected filter
       _.remove($scope.facetFilters, filterToRemove);
-
       // Search update with new filters list
       $scope.doSearch();
     };
@@ -70,6 +90,13 @@ define(function (require) {
       // Reset all filters
       $scope.facetFilters.splice(0, $scope.facetFilters.length);
       $scope.doSearch();
+    };
+
+    $scope.toDisplay = function(termId, facetId) {
+      if(_.defined($scope.facetIdConverter)) {
+        return $scope.facetIdConverter.toDisplay(termId, facetId);
+      }
+      return facetId;
     };
 
   }]);

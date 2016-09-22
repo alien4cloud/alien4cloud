@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import alien4cloud.common.AlienConstants;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.utils.VersionUtil;
-import alien4cloud.utils.version.Version;
 
 /**
  * Service responsible for indexing and updating topologies.
@@ -89,11 +88,15 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
      * @return The topology matching the requested id.
      */
     public Topology getOrFail(String id) {
-        Topology topology = alienDAO.findById(Topology.class, id);
+        Topology topology = get(id);
         if (topology == null) {
             throw new NotFoundException("Unable to find a topology with id <" + id + ">");
         }
         return topology;
+    }
+
+    public Topology get(String id) {
+        return alienDAO.findById(Topology.class, id);
     }
 
     /**

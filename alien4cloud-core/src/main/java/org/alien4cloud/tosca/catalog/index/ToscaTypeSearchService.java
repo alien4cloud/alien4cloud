@@ -52,6 +52,18 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
     }
 
     /**
+     * Get all tosca types available in the CSAR with the given name and version
+     * 
+     * @param archiveName archive's name
+     * @param archiveVersion archive's version
+     * @return all available tosca types inside the CSAR
+     */
+    public AbstractToscaType[] getArchiveTypes(String archiveName, String archiveVersion) {
+        return searchDAO.buildQuery(AbstractToscaType.class).setFilters(fromKeyValueCouples("archiveName", archiveName, "archiveVersion", archiveVersion))
+                .prepareSearch().search(0, Integer.MAX_VALUE).getData();
+    }
+
+    /**
      * Find an element based on it's type, id and version.
      *
      * @param elementType The element type.

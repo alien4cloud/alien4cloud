@@ -59,11 +59,15 @@ define(function (require) {
   });
   states.forward('components', 'components.list');
 
-  modules.get('a4c-components', ['ui.router', 'a4c-auth', 'a4c-common']).controller('SearchComponentCtrl', ['$scope', '$state', 'resizeServices', 'defaultFilters', 'badges',
-    function ($scope, $state, resizeServices, defaultFilters, badges) {
+
+
+  modules.get('a4c-components', ['ui.router', 'a4c-auth', 'a4c-common']).controller('SearchComponentCtrl', ['$scope', '$state', 'resizeServices', 'authService', 'defaultFilters', 'badges',
+    function ($scope, $state, resizeServices, authService, defaultFilters, badges) {
+      $scope.isComponentManager = authService.hasRole('COMPONENTS_MANAGER');
+
       $scope.defaultFilters = defaultFilters;
       $scope.badges = badges;
-      
+
       $scope.uploadSuccessCallback = function (data) {
         $scope.refresh = data;
       };
