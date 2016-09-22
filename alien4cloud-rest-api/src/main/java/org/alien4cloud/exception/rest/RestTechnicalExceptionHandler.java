@@ -1,5 +1,25 @@
 package org.alien4cloud.exception.rest;
 
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.alien4cloud.tosca.editor.exception.*;
+import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.springframework.expression.ExpressionException;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+import com.google.common.collect.Lists;
+
 import alien4cloud.component.repository.exception.RepositoryTechnicalException;
 import alien4cloud.deployment.exceptions.InvalidDeploymentSetupException;
 import alien4cloud.exception.*;
@@ -20,24 +40,7 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationExc
 import alien4cloud.utils.RestConstraintValidator;
 import alien4cloud.utils.version.InvalidVersionException;
 import alien4cloud.utils.version.UpdateApplicationVersionException;
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-import org.alien4cloud.tosca.editor.exception.*;
-import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.springframework.expression.ExpressionException;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
-import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * All technical (runtime) exception handler goes here. It's unexpected exception and is in general back-end exception or bug in our code
@@ -411,7 +414,7 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> handleEditionConcurrencyException(EditionConcurrencyException e) {
         return RestResponseBuilder.<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.DEPLOYMENT_NAMING_POLICY_ERROR).message(
+                .error(RestErrorBuilder.builder(RestErrorCode.EDITOR_CONCURRENCY_ERROR).message(
                         "Another user has changed the topology and your version is not consistent or topology edition session has expired. " + e.getMessage())
                         .build())
                 .build();
