@@ -107,7 +107,6 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
         Map<String, AbstractPropertyValue> properties = new LinkedHashMap<String, AbstractPropertyValue>();
         NodeTemplateBuilder.fillProperties(properties, indexedRelationshipType.getProperties(), null);
         relationshipTemplate.setProperties(properties);
-        relationshipTemplate.setInterfaces(indexedRelationshipType.getInterfaces());
 
         relationships.put(operation.getRelationshipName(), relationshipTemplate);
         WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
