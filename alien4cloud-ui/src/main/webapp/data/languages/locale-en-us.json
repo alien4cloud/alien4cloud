@@ -128,7 +128,7 @@
           "TITLE": "Reset",
           "DESCRIPTION": "Delete everything from the topology, leaving it completely empty."
         },
-        "SUCCESS_MSGE": "Topology updated successfuly!"
+        "SUCCESS_MSGE": "Topology updated successfully!"
       },
       "REFERENCE" : "Reference",
       "RELATIONSHIPS" : "Relationships",
@@ -567,7 +567,31 @@
     "MENU_WORKFLOW": "Workflows",
     "MENU_FILES": "Archive content",
     "MENU_VALIDATION": "Topology validation",
-    "MENU_HISTORY": "History"
+    "MENU_HISTORY": "History",
+    "GIT": {
+      "MODAL": {
+        "REMOTE": "Git config",
+        "PUSH": "Git push",
+        "PULL": "Git pull",
+        "URL": "URL",
+        "URL_VALUE": "https://...",
+        "REMOTE_BRANCH": "Branch",
+        "REMOTE_BRANCH_VALUE": "Remote Branch (default: 'master')",
+        "USERNAME": "Username",
+        "PASSWORD": "Password"
+      },
+      "REMOTE": "Remote",
+      "PUSH": "Push",
+      "PULL": "Pull",
+      "OPERATIONS": {
+        "PULL": {
+          "SUCCESS_MSGE": "Successfully pulled from git"
+        },
+        "PUSH": {
+          "SUCCESS_MSGE": "Successfully pushed to git"
+        }
+      }
+    }
   },
   "END_DATE" : "End date",
   "ENVIRONMENT_TYPE" : {

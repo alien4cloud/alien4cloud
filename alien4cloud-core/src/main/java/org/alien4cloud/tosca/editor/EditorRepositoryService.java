@@ -85,4 +85,31 @@ public class EditorRepositoryService {
         Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getWorkspace(), csar.getName(), csar.getVersion());
         return RepositoryManager.getHistory(archiveGitPath, from, count);
     }
+
+    /**
+     * Set a remote repository.
+     *
+     * @param csar The archive for which to set the remote.
+     * @param remoteName The remote name.
+     * @param remoteUrl The repository url.
+     */
+    public void setRemote(Csar csar, String remoteName, String remoteUrl) {
+        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getWorkspace(), csar.getName(), csar.getVersion());
+        RepositoryManager.setRemote(archiveGitPath, remoteName, remoteUrl);
+    }
+
+    public String getRemoteUrl(Csar csar, String remoteName) {
+        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getWorkspace(), csar.getName(), csar.getVersion());
+        return RepositoryManager.getRemoteUrl(archiveGitPath, remoteName);
+    }
+
+    public void push(Csar csar, String username, String password, String remoteBranch) {
+        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getWorkspace(), csar.getName(), csar.getVersion());
+        RepositoryManager.push(archiveGitPath, username, password, remoteBranch);
+    }
+
+    public void pull(Csar csar, String username, String password, String remoteBranch) {
+        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getWorkspace(), csar.getName(), csar.getVersion());
+        RepositoryManager.pull(archiveGitPath, username, password, remoteBranch);
+    }
 }

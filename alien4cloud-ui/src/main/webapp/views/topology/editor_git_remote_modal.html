@@ -1,0 +1,31 @@
+<form name="newOrchestratorForm" class="form-horizontal" role="form" ng-submit="save(plugins && newOrchestratorForm.$valid)" novalidate>
+  <div class="modal-header">
+    <h3>{{'EDITOR.GIT.MODAL.REMOTE' | translate}}</h3>
+  </div>
+  <div class="modal-body">
+    <div class="form-group" ng-class="{'has-error': remoteGit.$invalid}">
+      <label for="remote_name" class="col-lg-3 control-label">
+        {{'COMMON.NAME' | translate}}
+      </label>
+      <div class="col-lg-9">
+        <input type="text" class="form-control" id="remote_name" ng-model="remoteGit.remoteName" name="remoteName" readonly="readonly">
+      </div>
+    </div>
+    <div class="form-group" ng-class="{'has-error': remote.remoteName.$invalid}">
+      <label for="remote_url" class="col-lg-3 control-label">
+        {{'EDITOR.GIT.MODAL.URL' | translate}}
+      </label>
+      <div class="col-lg-9">
+        <input type="text" class="form-control" id="remote_url" ng-model="remoteGit.remoteUrl" name="remoteUrl" required placeholder="{{'EDITOR.GIT.MODAL.URL_VALUE' | translate}}">
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button id="modal-save-button" ng-disabled="!remoteGit.remoteUrl" class="btn btn-primary" ng-click="setRemote()">
+      {{'GENERIC_FORM.SAVE' | translate}}
+    </button>
+    <button id="modal-close-button" class="btn btn-default" ng-click="close()">
+      {{'GENERIC_FORM.CANCEL' | translate}}
+    </button>
+  </div>
+</form>

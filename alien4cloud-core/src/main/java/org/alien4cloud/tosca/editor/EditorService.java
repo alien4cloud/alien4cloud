@@ -317,13 +317,13 @@ public class EditorService {
     /**
      * Performs a git pull.
      */
-    public void pull() {
-        // pull can be done only if there is no unsaved commands
-
-        // This operation just fails in case of conflicts
-
-        // The topology is updated
-
+    public void pull(String topologyId, String username, String password, String remoteBranch) {
+        try {
+            editionContextManager.init(topologyId);
+            repositoryService.pull(EditionContextManager.getCsar(), username, password, remoteBranch);
+        } finally {
+            editionContextManager.destroy();
+        }
     }
 
     /**
@@ -331,8 +331,39 @@ public class EditorService {
      *
      * Note that conflicts are not managed in a4c. In case of conflicts a new branch is created for manual merge by users.
      */
-    public void push() {
+    public void push(String topologyId, String username, String password, String remoteBranch) {
+        try {
+            editionContextManager.init(topologyId);
+            repositoryService.push(EditionContextManager.getCsar(), username, password, remoteBranch);
+        } finally {
+            editionContextManager.destroy();
+        }
+    }
 
+    /**
+     *
+     *
+     * @param remoteName
+     * @param remoteUrl
+     */
+    public void setRemote(String topologyId, String remoteName, String remoteUrl) {
+        try {
+            editionContextManager.init(topologyId);
+            Csar csar = EditionContextManager.getCsar();
+            repositoryService.setRemote(csar, remoteName, remoteUrl);
+        } finally {
+            editionContextManager.destroy();
+        }
+    }
+
+    public String getRemoteUrl(String topologyId, String remoteName) {
+        try {
+            editionContextManager.init(topologyId);
+            Csar csar = EditionContextManager.getCsar();
+            return repositoryService.getRemoteUrl(csar, remoteName);
+        } finally {
+            editionContextManager.destroy();
+        }
     }
 
     /**

@@ -192,4 +192,34 @@ public class EditorController {
         TopologyDTO topologyDTO = editorService.reset(topologyId, lastOperationId);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId:.+}/git/pull", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> pull(@PathVariable String topologyId, @RequestBody EditorGitUserDTO gitUser,
+            @RequestParam(name = "remoteUrl", defaultValue = "master", required = false)  String remoteBranch) {
+        editorService.pull(topologyId, gitUser.getUsername(), gitUser.getPassword(), remoteBranch);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId:.+}/git/push", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> push(@PathVariable String topologyId, @RequestBody EditorGitUserDTO gitUser,
+            @RequestParam(name = "remoteUrl", defaultValue = "master", required = false) String remoteBranch) {
+        editorService.push(topologyId, gitUser.getUsername(), gitUser.getPassword(), remoteBranch);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId:.+}/git/remote", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> setRemote(@PathVariable String topologyId, @RequestParam String remoteUrl) {
+        editorService.setRemote(topologyId, "origin", remoteUrl); // The remote is always 'origin' right now.
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId:.+}/git/remote", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<EditorGitRemoteDTO> getRemote(@PathVariable String topologyId) {
+        String remoteUrl = editorService.getRemoteUrl(topologyId, "origin"); // The remote is always 'origin' right now.
+        return RestResponseBuilder.<EditorGitRemoteDTO> builder().data(new EditorGitRemoteDTO("origin", remoteUrl)).build();
+    }
 }
