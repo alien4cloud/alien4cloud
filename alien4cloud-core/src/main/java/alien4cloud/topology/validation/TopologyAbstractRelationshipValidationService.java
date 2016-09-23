@@ -6,7 +6,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -28,7 +28,7 @@ import alien4cloud.topology.task.TaskCode;
 @Component
 public class TopologyAbstractRelationshipValidationService {
     @Resource
-    private ToscaTypeSearchService csarRepoSearchService;
+    private IToscaTypeSearchService csarRepoSearchService;
 
     /**
      * Checks that no relationships in a topology are abstract (and cannot be instanciated).

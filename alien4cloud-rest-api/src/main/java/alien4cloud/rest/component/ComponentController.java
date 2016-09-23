@@ -8,7 +8,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.catalog.CatalogVersionResult;
-import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.http.MediaType;
@@ -39,7 +39,7 @@ public class ComponentController {
     private IGenericSearchDAO dao;
 
     @Resource
-    private ToscaTypeSearchService searchService;
+    private IToscaTypeSearchService searchService;
 
     /**
      * Get details for a component.

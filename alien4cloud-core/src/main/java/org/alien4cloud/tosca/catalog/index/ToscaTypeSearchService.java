@@ -5,6 +5,7 @@ import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -20,8 +21,8 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.utils.VersionUtil;
 import lombok.NonNull;
@@ -30,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @Primary
-public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<AbstractToscaType> implements ICSARRepositorySearchService {
+public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<AbstractToscaType> implements IToscaTypeSearchService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO searchDAO;
 
@@ -39,37 +40,18 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
         return searchDAO.buildQuery(Csar.class).prepareSearch().setFilters(fromKeyValueCouples("name", archiveName, "version", archiveVersion)).find();
     }
 
-    /**
-     * Return true if the archive contains Tosca Types.
-     * 
-     * @param archiveName The name of the archive.
-     * @param archiveVersion The version of the archive.
-     * @return True if the archive contains types.
-     */
+    @Override
     public boolean hasTypes(String archiveName, String archiveVersion) {
         return searchDAO.buildQuery(AbstractToscaType.class).setFilters(fromKeyValueCouples("archiveName", archiveName, "archiveVersion", archiveVersion))
                 .count() > 0;
     }
 
-    /**
-     * Find an element based on it's type, id and version.
-     *
-     * @param elementType The element type.
-     * @param elementId The element id.
-     * @param version The element version (version of the archive that defines the element).
-     * @return Return the matching
-     */
+    @Override
     public <T extends AbstractToscaType> T find(Class<T> elementType, String elementId, String version) {
         return searchDAO.buildQuery(elementType).setFilters(fromKeyValueCouples("rawElementId", elementId, "archiveVersion", version)).prepareSearch().find();
     }
 
-    /**
-     * Find the most recent element from a given id.
-     *
-     * @param elementType The element type.
-     * @param elementId The element id.
-     * @return Return the matching
-     */
+    @Override
     public <T extends AbstractToscaType> T findMostRecent(Class<T> elementType, String elementId) {
         return searchDAO.buildQuery(elementType).setFilters(fromKeyValueCouples("rawElementId", elementId)).prepareSearch()
                 .alterSearchRequestBuilder(
@@ -80,13 +62,7 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
                 .find();
     }
 
-    /**
-     * Find an element based on it's type and id.
-     *
-     * @param elementType The element type.
-     * @param elementId The element id.
-     * @return Return the matching
-     */
+    @Override
     public <T extends AbstractToscaType> T[] findAll(Class<T> elementType, String elementId) {
         return searchDAO.buildQuery(elementType).setFilters(singleKeyFilter("rawElementId", elementId)).prepareSearch().search(0, Integer.MAX_VALUE).getData();
     }
@@ -161,6 +137,12 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
                     "Element elementId: <" + elementId + "> of type <" + elementClass.getSimpleName() + "> cannot be found in dependencies " + dependencies);
         }
         return element;
+    }
+
+    // we need to override for aspect purpose
+    @Override
+    public FacetedSearchResult search(Class<? extends AbstractToscaType> clazz, String query, Integer size, Map<String, String[]> filters) {
+        return super.search(clazz, query, size, filters);
     }
 
     @Override

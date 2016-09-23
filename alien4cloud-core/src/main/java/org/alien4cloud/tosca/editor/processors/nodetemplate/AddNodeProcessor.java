@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
@@ -13,7 +14,6 @@ import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.application.TopologyCompositionService;
-import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import alien4cloud.exception.CyclicReferenceException;
 import alien4cloud.exception.InvalidNodeNameException;
 import alien4cloud.exception.NotFoundException;
@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperation> {
     @Inject
-    private ToscaTypeSearchService searchService;
+    private IToscaTypeSearchService searchService;
     @Inject
     private TopologyService topologyService;
     @Inject

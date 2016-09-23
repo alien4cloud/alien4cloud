@@ -5,16 +5,16 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.ReplaceNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
-import org.springframework.stereotype.Component;
-
-import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
-import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.springframework.stereotype.Component;
+
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNodeOperation> {
     @Inject
-    private ToscaTypeSearchService searchService;
+    private IToscaTypeSearchService searchService;
     @Inject
     private TopologyService topologyService;
     @Inject

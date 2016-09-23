@@ -1,25 +1,17 @@
 package org.alien4cloud.tosca.editor;
 
-import alien4cloud.common.AlienConstants;
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.model.components.CSARSource;
-import alien4cloud.security.model.User;
-import alien4cloud.topology.TopologyDTO;
-import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.ParsingResult;
-import alien4cloud.utils.FileUtil;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import cucumber.api.DataTable;
-import cucumber.api.java.Before;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
-import gherkin.formatter.model.DataTableRow;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import org.alien4cloud.tosca.catalog.index.CsarService;
-import org.alien4cloud.tosca.catalog.index.TopologyCatalogService;
+import org.alien4cloud.tosca.catalog.index.ITopologyCatalogService;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.alien4cloud.tosca.model.Csar;
@@ -40,13 +32,24 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import alien4cloud.common.AlienConstants;
+import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.model.components.CSARSource;
+import alien4cloud.security.model.User;
+import alien4cloud.topology.TopologyDTO;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.ParsingResult;
+import alien4cloud.utils.FileUtil;
+import cucumber.api.DataTable;
+import cucumber.api.java.Before;
+import cucumber.api.java.en.Given;
+import cucumber.api.java.en.Then;
+import cucumber.api.java.en.When;
+import gherkin.formatter.model.DataTableRow;
+import lombok.extern.slf4j.Slf4j;
 
 @ContextConfiguration("classpath:org/alien4cloud/tosca/editor/application-context-test.xml")
 @Slf4j
@@ -62,7 +65,7 @@ public class EditorStepDefs {
     @Inject
     private CsarService csarService;
     @Inject
-    private TopologyCatalogService catalogService;
+    private ITopologyCatalogService catalogService;
 
     private LinkedList<String> topologyIds = new LinkedList();
 
@@ -163,18 +166,18 @@ public class EditorStepDefs {
 
     @When("^I get the topology related to the template with name \"(.*?)\"$")
     public void iGetTheTopologyRelatedToTheTemplateWithName(String templateName) throws Throwable {
-//        TopologyTemplate topologyTeplate = topologyTemplateService.getTopologyTemplateByName(templateName);
-//        Topology topology = alienDAO.customFind(Topology.class, QueryBuilders.matchQuery("delegateId", topologyTeplate.getId()));
-//        topologyIds.addLast(topology.getId());
+        // TopologyTemplate topologyTeplate = topologyTemplateService.getTopologyTemplateByName(templateName);
+        // Topology topology = alienDAO.customFind(Topology.class, QueryBuilders.matchQuery("delegateId", topologyTeplate.getId()));
+        // topologyIds.addLast(topology.getId());
     }
 
     @When("^I delete the template with name \"(.*?)\" and archive \"(.*?)\" \"(.*?)\" if any$")
     public void iRemoveTheTemplateWithName(String templateName, String archiveName, String archiveVersion) throws Throwable {
-//        TopologyTemplate topologyTemplate = topologyTemplateService.getTopologyTemplateByName(templateName);
-//        if (topologyTemplate != null) {
-//            topologyTemplateService.delete(topologyTemplate.getId());
-//            csarService.deleteCsar(archiveName, archiveVersion);
-//        }
+        // TopologyTemplate topologyTemplate = topologyTemplateService.getTopologyTemplateByName(templateName);
+        // if (topologyTemplate != null) {
+        // topologyTemplateService.delete(topologyTemplate.getId());
+        // csarService.deleteCsar(archiveName, archiveVersion);
+        // }
     }
 
     @When("^I get the edited topology$")
@@ -195,10 +198,10 @@ public class EditorStepDefs {
 
     @Given("^I create an empty topology$")
     public void i_create_an_empty_topology() throws Throwable {
-//        Topology topology = new Topology();
-//        topology.setDelegateType(Topology.class.getSimpleName().toLowerCase());
-//        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
-//        topologyIds.addLast(topologyServiceCore.saveTopology(topology));
+        // Topology topology = new Topology();
+        // topology.setDelegateType(Topology.class.getSimpleName().toLowerCase());
+        // workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
+        // topologyIds.addLast(topologyServiceCore.saveTopology(topology));
     }
 
     @Given("^I create an empty topology template \"([^\"]*)\"$")

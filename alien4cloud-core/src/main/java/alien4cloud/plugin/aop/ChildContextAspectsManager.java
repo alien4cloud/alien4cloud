@@ -1,10 +1,6 @@
 package alien4cloud.plugin.aop;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
+import java.lang.reflect.*;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
@@ -12,9 +8,10 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
+import org.springframework.aop.framework.AdvisedSupport;
+import org.springframework.aop.framework.DefaultAopProxyFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -31,9 +28,10 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 import org.springframework.util.ReflectionUtils.MethodFilter;
 
-import alien4cloud.events.AlienEvent;
-
 import com.google.common.collect.Maps;
+
+import alien4cloud.events.AlienEvent;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Manage inter context proxies : thanks to it, we can define aspects upon main context beans in child contexts. Also broadcast {@link AlienEvent}s to child

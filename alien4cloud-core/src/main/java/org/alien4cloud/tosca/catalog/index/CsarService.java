@@ -46,7 +46,7 @@ public class CsarService implements ICsarDependencyLoader {
     @Resource(name = "alien-monitor-es-dao")
     private IGenericSearchDAO alienMonitorDao;
     @Inject
-    private ToscaTypeSearchService searchService;
+    private IToscaTypeSearchService searchService;
     @Inject
     private IToscaTypeIndexerService indexerService;
     @Inject
@@ -54,7 +54,7 @@ public class CsarService implements ICsarDependencyLoader {
     @Inject
     private ApplicationService applicationService;
     @Inject
-    private TopologyCatalogService catalogService;
+    private ITopologyCatalogService catalogService;
 
     /**
      * Get all archive matching the given set of filters.

@@ -1,8 +1,8 @@
 package org.alien4cloud.tosca.editor.processors.substitution;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
@@ -11,7 +11,6 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.stereotype.Component;
 
-import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import alien4cloud.topology.TopologyService;
 
 /**
@@ -20,8 +19,8 @@ import alien4cloud.topology.TopologyService;
 @Component
 public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<AddSubstitutionTypeOperation> {
 
-    @Resource
-    private ToscaTypeSearchService csarRepoSearchService;
+    @Inject
+    private IToscaTypeSearchService csarRepoSearchService;
     @Inject
     private TopologyService topologyService;
 

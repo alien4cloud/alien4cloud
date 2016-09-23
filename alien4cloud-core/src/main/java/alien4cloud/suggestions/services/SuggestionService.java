@@ -9,7 +9,14 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.ValidValuesConstraint;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.*;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +24,6 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
-import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FetchContext;
@@ -27,12 +33,6 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.common.AbstractSuggestionEntry;
 import alien4cloud.model.common.SimpleSuggestionEntry;
 import alien4cloud.model.common.SuggestionEntry;
-import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
-import org.alien4cloud.tosca.model.definitions.constraints.ValidValuesConstraint;
-import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.parser.ParsingContext;
@@ -50,7 +50,7 @@ public class SuggestionService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Inject
-    private ToscaTypeSearchService searchService;
+    private IToscaTypeSearchService searchService;
 
     /* The Levenshtein distance is a string metric for measuring the difference between two sequences. */
     private static final double MIN_JAROWINKLER = 0.0;
