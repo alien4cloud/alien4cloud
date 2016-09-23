@@ -1,0 +1,304 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+
+description: >
+  Contains demo types used for Alien 4 Cloud tests. Warning: those types are not the actual tosca-normative types. Lets add this to the description so that the hash of the archive changes.
+
+node_types:
+  tosca.nodes.Root:
+    abstract: true
+    description: >
+      This is the default (root) TOSCA Node Type that all other TOSCA nodes should extends.
+      This allows all TOSCA nodes to have a consistent set of features for modeling and management
+      (e.g, consistent definitions for requirements, capabilities, and lifecycle interfaces).
+    tags:
+      icon: /images/root.png
+    attributes:
+      tosca_id:
+        type: string
+      tosca_name:
+        type: string
+    requirements:
+      dependency:
+        type: tosca.capabilities.Feature
+        lower_bound: 0
+        upper_bound: unbounded
+    capabilities:
+      feature:
+        type: tosca.capabilities.Feature
+        upper_bound: unbounded
+    interfaces:
+      lifecycle:
+        description: Default lifecycle for nodes in TOSCA.
+        create:
+          description: Basic lifecycle create operation.
+        configure:
+          description: Basic lifecycle configure operation.
+        start:
+          description: Basic lifecycle start operation.
+        stop:
+          description: Basic lifecycle stop operation.
+        delete:
+          description: Basic lifecycle delete operation.
+
+  # Grouping node
+  tosca.nodes.Tier:
+    derived_from: tosca.nodes.Root
+    description: >
+      A logical node that allows to group several nodes together.
+    properties:
+      name:
+        type: string
+
+  # Infrastructure components
+  tosca.nodes.Compute:
+    derived_from: tosca.nodes.Root
+    description: >
+      Represents a real or virtual machine or ‘server’. Informations specified on the Compute
+      node will be used to find the machine that fits the given requirements in the cloud
+      available machines. If no sizing informations are specified the cloud’s provider default
+      machine will be used. It is strongly recommended to specify the required cpus and memory
+      at least.
+    tags:
+      icon: /images/compute.png
+    properties:
+      disk_size:
+        type: scalar-unit.size
+        constraints:
+          - greater_than: 0 B
+      num_cpus:
+        type: integer
+        constraints:
+          -  greater_than: 0
+      mem_size:
+        type: scalar-unit.size
+        constraints:
+          - greater_than: 0 B
+      os_arch:
+        type: string
+        required: false
+      os_type:
+        type: string
+        required: false
+      os_distribution:
+        type: string
+        required: false
+      os_version:
+        type: string
+        required: false
+      ip_address:
+        type: string
+        required: false
+    attributes:
+      ip_address:
+        type: string
+        description: >
+          The primary IP address assigned by the cloud provider that applications may use to access the Compute node.
+          Note: This is used by the platform provider to convey the primary address used to access the compute node.  Future working drafts will address implementations that support floating or multiple IP addresses.
+    requirements:
+      network:
+        type: tosca.capabilities.Connectivity
+        lower_bound: 0
+        upper_bound: unbounded
+    capabilities:
+      compute:
+        type: tosca.capabilities.Container
+        upper_bound: unbounded
+
+  tosca.nodes.BlockStorage:
+    derived_from: tosca.nodes.Root
+    description: >
+      The TOSCA BlockStorage node currently represents a server-local block storage device
+      (i.e., not shared) offering evenly sized blocks of data from which raw storage volumes can be created.
+    tags:
+      icon: /images/volume.png
+    requirements:
+      attach:
+        type: tosca.capabilities.Container
+
+  tosca.nodes.ObjectStorage:
+    derived_from: tosca.nodes.Root
+    description: >
+      The TOSCA ObjectStorage node represents storage that provides the ability to store data as
+      objects (or BLOBs of data) without consideration for the underlying filesystem or devices.
+    tags:
+      icon: /images/objectstore.png
+
+  tosca.nodes.Network:
+    derived_from: tosca.nodes.Root
+    description: >
+      The TOSCA Network node represents a simple, logical network service.
+    properties:
+      ip_version:
+        type: integer
+        required: false
+        default: 4
+        constraints:
+          - valid_values: [ 4, 6 ]
+      cidr:
+        type: string
+        required: false
+      gateway_ip:
+        type: string
+        required: false
+      network_name:
+        type: string
+        required: false
+      network_id:
+        type: string
+        required: false
+    capabilities:
+      connection:
+        type: tosca.capabilities.Connectivity
+    tags:
+      icon: /images/network.png
+
+  tosca.nodes.Router:
+    derived_from: tosca.nodes.Network
+    description: >
+      The TOSCA Network node represents a simple, logical network service.
+    tags:
+      icon: /images/router.png
+
+  tosca.nodes.LoadBalancer:
+    derived_from: tosca.nodes.Network
+    tags:
+      icon: /images/loadbalancer.png
+
+  tosca.nodes.VirtualIp:
+    derived_from: tosca.nodes.Network
+    requirements:
+      attach:
+        type: tosca.capabilities.Container
+
+  # Software components or middleware ?
+  tosca.nodes.SoftwareComponent:
+    abstract: true
+    derived_from: tosca.nodes.Root
+    description: >
+      The TOSCA SoftwareComponent Node Type represents a generic software component
+      that can be managed and run by a TOSCA Compute Node Type.
+    requirements:
+      host:
+        type: tosca.capabilities.Container
+    tags:
+      icon: /images/software.png
+
+  tosca.nodes.RDBMS:
+    abstract: true
+    derived_from: tosca.nodes.SoftwareComponent
+    description: >
+      The TOSCA RDBMS Node Type represents a generic relational database. It should be inherited
+      to define an actual Database (Such as MySQL) and lifecycle implementation.
+    tags:
+      icon: /images/relational_db.png
+
+  tosca.nodes.WebServer:
+    abstract: true
+    derived_from: tosca.nodes.SoftwareComponent
+    description: >
+      The TOSCA WebServer Node Type represents a generic web server. It should be inherited to define
+      an actual web server (Such as Apache) and lifecycle implementation.
+
+  tosca.nodes.ApplicationServer:
+    abstract: true
+    derived_from: tosca.nodes.SoftwareComponent
+    description: >
+      The TOSCA ApplicationServer Node Type represents a generic application server. It should be inherited
+      to define an actual application server (Such as Tomcat) and lifecycle implementation.
+    capabilities:
+      feature:
+        type: tosca.capabilities.Container
+        upper_bound: unbounded
+
+  tosca.nodes.MessageBus:
+    abstract: true
+    derived_from: tosca.nodes.SoftwareComponent
+    description: >
+      The TOSCA MessageBus Node Type represents a generic message bus. It should be inherited to define
+      an actual message bus (Such as RabbitMQ) and lifecycle implementation.
+
+  tosca.nodes.EnterpriseServiceBus:
+    abstract: true
+    derived_from: tosca.nodes.SoftwareComponent
+    description: >
+      The TOSCA EnterpriseServiceBus Node Type represents a generic enterprise service bus. It should be inherited
+      to define an actual message bus (Such as Mule ESB) and lifecycle implementation.
+
+capability_types:
+  tosca.capabilities.Root:
+    description: Root capability
+  tosca.capabilities.Feature:
+    derived_from: tosca.capabilities.Root
+    description: >
+      The TOSCA Feature Capability represents that a given component can have a basic DependsOn relationship type with another one.
+  tosca.capabilities.Container:
+    derived_from: tosca.capabilities.Feature
+    properties:
+      containee_types:
+        type: string
+    description: >
+      The TOSCA Container Capability represents that a given component can act as a container.
+  tosca.capabilities.Endpoint:
+    derived_from: tosca.capabilities.Feature
+    properties:
+      protocol:
+        type: string
+        default: http
+      port:
+        type: integer
+        constraints:
+          - greater_or_equal: 1
+          - less_or_equal: 65535
+      secure:
+        type: boolean
+        default: false
+  tosca.capabilities.Connectivity:
+    derived_from: tosca.capabilities.Root
+
+relationship_types:
+  tosca.relationships.Root:
+    description: TOSCA Root relationship (used to define the default lifecycle).
+    # The TOSCA root relationship type has no property mappings
+    interfaces:
+      tosca.interfaces.relationship.Configure:
+        description: >
+          Default lifecycle for nodes in TOSCA.
+        pre_configure_source:
+          description: Operation to pre-configure the source endpoint.
+        pre_configure_target:
+          description: Operation to pre-configure the target endpoint.
+        post_configure_source:
+          description: Operation to post-configure the source endpoint.
+        post_configure_target:
+          description: Operation to post-configure the target endpoint.
+        add_target:
+          description: Operation to add a target node.
+        remove_target:
+          description: Operation to remove a target node.
+  tosca.relationships.DependsOn:
+    derived_from: tosca.relationships.Root
+    description: >
+      A generic depends on relationship.
+    valid_sources: [ tosca.capabilities.Feature ]
+    valid_targets: [ tosca.capabilities.Feature ]
+  tosca.relationships.HostedOn:
+    derived_from: tosca.relationships.DependsOn
+    description: Relationship to use to describe that the source is hosted (installed/ deployed) on the target node.
+    valid_sources: [ tosca.capabilities.Container ]
+    valid_targets: [ tosca.capabilities.Container ]
+  tosca.relationships.ConnectsTo:
+    derived_from: tosca.relationships.DependsOn
+    valid_sources: [ tosca.capabilities.Endpoint ]
+    valid_targets: [ tosca.capabilities.Endpoint ]
+  tosca.relationships.Network:
+    derived_from: tosca.relationships.Root
+    valid_sources: [ tosca.capabilities.Connectivity ]
+    valid_targets: [ tosca.capabilities.Connectivity ]
+
+artifact_types:
+  tosca.artifacts.ShellScript:
+    description: A shell script (.sh file)
+  tosca.artifacts.TarGzFile:
+    description: A tar gz distribution
+  tosca.artifacts.WarFile:
+    description: A war file

@@ -47,6 +47,12 @@ public class ToscaTypeSearchService extends AbstractToscaIndexSearchService<Abst
     }
 
     @Override
+    public AbstractToscaType[] getArchiveTypes(String archiveName, String archiveVersion) {
+        return searchDAO.buildQuery(AbstractToscaType.class).setFilters(fromKeyValueCouples("archiveName", archiveName, "archiveVersion", archiveVersion))
+                .prepareSearch().search(0, Integer.MAX_VALUE).getData();
+    }
+
+    @Override
     public <T extends AbstractToscaType> T find(Class<T> elementType, String elementId, String version) {
         return searchDAO.buildQuery(elementType).setFilters(fromKeyValueCouples("rawElementId", elementId, "archiveVersion", version)).prepareSearch().find();
     }

@@ -16,7 +16,7 @@ Feature: Delete a component tag
     Then I should receive a RestResponse with no error
 
   @reset
-  Scenario: Delete a internal tag (icon)
+  Scenario: Delete a internal tag
     Given I have a component with id "1:3.0"
     And I have a tag "icon"
     When I delete a tag with key "icon"

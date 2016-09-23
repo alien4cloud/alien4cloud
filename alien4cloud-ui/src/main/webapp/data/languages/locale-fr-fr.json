@@ -608,6 +608,7 @@
     "619" : "Le nom de l'application est invalide.",
     "650" : "Au moins deux de vos Compute ont un conflit de nom.",
     "651" : "Un BlockStorage ne peut pas avoir un volumeId lorsque le cloud a l'option 'deletable' d'activée.",
+    "750" : "Concurrence dans le processus d'édition",
     "800" : {
       "equal" : "Valeur constante égale à {{reference}}",
       "greaterOrEqual" : "La valeur doit être >= {{reference}}",

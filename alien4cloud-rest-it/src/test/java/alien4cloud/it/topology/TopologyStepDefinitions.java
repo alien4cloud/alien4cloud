@@ -29,10 +29,10 @@ import org.junit.Assert;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 
+import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
-import alien4cloud.it.components.AddCommponentDefinitionSteps;
 import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
@@ -293,6 +293,7 @@ public class TopologyStepDefinitions {
         relationship.setArchiveName(archiveName);
         relationship.setArchiveVersion(archiveVersion);
         relationship.setElementId(elementId);
+        relationship.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
         for (List<String> propertyObject : properties.raw()) {
             if (propertyObject.get(0).equals("validSource")) {
                 relationship.setValidSources(propertyObject.get(1).split(","));
@@ -314,6 +315,7 @@ public class TopologyStepDefinitions {
         element.setElementId(elementId);
         element.setArchiveName(archiveName);
         element.setArchiveVersion(archiveVersion);
+        element.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
         Class<?> clazz = null;
         if (componentType.equals("capability") || componentType.equals("capabilities")) {
             clazz = CapabilityType.class;
@@ -329,19 +331,6 @@ public class TopologyStepDefinitions {
     public void I_create_in_an_archive_name_version(String componentType, String archiveName, String archiveVersion, List<String> elementIds) throws Throwable {
         for (String elementId : elementIds) {
             I_create_a_in_an_archive_name_version(componentType, elementId, archiveName, archiveVersion);
-        }
-    }
-
-    @Given("^I add to the csar \"([^\"]*)\" \"([^\"]*)\" the component \"([^\"]*)\"$")
-    public void I_add_to_the_csar_the_component(String csarName, String csarVersion, String componentFileName) throws Throwable {
-        String csarId = csarName + ":" + csarVersion;
-        AddCommponentDefinitionSteps.uploadComponent(csarId, componentFileName);
-    }
-
-    @Given("^I add to the csar \"([^\"]*)\" \"([^\"]*)\" the components$")
-    public void I_add_to_the_csar_the_components(String csarName, String csarVersion, List<String> componentFileNames) throws Throwable {
-        for (String componentFileName : componentFileNames) {
-            I_add_to_the_csar_the_component(csarName, csarVersion, componentFileName);
         }
     }
 

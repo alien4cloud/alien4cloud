@@ -4,19 +4,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-import alien4cloud.it.common.CommonStepDefinitions;
-import alien4cloud.utils.FileUtil;
-import cucumber.api.java.en.And;
 import org.alien4cloud.test.setup.TestDataRegistry;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
-import org.alien4cloud.tosca.model.types.NodeType;
+import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.rest.csar.CsarUploadResult;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.utils.FileUtil;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +44,12 @@ public class UploadCSARSStepDefinition {
     public void uploadArchive(String key) throws Throwable {
         Path archive = TestDataRegistry.TEST_ARTIFACTS.get(key);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart("/rest/v1/csars", "file", Files.newInputStream(archive)));
+    }
+
+    @Given("^I have uploaded the archive \"([^\"]*)\"$")
+    public void I_have_uploaded_the_archive(String key) throws Throwable {
+        uploadArchive(key);
+        COMMON_STEP_DEFINITIONS.I_should_receive_a_RestResponse_with_no_error();
     }
 
     @Then("^I should receive a RestResponse with an error code (\\d+) and (\\d+) compilation errors in (\\d+) file\\(s\\)$")
@@ -106,5 +115,26 @@ public class UploadCSARSStepDefinition {
     public void I_should_have_last_update_date_equals_to_creation_date() throws Throwable {
         NodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), NodeType.class).getData();
         Assert.assertTrue(idnt.getLastUpdateDate().equals(idnt.getCreationDate()));
+    }
+
+    @And("^I there should be a parsing error level \"([^\"]*)\" and code \"([^\"]*)\"$")
+    public void iThereShouldBeAParsingErrorLevelAndCode(ParsingErrorLevel errorLevel, ErrorCode expectedCode) throws Throwable {
+        RestResponse<CsarUploadResult> result = JsonUtil.read(Context.getInstance().takeRestResponse(), CsarUploadResult.class);
+
+        Assert.assertFalse("There must have messages after parsing the csar", result.getData().getErrors().isEmpty());
+        int errorCount = 0;
+        boolean found = false;
+        for (List<ParsingError> errors : result.getData().getErrors().values()) {
+            for (ParsingError error : errors) {
+                if (Objects.equals(error.getErrorCode(), expectedCode) && Objects.equals(error.getErrorLevel(), errorLevel)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                break;
+            }
+        }
+        Assert.assertTrue(found);
     }
 }

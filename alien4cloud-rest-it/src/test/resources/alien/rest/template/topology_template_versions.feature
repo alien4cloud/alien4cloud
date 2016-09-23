@@ -2,7 +2,6 @@ Feature: Create topology template versions
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I clear the edition context cache
     And I upload the archive "tosca base types 1.0"
     And I should receive a RestResponse with no error
     And I upload the archive "sample java types 1.0"

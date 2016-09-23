@@ -7,6 +7,8 @@ import org.alien4cloud.exception.rest.FieldErrorDTO;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -76,10 +78,13 @@ public class CommonStepDefinitions {
 
     @Before(value = "@reset", order = 1)
     public void beforeScenario() throws Throwable {
+        // clear the edition cache
         // teardown the platform before removing all data
         // connect as admin
         AuthenticationStepDefinitions authenticationStepDefinitions = new AuthenticationStepDefinitions();
         authenticationStepDefinitions.I_am_authenticated_with_role("ADMIN");
+        Context.getRestClientInstance().putUrlEncoded("/rest/v2/editor/clearCache",
+                Lists.<NameValuePair> newArrayList(new BasicNameValuePair("force", "true")));
         Context.getRestClientInstance().postJSon("/rest/v1/maintenance/teardown-platform", "");
 
         if (log.isDebugEnabled()) {

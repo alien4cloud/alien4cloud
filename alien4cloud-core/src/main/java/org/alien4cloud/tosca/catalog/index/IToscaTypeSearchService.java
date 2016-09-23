@@ -42,6 +42,15 @@ public interface IToscaTypeSearchService extends ICSARRepositorySearchService {
     <T extends AbstractToscaType> T findMostRecent(Class<T> elementType, String elementId);
 
     /**
+     * Get all tosca types available in the CSAR with the given name and version
+     *
+     * @param archiveName archive's name
+     * @param archiveVersion archive's version
+     * @return all available tosca types inside the CSAR
+     */
+    AbstractToscaType[] getArchiveTypes(String archiveName, String archiveVersion);
+
+    /**
      * Find an element based on it's type and id.
      *
      * @param elementType The element type.

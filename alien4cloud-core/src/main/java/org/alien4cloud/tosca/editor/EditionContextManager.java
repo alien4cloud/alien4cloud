@@ -96,6 +96,7 @@ public class EditionContextManager {
     public void reset() throws IOException {
         Topology topology = topologyServiceCore.getOrFail(getTopology().getId());
         contextThreadLocal.get().reset(topology);
+        ToscaContext.set(contextThreadLocal.get().getToscaContext());
     }
 
     /**
@@ -108,9 +109,9 @@ public class EditionContextManager {
     }
 
     /**
-     * Get the current topology under edition.
+     * Get the archive of the current topology under edition.
      *
-     * @return The thread's topology under edition.
+     * @return The thread's archive of the topology under edition.
      */
     public static Csar getCsar() {
         return contextThreadLocal.get().getCsar();

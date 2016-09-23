@@ -1,11 +1,14 @@
 package org.alien4cloud.test.setup;
 
-import com.google.common.collect.Maps;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
-import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
+
+import com.google.common.collect.Maps;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class TestDataRegistry {
@@ -76,6 +79,9 @@ public class TestDataRegistry {
         addConditionFolder("invalid (icon not found)", "src/test/resources/data/csars/icon/missing");
         addConditionFolder("invalid (icon invalid)", "src/test/resources/data/csars/icon/erroneous");
         addConditionFolder("snapshot", "src/test/resources/data/csars/snapshot");
+        addConditionFolder("snapshot-bis", "src/test/resources/data/csars/snapshot-bis");
+        addConditionFolder("released", "src/test/resources/data/csars/released");
+        addConditionFolder("released-bis", "src/test/resources/data/csars/released-bis");
         addConditionFolder("relationship test types", "src/test/resources/data/csars/relationship-test-types");
         addConditionFolder("valid-csar-with-test", "src/test/resources/data/csars/snapshot-test/snapshot-test-valid");
         addConditionFolder("valid-csar-with-update1", "src/test/resources/data/csars/snapshot-test/snapshot-test-update1");

@@ -6,22 +6,18 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import alien4cloud.it.Context;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
 import cucumber.api.DataTable;
-import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
 import gherkin.formatter.model.DataTableRow;
@@ -123,9 +119,4 @@ public class EditorStepDefinitions {
         trySetTopologyDto();
     }
 
-    @And("^I clear the edition context cache$")
-    public void iClearTheEditionContextCache() throws Throwable {
-        Context.getRestClientInstance().putUrlEncoded("/rest/v2/editor/clearCache",
-                Lists.<NameValuePair> newArrayList(new BasicNameValuePair("force", "true")));
-    }
 }

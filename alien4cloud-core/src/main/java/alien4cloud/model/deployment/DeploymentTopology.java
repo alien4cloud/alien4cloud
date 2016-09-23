@@ -44,6 +44,7 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DeploymentTopology extends Topology {
+    private String id;
     /** This flag is used to prevent update of a deployed archive as this may have consequences. */
     @TermFilter
     @BooleanField

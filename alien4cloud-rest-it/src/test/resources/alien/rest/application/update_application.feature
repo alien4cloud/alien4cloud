@@ -21,11 +21,6 @@ Feature: Update an application (image or tags)
     Then I should receive a RestResponse with no error
 
   @reset
-  Scenario: Add a tag to a non existing application (OK)
-    When I add a tag with key "newtag" and value "tag value" to the application
-    Then I should receive a RestResponse with an error code 504
-
-  @reset
   Scenario: Delete a tag that exists
     Given There is a "new_application_name_with_tags" application
     And I have an application tag "my_tag"

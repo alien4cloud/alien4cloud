@@ -209,8 +209,8 @@ public class ArchiveIndexer {
 
         // FIXME query to check if a previous topology exist for this archive name/version/workspace.
 
-        parsingErrors
-                .add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_UPDATED, "", null, "A topology template has been updated", null, archiveName));
+        // parsingErrors
+        // .add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_UPDATED, "", null, "A topology template has been updated", null, archiveName));
 
         parsingErrors.add(
                 new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_DETECTED, "", null, "A topology template has been detected", null, archiveName));

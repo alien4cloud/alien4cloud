@@ -37,8 +37,15 @@ public interface ITopologyCatalogService {
      * @param id The id of the topology to look for.
      * @return The topology matching the requested id.
      */
-
     Topology getOrFail(String id);
+
+    /**
+     * Get a single topology from it's id or null if it does not exists.
+     *
+     * @param id The id of the topology to look for.
+     * @return The topology matching the requested id or null if not found.
+     */
+    Topology get(String id);
 
     /**
      * Return true if the given id exists.

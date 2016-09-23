@@ -133,6 +133,7 @@ public class CloudServiceArchiveController {
     @RequestMapping(value = "/{csarId:.+?}/dependencies", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     @Audit
+    @Deprecated
     public RestResponse<Boolean> addDependency(@PathVariable String csarId, @Valid @RequestBody CSARDependency dependency) {
         Csar csar = csarDAO.findById(Csar.class, csarId);
         if (csar == null) {

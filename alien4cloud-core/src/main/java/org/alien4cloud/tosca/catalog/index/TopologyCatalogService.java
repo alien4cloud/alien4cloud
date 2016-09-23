@@ -69,13 +69,24 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
 
     @Override
     public Topology getOrFail(String id) {
-        Topology topology = alienDAO.findById(Topology.class, id);
+        Topology topology = get(id);
         if (topology == null) {
             throw new NotFoundException("Unable to find a topology with id <" + id + ">");
         }
         return topology;
     }
 
+    @Override
+    public Topology get(String id) {
+        return alienDAO.findById(Topology.class, id);
+    }
+
+    /**
+     * Return true if the given id exists.
+     *
+     * @param id The id to check.
+     * @return True if a topology with the given id exists, false if not.
+     */
     @Override
     public boolean exists(String id) {
         return alienDAO.buildQuery(Topology.class).setFilters(singleKeyFilter("id", id)).count() > 0;
