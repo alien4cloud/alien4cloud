@@ -27,7 +27,7 @@ Feature: trigger custom commands
       | managerEmail  | admin@alien.fr          |
 
     And I create a new application with name "ALIEN" and description "" and node templates
-      | Compute         | tosca.nodes.Compute:1.0                                |
+      | Compute         | tosca.nodes.Compute:1.0.0-SNAPSHOT                     |
       | customInterface | alien4cloud.tests.nodes.CustomInterface:1.1.0-SNAPSHOT |
     And I execute the operation
       | type                   | org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation |

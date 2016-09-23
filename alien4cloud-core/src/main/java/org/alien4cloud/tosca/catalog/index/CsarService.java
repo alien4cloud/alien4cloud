@@ -269,13 +269,22 @@ public class CsarService implements ICsarDependencyLoader {
     }
 
     private void deleteCsar(Csar csar) {
+        deleteCsarContent(csar);
+        csarDAO.delete(Csar.class, csar.getId());
+        // physically delete files
+        alienRepository.removeCSAR(csar.getName(), csar.getVersion());
+    }
+
+    /**
+     * Delete the content of the csar from the repository: elements, topologies
+     *
+     * @param csar
+     */
+    public void deleteCsarContent(Csar csar) {
         // Delete the topology defined in this archive.
         csarDAO.delete(Topology.class, csar.getId());
         // latest version indicator will be recomputed to match this new reality
         indexerService.deleteElements(csar.getName(), csar.getVersion());
-        csarDAO.delete(Csar.class, csar.getId());
-        // physically delete files
-        alienRepository.removeCSAR(csar.getName(), csar.getVersion());
     }
 
     /**
@@ -454,5 +463,4 @@ public class CsarService implements ICsarDependencyLoader {
         }
         return resourceList;
     }
-
 }

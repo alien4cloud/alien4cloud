@@ -1,7 +1,11 @@
 Feature: CSAR delete
 
   Background:
-    Given I am authenticated with "COMPONENTS_MANAGER" role
+    Given I am authenticated with "ADMIN" role
+    And there is a user "golum" with the "COMPONENTS_MANAGER" role
+    And I add a role "APPLICATIONS_MANAGER" to user "golum"
+    And I add a role "ARCHITECT" to user "golum"
+    Given I am authenticated with user named "golum"
     And I upload the archive "tosca base types 1.0"
     And I should receive a RestResponse with no error
     Given I upload the archive "valid-csar-with-test"
@@ -15,8 +19,7 @@ Feature: CSAR delete
 
   @reset
   Scenario: Try do delete a CSAR that is used in a topology
-  	Given I am authenticated with "APPLICATIONS_MANAGER" role
-    And I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring." and node templates
+    Given I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring." and node templates
       | Compute | tosca.nodes.Compute:1.0 |
       | Java | fastconnect.nodes.Java:2.0-SNAPSHOT |
     And I execute the operation
@@ -50,7 +53,6 @@ Feature: CSAR delete
 
   @reset
   Scenario: Update a snapshot CSAR with less nodes
-    Given I am authenticated with "COMPONENTS_MANAGER" role
     Given I upload the archive "valid-csar-with-update1"
     And I should receive a RestResponse with no error
     # in the update2 (3.0-SNAPSHOT), the War is removed
@@ -62,7 +64,6 @@ Feature: CSAR delete
 
   @reset
   Scenario: Delete a CSAR version and ensure that the highest version is well managed
-    Given I am authenticated with "COMPONENTS_MANAGER" role
     Given I upload the archive "valid-csar-with-update1"
     And I should receive a RestResponse with no error
     Given I upload the archive "valid-csar-with-update3"
@@ -81,7 +82,6 @@ Feature: CSAR delete
 
   @reset
   Scenario: Delete a CSAR version and ensure that the older versions are well managed
-    Given I am authenticated with "COMPONENTS_MANAGER" role
     Given I upload the archive "valid-csar-with-update1"
     And I should receive a RestResponse with no error
     Given I upload the archive "valid-csar-with-update3"

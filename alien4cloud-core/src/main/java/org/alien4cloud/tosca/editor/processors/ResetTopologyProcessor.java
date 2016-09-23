@@ -1,17 +1,19 @@
 package org.alien4cloud.tosca.editor.processors;
 
-import org.alien4cloud.tosca.model.templates.Topology;
-import alien4cloud.paas.wf.WorkflowsBuilderService;
-import alien4cloud.topology.TopologyService;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+
+import javax.inject.Inject;
+
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.EditorService;
 import org.alien4cloud.tosca.editor.EditorTopologyRecoveryHelperService;
 import org.alien4cloud.tosca.editor.operations.ResetTopologyOperation;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-import java.io.IOException;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
+import alien4cloud.topology.TopologyService;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * process {@link ResetTopologyOperation}
@@ -33,7 +35,9 @@ public class ResetTopologyProcessor implements IEditorOperationProcessor<ResetTo
     public void process(ResetTopologyOperation operation) {
         Topology topology = EditionContextManager.getTopology();
         Topology newTopology = new Topology();
-        newTopology.setId(topology.getId());
+        newTopology.setArchiveName(topology.getArchiveName());
+        newTopology.setArchiveVersion(topology.getArchiveVersion());
+        newTopology.setWorkspace(topology.getWorkspace());
         workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(newTopology));
         try {
             EditionContextManager.get().reset(newTopology);

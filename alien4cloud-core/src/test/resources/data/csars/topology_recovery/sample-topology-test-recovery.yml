@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
 description: Alien4Cloud generated service template
 template_name: test-recovery-topology
-template_version: 0.1.0-SNAPSHOT
+template_version: 0.1-SNAPSHOT
 template_author: admin
 
 imports:

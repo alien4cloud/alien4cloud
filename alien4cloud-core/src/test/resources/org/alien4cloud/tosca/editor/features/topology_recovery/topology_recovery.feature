@@ -5,9 +5,9 @@ Feature: Topology editor: Recover a topology after csar dependencies updates
     # initialize or reset the types as defined in the initial archive
     And I upload unzipped CSAR from path "src/test/resources/data/csars/topology_recovery/test-topo-recovery-types.yml"
     # initialize or reset the topology
-    And I delete the template with name "test-recovery-topology" and archive "test-recovery-topology" "0.1.0-SNAPSHOT" if any
+    And I delete the archive "test-recovery-topology" "0.1-SNAPSHOT" if any
     And I upload unzipped CSAR from path "src/test/resources/data/csars/topology_recovery/sample-topology-test-recovery.yml"
-    And I get the topology related to the template with name "test-recovery-topology"
+    And I get the topology related to the CSAR with name "test-recovery-topology" and version "0.1-SNAPSHOT"
 
   Scenario: Delete a node type from archive and recover the topology
     Given I upload unzipped CSAR from path "src/test/resources/data/csars/topology_recovery/test-recovery-nodetype-deleted-types.yml"
