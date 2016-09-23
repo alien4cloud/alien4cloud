@@ -420,7 +420,7 @@ public class TopologyService {
      * @param version The version of the dependency
      * @return
      */
-    public CSARDependency buildDependencyBean(String name, String version) {
+    public static CSARDependency buildDependencyBean(String name, String version) {
         CSARDependency newDependency = new CSARDependency(name, version);
         Csar csar = ToscaContext.get().getArchive(name, version);
         if (csar != null) {

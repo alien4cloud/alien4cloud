@@ -2,6 +2,7 @@ package alien4cloud.tosca.container;
 
 import alien4cloud.csar.services.ICsarDependencyLoader;
 import alien4cloud.model.components.CSARDependency;
+import alien4cloud.topology.TopologyService;
 import alien4cloud.utils.VersionUtil;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -135,7 +136,7 @@ public class ToscaTypeLoader {
         for (CSARDependency transitiveDependency : transitiveDependencies) {
             Set<String> transitiveTypesLoadedByDependency = dependenciesMap.get(transitiveDependency);
             if (transitiveTypesLoadedByDependency == null) {
-                addNewDependency(transitiveDependency, type);
+                addNewDependency(TopologyService.buildDependencyBean(transitiveDependency.getName(), transitiveDependency.getVersion()), type);
             } else {
                 transitiveTypesLoadedByDependency.add(type);
             }
