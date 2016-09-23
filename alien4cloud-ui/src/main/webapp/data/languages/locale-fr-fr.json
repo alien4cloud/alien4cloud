@@ -290,6 +290,7 @@
   "CANCEL" : "Annuler",
   "CANCELLED" : "Annulé",
   "CLOSE" : "Fermer",
+  "OK": "OK",
   "CLOUDS" : {
     "ADMINISTRATION" : {
       "DRIVER" : {

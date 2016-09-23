@@ -44,9 +44,8 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
         topology.setArchiveName(csar.getName());
         topology.setArchiveVersion(csar.getVersion());
         topology.setWorkspace(csar.getWorkspace());
-
+        csar.setDependencies(topology.getDependencies());
         archiveIndexer.importNewArchive(csar, topology);
-
         return topology;
     }
 
