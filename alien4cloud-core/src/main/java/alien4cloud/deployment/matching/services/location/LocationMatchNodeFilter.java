@@ -9,25 +9,24 @@ import java.util.Map.Entry;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import lombok.Getter;
-
-import org.springframework.stereotype.Component;
-
-import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
-import alien4cloud.model.deployment.matching.ILocationMatch;
-import alien4cloud.model.orchestrators.ArtifactSupport;
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
-import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
-import alien4cloud.orchestrators.services.OrchestratorService;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
+
+import alien4cloud.model.deployment.matching.ILocationMatch;
+import alien4cloud.model.orchestrators.ArtifactSupport;
+import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
+import alien4cloud.orchestrators.services.OrchestratorService;
+import lombok.Getter;
 
 @Component
 public class LocationMatchNodeFilter extends AbstractLocationMatchFilterWithElector {
     @Resource
-    private ToscaTypeSearchService csarSearchService;
+    private IToscaTypeSearchService csarSearchService;
     @Resource
     private OrchestratorService orchestratorService;
     @Inject

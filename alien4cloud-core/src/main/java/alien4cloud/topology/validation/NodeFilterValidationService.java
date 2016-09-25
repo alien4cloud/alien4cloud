@@ -1,39 +1,43 @@
 package alien4cloud.topology.validation;
 
-import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.definitions.*;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.task.NodeFilterConstraintViolation;
 import alien4cloud.topology.task.NodeFilterToSatisfy;
-import alien4cloud.topology.task.NodeFilterToSatisfy.Violations;
 import alien4cloud.topology.task.NodeFiltersTask;
 import alien4cloud.topology.task.TaskCode;
+import alien4cloud.topology.task.NodeFilterToSatisfy.Violations;
 import alien4cloud.tosca.normative.IPropertyType;
 import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.alien4cloud.tosca.model.types.CapabilityType;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Performs validation of node filters for all relationship of topology.
  */
 @Component
 public class NodeFilterValidationService {
-    @Resource
-    private ToscaTypeSearchService csarRepoSearchService;
+    @Inject
+    private IToscaTypeSearchService csarRepoSearchService;
     @Resource
     private TopologyServiceCore topologyServiceCore;
 

@@ -1,26 +1,28 @@
 package alien4cloud.topology.validation;
 
-import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
-import alien4cloud.exception.NotFoundException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Requirement;
 import org.alien4cloud.tosca.model.templates.Topology;
-import alien4cloud.topology.task.RequirementToSatisfy;
-import alien4cloud.topology.task.RequirementsTask;
-import alien4cloud.topology.task.TaskCode;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.topology.task.RequirementToSatisfy;
+import alien4cloud.topology.task.RequirementsTask;
+import alien4cloud.topology.task.TaskCode;
 
 /**
  * Performs validation of the requirements and capabilities bounds.
@@ -28,7 +30,7 @@ import java.util.Set;
 @Component
 public class TopologyRequirementBoundsValidationServices {
     @Resource
-    private ToscaTypeSearchService csarRepoSearchService;
+    private IToscaTypeSearchService csarRepoSearchService;
 
     /**
      * Check if the upperBound of a requirement is reached on a node template
@@ -39,14 +41,14 @@ public class TopologyRequirementBoundsValidationServices {
      * @return true if requirement upper bound is reached, false otherwise
      */
     public boolean isRequirementUpperBoundReachedForSource(NodeTemplate nodeTemplate, String requirementName, Set<CSARDependency> dependencies) {
-        NodeType relatedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(),
-                dependencies);
+        NodeType relatedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), dependencies);
         Requirement requirement = nodeTemplate.getRequirements().get(requirementName);
         if (nodeTemplate.getRelationships() == null || nodeTemplate.getRelationships().isEmpty()) {
             return false;
         }
 
-        RequirementDefinition requirementDefinition = getRequirementDefinition(relatedIndexedNodeType.getRequirements(), requirementName, requirement.getType());
+        RequirementDefinition requirementDefinition = getRequirementDefinition(relatedIndexedNodeType.getRequirements(), requirementName,
+                requirement.getType());
 
         if (requirementDefinition.getUpperBound() == Integer.MAX_VALUE) {
             return false;

@@ -22,19 +22,11 @@ import alien4cloud.utils.VersionUtil;
  * Service responsible for indexing and updating topologies.
  */
 @Service
-public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topology> {
+public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topology> implements ITopologyCatalogService {
     @Inject
     private ArchiveIndexer archiveIndexer;
 
-    /**
-     * Creates a topology and register it as a template in the catalog
-     *
-     * @param name The name of the topology template
-     * @param description The description of the topology template
-     * @param version The version of the topology
-     * @param fromTopologyId The id of an existing topology to use to create the new topology.
-     * @return The @{@link Topology} newly created
-     */
+    @Override
     public Topology createTopologyAsTemplate(String name, String description, String version, String fromTopologyId) {
         // Every version of a topology template has a Cloud Service Archive
         Csar csar = new Csar(name, StringUtils.isNotBlank(version) ? version : VersionUtil.DEFAULT_VERSION_NAME);
@@ -52,9 +44,8 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
         topology.setArchiveName(csar.getName());
         topology.setArchiveVersion(csar.getVersion());
         topology.setWorkspace(csar.getWorkspace());
-
+        csar.setDependencies(topology.getDependencies());
         archiveIndexer.importNewArchive(csar, topology);
-
         return topology;
     }
 
@@ -68,25 +59,14 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
         return "archiveName";
     }
 
-    /**
-     * Get all topologies matching the given set of filters.
-     *
-     * @param filters The filters to query the topologies.
-     * @param archiveName The name of the related archive
-     * @return Return the matching
-     */
+    @Override
     public Topology[] getAll(Map<String, String[]> filters, String archiveName) {
         return alienDAO.buildQuery(Topology.class)
                 .setFilters(fromKeyValueCouples(filters, "workspace", AlienConstants.GLOBAL_WORKSPACE_ID, "archiveName", archiveName)).prepareSearch()
                 .setFetchContext(SUMMARY).search(0, Integer.MAX_VALUE).getData();
     }
 
-    /**
-     * Get a single topology from it's id or throw a NotFoundException.
-     * 
-     * @param id The id of the topology to look for.
-     * @return The topology matching the requested id.
-     */
+    @Override
     public Topology getOrFail(String id) {
         Topology topology = get(id);
         if (topology == null) {
@@ -95,6 +75,7 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
         return topology;
     }
 
+    @Override
     public Topology get(String id) {
         return alienDAO.findById(Topology.class, id);
     }
@@ -105,6 +86,7 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
      * @param id The id to check.
      * @return True if a topology with the given id exists, false if not.
      */
+    @Override
     public boolean exists(String id) {
         return alienDAO.buildQuery(Topology.class).setFilters(singleKeyFilter("id", id)).count() > 0;
     }

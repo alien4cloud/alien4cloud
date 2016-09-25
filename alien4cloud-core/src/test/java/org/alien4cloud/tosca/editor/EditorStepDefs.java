@@ -17,7 +17,7 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import org.alien4cloud.tosca.catalog.index.CsarService;
-import org.alien4cloud.tosca.catalog.index.TopologyCatalogService;
+import org.alien4cloud.tosca.catalog.index.ITopologyCatalogService;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.alien4cloud.tosca.model.Csar;
@@ -83,7 +83,7 @@ public class EditorStepDefs {
     @Inject
     private CsarService csarService;
     @Inject
-    private TopologyCatalogService catalogService;
+    private ITopologyCatalogService catalogService;
     @Inject
     private WorkflowsBuilderService workflowBuilderService;
     @Inject

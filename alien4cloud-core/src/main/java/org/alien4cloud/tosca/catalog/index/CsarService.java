@@ -3,12 +3,9 @@ package org.alien4cloud.tosca.catalog.index;
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Queue;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -52,7 +49,7 @@ public class CsarService implements ICsarDependencyLoader {
     @Resource(name = "alien-monitor-es-dao")
     private IGenericSearchDAO alienMonitorDao;
     @Inject
-    private ToscaTypeSearchService searchService;
+    private IToscaTypeSearchService searchService;
     @Inject
     private IToscaTypeIndexerService indexerService;
     @Inject
@@ -60,7 +57,7 @@ public class CsarService implements ICsarDependencyLoader {
     @Inject
     private ApplicationService applicationService;
     @Inject
-    private TopologyCatalogService catalogService;
+    private ITopologyCatalogService catalogService;
 
     /**
      * Get all archive matching the given set of filters.
@@ -185,6 +182,18 @@ public class CsarService implements ICsarDependencyLoader {
         csar.setDependencies(mergedDependencies, true);
 
         this.csarDAO.save(csar);
+    }
+
+    /**
+     * Set dependencies to an existing CSAR
+     * 
+     * @param csarId id of the CSAR
+     * @param dependencies the new dependencies
+     */
+    public void setDependencies(String csarId, Set<CSARDependency> dependencies) {
+        Csar csar = getOrFail(csarId);
+        csar.setDependencies(dependencies);
+        save(csar);
     }
 
     public Map<String, Csar> findByIds(String fetchContext, String... ids) {
@@ -347,27 +356,6 @@ public class CsarService implements ICsarDependencyLoader {
         }
 
         return relatedResourceList;
-    }
-
-    /**
-     * Get all dependencies of a given CSAR's name and version, transitive dependencies included
-     * 
-     * @param name name of the CSAR
-     * @param version version of the CSAR
-     * @return a set of dependencies for the given CSAR's name and version
-     */
-    public Set<CSARDependency> getAllDependencies(String name, String version) {
-        Set<CSARDependency> result = new HashSet<>();
-        Queue<CSARDependency> queue = new LinkedList<>(getDependencies(name, version));
-        while (!queue.isEmpty()) {
-            CSARDependency dependency = queue.poll();
-            if (result.add(dependency)) {
-                // Add dependencies of the CSAR in the queue if it hasn't been already processed for the first time
-                // This prevent cyclic dependencies
-                queue.addAll(getDependencies(dependency.getName(), dependency.getVersion()));
-            }
-        }
-        return result;
     }
 
     /**

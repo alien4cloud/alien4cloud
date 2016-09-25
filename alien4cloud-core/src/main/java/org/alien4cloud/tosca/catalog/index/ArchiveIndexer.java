@@ -6,8 +6,11 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.events.AfterArchiveIndexed;
+import org.alien4cloud.tosca.catalog.events.BeforeArchiveIndexed;
 import org.alien4cloud.tosca.catalog.repository.ICsarRepositry;
 import org.alien4cloud.tosca.editor.EditorRepositoryService;
 import org.alien4cloud.tosca.exporter.ArchiveExportService;
@@ -16,6 +19,7 @@ import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
@@ -47,6 +51,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class ArchiveIndexer {
+    @Inject
+    private ApplicationContext alienContext;
     @Inject
     private ArchiveExportService exportService;
     @Inject
@@ -95,6 +101,13 @@ public class ArchiveIndexer {
      * @param topology The topology to be part of the topology.
      */
     public synchronized void importNewArchive(Csar csar, Topology topology) {
+        ArchiveRoot archiveRoot = new ArchiveRoot();
+        archiveRoot.setArchive(csar);
+        archiveRoot.setTopology(topology);
+
+        // dispatch event before indexing
+        alienContext.publishEvent(new BeforeArchiveIndexed(this, archiveRoot));
+
         // Ensure that the archive does not already exists
         ensureUniqueness(csar.getName(), csar.getVersion());
         workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
@@ -110,6 +123,9 @@ public class ArchiveIndexer {
         topologyServiceCore.save(topology);
         // Initialize the file repository for the archive
         archiveRepositry.storeCSAR(csar, yaml);
+
+        // dispatch event after indexing
+        alienContext.publishEvent(new AfterArchiveIndexed(this, archiveRoot));
     }
 
     /**
@@ -124,6 +140,9 @@ public class ArchiveIndexer {
     public synchronized void importArchive(final ArchiveRoot archiveRoot, CSARSource source, Path archivePath, List<ParsingError> parsingErrors)
             throws CSARUsedInActiveDeployment {
         String archiveName = archiveRoot.getArchive().getName();
+        // Application archives cannot be overriden here but requires an editor call.
+        
+
         String archiveVersion = archiveRoot.getArchive().getVersion();
         Csar currentIndexedArchive = csarService.get(archiveName, archiveVersion);
         // if the archive has not changed do nothing.

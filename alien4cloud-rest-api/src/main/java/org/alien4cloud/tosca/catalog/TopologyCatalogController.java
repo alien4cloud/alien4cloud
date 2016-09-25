@@ -5,7 +5,7 @@ import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import org.alien4cloud.tosca.catalog.index.TopologyCatalogService;
+import org.alien4cloud.tosca.catalog.index.ITopologyCatalogService;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.http.MediaType;
@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TopologyCatalogController {
 
     @Inject
-    private TopologyCatalogService catalogService;
+    private ITopologyCatalogService catalogService;
 
     /**
      * Search for topologies in the catalog.

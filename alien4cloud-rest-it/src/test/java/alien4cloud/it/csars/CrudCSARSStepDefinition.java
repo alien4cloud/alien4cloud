@@ -79,7 +79,7 @@ public class CrudCSARSStepDefinition {
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
         Assert.assertNotNull(restResponse);
         List<Usage> resultData = JsonUtil.toList(JsonUtil.toString(restResponse.getData()), Usage.class);
-        Assert.assertEquals(resultData.size(), Integer.parseInt(resourceCount));
+        Assert.assertEquals(Integer.parseInt(resourceCount), resultData.size());
     }
 
     @Given("^I can find (\\d+) CSAR$")

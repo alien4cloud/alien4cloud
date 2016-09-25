@@ -1,21 +1,23 @@
 package alien4cloud.topology.validation;
 
-import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
-import alien4cloud.exception.NotFoundException;
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
-import org.alien4cloud.tosca.model.types.NodeType;
-import org.alien4cloud.tosca.model.templates.Capability;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
-import alien4cloud.topology.TopologyServiceCore;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.springframework.stereotype.Component;
+
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.topology.TopologyServiceCore;
 
 /**
  *
@@ -23,7 +25,7 @@ import java.util.Set;
 @Component
 public class TopologyCapabilityBoundsValidationServices {
     @Resource
-    private ToscaTypeSearchService csarRepoSearchService;
+    private IToscaTypeSearchService csarRepoSearchService;
     @Resource
     private TopologyServiceCore topologyServiceCore;
 
@@ -31,8 +33,7 @@ public class TopologyCapabilityBoundsValidationServices {
     public boolean isCapabilityUpperBoundReachedForTarget(String nodeTemplateName, Map<String, NodeTemplate> nodeTemplates, String capabilityName,
             Set<CSARDependency> dependencies) {
         NodeTemplate nodeTemplate = nodeTemplates.get(nodeTemplateName);
-        NodeType relatedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(),
-                dependencies);
+        NodeType relatedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), dependencies);
         chekCapability(nodeTemplateName, capabilityName, nodeTemplate);
 
         CapabilityDefinition capabilityDefinition = getCapabilityDefinition(relatedIndexedNodeType.getCapabilities(), capabilityName);

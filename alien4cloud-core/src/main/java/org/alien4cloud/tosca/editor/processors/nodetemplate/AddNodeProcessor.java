@@ -1,19 +1,23 @@
 package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
 import java.util.HashMap;
+import java.util.Objects;
+import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.application.TopologyCompositionService;
-import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import alien4cloud.exception.CyclicReferenceException;
 import alien4cloud.exception.InvalidNodeNameException;
 import alien4cloud.exception.NotFoundException;
@@ -29,13 +33,15 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperation> {
     @Inject
-    private ToscaTypeSearchService searchService;
+    private IToscaTypeSearchService searchService;
     @Inject
     private TopologyService topologyService;
     @Inject
     private TopologyCompositionService topologyCompositionService;
     @Inject
     private WorkflowsBuilderService workflowBuilderService;
+    @Inject
+    private CsarService csarService;
 
     @Override
     public void process(AddNodeOperation operation) {
@@ -64,11 +70,11 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
         }
 
         if (topology.getNodeTemplates() == null) {
-            topology.setNodeTemplates(new HashMap<String, NodeTemplate>());
+            topology.setNodeTemplates(new HashMap<>());
         }
 
         log.debug("Create node template <{}>", operation.getNodeName());
-
+        Set<CSARDependency> oldDependencies = topology.getDependencies();
         indexedNodeType = topologyService.loadType(topology, indexedNodeType);
         NodeTemplate nodeTemplate = topologyService.buildNodeTemplate(topology.getDependencies(), indexedNodeType, null);
         nodeTemplate.setName(operation.getNodeName());
@@ -79,5 +85,9 @@ public class AddNodeProcessor implements IEditorOperationProcessor<AddNodeOperat
 
         WorkflowsBuilderService.TopologyContext topologyContext = workflowBuilderService.buildTopologyContext(topology);
         workflowBuilderService.addNode(topologyContext, operation.getNodeName(), nodeTemplate);
+        // If dependencies changed then must update also CSAR dependencies
+        if (!Objects.equals(topology.getDependencies(), oldDependencies)) {
+            csarService.setDependencies(topology.getId(), topology.getDependencies());
+        }
     }
 }

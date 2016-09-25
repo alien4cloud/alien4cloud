@@ -42,7 +42,7 @@ public class ToscaTypeIndexerService implements IToscaTypeIndexerService {
     @Inject
     private IImageDAO imageDAO;
     @Inject
-    private ToscaTypeSearchService searchService;
+    private IToscaTypeSearchService searchService;
 
     private void refreshIndexForSearching() {
         elasticSearchClient.getClient().admin().indices().prepareRefresh(ElasticSearchDAO.TOSCA_ELEMENT_INDEX).execute().actionGet();
@@ -84,8 +84,7 @@ public class ToscaTypeIndexerService implements IToscaTypeIndexerService {
     }
 
     @Override
-    public void indexInheritableElements(Map<String, ? extends AbstractInheritableToscaType> archiveElements,
-            Collection<CSARDependency> dependencies) {
+    public void indexInheritableElements(Map<String, ? extends AbstractInheritableToscaType> archiveElements, Collection<CSARDependency> dependencies) {
         for (AbstractInheritableToscaType element : safe(archiveElements).values()) {
             element.setLastUpdateDate(new Date());
             Date creationDate = element.getCreationDate() == null ? element.getLastUpdateDate() : element.getCreationDate();

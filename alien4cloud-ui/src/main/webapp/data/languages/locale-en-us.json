@@ -304,6 +304,7 @@
   "CANCEL" : "Cancel",
   "CANCELLED" : "Cancelled",
   "CLOSE" : "Close",
+  "OK": "OK",
   "CLOUDS" : {
     "ADMINISTRATION" : {
       "DRIVER" : {

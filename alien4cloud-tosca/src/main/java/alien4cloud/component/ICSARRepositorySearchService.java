@@ -1,5 +1,6 @@
 package alien4cloud.component;
 
+import java.util.Map;
 import java.util.Set;
 
 import alien4cloud.exception.NotFoundException;
@@ -62,5 +63,4 @@ public interface ICSARRepositorySearchService {
      */
     <T extends AbstractToscaType> T getRequiredElementInDependencies(Class<T> elementClass, String elementId, Set<CSARDependency> dependencies)
             throws NotFoundException;
-
 }

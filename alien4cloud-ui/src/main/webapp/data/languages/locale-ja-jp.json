@@ -289,6 +289,7 @@
   "BOUNDS" : "Bounds",
   "CANCEL" : "キャンセル",
   "CLOSE" : "閉じる",
+  "OK" : "上書き",
   "CLOUDS" : {
     "ADMINISTRATION" : {
       "DRIVER" : {

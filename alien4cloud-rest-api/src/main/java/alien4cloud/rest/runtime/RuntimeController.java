@@ -8,12 +8,13 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.definitions.IValue;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
@@ -21,21 +22,20 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
+import com.google.common.collect.Lists;
+
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.audit.annotation.Audit;
-import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
 import alien4cloud.deployment.DeploymentRuntimeService;
 import alien4cloud.deployment.DeploymentRuntimeStateService;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.components.*;
+import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
@@ -57,16 +57,14 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintRequiredPara
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.services.ConstraintPropertyService;
-
-import com.google.common.collect.Lists;
-
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.Authorization;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @Slf4j
-@RequestMapping({"/rest/runtime", "/rest/v1/runtime", "/rest/latest/runtime"})
+@RequestMapping({ "/rest/runtime", "/rest/v1/runtime", "/rest/latest/runtime" })
 public class RuntimeController {
     @Resource
     private DeploymentService deploymentService;
@@ -74,8 +72,8 @@ public class RuntimeController {
     private ApplicationService applicationService;
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
-    @Resource
-    private ToscaTypeSearchService csarRepoSearchService;
+    @Inject
+    private IToscaTypeSearchService csarRepoSearchService;
     @Resource
     private ConstraintPropertyService constraintPropertyService;
     @Resource
@@ -182,8 +180,7 @@ public class RuntimeController {
     private void validateCommand(OperationExecRequest operationRequest, Topology topology) throws ConstraintFunctionalException {
         NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operationRequest.getNodeTemplateName(),
                 TopologyServiceCore.getNodeTemplates(topology));
-        NodeType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(),
-                topology.getDependencies());
+        NodeType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), topology.getDependencies());
 
         Map<String, Interface> interfaces = IndexedModelUtils.mergeInterfaces(indexedNodeType.getInterfaces(), nodeTemplate.getInterfaces());
 
@@ -241,7 +238,6 @@ public class RuntimeController {
         // validate parameters (value/type and required value)
         validateParameters(interfass, operationRequest);
     }
-
 
     @ApiOperation(value = "Get non-natives node template of a topology.", notes = "Returns An map of non-natives {@link NodeTemplate}. Application role required [ APPLICATION_MANAGER | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId:.+?}/environment/{applicationEnvironmentId:.+?}/nonNatives", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

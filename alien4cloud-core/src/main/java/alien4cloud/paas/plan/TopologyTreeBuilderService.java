@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
-import org.alien4cloud.tosca.catalog.index.ToscaTypeSearchService;
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.*;
@@ -49,7 +49,7 @@ public class TopologyTreeBuilderService {
     @Resource
     private CsarFileRepository repository;
     @Resource
-    private ToscaTypeSearchService csarSearchService;
+    private IToscaTypeSearchService csarSearchService;
 
     public Map<String, PaaSNodeTemplate> buildPaaSNodeTemplates(Topology topology) {
         // cache IndexedToscaElements, CloudServiceArchive and ToscaElements to limit queries.
@@ -327,8 +327,7 @@ public class TopologyTreeBuilderService {
         }
         paaSTemplate.setDerivedFroms(derivedFromTypes);
         try {
-            Path csarPath = repository.getCSAR(indexedToscaElement.getArchiveName(),
-                    indexedToscaElement.getArchiveVersion());
+            Path csarPath = repository.getCSAR(indexedToscaElement.getArchiveName(), indexedToscaElement.getArchiveVersion());
             paaSTemplate.setCsarPath(csarPath);
         } catch (AlreadyExistException e) {
             log.debug("No csarPath for " + indexedToscaElement + "; not setting in " + paaSTemplate);
