@@ -50,16 +50,13 @@ public class UninstallWorkflowBuilder extends StandardWorflowBuilder {
                 targetStep = WorkflowUtils.getStateStepByNode(wf, parentId, ToscaNodeLifecycleConstants.STOPPING);
             }
             WorkflowUtils.linkSteps(deletedSourceStep, targetStep);
-        } /*
-           * else if (WorkflowUtils.isOfType(indexedRelationshipType, NormativeRelationshipConstants.ATTACH_TO)) {
-           * // in case of "Volume attached to Compute", we need to delete the compute before eventually delete the volume
-           * String volumeId = nodeId;
-           * String computeId = relationshipTemplate.getTarget();
-           * NodeActivityStep deletedComputeStep = WorkflowUtils.getStateStepByNode(wf, computeId, ToscaNodeLifecycleConstants.DELETED);
-           * NodeActivityStep stoppingVolumeStep = WorkflowUtils.getStateStepByNode(wf, volumeId, ToscaNodeLifecycleConstants.STOPPING);
-           * WorkflowUtils.linkSteps(deletedComputeStep, stoppingVolumeStep);
-           * }
-           */
+        } else if (WorkflowUtils.isOfType(indexedRelationshipType, NormativeRelationshipConstants.CONNECTS_TO)) {
+            // in case of "Volume attached to Compute", we need to delete the compute before eventually delete the volume
+            String volumeId = nodeId;
+            NodeActivityStep targetStep = WorkflowUtils.getStateStepByNode(wf, targetId, ToscaNodeLifecycleConstants.STOPPING);
+            NodeActivityStep sourceStep = WorkflowUtils.getStateStepByNode(wf, nodeId, ToscaNodeLifecycleConstants.STOPPED);
+            WorkflowUtils.linkSteps(sourceStep, targetStep);
+        }
     }
 
 }
