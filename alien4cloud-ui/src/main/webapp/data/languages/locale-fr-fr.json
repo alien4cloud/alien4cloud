@@ -550,7 +550,33 @@
     "MENU_WORKFLOW": "Workflows",
     "MENU_FILES": "Fichiers de l'archive",
     "MENU_VALIDATION": "Validation de la topologie",
-    "MENU_HISTORY": "Historique"
+    "MENU_HISTORY": "Historique",
+    "GIT": {
+      "MODAL": {
+        "REMOTE": "Configuration du dépôt git",
+        "PUSH": "Envoyer vers le dépôt git",
+        "PULL": "Récupérer du dépôt git",
+        "URL": "URL",
+        "URL_VALUE": "https://...",
+        "REMOTE_BRANCH": "Branche",
+        "REMOTE_BRANCH_VALUE": "Branche Distante (défaut: 'master')",
+        "USERNAME": "Identifiant",
+        "PASSWORD": "Mot de passe"
+      },
+      "REMOTE": "Dépôt",
+      "PUSH": "Envoyer",
+      "PULL": "Récupérer",
+      "OPERATIONS": {
+        "PULL": {
+          "TITLE": "Opération de récupération depuis le dépôt git",
+          "SUCCESS_MSGE": "Récupération depuis le dépôt git terminée avec succès."
+        },
+        "PUSH": {
+          "TITLE": "Opération d'envoi vers le dépôt git push",
+          "SUCCESS_MSGE": "Envoi vers le dépôt git terminé avec succès."
+        }
+      }
+    }
   },
   "END_DATE" : "Date de fin",
   "ENVIRONMENT_TYPE" : {
@@ -605,6 +631,8 @@
     "617" : "Aucune modification a été détecté depuis le dernier import, celui-ci n'a pas été réalisé.",
     "618" : "Le nom d'un node ne doit contenir que des caractères alpha-numérique de l'alphabet latin classique et le underscrore.",
     "619" : "Le nom de l'application est invalide.",
+    "620" : "Le repository Git requiert un fusionnement manuel.",
+    "621" : "Le repository Git n'est pas dans un status 'SAFE', Veuillez corriger son état manuellement.",
     "650" : "Au moins deux de vos Compute ont un conflit de nom.",
     "651" : "Un BlockStorage ne peut pas avoir un volumeId lorsque le cloud a l'option 'deletable' d'activée.",
     "800" : {

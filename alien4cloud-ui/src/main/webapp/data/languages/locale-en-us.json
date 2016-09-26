@@ -585,9 +585,11 @@
       "PULL": "Pull",
       "OPERATIONS": {
         "PULL": {
+          "TITLE": "Git pull operation",
           "SUCCESS_MSGE": "Successfully pulled from git"
         },
         "PUSH": {
+          "TITLE": "Git push operation",
           "SUCCESS_MSGE": "Successfully pushed to git"
         }
       }
@@ -646,6 +648,8 @@
     "617" : "No modification have been detected since the last import process",
     "618" : "A name should only contains alphanumeric character from the basic Latin alphabet and the underscrore.",
     "619" : "Invalid application name.",
+    "620" : "The Git repository needs to be merged manually.",
+    "621" : "The Git repository is not in a safe state, please fix it manually.",
     "650" : "At least two of your Compute have a conflict name.",
     "651" : "A BlockStorage can not have a VolumeID when the cloud has the 'deletable' option to set.",
     "800" : {

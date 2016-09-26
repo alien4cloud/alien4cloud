@@ -16,6 +16,8 @@ public enum RestErrorCode {
 
     // Git csar import errors
     GIT_IMPORT_FAILED(615),
+    GIT_CONFLICT_ERROR(620),
+    GIT_STATE_ERROR(621),
 
     // Indexing global error.
     INDEXING_SERVICE_ERROR(300),

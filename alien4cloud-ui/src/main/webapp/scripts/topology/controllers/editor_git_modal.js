@@ -30,7 +30,7 @@ define(function (require) {
             'username': $scope.gitPushPullForm.credentials.username,
             'password': $scope.gitPushPullForm.credentials.password,
           },
-          'remoteUrl': $scope.gitPushPullForm.remoteUrl
+          'remoteBranch': $scope.gitPushPullForm.remoteBranch
         }
         $modalInstance.close(form);
       };
@@ -41,7 +41,7 @@ define(function (require) {
             'username': $scope.gitPushPullForm.credentials.username,
             'password': $scope.gitPushPullForm.credentials.password,
           },
-          'remoteUrl': $scope.gitPushPullForm.remoteUrl
+          'remoteBranch': $scope.gitPushPullForm.remoteBranch
         }
         $modalInstance.close(form);
       };

@@ -8,8 +8,8 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class GitConflictException extends TechnicalException {
-    private static final long serialVersionUID = -5917605742879793240L;
+public class GitConflictException extends GitException {
+    private static final long serialVersionUID = -5917605742879793242L;
 
     private String remoteName;
     private String branch;
@@ -24,8 +24,7 @@ public class GitConflictException extends TechnicalException {
     }
 
     public GitConflictException(String remoteName, String branch, String conflictBranchName) {
-        super(String.format("Created a new branch=%s while waiting for a merge with the current branch=%s on remote=%s",conflictBranchName, branch, remoteName));
+        super(String.format("Created a new branch=%s. Please merge it manually with the current branch=%s and push it into the remote=%s", conflictBranchName,
+                branch, remoteName));
     }
-
-
 }

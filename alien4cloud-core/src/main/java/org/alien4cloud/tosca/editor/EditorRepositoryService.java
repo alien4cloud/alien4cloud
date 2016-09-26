@@ -98,16 +98,39 @@ public class EditorRepositoryService {
         RepositoryManager.setRemote(archiveGitPath, remoteName, remoteUrl);
     }
 
+    /**
+     * Get the url of the remote git repository.
+     *
+     * @param csar The concerned archive.
+     * @param remoteName The name of the remote
+     * @return The url corresponding to the remote name.
+     */
     public String getRemoteUrl(Csar csar, String remoteName) {
         Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getWorkspace(), csar.getName(), csar.getVersion());
         return RepositoryManager.getRemoteUrl(archiveGitPath, remoteName);
     }
 
+    /**
+     * Push modifications to git repository.
+     *
+     * @param csar The concerned archive.
+     * @param username The username of the git repository, null if none.
+     * @param password The password of the git repository, null if none.
+     * @param remoteBranch The name of the remote branch to push to.
+     */
     public void push(Csar csar, String username, String password, String remoteBranch) {
         Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getWorkspace(), csar.getName(), csar.getVersion());
         RepositoryManager.push(archiveGitPath, username, password, remoteBranch);
     }
 
+    /**
+     * Pull modifications from the git repository.
+     *
+     * @param csar The concerned archive.
+     * @param username The username of the git repository, null if none.
+     * @param password The password of the git repository, null if none.
+     * @param remoteBranch The name of the remote branch to pull from.
+     */
     public void pull(Csar csar, String username, String password, String remoteBranch) {
         Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getWorkspace(), csar.getName(), csar.getVersion());
         RepositoryManager.pull(archiveGitPath, username, password, remoteBranch);

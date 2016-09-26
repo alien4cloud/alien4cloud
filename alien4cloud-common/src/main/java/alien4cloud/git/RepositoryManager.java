@@ -9,14 +9,13 @@ import java.nio.file.Path;
 import java.util.*;
 
 import alien4cloud.exception.GitConflictException;
-import com.google.common.collect.Sets;
+import alien4cloud.exception.GitMergingStateException;
+import alien4cloud.exception.GitStateException;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.*;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.*;
 
 import com.google.common.collect.Lists;
@@ -30,6 +29,9 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class RepositoryManager {
+
+    private static final String REMOTE_ALIEN_CONFLICTS_PREFIX_BRANCH_NAME = "alien-conflicts-";
+
     /**
      * Close a repository.
      *
@@ -78,7 +80,7 @@ public class RepositoryManager {
                 }
             }
         } catch (GitAPIException | IOException e) {
-            throw new GitException("Error while creating git repository ", e);
+            throw new GitException("Error while creating git repository", e);
         } finally {
             close(repository);
         }
@@ -96,7 +98,7 @@ public class RepositoryManager {
             repository.add().addFilepattern(".").call();
             repository.commit().setCommitter(userName, userEmail).setMessage(commitMessage).call();
         } catch (GitAPIException | IOException e) {
-            throw new GitException("Unable to commit to the git repository ", e);
+            throw new GitException("Unable to commit to the git repository", e);
         } finally {
             close(repository);
         }
@@ -147,7 +149,7 @@ public class RepositoryManager {
             }
             return repository;
         } catch (IOException e) {
-            throw new GitException("Error while creating target directory ", e);
+            throw new GitException("Error while creating target directory", e);
         }
     }
 
@@ -256,7 +258,7 @@ public class RepositoryManager {
             }
             return historyEntries;
         } catch (GitAPIException | IOException e) {
-            throw new GitException("Unable to get history from the git repository ", e);
+            throw new GitException("Unable to get history from the git repository", e);
         } finally {
             close(repository);
         }
@@ -281,7 +283,7 @@ public class RepositoryManager {
             remoteConfig.update(config);
             config.save();
         } catch (URISyntaxException | IOException e) {
-            throw new GitException("Unable to set the remote repository ", e);
+            throw new GitException("Unable to set the remote repository", e);
         } finally {
             close(git);
         }
@@ -300,7 +302,7 @@ public class RepositoryManager {
             git = Git.open(repositoryDirectory.toFile());
             return git.getRepository().getConfig().getString("remote", remoteName, "url");
         } catch (IOException e) {
-            throw new GitException("Unable to open the git repository ", e);
+            throw new GitException("Unable to open the git repository", e);
         } finally {
             close(git);
         }
@@ -324,30 +326,28 @@ public class RepositoryManager {
      * @param repositoryDirectory The directory in which the git repo exists.
      * @param username The username to use for the repository connection.
      * @param password The password to use for the repository connection.
-     * @return Returns <code>true</code> pushed, <code>false</code> otherwise.
+     * @return <code>true</code> pushed, <code>false</code> otherwise.
      */
     public static boolean push(Path repositoryDirectory, String username, String password, String remoteBranch) {
         Git git = null;
         try {
             git = Git.open(repositoryDirectory.toFile());
-            if (!RepositoryState.SAFE.equals(git.getRepository().getRepositoryState())) {
-                throw new GitException("The repository is not in a safe state to push");
-            }
+            checkRepositoryState(git.getRepository().getRepositoryState(), "Git push operation failed.");
             Repository repository = git.getRepository();
+
+            // If no given remoteBranch, use the default one (i.e. master).
             String targetRemoteBranch = remoteBranch == null ? repository.getBranch() : remoteBranch;
             boolean isPushed = push(git, username, password, repository.getBranch(), targetRemoteBranch);
             if (!isPushed) {
-                String remoteName = repository.getRemoteNames().iterator().next(); // FIXME Only handle one remote (default: 'origin')
+                // If not pushed, then we have a conflict.
+                // Push the current commit into a new alien branch.
+                // Then rebranch to the current branch.
+                String remoteName = repository.getRemoteNames().iterator().next(); // Only handle one remote (default: 'origin')
                 log.info(String.format("Couldn't push git repository=%s to remote=%s on the branch=%s", git.getRepository().getDirectory(),
                         remoteName, repository.getBranch()));
                 fetch(git, username, password);
-                Map<String, Ref> allRefs = repository.getAllRefs();
-                String remoteAlienConflictsPrefixBranchName = "alien-conflicts-";
-                String remoteAlienRefSpecPrefixName = String.format("refs/remotes/%s/%s", remoteName, remoteAlienConflictsPrefixBranchName);
-                long count = allRefs.keySet().stream().filter(key -> key.startsWith(remoteAlienRefSpecPrefixName)).count();
-                String conflictBranchName = String.format("%s%d-%d", remoteAlienConflictsPrefixBranchName, new Date().getTime(), count + 1);
+                String conflictBranchName = generateConflictBranchName(repository, remoteName);
                 isPushed = push(git, username, password, repository.getBranch(), conflictBranchName);
-                // Re branch to master
                 if (isPushed) {
                     log.info(String.format("Pushed git repository=%s on branch=%s", git.getRepository().getDirectory(), conflictBranchName));
                     rebranch(git, repository.getBranch(), targetRemoteBranch);
@@ -358,10 +358,20 @@ public class RepositoryManager {
             }
             return isPushed;
         } catch (IOException e) {
-            throw new GitException("Unable to open the remote repository ", e);
+            throw new GitException("Unable to open the remote repository", e);
         } finally {
             close(git);
         }
+    }
+
+    /**
+     * Generate the conflict branch name to push to.
+     */
+    private static String generateConflictBranchName(Repository repository, String remoteName) {
+        Map<String, Ref> allRefs = repository.getAllRefs();
+        String remoteAlienRefSpecPrefixName = String.format("refs/remotes/%s/%s", remoteName, REMOTE_ALIEN_CONFLICTS_PREFIX_BRANCH_NAME);
+        long count = allRefs.keySet().stream().filter(key -> key.startsWith(remoteAlienRefSpecPrefixName)).count();
+        return String.format("%s%d-%d", REMOTE_ALIEN_CONFLICTS_PREFIX_BRANCH_NAME, new Date().getTime(), count + 1);
     }
 
     /**
@@ -403,12 +413,12 @@ public class RepositoryManager {
      * @param password The password to use for the repository connection.
      * @param localBranch The name of the local branch to push.
      * @param remoteBranch The name of the remote branch to push to.
-     * @return Returns <code>true</code> pushed, <code>false</code> otherwise.
+     * @return <code>true</code> pushed, <code>false</code> otherwise.
      */
     public static boolean push(Git git, String username, String password, String localBranch, String remoteBranch) {
         try {
             if(git.getRepository().getRemoteNames().isEmpty()) {
-                throw new GitException("No remote found for the repository ");
+                throw new GitException("No remote found for the repository");
             }
             PushCommand pushCommand = git.push();
             setCredentials(pushCommand, username, password);
@@ -451,7 +461,7 @@ public class RepositoryManager {
             repository = Git.open(repositoryDirectory.resolve(".git").toFile());
             fetch(repository, username, password);
         } catch (IOException e) {
-            throw new GitException("Unable to open the remote repository ", e);
+            throw new GitException("Unable to open the remote repository", e);
         } finally {
             close(repository);
         }
@@ -471,21 +481,37 @@ public class RepositoryManager {
             FetchResult fetchResult = fetchCommand.call();
             log.debug(String.format("Fetched git repository=%s messages=%s", git.getRepository().getDirectory(), fetchResult.getMessages()));
         } catch (GitAPIException e) {
-            throw new GitException("Unable to fetch git repository ", e);
+            throw new GitException("Unable to fetch git repository", e);
         }
     }
 
+    /**
+     * Pull modifications from the default branch a git repository.
+     *
+     * @param repositoryDirectory The directory in which the git repo exists.
+     * @param username The username for the git repository connection, null if none.
+     * @param password The password for the git repository connection, null if none.
+     */
     public static void pull(Path repositoryDirectory, String username, String password) {
         pull(repositoryDirectory, username, password, null);
     }
 
+    /**
+     * Pull modifications a git repository.
+     *
+     * @param repositoryDirectory The directory in which the git repo exists.
+     * @param username The username for the git repository connection, null if none.
+     * @param password The password for the git repository connection, null if none.
+     * @param remoteBranch The name of the remote branch to pull from.
+     */
     public static void pull(Path repositoryDirectory, String username, String password, String remoteBranch) {
         Git git = null;
         try {
             git = Git.open(repositoryDirectory.resolve(".git").toFile());
             if(git.getRepository().getRemoteNames().isEmpty()) {
-                throw new GitException("No remote found for the repository ");
+                throw new GitException("No remote found for the repository");
             }
+            checkRepositoryState(git.getRepository().getRepositoryState(), "Git pull operation failed");
             PullCommand pullCommand = git.pull();
             setCredentials(pullCommand, username, password);
             pullCommand.setRemoteBranchName(remoteBranch);
@@ -495,11 +521,29 @@ public class RepositoryManager {
             }
             log.debug(String.format("Successfully pulled from %s", call.getFetchedFrom()));
         } catch (IOException e) {
-            throw new GitException("Unable to open the git repository ", e);
+            throw new GitException("Unable to open the git repository", e);
         } catch (GitAPIException e) {
-            throw new GitException("Unable to pull the git repository ", e);
+            throw new GitException("Unable to pull the git repository", e);
         } finally {
             close(git);
+        }
+    }
+
+    /**
+     * Check the given state of a git repository.
+     * This method throws exceptions if the state is not SAFE.
+     *
+     * @param repositoryState The state of the repository.
+     * @param errorMessage A message error.
+     */
+    private static void checkRepositoryState(RepositoryState repositoryState, String errorMessage) {
+        switch (repositoryState) {
+        case SAFE:
+            return;
+        case MERGING:
+            throw new GitMergingStateException(errorMessage);
+        default:
+            throw new GitStateException(errorMessage, repositoryState.toString());
         }
     }
 }

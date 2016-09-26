@@ -194,6 +194,7 @@ define(function (require) {
       var gitRemoteResource = $alresource('rest/latest/editor/:topologyId/git/remote');
 
       // Define if the push/pull buttons are enabled or not
+      //
       gitRemoteResource.get({topologyId: $scope.topologyId}).$promise.then(function(response){
         if(_.defined(response.data.remoteUrl)) {
           $scope.isGitValid = true;
@@ -202,6 +203,8 @@ define(function (require) {
         }
       });
 
+      // GIT SET REMOTE
+      //
       $scope.gitRemote = function() {
         var modalInstance = $modal.open({
           templateUrl: 'views/topology/editor_git_remote_modal.html',
@@ -222,12 +225,12 @@ define(function (require) {
               remoteUrl: remoteUrl
             }, null, function() {
               $scope.isGitValid = true;
-              console.debug("Remote url set with success");
-              toaster.pop('success', $translate.instant('APPLICATIONS.TOPOLOGY.RECOVERY.TITLE'), $translate.instant('APPLICATIONS.TOPOLOGY.RECOVERY.SUCCESS_MSGE'), 4000, 'trustedHtml', null);
             }).$promise;
         });
       };
 
+      // GIT PUSH FUNCTION
+      //
       $scope.gitPush = function() {
         var modalInstance = $modal.open({
           templateUrl: 'views/topology/editor_git_push_pull_modal.html',
@@ -242,16 +245,16 @@ define(function (require) {
         modalInstance.result.then(function(gitPushPullForm) {
           var gitPushResource= $alresource('rest/latest/editor/:topologyId/git/push');
           gitPushResource.update({topologyId: $scope.topologyId, remoteBranch: gitPushPullForm.remoteBranch}, angular.toJson(gitPushPullForm.credentials), function(response) {
-            if(!_.defined(response.error)) {
-              toaster.pop('success', $translate.instant('APPLICATIONS.TOPOLOGY.RECOVERY.TITLE') + 'vicos', $translate.instant('APPLICATIONS.TOPOLOGY.RECOVERY.SUCCESS_MSGE'), 4000, 'trustedHtml', null);
-            } else {
-              toaster.pop('error', $translate.instant('APPLICATIONS.TOPOLOGY.RECOVERY.TITLE') + 'vicos', $translate.instant('APPLICATIONS.TOPOLOGY.RECOVERY.SUCCESS_MSGE'), 4000, 'trustedHtml', null);
+            if(_.undefined(response.error)) {
+              toaster.pop('success', $translate.instant('EDITOR.GIT.OPERATIONS.PUSH.TITLE'), $translate.instant('EDITOR.GIT.OPERATIONS.PUSH.SUCCESS_MSGE'), 4000, 'trustedHtml', null);
             }
             console.debug('pushed')
           }).$promise;
         });
       };
 
+      // GIT PULL FUNCTION
+      //
       $scope.gitPull = function() {
         var modalInstance = $modal.open({
           templateUrl: 'views/topology/editor_git_push_pull_modal.html',
@@ -267,7 +270,7 @@ define(function (require) {
           var gitPullResource= $alresource('rest/latest/editor/:topologyId/git/pull');
           gitPullResource.update({topologyId: $scope.topologyId, remoteBranch: gitPushPullForm.remoteBranch}, angular.toJson(gitPushPullForm.credentials), function(response) {
             if(_.undefined(response.error)){
-              toaster.pop('success', $translate.instant('EDITOR.GIT.OPERATION.PULL.SUCCESS_MSGE'), $translate.instant('APPLICATIONS.TOPOLOGY.RECOVERY.SUCCESS_MSGE'), 4000, 'trustedHtml', null);
+              toaster.pop('success', $translate.instant('EDITOR.GIT.OPERATIONS.PULL.TITLE'), $translate.instant('EDITOR.GIT.OPERATIONS.PULL.SUCCESS_MSGE'), 4000, 'trustedHtml', null);
             }
             console.debug('pulled')
           }).$promise;

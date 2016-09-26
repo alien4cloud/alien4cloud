@@ -328,7 +328,6 @@ public class EditorService {
 
     /**
      * Push the content to a remote git repository.
-     *
      * Note that conflicts are not managed in a4c. In case of conflicts a new branch is created for manual merge by users.
      */
     public void push(String topologyId, String username, String password, String remoteBranch) {
@@ -341,10 +340,10 @@ public class EditorService {
     }
 
     /**
+     * Configure the remote url of the git repository.
      *
-     *
-     * @param remoteName
-     * @param remoteUrl
+     * @param remoteName The name for the repository.
+     * @param remoteUrl The url of the repository.
      */
     public void setRemote(String topologyId, String remoteName, String remoteUrl) {
         try {
@@ -356,6 +355,13 @@ public class EditorService {
         }
     }
 
+    /**
+     * Retrieve the repository url of the git.
+     *
+     * @param topologyId the id of the topology.
+     * @param remoteName The name of the remote.
+     * @return The url corresponding to the remote name of the git repository of the topology.
+     */
     public String getRemoteUrl(String topologyId, String remoteName) {
         try {
             editionContextManager.init(topologyId);

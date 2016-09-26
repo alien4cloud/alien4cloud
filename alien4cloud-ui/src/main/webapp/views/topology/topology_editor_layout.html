@@ -30,16 +30,16 @@
     </div>
 
     <div class="btn-group" role="group">
-    <button type="button" class="btn btn-success btn-xs" ng-click="gitRemote()">
-      <i class="fa fa-save"></i> {{'EDITOR.GIT.REMOTE' | translate}}
-    </button>
-      <button type="button" class="btn btn-success btn-xs" ng-click="gitPush()"
-              ng-disabled="!isGitValid || topology.operations.length !== 0 || topology.lastOperationIndex!==-1">
-        <i class="fa fa-save"></i> {{'EDITOR.GIT.PUSH' | translate}}
+      <button type="button" class="btn btn-success btn-xs" ng-click="gitRemote()">
+        <i class="fa fa-code-fork"></i> {{'EDITOR.GIT.REMOTE' | translate}}
       </button>
       <button type="button" class="btn btn-success btn-xs" ng-click="gitPull()"
               ng-disabled="!isGitValid || topology.operations.length !== 0 || topology.lastOperationIndex!==-1">
-        <i class="fa fa-save"></i> {{'EDITOR.GIT.PULL' | translate}}
+        <i class="fa fa-long-arrow-down"></i> {{'EDITOR.GIT.PULL' | translate}}
+      </button>
+      <button type="button" class="btn btn-success btn-xs" ng-click="gitPush()"
+              ng-disabled="!isGitValid || topology.operations.length !== 0 || topology.lastOperationIndex!==-1">
+        <i class="fa fa-long-arrow-up"></i> {{'EDITOR.GIT.PUSH' | translate}}
       </button>
     </div>
 
