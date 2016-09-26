@@ -18,12 +18,10 @@ define(function (require) {
       var isValid = $resource('rest/latest/topologies/:topologyId/isvalid', {}, {
         method: 'GET'
       });
-      var topologyVersionResource = $resource('rest/latest/topologies/:topologyId/version');
 
       return {
         'dao': topologyDAO,
         'isValid': isValid.get,
-        'getTopologyVersion' : topologyVersionResource.get
       };
     }
   ]);

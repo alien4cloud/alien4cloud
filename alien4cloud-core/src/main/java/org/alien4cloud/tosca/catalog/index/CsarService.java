@@ -1,30 +1,5 @@
 package org.alien4cloud.tosca.catalog.index;
 
-import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
-import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
-import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.Csar;
-import org.alien4cloud.tosca.model.templates.Topology;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import alien4cloud.application.ApplicationService;
 import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.IGenericSearchDAO;
@@ -36,7 +11,29 @@ import alien4cloud.model.common.Usage;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.Role;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
+import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
 /**
  * Manages cloud services archives and their dependencies.

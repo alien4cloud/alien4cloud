@@ -51,7 +51,8 @@ define(function (require) {
           context.versionName = $stateParams.archiveVersion;
         }
         return context;
-      }]
+      }],
+      workspaces: [function(){return undefined;}]
     }
   });
 
@@ -67,6 +68,22 @@ define(function (require) {
 
       // API REST Definition
       var createTopologyTemplateResource = $alresource('/rest/latest/catalog/topologies/template');
+      $scope.createTopologyTemplate = function(topologyTemplate) {
+        // create a new topologyTemplate from the given name, version and description.
+        createTopologyTemplateResource.create([], angular.toJson(topologyTemplate), function(response) {
+          // Response contains topology id
+          if (response.data !== '') {
+          // the id is in form: archiveName:archiveVersion:workspace
+          //we only need archiveName and archiveVersion
+            var tokens = response.data.trim().split(':');
+            if (tokens.length > 1) {
+              var archiveName = tokens[0];
+              var archiveVersion = tokens[1];
+              $scope.openTopology(archiveName, archiveVersion);
+            }
+          }
+        });
+      };
       $scope.openNewTopologyTemplate = function(topology) {
         var modalConfiguration = {
           templateUrl: 'views/topologytemplates/topology_template_new.html',
@@ -75,23 +92,7 @@ define(function (require) {
         };
 
         var modalInstance = $modal.open(modalConfiguration);
-
-        modalInstance.result.then(function(topologyTemplate) {
-          // create a new topologyTemplate from the given name, version and description.
-          createTopologyTemplateResource.create([], angular.toJson(topologyTemplate), function(response) {
-            // Response contains topology id
-            if (response.data !== '') {
-            // the id is in form: archiveName:archiveVersion:workspace
-            //we only need archiveName and archiveVersion
-              var tokens = response.data.trim().split(':');
-              if (tokens.length > 1) {
-                var archiveName = tokens[0];
-                var archiveVersion = tokens[1];
-                $scope.openTopology(archiveName, archiveVersion);
-              }
-            }
-          });
-        });
+        modalInstance.result.then($scope.createTopologyTemplate);
       };
 
       var isArchitectPromise = authService.hasRole('ARCHITECT');

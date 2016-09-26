@@ -1,22 +1,20 @@
 package org.alien4cloud.tosca.catalog.index;
 
-import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
-import static alien4cloud.dao.FilterUtil.singleKeyFilter;
-import static alien4cloud.dao.model.FetchContext.SUMMARY;
-
-import java.util.Map;
-
-import javax.inject.Inject;
-
+import alien4cloud.common.AlienConstants;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.utils.VersionUtil;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import alien4cloud.common.AlienConstants;
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.utils.VersionUtil;
+import javax.inject.Inject;
+import java.util.Map;
+
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+import static alien4cloud.dao.FilterUtil.singleKeyFilter;
+import static alien4cloud.dao.model.FetchContext.SUMMARY;
 
 /**
  * Service responsible for indexing and updating topologies.
@@ -27,10 +25,10 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
     private ArchiveIndexer archiveIndexer;
 
     @Override
-    public Topology createTopologyAsTemplate(String name, String description, String version, String fromTopologyId) {
+    public Topology createTopologyAsTemplate(String name, String description, String version, String workspace, String fromTopologyId) {
         // Every version of a topology template has a Cloud Service Archive
         Csar csar = new Csar(name, StringUtils.isNotBlank(version) ? version : VersionUtil.DEFAULT_VERSION_NAME);
-        csar.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
+        csar.setWorkspace(workspace);
         csar.setDelegateType(ArchiveDelegateType.CATALOG.toString());
         csar.setDescription("Enclosing archive for topology: " + description);
 

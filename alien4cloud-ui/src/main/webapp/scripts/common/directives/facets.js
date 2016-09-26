@@ -27,6 +27,14 @@ define(function (require) {
   });
 
   modules.get('a4c-common', []).controller('FacetsController', ['$scope', function ($scope) {
+    function removeFilter(filterToRemove) {
+      // Remove the selected filter
+      _.remove($scope.facetFilters, filterToRemove);
+      if(_.defined($scope.facets[filterToRemove.term]) && $scope.facets[filterToRemove.term].length >0 && _.defined($scope.facets[filterToRemove.term][0].staticFilter)) {
+        // if the facet has a static filter it is a toggle kind of facet and cannot be removed.
+        $scope.facetFilters.push( {term: filterToRemove.term, facet: _.clone($scope.facets[filterToRemove.term][0].staticFilter)});
+      }
+    }
 
     function addFacetFilter(termId, facetId) {
       if(_.defined($scope.facetIdConverter)) {
@@ -47,7 +55,7 @@ define(function (require) {
         } else {
           _.pullAt(filter.facet, index);
           if(filter.facet.length === 0) {
-            _.remove($scope.facetFilters, {term: termId});
+            removeFilter({term: termId});
           }
         }
       }
@@ -79,8 +87,7 @@ define(function (require) {
 
     /*Remove a facet filter*/
     $scope.removeFilter = function (filterToRemove) {
-      // Remove the selected filter
-      _.remove($scope.facetFilters, filterToRemove);
+      removeFilter(filterToRemove);
       // Search update with new filters list
       $scope.doSearch();
     };
@@ -89,6 +96,13 @@ define(function (require) {
     $scope.reset = function () {
       // Reset all filters
       $scope.facetFilters.splice(0, $scope.facetFilters.length);
+
+      _.each($scope.facets, function(facet, key) {
+        if(facet.length >0 && _.defined(facet[0].staticFilter)) {
+          $scope.facetFilters.push( {term: key, facet: _.clone(facet[0].staticFilter)});
+        }
+      });
+            
       $scope.doSearch();
     };
 

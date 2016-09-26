@@ -1,14 +1,22 @@
 package org.alien4cloud.tosca.editor;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
+import alien4cloud.common.AlienConstants;
+import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.model.components.CSARSource;
+import alien4cloud.security.model.User;
+import alien4cloud.topology.TopologyDTO;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.ParsingResult;
+import alien4cloud.utils.FileUtil;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import cucumber.api.DataTable;
+import cucumber.api.java.Before;
+import cucumber.api.java.en.Given;
+import cucumber.api.java.en.Then;
+import cucumber.api.java.en.When;
+import gherkin.formatter.model.DataTableRow;
+import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.catalog.index.ITopologyCatalogService;
@@ -16,7 +24,14 @@ import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.*;
+import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.types.ArtifactType;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.DataType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.PrimitiveDataType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Assert;
 import org.springframework.expression.EvaluationContext;
@@ -32,24 +47,18 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import alien4cloud.common.AlienConstants;
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.model.components.CSARSource;
-import alien4cloud.security.model.User;
-import alien4cloud.topology.TopologyDTO;
-import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.ParsingResult;
-import alien4cloud.utils.FileUtil;
-import cucumber.api.DataTable;
-import cucumber.api.java.Before;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
-import gherkin.formatter.model.DataTableRow;
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 @ContextConfiguration("classpath:org/alien4cloud/tosca/editor/application-context-test.xml")
 @Slf4j
@@ -212,7 +221,7 @@ public class EditorStepDefs {
     @Given("^I create an empty topology template \"([^\"]*)\" version \"([^\"]*)\"$")
     public void i_create_an_empty_topology_template_version(String topologyTemplateName, String version) throws Throwable {
         try {
-            Topology topology = catalogService.createTopologyAsTemplate(topologyTemplateName, null, version, null);
+            Topology topology = catalogService.createTopologyAsTemplate(topologyTemplateName, null, version, AlienConstants.GLOBAL_WORKSPACE_ID, null);
             topologyIds.addLast(topology.getId());
             topologyEvaluationContext = new StandardEvaluationContext(topology);
         } catch (Exception e) {
