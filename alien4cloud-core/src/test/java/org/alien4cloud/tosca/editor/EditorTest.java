@@ -8,6 +8,7 @@ import cucumber.api.junit.Cucumber;
 @RunWith(Cucumber.class)
 @CucumberOptions(format = "pretty", tags = { "~@Ignore" }, features = {
         //
+        "src/test/resources/org/alien4cloud/tosca/",
         // "src/test/resources/org/alien4cloud/tosca/editor/features/"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/_initialize_archives.feature",
         // "src/test/resources/org/alien4cloud/tosca/editor/features/add_group_member.feature",
@@ -47,7 +48,7 @@ import cucumber.api.junit.Cucumber;
         // "src/test/resources/org/alien4cloud/tosca/editor/features/workflow/reinitialize_workflow.feature"
         // "src/test/resources/org/alien4cloud/tosca/editor/features/topology_recovery/topology_recovery.feature"
 
-        "src/test/resources/org/alien4cloud/tosca/catalog/features/create_topology_template.feature"
+        // "src/test/resources/org/alien4cloud/tosca/catalog/features/create_topology_template.feature"
         //
 })
 public class EditorTest {

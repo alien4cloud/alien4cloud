@@ -246,7 +246,9 @@ public class ArchiveIndexer {
             prepareForUpdate(root, previousElements);
 
             // delete the previous archive including all types etc.
-            csarService.forceDeleteCsar(archive.getId());
+            // QUESTION: why do we have to delete the archive??
+            // csarService.forceDeleteCsar(archive.getId());
+            csarService.deleteCsarContent(archive);
         }
 
         performIndexing(root);

@@ -1,8 +1,13 @@
 package alien4cloud.it.quicksearch;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -13,7 +18,6 @@ import org.elasticsearch.mapping.MappingBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.ElasticSearchDAO;
@@ -48,6 +52,7 @@ public class QuickSearchDefinitionsSteps {
         QUERY_TYPES.put("relationship types", QueryComponentType.RELATIONSHIP_TYPE);
         QUERY_TYPES.put("artifact types", QueryComponentType.ARTIFACT_TYPE);
         indexedTypes.put("applications", "application");
+        indexedTypes.put("node types", "nodetype");
     }
 
     @When("^I quickly search for \"([^\"]*)\" from (\\d+) with result size of (\\d+)$")
@@ -89,35 +94,9 @@ public class QuickSearchDefinitionsSteps {
 
         // check result types
         List<String> resultTypes = Lists.newArrayList(searchResp.getTypes());
-        int count = 0;
-        if (searchedType.contains("application")) {
-            for (String type : resultTypes) {
-                count = type.equals("application") ? count += 1 : count;
-            }
-        } else {
-            for (String type : resultTypes) {
-                count = type.equals(indexedTypes.get(searchedType)) ? count += 1 : count;
-            }
-        }
-        assertEquals("There should be " + expectedSize + " " + searchedType + " in the quicksearch result.", expectedSize, count);
-    }
-
-    @Then("^The quickSearch response should only contains (\\d+) \"([^\"]*)\"$")
-    public void The_quickSearch_response_should_only_contains(int expectedSize, String searchedType) throws Throwable {
-        RestResponse<GetMultipleDataResult> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), GetMultipleDataResult.class);
-        GetMultipleDataResult searchResp = restResponse.getData();
-
-        assertNotNull(searchResp);
-        assertNotNull(searchResp.getTypes());
-        assertNotNull(searchResp.getData());
-        assertEquals(searchResp.getTypes().length, searchResp.getTypes().length);
-
-        // check result types
-        Set<String> resultTypes = Sets.newHashSet(searchResp.getTypes());
         String esType = indexedTypes.get(searchedType);
-        assertTrue(resultTypes.contains(esType));
-        int countObjectByType = Collections.frequency(Lists.newArrayList(searchResp.getTypes()), esType);
-        assertEquals(expectedSize, countObjectByType);
+        int count = Collections.frequency(Lists.newArrayList(searchResp.getTypes()), esType);
+        assertEquals("There should be " + expectedSize + " " + searchedType + " in the quicksearch result.", expectedSize, count);
     }
 
     private void createAndIndexComponent(int count, String type, int countHavingProperty, String property, String propertyValue) throws Exception {

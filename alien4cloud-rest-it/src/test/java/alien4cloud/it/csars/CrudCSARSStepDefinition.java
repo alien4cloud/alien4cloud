@@ -40,7 +40,7 @@ public class CrudCSARSStepDefinition {
         Assert.assertNotNull(restResponse);
     }
 
-    @Then("^I have CSAR created with id \"([^\"]*)\"$")
+    @Then("^I should have a CSAR with id \"([^\"]*)\"$")
     public boolean I_have_CSAR_created_with_id(String csarId) throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/csars/" + csarId));
         CsarInfoDTO csarInfoDTO = JsonUtil.read(Context.getInstance().takeRestResponse(), CsarInfoDTO.class).getData();
@@ -79,7 +79,7 @@ public class CrudCSARSStepDefinition {
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
         Assert.assertNotNull(restResponse);
         List<Usage> resultData = JsonUtil.toList(JsonUtil.toString(restResponse.getData()), Usage.class);
-        Assert.assertEquals(resultData.size(), Integer.parseInt(resourceCount));
+        Assert.assertEquals(Integer.parseInt(resourceCount), resultData.size());
     }
 
     @Given("^I can find (\\d+) CSAR$")

@@ -2,9 +2,13 @@ package org.alien4cloud.tosca.editor;
 
 import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.CSARSource;
+import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.security.model.User;
 import alien4cloud.topology.TopologyDTO;
+import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
@@ -12,6 +16,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import cucumber.api.DataTable;
 import cucumber.api.java.Before;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -59,6 +64,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @ContextConfiguration("classpath:org/alien4cloud/tosca/editor/application-context-test.xml")
 @Slf4j
@@ -75,6 +81,10 @@ public class EditorStepDefs {
     private CsarService csarService;
     @Inject
     private ITopologyCatalogService catalogService;
+    @Inject
+    private WorkflowsBuilderService workflowBuilderService;
+    @Inject
+    private TopologyServiceCore topologyServiceCore;
 
     private LinkedList<String> topologyIds = new LinkedList();
 
@@ -101,11 +111,20 @@ public class EditorStepDefs {
         typesToClean.add(DataType.class);
         typesToClean.add(PrimitiveDataType.class);
         typesToClean.add(Csar.class);
+        typesToClean.add(Topology.class);
     }
 
     @Before
     public void init() throws IOException {
         thrownException = null;
+
+        FacetedSearchResult<Topology> searchResult = catalogService.search(Topology.class, "", 100, null);
+        Topology[] topologies = searchResult.getData();
+        for (Topology topology : topologies) {
+            csarService.forceDeleteCsar(topology.getId());
+        }
+        topologyIds.clear();
+        editionContextManager.clearCache();
     }
 
     @Given("^I am authenticated with \"(.*?)\" role$")
@@ -129,6 +148,22 @@ public class EditorStepDefs {
     public void the_Csar_SPEL_Expression_Should_Return(String spelExpression, String expected) throws Throwable {
         Object result = evaluateExpression(csarEvaluationContext, spelExpression);
         assertSpelResult(expected, result, spelExpression);
+    }
+
+    @And("^I delete the archive \"([^\"]*)\" \"([^\"]*)\" if any$")
+    public void iDeleteTheArchiveIfAny(String name, String version) throws Throwable {
+        try {
+            csarService.deleteCsar(new Csar(name, version).getId());
+        } catch (NotFoundException e) {
+        }
+    }
+
+    @And("^I get the topology related to the CSAR with name \"([^\"]*)\" and version \"([^\"]*)\"$")
+    public void iGetTheTopologyRelatedToTheCSARWithName(String archiveName, String archiveVersion) throws Throwable {
+        Topology topology = catalogService.get(archiveName + ":" + archiveVersion);
+        if (topology != null) {
+            topologyIds.addLast(topology.getId());
+        }
     }
 
     private static class TestAuth extends UsernamePasswordAuthenticationToken {
@@ -173,21 +208,21 @@ public class EditorStepDefs {
         }
     }
 
-    @When("^I get the topology related to the template with name \"(.*?)\"$")
-    public void iGetTheTopologyRelatedToTheTemplateWithName(String templateName) throws Throwable {
-        // TopologyTemplate topologyTeplate = topologyTemplateService.getTopologyTemplateByName(templateName);
-        // Topology topology = alienDAO.customFind(Topology.class, QueryBuilders.matchQuery("delegateId", topologyTeplate.getId()));
-        // topologyIds.addLast(topology.getId());
-    }
-
-    @When("^I delete the template with name \"(.*?)\" and archive \"(.*?)\" \"(.*?)\" if any$")
-    public void iRemoveTheTemplateWithName(String templateName, String archiveName, String archiveVersion) throws Throwable {
-        // TopologyTemplate topologyTemplate = topologyTemplateService.getTopologyTemplateByName(templateName);
-        // if (topologyTemplate != null) {
-        // topologyTemplateService.delete(topologyTemplate.getId());
-        // csarService.deleteCsar(archiveName, archiveVersion);
-        // }
-    }
+    // // @When("^I get the topology related to the template with name \"(.*?)\"$")
+    // public void iGetTheTopologyRelatedToTheTemplateWithName(String templateName) throws Throwable {
+    //// TopologyTemplate topologyTeplate = topologyTemplateService.getTopologyTemplateByName(templateName);
+    //// Topology topology = alienDAO.customFind(Topology.class, QueryBuilders.matchQuery("delegateId", topologyTeplate.getId()));
+    //// topologyIds.addLast(topology.getId());
+    // }
+    //
+    // // @When("^I delete the template with name \"(.*?)\" and archive \"(.*?)\" \"(.*?)\" if any$")
+    // public void iRemoveTheTemplateWithName(String templateName, String archiveName, String archiveVersion) throws Throwable {
+    //// TopologyTemplate topologyTemplate = topologyTemplateService.getTopologyTemplateByName(templateName);
+    //// if (topologyTemplate != null) {
+    //// topologyTemplateService.delete(topologyTemplate.getId());
+    //// csarService.deleteCsar(archiveName, archiveVersion);
+    //// }
+    // }
 
     @When("^I get the edited topology$")
     public void I_get_the_edited_topology() {
@@ -207,10 +242,7 @@ public class EditorStepDefs {
 
     @Given("^I create an empty topology$")
     public void i_create_an_empty_topology() throws Throwable {
-        // Topology topology = new Topology();
-        // topology.setDelegateType(Topology.class.getSimpleName().toLowerCase());
-        // workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
-        // topologyIds.addLast(topologyServiceCore.saveTopology(topology));
+        i_create_an_empty_topology_template(UUID.randomUUID().toString());
     }
 
     @Given("^I create an empty topology template \"([^\"]*)\"$")

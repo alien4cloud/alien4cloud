@@ -95,7 +95,6 @@ public class ArchiveUploadService {
                 failedResult.setContext(new ParsingContext(path.getFileName().toString()));
                 failedResult.getContext().setParsingErrors(e.getParsingErrors());
                 parsingResults.add(failedResult);
-                // TODO: error should be returned in a way or another
                 log.debug("Not able to parse archive, ignoring it", e);
             }
         }
