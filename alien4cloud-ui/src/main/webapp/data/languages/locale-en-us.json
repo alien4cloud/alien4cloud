@@ -128,7 +128,7 @@
           "TITLE": "Reset",
           "DESCRIPTION": "Delete everything from the topology, leaving it completely empty."
         },
-        "SUCCESS_MSGE": "Topology updated successfuly!"
+        "SUCCESS_MSGE": "Topology updated successfully!"
       },
       "REFERENCE" : "Reference",
       "RELATIONSHIPS" : "Relationships",
@@ -569,7 +569,33 @@
     "MENU_WORKFLOW": "Workflows",
     "MENU_FILES": "Archive content",
     "MENU_VALIDATION": "Topology validation",
-    "MENU_HISTORY": "History"
+    "MENU_HISTORY": "History",
+    "GIT": {
+      "MODAL": {
+        "REMOTE": "Git config",
+        "PUSH": "Git push",
+        "PULL": "Git pull",
+        "URL": "URL",
+        "URL_VALUE": "https://...",
+        "REMOTE_BRANCH": "Branch",
+        "REMOTE_BRANCH_VALUE": "Remote Branch (default: 'master')",
+        "USERNAME": "Username",
+        "PASSWORD": "Password"
+      },
+      "REMOTE": "Remote",
+      "PUSH": "Push",
+      "PULL": "Pull",
+      "OPERATIONS": {
+        "PULL": {
+          "TITLE": "Git pull operation",
+          "SUCCESS_MSGE": "Successfully pulled from git"
+        },
+        "PUSH": {
+          "TITLE": "Git push operation",
+          "SUCCESS_MSGE": "Successfully pushed to git"
+        }
+      }
+    }
   },
   "END_DATE" : "End date",
   "ENVIRONMENT_TYPE" : {
@@ -624,6 +650,8 @@
     "617" : "No modification have been detected since the last import process",
     "618" : "A name should only contains alphanumeric character from the basic Latin alphabet and the underscrore.",
     "619" : "Invalid application name.",
+    "620" : "The Git repository needs to be merged manually.",
+    "621" : "The Git repository is not in a safe state, please fix it manually.",
     "650" : "At least two of your Compute have a conflict name.",
     "651" : "A BlockStorage can not have a VolumeID when the cloud has the 'deletable' option to set.",
     "750" : "Concurrency in edition process",

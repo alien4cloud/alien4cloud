@@ -317,22 +317,59 @@ public class EditorService {
     /**
      * Performs a git pull.
      */
-    public void pull() {
-        // pull can be done only if there is no unsaved commands
-
-        // This operation just fails in case of conflicts
-
-        // The topology is updated
-
+    public void pull(String topologyId, String username, String password, String remoteBranch) {
+        try {
+            editionContextManager.init(topologyId);
+            repositoryService.pull(EditionContextManager.getCsar(), username, password, remoteBranch);
+        } finally {
+            editionContextManager.destroy();
+        }
     }
 
     /**
      * Push the content to a remote git repository.
-     *
      * Note that conflicts are not managed in a4c. In case of conflicts a new branch is created for manual merge by users.
      */
-    public void push() {
+    public void push(String topologyId, String username, String password, String remoteBranch) {
+        try {
+            editionContextManager.init(topologyId);
+            repositoryService.push(EditionContextManager.getCsar(), username, password, remoteBranch);
+        } finally {
+            editionContextManager.destroy();
+        }
+    }
 
+    /**
+     * Configure the remote url of the git repository.
+     *
+     * @param remoteName The name for the repository.
+     * @param remoteUrl The url of the repository.
+     */
+    public void setRemote(String topologyId, String remoteName, String remoteUrl) {
+        try {
+            editionContextManager.init(topologyId);
+            Csar csar = EditionContextManager.getCsar();
+            repositoryService.setRemote(csar, remoteName, remoteUrl);
+        } finally {
+            editionContextManager.destroy();
+        }
+    }
+
+    /**
+     * Retrieve the repository url of the git.
+     *
+     * @param topologyId the id of the topology.
+     * @param remoteName The name of the remote.
+     * @return The url corresponding to the remote name of the git repository of the topology.
+     */
+    public String getRemoteUrl(String topologyId, String remoteName) {
+        try {
+            editionContextManager.init(topologyId);
+            Csar csar = EditionContextManager.getCsar();
+            return repositoryService.getRemoteUrl(csar, remoteName);
+        } finally {
+            editionContextManager.destroy();
+        }
     }
 
     /**

@@ -210,4 +210,71 @@ public class EditorController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
+    /**
+     * Pull modifications from a git repository.
+     * If a conflict occurs when pulling the repository, an exception will be throw asking the end user to manually revolve the merge.
+     *
+     * @param topologyId The id of the topology.
+     * @param gitUser The git credentials if any.
+     * @param remoteBranch The name of the remote branch to pull from (default: 'master').
+     * @return An empty RestResponse.
+     */
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId:.+}/git/pull", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> pull(@PathVariable String topologyId, @RequestBody EditorGitUserDTO gitUser,
+            @RequestParam(name = "remoteBranch", defaultValue = "master", required = false)  String remoteBranch) {
+        editorService.pull(topologyId, gitUser.getUsername(), gitUser.getPassword(), remoteBranch);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * Push modifications to a git repository.
+     *
+     * If a conflict occurs when pushing the repository:
+     * <ul>
+     *     <li>It will create push the current commits to a temporary branch.</li>
+     *     <li>Then will re-branch the local branch to the last commit of the remote branch.</li>
+     *     <li>Finally a runtime exception will be thrown asking the end user to manually revolve the merge.</li>
+     * </ul>
+     *
+     * @param topologyId the id of the topology.
+     * @param gitUser The git credentials if any.
+     * @param remoteBranch The name of the remote branch to push to (default: 'master).
+     * @return An empty RestResponse.
+     */
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId:.+}/git/push", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> push(@PathVariable String topologyId, @RequestBody EditorGitUserDTO gitUser,
+            @RequestParam(name = "remoteBranch", defaultValue = "master", required = false) String remoteBranch) {
+        editorService.push(topologyId, gitUser.getUsername(), gitUser.getPassword(), remoteBranch);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * Set the remote git repository url.
+     *
+     * @param topologyId the id of the topology.
+     * @param remoteUrl The git url of the remote repository.
+     * @return An empty RestResponse.
+     */
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId:.+}/git/remote", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> setRemote(@PathVariable String topologyId, @RequestParam("remoteUrl") String remoteUrl) {
+        editorService.setRemote(topologyId, "origin", remoteUrl); // The remote is always 'origin' right now.
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * Get the url of the git repository.
+     *
+     * @param topologyId The id of the topology.
+     * @return The url of the git repository of the topology.
+     */
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId:.+}/git/remote", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<EditorGitRemoteDTO> getRemote(@PathVariable String topologyId) {
+        String remoteUrl = editorService.getRemoteUrl(topologyId, "origin"); // The remote is always 'origin' right now.
+        return RestResponseBuilder.<EditorGitRemoteDTO> builder().data(new EditorGitRemoteDTO("origin", remoteUrl)).build();
+    }
+
 }
