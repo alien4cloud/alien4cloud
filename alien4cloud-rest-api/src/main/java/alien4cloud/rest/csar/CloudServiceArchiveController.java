@@ -66,7 +66,7 @@ public class CloudServiceArchiveController {
 
     @ApiOperation(value = "Upload a csar zip file.")
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER', 'ARCHITECT')")
     @Audit
     public RestResponse<CsarUploadResult> uploadCSAR(@RequestParam(required = false) String workspace, @RequestParam("file") MultipartFile csar)
             throws IOException {
