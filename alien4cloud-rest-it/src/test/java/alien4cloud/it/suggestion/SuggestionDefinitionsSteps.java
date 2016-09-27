@@ -17,6 +17,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -118,5 +119,11 @@ public class SuggestionDefinitionsSteps {
                         Sets
                         .newHashSet(initialValues.split(",")))));
         Assert.assertNull(JsonUtil.read(response).getError());
+    }
+
+    @When("^I ask suggestions for node type with \"([^\"]*)\"$")
+    public void iAskSuggestionsForNodeTypeWith(String searchText) throws Throwable {
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().getUrlEncoded("/rest/v1/suggest/nodetypes", Lists.newArrayList(new BasicNameValuePair("text", searchText))));
     }
 }
