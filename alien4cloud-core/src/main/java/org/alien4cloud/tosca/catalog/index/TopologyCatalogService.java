@@ -31,7 +31,12 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
         Csar csar = new Csar(name, StringUtils.isNotBlank(version) ? version : VersionUtil.DEFAULT_VERSION_NAME);
         csar.setWorkspace(workspace);
         csar.setDelegateType(ArchiveDelegateType.CATALOG.toString());
-        csar.setDescription("Enclosing archive for topology: " + description);
+        if(description == null) {
+            csar.setDescription("This archive has been created with alien4cloud.");
+        } else {
+            csar.setDescription("Enclosing archive for topology " + description);
+        }
+
 
         Topology topology;
         if (fromTopologyId != null) { // "cloning" the topology

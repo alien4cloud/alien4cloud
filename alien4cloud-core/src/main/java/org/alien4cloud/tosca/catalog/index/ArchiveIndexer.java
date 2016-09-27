@@ -73,6 +73,8 @@ public class ArchiveIndexer {
     private DeploymentService deploymentService;
     @Inject
     private TopologySubstitutionService topologySubstitutionService;
+    @Inject
+    private IArchiveIndexerAuthorizationFilter archiveIndexerAuthorizationFilter;
 
     /**
      * Check that a CSAR name/version does not already exists in the repository and eventually throw an AlreadyExistException.
@@ -141,6 +143,7 @@ public class ArchiveIndexer {
      */
     public synchronized void importArchive(final ArchiveRoot archiveRoot, CSARSource source, Path archivePath, List<ParsingError> parsingErrors)
             throws CSARUsedInActiveDeployment {
+        archiveIndexerAuthorizationFilter.checkAuthorization(archiveRoot);
         // dispatch event before indexing
         alienContext.publishEvent(new BeforeArchiveIndexed(this, archiveRoot));
 
@@ -180,6 +183,8 @@ public class ArchiveIndexer {
         // index the archive content in elastic-search
         indexArchiveTypes(archiveName, archiveVersion, archiveRoot.getArchive().getWorkspace(), archiveRoot, currentIndexedArchive);
         indexTopology(archiveRoot, parsingErrors, archiveName, archiveVersion);
+
+        alienContext.publishEvent(new AfterArchiveIndexed(this, archiveRoot));
     }
 
     private void indexTopology(final ArchiveRoot archiveRoot, List<ParsingError> parsingErrors, String archiveName, String archiveVersion) {

@@ -18,8 +18,6 @@ import alien4cloud.common.AlienConstants;
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.model.components.CSARSource;
 import alien4cloud.model.git.CsarDependenciesBean;
-import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.model.Role;
 import alien4cloud.suggestions.services.SuggestionService;
 import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.tosca.model.ArchiveRoot;
@@ -54,12 +52,6 @@ public class ArchiveUploadService {
         ParsingResult<ArchiveRoot> parsingResult = parser.parseWithExistingContext(path, workspace);
 
         final ArchiveRoot archiveRoot = parsingResult.getResult();
-        if (archiveRoot.hasToscaTopologyTemplate()) {
-            AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT, Role.ADMIN);
-        }
-        if (archiveRoot.hasToscaTypes()) {
-            AuthorizationUtil.checkHasOneRoleIn(Role.COMPONENTS_MANAGER, Role.ADMIN, Role.COMPONENTS_BROWSER);
-        }
 
         // check if any blocker error has been found during parsing process.
         if (parsingResult.hasError(ParsingErrorLevel.ERROR)) {
