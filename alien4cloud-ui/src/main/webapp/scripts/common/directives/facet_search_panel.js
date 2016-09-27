@@ -76,6 +76,5 @@ define(function (require) {
 
     $scope.searchService = searchServiceFactory($scope.searchUrl, false, $scope.queryProvider, $scope.pageSize, $scope.maxPageCount, $scope.isPaginatedApi);
     $scope.searchService.filtered(true);
-    $scope.doSearch();
   }]);
 });

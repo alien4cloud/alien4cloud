@@ -72,9 +72,8 @@ define(function (require) {
         // create a new topologyTemplate from the given name, version and description.
         createTopologyTemplateResource.create([], angular.toJson(topologyTemplate), function(response) {
           // Response contains topology id
-          if (response.data !== '') {
-          // the id is in form: archiveName:archiveVersion:workspace
-          //we only need archiveName and archiveVersion
+          if (_.defined(response.data)) {
+          // the id is in form: archiveName:archiveVersion
             var tokens = response.data.trim().split(':');
             if (tokens.length > 1) {
               var archiveName = tokens[0];

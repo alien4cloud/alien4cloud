@@ -1,15 +1,11 @@
 package org.alien4cloud.tosca.catalog.index;
 
-import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
-import static alien4cloud.dao.FilterUtil.singleKeyFilter;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
+import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.utils.VersionUtil;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
@@ -21,12 +17,14 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.dao.model.FacetedSearchResult;
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.utils.VersionUtil;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Resource;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 
 @Slf4j
 @Component

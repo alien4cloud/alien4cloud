@@ -1,13 +1,14 @@
 <div class="row" style="margin-top: 10px;">
   <div class="col-md-3">
-      <facet-search-panel search-url="rest/latest/catalog/topologies/search"
-                          page-size="20"
-                          max-page-count="10"
-                          is-paginated-api="false"
-                          filter-prefix="TOPOLOGY."
-                          static-facets="staticFacets"
-                          on-search="onSearch(searchConfig)">
-      </facet-search-panel>
+    <facet-search-panel search-url="rest/latest/catalog/topologies/search"
+                        page-size="20"
+                        max-page-count="10"
+                        is-paginated-api="false"
+                        filter-prefix="TOPOLOGY."
+                        default-filters="defaultFilters"
+                        static-facets="staticFacets"
+                        on-search="onSearch(searchConfig)">
+    </facet-search-panel>
   </div>
   <div class="col-md-9">
     <div class="table-responsive large-data-container" style="max-height:{{tableMaxHeight}}px; overflow-y:auto;" ng-if="searchConfig.result.data.length > 0">

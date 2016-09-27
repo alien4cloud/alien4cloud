@@ -1,25 +1,5 @@
 package org.alien4cloud.tosca.catalog.index;
 
-import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
-import static alien4cloud.utils.AlienUtils.safe;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
-import org.elasticsearch.mapping.ElasticSearchClient;
-import org.springframework.stereotype.Service;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FetchContext;
@@ -29,6 +9,23 @@ import alien4cloud.images.IImageDAO;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.tosca.normative.ToscaType;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.elasticsearch.mapping.ElasticSearchClient;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
+
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * This service is responsible for indexing and searching tosca types.

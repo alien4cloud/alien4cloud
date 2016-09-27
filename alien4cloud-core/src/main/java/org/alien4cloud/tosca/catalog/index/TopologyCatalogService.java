@@ -1,6 +1,7 @@
 package org.alien4cloud.tosca.catalog.index;
 
 import alien4cloud.common.AlienConstants;
+import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.utils.VersionUtil;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
@@ -55,6 +56,12 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
     @Override
     protected String getAggregationField() {
         return "archiveName";
+    }
+
+    // we need to override for aspect purpose
+    @Override
+    public FacetedSearchResult search(Class<? extends Topology> clazz, String query, Integer size, Map<String, String[]> filters) {
+        return super.search(clazz, query, size, filters);
     }
 
     @Override

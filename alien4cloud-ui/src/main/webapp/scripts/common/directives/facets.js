@@ -102,7 +102,7 @@ define(function (require) {
           $scope.facetFilters.push( {term: key, facet: _.clone(facet[0].staticFilter)});
         }
       });
-            
+
       $scope.doSearch();
     };
 
@@ -113,5 +113,6 @@ define(function (require) {
       return facetId;
     };
 
+    $scope.doSearch();
   }]);
 });
