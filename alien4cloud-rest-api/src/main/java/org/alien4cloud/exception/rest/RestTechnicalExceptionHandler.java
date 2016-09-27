@@ -78,6 +78,22 @@ public class RestTechnicalExceptionHandler {
         return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.GIT_IMPORT_FAILED).message(e.getMessage()).build()).build();
     }
 
+    @ExceptionHandler(value = { GitMergingStateException.class, GitConflictException.class })
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    public RestResponse<Void> gitConflictException(GitConflictException e) {
+        log.error("Failed to execute git operation due to conflict issue.", e);
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.GIT_CONFLICT_ERROR).message(e.getMessage()).build()).build();
+    }
+
+    @ExceptionHandler(GitStateException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<Void> gitStateException(GitStateException e) {
+        log.error("The git repository is not in a safe state.", e);
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.GIT_STATE_ERROR).message(e.getMessage()).build()).build();
+    }
+
     @ExceptionHandler(AlreadyExistException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody

@@ -12,8 +12,6 @@ define(function (require) {
       scope: {
         // currently selected filters by user
         facetFilters: '=',
-        /** default filters if any */
-        defaultFilters: '=',
         // facet data, which can be updated vi doSearch()
         facets: '=',
         // the prefix for all label, it's useful for translation
@@ -59,21 +57,6 @@ define(function (require) {
           }
         }
       }
-    }
-
-    if(_.defined($scope.defaultFilters)) {
-      _.each($scope.defaultFilters, function(value, key) {
-        var filter = _.find($scope.facetFilters, {term: key});
-        if(_.undefined(filter)) {
-          if(_.isArray(value)) {
-            _.each(value, function(val) {
-              addFacetFilter(key, val);
-            });
-          } else {
-            addFacetFilter(key, value);
-          }
-        }
-      });
     }
 
     // Getting full search result from /data folder
