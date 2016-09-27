@@ -608,6 +608,7 @@
       "MESSAGE": "Can not perform the action because the resource is still used by some objects",
       "TITLE" : "Resource used"
     },
+    "509": "Unsupported operation",
     "601" : "Application failed to deploy",
     "602" : "Application failed to undeploy",
     "604" : "An application must necessarily have at least one environment",
