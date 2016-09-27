@@ -50,7 +50,6 @@ define(function (require) {
       $scope.topologyVersions = archiveVersions.data;
       $scope.versionContext = context;
       $scope.released = false; // this allow to avoid file edition in the ui-ace.
-      console.log('Version: ', $scope.topologyVersions, $scope.versionContext);
       topoEditVersions($scope);
 
       /**
@@ -321,7 +320,6 @@ define(function (require) {
         });
 
       // Initial load of the topology
-      console.log('Topology id: ', $scope.topologyId);
       topologyServices.dao.get({ topologyId: $scope.topologyId },
         function(result) {
           if(_.undefined(result.error)){
