@@ -1,11 +1,17 @@
 package org.alien4cloud.tosca.editor.processors.substitution;
 
+import java.util.Objects;
+import java.util.Set;
+
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.templates.SubstitutionMapping;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -23,6 +29,8 @@ public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<A
     private IToscaTypeSearchService csarRepoSearchService;
     @Inject
     private TopologyService topologyService;
+    @Inject
+    private CsarService csarService;
 
     @Override
     public void process(AddSubstitutionTypeOperation operation) {
@@ -30,9 +38,9 @@ public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<A
 
         // FIXME we don't allow substitution for applications YET (this has to be changed as Application could become a service in the future and this would be
         // done through substitution)
-        // if (!topology.getDelegateType().equals(TopologyTemplate.class.getSimpleName().toLowerCase())) {
-        // throw new InvalidArgumentException("This operation is only allowed for topology templates");
-        // }
+        if (Objects.equals(EditionContextManager.getCsar().getDelegateType(), ArchiveDelegateType.APPLICATION)) {
+            throw new UnsupportedOperationException("Add substitution type operation is only allowed for topology templates");
+        }
 
         if (topology.getSubstitutionMapping() == null) {
             topology.setSubstitutionMapping(new SubstitutionMapping());
@@ -44,8 +52,11 @@ public class AddSubstitutionTypeProcessor implements IEditorOperationProcessor<A
             // the node type does'nt exist in this topology dependencies
             // we need to find the latest version of this component and use it as default
             nodeType = csarRepoSearchService.findMostRecent(NodeType.class, operation.getElementId());
-            // FIXME we should use type loader here to avoid conflicts
-            topology.getDependencies().add(topologyService.buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
+            Set<CSARDependency> oldDependencies = topology.getDependencies();
+            topologyService.loadType(topology, nodeType);
+            if (!Objects.equals(topology.getDependencies(), oldDependencies)) {
+                csarService.setDependencies(topology.getId(), topology.getDependencies());
+            }
         }
         topology.getSubstitutionMapping().setSubstitutionType(nodeType);
     }

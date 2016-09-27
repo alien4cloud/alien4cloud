@@ -1,35 +1,44 @@
-package org.alien4cloud.tosca.editor;
+package org.alien4cloud.tosca.editor.services;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.index.CsarService;
-import alien4cloud.exception.NotFoundException;
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
-import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
-import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.tosca.context.ToscaContextual;
-import alien4cloud.utils.AlienUtils;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.editor.EditionContextManager;
+import org.alien4cloud.tosca.editor.EditorService;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.DeleteNodeOperation;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.RebuildNodeOperation;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.DeleteRelationshipOperation;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.RebuildRelationshipOperation;
+import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
-import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
-import java.util.*;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.tosca.context.ToscaContextual;
+import alien4cloud.utils.AlienUtils;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Helper service for editor context that allows to get recovery operations based on a given topology.

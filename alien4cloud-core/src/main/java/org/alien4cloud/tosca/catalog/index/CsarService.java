@@ -36,6 +36,8 @@ import alien4cloud.model.common.Usage;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.Role;
+import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.tosca.context.ToscaContextual;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -175,6 +177,8 @@ public class CsarService implements ICsarDependencyLoader {
             for (CSARDependency dependency : csar.getDependencies()) {
                 Csar dependencyCsar = get(dependency.getName(), dependency.getVersion());
                 if (dependencyCsar != null && dependencyCsar.getDependencies() != null) {
+                    // FIXME rebuild the dependency bean, as it (the hash) might ave changed since the archive was first imported
+                    // use this.buildDependencyBean instead
                     mergedDependencies.addAll(dependencyCsar.getDependencies());
                 }
             }
@@ -450,5 +454,22 @@ public class CsarService implements ICsarDependencyLoader {
             }
         }
         return resourceList;
+    }
+
+    /**
+     * Build a {@link CSARDependency} bean given an archive name and version. This will also fill in the dependency hash.
+     *
+     * @param name The name of the dependendy
+     * @param version The version of the dependency
+     * @return
+     */
+    @ToscaContextual
+    public CSARDependency buildDependencyBean(String name, String version) {
+        CSARDependency newDependency = new CSARDependency(name, version);
+        Csar csar = ToscaContext.get().getArchive(name, version);
+        if (csar != null) {
+            newDependency.setHash(csar.getHash());
+        }
+        return newDependency;
     }
 }

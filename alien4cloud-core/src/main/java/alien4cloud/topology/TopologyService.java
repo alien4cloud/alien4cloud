@@ -1,8 +1,12 @@
 package alien4cloud.topology;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
@@ -18,7 +22,13 @@ import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
-import org.alien4cloud.tosca.model.types.*;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.DataType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.PrimitiveDataType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.common.collect.Lists;
@@ -84,7 +94,7 @@ public class TopologyService {
                 // just load found types.
                 // the type might be null when failOnTypeNotFound is set to false.
                 if (nodeType != null) {
-                    loader.loadType(nodeTemplate.getType(), buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
+                    loader.loadType(nodeTemplate.getType(), csarService.buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
                 }
                 if (nodeTemplate.getRelationships() != null) {
 
@@ -94,7 +104,7 @@ public class TopologyService {
                         // the type might be null when failOnTypeNotFound is set to false.
                         if (relationshipType != null) {
                             loader.loadType(relationshipTemplate.getType(),
-                                    buildDependencyBean(relationshipType.getArchiveName(), relationshipType.getArchiveVersion()));
+                                    csarService.buildDependencyBean(relationshipType.getArchiveName(), relationshipType.getArchiveVersion()));
                         }
                     }
                 }
@@ -102,7 +112,8 @@ public class TopologyService {
         }
         if (topology.getSubstitutionMapping() != null && topology.getSubstitutionMapping().getSubstitutionType() != null) {
             NodeType substitutionType = topology.getSubstitutionMapping().getSubstitutionType();
-            loader.loadType(substitutionType.getElementId(), buildDependencyBean(substitutionType.getArchiveName(), substitutionType.getArchiveVersion()));
+            loader.loadType(substitutionType.getElementId(),
+                    csarService.buildDependencyBean(substitutionType.getArchiveName(), substitutionType.getArchiveVersion()));
         }
         return loader;
     }
@@ -362,7 +373,7 @@ public class TopologyService {
             int comparisonResult = VersionUtil.compare(archiveVersion, topologyDependency.getVersion());
             if (comparisonResult > 0) {
                 // Dependency of the type is more recent, try to upgrade the topology
-                toLoadDependency = buildDependencyBean(archiveName, archiveVersion);
+                toLoadDependency = csarService.buildDependencyBean(archiveName, archiveVersion);
                 topology.getDependencies().add(toLoadDependency);
                 topology.getDependencies().remove(topologyDependency);
                 Map<String, NodeType> nodeTypes;
@@ -393,7 +404,7 @@ public class TopologyService {
             }
         } else {
             // the type is not yet loaded
-            toLoadDependency = buildDependencyBean(archiveName, archiveVersion);
+            toLoadDependency = csarService.buildDependencyBean(archiveName, archiveVersion);
         }
         // FIXME Transitive dependencies could change here and thus types be affected ?
         ToscaTypeLoader typeLoader = initializeTypeLoader(topology, true);
@@ -401,24 +412,9 @@ public class TopologyService {
         for (CSARDependency updatedDependency : typeLoader.getLoadedDependencies()) {
             ToscaContext.get().updateDependency(updatedDependency);
         }
+        // TODO update csar dependencies also ?
         topology.setDependencies(typeLoader.getLoadedDependencies());
         return element;
-    }
-
-    /**
-     * Build a {@link CSARDependency} bean given an archive name and version. This will also fill in the dependency hash.
-     * 
-     * @param name The name of the dependendy
-     * @param version The version of the dependency
-     * @return
-     */
-    public CSARDependency buildDependencyBean(String name, String version) {
-        CSARDependency newDependency = new CSARDependency(name, version);
-        Csar csar = ToscaContext.get().getArchive(name, version);
-        if (csar != null) {
-            newDependency.setHash(csar.getHash());
-        }
-        return newDependency;
     }
 
     public void unloadType(Topology topology, String... types) {
@@ -431,6 +427,7 @@ public class TopologyService {
         for (CSARDependency updatedDependency : typeLoader.getLoadedDependencies()) {
             ToscaContext.get().updateDependency(updatedDependency);
         }
+        // TODO update csar dependencies also ?
         topology.setDependencies(typeLoader.getLoadedDependencies());
     }
 

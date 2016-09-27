@@ -23,7 +23,9 @@ import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
 import org.alien4cloud.tosca.editor.operations.ResetTopologyOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.editor.services.EditorTopologyRecoveryHelperService;
 import org.alien4cloud.tosca.editor.services.EditorTopologyUploadService;
+import org.alien4cloud.tosca.editor.services.TopologySubstitutionService;
 import org.alien4cloud.tosca.exporter.ArchiveExportService;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -69,6 +71,9 @@ public class EditorService {
     private EditorTopologyUploadService topologyUploadService;
     @Inject
     private EditorTopologyRecoveryHelperService recoveryHelperService;
+    @Inject
+    private TopologySubstitutionService topologySubstitutionServive;
+
     @Value("${directories.alien}/${directories.upload_temp}")
     private String tempUploadDir;
 
@@ -295,7 +300,7 @@ public class EditorService {
         Topology topology = EditionContextManager.getTopology();
         // Save the topology in elastic search
         topologyServiceCore.save(topology);
-        topologyServiceCore.updateSubstitutionType(topology);
+        topologySubstitutionServive.updateSubstitutionType(topology, EditionContextManager.getCsar());
 
         // Local git commit
         repositoryService.commit(EditionContextManager.get().getCsar(), commitMessage.toString());
@@ -390,7 +395,7 @@ public class EditorService {
             Topology topology = EditionContextManager.getTopology();
             String commitMessage = AuthorizationUtil.getCurrentUser().getUserId() + ": Override all content of the topology archive from REST API.";
             topologyServiceCore.save(topology);
-            topologyServiceCore.updateSubstitutionType(topology);
+            topologySubstitutionServive.updateSubstitutionType(topology, EditionContextManager.getCsar());
 
             // Local git commit
             repositoryService.commit(EditionContextManager.get().getCsar(), commitMessage);

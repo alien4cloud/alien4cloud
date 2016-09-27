@@ -6,8 +6,8 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.EditorService;
-import org.alien4cloud.tosca.editor.EditorTopologyRecoveryHelperService;
 import org.alien4cloud.tosca.editor.operations.ResetTopologyOperation;
+import org.alien4cloud.tosca.editor.services.EditorTopologyRecoveryHelperService;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.stereotype.Component;
 

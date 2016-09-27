@@ -7,12 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.model.common.Tag;
-import alien4cloud.utils.CollectionUtils;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.Interface;
 import org.alien4cloud.tosca.model.definitions.Operation;
@@ -20,6 +14,13 @@ import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.alien4cloud.tosca.model.types.RelationshipType;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.model.common.Tag;
+import alien4cloud.utils.CollectionUtils;
 
 /**
  * Utils class for Indexed(DAO Object Types) Model.
@@ -70,8 +71,8 @@ public final class IndexedModelUtils {
         Collections.sort(orderedElements, (left, right) -> elementsLevelMap.get(left.getElementId()).compareTo(elementsLevelMap.get(right.getElementId())));
         return orderedElements;
     }
-
     public static void mergeInheritableIndex(AbstractInheritableToscaType from, AbstractInheritableToscaType to) {
+
         if (from.getDerivedFrom() != null) {
             // use a linked HashSet so we don't add multiple elements more than once.
             LinkedHashSet<String> derivedFromSet = new LinkedHashSet<String>();

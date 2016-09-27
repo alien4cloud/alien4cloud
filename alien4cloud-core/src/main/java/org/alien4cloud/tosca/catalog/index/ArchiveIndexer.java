@@ -6,13 +6,13 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.events.AfterArchiveIndexed;
 import org.alien4cloud.tosca.catalog.events.BeforeArchiveIndexed;
 import org.alien4cloud.tosca.catalog.repository.ICsarRepositry;
 import org.alien4cloud.tosca.editor.EditorRepositoryService;
+import org.alien4cloud.tosca.editor.services.TopologySubstitutionService;
 import org.alien4cloud.tosca.exporter.ArchiveExportService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
@@ -71,6 +71,8 @@ public class ArchiveIndexer {
     private EditorRepositoryService repositoryService;
     @Inject
     private DeploymentService deploymentService;
+    @Inject
+    private TopologySubstitutionService topologySubstitutionService;
 
     /**
      * Check that a CSAR name/version does not already exists in the repository and eventually throw an AlreadyExistException.
@@ -216,7 +218,7 @@ public class ArchiveIndexer {
                 new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_DETECTED, "", null, "A topology template has been detected", null, archiveName));
 
         topologyServiceCore.saveTopology(topology);
-        topologyServiceCore.updateSubstitutionType(topology);
+        topologySubstitutionService.updateSubstitutionType(topology, archiveRoot.getArchive());
     }
 
     private void checkNotUsedInActiveDeployment(Csar csar) throws CSARUsedInActiveDeployment {
@@ -245,9 +247,7 @@ public class ArchiveIndexer {
             Map<String, AbstractToscaType> previousElements = indexerService.getArchiveElements(archiveName, archiveVersion);
             prepareForUpdate(root, previousElements);
 
-            // delete the previous archive including all types etc.
-            // QUESTION: why do we have to delete the archive??
-            // csarService.forceDeleteCsar(archive.getId());
+            // delete the all objects related to the previous archive .
             csarService.deleteCsarContent(archive);
         }
 

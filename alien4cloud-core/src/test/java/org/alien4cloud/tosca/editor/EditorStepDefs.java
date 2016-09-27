@@ -48,10 +48,17 @@ import org.springframework.test.context.ContextConfiguration;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import alien4cloud.application.ApplicationEnvironmentService;
+import alien4cloud.application.ApplicationService;
+import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.application.Application;
+import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.components.CSARSource;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.security.model.User;
@@ -88,6 +95,12 @@ public class EditorStepDefs {
     private WorkflowsBuilderService workflowBuilderService;
     @Inject
     private TopologyServiceCore topologyServiceCore;
+    @Inject
+    private ApplicationService applicationService;
+    @Inject
+    private ApplicationVersionService applicationVersionService;
+    @Inject
+    private ApplicationEnvironmentService applicationEnvironmentService;
 
     private LinkedList<String> topologyIds = new LinkedList();
 
@@ -103,6 +116,7 @@ public class EditorStepDefs {
     private List<Class> typesToClean = Lists.newArrayList();
     public static final Path CSAR_TARGET_PATH = Paths.get("target/csars");
 
+
     public EditorStepDefs() {
         super();
         typesToClean.add(AbstractInstantiableToscaType.class);
@@ -115,17 +129,31 @@ public class EditorStepDefs {
         typesToClean.add(PrimitiveDataType.class);
         typesToClean.add(Csar.class);
         typesToClean.add(Topology.class);
+        typesToClean.add(Application.class);
+        typesToClean.add(ApplicationEnvironment.class);
+        typesToClean.add(ApplicationVersion.class);
+
     }
 
     @Before
     public void init() throws IOException {
         thrownException = null;
 
+        GetMultipleDataResult<Application> apps = alienDAO.search(Application.class, "", null, 100);
+        for (Application application : apps.getData()) {
+            try {
+                applicationService.delete(application.getId());
+            } catch (Throwable e) {
+
+            }
+        }
+
         FacetedSearchResult<Topology> searchResult = catalogService.search(Topology.class, "", 100, null);
         Topology[] topologies = searchResult.getData();
         for (Topology topology : topologies) {
             csarService.forceDeleteCsar(topology.getId());
         }
+
         topologyIds.clear();
         editionContextManager.clearCache();
     }
@@ -167,6 +195,17 @@ public class EditorStepDefs {
         if (topology != null) {
             topologyIds.addLast(topology.getId());
         }
+    }
+
+    @And("^I should be able to find a component with id \"([^\"]*)\"$")
+    public void iShouldBeAbleToFindAComponentWithId(String id) throws Throwable {
+        AbstractToscaType compoennt = alienDAO.findById(AbstractToscaType.class, id);
+        Assert.assertNotNull(compoennt);
+    }
+
+    @And("^I should not be able to find a component with id \"([^\"]*)\"$")
+    public void iShouldNotBeAbleToFindAComponentWithId(String id) throws Throwable {
+        Assert.assertNull(alienDAO.findById(AbstractToscaType.class, id));
     }
 
     private static class TestAuth extends UsernamePasswordAuthenticationToken {
