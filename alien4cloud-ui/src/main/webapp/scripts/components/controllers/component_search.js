@@ -8,16 +8,8 @@ define(function (require) {
   require('scripts/tosca/services/tosca_service');
   require('scripts/common/services/search_service_factory');
 
-  modules.get('a4c-components').factory('searchContext', [function() {
-    //The search context var
-    var searchContext = {};
-    searchContext.query = ''; // search query keyword: empty for the begining
-    searchContext.facetFilters = []; //facets filters
-    return searchContext;
-  }]);
-
-  modules.get('a4c-components', ['a4c-tosca', 'a4c-search']).controller('alienSearchComponentCtrl', ['$scope', '$filter', 'searchContext', '$alresource', '$resource', 'toscaService', 'searchServiceFactory', '$state', '$translate',
-    function($scope, $filter, searchContext, $alresource, $resource, toscaService, searchServiceFactory, $state, $translate) {
+  modules.get('a4c-components', ['a4c-tosca', 'a4c-search']).controller('alienSearchComponentCtrl', ['$scope', '$filter', '$alresource', '$resource', 'toscaService', 'searchServiceFactory', '$state', '$translate',
+    function($scope, $filter, $alresource, $resource, toscaService, searchServiceFactory, $state, $translate) {
       var alienInternalTags = ['icon'];
       $scope.searchService = searchServiceFactory('rest/latest/components/search', false, $scope, 20, 10, false);
       $scope.searchService.filtered(true);
@@ -73,14 +65,9 @@ define(function (require) {
        * search handlers
        */
       //bind the scope search vars to the searchContext service
-      if ($scope.globalContext) {
-        $scope.query = searchContext.query;
-        $scope.facetFilters = searchContext.facetFilters;
-      } else {
-        $scope.query = '';
-        $scope.facetFilters = [];
-      }
-
+      $scope.query = '';
+      $scope.facetFilters = [];
+      
       /*update a search*/
       function updateSearch(filters, force) {
         /*

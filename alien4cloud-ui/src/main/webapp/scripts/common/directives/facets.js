@@ -30,7 +30,7 @@ define(function (require) {
     function removeFilter(filterToRemove) {
       // Remove the selected filter
       _.remove($scope.facetFilters, filterToRemove);
-      if(_.defined($scope.facets[filterToRemove.term]) && $scope.facets[filterToRemove.term].length >0 && _.defined($scope.facets[filterToRemove.term][0].staticFilter)) {
+      if(_.defined($scope.facets) && _.defined($scope.facets[filterToRemove.term]) && $scope.facets[filterToRemove.term].length >0 && _.defined($scope.facets[filterToRemove.term][0].staticFilter)) {
         // if the facet has a static filter it is a toggle kind of facet and cannot be removed.
         $scope.facetFilters.push( {term: filterToRemove.term, facet: _.clone($scope.facets[filterToRemove.term][0].staticFilter)});
       }
