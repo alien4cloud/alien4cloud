@@ -5,14 +5,19 @@ import java.util.Map;
 import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
-import org.alien4cloud.tosca.model.types.*;
+import org.alien4cloud.tosca.model.templates.AbstractTemplate;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.DataType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.PrimitiveDataType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
 
-import org.alien4cloud.tosca.model.templates.AbstractTemplate;
-import org.alien4cloud.tosca.model.templates.NodeTemplate;
-import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.topology.AbstractTopologyDTO;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.tosca.context.ToscaContext;
@@ -36,6 +41,7 @@ public class TopologyDTOBuilder {
         topologyDTO.setArchiveContentTree(context.getArchiveContentTree());
         topologyDTO.setLastOperationIndex(context.getLastOperationIndex());
         topologyDTO.setOperations(context.getOperations());
+        topologyDTO.setDelegateType(context.getCsar().getDelegateType());
         // FIXME add validation information
         return topologyDTO;
     }

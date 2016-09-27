@@ -67,7 +67,8 @@ define(function (require) {
       */
       $scope.refreshTopology = function(topologyDTO, selectedNodeTemplate, initial) {
         $scope.topology = topologyDTO;
-        $scope.isTopologyTemplate = ($scope.topology.topology.delegateType === 'topologytemplate');
+        console.log();
+        $scope.isTopologyTemplate = ($scope.topology.delegateType !== 'APPLICATION');
         // Process the topology to enrich it with some additional data
         _.each(topologyDTO.topology.nodeTemplates, function(value, key){
           value.name = key;
