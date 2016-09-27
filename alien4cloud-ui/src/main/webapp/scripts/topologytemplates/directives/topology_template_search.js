@@ -16,6 +16,7 @@ define(function (require) {
         onSelect: '&',
         onSelectForClone: '&',
         archiveLink: '@',
+        defaultFilters: '=',
         staticFacets: '='
       }
     };

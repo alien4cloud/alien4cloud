@@ -295,7 +295,7 @@ public class EditorStepDefs {
     @Given("^I create an empty topology template \"([^\"]*)\" version \"([^\"]*)\"$")
     public void i_create_an_empty_topology_template_version(String topologyTemplateName, String version) throws Throwable {
         try {
-            Topology topology = catalogService.createTopologyAsTemplate(topologyTemplateName, null, version, null);
+            Topology topology = catalogService.createTopologyAsTemplate(topologyTemplateName, null, version, AlienConstants.GLOBAL_WORKSPACE_ID, null);
             topologyIds.addLast(topology.getId());
             topologyEvaluationContext = new StandardEvaluationContext(topology);
         } catch (Exception e) {

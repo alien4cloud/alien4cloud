@@ -34,7 +34,10 @@ import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import alien4cloud.exception.DeleteLastApplicationVersionException;
 import alien4cloud.exception.DeleteReferencedObjectException;
+import alien4cloud.exception.GitConflictException;
 import alien4cloud.exception.GitException;
+import alien4cloud.exception.GitMergingStateException;
+import alien4cloud.exception.GitStateException;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.exception.InvalidApplicationNameException;
 import alien4cloud.exception.InvalidArgumentException;
@@ -103,6 +106,22 @@ public class RestTechnicalExceptionHandler {
     public RestResponse<Void> gitException(GitException e) {
         log.error("Failed to import archive from git location.", e);
         return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.GIT_IMPORT_FAILED).message(e.getMessage()).build()).build();
+    }
+
+    @ExceptionHandler(value = { GitMergingStateException.class, GitConflictException.class })
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    public RestResponse<Void> gitConflictException(GitConflictException e) {
+        log.error("Failed to execute git operation due to conflict issue.", e);
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.GIT_CONFLICT_ERROR).message(e.getMessage()).build()).build();
+    }
+
+    @ExceptionHandler(GitStateException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<Void> gitStateException(GitStateException e) {
+        log.error("The git repository is not in a safe state.", e);
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.GIT_STATE_ERROR).message(e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(AlreadyExistException.class)

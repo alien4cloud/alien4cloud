@@ -1,11 +1,10 @@
 package org.alien4cloud.tosca.catalog.index;
 
-import java.util.Map;
-
-import org.alien4cloud.tosca.model.templates.Topology;
-
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.plugin.aop.Overridable;
+import org.alien4cloud.tosca.model.templates.Topology;
+
+import java.util.Map;
 
 /**
  * Interface for the TopologyCatalogService to allow jdk dynamic proxy.
@@ -17,10 +16,11 @@ public interface ITopologyCatalogService {
      * @param name The name of the topology template
      * @param description The description of the topology template
      * @param version The version of the topology
+     * @param workspace The workspace in which to create the topology.
      * @param fromTopologyId The id of an existing topology to use to create the new topology.
      * @return The @{@link Topology} newly created
      */
-    Topology createTopologyAsTemplate(String name, String description, String version, String fromTopologyId);
+    Topology createTopologyAsTemplate(String name, String description, String version, String workspace, String fromTopologyId);
 
     /**
      * Get all topologies matching the given set of filters.

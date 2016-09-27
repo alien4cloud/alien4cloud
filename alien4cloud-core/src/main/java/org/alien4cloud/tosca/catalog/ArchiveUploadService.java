@@ -58,7 +58,7 @@ public class ArchiveUploadService {
             AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT, Role.ADMIN);
         }
         if (archiveRoot.hasToscaTypes()) {
-            AuthorizationUtil.checkHasOneRoleIn(Role.COMPONENTS_MANAGER, Role.ADMIN);
+            AuthorizationUtil.checkHasOneRoleIn(Role.COMPONENTS_MANAGER, Role.ADMIN, Role.COMPONENTS_BROWSER);
         }
 
         // check if any blocker error has been found during parsing process.

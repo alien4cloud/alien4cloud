@@ -57,6 +57,19 @@ define(function (require) {
     topoEditProperties,
     topoEditRelationships,
     topoEditSubstitution) {
+      // if there is workspaces in the scope application add them to the scope
+      if(_.defined($scope.workspaces) && $scope.workspaces.length > 0) {
+        if(_.undefined(defaultFilters)) {
+          defaultFilters = {};
+        }
+        $scope.staticFacets = {workspace: []};
+        _.each($scope.workspaces, function(workspace) {
+          $scope.staticFacets.workspace.push({facetValue: workspace, count: ''});
+        });
+        $scope.staticFacets.workspace[0].staticFilter = $scope.workspaces;
+        defaultFilters.workspace =  $scope.workspaces;
+      }
+
       $scope.defaultFilters = defaultFilters;
       $scope.isRuntime = false;
 

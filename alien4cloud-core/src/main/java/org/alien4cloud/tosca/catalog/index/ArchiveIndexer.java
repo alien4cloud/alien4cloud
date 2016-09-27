@@ -141,10 +141,10 @@ public class ArchiveIndexer {
      */
     public synchronized void importArchive(final ArchiveRoot archiveRoot, CSARSource source, Path archivePath, List<ParsingError> parsingErrors)
             throws CSARUsedInActiveDeployment {
-        String archiveName = archiveRoot.getArchive().getName();
-        // Application archives cannot be overriden here but requires an editor call.
-        
+        // dispatch event before indexing
+        alienContext.publishEvent(new BeforeArchiveIndexed(this, archiveRoot));
 
+        String archiveName = archiveRoot.getArchive().getName();
         String archiveVersion = archiveRoot.getArchive().getVersion();
         Csar currentIndexedArchive = csarService.get(archiveName, archiveVersion);
         // if the archive has not changed do nothing.

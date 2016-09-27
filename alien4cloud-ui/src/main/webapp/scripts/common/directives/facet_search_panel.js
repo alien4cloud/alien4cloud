@@ -27,6 +27,29 @@ define(function (require) {
   modules.get('a4c-common', []).controller('FacetSearchPanelController', ['$scope', 'searchServiceFactory', function ($scope, searchServiceFactory) {
     $scope.facetFilters = [];
 
+    function addFacetFilter(termId, facetId) {
+      var facetSearchObject = {};
+      facetSearchObject.term = termId;
+      facetSearchObject.facet = [];
+      facetSearchObject.facet.push(facetId);
+      $scope.facetFilters.push(facetSearchObject);
+    }
+
+    if (_.defined($scope.defaultFilters)) {
+      _.each($scope.defaultFilters, function (value, key) {
+        var filter = _.find($scope.facetFilters, {term: key});
+        if (_.undefined(filter)) {
+          if (_.isArray(value)) {
+            _.each(value, function (val) {
+              addFacetFilter(key, val);
+            });
+          } else {
+            addFacetFilter(key, value);
+          }
+        }
+      });
+    }
+
     /*update a search*/
     function updateSearch(filters) {
       var objectFilters = {};
@@ -53,8 +76,8 @@ define(function (require) {
     var onSearchCompleted = function (searchResult) {
       if (_.undefined(searchResult.error)) {
         $scope.facets = searchResult.data.facets;
-        if(_.defined($scope.staticFacets)) {
-          _.each($scope.staticFacets, function(facet, facetKey){
+        if (_.defined($scope.staticFacets)) {
+          _.each($scope.staticFacets, function (facet, facetKey) {
             searchResult.data.facets[facetKey] = facet;
           });
         }
@@ -76,6 +99,5 @@ define(function (require) {
 
     $scope.searchService = searchServiceFactory($scope.searchUrl, false, $scope.queryProvider, $scope.pageSize, $scope.maxPageCount, $scope.isPaginatedApi);
     $scope.searchService.filtered(true);
-    $scope.doSearch();
   }]);
 });
