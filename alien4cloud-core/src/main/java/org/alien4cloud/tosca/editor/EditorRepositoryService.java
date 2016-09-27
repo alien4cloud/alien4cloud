@@ -94,7 +94,7 @@ public class EditorRepositoryService {
      * @param remoteUrl The repository url.
      */
     public void setRemote(Csar csar, String remoteName, String remoteUrl) {
-        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getWorkspace(), csar.getName(), csar.getVersion());
+        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
         RepositoryManager.setRemote(archiveGitPath, remoteName, remoteUrl);
     }
 
@@ -106,7 +106,7 @@ public class EditorRepositoryService {
      * @return The url corresponding to the remote name.
      */
     public String getRemoteUrl(Csar csar, String remoteName) {
-        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getWorkspace(), csar.getName(), csar.getVersion());
+        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
         return RepositoryManager.getRemoteUrl(archiveGitPath, remoteName);
     }
 
@@ -119,7 +119,7 @@ public class EditorRepositoryService {
      * @param remoteBranch The name of the remote branch to push to.
      */
     public void push(Csar csar, String username, String password, String remoteBranch) {
-        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getWorkspace(), csar.getName(), csar.getVersion());
+        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
         RepositoryManager.push(archiveGitPath, username, password, remoteBranch);
     }
 
@@ -132,7 +132,7 @@ public class EditorRepositoryService {
      * @param remoteBranch The name of the remote branch to pull from.
      */
     public void pull(Csar csar, String username, String password, String remoteBranch) {
-        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getWorkspace(), csar.getName(), csar.getVersion());
+        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
         RepositoryManager.pull(archiveGitPath, username, password, remoteBranch);
     }
 }
