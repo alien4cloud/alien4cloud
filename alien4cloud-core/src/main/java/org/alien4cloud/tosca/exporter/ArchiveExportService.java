@@ -40,9 +40,17 @@ public class ArchiveExportService {
         velocityCtx.put("topology", topology);
         velocityCtx.put("template_name", csar.getName());
         velocityCtx.put("template_version", csar.getVersion());
-        velocityCtx.put("template_description", csar.getDescription());
+        if(csar.getDescription() == null) {
+            velocityCtx.put("template_description", "");
+        } else {
+            velocityCtx.put("template_description", csar.getDescription());
+        }
         User loggedUser = AuthorizationUtil.getCurrentUser();
-        velocityCtx.put("template_author", loggedUser != null ? loggedUser.getUsername() : null);
+        String author = csar.getTemplateAuthor();
+        if (author == null) {
+            author = loggedUser != null ? loggedUser.getUsername() : null;
+        }
+        velocityCtx.put("template_author", author);
 
         velocityCtx.put("topology_description", topology.getDescription());
 
