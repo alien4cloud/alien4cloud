@@ -12,7 +12,11 @@ import org.elasticsearch.mapping.QueryHelper;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.*;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -239,7 +243,7 @@ public class OrchestratorStateService {
     private List<Usage> generateDeploymentUsages(Deployment[] data) {
         List<Usage> usages = Lists.newArrayList();
         for (Deployment deployment : data) {
-            usages.add(new Usage(deployment.getSourceName(), deployment.getSourceType().getSourceType().getSimpleName(), deployment.getSourceId()));
+            usages.add(new Usage(deployment.getSourceName(), deployment.getSourceType().getSourceType().getSimpleName(), deployment.getSourceId(), null));
         }
         return usages;
     }

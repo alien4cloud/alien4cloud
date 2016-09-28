@@ -369,8 +369,8 @@ public class CsarService implements ICsarDependencyLoader {
      * @return
      */
     private List<Usage> generateCsarsInfo(Csar[] csars) {
-        String resourceName = null;
-        String resourceId = null;
+        String resourceName;
+        String resourceId;
         List<Usage> resourceList = Lists.newArrayList();
         for (Csar csar : csars) {
             if (ArchiveDelegateType.APPLICATION.toString().equals(csar.getDelegateType())) {
@@ -381,8 +381,7 @@ public class CsarService implements ICsarDependencyLoader {
                 resourceName = csar.getName();
                 resourceId = csar.getId();
             }
-
-            Usage temp = new Usage(resourceName, Csar.class.getSimpleName().toLowerCase(), resourceId);
+            Usage temp = new Usage(resourceName, Csar.class.getSimpleName().toLowerCase(), resourceId, csar.getWorkspace());
             resourceList.add(temp);
         }
         return resourceList;
@@ -395,13 +394,13 @@ public class CsarService implements ICsarDependencyLoader {
      * @return
      */
     private List<Usage> generateLocationsInfo(Location[] locations) {
-        String resourceName = null;
-        String resourceId = null;
+        String resourceName;
+        String resourceId;
         List<Usage> resourceList = Lists.newArrayList();
         for (Location location : locations) {
             resourceName = location.getName();
             resourceId = location.getId();
-            Usage temp = new Usage(resourceName, Location.class.getSimpleName().toLowerCase(), resourceId);
+            Usage temp = new Usage(resourceName, Location.class.getSimpleName().toLowerCase(), resourceId, AlienConstants.GLOBAL_WORKSPACE_ID);
             resourceList.add(temp);
         }
         return resourceList;
@@ -443,14 +442,13 @@ public class CsarService implements ICsarDependencyLoader {
 
         List<Csar> topologiesCsar = getTopologiesCsar(topologies);
         for (Csar csar : topologiesCsar) {
-            String delegateType = csar.getDelegateType();
             if (Objects.equals(csar.getDelegateType(), ArchiveDelegateType.APPLICATION.toString())) {
                 // get the related application
                 Application application = applicationService.checkAndGetApplication(csar.getDelegateId());
-                resourceList.add(new Usage(application.getName(), csar.getDelegateType(), csar.getDelegateId()));
+                resourceList.add(new Usage(application.getName(), csar.getDelegateType(), csar.getDelegateId(), csar.getWorkspace()));
                 continue;
             } else {
-                resourceList.add(new Usage(csar.getName() + "[" + csar.getVersion() + "]", "topologyTemplate", csar.getId()));
+                resourceList.add(new Usage(csar.getName() + "[" + csar.getVersion() + "]", "topologyTemplate", csar.getId(), csar.getWorkspace()));
             }
         }
         return resourceList;
