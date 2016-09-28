@@ -386,6 +386,7 @@ public class TopologyService {
                             + "], upgrade of the topology to this archive from version [" + topologyDependency.getVersion() + "] failed", e);
                 }
                 // Try to upgrade existing nodes
+                // FIXME we should try to upgrade relationships also
                 Map<String, NodeTemplate> newNodeTemplates = Maps.newHashMap();
                 Map<String, NodeTemplate> existingNodeTemplates = topology.getNodeTemplates();
                 if (existingNodeTemplates != null) {

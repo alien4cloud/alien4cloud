@@ -172,6 +172,7 @@ public class ArchiveIndexer {
             source = CSARSource.OTHER;
         }
         archiveRoot.getArchive().setImportSource(source.name());
+        // TODO load transitives dependencies here before saving, as it is not done when parsing
         csarService.save(archiveRoot.getArchive());
         log.debug("Imported archive {}", archiveRoot.getArchive().getId());
 
