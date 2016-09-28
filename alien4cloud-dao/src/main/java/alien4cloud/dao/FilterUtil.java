@@ -1,8 +1,8 @@
 package alien4cloud.dao;
 
-import com.google.common.collect.Maps;
-
 import java.util.Map;
+
+import com.google.common.collect.Maps;
 
 /**
  * Utility to build simple filters for ES mapping filtering.
@@ -20,7 +20,11 @@ public final class FilterUtil {
      */
     public static Map<String, String[]> singleKeyFilter(String key, String... values) {
         Map<String, String[]> filters = Maps.newHashMap();
-        filters.put(key, values);
+        if (values == null) {
+            filters.put(key, new String[] { null });
+        } else {
+            filters.put(key, values);
+        }
         return filters;
     }
 
@@ -64,7 +68,7 @@ public final class FilterUtil {
      * @return The filters map.
      */
     public static Map<String, String[]> fromKeyValueCouples(Map<String, String[]> filters, String... keyValues) {
-        if(filters == null) {
+        if (filters == null) {
             return fromKeyValueCouples(keyValues);
         }
         for (int i = 0; i < keyValues.length; i += 2) {
