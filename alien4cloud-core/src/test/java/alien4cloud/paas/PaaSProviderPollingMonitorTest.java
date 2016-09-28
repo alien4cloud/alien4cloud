@@ -1,6 +1,7 @@
 package alien4cloud.paas;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -45,6 +46,7 @@ public class PaaSProviderPollingMonitorTest {
 
     private final ObjectMapper jsonMapper = new ObjectMapper();
     private Date latestEventDate = null;
+    private Date latestStatusDate = null;
 
     @Before
     public void initMocks() throws IOException, InterruptedException {
@@ -89,11 +91,12 @@ public class PaaSProviderPollingMonitorTest {
 
         // save the last inserted date (PaaSDeploymentStatusMonitorEvent should be generated from alien only and never from the orchestrator).
         latestEventDate = new Date(eventMessage.getDate());
+        latestStatusDate = new Date(eventDeploymentStatus.getDate());
     }
 
     @Test
-    public void testLoadEventsFromLastRegistered() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException,
-            JsonProcessingException, InterruptedException {
+    public void testLoadEventsFromLastRegistered()
+            throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException, JsonProcessingException, InterruptedException {
 
         // init with some events
         initEvents();
@@ -103,7 +106,8 @@ public class PaaSProviderPollingMonitorTest {
         lastPollingDateField.setAccessible(true);
         Date lastDate = (Date) lastPollingDateField.get(paaSProviderPollingMonitor);
 
-        assertEquals(lastDate, latestEventDate);
+        assertNotEquals(latestStatusDate, lastDate);
+        assertEquals(latestEventDate, lastDate);
     }
 
     @Test

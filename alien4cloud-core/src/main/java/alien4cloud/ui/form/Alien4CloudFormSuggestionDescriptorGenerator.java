@@ -5,7 +5,7 @@ import java.util.Map;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.components.IndexedToscaElement;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.ui.form.exception.FormDescriptorGenerationException;
 
@@ -21,7 +21,7 @@ public class Alien4CloudFormSuggestionDescriptorGenerator implements FormSuggest
     @Override
     public Map<String, Object> generateSuggestionDescriptor(Class<?> fromClass, String path) {
         String index;
-        if (IndexedToscaElement.class.isAssignableFrom(fromClass)) {
+        if (AbstractToscaType.class.isAssignableFrom(fromClass)) {
             index = ElasticSearchDAO.TOSCA_ELEMENT_INDEX;
         } else {
             throw new FormDescriptorGenerationException("Unsupported suggestion fromClass [" + fromClass.getName() + "]");

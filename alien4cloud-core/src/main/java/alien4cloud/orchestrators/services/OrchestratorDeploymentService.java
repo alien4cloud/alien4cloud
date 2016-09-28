@@ -6,7 +6,7 @@ import javax.inject.Inject;
 
 import org.springframework.stereotype.Service;
 
-import alien4cloud.model.components.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 

@@ -1,8 +1,8 @@
 package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.topology.NodeTemplateBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ public class RebuildNodeProcessor extends AbstractNodeProcessor<RebuildNodeOpera
     protected void processNodeOperation(RebuildNodeOperation operation, NodeTemplate nodeTemplate) {
         Topology topology = EditionContextManager.getTopology();
         log.debug("Rebuilding the node template <{}> of topology <{}> .", operation.getNodeName(), topology.getId());
-        IndexedNodeType type = ToscaContext.getOrFail(IndexedNodeType.class, nodeTemplate.getType());
+        NodeType type = ToscaContext.getOrFail(NodeType.class, nodeTemplate.getType());
         NodeTemplate rebuiltNodeTemplate = NodeTemplateBuilder.buildNodeTemplate(type, nodeTemplate);
         rebuiltNodeTemplate.setName(operation.getNodeName());
         topology.getNodeTemplates().put(operation.getNodeName(), rebuiltNodeTemplate);

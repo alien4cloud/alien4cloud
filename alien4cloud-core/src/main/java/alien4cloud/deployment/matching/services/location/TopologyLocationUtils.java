@@ -6,9 +6,9 @@ import org.apache.commons.collections4.MapUtils;
 
 import alien4cloud.deployment.exceptions.LocationRequiredException;
 import alien4cloud.model.deployment.DeploymentTopology;
-import alien4cloud.model.topology.AbstractPolicy;
-import alien4cloud.model.topology.LocationPlacementPolicy;
-import alien4cloud.model.topology.NodeGroup;
+import org.alien4cloud.tosca.model.templates.AbstractPolicy;
+import org.alien4cloud.tosca.model.templates.LocationPlacementPolicy;
+import org.alien4cloud.tosca.model.templates.NodeGroup;
 
 import com.google.common.collect.Maps;
 

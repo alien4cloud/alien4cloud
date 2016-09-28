@@ -1,20 +1,10 @@
 package alien4cloud.plugin.aop;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-import javax.annotation.Resource;
-
+import alien4cloud.events.AlienEvent;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -31,9 +21,16 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 import org.springframework.util.ReflectionUtils.MethodFilter;
 
-import alien4cloud.events.AlienEvent;
-
-import com.google.common.collect.Maps;
+import javax.annotation.Resource;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Manage inter context proxies : thanks to it, we can define aspects upon main context beans in child contexts. Also broadcast {@link AlienEvent}s to child
@@ -77,6 +74,11 @@ public class ChildContextAspectsManager implements ApplicationListener<Applicati
         if (log.isTraceEnabled()) {
             log.trace("post processing bean with id <{}> of type <{}>", id, bean.getClass().toString());
         }
+        if (AopUtils.isAopProxy(bean)) {
+            log.debug("Spring is already managing proxy for bean of class {}.", bean.getClass().toString());
+            return bean;
+        }
+
         if (AnnotationUtils.findAnnotation(bean.getClass(), Overridable.class) != null) {
             // the bean is annotated as Overridable candidate
             log.info("The bean with id <{}> of type <{}> is candidate to be overridden by plugin child contexts", id, bean.getClass().toString());

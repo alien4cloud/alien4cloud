@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import alien4cloud.deployment.matching.plugins.ILocationMatcher;
 import alien4cloud.model.deployment.matching.ILocationMatch;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.topology.TopologyServiceCore;
 
 @Service

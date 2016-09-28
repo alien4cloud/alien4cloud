@@ -30,7 +30,7 @@ Feature: Quick Search
     When I authenticate with "COMPONENTS_BROWSER" role
       And I quickly search for "newAppli" from 0 with result size of 10
     Then I should receive a RestResponse with no error
-      And The quickSearch response should only contains 6 "node types"
+      And The quickSearch response should contains 6 "node types"
 
   @reset
   Scenario: quick search should be able to return only what user has access (any application roles)
@@ -39,7 +39,7 @@ Feature: Quick Search
     When I authenticate with "ADMIN" role
       And I quickly search for "newAppli" from 0 with result size of 10
     Then I should receive a RestResponse with no error
-      And The quickSearch response should only contains 2 "applications"
+      And The quickSearch response should contains 2 "applications"
     When I authenticate with "APPLICATIONS_MANAGER" role
       And I quickly search for "newAppli" from 0 with result size of 10
     Then I should receive a RestResponse with no error
@@ -52,17 +52,12 @@ Feature: Quick Search
     When I authenticate with "ADMIN" role
       And I quickly search for "application" from 0 with result size of 10
     Then I should receive a RestResponse with no error
-      And The quickSearch response should only contains 2 "applications"
-    When I quickly search for "type" from 0 with result size of 10
-    	Then I should receive a RestResponse with no error
-    	And The quickSearch response should only contains 1 "applications"
-    	# 'type' is found in the application description
-    	And The quickSearch response should only contains 10 "node types"
+      And The quickSearch response should contains 2 "applications"
     When I quickly search for "node" from 0 with result size of 10
     	Then I should receive a RestResponse with no error
-    	And The quickSearch response should only contains 1 "applications"
+    	And The quickSearch response should contains 1 "applications"
     	# 'node' is found in the application name
-    	And The quickSearch response should only contains 10 "node types"
+    	And The quickSearch response should contains 10 "node types"
     When I authenticate with "APPLICATIONS_MANAGER" role
       And I quickly search for "newnode" from 0 with result size of 10
     Then I should receive a RestResponse with no error

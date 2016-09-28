@@ -9,8 +9,8 @@ import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import com.google.common.collect.Maps;
 
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.templates.Topology;
 
 /**
  * Abstract class to process input operations. Saves common input checking.

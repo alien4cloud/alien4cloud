@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 
-import alien4cloud.model.components.PropertyConstraint;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.constraints.LengthConstraint;
+import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.constraints.LengthConstraint;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 

@@ -10,9 +10,9 @@ import org.yaml.snakeyaml.nodes.Node;
 
 import com.google.common.collect.Sets;
 
-import alien4cloud.model.components.IndexedDataType;
-import alien4cloud.model.components.PropertyConstraint;
-import alien4cloud.model.components.PropertyDefinition;
+import org.alien4cloud.tosca.model.types.DataType;
+import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.normative.IPropertyType;
@@ -91,7 +91,7 @@ public class PropertyDefinitionPostProcessor implements IPostProcessor<Map.Entry
                 // It's data type
                 ArchiveRoot archiveRoot = ParsingContextExecution.getRootObj();
                 if (!archiveRoot.getDataTypes().containsKey(propertyType)) {
-                    IndexedDataType dataType = ToscaContext.get(IndexedDataType.class, propertyType);
+                    DataType dataType = ToscaContext.get(DataType.class, propertyType);
                     if (dataType == null) {
                         Node node = ParsingContextExecution.getObjectToNodeMap().get(propertyType);
                         ParsingContextExecution.getParsingErrors().add(new ParsingError(ErrorCode.TYPE_NOT_FOUND, "ToscaPropertyType", node.getStartMark(),

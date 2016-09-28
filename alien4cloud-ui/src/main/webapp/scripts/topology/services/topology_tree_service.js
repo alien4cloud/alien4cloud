@@ -126,7 +126,7 @@ define(function (require) {
         computeNodeDepth: function(node, visitedNodes, parentDepth) {
           if (node.id in visitedNodes) {
             // Do not visit an already visited node to prevent cyclic dependencies
-            console.log('Hosted on cyclic dependency detected, topology may not be valid.');
+            console.error('Hosted on cyclic dependency detected, topology may not be valid.');
             return;
           }
           visitedNodes[node.id] = node;

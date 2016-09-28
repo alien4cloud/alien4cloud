@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
-import alien4cloud.model.topology.Capability;
+import org.alien4cloud.tosca.model.templates.Capability;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.OrchestratorPluginService;

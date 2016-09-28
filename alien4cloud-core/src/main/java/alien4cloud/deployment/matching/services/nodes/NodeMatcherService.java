@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service;
 
 import alien4cloud.deployment.matching.plugins.INodeMatcherPlugin;
 import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.model.components.IndexedNodeType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.model.deployment.matching.MatchingConfiguration;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.orchestrators.locations.LocationResources;
-import alien4cloud.model.topology.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.orchestrators.locations.services.LocationMatchingConfigurationService;
 import alien4cloud.orchestrators.locations.services.LocationService;
@@ -46,14 +46,14 @@ public class NodeMatcherService {
         return defaultNodeMatcher;
     }
 
-    public Map<String, List<LocationResourceTemplate>> match(Map<String, IndexedNodeType> nodesTypes, Map<String, NodeTemplate> nodesToMatch,
-            String locationId) {
+    public Map<String, List<LocationResourceTemplate>> match(Map<String, NodeType> nodesTypes, Map<String, NodeTemplate> nodesToMatch,
+                                                             String locationId) {
         Map<String, List<LocationResourceTemplate>> matchingResult = Maps.newHashMap();
         Location location = locationService.getOrFail(locationId);
         LocationResources locationResources = locationResourceService.getLocationResources(location);
         Map<String, MatchingConfiguration> matchingConfigurations = locationMatchingConfigurationService.getMatchingConfiguration(location);
         Set<String> typesManagedByLocation = Sets.newHashSet();
-        for (IndexedNodeType nodeType : locationResources.getNodeTypes().values()) {
+        for (NodeType nodeType : locationResources.getNodeTypes().values()) {
             typesManagedByLocation.add(nodeType.getElementId());
             typesManagedByLocation.addAll(nodeType.getDerivedFrom());
         }
@@ -62,7 +62,7 @@ public class NodeMatcherService {
             String nodeTemplateId = nodeTemplateEntry.getKey();
             NodeTemplate nodeTemplate = nodeTemplateEntry.getValue();
             if (typesManagedByLocation.contains(nodeTemplate.getType())) {
-                IndexedNodeType nodeTemplateType = nodesTypes.get(nodeTemplate.getType());
+                NodeType nodeTemplateType = nodesTypes.get(nodeTemplate.getType());
                 if (nodeTemplateType == null) {
                     throw new InvalidArgumentException("The given node types map must contain the type of the node template");
                 }

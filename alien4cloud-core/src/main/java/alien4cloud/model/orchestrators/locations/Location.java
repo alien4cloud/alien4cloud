@@ -19,7 +19,7 @@ import org.elasticsearch.mapping.IndexType;
 import org.hibernate.validator.constraints.NotBlank;
 
 import alien4cloud.model.common.IMetaProperties;
-import alien4cloud.model.components.CSARDependency;
+import org.alien4cloud.tosca.model.CSARDependency;
 import alien4cloud.security.ISecuredResource;
 import alien4cloud.security.model.DeployerRole;
 import alien4cloud.utils.jackson.*;

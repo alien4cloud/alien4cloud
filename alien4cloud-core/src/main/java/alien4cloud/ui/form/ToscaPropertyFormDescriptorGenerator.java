@@ -19,10 +19,10 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.IndexedDataType;
-import alien4cloud.model.components.PrimitiveIndexedDataType;
-import alien4cloud.model.components.PropertyDefinition;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.types.DataType;
+import org.alien4cloud.tosca.model.types.PrimitiveDataType;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import alien4cloud.tosca.normative.ToscaType;
 
 import com.google.common.collect.Maps;
@@ -54,7 +54,7 @@ public class ToscaPropertyFormDescriptorGenerator {
             }
             return generateDescriptorForMapType(processedDataTypes, entryDefinition, dependencies);
         } else {
-            IndexedDataType dataType = searchService.getElementInDependencies(IndexedDataType.class, propertyDefinition.getType(), dependencies);
+            DataType dataType = searchService.getElementInDependencies(DataType.class, propertyDefinition.getType(), dependencies);
             if (dataType == null) {
                 throw new InvalidArgumentException("Data type <" + propertyDefinition.getType() + "> do not exist in dependencies " + dependencies);
             }
@@ -66,13 +66,13 @@ public class ToscaPropertyFormDescriptorGenerator {
         }
     }
 
-    private Map<String, Object> generateDescriptorForDataType(Set<String> processedDataTypes, IndexedDataType dataType, Set<CSARDependency> dependencies) {
+    private Map<String, Object> generateDescriptorForDataType(Set<String> processedDataTypes, DataType dataType, Set<CSARDependency> dependencies) {
         Map<String, Object> dataTypeDescriptors = Maps.newHashMap();
-        if (dataType instanceof PrimitiveIndexedDataType) {
+        if (dataType instanceof PrimitiveDataType) {
             dataTypeDescriptors.put(TYPE_KEY, TOSCA_TYPE);
             PropertyDefinition propertyDefinition = new PropertyDefinition();
             propertyDefinition.setType(dataType.getDerivedFrom().get(0));
-            propertyDefinition.setConstraints(((PrimitiveIndexedDataType) dataType).getConstraints());
+            propertyDefinition.setConstraints(((PrimitiveDataType) dataType).getConstraints());
             dataTypeDescriptors.put(TOSCA_DEFINITION_KEY, propertyDefinition);
         } else {
             dataTypeDescriptors.put(TYPE_KEY, COMPLEX_TYPE);

@@ -1,10 +1,10 @@
 package alien4cloud.json.deserializer;
 
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.ComplexPropertyValue;
-import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.ListPropertyValue;
-import alien4cloud.model.components.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 

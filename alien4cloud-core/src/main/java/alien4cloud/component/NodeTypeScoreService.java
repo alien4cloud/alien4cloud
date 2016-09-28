@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 import alien4cloud.Constants;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.version.Version;
 
@@ -55,18 +55,18 @@ public class NodeTypeScoreService implements Runnable {
     public void run() {
         log.info("Updating node type scores.");
         // Go over all indexed node types.
-        GetMultipleDataResult<IndexedNodeType> getMultipleDataResult = alienESDAO.find(IndexedNodeType.class, null, 0, Constants.DEFAULT_ES_SEARCH_SIZE);
+        GetMultipleDataResult<NodeType> getMultipleDataResult = alienESDAO.find(NodeType.class, null, 0, Constants.DEFAULT_ES_SEARCH_SIZE);
         int from = getMultipleDataResult.getTo() + 1;
         processNodeTypes(getMultipleDataResult.getData());
         while (getMultipleDataResult.getData().length > 0 && from < getMultipleDataResult.getTotalResults()) {
-            getMultipleDataResult = alienESDAO.find(IndexedNodeType.class, null, from, from + Constants.DEFAULT_ES_SEARCH_SIZE);
+            getMultipleDataResult = alienESDAO.find(NodeType.class, null, from, from + Constants.DEFAULT_ES_SEARCH_SIZE);
             from = getMultipleDataResult.getTo() + 1;
             processNodeTypes(getMultipleDataResult.getData());
         }
     }
 
-    private void processNodeTypes(IndexedNodeType[] indexedNodeTypes) {
-        for (IndexedNodeType nodeType : indexedNodeTypes) {
+    private void processNodeTypes(NodeType[] indexedNodeTypes) {
+        for (NodeType nodeType : indexedNodeTypes) {
             if (log.isDebugEnabled()) {
                 log.debug("Processing node score for type {}", nodeType.getId());
             }
@@ -84,13 +84,13 @@ public class NodeTypeScoreService implements Runnable {
         }
     }
 
-    private boolean isLatestVersion(IndexedNodeType nodeType) {
+    private boolean isLatestVersion(NodeType nodeType) {
         Map<String, String[]> filters = MapUtil.newHashMap(new String[] { "elementId" }, new String[][] { new String[] { nodeType.getElementId() } });
         // TODO get a single element and order by version.
-        Version nodeVersion = new Version(((IndexedNodeType) nodeType).getArchiveVersion());
+        Version nodeVersion = new Version(((NodeType) nodeType).getArchiveVersion());
 
-        for (Object otherVersionNodeType : alienESDAO.find(IndexedNodeType.class, filters, Constants.DEFAULT_ES_SEARCH_SIZE).getData()) {
-            Version otherVersion = new Version(((IndexedNodeType) otherVersionNodeType).getArchiveVersion());
+        for (Object otherVersionNodeType : alienESDAO.find(NodeType.class, filters, Constants.DEFAULT_ES_SEARCH_SIZE).getData()) {
+            Version otherVersion = new Version(((NodeType) otherVersionNodeType).getArchiveVersion());
             if (nodeVersion.compareTo(otherVersion) < 0) {
                 return false;
             }

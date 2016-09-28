@@ -1,20 +1,16 @@
 package alien4cloud.rest.component;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
+import alien4cloud.common.AlienConstants;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.ElasticSearchClient;
@@ -26,17 +22,15 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.model.components.IndexedNodeType;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
+
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.rest.model.RestResponse;
-import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.RequirementDefinition;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:application-context-search-test.xml")
@@ -53,12 +47,12 @@ public class SearchTest {
     @Resource
     ComponentController componentController;
 
-    List<IndexedNodeType> dataTest = new ArrayList<>();
+    List<NodeType> dataTest = new ArrayList<>();
 
-    IndexedNodeType indexedNodeTypeTest = null;
-    IndexedNodeType indexedNodeTypeTest2 = null;
-    IndexedNodeType indexedNodeTypeTest3 = null;
-    IndexedNodeType indexedNodeTypeTest4 = null;
+    NodeType indexedNodeTypeTest = null;
+    NodeType indexedNodeTypeTest2 = null;
+    NodeType indexedNodeTypeTest3 = null;
+    NodeType indexedNodeTypeTest4 = null;
     private static final int NUMBER_ELEMENT = 10;
 
     @Before
@@ -71,13 +65,13 @@ public class SearchTest {
     @Test
     public void searchPostTest() {
         String query = "positive";
-        RestResponse<FacetedSearchResult> response;
+        RestResponse<FacetedSearchResult<? extends AbstractToscaType>> response;
         SearchRequest req;
         FacetedSearchResult data;
         String[] ids;
         // without filters
         req = new SearchRequest(QueryComponentType.NODE_TYPE, query, 0, NUMBER_ELEMENT, null);
-        response = componentController.search(req, true);
+        response = componentController.search(req);
         assertNotNull(response);
         assertNotNull(response.getData());
         assertNull(response.getError());
@@ -88,7 +82,7 @@ public class SearchTest {
         ids = new String[] { indexedNodeTypeTest.getId(), indexedNodeTypeTest4.getId() };
 
         for (int i = 0; i < data.getData().length; i++) {
-            IndexedNodeType idnt = (IndexedNodeType) data.getData()[i];
+            NodeType idnt = (NodeType) data.getData()[i];
             assertElementIn(idnt.getId(), ids);
         }
 
@@ -96,7 +90,7 @@ public class SearchTest {
         Map<String, String[]> filters = new HashMap<String, String[]>();
         filters.put("capabilities.type", new String[] { "container", "banana" });
         req = new SearchRequest(QueryComponentType.NODE_TYPE, query, 0, NUMBER_ELEMENT, filters);
-        response = componentController.search(req, true);
+        response = componentController.search(req);
         assertNotNull(response);
         assertNotNull(response.getData());
         assertNull(response.getError());
@@ -104,13 +98,13 @@ public class SearchTest {
         assertEquals(1, data.getTotalResults());
         assertEquals(1, data.getTypes().length);
         assertEquals(1, data.getData().length);
-        IndexedNodeType idnt = (IndexedNodeType) data.getData()[0];
+        NodeType idnt = (NodeType) data.getData()[0];
         assertElementIn(idnt.getId(), new String[] { indexedNodeTypeTest.getId() });
 
         // test nothing found
         query = "pacpac";
         req = new SearchRequest(QueryComponentType.NODE_TYPE, query, 0, NUMBER_ELEMENT, null);
-        response = componentController.search(req, true);
+        response = componentController.search(req);
         assertNotNull(response);
         assertNotNull(response.getData());
         assertNull(response.getError());
@@ -122,9 +116,9 @@ public class SearchTest {
     }
 
     private void prepareToscaElement() {
-        List<CapabilityDefinition> capa = Lists.newArrayList(new CapabilityDefinition("container", "container", 1), new CapabilityDefinition("container1",
-                "container1", 1), new CapabilityDefinition("container2", "container2", 1), new CapabilityDefinition("container3", "container3", 1),
-                new CapabilityDefinition("war", "war", 1));
+        List<CapabilityDefinition> capa = Lists.newArrayList(new CapabilityDefinition("container", "container", 1),
+                new CapabilityDefinition("container1", "container1", 1), new CapabilityDefinition("container2", "container2", 1),
+                new CapabilityDefinition("container3", "container3", 1), new CapabilityDefinition("war", "war", 1));
         List<RequirementDefinition> req = Lists.newArrayList(new RequirementDefinition("Runtime", "Runtime"), new RequirementDefinition("server", "server"),
                 new RequirementDefinition("blob", "blob"));
 
@@ -133,34 +127,36 @@ public class SearchTest {
         indexedNodeTypeTest.setId("1");
         dataTest.add(indexedNodeTypeTest);
 
-        capa = Lists.newArrayList(new CapabilityDefinition("banana", "banana", 1), new CapabilityDefinition("banana1", "banana1", 1), new CapabilityDefinition(
-                "container", "container", 1), new CapabilityDefinition("banana3", "banana3", 1), new CapabilityDefinition("zar", "zar", 1));
-        req = Lists.newArrayList(new RequirementDefinition("Pant", "Pant"), new RequirementDefinition("DBZ", "DBZ"), new RequirementDefinition("Animes",
-                "Animes"));
+        capa = Lists.newArrayList(new CapabilityDefinition("banana", "banana", 1), new CapabilityDefinition("banana1", "banana1", 1),
+                new CapabilityDefinition("container", "container", 1), new CapabilityDefinition("banana3", "banana3", 1),
+                new CapabilityDefinition("zar", "zar", 1));
+        req = Lists.newArrayList(new RequirementDefinition("Pant", "Pant"), new RequirementDefinition("DBZ", "DBZ"),
+                new RequirementDefinition("Animes", "Animes"));
         der = Lists.newArrayList("Songoku", "Kami");
         indexedNodeTypeTest2 = createIndexedNodeType("2", "pokerFace", "1.0", "", capa, req, der, new ArrayList<String>());
         dataTest.add(indexedNodeTypeTest2);
 
         capa = Lists.newArrayList(new CapabilityDefinition("potatoe", "potatoe", 1), new CapabilityDefinition("potatoe2", "potatoe2", 1),
-                new CapabilityDefinition("potatoe3", "potatoe3", 1), new CapabilityDefinition("potatoe4", "potatoe4", 1), new CapabilityDefinition("zor",
-                        "zor", 1));
+                new CapabilityDefinition("potatoe3", "potatoe3", 1), new CapabilityDefinition("potatoe4", "potatoe4", 1),
+                new CapabilityDefinition("zor", "zor", 1));
         req = Lists.newArrayList(new RequirementDefinition("OnePiece", "OnePiece"), new RequirementDefinition("beelzebub", "beelzebub"),
                 new RequirementDefinition("DBGT", "DBGT"));
         der = Lists.newArrayList("Jerome", "Sandrini");
         indexedNodeTypeTest3 = createIndexedNodeType("3", "nagative", "1.5", "", capa, req, der, new ArrayList<String>());
         dataTest.add(indexedNodeTypeTest3);
 
-        capa = Lists.newArrayList(new CapabilityDefinition("yams", "yams", 1), new CapabilityDefinition("yams1", "yams1", 1), new CapabilityDefinition(
-                "positiveYes", "positiveYes", 1), new CapabilityDefinition("yams3", "yams3", 1), new CapabilityDefinition("war world", "war world", 1));
-        req = Lists.newArrayList(new RequirementDefinition("Naruto", "Naruto"), new RequirementDefinition("FT", "FT"), new RequirementDefinition("Bleach",
-                "Bleach"));
+        capa = Lists.newArrayList(new CapabilityDefinition("yams", "yams", 1), new CapabilityDefinition("yams1", "yams1", 1),
+                new CapabilityDefinition("positiveYes", "positiveYes", 1), new CapabilityDefinition("yams3", "yams3", 1),
+                new CapabilityDefinition("war world", "war world", 1));
+        req = Lists.newArrayList(new RequirementDefinition("Naruto", "Naruto"), new RequirementDefinition("FT", "FT"),
+                new RequirementDefinition("Bleach", "Bleach"));
         der = Lists.newArrayList("Luc", "Boutier");
         indexedNodeTypeTest4 = createIndexedNodeType("4", "pokerFace", "2.0", "", capa, req, der, new ArrayList<String>());
         dataTest.add(indexedNodeTypeTest4);
     }
 
     private void saveDataToES(boolean refresh) throws JsonProcessingException {
-        for (IndexedNodeType datum : dataTest) {
+        for (NodeType datum : dataTest) {
             String json = jsonMapper.writeValueAsString(datum);
             String typeName = MappingBuilder.indexTypeFromClass(datum.getClass());
             nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(json).setRefresh(refresh).execute().actionGet();
@@ -179,15 +175,16 @@ public class SearchTest {
 
     @After
     public void cleanup() throws InterruptedException {
-        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, IndexedNodeType.class);
+        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, NodeType.class);
     }
 
-    private static IndexedNodeType createIndexedNodeType(String id, String archiveName, String archiveVersion, String description,
+    private static NodeType createIndexedNodeType(String id, String archiveName, String archiveVersion, String description,
             List<CapabilityDefinition> capabilities, List<RequirementDefinition> requirements, List<String> derivedFroms, List<String> defaultCapabilities) {
-        IndexedNodeType nodeType = new IndexedNodeType();
+        NodeType nodeType = new NodeType();
         nodeType.setElementId(id);
         nodeType.setArchiveName(archiveName);
         nodeType.setArchiveVersion(archiveVersion);
+        nodeType.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
         nodeType.setCapabilities(capabilities);
         nodeType.setDescription(description);
         nodeType.setDefaultCapabilities(defaultCapabilities);

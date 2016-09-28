@@ -13,8 +13,8 @@ import org.yaml.snakeyaml.nodes.ScalarNode;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.model.components.Interface;
-import alien4cloud.model.components.Operation;
+import org.alien4cloud.tosca.model.definitions.Interface;
+import org.alien4cloud.tosca.model.definitions.Operation;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 import alien4cloud.tosca.parser.INodeParser;

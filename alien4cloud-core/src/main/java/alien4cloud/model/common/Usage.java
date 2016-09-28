@@ -20,4 +20,6 @@ public class Usage {
     private String resourceType;
     /** Id of the resource that uses */
     private String resourceId;
+    /** Workspace of the resource that uses the CSAR, can be null if this notion does not exist on the resource **/
+    private String workspace;
 }

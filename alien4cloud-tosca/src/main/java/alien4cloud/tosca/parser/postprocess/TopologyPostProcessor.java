@@ -10,10 +10,10 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.topology.NodeGroup;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.templates.NodeGroup;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.wf.*;
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.tosca.context.ToscaContext;
@@ -89,7 +89,7 @@ public class TopologyPostProcessor implements IPostProcessor<Topology> {
                     }
 
                     @Override
-                    public <T extends IndexedToscaElement> T findElement(Class<T> clazz, String id) {
+                    public <T extends AbstractToscaType> T findElement(Class<T> clazz, String id) {
                         return ToscaContext.get(clazz, id);
                     }
                 });

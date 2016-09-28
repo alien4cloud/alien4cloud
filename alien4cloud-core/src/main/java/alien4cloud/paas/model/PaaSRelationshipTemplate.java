@@ -4,12 +4,12 @@ import java.nio.file.Path;
 
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.topology.RelationshipTemplate;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 
 @Getter
 @Setter
-public class PaaSRelationshipTemplate extends AbstractPaaSTemplate<IndexedRelationshipType, RelationshipTemplate> {
+public class PaaSRelationshipTemplate extends AbstractPaaSTemplate<RelationshipType, RelationshipTemplate> {
     private String source;
     private Path csarPath;
 

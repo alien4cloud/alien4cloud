@@ -6,11 +6,11 @@ import org.elasticsearch.common.collect.Lists;
 import org.junit.Test;
 
 import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
-import alien4cloud.model.components.PropertyConstraint;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.constraints.EqualConstraint;
-import alien4cloud.model.components.constraints.InRangeConstraint;
-import alien4cloud.model.components.constraints.LessThanConstraint;
+import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.InRangeConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.LessThanConstraint;
 import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 

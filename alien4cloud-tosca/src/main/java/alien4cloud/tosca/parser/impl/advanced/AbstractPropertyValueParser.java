@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import alien4cloud.model.components.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import lombok.extern.slf4j.Slf4j;

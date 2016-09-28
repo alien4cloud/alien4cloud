@@ -34,6 +34,8 @@ import springfox.documentation.annotations.ApiIgnore;
 public class EditorController {
     @Inject
     private EditorService editorService;
+    @Inject
+    private EditionContextManager editionContextManager;
     /** We use the artifact repository to store temporary files from the edition context. */
     @Resource
     private IFileRepository artifactRepository;
@@ -45,7 +47,7 @@ public class EditorController {
      * @param operation The operation to execute
      */
     @ApiIgnore
-    @RequestMapping(value = "/{topologyId}/execute", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/execute", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<TopologyDTO> execute(@PathVariable String topologyId, @RequestBody @Valid AbstractEditorOperation operation) {
         TopologyDTO topologyDTO = editorService.execute(topologyId, operation);
@@ -62,7 +64,7 @@ public class EditorController {
      */
     @ApiIgnore
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/{topologyId}/undo", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/undo", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> undoRedo(@PathVariable String topologyId, @RequestParam("at") int at,
             @RequestParam("lastOperationId") String lastOperationId) {
         if (lastOperationId != null && "null".equals(lastOperationId)) {
@@ -83,7 +85,7 @@ public class EditorController {
      */
     @ApiIgnore
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/{topologyId}/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> upload(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId,
             @RequestParam("path") String path, @RequestParam(value = "file") MultipartFile file) throws IOException {
         if (lastOperationId != null && "null".equals(lastOperationId)) {
@@ -107,7 +109,7 @@ public class EditorController {
      */
     @ApiIgnore
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/{topologyId}/file/{artifactId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/file/{artifactId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<InputStreamResource> downloadTempFile(@PathVariable String topologyId, @PathVariable String artifactId) {
         editorService.checkAuthorization(topologyId);
 
@@ -131,7 +133,7 @@ public class EditorController {
      */
     @ApiIgnore
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/{topologyId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> save(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId) {
         if (lastOperationId != null && "null".equals(lastOperationId)) {
             lastOperationId = null;
@@ -143,7 +145,7 @@ public class EditorController {
 
     @ApiIgnore
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/{topologyId}/history", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/history", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<List<SimpleGitHistoryEntry>> history(@PathVariable String topologyId, @RequestParam("from") int from,
             @RequestParam("count") int count) {
         List<SimpleGitHistoryEntry> historyEntries = editorService.history(topologyId, from, count);
@@ -152,7 +154,7 @@ public class EditorController {
 
     @ApiOperation(value = "Override the topology archive with the one provided as a parameter.", notes = "This operation will fail if the topology is under edition (meaning a context with some operations exists). The topology will be fully overriden with the new archive content (if valid) and a local commit will be dispatched.")
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/{topologyId}/override", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/override", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> updateTopologyArchive(@PathVariable String topologyId, @RequestParam(value = "file") MultipartFile file) throws IOException {
         try (InputStream inputStream = file.getInputStream()) {
             editorService.override(topologyId, inputStream);
@@ -168,7 +170,7 @@ public class EditorController {
      */
     @ApiOperation(value = "Recovers the topology after a dependency have change. This will apply the registered recovery operations and save the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/{topologyId}/recover", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/recover", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> recover(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId) {
         if (lastOperationId != null && "null".equals(lastOperationId)) {
             lastOperationId = null;
@@ -184,7 +186,7 @@ public class EditorController {
      * @return A topology DTO with the updated topology.
      */
     @PreAuthorize("isAuthenticated()")
-    @RequestMapping(value = "/{topologyId}/reset", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/reset", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> reset(@PathVariable String topologyId, @RequestParam("lastOperationId") String lastOperationId) {
         if (lastOperationId != null && "null".equals(lastOperationId)) {
             lastOperationId = null;
@@ -192,4 +194,87 @@ public class EditorController {
         TopologyDTO topologyDTO = editorService.reset(topologyId, lastOperationId);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
     }
+
+    /**
+     * Clear the edition cache.
+     * 
+     * @param force
+     * @return Void
+     */
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @RequestMapping(value = "/clearCache", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> clearCache(@RequestParam("force") Boolean force) {
+        if (force) {
+            editionContextManager.clearCache();
+        }
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * Pull modifications from a git repository.
+     * If a conflict occurs when pulling the repository, an exception will be throw asking the end user to manually revolve the merge.
+     *
+     * @param topologyId The id of the topology.
+     * @param gitUser The git credentials if any.
+     * @param remoteBranch The name of the remote branch to pull from (default: 'master').
+     * @return An empty RestResponse.
+     */
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId:.+}/git/pull", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> pull(@PathVariable String topologyId, @RequestBody EditorGitUserDTO gitUser,
+            @RequestParam(name = "remoteBranch", defaultValue = "master", required = false)  String remoteBranch) {
+        editorService.pull(topologyId, gitUser.getUsername(), gitUser.getPassword(), remoteBranch);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * Push modifications to a git repository.
+     *
+     * If a conflict occurs when pushing the repository:
+     * <ul>
+     *     <li>It will create push the current commits to a temporary branch.</li>
+     *     <li>Then will re-branch the local branch to the last commit of the remote branch.</li>
+     *     <li>Finally a runtime exception will be thrown asking the end user to manually revolve the merge.</li>
+     * </ul>
+     *
+     * @param topologyId the id of the topology.
+     * @param gitUser The git credentials if any.
+     * @param remoteBranch The name of the remote branch to push to (default: 'master).
+     * @return An empty RestResponse.
+     */
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId:.+}/git/push", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> push(@PathVariable String topologyId, @RequestBody EditorGitUserDTO gitUser,
+            @RequestParam(name = "remoteBranch", defaultValue = "master", required = false) String remoteBranch) {
+        editorService.push(topologyId, gitUser.getUsername(), gitUser.getPassword(), remoteBranch);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * Set the remote git repository url.
+     *
+     * @param topologyId the id of the topology.
+     * @param remoteUrl The git url of the remote repository.
+     * @return An empty RestResponse.
+     */
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId:.+}/git/remote", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> setRemote(@PathVariable String topologyId, @RequestParam("remoteUrl") String remoteUrl) {
+        editorService.setRemote(topologyId, "origin", remoteUrl); // The remote is always 'origin' right now.
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * Get the url of the git repository.
+     *
+     * @param topologyId The id of the topology.
+     * @return The url of the git repository of the topology.
+     */
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId:.+}/git/remote", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<EditorGitRemoteDTO> getRemote(@PathVariable String topologyId) {
+        String remoteUrl = editorService.getRemoteUrl(topologyId, "origin"); // The remote is always 'origin' right now.
+        return RestResponseBuilder.<EditorGitRemoteDTO> builder().data(new EditorGitRemoteDTO("origin", remoteUrl)).build();
+    }
+
 }

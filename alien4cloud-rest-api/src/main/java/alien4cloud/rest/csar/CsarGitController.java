@@ -13,7 +13,7 @@ import alien4cloud.audit.annotation.Audit;
 import alien4cloud.csar.services.CsarGitRepositoryService;
 import alien4cloud.csar.services.CsarGitService;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.model.components.Csar;
+import org.alien4cloud.tosca.model.Csar;
 import alien4cloud.model.git.CsarGitRepository;
 import alien4cloud.rest.model.*;
 import alien4cloud.tosca.parser.ParsingErrorLevel;

@@ -5,17 +5,22 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FilterDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.deployment.matching.plugins.INodeMatcherPlugin;
-import alien4cloud.model.components.*;
-import alien4cloud.model.components.constraints.IMatchPropertyConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.IMatchPropertyConstraint;
 import alien4cloud.model.deployment.matching.MatchingConfiguration;
 import alien4cloud.model.deployment.matching.MatchingFilterDefinition;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.orchestrators.locations.LocationResources;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import alien4cloud.tosca.normative.IPropertyType;
 import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
@@ -37,8 +42,8 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
      * @param nodeType The node type that defines the type of the node template to match.
      * @param locationResources The resources configured for the location against which we are matching the nodes.
      */
-    public List<LocationResourceTemplate> matchNode(NodeTemplate nodeTemplate, IndexedNodeType nodeType, LocationResources locationResources,
-            Map<String, MatchingConfiguration> matchingConfigurations) {
+    public List<LocationResourceTemplate> matchNode(NodeTemplate nodeTemplate, NodeType nodeType, LocationResources locationResources,
+                                                    Map<String, MatchingConfiguration> matchingConfigurations) {
         List<LocationResourceTemplate> matchingResults = Lists.newArrayList();
 
         List<LocationResourceTemplate> matchedServices = matchServices(nodeTemplate, nodeType, locationResources);
@@ -57,7 +62,7 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
      * @param nodeType The node type that defines the type of the node template to match.
      * @param locationResources The resources configured for the location against which we are matching the nodes.
      */
-    private List<LocationResourceTemplate> matchServices(NodeTemplate nodeTemplate, IndexedNodeType nodeType, LocationResources locationResources) {
+    private List<LocationResourceTemplate> matchServices(NodeTemplate nodeTemplate, NodeType nodeType, LocationResources locationResources) {
         // TODO perform service matching
 
         // check if the node template candidate has any specified operation or relation operations if so reject service matching for this node as it is not
@@ -73,8 +78,8 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
      * @param nodeType The node type that defines the type of the node template to match.
      * @param locationResources The resources configured for the location against which we are matching the nodes.
      */
-    private List<LocationResourceTemplate> matchedOnDemands(NodeTemplate nodeTemplate, IndexedNodeType nodeType, LocationResources locationResources,
-            Map<String, MatchingConfiguration> matchingConfigurations) {
+    private List<LocationResourceTemplate> matchedOnDemands(NodeTemplate nodeTemplate, NodeType nodeType, LocationResources locationResources,
+                                                            Map<String, MatchingConfiguration> matchingConfigurations) {
         /*
          * TODO Refine node matching by considering specific matching rules for the node. If no constraint is specified in a matching configuration then equals
          * constraint is applied.
@@ -83,7 +88,7 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
         List<LocationResourceTemplate> candidates = locationResources.getNodeTemplates();
         for (LocationResourceTemplate candidate : candidates) {
             String candidateTypeName = candidate.getTemplate().getType();
-            IndexedNodeType candidateType = locationResources.getNodeTypes().get(candidateTypeName);
+            NodeType candidateType = locationResources.getNodeTypes().get(candidateTypeName);
             // For the moment only match by node type
             if (isValidCandidate(nodeTemplate, nodeType, candidate, candidateType, locationResources.getCapabilityTypes(), matchingConfigurations)) {
                 matchingResults.add(candidate);
@@ -104,8 +109,8 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
      * @param capabilityTypes Map of capability types that may be used by the candidateType.
      * @return True if the candidate is a valid match for the node template.
      */
-    private boolean isValidCandidate(NodeTemplate nodeTemplate, IndexedNodeType nodeType, LocationResourceTemplate candidate, IndexedNodeType candidateType,
-            Map<String, IndexedCapabilityType> capabilityTypes, Map<String, MatchingConfiguration> matchingConfigurations) {
+    private boolean isValidCandidate(NodeTemplate nodeTemplate, NodeType nodeType, LocationResourceTemplate candidate, NodeType candidateType,
+                                     Map<String, CapabilityType> capabilityTypes, Map<String, MatchingConfiguration> matchingConfigurations) {
         // Check that the candidate node type is valid
         if (!isCandidateTypeValid(nodeTemplate, candidate, candidateType)) {
             return false;
@@ -128,7 +133,7 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
     }
 
     private boolean isTemplatePropertiesMatchCandidateFilters(NodeTemplate nodeTemplate, MatchingConfiguration matchingConfiguration,
-            LocationResourceTemplate candidate, IndexedNodeType candidateType, Map<String, IndexedCapabilityType> capabilityTypes) {
+                                                              LocationResourceTemplate candidate, NodeType candidateType, Map<String, CapabilityType> capabilityTypes) {
         // check that the node root properties matches the filters defined on the MatchingConfigurations.
         if (!isTemplatePropertiesMatchCandidateFilter(nodeTemplate.getProperties(), matchingConfiguration.getProperties(),
                 candidate.getTemplate().getProperties(), candidateType.getProperties())) {
@@ -145,7 +150,7 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
             FilterDefinition filterDefinition = new FilterDefinition();
 
             Capability candidateCapability = candidate.getTemplate().getCapabilities().get(capabilityMatchingFilterEntry.getKey());
-            IndexedCapabilityType capabilityType = capabilityTypes.get(candidateCapability.getType());
+            CapabilityType capabilityType = capabilityTypes.get(candidateCapability.getType());
             Capability templateCapability = nodeTemplate.getCapabilities().get(capabilityMatchingFilterEntry.getKey());
 
             if (templateCapability != null
@@ -202,7 +207,7 @@ public class DefaultNodeMatcher implements INodeMatcherPlugin {
      * @param candidate The candidate location resource.
      * @return True if the candidate type matches the node template type, false if not.
      */
-    private boolean isCandidateTypeValid(NodeTemplate nodeTemplate, LocationResourceTemplate candidate, IndexedNodeType candidateType) {
+    private boolean isCandidateTypeValid(NodeTemplate nodeTemplate, LocationResourceTemplate candidate, NodeType candidateType) {
         return candidateType.getElementId().equals(nodeTemplate.getType())
                 || (candidateType.getDerivedFrom() != null && candidateType.getDerivedFrom().contains(nodeTemplate.getType()));
     }

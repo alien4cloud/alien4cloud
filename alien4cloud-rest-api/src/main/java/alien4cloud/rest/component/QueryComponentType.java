@@ -1,25 +1,25 @@
 package alien4cloud.rest.component;
 
-import alien4cloud.model.components.IndexedArtifactType;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.IndexedToscaElement;
+import org.alien4cloud.tosca.model.types.ArtifactType;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 
 /**
  * Enumeration of the components types available for search.
  */
 public enum QueryComponentType {
-    NODE_TYPE(IndexedNodeType.class), CAPABILITY_TYPE(IndexedCapabilityType.class), RELATIONSHIP_TYPE(IndexedRelationshipType.class), ARTIFACT_TYPE(
-            IndexedArtifactType.class);
+    NODE_TYPE(NodeType.class), CAPABILITY_TYPE(CapabilityType.class), RELATIONSHIP_TYPE(RelationshipType.class), ARTIFACT_TYPE(
+            ArtifactType.class);
 
-    private final Class<? extends IndexedToscaElement> indexedToscaElementClass;
+    private final Class<? extends AbstractToscaType> indexedToscaElementClass;
 
-    private QueryComponentType(Class<? extends IndexedToscaElement> matchingClass) {
+    private QueryComponentType(Class<? extends AbstractToscaType> matchingClass) {
         this.indexedToscaElementClass = matchingClass;
     }
 
-    public Class<? extends IndexedToscaElement> getIndexedToscaElementClass() {
+    public Class<? extends AbstractToscaType> getIndexedToscaElementClass() {
         return indexedToscaElementClass;
     }
 
@@ -33,7 +33,7 @@ public enum QueryComponentType {
      * @param componentClass The class for which to get the {@link QueryComponentType}.
      * @return The matching {@link QueryComponentType} if found or null if no type matches the given class.
      */
-    public static QueryComponentType valueOf(Class<? extends IndexedToscaElement> componentClass) {
+    public static QueryComponentType valueOf(Class<? extends AbstractToscaType> componentClass) {
         for (QueryComponentType type : QueryComponentType.values()) {
             if (type.getMatchingClassName().equals(componentClass.getName())) {
                 return type;

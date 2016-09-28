@@ -5,7 +5,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.model.components.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.inputs.AddInputOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
@@ -17,10 +17,9 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidNameException;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import alien4cloud.model.deployment.DeploymentTopology;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.topology.TopologyServiceCore;
 import lombok.extern.slf4j.Slf4j;
 

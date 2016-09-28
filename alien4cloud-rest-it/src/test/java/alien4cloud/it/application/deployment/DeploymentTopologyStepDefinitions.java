@@ -1,8 +1,6 @@
 package alien4cloud.it.application.deployment;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,10 +9,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.elasticsearch.common.collect.ImmutableMap;
 import org.junit.Assert;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,12 +26,7 @@ import com.google.common.collect.Maps;
 import alien4cloud.common.AlienConstants;
 import alien4cloud.it.Context;
 import alien4cloud.model.application.Application;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.PropertyValue;
-import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.rest.application.model.SetLocationPoliciesRequest;
 import alien4cloud.rest.application.model.UpdateDeploymentTopologyRequest;
@@ -86,7 +83,7 @@ public class DeploymentTopologyStepDefinitions {
     @When("^I Set a unique location policy to \"([^\"]*)\"/\"([^\"]*)\" for all nodes$")
     public void I_Set_a_unique_location_policy_to_for_all_nodes(String orchestratorName, String locationName) throws Throwable {
         I_Set_the_following_location_policies_for_groups(orchestratorName,
-                MapUtil.newHashMap(new String[]{AlienConstants.GROUP_ALL}, new String[]{locationName}));
+                MapUtil.newHashMap(new String[] { AlienConstants.GROUP_ALL }, new String[] { locationName }));
     }
 
     @When("^I get the deployment toology for the current application$")
@@ -100,7 +97,7 @@ public class DeploymentTopologyStepDefinitions {
 
     @When("^I substitute on the current application the node \"(.*?)\" with the location resource \"(.*?)\"/\"(.*?)\"/\"(.*?)\"$")
     public void I_substitute_on_the_current_application_the_node_with_the_location_resource(String nodeName, String orchestratorName, String locationName,
-                                                                                            String resourceName) throws Throwable {
+            String resourceName) throws Throwable {
         Context context = Context.getInstance();
         Application application = context.getApplication();
         String envId = context.getDefaultApplicationEnvironmentId(application.getName());
@@ -173,7 +170,7 @@ public class DeploymentTopologyStepDefinitions {
 
     @Then("^The the node \"(.*?)\" in the deployment topology should have the capability \"(.*?)\"'s property \"(.*?)\" with value \"(.*?)\"$")
     public void the_the_node_in_the_deployment_topology_should_have_the_capability_s_property_with_value(String nodeName, String capabilityName,
-                                                                                                         String propertyName, String expectedPropertyValue) throws Throwable {
+            String propertyName, String expectedPropertyValue) throws Throwable {
         DeploymentTopologyDTO dto = JsonUtil.read(Context.getInstance().getRestResponse(), DeploymentTopologyDTO.class, Context.getJsonMapper()).getData();
         assertNotNull(dto);
         NodeTemplate node = dto.getTopology().getNodeTemplates().get(nodeName);
@@ -287,9 +284,10 @@ public class DeploymentTopologyStepDefinitions {
     public void iUploadAFileLocatedAtForTheInputArtifact(String localFile, String inputArtifactName) throws Throwable {
         Application application = Context.getInstance().getApplication();
         String envId = Context.getInstance().getDefaultApplicationEnvironmentId(application.getName());
-        String url = String.format("/rest/applications/%s/environments/%s/deployment-topology/inputArtifacts/%s/upload", application.getId(), envId, inputArtifactName);
-        Context.getInstance()
-                .registerRestResponse(Context.getRestClientInstance().postMultipart(url, Paths.get(localFile).getFileName().toString(), Files.newInputStream(Paths.get(localFile))));
+        String url = String.format("/rest/applications/%s/environments/%s/deployment-topology/inputArtifacts/%s/upload", application.getId(), envId,
+                inputArtifactName);
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postMultipart(url, Paths.get(localFile).getFileName().toString(), Files.newInputStream(Paths.get(localFile))));
     }
 
     @Getter

@@ -113,7 +113,7 @@ Feature: GIT repository usage
      And I get the GIT repo with url "https://github.com/alien4cloud/tosca-normative-types.git"
      And I import the GIT repository
      And I can find 1 CSAR
-     And I have CSAR created with id "tosca-normative-types:1.0.0.wd03-SNAPSHOT"
+     And I should have a CSAR with id "tosca-normative-types:1.0.0.wd03-SNAPSHOT"
      And I add a GIT repository with url "https://github.com/alien4cloud/samples.git" usr "" pwd "" stored "false" and locations
         | branchId | subPath |
         | 1.0.0    | apache  |
@@ -124,7 +124,7 @@ Feature: GIT repository usage
     When I import the GIT repository
     Then I should receive a RestResponse with no error
      And I can find 2 CSAR
-     And I have CSAR created with id "apache-type:2.0.0-SNAPSHOT"
+     And I should have a CSAR with id "apache-type:2.0.0-SNAPSHOT"
     When I try to get a component with id "alien.nodes.Apache:2.0.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
      And I should have a component with id "alien.nodes.Apache:2.0.0-SNAPSHOT"
@@ -178,7 +178,7 @@ Feature: GIT repository usage
         | 1.0.0    | php     |
      And I import the GIT repository
      And I can find 3 CSAR
-     And I have CSAR created with id "php-type:2.0.0-SNAPSHOT"
+     And I should have a CSAR with id "php-type:2.0.0-SNAPSHOT"
     When I try to get a component with id "alien.nodes.PHP:2.0.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
      And I should have a component with id "alien.nodes.PHP:2.0.0-SNAPSHOT"

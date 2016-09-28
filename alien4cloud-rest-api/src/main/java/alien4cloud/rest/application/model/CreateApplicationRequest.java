@@ -17,6 +17,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor(suppressConstructorProperties = true)
 public class CreateApplicationRequest {
+    /** Name of the archive that is related to the application. This is also the application id. */
+    @NotNull
+    private String archiveName;
     @NotNull
     private String name;
     private String description;

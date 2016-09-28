@@ -4,23 +4,22 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
-import alien4cloud.model.topology.*;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.model.templates.*;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.Interface;
-import alien4cloud.model.components.Operation;
-import alien4cloud.model.components.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.definitions.Interface;
+import org.alien4cloud.tosca.model.definitions.Operation;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
@@ -87,7 +86,7 @@ public class TopologyUtils {
         return interfaces;
     }
 
-    public static void setNullScalingPolicy(NodeTemplate nodeTemplate, IndexedNodeType resourceType) {
+    public static void setNullScalingPolicy(NodeTemplate nodeTemplate, NodeType resourceType) {
         // FIXME Workaround to remove default scalable properties from compute
         if (ToscaUtils.isFromType(NormativeComputeConstants.COMPUTE_TYPE, resourceType)) {
             if (nodeTemplate.getCapabilities() != null) {

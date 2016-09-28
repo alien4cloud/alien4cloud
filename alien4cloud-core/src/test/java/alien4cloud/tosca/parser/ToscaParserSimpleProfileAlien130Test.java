@@ -9,11 +9,11 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.model.components.DeploymentArtifact;
-import alien4cloud.model.components.ImplementationArtifact;
-import alien4cloud.model.components.IndexedArtifactToscaElement;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.definitions.ImplementationArtifact;
+import org.alien4cloud.tosca.model.types.AbstractInstantiableToscaType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 import alien4cloud.tosca.ArchiveParserTest;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.normative.NormativeCredentialConstant;
@@ -35,7 +35,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         Assert.assertEquals(3, archiveRoot.getRepositories().size());
         Assert.assertEquals(1, archiveRoot.getRelationshipTypes().size());
 
-        IndexedNodeType httpComponent = archiveRoot.getNodeTypes().get("my.http.component");
+        NodeType httpComponent = archiveRoot.getNodeTypes().get("my.http.component");
 
         ImplementationArtifact httpComponentCreateArtifact = getImplementationArtifact(httpComponent, "create");
         Assert.assertEquals("https://otherCompany/script/short_notation.sh", httpComponentCreateArtifact.getArtifactRef());
@@ -56,7 +56,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         Assert.assertNull(httpComponentStartArtifact.getArtifactRepository());
         Assert.assertEquals("https://myCompany/script", httpComponentStartArtifact.getRepositoryURL());
 
-        IndexedNodeType gitComponent = archiveRoot.getNodeTypes().get("my.git.component");
+        NodeType gitComponent = archiveRoot.getNodeTypes().get("my.git.component");
         ImplementationArtifact gitComponentCreateArtifact = getImplementationArtifact(gitComponent, "create");
         Assert.assertEquals("master:myGitScript.xyz", gitComponentCreateArtifact.getArtifactRef());
         Assert.assertEquals("tosca.artifacts.Implementation.Bash", gitComponentCreateArtifact.getArtifactType());
@@ -65,7 +65,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         Assert.assertEquals("git", gitComponentCreateArtifact.getArtifactRepository());
         Assert.assertEquals("https://github.com/myId/myRepo.git", gitComponentCreateArtifact.getRepositoryURL());
 
-        IndexedRelationshipType httpRelationship = archiveRoot.getRelationshipTypes().get("my.http.relationship");
+        RelationshipType httpRelationship = archiveRoot.getRelationshipTypes().get("my.http.relationship");
         ImplementationArtifact httpRelationshipCreateArtifact = getImplementationArtifact(httpRelationship, "create");
         Assert.assertEquals("https://otherCompany/script/short_notation.sh", httpRelationshipCreateArtifact.getArtifactRef());
         Assert.assertEquals("tosca.artifacts.Implementation.Bash", httpRelationshipCreateArtifact.getArtifactType());
@@ -100,7 +100,7 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         Assert.assertEquals(1, archiveRoot.getNodeTypes().size());
         Assert.assertEquals(1, archiveRoot.getRelationshipTypes().size());
 
-        IndexedNodeType mavenComponent = archiveRoot.getNodeTypes().get("my.maven.component");
+        NodeType mavenComponent = archiveRoot.getNodeTypes().get("my.maven.component");
         DeploymentArtifact artifact = getDeploymentArtifact(mavenComponent, "simple_war");
         Assert.assertEquals("binary/myWar.war", artifact.getArtifactRef());
         Assert.assertEquals("tosca.artifacts.Deployment.War", artifact.getArtifactType());
@@ -159,11 +159,11 @@ public class ToscaParserSimpleProfileAlien130Test extends AbstractToscaParserSim
         Assert.assertEquals("https://fastconnect.org/maven/content/repositories/fastconnect", repositoryArtifact.getRepositoryURL());
     }
 
-    private ImplementationArtifact getImplementationArtifact(IndexedArtifactToscaElement component, String operation) {
+    private ImplementationArtifact getImplementationArtifact(AbstractInstantiableToscaType component, String operation) {
         return component.getInterfaces().values().iterator().next().getOperations().get(operation).getImplementationArtifact();
     }
 
-    private DeploymentArtifact getDeploymentArtifact(IndexedArtifactToscaElement component, String artifactName) {
+    private DeploymentArtifact getDeploymentArtifact(AbstractInstantiableToscaType component, String artifactName) {
         return component.getArtifacts().get(artifactName);
     }
 

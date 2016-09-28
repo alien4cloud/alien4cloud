@@ -1,10 +1,10 @@
 package org.alien4cloud.tosca.editor.processors.nodetemplate.outputs;
 
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.MapUtil;
 import java.util.Map;
@@ -57,7 +57,7 @@ public class UnSetNodeCapabilityPropertyAsOutputProcessor extends AbstractNodePr
         }
 
         Capability capabilityTemplate = nodeTemplate.getCapabilities().get(operation.getCapabilityName());
-        IndexedCapabilityType indexedCapabilityType = EditionContextManager.get().getToscaContext().getElement(IndexedCapabilityType.class,
+        CapabilityType indexedCapabilityType = EditionContextManager.get().getToscaContext().getElement(CapabilityType.class,
                 capabilityTemplate.getType(), true);
         if (indexedCapabilityType.getProperties() == null || !indexedCapabilityType.getProperties().containsKey(operation.getPropertyName())) {
             throw new NotFoundException("Property " + operation.getPropertyName() + " not found in capability " + operation.getCapabilityName() + " of node "

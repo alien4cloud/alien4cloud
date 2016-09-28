@@ -2,15 +2,15 @@ package alien4cloud.deployment;
 
 import alien4cloud.common.AlienConstants;
 import alien4cloud.deployment.matching.services.nodes.NodeMatcherService;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.IndexedNodeType;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.LocationPlacementPolicy;
-import alien4cloud.model.topology.NodeGroup;
-import alien4cloud.model.topology.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.LocationPlacementPolicy;
+import org.alien4cloud.tosca.model.templates.NodeGroup;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.PropertyUtil;
@@ -48,7 +48,7 @@ public class DeploymentNodeSubstitutionService implements IDeploymentNodeSubstit
      */
     private Map<String, List<LocationResourceTemplate>> getAvailableSubstitutions(Map<String, NodeTemplate> nodeTemplates, Set<CSARDependency> dependencies,
             Map<String, NodeGroup> locationGroups) {
-        Map<String, IndexedNodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromDependencies(nodeTemplates, dependencies, false, false, true);
+        Map<String, NodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromDependencies(nodeTemplates, dependencies, false, false, true);
         Map<String, List<LocationResourceTemplate>> availableSubstitutions = Maps.newHashMap();
         for (final Map.Entry<String, NodeGroup> locationGroupEntry : locationGroups.entrySet()) {
             String groupName = locationGroupEntry.getKey();

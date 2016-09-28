@@ -29,12 +29,25 @@ define(function (require) {
   });
   states.forward('applications', 'applications.list');
 
-  var NewApplicationCtrl = ['$scope', '$modalInstance', '$resource',
-    function($scope, $modalInstance, $resource) {
+  var NewApplicationCtrl = ['$scope', '$modalInstance',
+    function($scope, $modalInstance) {
       $scope.app = {};
-      $scope.create = function(valid, templateVersionId) {
+      var autoGenArchiveName = true;
+      $scope.nameChange= function() {
+        if(autoGenArchiveName) {
+          $scope.app.archiveName = _.capitalize(_.camelCase($scope.app.name));
+        }
+      };
+      $scope.archiveNameChange= function() {
+        autoGenArchiveName = false;
+      };
+      $scope.selectTemplate= function(topology) {
+        $scope.app.topologyTemplateName = topology.archiveName;
+        $scope.app.topologyTemplateVersion = topology.archiveVersion;
+        $scope.app.topologyTemplateVersionId = topology.id;
+      };
+      $scope.create = function(valid) {
         if (valid) {
-          $scope.app.topologyTemplateVersionId = templateVersionId;
           $modalInstance.close($scope.app);
         }
       };
@@ -42,69 +55,6 @@ define(function (require) {
       $scope.cancel = function() {
         $modalInstance.dismiss('cancel');
       };
-
-      // TopologyTemplate handeling
-      var searchTopologyTemplateResource = $resource('rest/latest/templates/topology/search', {}, {
-        'search': {
-          method: 'POST',
-          isArray: false,
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8'
-          }
-        }
-      });
-
-      var searchTopologyTemplateVersionResource = $resource('rest/latest/templates/:topologyTemplateId/versions/search', {}, {
-        'search': {
-          method: 'POST',
-          isArray: false,
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8'
-          }
-        }
-      });
-
-      $scope.loadTopologyTemplates = function() {
-        var searchRequestObject = {
-          'query': $scope.query,
-          'from': 0,
-          'size': 50
-        };
-        searchTopologyTemplateResource.search([], angular.toJson(searchRequestObject), function(successResult) {
-          $scope.templates = successResult.data.data;
-        });
-      };
-
-      $scope.loadTopologyTemplateVersions = function(selectedTemplateId) {
-        var searchRequestObject = {
-            'query': $scope.query,
-            'from': 0,
-            'size': 50
-          };
-        searchTopologyTemplateVersionResource.search({topologyTemplateId: selectedTemplateId}, angular.toJson(searchRequestObject), function(successResult) {
-          $scope.templateVersions = successResult.data.data;
-        });
-      };
-
-      $scope.templateSelected = function(selectedTemplateId) {
-        $scope.templateVersions = undefined;
-        $scope.selectedTopologyTemplateVersion = undefined;
-        if (selectedTemplateId === '') {
-          $scope.selectedTopologyTemplate = undefined;
-        } else {
-          _.each($scope.templates, function(t) {
-            if (t.id === selectedTemplateId) {
-              $scope.selectedTopologyTemplate = t;
-            }
-          });
-        }
-        if ($scope.selectedTopologyTemplate) {
-          $scope.loadTopologyTemplateVersions($scope.selectedTopologyTemplate.id);
-        }
-      };
-
-      // First template load
-      $scope.loadTopologyTemplates();
     }
   ];
 
@@ -118,8 +68,9 @@ define(function (require) {
 
       $scope.openNewApp = function() {
         var modalInstance = $modal.open({
-          templateUrl: 'newApplication.html',
-          controller: NewApplicationCtrl
+          templateUrl: 'views/applications/application_new.html',
+          controller: NewApplicationCtrl,
+          windowClass: 'new-app-modal'
         });
         modalInstance.result.then(function(application) {
           // create a new application from the given name and description.

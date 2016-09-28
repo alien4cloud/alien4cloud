@@ -58,10 +58,10 @@ define(function (require) {
       var selectedUrl;
       if(_.defined(node.artifactId)) {
         // temp file under edition
-        selectedUrl = '/rest/latest/editor/'+$scope.topology.topology.id+'/file/' + node.artifactId;
+        selectedUrl = '/rest/latest/editor/' + $scope.topology.topology.id + '/file/' + node.artifactId;
       } else {
         // commited file
-        selectedUrl = '/static/editor/' + node.fullPath;
+        selectedUrl = '/static/tosca/' + $scope.topology.topology.id + node.fullPath;
       }
       _.isImage(selectedUrl).then(function(isImage) {
         if(isImage) {
@@ -146,7 +146,6 @@ define(function (require) {
       return true;
     };
     $scope.createFile = function() {
-      console.log($scope.filePath);
       $scope.execute({
         type: 'org.alien4cloud.tosca.editor.operations.UpdateFileContentOperation',
         path: $scope.filePath,

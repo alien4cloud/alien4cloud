@@ -14,6 +14,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import alien4cloud.common.AlienConstants;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.client.Client;
@@ -28,14 +29,14 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import alien4cloud.Constants;
-import alien4cloud.model.components.IndexedNodeType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.model.common.Tag;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
-import alien4cloud.model.components.CapabilityDefinition;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
 
 import com.google.common.collect.Lists;
 
@@ -55,7 +56,7 @@ public class ComponentTest {
     private static final List<Tag> rootTags;
     private static final Map<String, CapabilityDefinition> capabilities;
     private static final Tag TAG_1, TAG_2, INTERNAL_TAG;
-    private IndexedNodeType indexedNodeType, tmpIndexedNodeType, indexedNodeType2, indexedNodeType3;
+    private NodeType indexedNodeType, tmpIndexedNodeType, indexedNodeType2, indexedNodeType3;
 
     static {
         rootTags = Lists.newArrayList();
@@ -90,7 +91,7 @@ public class ComponentTest {
         updateComponentRequest.setTagValue(TAG_2.getValue());
 
         componentController.upsertTag(indexedNodeType.getId(), updateComponentRequest);
-        tmpIndexedNodeType = dao.findById(IndexedNodeType.class, indexedNodeType.getId());
+        tmpIndexedNodeType = dao.findById(NodeType.class, indexedNodeType.getId());
 
         assertEquals("Tags map size should'nt change", tmpIndexedNodeType.getTags().size(), indexedNodeType.getTags().size());
         int index = tmpIndexedNodeType.getTags().indexOf(TAG_2);
@@ -122,7 +123,7 @@ public class ComponentTest {
 
         // Remove tagToDelete1
         response = componentController.deleteTag(indexedNodeType.getId(), TAG_1.getName());
-        tmpIndexedNodeType = dao.findById(IndexedNodeType.class, indexedNodeType.getId());
+        tmpIndexedNodeType = dao.findById(NodeType.class, indexedNodeType.getId());
 
         assertTrue("Tag <" + TAG_1 + "> does not exist anymore", !tmpIndexedNodeType.getTags().contains(TAG_1));
         assertSame("Tag map size from initial IndexedNodeType decreased", tmpIndexedNodeType.getTags().size(), rootTags.size() - 1);
@@ -130,7 +131,7 @@ public class ComponentTest {
 
         // Remove tagToDelete2
         response = componentController.deleteTag(indexedNodeType.getId(), TAG_2.getName());
-        tmpIndexedNodeType = dao.findById(IndexedNodeType.class, indexedNodeType.getId());
+        tmpIndexedNodeType = dao.findById(NodeType.class, indexedNodeType.getId());
 
         assertTrue("Tag <" + TAG_2 + "> does not exist anymore", !tmpIndexedNodeType.getTags().contains(TAG_2));
 
@@ -144,7 +145,7 @@ public class ComponentTest {
 
     @Test
     public void recommendForCapabilityWhenAlreadyRecommendedTest() {
-        RestResponse<IndexedNodeType> response = null;
+        RestResponse<NodeType> response = null;
 
         RecommendationRequest recRequest = new RecommendationRequest();
         recRequest.setComponentId(indexedNodeType.getId());
@@ -157,12 +158,12 @@ public class ComponentTest {
 
         Map<String, String[]> filters = new HashMap<>();
         filters.put(Constants.DEFAULT_CAPABILITY_FIELD_NAME, new String[] { "jdni" });
-        GetMultipleDataResult result = dao.find(IndexedNodeType.class, filters, 1);
-        IndexedNodeType component;
+        GetMultipleDataResult result = dao.find(NodeType.class, filters, 1);
+        NodeType component;
         if (result == null || result.getData() == null || result.getData().length == 0) {
             component = null;
         } else {
-            component = (IndexedNodeType) result.getData()[0];
+            component = (NodeType) result.getData()[0];
         }
 
         assertNotNull(component);
@@ -173,7 +174,7 @@ public class ComponentTest {
 
     @Test
     public void recommendForCapabilityTest() {
-        RestResponse<IndexedNodeType> response = null;
+        RestResponse<NodeType> response = null;
 
         RecommendationRequest recRequest = new RecommendationRequest();
         recRequest.setComponentId(indexedNodeType.getId());
@@ -182,7 +183,7 @@ public class ComponentTest {
         response = componentController.recommendComponentForCapability(recRequest);
         assertNull(response.getError());
 
-        IndexedNodeType component = dao.findById(IndexedNodeType.class, recRequest.getComponentId());
+        NodeType component = dao.findById(NodeType.class, recRequest.getComponentId());
 
         assertNotNull(component.getDefaultCapabilities());
         assertEquals(1, component.getDefaultCapabilities().size());
@@ -191,19 +192,21 @@ public class ComponentTest {
 
     private void prepareNodeTypes() {
 
-        indexedNodeType = new IndexedNodeType();
+        indexedNodeType = new NodeType();
         indexedNodeType.setElementId("1");
         indexedNodeType.setArchiveName("tosca.nodes.Root");
         indexedNodeType.setArchiveVersion("3.0");
+        indexedNodeType.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
         indexedNodeType.setDerivedFrom(null);
         indexedNodeType.setDescription("Root description...");
         indexedNodeType.setTags(rootTags);
         dao.save(indexedNodeType);
 
-        indexedNodeType2 = new IndexedNodeType();
+        indexedNodeType2 = new NodeType();
         indexedNodeType2.setElementId("2");
         indexedNodeType2.setArchiveName("tosca.nodes.Root");
         indexedNodeType2.setArchiveVersion("3.0");
+        indexedNodeType2.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
         indexedNodeType2.setDerivedFrom(null);
         indexedNodeType2.setDescription("Root description...");
         indexedNodeType2.setTags(rootTags);
@@ -212,10 +215,11 @@ public class ComponentTest {
         indexedNodeType2.getDefaultCapabilities().add("jdni");
         dao.save(indexedNodeType2);
 
-        indexedNodeType3 = new IndexedNodeType();
+        indexedNodeType3 = new NodeType();
         indexedNodeType3.setElementId("3");
         indexedNodeType3.setArchiveName("tosca.nodes.Root");
         indexedNodeType3.setArchiveVersion("3.0");
+        indexedNodeType3.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
         indexedNodeType3.setDerivedFrom(null);
         indexedNodeType3.setDescription("Root description...");
         indexedNodeType3.setTags(rootTags);
@@ -233,6 +237,6 @@ public class ComponentTest {
 
     @After
     public void cleanup() throws InterruptedException {
-        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, IndexedNodeType.class);
+        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, NodeType.class);
     }
 }

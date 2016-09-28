@@ -14,8 +14,8 @@ import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.topology.NodeTemplate;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import lombok.Getter;
 import lombok.Setter;
 

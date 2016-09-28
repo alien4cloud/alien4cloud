@@ -13,28 +13,28 @@ import java.util.Set;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.DeploymentArtifact;
-import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.PropertyConstraint;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
-import alien4cloud.model.components.constraints.EqualConstraint;
-import alien4cloud.model.components.constraints.GreaterOrEqualConstraint;
-import alien4cloud.model.components.constraints.GreaterThanConstraint;
-import alien4cloud.model.components.constraints.InRangeConstraint;
-import alien4cloud.model.components.constraints.LengthConstraint;
-import alien4cloud.model.components.constraints.LessOrEqualConstraint;
-import alien4cloud.model.components.constraints.LessThanConstraint;
-import alien4cloud.model.components.constraints.MaxLengthConstraint;
-import alien4cloud.model.components.constraints.MinLengthConstraint;
-import alien4cloud.model.components.constraints.PatternConstraint;
-import alien4cloud.model.components.constraints.ValidValuesConstraint;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.GreaterOrEqualConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.GreaterThanConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.InRangeConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.LengthConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.LessOrEqualConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.LessThanConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.MaxLengthConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.MinLengthConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.PatternConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.ValidValuesConstraint;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -105,7 +105,7 @@ public class ToscaSerializerTest {
         velocityCtx.put("application_description", "Here is a \nmultiline description");
 
         StringWriter writer = new StringWriter();
-        VelocityUtil.generate("templates/topology-alien_dsl_1_2_0.yml.vm", writer, velocityCtx);
+        VelocityUtil.generate("org/alien4cloud/tosca/exporter/topology-alien_dsl_1_3_0.yml.vm", writer, velocityCtx);
         System.out.println(writer.toString());
     }
 

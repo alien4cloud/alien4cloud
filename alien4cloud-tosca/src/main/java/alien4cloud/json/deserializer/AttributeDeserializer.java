@@ -1,9 +1,9 @@
 package alien4cloud.json.deserializer;
 
-import alien4cloud.model.components.AttributeDefinition;
-import alien4cloud.model.components.ConcatPropertyValue;
-import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.IValue;
+import org.alien4cloud.tosca.model.definitions.AttributeDefinition;
+import org.alien4cloud.tosca.model.definitions.ConcatPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.definitions.IValue;
 
 /**
  * Custom deserializer to handle multiple AttributeValue types

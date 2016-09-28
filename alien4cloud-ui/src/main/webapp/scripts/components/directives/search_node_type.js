@@ -17,14 +17,20 @@ define(function (require) {
         'heightInfo': '=',
         'widthInfo': '=',
         'defaultFilters': '=',
+        'staticFacets': '=',
         'badges': '='
       },
       link: function(scope, element) {
         scope.queryComponentType = 'NODE_TYPE';
 
         function resize() {
-          var listHeight = scope.heightInfo.height - element.offset().top - 74;
-          scope.listHeight = scope.globalContext ? 'height: ' + listHeight + 'px' : '';
+          scope.searchHeight = scope.heightInfo.height - element.offset().top -2;
+          if(scope.globalContext) {
+            scope.searchStyle = 'overflow: auto; margin-bottom: 0px; height: ' + scope.searchHeight + 'px;';
+          } else {
+            scope.searchStyle = '';
+          }
+          scope.listHeight = scope.searchHeight - 72;
         }
         scope.$watch('heightInfo', function() {
           resize();

@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.topology.SubstitutionTarget;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
+import org.alien4cloud.tosca.model.templates.Topology;
 
 /**
  * Process the addition to a node template to a group. If the group does not exists, it is created.

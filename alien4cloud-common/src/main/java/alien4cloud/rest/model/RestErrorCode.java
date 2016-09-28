@@ -16,6 +16,8 @@ public enum RestErrorCode {
 
     // Git csar import errors
     GIT_IMPORT_FAILED(615),
+    GIT_CONFLICT_ERROR(620),
+    GIT_STATE_ERROR(621),
 
     // Indexing global error.
     INDEXING_SERVICE_ERROR(300),
@@ -51,6 +53,7 @@ public enum RestErrorCode {
     INTERNAL_OBJECT_ERROR(506),
     DELETE_REFERENCED_OBJECT_ERROR(507),
     RESOURCE_USED_ERROR(508),
+    UNSUPPORTED_OPERATION_ERROR(509),
 
     // Application handling errors : code 600+
     APPLICATION_UNDEPLOYMENT_ERROR(602),

@@ -2,7 +2,7 @@ Feature: Topology editor: requirement substitution
 
   Background:
     Given I am authenticated with "ADMIN" role
-    And I create an empty topology template "TopologyTemplate1"
+    And I create an empty topology
 
 
   #####################################

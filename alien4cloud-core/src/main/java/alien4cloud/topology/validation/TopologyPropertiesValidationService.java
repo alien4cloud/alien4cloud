@@ -1,19 +1,31 @@
 package alien4cloud.topology.validation;
 
-import alien4cloud.component.CSARRepositorySearchService;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.ComplexPropertyValue;
-import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.ListPropertyValue;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.Topology;
+import static alien4cloud.utils.AlienUtils.safe;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
+import javax.annotation.Resource;
+
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.common.collect.Lists;
+import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import alien4cloud.paas.exception.NotSupportedException;
 import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.topology.task.PropertiesTask;
@@ -21,21 +33,7 @@ import alien4cloud.topology.task.ScalableTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.TaskLevel;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.common.collect.Lists;
-import org.springframework.stereotype.Component;
-
-import static alien4cloud.utils.AlienUtils.safe;
 
 /**
  * Performs validation of the properties
@@ -44,7 +42,7 @@ import static alien4cloud.utils.AlienUtils.safe;
 @Slf4j
 public class TopologyPropertiesValidationService {
     @Resource
-    private CSARRepositorySearchService csarRepoSearchService;
+    private IToscaTypeSearchService csarRepoSearchService;
 
     /**
      * Validate that the properties values in the topology are matching the property definitions (required & constraints).
@@ -82,7 +80,7 @@ public class TopologyPropertiesValidationService {
         // create task by nodetemplate
         for (Map.Entry<String, NodeTemplate> nodeTempEntry : nodeTemplates.entrySet()) {
             NodeTemplate nodeTemplate = nodeTempEntry.getValue();
-            IndexedNodeType relatedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
+            NodeType relatedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(),
                     topology.getDependencies());
             // do pass if abstract node
             if (relatedIndexedNodeType.isAbstract()) {
@@ -134,7 +132,7 @@ public class TopologyPropertiesValidationService {
         Map<String, PropertyDefinition> relatedProperties = Maps.newTreeMap();
 
         for (Map.Entry<String, Capability> capabilityEntry : nodeTemplate.getCapabilities().entrySet()) {
-            IndexedCapabilityType indexedCapabilityType = csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class,
+            CapabilityType indexedCapabilityType = csarRepoSearchService.getRequiredElementInDependencies(CapabilityType.class,
                     capabilityEntry.getValue().getType(), topology.getDependencies());
             if (indexedCapabilityType.getProperties() != null && !indexedCapabilityType.getProperties().isEmpty()) {
                 relatedProperties.putAll(indexedCapabilityType.getProperties());
@@ -148,7 +146,7 @@ public class TopologyPropertiesValidationService {
         Map<String, PropertyDefinition> relatedProperties = Maps.newTreeMap();
 
         for (Map.Entry<String, RelationshipTemplate> relationshipTemplateEntry : nodeTemplate.getRelationships().entrySet()) {
-            IndexedRelationshipType indexedRelationshipType = csarRepoSearchService.getRequiredElementInDependencies(IndexedRelationshipType.class,
+            RelationshipType indexedRelationshipType = csarRepoSearchService.getRequiredElementInDependencies(RelationshipType.class,
                     relationshipTemplateEntry.getValue().getType(), topology.getDependencies());
             if (indexedRelationshipType.getProperties() != null && !indexedRelationshipType.getProperties().isEmpty()) {
                 relatedProperties.putAll(indexedRelationshipType.getProperties());

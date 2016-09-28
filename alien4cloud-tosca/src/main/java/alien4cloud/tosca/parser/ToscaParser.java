@@ -70,9 +70,7 @@ public class ToscaParser extends YamlParser<ArchiveRoot> {
     @Override
     @ToscaContextual
     public ParsingResult<ArchiveRoot> parseFile(Path yamlPath, ArchiveRoot instance) throws ParsingException {
-        ParsingResult<ArchiveRoot> result = super.parseFile(yamlPath, instance);
-        result.getResult().getArchive().setHash(FileUtil.getSHA1Checksum(yamlPath));
-        return result;
+        return super.parseFile(yamlPath, instance);
     }
 
     @Override

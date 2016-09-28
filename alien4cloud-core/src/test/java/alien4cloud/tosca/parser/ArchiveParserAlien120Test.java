@@ -6,13 +6,14 @@ import java.nio.file.Paths;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.tosca.catalog.ArchiveParser;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.tosca.ArchiveParser;
+import alien4cloud.common.AlienConstants;
 import alien4cloud.tosca.ArchiveParserTest;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.utils.FileUtil;
@@ -32,7 +33,7 @@ public class ArchiveParserAlien120Test {
         Path target = artifactsDirectory.resolve(fileName + ".zip");
         FileUtil.zip(source, target);
 
-        ParsingResult<ArchiveRoot> parsingResult = archiveParser.parse(target);
+        ParsingResult<ArchiveRoot> parsingResult = archiveParser.parse(target, AlienConstants.GLOBAL_WORKSPACE_ID);
 
         return parsingResult;
     }

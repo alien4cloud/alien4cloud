@@ -1,17 +1,19 @@
 package org.alien4cloud.tosca.editor.processors;
 
-import alien4cloud.model.topology.Topology;
+import java.io.IOException;
+
+import javax.inject.Inject;
+
+import org.alien4cloud.tosca.editor.EditionContextManager;
+import org.alien4cloud.tosca.editor.EditorService;
+import org.alien4cloud.tosca.editor.operations.ResetTopologyOperation;
+import org.alien4cloud.tosca.editor.services.EditorTopologyRecoveryHelperService;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.springframework.stereotype.Component;
+
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
 import lombok.extern.slf4j.Slf4j;
-import org.alien4cloud.tosca.editor.EditionContextManager;
-import org.alien4cloud.tosca.editor.EditorService;
-import org.alien4cloud.tosca.editor.EditorTopologyRecoveryHelperService;
-import org.alien4cloud.tosca.editor.operations.ResetTopologyOperation;
-import org.springframework.stereotype.Component;
-
-import javax.inject.Inject;
-import java.io.IOException;
 
 /**
  * process {@link ResetTopologyOperation}
@@ -33,10 +35,9 @@ public class ResetTopologyProcessor implements IEditorOperationProcessor<ResetTo
     public void process(ResetTopologyOperation operation) {
         Topology topology = EditionContextManager.getTopology();
         Topology newTopology = new Topology();
-        newTopology.setDelegateId(topology.getDelegateId());
-        newTopology.setDelegateType(topology.getDelegateType());
-        newTopology.setId(topology.getId());
-        newTopology.setYamlFilePath(topology.getYamlFilePath());
+        newTopology.setArchiveName(topology.getArchiveName());
+        newTopology.setArchiveVersion(topology.getArchiveVersion());
+        newTopology.setWorkspace(topology.getWorkspace());
         workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(newTopology));
         try {
             EditionContextManager.get().reset(newTopology);

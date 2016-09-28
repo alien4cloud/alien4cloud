@@ -23,7 +23,12 @@ import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
 import org.alien4cloud.tosca.editor.operations.ResetTopologyOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
+import org.alien4cloud.tosca.editor.services.EditorTopologyRecoveryHelperService;
 import org.alien4cloud.tosca.editor.services.EditorTopologyUploadService;
+import org.alien4cloud.tosca.editor.services.TopologySubstitutionService;
+import org.alien4cloud.tosca.exporter.ArchiveExportService;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -35,7 +40,6 @@ import com.google.common.collect.Maps;
 
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.git.SimpleGitHistoryEntry;
-import alien4cloud.model.topology.Topology;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyService;
@@ -52,6 +56,8 @@ public class EditorService {
     @Inject
     private ApplicationContext applicationContext;
     @Inject
+    private ArchiveExportService exportService;
+    @Inject
     private TopologyService topologyService;
     @Inject
     private TopologyServiceCore topologyServiceCore;
@@ -65,6 +71,9 @@ public class EditorService {
     private EditorTopologyUploadService topologyUploadService;
     @Inject
     private EditorTopologyRecoveryHelperService recoveryHelperService;
+    @Inject
+    private TopologySubstitutionService topologySubstitutionServive;
+
     @Value("${directories.alien}/${directories.upload_temp}")
     private String tempUploadDir;
 
@@ -291,10 +300,10 @@ public class EditorService {
         Topology topology = EditionContextManager.getTopology();
         // Save the topology in elastic search
         topologyServiceCore.save(topology);
-        topologyServiceCore.updateSubstitutionType(topology);
+        topologySubstitutionServive.updateSubstitutionType(topology, EditionContextManager.getCsar());
 
         // Local git commit
-        repositoryService.commit(topology.getId(), commitMessage.toString());
+        repositoryService.commit(EditionContextManager.get().getCsar(), commitMessage.toString());
 
         // TODO add support for undo even after save, this require ability to rollback files to git state, we need file rollback support for that..
         context.setOperations(Lists.newArrayList(context.getOperations().subList(context.getLastOperationIndex() + 1, context.getOperations().size())));
@@ -302,9 +311,9 @@ public class EditorService {
     }
 
     private void saveYamlFile() throws IOException {
-        Topology topology = EditionContextManager.getTopology();
-        Path targetPath = EditionContextManager.get().getLocalGitPath().resolve(topology.getYamlFilePath());
-        String yaml = topologyService.getYaml(topology);
+        Csar csar = EditionContextManager.getCsar();
+        Path targetPath = EditionContextManager.get().getLocalGitPath().resolve(csar.getYamlFilePath());
+        String yaml = exportService.getYaml(csar, EditionContextManager.getTopology());
         try (BufferedWriter writer = Files.newBufferedWriter(targetPath)) {
             writer.write(yaml);
         }
@@ -313,22 +322,59 @@ public class EditorService {
     /**
      * Performs a git pull.
      */
-    public void pull() {
-        // pull can be done only if there is no unsaved commands
-
-        // This operation just fails in case of conflicts
-
-        // The topology is updated
-
+    public void pull(String topologyId, String username, String password, String remoteBranch) {
+        try {
+            editionContextManager.init(topologyId);
+            repositoryService.pull(EditionContextManager.getCsar(), username, password, remoteBranch);
+        } finally {
+            editionContextManager.destroy();
+        }
     }
 
     /**
      * Push the content to a remote git repository.
-     *
      * Note that conflicts are not managed in a4c. In case of conflicts a new branch is created for manual merge by users.
      */
-    public void push() {
+    public void push(String topologyId, String username, String password, String remoteBranch) {
+        try {
+            editionContextManager.init(topologyId);
+            repositoryService.push(EditionContextManager.getCsar(), username, password, remoteBranch);
+        } finally {
+            editionContextManager.destroy();
+        }
+    }
 
+    /**
+     * Configure the remote url of the git repository.
+     *
+     * @param remoteName The name for the repository.
+     * @param remoteUrl The url of the repository.
+     */
+    public void setRemote(String topologyId, String remoteName, String remoteUrl) {
+        try {
+            editionContextManager.init(topologyId);
+            Csar csar = EditionContextManager.getCsar();
+            repositoryService.setRemote(csar, remoteName, remoteUrl);
+        } finally {
+            editionContextManager.destroy();
+        }
+    }
+
+    /**
+     * Retrieve the repository url of the git.
+     *
+     * @param topologyId the id of the topology.
+     * @param remoteName The name of the remote.
+     * @return The url corresponding to the remote name of the git repository of the topology.
+     */
+    public String getRemoteUrl(String topologyId, String remoteName) {
+        try {
+            editionContextManager.init(topologyId);
+            Csar csar = EditionContextManager.getCsar();
+            return repositoryService.getRemoteUrl(csar, remoteName);
+        } finally {
+            editionContextManager.destroy();
+        }
     }
 
     /**
@@ -340,7 +386,15 @@ public class EditorService {
      * @return a list of simplified git commit entry.
      */
     public List<SimpleGitHistoryEntry> history(String topologyId, int from, int count) {
-        return repositoryService.getHistory(topologyId, from, count);
+        try { // No need to check current operation, we just want to get git history.
+            editionContextManager.init(topologyId);
+            // check authorization to update a topology
+            topologyService.checkEditionAuthorizations(EditionContextManager.getTopology());
+
+            return repositoryService.getHistory(EditionContextManager.getCsar(), from, count);
+        } finally {
+            editionContextManager.destroy();
+        }
     }
 
     /**
@@ -359,7 +413,7 @@ public class EditorService {
             tempPath = Files.createTempFile(tempUploadDir, null, null);
             Files.copy(inputStream, tempPath, StandardCopyOption.REPLACE_EXISTING);
             // This throws an exception if not successful
-            topologyUploadService.processTopology(tempPath);
+            topologyUploadService.processTopology(tempPath, EditionContextManager.get().getTopology().getWorkspace());
 
             // meaning the topology is well imported in the editor context: override all the content of the git repository
             // erase all content but .git directory
@@ -378,10 +432,10 @@ public class EditorService {
             Topology topology = EditionContextManager.getTopology();
             String commitMessage = AuthorizationUtil.getCurrentUser().getUserId() + ": Override all content of the topology archive from REST API.";
             topologyServiceCore.save(topology);
-            topologyServiceCore.updateSubstitutionType(topology);
+            topologySubstitutionServive.updateSubstitutionType(topology, EditionContextManager.getCsar());
 
             // Local git commit
-            repositoryService.commit(topologyId, commitMessage);
+            repositoryService.commit(EditionContextManager.get().getCsar(), commitMessage);
         } finally {
             EditionContextManager.get().setCurrentOperation(null);
             editionContextManager.destroy();

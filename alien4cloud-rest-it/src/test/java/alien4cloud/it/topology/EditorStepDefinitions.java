@@ -6,12 +6,12 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
-import org.elasticsearch.common.collect.ImmutableMap;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 import alien4cloud.it.Context;
@@ -118,4 +118,5 @@ public class EditorStepDefinitions {
                         ImmutableMap.<String, String> builder().put("path", archivePath).put("lastOperationId", String.valueOf(getLastOperationId())).build()));
         trySetTopologyDto();
     }
+
 }

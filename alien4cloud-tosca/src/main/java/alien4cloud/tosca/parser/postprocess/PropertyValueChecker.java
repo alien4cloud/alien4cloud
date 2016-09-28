@@ -9,12 +9,12 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.IndexedInheritableToscaElement;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.PropertyValue;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
@@ -39,7 +39,7 @@ public class PropertyValueChecker {
      * @param propertyValues The map of values.
      * @param templateName The name of the node template /capability template / requirement template.
      */
-    public void checkProperties(final IndexedInheritableToscaElement type, final Map<String, AbstractPropertyValue> propertyValues, final String templateName) {
+    public void checkProperties(final AbstractInheritableToscaType type, final Map<String, AbstractPropertyValue> propertyValues, final String templateName) {
         if (type == null) {
             return; // if the type is null we cannot check properties against their definition. Error is managed elsewhere.
         }

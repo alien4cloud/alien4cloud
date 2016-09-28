@@ -1,6 +1,6 @@
 package alien4cloud.topology.task;
 
-import alien4cloud.model.components.IndexedNodeType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,5 +12,5 @@ import lombok.Setter;
 @AllArgsConstructor(suppressConstructorProperties = true)
 public class SuggestionsTask extends TopologyTask {
     // Array of suggested non abstract node types
-    private IndexedNodeType[] suggestedNodeTypes;
+    private NodeType[] suggestedNodeTypes;
 }

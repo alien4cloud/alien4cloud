@@ -8,35 +8,35 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.mapping.MappingBuilder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
+
+import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.ElasticSearchMapper;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.it.Context;
 import alien4cloud.model.common.Tag;
-import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.rest.component.UpdateTagRequest;
 import alien4cloud.rest.utils.JsonUtil;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
-
 import cucumber.api.DataTable;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 public class UpdateDeleteTagDefinitionsSteps {
-
     private final ObjectMapper jsonMapper = ElasticSearchMapper.getInstance();
+
     private final Client esClient = Context.getEsClientInstance();
 
     @Given("^I have a component with id \"([^\"]*)\"$")
     public void I_have_a_component_with_id(String componentId) throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/components/" + componentId));
-        IndexedNodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), IndexedNodeType.class).getData();
+        NodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), NodeType.class).getData();
         assertNotNull(idnt);
         Context.getInstance().registerComponentId(idnt.getId());
     }
@@ -61,22 +61,21 @@ public class UpdateDeleteTagDefinitionsSteps {
         UpdateTagRequest updateTagRequest = new UpdateTagRequest();
         updateTagRequest.setTagKey(tagKey);
         updateTagRequest.setTagValue(tagValue);
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/v1/components/" + Context.getInstance().getComponentId(0) + "/tags",
-                        jsonMapper.writeValueAsString(updateTagRequest)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance()
+                .postJSon("/rest/v1/components/" + Context.getInstance().getComponentId(0) + "/tags", jsonMapper.writeValueAsString(updateTagRequest)));
     }
 
     @Given("^I have a tag \"([^\"]*)\"$")
     public void I_have_a_tag(String tag) throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/components/" + Context.getInstance().getComponentId(0)));
-        IndexedNodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), IndexedNodeType.class).getData();
+        NodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), NodeType.class).getData();
         assertTrue(idnt.getTags().contains(new Tag(tag, null)));
     }
 
     @Then("^I should have tag \"([^\"]*)\" with value \"([^\"]*)\"$")
     public void I_should_have_tag_with_value(String tagKey, String tagValue) throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/v1/components/" + Context.getInstance().getComponentId(0)));
-        IndexedNodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), IndexedNodeType.class).getData();
+        NodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), NodeType.class).getData();
         assertNotNull(idnt);
         int index = idnt.getTags().indexOf(new Tag(tagKey, null));
         assertEquals(idnt.getTags().get(index).getValue(), tagValue);
@@ -97,19 +96,19 @@ public class UpdateDeleteTagDefinitionsSteps {
      * @throws IndexingServiceException
      */
     @SuppressWarnings("unchecked")
-    private void createOneIndexNodeType(String componentId, String archiveVersion, List<Tag> tags, boolean refresh) throws IOException,
-            IndexingServiceException {
+    private void createOneIndexNodeType(String componentId, String archiveVersion, List<Tag> tags, boolean refresh)
+            throws IOException, IndexingServiceException {
 
         String samplePathString = "src/test/resources/data/components/indexed_nodetypes.json";
         Path path = Paths.get(samplePathString);
         List<Object> tempList = jsonMapper.readValue(path.toFile(), ArrayList.class);
-        List<IndexedNodeType> idntList = new ArrayList<>();
+        List<NodeType> idntList = new ArrayList<>();
         for (Object ob : tempList) {
-            idntList.add(jsonMapper.readValue(jsonMapper.writeValueAsString(ob), IndexedNodeType.class));
+            idntList.add(jsonMapper.readValue(jsonMapper.writeValueAsString(ob), NodeType.class));
         }
-        String typeName = MappingBuilder.indexTypeFromClass(IndexedNodeType.class);
+        String typeName = MappingBuilder.indexTypeFromClass(NodeType.class);
 
-        IndexedNodeType indexedNodeType = null;
+        NodeType indexedNodeType = null;
         // Save on nodeType with
         if (componentId != null && archiveVersion != null && !componentId.trim().isEmpty()) {
 
@@ -117,6 +116,7 @@ public class UpdateDeleteTagDefinitionsSteps {
             indexedNodeType = idntList.get(0);
             indexedNodeType.setElementId(componentId);
             indexedNodeType.setArchiveVersion(archiveVersion);
+            indexedNodeType.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
             if (tags != null) {
                 indexedNodeType.setTags(tags);
             }

@@ -36,4 +36,4 @@ Feature: Set location policies
     When I Set the following location policies with orchestrator "Mount doom orchestrator" for groups
       | HAHAHA  | Thark location |
       | HOHOHOH | Thark location |
-    Then I should receive a RestResponse with an error code 500
+    Then I should receive a RestResponse with an error code 509

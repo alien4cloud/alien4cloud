@@ -6,7 +6,7 @@ import org.alien4cloud.tosca.editor.operations.nodetemplate.inputs.UnsetNodeArti
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.topology.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import alien4cloud.utils.InputArtifactUtil;
 
 /**

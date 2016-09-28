@@ -6,10 +6,10 @@ import java.util.Set;
 import com.google.common.collect.Maps;
 
 import alien4cloud.deployment.model.DeploymentSubstitutionConfiguration;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedDataType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.DataType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.topology.AbstractTopologyDTO;
@@ -40,9 +40,9 @@ public class DeploymentTopologyDTO extends AbstractTopologyDTO<DeploymentTopolog
      */
     private DeploymentSubstitutionConfiguration availableSubstitutions;
 
-    public DeploymentTopologyDTO(DeploymentTopology topology, Map<String, IndexedNodeType> nodeTypes, Map<String, IndexedRelationshipType> relationshipTypes,
-            Map<String, IndexedCapabilityType> capabilityTypes, Map<String, Map<String, Set<String>>> outputCapabilityProperties,
-            Map<String, IndexedDataType> dataTypes) {
+    public DeploymentTopologyDTO(DeploymentTopology topology, Map<String, NodeType> nodeTypes, Map<String, RelationshipType> relationshipTypes,
+                                 Map<String, CapabilityType> capabilityTypes, Map<String, Map<String, Set<String>>> outputCapabilityProperties,
+                                 Map<String, DataType> dataTypes) {
         super(topology, nodeTypes, relationshipTypes, capabilityTypes, dataTypes, outputCapabilityProperties);
     }
 

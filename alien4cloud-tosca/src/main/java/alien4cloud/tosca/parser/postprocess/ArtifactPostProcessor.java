@@ -3,14 +3,13 @@ package alien4cloud.tosca.parser.postprocess;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
 import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.model.components.AbstractArtifact;
-import alien4cloud.model.components.IndexedArtifactType;
-import alien4cloud.model.components.RepositoryDefinition;
+import org.alien4cloud.tosca.model.definitions.AbstractArtifact;
+import org.alien4cloud.tosca.model.types.ArtifactType;
+import org.alien4cloud.tosca.model.definitions.RepositoryDefinition;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
@@ -43,7 +42,7 @@ public class ArtifactPostProcessor implements IPostProcessor<AbstractArtifact> {
             instance.setArtifactType(getArtifactTypeByExtension(instance.getArtifactRef(), node, archiveRoot));
         } else {
             // check the reference
-            referencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance.getArtifactType(), IndexedArtifactType.class));
+            referencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance.getArtifactType(), ArtifactType.class));
         }
         if (instance.getArtifactRepository() != null) {
             RepositoryDefinition repositoryDefinition = archiveRoot.getRepositories() != null
@@ -64,10 +63,10 @@ public class ArtifactPostProcessor implements IPostProcessor<AbstractArtifact> {
         int dotIndex = artifactReference.lastIndexOf('.');
         String extension = (dotIndex == -1) ? "" : artifactReference.substring(dotIndex + 1);
         String type = null;
-        IndexedArtifactType indexedType = getFromArchiveRootWithExtension(archiveRoot, extension);
+        ArtifactType indexedType = getFromArchiveRootWithExtension(archiveRoot, extension);
         if (indexedType == null) {
-            IndexedArtifactType artifactType = repositorySearchService.getElementInDependencies(IndexedArtifactType.class,
-                    QueryBuilders.termQuery("fileExt", extension), archiveRoot.getArchive().getDependencies());
+            ArtifactType artifactType = repositorySearchService.getElementInDependencies(ArtifactType.class,
+                    archiveRoot.getArchive().getDependencies(), "fileExt", extension);
             if (artifactType != null) {
                 type = artifactType.getElementId();
             }
@@ -82,11 +81,11 @@ public class ArtifactPostProcessor implements IPostProcessor<AbstractArtifact> {
         return type;
     }
 
-    private IndexedArtifactType getFromArchiveRootWithExtension(ArchiveRoot archiveRoot, String extension) {
+    private ArtifactType getFromArchiveRootWithExtension(ArchiveRoot archiveRoot, String extension) {
         if (archiveRoot == null || archiveRoot.getArtifactTypes() == null || extension == null) {
             return null;
         }
-        for (IndexedArtifactType artifactType : archiveRoot.getArtifactTypes().values()) {
+        for (ArtifactType artifactType : archiveRoot.getArtifactTypes().values()) {
             if (artifactType.getFileExt() != null && artifactType.getFileExt().contains(extension)) {
                 return artifactType;
             }

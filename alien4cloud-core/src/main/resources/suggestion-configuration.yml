@@ -1,17 +1,17 @@
 - es_index: toscaelement
-  es_type: indexedcapabilitytype
+  es_type: capabilitytype
   target_element_id: tosca.capabilities.OperatingSystem
   target_property: architecture
   suggestions: [x86_32, x86_64]
 
 - es_index: toscaelement
-  es_type: indexedcapabilitytype
+  es_type: capabilitytype
   target_element_id: tosca.capabilities.OperatingSystem
   target_property: type
   suggestions: [linux, aix, mac, windows]
 
 - es_index: toscaelement
-  es_type: indexedcapabilitytype
+  es_type: capabilitytype
   target_element_id: tosca.capabilities.OperatingSystem
   target_property: distribution
   suggestions:

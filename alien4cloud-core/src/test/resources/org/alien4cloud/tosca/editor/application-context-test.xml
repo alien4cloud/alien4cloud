@@ -33,6 +33,8 @@
 		alien4cloud.cloud,
 		alien4cloud.plugin,
 		alien4cloud.utils.services,
+		org.alien4cloud.tosca.catalog,
+    org.alien4cloud.tosca.exporter,
 		org.alien4cloud.tosca.editor">
     <context:exclude-filter type="regex"
                             expression="alien4cloud.orchestrators.services.OrchestratorSecurityService"/>

@@ -13,20 +13,25 @@
   <aop:aspectj-autoproxy proxy-target-class="true"/>
 
   <context:component-scan
-      base-package="alien4cloud.topology, alien4cloud.tosca.context, alien4cloud.tosca.parser, alien4cloud.tosca.parser.*, alien4cloud.repository.*, alien4cloud.utils.services, alien4cloud.plugin, alien4cloud.paas.wf">
+    base-package="alien4cloud.topology,
+      alien4cloud.tosca.context,
+      alien4cloud.tosca.parser,
+      alien4cloud.tosca.parser.*,
+      alien4cloud.repository.*,
+      alien4cloud.utils.services,
+      alien4cloud.plugin,
+      alien4cloud.paas.wf">
     <context:exclude-filter type="regex" expression="alien4cloud.topology.TopologyService"/>
     <context:exclude-filter type="regex" expression="alien4cloud.topology.TopologyValidationService"/>
-    <context:exclude-filter type="regex" expression="alien4cloud.topology.TopologyTemplateVersionService"/>
     <context:exclude-filter type="regex" expression="alien4cloud.topology.validation.*"/>
   </context:component-scan>
 
-  <bean id="archiveParser" class="alien4cloud.tosca.ArchiveParser"/>
-  <bean id="archivePostProcessor" class="alien4cloud.tosca.ArchivePostProcessor"/>
+  <bean id="archiveParser" class="org.alien4cloud.tosca.catalog.ArchiveParser"/>
+  <bean id="archivePostProcessor" class="org.alien4cloud.tosca.catalog.ArchivePostProcessor"/>
   <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
 
   <mockito:mock id="alien-es-dao" class="alien4cloud.dao.IGenericSearchDAO"/>
-  <mockito:mock id="csar-service" class="alien4cloud.csar.services.CsarService"/>
+  <mockito:mock id="csar-service" class="org.alien4cloud.tosca.catalog.index.CsarService"/>
   <mockito:mock id="csar-search-service" class="alien4cloud.component.ICSARRepositorySearchService"/>
-  <mockito:mock id="csar-indexer-service" class="alien4cloud.component.ICSARRepositoryIndexerService"/>
-  <mockito:mock id="TopologyTemplateVersionService" class="alien4cloud.topology.TopologyTemplateVersionService"/>
+  <mockito:mock id="csar-indexer-service" class="org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService"/>
 </beans>

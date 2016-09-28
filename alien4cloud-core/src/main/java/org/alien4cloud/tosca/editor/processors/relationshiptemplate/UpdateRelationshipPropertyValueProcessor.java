@@ -11,10 +11,10 @@ import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
@@ -42,7 +42,7 @@ public class UpdateRelationshipPropertyValueProcessor implements IEditorOperatio
         // FIXME we should have the same kind of utility methods to get relationships as we have for nodes.
         RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(operation.getRelationshipName());
 
-        IndexedRelationshipType relationshipType = ToscaContext.getOrFail(IndexedRelationshipType.class, relationshipTemplate.getType());
+        RelationshipType relationshipType = ToscaContext.getOrFail(RelationshipType.class, relationshipTemplate.getType());
         if (!relationshipType.getProperties().containsKey(propertyName)) {
             throw new NotFoundException(
                     "Property <" + propertyName + "> doesn't exists for node <" + operation.getNodeName() + "> of type <" + relationshipType + ">");

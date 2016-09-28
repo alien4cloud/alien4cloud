@@ -3,7 +3,7 @@ package alien4cloud.model.git;
 import java.nio.file.Path;
 import java.util.Set;
 
-import alien4cloud.model.components.CSARDependency;
+import org.alien4cloud.tosca.model.CSARDependency;
 import com.google.common.collect.Sets;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

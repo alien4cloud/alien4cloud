@@ -5,7 +5,13 @@ import java.util.*;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
+import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
+import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -16,15 +22,14 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import alien4cloud.component.ICSARRepositoryIndexerService;
-import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
-import alien4cloud.csar.services.CsarService;
+import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.events.LocationArchiveDeleteRequested;
 import alien4cloud.events.LocationTypeIndexed;
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.common.Usage;
-import alien4cloud.model.components.*;
+import alien4cloud.model.components.CSARSource;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
@@ -34,7 +39,6 @@ import alien4cloud.orchestrators.plugin.model.PluginArchive;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.OrchestratorPluginService;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
-import alien4cloud.tosca.ArchiveIndexer;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +63,7 @@ public class PluginArchiveIndexer {
     @Inject
     private ApplicationContext applicationContext;
     @Inject
-    private ICSARRepositoryIndexerService csarRepositoryIndexerService;
+    private IToscaTypeIndexerService csarRepositoryIndexerService;
 
     /**
      * Ensure that location archives are indexed.
@@ -114,7 +118,7 @@ public class PluginArchiveIndexer {
                 archiveIndexer.importArchive(pluginArchive.getArchive(), CSARSource.ORCHESTRATOR, pluginArchive.getArchiveFilePath(),
                         Lists.<ParsingError> newArrayList());
                 publishLocationTypeIndexedEvent(pluginArchive.getArchive().getNodeTypes().values(), orchestratorFactory, null);
-            } catch (CSARVersionAlreadyExistsException e) {
+            } catch (AlreadyExistException e) {
                 log.info("Skipping orchestrator archive import as the released version already exists in the repository. " + e.getMessage());
             } catch (CSARUsedInActiveDeployment e) {
                 log.info("Skipping orchestrator archive import as it is used in an active deployment. " + e.getMessage());
@@ -135,7 +139,7 @@ public class PluginArchiveIndexer {
         // index the archive in alien catalog
         try {
             archiveIndexer.importArchive(archive, CSARSource.ORCHESTRATOR, pluginArchive.getArchiveFilePath(), parsingErrors);
-        } catch (CSARVersionAlreadyExistsException e) {
+        } catch (AlreadyExistException e) {
             log.info("Skipping location archive import as the released version already exists in the repository.");
         } catch (CSARUsedInActiveDeployment e) {
             log.info("Skipping orchestrator archive import as it is used in an active deployment. " + e.getMessage());
@@ -145,14 +149,14 @@ public class PluginArchiveIndexer {
         publishLocationTypeIndexedEvent(archive.getNodeTypes().values(), orchestrator, location);
     }
 
-    private void publishLocationTypeIndexedEvent(Collection<IndexedNodeType> collection, Orchestrator orchestrator, Location location) {
+    private void publishLocationTypeIndexedEvent(Collection<NodeType> collection, Orchestrator orchestrator, Location location) {
         IOrchestratorPluginFactory orchestratorFactory = orchestratorService.getPluginFactory(orchestrator);
         publishLocationTypeIndexedEvent(collection, orchestratorFactory, location);
     }
 
-    private void publishLocationTypeIndexedEvent(Collection<IndexedNodeType> collection, IOrchestratorPluginFactory orchestratorFactory, Location location) {
+    private void publishLocationTypeIndexedEvent(Collection<NodeType> collection, IOrchestratorPluginFactory orchestratorFactory, Location location) {
         if (CollectionUtils.isNotEmpty(collection)) {
-            for (IndexedNodeType nodeType : collection) {
+            for (NodeType nodeType : collection) {
                 LocationTypeIndexed event = new LocationTypeIndexed(this);
                 event.setNodeType(nodeType);
                 event.setLocation(location);
@@ -162,8 +166,8 @@ public class PluginArchiveIndexer {
         }
     }
 
-    private void injectWorkSpace(Collection<? extends IndexedToscaElement> elements, Orchestrator orchestrator, Location location) {
-        for (IndexedToscaElement element : elements) {
+    private void injectWorkSpace(Collection<? extends AbstractToscaType> elements, Orchestrator orchestrator, Location location) {
+        for (AbstractToscaType element : elements) {
             if (element.getTags() == null) {
                 element.setTags(new ArrayList<Tag>());
             }

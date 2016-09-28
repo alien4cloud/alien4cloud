@@ -170,16 +170,12 @@ define(function (require) {
         },
 
         displayEmbededTopology: function(topologyId) {
-          topologyServices.getTopologyVersion({
-            topologyId: topologyId
-          }, {}, function(result) {
-            if (!result.error) {
-              $state.go('topologytemplates.detail.topology.editor', {
-                id: result.data.topologyTemplateId,
-                version: result.data.version
-              });
-            }
-          });
+          var tokens = topologyId.trim().split(':');
+          if (tokens.length > 1) {
+            var archiveName = tokens[0];
+            var archiveVersion = tokens[1];
+            $state.go('topologycatalog.csar', { archiveName: archiveName, archiveVersion: archiveVersion });
+          }          
         }
       };
 

@@ -8,6 +8,7 @@ import alien4cloud.exception.InvalidNameException;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.groups.AddGroupMemberOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
+import org.alien4cloud.tosca.model.templates.*;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
@@ -15,7 +16,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.model.topology.*;
 import alien4cloud.topology.TopologyUtils;
 
 /**

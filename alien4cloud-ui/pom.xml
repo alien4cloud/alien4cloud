@@ -220,7 +220,7 @@
           <plugin>
             <groupId>fr.fastconnect</groupId>
             <artifactId>calm-yeoman-maven-plugin</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.3</version>
             <configuration>
               <gruntTestArgs>continuoustest --no-color</gruntTestArgs>
             </configuration>

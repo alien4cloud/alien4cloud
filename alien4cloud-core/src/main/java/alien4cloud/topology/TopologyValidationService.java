@@ -7,7 +7,7 @@ import javax.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.task.AbstractRelationshipTask;
 import alien4cloud.topology.task.AbstractTask;

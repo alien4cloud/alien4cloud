@@ -5,8 +5,8 @@
         <div class="topology-column-content-left" style="padding-top: 10px;">
           <table class="table table-hover">
             <thead>
-              <th>author</th>
-              <th>operation</th>
+              <th>{{'COMMON.AUTHOR' | translate}}</th>
+              <th>{{'EDITOR.OPERATION' | translate}}</th>
             </thead>
             <tbody>
               <tr ng-class="{'info': (topology.operations.length - $index -1) <= topology.lastOperationIndex}" ng-repeat="operation in topology.operations.slice().reverse()" ng-click="selectOperation(operation)">

@@ -25,7 +25,7 @@ import io.swagger.annotations.ApiOperation;
  * Service that allows managing applications roles.
  */
 @RestController
-@RequestMapping({"/rest/applications/{applicationId}/roles", "/rest/v1/applications/{applicationId}/roles", "/rest/latest/applications/{applicationId}/roles"})
+@RequestMapping({"/rest/applications/{applicationId:.+}/roles", "/rest/v1/applications/{applicationId:.+}/roles", "/rest/latest/applications/{applicationId:.+}/roles"})
 @Api(value = "", description = "Operations on applications roles")
 public class ApplicationRolesController {
     @Resource

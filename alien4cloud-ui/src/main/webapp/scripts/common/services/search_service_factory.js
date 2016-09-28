@@ -8,9 +8,12 @@ define(function (require) {
   var angular = require('angular');
 
   modules.get('a4c-search').factory('searchServiceFactory', ['$resource', function($resource) {
-    var create = function(url, useParam, queryProvider, maxSearchSize, maxPageNumbers, paramsConfig, params, body) {
+    var create = function(url, useParam, queryProvider, maxSearchSize, maxPageNumbers, isPaginatedAPI, paramsConfig, params, body) {
+      if(_.undefined(isPaginatedAPI)) {
+        isPaginatedAPI = true;
+      }
       if (!maxSearchSize) {
-        maxSearchSize = 10;
+        maxSearchSize = 20;
       }
       if (!maxPageNumbers) {
         maxPageNumbers = 10;
@@ -18,6 +21,7 @@ define(function (require) {
       var isFiltered=false;
       var resource;
       if (useParam) {
+        // If useParam is true the search service expects an API that does not accept request body but search parameters as url params
         var searchParams = {
           query: '@query',
           from: '@from',
@@ -49,40 +53,66 @@ define(function (require) {
         });
       }
 
-      var update = function(searchResult) {
-        this.totalItems = searchResult.data.totalResults;
-      };
-
-      var reset = function() {
-        this.from = 0;
-        this.currentPage = 1;
-      };
-
-      var selectPage = function(page) {
-        this.currentPage = page;
-        this.from = (page - 1) * this.maxSearchSize;
-        search(this.from, this.searchContext.additionalBody);
-      };
-
       var pagination = {
-        'selectPage': selectPage,
-        'update': update,
-        'reset': reset,
-        'maxSearchSize': maxSearchSize,
-        'maxPageNumbers': maxPageNumbers,
-        'totalItems': 0,
-        'searchContext':{}
+        selectPage: function(page) {
+          this.currentPage = page;
+          this.from = (page - 1) * this.maxSearchSize;
+          search(this.from, this.searchContext.additionalBody, true); // use cache if any
+        },
+        update: function(searchResult) {
+          this.totalItems = searchResult.data.totalResults;
+        },
+        reset: function() {
+          this.from = 0;
+          this.currentPage = 1;
+        },
+        maxSearchSize: maxSearchSize,
+        maxPageNumbers: maxPageNumbers,
+        totalItems: 0,
+        searchContext:{}
       };
 
-      var filtered = function(filtered){
-        if(_.defined(filtered)){
-          isFiltered = filtered;
-        }else{
-          isFiltered = false;
-        }
+      // holds the results of the last query
+      var cachedResult = {
+        queryParams: {},
+        queryBody: {},
+        searchResult: {}
       };
-      
-      var search = function(from, additionalBody) {
+      var setCachedResult = function(queryParams, queryBody, searchResult) {
+        cachedResult = {
+          queryParams: queryParams,
+          queryBody: queryBody,
+          searchResult: searchResult
+        };
+      };
+      var isCachedQuery = function(queryParams, queryBody) {
+        return _.isEqual(cachedResult.queryParams, queryParams) && _.isEqual(cachedResult.queryBody, queryBody);
+      };
+
+      var setResults= function(from) { // set the results
+        var searchResult = cachedResult.searchResult;
+        if(!isPaginatedAPI) {
+          searchResult = _.clone(cachedResult.searchResult); // no need for a deep clone
+          searchResult.from = from;
+          var count = from + maxSearchSize;
+          if(count > searchResult.data.length) {
+            count = searchResult.data.length;
+          }
+          searchResult.data = {
+            data: cachedResult.searchResult.data.data.slice(from, count),
+            facets: cachedResult.searchResult.data.facets,
+            from: from,
+            queryDuration: 0,
+            to: cachedResult.searchResult.data.to,
+            totalResults: cachedResult.searchResult.data.totalResults,
+            types: cachedResult.searchResult.data.types.slice(from, count)
+          };
+        }
+        pagination.update(searchResult);
+        queryProvider.onSearchCompleted(searchResult);
+      };
+
+      var search = function(from, additionalBody, useCache) {
         if (!from) {
           pagination.reset();
           from = pagination.from;
@@ -94,16 +124,16 @@ define(function (require) {
           size: maxSearchSize
         };
 
-        if (useParam) {
+        if (useParam) { // URL parameters based query
           var searchRequest = baseQuery;
           if (_.defined(params)) {
             searchRequest = _.merge(params, searchRequest);
           }
           resource.search(searchRequest, function(searchResult) {
-            pagination.update(searchResult);
-            queryProvider.onSearchCompleted(searchResult);
+            setCachedResult(searchRequest, undefined, searchResult);
+            setResults(from);
           });
-        } else {
+        } else { //
           var searchBody = baseQuery;
           if (_.defined(body)) {
             searchBody = _.merge(body, searchBody);
@@ -115,9 +145,20 @@ define(function (require) {
           if(isFiltered){
             searchBody.filters=queryProvider.filters;
           }
+
+          if(!isPaginatedAPI) { // mimic pagination from ui side.
+            searchBody.from = 0;
+            searchBody.size = maxSearchSize * maxPageNumbers;
+          }
+
+          if(useCache && isCachedQuery(params, searchBody)) {
+            setResults(from);
+            return;
+          }
+
           resource.search(params, angular.toJson(searchBody), function(searchResult) {
-            pagination.update(searchResult);
-            queryProvider.onSearchCompleted(searchResult);
+            setCachedResult(params, searchBody, searchResult);
+            setResults(from);
           });
         }
       };
@@ -125,7 +166,14 @@ define(function (require) {
       return  {
         'pagination': pagination,
         'search': search,
-        'filtered': filtered
+        filtered: function(filtered) {
+          // setter for the filtered configuration
+          if(_.defined(filtered)){
+            isFiltered = filtered;
+          } else {
+            isFiltered = false;
+          }
+        }
       };
     };
 

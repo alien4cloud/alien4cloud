@@ -9,6 +9,10 @@ define(function(require) {
     controller: 'TopologyEditorCtrl',
     resolve: {
       context: function() { return {}; },
+      workspaces: ['application', function(application) {
+        var workspaceId = 'app:' + application.data.id;
+        return [workspaceId, 'ALIEN_GLOBAL_WORKSPACE'];
+      }]
     },
     menu: {
       id: 'am.applications.detail.topology',

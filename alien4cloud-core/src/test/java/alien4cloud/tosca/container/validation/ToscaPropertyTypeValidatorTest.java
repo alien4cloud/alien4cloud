@@ -9,7 +9,7 @@ import javax.validation.Validator;
 import org.junit.Assert;
 import org.junit.Test;
 
-import alien4cloud.model.components.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import alien4cloud.tosca.normative.ToscaType;
 
 public class ToscaPropertyTypeValidatorTest {

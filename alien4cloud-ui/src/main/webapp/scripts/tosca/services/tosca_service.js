@@ -162,8 +162,6 @@ define(function (require) {
           return _.camelCase(this.simpleName(type)) + _.capitalize(_.camelCase(targetName));
         },
 
-        nodeTemplatePattern: /^\w+$/,
-        nodeTemplateReplacePattern: /\W/g,
         /**
         * Generate a unique node template name from the given node type name and based on a map of existing node templates.
         * @param type The name of the node type.
@@ -172,7 +170,7 @@ define(function (require) {
         generateNodeTemplateName: function(type, nodeTemplates) {
           var baseName = this.simpleName(type);
           // First we have to normalize the node template name as a4c restrict special character usage
-          baseName = this.nodeTemplatePattern.test(baseName) ? baseName : baseName.replace(this.nodeTemplateReplacePattern, '_');
+          baseName = this.getToscaName(baseName);
           var i = 1;
           var tempName = baseName;
           if(_.defined(nodeTemplates)) {
@@ -182,6 +180,15 @@ define(function (require) {
             }
           }
           return tempName;
+        },
+
+        toscaNamePattern: /^\w+$/,
+        toscaNameReplacePattern: /\W/g,
+        /**
+        * Get the name in a format that is accepted by alien4cloud.
+        */
+        getToscaName: function(name) {
+          return this.toscaNamePattern.test(name) ? name : name.replace(this.toscaNameReplacePattern, '_');
         },
 
         /**

@@ -2,16 +2,11 @@ package alien4cloud.rest.application;
 
 import javax.annotation.Resource;
 
-import alien4cloud.rest.application.model.ApplicationVersionRequest;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
@@ -24,7 +19,7 @@ import alien4cloud.exception.DeleteLastApplicationVersionException;
 import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.model.topology.Topology;
+import alien4cloud.rest.application.model.ApplicationVersionRequest;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
@@ -36,12 +31,12 @@ import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.version.InvalidVersionException;
 import alien4cloud.utils.version.UpdateApplicationVersionException;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping({"/rest/applications/{applicationId:.+}/versions", "/rest/v1/applications/{applicationId:.+}/versions", "/rest/latest/applications/{applicationId:.+}/versions"})
+@RequestMapping({ "/rest/applications/{applicationId:.+}/versions", "/rest/v1/applications/{applicationId:.+}/versions",
+        "/rest/latest/applications/{applicationId:.+}/versions" })
 @Api(value = "", description = "Manages application's versions")
 public class ApplicationVersionController {
 
@@ -159,7 +154,7 @@ public class ApplicationVersionController {
             if (!VersionUtil.isSnapshot(request.getVersion())) {
                 // we are changing a snapshot into a released version
                 // let's check that the dependencies are not snapshots
-                Topology topology = topologyServiceCore.getOrFail(appVersion.getTopologyId());
+                Topology topology = topologyServiceCore.getOrFail(appVersion.getId());
                 appVersionService.checkTopologyReleasable(topology);
             }
         }
@@ -187,8 +182,8 @@ public class ApplicationVersionController {
         if (appVersionService.isApplicationVersionDeployed(applicationVersionId)) {
             throw new DeleteReferencedObjectException("Application version with id <" + applicationVersionId + "> could not be deleted beacause it's used");
         } else if (appVersionService.getByApplicationId(applicationId).length == 1) {
-            throw new DeleteLastApplicationVersionException("Application version with id <" + applicationVersionId
-                    + "> can't be be deleted beacause it's the last application version.");
+            throw new DeleteLastApplicationVersionException(
+                    "Application version with id <" + applicationVersionId + "> can't be be deleted beacause it's the last application version.");
         }
         appVersionService.delete(applicationVersionId);
         return RestResponseBuilder.<Boolean> builder().data(true).build();

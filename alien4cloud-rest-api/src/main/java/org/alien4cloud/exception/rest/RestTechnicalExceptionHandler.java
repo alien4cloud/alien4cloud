@@ -1,11 +1,61 @@
 package org.alien4cloud.exception.rest;
 
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.alien4cloud.tosca.editor.exception.CapabilityBoundException;
+import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
+import org.alien4cloud.tosca.editor.exception.PropertyValueException;
+import org.alien4cloud.tosca.editor.exception.RecoverTopologyException;
+import org.alien4cloud.tosca.editor.exception.RequirementBoundException;
+import org.alien4cloud.tosca.editor.exception.UnmatchedElementPatternException;
+import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.springframework.expression.ExpressionException;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+import com.google.common.collect.Lists;
+
 import alien4cloud.component.repository.exception.RepositoryTechnicalException;
 import alien4cloud.deployment.exceptions.InvalidDeploymentSetupException;
-import alien4cloud.exception.*;
+import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.ApplicationVersionNotFoundException;
+import alien4cloud.exception.CyclicReferenceException;
+import alien4cloud.exception.DeleteDeployedException;
+import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
+import alien4cloud.exception.DeleteLastApplicationVersionException;
+import alien4cloud.exception.DeleteReferencedObjectException;
+import alien4cloud.exception.GitConflictException;
+import alien4cloud.exception.GitException;
+import alien4cloud.exception.GitMergingStateException;
+import alien4cloud.exception.GitStateException;
+import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.exception.InvalidApplicationNameException;
+import alien4cloud.exception.InvalidArgumentException;
+import alien4cloud.exception.InvalidNodeNameException;
+import alien4cloud.exception.MissingCSARDependenciesException;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.exception.ReleaseReferencingSnapshotException;
+import alien4cloud.exception.VersionConflictException;
+import alien4cloud.exception.VersionRenameNotPossibleException;
 import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
-import alien4cloud.paas.exception.*;
+import alien4cloud.paas.exception.ComputeConflictNameException;
+import alien4cloud.paas.exception.EmptyMetaPropertyException;
+import alien4cloud.paas.exception.MissingPluginException;
+import alien4cloud.paas.exception.OrchestratorDeploymentIdConflictException;
+import alien4cloud.paas.exception.PaaSDeploymentException;
+import alien4cloud.paas.exception.PaaSDeploymentIOException;
+import alien4cloud.paas.exception.PaaSUndeploymentException;
 import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
@@ -20,24 +70,7 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationExc
 import alien4cloud.utils.RestConstraintValidator;
 import alien4cloud.utils.version.InvalidVersionException;
 import alien4cloud.utils.version.UpdateApplicationVersionException;
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-import org.alien4cloud.tosca.editor.exception.*;
-import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.springframework.expression.ExpressionException;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
-import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * All technical (runtime) exception handler goes here. It's unexpected exception and is in general back-end exception or bug in our code
@@ -73,6 +106,22 @@ public class RestTechnicalExceptionHandler {
     public RestResponse<Void> gitException(GitException e) {
         log.error("Failed to import archive from git location.", e);
         return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.GIT_IMPORT_FAILED).message(e.getMessage()).build()).build();
+    }
+
+    @ExceptionHandler(value = { GitMergingStateException.class, GitConflictException.class })
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    public RestResponse<Void> gitConflictException(GitConflictException e) {
+        log.error("Failed to execute git operation due to conflict issue.", e);
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.GIT_CONFLICT_ERROR).message(e.getMessage()).build()).build();
+    }
+
+    @ExceptionHandler(GitStateException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<Void> gitStateException(GitStateException e) {
+        log.error("The git repository is not in a safe state.", e);
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.GIT_STATE_ERROR).message(e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(AlreadyExistException.class)
@@ -411,7 +460,7 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> handleEditionConcurrencyException(EditionConcurrencyException e) {
         return RestResponseBuilder.<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.DEPLOYMENT_NAMING_POLICY_ERROR).message(
+                .error(RestErrorBuilder.builder(RestErrorCode.EDITOR_CONCURRENCY_ERROR).message(
                         "Another user has changed the topology and your version is not consistent or topology edition session has expired. " + e.getMessage())
                         .build())
                 .build();
@@ -446,5 +495,15 @@ public class RestTechnicalExceptionHandler {
         return RestResponseBuilder.<RecoverTopologyOperation> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.RECOVER_TOPOLOGY).message(e.getMessage()).build()).data(e.getOperation()).build();
 
+    }
+
+    @ExceptionHandler(value = UnsupportedOperationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public RestResponse<Void> unsupportedOperationErrorHandler(UnsupportedOperationException e) {
+        log.error("Operation not supported", e);
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.UNSUPPORTED_OPERATION_ERROR).message("Operation not supported: " + e.getMessage()).build())
+                .build();
     }
 }

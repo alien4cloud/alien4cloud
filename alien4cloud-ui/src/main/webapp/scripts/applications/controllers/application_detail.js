@@ -52,7 +52,7 @@ define(function (require) {
           });
         }
       ],
-      appVersions: ['$http', 'application', 'applicationVersionServices',
+      archiveVersions: ['$http', 'application', 'applicationVersionServices',
         function($http, application, applicationVersionServices) {
           var searchAppVersionRequestObject = {
             'from': 0,

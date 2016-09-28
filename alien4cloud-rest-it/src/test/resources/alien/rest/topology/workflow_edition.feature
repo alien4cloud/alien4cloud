@@ -37,7 +37,7 @@ Feature: Workflow edition
     Given I add a node template "MySoftware" related to the "alien4cloud.tests.nodes.CustomInterface:1.1.0-SNAPSHOT" node type
      When I have added a relationship "hostedOnCompute" of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0-SNAPSHOT" with source "MySoftware" and target "MyCompute" for requirement "host" of type "tosca.capabilities.Container" and target capability "host"
      Then I should receive a RestResponse with no error
-     When If I search for topology templates I can find one with the name "net.sample.AP" version "0.1.0-SNAPSHOT" and store the related topology as a SPEL context
+     When I should be able to retrieve a topology with name "net.sample.AP" version "0.1.0-SNAPSHOT" and store it as a SPEL context
       # we have 2 workflows : install and uninstall
      Then The SPEL int expression "workflows.size()" should return 2
       # we have 1 host
@@ -160,7 +160,7 @@ Feature: Workflow edition
      Then I should receive a RestResponse with no error
      When I update the node template's name from "MyCompute" to "MyMachine"
      Then I should receive a RestResponse with no error
-     When If I search for topology templates I can find one with the name "net.sample.AP" version "0.1.0-SNAPSHOT" and store the related topology as a SPEL context
+     When I should be able to retrieve a topology with name "net.sample.AP" version "0.1.0-SNAPSHOT" and store it as a SPEL context
       # we have 2 workflows : install and uninstall
      Then The SPEL int expression "workflows.size()" should return 2
       # we have 1 host
@@ -288,7 +288,7 @@ Feature: Workflow edition
      When I reset the workflow
      Then I should receive a RestResponse with no error
       # the workflow should finally be as in scenario 'Add a node hostedOn compute'
-     When If I search for topology templates I can find one with the name "net.sample.AP" version "0.1.0-SNAPSHOT" and store the related topology as a SPEL context
+     When I should be able to retrieve a topology with name "net.sample.AP" version "0.1.0-SNAPSHOT" and store it as a SPEL context
       And The SPEL int expression "workflows['install'].steps.size()" should return 11
      When I try to retrieve the created topology
       # . > MyCompute_install
@@ -343,7 +343,7 @@ Feature: Workflow edition
       And the workflow should exist in the topology and I start editing it
      When I rename the workflow to "myCustomWorkflow"
      Then I should receive a RestResponse with no error
-     When If I search for topology templates I can find one with the name "net.sample.AP" version "0.1.0-SNAPSHOT" and store the related topology as a SPEL context
+     When I should be able to retrieve a topology with name "net.sample.AP" version "0.1.0-SNAPSHOT" and store it as a SPEL context
       # we have 3 workflows : install, uninstall and myCustomWorkflow
      Then The SPEL int expression "workflows.size()" should return 3
       And The SPEL boolean expression "workflows.containsKey('myCustomWorkflow')" should return true
@@ -367,7 +367,7 @@ Feature: Workflow edition
       And the workflow should exist in the topology and I start editing it
      When I remove the workflow
      Then I should receive a RestResponse with no error
-     When If I search for topology templates I can find one with the name "net.sample.AP" version "0.1.0-SNAPSHOT" and store the related topology as a SPEL context
+     When I should be able to retrieve a topology with name "net.sample.AP" version "0.1.0-SNAPSHOT" and store it as a SPEL context
       # we have 2 workflows : install, uninstall
      Then The SPEL int expression "workflows.size()" should return 2
       And The SPEL boolean expression "workflows.containsKey('install')" should return true
@@ -428,6 +428,6 @@ Feature: Workflow edition
       And I edit the workflow named "install"
      When I connect the workflow step "start_MySoftware" to: "create_MySoftware"
      Then I should receive a RestResponse with no error
-     When If I search for topology templates I can find one with the name "net.sample.AP" version "0.1.0-SNAPSHOT" and store the related topology as a SPEL context
+     When I should be able to retrieve a topology with name "net.sample.AP" version "0.1.0-SNAPSHOT" and store it as a SPEL context
       # we have 1 wf error
      Then The SPEL int expression "workflows['install'].errors.size()" should return 1

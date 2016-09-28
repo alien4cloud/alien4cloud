@@ -8,7 +8,7 @@ import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
-import alien4cloud.model.topology.AbstractTopologyVersion;
+import org.alien4cloud.tosca.model.templates.AbstractTopologyVersion;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;

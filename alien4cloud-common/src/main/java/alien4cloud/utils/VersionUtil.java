@@ -1,11 +1,16 @@
 package alien4cloud.utils;
 
-import java.util.regex.Pattern;
-
 import alien4cloud.utils.version.InvalidVersionException;
 import alien4cloud.utils.version.Version;
 
+import java.util.regex.Pattern;
+
 public final class VersionUtil {
+
+    /**
+     * Default version
+     */
+    public static final String DEFAULT_VERSION_NAME = "0.1.0-SNAPSHOT";
 
     /** Utility class should not have public constructor. */
     private VersionUtil() {

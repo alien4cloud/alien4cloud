@@ -26,19 +26,19 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.events.LocationTemplateCreated;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.IndexedCapabilityType;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.types.CapabilityType;
 import alien4cloud.model.components.IndexedModelUtils;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.PropertyDefinition;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 import alien4cloud.model.orchestrators.locations.LocationResources;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import alien4cloud.orchestrators.plugin.ILocationConfiguratorPlugin;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
@@ -144,7 +144,7 @@ public class LocationResourceService implements ILocationResourceService {
      */
     private void setLocationRessourceTypes(Collection<String> exposedTypes, Location location, LocationResourceTypes locationResourceTypes) {
         for (String exposedType : exposedTypes) {
-            IndexedNodeType exposedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, exposedType,
+            NodeType exposedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, exposedType,
                     location.getDependencies());
 
             if (exposedIndexedNodeType.isAbstract()) {
@@ -156,7 +156,7 @@ public class LocationResourceService implements ILocationResourceService {
             if (exposedIndexedNodeType.getCapabilities() != null && !exposedIndexedNodeType.getCapabilities().isEmpty()) {
                 for (CapabilityDefinition capabilityDefinition : exposedIndexedNodeType.getCapabilities()) {
                     locationResourceTypes.getCapabilityTypes().put(capabilityDefinition.getType(), csarRepoSearchService
-                            .getRequiredElementInDependencies(IndexedCapabilityType.class, capabilityDefinition.getType(), location.getDependencies()));
+                            .getRequiredElementInDependencies(CapabilityType.class, capabilityDefinition.getType(), location.getDependencies()));
                 }
             }
         }
@@ -203,8 +203,8 @@ public class LocationResourceService implements ILocationResourceService {
             }
 
             @Override
-            public <T extends IndexedToscaElement> T getIndexedToscaElement(String type) {
-                return (T) csarRepoSearchService.getRequiredElementInDependencies(IndexedToscaElement.class, type, location.getDependencies());
+            public <T extends AbstractToscaType> T getIndexedToscaElement(String type) {
+                return (T) csarRepoSearchService.getRequiredElementInDependencies(AbstractToscaType.class, type, location.getDependencies());
             }
 
             @Override
@@ -262,7 +262,7 @@ public class LocationResourceService implements ILocationResourceService {
     @Override
     public LocationResourceTemplate addResourceTemplate(String locationId, String resourceName, String resourceTypeName) {
         Location location = locationService.getOrFail(locationId);
-        IndexedNodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, resourceTypeName,
+        NodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, resourceTypeName,
                 location.getDependencies());
         NodeTemplate nodeTemplate = topologyService.buildNodeTemplate(location.getDependencies(), resourceType, null);
         // FIXME Workaround to remove default scalable properties from compute
@@ -338,7 +338,7 @@ public class LocationResourceService implements ILocationResourceService {
             throws ConstraintValueDoNotMatchPropertyTypeException, ConstraintViolationException {
         LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
-        IndexedNodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, resourceTemplate.getTemplate().getType(),
+        NodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, resourceTemplate.getTemplate().getType(),
                 location.getDependencies());
         if (resourceType.getProperties() == null || !resourceType.getProperties().containsKey(propertyName)) {
             throw new NotFoundException("Property <" + propertyName + "> is not found in type <" + resourceType.getElementId() + ">");
@@ -358,11 +358,11 @@ public class LocationResourceService implements ILocationResourceService {
     public void setTemplateCapabilityProperty(LocationResourceTemplate resourceTemplate, String capabilityName, String propertyName, Object propertyValue)
             throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
-        IndexedNodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, resourceTemplate.getTemplate().getType(),
+        NodeType resourceType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, resourceTemplate.getTemplate().getType(),
                 location.getDependencies());
         Capability capability = getOrFailCapability(resourceTemplate.getTemplate(), capabilityName);
         CapabilityDefinition capabilityDefinition = getOrFailCapabilityDefinition(resourceType, capabilityName);
-        IndexedCapabilityType capabilityType = csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class,
+        CapabilityType capabilityType = csarRepoSearchService.getRequiredElementInDependencies(CapabilityType.class,
                 capabilityDefinition.getType(), location.getDependencies());
         PropertyDefinition propertyDefinition = getOrFailCapabilityPropertyDefinition(capabilityType, propertyName);
         propertyService.setCapabilityPropertyValue(capability, propertyDefinition, propertyName, propertyValue);
@@ -376,7 +376,7 @@ public class LocationResourceService implements ILocationResourceService {
         throw new NotFoundException("Capability <" + capabilityName + "> not found in template.");
     }
 
-    private PropertyDefinition getOrFailCapabilityPropertyDefinition(IndexedCapabilityType capabilityType, String propertyName) {
+    private PropertyDefinition getOrFailCapabilityPropertyDefinition(CapabilityType capabilityType, String propertyName) {
         PropertyDefinition propertyDefinition = MapUtils.getObject(capabilityType.getProperties(), propertyName);
         if (propertyDefinition != null) {
             return propertyDefinition;
@@ -384,7 +384,7 @@ public class LocationResourceService implements ILocationResourceService {
         throw new NotFoundException("Property <" + propertyName + "> not found in capability type <" + capabilityType.getElementId() + ">");
     }
 
-    private CapabilityDefinition getOrFailCapabilityDefinition(IndexedNodeType resourceType, String capabilityName) {
+    private CapabilityDefinition getOrFailCapabilityDefinition(NodeType resourceType, String capabilityName) {
         CapabilityDefinition capabilityDefinition = IndexedModelUtils.getCapabilityDefinitionById(resourceType.getCapabilities(), capabilityName);
         if (capabilityDefinition != null) {
             return capabilityDefinition;

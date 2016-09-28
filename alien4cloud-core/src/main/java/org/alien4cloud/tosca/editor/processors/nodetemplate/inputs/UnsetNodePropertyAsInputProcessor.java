@@ -9,10 +9,10 @@ import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcesso
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.topology.NodeTemplate;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.PropertyUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class UnsetNodePropertyAsInputProcessor extends AbstractNodeProcessor<Uns
             throw new NotFoundException("Property {} of node {} is not associated to an input.", operation.getPropertyName(), operation.getNodeName());
         }
 
-        IndexedNodeType nodeType = ToscaContext.get(IndexedNodeType.class, nodeTemplate.getType());
+        NodeType nodeType = ToscaContext.get(NodeType.class, nodeTemplate.getType());
         PropertyDefinition nodePropertyDefinition = getOrFail(nodeType.getProperties(), operation.getPropertyName(), "Property {} do not exist for node {}",
                 operation.getPropertyName(), operation.getNodeName());
 

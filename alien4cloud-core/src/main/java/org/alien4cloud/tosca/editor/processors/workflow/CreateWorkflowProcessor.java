@@ -1,7 +1,6 @@
 package org.alien4cloud.tosca.editor.processors.workflow;
 
-import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.wf.Workflow;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import lombok.extern.slf4j.Slf4j;

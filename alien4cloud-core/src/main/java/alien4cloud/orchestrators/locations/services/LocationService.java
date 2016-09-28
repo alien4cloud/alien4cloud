@@ -33,9 +33,9 @@ import alien4cloud.exception.MissingCSARDependenciesException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.common.Usage;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.Csar;
-import alien4cloud.model.components.IndexedNodeType;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorState;
@@ -203,7 +203,7 @@ public class LocationService {
                 template.setLocationId(location.getId());
                 template.setGenerated(true);
                 template.setEnabled(true);
-                IndexedNodeType nodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, template.getTemplate().getType(),
+                NodeType nodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, template.getTemplate().getType(),
                         location.getDependencies());
                 nodeType.getDerivedFrom().add(0, template.getTemplate().getType());
                 template.setTypes(nodeType.getDerivedFrom());

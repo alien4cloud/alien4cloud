@@ -1,9 +1,8 @@
 package org.alien4cloud.tosca.editor.operations.inputs;
 
-import alien4cloud.model.components.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import lombok.Getter;
 import lombok.Setter;
-import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 
 /**
  * Operation to add an input to the topology.

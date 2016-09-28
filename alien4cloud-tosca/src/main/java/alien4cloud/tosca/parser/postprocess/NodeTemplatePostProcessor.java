@@ -9,9 +9,9 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.Operation;
-import alien4cloud.model.topology.NodeTemplate;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.definitions.Operation;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
@@ -38,8 +38,8 @@ public class NodeTemplatePostProcessor implements IPostProcessor<NodeTemplate> {
     @Override
     public void process(final NodeTemplate instance) {
         // ensure type exists
-        referencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance.getType(), IndexedNodeType.class));
-        final IndexedNodeType nodeType = ToscaContext.get(IndexedNodeType.class, instance.getType());
+        referencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance.getType(), NodeType.class));
+        final NodeType nodeType = ToscaContext.get(NodeType.class, instance.getType());
         if (nodeType == null) {
             return; // error managed by the reference post processor.
         }

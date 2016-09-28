@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
+import org.elasticsearch.mapping.QueryHelper;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -68,12 +68,14 @@ public class PaaSProviderPollingMonitor implements Runnable {
         }
         Map<String, String[]> filter = Maps.newHashMap();
         filter.put("orchestratorId", new String[] { this.orchestratorId });
+
         // sort by filed date DESC
-        SearchQueryHelperBuilder searchQueryHelperBuilder = monitorDAO.getQueryHelper().buildSearchQuery("deploymentmonitorevents")
-                .types(eventClasses.toArray(new Class<?>[eventClasses.size()])).filters(filter).fieldSort("date", true);
+        QueryHelper.ISearchQueryBuilderHelper searchQueryHelperBuilder = monitorDAO.getQueryHelper().buildQuery()
+                .types(eventClasses.toArray(new Class<?>[eventClasses.size()])).filters(filter).prepareSearch("deploymentmonitorevents")
+                .fieldSort("date", true);
 
         // the first one is the one with the latest date
-        GetMultipleDataResult lastestEventResult = monitorDAO.search(searchQueryHelperBuilder, 0, 1);
+        GetMultipleDataResult lastestEventResult = monitorDAO.search(searchQueryHelperBuilder, 0, 10);
         if (lastestEventResult.getData().length > 0) {
             AbstractMonitorEvent lastEvent = (AbstractMonitorEvent) lastestEventResult.getData()[0];
             Date lastEventDate = new Date(lastEvent.getDate());

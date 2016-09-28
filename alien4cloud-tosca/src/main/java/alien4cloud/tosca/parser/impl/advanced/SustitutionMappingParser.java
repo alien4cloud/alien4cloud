@@ -13,10 +13,10 @@ import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.topology.SubstitutionMapping;
-import alien4cloud.model.topology.SubstitutionTarget;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.templates.SubstitutionMapping;
+import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
@@ -62,7 +62,7 @@ public class SustitutionMappingParser implements INodeParser<SubstitutionMapping
             switch (key) {
             case NODE_TYPE:
                 String nodeTypeName = scalarParser.parse(valueNode, context);
-                IndexedNodeType nodeType = new IndexedNodeType();
+                NodeType nodeType = new NodeType();
                 nodeType.setElementId(nodeTypeName);
                 result.setSubstitutionType(nodeType);
                 break;

@@ -1,18 +1,20 @@
 package alien4cloud.tosca.container;
 
-import alien4cloud.csar.services.ICsarDependencyLoader;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.topology.TopologyService;
-import alien4cloud.utils.VersionUtil;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
+import org.alien4cloud.tosca.model.CSARDependency;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
+import alien4cloud.utils.VersionUtil;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Getter
 @Setter
@@ -136,7 +138,7 @@ public class ToscaTypeLoader {
         for (CSARDependency transitiveDependency : transitiveDependencies) {
             Set<String> transitiveTypesLoadedByDependency = dependenciesMap.get(transitiveDependency);
             if (transitiveTypesLoadedByDependency == null) {
-                addNewDependency(TopologyService.buildDependencyBean(transitiveDependency.getName(), transitiveDependency.getVersion()), type);
+                addNewDependency(CsarService.buildDependencyBean(transitiveDependency.getName(), transitiveDependency.getVersion()), type);
             } else {
                 transitiveTypesLoadedByDependency.add(type);
             }

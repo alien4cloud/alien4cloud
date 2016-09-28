@@ -65,8 +65,8 @@
     reference: topology
     type: topology_template_type
 
-- topology_template_type: alien4cloud.model.topology.Topology
-  description: .topologyTemplateDescription # mapped to a root's property
+- topology_template_type: org.alien4cloud.tosca.model.templates.Topology
+  description: description
   inputs:
     map: inputs
     type: property_definition
@@ -122,7 +122,7 @@
 - delegate_activity: alien4cloud.paas.wf.DelegateWorkflowActivity
   delegate: workflowName
 
-- node_group: alien4cloud.model.topology.NodeGroup
+- node_group: org.alien4cloud.tosca.model.templates.NodeGroup
   members:
     set: members
     type: scalar
@@ -130,7 +130,7 @@
     list: policies
     type: group_policy_parser
 
-- node_template: alien4cloud.model.topology.NodeTemplate
+- node_template: org.alien4cloud.tosca.model.templates.NodeTemplate
   type: type
   name: name
   properties:
@@ -150,18 +150,18 @@
     map: artifacts
     type: deployment_artifact
 
-- node_template_capability_definition: alien4cloud.model.topology.Capability
+- node_template_capability_definition: org.alien4cloud.tosca.model.templates.Capability
   type: type
   properties:
     map: properties
     type: node_template_property
 
-- attribute_definition: alien4cloud.model.components.AttributeDefinition
+- attribute_definition: org.alien4cloud.tosca.model.definitions.AttributeDefinition
   description: description
   type: type
   default: default
 
-- property_definition: alien4cloud.model.components.PropertyDefinition
+- property_definition: org.alien4cloud.tosca.model.definitions.PropertyDefinition
   type: type
   entry_schema:
     reference: entrySchema
@@ -177,7 +177,7 @@
 
 # capability definition supports a simple definition or more advanced.
 - capability_definition: alien4cloud.tosca.parser.impl.advanced.CapabilityDefinitionParser
-- capability_definition_detailed: alien4cloud.model.components.CapabilityDefinition
+- capability_definition_detailed: org.alien4cloud.tosca.model.definitions.CapabilityDefinition
   description: description
   type: type
   occurrences:
@@ -194,13 +194,13 @@
   type: constraint # the elements in the list are constraints
 
 # Node filter related types
-- filter_definition: alien4cloud.model.components.FilterDefinition
+- filter_definition: org.alien4cloud.tosca.model.definitions.FilterDefinition
   properties:
     sequence_to_map: properties
     type: constraint_list
     node_is_value: false
 
-- node_filter_type: alien4cloud.model.components.NodeFilter
+- node_filter_type: org.alien4cloud.tosca.model.definitions.NodeFilter
   properties:
     sequence_to_map: properties
     type: constraint_list
@@ -210,7 +210,7 @@
     type: filter_definition
     node_is_value: false
 
-- requirement_definition: alien4cloud.model.components.RequirementDefinition
+- requirement_definition: org.alien4cloud.tosca.model.definitions.RequirementDefinition
   __0: # define mapping for the first tuple of a requirement_definition. Both key and values must be mapped to different fields.
     key: id # map the key of the first mapping
     value: # map the value as a capability_type_reference
@@ -227,7 +227,7 @@
     reference: nodeFilter
     type: node_filter_type
 
-- tosca_function: alien4cloud.model.components.FunctionPropertyValue
+- tosca_function: org.alien4cloud.tosca.model.definitions.FunctionPropertyValue
   __0:
     key: function
     value:
@@ -242,11 +242,11 @@
     get_attribute: tosca_function
   default: property_value
 
-- scalar_property_value: alien4cloud.model.components.ScalarPropertyValue
+- scalar_property_value: org.alien4cloud.tosca.model.definitions.ScalarPropertyValue
 
 - complex_property_value: alien4cloud.tosca.parser.impl.advanced.ComplexPropertyValueParser
 
-- tosca_concat: alien4cloud.model.components.ConcatPropertyValue
+- tosca_concat: org.alien4cloud.tosca.model.definitions.ConcatPropertyValue
   __0:
     key: function_concat
     value:
@@ -278,7 +278,7 @@
     get_operation_output: tosca_function
   default: attribute_definition
 
-- operation_definition: alien4cloud.model.components.Operation
+- operation_definition: org.alien4cloud.tosca.model.definitions.Operation
   implementation:
     reference: implementationArtifact
     type: implementation_artifact
@@ -290,7 +290,7 @@
     map: inputParameters
     type: input
 
-- node_type: alien4cloud.model.components.IndexedNodeType
+- node_type: org.alien4cloud.tosca.model.types.NodeType
   description: description
   derived_from:
     reference: derivedFrom
@@ -322,7 +322,7 @@
     constraints: simple_data_type
   default: complex_data_type
 
-- simple_data_type: alien4cloud.model.components.PrimitiveIndexedDataType
+- simple_data_type: org.alien4cloud.tosca.model.types.PrimitiveDataType
   description: description
   abstract: abstract
   tags:
@@ -335,7 +335,7 @@
     list: constraints
     type: constraint
 
-- complex_data_type: alien4cloud.model.components.IndexedDataType
+- complex_data_type: org.alien4cloud.tosca.model.types.DataType
   description: description
   abstract: abstract
   tags:
@@ -348,7 +348,7 @@
     map: properties
     type: property_definition
 
-- capability_type: alien4cloud.model.components.IndexedCapabilityType
+- capability_type: org.alien4cloud.tosca.model.types.CapabilityType
   description: description
   derived_from:
     reference: derivedFrom
@@ -363,7 +363,7 @@
     list: validSources
     type: scalar
 
-- relationship_type: alien4cloud.model.components.IndexedRelationshipType
+- relationship_type: org.alien4cloud.tosca.model.types.RelationshipType
   description: description
   abstract: abstract
   tags:
@@ -390,7 +390,7 @@
     list: validTargets
     type: scalar
 
-- artifact_type: alien4cloud.model.components.IndexedArtifactType
+- artifact_type: org.alien4cloud.tosca.model.types.ArtifactType
   description: description
   derived_from:
     reference: derivedFrom
@@ -403,7 +403,7 @@
     list: fileExt
     type: scalar
 
-- repository_definition: alien4cloud.model.components.RepositoryDefinition
+- repository_definition: org.alien4cloud.tosca.model.definitions.RepositoryDefinition
   description: description
   url: url
   credentials: credentials

@@ -14,19 +14,19 @@ import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import org.alien4cloud.tosca.editor.EditorRepositoryService;
+import org.alien4cloud.tosca.model.definitions.AbstractArtifact;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.definitions.Interface;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.repository.ArtifactRepositoryConstants;
-import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.component.repository.IFileRepository;
-import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
 import alien4cloud.deployment.exceptions.UnresolvableArtifactException;
-import alien4cloud.model.components.AbstractArtifact;
-import alien4cloud.model.components.DeploymentArtifact;
-import alien4cloud.model.components.Interface;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
@@ -68,7 +68,7 @@ public class ArtifactProcessorService {
                 throw new UnresolvableArtifactException("Artifact could not be accessed " + artifact);
             }
             artifact.setArtifactPath(resolvedPath.toString());
-        } catch (CSARVersionNotFoundException e) {
+        } catch (NotFoundException e) {
             throw new UnresolvableArtifactException("Artifact could not be found " + artifact, e);
         }
     }

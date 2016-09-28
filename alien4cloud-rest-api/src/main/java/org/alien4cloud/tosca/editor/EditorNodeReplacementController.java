@@ -1,14 +1,12 @@
 package org.alien4cloud.tosca.editor;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import alien4cloud.model.components.IndexedNodeType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import io.swagger.annotations.ApiOperation;
@@ -31,10 +29,10 @@ public class EditorNodeReplacementController {
      */
     @ApiOperation(value = "Get the possible inputs candidates to be associated with this property.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<IndexedNodeType[]> getReplacementForNode(
+    public RestResponse<NodeType[]> getReplacementForNode(
             @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable(value = "nodeTemplateName") final String nodeTemplateName) {
-        IndexedNodeType[] replacementsNodeTypes = editorService.getReplacementForNode(topologyId, nodeTemplateName);
-        return RestResponseBuilder.<IndexedNodeType[]> builder().data(replacementsNodeTypes).build();
+        NodeType[] replacementsNodeTypes = editorService.getReplacementForNode(topologyId, nodeTemplateName);
+        return RestResponseBuilder.<NodeType[]> builder().data(replacementsNodeTypes).build();
     }
 }

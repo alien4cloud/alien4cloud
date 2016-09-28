@@ -4,7 +4,7 @@ import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.model.components.Csar;
+import org.alien4cloud.tosca.model.Csar;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 

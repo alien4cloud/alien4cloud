@@ -7,18 +7,18 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.templates.AbstractTemplate;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.apache.commons.collections.MapUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.model.components.DeploymentArtifact;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.PropertyValue;
 import alien4cloud.model.deployment.DeploymentTopology;
-import alien4cloud.model.topology.AbstractTemplate;
-import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.orchestrators.services.OrchestratorDeploymentService;
 import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;

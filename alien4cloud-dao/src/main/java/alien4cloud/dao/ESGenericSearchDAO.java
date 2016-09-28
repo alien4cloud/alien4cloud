@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import javax.annotation.Resource;
 
@@ -20,10 +21,10 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.mapping.*;
-import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.InternalTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -38,14 +39,15 @@ import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.ElasticSearchUtil;
 import alien4cloud.utils.MapUtil;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Elastic search dao that manages search operations.
  *
  * @author luc boutier
  */
+@Slf4j
 public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearchDAO {
-    // private static final String SCORE_SCRIPT = "_score * ((doc.containsKey('alienScore') && !doc['alienScore'].empty) ? doc['alienScore'].value : 1)";
     @Resource
     private ElasticSearchClient esClient;
     @Resource
@@ -64,10 +66,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
 
     @Override
     public <T> long count(Class<T> clazz, String searchText, Map<String, String[]> filters) {
-        String[] searchIndexes = clazz == null ? getAllIndexes() : new String[] { getIndexForType(clazz) };
-        Class<?>[] requestedTypes = getRequestedTypes(clazz);
-
-        return this.queryHelper.buildCountQuery(searchIndexes, searchText).types(requestedTypes).filters(filters).count().getCount();
+        return buildSearchQuery(clazz, searchText).setFilters(filters).count();
     }
 
     @Override
@@ -158,8 +157,8 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     }
 
     @Override
-    public GetMultipleDataResult<Object> search(SearchQueryHelperBuilder queryHelperBuilder, int from, int maxElements) {
-        return toGetMultipleDataResult(Object.class, queryHelperBuilder.search(from, maxElements), from);
+    public GetMultipleDataResult<Object> search(QueryHelper.ISearchQueryBuilderHelper queryHelperBuilder, int from, int maxElements) {
+        return toGetMultipleDataResult(Object.class, queryHelperBuilder.execute(from, maxElements), from);
     }
 
     @Override
@@ -187,8 +186,9 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     @Override
     public <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
             String fetchContext, int from, int maxElements, String fieldSort, boolean sortOrder) {
-        SearchResponse searchResponse = doSearch(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, false, fieldSort, sortOrder);
-        return toGetMultipleDataResult(clazz, searchResponse, from);
+        IESSearchQueryBuilderHelper<T> searchQueryBuilderHelper = getSearchBuilderHelper(clazz, searchText, filters, customFilter, fetchContext, fieldSort,
+                sortOrder);
+        return searchQueryBuilderHelper.search(from, maxElements);
     }
 
     @Override
@@ -200,8 +200,9 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     @Override
     public GetMultipleDataResult<Object> search(String[] searchIndices, Class<?>[] classes, String searchText, Map<String, String[]> filters,
             FilterBuilder customFilter, String fetchContext, int from, int maxElements) {
-        SearchResponse searchResponse = queryHelper.buildSearchQuery(searchIndices, searchText).fetchContext(fetchContext).filters(filters)
-                .customFilter(customFilter).types(classes).search(from, maxElements);
+        SearchResponse searchResponse = queryHelper.buildQuery(searchText).types(classes).filters(filters, customFilter).prepareSearch(searchIndices)
+                .fetchContext(fetchContext).execute(from, maxElements);
+
         return toGetMultipleDataResult(Object.class, searchResponse, from);
     }
 
@@ -222,38 +223,19 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         return facetedSearch(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, null, false);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    @SneakyThrows({ IOException.class })
     public <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
             String fetchContext, int from, int maxElements, String fieldSort, boolean sortOrder) {
-        SearchResponse searchResponse = doSearch(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, true, fieldSort, sortOrder);
-
-        // check something found
-        // return an empty object if nothing found
-        if (!somethingFound(searchResponse)) {
-            T[] resultData = (T[]) Array.newInstance(clazz, 0);
-            FacetedSearchResult toReturn = new FacetedSearchResult(from, 0, 0, 0, new String[0], resultData, new HashMap<String, FacetedSearchFacet[]>());
-            if (searchResponse != null) {
-                toReturn.setQueryDuration(searchResponse.getTookInMillis());
-            }
-            return toReturn;
-        }
-
-        FacetedSearchResult finalResponse = new FacetedSearchResult();
-
-        fillMultipleDataResult(clazz, searchResponse, finalResponse, from, true);
-
-        finalResponse.setFacets(parseAggregationCounts(searchResponse));
-
-        return finalResponse;
+        IESSearchQueryBuilderHelper<T> searchQueryBuilderHelper = getSearchBuilderHelper(clazz, searchText, filters, customFilter, fetchContext, fieldSort,
+                sortOrder);
+        return searchQueryBuilderHelper.facetedSearch(from, maxElements);
     }
 
     @Override
     public GetMultipleDataResult<Object> suggestSearch(String[] searchIndices, Class<?>[] requestedTypes, String suggestFieldPath, String searchPrefix,
             String fetchContext, int from, int maxElements) {
-        SearchResponse searchResponse = queryHelper.buildSearchSuggestQuery(searchIndices, searchPrefix, suggestFieldPath).types(requestedTypes)
-                .fetchContext(fetchContext).search(from, maxElements);
+        SearchResponse searchResponse = queryHelper.buildQuery(suggestFieldPath, searchPrefix).types(requestedTypes).prepareSearch(searchIndices)
+                .fetchContext(fetchContext).execute(from, maxElements);
 
         return toGetMultipleDataResult(Object.class, searchResponse, from);
     }
@@ -261,13 +243,7 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
     @Override
     public <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters,
             Map<String, FilterValuesStrategy> filterStrategies, int maxElements) {
-        String[] searchIndices = clazz == null ? getAllIndexes() : new String[] { getIndexForType(clazz) };
-        Class<?>[] requestedTypes = getRequestedTypes(clazz);
-
-        SearchResponse searchResponse = queryHelper.buildSearchQuery(searchIndices).types(requestedTypes).filters(filters).filterStrategies(filterStrategies)
-                .search(0, maxElements);
-
-        return toGetMultipleDataResult(clazz, searchResponse, 0);
+        return buildSearchQuery(clazz, searchText).setFilters(filters, filterStrategies).prepareSearch().search(0, maxElements);
     }
 
     /**
@@ -336,27 +312,19 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         finalResponse.setTypes(resultTypes);
     }
 
-    private <T> SearchResponse doSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter, String fetchContext,
-            int from, int maxElements, boolean enableFacets, String fieldSort, boolean sortOrder) {
-        String[] searchIndexes = clazz == null ? getAllIndexes() : new String[] { getIndexForType(clazz) };
-        Class<?>[] requestedTypes = getRequestedTypes(clazz);
-        String[] esTypes = getTypesStrings(requestedTypes);
+    private <T> IESSearchQueryBuilderHelper<T> getSearchBuilderHelper(Class<T> clazz, String searchText, Map<String, String[]> filters,
+            FilterBuilder customFilter, String fetchContext, String fieldSort, boolean sortOrder) {
+        IESSearchQueryBuilderHelper<T> builderHelper = buildSearchQuery(clazz, searchText).setFilters(filters, customFilter)
+                .alterQueryBuilder(queryBuilder -> QueryBuilders.functionScoreQuery(queryBuilder).scoreMode("multiply").boostMode(CombineFunction.MULT)
+                        .add(ScoreFunctionBuilders.fieldValueFactorFunction("alienScore").missing(1)))
+                .prepareSearch().setFetchContext(fetchContext).setFieldSort(fieldSort, sortOrder);
 
-        SearchQueryHelperBuilder query = this.queryHelper.buildSearchQuery(searchIndexes, searchText).types(requestedTypes).fetchContext(fetchContext)
-                .filters(filters).customFilter(customFilter).facets(enableFacets);
-        if (fieldSort != null) {
-            query.fieldSort(fieldSort, sortOrder);
-        }
+        return builderHelper;
+    }
 
-        SearchRequestBuilder searchRequestBuilder = query.generate(from, maxElements, new QueryBuilderAdapter() {
-            @Override
-            public QueryBuilder adapt(QueryBuilder queryBuilder) {
-                return QueryBuilders.functionScoreQuery(queryBuilder).scoreMode("multiply").boostMode(CombineFunction.MULT)
-                        .add(ScoreFunctionBuilders.fieldValueFactorFunction("alienScore").missing(1));
-            }
-        });
-        searchRequestBuilder.setTypes(esTypes);
-        return searchRequestBuilder.execute().actionGet();
+    private <T> QueryBuilderAdapter queryBuilderAdapter() {
+        return queryBuilder -> QueryBuilders.functionScoreQuery(queryBuilder).scoreMode("multiply").boostMode(CombineFunction.MULT)
+                .add(ScoreFunctionBuilders.fieldValueFactorFunction("alienScore").missing(1));
     }
 
     private boolean somethingFound(final SearchResponse searchResponse) {
@@ -433,30 +401,200 @@ public abstract class ESGenericSearchDAO extends ESGenericIdDAO implements IGene
         return this.queryHelper;
     }
 
-    // Parse aggregation and extract their results into an array of FacetedSearchFacets
-    private Map<String, FacetedSearchFacet[]> parseAggregationCounts(SearchResponse searchResponse) {
+    @SneakyThrows({ IOException.class })
+    private <T> FacetedSearchResult<T> toFacetedSearchResult(Class<T> clazz, int from, SearchResponse searchResponse) {
+        // check something found
+        // return an empty object if nothing found
+        if (!somethingFound(searchResponse)) {
+            T[] resultData = (T[]) Array.newInstance(clazz, 0);
+            FacetedSearchResult toReturn = new FacetedSearchResult(from, 0, 0, 0, new String[0], resultData, new HashMap<String, FacetedSearchFacet[]>());
+            if (searchResponse != null) {
+                toReturn.setQueryDuration(searchResponse.getTookInMillis());
+            }
+            return toReturn;
+        }
+
+        FacetedSearchResult facetedSearchResult = new FacetedSearchResult();
+        fillMultipleDataResult(clazz, searchResponse, facetedSearchResult, from, true); // set data from the query
+        parseAggregations(searchResponse, facetedSearchResult, null); // set aggregations
+        return facetedSearchResult;
+    }
+
+    /**
+     * Parse aggregations and set facets to the given non null FacetedSearchResult instance.
+     * 
+     * @param searchResponse The search response that contains aggregation results.
+     * @param facetedSearchResult The instance in which to set facets.
+     * @param aggregationQueryManager If not null the data of the FacetedSearchResult will be processed from an aggregation based on the given manager.
+     */
+    private void parseAggregations(SearchResponse searchResponse, FacetedSearchResult facetedSearchResult, IAggregationQueryManager aggregationQueryManager) {
         if (searchResponse.getAggregations() == null) {
-            return null;
+            return;
         }
 
         List<Aggregation> internalAggregationsList = searchResponse.getAggregations().asList();
         if (internalAggregationsList.size() == 0) {
-            return null;
+            return;
         }
 
-        Map<String, FacetedSearchFacet[]> finalResults = Maps.newHashMap();
+        Map<String, FacetedSearchFacet[]> facetMap = Maps.newHashMap();
 
-        for (Aggregation termsAgg : internalAggregationsList) {
-            InternalTerms internalTerms = (InternalTerms) termsAgg;
+        for (Aggregation aggregation : internalAggregationsList) {
+            if (aggregationQueryManager != null && aggregation.getName().equals(aggregationQueryManager.getQueryAggregation().getName())) {
+                aggregationQueryManager.setData(getJsonMapper(), getClassFromTypeFunc(), facetedSearchResult, aggregation);
+            } else if (aggregation instanceof InternalTerms) {
+                InternalTerms internalTerms = (InternalTerms) aggregation;
 
-            List<FacetedSearchFacet> facetedSearchFacets = Lists.newArrayList();
-
-            for (Terms.Bucket entry : internalTerms.getBuckets()) {
-                facetedSearchFacets.add(new FacetedSearchFacet(entry.getKey(), entry.getDocCount()));
+                FacetedSearchFacet[] facets = new FacetedSearchFacet[internalTerms.getBuckets().size()];
+                for (int i = 0; i < internalTerms.getBuckets().size(); i++) {
+                    Terms.Bucket bucket = internalTerms.getBuckets().get(i);
+                    facets[i] = new FacetedSearchFacet(bucket.getKey(), bucket.getDocCount());
+                }
+                facetMap.put(internalTerms.getName(), facets);
+            } else {
+                log.debug("Aggregation is not a facet aggregation (terms) ignore. Name: {} ,Type: {}", aggregation.getName(), aggregation.getClass().getName());
             }
-
-            finalResults.put(internalTerms.getName(), facetedSearchFacets.toArray(new FacetedSearchFacet[facetedSearchFacets.size()]));
         }
-        return finalResults;
+        facetedSearchResult.setFacets(facetMap);
+    }
+
+    private Function<String, Class> getClassFromTypeFunc() {
+        return s -> getClassFromType(s);
+    }
+
+    @Override
+    public <T> IESQueryBuilderHelper<T> buildQuery(Class<T> clazz) {
+        return new EsQueryBuilderHelper((QueryHelper.QueryBuilderHelper) queryHelper.buildQuery(), clazz);
+    }
+
+    @Override
+    public <T> IESQueryBuilderHelper<T> buildSearchQuery(Class<T> clazz, String searchQuery) {
+        return new EsQueryBuilderHelper((QueryHelper.QueryBuilderHelper) queryHelper.buildQuery(searchQuery), clazz);
+    }
+
+    @Override
+    public <T> IESQueryBuilderHelper<T> buildSuggestionQuery(Class<T> clazz, String prefixField, String searchQuery) {
+        return new EsQueryBuilderHelper((QueryHelper.QueryBuilderHelper) queryHelper.buildQuery(prefixField, searchQuery), clazz);
+    }
+
+    /**
+     * Extends the QueryBuilderHelper to provide class based indices and types.
+     */
+    public class EsQueryBuilderHelper<T> extends QueryHelper.QueryBuilderHelper implements IESSearchQueryBuilderHelper {
+        private Class<T> clazz;
+        private String[] indices;
+        private Class<?>[] requestedTypes;
+        private String[] esTypes;
+
+        protected EsQueryBuilderHelper(QueryHelper.QueryBuilderHelper from, Class<T> clazz) {
+            super(from);
+            this.clazz = clazz;
+            this.indices = clazz == null ? getAllIndexes() : new String[] { getIndexForType(clazz) };
+            this.requestedTypes = getRequestedTypes(clazz);
+            super.types(requestedTypes);
+            this.esTypes = getTypes();
+        }
+
+        /**
+         * Perform a count request based on the given class.
+         *
+         * @return The count response.
+         */
+        public long count() {
+            return super.count(indices, esTypes).getCount();
+        }
+
+        @Override
+        public IESSearchQueryBuilderHelper prepareSearch() {
+            super.prepareSearch(indices);
+            super.searchRequestBuilder.setTypes(esTypes);
+            super.searchRequestBuilder.setQuery(queryBuilder);
+            return this;
+        }
+
+        @Override
+        public T find() {
+            GetMultipleDataResult<T> result = search(0, 1);
+            if (result.getData() == null || result.getData().length == 0) {
+                return null;
+            }
+            return result.getData()[0];
+        }
+
+        public GetMultipleDataResult<T> search(int from, int size) {
+            return toGetMultipleDataResult(clazz, super.execute(from, size), from);
+        }
+
+        @Override
+        public FacetedSearchResult facetedSearch(int from, int size) {
+            super.facets();
+            return toFacetedSearchResult(clazz, from, super.execute(from, size));
+        }
+
+        @Override
+        public FacetedSearchResult facetedSearch(IAggregationQueryManager aggregationQueryManager) {
+            searchRequestBuilder.setSearchType(SearchType.COUNT);
+            searchRequestBuilder.addAggregation(aggregationQueryManager.getQueryAggregation());
+            super.facets();
+            SearchResponse searchResponse = super.execute(0, 0);
+
+            FacetedSearchResult facetedSearchResult = new FacetedSearchResult();
+            parseAggregations(searchResponse, facetedSearchResult, aggregationQueryManager);
+            return facetedSearchResult;
+        }
+
+        @Override
+        public EsQueryBuilderHelper setScriptFunction(String functionScore) {
+            super.scriptFunction(functionScore);
+            return this;
+        }
+
+        @Override
+        public EsQueryBuilderHelper setFilters(FilterBuilder... customFilter) {
+            super.filters(customFilter);
+            return this;
+        }
+
+        @Override
+        public EsQueryBuilderHelper setFilters(Map filters, Map filterStrategies, FilterBuilder... customFilters) {
+            super.filters(filters, customFilters);
+            return this;
+        }
+
+        @Override
+        public EsQueryBuilderHelper setFilters(Map filters, FilterBuilder... customFilters) {
+            super.filters(filters, customFilters);
+            return this;
+        }
+
+        @Override
+        public EsQueryBuilderHelper alterQueryBuilder(QueryBuilderAdapter queryBuilderAdapter) {
+            super.alterQuery(queryBuilderAdapter);
+            return this;
+        }
+
+        @Override
+        public EsQueryBuilderHelper setFieldSort(String fieldName, boolean desc) {
+            super.fieldSort(fieldName, desc);
+            return this;
+        }
+
+        @Override
+        public EsQueryBuilderHelper setFetchContext(String fetchContext) {
+            super.fetchContext(fetchContext);
+            return this;
+        }
+
+        @Override
+        public IESSearchQueryBuilderHelper setFetchContext(String fetchContext, TopHitsBuilder topHitsBuilder) {
+            super.fetchContext(fetchContext, topHitsBuilder);
+            return this;
+        }
+
+        @Override
+        public EsQueryBuilderHelper alterSearchRequestBuilder(ISearchBuilderAdapter adapter) {
+            super.alterSearchRequest(adapter);
+            return this;
+        }
     }
 }

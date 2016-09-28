@@ -5,20 +5,20 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.util.List;
 
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.mapping.MappingBuilder;
 
-import alien4cloud.model.components.IndexedNodeType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
+
+import alien4cloud.common.AlienConstants;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.it.Context;
 import alien4cloud.rest.component.RecommendationRequest;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.model.components.CapabilityDefinition;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
-
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -49,7 +49,7 @@ public class DefineAsDefaultForCapabilityDefinitionsSteps {
 
     @Then("^the node type id should be \"([^\"]*)\"$")
     public void the_node_type_id_should_be(String componentId) throws Throwable {
-        IndexedNodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), IndexedNodeType.class).getData();
+        NodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), NodeType.class).getData();
         assertEquals(componentId, idnt.getId());
     }
 
@@ -62,12 +62,13 @@ public class DefineAsDefaultForCapabilityDefinitionsSteps {
 
     private void createOneIndexNodeType(String elementId, String archiveVersion, List<CapabilityDefinition> capabilities, boolean refresh) throws IOException,
             IndexingServiceException {
-        IndexedNodeType indexedNodeType = new IndexedNodeType();
+        NodeType indexedNodeType = new NodeType();
         indexedNodeType.setElementId(elementId);
         indexedNodeType.setArchiveVersion(archiveVersion);
         indexedNodeType.setCapabilities(capabilities);
+        indexedNodeType.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
 
-        String typeName = MappingBuilder.indexTypeFromClass(IndexedNodeType.class);
+        String typeName = MappingBuilder.indexTypeFromClass(NodeType.class);
         String serializeDatum = jsonMapper.writeValueAsString(indexedNodeType);
         esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(serializeDatum).setRefresh(refresh).execute().actionGet();
     }

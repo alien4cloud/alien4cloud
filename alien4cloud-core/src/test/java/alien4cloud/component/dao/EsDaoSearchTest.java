@@ -29,9 +29,9 @@ import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.common.Tag;
-import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.RequirementDefinition;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -55,12 +55,12 @@ public class EsDaoSearchTest extends AbstractDAOTest {
     @Resource(name = "alien-es-dao")
     IGenericSearchDAO dao;
 
-    List<IndexedNodeType> dataTest = new ArrayList<>();
+    List<NodeType> dataTest = new ArrayList<>();
 
-    IndexedNodeType indexedNodeTypeTest = null;
-    IndexedNodeType indexedNodeTypeTest2 = null;
-    IndexedNodeType indexedNodeTypeTest3 = null;
-    IndexedNodeType indexedNodeTypeTest4 = null;
+    NodeType indexedNodeTypeTest = null;
+    NodeType indexedNodeTypeTest2 = null;
+    NodeType indexedNodeTypeTest3 = null;
+    NodeType indexedNodeTypeTest4 = null;
 
     private List<Tag> threeTags = Lists.newArrayList(new Tag("icon", "my-icon.png"), new Tag("tag1", "My free tag with my free content (tag-0)"), new Tag(
             "tag2", "Tag2 content"));
@@ -75,7 +75,7 @@ public class EsDaoSearchTest extends AbstractDAOTest {
     @Test
     public void simpleSearchTest() throws IndexingServiceException, InterruptedException, IOException {
         // test simple find all search
-        GetMultipleDataResult searchResp = dao.find(IndexedNodeType.class, null, 10);
+        GetMultipleDataResult searchResp = dao.find(NodeType.class, null, 10);
         assertNotNull(searchResp);
         assertEquals(4, searchResp.getTypes().length);
         assertEquals(4, searchResp.getData().length);
@@ -83,7 +83,7 @@ public class EsDaoSearchTest extends AbstractDAOTest {
         // test simple find with filters
         Map<String, String[]> filters = new HashMap<String, String[]>();
         filters.put("capabilities.type", new String[] { "container" });
-        searchResp = dao.find(IndexedNodeType.class, filters, 10);
+        searchResp = dao.find(NodeType.class, filters, 10);
         assertNotNull(searchResp);
         assertNotNull(searchResp.getTypes());
         assertNotNull(searchResp.getData());
@@ -95,7 +95,7 @@ public class EsDaoSearchTest extends AbstractDAOTest {
     public void searchInTagsTest() throws IndexingServiceException, InterruptedException, IOException {
 
         // test simple find all search
-        GetMultipleDataResult searchResp = dao.find(IndexedNodeType.class, null, 10);
+        GetMultipleDataResult searchResp = dao.find(NodeType.class, null, 10);
         assertNotNull(searchResp);
         assertEquals(4, searchResp.getTypes().length);
         assertEquals(4, searchResp.getData().length);
@@ -103,7 +103,7 @@ public class EsDaoSearchTest extends AbstractDAOTest {
         // test simple find with filters
         Map<String, String[]> filters = new HashMap<String, String[]>();
         filters.put("tags", new String[] { "My" });
-        searchResp = dao.find(IndexedNodeType.class, filters, 10);
+        searchResp = dao.find(NodeType.class, filters, 10);
         assertNotNull(searchResp);
         assertNotNull(searchResp.getTypes());
         assertNotNull(searchResp.getData());
@@ -116,32 +116,32 @@ public class EsDaoSearchTest extends AbstractDAOTest {
         // text search based
         String searchText = "positive";
 
-        GetMultipleDataResult searchResp = dao.search(IndexedNodeType.class, searchText, null, 10);
+        GetMultipleDataResult searchResp = dao.search(NodeType.class, searchText, null, 10);
         assertNotNull(searchResp);
         assertEquals(2, searchResp.getTypes().length);
         assertEquals(2, searchResp.getData().length);
         String[] ids = new String[] { indexedNodeTypeTest.getId(), indexedNodeTypeTest4.getId() };
 
         for (int i = 0; i < searchResp.getData().length; i++) {
-            IndexedNodeType idnt = (IndexedNodeType) searchResp.getData()[i];
+            NodeType idnt = (NodeType) searchResp.getData()[i];
             assertElementIn(idnt.getId(), ids);
         }
 
         // text search based with filters
         Map<String, String[]> filters = new HashMap<String, String[]>();
         filters.put("capabilities.type", new String[] { "container" });
-        searchResp = dao.search(IndexedNodeType.class, searchText, filters, 10);
+        searchResp = dao.search(NodeType.class, searchText, filters, 10);
         assertNotNull(searchResp);
         assertNotNull(searchResp.getTypes());
         assertNotNull(searchResp.getData());
         assertEquals(1, searchResp.getTypes().length);
         assertEquals(1, searchResp.getData().length);
-        IndexedNodeType idnt = (IndexedNodeType) searchResp.getData()[0];
+        NodeType idnt = (NodeType) searchResp.getData()[0];
         assertElementIn(idnt.getElementId(), new String[] { "1" });
 
         // test nothing found
         searchText = "pacpac";
-        searchResp = dao.search(IndexedNodeType.class, searchText, null, 10);
+        searchResp = dao.search(NodeType.class, searchText, null, 10);
         assertNotNull(searchResp);
         assertNotNull(searchResp.getData());
         assertNotNull(searchResp.getTypes());
@@ -154,7 +154,7 @@ public class EsDaoSearchTest extends AbstractDAOTest {
     public void facetedSearchTest() throws IndexingServiceException, JsonParseException, JsonMappingException, IOException, InterruptedException {
         String searchText = "positive";
 
-        FacetedSearchResult searchResp = dao.facetedSearch(IndexedNodeType.class, searchText, null, 10);
+        FacetedSearchResult searchResp = dao.facetedSearch(NodeType.class, searchText, null, 10);
         assertNotNull(searchResp);
         assertEquals(2, searchResp.getTotalResults());
         assertEquals(2, searchResp.getTypes().length);
@@ -162,7 +162,7 @@ public class EsDaoSearchTest extends AbstractDAOTest {
         String[] ids = new String[] { indexedNodeTypeTest.getId(), indexedNodeTypeTest4.getId() };
 
         for (int i = 0; i < searchResp.getData().length; i++) {
-            IndexedNodeType idnt = (IndexedNodeType) searchResp.getData()[i];
+            NodeType idnt = (NodeType) searchResp.getData()[i];
             assertElementIn(idnt.getId(), ids);
         }
 
@@ -187,18 +187,18 @@ public class EsDaoSearchTest extends AbstractDAOTest {
         Map<String, String[]> filters = new HashMap<String, String[]>();
         filters.put("capabilities.type", new String[] { "container" });
 
-        searchResp = dao.facetedSearch(IndexedNodeType.class, searchText, filters, 10);
+        searchResp = dao.facetedSearch(NodeType.class, searchText, filters, 10);
         assertNotNull(searchResp);
 
         assertEquals(1, searchResp.getTotalResults());
         assertEquals(1, searchResp.getTypes().length);
         assertEquals(1, searchResp.getData().length);
-        IndexedNodeType idnt = (IndexedNodeType) searchResp.getData()[0];
+        NodeType idnt = (NodeType) searchResp.getData()[0];
         assertElementIn(idnt.getElementId(), new String[] { "1" });
 
         // test nothing found
         searchText = "pacpac";
-        searchResp = dao.facetedSearch(IndexedNodeType.class, searchText, null, 10);
+        searchResp = dao.facetedSearch(NodeType.class, searchText, null, 10);
         assertNotNull(searchResp);
         assertNotNull(searchResp.getData());
         assertNotNull(searchResp.getTypes());
@@ -251,7 +251,7 @@ public class EsDaoSearchTest extends AbstractDAOTest {
     }
 
     private void saveDataToES(boolean refresh) throws JsonProcessingException {
-        for (IndexedNodeType datum : dataTest) {
+        for (NodeType datum : dataTest) {
             String json = jsonMapper.writeValueAsString(datum);
             String typeName = MappingBuilder.indexTypeFromClass(datum.getClass());
             nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(json).setRefresh(refresh).execute().actionGet();

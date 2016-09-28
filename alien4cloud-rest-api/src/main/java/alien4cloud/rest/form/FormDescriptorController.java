@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.model.common.MetaPropConfiguration;
-import alien4cloud.model.components.IndexedNodeType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.orchestrators.services.OrchestratorConfigurationService;
 import alien4cloud.plugin.PluginManager;
 import alien4cloud.repository.services.RepositoryService;
@@ -45,7 +45,7 @@ public class FormDescriptorController {
     @RequestMapping(value = "/nodetype", method = RequestMethod.GET, produces = "application/json")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
     public RestResponse<Map<String, Object>> getNodeTypeFormDescriptor() throws IntrospectionException {
-        return RestResponseBuilder.<Map<String, Object>> builder().data(pojoFormDescriptorGenerator.generateDescriptor(IndexedNodeType.class)).build();
+        return RestResponseBuilder.<Map<String, Object>> builder().data(pojoFormDescriptorGenerator.generateDescriptor(NodeType.class)).build();
     }
 
     @ApiIgnore

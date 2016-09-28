@@ -27,7 +27,6 @@ define(function (require) {
   require('scripts/topology/controllers/topology_editor_properties');
   require('scripts/topology/controllers/topology_editor_relationships');
   require('scripts/topology/controllers/topology_editor_substitution');
-  require('scripts/topology/controllers/topology_editor_yaml');
 
   require('scripts/topology/controllers/search_relationship');
 
@@ -46,7 +45,6 @@ define(function (require) {
     'topoEditProperties',
     'topoEditRelationships',
     'topoEditSubstitution',
-    'topoEditYaml',
     function($scope, $modal, $timeout, componentService, nodeTemplateService, toscaService,
     defaultFilters,
     topoEditArtifacts,
@@ -58,8 +56,20 @@ define(function (require) {
     topoEditOutputs,
     topoEditProperties,
     topoEditRelationships,
-    topoEditSubstitution,
-    topoEditYaml) {
+    topoEditSubstitution) {
+      // if there is workspaces in the scope application add them to the scope
+      if(_.defined($scope.workspaces) && $scope.workspaces.length > 0) {
+        if(_.undefined(defaultFilters)) {
+          defaultFilters = {};
+        }
+        $scope.staticFacets = {workspace: []};
+        _.each($scope.workspaces, function(workspace) {
+          $scope.staticFacets.workspace.push({facetValue: workspace, count: ''});
+        });
+        $scope.staticFacets.workspace[0].staticFilter = $scope.workspaces;
+        defaultFilters.workspace =  $scope.workspaces;
+      }
+
       $scope.defaultFilters = defaultFilters;
       $scope.isRuntime = false;
 
@@ -92,7 +102,6 @@ define(function (require) {
       topoEditProperties($scope);
       topoEditRelationships($scope);
       topoEditSubstitution($scope);
-      topoEditYaml($scope);
 
       var refresh = function(selectedNodeTemplate) {
         if(_.undefined($scope.groupCollapsed)) { // we perform this only at init time.

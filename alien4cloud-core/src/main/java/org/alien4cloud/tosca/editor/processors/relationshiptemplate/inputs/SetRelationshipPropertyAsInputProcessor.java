@@ -9,12 +9,12 @@ import org.alien4cloud.tosca.editor.operations.relationshiptemplate.inputs.SetRe
 import org.alien4cloud.tosca.editor.processors.relationshiptemplate.AbstractRelationshipProcessor;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.definitions.FunctionPropertyValue;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ public class SetRelationshipPropertyAsInputProcessor extends AbstractRelationshi
         PropertyDefinition inputPropertyDefinition = getOrFail(topology.getInputs(), operation.getInputName(), "Input {} not found in topology",
                 operation.getInputName());
 
-        IndexedRelationshipType relationshipType = ToscaContext.get(IndexedRelationshipType.class, relationshipTemplate.getType());
+        RelationshipType relationshipType = ToscaContext.get(RelationshipType.class, relationshipTemplate.getType());
         PropertyDefinition relationshipPropertyDefinition = getOrFail(relationshipType.getProperties(), operation.getPropertyName(),
                 "Property {} do not exist for relationship {} of node {}", operation.getPropertyName(), operation.getRelationshipName(),
                 operation.getNodeName());

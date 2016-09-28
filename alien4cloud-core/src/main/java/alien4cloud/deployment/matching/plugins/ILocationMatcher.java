@@ -3,7 +3,7 @@ package alien4cloud.deployment.matching.plugins;
 import java.util.List;
 
 import alien4cloud.model.deployment.matching.ILocationMatch;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.exception.LocationMatchingException;
 
 /**

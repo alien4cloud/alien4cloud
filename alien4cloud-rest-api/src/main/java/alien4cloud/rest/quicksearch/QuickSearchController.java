@@ -19,7 +19,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.application.Application;
-import alien4cloud.model.components.IndexedNodeType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.rest.model.BasicSearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
@@ -51,7 +51,7 @@ public class QuickSearchController {
         // First phase : COMPONENTS search, needed role Role.COMPONENTS_BROWSER or Role.ADMIN
         if (AuthorizationUtil.hasOneRoleIn(Role.COMPONENTS_BROWSER)) {
             authoIndexes.add(ElasticSearchDAO.TOSCA_ELEMENT_INDEX);
-            classes.add(IndexedNodeType.class);
+            classes.add(NodeType.class);
         }
 
         GetMultipleDataResult searchResultComponents = searchByType(requestObject, authoIndexes, classes, null, null);

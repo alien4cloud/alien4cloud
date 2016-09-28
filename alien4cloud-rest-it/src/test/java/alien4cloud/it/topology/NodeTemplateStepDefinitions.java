@@ -11,9 +11,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import alien4cloud.it.Context;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
@@ -36,7 +36,7 @@ public class NodeTemplateStepDefinitions {
 
     @Then("^the possible replacements nodes types should be$")
     public void the_possible_replacements_nodes_types_should_be(List<String> expectedElementIds) throws Throwable {
-        IndexedNodeType[] replacements = JsonUtil.read(Context.getInstance().getRestResponse(), IndexedNodeType[].class).getData();
+        NodeType[] replacements = JsonUtil.read(Context.getInstance().getRestResponse(), NodeType[].class).getData();
         assertNotNull(replacements);
         String[] elementIds = topoSteps.getElementsId(replacements);
         assertEquals(expectedElementIds.size(), elementIds.length);
@@ -48,7 +48,7 @@ public class NodeTemplateStepDefinitions {
 
     @Then("^the possible replacements nodes types should be \"([^\"]*)\"$")
     public void the_possible_replacements_nodes_types_should_be(String expectedElementId) throws Throwable {
-        IndexedNodeType[] replacements = JsonUtil.read(Context.getInstance().getRestResponse(), IndexedNodeType[].class).getData();
+        NodeType[] replacements = JsonUtil.read(Context.getInstance().getRestResponse(), NodeType[].class).getData();
         assertNotNull(replacements);
         assertEquals(1, replacements.length);
         assertEquals(expectedElementId, replacements[0].getElementId());
@@ -69,7 +69,7 @@ public class NodeTemplateStepDefinitions {
 
     @Then("^there should be the followings in replacements nodes types$")
     public void there_should_be_the_followings_in_replacements_nodes_types(List<String> expectedElementIds) throws Throwable {
-        IndexedNodeType[] replacements = JsonUtil.read(Context.getInstance().getRestResponse(), IndexedNodeType[].class).getData();
+        NodeType[] replacements = JsonUtil.read(Context.getInstance().getRestResponse(), NodeType[].class).getData();
         assertNotNull(replacements);
         String[] elementIds = topoSteps.getElementsId(replacements);
         String[] expectedElementIdsArray = expectedElementIds.toArray(new String[expectedElementIds.size()]);

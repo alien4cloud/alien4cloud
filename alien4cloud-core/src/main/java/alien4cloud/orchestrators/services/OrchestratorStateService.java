@@ -12,7 +12,11 @@ import org.elasticsearch.mapping.QueryHelper;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.*;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -205,12 +209,11 @@ public class OrchestratorStateService {
      */
     public synchronized List<Usage> disable(Orchestrator orchestrator, boolean force) {
         if (!force) {
-            QueryHelper.SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper.buildSearchQuery(alienDAO.getIndexForType(Deployment.class))
-                    .types(Deployment.class).filters(MapUtil.newHashMap(new String[] { "orchestratorId", "endDate" },
-                            new String[][] { new String[] { orchestrator.getId() }, new String[] { null } }))
-                    .fieldSort("_timestamp", true);
             // If there is at least one active deployment.
-            GetMultipleDataResult<Object> result = alienDAO.search(searchQueryHelperBuilder, 0, 1);
+            GetMultipleDataResult<Deployment> result = alienDAO.buildQuery(Deployment.class)
+                    .setFilters(MapUtil.newHashMap(new String[] { "orchestratorId", "endDate" },
+                            new String[][] { new String[] { orchestrator.getId() }, new String[] { null } }))
+                    .prepareSearch().setFieldSort("_timestamp", true).search(0, 1);
 
             // TODO place a lock to avoid deployments during the disabling of the orchestrator.
             if (result.getData().length > 0) {
@@ -237,11 +240,10 @@ public class OrchestratorStateService {
         return null;
     }
 
-    private List<Usage> generateDeploymentUsages(Object[] data) {
+    private List<Usage> generateDeploymentUsages(Deployment[] data) {
         List<Usage> usages = Lists.newArrayList();
-        for (Object object : data) {
-            Deployment deployment = (Deployment) object;
-            usages.add(new Usage(deployment.getSourceName(), deployment.getSourceType().getSourceType().getSimpleName(), deployment.getSourceId()));
+        for (Deployment deployment : data) {
+            usages.add(new Usage(deployment.getSourceName(), deployment.getSourceType().getSourceType().getSimpleName(), deployment.getSourceId(), null));
         }
         return usages;
     }

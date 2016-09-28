@@ -42,6 +42,20 @@ define(function (require) {
         existingRoute.routeConfiguration = route;
       }
     },
+    /** Merge a given route into an exising one and override only specified elements. */
+    merge: function(state, route) {
+      var existingRoute = _.get(this.states, state, null);
+      if(existingRoute === null) {
+        // set the route for the given state
+        _.set(this.states, state, {routeConfiguration: route});
+      } else {
+        // the existing route may be route definition or may have be created because of child states.
+        if(_.has(existingRoute, 'routeConfiguration')) {
+          console.warn('Merging route configuration with existing.');
+        }
+        _.merge(existingRoute.routeConfiguration, route);
+      }
+    },
     /**
     * Configure the forwarding for a state to a target state.
     * Example .forward('admin', 'admin.home')

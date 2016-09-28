@@ -1,14 +1,25 @@
 package alien4cloud.it.suggestion;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
+import org.alien4cloud.tosca.model.types.ArtifactType;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.it.Context;
@@ -16,15 +27,21 @@ import alien4cloud.model.common.SuggestionEntry;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.suggestion.CreateSuggestionEntryRequest;
 import alien4cloud.rest.utils.JsonUtil;
-
-import com.google.common.collect.Sets;
-
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 public class SuggestionDefinitionsSteps {
+
+    private static final Map<String, String> toESType = Maps.newHashMap();
+
+    static {
+        toESType.put("node", NodeType.class.getSimpleName().toLowerCase());
+        toESType.put("artifact", ArtifactType.class.getSimpleName().toLowerCase());
+        toESType.put("capability", CapabilityType.class.getSimpleName().toLowerCase());
+        toESType.put("relationship", RelationshipType.class.getSimpleName().toLowerCase());
+    }
 
     @When("^I ask suggestions for tag \"([^\"]*)\" with \"([^\"]*)\"$")
     public void I_ask_suggestions_for_tag_with(String path, String searchText) throws Throwable {
@@ -61,14 +78,14 @@ public class SuggestionDefinitionsSteps {
 
     @When("^I get all suggestions for property \"([^\"]*)\" of \"([^\"]*)\" \"([^\"]*)\"$")
     public void iGetAllSuggestionsForPropertyOf(String property, String type, String elementId) throws Throwable {
-        String suggestionId = SuggestionEntry.generateId("toscaelement", "indexed" + type + "type", elementId, property);
+        String suggestionId = SuggestionEntry.generateId("toscaelement", toESType.get(type), elementId, property);
         String suggestionsText = Context.getRestClientInstance().get("/rest/v1/suggestions/" + suggestionId + "/values");
         Context.getInstance().registerRestResponse(suggestionsText);
     }
 
     @When("^I get suggestions for text \"([^\"]*)\" for property \"([^\"]*)\" of \"([^\"]*)\" \"([^\"]*)\"$")
     public void iGetSuggestionsForTextForPropertyOf(String input, String property, String type, String elementId) throws Throwable {
-        String suggestionId = SuggestionEntry.generateId("toscaelement", "indexed" + type + "type", elementId, property);
+        String suggestionId = SuggestionEntry.generateId("toscaelement", toESType.get(type), elementId, property);
         String suggestionsText = Context.getRestClientInstance().getUrlEncoded("/rest/v1/suggestions/" + suggestionId + "/values",
                 Arrays.<NameValuePair> asList(new BasicNameValuePair("input", input), new BasicNameValuePair("limit", "2")));
         Context.getInstance().registerRestResponse(suggestionsText);
@@ -76,7 +93,7 @@ public class SuggestionDefinitionsSteps {
 
     @When("^I add suggestion \"([^\"]*)\" for property \"([^\"]*)\" of \"([^\"]*)\" \"([^\"]*)\"$")
     public void iAddSuggestionForPropertyOf(String value, String property, String type, String elementId) throws Throwable {
-        String suggestionId = SuggestionEntry.generateId("toscaelement", "indexed" + type + "type", elementId, property);
+        String suggestionId = SuggestionEntry.generateId("toscaelement", toESType.get(type), elementId, property);
         Context.getRestClientInstance().put("/rest/v1/suggestions/" + suggestionId + "/values/" + value);
     }
 
@@ -98,8 +115,15 @@ public class SuggestionDefinitionsSteps {
     public void iCreateSuggestionForPropertyOfWithInitialValues(String property, String type, String elementId, String initialValues) throws Throwable {
         String response = Context.getRestClientInstance().postJSon(
                 "/rest/v1/suggestions/",
-                JsonUtil.toString(new CreateSuggestionEntryRequest(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, "indexed" + type + "type", elementId, property, Sets
+                JsonUtil.toString(new CreateSuggestionEntryRequest(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, toESType.get(type), elementId, property,
+                        Sets
                         .newHashSet(initialValues.split(",")))));
         Assert.assertNull(JsonUtil.read(response).getError());
+    }
+
+    @When("^I ask suggestions for node type with \"([^\"]*)\"$")
+    public void iAskSuggestionsForNodeTypeWith(String searchText) throws Throwable {
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().getUrlEncoded("/rest/v1/suggest/nodetypes", Lists.newArrayList(new BasicNameValuePair("text", searchText))));
     }
 }

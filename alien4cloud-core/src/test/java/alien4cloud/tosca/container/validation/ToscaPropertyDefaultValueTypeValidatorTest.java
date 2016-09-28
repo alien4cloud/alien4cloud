@@ -10,8 +10,8 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import alien4cloud.tosca.normative.ToscaType;
 
 @Ignore

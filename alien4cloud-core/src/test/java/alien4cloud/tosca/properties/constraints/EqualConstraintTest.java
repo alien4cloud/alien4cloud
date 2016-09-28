@@ -2,7 +2,7 @@ package alien4cloud.tosca.properties.constraints;
 
 import org.junit.Test;
 
-import alien4cloud.model.components.constraints.EqualConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
 import alien4cloud.tosca.normative.InvalidPropertyValueException;
 import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;

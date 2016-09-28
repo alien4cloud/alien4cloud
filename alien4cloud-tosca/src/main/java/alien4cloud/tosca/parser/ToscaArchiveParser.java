@@ -35,6 +35,26 @@ public class ToscaArchiveParser {
     @Resource
     private Validator validator;
 
+    /**
+     * Parse a TOSCA archive and reuse an existing TOSCA Context. Other methods will create an independent context for the parsing.
+     * Note that a TOSCA Context MUST have been initialized in order to use this method.
+     *
+     * @param archiveFile The archive file to parse.
+     * @return A parsing result that contains the Archive Root and eventual errors and/or warnings.
+     * @throws ParsingException In case of a severe issue while parsing (incorrect yaml, no tosca file etc.)
+     */
+    public ParsingResult<ArchiveRoot> parseWithExistingContext(Path archiveFile) throws ParsingException {
+        return parse(archiveFile, false);
+    }
+
+    /**
+     * Parse a TOSCA archive with a fresh new TOSCA Context.
+     *
+     * @param archiveFile The archive file to parse.
+     * @return A parsing result that contains the Archive Root and eventual errors and/or warnings.
+     * @throws ParsingException In case of a severe issue while parsing (incorrect yaml, no tosca file etc.)
+     */
+
     @ToscaContextual(requiresNew = true)
     public ParsingResult<ArchiveRoot> parse(Path archiveFile) throws ParsingException {
         return parse(archiveFile, false);
@@ -45,7 +65,7 @@ public class ToscaArchiveParser {
      *
      * @param archiveFile The archive file currently zipped.
      * @return A parsing result that contains the Archive Root and eventual errors and/or warnings.
-     * @throws ParsingException
+     * @throws ParsingException In case of a severe issue while parsing (incorrect yaml, no tosca file etc.)
      */
     @ToscaContextual(requiresNew = true)
     public ParsingResult<ArchiveRoot> parse(Path archiveFile, boolean allowYamlFile) throws ParsingException {
@@ -77,8 +97,8 @@ public class ToscaArchiveParser {
      * Parse an archive from a directory, it's very convenient for internal use and test
      *
      * @param archiveDir the directory which contains the archive
-     * @return the parsing result
-     * @throws ParsingException
+     * @return A parsing result that contains the Archive Root and eventual errors and/or warnings.
+     * @throws ParsingException In case of a severe issue while parsing (incorrect yaml, no tosca file etc.)
      */
     @ToscaContextual(requiresNew = true)
     public ParsingResult<ArchiveRoot> parseDir(Path archiveDir) throws ParsingException {
@@ -99,6 +119,7 @@ public class ToscaArchiveParser {
     private ParsingResult<ArchiveRoot> parseFromToscaMeta(FileSystem csarFS) throws ParsingException {
         YamlSimpleParser<ToscaMeta> parser = new YamlSimpleParser<ToscaMeta>(toscaMetaMapping.getParser());
         ParsingResult<ToscaMeta> parsingResult = parser.parseFile(csarFS.getPath(TOSCA_META_FILE_LOCATION));
+        // FIXME shouldn't we check here if the meta parsing went well?
         ArchiveRoot archiveRoot = initFromToscaMeta(parsingResult);
         return parseFromToscaMeta(csarFS, parsingResult.getResult(), TOSCA_META_FILE_LOCATION, archiveRoot);
     }
@@ -106,7 +127,9 @@ public class ToscaArchiveParser {
     private ArchiveRoot initFromToscaMeta(ParsingResult<ToscaMeta> toscaMeta) {
         ArchiveRoot archiveRoot = new ArchiveRoot();
         archiveRoot.getArchive().setName(toscaMeta.getResult().getName());
-        archiveRoot.getArchive().setVersion(toscaMeta.getResult().getVersion());
+        if (toscaMeta.getResult().getVersion() != null) {
+            archiveRoot.getArchive().setVersion(toscaMeta.getResult().getVersion());
+        }
         if (toscaMeta.getResult().getCreatedBy() != null) {
             archiveRoot.getArchive().setTemplateAuthor(toscaMeta.getResult().getCreatedBy());
         }

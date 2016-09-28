@@ -10,14 +10,11 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.application.ApplicationEnvironmentService;
@@ -31,7 +28,6 @@ import alien4cloud.deployment.model.DeploymentConfiguration;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.rest.application.model.SetLocationPoliciesRequest;
@@ -244,7 +240,7 @@ public class DeploymentTopologyController {
             }
 
             // update
-            if (updateRequest.getProviderDeploymentProperties() != null && !updateRequest.getProviderDeploymentProperties().isEmpty()) {
+            if (MapUtils.isNotEmpty(updateRequest.getProviderDeploymentProperties())) {
                 deploymentTopology.getProviderDeploymentProperties().putAll(updateRequest.getProviderDeploymentProperties());
                 orchestratorPropertiesValidationService.checkConstraints(deploymentTopology.getOrchestratorId(),
                         updateRequest.getProviderDeploymentProperties());

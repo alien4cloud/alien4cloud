@@ -1,4 +1,4 @@
-Feature: Create an application an testing application roles on it
+Feature: Testing user roles on application
 
   Background:
     Given I am authenticated with "APPLICATIONS_MANAGER" role

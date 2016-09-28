@@ -3,8 +3,8 @@ package alien4cloud.orchestrators.plugin;
 import java.util.List;
 import java.util.Set;
 
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.IndexedToscaElement;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
 
 /**
@@ -32,7 +32,7 @@ public interface ILocationResourceAccessor {
      * @param type The type of the tosca element to get
      * @return the tosca elements found given the provided type, in the related dependencies of the location.
      */
-    <T extends IndexedToscaElement> T getIndexedToscaElement(String type);
+    <T extends AbstractToscaType> T getIndexedToscaElement(String type);
 
     /**
      * Get the set of this location dependencies

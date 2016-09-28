@@ -1,0 +1,42 @@
+<div>
+  <form name="newApplication" class="form-horizontal" role="form" ng-submit="create(newApplication.$valid)" novalidate>
+    <div class="modal-header">
+      <h3>{{'APPLICATIONS.NEW' | translate}}</h3>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" ng-class="{'has-error': newApplication.name.$invalid}">
+        <label for="nameid" class="col-lg-2 control-label">{{'COMMON.NAME' | translate}}</label>
+        <div class="col-lg-4">
+          <input type="text" class="form-control" id="nameid" ng-model="app.name" name="name" required="" placeholder="{{'COMMON.NAME' | translate}}" ng-change="nameChange()">
+        </div>
+        <label for="archiveNameId" class="col-lg-2 control-label">{{'APPLICATIONS.ARCHIVE_NAME' | translate}}</label>
+        <div class="col-lg-4">
+          <input type="text" class="form-control" id="archiveNameId" ng-model="app.archiveName" name="archiveName" required="" placeholder="{{'COMMON.NAME' | translate}}" ng-change="archiveNameChange()">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="descid" class="col-lg-2 control-label">{{'COMMON.DESCRIPTION' | translate}}</label>
+        <div class="col-lg-10">
+          <textarea class="form-control" id="descid" rows="3" ng-model="app.description" placeholder="{{'COMMON.DESCRIPTION' | translate}}"></textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="templateId" class="col-lg-2 control-label">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_BASE' | translate}}</label>
+        <div class="col-lg-4">
+          <input readonly type="text" class="form-control" id="templateId" ng-model="app.topologyTemplateName" name="templateId" placeholder="{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT' | translate}}">
+        </div>
+        <label for="templateVersionId" class="col-lg-2 control-label">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_VERSION' | translate}}</label>
+        <div class="col-lg-4">
+          <input readonly type="text" class="form-control" id="templateVersionId" ng-model="app.topologyTemplateVersion" name="templateVersionId" placeholder="{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT_VERSION' | translate}}">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="btn-create" ng-disabled="newApplication.name.$invalid && newApplication.archiveName.$invalid" class="btn btn-primary">{{'CREATE' | translate}}</button>
+      <button id="btn-cancel" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
+    </div>
+  </form>
+  <topology-template-search
+    archive-link="false"
+    on-select="selectTemplate(topology)"/>
+</div>

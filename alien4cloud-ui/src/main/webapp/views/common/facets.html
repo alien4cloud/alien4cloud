@@ -17,7 +17,6 @@
         </ul>
     </div>
 </div>
-
 <!-- Displaying all terms and its facets -->
 <div ng-repeat="(term, termFacets) in facets">
     <div ng-click="isFacetCollapsed = !isFacetCollapsed" class="facet-category">
@@ -28,7 +27,7 @@
     <div class="facet-option" collapse="isFacetCollapsed">
         <ul class="nav facet-option">
             <li ng-repeat="facet in termFacets">
-                <a href="" ng-click="addFilter(term,facet.facetValue)">{{ facet.facetValue || 'N/A' }} <span
+                <a href="" ng-click="addFilter(term,facet.facetValue)">{{ toDisplay(term, facet.facetValue) || 'N/A' }} <span
                         class="badge">{{facet.count}}</span>
                 </a>
             </li>

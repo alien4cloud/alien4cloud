@@ -1,12 +1,13 @@
 package org.alien4cloud.tosca.editor;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Value;
+import javax.inject.Inject;
+
+import org.alien4cloud.tosca.catalog.repository.ICsarRepositry;
+import org.alien4cloud.tosca.model.Csar;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Component;
 import alien4cloud.git.RepositoryManager;
 import alien4cloud.git.SimpleGitHistoryEntry;
 import alien4cloud.security.model.User;
-import alien4cloud.utils.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -25,58 +25,43 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class EditorRepositoryService {
-    private Path localGitRepositoryPath;
-
+    @Inject
+    private ICsarRepositry csarRepositry;
     // TODO we need a Git Branch Strategy Handler as well as a Git Multi-directory Handler so we can handle edition of repositories
 
-    @Value("${directories.alien}")
-    public void setLocalGitRepositoryPath(String pathStr) {
-        localGitRepositoryPath = Paths.get(pathStr).resolve("editor");
-    }
-
-    public Path resolveArtifact(String topologyId, String artifactReference) {
-        return localGitRepositoryPath.resolve(topologyId).resolve(artifactReference);
+    public Path resolveArtifact(String csarId, String artifactReference) {
+        // let just split archiveName, archiveVersion, archiveWorkspace
+        String[] splittedId = csarId.split(":");
+        return csarRepositry.getExpandedCSAR(splittedId[0], splittedId[1]);
     }
 
     /**
      * Create a local git repository for the given topology.
      *
-     * @param topologyId The id of the topology for which to create the git repository.
-     * @return
+     * @param csar The archive for which to ensure the git repository is initialized.
+     * @return The path that contains the archive git repository.
      * @throws IOException
      */
-    public Path createGitDirectory(String topologyId) throws IOException {
-        Path topologyGitPath = localGitRepositoryPath.resolve(topologyId);
-        if (!Files.isDirectory(topologyGitPath)) {
-            log.debug("Initializing topology work directory at {}", localGitRepositoryPath.toAbsolutePath());
-            Files.createDirectories(topologyGitPath);
+    public Path createGitDirectory(Csar csar) throws IOException {
+        // FIXME we should use directly the folder from the archive repository
+        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
+        if (!RepositoryManager.isGitRepository(archiveGitPath)) {
+            RepositoryManager.create(archiveGitPath, "TOSCA topology created by Alien4Cloud.");
+            log.debug("Initializing topology local git repository at {}", archiveGitPath.toAbsolutePath());
         } else {
-            log.debug("Topology work directory already created at {}", localGitRepositoryPath.toAbsolutePath());
+            log.debug("Topology local git repository already created at {}", archiveGitPath.toAbsolutePath());
         }
-        if (!RepositoryManager.isGitRepository(topologyGitPath)) {
-            RepositoryManager.create(topologyGitPath, "TOSCA topology created by Alien4Cloud.");
-            log.debug("Initializing topology local git repository at {}", localGitRepositoryPath.toAbsolutePath());
-        } else {
-            log.debug("Topology local git repository already created at {}", localGitRepositoryPath.toAbsolutePath());
-        }
-        return topologyGitPath;
+        return archiveGitPath;
     }
 
     /**
-     * Copy topology archive files from the given location.
+     * Commit the changes to the repository using the given message as commit message.
      * 
-     * @param topologyId The id of the topology under edition.
-     * @param source The source path.
+     * @param csar The csar under edition for which to commit changes.
+     * @param message The message to use for the commit.
      */
-    public void copyFrom(String topologyId, Path source) throws IOException {
-        // FIXME Manage Git Strategy handler as this can source can already be a git repo (or a folder in a git repo)
-        // check that directory is a git repo, if not initialize it and commit as initial data
-        Path topologyGitPath = localGitRepositoryPath.resolve(topologyId);
-        FileUtil.copy(source, topologyGitPath);
-    }
-
-    public void commit(String topologyId, String message) {
-        Path topologyGitPath = localGitRepositoryPath.resolve(topologyId);
+    public void commit(Csar csar, String message) {
+        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = null;
         String useremail = null;
@@ -85,19 +70,69 @@ public class EditorRepositoryService {
             username = user.getUsername();
             useremail = user.getEmail() == null ? username + "@undefined.org" : user.getEmail();
         }
-        RepositoryManager.commitAll(topologyGitPath, username, useremail, message);
+        RepositoryManager.commitAll(archiveGitPath, username, useremail, message);
     }
 
     /**
-     * Get the git history for a given topology.
+     * Get the git history for a given archive.
      * 
-     * @param topologyId The id of the topology.
+     * @param csar The archive under edition.
      * @param from Start to query from the given history.
      * @param count The number of history entries to retrieve.
      * @return A list of simplified history entries.
      */
-    public List<SimpleGitHistoryEntry> getHistory(String topologyId, int from, int count) {
-        Path topologyGitPath = localGitRepositoryPath.resolve(topologyId);
-        return RepositoryManager.getHistory(topologyGitPath, from, count);
+    public List<SimpleGitHistoryEntry> getHistory(Csar csar, int from, int count) {
+        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
+        return RepositoryManager.getHistory(archiveGitPath, from, count);
+    }
+
+    /**
+     * Set a remote repository.
+     *
+     * @param csar The archive for which to set the remote.
+     * @param remoteName The remote name.
+     * @param remoteUrl The repository url.
+     */
+    public void setRemote(Csar csar, String remoteName, String remoteUrl) {
+        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
+        RepositoryManager.setRemote(archiveGitPath, remoteName, remoteUrl);
+    }
+
+    /**
+     * Get the url of the remote git repository.
+     *
+     * @param csar The concerned archive.
+     * @param remoteName The name of the remote
+     * @return The url corresponding to the remote name.
+     */
+    public String getRemoteUrl(Csar csar, String remoteName) {
+        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
+        return RepositoryManager.getRemoteUrl(archiveGitPath, remoteName);
+    }
+
+    /**
+     * Push modifications to git repository.
+     *
+     * @param csar The concerned archive.
+     * @param username The username of the git repository, null if none.
+     * @param password The password of the git repository, null if none.
+     * @param remoteBranch The name of the remote branch to push to.
+     */
+    public void push(Csar csar, String username, String password, String remoteBranch) {
+        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
+        RepositoryManager.push(archiveGitPath, username, password, remoteBranch);
+    }
+
+    /**
+     * Pull modifications from the git repository.
+     *
+     * @param csar The concerned archive.
+     * @param username The username of the git repository, null if none.
+     * @param password The password of the git repository, null if none.
+     * @param remoteBranch The name of the remote branch to pull from.
+     */
+    public void pull(Csar csar, String username, String password, String remoteBranch) {
+        Path archiveGitPath = csarRepositry.getExpandedCSAR(csar.getName(), csar.getVersion());
+        RepositoryManager.pull(archiveGitPath, username, password, remoteBranch);
     }
 }

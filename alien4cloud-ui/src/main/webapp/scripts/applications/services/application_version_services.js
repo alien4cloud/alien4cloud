@@ -40,13 +40,16 @@ define(function (require) {
         }
       });
 
+      var pattern = new RegExp('^\\d+(?:\\.\\d+)*(?:[a-zA-Z0-9\\-_]+)*$');
+
       return {
         'getFirst': applicationVersionResource.get,
         'create': applicationVersionResource.create,
         'get': applicationVersionMiscResource.get,
         'delete': applicationVersionMiscResource.delete,
         'update': applicationVersionMiscResource.update,
-        'searchVersion': searchVersionResource.search
+        'searchVersion': searchVersionResource.search,
+        'pattern': pattern
       };
     }
   ]);

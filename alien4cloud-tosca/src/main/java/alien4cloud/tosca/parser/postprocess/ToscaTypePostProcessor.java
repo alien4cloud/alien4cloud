@@ -6,7 +6,7 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.components.IndexedInheritableToscaElement;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 
@@ -15,12 +15,12 @@ import alien4cloud.tosca.parser.ParsingContextExecution;
  * - Set it's archive version and name
  */
 @Component
-public class ToscaTypePostProcessor implements IPostProcessor<IndexedInheritableToscaElement> {
+public class ToscaTypePostProcessor implements IPostProcessor<AbstractInheritableToscaType> {
     @Resource
     private PropertyDefinitionPostProcessor propertyDefinitionPostProcessor;
 
     @Override
-    public void process(IndexedInheritableToscaElement instance) {
+    public void process(AbstractInheritableToscaType instance) {
         ArchiveRoot archiveRoot = ParsingContextExecution.getRootObj();
         instance.setArchiveName(archiveRoot.getArchive().getName());
         instance.setArchiveVersion(archiveRoot.getArchive().getVersion());
