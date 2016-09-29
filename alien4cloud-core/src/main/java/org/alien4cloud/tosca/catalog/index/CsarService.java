@@ -12,6 +12,8 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
+import org.alien4cloud.tosca.catalog.events.AfterArchiveDeleted;
+import org.alien4cloud.tosca.catalog.events.BeforeArchiveDeleted;
 import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
@@ -19,6 +21,7 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
@@ -46,6 +49,8 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class CsarService implements ICsarDependencyLoader {
+    @Inject
+    private ApplicationEventPublisher publisher;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO csarDAO;
     @Resource(name = "alien-monitor-es-dao")
@@ -282,10 +287,16 @@ public class CsarService implements ICsarDependencyLoader {
     }
 
     private void deleteCsar(Csar csar) {
+        // dispatch event before indexing
+        publisher.publishEvent(new BeforeArchiveDeleted(this, csar.getId()));
+
         deleteCsarContent(csar);
         csarDAO.delete(Csar.class, csar.getId());
         // physically delete files
         alienRepository.removeCSAR(csar.getName(), csar.getVersion());
+
+        // dispatch event before indexing
+        publisher.publishEvent(new AfterArchiveDeleted(this, csar.getId()));
     }
 
     /**

@@ -7,14 +7,21 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.events.BeforeArchiveDeleted;
+import org.alien4cloud.tosca.catalog.events.BeforeArchiveIndexed;
 import org.alien4cloud.tosca.catalog.index.CsarService;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import com.google.common.cache.*;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 
 import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.topology.TopologyService;
@@ -132,6 +139,16 @@ public class EditionContextManager {
     public void destroy() {
         contextThreadLocal.remove();
         ToscaContext.destroy();
+    }
+
+    @EventListener
+    public void handleArchiveRemoved(BeforeArchiveDeleted event) {
+        contextCache.invalidate(event.getArchiveId());
+    }
+
+    @EventListener
+    public void handleArchiveUpdated(BeforeArchiveIndexed event) {
+        contextCache.invalidate(event.getArchiveRoot().getArchive().getId());
     }
 
     /**

@@ -10,6 +10,8 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.dao.FilterUtil;
+import alien4cloud.utils.FileUtil;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
 import org.alien4cloud.tosca.catalog.index.CsarService;
@@ -135,6 +137,7 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
      * @return An array of the applications versions for the requested application id.
      */
     public V[] getByDelegateId(String delegateId) {
+
         GetMultipleDataResult<V> result = alienDAO.find(getVersionImplemClass(),
                 MapUtil.newHashMap(new String[] { getDelegatePropertyName() }, new String[][] { new String[] { delegateId } }), Integer.MAX_VALUE);
         return result.getData();

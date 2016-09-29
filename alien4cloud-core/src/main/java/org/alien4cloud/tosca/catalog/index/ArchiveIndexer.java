@@ -19,7 +19,7 @@ import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
 import org.alien4cloud.tosca.model.types.AbstractToscaType;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
@@ -52,7 +52,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class ArchiveIndexer {
     @Inject
-    private ApplicationContext alienContext;
+    private ApplicationEventPublisher publisher;
     @Inject
     private ArchiveExportService exportService;
     @Inject
@@ -110,7 +110,7 @@ public class ArchiveIndexer {
         archiveRoot.setTopology(topology);
 
         // dispatch event before indexing
-        alienContext.publishEvent(new BeforeArchiveIndexed(this, archiveRoot));
+        publisher.publishEvent(new BeforeArchiveIndexed(this, archiveRoot));
 
         // Ensure that the archive does not already exists
         ensureUniqueness(csar.getName(), csar.getVersion());
@@ -129,7 +129,7 @@ public class ArchiveIndexer {
         archiveRepositry.storeCSAR(csar, yaml);
 
         // dispatch event after indexing
-        alienContext.publishEvent(new AfterArchiveIndexed(this, archiveRoot));
+        publisher.publishEvent(new AfterArchiveIndexed(this, archiveRoot));
     }
 
     /**
@@ -145,7 +145,7 @@ public class ArchiveIndexer {
             throws CSARUsedInActiveDeployment {
         archiveIndexerAuthorizationFilter.checkAuthorization(archiveRoot);
         // dispatch event before indexing
-        alienContext.publishEvent(new BeforeArchiveIndexed(this, archiveRoot));
+        publisher.publishEvent(new BeforeArchiveIndexed(this, archiveRoot));
 
         String archiveName = archiveRoot.getArchive().getName();
         String archiveVersion = archiveRoot.getArchive().getVersion();
@@ -185,7 +185,7 @@ public class ArchiveIndexer {
         indexArchiveTypes(archiveName, archiveVersion, archiveRoot.getArchive().getWorkspace(), archiveRoot, currentIndexedArchive);
         indexTopology(archiveRoot, parsingErrors, archiveName, archiveVersion);
 
-        alienContext.publishEvent(new AfterArchiveIndexed(this, archiveRoot));
+        publisher.publishEvent(new AfterArchiveIndexed(this, archiveRoot));
     }
 
     private void indexTopology(final ArchiveRoot archiveRoot, List<ParsingError> parsingErrors, String archiveName, String archiveVersion) {
