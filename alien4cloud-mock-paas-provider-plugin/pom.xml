@@ -3,7 +3,7 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>1.3.0-RC1-SNAPSHOT</version>
+    <version>1.3.0-RC2-SNAPSHOT</version>
   </parent>
   <artifactId>alien4cloud-mock-paas-provider-plugin</artifactId>
   <name>Alien 4 Cloud Mock PaaS provider</name>
