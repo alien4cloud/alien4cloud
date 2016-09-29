@@ -14,20 +14,19 @@ import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import org.alien4cloud.tosca.editor.EditorRepositoryService;
+import org.alien4cloud.tosca.model.definitions.AbstractArtifact;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.definitions.Interface;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.repository.ArtifactRepositoryConstants;
-import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.component.repository.IFileRepository;
-import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
 import alien4cloud.deployment.exceptions.UnresolvableArtifactException;
-import alien4cloud.model.components.AbstractArtifact;
-import alien4cloud.model.components.DeploymentArtifact;
-import alien4cloud.model.components.Interface;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
@@ -56,7 +55,7 @@ public class ArtifactProcessorService {
 
     private Path tempDir;
 
-    private Path resolveArtifact(AbstractArtifact artifact) {
+    private String resolveArtifact(AbstractArtifact artifact) {
         return repositoryService.resolveArtifact(artifact.getArtifactRef(), artifact.getRepositoryURL(), artifact.getArtifactRepository(),
                 artifact.getRepositoryCredential());
     }
@@ -64,18 +63,19 @@ public class ArtifactProcessorService {
     private void processLocalArtifact(AbstractArtifact artifact) {
         try {
             Path csarPath = repository.getExpandedCSAR(artifact.getArchiveName(), artifact.getArchiveVersion());
-            artifact.setArtifactPath(csarPath.resolve(artifact.getArtifactRef()));
-            if (!Files.exists(artifact.getArtifactPath())) {
+            Path resolvedPath = csarPath.resolve(artifact.getArtifactRef());
+            if (!Files.exists(resolvedPath)) {
                 throw new UnresolvableArtifactException("Artifact could not be accessed " + artifact);
             }
-        } catch (CSARVersionNotFoundException e) {
+            artifact.setArtifactPath(resolvedPath.toString());
+        } catch (NotFoundException e) {
             throw new UnresolvableArtifactException("Artifact could not be found " + artifact, e);
         }
     }
 
     private void processArtifact(AbstractArtifact artifact) {
         if (ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY.equals(artifact.getArtifactRepository())) {
-            artifact.setArtifactPath(artifactRepository.resolveFile(artifact.getArtifactRef()));
+            artifact.setArtifactPath(artifactRepository.resolveFile(artifact.getArtifactRef()).toString());
             return;
         }
         URL artifactURL = null;
@@ -96,13 +96,14 @@ public class ArtifactProcessorService {
         if (log.isDebugEnabled()) {
             log.debug("Processing remote artifact {}", artifact);
         }
-        Path artifactPath = resolveArtifact(artifact);
+        String artifactPath = resolveArtifact(artifact);
         if (artifactPath == null) {
             if (artifactURL != null) {
                 try (InputStream artifactStream = artifactURL.openStream()) {
                     // In a best effort try in a generic manner to obtain the artifact
-                    artifactPath = Files.createTempFile(tempDir, "url-artifact", FilenameUtils.getExtension(artifact.getArtifactRef()));
-                    Files.copy(artifactStream, artifactPath, StandardCopyOption.REPLACE_EXISTING);
+                    Path tempPath = Files.createTempFile(tempDir, "url-artifact", FilenameUtils.getExtension(artifact.getArtifactRef()));
+                    artifactPath = tempPath.toString();
+                    Files.copy(artifactStream, tempPath, StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException e) {
                     throw new UnresolvableArtifactException("Artifact could not be found " + artifact, e);
                 }
@@ -114,7 +115,6 @@ public class ArtifactProcessorService {
             log.debug("Remote artifact from {} resolved to {}", artifact.getArtifactRef(), artifactPath);
         }
         artifact.setArtifactPath(artifactPath);
-        artifact.setArtifactRef(artifactPath.getFileName().toString());
     }
 
     private void processInterfaces(Map<String, Interface> interfaceMap) {
@@ -147,18 +147,21 @@ public class ArtifactProcessorService {
                         .flatMap(relationship -> safe(relationship.getArtifacts()).values().stream()));
     }
 
+    private boolean isArtifactFromTopologyEditor(AbstractArtifact artifact) {
+        return ArtifactRepositoryConstants.ALIEN_TOPOLOGY_REPOSITORY.equals(artifact.getArtifactRepository());
+    }
+
     private void processDeploymentArtifacts(PaaSTopologyDeploymentContext deploymentContext) {
         if (deploymentContext.getDeploymentTopology().getNodeTemplates() != null) {
-            // Artifact which comes from the archive
-            getDeploymentArtifactStream(deploymentContext).filter(deploymentArtifact -> StringUtils.isNotBlank(deploymentArtifact.getArchiveName()))
+            // Artifact which comes from the archive or from internal repository
+            getDeploymentArtifactStream(deploymentContext).filter(deploymentArtifact -> !isArtifactFromTopologyEditor(deploymentArtifact))
                     .forEach(this::processArtifact);
             // Artifact which does not come from the archive, which comes from topology's edition
-            getDeploymentArtifactStream(deploymentContext).filter(deploymentArtifact -> StringUtils.isBlank(deploymentArtifact.getArchiveName()))
-                    .forEach(deploymentArtifact -> {
-                        Path artifactPath = editorRepositoryService.resolveArtifact(deploymentContext.getDeploymentTopology().getInitialTopologyId(),
-                                deploymentArtifact.getArtifactRef());
-                        deploymentArtifact.setArtifactPath(artifactPath);
-                    });
+            getDeploymentArtifactStream(deploymentContext).filter(this::isArtifactFromTopologyEditor).forEach(deploymentArtifact -> {
+                Path artifactPath = editorRepositoryService.resolveArtifact(deploymentContext.getDeploymentTopology().getInitialTopologyId(),
+                        deploymentArtifact.getArtifactRef());
+                deploymentArtifact.setArtifactPath(artifactPath.toString());
+            });
         }
     }
 

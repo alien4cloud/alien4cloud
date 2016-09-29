@@ -7,14 +7,14 @@ import org.apache.commons.collections4.MapUtils;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.model.components.Csar;
-import alien4cloud.model.components.IndexedArtifactType;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedDataType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.RepositoryDefinition;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.types.ArtifactType;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.DataType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.definitions.RepositoryDefinition;
+import org.alien4cloud.tosca.model.templates.Topology;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -34,11 +34,11 @@ public class ArchiveRoot {
 
     private Map<String, RepositoryDefinition> repositories = Maps.newHashMap();
 
-    private Map<String, IndexedDataType> dataTypes = Maps.newHashMap();
-    private Map<String, IndexedArtifactType> artifactTypes = Maps.newHashMap();
-    private Map<String, IndexedCapabilityType> capabilityTypes = Maps.newHashMap();
-    private Map<String, IndexedRelationshipType> relationshipTypes = Maps.newHashMap();
-    private Map<String, IndexedNodeType> nodeTypes = Maps.newHashMap();
+    private Map<String, DataType> dataTypes = Maps.newHashMap();
+    private Map<String, ArtifactType> artifactTypes = Maps.newHashMap();
+    private Map<String, CapabilityType> capabilityTypes = Maps.newHashMap();
+    private Map<String, RelationshipType> relationshipTypes = Maps.newHashMap();
+    private Map<String, NodeType> nodeTypes = Maps.newHashMap();
 
     /**
      * Indicates if this archive contains tosca types (node types, relationships, capabilities, artifacts).

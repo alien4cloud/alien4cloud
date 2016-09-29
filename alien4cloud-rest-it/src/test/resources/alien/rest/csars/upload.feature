@@ -55,9 +55,12 @@ Feature: CSAR upload
 
   @reset
   Scenario: Upload CSAR that already exist in the repository
-    Given I upload the archive "tosca base types 1.0"
+    Given I upload the archive "released"
     Then I should receive a RestResponse with no error
-    When I upload the archive "tosca base types 1.0"
+    When I upload the archive "released"
+    Then I should receive a RestResponse with no error
+    And  I there should be a parsing error level "INFO" and code "CSAR_ALREADY_INDEXED"
+    When I upload the archive "released-bis"
     Then I should receive a RestResponse with an error code 502
 
   @reset
@@ -66,18 +69,12 @@ Feature: CSAR upload
     Then I should receive a RestResponse with an error code 200 and 17 compilation errors in 1 file(s)
 
   @reset
-  Scenario: Upload Snapshot version CSAR that already exist in the repository
-    Given I upload the archive "snapshot"
-    Then I should receive a RestResponse with no error
-    When I upload the archive "snapshot"
-    Then I should receive a RestResponse with no error
-
-  @reset
   Scenario: Upload Snapshot version CSAR that already exist in the repository and check creation / lastUpdate dates
     Given I upload the archive "snapshot"
     When I try to get a component with id "tosca.nodes.Compute:1.0-SNAPSHOT"
     Then I should have last update date equals to creation date
-    When I upload the archive "snapshot"
+    When I upload the archive "snapshot-bis"
     Then I should receive a RestResponse with no error
+    And I should have a CSAR with id "tosca-base-types:1.0-SNAPSHOT"
     When I try to get a component with id "tosca.nodes.Compute:1.0-SNAPSHOT"
     Then I should have last update date greater than creation date

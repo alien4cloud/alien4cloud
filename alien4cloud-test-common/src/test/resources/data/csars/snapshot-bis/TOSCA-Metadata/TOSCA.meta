@@ -1,0 +1,4 @@
+Name: tosca-base-types
+CSAR-Version: 1.0-SNAPSHOT
+Created-By: Alien 4 Cloud
+Entry-Definitions: Definitions/tosca-base-types.yaml

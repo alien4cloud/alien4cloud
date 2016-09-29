@@ -5,8 +5,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
-import alien4cloud.model.components.AbstractArtifact;
-import alien4cloud.model.components.DeploymentArtifact;
+import org.alien4cloud.tosca.model.definitions.AbstractArtifact;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 
 public class InputArtifactUtil {
 

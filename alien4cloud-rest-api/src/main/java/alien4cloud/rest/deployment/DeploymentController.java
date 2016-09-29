@@ -23,7 +23,7 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.csar.services.CsarService;
+import org.alien4cloud.tosca.catalog.index.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;

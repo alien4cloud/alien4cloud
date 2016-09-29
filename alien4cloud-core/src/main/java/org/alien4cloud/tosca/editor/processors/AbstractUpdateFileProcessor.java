@@ -14,12 +14,15 @@ import org.alien4cloud.tosca.editor.operations.AbstractUpdateFileOperation;
 import org.alien4cloud.tosca.editor.services.EditorTopologyUploadService;
 
 import alien4cloud.component.repository.IFileRepository;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.utils.TreeNode;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Process an operation that uploaded or updated a file.
  */
+@Slf4j
 public abstract class AbstractUpdateFileProcessor<T extends AbstractUpdateFileOperation>
         implements IEditorCommitableProcessor<T>, IEditorOperationProcessor<T> {
     @Inject
@@ -71,9 +74,10 @@ public abstract class AbstractUpdateFileProcessor<T extends AbstractUpdateFileOp
             }
 
             try {
-                if (EditionContextManager.getTopology().getYamlFilePath().equals(operation.getPath())) {
+                if (EditionContextManager.getCsar().getYamlFilePath().equals(operation.getPath())) {
                     // the operation updates the topology file, we have to parse it and override the topology data out of it.
-                    editorTopologyUploadService.processTopology(artifactRepository.resolveFile(artifactFileId));
+                    editorTopologyUploadService.processTopology(artifactRepository.resolveFile(artifactFileId),
+                            EditionContextManager.getTopology().getWorkspace());
                 }
             } catch (RuntimeException e) {
                 // remove the file from the temp repository if the topology cannot be parsed
@@ -91,12 +95,17 @@ public abstract class AbstractUpdateFileProcessor<T extends AbstractUpdateFileOp
     @Override
     @SneakyThrows
     public void beforeCommit(T operation) {
-        Path targetPath = EditionContextManager.get().getLocalGitPath().resolve(operation.getPath());
-        Files.createDirectories(targetPath.getParent());
-        try (InputStream inputStream = artifactRepository.getFile(operation.getTempFileId())) {
-            Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+        try {
+            TreeNode fileTreeNode = FileProcessorHelper.getFileTreeNode(operation.getPath());
+            Path targetPath = EditionContextManager.get().getLocalGitPath().resolve(operation.getPath());
+            Files.createDirectories(targetPath.getParent());
+            try (InputStream inputStream = artifactRepository.getFile(operation.getTempFileId())) {
+                Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+            }
+            artifactRepository.deleteFile(operation.getTempFileId());
+            fileTreeNode.setArtifactId(null);
+        } catch (NotFoundException e) {
+            log.debug("The file is not referenced in the tree, must have been deleted in later operation.", e);
         }
-        FileProcessorHelper.getFileTreeNode(operation.getPath()).setArtifactId(null);
-        artifactRepository.deleteFile(operation.getTempFileId());
     }
 }

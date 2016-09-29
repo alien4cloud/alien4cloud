@@ -7,108 +7,91 @@ define(function (require) {
   var angular = require('angular');
   var _ = require('lodash');
 
-  require('scripts/topologytemplates/controllers/topology_template');
+  require('scripts/topologytemplates/directives/topology_template_search');
+  require('scripts/topologytemplates/controllers/topology_template_new');
 
   // register components root state
-  states.state('topologytemplates', {
-    url: '/topologytemplates',
+  states.state('topologycatalog', {
+    url: '/topologycatalog',
     template: '<ui-view/>',
     menu: {
-      id: 'menu.topologytemplates',
-      state: 'topologytemplates',
+      id: 'menu.topologycatalog',
+      state: 'topologycatalog',
       key: 'NAVBAR.MENU_TOPOLOGY_TEMPLATE',
       icon: 'fa fa-sitemap',
       priority: 20,
       roles: ['ARCHITECT']
     }
   });
-  states.state('topologytemplates.list', {
+  states.state('topologycatalog.list', {
     url: '/list',
     templateUrl: 'views/topologytemplates/topology_template_list.html',
     controller: 'TopologyTemplateListCtrl'
   });
-  states.forward('topologytemplates', 'topologytemplates.list');
+  states.forward('topologycatalog', 'topologycatalog.list');
 
-  var NewTopologyTemplateCtrl = ['$scope', '$modalInstance',
-    function($scope, $modalInstance) {
-      $scope.topologytemplate = {};
-      $scope.create = function(valid) {
-        if (valid) {
-          $modalInstance.close($scope.topologytemplate);
+  var registerService = require('scripts/topology/editor_register_service');
+  registerService('topologycatalog.csar');
+
+  states.state('topologycatalog.csar', {
+    url: '/topology/:archiveName/edit/:archiveVersion',
+    templateUrl: 'views/topology/topology_editor_layout.html',
+    controller: 'TopologyEditorCtrl',
+    resolve: {
+      archiveVersions: ['$alresource', '$stateParams',
+        function($alresource, $stateParams) {
+          // Get all versions of the archive.
+          return $alresource('rest/latest/catalog/topologies/:archiveName/versions')
+            .get({archiveName: $stateParams.archiveName}).$promise;
         }
-      };
-      $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
-      };
+      ],
+      context: ['$stateParams', function ($stateParams) {
+        var context = { topologyId: undefined };
+        if (!_.isEmpty($stateParams.archiveVersion)) {
+          context.versionName = $stateParams.archiveVersion;
+        }
+        return context;
+      }],
+      workspaces: [function(){return undefined;}]
     }
-  ];
+  });
 
   modules.get('a4c-topology-templates', ['ui.router', 'ui.bootstrap', 'a4c-auth', 'a4c-common']).controller('TopologyTemplateListCtrl',
-    ['$scope', '$modal', '$resource', '$state', 'authService', 'searchServiceFactory',
-    function($scope, $modal, $resource, $state, authService, searchServiceFactory) {
+    ['$scope', '$modal', '$alresource', '$state', 'authService',
+    function($scope, $modal, $alresource, $state, authService) {
+      $scope.openTopology = function(archiveName, archiveVersion) {
+        $state.go('topologycatalog.csar', { archiveName: archiveName, archiveVersion: archiveVersion });
+      };
+      $scope.onSelect = function(topology) {
+        $scope.openTopology(topology.archiveName, topology.archiveVersion);
+      };
 
       // API REST Definition
-      var createTopologyTemplateResource = $resource('rest/latest/templates/topology', {}, {
-        'create': {
-          method: 'POST',
-          isArray: false,
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8'
-          }
-        }
-      });
-
-      var topologyTemplateResource = $resource('rest/latest/templates/topology/:topologyTemplateId', {}, {
-        'get': {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8'
-          }
-        },
-        'remove': {
-          method: 'DELETE'
-        }
-      });
-
-      $scope.openNewTopologyTemplate = function() {
-        var modalInstance = $modal.open({
-          templateUrl: 'views/topologytemplates/topology_template_new.html',
-          controller: NewTopologyTemplateCtrl
-        });
-
-        modalInstance.result.then(function(topologyTemplate) {
-          // create a new topologyTemplate from the given name and description.
-          createTopologyTemplateResource.create([], angular.toJson(topologyTemplate), function(response) {
-            // Response contains topology template id
-            if (response.data !== '') {
-              $scope.openTopologyTemplate(response.data);
+      var createTopologyTemplateResource = $alresource('/rest/latest/catalog/topologies/template');
+      $scope.createTopologyTemplate = function(topologyTemplate) {
+        // create a new topologyTemplate from the given name, version and description.
+        createTopologyTemplateResource.create([], angular.toJson(topologyTemplate), function(response) {
+          // Response contains topology id
+          if (_.defined(response.data)) {
+          // the id is in form: archiveName:archiveVersion
+            var tokens = response.data.trim().split(':');
+            if (tokens.length > 1) {
+              var archiveName = tokens[0];
+              var archiveVersion = tokens[1];
+              $scope.openTopology(archiveName, archiveVersion);
             }
-          });
-        });
-      };
-
-      $scope.onSearchCompleted = function(searchResult) {
-        $scope.data = searchResult.data;
-      };
-
-      $scope.searchService = searchServiceFactory('rest/latest/templates/topology/search', false, $scope, 12);
-      $scope.searchService.search();
-
-      $scope.openTopologyTemplate = function(topologyTemplateId) {
-        $state.go('topologytemplates.detail.topology.editor', {
-          id: topologyTemplateId
-        });
-      };
-
-      $scope.deleteTopologyTemplate = function(topologyTemplateId) {
-        topologyTemplateResource.remove({
-          topologyTemplateId: topologyTemplateId
-        }, function(response) {
-          // Response contains topology template id
-          if (response.data !== '') {
-            $scope.searchService.search();
           }
         });
+      };
+      $scope.openNewTopologyTemplate = function(topology) {
+        var modalConfiguration = {
+          templateUrl: 'views/topologytemplates/topology_template_new.html',
+          controller: 'NewTopologyTemplateCtrl',
+          resolve: { topology: function() { return topology; } }
+        };
+
+        var modalInstance = $modal.open(modalConfiguration);
+        modalInstance.result.then($scope.createTopologyTemplate);
       };
 
       var isArchitectPromise = authService.hasRole('ARCHITECT');

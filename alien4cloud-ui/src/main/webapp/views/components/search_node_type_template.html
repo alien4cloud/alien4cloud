@@ -3,66 +3,39 @@
   <div id="comp-search-side-panel"
     ng-class="{'search-columns search-filter-side':globalContext}">
     <!-- Search result column -->
-    <div class="well">
-      <div style="margin-bottom: 10px;">
-        <form role="search" ng-submit="doSearch()">
-          <div class="input-group">
-            <input id = "component_query_input" type="text" class="form-control" placeholder="..."
-              ng-model="query"> <span class="input-group-btn">
-              <button type="submit" class="btn btn-default"
-                data-loading-text="Loading..." id="btn-search-component">
-                <i class="fa fa-search"></i>
-              </button>
-            </span>
-          </div>
-        </form>
-      </div>
-
-      <!-- Displaying active filters -->
-      <a ng-show="!globalContext"
-        id="displayFacetManagement"
-        class="advancedSearchLink"
-        ng-init="collapseAdvancedSearch=true"
-        ng-click="collapseAdvancedSearch = !collapseAdvancedSearch">
-        <span ng-if="collapseAdvancedSearch">{{'COMPONENTS.SEARCH.SHOW_ADV_SEARCH' | translate}}</span>
-        <span ng-if="!collapseAdvancedSearch">{{'COMPONENTS.SEARCH.SIMPLE_SEARCH' | translate}}</span>
-      </a>
-      <div collapse="collapseAdvancedSearch && !globalContext">
-        <div ng-show="facetFilters.length>0" class="filter-category">
-          <div>
-            {{ 'COMPONENTS.ACTIVE_FILTERS' | translate }} <span
-              class="badge" ng-show="facetFilters.length>0">{{facetFilters.length}}</span>
-            <button type="button" class="btn btn-default btn-xs" ng-click="reset()"
-                ng-disabled="facetFilters.length<=0">
-                <i class="fa fa-trash-o"></i>
-            </button>
-          </div>
-          <div class="facet-choice" collapse="isFacetCollapsed">
-            <ul class="nav facet-choice">
-              <li ng-repeat="filter in facetFilters">
-                <a href="" ng-click="removeFilter(filter)">{{translateKey(filter.term)}}: <span class="label label-primary">
-                  {{ getFormatedFacetValue(filter.term, filter.facet) }}</span><i class="fa fa-times"></i>
-                </a>
-              </li>
-            </ul>
-          </div>
+    <div style="{{searchStyle}}">
+      <div class="well">
+        <div style="margin-bottom: 10px;">
+          <form role="search" ng-submit="doSearch()">
+            <div class="input-group">
+              <input id = "component_query_input" type="text" class="form-control" placeholder="..."
+                ng-model="query"> <span class="input-group-btn">
+                <button type="submit" class="btn btn-default"
+                  data-loading-text="Loading..." id="btn-search-component">
+                  <i class="fa fa-search"></i>
+                </button>
+              </span>
+            </div>
+          </form>
         </div>
 
-        <!-- Displaying all terms and its facets -->
-        <div ng-repeat="(term, termFacets) in searchResult.facets">
-          <div ng-click="isFacetCollapsed = !isFacetCollapsed" class="facet-category">
-            <span>{{translateKey(term)}}</span>
-            <i class="pull-right fa" ng-class="{'fa-caret-down' : !isFacetCollapsed, 'fa-caret-right': isFacetCollapsed}"></i>
-          </div>
-          <div class="facet-option" collapse="isFacetCollapsed">
-            <ul class="nav facet-option">
-              <li ng-repeat="facet in termFacets">
-                <a href="" ng-click="addFilter(term,facet.facetValue)">
-                  {{ getFormatedFacetValue(term, facet.facetValue) }} <span class="badge">{{facet.count}}</span>
-                </a>
-              </li>
-            </ul>
-          </div>
+        <!-- Displaying active filters -->
+        <a ng-show="!globalContext"
+          id="displayFacetManagement"
+          class="advancedSearchLink"
+          ng-init="collapseAdvancedSearch=true"
+          ng-click="collapseAdvancedSearch = !collapseAdvancedSearch">
+          <span ng-if="collapseAdvancedSearch">{{'COMPONENTS.SEARCH.SHOW_ADV_SEARCH' | translate}}</span>
+          <span ng-if="!collapseAdvancedSearch">{{'COMPONENTS.SEARCH.SIMPLE_SEARCH' | translate}}</span>
+        </a>
+        <div collapse="collapseAdvancedSearch && !globalContext">
+          <facets facet-filters="facetFilters"
+                  default-filters="defaultFilters"
+                  facet-id-converter="facetIdConverter"
+                  facets="searchResult.facets"
+                  filter-prefix="COMPONENTS."
+                  do-search="forcedDoSearch()">
+          </facets>
         </div>
       </div>
     </div>
@@ -125,5 +98,4 @@
       </div>
     </div>
   </div>
-
 </div>

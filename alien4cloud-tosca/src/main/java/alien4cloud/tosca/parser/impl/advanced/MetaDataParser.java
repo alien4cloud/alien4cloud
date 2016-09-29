@@ -12,7 +12,7 @@ import org.yaml.snakeyaml.nodes.NodeTuple;
 import com.google.common.collect.Lists;
 
 import alien4cloud.model.common.Tag;
-import alien4cloud.model.components.Csar;
+import org.alien4cloud.tosca.model.Csar;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;

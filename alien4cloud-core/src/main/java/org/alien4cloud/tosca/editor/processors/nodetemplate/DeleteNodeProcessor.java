@@ -14,11 +14,11 @@ import com.google.common.collect.Lists;
 
 import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.component.repository.IFileRepository;
-import alien4cloud.model.components.DeploymentArtifact;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.SubstitutionTarget;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;

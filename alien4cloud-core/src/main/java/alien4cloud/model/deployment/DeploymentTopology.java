@@ -4,10 +4,12 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
-import alien4cloud.json.deserializer.PropertyValueDeserializer;
-import alien4cloud.model.components.PropertyValue;
-import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.templates.NodeGroup;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.elasticsearch.annotation.BooleanField;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.ObjectField;
@@ -17,15 +19,12 @@ import org.elasticsearch.mapping.IndexType;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.topology.NodeGroup;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
+import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -45,6 +44,7 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DeploymentTopology extends Topology {
+    private String id;
     /** This flag is used to prevent update of a deployed archive as this may have consequences. */
     @TermFilter
     @BooleanField
@@ -94,7 +94,9 @@ public class DeploymentTopology extends Topology {
     @ObjectField(enabled = false)
     @JsonDeserialize(contentUsing = PropertyValueDeserializer.class)
     private Map<String, PropertyValue> inputProperties;
-    // TODO add also the input artifacts here. /-> Note that they should/could be repository based.
+
+    @ObjectField(enabled = false)
+    private Map<String, DeploymentArtifact> uploadedInputArtifacts;
 
     /**
      * Utility method to generate an id for a deployment topology by concatenating version id and environment id

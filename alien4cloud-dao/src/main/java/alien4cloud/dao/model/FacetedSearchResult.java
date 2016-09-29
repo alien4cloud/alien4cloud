@@ -14,7 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class FacetedSearchResult extends GetMultipleDataResult {
+public class FacetedSearchResult<T> extends GetMultipleDataResult<T> {
     private static final long serialVersionUID = 1L;
 
     private Map<String, FacetedSearchFacet[]> facets;
@@ -30,8 +30,8 @@ public class FacetedSearchResult extends GetMultipleDataResult {
      * @param data The found data.
      * @param facets The facets if any for the query.
      */
-    public FacetedSearchResult(final int from, final int to, final long queryDuration, final long totalResults,
-            final String[] types, final Object[] data, final Map<String, FacetedSearchFacet[]> facets) {
+    public FacetedSearchResult(final int from, final int to, final long queryDuration, final long totalResults, final String[] types, final T[] data,
+            final Map<String, FacetedSearchFacet[]> facets) {
         super(types, data, queryDuration, totalResults, from, to);
         this.facets = facets;
     }

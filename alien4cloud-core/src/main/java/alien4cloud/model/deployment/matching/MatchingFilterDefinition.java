@@ -5,7 +5,7 @@ import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.model.components.constraints.IMatchPropertyConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.IMatchPropertyConstraint;
 
 import com.google.common.collect.Maps;
 

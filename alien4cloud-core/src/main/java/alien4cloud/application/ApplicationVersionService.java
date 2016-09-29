@@ -1,10 +1,11 @@
 package alien4cloud.application;
 
+import alien4cloud.utils.VersionUtil;
+import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.common.AbtractVersionService;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.utils.MapUtil;
@@ -28,8 +29,8 @@ public class ApplicationVersionService extends AbtractVersionService<Application
     }
 
     @Override
-    protected Class<?> getDelegateClass() {
-        return Application.class;
+    protected ArchiveDelegateType getDelegateType() {
+        return ArchiveDelegateType.APPLICATION;
     }
 
     @Override
@@ -44,7 +45,7 @@ public class ApplicationVersionService extends AbtractVersionService<Application
      * @param topologyId The id of the topology to clone for the version's topology.
      */
     public ApplicationVersion createApplicationVersion(String applicationId, String topologyId) {
-        return createVersion(applicationId, topologyId, DEFAULT_VERSION_NAME, null, null);
+        return createVersion(applicationId, topologyId, VersionUtil.DEFAULT_VERSION_NAME, null);
     }
 
     /**
@@ -55,7 +56,7 @@ public class ApplicationVersionService extends AbtractVersionService<Application
      * @param version The number version of the new application version.
      */
     public ApplicationVersion createApplicationVersion(String applicationId, String topologyId, String version, String desc) {
-        return createVersion(applicationId, topologyId, version, desc, null);
+        return createVersion(applicationId, topologyId, version, desc);
     }
 
     /**
@@ -66,17 +67,6 @@ public class ApplicationVersionService extends AbtractVersionService<Application
      */
     public ApplicationVersion[] getByApplicationId(String applicationId) {
         return getByDelegateId(applicationId);
-    }
-
-
-    /**
-     * Get all application versions snapshot for a given application
-     *
-     * @param applicationId The id of the application for which to get environments.
-     * @return An array of the applications versions snapshot for the requested application id.
-     */
-    public ApplicationVersion[] getSnapshotByApplicationId(String applicationId) {
-        return getSnapshotByDelegateId(applicationId);
     }
 
     /**
@@ -96,11 +86,9 @@ public class ApplicationVersionService extends AbtractVersionService<Application
      */
     public boolean isApplicationVersionDeployed(String applicationVersionId) {
 
-        GetMultipleDataResult<Deployment> dataResult = alienDAO.search(
-                Deployment.class,
-                null,
-                MapUtil.newHashMap(new String[] { "versionId", "endDate" }, new String[][] { new String[] { applicationVersionId },
-                        new String[] { null } }), 1);
+        GetMultipleDataResult<Deployment> dataResult = alienDAO.search(Deployment.class, null,
+                MapUtil.newHashMap(new String[] { "versionId", "endDate" }, new String[][] { new String[] { applicationVersionId }, new String[] { null } }),
+                1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             return true;
         }

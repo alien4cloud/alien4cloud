@@ -5,6 +5,11 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.types.ArtifactType;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.MappingBuilder;
@@ -17,22 +22,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import springfox.documentation.annotations.ApiIgnore;
+import com.google.common.collect.Sets;
+
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.Tag;
-import alien4cloud.model.components.IndexedArtifactType;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-
-import com.google.common.collect.Sets;
+import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * Handle Suggestion requests.
@@ -45,8 +45,8 @@ public class SuggestionController {
     private static final int SUGGESTION_COUNT = 10;
     private static final String TAG_FIELD = "tags";
     private static final String[] INDEXES = new String[] { ElasticSearchDAO.TOSCA_ELEMENT_INDEX, Application.class.getSimpleName().toLowerCase() };
-    private static final Class<?>[] CLASSES = new Class<?>[] { Application.class, IndexedNodeType.class, IndexedArtifactType.class,
-            IndexedCapabilityType.class, IndexedRelationshipType.class };
+    private static final Class<?>[] CLASSES = new Class<?>[] { Application.class, NodeType.class, ArtifactType.class,
+            CapabilityType.class, RelationshipType.class };
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO dao;
@@ -73,7 +73,7 @@ public class SuggestionController {
                 Application app = (Application) searchResult.getData()[i];
                 tags = app.getTags();
             } else {
-                IndexedToscaElement indexedToscaElement = (IndexedToscaElement) searchResult.getData()[i];
+                AbstractToscaType indexedToscaElement = (AbstractToscaType) searchResult.getData()[i];
                 tags = indexedToscaElement.getTags();
             }
             addSuggestedTag(tags, tagName, searchPrefix, tagsSuggestions);
@@ -104,10 +104,13 @@ public class SuggestionController {
             return RestResponseBuilder.<String[]> builder().data(new String[0]).build();
         }
         QueryBuilder queryOnText = QueryBuilders.regexpQuery("elementId", ".*?" + searchText + ".*");
-        QueryBuilder queryOnHighest = QueryBuilders.termQuery("highestVersion", true);
-        QueryBuilder query = QueryBuilders.boolQuery().must(queryOnText).must(queryOnHighest);
+        // FIXME the way of getting the highest version of a component has changed
+        // QueryBuilder queryOnHighest = QueryBuilders.termQuery("highestVersion", true);
+        QueryBuilder query = QueryBuilders.boolQuery().must(queryOnText);
         return RestResponseBuilder.<String[]> builder()
-                .data(dao.selectPath("toscaelement", new String[] { "indexednodetype" }, query, SortOrder.ASC, "elementId", 0, 10)).build();
+                .data(dao.selectPath(dao.getIndexForType(NodeType.class), new String[] { MappingBuilder.indexTypeFromClass(NodeType.class) }, query,
+                        SortOrder.ASC, "elementId", 0, 10))
+                .build();
     }
 
 }

@@ -3,7 +3,12 @@ package alien4cloud.it.common;
 import java.nio.file.Files;
 import java.util.List;
 
-import alien4cloud.model.repository.Repository;
+import org.alien4cloud.exception.rest.FieldErrorDTO;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -22,18 +27,15 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.common.MetaPropConfiguration;
-import alien4cloud.model.components.Csar;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.git.CsarGitRepository;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.model.templates.TopologyTemplate;
-import alien4cloud.model.topology.Topology;
+import alien4cloud.model.repository.Repository;
 import alien4cloud.paas.model.PaaSDeploymentLog;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.model.PluginConfiguration;
-import org.alien4cloud.exception.rest.FieldErrorDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.security.model.Group;
@@ -60,7 +62,6 @@ public class CommonStepDefinitions {
         indicesToClean.add(Location.class.getSimpleName().toLowerCase());
         indicesToClean.add(Csar.class.getSimpleName().toLowerCase());
         indicesToClean.add(Topology.class.getSimpleName().toLowerCase());
-        indicesToClean.add(TopologyTemplate.class.getSimpleName().toLowerCase());
         indicesToClean.add(Deployment.class.getSimpleName().toLowerCase());
         indicesToClean.add(Group.class.getSimpleName().toLowerCase());
         indicesToClean.add(User.class.getSimpleName().toLowerCase());
@@ -77,10 +78,13 @@ public class CommonStepDefinitions {
 
     @Before(value = "@reset", order = 1)
     public void beforeScenario() throws Throwable {
+        // clear the edition cache
         // teardown the platform before removing all data
         // connect as admin
         AuthenticationStepDefinitions authenticationStepDefinitions = new AuthenticationStepDefinitions();
         authenticationStepDefinitions.I_am_authenticated_with_role("ADMIN");
+        Context.getRestClientInstance().putUrlEncoded("/rest/v2/editor/clearCache",
+                Lists.<NameValuePair> newArrayList(new BasicNameValuePair("force", "true")));
         Context.getRestClientInstance().postJSon("/rest/v1/maintenance/teardown-platform", "");
 
         if (log.isDebugEnabled()) {
@@ -237,5 +241,11 @@ public class CommonStepDefinitions {
     public void Response_should_contains_items(int count) throws Throwable {
         RestResponse<GetMultipleDataResult> response = JsonUtil.read(Context.getInstance().getRestResponse(), GetMultipleDataResult.class);
         Assert.assertEquals(count, response.getData().getTotalResults());
+    }
+
+    @Then("^I should receive a RestResponse with a non empty string data$")
+    public void i_Should_Receive_A_RestResponse_With_A_Non_Empty_String_Data() throws Throwable {
+        RestResponse<String> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
+        Assert.assertTrue(StringUtils.isNotBlank(restResponse.getData()));
     }
 }

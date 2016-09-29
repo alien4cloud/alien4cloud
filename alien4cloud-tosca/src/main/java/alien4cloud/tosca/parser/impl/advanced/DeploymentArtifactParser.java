@@ -2,7 +2,7 @@ package alien4cloud.tosca.parser.impl.advanced;
 
 import org.yaml.snakeyaml.nodes.Node;
 
-import alien4cloud.model.components.DeploymentArtifact;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 
 public abstract class DeploymentArtifactParser extends ArtifactParser<DeploymentArtifact> {

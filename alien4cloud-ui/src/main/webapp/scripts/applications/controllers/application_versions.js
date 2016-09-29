@@ -47,11 +47,11 @@ define(function (require) {
   }
   ];
 
-  modules.get('a4c-applications').controller('ApplicationVersionsCtrl', ['$scope', '$state', '$translate', 'toaster', 'authService', '$modal', 'versionServices', 'appVersions', 'searchServiceFactory', 'searchServiceUrl', 'delegateId', 'userCanModify',
-    function($scope, $state, $translate, toaster, authService, $modal, versionServices, appVersions, searchServiceFactory, searchServiceUrl, delegateId, userCanModify) {
+  modules.get('a4c-applications').controller('ApplicationVersionsCtrl', ['$scope', '$state', '$translate', 'toaster', 'authService', '$modal', 'versionServices', 'archiveVersions', 'searchServiceFactory', 'searchServiceUrl', 'delegateId', 'userCanModify',
+    function($scope, $state, $translate, toaster, authService, $modal, versionServices, archiveVersions, searchServiceFactory, searchServiceUrl, delegateId, userCanModify) {
       $scope.isManager = userCanModify;
-      $scope.appVersions = appVersions.data;
-      $scope.searchAppVersionResult = appVersions.data;
+      $scope.archiveVersions = archiveVersions.data;
+      $scope.searchAppVersionResult = archiveVersions.data;
       $scope.versionPattern = new RegExp('^\\d+(?:\\.\\d+)*(?:[a-zA-Z0-9\\-_]+)*$');
 
       $scope.searchService = searchServiceFactory(searchServiceUrl, false, $scope, 12);
@@ -68,8 +68,8 @@ define(function (require) {
         versionServices.searchVersion({
           delegateId: delegateId
         }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function(result) {
-          appVersions.data = result.data.data;
-          $scope.appVersions = appVersions.data;
+          archiveVersions.data = result.data.data;
+          $scope.archiveVersions = archiveVersions.data;
         });
       };
 

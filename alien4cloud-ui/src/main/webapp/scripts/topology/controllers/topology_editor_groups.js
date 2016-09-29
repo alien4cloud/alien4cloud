@@ -20,7 +20,6 @@ define(function (require) {
         },
         updateName: function(groupName, name) {
           var self = this;
-          console.log('update name');
           var d = $q.defer();
           this.scope.execute({
             type: 'org.alien4cloud.tosca.editor.operations.groups.RenameGroupOperation',

@@ -1,11 +1,16 @@
 package alien4cloud.rest.component;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.tosca.catalog.CatalogVersionResult;
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -14,21 +19,16 @@ import com.google.common.collect.Lists;
 
 import alien4cloud.Constants;
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.common.Tag;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.rest.model.*;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Handle components
- *
- * @author mourouvi
  */
 @Slf4j
 @RestController
@@ -39,30 +39,73 @@ public class ComponentController {
     private IGenericSearchDAO dao;
 
     @Resource
-    private CSARRepositorySearchService searchService;
+    private IToscaTypeSearchService searchService;
 
     /**
      * Get details for a component.
      *
      * @param id unique id of the component for which to get details.
-     * @return A {@link RestResponse} that contains an {@link IndexedToscaElement} .
+     * @return A {@link RestResponse} that contains an {@link AbstractToscaType} .
      */
-    @ApiOperation(value = "Get details for a component (tosca type).")
+    @ApiOperation(value = "Get details for a component (tosca type) from it's id (including archive hash).")
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.GET)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
-    public RestResponse<IndexedToscaElement> getComponent(@PathVariable String id) {
-        IndexedToscaElement component = dao.findById(IndexedToscaElement.class, id.trim());
-        return RestResponseBuilder.<IndexedToscaElement> builder().data(component).build();
+    public RestResponse<AbstractToscaType> getComponent(@PathVariable String id, @RequestParam(required = false) QueryComponentType toscaType) {
+        Class<? extends AbstractToscaType> queryClass = toscaType == null ? AbstractToscaType.class : toscaType.getIndexedToscaElementClass();
+        AbstractToscaType component = dao.findById(queryClass, id);
+        return RestResponseBuilder.<AbstractToscaType> builder().data(component).build();
+    }
+
+    /**
+     * Get details for a component based on it's name and version.
+     *
+     * @param elementId unique id of the component for which to get details.
+     * @param version unique id of the component for which to get details.
+     * @return A {@link RestResponse} that contains an {@link AbstractToscaType} .
+     */
+    @ApiOperation(value = "Get details for a component (tosca type) from it's id (including archive hash).")
+    @RequestMapping(value = "/element/{elementId:.+}/version/{version:.+}", method = RequestMethod.GET)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
+    public RestResponse<AbstractToscaType> getComponent(@PathVariable String elementId, @PathVariable String version,
+            @RequestParam(required = false) QueryComponentType toscaType) {
+        Class<? extends AbstractToscaType> queryClass = toscaType == null ? AbstractToscaType.class : toscaType.getIndexedToscaElementClass();
+        AbstractToscaType component = searchService.find(queryClass, elementId, version);
+        return RestResponseBuilder.<AbstractToscaType> builder().data(component).build();
+    }
+
+    /**
+     * Get all versions of a given component.
+     *
+     * @param elementId unique id of the component for which to get all other versions.
+     * @return A {@link RestResponse} that contains an {@link AbstractToscaType} .
+     */
+    @ApiOperation(value = "Get details for a component (tosca type).")
+    @RequestMapping(value = "/element/{elementId:.+}/versions", method = RequestMethod.GET)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
+    public RestResponse<CatalogVersionResult[]> getComponentVersions(@PathVariable String elementId,
+            @RequestParam(required = false) QueryComponentType toscaType) {
+        Class<? extends AbstractToscaType> queryClass = toscaType == null ? AbstractToscaType.class : toscaType.getIndexedToscaElementClass();
+        Object array = searchService.findAll(queryClass, elementId);
+        if (array != null) {
+            int length = Array.getLength(array);
+            CatalogVersionResult[] versions = new CatalogVersionResult[length];
+            for (int i = 0; i < length; i++) {
+                AbstractToscaType element = ((AbstractToscaType) Array.get(array, i));
+                versions[i] = new CatalogVersionResult(element.getId(), element.getArchiveVersion());
+            }
+            return RestResponseBuilder.<CatalogVersionResult[]> builder().data(versions).build();
+        }
+        return RestResponseBuilder.<CatalogVersionResult[]> builder().data(new CatalogVersionResult[0]).build();
     }
 
     @ApiOperation(value = "Get details for a component (tosca type).")
     @RequestMapping(value = "/getInArchives", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
-    public RestResponse<IndexedToscaElement> getComponent(@RequestBody ElementFromArchiveRequest checkElementExistRequest) throws ClassNotFoundException {
-        Class<? extends IndexedToscaElement> elementClass = checkElementExistRequest.getComponentType().getIndexedToscaElementClass();
-        IndexedToscaElement element = searchService.getElementInDependencies(elementClass, checkElementExistRequest.getElementName(),
+    public RestResponse<AbstractToscaType> getComponent(@RequestBody ElementFromArchiveRequest checkElementExistRequest) throws ClassNotFoundException {
+        Class<? extends AbstractToscaType> elementClass = checkElementExistRequest.getComponentType().getIndexedToscaElementClass();
+        AbstractToscaType element = searchService.getElementInDependencies(elementClass, checkElementExistRequest.getElementName(),
                 checkElementExistRequest.getDependencies());
-        return RestResponseBuilder.<IndexedToscaElement> builder().data(element).build();
+        return RestResponseBuilder.<AbstractToscaType> builder().data(element).build();
     }
 
     /**
@@ -76,7 +119,7 @@ public class ComponentController {
     @RequestMapping(value = "/exist", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
     public RestResponse<Boolean> checkElementExist(@RequestBody ElementFromArchiveRequest checkElementExistRequest) throws ClassNotFoundException {
-        Class<? extends IndexedToscaElement> elementClass = checkElementExistRequest.getComponentType().getIndexedToscaElementClass();
+        Class<? extends AbstractToscaType> elementClass = checkElementExistRequest.getComponentType().getIndexedToscaElementClass();
         Boolean found = searchService.isElementExistInDependencies(elementClass, checkElementExistRequest.getElementName(),
                 checkElementExistRequest.getDependencies());
         return RestResponseBuilder.<Boolean> builder().data(found).build();
@@ -86,33 +129,31 @@ public class ComponentController {
      * Search for TOSCA elements.
      *
      * @param searchRequest The search request.
-     * @param queryAllVersions Retrieve all versions of the component, by default set to false which means only retrieve the last recent version of the
-     *            component
-     * @return A {@link RestResponse} that contains a {@link FacetedSearchResult} of {@link IndexedNodeType}.
+     * @return A {@link RestResponse} that contains a {@link FacetedSearchResult} of {@link NodeType}.
      */
     @ApiOperation(value = "Search for components (tosca types) in alien.")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
-    public RestResponse<FacetedSearchResult> search(@RequestBody SearchRequest searchRequest, @RequestParam(defaultValue = "false") boolean queryAllVersions) {
-        Class<? extends IndexedToscaElement> classNameToQuery = searchRequest.getType() == null ? IndexedToscaElement.class
+    public RestResponse<FacetedSearchResult<? extends AbstractToscaType>> search(@RequestBody SearchRequest searchRequest) {
+        Class<? extends AbstractToscaType> queryClass = searchRequest.getType() == null ? AbstractToscaType.class
                 : searchRequest.getType().getIndexedToscaElementClass();
-        FacetedSearchResult searchResult = searchService.search(classNameToQuery, searchRequest.getQuery(), searchRequest.getFrom(), searchRequest.getSize(),
-                searchRequest.getFilters(), queryAllVersions);
-        return RestResponseBuilder.<FacetedSearchResult> builder().data(searchResult).build();
+        FacetedSearchResult<? extends AbstractToscaType> searchResult = searchService.search(queryClass, searchRequest.getQuery(), searchRequest.getSize(),
+                searchRequest.getFilters());
+        return RestResponseBuilder.<FacetedSearchResult<? extends AbstractToscaType>> builder().data(searchResult).build();
     }
 
     /**
      * Get the component recommended as default for a capability
      *
      * @param capability
-     * @return A {@link RestResponse} that contains an {@link IndexedNodeType} .
+     * @return A {@link RestResponse} that contains an {@link NodeType} .
      */
     @ApiOperation(value = "Get details for an indexed node type..")
     @RequestMapping(value = "/recommendation/{capability:.+}", method = RequestMethod.GET)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
-    public RestResponse<IndexedNodeType> getRecommendedForCapability(@PathVariable String capability) {
-        IndexedNodeType component = getDefaultNodeForCapability(capability);
-        return RestResponseBuilder.<IndexedNodeType> builder().data(component).build();
+    public RestResponse<NodeType> getRecommendedForCapability(@PathVariable String capability) {
+        NodeType component = getDefaultNodeForCapability(capability);
+        return RestResponseBuilder.<NodeType> builder().data(component).build();
     }
 
     /**
@@ -120,16 +161,16 @@ public class ComponentController {
      * Only one component can be recommended as default for a capability.
      *
      * @param recommendationRequest : {@link RecommendationRequest} object mapping the request body of the REST call.
-     * @return A {@link RestResponse} that contains the component {@link IndexedNodeType} that has just been recommended.
+     * @return A {@link RestResponse} that contains the component {@link NodeType} that has just been recommended.
      */
     @ApiOperation(value = "Set the given node type as default for the given capability.")
     @RequestMapping(value = "/recommendation", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     @Audit
-    public RestResponse<IndexedNodeType> recommendComponentForCapability(@RequestBody RecommendationRequest recommendationRequest) {
+    public RestResponse<NodeType> recommendComponentForCapability(@RequestBody RecommendationRequest recommendationRequest) {
         removeFromDefaultCapabilities(recommendationRequest.getCapability());
 
-        IndexedNodeType component = dao.findById(IndexedNodeType.class, recommendationRequest.getComponentId());
+        NodeType component = dao.findById(NodeType.class, recommendationRequest.getComponentId());
         if (component != null) {
             if (component.getDefaultCapabilities() == null) {
                 component.setDefaultCapabilities(new ArrayList<String>());
@@ -138,27 +179,27 @@ public class ComponentController {
             log.info("Defining the component <" + component.getId() + "> as default for the capability <" + recommendationRequest.getCapability() + ">.");
             dao.save(component);
         }
-        return RestResponseBuilder.<IndexedNodeType> builder().data(component).build();
+        return RestResponseBuilder.<NodeType> builder().data(component).build();
     }
 
     /**
      * un-define a component as default recommended for a specific capability.
      *
      * @param recommendationRequest : {@link RecommendationRequest} object mapping the request body of the REST call.
-     * @return A {@link RestResponse} that contains the component {@link IndexedNodeType} that has just been undefined as default.
+     * @return A {@link RestResponse} that contains the component {@link NodeType} that has just been undefined as default.
      */
     @ApiOperation(value = "Remove a recommendation for a node type.", notes = "If a node type is set as default for a given capability, you can remove this setting by calling this operation with the right request parameters.")
     @RequestMapping(value = "/unflag", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     @Audit
-    public RestResponse<IndexedNodeType> unflagAsDefaultForCapability(@RequestBody RecommendationRequest recommendationRequest) {
-        IndexedNodeType component = dao.findById(IndexedNodeType.class, recommendationRequest.getComponentId());
+    public RestResponse<NodeType> unflagAsDefaultForCapability(@RequestBody RecommendationRequest recommendationRequest) {
+        NodeType component = dao.findById(NodeType.class, recommendationRequest.getComponentId());
         if (component != null && component.getDefaultCapabilities() != null) {
             component.getDefaultCapabilities().remove(recommendationRequest.getCapability());
             log.info("Undefining the component <" + component.getId() + "> as default for the capability <" + recommendationRequest.getCapability() + ">.");
             dao.save(component);
         }
-        return RestResponseBuilder.<IndexedNodeType> builder().data(component).build();
+        return RestResponseBuilder.<NodeType> builder().data(component).build();
     }
 
     /**
@@ -174,7 +215,7 @@ public class ComponentController {
     @Audit
     public RestResponse<Void> upsertTag(@PathVariable String componentId, @RequestBody UpdateTagRequest updateTagRequest) {
         RestError updateComponantTagError = null;
-        IndexedNodeType component = dao.findById(IndexedNodeType.class, componentId);
+        NodeType component = dao.findById(NodeType.class, componentId);
         if (component != null) {
             if (!updateTagRequest.getTagKey().equals(Constants.ALIEN_INTERNAL_TAG)) {
                 // Put the updated tag (will override the old tag or add it to the tag map)
@@ -205,7 +246,7 @@ public class ComponentController {
     @Audit
     public RestResponse<Void> deleteTag(@PathVariable String componentId, @PathVariable String tagId) {
         RestError deleteComponantTagError = null;
-        IndexedNodeType component = dao.findById(IndexedNodeType.class, componentId);
+        NodeType component = dao.findById(NodeType.class, componentId);
         if (component != null) {
 
             if (!tagId.equals(Constants.ALIEN_INTERNAL_TAG)) {
@@ -227,21 +268,21 @@ public class ComponentController {
     }
 
     private void removeFromDefaultCapabilities(String capability) {
-        IndexedNodeType component = getDefaultNodeForCapability(capability);
+        NodeType component = getDefaultNodeForCapability(capability);
         if (component != null) {
             component.getDefaultCapabilities().remove(capability);
             dao.save(component);
         }
     }
 
-    private IndexedNodeType getDefaultNodeForCapability(String capability) {
+    private NodeType getDefaultNodeForCapability(String capability) {
         Map<String, String[]> filters = new HashMap<>();
         filters.put(Constants.DEFAULT_CAPABILITY_FIELD_NAME, new String[] { capability.toLowerCase() });
-        GetMultipleDataResult result = dao.find(IndexedNodeType.class, filters, 1);
+        GetMultipleDataResult result = dao.find(NodeType.class, filters, 1);
         if (result == null || result.getData() == null || result.getData().length == 0) {
             return null;
         }
 
-        return (IndexedNodeType) result.getData()[0];
+        return (NodeType) result.getData()[0];
     }
 }

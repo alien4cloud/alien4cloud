@@ -11,10 +11,10 @@ import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
@@ -42,7 +42,7 @@ public class UpdateCapabilityPropertyValueProcessor implements IEditorOperationP
         NodeTemplate nodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
         Capability capability = nodeTemplate.getCapabilities().get(operation.getCapabilityName());
 
-        IndexedCapabilityType capabilityType = ToscaContext.get(IndexedCapabilityType.class, capability.getType());
+        CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, capability.getType());
 
         if (!capabilityType.getProperties().containsKey(propertyName)) {
             throw new NotFoundException(

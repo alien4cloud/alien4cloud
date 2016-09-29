@@ -2,12 +2,11 @@ package org.alien4cloud.tosca.editor.processors.relationshiptemplate;
 
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.AbstractRelationshipOperation;
-import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
 
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 
 import static alien4cloud.utils.AlienUtils.safe;
 

@@ -1,33 +1,31 @@
 package alien4cloud.rest.deployment;
 
 import static alien4cloud.utils.AlienUtils.safe;
-import alien4cloud.deployment.OrchestratorPropertiesValidationService;
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.utils.services.PropertyService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.Authorization;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.audit.annotation.Audit;
+import alien4cloud.component.repository.ArtifactRepositoryConstants;
+import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.deployment.DeploymentTopologyService;
-import alien4cloud.deployment.DeploymentTopologyValidationService;
+import alien4cloud.deployment.OrchestratorPropertiesValidationService;
 import alien4cloud.deployment.model.DeploymentConfiguration;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.deployment.DeploymentTopology;
@@ -42,14 +40,17 @@ import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
+import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
-import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.RestConstraintValidator;
-
-import java.util.Map;
+import alien4cloud.utils.services.PropertyService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
 
 @RestController
 @RequestMapping({ "/rest/applications/{appId}/environments/{environmentId}/deployment-topology",
@@ -64,13 +65,13 @@ public class DeploymentTopologyController {
     @Inject
     private ApplicationEnvironmentService appEnvironmentService;
     @Inject
-    private DeploymentTopologyValidationService deploymentTopologyValidationService;
-    @Inject
     public IDeploymentTopologyHelper deploymentTopologyHelper;
     @Inject
     public PropertyService propertyService;
     @Inject
     private OrchestratorPropertiesValidationService orchestratorPropertiesValidationService;
+    @Resource
+    private IFileRepository artifactRepository;
 
     /**
      * Get the deployment topology of an application given an environment
@@ -87,6 +88,49 @@ public class DeploymentTopologyController {
         DeploymentConfiguration deploymentConfiguration = deploymentTopologyService.getDeploymentConfiguration(environmentId);
         DeploymentTopologyDTO dto = deploymentTopologyHelper.buildDeploymentTopologyDTO(deploymentConfiguration);
         return RestResponseBuilder.<DeploymentTopologyDTO> builder().data(dto).build();
+    }
+
+    /**
+     * Update application's input artifact.
+     *
+     * @param appId application Id
+     * @param environmentId environment Id
+     * @param inputArtifactId artifact's id
+     * @return nothing if success, error will be handled in global exception strategy
+     * @throws IOException
+     */
+    @ApiOperation(value = "Upload input artifact.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER | DEPLOYMENT_MANAGER ]")
+    @RequestMapping(value = "/inputArtifacts/{inputArtifactId}/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<DeploymentTopologyDTO> updateDeploymentInputArtifact(@PathVariable String appId, @PathVariable String environmentId,
+            @PathVariable String inputArtifactId, @RequestParam("file") MultipartFile artifactFile) throws IOException {
+        // Get the artifact to update
+        checkAuthorizations(appId, environmentId);
+        DeploymentTopology topology = deploymentTopologyService.getDeploymentTopology(environmentId);
+        if (topology.getInputArtifacts() == null || !topology.getInputArtifacts().containsKey(inputArtifactId)) {
+            throw new NotFoundException("Artifact with key [" + inputArtifactId + "] do not exist");
+        }
+        Map<String, DeploymentArtifact> artifacts = topology.getUploadedInputArtifacts();
+        if (artifacts == null) {
+            artifacts = new HashMap<>();
+            topology.setUploadedInputArtifacts(artifacts);
+        }
+        DeploymentArtifact artifact = artifacts.get(inputArtifactId);
+        if (artifact == null) {
+            artifact = new DeploymentArtifact();
+            artifacts.put(inputArtifactId, artifact);
+        } else if (ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY.equals(artifact.getArtifactRepository())) {
+            artifactRepository.deleteFile(artifact.getArtifactRef());
+        }
+        try (InputStream artifactStream = artifactFile.getInputStream()) {
+            String artifactFileId = artifactRepository.storeFile(artifactStream);
+            artifact.setArtifactName(artifactFile.getOriginalFilename());
+            artifact.setArtifactRef(artifactFileId);
+            artifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY);
+            deploymentTopologyService.updateDeploymentTopologyInputsAndSave(topology);
+            return RestResponseBuilder.<DeploymentTopologyDTO> builder()
+                    .data(deploymentTopologyHelper.buildDeploymentTopologyDTO(deploymentTopologyService.getDeploymentConfiguration(environmentId))).build();
+        }
     }
 
     /**
@@ -196,7 +240,7 @@ public class DeploymentTopologyController {
             }
 
             // update
-            if (updateRequest.getProviderDeploymentProperties() != null && !updateRequest.getProviderDeploymentProperties().isEmpty()) {
+            if (MapUtils.isNotEmpty(updateRequest.getProviderDeploymentProperties())) {
                 deploymentTopology.getProviderDeploymentProperties().putAll(updateRequest.getProviderDeploymentProperties());
                 orchestratorPropertiesValidationService.checkConstraints(deploymentTopology.getOrchestratorId(),
                         updateRequest.getProviderDeploymentProperties());

@@ -1,17 +1,18 @@
 package org.alien4cloud.tosca.editor.processors;
 
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.topology.Topology;
-import alien4cloud.topology.TopologyService;
-import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.utils.AlienUtils;
+import javax.inject.Inject;
+
 import org.alien4cloud.tosca.editor.EditionContextManager;
-import org.alien4cloud.tosca.editor.EditorTopologyRecoveryHelperService;
 import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
+import org.alien4cloud.tosca.editor.services.EditorTopologyRecoveryHelperService;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
+import alien4cloud.topology.TopologyService;
+import alien4cloud.tosca.context.ToscaContext;
+import alien4cloud.utils.AlienUtils;
 
 /**
  * process {@link RecoverTopologyOperation}

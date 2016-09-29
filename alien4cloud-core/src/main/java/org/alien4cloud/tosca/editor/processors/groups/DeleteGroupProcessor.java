@@ -8,9 +8,9 @@ import org.alien4cloud.tosca.editor.operations.groups.DeleteGroupOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.topology.NodeGroup;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.NodeGroup;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 
 /**
  * Delete a group from a topology.

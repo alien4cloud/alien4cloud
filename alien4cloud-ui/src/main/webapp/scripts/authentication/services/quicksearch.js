@@ -5,8 +5,6 @@ define(function (require) {
   var modules = require('modules');
   var angular = require('angular');
 
-  require('scripts/common/services/search_services'); // make sure that we have the search services loaded.
-
   modules.get('a4c-auth', ['a4c-search']).factory('quickSearchServices', ['$state','$resource',
     function($state, $resource ) {
       var quickSearchResource = $resource('rest/latest/quicksearch', {}, {
@@ -48,7 +46,7 @@ define(function (require) {
           var formatedData=result.data.data;
           for (var i = 0; i < formatedData.length; i++) {
             formatedData[i].type = result.data.types[i];
-            if(formatedData[i].type ==='indexednodetype') {
+            if(formatedData[i].type ==='nodetype') {
               formatedData[i].icon = getComponentIcon(formatedData[i].tags);
             }
           }

@@ -9,9 +9,9 @@ import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
-import alien4cloud.model.components.IndexedInheritableToscaElement;
-import alien4cloud.model.topology.AbstractTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.templates.AbstractTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.topology.task.ArtifactTask;
 import alien4cloud.topology.task.ArtifactTaskCode;
 
@@ -21,7 +21,7 @@ import alien4cloud.topology.task.ArtifactTaskCode;
 @Service
 public class TopologyArtifactsValidationService {
 
-    private <T extends AbstractTemplate, U extends IndexedInheritableToscaElement> Stream<ArtifactTask> validateTemplate(String name, T template) {
+    private <T extends AbstractTemplate, U extends AbstractInheritableToscaType> Stream<ArtifactTask> validateTemplate(String name, T template) {
         return safe(template.getArtifacts()).entrySet().stream().filter(artifactEntry -> StringUtils.isBlank(artifactEntry.getValue().getArtifactRef()))
                 .map(artifactEntry -> new ArtifactTask(name, artifactEntry.getKey(), ArtifactTaskCode.MISSING));
     }

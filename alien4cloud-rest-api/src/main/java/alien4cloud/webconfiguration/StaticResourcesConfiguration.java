@@ -36,8 +36,6 @@ public class StaticResourcesConfiguration extends WebMvcConfigurerAdapter {
     private EditorService editorService = null;
     @Value("${directories.alien}/${directories.csar_repository}/")
     private String toscaRepo;
-    @Value("${directories.alien}/editor/")
-    private String editorRepo;
     @Value("${directories.alien}/work/plugins/ui/")
     private String pluginsUi;
 
@@ -46,13 +44,11 @@ public class StaticResourcesConfiguration extends WebMvcConfigurerAdapter {
         String prefix = "file:///";
         // resource locations must be full path and not relatives
         String absToscaRepo = prefix.concat(safeGetRealPath(toscaRepo)).concat("/");
-        String absEditorRepo = prefix.concat(safeGetRealPath(editorRepo)).concat("/");
         String absPluginUi = prefix.concat(safeGetRealPath(pluginsUi)).concat("/");
 
         log.info("Serving {} as tosca repo content.", absToscaRepo);
         log.info("Serving {} as plugin ui content.", absPluginUi);
-        registry.addResourceHandler("/static/tosca/**").addResourceLocations(absToscaRepo);
-        registry.addResourceHandler("/static/editor/{topologyId}/**").addResourceLocations(absEditorRepo).resourceChain(false)
+        registry.addResourceHandler("/static/tosca/{csarId:.+}/**").addResourceLocations(absToscaRepo).resourceChain(false)
                 .addResolver(new ResourceResolver() {
                     @Override
                     public Resource resolveResource(HttpServletRequest request, String requestPath, List<? extends Resource> locations,
@@ -61,15 +57,17 @@ public class StaticResourcesConfiguration extends WebMvcConfigurerAdapter {
                         // check security for the requested topology file.
                         ServletWebRequest webRequest = new ServletWebRequest(request);
                         Map uriTemplateVars = (Map) webRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, 0);
-                        String topologyId = (String) uriTemplateVars.get("topologyId");
+                        String csarId = (String) uriTemplateVars.get("csarId");
                         if (editorService == null) {
                             // not initialized as master
                             throw new NotFoundException("Only master nodes can provide editor static resources.");
                         } else {
-                            editorService.checkAuthorization(topologyId);
+                            // FIXME browser role is good enough
+                            editorService.checkAuthorization(csarId);
                         }
                         // let the usual resolving
-                        return chain.resolveResource(request, topologyId + "/" + requestPath, locations);
+                        String[] splitted = csarId.split(":"); // id is name:version:workspace but it is stored as workspace/name/version
+                        return chain.resolveResource(request, splitted[0] + "/" + splitted[1] + "/" + requestPath, locations);
                     }
 
                     @Override

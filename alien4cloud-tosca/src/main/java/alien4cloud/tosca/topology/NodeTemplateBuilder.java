@@ -6,15 +6,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.alien4cloud.tosca.model.definitions.*;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.NodeType;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.model.components.*;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Requirement;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Requirement;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.PropertyUtil;
 import lombok.SneakyThrows;
@@ -32,7 +34,7 @@ public class NodeTemplateBuilder {
      * @param templateToMerge the template that can be used to merge into the new node template
      * @return new constructed node template.
      */
-    public static NodeTemplate buildNodeTemplate(IndexedNodeType indexedNodeType, NodeTemplate templateToMerge) {
+    public static NodeTemplate buildNodeTemplate(NodeType indexedNodeType, NodeTemplate templateToMerge) {
         return buildNodeTemplate(indexedNodeType, templateToMerge, true);
     }
 
@@ -44,7 +46,7 @@ public class NodeTemplateBuilder {
      * @param adaptToType This flag allow to know if we should adapt the templateToMerge node to the type.
      * @return new constructed node template.
      */
-    public static NodeTemplate buildNodeTemplate(IndexedNodeType indexedNodeType, NodeTemplate templateToMerge, boolean adaptToType) {
+    public static NodeTemplate buildNodeTemplate(NodeType indexedNodeType, NodeTemplate templateToMerge, boolean adaptToType) {
         NodeTemplate nodeTemplate = new NodeTemplate();
         nodeTemplate.setType(indexedNodeType.getElementId());
         Map<String, Capability> capabilities = Maps.newLinkedHashMap();
@@ -91,14 +93,14 @@ public class NodeTemplateBuilder {
     }
 
     private static void fillCapabilitiesMap(Map<String, Capability> map, List<CapabilityDefinition> elements, Map<String, Capability> mapToMerge,
-            boolean adaptToType) {
+                                            boolean adaptToType) {
         if (elements == null) {
             return;
         }
         for (CapabilityDefinition capa : elements) {
             Capability toAddCapa = MapUtils.getObject(mapToMerge, capa.getId());
             Map<String, AbstractPropertyValue> capaProperties = null;
-            IndexedCapabilityType capabilityType = ToscaContext.get(IndexedCapabilityType.class, capa.getType());
+            CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, capa.getType());
             if (capabilityType != null && capabilityType.getProperties() != null) {
                 capaProperties = PropertyUtil.getDefaultPropertyValuesFromPropertyDefinitions(capabilityType.getProperties());
             }
@@ -125,14 +127,14 @@ public class NodeTemplateBuilder {
     }
 
     private static void fillRequirementsMap(Map<String, Requirement> map, List<RequirementDefinition> elements, Map<String, Requirement> mapToMerge,
-            boolean adaptToType) {
+                                            boolean adaptToType) {
         if (elements == null) {
             return;
         }
         for (RequirementDefinition requirement : elements) {
             Requirement toAddRequirement = MapUtils.getObject(mapToMerge, requirement.getId());
             // the type of a requirement is a capability type in TOSCA as they match each other.
-            IndexedCapabilityType requirementType = ToscaContext.get(IndexedCapabilityType.class, requirement.getType());
+            CapabilityType requirementType = ToscaContext.get(CapabilityType.class, requirement.getType());
             if (toAddRequirement == null) {
                 toAddRequirement = new Requirement();
                 toAddRequirement.setType(requirement.getType());

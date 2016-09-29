@@ -4,15 +4,34 @@
   </div>
   <div class="modal-body">
     <div class="form-group" ng-class="{'has-error': newTopologyTemplate.name.$invalid}">
-      <label for="nameid" class="col-lg-2 control-label">{{'COMMON.NAME' | translate}}</label>
-      <div class="col-lg-10">
+      <label for="topo-template-name" class="col-lg-3 control-label">{{'COMMON.NAME' | translate}}</label>
+      <div class="col-lg-9">
         <input type="text" class="form-control" id="topo-template-name" ng-model="topologytemplate.name" name="name" required="" placeholder="{{'COMMON.NAME' | translate}}">
       </div>
     </div>
+    <div class="form-group" ng-class="{'has-error': newTopologyTemplate.version.$invalid}">
+      <label for="version" class="col-lg-3 control-label">{{'APPLICATIONS.VERSION.VERSION' | translate}}</label>
+      <div class="col-lg-9">
+        <input type="text" class="form-control" id="version" ng-model="topologytemplate.version" name="version"
+               required=""
+               ng-pattern="versionPattern" placeholder="{{'COMMON.VERSION' | translate}}">
+        <span id="span-alert-pattern" ng-show="newTopologyTemplate.version.$error.pattern">{{'APPLICATIONS.VERSION.MODAL.PATTERN' | translate}}</span>
+      </div>
+    </div>
     <div class="form-group">
-      <label for="descid" class="col-lg-2 control-label">{{'COMMON.DESCRIPTION' | translate}}</label>
-      <div class="col-lg-10">
+      <label for="topo-template-desc" class="col-lg-3 control-label">{{'COMMON.DESCRIPTION' | translate}}</label>
+      <div class="col-lg-9">
         <textarea class="form-control" id="topo-template-desc" rows="3" ng-model="topologytemplate.description" placeholder="{{'COMMON.DESCRIPTION' | translate}}"></textarea>
+      </div>
+    </div>
+    <div class="form-group" ng-if="topology">
+      <label for="templateId" class="col-lg-2 control-label">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_BASE' | translate}}</label>
+      <div class="col-lg-4">
+        <input readonly type="text" class="form-control" id="templateId" ng-model="topology.archiveName" name="templateId" placeholder="{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT' | translate}}">
+      </div>
+      <label for="templateVersionId" class="col-lg-2 control-label">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_VERSION' | translate}}</label>
+      <div class="col-lg-4">
+        <input readonly type="text" class="form-control" id="templateVersionId" ng-model="topology.archiveVersion" name="templateVersionId" placeholder="{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT_VERSION' | translate}}">
       </div>
     </div>
   </div>

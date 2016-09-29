@@ -1,10 +1,11 @@
 package org.alien4cloud.test.setup;
 
-import alien4cloud.git.RepositoryManager;
-import alien4cloud.utils.FileUtil;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
+
+import alien4cloud.git.RepositoryManager;
+import alien4cloud.utils.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**

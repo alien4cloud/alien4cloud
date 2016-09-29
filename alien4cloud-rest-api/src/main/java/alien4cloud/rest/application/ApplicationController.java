@@ -22,13 +22,10 @@ import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.DeleteDeployedException;
-import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.images.IImageDAO;
 import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.application.Application;
-import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.paas.exception.OrchestratorDisabledException;
 import alien4cloud.rest.application.model.CreateApplicationRequest;
 import alien4cloud.rest.application.model.UpdateApplicationRequest;
@@ -40,8 +37,6 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.Role;
-import alien4cloud.topology.TopologyTemplateVersionService;
-import alien4cloud.utils.ReflectionUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +46,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @RestController
-@RequestMapping({"/rest/applications", "/rest/v1/applications", "/rest/latest/applications"})
+@RequestMapping({ "/rest/applications", "/rest/v1/applications", "/rest/latest/applications" })
 @Api(value = "", description = "Operations on Applications")
 public class ApplicationController {
     @Resource
@@ -62,8 +57,6 @@ public class ApplicationController {
     private ApplicationService applicationService;
     @Resource
     private ApplicationVersionService applicationVersionService;
-    @Resource
-    private TopologyTemplateVersionService topologyTemplateVersionService;
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
 
@@ -83,15 +76,11 @@ public class ApplicationController {
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         // check the topology template id to recover the related topology id
-        String topologyId = null;
-        if (request.getTopologyTemplateVersionId() != null) {
-            TopologyTemplateVersion ttv = topologyTemplateVersionService.getOrFail(request.getTopologyTemplateVersionId());
-            topologyId = ttv.getTopologyId();
-        }
+        String topologyId = request.getTopologyTemplateVersionId();
         // create the application with default environment and version
-        String applicationId = applicationService.create(auth.getName(), request.getName(), request.getDescription());
+        String applicationId = applicationService.create(auth.getName(), request.getArchiveName(), request.getName(), request.getDescription());
         ApplicationVersion version = applicationVersionService.createApplicationVersion(applicationId, topologyId);
-        ApplicationEnvironment environment = applicationEnvironmentService.createApplicationEnvironment(auth.getName(), applicationId, version.getId());
+        applicationEnvironmentService.createApplicationEnvironment(auth.getName(), applicationId, version.getId());
         return RestResponseBuilder.<String> builder().data(applicationId).build();
     }
 
@@ -101,7 +90,7 @@ public class ApplicationController {
      * @param applicationId The application id.
      */
     @ApiOperation(value = "Get an application based from its id.", notes = "Returns the application details. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
-    @RequestMapping(value = "/{applicationId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{applicationId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     public RestResponse<Application> get(@PathVariable String applicationId) {
         Application data = alienDAO.findById(Application.class, applicationId);
@@ -132,7 +121,7 @@ public class ApplicationController {
      * @return A rest response.
      */
     @ApiOperation(value = "Delete an application from its id.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
-    @RequestMapping(value = "/{applicationId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{applicationId:.+}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Boolean> delete(@PathVariable String applicationId) {
@@ -162,7 +151,7 @@ public class ApplicationController {
      * @return nothing if success, error will be handled in global exception strategy
      */
     @ApiOperation(value = "Updates the image for the application.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
-    @RequestMapping(value = "/{applicationId}/image", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{applicationId:.+}/image", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<String> updateImage(@PathVariable String applicationId, @RequestParam("file") MultipartFile image) {
@@ -191,21 +180,8 @@ public class ApplicationController {
     @RequestMapping(value = "/{applicationId:.+}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
     @Audit
-    public RestResponse<Void> update(@PathVariable String applicationId, @RequestBody UpdateApplicationRequest applicationUpdateRequest) {
-        Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        String currentName = application.getName();
-        ReflectionUtil.mergeObject(applicationUpdateRequest, application);
-        if (application.getName() == null || application.getName().isEmpty()) {
-            throw new InvalidArgumentException("Application's name cannot be set to null or empty");
-        }
-        if (!currentName.equals(application.getName())) {
-            applicationService.ensureNameIsValid(application.getName());
-            applicationService.ensureNameUnicity(application.getName());
-        }
-        // update updateDate
-        application.setLastUpdateDate(new Date());
-        alienDAO.save(application);
+    public RestResponse<Void> update(@PathVariable String applicationId, @RequestBody UpdateApplicationRequest request) {
+        applicationService.update(applicationId, request.getName(), request.getDescription());
         return RestResponseBuilder.<Void> builder().build();
     }
 

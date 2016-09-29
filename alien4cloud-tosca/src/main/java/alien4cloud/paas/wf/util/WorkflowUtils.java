@@ -2,13 +2,13 @@ package alien4cloud.paas.wf.util;
 
 import java.util.Map;
 
-import alien4cloud.model.components.IndexedInheritableToscaElement;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.Interface;
-import alien4cloud.model.components.Operation;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.definitions.Interface;
+import org.alien4cloud.tosca.model.definitions.Operation;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import alien4cloud.paas.wf.AbstractStep;
 import alien4cloud.paas.wf.DelegateWorkflowActivity;
 import alien4cloud.paas.wf.NodeActivityStep;
@@ -28,14 +28,13 @@ public class WorkflowUtils {
         if (nodeTemplate == null) {
             return null;
         }
-        IndexedNodeType nodeType = (IndexedNodeType) topologyContext.findElement(IndexedNodeType.class, nodeTemplate.getType());
+        NodeType nodeType = (NodeType) topologyContext.findElement(NodeType.class, nodeTemplate.getType());
         if (isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE)) {
             return nodeId;
         } else {
             if (nodeTemplate.getRelationships() != null) {
                 for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
-                    IndexedRelationshipType relationshipType = (IndexedRelationshipType) topologyContext.findElement(IndexedRelationshipType.class,
-                            relationshipTemplate.getType());
+                    RelationshipType relationshipType = (RelationshipType) topologyContext.findElement(RelationshipType.class, relationshipTemplate.getType());
                     if (isOfType(relationshipType, NormativeRelationshipConstants.HOSTED_ON)) {
                         return getRootHostNode(relationshipTemplate.getTarget(), topologyContext);
                     }
@@ -75,8 +74,7 @@ public class WorkflowUtils {
         NodeTemplate nodeTemplate = topologyContext.getTopology().getNodeTemplates().get(nodeId);
         if (nodeTemplate != null && nodeTemplate.getRelationships() != null) {
             for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
-                IndexedRelationshipType relationshipType = (IndexedRelationshipType) topologyContext.findElement(IndexedRelationshipType.class,
-                        relationshipTemplate.getType());
+                RelationshipType relationshipType = topologyContext.findElement(RelationshipType.class, relationshipTemplate.getType());
                 if (isOfType(relationshipType, NormativeRelationshipConstants.HOSTED_ON)) {
                     return relationshipTemplate.getTarget();
                 }
@@ -90,7 +88,7 @@ public class WorkflowUtils {
      *         FIXME: should we browse hierarchy ? what about order ?
      */
     public static Operation getOperation(String nodeTypeName, String interfaceName, String operationName, TopologyContext topologyContext) {
-        IndexedNodeType nodeType = (IndexedNodeType) topologyContext.findElement(IndexedNodeType.class, nodeTypeName);
+        NodeType nodeType = topologyContext.findElement(NodeType.class, nodeTypeName);
         if (nodeType == null) {
             return null;
         }
@@ -111,7 +109,7 @@ public class WorkflowUtils {
         return operation;
     }
 
-    private static Operation getOperationInSuperTypes(IndexedNodeType nodeType, String interfaceName, String operationName, TopologyContext topologyContext) {
+    private static Operation getOperationInSuperTypes(NodeType nodeType, String interfaceName, String operationName, TopologyContext topologyContext) {
         if (nodeType.getDerivedFrom() == null) {
             return null;
         }
@@ -124,7 +122,7 @@ public class WorkflowUtils {
         return null;
     }
 
-    public static boolean isOfType(IndexedInheritableToscaElement indexedNodeType, String type) {
+    public static boolean isOfType(AbstractInheritableToscaType indexedNodeType, String type) {
         if (indexedNodeType == null) {
             return false;
         }
@@ -140,7 +138,7 @@ public class WorkflowUtils {
         if (nodeTemplate == null) {
             return false;
         }
-        IndexedNodeType nodeType = (IndexedNodeType) topologyContext.findElement(IndexedNodeType.class, nodeTemplate.getType());
+        NodeType nodeType = (NodeType) topologyContext.findElement(NodeType.class, nodeTemplate.getType());
         return isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE);
     }
 
@@ -149,7 +147,7 @@ public class WorkflowUtils {
         if (nodeTemplate == null) {
             return false;
         }
-        IndexedNodeType nodeType = (IndexedNodeType) topologyContext.findElement(IndexedNodeType.class, nodeTemplate.getType());
+        NodeType nodeType = (NodeType) topologyContext.findElement(NodeType.class, nodeTemplate.getType());
         if (isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE)) {
             return true;
         } else {
@@ -162,7 +160,7 @@ public class WorkflowUtils {
         if (nodeTemplate == null) {
             return false;
         }
-        IndexedNodeType nodeType = (IndexedNodeType) topologyContext.findElement(IndexedNodeType.class, nodeTemplate.getType());
+        NodeType nodeType = (NodeType) topologyContext.findElement(NodeType.class, nodeTemplate.getType());
         if (isOfType(nodeType, NormativeComputeConstants.COMPUTE_TYPE)) {
             return true;
         } else {
@@ -175,7 +173,7 @@ public class WorkflowUtils {
         if (nodeTemplate == null) {
             return false;
         }
-        IndexedNodeType nodeType = (IndexedNodeType) topologyContext.findElement(IndexedNodeType.class, nodeTemplate.getType());
+        NodeType nodeType = topologyContext.findElement(NodeType.class, nodeTemplate.getType());
         if (nodeType.isAbstract() || nodeType.getSubstitutionTopologyId() != null) {
             return true;
         }

@@ -1,10 +1,10 @@
 package alien4cloud.audit;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.FilterBuilder;
@@ -22,6 +22,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.security.AuthorizationUtil;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
@@ -48,7 +49,6 @@ public class AuditService {
         }
         return this.auditConfiguration;
     }
-
 
     public synchronized void saveAuditConfiguration(AuditConfiguration auditConfiguration) {
         alienDAO.save(auditConfiguration);
@@ -78,7 +78,9 @@ public class AuditService {
             return null;
         }
         if (methods.length > 1) {
-            log.error("Audit does not support mapping http method more than once to the same Spring Controller method");
+            log.error("Audit does not support more than one http method on the same Spring Controller method : "
+                    + Arrays.stream(methods).map(Enum::toString).collect(Collectors.joining(", ")) + " on "
+                    + Arrays.stream(requestMapping.path()).collect(Collectors.joining(", ")));
             return null;
         }
         return methods[0].toString();
@@ -104,8 +106,8 @@ public class AuditService {
             return null;
         }
         Audit audit = getAuditAnnotation(controllerMethod);
-        return new Method(controllerMethod.getMethod().toGenericString(), httpMethod, getAuditCategoryName(controllerMethod, audit), getAuditActionName(
-                controllerMethod, audit));
+        return new Method(controllerMethod.getMethod().toGenericString(), httpMethod, getAuditCategoryName(controllerMethod, audit),
+                getAuditActionName(controllerMethod, audit));
     }
 
     public boolean isMethodAudited(AuditConfiguration auditConfiguration, HandlerMethod controllerMethod) {

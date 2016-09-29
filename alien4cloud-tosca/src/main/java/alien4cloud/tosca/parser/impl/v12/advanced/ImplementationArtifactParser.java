@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import alien4cloud.model.components.ImplementationArtifact;
+import org.alien4cloud.tosca.model.definitions.ImplementationArtifact;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;

@@ -2,8 +2,8 @@ package org.alien4cloud.tosca.editor.processors.relationshiptemplate;
 
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidNameException;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import alien4cloud.topology.TopologyService;
 import lombok.extern.slf4j.Slf4j;
 import org.alien4cloud.tosca.editor.EditionContextManager;

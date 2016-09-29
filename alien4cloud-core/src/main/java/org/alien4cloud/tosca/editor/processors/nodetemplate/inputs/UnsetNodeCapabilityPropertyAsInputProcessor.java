@@ -9,11 +9,11 @@ import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcesso
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.PropertyUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +35,7 @@ public class UnsetNodeCapabilityPropertyAsInputProcessor extends AbstractNodePro
             throw new NotFoundException("Property {} of node {} is not associated to an input.", operation.getPropertyName(), operation.getNodeName());
         }
 
-        IndexedCapabilityType capabilityType = ToscaContext.get(IndexedCapabilityType.class, capabilityTemplate.getType());
+        CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, capabilityTemplate.getType());
         PropertyDefinition capabilityPropertyDefinition = getOrFail(capabilityType.getProperties(), operation.getPropertyName(),
                 "Property {} do not exist for capability {} of node {}", operation.getPropertyName(), operation.getCapabilityName(), operation.getNodeName());
 

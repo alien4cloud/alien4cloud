@@ -1,6 +1,7 @@
 package org.alien4cloud.tosca.editor;
 
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.DirectoryJSonWalker;
 import alien4cloud.utils.TreeNode;
@@ -24,9 +25,14 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class EditionContext {
+    /** The archive under edition. Note that we don't allow updates to this object in the editor. */
+    private Csar csar;
+
     // TODO add node types and other elements we can get from a CSAR to enable full archive edition rather than just topology edition.
+
     /** The topology as processed after applying all operations on the saved topology. */
     private Topology topology;
+
     /** The tosca context associated with the topology context. It caches the types loaded from ElasticSearch. */
     private ToscaContext.Context toscaContext;
     /** Path to the topology's local git repository. */
@@ -46,11 +52,13 @@ public class EditionContext {
 
     /**
      * Create a new instance of a topology edition context from an existing topology.
-     * 
+     *
+     * @param csar The archive under edition.
      * @param topology The topology for which to create the context.
      * @param localGitPath The git location associated with the topology.
      */
-    public EditionContext(Topology topology, Path localGitPath) throws IOException {
+    public EditionContext(Csar csar, Topology topology, Path localGitPath) throws IOException {
+        this.csar = csar;
         this.topology = topology;
         this.toscaContext = new ToscaContext.Context(topology.getDependencies());
         this.localGitPath = localGitPath;

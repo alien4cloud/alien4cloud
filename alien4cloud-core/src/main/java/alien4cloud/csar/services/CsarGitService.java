@@ -11,6 +11,11 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.common.AlienConstants;
+import org.alien4cloud.tosca.catalog.ArchiveUploadService;
+import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
 import org.eclipse.jgit.api.Git;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,17 +25,14 @@ import org.springframework.util.FileSystemUtils;
 import com.google.common.collect.Lists;
 
 import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
-import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.GitException;
 import alien4cloud.git.RepositoryManager;
-import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.CSARSource;
-import alien4cloud.model.components.Csar;
 import alien4cloud.model.git.CsarDependenciesBean;
 import alien4cloud.model.git.CsarGitCheckoutLocation;
 import alien4cloud.model.git.CsarGitRepository;
-import alien4cloud.tosca.ArchiveUploadService;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
@@ -147,7 +149,7 @@ public class CsarGitService {
         // TODO code review has to be completed to further cleanup below processing.
         List<ParsingResult<Csar>> parsingResult = Lists.newArrayList();
         try {
-            Map<CSARDependency, CsarDependenciesBean> csarDependenciesBeans = uploadService.preParsing(archivePaths);
+            Map<CSARDependency, CsarDependenciesBean> csarDependenciesBeans = uploadService.preParsing(archivePaths, parsingResult);
             List<CsarDependenciesBean> sorted = sort(csarDependenciesBeans);
             for (CsarDependenciesBean csarBean : sorted) {
                 if (csarGitCheckoutLocation.getLastImportedHash() != null && csarGitCheckoutLocation.getLastImportedHash().equals(gitHash)) {
@@ -157,14 +159,15 @@ public class CsarGitService {
                         continue;
                     }
                 }
-                ParsingResult<Csar> result = uploadService.upload(csarBean.getPath(), CSARSource.GIT);
+                // FIXME Add possibility to choose an workspace
+                ParsingResult<Csar> result = uploadService.upload(csarBean.getPath(), CSARSource.GIT, AlienConstants.GLOBAL_WORKSPACE_ID);
                 parsingResult.add(result);
             }
             return parsingResult;
         } catch (ParsingException e) {
             // TODO Actually add a parsing result with error.
             throw new GitException("Failed to import archive from git as it cannot be parsed", e);
-        } catch (CSARVersionAlreadyExistsException e) {
+        } catch (AlreadyExistException e) {
             return parsingResult;
         } catch (CSARUsedInActiveDeployment e) {
             // TODO Actually add a parsing result with error.

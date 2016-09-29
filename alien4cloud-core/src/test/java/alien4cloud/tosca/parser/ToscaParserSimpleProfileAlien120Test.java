@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,15 +14,15 @@ import org.mockito.Mockito;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.ComplexPropertyValue;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.ListPropertyValue;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
-import alien4cloud.model.topology.NodeTemplate;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.ComplexPropertyValue;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.definitions.ListPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import alien4cloud.tosca.ArchiveParserTest;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.impl.ErrorCode;
@@ -49,26 +50,26 @@ public class ToscaParserSimpleProfileAlien120Test extends AbstractToscaParserSim
     @Test
     public void testBadOccurrence() throws FileNotFoundException, ParsingException {
         Mockito.reset(repositorySearchService);
-        IndexedNodeType mockedResult = Mockito.mock(IndexedNodeType.class);
+        NodeType mockedResult = Mockito.mock(NodeType.class);
         Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
-                        Mockito.any(List.class))).thenReturn(mockedResult);
+                repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
+                        Mockito.any(Set.class))).thenReturn(mockedResult);
         Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.nodes.Root"));
         Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(List.class)))
+                repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Root"), Mockito.any(Set.class)))
                 .thenReturn(mockedResult);
 
         Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(List.class)))
+                repositorySearchService.getElementInDependencies(Mockito.eq(NodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(Set.class)))
                 .thenReturn(mockedResult);
-        IndexedRelationshipType hostedOn = new IndexedRelationshipType();
+        RelationshipType hostedOn = new RelationshipType();
         Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedRelationshipType.class), Mockito.eq("tosca.relationships.HostedOn"),
-                        Mockito.any(List.class))).thenReturn(hostedOn);
-        IndexedCapabilityType mockedCapabilityResult = Mockito.mock(IndexedCapabilityType.class);
+                repositorySearchService.getElementInDependencies(Mockito.eq(RelationshipType.class), Mockito.eq("tosca.relationships.HostedOn"),
+                        Mockito.any(Set.class))).thenReturn(hostedOn);
+        CapabilityType mockedCapabilityResult = Mockito.mock(CapabilityType.class);
         Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedCapabilityType.class), Mockito.eq("tosca.capabilities.Endpoint"),
-                        Mockito.any(List.class))).thenReturn(mockedCapabilityResult);
+                repositorySearchService.getElementInDependencies(Mockito.eq(CapabilityType.class), Mockito.eq("tosca.capabilities.Endpoint"),
+                        Mockito.any(Set.class))).thenReturn(mockedCapabilityResult);
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-node-type-invalid-occurrence.yml"));
 
         Assert.assertEquals(2, countErrorByLevelAndCode(parsingResult, ParsingErrorLevel.ERROR, ErrorCode.SYNTAX_ERROR));
@@ -78,10 +79,10 @@ public class ToscaParserSimpleProfileAlien120Test extends AbstractToscaParserSim
     @Test
     public void testRelationshipType() throws FileNotFoundException, ParsingException {
         Mockito.reset(repositorySearchService);
-        IndexedRelationshipType mockedResult = Mockito.mock(IndexedRelationshipType.class);
+        RelationshipType mockedResult = Mockito.mock(RelationshipType.class);
         Mockito.when(
-                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedRelationshipType.class), Mockito.eq("tosca.relationships.Relationship"),
-                        Mockito.any(List.class))).thenReturn(mockedResult);
+                repositorySearchService.getElementInDependencies(Mockito.eq(RelationshipType.class), Mockito.eq("tosca.relationships.Relationship"),
+                        Mockito.any(Set.class))).thenReturn(mockedResult);
         Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.capabilities.Root"));
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(getRootDirectory(), "tosca-relationship-type.yml"));
@@ -90,9 +91,9 @@ public class ToscaParserSimpleProfileAlien120Test extends AbstractToscaParserSim
         Assert.assertNotNull(archiveRoot.getArchive());
         Assert.assertEquals(getToscaVersion(), archiveRoot.getArchive().getToscaDefinitionsVersion());
         Assert.assertEquals(1, archiveRoot.getRelationshipTypes().size());
-        Entry<String, IndexedRelationshipType> entry = archiveRoot.getRelationshipTypes().entrySet().iterator().next();
+        Entry<String, RelationshipType> entry = archiveRoot.getRelationshipTypes().entrySet().iterator().next();
         Assert.assertEquals("mycompany.mytypes.myapplication.MyRelationship", entry.getKey());
-        IndexedRelationshipType relationship = entry.getValue();
+        RelationshipType relationship = entry.getValue();
         Assert.assertEquals(Lists.newArrayList("tosca.relationships.Relationship", "tosca.capabilities.Root"), relationship.getDerivedFrom());
         Assert.assertEquals("a custom relationship", relationship.getDescription());
 
@@ -179,7 +180,7 @@ public class ToscaParserSimpleProfileAlien120Test extends AbstractToscaParserSim
         Assert.assertEquals(1, parsingResult.getResult().getDataTypes().size());
         Assert.assertEquals(1, parsingResult.getResult().getNodeTypes().size());
         Assert.assertEquals(0, parsingResult.getContext().getParsingErrors().size());
-        IndexedNodeType commandType = parsingResult.getResult().getNodeTypes().get("alien.test.Command");
+        NodeType commandType = parsingResult.getResult().getNodeTypes().get("alien.test.Command");
         Assert.assertNotNull(commandType);
         PropertyDefinition pd = commandType.getProperties().get("customer");
         Assert.assertNotNull(pd);
@@ -218,7 +219,7 @@ public class ToscaParserSimpleProfileAlien120Test extends AbstractToscaParserSim
         Assert.assertEquals(2, parsingResult.getResult().getDataTypes().size());
         Assert.assertEquals(1, parsingResult.getResult().getNodeTypes().size());
         Assert.assertEquals(0, parsingResult.getContext().getParsingErrors().size());
-        IndexedNodeType commandType = parsingResult.getResult().getNodeTypes().get("alien.test.Command");
+        NodeType commandType = parsingResult.getResult().getNodeTypes().get("alien.test.Command");
         Assert.assertNotNull(commandType);
         PropertyDefinition pd = commandType.getProperties().get("customer");
         Assert.assertNotNull(pd);

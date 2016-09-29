@@ -1,4 +1,4 @@
-Feature: Create an application an testing application group roles on it
+Feature: Testing group roles on application
 
   Background:
     Given I am authenticated with "ADMIN" role

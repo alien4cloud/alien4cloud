@@ -1,24 +1,13 @@
 package org.alien4cloud.tosca.editor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import javax.inject.Inject;
 
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.model.RestResponseBuilder;
+import org.alien4cloud.tosca.model.types.NodeType;
 import alien4cloud.topology.TopologyServiceCore;
 import org.springframework.stereotype.Service;
 
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.topology.TopologyService;
-import org.springframework.web.bind.annotation.PathVariable;
 
 /**
  * Helper service for editor context that allows to get possible replacement indexedNodeTypes for a node template.
@@ -37,7 +26,7 @@ public class EditorNodeReplacementService {
      * @param nodeTemplateName The name of the node template for which to get possible nodes replacement.
      * @return An array of possible replacement for a node template.
      */
-    public IndexedNodeType[] getReplacementForNode(String topologyId, String nodeTemplateName) {
+    public NodeType[] getReplacementForNode(String topologyId, String nodeTemplateName) {
         try {
             editionContextManager.init(topologyId);
             // check authorization to update a topology

@@ -8,10 +8,10 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.components.PropertyConstraint;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.constraints.GreaterOrEqualConstraint;
-import alien4cloud.model.components.constraints.PatternConstraint;
+import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.constraints.GreaterOrEqualConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.PatternConstraint;
 import alien4cloud.model.orchestrators.ArtifactSupport;
 import alien4cloud.model.orchestrators.locations.LocationSupport;
 import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;

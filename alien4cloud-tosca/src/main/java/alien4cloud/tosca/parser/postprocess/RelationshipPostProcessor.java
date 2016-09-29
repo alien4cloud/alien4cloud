@@ -13,16 +13,16 @@ import org.yaml.snakeyaml.nodes.Node;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.DeploymentArtifact;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.Interface;
-import alien4cloud.model.components.Operation;
-import alien4cloud.model.components.RequirementDefinition;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.definitions.Interface;
+import org.alien4cloud.tosca.model.definitions.Operation;
+import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContextExecution;
@@ -39,7 +39,7 @@ public class RelationshipPostProcessor {
     @Resource
     private ArtifactPostProcessor artifactPostProcessor;
 
-    public void process(IndexedNodeType nodeTemplateType, Map.Entry<String, RelationshipTemplate> instance) {
+    public void process(NodeType nodeTemplateType, Map.Entry<String, RelationshipTemplate> instance) {
         RelationshipTemplate relationshipTemplate = instance.getValue();
         if (relationshipTemplate.getTarget() == null) {
             Node node = ParsingContextExecution.getObjectToNodeMap().get(instance);
@@ -47,7 +47,7 @@ public class RelationshipPostProcessor {
             ParsingContextExecution.getParsingErrors()
                     .add(new ParsingError(ErrorCode.REQUIREMENT_TARGET_NODE_TEMPLATE_NAME_REQUIRED, null, node.getStartMark(), null, node.getEndMark(), null));
         }
-        IndexedRelationshipType relationshipType = ToscaContext.get(IndexedRelationshipType.class, relationshipTemplate.getType());
+        RelationshipType relationshipType = ToscaContext.get(RelationshipType.class, relationshipTemplate.getType());
         propertyValueChecker.checkProperties(relationshipType, relationshipTemplate.getProperties(), instance.getKey());
 
         RequirementDefinition rd = getRequirementDefinitionByName(nodeTemplateType, relationshipTemplate.getRequirementName());
@@ -61,7 +61,7 @@ public class RelationshipPostProcessor {
             // if the relationship type has not been defined on the requirement assignment it may be defined on the requirement definition.
             relationshipTemplate.setType(rd.getRelationshipType());
         }
-        referencePostProcessor.process(new ReferencePostProcessor.TypeReference(relationshipTemplate.getType(), IndexedRelationshipType.class));
+        referencePostProcessor.process(new ReferencePostProcessor.TypeReference(relationshipTemplate.getType(), RelationshipType.class));
         relationshipTemplate.setRequirementType(rd.getType());
 
         ArchiveRoot archiveRoot = (ArchiveRoot) ParsingContextExecution.getRoot().getWrappedInstance();
@@ -101,7 +101,7 @@ public class RelationshipPostProcessor {
             return;
         }
 
-        IndexedRelationshipType indexedRelationshipType = ToscaContext.get(IndexedRelationshipType.class, relationshipTemplate.getType());
+        RelationshipType indexedRelationshipType = ToscaContext.get(RelationshipType.class, relationshipTemplate.getType());
         if (indexedRelationshipType == null) {
             // Error managed by the reference post processor.
             return;
@@ -139,7 +139,7 @@ public class RelationshipPostProcessor {
         return null;
     }
 
-    private RequirementDefinition getRequirementDefinitionByName(IndexedNodeType indexedNodeType, String name) {
+    private RequirementDefinition getRequirementDefinitionByName(NodeType indexedNodeType, String name) {
         if (indexedNodeType.getRequirements() != null) {
             for (RequirementDefinition rd : indexedNodeType.getRequirements()) {
                 if (rd.getId().equals(name)) {

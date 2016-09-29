@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import alien4cloud.model.common.Usage;
-import alien4cloud.model.components.Csar;
+import org.alien4cloud.tosca.model.Csar;
 
 @Getter
 @Setter

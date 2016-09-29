@@ -1,10 +1,9 @@
 package org.alien4cloud.tosca.editor.processors.nodetemplate.outputs;
 
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.IValue;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.definitions.IValue;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.utils.AlienUtils;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;

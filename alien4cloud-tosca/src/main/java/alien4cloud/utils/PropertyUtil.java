@@ -7,9 +7,9 @@ import org.apache.commons.collections4.MapUtils;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 
 public final class PropertyUtil {
     private PropertyUtil() {
@@ -21,7 +21,7 @@ public final class PropertyUtil {
      * Note: This method will have to be removed once the ui manages properties correctly.
      *
      * @param propertyDefinitions The map of {@link PropertyDefinition}s to convert.
-     * @return An equivalent map of default {@link alien4cloud.model.components.ScalarPropertyValue}s, that contains all properties definitions keys (default
+     * @return An equivalent map of default {@link ScalarPropertyValue}s, that contains all properties definitions keys (default
      *         value
      *         is null when no default value is specified in the property definition).
      */

@@ -6,7 +6,7 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import alien4cloud.model.components.Csar;
+import org.alien4cloud.tosca.model.Csar;
 import alien4cloud.tosca.parser.ParsingError;
 
 import com.google.common.collect.Maps;

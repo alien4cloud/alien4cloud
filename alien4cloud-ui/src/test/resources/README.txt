@@ -14,7 +14,7 @@ curl -X POST "http://localhost:9200/paasdeploymentlog/paasdeploymentlog/_search?
 }
 '
 
-curl -X POST "http://localhost:9200/toscaelement/indexeddatatype/_search?pretty=true" -d '
+curl -X POST "http://localhost:9200/toscaelement/_search?pretty=true" -d '
 {
     "query" : {
         "match_all" : {}
@@ -119,7 +119,7 @@ curl -X POST "http://localhost:9200/csar/_search?pretty=true" -d '
 }
 '
 
-curl -X POST "http://localhost:9200/toscaelement/indexednodetype/_search?pretty=true" -d '
+curl -X POST "http://localhost:9200/toscaelement/nodetype/_search?pretty=true" -d '
 {
     "query" : {
         "bool": {
@@ -206,7 +206,7 @@ curl -X POST "http://localhost:9200/toscaelement/_search?pretty=true" -d '{"from
 curl -X POST "http://localhost:9200/toscaelement/indexedartifacttype/_search?pretty=true" -d '{"from" : 0, "size" : 1000,"query" : {"match_all" : {}}}'
 curl -X POST "http://localhost:9200/toscaelement/indexedcapabilitytype/_search?pretty=true" -d '{"from" : 0, "size" : 1000,"query" : {"match_all" : {}}}'
 curl -X POST "http://localhost:9200/toscaelement/indexeddatatype/_search?pretty=true" -d '{"from" : 0, "size" : 1000,"query" : {"match_all" : {}}}'
-curl -X POST "http://localhost:9200/toscaelement/indexednodetype/_search?pretty=true" -d '{"from" : 0, "size" : 1000,"query" : {"match_all" : {}}}'
+curl -X POST "http://localhost:9200/toscaelement/nodetype/_search?pretty=true" -d '{"from" : 0, "size" : 1000,"query" : {"match_all" : {}}}'
 curl -X POST "http://localhost:9200/toscaelement/indexedrelationshiptype/_search?pretty=true" -d '{"from" : 0, "size" : 1000,"query" : {"match_all" : {}}}'
 
 ## Deployments

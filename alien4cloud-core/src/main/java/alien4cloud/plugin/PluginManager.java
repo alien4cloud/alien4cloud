@@ -374,7 +374,7 @@ public class PluginManager {
         pluginContext.setClassLoader(pluginClassLoader);
 
         // Register beans from dependencies
-        // FIXME and if the plugin doesn't have any config class? for ex a typical ui plugin?
+        // TODO should we allow some pure ui plugins ? and if the plugin doesn't have any config class? for ex a typical ui plugin ?
         registerDependencies(plugin, pluginContext);
         if (plugin.getDescriptor().getConfigurationClass() != null) {
             pluginContext.register(pluginClassLoader.loadClass(plugin.getDescriptor().getConfigurationClass()));

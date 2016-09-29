@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.tosca.model.definitions.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -15,10 +16,9 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.deployment.DeploymentService;
 import alien4cloud.deployment.DeploymentTopologyService;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.*;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentTopology;
-import alien4cloud.model.topology.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.PaaSInstancePersistentResourceMonitorEvent;
 import alien4cloud.topology.TopologyServiceCore;

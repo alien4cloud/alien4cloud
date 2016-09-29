@@ -42,9 +42,9 @@ define(function (require) {
   ];
 
   modules.get('a4c-applications').controller('ApplicationEnvironmentsCtrl',
-    ['$scope', '$state', '$translate', 'toaster', 'authService', '$modal', 'applicationEnvironmentServices', 'applicationVersionServices', 'searchServiceFactory', 'appEnvironments', 'appVersions',
-    function($scope, $state, $translate, toaster, authService, $modal, applicationEnvironmentServices, applicationVersionServices, searchServiceFactory, appEnvironments, appVersions) {
-      $scope.appVersions = appVersions.data;
+    ['$scope', '$state', '$translate', 'toaster', 'authService', '$modal', 'applicationEnvironmentServices', 'applicationVersionServices', 'appEnvironments', 'archiveVersions',
+    function($scope, $state, $translate, toaster, authService, $modal, applicationEnvironmentServices, applicationVersionServices, appEnvironments, archiveVersions) {
+      $scope.archiveVersions = archiveVersions.data;
       $scope.isManager = authService.hasRole('APPLICATIONS_MANAGER');
       $scope.envTypeList = applicationEnvironmentServices.environmentTypeList({}, {}, function() {});
 

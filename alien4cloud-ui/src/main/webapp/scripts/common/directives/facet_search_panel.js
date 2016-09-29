@@ -13,14 +13,18 @@ define(function (require) {
       controller: 'FacetSearchPanelController',
       scope: {
         searchUrl: '@',
-        componentPrefix: '@',
+        isPaginatedApi: '@',
+        pageSize: '@',
+        maxPageCount: '@',
+        filterPrefix: '@',
+        defaultFilters: '=',
+        staticFacets: '=',
         onSearch: '&'
       }
     };
   });
 
   modules.get('a4c-common', []).controller('FacetSearchPanelController', ['$scope', 'searchServiceFactory', function ($scope, searchServiceFactory) {
-
     $scope.facetFilters = [];
 
     /*update a search*/
@@ -49,6 +53,11 @@ define(function (require) {
     var onSearchCompleted = function (searchResult) {
       if (_.undefined(searchResult.error)) {
         $scope.facets = searchResult.data.facets;
+        if(_.defined($scope.staticFacets)) {
+          _.each($scope.staticFacets, function(facet, facetKey){
+            searchResult.data.facets[facetKey] = facet;
+          });
+        }
         $scope.onSearch({
           searchConfig: {
             result: searchResult.data,
@@ -56,7 +65,7 @@ define(function (require) {
           }
         });
       } else {
-        console.log('error when searching...', searchResult.error);
+        console.error('error when searching...', searchResult.error);
       }
     };
 
@@ -65,9 +74,7 @@ define(function (require) {
       onSearchCompleted: onSearchCompleted
     };
 
-    $scope.searchService = searchServiceFactory($scope.searchUrl, false, $scope.queryProvider, 10, 10);
+    $scope.searchService = searchServiceFactory($scope.searchUrl, false, $scope.queryProvider, $scope.pageSize, $scope.maxPageCount, $scope.isPaginatedApi);
     $scope.searchService.filtered(true);
-    $scope.doSearch();
-
   }]);
 });

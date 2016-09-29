@@ -16,7 +16,7 @@ import alien4cloud.utils.AlienYamlPropertiesFactoryBeanFactory;
  * The configuration to launch the full A4C context.
  */
 @Configuration
-@ComponentScan(basePackages = { "alien4cloud", "org.alien4cloud.tosca" }, excludeFilters = {
+@ComponentScan(basePackages = { "alien4cloud", "org.alien4cloud.tosca", "org.alien4cloud.workspace" }, excludeFilters = {
         @Filter(type = FilterType.REGEX, pattern = "alien4cloud\\.webconfiguration\\..*"),
         @Filter(type = FilterType.REGEX, pattern = "alien4cloud\\.security\\..*"), @Filter(type = FilterType.REGEX, pattern = "alien4cloud\\.audit\\..*"),
         @Filter(type = FilterType.REGEX, pattern = "org\\.elasticsearch\\.mapping\\..*"), @Filter(type = FilterType.REGEX, pattern = "alien4cloud\\.dao\\..*"),

@@ -8,17 +8,18 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.model.templates.*;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.elasticsearch.common.collect.Maps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.dao.MonitorESDAO;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.deployment.Deployment;
-import alien4cloud.model.topology.*;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.paas.model.*;
@@ -47,8 +48,8 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
 
     private final List<AbstractMonitorEvent> toBeDeliveredEvents = Collections.synchronizedList(new ArrayList<AbstractMonitorEvent>());
 
-    @Resource
-    private CSARRepositorySearchService csarRepoSearchService;
+    @Inject
+    private IToscaTypeSearchService csarRepoSearchService;
 
     @Resource(name = "alien-monitor-es-dao")
     private MonitorESDAO alienMonitorDao;
@@ -107,7 +108,7 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
         if (scalableCapability == null) {
             if (nodeTemplates.get(id).getRelationships() != null) {
                 for (RelationshipTemplate rel : nodeTemplates.get(id).getRelationships().values()) {
-                    IndexedRelationshipType relType = getRelationshipType(rel.getType());
+                    RelationshipType relType = getRelationshipType(rel.getType());
                     if (ToscaUtils.isFromType(NormativeRelationshipConstants.HOSTED_ON, relType)) {
                         return getScalingPolicy(rel.getTarget(), nodeTemplates);
                     }
@@ -364,10 +365,8 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
         void visit(String nodeTemplateId);
     }
 
-    private IndexedRelationshipType getRelationshipType(String typeName) {
-        Map<String, String[]> filters = Maps.newHashMap();
-        filters.put("elementId", new String[] { typeName });
-        return (IndexedRelationshipType) csarRepoSearchService.search(IndexedRelationshipType.class, null, 0, 1, filters, false).getData()[0];
+    private RelationshipType getRelationshipType(String typeName) {
+        return csarRepoSearchService.findMostRecent(RelationshipType.class, typeName);
     }
 
     private void doScaledUpNode(ScalingVisitor scalingVisitor, String nodeTemplateId, Map<String, NodeTemplate> nodeTemplates) {
@@ -375,7 +374,7 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
         for (Entry<String, NodeTemplate> nEntry : nodeTemplates.entrySet()) {
             if (nEntry.getValue().getRelationships() != null) {
                 for (Entry<String, RelationshipTemplate> rt : nEntry.getValue().getRelationships().entrySet()) {
-                    IndexedRelationshipType relType = getRelationshipType(rt.getValue().getType());
+                    RelationshipType relType = getRelationshipType(rt.getValue().getType());
                     if (nodeTemplateId.equals(rt.getValue().getTarget()) && ToscaUtils.isFromType(NormativeRelationshipConstants.HOSTED_ON, relType)) {
                         doScaledUpNode(scalingVisitor, nEntry.getKey(), nodeTemplates);
                     }
@@ -512,8 +511,7 @@ public abstract class MockPaaSProvider extends AbstractPaaSProvider {
             Map<String, InstanceInformation> nodeInstances = nodeEntry.getValue();
             if (nodeInstances != null && !nodeInstances.isEmpty()) {
                 NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateId);
-                IndexedNodeType nodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
-                        topology.getDependencies());
+                NodeType nodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), topology.getDependencies());
                 if (ToscaUtils.isFromType(NormativeComputeConstants.COMPUTE_TYPE, nodeType)) {
                     for (Entry<String, InstanceInformation> nodeInstanceEntry : nodeInstances.entrySet()) {
                         String instanceId = nodeInstanceEntry.getKey();

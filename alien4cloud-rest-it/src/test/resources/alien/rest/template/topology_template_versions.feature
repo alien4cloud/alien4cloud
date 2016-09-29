@@ -16,15 +16,18 @@ Feature: Create topology template versions
   Scenario: Create an first topology template with default version number
     When I create a new topology template with name "topology_template_name1" and description "My topology template description1"
     Then I should receive a RestResponse with no error
-    And If I search for topology templates I can find one with the name "topology_template_name1" version "0.1.0-SNAPSHOT" and store the related topology as a SPEL context
+    And I should be able to retrieve a topology with name "topology_template_name1" version "0.1.0-SNAPSHOT" and store it as a SPEL context
 
   @reset
-  Scenario: Create an new topology template version
+  Scenario: Create two versions of a topology template
     Given I create a new topology template with name "topology_template" and description "My topology template description1" and node templates
       | NodeTemplateCompute | tosca.nodes.Compute:1.0 |
     Then I should receive a RestResponse with no error
-    When I create a new topology template version named "0.2.0-SNAPSHOT"
-    Then If I search for topology templates I can find one with the name "topology_template" version "0.2.0-SNAPSHOT" and store the related topology as a SPEL context
+    And I should be able to retrieve a topology with name "topology_template" version "0.1.0-SNAPSHOT" and store it as a SPEL context
+    And The SPEL int expression "nodeTemplates.size()" should return 1
+    When I create a new topology template with name "topology_template" description "My topology template description1" and version "0.2.0-SNAPSHOT"
+    Then I should receive a RestResponse with no error
+    And I should be able to retrieve a topology with name "topology_template" version "0.2.0-SNAPSHOT" and store it as a SPEL context
     And The SPEL boolean expression "nodeTemplates == null" should return true
 
   @reset
@@ -32,18 +35,18 @@ Feature: Create topology template versions
     Given I create a new topology template with name "topology_template" and description "My topology template description1" and node templates
       | NodeTemplateCompute | tosca.nodes.Compute:1.0 |
     Then I should receive a RestResponse with no error
-    When I create a new topology template version named "0.2.0-SNAPSHOT" based on the current version
-    Then the topology template named "topology_template" should have 2 versions
-    And If I search for topology templates I can find one with the name "topology_template" version "0.2.0-SNAPSHOT" and store the related topology as a SPEL context
+    When I create a new topology with name "topology_template" version "0.2.0-SNAPSHOT" based on the version "0.1.0-SNAPSHOT"
+    Then the topology named "topology_template" should have 2 versions
+    And I should be able to retrieve a topology with name "topology_template" version "0.2.0-SNAPSHOT" and store it as a SPEL context
     And The SPEL int expression "nodeTemplates.size()" should return 1
     When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | NodeTemplateJava                                                      |
       | indexedNodeTypeId | fastconnect.nodes.Java:1.0                                            |
     And I save the topology
-    Then If I search for topology templates I can find one with the name "topology_template" version "0.2.0-SNAPSHOT" and store the related topology as a SPEL context
+    Then I should be able to retrieve a topology with name "topology_template" version "0.2.0-SNAPSHOT" and store it as a SPEL context
     And The SPEL int expression "nodeTemplates.size()" should return 2
-    And If I search for topology templates I can find one with the name "topology_template" version "0.1.0-SNAPSHOT" and store the related topology as a SPEL context
+    And I should be able to retrieve a topology with name "topology_template" version "0.1.0-SNAPSHOT" and store it as a SPEL context
     And The SPEL int expression "nodeTemplates.size()" should return 1
 
   @reset
@@ -51,23 +54,19 @@ Feature: Create topology template versions
     Given I create a new topology template with name "topology_template" and description "My topology template description1" and node templates
       | NodeTemplateCompute | tosca.nodes.Compute:1.0 |
     Then I should receive a RestResponse with no error
-    And I create a new topology template version named "0.2.0-SNAPSHOT" based on the current version
-    When I delete the topology template named "topology_template" version "0.1.0-SNAPSHOT"
+    And I create a new topology with name "topology_template" version "0.2.0-SNAPSHOT" based on the version "0.1.0-SNAPSHOT"
+    When I delete a CSAR with id "topology_template:0.1.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
-    And the topology template named "topology_template" should have 1 versions
-    And If I search for topology templates I can find one with the name "topology_template" version "0.2.0-SNAPSHOT" and store the related topology as a SPEL context
-    When I delete the topology template named "topology_template" version "0.2.0-SNAPSHOT"
-    Then I should receive a RestResponse with an error code 610
-    And the topology template named "topology_template" should have 1 versions
-    When I delete the topology template named "topology_template"
-    Then I should receive a RestResponse with no error
+    And the topology named "topology_template" should have 1 versions
+    And I should be able to retrieve a topology with name "topology_template" version "0.2.0-SNAPSHOT" and store it as a SPEL context
+    And The SPEL int expression "nodeTemplates.size()" should return 1
 
   @reset
   Scenario: Can not update a versionned template
     Given I create a new topology template with name "topology_template" and description "My topology template description1" and node templates
       | NodeTemplateCompute | tosca.nodes.Compute:1.0 |
     Then I should receive a RestResponse with no error
-    And I create a new topology template version named "0.1.0" based on the current version
+    And I create a new topology with name "topology_template" version "0.1.0" based on the version "0.1.0-SNAPSHOT"
     When I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |
       | nodeName          | NodeTemplateJava                                                      |

@@ -6,8 +6,8 @@ define(function (require) {
   var modules = require('modules');
 
 
-  modules.get('a4c-topology-editor').factory('topoEditNodesSwap', [ 'topologyServices', '$alresource',
-    function(topologyServices, $alresource) {
+  modules.get('a4c-topology-editor').factory('topoEditNodesSwap', [ '$alresource',
+    function($alresource) {
       var TopologyEditorMixin = function(scope) {
         this.scope = scope;
       };

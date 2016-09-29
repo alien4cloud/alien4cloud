@@ -2,14 +2,22 @@ package org.alien4cloud.tosca.editor;
 
 import java.util.Map;
 
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
+import org.alien4cloud.tosca.model.templates.AbstractTemplate;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.DataType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.PrimitiveDataType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.model.components.*;
-import alien4cloud.model.topology.AbstractTemplate;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
 import alien4cloud.topology.AbstractTopologyDTO;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.tosca.context.ToscaContext;
@@ -33,6 +41,7 @@ public class TopologyDTOBuilder {
         topologyDTO.setArchiveContentTree(context.getArchiveContentTree());
         topologyDTO.setLastOperationIndex(context.getLastOperationIndex());
         topologyDTO.setOperations(context.getOperations());
+        topologyDTO.setDelegateType(context.getCsar().getDelegateType());
         // FIXME add validation information
         return topologyDTO;
     }
@@ -45,49 +54,49 @@ public class TopologyDTOBuilder {
         topologyDTO.setDataTypes(getDataTypes(topologyDTO));
     }
 
-    private <T extends Topology> Map<String, IndexedNodeType> getNodeTypes(T topology) {
-        Map<String, IndexedNodeType> types = Maps.newHashMap();
-        fillTypeMap(IndexedNodeType.class, types, topology.getNodeTemplates(), false, false);
+    private <T extends Topology> Map<String, NodeType> getNodeTypes(T topology) {
+        Map<String, NodeType> types = Maps.newHashMap();
+        fillTypeMap(NodeType.class, types, topology.getNodeTemplates(), false, false);
         return types;
     }
 
-    private <T extends Topology> Map<String, IndexedRelationshipType> getRelationshipTypes(T topology) {
-        Map<String, IndexedRelationshipType> types = Maps.newHashMap();
+    private <T extends Topology> Map<String, RelationshipType> getRelationshipTypes(T topology) {
+        Map<String, RelationshipType> types = Maps.newHashMap();
         if (topology.getNodeTemplates() != null) {
             for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
-                fillTypeMap(IndexedRelationshipType.class, types, nodeTemplate.getRelationships(), false, false);
+                fillTypeMap(RelationshipType.class, types, nodeTemplate.getRelationships(), false, false);
             }
         }
         return types;
     }
 
-    private <T extends Topology> Map<String, IndexedCapabilityType> getCapabilityTypes(AbstractTopologyDTO<T> topologyDTO) {
-        Map<String, IndexedCapabilityType> types = Maps.newHashMap();
-        Map<String, IndexedNodeType> delayedNodeTypeAddMap = Maps.newHashMap();
-        for (IndexedNodeType nodeType : topologyDTO.getNodeTypes().values()) {
+    private <T extends Topology> Map<String, CapabilityType> getCapabilityTypes(AbstractTopologyDTO<T> topologyDTO) {
+        Map<String, CapabilityType> types = Maps.newHashMap();
+        Map<String, NodeType> delayedNodeTypeAddMap = Maps.newHashMap();
+        for (NodeType nodeType : topologyDTO.getNodeTypes().values()) {
             for (CapabilityDefinition capabilityDefinition : nodeType.getCapabilities()) {
-                types.put(capabilityDefinition.getType(), ToscaContext.get(IndexedCapabilityType.class, capabilityDefinition.getType()));
+                types.put(capabilityDefinition.getType(), ToscaContext.get(CapabilityType.class, capabilityDefinition.getType()));
             }
             for (RequirementDefinition requirementDefinition : nodeType.getRequirements()) {
-                IndexedCapabilityType capabilityType = ToscaContext.get(IndexedCapabilityType.class, requirementDefinition.getType());
+                CapabilityType capabilityType = ToscaContext.get(CapabilityType.class, requirementDefinition.getType());
                 if (capabilityType != null) {
                     types.put(requirementDefinition.getType(), capabilityType);
                 } else {
                     // requirements are authorized to be a node type rather than a capability type TODO is it still possible in TOSCA ?
-                    IndexedNodeType indexedNodeType = ToscaContext.get(IndexedNodeType.class, requirementDefinition.getType());
+                    NodeType indexedNodeType = ToscaContext.get(NodeType.class, requirementDefinition.getType());
                     // add it to the actual node types map
                     delayedNodeTypeAddMap.put(requirementDefinition.getType(), indexedNodeType);
                 }
             }
         }
-        for (Map.Entry<String, IndexedNodeType> delayedNodeType : delayedNodeTypeAddMap.entrySet()) {
+        for (Map.Entry<String, NodeType> delayedNodeType : delayedNodeTypeAddMap.entrySet()) {
             topologyDTO.getNodeTypes().put(delayedNodeType.getKey(), delayedNodeType.getValue());
         }
         return types;
     }
 
-    private <T extends IndexedInheritableToscaElement, V extends AbstractTemplate> void fillTypeMap(Class<T> elementClass, Map<String, T> types,
-            Map<String, V> templateMap, boolean useTemplateNameAsKey, boolean abstractOnly) {
+    private <T extends AbstractInheritableToscaType, V extends AbstractTemplate> void fillTypeMap(Class<T> elementClass, Map<String, T> types,
+                                                                                                  Map<String, V> templateMap, boolean useTemplateNameAsKey, boolean abstractOnly) {
         if (templateMap == null) {
             return;
         }
@@ -102,26 +111,26 @@ public class TopologyDTOBuilder {
         }
     }
 
-    private Map<String, IndexedDataType> getDataTypes(AbstractTopologyDTO topologyDTO) {
-        Map<String, IndexedDataType> indexedDataTypes = Maps.newHashMap();
+    private Map<String, DataType> getDataTypes(AbstractTopologyDTO topologyDTO) {
+        Map<String, DataType> indexedDataTypes = Maps.newHashMap();
         indexedDataTypes = fillDataTypes(indexedDataTypes, topologyDTO.getNodeTypes());
         indexedDataTypes = fillDataTypes(indexedDataTypes, topologyDTO.getRelationshipTypes());
         indexedDataTypes = fillDataTypes(indexedDataTypes, topologyDTO.getCapabilityTypes());
         return indexedDataTypes;
     }
 
-    private <T extends IndexedInheritableToscaElement> Map<String, IndexedDataType> fillDataTypes(Map<String, IndexedDataType> indexedDataTypes,
-            Map<String, T> elements) {
-        for (IndexedInheritableToscaElement indexedNodeType : elements.values()) {
+    private <T extends AbstractInheritableToscaType> Map<String, DataType> fillDataTypes(Map<String, DataType> indexedDataTypes,
+                                                                                         Map<String, T> elements) {
+        for (AbstractInheritableToscaType indexedNodeType : elements.values()) {
             if (indexedNodeType.getProperties() != null) {
                 for (PropertyDefinition pd : indexedNodeType.getProperties().values()) {
                     String type = pd.getType();
                     if (ToscaType.isPrimitive(type) || indexedDataTypes.containsKey(type)) {
                         continue;
                     }
-                    IndexedDataType dataType = ToscaContext.get(IndexedDataType.class, type);
+                    DataType dataType = ToscaContext.get(DataType.class, type);
                     if (dataType == null) {
-                        dataType = ToscaContext.get(PrimitiveIndexedDataType.class, type);
+                        dataType = ToscaContext.get(PrimitiveDataType.class, type);
                     }
                     indexedDataTypes.put(type, dataType);
                 }

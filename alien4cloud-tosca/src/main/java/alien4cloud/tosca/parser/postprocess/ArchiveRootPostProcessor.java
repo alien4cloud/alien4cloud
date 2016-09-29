@@ -6,15 +6,15 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.definitions.RepositoryDefinition;
+import org.alien4cloud.tosca.model.types.DataType;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.IndexedDataType;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.PropertyValue;
-import alien4cloud.model.components.RepositoryDefinition;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.normative.NormativeCredentialConstant;
@@ -48,13 +48,13 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
         // them to avoid registration issue.
         String archiveName = archiveRoot.getArchive().getName();
         String archiveVersion = archiveRoot.getArchive().getVersion();
+        archiveRoot.getArchive().setYamlFilePath(ParsingContextExecution.getFileName());
         if (archiveName == null) {
             archiveRoot.getArchive().setName(ParsingContextExecution.getFileName());
         }
         if (archiveVersion == null) {
             archiveRoot.getArchive().setVersion("undefined");
         }
-
         // All type validation may require local archive types, so we need to register the current archive.
         ToscaContext.get().register(archiveRoot);
 
@@ -78,7 +78,7 @@ public class ArchiveRootPostProcessor implements IPostProcessor<ArchiveRoot> {
 
     private void processRepositoriesDefinitions(Map<String, RepositoryDefinition> repositories) {
         if (MapUtils.isNotEmpty(repositories)) {
-            IndexedDataType credentialType = ToscaContext.get(IndexedDataType.class, NormativeCredentialConstant.DATA_TYPE);
+            DataType credentialType = ToscaContext.get(DataType.class, NormativeCredentialConstant.DATA_TYPE);
             repositories.values().forEach(repositoryDefinition -> {
                 if (repositoryDefinition.getCredential() != null) {
                     credentialType.getProperties().forEach((propertyName, propertyDefinition) -> {

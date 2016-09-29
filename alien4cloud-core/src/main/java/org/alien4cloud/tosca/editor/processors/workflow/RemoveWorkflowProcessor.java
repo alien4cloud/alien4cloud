@@ -1,15 +1,11 @@
 package org.alien4cloud.tosca.editor.processors.workflow;
 
-import javax.inject.Inject;
-
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.workflow.RemoveWorkflowOperation;
-import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.paas.wf.Workflow;
-import alien4cloud.paas.wf.WorkflowsBuilderService;
 import lombok.extern.slf4j.Slf4j;
 
 /**

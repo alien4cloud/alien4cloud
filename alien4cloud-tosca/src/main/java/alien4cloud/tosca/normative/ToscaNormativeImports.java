@@ -1,6 +1,6 @@
 package alien4cloud.tosca.normative;
 
-import alien4cloud.model.components.CSARDependency;
+import org.alien4cloud.tosca.model.CSARDependency;
 import com.google.common.collect.Maps;
 
 import java.util.Map;

@@ -9,10 +9,11 @@ import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Component;
 
+import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.DeploymentArtifact;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.topology.TopologyServiceCore;
 
 /**
@@ -35,16 +36,11 @@ public class UpdateNodeDeploymentArtifactProcessor implements IEditorOperationPr
         if (operation.getArtifactRepository() == null) {
             // this is an archive file, ensure that the file exists within the archive
             FileProcessorHelper.getFileTreeNode(operation.getArtifactReference());
+            artifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_TOPOLOGY_REPOSITORY);
         } else {
             // FIXME ensure that the repository is defined in the topology or globally in a4c
             throw new NotImplementedException("Alien 4 Cloud doesn't support repositories in topology editor.");
         }
-
         artifact.setArtifactRef(operation.getArtifactReference());
-        artifact.setArtifactRepository(operation.getArtifactRepository());
-        // Mark this artifact as it does not belong to any archive as it's using a file uploaded inside the topology
-        // FIXME Not very understandable as logic
-        artifact.setArchiveName(null);
-        artifact.setArchiveVersion(null);
     }
 }

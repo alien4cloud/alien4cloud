@@ -16,7 +16,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import alien4cloud.model.topology.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.orchestrators.plugin.ILocationResourceAccessor;
 

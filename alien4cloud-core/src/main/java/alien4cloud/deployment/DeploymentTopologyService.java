@@ -7,6 +7,12 @@ import java.util.Map.Entry;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
+import org.alien4cloud.tosca.model.templates.*;
+import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.context.annotation.Lazy;
@@ -27,15 +33,9 @@ import alien4cloud.deployment.model.DeploymentSubstitutionConfiguration;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
-import alien4cloud.model.components.constraints.EqualConstraint;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.model.orchestrators.locations.LocationResourceTemplate;
-import alien4cloud.model.topology.*;
 import alien4cloud.orchestrators.locations.services.ILocationResourceService;
 import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.security.AuthorizationUtil;
@@ -111,7 +111,7 @@ public class DeploymentTopologyService {
     public DeploymentTopology getDeploymentTopology(String environmentId) {
         ApplicationEnvironment environment = appEnvironmentServices.getOrFail(environmentId);
         ApplicationVersion version = applicationVersionService.getOrFail(environment.getCurrentVersionId());
-        return getOrCreateDeploymentTopology(environment, version.getTopologyId());
+        return getOrCreateDeploymentTopology(environment, version.getId());
     }
 
     /**
@@ -228,7 +228,6 @@ public class DeploymentTopologyService {
         topologyCompositionService.processTopologyComposition(deploymentTopology);
         deploymentInputService.processInputProperties(deploymentTopology);
         inputsPreProcessorService.processGetInput(deploymentTopology, environment, topology);
-        deploymentInputService.processInputArtifacts(deploymentTopology);
         deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
         deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology, previousNodeTemplates);
         save(deploymentTopology);
@@ -244,7 +243,6 @@ public class DeploymentTopologyService {
         Topology topology = topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId());
         deploymentInputService.processInputProperties(deploymentTopology);
         inputsPreProcessorService.processGetInput(deploymentTopology, environment, topology);
-        deploymentInputService.processInputArtifacts(deploymentTopology);
         deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
         save(deploymentTopology);
     }
@@ -312,7 +310,7 @@ public class DeploymentTopologyService {
             throw new NotFoundException("The capability <" + capabilityName + "> cannot be found on node template <" + nodeTemplateId + "> of type <"
                     + locationResourceTemplate.getTemplate().getType() + ">");
         }
-        IndexedCapabilityType capabilityType = deploymentConfiguration.getAvailableSubstitutions().getSubstitutionTypes().getCapabilityTypes()
+        CapabilityType capabilityType = deploymentConfiguration.getAvailableSubstitutions().getSubstitutionTypes().getCapabilityTypes()
                 .get(locationResourceCapability.getType());
         PropertyDefinition propertyDefinition = capabilityType.getProperties().get(propertyName);
         if (propertyDefinition == null) {
@@ -390,7 +388,7 @@ public class DeploymentTopologyService {
             }
         }
 
-        Topology topology = topologyServiceCore.getOrFail(appVersion.getTopologyId());
+        Topology topology = topologyServiceCore.getOrFail(appVersion.getId());
         generateDeploymentTopology(DeploymentTopology.generateId(appVersion.getId(), environmentId), environment, topology, deploymentTopology);
         return getDeploymentConfiguration(deploymentTopology);
     }
@@ -482,7 +480,7 @@ public class DeploymentTopologyService {
             ApplicationEnvironment[] environments = applicationEnvironmentService.getByVersionId(version.getId());
             if (environments != null && environments.length > 0) {
                 for (ApplicationEnvironment environment : environments) {
-                    deploymentTopologies.add(getOrCreateDeploymentTopology(environment, version.getTopologyId()));
+                    deploymentTopologies.add(getOrCreateDeploymentTopology(environment, version.getId()));
                 }
             }
         }

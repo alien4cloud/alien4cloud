@@ -40,7 +40,7 @@
     "roboto-fontface": "0.2.7",
     "sockjs": "0.3.4",
     "stomp-websocket": "2.3.4",
-    "requirejs": "2.1.10",
+    "requirejs": "2.1.19",
     "lodash": "3.10.0",
     "angular-hotkeys": "chieffancypants/angular-hotkeys#~1.7.0"
   },

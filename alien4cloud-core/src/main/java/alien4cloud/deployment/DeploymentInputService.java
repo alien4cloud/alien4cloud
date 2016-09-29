@@ -1,23 +1,26 @@
 package alien4cloud.deployment;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 
-import alien4cloud.tosca.context.ToscaContextual;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
+import org.alien4cloud.tosca.model.templates.AbstractTemplate;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.apache.commons.collections.MapUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.model.components.DeploymentArtifact;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.PropertyValue;
 import alien4cloud.model.deployment.DeploymentTopology;
-import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.orchestrators.services.OrchestratorDeploymentService;
+import alien4cloud.tosca.context.ToscaContextual;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.InputArtifactUtil;
@@ -80,40 +83,57 @@ public class DeploymentInputService {
         }
     }
 
+    private static void processInputArtifactForTemplate(Map<String, List<DeploymentArtifact>> artifactMap, AbstractTemplate template) {
+        for (DeploymentArtifact da : template.getArtifacts().values()) {
+            String inputArtifactId = InputArtifactUtil.getInputArtifactId(da);
+            if (inputArtifactId != null) {
+                List<DeploymentArtifact> das = artifactMap.get(inputArtifactId);
+                if (das == null) {
+                    das = Lists.newArrayList();
+                    artifactMap.put(inputArtifactId, das);
+                }
+                das.add(da);
+            }
+        }
+    }
+
     /**
      * Inject input artifacts in the corresponding nodes.
      */
     public void processInputArtifacts(DeploymentTopology topology) {
         if (topology.getInputArtifacts() != null && !topology.getInputArtifacts().isEmpty()) {
+
             // we'll build a map inputArtifactId -> List<DeploymentArtifact>
             Map<String, List<DeploymentArtifact>> artifactMap = Maps.newHashMap();
             // iterate over nodes in order to remember all nodes referencing an input artifact
             for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
-                if (nodeTemplate.getArtifacts() != null && !nodeTemplate.getArtifacts().isEmpty()) {
-                    for (DeploymentArtifact da : nodeTemplate.getArtifacts().values()) {
-                        String inputArtifactId = InputArtifactUtil.getInputArtifactId(da);
-                        if (inputArtifactId != null) {
-                            List<DeploymentArtifact> das = artifactMap.get(inputArtifactId);
-                            if (das == null) {
-                                das = Lists.newArrayList();
-                                artifactMap.put(inputArtifactId, das);
-                            }
-                            das.add(da);
-                        }
-                    }
+                if (MapUtils.isNotEmpty(nodeTemplate.getArtifacts())) {
+                    processInputArtifactForTemplate(artifactMap, nodeTemplate);
+                }
+                if (MapUtils.isNotEmpty(nodeTemplate.getRelationships())) {
+                    nodeTemplate.getRelationships().entrySet().stream()
+                            .filter(relationshipTemplateEntry -> MapUtils.isNotEmpty(relationshipTemplateEntry.getValue().getArtifacts()))
+                            .forEach(relationshipTemplateEntry -> processInputArtifactForTemplate(artifactMap, relationshipTemplateEntry.getValue()));
                 }
             }
 
-            for (Map.Entry<String, DeploymentArtifact> e : topology.getInputArtifacts().entrySet()) {
-                List<DeploymentArtifact> nodeArtifacts = artifactMap.get(e.getKey());
+            Map<String, DeploymentArtifact> allInputArtifact = new HashMap<>();
+            allInputArtifact.putAll(topology.getInputArtifacts());
+            if (MapUtils.isNotEmpty(topology.getUploadedInputArtifacts())) {
+                allInputArtifact.putAll(topology.getUploadedInputArtifacts());
+            }
+            for (Map.Entry<String, DeploymentArtifact> inputArtifact : allInputArtifact.entrySet()) {
+                List<DeploymentArtifact> nodeArtifacts = artifactMap.get(inputArtifact.getKey());
                 if (nodeArtifacts != null) {
                     for (DeploymentArtifact nodeArtifact : nodeArtifacts) {
-                        nodeArtifact.setArtifactRef(e.getValue().getArtifactRef());
-                        nodeArtifact.setArtifactName(e.getValue().getArtifactName());
-                        nodeArtifact.setArtifactRepository(e.getValue().getArtifactRepository());
-                        nodeArtifact.setRepositoryName(e.getValue().getRepositoryName());
-                        nodeArtifact.setRepositoryCredential(e.getValue().getRepositoryCredential());
-                        nodeArtifact.setRepositoryURL(e.getValue().getRepositoryURL());
+                        nodeArtifact.setArtifactRef(inputArtifact.getValue().getArtifactRef());
+                        nodeArtifact.setArtifactName(inputArtifact.getValue().getArtifactName());
+                        nodeArtifact.setArtifactRepository(inputArtifact.getValue().getArtifactRepository());
+                        nodeArtifact.setRepositoryName(inputArtifact.getValue().getRepositoryName());
+                        nodeArtifact.setRepositoryCredential(inputArtifact.getValue().getRepositoryCredential());
+                        nodeArtifact.setRepositoryURL(inputArtifact.getValue().getRepositoryURL());
+                        nodeArtifact.setArchiveName(inputArtifact.getValue().getArchiveName());
+                        nodeArtifact.setArchiveVersion(inputArtifact.getValue().getArchiveVersion());
                     }
                 }
             }

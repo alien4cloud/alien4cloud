@@ -3,7 +3,7 @@ package alien4cloud.tosca.parser.impl.advanced;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
-import alien4cloud.model.components.ImplementationArtifact;
+import org.alien4cloud.tosca.model.definitions.ImplementationArtifact;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 
 @Component

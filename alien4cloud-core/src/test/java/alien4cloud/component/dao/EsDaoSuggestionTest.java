@@ -26,10 +26,10 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.Tag;
-import alien4cloud.model.components.IndexedArtifactType;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
+import org.alien4cloud.tosca.model.types.ArtifactType;
+import org.alien4cloud.tosca.model.types.CapabilityType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,12 +52,12 @@ public class EsDaoSuggestionTest extends AbstractDAOTest {
     @Resource(name = "alien-es-dao")
     IGenericSearchDAO dao;
 
-    List<IndexedNodeType> dataTest = new ArrayList<>();
+    List<NodeType> dataTest = new ArrayList<>();
 
-    IndexedNodeType indexedNodeTypeTest = null;
-    IndexedNodeType indexedNodeTypeTest2 = null;
-    IndexedNodeType indexedNodeTypeTest3 = null;
-    IndexedNodeType indexedNodeTypeTest4 = null;
+    NodeType indexedNodeTypeTest = null;
+    NodeType indexedNodeTypeTest2 = null;
+    NodeType indexedNodeTypeTest3 = null;
+    NodeType indexedNodeTypeTest4 = null;
 
     private List<Tag> Tags1 = Lists.newArrayList(new Tag("icon", "my-icon.png"), new Tag("potatoe", "patate"), new Tag("potatoe_version", "version de patate"));
 
@@ -78,7 +78,7 @@ public class EsDaoSuggestionTest extends AbstractDAOTest {
     public void simpleSearchTest() throws IndexingServiceException, InterruptedException, IOException {
         String searchText = "ver";
         GetMultipleDataResult searchResp = dao.suggestSearch(new String[] { APPLICATION_INDEX, ElasticSearchDAO.TOSCA_ELEMENT_INDEX }, new Class<?>[] {
-                Application.class, IndexedNodeType.class, IndexedArtifactType.class, IndexedCapabilityType.class, IndexedRelationshipType.class },
+                Application.class, NodeType.class, ArtifactType.class, CapabilityType.class, RelationshipType.class },
                 TAG_NAME_PATH, searchText, FETCH_CONTEXT, 0, 10);
         System.out.println(searchResp.getData().length);
         assertNotNull(searchResp);
@@ -86,7 +86,7 @@ public class EsDaoSuggestionTest extends AbstractDAOTest {
         assertNotNull(searchResp.getData());
         assertEquals(2, searchResp.getTypes().length);
         assertEquals(2, searchResp.getData().length);
-        assertElementIn("indexednodetype", searchResp.getTypes());
+        assertElementIn("nodetype", searchResp.getTypes());
     }
 
     private void assertElementIn(Object element, Object[] elements) {
@@ -108,7 +108,7 @@ public class EsDaoSuggestionTest extends AbstractDAOTest {
     }
 
     private void saveDataToES(boolean refresh) throws JsonProcessingException {
-        for (IndexedNodeType datum : dataTest) {
+        for (NodeType datum : dataTest) {
             String json = jsonMapper.writeValueAsString(datum);
             String typeName = MappingBuilder.indexTypeFromClass(datum.getClass());
             nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(json).setRefresh(refresh).execute().actionGet();

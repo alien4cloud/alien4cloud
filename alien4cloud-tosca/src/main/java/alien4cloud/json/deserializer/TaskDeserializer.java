@@ -2,7 +2,16 @@ package alien4cloud.json.deserializer;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import alien4cloud.topology.task.AbstractRelationshipTask;
 import alien4cloud.topology.task.AbstractTask;
+import alien4cloud.topology.task.ArtifactTask;
+import alien4cloud.topology.task.InputArtifactTask;
 import alien4cloud.topology.task.LocationPolicyTask;
 import alien4cloud.topology.task.NodeFiltersTask;
 import alien4cloud.topology.task.PropertiesTask;
@@ -12,12 +21,6 @@ import alien4cloud.topology.task.SuggestionsTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.TopologyTask;
 import alien4cloud.topology.task.WorkflowTask;
-
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Custom deserializer to handle multiple {@link AbstractTask} types.
@@ -33,6 +36,9 @@ public class TaskDeserializer extends AbstractFieldValueDiscriminatorPolymorphic
         addToRegistry(RequirementsTask.class, TaskCode.SATISFY_LOWER_BOUND);
         addToRegistry(WorkflowTask.class, TaskCode.WORKFLOW_INVALID);
         addToRegistry(SuggestionsTask.class, TaskCode.REPLACE, TaskCode.IMPLEMENT);
+        addToRegistry(ArtifactTask.class, TaskCode.ARTIFACT_INVALID);
+        addToRegistry(InputArtifactTask.class, TaskCode.INPUT_ARTIFACT_INVALID);
+        addToRegistry(AbstractRelationshipTask.class, TaskCode.IMPLEMENT_RELATIONSHIP);
     }
 
     @Override

@@ -5,18 +5,12 @@ Feature: Mixing multiple versions of components
 
   @reset
   Scenario: Upload CSAR with multiple versions
-    Given I upload the archive "tosca base types 1.0"
-    And I should receive a RestResponse with no error
-    And I upload the archive "tosca base types 2.0"
-    And I should receive a RestResponse with no error
-    And I upload the archive "tosca base types 3.0"
-    And I should receive a RestResponse with no error
-    And I upload the archive "sample java types 1.0"
-    And I should receive a RestResponse with no error
-    And I upload the archive "sample java types 2.0"
-    And I should receive a RestResponse with no error
-    And I upload the archive "sample java types 3.0"
-    And I should receive a RestResponse with no error
+    Given I have uploaded the archive "tosca base types 1.0"
+    And I have uploaded the archive "tosca base types 2.0"
+    And I have uploaded the archive "tosca base types 3.0"
+    And I have uploaded the archive "sample java types 1.0"
+    And I have uploaded the archive "sample java types 2.0"
+    And I have uploaded the archive "sample java types 3.0"
     When I search for "node types" from 0 with result size of 1000
     Then I should receive a RestResponse with no error
     And The response should contains 24 elements from various types of version "3.0" and older versions are

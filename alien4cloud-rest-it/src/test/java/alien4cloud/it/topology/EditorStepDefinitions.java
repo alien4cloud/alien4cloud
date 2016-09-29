@@ -6,12 +6,12 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
-import org.elasticsearch.common.collect.ImmutableMap;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 import alien4cloud.it.Context;
@@ -54,8 +54,6 @@ public class EditorStepDefinitions {
     }
 
     public static void do_i_execute_the_operation(Map<String, String> operationMap) throws Throwable {
-        String topologyId = Context.getInstance().getTopologyId();
-
         Class operationClass = Class.forName(operationMap.get("type"));
         AbstractEditorOperation operation = (AbstractEditorOperation) operationClass.newInstance();
         EvaluationContext operationContext = new StandardEvaluationContext(operation);
@@ -66,6 +64,11 @@ public class EditorStepDefinitions {
                 parser.parseRaw(operationEntry.getKey()).setValue(operationContext, operationEntry.getValue());
             }
         }
+        do_i_execute_the_operation(operation);
+    }
+
+    public static void do_i_execute_the_operation(AbstractEditorOperation operation) throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
         operation.setPreviousOperationId(getLastOperationId());
         // Call execute rest service and set the topology DTO to the context
         Context.getInstance()
@@ -73,7 +76,7 @@ public class EditorStepDefinitions {
         trySetTopologyDto();
     }
 
-    private static String getLastOperationId() {
+    public static String getLastOperationId() {
 
         if (TOPOLOGY_DTO == null || TOPOLOGY_DTO.getLastOperationIndex() == -1) {
             // no previous operations
@@ -97,7 +100,7 @@ public class EditorStepDefinitions {
         trySetTopologyDto();
     }
 
-    private static void trySetTopologyDto() {
+    public static void trySetTopologyDto() {
         try {
             TOPOLOGY_DTO = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class, Context.getJsonMapper()).getData();
         } catch (Exception e) {
@@ -115,4 +118,5 @@ public class EditorStepDefinitions {
                         ImmutableMap.<String, String> builder().put("path", archivePath).put("lastOperationId", String.valueOf(getLastOperationId())).build()));
         trySetTopologyDto();
     }
+
 }

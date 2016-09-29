@@ -3,6 +3,7 @@ module.exports = {
   prerequire: {
 		// simple inline function call
 		call: function(grunt, options, async) {
+      'use strict';
       var done = async();
 
       var fs = require('fs');
@@ -36,5 +37,45 @@ module.exports = {
         });
       });
 		}
-	}
+	},
+  revrename: {
+    call: function(grunt, options, async) {
+      'use strict';
+      var done = async();
+
+      var fs = require('fs');
+      var path = require('path');
+
+      var dir = 'target/webapp/scripts';
+      fs.readdir(dir, function(err, files) {
+        if(err) {
+          grunt.log.error(err);
+          done(err);
+        }
+        var requireFile, bootstrapFile;
+        files.forEach( function(file) {
+          if(file.indexOf('alien4cloud-bootstrap.js') !== -1) {
+            bootstrapFile = file;
+          }
+          if(file.indexOf('require.config.js') !== -1) {
+            requireFile = file;
+          }
+        });
+
+        var requireFilePath = path.join(dir, requireFile);
+        fs.readFile(requireFilePath, 'utf8', function (err, data) {
+          var result = data.replace('alien4cloud-bootstrap', bootstrapFile.substring(0, bootstrapFile.length-3));
+
+          fs.writeFile(requireFilePath, result, 'utf8', function (err) {
+             if (err) {
+               grunt.log.error(err);
+               done(err);
+             } else {
+               done();
+             }
+          });
+        });
+      });
+    }
+  }
 };

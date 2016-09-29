@@ -11,10 +11,10 @@ import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import alien4cloud.model.topology.AbstractPolicy;
-import alien4cloud.model.topology.GenericPolicy;
-import alien4cloud.model.topology.HaPolicy;
-import alien4cloud.model.topology.LocationPlacementPolicy;
+import org.alien4cloud.tosca.model.templates.AbstractPolicy;
+import org.alien4cloud.tosca.model.templates.GenericPolicy;
+import org.alien4cloud.tosca.model.templates.HaPolicy;
+import org.alien4cloud.tosca.model.templates.LocationPlacementPolicy;
 import alien4cloud.tosca.parser.*;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;

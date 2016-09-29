@@ -1,40 +1,52 @@
 package alien4cloud.common;
 
+import static alien4cloud.common.AlienConstants.APP_WORKSPACE_PREFIX;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
+
+import alien4cloud.dao.FilterUtil;
+import alien4cloud.utils.FileUtil;
+import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
+import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
+import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.Csar;
+import org.alien4cloud.tosca.model.templates.AbstractTopologyVersion;
+import org.alien4cloud.tosca.model.templates.Topology;
+
+import com.google.common.collect.Lists;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.ReleaseReferencingSnapshotException;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.templates.TopologyTemplateVersion;
-import alien4cloud.model.topology.AbstractTopologyVersion;
-import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
 
-import com.google.common.collect.Lists;
-
 public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
-    protected static final String DEFAULT_VERSION_NAME = "0.1.0-SNAPSHOT";
 
     @Resource(name = "alien-es-dao")
     protected IGenericSearchDAO alienDAO;
 
-    @Resource
+    @Inject
     private TopologyServiceCore topologyServiceCore;
 
-    @Resource
+    @Inject
     private WorkflowsBuilderService workflowBuilderService;
+
+    @Inject
+    private ArchiveIndexer archiveIndexer;
+    @Inject
+    private CsarService csarService;
 
     protected abstract V buildVersionImplem();
 
@@ -42,65 +54,61 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
 
     protected abstract Class<V> getVersionImplemClass();
 
-    protected abstract Class<?> getDelegateClass();
+    protected abstract ArchiveDelegateType getDelegateType();
 
     protected abstract String getDelegatePropertyName();
-
-    /**
-     * Create a new version for an application/topology template based on an existing topology with the default version name.
-     *
-     * @param delegateId The id of the application for which to create the version.
-     * @param topologyId The id of the topology to clone for the version's topology.
-     */
-    public V createVersion(String delegateId, String topologyToCloneId, Topology topology) {
-        return createVersion(delegateId, topologyToCloneId, DEFAULT_VERSION_NAME, null, topology);
-    }
 
     /**
      * Create a new version for an application/topology template based on an existing topology.
      *
      * @param delegateId The id of the application/topology template for which to create the version.
      * @param topologyToCloneId The id of the topology to clone for the version's topology.
-     * @param version The number version of the new application version.
+     * @param version The new version.
+     * @param description The description.
      */
-    public V createVersion(String delegateId, String topologyToCloneId, String version, String desc, Topology providedTopology) {
+    public V createVersion(String delegateId, String topologyToCloneId, String version, String description) {
         if (isVersionNameExist(delegateId, version)) {
             throw new AlreadyExistException("An version " + version + " already exists.");
         }
 
         VersionUtil.parseVersion(version);
         V appVersion = buildVersionImplem();
-        appVersion.setId(UUID.randomUUID().toString());
         appVersion.setDelegateId(delegateId);
         appVersion.setVersion(version);
         appVersion.setLatest(true);
         appVersion.setSnapshot(VersionUtil.isSnapshot(version));
         appVersion.setReleased(!VersionUtil.isSnapshot(version));
-        appVersion.setDescription(desc);
+        appVersion.setDescription(description);
 
-        Topology topology = null;
-        if (providedTopology != null) {
-            topology = providedTopology;
+        // Every version of an application has a Cloud Service Archive
+        String delegateType = ArchiveDelegateType.APPLICATION.toString();
+        Csar csar = new Csar(delegateId, version);
+        csar.setWorkspace(APP_WORKSPACE_PREFIX + delegateId);
+        csar.setDelegateId(delegateId);
+        csar.setDelegateType(delegateType);
+
+        Topology topology;
+        if (topologyToCloneId != null) { // "cloning" the topology
+            topology = alienDAO.findById(Topology.class, topologyToCloneId);
         } else {
-            if (topologyToCloneId != null) { // "cloning" the topology
-                topology = alienDAO.findById(Topology.class, topologyToCloneId);
-            } else {
-                topology = new Topology();
-            }
-            topology.setId(UUID.randomUUID().toString());
+            topology = new Topology();
         }
-        topology.setDelegateId(delegateId);
-        topology.setDelegateType(getDelegateClass().getSimpleName().toLowerCase());
-        workflowBuilderService.initWorkflows(workflowBuilderService.buildTopologyContext(topology));
+        topology.setArchiveName(csar.getName());
+        topology.setArchiveVersion(csar.getVersion());
+        topology.setWorkspace(csar.getWorkspace());
+
         // first of all, if the new version is a release, we have to ensure that all dependencies are released
         if (!VersionUtil.isSnapshot(version)) {
             checkTopologyReleasable(topology);
         }
 
-        topologyServiceCore.save(topology);
+        // Import the created archive and topology
+        archiveIndexer.importNewArchive(csar, topology);
 
-        appVersion.setTopologyId(topology.getId());
+        // Save the version object
+        appVersion.setId(csar.getId());
         alienDAO.save(appVersion);
+
         return appVersion;
     }
 
@@ -108,7 +116,7 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
      * Check that the topology can be associated to a release version, actually : check that the topology doesn't reference SNAPSHOT
      * dependencies.
      * 
-     * @throws a @{@link ReleaseReferencingSnapshotException} if the topology references SNAPSHOT dependencies
+     * @throws @{@link ReleaseReferencingSnapshotException} if the topology references SNAPSHOT dependencies
      *             version.
      */
     public void checkTopologyReleasable(Topology topology) {
@@ -125,10 +133,11 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
     /**
      * Get all versions for a given delegate.
      *
-     * @param applicationId The id of the application for which to get environments.
+     * @param delegateId The id of the application for which to get environments.
      * @return An array of the applications versions for the requested application id.
      */
     public V[] getByDelegateId(String delegateId) {
+
         GetMultipleDataResult<V> result = alienDAO.find(getVersionImplemClass(),
                 MapUtil.newHashMap(new String[] { getDelegatePropertyName() }, new String[][] { new String[] { delegateId } }), Integer.MAX_VALUE);
         return result.getData();
@@ -153,15 +162,14 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
      * @return An array of the applications/topology templates versions snapshot for the requested application id.
      */
     public V[] getSnapshotByDelegateId(String delegateId) {
-        GetMultipleDataResult<V> result = alienDAO.find(getVersionImplemClass(),
-                MapUtil.newHashMap(new String[] { getDelegatePropertyName(), "isSnapshot" }, new String[][] { new String[] { delegateId },
-                        new String[] { "true" } }),
-                Integer.MAX_VALUE);
+        GetMultipleDataResult<V> result = alienDAO.find(getVersionImplemClass(), MapUtil.newHashMap(new String[] { getDelegatePropertyName(), "isSnapshot" },
+                new String[][] { new String[] { delegateId }, new String[] { "true" } }), Integer.MAX_VALUE);
         return result.getData();
     }
 
     private void deleteVersion(V version) {
-        alienDAO.delete(Topology.class, version.getTopologyId());
+        // Call delete archive
+        csarService.deleteCsar(version.getId());
         alienDAO.delete(getVersionImplemClass(), version.getId());
     }
 
@@ -195,11 +203,8 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
      * @return a boolean indicating if the version exists.
      */
     public boolean isVersionNameExist(String delegateId, String versionName) {
-        GetMultipleDataResult<V> dataResult = alienDAO.search(
-                getVersionImplemClass(),
-                null,
-                MapUtil.newHashMap(new String[] { getDelegatePropertyName(), "version" }, new String[][] { new String[] { delegateId },
-                        new String[] { versionName } }), 1);
+        GetMultipleDataResult<V> dataResult = alienDAO.search(getVersionImplemClass(), null, MapUtil.newHashMap(
+                new String[] { getDelegatePropertyName(), "version" }, new String[][] { new String[] { delegateId }, new String[] { versionName } }), 1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             return true;
         }
@@ -228,24 +233,6 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
      */
     public V get(String id) {
         return alienDAO.findById(getVersionImplemClass(), id);
-    }
-
-    /**
-     * Get a version for an application/topology template (returns the default if not found).
-     * 
-     * @param delegateId
-     * @param versionId
-     * @return
-     */
-    public V getVersionByIdOrDefault(String delegateId, String versionId) {
-        V version = null;
-        if (versionId == null) {
-            V[] versions = getByDelegateId(delegateId);
-            version = versions[0];
-        } else {
-            version = getOrFail(versionId);
-        }
-        return version;
     }
 
     /**
@@ -287,20 +274,4 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
         }
         return MapUtil.newHashMap(filterKeys.toArray(new String[filterKeys.size()]), filterValues.toArray(new String[filterValues.size()][]));
     }
-
-    public V searchByDelegateAndVersion(String delegateId, String version) {
-        GetMultipleDataResult<V> result = alienDAO.find(getVersionImplemClass(), getVersionsFilters(delegateId, version), Integer.MAX_VALUE);
-        if (result.getTotalResults() > 0) {
-            return result.getData()[0];
-        }
-        return null;
-    }
-
-    public void changeTopology(TopologyTemplateVersion topologyTemplateVersion, String topologyId) {
-        String oldTopologyId = topologyTemplateVersion.getTopologyId();
-        topologyTemplateVersion.setTopologyId(topologyId);
-        alienDAO.save(topologyTemplateVersion);
-        alienDAO.delete(Topology.class, oldTopologyId);
-    }
-
 }

@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.orchestrators.services.OrchestratorDeploymentService;
 import alien4cloud.topology.task.PropertiesTask;

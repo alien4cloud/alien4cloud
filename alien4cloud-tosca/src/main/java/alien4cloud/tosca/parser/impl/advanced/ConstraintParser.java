@@ -15,11 +15,10 @@ import org.yaml.snakeyaml.nodes.NodeTuple;
 
 import com.google.common.collect.Maps;
 
-import alien4cloud.model.components.PropertyConstraint;
-import alien4cloud.model.components.constraints.*;
+import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.*;
 import alien4cloud.tosca.parser.*;
 import alien4cloud.tosca.parser.impl.ErrorCode;
-import alien4cloud.tosca.parser.impl.base.ListParser;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import lombok.AllArgsConstructor;
 

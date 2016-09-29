@@ -10,13 +10,13 @@ import org.alien4cloud.tosca.editor.exception.InvalidPathException;
 import org.alien4cloud.tosca.editor.operations.DeleteFileOperation;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.components.DeploymentArtifact;
-import alien4cloud.model.components.IArtifact;
-import alien4cloud.model.components.Interface;
-import alien4cloud.model.components.Operation;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
+import org.alien4cloud.tosca.model.definitions.IArtifact;
+import org.alien4cloud.tosca.model.definitions.Interface;
+import org.alien4cloud.tosca.model.definitions.Operation;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.TreeNode;
 import lombok.SneakyThrows;
@@ -31,7 +31,7 @@ public class DeleteFileProcessor implements IEditorCommitableProcessor<DeleteFil
     public void process(DeleteFileOperation operation) {
         Topology topology = EditionContextManager.get().getTopology();
 
-        if (topology.getYamlFilePath().equals(operation.getPath())) {
+        if (EditionContextManager.getCsar().getYamlFilePath().equals(operation.getPath())) {
             throw new InvalidPathException("Topology yaml file cannot be removed.");
         }
         TreeNode target = FileProcessorHelper.getFileTreeNode(operation.getPath());
@@ -57,7 +57,7 @@ public class DeleteFileProcessor implements IEditorCommitableProcessor<DeleteFil
     }
 
     private void resetRemovedArtifact(IArtifact artifact, String removedFilePath) {
-        if (artifact.getArtifactRepository() == null) {
+        if (artifact != null && artifact.getArtifactRepository() == null) {
             // this is an archive file, check if reference is good
             if (removedFilePath.equals(artifact.getArtifactRef())) {
                 // FIXME is that correct, should we get the default artifact from the node / interface type here ?

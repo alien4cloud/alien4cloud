@@ -31,7 +31,6 @@ import alien4cloud.model.deployment.DeploymentTopology;
 import alien4cloud.model.deployment.IDeploymentSource;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.orchestrators.locations.services.LocationService;
 import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.paas.IPaaSCallback;
@@ -62,8 +61,6 @@ public class DeployService {
     @Inject
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Inject
-    private LocationService locationService;
-    @Inject
     private OrchestratorService orchestratorService;
     @Inject
     private DeploymentService deploymentService;
@@ -77,6 +74,8 @@ public class DeployService {
     private DeploymentTopologyValidationService deploymentTopologyValidationService;
     @Inject
     private ArtifactProcessorService artifactProcessorService;
+    @Inject
+    private DeploymentInputService deploymentInputService;
 
     /**
      * Deploy a topology and return the deployment ID.
@@ -126,6 +125,8 @@ public class DeployService {
         alienMonitorDao.save(deploymentTopology);
         // put back the old Id for deployment
         deploymentTopology.setId(deploymentTopologyId);
+        // Process all input artifact, replace all artifact inside the topology with input artifact
+        deploymentInputService.processInputArtifacts(deploymentTopology);
         PaaSTopologyDeploymentContext deploymentContext = deploymentContextService.buildTopologyDeploymentContext(deployment, locations, deploymentTopology);
         // Download and process all remote artifacts before deployment
         artifactProcessorService.processArtifacts(deploymentContext);
@@ -180,13 +181,10 @@ public class DeployService {
         Expression exp = parser.parseExpression(namePattern);
         String orchestratorDeploymentId = (String) exp
                 .getValue(new OrchestratorIdContext(env, applicationService.getOrFail(env.getApplicationId()), namePattern.contains("metaProperties[")));
-        orchestratorDeploymentId = orchestratorDeploymentId.trim().replaceAll(" ", "_");
-
         // ensure that the id is not used by another deployment.
         if (deploymentService.isActiveDeployment(orchestratorId, orchestratorDeploymentId)) {
             throw new OrchestratorDeploymentIdConflictException("Conflict detected with the generated paasId <" + orchestratorDeploymentId + ">.");
         }
-
         return orchestratorDeploymentId;
     }
 

@@ -5,23 +5,22 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.wf.exception.BadWorkflowOperationException;
 import alien4cloud.paas.wf.util.WorkflowUtils;
 import alien4cloud.paas.wf.validation.WorkflowValidator;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.WorkflowTask;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
@@ -283,10 +282,10 @@ public class WorkflowsBuilderService {
         return wf;
     }
 
-    public static interface TopologyContext {
+    public interface TopologyContext {
         Topology getTopology();
 
-        <T extends IndexedToscaElement> T findElement(Class<T> clazz, String id);
+        <T extends AbstractToscaType> T findElement(Class<T> clazz, String id);
     }
 
     public TopologyContext buildTopologyContext(Topology topology) {
@@ -311,7 +310,7 @@ public class WorkflowsBuilderService {
         }
 
         @Override
-        public <T extends IndexedToscaElement> T findElement(Class<T> clazz, String id) {
+        public <T extends AbstractToscaType> T findElement(Class<T> clazz, String id) {
             return csarRepoSearchService.getElementInDependencies(clazz, id, topology.getDependencies());
         }
     }
@@ -319,7 +318,7 @@ public class WorkflowsBuilderService {
     private class CachedTopologyContext implements TopologyContext {
         private TopologyContext wrapped;
 
-        private Map<Class<? extends IndexedToscaElement>, Map<String, IndexedToscaElement>> cache = Maps.newHashMap();
+        private Map<Class<? extends AbstractToscaType>, Map<String, AbstractToscaType>> cache = Maps.newHashMap();
 
         public CachedTopologyContext(TopologyContext wrapped) {
             super();
@@ -333,8 +332,8 @@ public class WorkflowsBuilderService {
 
         @SuppressWarnings("unchecked")
         @Override
-        public <T extends IndexedToscaElement> T findElement(Class<T> clazz, String id) {
-            Map<String, IndexedToscaElement> typeCache = cache.get(clazz);
+        public <T extends AbstractToscaType> T findElement(Class<T> clazz, String id) {
+            Map<String, AbstractToscaType> typeCache = cache.get(clazz);
             if (typeCache == null) {
                 if (log.isTraceEnabled()) {
                     log.trace(String.format("TopologyContext type cache not found for type <%s>, init one ...", clazz.getSimpleName()));
@@ -346,7 +345,7 @@ public class WorkflowsBuilderService {
                     log.trace(String.format("TopologyContext type cache found for type <%s>, using it !", clazz.getSimpleName()));
                 }
             }
-            IndexedToscaElement element = typeCache.get(id);
+            AbstractToscaType element = typeCache.get(id);
             if (element == null) {
                 if (log.isTraceEnabled()) {
                     log.trace(String.format("Element not found from cache for type <%s> id <%s>, look for in source ...", clazz.getSimpleName(), id));

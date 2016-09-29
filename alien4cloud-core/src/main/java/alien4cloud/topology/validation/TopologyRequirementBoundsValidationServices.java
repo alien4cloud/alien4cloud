@@ -1,29 +1,28 @@
 package alien4cloud.topology.validation;
 
-import alien4cloud.component.CSARRepositorySearchService;
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.*;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.Requirement;
-import alien4cloud.model.topology.Topology;
-import alien4cloud.paas.function.FunctionEvaluator;
-import alien4cloud.topology.task.RequirementToSatisfy;
-import alien4cloud.topology.task.RequirementsTask;
-import alien4cloud.topology.task.TaskCode;
-import alien4cloud.tosca.normative.IPropertyType;
-import alien4cloud.tosca.normative.ToscaType;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
-import org.apache.commons.collections4.CollectionUtils;
-import org.elasticsearch.common.collect.Lists;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
+import org.alien4cloud.tosca.model.templates.Requirement;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.apache.commons.collections4.CollectionUtils;
+import org.elasticsearch.common.collect.Lists;
+import org.springframework.stereotype.Component;
+
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.topology.task.RequirementToSatisfy;
+import alien4cloud.topology.task.RequirementsTask;
+import alien4cloud.topology.task.TaskCode;
 
 /**
  * Performs validation of the requirements and capabilities bounds.
@@ -31,7 +30,7 @@ import java.util.Set;
 @Component
 public class TopologyRequirementBoundsValidationServices {
     @Resource
-    private CSARRepositorySearchService csarRepoSearchService;
+    private IToscaTypeSearchService csarRepoSearchService;
 
     /**
      * Check if the upperBound of a requirement is reached on a node template
@@ -42,14 +41,14 @@ public class TopologyRequirementBoundsValidationServices {
      * @return true if requirement upper bound is reached, false otherwise
      */
     public boolean isRequirementUpperBoundReachedForSource(NodeTemplate nodeTemplate, String requirementName, Set<CSARDependency> dependencies) {
-        IndexedNodeType relatedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
-                dependencies);
+        NodeType relatedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemplate.getType(), dependencies);
         Requirement requirement = nodeTemplate.getRequirements().get(requirementName);
         if (nodeTemplate.getRelationships() == null || nodeTemplate.getRelationships().isEmpty()) {
             return false;
         }
 
-        RequirementDefinition requirementDefinition = getRequirementDefinition(relatedIndexedNodeType.getRequirements(), requirementName, requirement.getType());
+        RequirementDefinition requirementDefinition = getRequirementDefinition(relatedIndexedNodeType.getRequirements(), requirementName,
+                requirement.getType());
 
         if (requirementDefinition.getUpperBound() == Integer.MAX_VALUE) {
             return false;
@@ -74,7 +73,7 @@ public class TopologyRequirementBoundsValidationServices {
             if (nodeTemp.getRequirements() == null) {
                 continue;
             }
-            IndexedNodeType relatedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemp.getType(),
+            NodeType relatedIndexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(NodeType.class, nodeTemp.getType(),
                     topology.getDependencies());
             // do pass if abstract node
             if (relatedIndexedNodeType.isAbstract()) {

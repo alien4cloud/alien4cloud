@@ -5,16 +5,20 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
-import lombok.extern.slf4j.Slf4j;
-
 import org.elasticsearch.index.query.FilterBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.google.common.collect.Lists;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
@@ -24,7 +28,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.ApplicationVersionNotFoundException;
-import alien4cloud.exception.InvalidArgumentException;
+import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
@@ -44,11 +48,9 @@ import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.Role;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
-
-import com.google.common.collect.Lists;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
@@ -196,7 +198,7 @@ public class ApplicationEnvironmentController {
         applicationEnvironmentService.ensureNameUnicity(applicationEnvironment.getApplicationId(), request.getName());
         ReflectionUtil.mergeObject(request, applicationEnvironment);
         if (applicationEnvironment.getName() == null || applicationEnvironment.getName().isEmpty()) {
-            throw new InvalidArgumentException("Application environment name cannot be set to null or empty");
+            throw new UnsupportedOperationException("Application environment name cannot be set to null or empty");
         }
         alienDAO.save(applicationEnvironment);
         return RestResponseBuilder.<Void> builder().build();

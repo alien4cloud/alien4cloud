@@ -3,12 +3,10 @@
   for="'NAVBAR.MENU_COMPONENTS'"
   data="searchResult.data">
 </empty-place-holder>
-<ul class="list-group" style="overflow: auto; margin-bottom: 0px; {{listHeight}}">
+<ul class="list-group" style="overflow: auto; margin-bottom: 0px; height: {{listHeight}}px;">
   <li class="list-group-item clickable-media overflowmedia" ng-repeat="component in searchResult.data">
     <div class="media" ng-mouseover="setComponent(component)" id="li_{{component.id}}" alien-draggable drag-enabled="dragAndDropEnabled" drag-data="component" ng-click="handleItemSelection(component)">
-      <a class="pull-left" href="/#/components/details/{{component.elementId}}:{{component.archiveVersion}}" target="_blank">
-        <img ng-src="img?id={{getIcon(component.tags)}}&quality=QUALITY_64" />
-      </a>
+      <img class="pull-left" ng-src="img?id={{getIcon(component.tags)}}&quality=QUALITY_64" />
       <div class="media-body">
         <h4 class="media-heading" ng-init="componentNameId= (component.elementId | splitAndGet:'.':'last')">
           <span ng-if="!globalContext" tooltip="{{component.elementId}}" tooltip-placement="bottom">{{ componentNameId | limitTo: 12 }}{{ componentNameId.length > 12 ? '...' : ''}} </span>
@@ -32,12 +30,15 @@
                 <i class="fa fa-archive"></i> {{component.archiveName}}
               </span>
               <div class="btn-group btn-group-xs">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  id="{{component.id}}_versions">
-                  {{component.selectedVersion}}
-                  <span class="caret"></span>
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="{{component.id}}_vfetch"
+                  ng-click="fetchElementVersion(component)">
+                  {{component.selectedVersion}} <i class="fa fa-caret-down"></i>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-right" role="menu" ng-init="itemIdex = $index">
-                  <li ng-repeat="olderVersion in component.olderVersions" class="option-selected"><a id="{{component.id}}_version_{{olderVersion}}" ng-click="selectOtherComponentVersion(component, olderVersion, itemIdex, $event)">{{olderVersion}}</a></li>
+                <ul ng-if="!component.olderVersions" class="dropdown-menu dropdown-menu-right" role="menu" ng-init="itemIdex = $index">
+                  <li class="option-selected"><i class="fa fa-spin fa-spinner"></i> Loading</li>
+                </ul>
+                <ul ng-if="component.olderVersions" class="dropdown-menu dropdown-menu-right" role="menu" ng-init="itemIdex = $index">
+                  <li ng-repeat="olderVersion in component.olderVersions" class="option-selected"><a id="{{component.id}}_version_{{olderVersion}}" ng-click="selectOtherComponentVersion(component, olderVersion, itemIdex, $event)">{{olderVersion.version}}</a></li>
                 </ul>
               </div>
             </div>

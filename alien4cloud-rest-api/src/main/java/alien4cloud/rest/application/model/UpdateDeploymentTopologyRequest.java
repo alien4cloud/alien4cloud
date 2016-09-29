@@ -2,7 +2,6 @@ package alien4cloud.rest.application.model;
 
 import java.util.Map;
 
-import alien4cloud.model.components.AbstractPropertyValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

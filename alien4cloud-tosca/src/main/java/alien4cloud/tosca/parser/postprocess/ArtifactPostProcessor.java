@@ -3,14 +3,13 @@ package alien4cloud.tosca.parser.postprocess;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
 import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.model.components.AbstractArtifact;
-import alien4cloud.model.components.IndexedArtifactType;
-import alien4cloud.model.components.RepositoryDefinition;
+import org.alien4cloud.tosca.model.definitions.AbstractArtifact;
+import org.alien4cloud.tosca.model.types.ArtifactType;
+import org.alien4cloud.tosca.model.definitions.RepositoryDefinition;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
@@ -32,10 +31,8 @@ public class ArtifactPostProcessor implements IPostProcessor<AbstractArtifact> {
     @Override
     public void process(AbstractArtifact instance) {
         ArchiveRoot archiveRoot = ParsingContextExecution.getRootObj();
-        // The artifact is in the archive only and only if an artifact reference is defined
-        // Without artifact reference, it means that Alien's user will upload later the binary
         // If archive name is already defined (by the type for example then don't override it)
-        if (StringUtils.isNotBlank(instance.getArtifactRef()) && StringUtils.isBlank(instance.getArchiveName())) {
+        if (StringUtils.isBlank(instance.getArchiveName())) {
             instance.setArchiveName(archiveRoot.getArchive().getName());
             instance.setArchiveVersion(archiveRoot.getArchive().getVersion());
         }
@@ -45,10 +42,11 @@ public class ArtifactPostProcessor implements IPostProcessor<AbstractArtifact> {
             instance.setArtifactType(getArtifactTypeByExtension(instance.getArtifactRef(), node, archiveRoot));
         } else {
             // check the reference
-            referencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance.getArtifactType(), IndexedArtifactType.class));
+            referencePostProcessor.process(new ReferencePostProcessor.TypeReference(instance.getArtifactType(), ArtifactType.class));
         }
         if (instance.getArtifactRepository() != null) {
-            RepositoryDefinition repositoryDefinition = archiveRoot.getRepositories().get(instance.getArtifactRepository());
+            RepositoryDefinition repositoryDefinition = archiveRoot.getRepositories() != null
+                    ? archiveRoot.getRepositories().get(instance.getArtifactRepository()) : null;
             if (repositoryDefinition == null) {
                 ParsingContextExecution.getParsingErrors().add(new ParsingError(ErrorCode.UNKNOWN_REPOSITORY, "Implementation artifact", node.getStartMark(),
                         "Repository definition not found", node.getEndMark(), instance.getArtifactRepository()));
@@ -65,10 +63,10 @@ public class ArtifactPostProcessor implements IPostProcessor<AbstractArtifact> {
         int dotIndex = artifactReference.lastIndexOf('.');
         String extension = (dotIndex == -1) ? "" : artifactReference.substring(dotIndex + 1);
         String type = null;
-        IndexedArtifactType indexedType = getFromArchiveRootWithExtension(archiveRoot, extension);
+        ArtifactType indexedType = getFromArchiveRootWithExtension(archiveRoot, extension);
         if (indexedType == null) {
-            IndexedArtifactType artifactType = repositorySearchService.getElementInDependencies(IndexedArtifactType.class,
-                    QueryBuilders.termQuery("fileExt", extension), archiveRoot.getArchive().getDependencies());
+            ArtifactType artifactType = repositorySearchService.getElementInDependencies(ArtifactType.class,
+                    archiveRoot.getArchive().getDependencies(), "fileExt", extension);
             if (artifactType != null) {
                 type = artifactType.getElementId();
             }
@@ -83,11 +81,11 @@ public class ArtifactPostProcessor implements IPostProcessor<AbstractArtifact> {
         return type;
     }
 
-    private IndexedArtifactType getFromArchiveRootWithExtension(ArchiveRoot archiveRoot, String extension) {
+    private ArtifactType getFromArchiveRootWithExtension(ArchiveRoot archiveRoot, String extension) {
         if (archiveRoot == null || archiveRoot.getArtifactTypes() == null || extension == null) {
             return null;
         }
-        for (IndexedArtifactType artifactType : archiveRoot.getArtifactTypes().values()) {
+        for (ArtifactType artifactType : archiveRoot.getArtifactTypes().values()) {
             if (artifactType.getFileExt() != null && artifactType.getFileExt().contains(extension)) {
                 return artifactType;
             }

@@ -146,7 +146,7 @@ Feature: Topology composition
     When I try to get a component with id "net.sample.LAMP:0.1.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
     And I should have a component with id "net.sample.LAMP:0.1.0-SNAPSHOT"
-    When I register the rest response data as SPEL context of type "alien4cloud.model.components.IndexedNodeType"
+    When I register the rest response data as SPEL context of type "org.alien4cloud.tosca.model.types.NodeType"
     Then The SPEL expression "elementId" should return "net.sample.LAMP"
     And The SPEL expression "archiveName" should return "net.sample.LAMP"
     And The SPEL expression "archiveVersion" should return "0.1.0-SNAPSHOT"
@@ -194,7 +194,7 @@ Feature: Topology composition
     When I try to get a component with id "net.sample.LAMP:0.1.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
     And I should have a component with id "net.sample.LAMP:0.1.0-SNAPSHOT"
-    When I register the rest response data as SPEL context of type "alien4cloud.model.components.IndexedNodeType"
+    When I register the rest response data as SPEL context of type "org.alien4cloud.tosca.model.types.NodeType"
     Then The SPEL expression "capabilities.^[id == 'hostMysql'].type" should return "alien.capabilities.MysqlDatabaseEndpoint"
     And The SPEL expression "capabilities.^[id == 'hostApache'].type" should return "alien.capabilities.ApacheContainer"
     And The SPEL expression "capabilities.^[id == 'attachWebsite'].type" should return "alien.capabilities.PHPModule"
@@ -857,7 +857,7 @@ Feature: Topology composition
       | type      | org.alien4cloud.tosca.editor.operations.substitution.AddSubstitutionTypeOperation |
       | elementId | tosca.nodes.Root                                                                  |
     And I save the topology
-    When If I search for topology templates I can find one with the name "net.sample.LAMP" version "0.1.0-SNAPSHOT" and store the related topology as a SPEL context
+    When I should be able to retrieve a topology with name "net.sample.LAMP" version "0.1.0-SNAPSHOT" and store it as a SPEL context
     And I get the current topology
     And I execute the operation
       | type              | org.alien4cloud.tosca.editor.operations.nodetemplate.AddNodeOperation |

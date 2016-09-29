@@ -9,9 +9,9 @@ import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcesso
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.IValue;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.definitions.IValue;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.MapUtil;
 import lombok.extern.slf4j.Slf4j;

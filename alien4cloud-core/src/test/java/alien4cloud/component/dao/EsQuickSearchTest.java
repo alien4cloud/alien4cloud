@@ -15,8 +15,6 @@ import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.mapping.ElasticSearchClient;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,9 +27,9 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.application.Application;
-import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.RequirementDefinition;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,11 +55,11 @@ public class EsQuickSearchTest extends AbstractDAOTest {
     @Resource(name = "alien-es-dao")
     IGenericSearchDAO alienDAO;
 
-    List<IndexedNodeType> componentDataTest = new ArrayList<>();
+    List<NodeType> componentDataTest = new ArrayList<>();
     List<Application> applcationDataTest = new ArrayList<>();
 
-    IndexedNodeType indexedNodeTypeTest = null;
-    IndexedNodeType indexedNodeTypeTest2 = null;
+    NodeType indexedNodeTypeTest = null;
+    NodeType indexedNodeTypeTest2 = null;
 
     @Before
     public void before() throws Exception {
@@ -81,13 +79,13 @@ public class EsQuickSearchTest extends AbstractDAOTest {
     public void simpleQuickSearchTest() throws IndexingServiceException, InterruptedException, IOException {
         String searchText = "app";
         GetMultipleDataResult searchResp = alienDAO.search(new String[] { APPLICATION_INDEX, ElasticSearchDAO.TOSCA_ELEMENT_INDEX }, new Class<?>[] {
-                IndexedNodeType.class, Application.class }, searchText, null, null, 0, 10);
+                NodeType.class, Application.class }, searchText, null, null, 0, 10);
         assertNotNull(searchResp);
         assertNotNull(searchResp.getTypes());
         assertNotNull(searchResp.getData());
         assertEquals(2, searchResp.getTypes().length);
         assertEquals(2, searchResp.getData().length);
-        assertElementIn("indexednodetype", searchResp.getTypes());
+        assertElementIn("nodetype", searchResp.getTypes());
         assertElementIn("application", searchResp.getTypes());
     }
 
@@ -115,7 +113,7 @@ public class EsQuickSearchTest extends AbstractDAOTest {
     }
 
     private void saveDataToES(boolean refresh) throws JsonProcessingException {
-        for (IndexedNodeType datum : componentDataTest) {
+        for (NodeType datum : componentDataTest) {
             String json = jsonMapper.writeValueAsString(datum);
             String typeName = MappingBuilder.indexTypeFromClass(datum.getClass());
             nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(json).setRefresh(refresh).execute().actionGet();

@@ -1,10 +1,10 @@
 package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.topology.TopologyServiceCore;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 
-import alien4cloud.model.topology.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.AbstractNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
 

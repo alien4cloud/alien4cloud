@@ -4,14 +4,14 @@ import java.nio.file.Path;
 
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.catalog.ArchiveParser;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.exception.EditorToscaYamlUpdateException;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.alien4cloud.tosca.model.types.AbstractToscaType;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.wf.WorkflowsBuilderService;
-import alien4cloud.tosca.ArchiveParser;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
@@ -33,10 +33,10 @@ public class EditorTopologyUploadService {
      *
      * @param archivePath The path of the yaml or archive.
      */
-    public void processTopology(Path archivePath) {
+    public void processTopology(Path archivePath, String workspace) {
         // parse the archive.
         try {
-            ParsingResult<ArchiveRoot> parsingResult = archiveParser.parse(archivePath, true);
+            ParsingResult<ArchiveRoot> parsingResult = archiveParser.parse(archivePath, true, workspace);
 
             // check if any blocker error has been found during parsing process.
             if (parsingResult.hasError(ParsingErrorLevel.ERROR)) {
@@ -50,16 +50,13 @@ public class EditorTopologyUploadService {
             if (!parsingResult.getResult().hasToscaTopologyTemplate()) {
                 throw new EditorToscaYamlUpdateException("A topology template is required in the topology edition context.");
             }
+            // FIXME CHECK IF USER TRIED TO CHANGE CSAR ELEMENTS (name/version etc.) and throw exception (you cannot do that from the editor).
 
             Topology currentTopology = EditionContextManager.getTopology();
             Topology parsedTopology = parsingResult.getResult().getTopology();
 
             // Copy static elements from the topology
             parsedTopology.setId(currentTopology.getId());
-            parsedTopology.setYamlFilePath(currentTopology.getYamlFilePath());
-            parsedTopology.setDelegateId(currentTopology.getDelegateId());
-            parsedTopology.setDelegateType(currentTopology.getDelegateType());
-
             // Update editor tosca context
             ToscaContext.get().updateDependencies(parsedTopology.getDependencies());
 
@@ -72,7 +69,7 @@ public class EditorTopologyUploadService {
                         }
 
                         @Override
-                        public <T extends IndexedToscaElement> T findElement(Class<T> clazz, String id) {
+                        public <T extends AbstractToscaType> T findElement(Class<T> clazz, String id) {
                             return ToscaContext.get(clazz, id);
                         }
                     });

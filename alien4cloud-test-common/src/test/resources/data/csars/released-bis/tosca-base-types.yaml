@@ -1,0 +1,42 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: Test for released archive override. Lets add this in description so that the hash changes
+template_name: released-test
+template_version: 1.0
+template_author: Alien
+
+node_types:
+  tosca.nodes.Root:
+    abstract: true
+    description: >
+      This is the default (root) TOSCA Node Type that all other TOSCA nodes should extends.
+      This allows all TOSCA nodes to have a consistent set of features for modeling and management
+      (e.g, consistent definitions for requirements, capabilities, and lifecycle interfaces).
+    tags:
+      icon: /images/root.png
+    attributes:
+      tosca_id:
+        type: string
+      tosca_name:
+        type: string
+    requirements:
+      dependency:
+        type: tosca.capabilities.Feature
+        lower_bound: 0
+        upper_bound: unbounded
+    capabilities:
+      feature:
+        type: tosca.capabilities.Feature
+        upper_bound: unbounded
+    interfaces:
+      lifecycle:
+        description: Default lifecycle for nodes in TOSCA.
+        create:
+          description: Basic lifecycle create operation.
+        configure:
+          description: Basic lifecycle configure operation.
+        start:
+          description: Basic lifecycle start operation.
+        stop:
+          description: Basic lifecycle stop operation.
+        delete:
+          description: Basic lifecycle delete operation.

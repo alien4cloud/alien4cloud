@@ -9,9 +9,9 @@ import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 
 import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.model.components.Operation;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
+import org.alien4cloud.tosca.model.definitions.Operation;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.paas.wf.WorkflowsBuilderService.TopologyContext;
 import alien4cloud.paas.wf.exception.BadWorkflowOperationException;

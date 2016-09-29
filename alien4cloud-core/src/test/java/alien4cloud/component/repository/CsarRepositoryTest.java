@@ -9,21 +9,20 @@ import java.nio.file.Paths;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
+import org.alien4cloud.tosca.catalog.repository.ICsarRepositry;
+import org.alien4cloud.tosca.model.Csar;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.component.repository.CsarFileRepository;
-import alien4cloud.component.repository.ICsarRepositry;
+import alien4cloud.common.AlienConstants;
 import alien4cloud.component.repository.exception.CSARStorageFailureException;
-import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
-import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.utils.FileUtil;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -38,51 +37,53 @@ public class CsarRepositoryTest {
     @Value("${directories.alien}/${directories.csar_repository}")
     private String alienRepoDir;
 
-    @Test(expected = CSARVersionNotFoundException.class)
-    public void CSARVersionNotFoundTest() throws CSARVersionNotFoundException {
+    @Test(expected = NotFoundException.class)
+    public void CSARVersionNotFoundTest() {
         cleanup();
         repo.getCSAR(testFileName, "1.0");
     }
 
     @Test
-    public void storeCSARTest() throws CSARVersionAlreadyExistsException {
+    public void storeCSARTest() {
         cleanup();
         testStoreSuccessful("1.0");
     }
 
     @Test
-    public void getCASERTest() throws CSARVersionNotFoundException, CSARVersionAlreadyExistsException {
+    public void getCASERTest() {
         cleanup();
         storeTestCSAR(testFileName, "1.0", tmpPath);
         testGetCSARSuccessul();
     }
 
     @Test(expected = CSARStorageFailureException.class)
-    public void testBadTmpPathToStore() throws CSARVersionAlreadyExistsException {
+    public void testBadTmpPathToStore() {
         cleanup();
         storeTestCSAR(testFileName, "1.0", "src/test/files/positive.rar");
     }
 
-    public void testStoreSuccessful(String version) throws CSARVersionAlreadyExistsException {
+    public void testStoreSuccessful(String version) {
         Path path = storeTestCSAR(testFileName, version, tmpPath);
 
         assertTrue("File " + path + " Was supposed to be created but not the case.", fileExists(path, false));
     }
 
     @Test
-    public void testOverrideExistingSnapshotVersion() throws CSARVersionAlreadyExistsException {
+    public void testOverrideExistingSnapshotVersion() {
         cleanup();
         testStoreSuccessful("1.0-snapshot");
         testStoreSuccessful("1.0-snapshot");
     }
 
-    private Path storeTestCSAR(String testFileName, String version, String tmpPath) throws CSARVersionAlreadyExistsException {
+    private Path storeTestCSAR(String testFileName, String version, String tmpPath) {
         Path path = Paths.get(tmpPath).toAbsolutePath();
-        repo.storeCSAR(testFileName, version, path);
+        Csar csar = new Csar(testFileName, version);
+        csar.setWorkspace(AlienConstants.GLOBAL_WORKSPACE_ID);
+        repo.storeCSAR(csar, path);
         return path;
     }
 
-    public void testGetCSARSuccessul() throws CSARVersionNotFoundException {
+    public void testGetCSARSuccessul() {
         Path path = repo.getCSAR(testFileName, "1.0");
         assertNotNull(path);
         String[] splits = path.toString().split("[\\\\/]");

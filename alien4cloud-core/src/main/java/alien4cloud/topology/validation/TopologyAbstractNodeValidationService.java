@@ -1,7 +1,7 @@
 package alien4cloud.topology.validation;
 
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.topology.Topology;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.templates.Topology;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.task.SuggestionsTask;
@@ -31,9 +31,9 @@ public class TopologyAbstractNodeValidationService {
      */
     @SneakyThrows({ IOException.class })
     public List<SuggestionsTask> findReplacementForAbstracts(Topology topology) {
-        Map<String, IndexedNodeType> nodeTempNameToAbstractIndexedNodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, true, true, true);
+        Map<String, NodeType> nodeTempNameToAbstractIndexedNodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, true, true, true);
         Map<String, Map<String, Set<String>>> nodeTemplatesToFilters = Maps.newHashMap();
-        for (Map.Entry<String, IndexedNodeType> idntEntry : nodeTempNameToAbstractIndexedNodeTypes.entrySet()) {
+        for (Map.Entry<String, NodeType> idntEntry : nodeTempNameToAbstractIndexedNodeTypes.entrySet()) {
             topologyService.processNodeTemplate(topology, Maps.immutableEntry(idntEntry.getKey(), topology.getNodeTemplates().get(idntEntry.getKey())),
                     nodeTemplatesToFilters);
         }

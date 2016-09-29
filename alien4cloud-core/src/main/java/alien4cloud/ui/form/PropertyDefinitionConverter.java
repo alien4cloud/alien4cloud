@@ -6,20 +6,20 @@ import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.components.PropertyConstraint;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
-import alien4cloud.model.components.constraints.EqualConstraint;
-import alien4cloud.model.components.constraints.GreaterOrEqualConstraint;
-import alien4cloud.model.components.constraints.GreaterThanConstraint;
-import alien4cloud.model.components.constraints.InRangeConstraint;
-import alien4cloud.model.components.constraints.LengthConstraint;
-import alien4cloud.model.components.constraints.LessOrEqualConstraint;
-import alien4cloud.model.components.constraints.LessThanConstraint;
-import alien4cloud.model.components.constraints.MaxLengthConstraint;
-import alien4cloud.model.components.constraints.MinLengthConstraint;
-import alien4cloud.model.components.constraints.PatternConstraint;
-import alien4cloud.model.components.constraints.ValidValuesConstraint;
+import org.alien4cloud.tosca.model.definitions.PropertyConstraint;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
+import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.GreaterOrEqualConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.GreaterThanConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.InRangeConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.LengthConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.LessOrEqualConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.LessThanConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.MaxLengthConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.MinLengthConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.PatternConstraint;
+import org.alien4cloud.tosca.model.definitions.constraints.ValidValuesConstraint;
 import alien4cloud.ui.form.annotation.FormPropertyDefinition;
 import alien4cloud.ui.form.exception.FormDescriptorGenerationException;
 

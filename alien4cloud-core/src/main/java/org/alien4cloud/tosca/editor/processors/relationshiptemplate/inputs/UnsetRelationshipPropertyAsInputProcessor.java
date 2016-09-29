@@ -7,11 +7,11 @@ import org.alien4cloud.tosca.editor.operations.relationshiptemplate.inputs.Unset
 import org.alien4cloud.tosca.editor.processors.relationshiptemplate.AbstractRelationshipProcessor;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
+import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
 import alien4cloud.tosca.context.ToscaContext;
 import alien4cloud.utils.PropertyUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class UnsetRelationshipPropertyAsInputProcessor extends AbstractRelations
     protected void processRelationshipOperation(UnsetRelationshipPropertyAsInputOperation operation, NodeTemplate nodeTemplate,
             RelationshipTemplate relationshipTemplate) {
 
-        IndexedRelationshipType relationshipType = ToscaContext.get(IndexedRelationshipType.class, relationshipTemplate.getType());
+        RelationshipType relationshipType = ToscaContext.get(RelationshipType.class, relationshipTemplate.getType());
         PropertyDefinition relationshipPropertyDefinition = getOrFail(relationshipType.getProperties(), operation.getPropertyName(),
                 "Property {} do not exist for relationship {} of node {}", operation.getPropertyName(), operation.getRelationshipName(),
                 operation.getNodeName());

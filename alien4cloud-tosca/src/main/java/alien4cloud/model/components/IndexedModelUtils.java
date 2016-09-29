@@ -7,6 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.definitions.Interface;
+import org.alien4cloud.tosca.model.definitions.Operation;
+import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
+import org.alien4cloud.tosca.model.types.AbstractInheritableToscaType;
+import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.model.types.RelationshipType;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -26,27 +34,27 @@ public final class IndexedModelUtils {
     }
 
     /**
-     * This utility method returns an ordered {@link alien4cloud.model.components.IndexedInheritableToscaElement} collection. The parent elements will be before
+     * This utility method returns an ordered {@link AbstractInheritableToscaType} collection. The parent elements will be before
      * the children elements
-     * This utility method returns an ordered {@link IndexedInheritableToscaElement} collection. The parent elements will be before the children elements
+     * This utility method returns an ordered {@link AbstractInheritableToscaType} collection. The parent elements will be before the children elements
      *
-     * @param elementsByIdMap map of {@link IndexedInheritableToscaElement} by id
+     * @param elementsByIdMap map of {@link AbstractInheritableToscaType} by id
      * @return
      */
-    public static <T extends IndexedInheritableToscaElement> List<T> orderByDerivedFromHierarchy(final Map<String, T> elementsByIdMap) {
+    public static <T extends AbstractInheritableToscaType> List<T> orderByDerivedFromHierarchy(final Map<String, T> elementsByIdMap) {
         if (elementsByIdMap == null) {
             return null;
         }
         List<T> orderedElements = new ArrayList<T>(elementsByIdMap.values());
         final Map<String, Integer> elementsLevelMap = Maps.newHashMap();
-        for (IndexedInheritableToscaElement element : orderedElements) {
-            IndexedInheritableToscaElement parent = element;
+        for (AbstractInheritableToscaType element : orderedElements) {
+            AbstractInheritableToscaType parent = element;
             int levelCount = 0;
             while (true) {
                 if (parent.getDerivedFrom() == null || parent.getDerivedFrom().isEmpty()) {
                     break;
                 }
-                IndexedInheritableToscaElement oldParent = parent;
+                AbstractInheritableToscaType oldParent = parent;
                 parent = elementsByIdMap.get(parent.getDerivedFrom().get(0));
                 if (parent == null) {
                     break;
@@ -63,8 +71,8 @@ public final class IndexedModelUtils {
         Collections.sort(orderedElements, (left, right) -> elementsLevelMap.get(left.getElementId()).compareTo(elementsLevelMap.get(right.getElementId())));
         return orderedElements;
     }
+    public static void mergeInheritableIndex(AbstractInheritableToscaType from, AbstractInheritableToscaType to) {
 
-    public static void mergeInheritableIndex(IndexedInheritableToscaElement from, IndexedInheritableToscaElement to) {
         if (from.getDerivedFrom() != null) {
             // use a linked HashSet so we don't add multiple elements more than once.
             LinkedHashSet<String> derivedFromSet = new LinkedHashSet<String>();
@@ -92,22 +100,22 @@ public final class IndexedModelUtils {
 
         mergePropertiesAndAttributes(from, to);
 
-        if (from instanceof IndexedNodeType && to instanceof IndexedNodeType) {
-            mergeNodeType((IndexedNodeType) from, (IndexedNodeType) to);
+        if (from instanceof NodeType && to instanceof NodeType) {
+            mergeNodeType((NodeType) from, (NodeType) to);
         }
 
-        if (from instanceof IndexedRelationshipType && to instanceof IndexedRelationshipType) {
-            mergeRelationshipType((IndexedRelationshipType) from, (IndexedRelationshipType) to);
+        if (from instanceof RelationshipType && to instanceof RelationshipType) {
+            mergeRelationshipType((RelationshipType) from, (RelationshipType) to);
         }
     }
 
-    private static void mergePropertiesAndAttributes(IndexedInheritableToscaElement from, IndexedInheritableToscaElement to) {
+    private static void mergePropertiesAndAttributes(AbstractInheritableToscaType from, AbstractInheritableToscaType to) {
         if (from.getProperties() != null) {
             to.setProperties(CollectionUtils.merge(from.getProperties(), to.getProperties(), false));
         }
     }
 
-    private static void mergeNodeType(IndexedNodeType from, IndexedNodeType to) {
+    private static void mergeNodeType(NodeType from, NodeType to) {
         to.setCapabilities(CollectionUtils.merge(from.getCapabilities(), to.getCapabilities()));
         to.setRequirements(CollectionUtils.merge(from.getRequirements(), to.getRequirements()));
         to.setInterfaces(mergeInterfaces(from.getInterfaces(), to.getInterfaces()));
@@ -117,7 +125,7 @@ public final class IndexedModelUtils {
         }
     }
 
-    private static void mergeRelationshipType(IndexedRelationshipType from, IndexedRelationshipType to) {
+    private static void mergeRelationshipType(RelationshipType from, RelationshipType to) {
         if (to.getValidSources() == null) {
             to.setValidSources(from.getValidSources());
         }

@@ -5,10 +5,12 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import org.alien4cloud.tosca.model.definitions.CapabilityDefinition;
+import org.alien4cloud.tosca.model.definitions.RequirementDefinition;
 
 /**
- * Utility class to deserialize the unbounded string as a int value for {@link alien4cloud.model.components.RequirementDefinition} and
- * {@link alien4cloud.model.components.CapabilityDefinition}.
+ * Utility class to deserialize the unbounded string as a int value for {@link RequirementDefinition} and
+ * {@link CapabilityDefinition}.
  * 
  * @author luc boutier
  */
