@@ -83,6 +83,7 @@
     },
     "SHOW_DEPLOYED_APP" : "Only show deployed applications.",
     "TOPOLOGY" : {
+      "DUPLICATE": "Duplicate the topology",
       "EDITOR": "Visual Editor",
       "YAML": "Yaml",
       "FILES": "Archive content browser",
