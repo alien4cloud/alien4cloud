@@ -105,7 +105,9 @@ public final class AuthorizationUtil {
      */
     public static void checkHasOneRoleIn(Role... expectedRoles) {
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        checkHasOneRoleIn(auth, expectedRoles);
+        if (auth != null) {
+            checkHasOneRoleIn(auth, expectedRoles);
+        }
     }
 
     /**
