@@ -2,10 +2,20 @@ package alien4cloud.plugin;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 
@@ -29,8 +39,18 @@ import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.plugin.exception.MissingPlugingDescriptorFileException;
 import alien4cloud.plugin.exception.PluginLoadingException;
-import alien4cloud.plugin.model.*;
-import alien4cloud.utils.*;
+import alien4cloud.plugin.model.ManagedPlugin;
+import alien4cloud.plugin.model.PluginComponent;
+import alien4cloud.plugin.model.PluginComponentDescriptor;
+import alien4cloud.plugin.model.PluginConfiguration;
+import alien4cloud.plugin.model.PluginDescriptor;
+import alien4cloud.plugin.model.PluginUsage;
+import alien4cloud.utils.ClassLoaderUtil;
+import alien4cloud.utils.FileUtil;
+import alien4cloud.utils.MapUtil;
+import alien4cloud.utils.ReflectionUtil;
+import alien4cloud.utils.SpringUtils;
+import alien4cloud.utils.YamlParserUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -392,9 +412,11 @@ public class PluginManager {
         constructorArgumentValues.addIndexedArgumentValue(3, pluginUiPath);
         beanDefinition.setConstructorArgumentValues(constructorArgumentValues);
         pluginContext.registerBeanDefinition("alien-plugin-context", beanDefinition);
-
-        pluginContext.refresh();
-        pluginContext.start();
+        // Use plugin classloader as context classloader as some codes still use this
+        ClassLoaderUtil.runWithContextClassLoader(pluginClassLoader, () -> {
+            pluginContext.refresh();
+            pluginContext.start();
+        });
         ManagedPlugin managedPlugin = (ManagedPlugin) pluginContext.getBean("alien-plugin-context");
 
         Map<String, PluginComponentDescriptor> componentDescriptors = getPluginComponentDescriptorAsMap(plugin);
