@@ -45,6 +45,7 @@ import alien4cloud.plugin.model.PluginComponentDescriptor;
 import alien4cloud.plugin.model.PluginConfiguration;
 import alien4cloud.plugin.model.PluginDescriptor;
 import alien4cloud.plugin.model.PluginUsage;
+import alien4cloud.utils.ClassLoaderUtil;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
@@ -412,16 +413,10 @@ public class PluginManager {
         beanDefinition.setConstructorArgumentValues(constructorArgumentValues);
         pluginContext.registerBeanDefinition("alien-plugin-context", beanDefinition);
         // Use plugin classloader as context classloader as some codes still use this
-        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(pluginClassLoader);
-        try {
+        ClassLoaderUtil.runWithContextClassLoader(pluginClassLoader, () -> {
             pluginContext.refresh();
             pluginContext.start();
-        } finally {
-            // Put it back
-            Thread.currentThread().setContextClassLoader(contextClassLoader);
-        }
-
+        });
         ManagedPlugin managedPlugin = (ManagedPlugin) pluginContext.getBean("alien-plugin-context");
 
         Map<String, PluginComponentDescriptor> componentDescriptors = getPluginComponentDescriptorAsMap(plugin);
