@@ -257,6 +257,9 @@ public class RepositoryManager {
                         commit.getAuthorIdent().getEmailAddress(), commit.getFullMessage(), new Date(commit.getCommitTime() * 1000L)));
             }
             return historyEntries;
+        } catch (NoHeadException e) {
+            log.info("Your repository has no head, you need to save your topology before using the git history.");
+            return Lists.newArrayList();
         } catch (GitAPIException | IOException e) {
             throw new GitException("Unable to get history from the git repository", e);
         } finally {

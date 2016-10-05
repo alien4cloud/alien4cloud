@@ -549,6 +549,7 @@
     "UNDO": "Undo",
     "REDO": "Redo",
     "OPERATION": "Operation",
+    "EMPTY_GIT_HISTORY": "The git history is empty, you need to save the topology.",
     "GIT_HISTORY": "Git history",
     "MENU_TOPOLOGY": "Topology",
     "MENU_WORKFLOW": "Workflows",

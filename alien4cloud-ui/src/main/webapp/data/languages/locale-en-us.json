@@ -568,6 +568,7 @@
     "REDO": "Redo",
     "OPERATION": "Operation",
     "GIT_HISTORY": "Git history",
+    "EMPTY_GIT_HISTORY": "The git history is empty, you need to save the topology.",
     "MENU_TOPOLOGY": "Topology",
     "MENU_WORKFLOW": "Workflows",
     "MENU_FILES": "Archive content",

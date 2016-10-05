@@ -551,6 +551,7 @@
     "REDO": "Rejouer",
     "OPERATION": "Operation",
     "GIT_HISTORY": "Historique git",
+    "EMPTY_GIT_HISTORY": "L'historique git est vide, vous devez sauver la topologie.",
     "MENU_TOPOLOGY": "Topologie",
     "MENU_WORKFLOW": "Workflows",
     "MENU_FILES": "Fichiers de l'archive",
