@@ -61,9 +61,8 @@ public class CrudCSARSStepDefinition {
     public void I_add_a_dependency_with_name_version_to_the_CSAR_with_name_version(String dependencyName, String dependencyVersion, String csarName,
             String csarVersion) throws Throwable {
         CSARDependency dependency = new CSARDependency(dependencyName, dependencyVersion);
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/v1/csars/" + csarName + ":" + csarVersion + "-SNAPSHOT" + "/dependencies",
-                        JsonUtil.toString(dependency)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance()
+                .postJSon("/rest/v1/csars/" + csarName + ":" + csarVersion + "-SNAPSHOT" + "/dependencies", JsonUtil.toString(dependency)));
     }
 
     @Then("^I have the CSAR \"([^\"]*)\" version \"([^\"]*)\" to contain a dependency to \"([^\"]*)\" version \"([^\"]*)\"$")
@@ -85,11 +84,8 @@ public class CrudCSARSStepDefinition {
     @Given("^I can find (\\d+) CSAR$")
     public void i_can_find_CSAR(int expectedSize) throws Throwable {
         SearchRequest req = new SearchRequest(null, null, 0, 50, null);
-        req.setType(req.getType());
-
         String jSon = jsonMapper.writeValueAsString(req);
         String response = Context.getRestClientInstance().postJSon("/rest/v1/csars/search", jSon);
-
         RestResponse<FacetedSearchResult> restResponse = JsonUtil.read(response, FacetedSearchResult.class);
         FacetedSearchResult searchResp = restResponse.getData();
         assertNotNull(searchResp);
