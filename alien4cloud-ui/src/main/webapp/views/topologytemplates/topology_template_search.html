@@ -50,6 +50,8 @@
                 <button class="btn btn-default" ng-click="openCsar(topology.id, $event)" tooltip="{{'COMPONENTS.ARCHIVE' | translate}}">
                   <i class="fa fa-archive"></i>
                 </button>
+                <delete-confirm id="delete-csar_{{topology.id}" func="removeCsar(topology.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                </delete-confirm>
               </div>
             </td>
           </tr>

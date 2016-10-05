@@ -6,8 +6,8 @@ define(function (require) {
   var _ = require('lodash');
 
   modules.get('a4c-topology-templates', ['ui.router', 'ui.bootstrap', 'a4c-auth', 'a4c-common']).controller('TopologyTemplateSearchCtrl',
-    ['$scope', '$modal', '$resource', '$state', 'authService', '$alresource',
-    function($scope, $modal, $resource, $state, authService, $alresource) {
+    ['$scope', '$modal', '$resource', '$state', 'authService', '$alresource', 'csarService', '$translate', 'toaster',
+    function($scope, $modal, $resource, $state, authService, $alresource, csarService, $translate, toaster) {
       $scope.onSearch = function (searchConfig) {
         $scope.searchConfig = searchConfig;
       };
@@ -17,6 +17,20 @@ define(function (require) {
           event.stopPropagation();
         }
         $state.go('components.csars.csardetail', { csarId: csarId });
+      };
+
+      $scope.removeCsar = function(id) {
+        csarService.getAndDeleteCsar.remove({
+          csarId: id
+        }, function(result) {
+          var errorMessage = csarService.builtErrorResultList(result);
+          if (errorMessage) {
+            var title = $translate.instant('CSAR.ERRORS.' + result.error.code + '_TITLE');
+            toaster.pop('error', title, errorMessage, 4000, 'trustedHtml', null);
+          } else {
+            $state.reload();
+          }
+        });
       };
 
       var fetchVersionsResource = $alresource('rest/latest/catalog/topologies/:archiveName/versions');
