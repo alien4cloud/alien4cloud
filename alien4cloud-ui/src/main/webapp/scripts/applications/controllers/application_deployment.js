@@ -130,7 +130,7 @@ define(function(require) {
         // Retrieval and validation of the topology associated with the deployment.
         var checkTopology = function() {
 
-          $scope.isTopologyValid($scope.topologyId, $scope.deploymentContext.selectedEnvironment.id).$promise.then(function(validTopologyResult) {
+          $scope.isTopologyValid($scope.topologyId).$promise.then(function(validTopologyResult) {
             $scope.validTopologyDTO = validTopologyResult.data;
             tasksProcessor.processAll($scope.validTopologyDTO);
           });

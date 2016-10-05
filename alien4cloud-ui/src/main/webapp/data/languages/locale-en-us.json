@@ -182,6 +182,8 @@
           "MISSING" : "Mandatory property"
         },
         "TOADD_RELATIONSHIP_LABEL" : "Unsatisfied requirements (relationship should be added)",
+        "VALIDATION_FAILLED" : "The topology is not valid, go to the topology editor for more informations.",
+        "VALIDATION_SUCCESS" : "The topology is valid.",
         "WORKFLOWS" : {
           "HAS_ERROR" : "Workflow '{{workflowName}}' is not valid : {{errorCount}} error(s)",
           "TITLE" : "Workflows"

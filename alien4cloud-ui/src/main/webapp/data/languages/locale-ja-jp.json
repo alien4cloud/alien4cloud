@@ -179,6 +179,8 @@
           "MISSING" : "必須プロパティ"
         },
         "TOADD_RELATIONSHIP_LABEL" : "要求不足 (関連を追加する必要あり)",
+        "VALIDATION_FAILLED" : "The topology is not valid, go to the topology editor for more informations.",
+        "VALIDATION_SUCCESS" : "The topology is valid",
         "WORKFLOWS" : {
           "HAS_ERROR" : "Workflow '{{workflowName}}' is not valid : {{errorCount}} error(s)",
           "TITLE" : "Workflows"
