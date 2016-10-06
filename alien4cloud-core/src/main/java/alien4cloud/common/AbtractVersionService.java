@@ -10,8 +10,6 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import alien4cloud.dao.FilterUtil;
-import alien4cloud.utils.FileUtil;
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
 import org.alien4cloud.tosca.catalog.index.CsarService;
@@ -83,7 +81,7 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
         // Every version of an application has a Cloud Service Archive
         String delegateType = ArchiveDelegateType.APPLICATION.toString();
         Csar csar = new Csar(delegateId, version);
-        csar.setWorkspace(APP_WORKSPACE_PREFIX + delegateId);
+        csar.setWorkspace(APP_WORKSPACE_PREFIX + ":" + delegateId);
         csar.setDelegateId(delegateId);
         csar.setDelegateType(delegateType);
 
