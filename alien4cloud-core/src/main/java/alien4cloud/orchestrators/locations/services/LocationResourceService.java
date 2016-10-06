@@ -297,7 +297,6 @@ public class LocationResourceService implements ILocationResourceService {
     public void deleteResourceTemplate(String resourceId) {
         LocationResourceTemplate resourceTemplate = getOrFail(resourceId);
         Location location = locationService.getOrFail(resourceTemplate.getLocationId());
-        location.setLastUpdateDate(new Date());
         alienDAO.delete(LocationResourceTemplate.class, resourceId);
         alienDAO.save(location);
     }
@@ -428,7 +427,6 @@ public class LocationResourceService implements ILocationResourceService {
         // QueryBuilder builder = QueryBuilders.filteredQuery(locationIdQuery, filterBuilder);
         QueryBuilder builder = QueryBuilders.boolQuery().must(locationIdQuery).must(generatedFieldQuery);
         Location location = locationService.getOrFail(locationId);
-        location.setLastUpdateDate(new Date());
         alienDAO.delete(LocationResourceTemplate.class, builder);
         alienDAO.save(location);
     }
@@ -441,7 +439,6 @@ public class LocationResourceService implements ILocationResourceService {
      */
     @Override
     public void saveResource(Location location, LocationResourceTemplate resourceTemplate) {
-        location.setLastUpdateDate(new Date());
         alienDAO.save(location);
         alienDAO.save(resourceTemplate);
     }

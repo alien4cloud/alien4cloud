@@ -217,7 +217,6 @@ public class LocationService {
                 applicationContext.publishEvent(event);
             }
             alienDAO.save(templates.toArray(new LocationResourceTemplate[templates.size()]));
-            location.setLastUpdateDate(new Date());
             alienDAO.save(location);
         }
         return templates;

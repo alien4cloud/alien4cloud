@@ -68,8 +68,6 @@ public class ApplicationService {
 
         application.setName(name);
         application.setDescription(description);
-        application.setCreationDate(new Date());
-        application.setLastUpdateDate(new Date());
 
         application.setTags(Lists.<Tag> newArrayList());
         application.setMetaProperties(Maps.<String, String> newHashMap());
@@ -120,8 +118,6 @@ public class ApplicationService {
             application.setDescription(newDescription);
         }
 
-        // update updateDate
-        application.setLastUpdateDate(new Date());
         alienDAO.save(application);
     }
 

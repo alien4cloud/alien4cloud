@@ -86,9 +86,6 @@ public class ToscaTypeIndexerService implements IToscaTypeIndexerService {
     @Override
     public void indexInheritableElements(Map<String, ? extends AbstractInheritableToscaType> archiveElements, Collection<CSARDependency> dependencies) {
         for (AbstractInheritableToscaType element : safe(archiveElements).values()) {
-            element.setLastUpdateDate(new Date());
-            Date creationDate = element.getCreationDate() == null ? element.getLastUpdateDate() : element.getCreationDate();
-            element.setCreationDate(creationDate);
             alienDAO.save(element);
         }
         refreshIndexForSearching();
@@ -111,10 +108,6 @@ public class ToscaTypeIndexerService implements IToscaTypeIndexerService {
             }
         }
 
-        // update the dates and save
-        element.setLastUpdateDate(new Date());
-        Date creationDate = element.getCreationDate() == null ? element.getLastUpdateDate() : element.getCreationDate();
-        element.setCreationDate(creationDate);
         alienDAO.save(element);
         refreshIndexForSearching();
     }

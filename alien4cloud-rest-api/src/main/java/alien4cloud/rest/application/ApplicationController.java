@@ -165,7 +165,6 @@ public class ApplicationController {
                     "Unable to read image from file upload [" + image.getOriginalFilename() + "] to update application [" + applicationId + "]", e);
         }
         data.setImageId(imageId);
-        data.setLastUpdateDate(new Date());
         alienDAO.save(data);
         return RestResponseBuilder.<String> builder().data(imageId).build();
     }

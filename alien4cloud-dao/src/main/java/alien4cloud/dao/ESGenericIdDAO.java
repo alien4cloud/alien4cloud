@@ -1,6 +1,8 @@
 package alien4cloud.dao;
 
 import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.model.common.ICreationDate;
+import alien4cloud.model.common.ILastUpdateDate;
 import lombok.SneakyThrows;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
@@ -13,6 +15,7 @@ import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,12 +25,30 @@ import java.util.List;
  */
 public abstract class ESGenericIdDAO extends ESIndexMapper implements IGenericIdDAO {
 
+    /**
+     * The save method should be in charge to set the creationDate and the lastUpdateDate.
+     * @param data
+     * @param <T>
+     */
+    private <T> void updateDate(T data) {
+        if (data instanceof ICreationDate || data instanceof ILastUpdateDate) {
+            Date date = new Date();
+            if (data instanceof ICreationDate && ((ICreationDate) data).getCreationDate() == null) {
+                ((ICreationDate) data).setCreationDate(date);
+            }
+            if (data instanceof ILastUpdateDate) {
+                ((ILastUpdateDate) data).setLastUpdateDate(date);
+            }
+        }
+    }
+
     @Override
     @SneakyThrows({ IOException.class })
     public <T> void save(T data) {
         String indexName = getIndexForType(data.getClass());
         String typeName = MappingBuilder.indexTypeFromClass(data.getClass());
 
+        updateDate(data);
         String json = getJsonMapper().writeValueAsString(data);
         getClient().prepareIndex(indexName, typeName).setOperationThreaded(false).setSource(json).setRefresh(true).execute().actionGet();
     }
@@ -43,6 +64,7 @@ public abstract class ESGenericIdDAO extends ESIndexMapper implements IGenericId
             String indexName = getIndexForType(data.getClass());
             String typeName = MappingBuilder.indexTypeFromClass(data.getClass());
 
+            updateDate(data);
             String json = getJsonMapper().writeValueAsString(data);
             bulkRequestBuilder.add(getClient().prepareIndex(indexName, typeName).setSource(json));
         }

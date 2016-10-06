@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+import alien4cloud.model.common.ILastUpdateDate;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -36,7 +37,7 @@ import io.swagger.annotations.ApiModel;
 @ESObject
 @ApiModel(value = "Location", description = "A location represents a cloud, a region of a cloud, a set of machines and resources."
         + "basically any location on which alien will be allowed to perform deployment. Locations are managed by orchestrators.")
-public class Location implements ISecuredResource, IMetaProperties {
+public class Location implements ISecuredResource, IMetaProperties, ILastUpdateDate {
     @Id
     @FetchContext(contexts = SUMMARY, include = true)
     private String id;

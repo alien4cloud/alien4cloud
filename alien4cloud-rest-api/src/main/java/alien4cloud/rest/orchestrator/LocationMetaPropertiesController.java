@@ -31,6 +31,8 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationExc
 import io.swagger.annotations.Api;
 import io.swagger.annotations.Authorization;
 
+import java.util.Date;
+
 /**
  * Allow to manage the orchestrator properties
  */

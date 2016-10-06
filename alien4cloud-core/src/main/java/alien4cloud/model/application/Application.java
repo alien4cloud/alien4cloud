@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import alien4cloud.model.common.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,9 +21,6 @@ import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
-import alien4cloud.model.common.IMetaProperties;
-import alien4cloud.model.common.ITaggableResource;
-import alien4cloud.model.common.Tag;
 import alien4cloud.model.deployment.IDeploymentSource;
 import alien4cloud.security.ISecuredResource;
 import alien4cloud.security.model.ApplicationRole;
@@ -47,7 +45,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Setter
 @JsonInclude(Include.NON_NULL)
 @ESAll(analyser = "simple")
-public class Application implements ISecuredResource, IDeploymentSource, ITaggableResource, IMetaProperties {
+public class Application implements ISecuredResource, IDeploymentSource, ITaggableResource, IMetaProperties, ICreationDate, ILastUpdateDate {
 
     @Id
     @FetchContext(contexts = { SUMMARY }, include = { true })
