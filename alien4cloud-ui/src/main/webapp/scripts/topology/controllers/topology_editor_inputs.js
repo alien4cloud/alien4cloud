@@ -230,10 +230,8 @@ define(function (require) {
         },
 
         remove: function(inputId) {
-          var scope = this.scope;
           this.scope.execute({
             type: 'org.alien4cloud.tosca.editor.operations.inputs.DeleteInputOperation',
-            nodeName: scope.selectedNodeTemplate.name,
             inputName: inputId
           });
         },
