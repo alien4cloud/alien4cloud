@@ -233,7 +233,11 @@ public class RepositoryManager {
     }
 
     private static void setCredentials(TransportCommand<?, ?> command, String username, String password) {
-        if (username != null) {
+        if (username != null && username != "") {
+            if (password == null) {
+                // If an user accessing a GitHub repository through HTTPS with an OAuth access token
+                password = "";
+            }
             command.setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password));
         }
     }
