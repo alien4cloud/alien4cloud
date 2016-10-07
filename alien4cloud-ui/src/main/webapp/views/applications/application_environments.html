@@ -52,7 +52,7 @@
               <td ng-init="newAppVersion = getVersionByName(environment.currentVersionName)">
                 <ui-select name="applicationVersionsList" id="{{environment.name}}-versionslistid" ng-model="newAppVersion" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="updateApplicationEnvironment('currentVersionId', newAppVersion.version, environment.id)" reset-search-input="true" close-on-select="true">
                   <ui-select-match placeholder="Select or search a version...">{{$select.selected.version | limitTo: 20}}{{$select.selected.version.length > 20 ? '...' : ''}}</ui-select-match>
-                  <ui-select-choices repeat="appVersion in appVersions | filter: $select.search">
+                  <ui-select-choices repeat="appVersion in archiveVersions | filter: $select.search">
                     <span ng-bind-html="appVersion.version | limitTo: 20 | highlight: $select.search"></span>
                     {{appVersion.version.length > 20 ? '...' : ''}}
                   </ui-select-choices>
