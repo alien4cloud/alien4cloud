@@ -1,32 +1,45 @@
 package org.alien4cloud.tosca.catalog.index;
 
-import alien4cloud.common.AlienConstants;
-import alien4cloud.dao.model.FacetedSearchResult;
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.utils.VersionUtil;
+import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
+import static alien4cloud.dao.FilterUtil.singleKeyFilter;
+import static alien4cloud.dao.model.FetchContext.SUMMARY;
+
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import javax.inject.Inject;
+
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
-import java.util.Map;
-
-import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
-import static alien4cloud.dao.FilterUtil.singleKeyFilter;
-import static alien4cloud.dao.model.FetchContext.SUMMARY;
+import alien4cloud.common.AlienConstants;
+import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.exception.InvalidNameException;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.utils.VersionUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service responsible for indexing and updating topologies.
  */
+@Slf4j
 @Service
 public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topology> implements ITopologyCatalogService {
     @Inject
     private ArchiveIndexer archiveIndexer;
 
+    private static final String TOPOLOGY_TEMPLATE_NAME_REGEX = "[^/\\\\\\\\]+";
+
+
     @Override
     public Topology createTopologyAsTemplate(String name, String description, String version, String workspace, String fromTopologyId) {
+        if (!Pattern.matches(TOPOLOGY_TEMPLATE_NAME_REGEX, name)) {
+            log.debug("Topology template name <{}> contains forbidden character slash or backslash.", name);
+            throw new InvalidNameException("topologyTemplateName", name, "Topology template name <" + name + "> contains forbidden character slash or backslash.");
+        }
         // Every version of a topology template has a Cloud Service Archive
         Csar csar = new Csar(name, StringUtils.isNotBlank(version) ? version : VersionUtil.DEFAULT_VERSION_NAME);
         csar.setWorkspace(workspace);
