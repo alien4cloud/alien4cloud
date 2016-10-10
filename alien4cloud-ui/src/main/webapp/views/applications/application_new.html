@@ -36,11 +36,7 @@
       <button id="btn-cancel" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
     </div>
   </form>
-  <div class="row">
-    <topology-template-search
-      archive-link="false"
-      on-select="selectTemplate(topology)"
-      style="margin-left: 30px;padding-bottom: 5px;"/
-      class="col-lg-10">
-  </div>
+  <topology-template-search
+    archive-link="false"
+    on-select="selectTemplate(topology)"/>
 </div>
