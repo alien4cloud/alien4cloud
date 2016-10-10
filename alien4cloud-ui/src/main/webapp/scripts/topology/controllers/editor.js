@@ -252,7 +252,7 @@ define(function (require) {
               toaster.pop('success', $translate.instant('EDITOR.GIT.OPERATIONS.PUSH.TITLE'), $translate.instant('EDITOR.GIT.OPERATIONS.PUSH.SUCCESS_MSGE'), 4000, 'trustedHtml', null);
             }
             console.debug('pushed');
-          }).$promise;
+          });
         });
       };
 

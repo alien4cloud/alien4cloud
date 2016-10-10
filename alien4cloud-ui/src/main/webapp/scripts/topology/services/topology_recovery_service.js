@@ -9,13 +9,13 @@ define(function (require) {
       $scope.choice = {};
       $scope.recoveryOperation = recoveryOperation;
       $scope.choose = function(action) {
-          $modalInstance.close(action);
+        $modalInstance.close(action);
       };
 
       $scope.cancel = function() {
         $modalInstance.dismiss('cancel');
       };
-  }];
+    }];
 
   modules.get('a4c-topology-editor', ['ngResource']).factory('topologyRecoveryServices', ['$alresource', '$modal', '$q', 'toaster', '$translate', '$state',
     function($alresource, $modal, $q, toaster, $translate, $state) {
@@ -29,17 +29,19 @@ define(function (require) {
           case 1:
             return editorRecoverResource.update({
               topologyId: topologyId,
-              lastOperationId: lastOperationId}, undefined).$promise.then(function(topoDTO){
+              lastOperationId: lastOperationId
+            }, undefined).$promise.then(function(topoDTO){
               return topoDTO;
             });
           case 2:
             return editorResetResource.update({
               topologyId: topologyId,
-              lastOperationId: lastOperationId}, undefined).$promise.then(function(topoDTO){
+              lastOperationId: lastOperationId
+            }, undefined).$promise.then(function(topoDTO){
               return topoDTO;
             });
           default:
-           return null;
+            return null;
         }
 
       };

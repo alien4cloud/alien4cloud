@@ -106,15 +106,15 @@ define(function (require) {
                 $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties[propertyName] = propertyValue;
                 // Update deployment setup when properties change
                 deploymentTopologyServices.updateInputProperties({
-                      appId: $scope.application.id,
-                      envId: $scope.deploymentContext.selectedEnvironment.id
-                    }, angular.toJson({
-                      providerDeploymentProperties: $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties
-                    }), function (result) {
-                      if (!result.error) {
-                        $scope.updateScopeDeploymentTopologyDTO(result.data);
-                      }
+                    appId: $scope.application.id,
+                    envId: $scope.deploymentContext.selectedEnvironment.id
+                  }, angular.toJson({
+                    providerDeploymentProperties: $scope.deploymentContext.deploymentTopologyDTO.topology.providerDeploymentProperties
+                  }), function (result) {
+                    if (!result.error) {
+                      $scope.updateScopeDeploymentTopologyDTO(result.data);
                     }
+                  }
                 );
               }
             }).$promise;

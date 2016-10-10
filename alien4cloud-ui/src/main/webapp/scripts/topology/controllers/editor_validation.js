@@ -17,6 +17,6 @@ define(function (require) {
         });
       };
       isTopologyValid($scope.topologyId);
-
-  }]);
+    }]
+  );
 });

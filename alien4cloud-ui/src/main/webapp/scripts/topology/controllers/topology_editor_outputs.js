@@ -3,7 +3,6 @@ define(function (require) {
   'use strict';
   var modules = require('modules');
   var angular = require('angular');
-  var _ = require('lodash');
 
   modules.get('a4c-topology-editor').factory('topoEditOutputs', [
     function() {
