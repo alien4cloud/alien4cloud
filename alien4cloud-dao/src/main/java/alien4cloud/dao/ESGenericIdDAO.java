@@ -1,9 +1,12 @@
 package alien4cloud.dao;
 
-import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.model.common.ICreationDate;
-import alien4cloud.model.common.ILastUpdateDate;
-import lombok.SneakyThrows;
+import java.io.IOException;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
@@ -11,12 +14,9 @@ import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.mapping.MappingBuilder;
 
-import java.io.IOException;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.model.common.IUpdatedDate;
+import lombok.SneakyThrows;
 
 /**
  * ElasticSearch DAO to manage id based operations.
@@ -31,13 +31,11 @@ public abstract class ESGenericIdDAO extends ESIndexMapper implements IGenericId
      * @param <T>
      */
     private <T> void updateDate(T data) {
-        if (data instanceof ICreationDate || data instanceof ILastUpdateDate) {
-            Date date = new Date();
-            if (data instanceof ICreationDate && ((ICreationDate) data).getCreationDate() == null) {
-                ((ICreationDate) data).setCreationDate(date);
-            }
-            if (data instanceof ILastUpdateDate) {
-                ((ILastUpdateDate) data).setLastUpdateDate(date);
+        if (data instanceof IUpdatedDate) {
+            IUpdatedDate resource = (IUpdatedDate)data;
+            resource.setLastUpdateDate(new Date());
+            if (resource.getCreationDate() == null) {
+                resource.setCreationDate(resource.getLastUpdateDate());
             }
         }
     }

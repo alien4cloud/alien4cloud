@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
-import alien4cloud.model.common.ILastUpdateDate;
+import alien4cloud.model.common.IUpdatedDate;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.DeploymentArtifact;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
@@ -41,7 +41,7 @@ import lombok.Setter;
 @AllArgsConstructor(suppressConstructorProperties = true)
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Topology implements ILastUpdateDate {
+public class Topology implements IUpdatedDate {
     @StringField(indexType = IndexType.not_analyzed)
     @TermFilter
     private String archiveName;
@@ -61,7 +61,8 @@ public class Topology implements ILastUpdateDate {
     @StringField(indexType = IndexType.no)
     private String description;
 
-    /** Last update date of the topology to verify if the topology has been changed **/
+    private Date creationDate;
+
     private Date lastUpdateDate = new Date();
 
     /** The list of dependencies of this topology. */
