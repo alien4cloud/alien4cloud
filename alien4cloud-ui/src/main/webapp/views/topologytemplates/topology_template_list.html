@@ -12,12 +12,15 @@
         target-url="'rest/v1/csars'"
         drag-and-drop-message="'COMPONENTS.DRAG_DROP_UPLOAD'"
         button-message="'COMPONENTS.UPLOAD'"
-        upload-success-callback="searchService.search()" />
+        upload-success-callback="searchConfig.service.search()">
+      </upload-directive>
     </div>
   </div>
 
   <topology-template-search
     on-select="onSelect(topology)"
     on-select-for-clone="openNewTopologyTemplate(topology)"
-    archive-link="true"/>
+    on-search-config="onSearchConfigChanged(searchConfig)"
+    archive-link="true">
+  </topology-template-search>
 </div>

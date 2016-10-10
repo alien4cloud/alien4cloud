@@ -65,7 +65,9 @@ define(function (require) {
       $scope.onSelect = function(topology) {
         $scope.openTopology(topology.archiveName, topology.archiveVersion);
       };
-
+      $scope.onSearchConfigChanged = function (searchConfig) {
+        $scope.searchConfig = searchConfig;
+      };
       // API REST Definition
       var createTopologyTemplateResource = $alresource('/rest/latest/catalog/topologies/template');
       $scope.createTopologyTemplate = function(topologyTemplate) {

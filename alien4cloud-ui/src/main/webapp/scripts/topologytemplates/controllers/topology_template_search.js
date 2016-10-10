@@ -10,6 +10,7 @@ define(function (require) {
     function($scope, $modal, $resource, $state, authService, $alresource, csarService, $translate, toaster) {
       $scope.onSearch = function (searchConfig) {
         $scope.searchConfig = searchConfig;
+        $scope.onSearchConfig({ searchConfig: searchConfig });
       };
 
       $scope.openCsar = function(csarId, event) {
