@@ -2,7 +2,6 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
-  var _ = require('lodash');
 
   modules.get('a4c-topology-editor', ['ui.bootstrap']).controller('EditorGitRemoteModalController', ['$scope', '$modalInstance', 'remoteGit',
     function($scope, $modalInstance, remoteGit) {
@@ -31,7 +30,7 @@ define(function (require) {
             'password': $scope.gitPushPullForm.credentials.password,
           },
           'remoteBranch': $scope.gitPushPullForm.remoteBranch
-        }
+        };
         $modalInstance.close(form);
       };
 
@@ -42,7 +41,7 @@ define(function (require) {
             'password': $scope.gitPushPullForm.credentials.password,
           },
           'remoteBranch': $scope.gitPushPullForm.remoteBranch
-        }
+        };
         $modalInstance.close(form);
       };
       $scope.close = function() {

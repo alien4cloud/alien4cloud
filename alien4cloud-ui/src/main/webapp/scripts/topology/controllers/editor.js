@@ -27,8 +27,8 @@ define(function (require) {
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles', 'cfp.hotkeys']).controller('TopologyEditorCtrl',
     ['$scope', 'menu', 'layoutService', 'context', 'workspaces', 'archiveVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',
-    'hotkeys','topologyRecoveryServices', '$modal',// 'topologyEditorEventFactory',
-    function($scope, menu, layoutService, context, workspaces, archiveVersions, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys, topologyRecoveryServices, $modal) {// , topologyEditorEventFactory) {
+    'hotkeys','topologyRecoveryServices', '$modal', '$translate', 'toaster',// 'topologyEditorEventFactory',
+    function($scope, menu, layoutService, context, workspaces, archiveVersions, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys, topologyRecoveryServices, $modal, $translate, toaster) {// , topologyEditorEventFactory) {
       // register for websockets events
       // var registration = topologyEditorEventFactory($scope.topologyId, function(event) {
       //   console.log('received event', event);
@@ -223,12 +223,12 @@ define(function (require) {
         });
 
         modalInstance.result.then(function(remoteUrl) {
-          var ok = gitRemoteResource.update({
+          gitRemoteResource.update({
               topologyId: $scope.topologyId,
               remoteUrl: remoteUrl
             }, null, function() {
               $scope.isGitValid = true;
-            }).$promise;
+            });
         });
       };
 
@@ -251,7 +251,7 @@ define(function (require) {
             if(_.undefined(response.error)) {
               toaster.pop('success', $translate.instant('EDITOR.GIT.OPERATIONS.PUSH.TITLE'), $translate.instant('EDITOR.GIT.OPERATIONS.PUSH.SUCCESS_MSGE'), 4000, 'trustedHtml', null);
             }
-            console.debug('pushed')
+            console.debug('pushed');
           }).$promise;
         });
       };
@@ -275,8 +275,8 @@ define(function (require) {
             if(_.undefined(response.error)){
               toaster.pop('success', $translate.instant('EDITOR.GIT.OPERATIONS.PULL.TITLE'), $translate.instant('EDITOR.GIT.OPERATIONS.PULL.SUCCESS_MSGE'), 4000, 'trustedHtml', null);
             }
-            console.debug('pulled')
-          }).$promise;
+            console.debug('pulled');
+          });
         });
       };
       // -- End of GIT SECTIONS --
