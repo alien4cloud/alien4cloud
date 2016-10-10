@@ -8,19 +8,23 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-import alien4cloud.exception.GitConflictException;
-import alien4cloud.exception.GitMergingStateException;
-import alien4cloud.exception.GitStateException;
 import org.eclipse.jgit.api.*;
-import org.eclipse.jgit.api.errors.*;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryState;
+import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.*;
 
 import com.google.common.collect.Lists;
 
+import alien4cloud.exception.GitConflictException;
 import alien4cloud.exception.GitException;
+import alien4cloud.exception.GitMergingStateException;
+import alien4cloud.exception.GitStateException;
 import alien4cloud.utils.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -233,7 +237,7 @@ public class RepositoryManager {
     }
 
     private static void setCredentials(TransportCommand<?, ?> command, String username, String password) {
-        if (username != null && username != "") {
+        if (username != null && username.isEmpty()) {
             if (password == null) {
                 // If an user accessing a GitHub repository through HTTPS with an OAuth access token
                 password = "";
@@ -262,7 +266,7 @@ public class RepositoryManager {
             }
             return historyEntries;
         } catch (NoHeadException e) {
-            log.info("Your repository has no head, you need to save your topology before using the git history.");
+            log.debug("Your repository has no head, you need to save your topology before using the git history.");
             return Lists.newArrayList();
         } catch (GitAPIException | IOException e) {
             throw new GitException("Unable to get history from the git repository", e);
