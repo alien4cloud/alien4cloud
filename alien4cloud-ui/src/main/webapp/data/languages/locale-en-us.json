@@ -684,6 +684,7 @@
     "830" : "A released version can not reference SNAPSHOT dependencies",
     "831" : "This version can not be renamed since it's already used elsewhere",
     "850" : "Not allowed operation for this type of workflow",
+    "860" : "Topology that you select needs recovery",
     "INTERNAL" : "Internal error",
     "UNKNOWN" : "Unknown error"
   },

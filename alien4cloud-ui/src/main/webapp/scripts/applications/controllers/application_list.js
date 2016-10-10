@@ -10,6 +10,7 @@ define(function (require) {
   require('scripts/common/services/pie_chart_service.js');
   require('scripts/applications/services/application_services');
   require('scripts/applications/controllers/application_detail');
+  require('scripts/topology/services/topology_services');
 
   states.state('applications', {
     url: '/applications',
@@ -29,8 +30,8 @@ define(function (require) {
   });
   states.forward('applications', 'applications.list');
 
-  var NewApplicationCtrl = ['$scope', '$modalInstance',
-    function($scope, $modalInstance) {
+  var NewApplicationCtrl = ['$scope', '$modalInstance', 'topologyServices',
+    function($scope, $modalInstance, topologyServices) {
       $scope.app = {};
       var autoGenArchiveName = true;
       $scope.nameChange= function() {
@@ -41,10 +42,20 @@ define(function (require) {
       $scope.archiveNameChange= function() {
         autoGenArchiveName = false;
       };
+      $scope.topologyNeedsRecovery = false;
       $scope.selectTemplate= function(topology) {
         $scope.app.topologyTemplateName = topology.archiveName;
         $scope.app.topologyTemplateVersion = topology.archiveVersion;
         $scope.app.topologyTemplateVersionId = topology.id;
+        topologyServices.dao.get({
+          topologyId: topology.id
+        }, function(result) {
+          if(_.defined(result.error) && result.error.code === 860){
+            $scope.topologyNeedsRecovery = true;
+          } else {
+            $scope.topologyNeedsRecovery = false;
+          }
+        });
       };
       $scope.create = function(valid) {
         if (valid) {
