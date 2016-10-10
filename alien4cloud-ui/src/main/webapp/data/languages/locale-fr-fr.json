@@ -667,6 +667,7 @@
     "830" : "Une version releasée ne peut référencer des dépendances SNAPSHOT",
     "831" : "Cette version ne peut être renomée car elle est déjà utilisée par ailleur",
     "850" : "Cette opération n'est pas permise sur ce type de workflow",
+    "860" : "Topology a besoin d'être réconcillié",
     "INTERNAL" : "Erreur interne",
     "UNKNOWN" : "Erreur inconnue"
   },
