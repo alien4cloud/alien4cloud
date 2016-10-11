@@ -50,8 +50,15 @@
                 <button class="btn btn-default" ng-click="openCsar(topology.id, $event)" tooltip="{{'COMPONENTS.ARCHIVE' | translate}}">
                   <i class="fa fa-archive"></i>
                 </button>
-                <delete-confirm id="delete-csar_{{topology.id}" func="removeCsar(topology.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
-                </delete-confirm>
+                <div ng-controller="SimpleModalCtrl" class="btn-group" data-toggle="buttons">
+                  <button id="remove-modal-{{topology.id}}"
+                          ng-click="openSimpleModal('APPLICATIONS.TOPOLOGY.REMOVE_TITLE', 'APPLICATIONS.TOPOLOGY.REMOVE_CONTENT', $event)"
+                          class="btn btn-danger"
+                          tooltip="{{'APPLICATIONS.TOPOLOGY.REMOVE_TITLE' | translate}}"
+                          tooltip-append-to-body="true">
+                    <i class="fa fa-trash-o"></i>
+                  </button>
+                </div>
               </div>
             </td>
           </tr>

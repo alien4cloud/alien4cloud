@@ -84,6 +84,8 @@
     "SHOW_DEPLOYED_APP" : "Only show deployed applications.",
     "TOPOLOGY" : {
       "DUPLICATE": "Duplicate the topology",
+      "REMOVE_TITLE": "How to delete a topology template ?",
+      "REMOVE_CONTENT": "Since Alien 1.3.0, all topology templates are linked to an archive. Delete the associate archive to remove both of them. You can go to the appropriate view by clicking on the <archive> button.",
       "ADD_NODETEMPLATE" : "ノードテンプレートの追加",
       "ADD_RELATIONSHIP" : "他ノードとの関連追加",
       "ARTIFACTS" : {
