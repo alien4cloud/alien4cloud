@@ -546,6 +546,11 @@
   },
   "EDITOR": {
     "SAVE": "Save",
+    "DO_NOT_SAVE": "Skip",
+    "ASK_SAVE": {
+      "TITLE": "Unsaved changes",
+      "MESSAGE": "Do you want to save changes before leaving the editor ?"
+    },
     "UNDO": "Undo",
     "REDO": "Redo",
     "OPERATION": "Operation",

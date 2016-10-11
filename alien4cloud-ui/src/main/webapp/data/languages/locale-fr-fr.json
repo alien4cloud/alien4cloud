@@ -547,6 +547,11 @@
   },
   "EDITOR": {
     "SAVE": "Sauver",
+    "DO_NOT_SAVE": "Ignorer",
+    "ASK_SAVE": {
+      "TITLE": "Changements non sauvegardés",
+      "MESSAGE": "Voulez vous sauvegarder les changements avant de quitter l'éditeur ?"
+    },
     "UNDO": "Annuler",
     "REDO": "Rejouer",
     "OPERATION": "Operation",

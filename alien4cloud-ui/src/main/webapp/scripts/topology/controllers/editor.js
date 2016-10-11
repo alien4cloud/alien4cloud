@@ -27,8 +27,8 @@ define(function (require) {
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles', 'cfp.hotkeys']).controller('TopologyEditorCtrl',
     ['$scope', 'menu', 'layoutService', 'context', 'workspaces', 'archiveVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',
-    'hotkeys','topologyRecoveryServices', '$modal', '$translate', 'toaster',// 'topologyEditorEventFactory',
-    function($scope, menu, layoutService, context, workspaces, archiveVersions, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys, topologyRecoveryServices, $modal, $translate, toaster) {// , topologyEditorEventFactory) {
+    'hotkeys','topologyRecoveryServices', '$modal', '$translate', 'toaster', '$state', // 'topologyEditorEventFactory',
+    function($scope, menu, layoutService, context, workspaces, archiveVersions, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys, topologyRecoveryServices, $modal, $translate, toaster, $state) {// , topologyEditorEventFactory) {
       // register for websockets events
       // var registration = topologyEditorEventFactory($scope.topologyId, function(event) {
       //   console.log('received event', event);
@@ -335,6 +335,61 @@ define(function (require) {
             }
           });
         });
+
+      var AskSaveTopologyController = ['$scope', '$modalInstance',
+        function($scope, $modalInstance) {
+          $scope.save = function () {
+            $modalInstance.close();
+          };
+
+          $scope.doNotSave = function () {
+            $modalInstance.dismiss();
+          };
+        }];
+
+      $scope.$on('$stateChangeStart',
+        function(event, toState, toParams, fromState) {
+          if($scope.topology.operations.length === 0 || $scope.topology.lastOperationIndex === -1) {
+            // nothing to save
+            return;
+          }
+          var getStateBasePath = function (state) {
+            var lastIndexOfPoint = state.lastIndexOf('.');
+            if(lastIndexOfPoint >= 0) {
+              return state.substring(0, lastIndexOfPoint);
+            } else {
+              return state;
+            }
+          };
+          if(getStateBasePath(toState.name) === getStateBasePath(fromState.name)) {
+            // We are always inside editor
+            return;
+          }
+          if($scope.skipStateChangeStart) {
+            // Just skip once
+            $scope.skipStateChangeStart = false;
+            return;
+          }
+          event.preventDefault();
+          var modalInstance = $modal.open({
+            templateUrl: 'views/topology/editor_ask_save.html',
+            controller: AskSaveTopologyController
+          });
+
+          var proceedToStateChange = function () {
+            // Don't intercept the next one
+            $scope.skipStateChangeStart = true;
+            // Save
+            $state.go(toState, toParams);
+          };
+
+          modalInstance.result.then(function() {
+            $scope.save();
+            proceedToStateChange();
+          }, function() {
+            proceedToStateChange();
+          });
+      });
     }
   ]);
 }); // define
