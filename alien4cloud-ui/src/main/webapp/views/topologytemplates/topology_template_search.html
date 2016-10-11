@@ -44,7 +44,7 @@
             </td>
             <td ng-if="archiveLink">
               <div class="pull-right">
-                <button class="btn btn-primary" ng-click="clone(topology, $event)" tooltip="{{'APPLICATIONS.TOPOLOGY.DUPLICATE' | translate}}">
+                <button class="btn btn-primary" ng-click="clone(topology, $event)" tooltip="{{'TEMPLATE.DUPLICATE' | translate}}">
                   <i class="fa fa-copy"></i>
                 </button>
                 <button class="btn btn-default" ng-click="openCsar(topology.id, $event)" tooltip="{{'COMPONENTS.ARCHIVE' | translate}}">
@@ -52,9 +52,9 @@
                 </button>
                 <div ng-controller="SimpleModalCtrl" class="btn-group" data-toggle="buttons">
                   <button id="remove-modal-{{topology.id}}"
-                          ng-click="openSimpleModal('APPLICATIONS.TOPOLOGY.REMOVE_TITLE', 'APPLICATIONS.TOPOLOGY.REMOVE_CONTENT', $event)"
+                          ng-click="openSimpleModal('TEMPLATE.REMOVE_TITLE', 'TEMPLATE.REMOVE_CONTENT', $event)"
                           class="btn btn-danger"
-                          tooltip="{{'APPLICATIONS.TOPOLOGY.REMOVE_TITLE' | translate}}"
+                          tooltip="{{'TEMPLATE.REMOVE_TITLE' | translate}}"
                           tooltip-append-to-body="true">
                     <i class="fa fa-trash-o"></i>
                   </button>
