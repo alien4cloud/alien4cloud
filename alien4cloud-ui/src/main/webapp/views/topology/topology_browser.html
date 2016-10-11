@@ -17,14 +17,14 @@
                   <button type="submit" class="btn btn-primary" id="create-file" ng-disabled="!isNewFile()" ng-click="createFile()">
                     <i class="fa fa-plus-circle"></i>
                   </button>
-                  <button type="button" class="fileUploadBtn btn btn-primary" id="upload-file">
+                  <span type="button" class="fileUploadBtn btn btn-primary" id="upload-file">
                     <i class="fa fa-upload"></i>
                     <input id="fileUpload" type="file"
                       class="upload"
                       ng-file-drop-available="dropSupported=true"
                       ng-file-select="onFileSelect($files)"
                       multiple>
-                  </button>
+                  </span>
                 </div>
               </div>
             </form>
