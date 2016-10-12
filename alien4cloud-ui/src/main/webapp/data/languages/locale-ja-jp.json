@@ -178,8 +178,8 @@
           "MISSING" : "必須プロパティ"
         },
         "TOADD_RELATIONSHIP_LABEL" : "要求不足 (関連を追加する必要あり)",
-        "VALIDATION_FAILLED" : "The topology is not valid, go to the topology editor for more informations.",
-        "VALIDATION_SUCCESS" : "The topology is valid",
+        "VALIDATION_FAILED" : "The last saved topology is not valid, go to the topology editor for more informations.",
+        "VALIDATION_SUCCESS" : "The last saved topology is valid.",
         "WORKFLOWS" : {
           "HAS_ERROR" : "Workflow '{{workflowName}}' is not valid : {{errorCount}} error(s)",
           "TITLE" : "Workflows"
@@ -585,6 +585,11 @@
           "SUCCESS_MSGE": "Successfully pushed to git"
         }
       }
+    },
+    "VALIDATION" :{
+      "CURRENT_TOPOLOGY": "Current topology",
+      "CURRENT_TOPOLOGY_NO_OPERATIONS": "The current topology does not have changed.",
+      "LAST_SAVED_TOPOLOGY": "Last saved topology"
     }
   },
   "END_DATE" : "終了日",

@@ -23,6 +23,7 @@ import alien4cloud.git.SimpleGitHistoryEntry;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.topology.TopologyDTO;
+import alien4cloud.topology.TopologyValidationResult;
 import io.swagger.annotations.ApiOperation;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -39,6 +40,8 @@ public class EditorController {
     /** We use the artifact repository to store temporary files from the edition context. */
     @Resource
     private IFileRepository artifactRepository;
+
+
 
     /**
      * Execute an operation on a topology.
@@ -141,6 +144,14 @@ public class EditorController {
         // Call the service that will save and commit
         TopologyDTO topologyDTO = editorService.save(topologyId, lastOperationId);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTO).build();
+    }
+
+    @ApiIgnore
+    @PreAuthorize("isAuthenticated()")
+    @RequestMapping(value = "/{topologyId:.+}/isvalid", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyValidationResult> isTopologyValid(@PathVariable String topologyId) {
+        TopologyValidationResult dto = editorService.validateTopology(topologyId);
+        return RestResponseBuilder.<TopologyValidationResult> builder().data(dto).build();
     }
 
     @ApiIgnore

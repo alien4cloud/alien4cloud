@@ -13,8 +13,10 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.inject.Inject;
 
+import alien4cloud.topology.*;
 import org.alien4cloud.tosca.editor.exception.EditionConcurrencyException;
 import org.alien4cloud.tosca.editor.exception.EditorIOException;
 import org.alien4cloud.tosca.editor.exception.RecoverTopologyException;
@@ -41,9 +43,6 @@ import com.google.common.collect.Maps;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.git.SimpleGitHistoryEntry;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.topology.TopologyDTO;
-import alien4cloud.topology.TopologyService;
-import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.CollectionUtils;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.ReflectionUtil;
@@ -73,6 +72,8 @@ public class EditorService {
     private EditorTopologyRecoveryHelperService recoveryHelperService;
     @Inject
     private TopologySubstitutionService topologySubstitutionServive;
+    @Inject
+    private TopologyValidationService topologyValidationService;
 
     @Value("${directories.alien}/${directories.upload_temp}")
     private String tempUploadDir;
@@ -521,5 +522,19 @@ public class EditorService {
         ResetTopologyOperation operation = new ResetTopologyOperation();
         operation.setPreviousOperationId(lastOperationId);
         return executeAndSave(topologyId, operation);
+    }
+
+    /**
+     * Validate if a topology is valid.
+     * @param topologyId The id of the topology.
+     * @return the validation result
+     */
+    public TopologyValidationResult validateTopology(String topologyId) {
+        try {
+            editionContextManager.init(topologyId);
+            return topologyValidationService.validateTopology(EditionContextManager.getTopology());
+        } finally {
+            editionContextManager.destroy();
+        }
     }
 }

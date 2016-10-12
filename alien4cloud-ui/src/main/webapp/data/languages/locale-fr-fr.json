@@ -178,8 +178,8 @@
           "MISSING" : "Propriété obligatoire"
         },
         "TOADD_RELATIONSHIP_LABEL" : "Prérequis non statisfaits (ajoutez un lien)",
-        "VALIDATION_FAILLED" : "La topologie n'est pas valide, aller dans l'éditeur de topology pour plus d'informations.",
-        "VALIDATION_SUCCESS" : "La topologie est valide.",
+        "VALIDATION_FAILED" : "La dernière topologie enregistrée n'est pas valide, aller dans l'éditeur de topology pour plus d'informations.",
+        "VALIDATION_SUCCESS" : "La dernière topologie enregistrée est valide.",
         "WORKFLOWS" : {
           "HAS_ERROR" : "Le workflow '{{workflowName}}' n'est pas valide : {{errorCount}} erreur(s)",
           "TITLE" : "Workflows"
@@ -586,6 +586,11 @@
           "SUCCESS_MSGE": "Envoi vers le dépôt git terminé avec succès."
         }
       }
+    },
+    "VALIDATION" :{
+      "CURRENT_TOPOLOGY": "Topologie courante",
+      "CURRENT_TOPOLOGY_NO_OPERATIONS": "La topologie actuelle n'a pas changé.",
+      "LAST_SAVED_TOPOLOGY": "Dernière topologie enregistrée"
     }
   },
   "END_DATE" : "Date de fin",
