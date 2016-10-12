@@ -10,7 +10,7 @@
         <ul class="nav facet-choice">
             <li ng-repeat="filter in facetFilters">
                 <a href="" ng-click="removeFilter(filter)">{{filterPrefix + (filter.term | uppercase) |
-                    translate}}: <span class="label label-primary">{{ filter.facet || 'N/A' }}</span>
+                    translate}}: <span class="label label-primary">{{ toDisplay(filter.term, filter.facet)  || 'N/A' }}</span>
                     <i class="fa fa-times"></i>
                 </a>
             </li>

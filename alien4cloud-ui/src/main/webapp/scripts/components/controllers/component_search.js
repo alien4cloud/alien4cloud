@@ -44,7 +44,7 @@ define(function (require) {
         },
         toDisplay: function(termId, facetId) {
           if (termId === 'abstract') {
-            if (facetId === 'F') {
+            if (facetId == 'F') { // jshint ignore:line
               return $filter('translate')('FALSE');
             } else {
               return $filter('translate')('TRUE');
@@ -67,7 +67,7 @@ define(function (require) {
       //bind the scope search vars to the searchContext service
       $scope.query = '';
       $scope.facetFilters = [];
-      
+
       /*update a search*/
       function updateSearch(filters, force) {
         /*
