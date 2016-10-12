@@ -4,8 +4,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.alien4cloud.tosca.catalog.index.CsarService;
-import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
+import org.alien4cloud.tosca.catalog.index.ICsarService;
 import org.alien4cloud.tosca.model.CSARDependency;
 
 import com.google.common.collect.Maps;
@@ -25,10 +24,10 @@ public class ToscaTypeLoader {
     /** Count the usage of a given type in the current context. */
     private Map<String, Integer> typeUsagesMap = Maps.newHashMap();
 
-    private ICsarDependencyLoader dependencyLoader;
+    private ICsarService csarService;
 
-    public ToscaTypeLoader(ICsarDependencyLoader dependencyLoader) {
-        this.dependencyLoader = dependencyLoader;
+    public ToscaTypeLoader(ICsarService csarService) {
+        this.csarService = csarService;
     }
 
     public Set<CSARDependency> getLoadedDependencies() {
@@ -134,11 +133,11 @@ public class ToscaTypeLoader {
         } else {
             addNewDependency(directDependency, type);
         }
-        Set<CSARDependency> transitiveDependencies = dependencyLoader.getDependencies(directDependency.getName(), directDependency.getVersion());
+        Set<CSARDependency> transitiveDependencies = csarService.getDependencies(directDependency.getName(), directDependency.getVersion());
         for (CSARDependency transitiveDependency : transitiveDependencies) {
             Set<String> transitiveTypesLoadedByDependency = dependenciesMap.get(transitiveDependency);
             if (transitiveTypesLoadedByDependency == null) {
-                addNewDependency(CsarService.buildDependencyBean(transitiveDependency.getName(), transitiveDependency.getVersion()), type);
+                addNewDependency(csarService.buildDependencyBean(transitiveDependency.getName(), transitiveDependency.getVersion()), type);
             } else {
                 transitiveTypesLoadedByDependency.add(type);
             }

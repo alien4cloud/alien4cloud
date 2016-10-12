@@ -9,7 +9,7 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.events.BeforeArchiveDeleted;
 import org.alien4cloud.tosca.catalog.events.BeforeArchiveIndexed;
-import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.catalog.index.ICsarService;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
 import org.alien4cloud.tosca.model.Csar;
@@ -40,7 +40,7 @@ public class EditionContextManager {
     private final static ThreadLocal<EditionContext> contextThreadLocal = new ThreadLocal<>();
 
     @Inject
-    private CsarService csarService;
+    private ICsarService csarService;
     @Inject
     private TopologyServiceCore topologyServiceCore;
     @Inject

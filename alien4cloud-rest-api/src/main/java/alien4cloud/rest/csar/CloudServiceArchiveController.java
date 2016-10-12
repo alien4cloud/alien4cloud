@@ -4,20 +4,18 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
-import org.alien4cloud.tosca.catalog.index.CsarService;
-import org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService;
+import org.alien4cloud.tosca.catalog.index.ICsarAuthorizationFilter;
+import org.alien4cloud.tosca.catalog.index.ICsarService;
 import org.alien4cloud.tosca.catalog.repository.CsarFileRepository;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.apache.commons.collections4.CollectionUtils;
-import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,7 +37,6 @@ import alien4cloud.component.repository.exception.CSARUsedInActiveDeployment;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.components.CSARSource;
 import alien4cloud.rest.component.SearchRequest;
@@ -67,15 +64,15 @@ public class CloudServiceArchiveController {
     private ArchiveUploadService csarUploadService;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO csarDAO;
-    @Resource
-    private IToscaTypeIndexerService indexerService;
     private Path tempDirPath;
     @Resource
-    private CsarService csarService;
+    private ICsarService csarService;
+    @Resource
+    private ICsarAuthorizationFilter csarAuthorizationFilter;
 
     @ApiOperation(value = "Upload a csar zip file.")
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER', 'ARCHITECT')")
+    @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<CsarUploadResult> uploadCSAR(@RequestParam(required = false) String workspace, @RequestParam("file") MultipartFile csar)
             throws IOException {
@@ -140,14 +137,12 @@ public class CloudServiceArchiveController {
 
     @ApiOperation(value = "Add dependency to the csar with given id.")
     @RequestMapping(value = "/{csarId:.+?}/dependencies", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
+    @PreAuthorize("isAuthenticated()")
     @Audit
     @Deprecated
     public RestResponse<Boolean> addDependency(@PathVariable String csarId, @Valid @RequestBody CSARDependency dependency) {
-        Csar csar = csarDAO.findById(Csar.class, csarId);
-        if (csar == null) {
-            throw new NotFoundException("Cannot add dependency to csar [" + csarId + "] as it cannot be found");
-        }
+        Csar csar = csarService.getOrFail(csarId);
+        csarAuthorizationFilter.checkWriteAccess(csar);
         Set<CSARDependency> existingDependencies = csar.getDependencies();
         if (existingDependencies == null) {
             existingDependencies = Sets.newHashSet();
@@ -160,13 +155,11 @@ public class CloudServiceArchiveController {
 
     @ApiOperation(value = "Delete a CSAR given its id.")
     @RequestMapping(value = "/{csarId:.+?}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
+    @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<List<Usage>> delete(@PathVariable String csarId) {
         Csar csar = csarService.getOrFail(csarId);
-
-        csarService.checkDeletionAuthorizations(csar);
-
+        csarAuthorizationFilter.checkWriteAccess(csar);
         List<Usage> relatedResourceList = csarService.deleteCsarWithElements(csar);
 
         if (CollectionUtils.isNotEmpty(relatedResourceList)) {
@@ -181,9 +174,10 @@ public class CloudServiceArchiveController {
 
     @ApiOperation(value = "Get a CSAR given its id.", notes = "Returns a CSAR.")
     @RequestMapping(value = "/{csarId:.+?}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<CsarInfoDTO> read(@PathVariable String csarId) {
-        Csar csar = csarDAO.findById(Csar.class, csarId);
+        Csar csar = csarService.get(csarId);
+        csarAuthorizationFilter.checkReadAccess(csar);
         List<Usage> relatedResourceList = csarService.getCsarRelatedResourceList(csar);
         CsarInfoDTO csarInfo = new CsarInfoDTO(csar, relatedResourceList);
         return RestResponseBuilder.<CsarInfoDTO> builder().data(csarInfo).build();
@@ -191,15 +185,10 @@ public class CloudServiceArchiveController {
 
     @ApiOperation(value = "Search for cloud service archives.")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<FacetedSearchResult> search(@RequestBody SearchRequest searchRequest) {
-        Map<String, String[]> filters = searchRequest.getFilters();
-        if (filters == null) {
-            filters = Maps.newHashMap();
-        }
-        FacetedSearchResult searchResult = csarDAO.facetedSearch(Csar.class, searchRequest.getQuery(), filters, null, searchRequest.getFrom(),
-                searchRequest.getSize());
-        return RestResponseBuilder.<FacetedSearchResult> builder().data(searchResult).build();
+        return RestResponseBuilder.<FacetedSearchResult> builder()
+                .data(csarService.search(searchRequest.getQuery(), searchRequest.getFrom(), searchRequest.getSize(), searchRequest.getFilters())).build();
     }
 
     @Required

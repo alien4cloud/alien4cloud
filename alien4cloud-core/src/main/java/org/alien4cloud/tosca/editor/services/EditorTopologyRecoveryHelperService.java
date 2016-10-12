@@ -8,7 +8,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.catalog.index.ICsarService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.EditorService;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
@@ -48,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
 public class EditorTopologyRecoveryHelperService {
 
     @Inject
-    private CsarService csarService;
+    private ICsarService csarService;
     @Inject
     private EditionContextManager editionContextManager;
 
