@@ -414,6 +414,8 @@
       "300" : "Unexpected IO error on plugin upload.",
       "353" : "The META-INF/plugin.yml file is missing in your plugin.",
       "ALIEN_MAPPING_ERROR" : "An internal error caused the import to fail. Please submit an issue with the stacktrace and archive.",
+      "CSAR_ALREADY_INDEXED": "The CSAR has already been indexed in Alien with the same content",
+      "CSAR_ALREADY_EXISTS_IN_ANOTHER_WORKSPACE": "An archive with the same name and version already exists in Alien repository in another workspace.",
       "CSAR_ALREADY_EXISTS": "A released archive with the same name and version already exists in Alien repository. In order to ensure stability for user using it, Alien doesn't allow override of released archives. It is however possible to override a SNAPSHOT archive, if not used in a deployed topology.",
       "CSAR_USED_IN_ACTIVE_DEPLOYMENT": "A topology having a dependency from an archive with the same name and version is deployed. In order to ensure stability for the runtime processing, Alien doesn't allow the overriding.",
       "DUPLICATED_ELEMENT_DECLARATION" : "The element [ {{note}} ] has already be defined in this definition file.",

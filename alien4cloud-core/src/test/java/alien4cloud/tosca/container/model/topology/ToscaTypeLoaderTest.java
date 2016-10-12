@@ -2,20 +2,20 @@ package alien4cloud.tosca.container.model.topology;
 
 import java.util.HashSet;
 
+import org.alien4cloud.tosca.catalog.index.ICsarService;
+import org.alien4cloud.tosca.model.CSARDependency;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
-import alien4cloud.tosca.container.ToscaTypeLoader;
-import org.alien4cloud.tosca.model.CSARDependency;
-
 import com.google.common.collect.Sets;
+
+import alien4cloud.tosca.container.ToscaTypeLoader;
 
 public class ToscaTypeLoaderTest {
 
-    private ICsarDependencyLoader dependencyLoader;
+    private ICsarService dependencyLoader;
 
     private ToscaTypeLoader loader;
 
@@ -29,7 +29,7 @@ public class ToscaTypeLoaderTest {
 
     @Before
     public void before() {
-        dependencyLoader = Mockito.mock(ICsarDependencyLoader.class);
+        dependencyLoader = Mockito.mock(ICsarService.class);
         Mockito.when(dependencyLoader.getDependencies("tosca-base-types", "1.0")).thenReturn(new HashSet<CSARDependency>());
         Mockito.when(dependencyLoader.getDependencies("java-types", "1.0")).thenReturn(Sets.newHashSet(baseTypes));
         Mockito.when(dependencyLoader.getDependencies("java-types", "2.0")).thenReturn(Sets.newHashSet(baseTypesV2));
@@ -126,19 +126,9 @@ public class ToscaTypeLoaderTest {
         Assert.assertTrue(loader.getDependenciesMap().containsKey(baseTypes));
         Assert.assertTrue(loader.getDependenciesMap().containsKey(javaTypes));
 
-        Assert.assertEquals(Sets.newHashSet(
-                "tosca.nodes.Compute",
-                "tosca.nodes.Java",
-                "tosca.relationships.HostedOn",
-                "tosca.relationships.DependsOn",
-                "tosca.relationships.WarDeployedOn",
-                "tosca.nodes.War",
-                "tosca.nodes.Tomcat"), loader.getDependenciesMap().get(baseTypes));
-        Assert.assertEquals(Sets.newHashSet(
-                "tosca.nodes.Java",
-                "tosca.nodes.Tomcat",
-                "tosca.nodes.War",
-                "tosca.relationships.WarDeployedOn"),
+        Assert.assertEquals(Sets.newHashSet("tosca.nodes.Compute", "tosca.nodes.Java", "tosca.relationships.HostedOn", "tosca.relationships.DependsOn",
+                "tosca.relationships.WarDeployedOn", "tosca.nodes.War", "tosca.nodes.Tomcat"), loader.getDependenciesMap().get(baseTypes));
+        Assert.assertEquals(Sets.newHashSet("tosca.nodes.Java", "tosca.nodes.Tomcat", "tosca.nodes.War", "tosca.relationships.WarDeployedOn"),
                 loader.getDependenciesMap().get(javaTypes));
 
         Assert.assertEquals(1, loader.getTypeUsagesMap().get("tosca.nodes.Compute").intValue());
@@ -167,22 +157,11 @@ public class ToscaTypeLoaderTest {
         Assert.assertTrue(loader.getDependenciesMap().containsKey(baseTypesV2));
         Assert.assertTrue(loader.getDependenciesMap().containsKey(javaTypesV2));
 
-        Assert.assertEquals(Sets.newHashSet(
-                "tosca.nodes.Compute",
-                "tosca.nodes.Java",
-                "tosca.nodes.Tomcat",
-                "tosca.relationships.HostedOn",
-                "tosca.relationships.DependsOn",
-                "tosca.relationships.WarDeployedOn",
-                "tosca.nodes.War",
-                "tosca.nodes.GigaSpaces",
+        Assert.assertEquals(Sets.newHashSet("tosca.nodes.Compute", "tosca.nodes.Java", "tosca.nodes.Tomcat", "tosca.relationships.HostedOn",
+                "tosca.relationships.DependsOn", "tosca.relationships.WarDeployedOn", "tosca.nodes.War", "tosca.nodes.GigaSpaces",
                 "tosca.relationships.ConnectedTo"), loader.getDependenciesMap().get(baseTypesV2));
-        Assert.assertEquals(Sets.newHashSet(
-                "tosca.nodes.Java",
-                "tosca.nodes.Tomcat",
-                "tosca.nodes.War",
-                "tosca.nodes.GigaSpaces",
-                "tosca.relationships.WarDeployedOn"),
+        Assert.assertEquals(
+                Sets.newHashSet("tosca.nodes.Java", "tosca.nodes.Tomcat", "tosca.nodes.War", "tosca.nodes.GigaSpaces", "tosca.relationships.WarDeployedOn"),
                 loader.getDependenciesMap().get(javaTypesV2));
 
         unloadTomcatGroup();

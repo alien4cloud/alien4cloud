@@ -19,7 +19,7 @@ define(function (require) {
       key: 'NAVBAR.MENU_CSARS',
       icon: 'fa fa-archive',
       priority: 30,
-      roles: ['COMPONENTS_MANAGER']
+      roles: ['COMPONENTS_BROWSER']
     }
   });
   states.state('components.csars.list', {
