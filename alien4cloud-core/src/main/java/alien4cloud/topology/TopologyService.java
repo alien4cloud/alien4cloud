@@ -261,16 +261,27 @@ public class TopologyService {
      * @param topology The topology for which to check roles.
      * @param applicationRoles The roles required to edit the topology for an application.
      */
-    @ToscaContextual
-    public void checkAuthorizations(Topology topology, ApplicationRole... applicationRoles) {
+    private void checkAuthorizations(Topology topology, ApplicationRole[] applicationRoles, Role[] roles) {
         Csar relatedCsar = ToscaContext.get().getArchive(topology.getArchiveName(), topology.getArchiveVersion());
         if (Objects.equals(relatedCsar.getDelegateType(), ArchiveDelegateType.APPLICATION.toString())) {
             String applicationId = relatedCsar.getDelegateId();
             Application application = appService.getOrFail(applicationId);
             AuthorizationUtil.checkAuthorizationForApplication(application, applicationRoles);
         } else {
-            AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
+            AuthorizationUtil.checkHasOneRoleIn(roles);
         }
+    }
+
+    /**
+     * Check that the current user can retrieve the given topology.
+     *
+     * @param topology The topology that is subject to being updated.
+     */
+    @ToscaContextual
+    public void checkAccessAuthorizations(Topology topology) {
+        checkAuthorizations(topology,
+                new ApplicationRole[] { ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS, ApplicationRole.APPLICATION_USER },
+                new Role[] { Role.COMPONENTS_BROWSER, Role.ARCHITECT });
     }
 
     /**
@@ -278,8 +289,10 @@ public class TopologyService {
      *
      * @param topology The topology that is subject to being updated.
      */
+    @ToscaContextual
     public void checkEditionAuthorizations(Topology topology) {
-        checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS);
+        checkAuthorizations(topology, new ApplicationRole[] { ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS },
+                new Role[] { Role.ARCHITECT });
     }
 
     /**

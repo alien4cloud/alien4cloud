@@ -11,13 +11,19 @@ import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.topology.*;
+import alien4cloud.topology.TopologyDTO;
+import alien4cloud.topology.TopologyService;
+import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.topology.TopologyValidationResult;
+import alien4cloud.topology.TopologyValidationService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,8 +37,6 @@ public class TopologyController {
     private TopologyServiceCore topologyServiceCore;
     @Resource
     private TopologyValidationService topologyValidationService;
-    @Resource
-    private ApplicationVersionService applicationVersionService;
     @Resource
     private EditionContextManager topologyEditionContextManager;
     @Inject
@@ -52,8 +56,7 @@ public class TopologyController {
     @PreAuthorize("isAuthenticated()")
     public RestResponse<TopologyDTO> get(@PathVariable String topologyId) {
         Topology topology = topologyServiceCore.getOrFail(topologyId);
-        topologyService.checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS,
-                ApplicationRole.APPLICATION_USER);
+        topologyService.checkAccessAuthorizations(topology);
         try {
             topologyEditionContextManager.init(topologyId);
             editorService.checkTopologyRecovery();
@@ -74,8 +77,7 @@ public class TopologyController {
     @PreAuthorize("isAuthenticated()")
     public RestResponse<TopologyValidationResult> isTopologyValid(@PathVariable String topologyId, @RequestParam(required = false) String environmentId) {
         Topology topology = topologyServiceCore.getOrFail(topologyId);
-        topologyService.checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS,
-                ApplicationRole.APPLICATION_USER);
+        topologyService.checkAccessAuthorizations(topology);
         TopologyValidationResult dto = topologyValidationService.validateTopology(topology);
         return RestResponseBuilder.<TopologyValidationResult> builder().data(dto).build();
     }

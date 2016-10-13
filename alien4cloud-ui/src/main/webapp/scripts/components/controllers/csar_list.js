@@ -1,14 +1,14 @@
 define(function (require) {
   'use strict';
-
+  
   var modules = require('modules');
   var states = require('states');
-  var _ = require('lodash');
-
+  
   require('scripts/components/services/csar');
   require('scripts/components/controllers/csar_details');
   require('scripts/common/directives/pagination');
-
+  require('scripts/authentication/services/authservices');
+  
   states.state('components.csars', {
     url: '/csars',
     template: '<ui-view/>',
@@ -28,35 +28,35 @@ define(function (require) {
     controller: 'CsarListCtrl'
   });
   states.forward('components.csars', 'components.csars.list');
-
+  
   /* Main CSAR search controller */
-  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('CsarListCtrl', ['$scope', '$modal', '$state', 'csarService', '$translate', 'toaster', 'searchServiceFactory',
-   function($scope, $modal, $state, csarService, $translate, toaster, searchServiceFactory) {
-
-      $scope.searchService = searchServiceFactory('rest/latest/csars/search', false, $scope, 20, 10);
-
-      $scope.search = function() {
-        $scope.searchService.search();
+  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('CsarListCtrl', ['$scope', '$modal', '$state', 'csarService', '$translate', 'toaster', 'authService',
+    function ($scope, $modal, $state, csarService, $translate, toaster, authService) {
+      $scope.writeWorkspaces = [];
+      var isComponentManager = authService.hasOneRoleIn(['COMPONENT_MANAGER', 'ARCHITECT']);
+      if (isComponentManager === true) {
+        $scope.writeWorkspaces.push('ALIEN_GLOBAL_WORKSPACE');
+      } else if (isComponentManager.hasOwnProperty('then')) {
+        isComponentManager.then(function (hasRole) {
+          if (hasRole) {
+            $scope.writeWorkspaces.push('ALIEN_GLOBAL_WORKSPACE');
+          }
+        });
+      }
+      
+      $scope.onSearch = function (searchConfig) {
+        $scope.searchConfig = searchConfig;
       };
-
-      //on search completed
-      $scope.onSearchCompleted = function(searchResult) {
-        if(_.undefined(searchResult.error)) {
-          $scope.searchResult = searchResult.data;
-        } else {
-          console.error('error when searching...', searchResult.error);
-        }
+      
+      $scope.openCsar = function (csarId) {
+        $state.go('components.csars.csardetail', {csarId: csarId});
       };
-
-      $scope.openCsar = function(csarId) {
-        $state.go('components.csars.csardetail', { csarId: csarId });
-      };
-
+      
       // remove a csar
-      $scope.remove = function(csarId) {
+      $scope.remove = function (csarId) {
         csarService.getAndDeleteCsar.remove({
           csarId: csarId
-        }, function(result) {
+        }, function (result) {
           var errorMessage = csarService.builtErrorResultList(result);
           if (errorMessage) {
             var title = $translate.instant('CSAR.ERRORS.' + result.error.code + '_TITLE');
@@ -66,9 +66,6 @@ define(function (require) {
           $scope.search();
         });
       };
-
-      // init search
-      $scope.search();
     }
   ]); // controller
 }); // define

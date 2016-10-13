@@ -2,8 +2,6 @@ package alien4cloud.dao;
 
 import java.util.List;
 
-import org.elasticsearch.index.query.QueryBuilder;
-
 /**
  * A DAO that allows accessing data by Id or / and multiple Ids.
  * 
@@ -32,6 +30,16 @@ public interface IGenericIdDAO {
      * @return The object that has the given id or null if no object matching the request is found.
      */
     <T> T findById(Class<T> clazz, String id);
+
+    /**
+     * Check whether an object with the given id exists
+     * 
+     * @param clazz The class of the object to find.
+     * @param id The id of the object.
+     * @param <T> type of the object
+     * @return true if object exists, false otherwise
+     */
+    <T> boolean exist(Class<T> clazz, String id);
 
     /**
      * Find instances by id

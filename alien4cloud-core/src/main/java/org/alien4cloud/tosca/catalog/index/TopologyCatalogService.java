@@ -1,7 +1,6 @@
 package org.alien4cloud.tosca.catalog.index;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
-import static alien4cloud.dao.FilterUtil.singleKeyFilter;
 import static alien4cloud.dao.model.FetchContext.SUMMARY;
 
 import java.util.Map;
@@ -34,18 +33,18 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
     @Override
     public Topology createTopologyAsTemplate(String name, String description, String version, String workspace, String fromTopologyId) {
         if (!TopologyService.NODE_NAME_PATTERN.matcher(name).matches()) {
-            throw new InvalidNameException("topologyTemplateName", name, "Topology template name <" + name + "> is not valid. It must not contains any special characters.");
+            throw new InvalidNameException("topologyTemplateName", name,
+                    "Topology template name <" + name + "> is not valid. It must not contains any special characters.");
         }
         // Every version of a topology template has a Cloud Service Archive
         Csar csar = new Csar(name, StringUtils.isNotBlank(version) ? version : VersionUtil.DEFAULT_VERSION_NAME);
         csar.setWorkspace(workspace);
         csar.setDelegateType(ArchiveDelegateType.CATALOG.toString());
-        if(description == null) {
+        if (description == null) {
             csar.setDescription("This archive has been created with alien4cloud.");
         } else {
             csar.setDescription("Enclosing archive for topology " + description);
         }
-
 
         Topology topology;
         if (fromTopologyId != null) { // "cloning" the topology
@@ -107,6 +106,6 @@ public class TopologyCatalogService extends AbstractToscaIndexSearchService<Topo
      */
     @Override
     public boolean exists(String id) {
-        return alienDAO.buildQuery(Topology.class).setFilters(singleKeyFilter("id", id)).count() > 0;
+        return alienDAO.exist(Topology.class, id);
     }
 }

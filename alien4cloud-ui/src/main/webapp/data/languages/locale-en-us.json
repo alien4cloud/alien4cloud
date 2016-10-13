@@ -397,6 +397,11 @@
       "MESSAGE" : "A component [ {{componentId}} ] is already set as default for capability [ {{capability}} ]. Would you like to overwrite it?",
       "OK" : "Overwrite"
     },
+    "CSAR" : {
+      "ACTIVE_FILTERS": "Active filters",
+      "TEMPLATEAUTHOR": "Author",
+      "WORKSPACE": "Workspace"
+    },
     "DEFAULTCAPABILITIES" : "Default Capabilities",
     "DERIVEDFROM" : "Derived from",
     "DRAG_DROP_UPLOAD" : "Drop archive files to upload here",
