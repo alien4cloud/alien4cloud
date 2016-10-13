@@ -866,7 +866,7 @@
     "DUPLICATE": "Duplicate the topology",
     "NEW" : "新規テンプレート",
     "REMOVE_TITLE": "How to delete a topology template ?",
-    "REMOVE_CONTENT": "Since Alien 1.3.0, all topology templates are linked to an archive. Delete the associate archive to remove both of them. You can go to the appropriate view by clicking on the <archive> button."
+    "REMOVE_CONTENT": "All topology templates are linked to an archive. Delete the associate archive to remove both of them."
   },
   "TRUE" : "True",
   "UPDATE_DATE" : "更新日付",

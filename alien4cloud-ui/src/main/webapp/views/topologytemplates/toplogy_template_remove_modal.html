@@ -1,0 +1,13 @@
+<div id="informationModal">
+  <div class="modal-header">
+    {{topologyId}}
+    <h4>{{'TEMPLATE.REMOVE_TITLE' | translate}}</h4>
+  </div>
+  <div class="modal-body">
+    {{'TEMPLATE.REMOVE_CONTENT' | translate}}
+    <br/>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-primary" ng-click="goToArchive()">{{'COMPONENTS.ARCHIVE' | translate}}</button>
+    <button class="btn btn-default" ng-click="close()">{{'CLOSE' | translate}}</button>
+</div>
