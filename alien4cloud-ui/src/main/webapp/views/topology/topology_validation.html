@@ -10,8 +10,8 @@
             <span> {{'EDITOR.VALIDATION.CURRENT_TOPOLOGY' | translate}}</span>
           </tab-heading>
           <div class="row">
-            <div class="col-md-12" ng-if="validCurrentTopologyDTO.valid">
-              <h3 class="text-success"><i class="fa fa-check"></i> {{'APPLICATIONS.TOPOLOGY.TASK.VALIDATION_SUCCESS' | translate}}</h3>
+            <div class="col-md-12" ng-if="validCurrentTopologyDTO.valid && !currentTopologyHasNoChanges()">
+              <h3 class="text-success"><i class="fa fa-check"></i> {{'APPLICATIONS.TOPOLOGY.TASK.VALIDATION_SUCCESS_CURRENT_TOPOLOGY' | translate}}</h3>
             </div>
             <div class="col-md-12" ng-if="currentTopologyHasNoChanges()">
               <h3 class="text-info">{{'EDITOR.VALIDATION.CURRENT_TOPOLOGY_NO_OPERATIONS' | translate}}</h3>

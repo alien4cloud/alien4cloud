@@ -39,6 +39,11 @@ define(function (require) {
         });
       };
       isTopologyValid();
+
+      $scope.$on('topologyRefreshedEvent', function() {
+        isTopologyValid();
+      });
+
     }]
   );
 });
