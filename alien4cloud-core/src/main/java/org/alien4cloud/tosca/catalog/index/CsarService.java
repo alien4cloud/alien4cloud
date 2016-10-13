@@ -2,6 +2,7 @@ package org.alien4cloud.tosca.catalog.index;
 
 import static alien4cloud.dao.FilterUtil.fromKeyValueCouples;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -272,11 +273,9 @@ public class CsarService implements ICsarService {
         // a csar that is a dependency of another csar can not be deleted
         // FIXME WORKSPACE HANDLING REQUIRED
         if (Objects.equals(csar.getDelegateType(), ArchiveDelegateType.APPLICATION.toString())) {
-            Topology topologyUseCsar = csarDAO.findById(Topology.class, csar.getId());
             // The CSAR is from an application's topology
-            if (topologyUseCsar != null) {
-                relatedResourceList.addAll(generateTopologiesInfo(new Topology[] { topologyUseCsar }));
-            }
+            relatedResourceList.addAll(
+                    Collections.singletonList(new Usage(csar.getDelegateId(), Application.class.getSimpleName().toLowerCase(), csar.getDelegateId(), null)));
         }
         Csar[] relatedCsars = getDependantCsars(csar.getName(), csar.getVersion());
         if (relatedCsars != null && relatedCsars.length > 0) {
