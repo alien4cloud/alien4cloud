@@ -38,8 +38,6 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.Usage;
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.tosca.context.ToscaContextual;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -62,17 +60,6 @@ public class CsarService implements ICsarService {
     private ApplicationService applicationService;
 
     @Override
-    @ToscaContextual
-    public CSARDependency buildDependencyBean(String name, String version) {
-        CSARDependency newDependency = new CSARDependency(name, version);
-        Csar csar = ToscaContext.get().getArchive(name, version);
-        if (csar != null) {
-            newDependency.setHash(csar.getHash());
-        }
-        return newDependency;
-    }
-
-    @Override
     public long count(Map<String, String[]> filters, String name) {
         return csarDAO.buildQuery(Csar.class).setFilters(fromKeyValueCouples(filters, "workspace", AlienConstants.GLOBAL_WORKSPACE_ID, "name", name)).count();
     }
@@ -85,18 +72,6 @@ public class CsarService implements ICsarService {
     @Override
     public Csar get(String id) {
         return csarDAO.findById(Csar.class, id);
-    }
-
-    @Override
-    public Set<CSARDependency> getDependencies(String name, String version) {
-        Csar csar = get(name, version);
-        if (csar == null) {
-            throw new NotFoundException("Csar with name [" + name + "] and version [" + version + "] cannot be found");
-        }
-        if (csar.getDependencies() == null || csar.getDependencies().isEmpty()) {
-            return Sets.newHashSet();
-        }
-        return Sets.newHashSet(csar.getDependencies());
     }
 
     @Override

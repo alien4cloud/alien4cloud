@@ -14,16 +14,7 @@ import alien4cloud.model.common.Usage;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.plugin.aop.Overridable;
 
-public interface ICsarService extends ICsarDependencyLoader {
-
-    /**
-     * Build a {@link CSARDependency} bean given an archive name and version. This will also fill in the dependency hash.
-     *
-     * @param name The name of the dependendy
-     * @param version The version of the dependency
-     * @return
-     */
-    CSARDependency buildDependencyBean(String name, String version);
+public interface ICsarService {
 
     /**
      * Get all archive matching the given set of filters.

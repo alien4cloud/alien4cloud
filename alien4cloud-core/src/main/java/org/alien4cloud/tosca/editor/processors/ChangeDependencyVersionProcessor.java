@@ -1,24 +1,24 @@
 package org.alien4cloud.tosca.editor.processors;
 
-import alien4cloud.topology.TopologyService;
-import alien4cloud.tosca.context.ToscaContext;
-import alien4cloud.utils.AlienUtils;
-import com.google.common.collect.Sets;
-import org.alien4cloud.tosca.catalog.index.CsarService;
-import org.alien4cloud.tosca.editor.EditionContextManager;
-import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
-import org.alien4cloud.tosca.editor.operations.ChangeDependencyVersionOperation;
-import org.alien4cloud.tosca.editor.operations.RecoverTopologyOperation;
-import org.alien4cloud.tosca.editor.services.EditorTopologyRecoveryHelperService;
-import org.alien4cloud.tosca.model.CSARDependency;
-import org.alien4cloud.tosca.model.templates.Topology;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.stereotype.Component;
-
-import javax.inject.Inject;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import javax.inject.Inject;
+
+import org.alien4cloud.tosca.catalog.index.ICsarService;
+import org.alien4cloud.tosca.editor.EditionContextManager;
+import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
+import org.alien4cloud.tosca.editor.operations.ChangeDependencyVersionOperation;
+import org.alien4cloud.tosca.editor.services.EditorTopologyRecoveryHelperService;
+import org.alien4cloud.tosca.model.CSARDependency;
+import org.alien4cloud.tosca.model.templates.Topology;
+import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Sets;
+
+import alien4cloud.topology.TopologyService;
+import alien4cloud.tosca.context.ToscaContext;
 
 /**
  * Process {@link ChangeDependencyVersionOperation}.
@@ -33,7 +33,7 @@ public class ChangeDependencyVersionProcessor implements IEditorOperationProcess
     @Inject
     private TopologyService topologyService;
     @Inject
-    private CsarService csarService;
+    private ICsarService csarService;
 
     @Override
     public void process(ChangeDependencyVersionOperation operation) {

@@ -13,7 +13,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
-import org.alien4cloud.tosca.catalog.index.ICsarService;
+import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
@@ -68,7 +68,7 @@ public class TopologyService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource
-    private ICsarService csarService;
+    private ICsarDependencyLoader csarDependencyLoader;
     @Resource
     private TopologyServiceCore topologyServiceCore;
     @Inject
@@ -79,7 +79,7 @@ public class TopologyService {
 
     private ToscaTypeLoader initializeTypeLoader(Topology topology, boolean failOnTypeNotFound) {
         // FIXME we should use ToscaContext here, and why not allowing the caller to pass ona Context?
-        ToscaTypeLoader loader = new ToscaTypeLoader(csarService);
+        ToscaTypeLoader loader = new ToscaTypeLoader(csarDependencyLoader);
         Map<String, NodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false, failOnTypeNotFound);
         Map<String, RelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology, failOnTypeNotFound);
         if (topology.getNodeTemplates() != null) {
@@ -88,7 +88,7 @@ public class TopologyService {
                 // just load found types.
                 // the type might be null when failOnTypeNotFound is set to false.
                 if (nodeType != null) {
-                    loader.loadType(nodeTemplate.getType(), csarService.buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
+                    loader.loadType(nodeTemplate.getType(), csarDependencyLoader.buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
                 }
                 if (nodeTemplate.getRelationships() != null) {
 
@@ -98,7 +98,7 @@ public class TopologyService {
                         // the type might be null when failOnTypeNotFound is set to false.
                         if (relationshipType != null) {
                             loader.loadType(relationshipTemplate.getType(),
-                                    csarService.buildDependencyBean(relationshipType.getArchiveName(), relationshipType.getArchiveVersion()));
+                                    csarDependencyLoader.buildDependencyBean(relationshipType.getArchiveName(), relationshipType.getArchiveVersion()));
                         }
                     }
                 }
@@ -107,7 +107,7 @@ public class TopologyService {
         if (topology.getSubstitutionMapping() != null && topology.getSubstitutionMapping().getSubstitutionType() != null) {
             NodeType substitutionType = topology.getSubstitutionMapping().getSubstitutionType();
             loader.loadType(substitutionType.getElementId(),
-                    csarService.buildDependencyBean(substitutionType.getArchiveName(), substitutionType.getArchiveVersion()));
+                    csarDependencyLoader.buildDependencyBean(substitutionType.getArchiveName(), substitutionType.getArchiveVersion()));
         }
         return loader;
     }
@@ -380,7 +380,7 @@ public class TopologyService {
             int comparisonResult = VersionUtil.compare(archiveVersion, topologyDependency.getVersion());
             if (comparisonResult > 0) {
                 // Dependency of the type is more recent, try to upgrade the topology
-                toLoadDependency = csarService.buildDependencyBean(archiveName, archiveVersion);
+                toLoadDependency = csarDependencyLoader.buildDependencyBean(archiveName, archiveVersion);
                 topology.getDependencies().add(toLoadDependency);
                 topology.getDependencies().remove(topologyDependency);
                 Map<String, NodeType> nodeTypes;
@@ -412,7 +412,7 @@ public class TopologyService {
             }
         } else {
             // the type is not yet loaded
-            toLoadDependency = csarService.buildDependencyBean(archiveName, archiveVersion);
+            toLoadDependency = csarDependencyLoader.buildDependencyBean(archiveName, archiveVersion);
         }
         // FIXME Transitive dependencies could change here and thus types be affected ?
         ToscaTypeLoader typeLoader = initializeTypeLoader(topology, true);

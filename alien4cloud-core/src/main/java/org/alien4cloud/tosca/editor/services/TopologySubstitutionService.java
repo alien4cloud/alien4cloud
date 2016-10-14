@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import org.alien4cloud.tosca.catalog.ArchiveDelegateType;
+import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.catalog.index.ICsarService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService;
 import org.alien4cloud.tosca.model.Csar;
@@ -42,6 +43,8 @@ public class TopologySubstitutionService {
     private ICsarService csarService;
     @Resource
     private IToscaTypeIndexerService indexerService;
+    @Resource
+    private ICsarDependencyLoader csarDependencyLoader;
 
     @ToscaContextual
     public void updateSubstitutionType(final Topology topology, Csar csar) {
@@ -55,7 +58,7 @@ public class TopologySubstitutionService {
 
         // first we update the csar and the dependencies
         NodeType nodeType = ToscaContext.getOrFail(NodeType.class, topology.getSubstitutionMapping().getSubstitutionType().getElementId());
-        csar.getDependencies().add(csarService.buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
+        csar.getDependencies().add(csarDependencyLoader.buildDependencyBean(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
         // FIXME manage hash for substitution elements too (should we just generate based on type).
         // csar.setHash("-1");
         csarService.save(csar);

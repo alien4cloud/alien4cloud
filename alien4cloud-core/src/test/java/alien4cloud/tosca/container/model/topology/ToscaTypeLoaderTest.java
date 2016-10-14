@@ -2,7 +2,7 @@ package alien4cloud.tosca.container.model.topology;
 
 import java.util.HashSet;
 
-import org.alien4cloud.tosca.catalog.index.ICsarService;
+import org.alien4cloud.tosca.catalog.index.ICsarDependencyLoader;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.junit.Assert;
 import org.junit.Before;
@@ -15,7 +15,7 @@ import alien4cloud.tosca.container.ToscaTypeLoader;
 
 public class ToscaTypeLoaderTest {
 
-    private ICsarService dependencyLoader;
+    private ICsarDependencyLoader dependencyLoader;
 
     private ToscaTypeLoader loader;
 
@@ -29,7 +29,7 @@ public class ToscaTypeLoaderTest {
 
     @Before
     public void before() {
-        dependencyLoader = Mockito.mock(ICsarService.class);
+        dependencyLoader = Mockito.mock(ICsarDependencyLoader.class);
         Mockito.when(dependencyLoader.getDependencies("tosca-base-types", "1.0")).thenReturn(new HashSet<CSARDependency>());
         Mockito.when(dependencyLoader.getDependencies("java-types", "1.0")).thenReturn(Sets.newHashSet(baseTypes));
         Mockito.when(dependencyLoader.getDependencies("java-types", "2.0")).thenReturn(Sets.newHashSet(baseTypesV2));
