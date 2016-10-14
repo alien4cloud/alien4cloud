@@ -93,6 +93,12 @@
       "CAPABILITY_CARDINALITIES_TOOLTIP" : "upperBound (remaining)",
       "CARDINALITIES_TOOLTIP" : "lowerBound..upperBound (remaining)",
       "DEPENDENCY" : "依存関係",
+      "DEPENDENCIES" : {
+        "CHANGE_VERSION" : {
+          "TITLE": "Change version",
+          "CONFIRM" : "Do you confirm version change for dependency ? This operation can affect some nodes or relations in topology."
+        }
+      },      
       "DESC_TEMPLATE" : "トポロジテンプレートの説明",
       "GROUPS" : {
         "ADD" : "グループの追加",

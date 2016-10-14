@@ -93,6 +93,12 @@
       "CAPABILITY_CARDINALITIES_TOOLTIP" : "maximum (restant)",
       "CARDINALITIES_TOOLTIP" : "minimun..maximum (restant)",
       "DEPENDENCY" : "Dépendances",
+      "DEPENDENCIES" : {
+        "CHANGE_VERSION" : {
+          "TITLE": "Modifier la version",
+          "CONFIRM" : "Confirmez-vous le changement de version de la dépendance ? Cette opération peut affecter certains nodes et/ou relations dans la topologie."
+        }
+      },
       "DESC_TEMPLATE" : "Description du modèle",
       "GROUPS" : {
         "ADD" : "Ajouter un groupe",

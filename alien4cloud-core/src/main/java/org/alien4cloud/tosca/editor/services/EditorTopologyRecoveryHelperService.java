@@ -91,7 +91,7 @@ public class EditorTopologyRecoveryHelperService {
      * @param updatedDependencies The updated dependencies within the topology
      * @return a list of {@link AbstractEditorOperation} representing the operations to perform on the topology for recovery
      */
-    private List<AbstractEditorOperation> buildRecoveryOperations(Topology topology, Set<CSARDependency> updatedDependencies) {
+    public List<AbstractEditorOperation> buildRecoveryOperations(Topology topology, Set<CSARDependency> updatedDependencies) {
         List<AbstractEditorOperation> recoveryOperations = Lists.newArrayList();
         if (!topology.isEmpty()) {
             for (CSARDependency updatedDependency : AlienUtils.safe(updatedDependencies)) {
@@ -283,7 +283,7 @@ public class EditorTopologyRecoveryHelperService {
     }
 
     private boolean isFrom(AbstractToscaType element, CSARDependency dependency) {
-        return Objects.equals(element.getArchiveName(), dependency.getName()) && Objects.equals(element.getArchiveVersion(), dependency.getVersion());
+        return Objects.equals(element.getArchiveName(), dependency.getName()) /*&& Objects.equals(element.getArchiveVersion(), dependency.getVersion())*/;
     }
 
     /**

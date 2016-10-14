@@ -1,0 +1,34 @@
+tosca_definitions_version: alien_dsl_1_2_0
+
+template_name: test-topo-dependencies-types
+template_author: alien
+template_version: 0.5-SNAPSHOT
+description: |
+  The archive has a new dependency
+
+imports:
+  - "tosca-normative-types:1.0.0-SNAPSHOT"
+  - "test-topo-dependencies-trans-types:0.1-SNAPSHOT"
+
+node_types:
+  alien.test.nodes.TestComponentSource:
+    derived_from: alien.test.nodes.TestComponentSourceAncestor
+    requirements:
+      - connect: alien.test.capabilities.TestComponentConnects
+        type: alien.test.relationships.TestComponentConnectsTo
+        occurrences: [1, 1]
+  alien.test.nodes.TestComponent:
+    derived_from: tosca.nodes.SoftwareComponent
+    capabilities:
+      connectivity:
+        type: alien.test.capabilities.TestComponentConnects
+
+capability_types:
+  alien.test.capabilities.TestComponentConnects:
+    derived_from: tosca.capabilities.Node
+
+
+relationship_types:
+  alien.test.relationships.TestComponentConnectsTo:
+    derived_from: tosca.relationships.DependsOn
+
