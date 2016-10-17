@@ -190,10 +190,11 @@ public class EditorService {
         process(operation);
 
         List<AbstractEditorOperation> operations = EditionContextManager.get().getOperations();
-        if (EditionContextManager.get().getLastOperationIndex() == operations.size() - 1) {
+        if (EditionContextManager.get().getLastOperationIndex() != operations.size() - 1 &&  !operations.contains(operation)) {
             // Clear the operations to 'redo'.
             CollectionUtils.clearFrom(operations, EditionContextManager.get().getLastOperationIndex() + 1);
         }
+
         // update the last operation and index
         EditionContextManager.get().getOperations().add(operation);
         EditionContextManager.get().setLastOperationIndex(EditionContextManager.get().getOperations().size() - 1);
