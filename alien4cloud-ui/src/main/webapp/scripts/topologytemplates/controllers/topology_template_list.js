@@ -51,8 +51,7 @@ define(function (require) {
           context.versionName = $stateParams.archiveVersion;
         }
         return context;
-      }],
-      workspaces: [function(){return undefined;}]
+      }]
     }
   });
 
