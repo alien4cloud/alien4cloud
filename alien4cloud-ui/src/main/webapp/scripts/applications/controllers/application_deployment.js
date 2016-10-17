@@ -105,6 +105,7 @@ define(function(require) {
   modules.get('a4c-applications').controller('ApplicationDeploymentCtrl',
     ['$scope', 'authService', 'application', '$state', 'appEnvironments', 'menu', 'deploymentContext', 'deploymentTopologyServices', 'deploymentTopologyProcessor', 'applicationServices', 'tasksProcessor',
       function($scope, authService, applicationResult, $state, appEnvironments, menu, deploymentContext, deploymentTopologyServices, deploymentTopologyProcessor, applicationServices, tasksProcessor) {
+        $scope.validTopologyDTOLoaded = false;
         $scope.deploymentContext = deploymentContext;
         var pageStateId = $state.current.name;
         $scope.menu = menu;
@@ -133,6 +134,7 @@ define(function(require) {
           $scope.isTopologyValid($scope.topologyId).$promise.then(function(validTopologyResult) {
             $scope.validTopologyDTO = validTopologyResult.data;
             tasksProcessor.processAll($scope.validTopologyDTO);
+            $scope.validTopologyDTOLoaded = true;
           });
 
           var processTopologyInfoResult = $scope.processTopologyInformations($scope.topologyId);
@@ -193,11 +195,11 @@ define(function(require) {
         }
 
         $scope.showTodoList = function() {
-          return !$scope.validTopologyDTO.valid && $scope.isManager;
+          return $scope.validTopologyDTOLoaded && !$scope.validTopologyDTO.valid && $scope.isManager;
         };
 
         $scope.showWarningList = function() {
-          return angular.isObject($scope.validTopologyDTO.warningList) && Object.keys($scope.validTopologyDTO.warningList).length > 0;
+          return $scope.validTopologyDTOLoaded && angular.isObject($scope.validTopologyDTO.warningList) && Object.keys($scope.validTopologyDTO.warningList).length > 0;
         };
 
         $scope.showConfgurationsErrors = function() {

@@ -1,0 +1,33 @@
+tosca_definitions_version: alien_dsl_1_2_0
+
+template_name: test-topo-dependencies-types
+template_author: alien
+template_version: 0.4-SNAPSHOT
+description: |
+  Relationship type TestComponentConnectsTo has been removed and 
+  a new relationship has been added
+
+imports:
+  - "tosca-normative-types:1.0.0-SNAPSHOT"
+
+node_types:
+  alien.test.nodes.TestComponentSource:
+    derived_from: tosca.nodes.SoftwareComponent
+    requirements:
+      - connect: alien.test.capabilities.TestComponentConnects
+        type: alien.test.relationships.TestComponentConnectsToChanged
+        occurrences: [1, 1]
+  alien.test.nodes.TestComponent:
+    derived_from: tosca.nodes.SoftwareComponent
+    capabilities:
+      connectivity:
+        type: alien.test.capabilities.TestComponentConnects
+
+capability_types:
+  alien.test.capabilities.TestComponentConnects:
+    derived_from: tosca.capabilities.Node
+
+relationship_types:
+  alien.test.relationships.TestComponentConnectsToChanged:
+    derived_from: tosca.relationships.DependsOn  
+

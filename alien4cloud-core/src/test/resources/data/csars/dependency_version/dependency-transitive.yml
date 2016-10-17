@@ -1,0 +1,21 @@
+tosca_definitions_version: alien_dsl_1_2_0
+
+template_name: test-topo-dependencies-trans-types
+template_author: alien
+template_version: 0.1-SNAPSHOT
+description: Contains the normative types definition.
+
+imports:
+  - "tosca-normative-types:1.0.0-SNAPSHOT"
+
+node_types:
+  alien.test.nodes.TestComponentSourceAncestor:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      my_property:
+        type: string
+        required: true
+        default: "some default value"
+
+
+

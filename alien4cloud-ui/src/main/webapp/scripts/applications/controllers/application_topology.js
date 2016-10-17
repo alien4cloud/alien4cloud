@@ -8,11 +8,7 @@ define(function(require) {
     templateUrl: 'views/topology/topology_editor_layout.html',
     controller: 'TopologyEditorCtrl',
     resolve: {
-      context: function() { return {}; },
-      workspaces: ['application', function(application) {
-        var workspaceId = 'app:' + application.data.id;
-        return [workspaceId, 'ALIEN_GLOBAL_WORKSPACE'];
-      }]
+      context: function() { return {}; }
     },
     menu: {
       id: 'am.applications.detail.topology',

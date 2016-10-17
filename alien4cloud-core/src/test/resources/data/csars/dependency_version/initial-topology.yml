@@ -1,0 +1,34 @@
+tosca_definitions_version: alien_dsl_1_3_0
+description: 
+template_name: test-dependencies-change
+template_version: 0.1.0-SNAPSHOT
+template_author: admin
+
+imports:
+  - tosca-normative-types:1.0.0-SNAPSHOT
+  - test-topo-dependencies-types:0.10-SNAPSHOT
+
+topology_template:
+  node_templates:
+    TestComponent:
+      type: alien.test.nodes.TestComponent
+      requirements:
+        - host:
+            node: Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    Compute:
+      type: tosca.nodes.Compute
+    TestComponentSource:
+      type: alien.test.nodes.TestComponentSource
+      properties:
+        component_version: 777
+      requirements:
+        - host:
+            node: Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+        - connect:
+            node: TestComponent
+            capability: alien.test.capabilities.TestComponentConnects
+            relationship: alien.test.relationships.TestComponentConnectsTo

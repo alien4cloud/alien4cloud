@@ -26,9 +26,9 @@ define(function (require) {
   require('scripts/topology/services/topology_editor_events_services');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles', 'cfp.hotkeys']).controller('TopologyEditorCtrl',
-    ['$scope', 'menu', 'layoutService', 'context', 'workspaces', 'archiveVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',
+    ['$scope', 'menu', 'layoutService', 'context', 'archiveVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',
     'hotkeys','topologyRecoveryServices', '$modal', '$translate', 'toaster', '$state', // 'topologyEditorEventFactory',
-    function($scope, menu, layoutService, context, workspaces, archiveVersions, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys, topologyRecoveryServices, $modal, $translate, toaster, $state) {// , topologyEditorEventFactory) {
+    function($scope, menu, layoutService, context, archiveVersions, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys, topologyRecoveryServices, $modal, $translate, toaster, $state) {// , topologyEditorEventFactory) {
       // register for websockets events
       // var registration = topologyEditorEventFactory($scope.topologyId, function(event) {
       //   console.log('received event', event);
@@ -46,7 +46,6 @@ define(function (require) {
       layoutService.process(menu);
       $scope.menu = menu;
       $scope.getShortName = toscaService.simpleName;
-      $scope.workspaces = workspaces;
       // Manage topology version selection (version is provided as parameter from the template or application)
       $scope.topologyVersions = archiveVersions.data;
       $scope.versionContext = context;
@@ -70,7 +69,12 @@ define(function (require) {
       */
       $scope.refreshTopology = function(topologyDTO, selectedNodeTemplate, initial) {
         $scope.topology = topologyDTO;
-        console.log();
+        if(topologyDTO.topology.workspace === 'ALIEN_GLOBAL_WORKSPACE') {
+          $scope.workspaces = ['ALIEN_GLOBAL_WORKSPACE'];
+        } else {
+          $scope.workspaces = [topologyDTO.topology.workspace, 'ALIEN_GLOBAL_WORKSPACE'];
+        }
+
         $scope.isTopologyTemplate = ($scope.topology.delegateType !== 'APPLICATION');
         // Process the topology to enrich it with some additional data
         _.each(topologyDTO.topology.nodeTemplates, function(value, key){

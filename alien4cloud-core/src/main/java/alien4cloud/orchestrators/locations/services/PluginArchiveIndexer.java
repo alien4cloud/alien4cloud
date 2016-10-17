@@ -6,7 +6,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.index.ArchiveIndexer;
-import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.catalog.index.ICsarService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeIndexerService;
 import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
@@ -55,7 +55,7 @@ public class PluginArchiveIndexer {
     @Inject
     private OrchestratorPluginService orchestratorPluginService;
     @Inject
-    private CsarService csarService;
+    private ICsarService csarService;
     @Inject
     private ArchiveIndexer archiveIndexer;
     @Resource(name = "alien-es-dao")

@@ -16,7 +16,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.ArchiveUploadService;
-import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.catalog.index.ICsarService;
 import org.alien4cloud.tosca.catalog.index.ITopologyCatalogService;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
@@ -88,7 +88,7 @@ public class EditorStepDefs {
     @Inject
     private EditionContextManager editionContextManager;
     @Inject
-    private CsarService csarService;
+    private ICsarService csarService;
     @Inject
     private ITopologyCatalogService catalogService;
     @Inject
@@ -284,7 +284,7 @@ public class EditorStepDefs {
 
     @Given("^I create an empty topology$")
     public void i_create_an_empty_topology() throws Throwable {
-        i_create_an_empty_topology_template(UUID.randomUUID().toString());
+        i_create_an_empty_topology_template(UUID.randomUUID().toString().replaceAll("-", "_"));
     }
 
     @Given("^I create an empty topology template \"([^\"]*)\"$")

@@ -93,6 +93,12 @@
       "CAPABILITY_CARDINALITIES_TOOLTIP" : "maximum (restant)",
       "CARDINALITIES_TOOLTIP" : "minimun..maximum (restant)",
       "DEPENDENCY" : "Dépendances",
+      "DEPENDENCIES" : {
+        "CHANGE_VERSION" : {
+          "TITLE": "Modifier la version",
+          "CONFIRM" : "Confirmez-vous le changement de version de la dépendance ? Cette opération peut affecter certains nodes et/ou relations dans la topologie."
+        }
+      },
       "DESC_TEMPLATE" : "Description du modèle",
       "GROUPS" : {
         "ADD" : "Ajouter un groupe",
@@ -178,8 +184,9 @@
           "MISSING" : "Propriété obligatoire"
         },
         "TOADD_RELATIONSHIP_LABEL" : "Prérequis non statisfaits (ajoutez un lien)",
-        "VALIDATION_FAILLED" : "La topologie n'est pas valide, aller dans l'éditeur de topology pour plus d'informations.",
-        "VALIDATION_SUCCESS" : "La topologie est valide.",
+        "VALIDATION_FAILED" : "La dernière topologie enregistrée n'est pas valide, aller dans l'éditeur de topology pour plus d'informations.",
+        "VALIDATION_SUCCESS" : "La dernière topologie enregistrée est valide.",
+        "VALIDATION_SUCCESS_CURRENT_TOPOLOGY" : "La topologie courante est valide.",
         "WORKFLOWS" : {
           "HAS_ERROR" : "Le workflow '{{workflowName}}' n'est pas valide : {{errorCount}} erreur(s)",
           "TITLE" : "Workflows"
@@ -586,6 +593,11 @@
           "SUCCESS_MSGE": "Envoi vers le dépôt git terminé avec succès."
         }
       }
+    },
+    "VALIDATION" :{
+      "CURRENT_TOPOLOGY": "Topologie courante",
+      "CURRENT_TOPOLOGY_NO_OPERATIONS": "La topologie actuelle n'a pas changé.",
+      "LAST_SAVED_TOPOLOGY": "Dernière topologie enregistrée"
     }
   },
   "END_DATE" : "Date de fin",
@@ -868,7 +880,7 @@
     "DUPLICATE": "Dupliquer la topology",
     "NEW" : "Nouveau Modèle",
     "REMOVE_TITLE": "Comment supprimer un modèle de topologie ?",
-    "REMOVE_CONTENT": "Depuis Alien 1.3.0, tous les modèles de topologie sont liés à une archive. En la supprimant vous supprimerai les deux. Vous pouvez aller sur l'archive approprié en cliquant que le bouton <archive>."
+    "REMOVE_CONTENT": "Tous les modèles de topologie sont liés à une archive. En la supprimant vous supprimerai les deux."
   },
   "TRUE" : "Vrai",
   "UPDATE_DATE" : "Date de mise à jour",

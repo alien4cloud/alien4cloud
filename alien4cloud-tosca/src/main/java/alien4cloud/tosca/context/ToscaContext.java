@@ -98,6 +98,15 @@ public class ToscaContext {
             this.dependencies = dependencies;
         }
 
+        private CSARDependency getDependencyByName(String dependencyName) {
+            for (CSARDependency d : dependencies) {
+                if (d.getName().equals(dependencyName)) {
+                    return d;
+                }
+            }
+            return null;
+        }
+
         /**
          * Update the ToscaContext to take in account the new dependencies.
          *
@@ -138,18 +147,20 @@ public class ToscaContext {
         }
 
         /**
-         * Remove a given dependency from the TOSCA Context.
+         * Remove a given dependency from the TOSCA Context by name.
          *
          * @param removedDependency The dependency to remove.
          */
         public void removeDependency(CSARDependency removedDependency) {
-            if (dependencies.remove(removedDependency)) {
+            CSARDependency existingDependency = getDependencyByName(removedDependency.getName());
+            if (existingDependency != null) {
+                dependencies.remove(existingDependency);
                 List<String> toRemove = Lists.newArrayList();
                 // unload all types from this dependency
                 for (Map<String, AbstractToscaType> elementMap : toscaTypesCache.values()) {
                     for (Map.Entry<String, AbstractToscaType> entry : elementMap.entrySet()) {
-                        if (entry.getValue().getArchiveName().equals(removedDependency.getName())
-                                && entry.getValue().getArchiveVersion().equals(removedDependency.getVersion())) {
+                        if (entry.getValue().getArchiveName().equals(existingDependency.getName())
+                                && entry.getValue().getArchiveVersion().equals(existingDependency.getVersion())) {
                             toRemove.add(entry.getKey());
                         }
                     }

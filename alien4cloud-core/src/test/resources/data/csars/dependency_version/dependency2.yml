@@ -1,0 +1,26 @@
+tosca_definitions_version: alien_dsl_1_2_0
+
+template_name: test-topo-dependencies-types
+template_author: alien
+template_version: 0.2-SNAPSHOT
+description: TestComponent has been deleted.
+
+imports:
+  - "tosca-normative-types:1.0.0-SNAPSHOT"
+
+node_types:
+  alien.test.nodes.TestComponentSource:
+    derived_from: tosca.nodes.SoftwareComponent
+    requirements:
+      - connect: alien.test.capabilities.TestComponentConnects
+        type: alien.test.relationships.TestComponentConnectsTo
+        occurrences: [1, 1]
+
+capability_types:
+  alien.test.capabilities.TestComponentConnects:
+    derived_from: tosca.capabilities.Node
+
+relationship_types:
+  alien.test.relationships.TestComponentConnectsTo:
+    derived_from: tosca.relationships.DependsOn
+

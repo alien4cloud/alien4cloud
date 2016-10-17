@@ -44,21 +44,15 @@
             </td>
             <td ng-if="archiveLink">
               <div class="pull-right">
-                <button class="btn btn-primary" ng-click="clone(topology, $event)" tooltip="{{'TEMPLATE.DUPLICATE' | translate}}">
+                <button class="btn btn-success" ng-click="clone(topology, $event)" tooltip="{{'TEMPLATE.DUPLICATE' | translate}}">
                   <i class="fa fa-copy"></i>
                 </button>
                 <button class="btn btn-default" ng-click="openCsar(topology.id, $event)" tooltip="{{'COMPONENTS.ARCHIVE' | translate}}">
                   <i class="fa fa-archive"></i>
                 </button>
-                <div ng-controller="SimpleModalCtrl" class="btn-group" data-toggle="buttons">
-                  <button id="remove-modal-{{topology.id}}"
-                          ng-click="openSimpleModal('TEMPLATE.REMOVE_TITLE', 'TEMPLATE.REMOVE_CONTENT', $event)"
-                          class="btn btn-danger"
-                          tooltip="{{'TEMPLATE.REMOVE_TITLE' | translate}}"
-                          tooltip-append-to-body="true">
-                    <i class="fa fa-trash-o"></i>
-                  </button>
-                </div>
+                <button class="btn btn-default" ng-click="openDeleteTopologyTemplateModal(topology.id, $event)" tooltip="{{'TEMPLATE.REMOVE_TITLE' | translate}}">
+                  <i class="fa fa-trash-o"></i>
+                </button>
               </div>
             </td>
           </tr>

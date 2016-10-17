@@ -25,14 +25,21 @@ import lombok.SneakyThrows;
  */
 public abstract class ESGenericIdDAO extends ESIndexMapper implements IGenericIdDAO {
 
+    @Override
+    public <T> boolean exist(Class<T> clazz, String id) {
+        return getClient().prepareGet(getIndexForType(clazz), MappingBuilder.indexTypeFromClass(clazz), id).setFields(new String[0]).execute().actionGet()
+                .isExists();
+    }
+
     /**
      * The save method should be in charge to set the creationDate and the lastUpdateDate.
+     * 
      * @param data
      * @param <T>
      */
     private <T> void updateDate(T data) {
         if (data instanceof IUpdatedDate) {
-            IUpdatedDate resource = (IUpdatedDate)data;
+            IUpdatedDate resource = (IUpdatedDate) data;
             resource.setLastUpdateDate(new Date());
             if (resource.getCreationDate() == null) {
                 resource.setCreationDate(resource.getLastUpdateDate());

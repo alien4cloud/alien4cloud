@@ -93,6 +93,12 @@
       "CAPABILITY_CARDINALITIES_TOOLTIP" : "upperBound (remaining)",
       "CARDINALITIES_TOOLTIP" : "lowerBound..upperBound (remaining)",
       "DEPENDENCY" : "依存関係",
+      "DEPENDENCIES" : {
+        "CHANGE_VERSION" : {
+          "TITLE": "Change version",
+          "CONFIRM" : "Do you confirm version change for dependency ? This operation can affect some nodes or relations in topology."
+        }
+      },      
       "DESC_TEMPLATE" : "トポロジテンプレートの説明",
       "GROUPS" : {
         "ADD" : "グループの追加",
@@ -178,8 +184,9 @@
           "MISSING" : "必須プロパティ"
         },
         "TOADD_RELATIONSHIP_LABEL" : "要求不足 (関連を追加する必要あり)",
-        "VALIDATION_FAILLED" : "The topology is not valid, go to the topology editor for more informations.",
-        "VALIDATION_SUCCESS" : "The topology is valid",
+        "VALIDATION_FAILED" : "The last saved topology is not valid, go to the topology editor for more informations.",
+        "VALIDATION_SUCCESS" : "The last saved topology is valid.",
+        "VALIDATION_SUCCESS_CURRENT_TOPOLOGY" : "The current topology is valid.",
         "WORKFLOWS" : {
           "HAS_ERROR" : "Workflow '{{workflowName}}' is not valid : {{errorCount}} error(s)",
           "TITLE" : "Workflows"
@@ -585,6 +592,11 @@
           "SUCCESS_MSGE": "Successfully pushed to git"
         }
       }
+    },
+    "VALIDATION" :{
+      "CURRENT_TOPOLOGY": "Current topology",
+      "CURRENT_TOPOLOGY_NO_OPERATIONS": "The current topology does not have changed.",
+      "LAST_SAVED_TOPOLOGY": "Last saved topology"
     }
   },
   "END_DATE" : "終了日",
@@ -860,7 +872,7 @@
     "DUPLICATE": "Duplicate the topology",
     "NEW" : "新規テンプレート",
     "REMOVE_TITLE": "How to delete a topology template ?",
-    "REMOVE_CONTENT": "Since Alien 1.3.0, all topology templates are linked to an archive. Delete the associate archive to remove both of them. You can go to the appropriate view by clicking on the <archive> button."
+    "REMOVE_CONTENT": "All topology templates are linked to an archive. Delete the associate archive to remove both of them."
   },
   "TRUE" : "True",
   "UPDATE_DATE" : "更新日付",

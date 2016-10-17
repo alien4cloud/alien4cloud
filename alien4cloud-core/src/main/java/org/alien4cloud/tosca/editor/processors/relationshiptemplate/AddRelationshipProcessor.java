@@ -8,7 +8,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import org.alien4cloud.tosca.catalog.index.CsarService;
+import org.alien4cloud.tosca.catalog.index.ICsarService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.exception.CapabilityBoundException;
@@ -53,7 +53,7 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
     @Resource
     private TopologyCapabilityBoundsValidationServices topologyCapabilityBoundsValidationServices;
     @Inject
-    private CsarService csarService;
+    private ICsarService csarService;
 
     @Override
     protected void processNodeOperation(AddRelationshipOperation operation, NodeTemplate sourceNode) {
