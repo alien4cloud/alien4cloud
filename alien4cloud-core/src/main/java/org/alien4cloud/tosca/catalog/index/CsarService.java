@@ -30,6 +30,7 @@ import com.google.common.collect.Sets;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.common.AlienConstants;
+import alien4cloud.dao.FilterUtil;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -326,9 +327,6 @@ public class CsarService implements ICsarService {
 
     @Override
     public FacetedSearchResult search(String query, int from, int size, Map<String, String[]> filters) {
-        if (filters == null) {
-            filters = org.elasticsearch.common.collect.Maps.newHashMap();
-        }
-        return csarDAO.facetedSearch(Csar.class, query, filters, null, from, size);
+        return csarDAO.facetedSearch(Csar.class, query, FilterUtil.singleKeyFilter(filters, "workspace", AlienConstants.GLOBAL_WORKSPACE_ID), null, from, size);
     }
 }

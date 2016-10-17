@@ -63,7 +63,7 @@ define(function (require) {
             toaster.pop('error', title, errorMessage, 4000, 'trustedHtml', null);
           }
           // refresh csar list
-          $scope.search();
+          $scope.searchConfig.service.search()();
         });
       };
     }
