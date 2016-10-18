@@ -196,11 +196,6 @@ define(function (require) {
         }
       };
 
-      //watch the bound data
-      $scope.$watch('refresh', function() {
-        $scope.doSearch(true);
-      });
-
       $scope.heightStyle = function() {
         if ($scope.globalContext) {
           return {

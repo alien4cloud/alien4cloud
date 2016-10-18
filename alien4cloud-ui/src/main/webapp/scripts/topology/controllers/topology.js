@@ -94,7 +94,7 @@ define(function (require) {
       topoEditSubstitution($scope);
       topoEditDependencies($scope);
 
-      var refresh = function(selectedNodeTemplate) {
+      $scope.initializeWorkspacesFilters = function () {
         // if there is workspaces in the scope application add them to the scope
         if(_.defined($scope.workspaces) && $scope.workspaces.length > 0) {
           $scope.staticFacets = {workspace: []};
@@ -104,6 +104,11 @@ define(function (require) {
           $scope.staticFacets.workspace[0].staticFilter = $scope.workspaces;
           $scope.defaultFilters.workspace =  $scope.workspaces;
         }
+      };
+      
+      var refresh = function(selectedNodeTemplate) {
+
+        $scope.initializeWorkspacesFilters();
         
         if(_.undefined($scope.groupCollapsed)) { // we perform this only at init time.
           $scope.groupCollapsed = {};

@@ -367,6 +367,7 @@
     "YES" : "Yes"
   },
   "COMPONENTS" : {
+    "VALIDSOURCES": "Valid sources",
     "ABSTRACT" : "抽象コンポーネント",
     "ACTIVE_FILTERS" : "アクティブフィルター",
     "ARCHIVE" : "アーカイブ",

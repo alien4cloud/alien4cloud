@@ -64,8 +64,11 @@
     </div>
     <!-- Step = 2 selectRelationship -->
     <div ng-switch-when="2" class="row">
-      <alien-search-relationship-type refresh="refresh"
-        on-select-item="onSelectedRelationship(item)" hidden-filters="relationshipHiddenFilters">
+      <alien-search-relationship-type
+        on-select-item="onSelectedRelationship(item)"
+        hidden-filters="relationshipHiddenFilters"
+        default-filters="defaultFilters"
+        static-facets="staticFacets">
       </alien-search-relationship-type>
     </div>
     <!-- Step = 3 selectName -->

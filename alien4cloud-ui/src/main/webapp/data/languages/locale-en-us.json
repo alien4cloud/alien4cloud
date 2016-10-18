@@ -382,6 +382,7 @@
     "YES" : "Yes"
   },
   "COMPONENTS" : {
+    "VALIDSOURCES": "Valid sources",
     "ABSTRACT" : "Abstract component",
     "ACTIVE_FILTERS" : "Active filters",
     "ARCHIVE" : "Archive",
