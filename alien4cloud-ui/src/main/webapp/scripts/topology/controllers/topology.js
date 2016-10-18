@@ -60,19 +60,6 @@ define(function (require) {
     topoEditRelationships,
     topoEditSubstitution,
     topoEditDependencies) {
-      // if there is workspaces in the scope application add them to the scope
-      if(_.defined($scope.workspaces) && $scope.workspaces.length > 0) {
-        if(_.undefined(defaultFilters)) {
-          defaultFilters = {};
-        }
-        $scope.staticFacets = {workspace: []};
-        _.each($scope.workspaces, function(workspace) {
-          $scope.staticFacets.workspace.push({facetValue: workspace, count: ''});
-        });
-        $scope.staticFacets.workspace[0].staticFilter = $scope.workspaces;
-        defaultFilters.workspace =  $scope.workspaces;
-      }
-
       $scope.defaultFilters = defaultFilters;
       $scope.isRuntime = false;
 
@@ -108,6 +95,16 @@ define(function (require) {
       topoEditDependencies($scope);
 
       var refresh = function(selectedNodeTemplate) {
+        // if there is workspaces in the scope application add them to the scope
+        if(_.defined($scope.workspaces) && $scope.workspaces.length > 0) {
+          $scope.staticFacets = {workspace: []};
+          _.each($scope.workspaces, function(workspace) {
+            $scope.staticFacets.workspace.push({facetValue: workspace, count: ''});
+          });
+          $scope.staticFacets.workspace[0].staticFilter = $scope.workspaces;
+          $scope.defaultFilters.workspace =  $scope.workspaces;
+        }
+        
         if(_.undefined($scope.groupCollapsed)) { // we perform this only at init time.
           $scope.groupCollapsed = {};
           _.each($scope.topology.topology.groups, function(value, key) {

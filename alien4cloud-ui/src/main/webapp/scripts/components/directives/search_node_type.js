@@ -8,6 +8,7 @@ define(function (require) {
     return {
       templateUrl: 'views/components/search_node_type_template.html',
       restrict: 'E',
+      controller: 'alienSearchComponentCtrl',
       scope: {
         'refresh': '=',
         'displayDetailPannel': '=',

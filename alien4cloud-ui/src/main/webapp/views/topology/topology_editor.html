@@ -622,12 +622,11 @@
           </div>
 
           <div id="slide-side-bar" style="overflow: auto;">
-            <alien-search-node-type refresh="refresh"
+            <alien-search-node-type ng-if="topology" refresh="refresh"
               display-detail-pannel="false"
               drag-and-drop-enabled="true"
               default-filters="defaultFilters"
               height-info="dimensions"
-              default-filters="defaultFilters"
               static-facets="staticFacets"
               badges="badges" />
           </div>
