@@ -54,6 +54,14 @@ define(function (require) {
           } else {
             return facetId;
           }
+        },
+        toDisplayFacet: function(termId, filterPrefix) {
+          if (termId.startsWith('portability')) {
+            // should not prefix the traduction key from plugin
+            return $filter('translate')($filter('uppercase')(termId));
+          } else {
+            return $filter('translate')($filter('uppercase')(filterPrefix + termId));
+          }
         }
       };
 

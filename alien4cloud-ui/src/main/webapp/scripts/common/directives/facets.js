@@ -107,10 +107,17 @@ define(function (require) {
     };
 
     $scope.toDisplay = function(termId, facetId) {
-      if(_.defined($scope.facetIdConverter)) {
+      if (_.defined($scope.facetIdConverter)) {
         return $scope.facetIdConverter.toDisplay(termId, facetId);
       }
       return facetId;
+    };
+
+    $scope.toDisplayFacet = function(termId, filterPrefix) {
+      if (_.defined($scope.facetIdConverter)) {
+        return $scope.facetIdConverter.toDisplayFacet(termId, filterPrefix);
+      }
+      return termId;
     };
 
     $scope.doSearch();

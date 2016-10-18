@@ -9,10 +9,11 @@
     <div class="facet-choice" collapse="isFacetCollapsed">
         <ul class="nav facet-choice">
             <li ng-repeat="filter in facetFilters">
-                <a href="" ng-click="removeFilter(filter)">{{filterPrefix + (filter.term | uppercase) |
-                    translate}}: <span class="label label-primary">{{ toDisplay(filter.term, filter.facet)  || 'N/A' }}</span>
+                <a href="" ng-click="removeFilter(filter)">{{ toDisplayFacet(filter.term, filterPrefix) }}:
+                  <span class="label label-primary">{{ toDisplay(filter.term, filter.facet)  || 'N/A' }}</span>
                     <i class="fa fa-times"></i>
                 </a>
+
             </li>
         </ul>
     </div>
@@ -20,15 +21,15 @@
 <!-- Displaying all terms and its facets -->
 <div ng-repeat="(term, termFacets) in facets">
     <div ng-click="isFacetCollapsed = !isFacetCollapsed" class="facet-category">
-        <span>{{filterPrefix + (term | uppercase) | translate}}</span>
+        <span>{{ toDisplayFacet(term, filterPrefix) }}</span>
         <i class="pull-right fa"
            ng-class="{'fa-caret-down' : !isFacetCollapsed, 'fa-caret-right': isFacetCollapsed}"></i>
     </div>
     <div class="facet-option" collapse="isFacetCollapsed">
         <ul class="nav facet-option">
             <li ng-repeat="facet in termFacets">
-                <a href="" ng-click="addFilter(term,facet.facetValue)">{{ toDisplay(term, facet.facetValue) || 'N/A' }} <span
-                        class="badge">{{facet.count}}</span>
+                <a href="" ng-click="addFilter(term,facet.facetValue)">{{ toDisplay(term, facet.facetValue) || 'N/A' }}
+                  <span class="badge">{{facet.count}}</span>
                 </a>
             </li>
         </ul>
