@@ -27,21 +27,8 @@ define(function (require) {
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'a4c-tosca', 'a4c-styles', 'cfp.hotkeys']).controller('TopologyEditorCtrl',
     ['$scope', 'menu', 'layoutService', 'context', 'archiveVersions', 'topologyServices', 'topologyJsonProcessor', 'toscaService', 'toscaCardinalitiesService', 'topoEditVersions', '$alresource',
-    'hotkeys','topologyRecoveryServices', '$modal', '$translate', 'toaster', '$state', // 'topologyEditorEventFactory',
-    function($scope, menu, layoutService, context, archiveVersions, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys, topologyRecoveryServices, $modal, $translate, toaster, $state) {// , topologyEditorEventFactory) {
-      // register for websockets events
-      // var registration = topologyEditorEventFactory($scope.topologyId, function(event) {
-      //   console.log('received event', event);
-      // });
-      // var operation = {
-      //   type: 'org.alien4cloud.tosca.editor.commands.AddNodeTemplateOperation',
-      //   message: 'Hello world'
-      // };
-      // registration.send('/app/topology-editor/' + $scope.topologyId, operation);
-      // $scope.$on('$destroy', function() {
-      //   registration.close();
-      // });
-
+    'hotkeys','topologyRecoveryServices', '$modal', '$translate', 'toaster', '$state',
+    function($scope, menu, layoutService, context, archiveVersions, topologyServices, topologyJsonProcessor, toscaService, toscaCardinalitiesService, topoEditVersions, $alresource, hotkeys, topologyRecoveryServices, $modal, $translate, toaster, $state) {
       // This controller acts as a specific layout for the topology edition.
       layoutService.process(menu);
       $scope.menu = menu;

@@ -96,7 +96,6 @@ define(function (require) {
             }
           }
 
-          // console.log('define module', context, name, deps, callback);
           // that's the difference with require js function...
           context.defQueue.push([name, deps, callback]);
           context.localDefined[name] = {};

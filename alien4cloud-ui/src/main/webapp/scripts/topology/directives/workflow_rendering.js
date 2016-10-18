@@ -270,7 +270,7 @@ define(function(require) {
             render(true);
           });
           scope.$on('WfInsertStepPreview', function (event, stepId) {
-            console.log('WfInsertStepPreview event received : ' + event + ', stepId:' + stepId);
+            console.debug('WfInsertStepPreview event received : ' + event + ', stepId:' + stepId);
             setPreviewNode(g);
             var precedingStep;
             if (steps[stepId].precedingSteps.length === 0) {
