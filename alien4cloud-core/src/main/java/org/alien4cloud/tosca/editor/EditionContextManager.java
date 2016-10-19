@@ -56,7 +56,7 @@ public class EditionContextManager {
     @PostConstruct
     public void setup() {
         // initialize the cache
-        contextCache = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.MINUTES).removalListener(new RemovalListener<String, EditionContext>() {
+        contextCache = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.MINUTES).removalListener(new RemovalListener<String, EditionContext>() {
             @Override
             public void onRemoval(RemovalNotification<String, EditionContext> removalNotification) {
                 log.debug("Topology edition context with id {} has been evicted. {} pending operations are lost.", removalNotification.getKey(),

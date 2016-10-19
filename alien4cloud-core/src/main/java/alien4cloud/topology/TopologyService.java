@@ -113,27 +113,6 @@ public class TopologyService {
     }
 
     /**
-     * Get a map of all capability types defined in the given node types.
-     *
-     * @param nodeTypes The collection of node types for which to get capabilities.
-     * @param dependencies The dependencies in which to look for capabilities.
-     * @return A map of capability types defined in the given node types.
-     */
-    public Map<String, CapabilityType> getIndexedCapabilityTypes(Collection<NodeType> nodeTypes, Set<CSARDependency> dependencies) {
-        Map<String, CapabilityType> capabilityTypes = Maps.newHashMap();
-        for (NodeType nodeType : nodeTypes) {
-            if (nodeType.getCapabilities() != null) {
-                for (CapabilityDefinition capabilityDefinition : nodeType.getCapabilities()) {
-                    CapabilityType capabilityType = csarRepoSearchService.getRequiredElementInDependencies(CapabilityType.class, capabilityDefinition.getType(),
-                            dependencies);
-                    capabilityTypes.put(capabilityDefinition.getType(), capabilityType);
-                }
-            }
-        }
-        return capabilityTypes;
-    }
-
-    /**
      * Find replacements nodes for a node template
      *
      * @param nodeTemplateName the node to search for replacements
@@ -293,51 +272,6 @@ public class TopologyService {
     public void checkEditionAuthorizations(Topology topology) {
         checkAuthorizations(topology, new ApplicationRole[] { ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS },
                 new Role[] { Role.ARCHITECT });
-    }
-
-    /**
-     * Create a {@link TopologyDTO} from a topology by fetching node types, relationship types and capability types used in the topology.
-     *
-     * @param topology The topology for which to create a DTO.
-     * @return The {@link TopologyDTO} that contains the given topology
-     */
-    @Deprecated
-    public TopologyDTO buildTopologyDTO(Topology topology) {
-        Map<String, NodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false, true);
-        Map<String, RelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology, true);
-        Map<String, CapabilityType> capabilityTypes = getIndexedCapabilityTypes(nodeTypes.values(), topology.getDependencies());
-        Map<String, Map<String, Set<String>>> outputCapabilityProperties = topology.getOutputCapabilityProperties();
-        Map<String, DataType> dataTypes = getDataTypes(topology, nodeTypes, relationshipTypes, capabilityTypes);
-        return new TopologyDTO(topology, nodeTypes, relationshipTypes, capabilityTypes, outputCapabilityProperties, dataTypes);
-    }
-
-    private Map<String, DataType> getDataTypes(Topology topology, Map<String, NodeType> nodeTypes, Map<String, RelationshipType> relationshipTypes,
-            Map<String, CapabilityType> capabilityTypes) {
-        Map<String, DataType> indexedDataTypes = Maps.newHashMap();
-        indexedDataTypes = fillDataTypes(topology, indexedDataTypes, nodeTypes);
-        indexedDataTypes = fillDataTypes(topology, indexedDataTypes, relationshipTypes);
-        indexedDataTypes = fillDataTypes(topology, indexedDataTypes, capabilityTypes);
-        return indexedDataTypes;
-    }
-
-    private <T extends AbstractInheritableToscaType> Map<String, DataType> fillDataTypes(Topology topology, Map<String, DataType> indexedDataTypes,
-            Map<String, T> elements) {
-        for (AbstractInheritableToscaType indexedNodeType : elements.values()) {
-            if (indexedNodeType.getProperties() != null) {
-                for (PropertyDefinition pd : indexedNodeType.getProperties().values()) {
-                    String type = pd.getType();
-                    if (ToscaType.isPrimitive(type) || indexedDataTypes.containsKey(type)) {
-                        continue;
-                    }
-                    DataType dataType = csarRepoSearchService.getElementInDependencies(DataType.class, type, topology.getDependencies());
-                    if (dataType == null) {
-                        dataType = csarRepoSearchService.getElementInDependencies(PrimitiveDataType.class, type, topology.getDependencies());
-                    }
-                    indexedDataTypes.put(type, dataType);
-                }
-            }
-        }
-        return indexedDataTypes;
     }
 
     /**

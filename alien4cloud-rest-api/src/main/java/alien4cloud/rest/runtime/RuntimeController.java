@@ -16,6 +16,7 @@ import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
+import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -80,6 +81,8 @@ public class RuntimeController {
     private TopologyService topologyService;
     @Resource
     private TopologyServiceCore topologyServiceCore;
+    @Inject
+    private TopologyDTOBuilder topologyDTOBuilder;
     @Inject
     private TopologyTreeBuilderService topologyTreeBuilderService;
     @Inject
@@ -174,7 +177,7 @@ public class RuntimeController {
         }
         Deployment deployment = deploymentService.getActiveDeploymentOrFail(environment.getId());
         DeploymentTopology deploymentTopology = deploymentRuntimeStateService.getRuntimeTopology(deployment.getId());
-        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(deploymentTopology)).build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyDTOBuilder.buidTopologyDTO(deploymentTopology)).build();
     }
 
     private void validateCommand(OperationExecRequest operationRequest, Topology topology) throws ConstraintFunctionalException {

@@ -18,7 +18,6 @@ import lombok.Setter;
 
 /**
  * Topology DTO contains the topology and a map of the types used in the topology.
- * 
  */
 @Getter
 @Setter

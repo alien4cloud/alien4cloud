@@ -1,7 +1,12 @@
 package alien4cloud.deployment;
 
 import java.beans.IntrospectionException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.annotation.Resource;
@@ -9,9 +14,15 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.definitions.PropertyDefinition;
+import org.alien4cloud.tosca.model.definitions.PropertyValue;
 import org.alien4cloud.tosca.model.definitions.ScalarPropertyValue;
 import org.alien4cloud.tosca.model.definitions.constraints.EqualConstraint;
-import org.alien4cloud.tosca.model.templates.*;
+import org.alien4cloud.tosca.model.templates.AbstractPolicy;
+import org.alien4cloud.tosca.model.templates.Capability;
+import org.alien4cloud.tosca.model.templates.LocationPlacementPolicy;
+import org.alien4cloud.tosca.model.templates.NodeGroup;
+import org.alien4cloud.tosca.model.templates.NodeTemplate;
+import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.CapabilityType;
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -146,6 +157,7 @@ public class DeploymentTopologyService {
                 generateDeploymentTopology(id, environment, topology, deploymentTopology);
             }
         }
+
         return deploymentTopology;
     }
 
@@ -227,7 +239,6 @@ public class DeploymentTopologyService {
         ReflectionUtil.mergeObject(topology, deploymentTopology, "id");
         topologyCompositionService.processTopologyComposition(deploymentTopology);
         deploymentInputService.processInputProperties(deploymentTopology);
-        inputsPreProcessorService.processGetInput(deploymentTopology, environment, topology);
         deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
         deploymentNodeSubstitutionService.processNodesSubstitution(deploymentTopology, previousNodeTemplates);
         save(deploymentTopology);
@@ -242,7 +253,6 @@ public class DeploymentTopologyService {
         ApplicationEnvironment environment = appEnvironmentServices.getOrFail(deploymentTopology.getEnvironmentId());
         Topology topology = topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId());
         deploymentInputService.processInputProperties(deploymentTopology);
-        inputsPreProcessorService.processGetInput(deploymentTopology, environment, topology);
         deploymentInputService.processProviderDeploymentProperties(deploymentTopology);
         save(deploymentTopology);
     }
@@ -490,13 +500,16 @@ public class DeploymentTopologyService {
     /**
      * Finalize the deployment topology processing and get it ready to deploy
      *
-     * @param deploymentTopology
+     * @param deploymentTopology The deployment topology that will actually be deployed.
+     * @param environment The environment for which to prepare the deployment topology.
      * @return
      */
-    public DeploymentTopology processForDeployment(DeploymentTopology deploymentTopology) {
+    public Map<String, PropertyValue> processForDeployment(DeploymentTopology deploymentTopology, ApplicationEnvironment environment) {
+        Topology initialTopology = topologyServiceCore.getOrFail(deploymentTopology.getInitialTopologyId());
         // if a property defined as getInput didn't found a value after processing, set it to null
+        Map<String, PropertyValue> inputs = inputsPreProcessorService.injectInputValues(deploymentTopology, environment, initialTopology);
         inputsPreProcessorService.setUnprocessedGetInputToNullValue(deploymentTopology);
-        return deploymentTopology;
+        return inputs;
     }
 
     /**

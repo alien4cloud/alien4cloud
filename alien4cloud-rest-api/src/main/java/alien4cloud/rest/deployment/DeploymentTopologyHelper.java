@@ -4,6 +4,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.alien4cloud.tosca.topology.TopologyDTOBuilder;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -19,19 +20,18 @@ import alien4cloud.utils.ReflectionUtil;
 
 @Component
 public class DeploymentTopologyHelper implements IDeploymentTopologyHelper {
-
     @Inject
     @Lazy(true)
     private ILocationResourceService locationResourceService;
     @Inject
-    private TopologyService topologyService;
+    private TopologyDTOBuilder topologyDTOBuilder;
     @Inject
     private DeploymentTopologyValidationService deploymentTopologyValidationService;
 
     @Override
     public DeploymentTopologyDTO buildDeploymentTopologyDTO(DeploymentConfiguration deploymentConfiguration) {
         DeploymentTopology deploymentTopology = deploymentConfiguration.getDeploymentTopology();
-        TopologyDTO topologyDTO = topologyService.buildTopologyDTO(deploymentTopology);
+        TopologyDTO topologyDTO = topologyDTOBuilder.buidTopologyDTO(deploymentTopology);
         DeploymentTopologyDTO deploymentTopologyDTO = new DeploymentTopologyDTO();
         ReflectionUtil.mergeObject(topologyDTO, deploymentTopologyDTO);
         Map<String, String> locationIds = TopologyLocationUtils.getLocationIds(deploymentTopology);
@@ -45,5 +45,4 @@ public class DeploymentTopologyHelper implements IDeploymentTopologyHelper {
         deploymentTopologyDTO.setLocationResourceTemplates(templates);
         return deploymentTopologyDTO;
     }
-
 }
