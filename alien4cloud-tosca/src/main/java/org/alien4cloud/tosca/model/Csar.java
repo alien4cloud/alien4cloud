@@ -121,28 +121,11 @@ public class Csar implements IManagedSecuredResource {
 
     /**
      * Merge the given dependencies with the current ones.
-     * 
-     * @param dependencies
-     */
-    public void setDependencies(Set<CSARDependency> dependencies) {
-        if (this.dependencies == null) {
-            this.dependencies = dependencies;
-        } else {
-            this.dependencies.addAll(dependencies);
-        }
-    }
-
-    /**
-     * Merge the given dependencies with the current ones.
      *
      * @param dependencies
      */
-    public void setDependencies(Set<CSARDependency> dependencies, boolean override) {
-        if (override) {
-            this.dependencies = dependencies;
-        } else {
-            setDependencies(dependencies);
-        }
+    public void setDependencies(Set<CSARDependency> dependencies) {
+        this.dependencies = dependencies;
     }
 
     /**

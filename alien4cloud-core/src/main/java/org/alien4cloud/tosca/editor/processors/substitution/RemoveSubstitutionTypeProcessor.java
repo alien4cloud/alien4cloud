@@ -1,8 +1,6 @@
 package org.alien4cloud.tosca.editor.processors.substitution;
 
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -10,7 +8,6 @@ import org.alien4cloud.tosca.catalog.index.ICsarService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.substitution.RemoveSubstitutionTypeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorCommitableProcessor;
-import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.Csar;
 import org.alien4cloud.tosca.model.templates.Topology;
 import org.alien4cloud.tosca.model.types.NodeType;
@@ -60,11 +57,7 @@ public class RemoveSubstitutionTypeProcessor implements IEditorCommitableProcess
             throw new DeleteReferencedObjectException("The substitution can not be removed since it's type is already used in at least another topology");
         }
 
-        Set<CSARDependency> oldDependencies = topology.getDependencies();
         topologyService.unloadType(topology, new String[] { substitutionType.getElementId() });
-        if (!Objects.equals(topology.getDependencies(), oldDependencies)) {
-            csarService.setDependencies(topology.getId(), topology.getDependencies());
-        }
         topology.setSubstitutionMapping(null);
     }
 

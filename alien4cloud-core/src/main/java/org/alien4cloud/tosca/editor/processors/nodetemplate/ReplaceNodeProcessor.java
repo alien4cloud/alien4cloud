@@ -2,17 +2,13 @@ package org.alien4cloud.tosca.editor.processors.nodetemplate;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.alien4cloud.tosca.catalog.index.ICsarService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.operations.nodetemplate.ReplaceNodeOperation;
 import org.alien4cloud.tosca.editor.processors.IEditorOperationProcessor;
-import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.SubstitutionTarget;
 import org.alien4cloud.tosca.model.templates.Topology;
@@ -36,13 +32,10 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
     private TopologyService topologyService;
     @Inject
     private WorkflowsBuilderService workflowBuilderService;
-    @Inject
-    private ICsarService csarService;
 
     @Override
     public void process(ReplaceNodeOperation operation) {
         Topology topology = EditionContextManager.getTopology();
-        Set<CSARDependency> oldDependencies = topology.getDependencies();
         // Retrieve existing node template
         Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
         NodeTemplate oldNodeTemplate = TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getNodeName(), nodeTemplates);
@@ -77,10 +70,6 @@ public class ReplaceNodeProcessor implements IEditorOperationProcessor<ReplaceNo
 
         // add the new node to the workflow
         workflowBuilderService.addNode(workflowBuilderService.buildTopologyContext(topology), oldNodeTemplate.getName(), newNodeTemplate);
-        // If dependencies changed then must update also CSAR dependencies
-        if (!Objects.equals(topology.getDependencies(), oldDependencies)) {
-            csarService.setDependencies(topology.getId(), topology.getDependencies());
-        }
     }
 
     private void removeNodeTemplateSubstitutionTargetMapEntry(String nodeTemplateName, Map<String, SubstitutionTarget> substitutionTargets) {

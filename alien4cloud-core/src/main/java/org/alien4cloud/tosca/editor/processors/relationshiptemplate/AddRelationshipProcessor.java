@@ -2,20 +2,16 @@ package org.alien4cloud.tosca.editor.processors.relationshiptemplate;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
-import org.alien4cloud.tosca.catalog.index.ICsarService;
 import org.alien4cloud.tosca.catalog.index.IToscaTypeSearchService;
 import org.alien4cloud.tosca.editor.EditionContextManager;
 import org.alien4cloud.tosca.editor.exception.CapabilityBoundException;
 import org.alien4cloud.tosca.editor.exception.RequirementBoundException;
 import org.alien4cloud.tosca.editor.operations.relationshiptemplate.AddRelationshipOperation;
 import org.alien4cloud.tosca.editor.processors.nodetemplate.AbstractNodeProcessor;
-import org.alien4cloud.tosca.model.CSARDependency;
 import org.alien4cloud.tosca.model.definitions.AbstractPropertyValue;
 import org.alien4cloud.tosca.model.templates.NodeTemplate;
 import org.alien4cloud.tosca.model.templates.RelationshipTemplate;
@@ -52,8 +48,6 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
     private TopologyRequirementBoundsValidationServices topologyRequirementBoundsValidationServices;
     @Resource
     private TopologyCapabilityBoundsValidationServices topologyCapabilityBoundsValidationServices;
-    @Inject
-    private ICsarService csarService;
 
     @Override
     protected void processNodeOperation(AddRelationshipOperation operation, NodeTemplate sourceNode) {
@@ -67,7 +61,6 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
         }
 
         Topology topology = EditionContextManager.getTopology();
-        Set<CSARDependency> oldDependencies = topology.getDependencies();
         Map<String, NodeTemplate> nodeTemplates = TopologyServiceCore.getNodeTemplates(topology);
         // ensure that the target node exists
         TopologyServiceCore.getNodeTemplate(topology.getId(), operation.getTarget(), nodeTemplates);
@@ -124,10 +117,6 @@ public class AddRelationshipProcessor extends AbstractNodeProcessor<AddRelations
         workflowBuilderService.addRelationship(topologyContext, operation.getNodeName(), operation.getRelationshipName());
         log.debug("Added relationship to the topology [" + topology.getId() + "], node name [" + operation.getNodeName() + "], relationship name ["
                 + operation.getRelationshipName() + "]");
-        // If dependencies changed then must update also CSAR dependencies
-        if (!Objects.equals(topology.getDependencies(), oldDependencies)) {
-            csarService.setDependencies(topology.getId(), topology.getDependencies());
-        }
     }
 
     private <T, V> Map<T, V> newLinkedHashMap(Map<T, V> from) {
