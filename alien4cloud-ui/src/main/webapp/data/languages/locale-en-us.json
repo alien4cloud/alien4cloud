@@ -709,6 +709,7 @@
     "831" : "This version can not be renamed since it's already used elsewhere",
     "850" : "Not allowed operation for this type of workflow",
     "860" : "The topology that you select needs recovery",
+    "870" : "The topology that you select cannot be used as it won't be visible in the context of the application",
     "INTERNAL" : "Internal error",
     "UNKNOWN" : "Unknown error"
   },

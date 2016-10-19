@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import org.alien4cloud.tosca.catalog.events.BeforeArchiveDeleted;
 import org.alien4cloud.tosca.catalog.events.BeforeArchiveIndexed;
+import org.alien4cloud.tosca.catalog.events.BeforeArchivePromoted;
 import org.alien4cloud.tosca.catalog.index.ICsarService;
 import org.alien4cloud.tosca.editor.operations.AbstractEditorOperation;
 import org.alien4cloud.tosca.editor.operations.UpdateFileOperation;
@@ -149,6 +150,11 @@ public class EditionContextManager {
     @EventListener
     public void handleArchiveUpdated(BeforeArchiveIndexed event) {
         contextCache.invalidate(event.getArchiveRoot().getArchive().getId());
+    }
+
+    @EventListener
+    public void handleArchivePromoted(BeforeArchivePromoted event) {
+        contextCache.invalidate(event.getArchiveId());
     }
 
     /**
