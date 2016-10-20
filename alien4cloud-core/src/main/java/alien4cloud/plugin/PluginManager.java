@@ -134,7 +134,7 @@ public class PluginManager {
                 try {
                     loadPlugin(plugin);
                 } catch (PluginLoadingException e) {
-                    log.error("Alien server Initialization: failed to load plugin <" + plugin.getId() + ">");
+                    log.error("Alien server Initialization: failed to load plugin <" + plugin.getId() + ">", e);
                     disablePlugin(plugin.getId());
                 }
             } else {
